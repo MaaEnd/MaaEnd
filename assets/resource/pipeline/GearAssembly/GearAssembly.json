@@ -50,7 +50,7 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]GearAssemblySwitchAscending",
-            "GearAssemblySelectFirstGear"
+            "GearAssemblyScrollToTop"
         ]
     },
     "GearAssemblyNonsetGear": {
@@ -87,6 +87,35 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]GearAssemblySwitchAscending",
+            "GearAssemblyScrollToTop"
+        ]
+    },
+    "GearAssemblyScrollToTop": {
+        "desc": "滑动到最上面",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    452,
+                    621
+                ],
+                "end": [
+                    452,
+                    50
+                ],
+                "duration": 2000
+            }
+        },
+        "post_wait_freezes": {
+            "target": [
+                31,
+                58,
+                418,
+                584
+            ],
+            "time": 200
+        },
+        "next": [
             "GearAssemblySelectFirstGear"
         ]
     },
