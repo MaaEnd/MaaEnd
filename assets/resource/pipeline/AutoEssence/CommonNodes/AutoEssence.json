@@ -28,8 +28,8 @@
             "SceneAnyEnterWorld"
         ]
     },
-    "AutoEssenceTryRechallengeFromBattleResult": {
-        "desc": "再来一次",
+    "__AutoEssenceRecoEssenceTrigger": {
+        "desc": "寻找激发的大世界按钮（仅识别）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -42,6 +42,17 @@
                 "template": "AutoEssence/EssenceTrigger.png",
                 "green_mask": true,
                 "order_by": "Score"
+            }
+        }
+    },
+    "AutoEssenceTryRechallengeFromBattleResult": {
+        "desc": "再来一次",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__AutoEssenceRecoEssenceTrigger"
+                ]
             }
         },
         "pre_wait_freezes": 600,
@@ -115,17 +126,11 @@
     "AutoEssenceClickTriggerButton": {
         "desc": "正式识别并点击激发的大世界按钮（Alt 点击）",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "Or",
             "param": {
-                "roi": [
-                    800,
-                    450,
-                    100,
-                    180
-                ],
-                "template": "AutoEssence/EssenceTrigger.png",
-                "green_mask": true,
-                "order_by": "Score"
+                "any_of": [
+                    "__AutoEssenceRecoEssenceTrigger"
+                ]
             }
         },
         "action": {
@@ -275,8 +280,8 @@
             "Node.Action.Starting": "👷无视风险，继续刷取"
         }
     },
-    "AutoEssenceChallengeEnter": {
-        "desc": "识别是否成功进入挑战",
+    "__AutoEssenceRecoEssenceOngoing": {
+        "desc": "寻找挑战进行中的状态（仅识别）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -288,6 +293,17 @@
                 ],
                 "template": "AutoEssence/EssenceOngoing.png",
                 "green_mask": true
+            }
+        }
+    },
+    "AutoEssenceChallengeEnter": {
+        "desc": "识别是否成功进入挑战",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__AutoEssenceRecoEssenceOngoing"
+                ]
             }
         },
         "next": [
@@ -322,16 +338,11 @@
     "AutoEssenceCheckOngoing": {
         "desc": "检查挑战是否仍在进行中",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "Or",
             "param": {
-                "roi": [
-                    0,
-                    40,
-                    260,
-                    330
-                ],
-                "template": "AutoEssence/EssenceOngoing.png",
-                "green_mask": true
+                "any_of": [
+                    "__AutoEssenceRecoEssenceOngoing"
+                ]
             }
         },
         "inverse": true,
@@ -389,8 +400,8 @@
             "AutoEssenceClickObtainButton"
         ]
     },
-    "AutoEssenceClickObtainButton": {
-        "desc": "正式识别并点击领取奖励的大世界按钮（Alt 点击）",
+    "__AutoEssenceRecoEssenceObtain": {
+        "desc": "寻找领取奖励的状态（仅识别）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -404,6 +415,17 @@
                 "green_mask": true,
                 "threshold": 0.45,
                 "order_by": "Score"
+            }
+        }
+    },
+    "AutoEssenceClickObtainButton": {
+        "desc": "正式识别并点击领取奖励的大世界按钮（Alt 点击）",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__AutoEssenceRecoEssenceObtain"
+                ]
             }
         },
         "action": {
@@ -444,18 +466,11 @@
     "AutoEssenceClickDiscardButton": {
         "desc": "正式识别并点击放弃奖励的大世界按钮（Alt 点击）",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "Or",
             "param": {
-                "roi": [
-                    780,
-                    340,
-                    170,
-                    310
-                ],
-                "template": "AutoEssence/EssenceObtain.png",
-                "green_mask": true,
-                "threshold": 0.45,
-                "order_by": "Score"
+                "any_of": [
+                    "__AutoEssenceRecoEssenceObtain"
+                ]
             }
         },
         "action": {
