@@ -47,7 +47,7 @@
         "pre_wait_freezes": 600,
         "pre_delay": 300,
         "next": [
-            "AutoEssenceClickTriggerButtonPre"
+            "AutoEssenceClickTriggerButton"
         ],
         "focus": {
             "Node.Action.Starting": "⚡激发界面开始挑战"
@@ -112,37 +112,8 @@
             "Node.Action.Starting": "😎滴！MapTracker智能导航已就绪"
         }
     },
-    "__AutoEssenceAltKeyUp": {
-        "desc": "释放键盘 Alt 键（通过覆写 AutoEssenceAfterAltKeyUp 锚点即可设置该节点执行完毕后的下一个节点）",
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 18
-            }
-        },
-        "next": [
-            "AutoEssenceMistakeFactoryDevice",
-            "[Anchor]AutoEssenceAfterAltKeyUp"
-        ]
-    },
-    "AutoEssenceClickTriggerButtonPre": {
-        "desc": "准备点击激发的大世界按钮，先按下 Alt 键",
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 18
-            }
-        },
-        "timeout": 1000,
-        "next": [
-            "AutoEssenceClickTriggerButton"
-        ],
-        "on_error": [
-            "AutoEssenceClickTriggerButtonFailedPre"
-        ]
-    },
     "AutoEssenceClickTriggerButton": {
-        "desc": "正式识别并点击激发的大世界按钮",
+        "desc": "正式识别并点击激发的大世界按钮（Alt 点击）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -158,33 +129,28 @@
             }
         },
         "action": {
-            "type": "Click"
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
         },
-        "anchor": {
-            "AutoEssenceAfterAltKeyUp": "AutoEssenceReadyToStart"
-        },
+        "timeout": 2000,
         "next": [
-            "__AutoEssenceAltKeyUp"
+            "AutoEssenceMistakeFactoryDevice",
+            "AutoEssenceReadyToStart"
+        ],
+        "on_error": [
+            "AutoEssenceClickTriggerButtonFailed"
         ],
         "focus": {
             "Node.Action.Starting": "👆点击激发按钮"
         }
     },
-    "AutoEssenceClickTriggerButtonFailedPre": {
-        "desc": "未能识别到激发的大世界按钮，先释放 Alt 键",
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 18
-            }
-        },
-        "next": [
-            "AutoEssenceClickTriggerButtonFailed"
-        ]
-    },
     "AutoEssenceClickTriggerButtonFailed": {
-        "desc": "未能识别到激发的大世界按钮、且释放了 Alt 键之后的守卫节点",
+        "desc": "未能识别到激发的大世界按钮的守卫节点",
         "max_hit": 8,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "[Anchor]AutoEssenceMoveToTriggerPoint"
         ]
@@ -416,23 +382,15 @@
         }
     },
     "AutoEssenceClickObtainButtonPre": {
-        "desc": "准备识别并点击领取奖励（或放弃奖励）的大世界按钮，先按下 Alt 键",
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 18
-            }
-        },
-        "timeout": 1000,
+        "desc": "领取奖励的路由守卫节点（覆写其 next 为 AutoEssenceClickDiscardButton 即可实现不领取奖励）",
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "AutoEssenceClickObtainButton" // 覆写为 AutoEssenceClickDiscardButton 即可实现不领取奖励
-        ],
-        "on_error": [
-            "AutoEssenceClickObtainButtonFailedPre"
+            "AutoEssenceClickObtainButton"
         ]
     },
     "AutoEssenceClickObtainButton": {
-        "desc": "正式识别并点击领取奖励的大世界按钮",
+        "desc": "正式识别并点击领取奖励的大世界按钮（Alt 点击）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -449,50 +407,42 @@
             }
         },
         "action": {
-            "type": "Click",
+            "type": "Custom",
             "param": {
-                "target_offset": [
-                    -10,
-                    15,
-                    -10,
-                    -60
-                ]
+                "custom_action": "AutoAltClickAction",
+                "custom_action_param": {
+                    "target_offset": [
+                        -10,
+                        15,
+                        -10,
+                        -60
+                    ]
+                }
             }
         },
-        "anchor": {
-            "AutoEssenceAfterAltKeyUp": "AutoEssenceChooseScalingPre"
-        },
+        "timeout": 2000,
         "next": [
-            "__AutoEssenceAltKeyUp"
+            "AutoEssenceMistakeFactoryDevice",
+            "AutoEssenceChooseScalingPre"
+        ],
+        "on_error": [
+            "AutoEssenceClickObtainButtonFailed"
         ],
         "focus": {
             "Node.Action.Starting": "👆点击领取奖励按钮"
         }
     },
-    "AutoEssenceClickObtainButtonFailedPre": {
-        "desc": "未能识别到领取奖励（或放弃奖励）的大世界按钮，先释放 Alt 键",
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 18
-            }
-        },
-        "next": [
-            "AutoEssenceClickObtainButtonFailed"
-        ],
-        "focus": {
-            "Node.Action.Starting": "❓未能找到领取奖励按钮"
-        }
-    },
     "AutoEssenceClickObtainButtonFailed": {
-        "desc": "未能识别到领取奖励的大世界按钮、且释放了 Alt 键之后的守卫节点",
+        "desc": "未能识别到领取奖励的大世界按钮的守卫节点",
         "max_hit": 8,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "[Anchor]AutoEssenceMoveToTriggerPoint"
         ]
     },
     "AutoEssenceClickDiscardButton": {
-        "desc": "正式识别并点击放弃奖励的大世界按钮",
+        "desc": "正式识别并点击放弃奖励的大世界按钮（Alt 点击）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -509,21 +459,26 @@
             }
         },
         "action": {
-            "type": "Click",
+            "type": "Custom",
             "param": {
-                "target_offset": [
-                    -10,
-                    60,
-                    -10,
-                    -60
-                ]
+                "custom_action": "AutoAltClickAction",
+                "custom_action_param": {
+                    "target_offset": [
+                        -10,
+                        60,
+                        -10,
+                        -60
+                    ]
+                }
             }
         },
-        "anchor": {
-            "AutoEssenceAfterAltKeyUp": "AutoEssenceConfirmDiscard"
-        },
+        "timeout": 2000,
         "next": [
-            "__AutoEssenceAltKeyUp"
+            "AutoEssenceMistakeFactoryDevice",
+            "AutoEssenceConfirmDiscard"
+        ],
+        "on_error": [
+            "AutoEssenceClickObtainButtonFailed"
         ],
         "focus": {
             "Node.Action.Starting": "👆点击放弃奖励按钮"
@@ -532,6 +487,8 @@
     "AutoEssenceChooseScalingPre": {
         "desc": "准备选择领取倍数的守卫节点",
         "pre_wait_freezes": 1000,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             // 考虑到双倍领取的许可券可能不足，不论是单倍还是双倍领取，都需要点击一次单倍领取的选项
             "AutoEssenceChooseScaling1",
