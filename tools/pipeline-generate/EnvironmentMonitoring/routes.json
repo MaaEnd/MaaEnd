@@ -703,39 +703,18 @@
         "Name": "“旧庭树”",
         "Id": "TreeOfTheOldCourtyard",
         "EnterMap": "SceneEnterWorldWulingMarkerStone1",
-        "MapName": "map02_lv004",
+        "MapName": "Wuling_Base",
         "MapAssert": [
-            491.2,
-            197.9,
-            11.7,
-            10.7
+            480.76,
+            1056.91,
+            21.99,
+            23.92
         ],
-        "MapPath": [
-            [
-                500,
-                210.1
-            ],
-            [
-                520.8,
-                210.3
-            ],
-            [
-                520.8,
-                195.4
-            ],
-            [
-                538.3,
-                194.2
-            ],
-            [
-                539.4,
-                177.8
-            ],
-            [
-                555.8,
-                177.3
-            ]
+        "MapTarget": [
+            98.4,
+            111
         ],
+        "MapTargetTier": "Wuling_L4_330",
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "Heading": 180
     },

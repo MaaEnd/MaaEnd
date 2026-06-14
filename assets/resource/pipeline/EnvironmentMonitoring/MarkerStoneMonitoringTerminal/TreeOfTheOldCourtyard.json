@@ -207,18 +207,14 @@
     "GoToTreeOfTheOldCourtyardStartPos": {
         "desc": "在旧庭树任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        491.2,
-                        197.9,
-                        11.7,
-                        10.7
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                480.76,
+                1056.91,
+                21.99,
+                23.92
             ]
         },
         "next": [
@@ -241,34 +237,21 @@
     "GoToTreeOfTheOldCourtyardMapTrackerMove": {
         "desc": "前往旧庭树",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv004",
             "path": [
-                [
-                    500,
-                    210.1
-                ],
-                [
-                    520.8,
-                    210.3
-                ],
-                [
-                    520.8,
-                    195.4
-                ],
-                [
-                    538.3,
-                    194.2
-                ],
-                [
-                    539.4,
-                    177.8
-                ],
-                [
-                    555.8,
-                    177.3
-                ]
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        98.4,
+                        111
+                    ],
+                    "target_tier": "Wuling_L4_330"
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 180
+                }
             ]
         },
         "anchor": {
@@ -280,18 +263,8 @@
         ]
     },
     "TreeOfTheOldCourtyardAdjustHeading": {
-        "desc": "旧庭树任务中调整角色朝向",
+        "desc": "旧庭树任务无需调整角色朝向",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "path": [
-                {
-                    "action": "HEADING",
-                    "angle": 180
-                }
-            ]
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
