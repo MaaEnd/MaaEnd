@@ -200,6 +200,9 @@ func readRewardTierNodes(ctx *maa.Context) ([]string, error) {
 			Str("element", string(e)).
 			Msg("any_of element is neither a node name nor an inline recognition; skipping")
 	}
+	if len(names) == 0 {
+		return nil, fmt.Errorf("no tier node names found in SeizeDeliveryJobsFindTarget.any_of")
+	}
 	return names, nil
 }
 
