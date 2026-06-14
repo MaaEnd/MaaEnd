@@ -39,10 +39,10 @@
     },
     "SellProductReconstructionCommandSetBeforeSellOperatorAnchor": {
         "desc": "重建指挥部设置售卖前派驻干员锚点",
-        "pre_delay": 0,
         "anchor": {
             "SellProductBeforeSellOperator": ""
         },
+        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -51,10 +51,10 @@
     },
     "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
         "desc": "重建指挥部设置售卖后恢复干员锚点",
-        "pre_delay": 0,
         "anchor": {
             "SellProductAfterSellOperator": "SellProductAfterSellOperator"
         },
+        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -94,16 +94,11 @@
         "desc": "重建指挥部打开派驻干员列表以切换售卖用干员",
         "recognition": "And",
         "all_of": [
+            "SellProductOpenOperatorLiaisonButton",
             "SellProductInReconstructionCommand"
         ],
         "pre_delay": 0,
         "action": "Click",
-        "target": [
-            250,
-            570,
-            30,
-            30
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -323,16 +318,11 @@
         "desc": "重建指挥部打开派驻干员列表以恢复干员",
         "recognition": "And",
         "all_of": [
+            "SellProductOpenOperatorLiaisonButton",
             "SellProductInReconstructionCommand"
         ],
         "pre_delay": 0,
         "action": "Click",
-        "target": [
-            250,
-            570,
-            30,
-            30
-        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
