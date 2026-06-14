@@ -435,10 +435,33 @@ bool NavigationStateMachine::HandleLocalizationLoss()
     if (loss_elapsed >= std::chrono::milliseconds(kLocalizationLossTimeoutMs)) {
         return FailNavigation(
             "localization_lost_timeout",
-            "Localization lost beyond timeout (likely shoved off-route into another zone); terminating navigation.",
+            "Localization lost beyond timeout (re-acquire failed; likely shoved off-route into another zone); terminating navigation.",
             0.0,
             0.0,
             0);
+    }
+
+    const bool relocalize_cooling =
+        last_global_relocalize_at_ != std::chrono::steady_clock::time_point {}
+        && std::chrono::duration_cast<std::chrono::milliseconds>(now - last_global_relocalize_at_)
+               < std::chrono::milliseconds(kRelocationRetryIntervalMs);
+    if (!relocalize_cooling) {
+        last_global_relocalize_at_ = now;
+        const std::string prior_zone = session_->current_zone_id();
+        if (position_provider_->Capture(position_, /*force_global_search=*/true, /*expected_zone_id=*/std::string())) {
+            if (!position_->zone_id.empty() && position_->zone_id != prior_zone) {
+                // Pin subsequent tracking ticks to the zone we actually re-acquired in, else the next
+                // CaptureCurrentPosition(false) would re-impose the stale expected_zone and fail again.
+                session_->UpdateCurrentZone(position_->zone_id);
+            }
+            LogInfo << "Localization recovered via global re-acquire; resuming navigation." << VAR(loss_elapsed.count())
+                    << VAR(prior_zone) << VAR(position_->zone_id) << VAR(position_->x) << VAR(position_->y);
+            loss.Reset();
+            runtime_state_.route.ResetTracking();
+            runtime_state_.nav_run_dirty = true;
+            session_->ResetProgress();
+            return true;
+        }
     }
 
     const bool unstick_cooling = loss.last_unstick_at != std::chrono::steady_clock::time_point {}

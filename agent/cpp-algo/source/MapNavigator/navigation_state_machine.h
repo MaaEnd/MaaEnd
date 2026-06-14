@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <functional>
 
 #include "nav_run_controller.h"
@@ -60,6 +61,7 @@ private:
     MaaContext* maa_context_;
     NavigationRuntimeState runtime_state_ {};
     NavRunController nav_run_controller_ {};
+    std::chrono::steady_clock::time_point last_global_relocalize_at_ {};
 };
 
 } // namespace mapnavigator
