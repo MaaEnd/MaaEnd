@@ -84,10 +84,26 @@ func (r *SeizeDeliveryJobsScanTargetRecognition) Run(ctx *maa.Context, arg *maa.
 	var items []deliveryJobItem
 	for _, tier := range tiers {
 		d, err := ctx.RunRecognition(tier, arg.Img)
-		if err != nil || d == nil || !d.Hit || d.CombinedResult == nil {
+		if err != nil {
+			log.Error().Err(err).
+				Str("component", "SeizeDeliveryJobs").
+				Str("step", "scan_target").
+				Str("tier", tier).
+				Msg("run recognition")
+			continue
+		}
+		if d == nil {
+			log.Warn().
+				Str("component", "SeizeDeliveryJobs").
+				Str("step", "scan_target").
+				Str("tier", tier).
+				Msg("recognition returned nil detail")
+			continue
+		}
+		if !d.Hit {
 			continue // this tier matched nothing on the current list
 		}
-		tierItems, ok := parseTierLeaves(d.CombinedResult)
+		tierItems, ok := parseTierLeaves(d.CombinedResult, tier)
 		if !ok {
 			continue
 		}
@@ -170,17 +186,47 @@ func readRewardTierNodes(ctx *maa.Context) ([]string, error) {
 		var s string
 		if json.Unmarshal(e, &s) == nil {
 			names = append(names, s) // node-name reference
+			continue
 		}
-		// inline recognition objects are skipped
+		// Inline recognition objects are valid per protocol but not used as tier names here.
+		var obj map[string]json.RawMessage
+		if json.Unmarshal(e, &obj) == nil {
+			continue // inline recognition — skip silently
+		}
+		// Anything else (number, bool, null, malformed) is a config error worth surfacing.
+		log.Warn().
+			Str("component", "SeizeDeliveryJobs").
+			Str("step", "scan_target").
+			Str("element", string(e)).
+			Msg("any_of element is neither a node name nor an inline recognition; skipping")
 	}
 	return names, nil
 }
 
 // parseTierLeaves parses a reward-tier template's CombinedResult (5 flat leaves:
 // WulingToken, RewardOcr, OriginOcr, AcceptOcr, ViewLocationOcr — index 0 skipped) into items.
-func parseTierLeaves(combined []*maa.RecognitionDetail) ([]deliveryJobItem, bool) {
+// tier is included in diagnostics for traceability.
+func parseTierLeaves(combined []*maa.RecognitionDetail, tier string) ([]deliveryJobItem, bool) {
 	if len(combined) < 5 {
+		log.Warn().
+			Str("component", "SeizeDeliveryJobs").
+			Str("step", "scan_target").
+			Str("tier", tier).
+			Int("combined_len", len(combined)).
+			Msg("tier CombinedResult has fewer than 5 leaves")
 		return nil, false
+	}
+	// len >= 5 guarantees the slice slots exist, but each *RecognitionDetail could be nil if a tier
+	// returns a sparse/partial CombinedResult; guard before dereferencing.
+	for _, c := range combined[:5] {
+		if c == nil {
+			log.Warn().
+				Str("component", "SeizeDeliveryJobs").
+				Str("step", "scan_target").
+				Str("tier", tier).
+				Msg("tier CombinedResult contains a nil leaf")
+			return nil, false
+		}
 	}
 	var details [4]filteredDetail
 	subNames := [4]string{"reward", "origin", "accept", "view_location"}
@@ -189,6 +235,7 @@ func parseTierLeaves(combined []*maa.RecognitionDetail) ([]deliveryJobItem, bool
 			log.Error().Err(err).
 				Str("component", "SeizeDeliveryJobs").
 				Str("step", "scan_target").
+				Str("tier", tier).
 				Str("sub", subNames[i]).
 				Msg("parse detail json")
 			return nil, false
@@ -206,6 +253,7 @@ func parseTierLeaves(combined []*maa.RecognitionDetail) ([]deliveryJobItem, bool
 				}).
 				Str("component", "SeizeDeliveryJobs").
 				Str("step", "scan_target").
+				Str("tier", tier).
 				Msg("recognition count mismatch")
 			return nil, false
 		}
