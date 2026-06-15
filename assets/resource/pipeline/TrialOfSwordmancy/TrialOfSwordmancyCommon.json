@@ -180,10 +180,10 @@
         "desc": "识别抽取铭牌按钮（模板匹配）",
         "recognition": "TemplateMatch",
         "roi": [
-            1081,
-            510,
-            68,
-            60
+            1071,
+            500,
+            88,
+            80
         ],
         "template": "TrialOfSwordmancy/TrialOfSwordmancyDrawCard.png"
     },
@@ -215,10 +215,10 @@
         "desc": "识别溢出叹号（模板匹配）",
         "recognition": "TemplateMatch",
         "roi": [
-            758,
-            571,
-            29,
-            27
+            748,
+            561,
+            49,
+            47
         ],
         "template": "TrialOfSwordmancy/TrialOfSwordmancyOverflowExclamation.png"
     },
@@ -226,10 +226,10 @@
         "desc": "识别挑战界面背景（模板匹配）",
         "recognition": "TemplateMatch",
         "roi": [
-            375,
-            211,
-            533,
-            59
+            365,
+            201,
+            553,
+            79
         ],
         "template": "TrialOfSwordmancy/TrialOfSwordmancyChallengeBackground.png",
         "green_mask": true
