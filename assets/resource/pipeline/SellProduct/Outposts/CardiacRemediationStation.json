@@ -130,7 +130,7 @@
         ]
     },
     "SellProductCardiacRemediationStationSelectTargetOperator": {
-        "desc": "心脏修缮站在派驻列表中选择售卖用干员",
+        "desc": "心脏修缮站在联络干员列表中选择售卖用干员",
         "recognition": "OCR",
         "roi": [
             164,
@@ -198,7 +198,7 @@
         ]
     },
     "SellProductCardiacRemediationStationCloseTargetOperatorLiaison": {
-        "desc": "心脏修缮站关闭售卖用干员派驻列表",
+        "desc": "心脏修缮站关闭售卖用联络干员列表",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison",
@@ -354,7 +354,7 @@
         ]
     },
     "SellProductCardiacRemediationStationSelectRestoreOperator": {
-        "desc": "心脏修缮站在派驻列表中选择恢复干员",
+        "desc": "心脏修缮站在联络干员列表中选择恢复干员",
         "recognition": "OCR",
         "roi": [
             164,
@@ -422,7 +422,7 @@
         ]
     },
     "SellProductCardiacRemediationStationCloseRestoreOperatorLiaison": {
-        "desc": "心脏修缮站关闭恢复干员派驻列表",
+        "desc": "心脏修缮站关闭恢复干员联络干员列表",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison",
