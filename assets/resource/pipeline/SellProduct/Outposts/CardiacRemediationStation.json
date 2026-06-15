@@ -286,7 +286,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
-            "Node.Recognition.Succeeded": "未在派驻列表中找到配置的售卖用干员，请确认干员已持有或调整据点配置"
+            "Node.Recognition.Succeeded": "未在联络干员列表中找到配置的售卖用干员，请确认干员已持有或调整据点配置"
         }
     },
     // ===== 售卖后联络干员恢复 =====
@@ -507,7 +507,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
-            "Node.Recognition.Succeeded": "未在派驻列表中找到配置的恢复干员，请确认干员已持有或调整据点配置"
+            "Node.Recognition.Succeeded": "未在联络干员列表中找到配置的恢复干员，请确认干员已持有或调整据点配置"
         }
     },
     // ===== 在指定据点的识别节点 =====
