@@ -146,6 +146,8 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	log.Info().Str("map", param.MapName).Int("targetsCount", len(param.Path)).Msg("Starting navigation to targets")
 
+	// Start of all targets, reset cursor and initial movement state
+	ca.ResetCursor(control.CursorResetActive)
 	if !param.NoEnsureInitialMovementState {
 		// Reset player movement state
 		ca.AggressivelyResetPlayerMovement()
@@ -242,7 +244,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					log.Debug().Float64("nextDeltaRot", float64(nextDeltaRot)).Msg("Finishing target, foreseeing rotation adjustment for next target")
 					augNextDeltaRot := float64(nextDeltaRot) * 0.618
 					ca.RotateCamera(int(augNextDeltaRot*rotationSpeed), 0)
-					ca.AggressivelyResetCamera()
+					ca.ResetCursor(control.CursorResetLazy)
 				} else if !param.NoEnsureFinalOrientation && i == len(param.Path)-1 && len(param.Path) >= 2 {
 					// Ensure camera orientation when reached the final target
 					finalTarget := param.Path[len(param.Path)-1]
@@ -251,7 +253,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					orientDeltaRot := calcDeltaRotation(rot, orientTargetRot)
 					log.Debug().Float64("orientDeltaRot", float64(orientDeltaRot)).Msg("Finishing target, ensuring final camera orientation")
 					ca.RotateCamera(int(float64(orientDeltaRot)*rotationSpeed), 0)
-					ca.AggressivelyResetCamera()
+					ca.ResetCursor(control.CursorResetLazy)
 				}
 			}
 
@@ -380,7 +382,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						startTime:       time.Now(),
 						expectedElapsed: ca.GetPlayerMovement().EtaOfRotation(math.Abs(finalDeltaRot)),
 					}
-					ca.AggressivelyResetCamera()
+					ca.ResetCursor(control.CursorResetLazy)
 				}
 			}
 		}
@@ -500,6 +502,8 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 }
 
 func doPlayerStop(ca control.ControlAdaptor) {
+	// Actively reset cursor to prevent other tasks' potential issue
+	ca.ResetCursor(control.CursorResetActive)
 	// Softly stop movement first
 	ca.SetPlayerMovement(control.MovementStop, control.PolicyLazy)
 	// Then reset player to running state to ensure consistent movement state for next navigation

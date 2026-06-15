@@ -41,6 +41,6 @@ func (wca *wlrootsControlAdaptor) RotateCamera(dx, dy int) {
 	wca.SwipeHover(0, 0, 0, dx, dy, defaultDesktopKeyActionDelayMillis*3, defaultDesktopKeyActionDelayMillis)
 }
 
-func (wca *wlrootsControlAdaptor) AggressivelyResetCamera() {
+func (wca *wlrootsControlAdaptor) ResetCursor(_ CursorResetPolicy) {
 	// wlroots uses relative mouse move for camera rotation, no cursor reset needed.
 }

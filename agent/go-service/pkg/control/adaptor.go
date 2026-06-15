@@ -58,13 +58,10 @@ type ControlAdaptor interface {
 	// This will not change the player movement state.
 	PlayerJump()
 
-	// ResetCamera eliminates the side effect of camera rotation solidly.
-	// Different implementations may have different ways to achieve this.
-	ResetCamera()
-
-	// AggressivelyResetCamera eliminates the side effect of camera rotation.
-	// Different implementations may have different ways to achieve this.
-	AggressivelyResetCamera()
+	// ResetCursor eliminates the side effect of camera rotation.
+	// The policy controls the activeness of this action, see [CursorResetPolicy] for details.
+	// Implementations without cursor drift may treat this as a no-op.
+	ResetCursor(policy CursorResetPolicy)
 
 	// AggressivelyResetPlayerMovement provides an aggressive way to reset player movement for initialization purpose.
 	// Different implementations may have different ways to achieve this.
@@ -150,4 +147,16 @@ const (
 	// PolicyActive performs extra key actions to actively ensure the new movement state is achieved,
 	// which may cause more latency but also more robustness.
 	PolicyActive PlayerMovementPolicy = 2
+)
+
+/* ******** Cursor Reset Policy Enumeration ******** */
+
+type CursorResetPolicy int
+
+const (
+	// CursorResetLazy resets the cursor only when it nears a screen edge
+	// or the reset interval has elapsed, avoiding unnecessary reset actions.
+	CursorResetLazy CursorResetPolicy = 0
+	// CursorResetActive always resets the cursor immediately.
+	CursorResetActive CursorResetPolicy = 1
 )

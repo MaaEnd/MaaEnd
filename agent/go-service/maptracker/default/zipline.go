@@ -106,6 +106,7 @@ func (a *MapTrackerZipline) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool
 		return false
 	}
 	similarity := minicv.ImageSimilarity(before, after, [2]int{50, 50})
+	ca.ResetCursor(control.CursorResetActive)
 	if similarity > MINIMAP_SIMILARITY_THRESHOLD {
 		log.Warn().Float64("similarity", similarity).Msg("Zipline fast travel did not start")
 		maafocus.Print(ctx, "未检测到移动")
@@ -205,7 +206,6 @@ func (a *MapTrackerZipline) rotateTowardTarget(ctx *maa.Context, ctrl *maa.Contr
 			return true
 		}
 		ca.RotateCamera(int(float64(deltaRot)*ROTATION_DEFAULT_SPEED), 0)
-		ca.ResetCamera()
 		time.Sleep(rotationInterval)
 	}
 	return false

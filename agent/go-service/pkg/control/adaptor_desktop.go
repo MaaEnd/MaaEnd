@@ -27,6 +27,13 @@ type desktopControlAdaptor struct {
 	keys             desktopKeyBindings
 	pm               PlayerMovement
 	lastMotionIsWalk bool
+
+	// cursorDX, cursorDY track the cursor offset from the screen center accumulated
+	// by camera rotations since the last reset.
+	cursorDX int
+	cursorDY int
+	// lastResetTime records when the camera was last reset, used by the lazy policy.
+	lastResetTime time.Time
 }
 
 func newDesktopControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int, keys desktopKeyBindings) *desktopControlAdaptor {
@@ -93,7 +100,10 @@ func (dca *desktopControlAdaptor) KeyType(keyCode int, delayMillis int) {
 
 func (dca *desktopControlAdaptor) RotateCamera(dx, dy int) {
 	cx, cy := dca.w/2, dca.h/2
-	dca.SwipeHover(0, cx, cy, dx, dy, defaultDesktopKeyActionDelayMillis*3, defaultDesktopKeyActionDelayMillis)
+	fromX, fromY := cx+dca.cursorDX, cy+dca.cursorDY
+	dca.SwipeHover(0, fromX, fromY, dx, dy, defaultDesktopKeyActionDelayMillis*3, defaultDesktopKeyActionDelayMillis)
+	dca.cursorDX += dx
+	dca.cursorDY += dy
 }
 
 func (dca *desktopControlAdaptor) GetPlayerMovement() PlayerMovement {
@@ -159,22 +169,35 @@ func (dca *desktopControlAdaptor) PlayerJump() {
 	dca.KeyType(dca.keys.Space, defaultDesktopKeyActionDelayMillis*4)
 }
 
-func (dca *desktopControlAdaptor) ResetCamera() {
-	// Policy: use ALT key to release mouse cursor and reset its position using a move, then release ALT key
-	cx, cy := dca.w/2, dca.h/2
-	stepDelayMillis := defaultDesktopKeyActionDelayMillis / 3
-	dca.KeyDown(dca.keys.Alt, stepDelayMillis)
-	dca.TouchMove(0, cx, cy, stepDelayMillis)
-	dca.KeyUp(dca.keys.Alt, stepDelayMillis)
-}
-
-func (dca *desktopControlAdaptor) AggressivelyResetCamera() {
+func (dca *desktopControlAdaptor) ResetCursor(policy CursorResetPolicy) {
+	if !dca.shouldResetCursor(policy) {
+		return
+	}
 	// Policy: use ALT key to release mouse cursor and reset its position using a click, then release ALT key
 	cx, cy := dca.w/2, dca.h/2
 	stepDelayMillis := defaultDesktopKeyActionDelayMillis / 3
 	dca.KeyDown(dca.keys.Alt, stepDelayMillis)
 	dca.TouchClick(0, cx, cy, stepDelayMillis, 0)
 	dca.KeyUp(dca.keys.Alt, stepDelayMillis)
+	dca.cursorDX, dca.cursorDY = 0, 0
+	dca.lastResetTime = time.Now()
+}
+
+// shouldResetCursor reports whether the cursor should be reset under the given policy.
+func (dca *desktopControlAdaptor) shouldResetCursor(policy CursorResetPolicy) bool {
+	abs := func(v int) int {
+		if v < 0 {
+			return -v
+		}
+		return v
+	}
+	if policy >= CursorResetActive {
+		return true
+	}
+	if abs(dca.cursorDX) > dca.w/4 || abs(dca.cursorDY) > dca.h/4 {
+		return true
+	}
+	return time.Since(dca.lastResetTime) > cursorResetMaxInterval
 }
 
 func (dca *desktopControlAdaptor) AggressivelyResetPlayerMovement() {
@@ -188,6 +211,9 @@ func (dca *desktopControlAdaptor) AggressivelyResetPlayerMovement() {
 }
 
 const defaultDesktopKeyActionDelayMillis = 25
+
+// cursorResetMaxInterval is the maximum time a lazy cursor reset may be deferred.
+const cursorResetMaxInterval = 2 * time.Second
 
 // defaultDesktopKeyBindings returns the default key bindings for desktop controllers.
 // Values follow Win32 Virtual-Key conventions.
