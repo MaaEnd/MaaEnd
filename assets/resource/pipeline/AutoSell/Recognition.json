@@ -209,5 +209,55 @@
             }
         ],
         "box_index": 2
+    },
+    "AutoSellOwnTicketCountRecognition": {
+        "desc": "识别调度券拥有数量",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "ticket_count",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -300,
+                    0,
+                    300,
+                    80
+                ],
+                "template": [
+                    "AutoSell/TicketOwnValleyIV.png",
+                    "AutoSell/TicketOwnWuling.png"
+                ]
+            },
+            {
+                "sub_name": "text_roi",
+                "recognition": "ColorMatch",
+                "roi": "ticket_count",
+                "roi_offset": [
+                    26,
+                    -5,
+                    100,
+                    10
+                ],
+                "lower": [
+                    200,
+                    200,
+                    200
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": "text_roi",
+                "expected": [
+                    "\\d"
+                ],
+                "only_rec": true
+            }
+        ],
+        "box_index": 2
     }
 }

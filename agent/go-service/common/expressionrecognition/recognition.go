@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -20,8 +22,10 @@ var _ maa.CustomRecognitionRunner = &Recognition{}
 type Recognition struct{}
 
 type Params struct {
-	Expression string `json:"expression"`
-	BoxNode    string `json:"box_node"`
+	Expression                       string `json:"expression"`
+	BoxNode                          string `json:"box_node"`
+	FocusMatchedResolvedExpression   bool   `json:"focus_matched_resolved_expression"`
+	FocusUnmatchedResolvedExpression bool   `json:"focus_unmatched_resolved_expression"`
 }
 
 type nodeDefinition struct {
@@ -94,6 +98,11 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	}
 
 	logEvaluationResult(params.Expression, resolvedExpression, values, matched)
+	if matched && params.FocusMatchedResolvedExpression {
+		maafocus.Print(ctx, i18n.T("expressionrecognition.focus_matched", resolvedExpression))
+	} else if !matched && params.FocusUnmatchedResolvedExpression {
+		maafocus.Print(ctx, i18n.T("expressionrecognition.focus_unmatched", resolvedExpression))
+	}
 
 	if !matched {
 		return nil, false

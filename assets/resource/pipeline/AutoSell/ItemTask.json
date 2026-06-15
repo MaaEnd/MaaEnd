@@ -30,6 +30,7 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTab",
+            "AutoSellTicketValleyIVOverflow",
             "AutoSellStockRedistributionItemOpenInRegionalDevelopment"
         ]
     },
@@ -52,6 +53,7 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTab",
+            "AutoSellTicketWulingOverflow",
             "AutoSellStockRedistributionItemOpenInRegionalDevelopment"
         ]
     },
@@ -126,6 +128,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoSellTicketValleyIVOverflow",
             "AutoSellStockRedistributionItemOpenInFriends",
             "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToValleyIV"
         ]
@@ -150,6 +153,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoSellTicketWulingOverflow",
             "AutoSellStockRedistributionItemOpenInFriends",
             "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToWuling"
         ]
@@ -367,7 +371,9 @@
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{AutoSellFriendsPriceRecognition} >= 5000 "
+            "expression": "{AutoSellFriendsPriceRecognition} >= 5000 ",
+            "focus_matched_resolved_expression": true,
+            "focus_unmatched_resolved_expression": true
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -375,11 +381,7 @@
         "next": [
             "AutoSellFriendsPricesExpectedBuy",
             "AutoSellFriendsPricesExpectedGoTo"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoSell.focus.friends_prices_expected_above_threshold",
-            "Node.Recognition.Failed": "$task.AutoSell.focus.friends_prices_expected_below_threshold"
-        }
+        ]
     },
     "AutoSellFriendsPricesUnExpected": {
         "desc": "价格不符合预期",

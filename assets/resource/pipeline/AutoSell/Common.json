@@ -229,5 +229,29 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "AutoSellTicketValleyIVOverflow": {
+        "desc": "识别四号谷地调度券是否溢出",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "30000000 < {AutoSellOwnTicketCountRecognition}",
+            "focus_matched_resolved_expression": true
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "四号谷地调度券已超过阈值"
+        }
+    },
+    "AutoSellTicketWulingOverflow": {
+        "desc": "识别武陵调度券是否溢出",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "30000000 < {AutoSellOwnTicketCountRecognition}",
+            "focus_matched_resolved_expression": true
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "武陵调度券已超过阈值"
+        }
     }
 }
