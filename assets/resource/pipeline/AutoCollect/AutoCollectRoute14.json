@@ -2,9 +2,15 @@
     "AutoCollectRoute14Start": {
         "desc": "晶化多齿叶",
         "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVTheHub1"
+            ]
+        },
         "next": [
-            "AutoCollectRoute14AssertLocation1",
-            "[JumpBack]SceneEnterWorldValleyIVTheHub1"
+            "AutoCollectRoute14AssertLocation1"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$option.AutoCollectRoute14.label"

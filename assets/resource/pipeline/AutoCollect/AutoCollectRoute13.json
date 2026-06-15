@@ -2,9 +2,15 @@
     "AutoCollectRoute13Start": {
         "desc": "中黯石",
         "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVOriginLodespring3"
+            ]
+        },
         "next": [
-            "AutoCollectRoute13AssertLocation1",
-            "[JumpBack]SceneEnterWorldValleyIVOriginLodespring3"
+            "AutoCollectRoute13AssertLocation1"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$option.AutoCollectRoute13.label"

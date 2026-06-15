@@ -13,9 +13,15 @@
     },
     "AutoCollectCommonRoute8": {
         "desc": "8个金石稻",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingTestArea1"
+            ]
+        },
         "next": [
-            "AutoCollectCommonRoute8AssertLocation1",
-            "[JumpBack]SceneEnterWorldWulingTestArea1"
+            "AutoCollectCommonRoute8AssertLocation1"
         ]
     },
     "AutoCollectCommonRoute8End": {

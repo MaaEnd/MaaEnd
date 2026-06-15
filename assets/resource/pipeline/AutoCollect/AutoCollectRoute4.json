@@ -1,9 +1,15 @@
 {
     "AutoCollectRoute4Start": {
         "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVPowerPlateau3"
+            ]
+        },
         "next": [
-            "AutoCollectRoute4AssertLocation",
-            "[JumpBack]SceneEnterWorldValleyIVPowerPlateau3"
+            "AutoCollectRoute4AssertLocation"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$option.AutoCollectRoute4.label"

@@ -13,9 +13,15 @@
     },
     "AutoCollectCommonRoute2": {
         "desc": "8个黯银柑实",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVTheHub1"
+            ]
+        },
         "next": [
-            "AutoCollectCommonRoute2AssertLocation1",
-            "[JumpBack]SceneEnterWorldValleyIVTheHub1"
+            "AutoCollectCommonRoute2AssertLocation1"
         ]
     },
     "AutoCollectCommonRoute2End": {

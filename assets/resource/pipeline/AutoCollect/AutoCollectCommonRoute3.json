@@ -12,9 +12,15 @@
         }
     },
     "AutoCollectCommonRoute3": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingMarkerStone4"
+            ]
+        },
         "next": [
-            "AutoCollectCommonRoute3AssertLocation1",
-            "[JumpBack]SceneEnterWorldWulingMarkerStone4"
+            "AutoCollectCommonRoute3AssertLocation1"
         ]
     },
     "AutoCollectCommonRoute3End": {

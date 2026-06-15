@@ -13,9 +13,15 @@
     },
     "AutoCollectCommonRoute1": {
         "desc": "10个映火荞花",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVTheHub1"
+            ]
+        },
         "next": [
-            "AutoCollectCommonRoute1AssertLocation1",
-            "[JumpBack]SceneEnterWorldValleyIVTheHub1"
+            "AutoCollectCommonRoute1AssertLocation1"
         ]
     },
     "AutoCollectCommonRoute1End": {

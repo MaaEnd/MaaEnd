@@ -1,9 +1,15 @@
 {
     "AutoCollectRoute6Start": {
         "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVTheHub2"
+            ]
+        },
         "next": [
-            "AutoCollectRoute6AssertLocation",
-            "[JumpBack]SceneEnterWorldValleyIVTheHub2"
+            "AutoCollectRoute6AssertLocation"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$option.AutoCollectRoute6.label"

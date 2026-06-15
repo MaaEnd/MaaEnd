@@ -1,9 +1,15 @@
 {
     "TrialOfSwordmancyGotoTrialArenaStart": {
         "desc": "前往演武入口（子任务入口）",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingSwordVaultDale2"
+            ]
+        },
         "next": [
-            "TrialOfSwordmancyInSwordVaultDale",
-            "[JumpBack]SceneEnterWorldWulingSwordVaultDale2"
+            "TrialOfSwordmancyInSwordVaultDale"
         ]
     },
     "TrialOfSwordmancyGotoTrialArenaExit": {

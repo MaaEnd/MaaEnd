@@ -2,9 +2,15 @@
     "AutoCollectRoute12Start": {
         "desc": "中红柱状菌",
         "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingMarkerStone3"
+            ]
+        },
         "next": [
-            "AutoCollectRoute12AssertLocation1",
-            "[JumpBack]SceneEnterWorldWulingMarkerStone3"
+            "AutoCollectRoute12AssertLocation1"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$option.AutoCollectRoute12.label"

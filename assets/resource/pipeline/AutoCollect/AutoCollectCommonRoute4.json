@@ -12,9 +12,15 @@
         }
     },
     "AutoCollectCommonRoute4": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley6"
+            ]
+        },
         "next": [
-            "AutoCollectCommonRoute4AssertLocation1",
-            "[JumpBack]SceneEnterWorldWulingJingyuValley6"
+            "AutoCollectCommonRoute4AssertLocation1"
         ]
     },
     "AutoCollectCommonRoute4End": {

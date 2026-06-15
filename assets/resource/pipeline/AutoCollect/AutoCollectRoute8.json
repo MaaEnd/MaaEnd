@@ -1,9 +1,15 @@
 {
     "AutoCollectRoute8Start": {
         "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCity7"
+            ]
+        },
         "next": [
-            "AutoCollectRoute8AssertLocation1",
-            "[JumpBack]SceneEnterWorldWulingWulingCity7"
+            "AutoCollectRoute8AssertLocation1"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$option.AutoCollectRoute8.label"

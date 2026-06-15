@@ -2,9 +2,15 @@
     "AutoCollectRoute10Start": {
         "desc": "共两个重红柱状菌采集点",
         "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley1"
+            ]
+        },
         "next": [
-            "AutoCollectRoute10AssertLocation1",
-            "[JumpBack]SceneEnterWorldWulingJingyuValley1"
+            "AutoCollectRoute10AssertLocation1"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$option.AutoCollectRoute10.label"
