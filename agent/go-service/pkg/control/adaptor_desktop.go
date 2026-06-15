@@ -218,25 +218,15 @@ const cursorResetMaxInterval = 2 * time.Second
 // defaultDesktopKeyBindings returns the default key bindings for desktop controllers.
 // Values follow Win32 Virtual-Key conventions.
 func defaultDesktopKeyBindings() desktopKeyBindings {
-	const (
-		vkW     = 0x57
-		vkA     = 0x41
-		vkS     = 0x53
-		vkD     = 0x44
-		vkShift = 0x10
-		vkCtrl  = 0x11
-		vkAlt   = 0x12
-		vkSpace = 0x20
-	)
 	return desktopKeyBindings{
-		W:     vkW,
-		A:     vkA,
-		S:     vkS,
-		D:     vkD,
-		Shift: vkShift,
-		Ctrl:  vkCtrl,
-		Alt:   vkAlt,
-		Space: vkSpace,
+		W:     0x57,
+		A:     0x41,
+		S:     0x53,
+		D:     0x44,
+		Shift: 0x10,
+		Ctrl:  0x11,
+		Alt:   0x12,
+		Space: 0x20,
 	}
 }
 
