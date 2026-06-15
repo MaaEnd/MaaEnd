@@ -651,6 +651,15 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
         candidates = candidateTriangles(zone_id, point, kIndexBinSize);
     }
 
+    // A (u,v) can stack a tiny disconnected fragment (baked wall-top / ledge, never the real walkable floor)
+    // right over the dominant surface. Snapping onto it strands the endpoint in a micro-component and A* then
+    // false-reports Unreachable. Demote such a fragment so a non-island candidate always wins — the same
+    // size cutoff the bridge logic treats as a stitchable island. Only re-ranks when both compete; the common
+    // single-surface (u,v) is untouched.
+    const auto is_small_island = [&](uint32_t triangle_index) {
+        return natural_component_sizes_[natural_component_ids_[triangle_index]] <= kSmallBridgeComponentMaxTriangles;
+    };
+
     if (floor_y > kBaseNavFloorYValidMin) {
         // Floor-aware path: a click in a multi-floor base projects onto several STACKED triangles
         // (other floors / walls overlap this (u,v)). Rank so an in-band surface (|height-floor_y| <=
@@ -659,7 +668,7 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
         // nearest surface (never nullopt), so floor_y only re-ranks onto the right floor, never gates it
         // out. Mirrors basenav_preview.py BaseNavField.snap (floor-aware branch). The zone + bbox culls
         // match the legacy path below so the effective candidate set equals the python tool's.
-        std::optional<std::tuple<int, double, double>> best_key;
+        std::optional<std::tuple<int, int, double, double>> best_key;
         std::optional<BaseNavSnapResult> best_floor;
         for (const uint32_t triangle_index : candidates) {
             if (triangle_zones_[triangle_index] != zone_id) {
@@ -683,7 +692,8 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
                 }
             }
             const double delta = std::abs(triangle_heights_[triangle_index] - static_cast<double>(floor_y));
-            const std::tuple<int, double, double> key { delta <= static_cast<double>(kBaseNavFloorBand) ? 0 : 1, distance, delta };
+            const std::tuple<int, int, double, double> key { delta <= static_cast<double>(kBaseNavFloorBand) ? 0 : 1,
+                                                             is_small_island(triangle_index) ? 1 : 0, distance, delta };
             if (!best_key || key < *best_key) {
                 best_key = key;
                 best_floor = BaseNavSnapResult { .triangle = triangle_index, .point = snapped, .distance = distance };
@@ -692,8 +702,11 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
         return best_floor;
     }
 
+    // Floor-blind path: rank by (non-island first, then snap distance, then smallest index). With no island
+    // in play this is exactly the legacy order — containing surfaces (distance 0) win, ties by smallest index —
+    // so the golden-hash parity holds; it only diverges to skip a micro-component when a real surface competes.
+    std::optional<std::tuple<int, double, uint32_t>> best_key;
     std::optional<BaseNavSnapResult> best;
-    uint32_t inside_triangle = kInvalidTriangle; // 取包含该点的最小下标三角形,与原升序扫描的取舍一致
     for (const uint32_t triangle_index : candidates) {
         if (triangle_zones_[triangle_index] != zone_id) {
             continue;
@@ -706,24 +719,20 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
         if (point.x < left - radius || point.x > right + radius || point.y < top - radius || point.y > bottom + radius) {
             continue;
         }
-        if (detail::PointInTriangle(point, points)) {
-            if (triangle_index < inside_triangle) {
-                inside_triangle = triangle_index; // 不提前返回:候选按格序排列,须扫完才能确定最小下标
+        WorldPoint snapped = point;
+        double distance = 0.0;
+        if (!detail::PointInTriangle(point, points)) {
+            snapped = detail::ClosestPointOnTriangle(point, points);
+            distance = detail::Distance(snapped, point);
+            if (distance > radius) {
+                continue;
             }
-            continue;
         }
-        const WorldPoint snapped = detail::ClosestPointOnTriangle(point, points);
-        const double distance = detail::Distance(snapped, point);
-        if (distance > radius) {
-            continue;
-        }
-        // 距离更近则更新;等距时取更小下标,与原升序扫描的取舍一致。
-        if (!best || distance < best->distance || (distance == best->distance && triangle_index < best->triangle)) {
+        const std::tuple<int, double, uint32_t> key { is_small_island(triangle_index) ? 1 : 0, distance, triangle_index };
+        if (!best_key || key < *best_key) {
+            best_key = key;
             best = BaseNavSnapResult { .triangle = triangle_index, .point = snapped, .distance = distance };
         }
-    }
-    if (inside_triangle != kInvalidTriangle) {
-        return BaseNavSnapResult { .triangle = inside_triangle, .point = point, .distance = 0.0 };
     }
     return best;
 }

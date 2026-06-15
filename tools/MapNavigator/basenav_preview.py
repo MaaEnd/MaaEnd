@@ -561,6 +561,11 @@ class BaseNavField:
         points, segment_breaks = self._triangle_path_points(triangle_path, start_snap.point, goal_snap.point)
         return _BaseNavRoute(points=points, triangles=triangle_path, cost=cost, segment_breaks=segment_breaks)
 
+    def _is_small_island(self, triangle_index: int) -> bool:
+        # A micro-component (baked wall-top / ledge, not the real floor) stacked over the dominant
+        # surface; demote it in snap so a real surface always wins. Same cutoff the bridge logic uses.
+        return self.natural_component_size[self.natural_component[triangle_index]] <= SMALL_BRIDGE_COMPONENT_MAX_TRIANGLES
+
     def snap(
         self,
         zone_id: int,
@@ -576,20 +581,25 @@ class BaseNavField:
         if not candidates and query_radius < SNAP_FALLBACK_RADIUS:
             candidates = self._candidate_triangles(zone_id, point, SNAP_FALLBACK_RADIUS)
         if floor_y is None or floor_y <= FLOOR_Y_VALID_MIN:
-            # Legacy floor-blind path — byte-identical to the pre-floor behavior so a base
-            # view / unbaked zone keeps the 9 golden-hash routing parity exactly.
+            # Floor-blind path: rank by (non-island, distance, index). With no island in play this is the
+            # legacy order (containing surfaces win at distance 0, ties by smallest index) so golden-hash
+            # parity holds; it only diverges to skip a micro-component when a real surface competes. Mirrors
+            # C++ BaseNavPlanner::snap.
+            best_rank: tuple[int, float, int] | None = None
             best: _SnapResult | None = None
             for triangle_index in candidates:
                 triangle_vertices = self._triangle_points(triangle_index)
                 if _point_in_triangle(point, *triangle_vertices):
-                    # 命中即最优(距离 0),提前返回;与 C++ BaseNavPlanner::snap 行为一致,
-                    # 避免在细碎三角形堆叠的 bin 中线性扫遍上万个候选。
-                    return _SnapResult(triangle=triangle_index, point=point, distance=0.0)
-                snapped = _closest_point_on_triangle(point, triangle_vertices)
-                distance = math.hypot(snapped[0] - point[0], snapped[1] - point[1])
-                if distance > query_radius:
-                    continue
-                if best is None or distance < best.distance:
+                    snapped = point
+                    distance = 0.0
+                else:
+                    snapped = _closest_point_on_triangle(point, triangle_vertices)
+                    distance = math.hypot(snapped[0] - point[0], snapped[1] - point[1])
+                    if distance > query_radius:
+                        continue
+                rank = (1 if self._is_small_island(triangle_index) else 0, distance, triangle_index)
+                if best_rank is None or rank < best_rank:
+                    best_rank = rank
                     best = _SnapResult(triangle=triangle_index, point=snapped, distance=distance)
             return best
         # Floor-aware path: a click in a multi-floor base projects onto several STACKED
@@ -598,7 +608,7 @@ class BaseNavField:
         # distance, then by height proximity to floor_y. The band is a PREFERENCE — if
         # nothing lands in-band we still return the nearest surface (never None), so
         # floor_y only re-ranks the snap target onto the correct floor, never gates it out.
-        best_key: tuple[int, float, float] | None = None
+        best_key: tuple[int, int, float, float] | None = None
         best_floor: _SnapResult | None = None
         for triangle_index in candidates:
             triangle_vertices = self._triangle_points(triangle_index)
@@ -611,7 +621,7 @@ class BaseNavField:
                 if distance > query_radius:
                     continue
             delta = abs(self.triangle_height[triangle_index] - floor_y)
-            key = (0 if delta <= FLOOR_BAND else 1, distance, delta)
+            key = (0 if delta <= FLOOR_BAND else 1, 1 if self._is_small_island(triangle_index) else 0, distance, delta)
             if best_key is None or key < best_key:
                 best_key = key
                 best_floor = _SnapResult(triangle=triangle_index, point=snapped, distance=distance)
