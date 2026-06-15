@@ -95,9 +95,10 @@
     },
     "TrialOfSwordmancyDailyGiveUp": {
         "desc": "放弃当前抽取",
-        "recognition": "And",
-        "all_of": [
-            "TrialOfSwordmancyGiveUp"
+        "recognition": "Or",
+        "any_of": [
+            "TrialOfSwordmancyGiveUpLight",
+            "TrialOfSwordmancyGiveUpGrey"
         ],
         "action": "Click",
         "next": [
