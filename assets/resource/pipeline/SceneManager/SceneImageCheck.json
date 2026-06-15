@@ -109,7 +109,8 @@
         "desc": "检查颜色成功",
         "recognition": "And",
         "all_of": [
-            "CancelButton"
+            "CancelButton",
+            "YellowConfirmButtonType1"
         ]
     },
     "__SceneImageCheckAICPlanColorFailedFinish": {
