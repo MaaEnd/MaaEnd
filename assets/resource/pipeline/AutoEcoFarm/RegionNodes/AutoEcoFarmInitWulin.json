@@ -17,7 +17,10 @@
         "anchor": {
             //AutoEcoFarmGotoFarm.json 前往农场部分
             "_AutoEcoFarmTeleportToFarmAnchor": "_AutoEcoFarmTeleportToFarmWulin",
+            //智能导航
             "_AutoEcoFarmGotoEcoFarmBaseNavAnchor": "_AutoEcoFarmGotoEcoFarmBaseNavWulin",
+            "_AutoEcoFarmGotoEcoFarmMapTrackerGoalAnchor": "_AutoEcoFarmGotoEcoFarmMapTrackerGoalWulin",
+            //预设路径
             "_AutoEcoFarmGotoEcoFarmCppAnchor": "_AutoEcoFarmGotoEcoFarmCppWulin",
             "_AutoEcoFarmGotoEcoFarmGoAnchor": "_AutoEcoFarmGotoEcoFarmGoWulin",
             //AutoEcoFarmFindFarmland.json 寻找标记部分
@@ -41,9 +44,9 @@
             "SceneEnterWorldWulingWulingCityCore"
         ]
     },
-    //不同地区前往农场的寻路节点，使用BaseNav语义寻路的节点，只需要填终点坐标，不需要录一整段路径，优先使用这个
+    //智能导航 - Cpp版（NAVMESH语义寻路，只需填终点坐标）
     "_AutoEcoFarmGotoEcoFarmBaseNavWulin": {
-        "desc": "[Wulin版]前往生态农场BaseNav版",
+        "desc": "[Wulin版]前往生态农场NAVMESH版",
         "max_hit": 1,
         "recognition": "DirectHit",
         "action": "Custom",
@@ -62,7 +65,23 @@
         },
         "next": []
     },
-    //不同地区前往农场的寻路节点，使用MapNavigator手动路径的节点，改坐标点序列，具体方法参考对应的文档
+    //智能导航 - Go版（MapTrackerGoal，只需填终点坐标）
+    "_AutoEcoFarmGotoEcoFarmMapTrackerGoalWulin": {
+        "desc": "[Wulin版]前往生态农场MapTrackerGoal版",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerGoal",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "target": [
+                444.7,
+                193.2
+            ]
+        },
+        "next": []
+    },
+    //预设路径 - Cpp版（MapNavigator手动录点）
     "_AutoEcoFarmGotoEcoFarmCppWulin": {
         "desc": "[Wulin版]前往生态农场cpp版",
         "max_hit": 1,
@@ -207,7 +226,7 @@
             //JumpBack
         ]
     },
-    //不同地区前往农场的寻路节点，使用Maptracker的节点，改custom_action_param，具体方法参考对应的文档
+    //预设路径 - Go版（MapTrackerMove录点跟走）
     "_AutoEcoFarmGotoEcoFarmGoWulin": {
         "desc": "[Wulin版]前往生态农场Go版",
         "max_hit": 1,

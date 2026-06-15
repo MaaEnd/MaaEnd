@@ -17,7 +17,10 @@
         "anchor": {
             //AutoEcoFarmGotoFarm.json 前往农场部分
             "_AutoEcoFarmTeleportToFarmAnchor": "_AutoEcoFarmTeleportToFarmValleyIV",
+            //智能导航
             "_AutoEcoFarmGotoEcoFarmBaseNavAnchor": "_AutoEcoFarmGotoEcoFarmBaseNavValleyIV",
+            "_AutoEcoFarmGotoEcoFarmMapTrackerGoalAnchor": "_AutoEcoFarmGotoEcoFarmMapTrackerGoalValleyIV",
+            //预设路径
             "_AutoEcoFarmGotoEcoFarmCppAnchor": "_AutoEcoFarmGotoEcoFarmCppValleyIV",
             "_AutoEcoFarmGotoEcoFarmGoAnchor": "_AutoEcoFarmGotoEcoFarmGoValleyIV",
             //AutoEcoFarmFindFarmland.json 寻找标记部分
@@ -40,9 +43,9 @@
             "SceneEnterWorldValleyIVOriginiumSciencePark2"
         ]
     },
-    //不同地区前往农场的寻路节点，使用BaseNav语义寻路的节点，只需要填终点坐标，不需要录一整段路径，优先使用这个
+    //智能导航 - Cpp版（NAVMESH语义寻路，只需填终点坐标）
     "_AutoEcoFarmGotoEcoFarmBaseNavValleyIV": {
-        "desc": "[ValleyIV版]前往生态农场BaseNav版",
+        "desc": "[ValleyIV版]前往生态农场NAVMESH版",
         "max_hit": 1,
         "recognition": "DirectHit",
         "action": "Custom",
@@ -62,7 +65,23 @@
         },
         "next": []
     },
-    //不同地区前往农场的寻路节点，使用MapNavigator手动路径的节点，改坐标点序列，具体方法参考对应的文档
+    //智能导航 - Go版（MapTrackerGoal，只需填终点坐标）
+    "_AutoEcoFarmGotoEcoFarmMapTrackerGoalValleyIV": {
+        "desc": "[ValleyIV版]前往生态农场MapTrackerGoal版",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerGoal",
+        "custom_action_param": {
+            "map_name": "map01_lv005",
+            "target": [
+                570.7,
+                342.9
+            ]
+        },
+        "next": []
+    },
+    //预设路径 - Cpp版（MapNavigator手动录点）
     "_AutoEcoFarmGotoEcoFarmCppValleyIV": {
         "desc": "[ValleyIV版]前往生态农场cpp版",
         "max_hit": 1,
@@ -287,7 +306,7 @@
             //JumpBack
         ]
     },
-    //不同地区前往农场的寻路节点，使用Maptracker的节点，改节点名和custom_action_param，具体方法参考对应的文档
+    //预设路径 - Go版（MapTrackerMove录点跟走）
     "_AutoEcoFarmGotoEcoFarmGoValleyIV": {
         "desc": "[ValleyIV版]前往生态农场Go版",
         "max_hit": 1,

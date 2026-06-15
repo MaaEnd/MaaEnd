@@ -12,7 +12,7 @@
             "option": [
                 "SelectFarm",
                 "FarmlandFindingScheme",
-                "GotoEcoFarmPathMethod",
+                "GotoEcoFarmNavCategory",
                 "StashBackpackSubTask"
             ],
             "group": [
@@ -160,15 +160,36 @@
                 }
             ]
         },
-        "GotoEcoFarmPathMethod": {
+        "GotoEcoFarmNavCategory": {
             "type": "select",
-            "label": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.label",
-            "description": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.description",
-            "default_case": "BaseNav",
+            "label": "$task.AutoEcoFarm.option.GotoEcoFarmNavCategory.label",
+            "default_case": "SmartNav",
             "cases": [
                 {
-                    "name": "BaseNav",
-                    "label": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[3].label",
+                    "name": "SmartNav",
+                    "label": "$task.AutoEcoFarm.option.GotoEcoFarmNavCategory.cases[1].label",
+                    "option": [
+                        "GotoEcoFarmSmartMethod"
+                    ]
+                },
+                {
+                    "name": "PresetPath",
+                    "label": "$task.AutoEcoFarm.option.GotoEcoFarmNavCategory.cases[2].label",
+                    "option": [
+                        "GotoEcoFarmPresetMethod"
+                    ]
+                }
+            ]
+        },
+
+        "GotoEcoFarmSmartMethod": {
+            "type": "select",
+            "label": "$task.AutoEcoFarm.option.GotoEcoFarmSmartMethod.label",
+            "default_case": "NAVMESH",
+            "cases": [
+                {
+                    "name": "NAVMESH",
+                    "label": "MapNavigator",
                     "pipeline_override": {
                         "_AutoEcoFarmGotoEcoFarmStart": {
                             "next": [
@@ -178,10 +199,17 @@
                             ]
                         }
                     }
-                },
+                }
+            ]
+        },
+        "GotoEcoFarmPresetMethod": {
+            "type": "select",
+            "label": "$task.AutoEcoFarm.option.GotoEcoFarmPresetMethod.label",
+            "default_case": "MapNavigator",
+            "cases": [
                 {
                     "name": "MapNavigator",
-                    "label": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[2].label",
+                    "label": "MapNavigator",
                     "pipeline_override": {
                         "_AutoEcoFarmGotoEcoFarmStart": {
                             "next": [
@@ -194,7 +222,7 @@
                 },
                 {
                     "name": "MapTracker",
-                    "label": "$task.AutoEcoFarm.option.GotoEcoFarmPathMethod.cases[1].label",
+                    "label": "MapTracker",
                     "pipeline_override": {
                         "_AutoEcoFarmGotoEcoFarmStart": {
                             "next": [
