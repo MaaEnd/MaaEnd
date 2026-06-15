@@ -86,7 +86,7 @@
         "AutoSellPriceType": {
             "type": "select",
             "label": "$option.AutoSellPriceType.label",
-            "default_case": "AutoSellPricePerCategory",
+            "default_case": "AutoSellPriceTypePerCategory",
             "cases": [
                 {
                     "name": "AutoSellPriceTypeGlobal",
