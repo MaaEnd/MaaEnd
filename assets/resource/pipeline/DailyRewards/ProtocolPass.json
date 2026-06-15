@@ -456,8 +456,84 @@
         "action": {
             "type": "Click"
         },
+        "anchor": {
+            "SceneNoticeRewardsConfirmNextAnchor": "DailyProtocolRewardsPickNext"
+        },
         "next": [
-            "SceneNoticeRewardsConfirm"
+            "SceneNoticeRewardsConfirmWithAnchor"
         ]
+    },
+    "DailyProtocolRewardsPickNext": {
+        "desc": "领取奖励后下一步操作",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyProtocolRewardsPickTargetedSupply",
+            "DailyProtocolRewardsPickSuccess"
+        ]
+    },
+    "DailyProtocolRewardsPickTargetedSupply": {
+        "desc": "当前在定向补给页面",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    210,
+                    60
+                ],
+                "expected": [
+                    "开启定向补给",
+                    "開啟定向補給",
+                    "Open Targeted Supply",
+                    "特定補給の使用",
+                    "지정 보급 개방"
+                ]
+            },
+            "CancelButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "DailyProtocolRewardsPickTargetedSupplyClose"
+        ]
+    },
+    "DailyProtocolRewardsPickTargetedSupplyClose": {
+        "desc": "当前在定向补给页面确认关闭",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "DailyProtocolRewardsPickSuccess"
+        ]
+    },
+    "DailyProtocolRewardsPickSuccess": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    500,
+                    100
+                ],
+                "expected": [
+                    "通行证奖励",
+                    "通行證獎勵",
+                    "(?i)Pass\\s*Rewards",
+                    "通行証報酬",
+                    "통행증 보상"
+                ]
+            }
+        },
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }
