@@ -188,5 +188,5 @@ const (
 	cameraContact                 = 1
 	sprintButtonContact           = 2
 	jumpButtonContact             = 3
-	defaultTouchActionDelayMillis = 50
+	defaultTouchActionDelayMillis = 60
 )

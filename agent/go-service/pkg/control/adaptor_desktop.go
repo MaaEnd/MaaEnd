@@ -210,7 +210,7 @@ func (dca *desktopControlAdaptor) AggressivelyResetPlayerMovement() {
 	dca.lastMotionIsWalk = false
 }
 
-const defaultDesktopKeyActionDelayMillis = 25
+const defaultDesktopKeyActionDelayMillis = 30
 
 // cursorResetMaxInterval is the maximum time a lazy cursor reset may be deferred.
 const cursorResetMaxInterval = 2 * time.Second

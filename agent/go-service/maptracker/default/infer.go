@@ -94,7 +94,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		return nil, false
 	}
 
-	rotStep := max(2, min(8, int(math.Round(8-param.Precision*6))))
+	rotStep := max(2, min(6, int(math.Round(6-param.Precision*4))))
 
 	// Initialize map resources
 	internal.Resource.InitRawMaps(ctx)
