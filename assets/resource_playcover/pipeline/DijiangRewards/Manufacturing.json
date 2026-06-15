@@ -1,0 +1,31 @@
+{
+    "MFGCabinExit": {
+        "desc": "PlayCover 触摸版：点击制造舱右上关闭按钮返回控制中枢",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InMFGCabin",
+                    "CloseButtonType1"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                300,
+                100
+            ],
+            "timeout": 1000
+        },
+        "post_delay": 0,
+        "next": [
+            "InDijiangControlNexus"
+        ]
+    }
+}

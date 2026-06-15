@@ -1,0 +1,26 @@
+{
+    "__ScenePrivateMenuListEnterWorld": {
+        "desc": "PlayCover 触摸版：从菜单总列表点击右上角关闭区域返回大世界",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InMenuList"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            1190,
+            0,
+            90,
+            90
+        ],
+        "post_delay": 1500,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterWorldSuccess"
+        ]
+    }
+}

@@ -24,5 +24,8 @@
             "type": "Click"
         },
         "post_delay": 600
+    },
+    "__ScenePrivateCloseADBExit": {
+        "action": "Click"
     }
 }
