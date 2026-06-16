@@ -41,8 +41,8 @@
         "enabled": true,
         "recognition": "Or",
         "any_of": [
-            "AutoUseSpMedicationFindGreenDeadlineEmergencySanityBooster",
-            "AutoUseSpMedicationFindRedDeadlineEmergencySanityBooster"
+            "AutoUseSpMedicationFindRedDeadlineEmergencySanityBooster",
+            "AutoUseSpMedicationFindGreenDeadlineEmergencySanityBooster"
         ],
         "action": "Click",
         "post_wait_freezes": 300,
