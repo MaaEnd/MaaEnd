@@ -60,7 +60,6 @@
             "ColorRecognitionGreenEmergencySanityBooster"
         ]
     },
-
     "FindGreenDeadlineEmergencySanityBooster": {
         "recognition": {
             "type": "TemplateMatch",
@@ -104,7 +103,6 @@
             }
         }
     },
-
     "AutoUseSpMedicationSelectRedDeadlineEmergencySanityBooster": {
         "desc": "选择红色时限应急理智加强剂",
         "enabled": true,
