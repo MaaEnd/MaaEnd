@@ -382,6 +382,29 @@
         },
         "post_delay": 0,
         "next": [
+            "TrialOfSwordmancyDailyConfirmDrawCard",
+            "TrialOfSwordmancyDailyMainLoop"
+        ]
+    },
+    "TrialOfSwordmancyDailyConfirmDrawCard": {
+        "desc": "首次抽牌到第三抽时，会提醒抽取后无法更改翻倍选项，点击确认",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                55,
+                145,
+                976,
+                290
+            ]
+        },
+        "post_delay": 0,
+        "next": [
             "TrialOfSwordmancyDailyMainLoop"
         ]
     },
