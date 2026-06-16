@@ -619,33 +619,27 @@
             "Node.Action.Succeeded": "行动成功次数已满，结束任务"
         }
     },
-    "ProtocolSpaceRewardSanityLowFilter": {
-        "recognition": "ColorMatch",
-        "method": 4,
-        "lower": [
-            100,
-            50,
-            50
-        ],
-        "upper": [
-            255,
-            130,
-            130
-        ]
-    },
     "ProtocolSpaceRewardUsePermitSanityLow": {
         "desc": "使用理智消耗许可时理智不足",
-        "recognition": "OCR",
+        "recognition": "ColorMatch",
         "roi": [
             680,
             530,
             110,
             35
         ],
-        "expected": [
-            "\\d"
+        "method": 4,
+        "lower": [
+            180,
+            90,
+            90
         ],
-        "color_filter": "ProtocolSpaceRewardSanityLowFilter",
+        "upper": [
+            255,
+            130,
+            130
+        ],
+        "count": 30,
         "next": [
             "ProtocolSpaceRewardDontUsePermit"
         ],
@@ -655,17 +649,25 @@
     },
     "ProtocolSpaceRewardSanityLow": {
         "desc": "理智不足",
-        "recognition": "OCR",
+        "recognition": "ColorMatch",
         "roi": [
             680,
             530,
-            90,
+            110,
             35
         ],
-        "expected": [
-            "\\d"
+        "method": 4,
+        "lower": [
+            180,
+            90,
+            90
         ],
-        "color_filter": "ProtocolSpaceRewardSanityLowFilter",
+        "upper": [
+            255,
+            130,
+            130
+        ],
+        "count": 30,
         "focus": {
             "Node.Recognition.Succeeded": "理智不足，结束任务"
         }
