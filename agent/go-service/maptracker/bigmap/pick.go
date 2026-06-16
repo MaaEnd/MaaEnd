@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"regexp"
 	"sync"
+	"time"
 
 	internal "github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/internal"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
@@ -110,6 +111,7 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		}
 
 		// Infer current big-map viewport
+		time.Sleep(INFER_PRE_DELAY_MS * time.Millisecond)
 		inferRes, err := doBigMapInferForMap(ctx, ctrl, param.MapName)
 		if err != nil {
 			log.Error().Err(err).Str("map", param.MapName).Int("attempt", attempt).Msg("Currently not in that map")
@@ -155,9 +157,8 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			Msg("Big-map target is not in viewport, need to pan")
 
 		segments := rand.Intn(3) + 1
-		if !doDragViewport(ca, &inferRes.ViewPort, deltaInViewX, deltaInViewY, panFactor, segments) {
-			continue
-		}
+		doDragViewport(ca, &inferRes.ViewPort, deltaInViewX, deltaInViewY, panFactor, segments)
+		time.Sleep(PAN_POST_DELAY_MS * time.Millisecond)
 	}
 
 	log.Error().
