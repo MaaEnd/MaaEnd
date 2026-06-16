@@ -1,0 +1,18 @@
+{
+    "ColorRecognitionGreenEmergencySanityBooster": {
+        "roi_offset": [
+            0,
+            0,
+            -64,
+            -103
+        ]
+    },
+    "ColorRecognitionRedEmergencySanityBooster": {
+        "roi_offset": [
+            0,
+            0,
+            -64,
+            -103
+        ]
+    }
+}
