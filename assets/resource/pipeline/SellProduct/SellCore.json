@@ -164,7 +164,10 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoopEnd"
+        ]
     },
     "SellProductZeroMoneyWithTip": {
         "desc": "调度券不足（仅未成交时提示）",
@@ -175,6 +178,9 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductSellLoopEnd"
+        ],
         "focus": {
             "Node.Recognition.Succeeded": "该据点调度券不足，过一会再来吧"
         }
