@@ -149,7 +149,7 @@
     "tasker.aspect_ratio_warning.controller_label": "当前控制器：",
     "tasker.aspect_ratio_warning.current_resolution": "当前分辨率：",
     "tasker.aspect_ratio_warning.requirement_label": "目标要求：",
-    "tasker.aspect_ratio_warning.requirement_exact": "精确 %dx%d",
+    "tasker.aspect_ratio_warning.requirement_exact": "%dx%d",
     "tasker.aspect_ratio_warning.requirement_ratio": "16:9 比例且不低于 1280x720；例如 3840x2160、2560x1440、1920x1080、1280x720",
     "tasker.aspect_ratio_warning.full_screen_illegal": "窗口模式；全屏模式需使用物理分辨率16:9的显示器，当前显示器不符合",
     "maptracker.emergency_stop.title": "🚨 EMERGENCY STOP",
