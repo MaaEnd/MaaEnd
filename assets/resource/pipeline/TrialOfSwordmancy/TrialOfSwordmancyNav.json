@@ -63,7 +63,7 @@
         "recognition": "Or",
         "any_of": [
             "TrialOfSwordmancyDrawCard",
-            "TrialOfSwordmancyCantDrawCard"
+            "TrialOfSwordmancyEnemyCard5"
         ],
         "pre_wait_freezes": {
             "time": 100,
