@@ -39,7 +39,7 @@ type MapTrackerBigMapPickParam struct {
 	// AutoOpenMapScene controls whether to automatically open the big map scene before picking.
 	AutoOpenMapScene bool `json:"auto_open_map_scene,omitempty"`
 	// ZoomValue is the target zoom slider position.
-	// If omitted, defaults to 0.7. Set to 0 to disable auto zoom. Other values should be in range (0, 1].
+	// If omitted, defaults to 0.725. Set to 0 to disable auto zoom. Other values should be in range (0, 1].
 	ZoomValue *float64 `json:"zoom_value,omitempty"`
 }
 
@@ -51,7 +51,7 @@ const (
 
 var mapTrackerBigMapPickDefaultParam = MapTrackerBigMapPickParam{
 	OnFind:    ON_FIND_CLICK,
-	ZoomValue: func() *float64 { v := 0.7; return &v }(),
+	ZoomValue: func() *float64 { v := 0.725; return &v }(),
 }
 
 var _ maa.CustomActionRunner = &MapTrackerBigMapPick{}

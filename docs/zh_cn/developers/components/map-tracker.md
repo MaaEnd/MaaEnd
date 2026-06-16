@@ -386,7 +386,7 @@
 
 - `auto_open_map_scene`: 真假值，默认 `false`。是否预先自动打开对应的大地图界面。此功能依赖于 SceneManager 系列节点。未启用此功能的情况下，请确认玩家当前已经处于对应的大地图界面。
 
-- `zoom_value`: 控制在寻找目标点之前的自动缩放调整行为，详情参见 [MapTrackerBigMapZoom](#action-maptrackerbigmapzoom) 节点的 `zoom_value` 参数。
+- `zoom_value`: 控制在寻找目标点之前的自动缩放调整行为，详情参见 [MapTrackerBigMapZoom](#action-maptrackerbigmapzoom) 节点的 `zoom_value` 参数。不填时，默认值为 0.725。
 
 #### 示例用法
 
