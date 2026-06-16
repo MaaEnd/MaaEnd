@@ -232,7 +232,7 @@ constexpr int kAssertStableWindow = kColdStartConsensusFrames;
 constexpr double kAssertStableRadius = kPositionConsensusRadius;
 constexpr auto kAssertSettlePollDelay = std::chrono::milliseconds(250);
 
-bool IsAssertWindowSettled(const std::vector<MapPosition>& window, double radius, MapPosition* out_centroid)
+bool IsAssertWindowSettled(const std::vector<MapPosition>& window, MapPosition* out_centroid)
 {
     if (static_cast<int>(window.size()) < kAssertStableWindow) {
         return false;
@@ -247,7 +247,7 @@ bool IsAssertWindowSettled(const std::vector<MapPosition>& window, double radius
     centroid.x = sx / static_cast<double>(window.size());
     centroid.y = sy / static_cast<double>(window.size());
     for (const auto& p : window) {
-        if (std::hypot(p.x - centroid.x, p.y - centroid.y) > radius) {
+        if (std::hypot(p.x - centroid.x, p.y - centroid.y) > kAssertStableRadius) {
             return false;
         }
     }
@@ -472,7 +472,7 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
             if (static_cast<int>(window.size()) > kAssertStableWindow) {
                 window.erase(window.begin());
             }
-            if (IsAssertWindowSettled(window, kAssertStableRadius, &stable_pos)) {
+            if (IsAssertWindowSettled(window, &stable_pos)) {
                 settled = true;
                 break;
             }
