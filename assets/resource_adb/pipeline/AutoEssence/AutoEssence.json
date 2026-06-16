@@ -1,5 +1,5 @@
 {
-    "AutoEssenceClickTriggerButton": {
+    "__AutoEssenceRecoEssenceTrigger": {
         "desc": "正式识别并点击激发的大世界按钮（ADB）",
         "recognition": {
             "type": "TemplateMatch",
