@@ -1,12 +1,4 @@
 {
-    "ReceptionRoomSendCluesClueCollectionFullClose": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 4
-            }
-        }
-    },
     "ReceptionRoomSendCluesSwipe": {
         "action": {
             "type": "Swipe",

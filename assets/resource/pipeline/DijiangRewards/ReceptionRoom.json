@@ -359,10 +359,7 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {
-                "contact": 1
-            }
+            "type": "Click"
         },
         "post_delay": 0,
         "rate_limit": 0,

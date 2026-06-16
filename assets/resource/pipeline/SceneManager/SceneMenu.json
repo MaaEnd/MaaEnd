@@ -6,12 +6,13 @@
             "InMenuList"
         ],
         "pre_delay": 0,
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 27 // ESC
-            }
-        },
+        "action": "Click",
+        "target": [
+            -20,
+            20,
+            50,
+            50
+        ],
         "post_delay": 1500, // 3D动画菜单会一直动无法用wait_freeze
         "rate_limit": 0,
         "next": [

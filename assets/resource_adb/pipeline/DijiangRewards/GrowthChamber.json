@@ -1,21 +1,5 @@
 {
-    "GrowthChamberGrowBack": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 4
-            }
-        }
-    },
     "GrowthChamberBackExtract": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 4
-            }
-        }
-    },
-    "GrowthChamberExit": {
         "action": {
             "type": "ClickKey",
             "param": {
