@@ -1035,7 +1035,8 @@
     "task.TrialOfSwordmancy.label": "🗡️검술 연무",
     "task.TrialOfSwordmancy.description": "일일 검술 연무 / 코팅 파밍 자동 완료",
     "option.TrialOfSwordmancyMode.label": "작업 모드",
-    "option.TrialOfSwordmancyMode.description": "일일 검술 연무: 자동 카드 뽑기 및 전투\n코팅 파밍: 자유 연산 모드에서 명함 뽑기 화면으로 시작하세요",
+    "option.TrialOfSwordmancyMode.description": "일일 검술 연무: 자동 카드 뽑기 및 전투\n코팅 파밍: 자유 연산 모드에서 명함 뽑기 화면으로 시작하세요\n25점 파밍: 코팅 파밍과 동일, 자유 연산 모드에서 명함 뽑기 화면으로 시작하세요",
     "option.TrialOfSwordmancyMode.cases.Daily.label": "일일 검술 연무",
-    "option.TrialOfSwordmancyMode.cases.Coating.label": "코팅 파밍"
+    "option.TrialOfSwordmancyMode.cases.Coating.label": "코팅 파밍",
+    "option.TrialOfSwordmancyMode.cases.Farm25.label": "25점 파밍"
 }

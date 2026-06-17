@@ -863,5 +863,12 @@
     "resource/image/TrialOfSwordmancy/TrialOfSwordmancyGiveUpLight": "c30564332c3d5443de8b27675cc797dea7c99510518f8ab51ff50bd9b4e6953c",
     "resource/image/TrialOfSwordmancy/TrialOfSwordmancyChallengeBackground": "f06af020f910e7617f9952fa044a0f6f5f90cb6e1778753e0ba4fea6d03aaa69",
     "resource/image/AutoSell/TicketOwnWuling": "df3dfb4dea769ec5439f7f076a176168f3b78340e9dc4787968ccdc98c09ad6b",
-    "resource/image/AutoSell/TicketOwnValleyIV": "2302b1359f4ff3a7871e2b557e51ec8b713f6ea9a2887795f41eceaf92acf8f5"
+    "resource/image/AutoSell/TicketOwnValleyIV": "2302b1359f4ff3a7871e2b557e51ec8b713f6ea9a2887795f41eceaf92acf8f5",
+    "resource/image/TrialOfSwordmancy/DrawCard": "ecec9442fd5f819bae8e461bcb3f5e45d0b3b7d7edb870e5087f53e1bad8a12f",
+    "resource/image/TrialOfSwordmancy/EnemyCard": "404a23ebfb2cc2f1b88709e6fc69be86a7f8babab1319c4e241297c86829284b",
+    "resource/image/TrialOfSwordmancy/GiveUpGrey": "e27a90446ab0c2d4f4fc3348fc4beb5f03aea76ae36f52e461609a2148363e65",
+    "resource/image/TrialOfSwordmancy/GiveUpHover": "3b5f804a93a402d5534c62337f8995ee16ebe60c5dd9422c935a29af414dc8fa",
+    "resource/image/TrialOfSwordmancy/ChallengeBackground": "f06af020f910e7617f9952fa044a0f6f5f90cb6e1778753e0ba4fea6d03aaa69",
+    "resource/image/TrialOfSwordmancy/OverflowExclamation": "764c37d79f192ef848977b540212a1b93a8b42cff562de9d923dc4a0413f67ba",
+    "resource/image/TrialOfSwordmancy/GiveUpNormal": "c30564332c3d5443de8b27675cc797dea7c99510518f8ab51ff50bd9b4e6953c"
 }

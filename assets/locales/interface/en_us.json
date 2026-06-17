@@ -1035,7 +1035,8 @@
     "task.TrialOfSwordmancy.label": "🗡️Trial of Swordmancy",
     "task.TrialOfSwordmancy.description": "Automatically complete Daily Trial of Swordmancy / Farm Coating",
     "option.TrialOfSwordmancyMode.label": "Task Mode",
-    "option.TrialOfSwordmancyMode.description": "Daily Trial of Swordmancy: Auto draw cards and battle\nFarm Coating: Start from the nameplate drawing screen in Free Calculation mode",
+    "option.TrialOfSwordmancyMode.description": "Daily Trial of Swordmancy: Auto draw cards and battle\nFarm Coating: Start from the nameplate drawing screen in Free Calculation mode\nFarm 25 Points: Same as Farm Coating — start from the nameplate drawing screen in Free Calculation mode",
     "option.TrialOfSwordmancyMode.cases.Daily.label": "Daily Trial of Swordmancy",
-    "option.TrialOfSwordmancyMode.cases.Coating.label": "Farm Coating"
+    "option.TrialOfSwordmancyMode.cases.Coating.label": "Farm Coating",
+    "option.TrialOfSwordmancyMode.cases.Farm25.label": "Farm 25 Points"
 }

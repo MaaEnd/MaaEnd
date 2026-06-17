@@ -140,8 +140,7 @@
         "desc": "刷镀层放弃当前抽取",
         "recognition": "Or",
         "any_of": [
-            "TrialOfSwordmancyGiveUpLight",
-            "TrialOfSwordmancyGiveUpGrey"
+            "TrialOfSwordmancyGiveUp"
         ],
         "action": "Click",
         "next": [

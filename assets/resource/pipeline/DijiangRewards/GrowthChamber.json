@@ -565,10 +565,7 @@
             }
         },
         "action": {
-            "type": "Click",
-            "param": {
-                "contact": 1
-            }
+            "type": "Click"
         },
         "next": [
             "GrowthChamberGrowViewIn"
@@ -820,16 +817,14 @@
             "param": {
                 "all_of": [
                     "InGrowthChamber",
-                    "FacilityDetails"
+                    "FacilityDetails",
+                    "CloseButtonType1"
                 ],
-                "box_index": 1
+                "box_index": 2
             }
         },
         "action": {
-            "type": "Click",
-            "param": {
-                "contact": 1
-            }
+            "type": "Click"
         },
         "next": [
             "InDijiangControlNexus"

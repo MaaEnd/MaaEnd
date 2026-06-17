@@ -1035,7 +1035,8 @@
     "task.TrialOfSwordmancy.label": "🗡️剣術演武",
     "task.TrialOfSwordmancy.description": "デイリー剣術演武 / コーティング周回を自動完了",
     "option.TrialOfSwordmancyMode.label": "タスクモード",
-    "option.TrialOfSwordmancyMode.description": "デイリー剣術演武：自動でカードを引いて戦闘\nコーティング周回：自由演算モード中、銘牌ガチャ画面からタスクを開始してください",
+    "option.TrialOfSwordmancyMode.description": "デイリー剣術演武：自動でカードを引いて戦闘\nコーティング周回：自由演算モード中、銘牌ガチャ画面からタスクを開始してください\n25点周回：コーティング周回と同様、自由演算モード中、銘牌ガチャ画面からタスクを開始してください",
     "option.TrialOfSwordmancyMode.cases.Daily.label": "デイリー剣術演武",
-    "option.TrialOfSwordmancyMode.cases.Coating.label": "コーティング周回"
+    "option.TrialOfSwordmancyMode.cases.Coating.label": "コーティング周回",
+    "option.TrialOfSwordmancyMode.cases.Farm25.label": "25点周回"
 }

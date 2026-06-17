@@ -1,10 +1,50 @@
 {
-    "TrialOfSwordmancyHasResource": {
-        "desc": "还有奖励次数",
-        "max_hit": 3 // 未实现，先拿 maxhit 顶一下
+    "TrialOfSwordmancyEnemyCard1": {
+        "desc": "第1张敌人卡牌",
+        "recognition": "TemplateMatch",
+        "roi": [
+            119,
+            318,
+            125,
+            118
+        ],
+        "template": "TrialOfSwordmancy/EnemyCard.png"
     },
-    "TrialOfSwordmancyCantDrawCard": {
-        "desc": "抽卡满5次了，无法抽取铭牌",
+    "TrialOfSwordmancyEnemyCard2": {
+        "desc": "第2张敌人卡牌",
+        "recognition": "TemplateMatch",
+        "roi": [
+            318,
+            318,
+            125,
+            118
+        ],
+        "template": "TrialOfSwordmancy/EnemyCard.png"
+    },
+    "TrialOfSwordmancyEnemyCard3": {
+        "desc": "第3张敌人卡牌",
+        "recognition": "TemplateMatch",
+        "roi": [
+            517,
+            318,
+            125,
+            118
+        ],
+        "template": "TrialOfSwordmancy/EnemyCard.png"
+    },
+    "TrialOfSwordmancyEnemyCard4": {
+        "desc": "第4张敌人卡牌",
+        "recognition": "TemplateMatch",
+        "roi": [
+            716,
+            318,
+            125,
+            118
+        ],
+        "template": "TrialOfSwordmancy/EnemyCard.png"
+    },
+    "TrialOfSwordmancyEnemyCard5": {
+        "desc": "第5张敌人卡牌",
         "recognition": "TemplateMatch",
         "roi": [
             915,
@@ -12,7 +52,7 @@
             125,
             118
         ],
-        "template": "TrialOfSwordmancy/MonsterCard.png"
+        "template": "TrialOfSwordmancy/EnemyCard.png"
     },
     "TrialOfSwordmancyBattlePts0": {
         "desc": "战力点0",
@@ -185,10 +225,55 @@
             88,
             80
         ],
-        "template": "TrialOfSwordmancy/TrialOfSwordmancyDrawCard.png"
+        "template": "TrialOfSwordmancy/DrawCard.png"
     },
-    "TrialOfSwordmancyGiveUpLight": {
-        "desc": "识别高亮放弃按钮（模板匹配）",
+    "TrialOfSwordmancyRewardMode": {
+        "desc": "识别奖励演算模式",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    160,
+                    531,
+                    80,
+                    41
+                ],
+                "template": "TrialOfSwordmancy/RewardMode1.png"
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    160,
+                    531,
+                    80,
+                    41
+                ],
+                "template": "TrialOfSwordmancy/RewardMode2.png"
+            }
+        ]
+    },
+    "TrialOfSwordmancyDoubleReward": {
+        "desc": "识别双倍演算按钮（模板匹配）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            857,
+            602,
+            64,
+            71
+        ],
+        "template": "TrialOfSwordmancy/DoubleReward.png"
+    },
+    "TrialOfSwordmancyGiveUp": {
+        "desc": "放弃按钮",
+        "recognition": "Or",
+        "any_of": [
+            "TrialOfSwordmancyGiveUpNormal",
+            "TrialOfSwordmancyGiveUpHover"
+        ]
+    },
+    "TrialOfSwordmancyGiveUpNormal": {
+        "desc": "识别常态放弃按钮（模板匹配）",
         "recognition": "TemplateMatch",
         "roi": [
             31,
@@ -196,8 +281,18 @@
             58,
             53
         ],
-
-        "template": "TrialOfSwordmancy/TrialOfSwordmancyGiveUpLight.png"
+        "template": "TrialOfSwordmancy/GiveUpNormal.png"
+    },
+    "TrialOfSwordmancyGiveUpHover": {
+        "desc": "识别放弃按钮悬停（模板匹配）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            31,
+            611,
+            58,
+            53
+        ],
+        "template": "TrialOfSwordmancy/GiveUpHover.png"
     },
     "TrialOfSwordmancyGiveUpGrey": {
         "desc": "识别灰色放弃按钮（模板匹配）",
@@ -208,8 +303,7 @@
             58,
             53
         ],
-
-        "template": "TrialOfSwordmancy/TrialOfSwordmancyGiveUpGrey.png"
+        "template": "TrialOfSwordmancy/GiveUpGrey.png"
     },
     "TrialOfSwordmancyOverflowExclamation": {
         "desc": "识别溢出叹号（模板匹配）",
@@ -220,7 +314,7 @@
             49,
             47
         ],
-        "template": "TrialOfSwordmancy/TrialOfSwordmancyOverflowExclamation.png"
+        "template": "TrialOfSwordmancy/OverflowExclamation.png"
     },
     "TrialOfSwordmancyChallengeBackground": {
         "desc": "识别挑战界面背景（模板匹配）",
@@ -231,7 +325,7 @@
             553,
             79
         ],
-        "template": "TrialOfSwordmancy/TrialOfSwordmancyChallengeBackground.png",
+        "template": "TrialOfSwordmancy/ChallengeBackground.png",
         "green_mask": true
     }
 }

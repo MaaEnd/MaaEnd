@@ -225,15 +225,7 @@
         },
         "pre_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    -30,
-                    50,
-                    0,
-                    0
-                ]
-            }
+            "type": "Click"
         },
         "post_delay": 400, // 上方tips出现需要时间，可能显示也可能不显示，避免连续点击不同干员导致覆盖提示判断错误
         "rate_limit": 0,
@@ -263,15 +255,7 @@
         },
         "pre_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    -30,
-                    50,
-                    0,
-                    0
-                ]
-            }
+            "type": "Click"
         },
         "post_delay": 400, // 上方tips出现需要时间，可能显示也可能不显示，避免连续点击不同干员导致覆盖提示判断错误
         "rate_limit": 0,

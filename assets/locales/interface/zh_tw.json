@@ -1035,7 +1035,8 @@
     "task.TrialOfSwordmancy.label": "🗡️選劍演武",
     "task.TrialOfSwordmancy.description": "自動完成每日選劍演武 / 刷刻章鍍層",
     "option.TrialOfSwordmancyMode.label": "任務模式",
-    "option.TrialOfSwordmancyMode.description": "每日選劍演武：自動抽牌並自動作戰\n刷鍍層：請在處於自由演算模式下，於抽取銘牌界面開始任務",
+    "option.TrialOfSwordmancyMode.description": "每日選劍演武：自動抽牌並自動作戰\n刷鍍層：請在處於自由演算模式下，於抽取銘牌界面開始任務\n刷25點：同刷鍍層，請在處於自由演算模式下，於抽取銘牌界面開始任務",
     "option.TrialOfSwordmancyMode.cases.Daily.label": "每日選劍演武",
-    "option.TrialOfSwordmancyMode.cases.Coating.label": "刷鍍層"
+    "option.TrialOfSwordmancyMode.cases.Coating.label": "刷鍍層",
+    "option.TrialOfSwordmancyMode.cases.Farm25.label": "刷25點"
 }

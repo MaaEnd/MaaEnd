@@ -388,17 +388,15 @@
             "param": {
                 "all_of": [
                     "InMFGCabin",
-                    "FacilityDetails"
+                    "FacilityDetails",
+                    "CloseButtonType1"
                 ],
-                "box_index": 1
+                "box_index": 2
             }
         },
         "pre_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {
-                "contact": 1
-            }
+            "type": "Click"
         },
         "post_delay": 0,
         "rate_limit": 0,

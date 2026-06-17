@@ -1,126 +1,437 @@
 {
     "TrialOfSwordmancyDailyMain": {
         "desc": "日常选剑演武入口",
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "TrialOfSwordmancyInTrialMenu",
+            "TrialOfSwordmancyDailyCheckRewardMode",
             "[JumpBack]TrialOfSwordmancyEnterTrialMenu",
             "[JumpBack]TrialOfSwordmancyGotoTrialArenaStart"
         ]
     },
-    "TrialOfSwordmancyInTrialMenu": {
-        "desc": "确认已在演算菜单界面",
+    "TrialOfSwordmancyDailyCheckRewardMode": {
+        "desc": "检查是否处于奖励演算模式",
         "recognition": "And",
         "all_of": [
             "TrialOfSwordmancyDrawCard"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "TrialOfSwordmancyDailyCheckRewardMode",
-            "SceneAnyEnterWorld"
+            "TrialOfSwordmancyDailyRewardMode",
+            "TrialOfSwordmancyDailyFinish"
         ]
     },
-    "TrialOfSwordmancyDailyCheckRewardMode": {
-        "desc": "检测是否处于奖励演算模式",
-        "recognition": "Or",
-        "any_of": [
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    160,
-                    531,
-                    80,
-                    41
-                ],
-                "template": "TrialOfSwordmancy/RewardMode1.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    160,
-                    531,
-                    80,
-                    41
-                ],
-                "template": "TrialOfSwordmancy/RewardMode2.png"
-            }
-        ],
-        "next": [
-            "TrialOfSwordmancyAggressiveEntry",
-            "TrialOfSwordmancyConservativeMainLoop"
-        ]
+    "TrialOfSwordmancyDailyFinish": {
+        "desc": "演算结束",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "今日奖励次数已用尽"
+        }
     },
-    // 激进模式：每日 3 次免费放弃期间，仅 8/9/10 时开战以利用放弃次数
-    "TrialOfSwordmancyAggressiveEntry": {
-        "desc": "激进模式入口（3次放弃机会）",
-        "max_hit": 3, // 此处意为 3 次免费放弃机会
+    "TrialOfSwordmancyDailyRewardMode": {
+        "desc": "处于奖励演算模式",
         "recognition": "And",
         "all_of": [
-            "TrialOfSwordmancyInTrialMenu"
+            "TrialOfSwordmancyRewardMode"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "TrialOfSwordmancyAggressiveMainLoop"
+            "TrialOfSwordmancyDailyCheckFirstCard",
+            "TrialOfSwordmancyDailyCheckSecondCard",
+            "TrialOfSwordmancyDailyCheckThirdCard",
+            "TrialOfSwordmancyDailyCheckGiveUp",
+            "TrialOfSwordmancyDailyMainLoop"
         ]
     },
-    "TrialOfSwordmancyAggressiveMainLoop": {
-        "desc": "激进模式抽牌循环",
+    // 先抽两张牌再计算逻辑
+    "TrialOfSwordmancyDailyCheckFirstCard": {
+        "desc": "检查第一张牌还未抽取",
         "recognition": "And",
         "all_of": [
-            "TrialOfSwordmancyInTrialMenu"
+            "TrialOfSwordmancyEnemyCard1"
         ],
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "TrialOfSwordmancyDailyBattlePtsOverflow",
-            "TrialOfSwordmancyAggressiveShouldDrawCard",
-            "TrialOfSwordmancyDailyResetDoubleReward",
-            "TrialOfSwordmancyStartTrial"
+            "TrialOfSwordmancyDailyDrawFirstCard"
         ]
     },
-    "TrialOfSwordmancyAggressiveShouldDrawCard": {
-        "desc": "激进模式检查是否抽牌",
+    "TrialOfSwordmancyDailyCheckSecondCard": {
+        "desc": "检查第二张牌还未抽取",
         "recognition": "And",
         "all_of": [
-            "TrialOfSwordmancyBattlePtsLessThan8",
-            {
-                "type": "Not",
-                "param": "TrialOfSwordmancyCantDrawCard"
-            }
+            "TrialOfSwordmancyEnemyCard2"
         ],
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "TrialOfSwordmancyAggressiveDrawCard"
+            "TrialOfSwordmancyDailyDrawSecondCard"
         ]
     },
-    "TrialOfSwordmancyAggressiveDrawCard": {
-        "desc": "激进模式抽取铭牌",
+    "TrialOfSwordmancyDailyDrawFirstCard": {
+        "desc": "抽取第一张牌",
         "recognition": "And",
         "all_of": [
             "TrialOfSwordmancyDrawCard"
         ],
         "pre_delay": 0,
         "action": "Click",
-        "post_delay": 800,
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                55,
+                145,
+                976,
+                290
+            ]
+        },
+        "post_delay": 0,
         "next": [
-            "[JumpBack]TrialOfSwordmancyConfirmDrawCard",
-            "[JumpBack]TrialOfSwordmancyDailyDoubleReward",
-            "TrialOfSwordmancyAggressiveMainLoop"
+            "TrialOfSwordmancyDailyDrawSecondCard"
         ]
     },
-    // 激进模式放弃处理
-    "TrialOfSwordmancyDailyBattlePtsOverflow": {
-        "desc": "检测战力点溢出",
+    "TrialOfSwordmancyDailyDrawSecondCard": {
+        "desc": "抽取第二张牌",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard",
+            "TrialOfSwordmancyEnemyCard1"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                55,
+                145,
+                976,
+                290
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyEnableDoubleReward"
+        ]
+    },
+    // 双倍奖励相关逻辑
+    "TrialOfSwordmancyDailyCheckThirdCard": {
+        "desc": "检查第三张牌还未抽取（仅能在第三抽前开启双倍奖励）",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyEnemyCard3"
+        ],
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyEnableDoubleReward",
+            "TrialOfSwordmancyDailyCheckGiveUp"
+        ]
+    },
+    "TrialOfSwordmancyDailyEnableDoubleReward": {
+        "desc": "开启双倍奖励",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDoubleReward" // 直接开启即可，无双倍次数时点击无影响
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                690,
+                613,
+                280,
+                50
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyCheckGiveUp"
+        ]
+    },
+    // 检查放弃演算次数相关逻辑
+    "TrialOfSwordmancyDailyCheckGiveUp": {
+        "desc": "检查当前放弃次数",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyGiveUp"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyEnterGiveUpMenuSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "检查当前放弃次数"
+        }
+    },
+    "TrialOfSwordmancyDailyEnterGiveUpMenuSuccess": {
+        "desc": "确认已进入放弃前的确认界面",
+        "recognition": "And",
+        "all_of": [
+            "CancelButton",
+            "YellowConfirmButtonType1"
+        ],
+        "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                253,
+                294,
+                774,
+                118
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyNoGiveUpChance",
+            "TrialOfSwordmancyDailyHasGiveUpChance"
+        ]
+    },
+    "TrialOfSwordmancyDailyNoGiveUpChance": {
+        "desc": "当前已无放弃机会",
+        "recognition": "ColorMatch",
+        "roi": [
+            303,
+            344,
+            674,
+            18
+        ],
+        "lower": [
+            235,
+            0,
+            0
+        ],
+        "upper": [
+            255,
+            80,
+            80
+        ],
+        "count": 500,
+        "anchor": {
+            "TrialOfSwordmancyDailyCheckMaxCard": "TrialOfSwordmancyDailyCheckMaxCardNoRetry",
+            "TrialOfSwordmancyDailyCheckDrawCard": "TrialOfSwordmancyDailyCheckDrawCardNoRetry"
+        },
+        "next": [
+            "TrialOfSwordmancyDailyCancelGiveUp"
+        ]
+    },
+    "TrialOfSwordmancyDailyHasGiveUpChance": {
+        "desc": "当前还有放弃机会",
+        "recognition": "ColorMatch",
+        "roi": [
+            303,
+            344,
+            674,
+            18
+        ],
+        "lower": [
+            0,
+            0,
+            0
+        ],
+        "upper": [
+            40,
+            40,
+            40
+        ],
+        "count": 500,
+        "anchor": {
+            "TrialOfSwordmancyDailyCheckMaxCard": "TrialOfSwordmancyDailyCheckMaxCardHasRetry",
+            "TrialOfSwordmancyDailyCheckDrawCard": "TrialOfSwordmancyDailyCheckDrawCardHasRetry"
+        },
+        "next": [
+            "TrialOfSwordmancyDailyCancelGiveUp"
+        ]
+    },
+    "TrialOfSwordmancyDailyCancelGiveUp": {
+        "desc": "取消放弃当前演算",
+        "recognition": "And",
+        "all_of": [
+            "CancelButton"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyCancelGiveUpSuccess"
+        ]
+    },
+    "TrialOfSwordmancyDailyCancelGiveUpSuccess": {
+        "desc": "确认已回到演算界面",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
+        ],
+        "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 100,
+            "target": "TrialOfSwordmancyDrawCard"
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyMainLoop"
+        ]
+    },
+    // 开启双倍奖励，检查放弃次数，之后进入主循环
+    "TrialOfSwordmancyDailyMainLoop": {
+        "desc": "日常选剑演武主循环",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyCheckOverflow",
+            "[Anchor]TrialOfSwordmancyDailyCheckMaxCard", // 检查牌已满
+            "[Anchor]TrialOfSwordmancyDailyCheckDrawCard", // 检查当前该抽牌
+            "TrialOfSwordmancyStartTrial"
+        ]
+    },
+    // 爆牌
+    "TrialOfSwordmancyDailyCheckOverflow": {
+        "desc": "检查爆牌",
         "recognition": "And",
         "all_of": [
             "TrialOfSwordmancyOverflowExclamation"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "TrialOfSwordmancyDailyGiveUp"
         ]
     },
-    "TrialOfSwordmancyDailyGiveUp": {
-        "desc": "放弃当前抽取",
-        "recognition": "Or",
-        "any_of": [
-            "TrialOfSwordmancyGiveUpLight",
-            "TrialOfSwordmancyGiveUpGrey"
+    // 牌已满
+    "TrialOfSwordmancyDailyCheckMaxCardNoRetry": {
+        "desc": "检查已抽满5张牌（无放弃次数）",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyEnemyCard5"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyStartTrial"
+        ]
+    },
+    "TrialOfSwordmancyDailyCheckMaxCardHasRetry": {
+        "desc": "检查已抽满5张牌（有放弃次数）",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyEnemyCard5"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyCheckMaxCardRetry",
+            "TrialOfSwordmancyStartTrial"
+        ]
+    },
+    "TrialOfSwordmancyDailyCheckMaxCardRetry": {
+        "desc": "未达到9点，放弃当前演算",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyBattlePtsLessThan9"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyGiveUp"
+        ]
+    },
+    // 抽牌相关逻辑
+    "TrialOfSwordmancyDailyCheckDrawCardNoRetry": {
+        "desc": "检查当前该抽牌（无放弃次数）",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyBattlePtsLessThan8"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyDrawCard"
+        ]
+    },
+    "TrialOfSwordmancyDailyCheckDrawCardHasRetry": {
+        "desc": "检查当前该抽牌（有放弃次数）",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyBattlePtsLessThan9"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyDrawCard"
+        ]
+    },
+    "TrialOfSwordmancyDailyDrawCard": {
+        "desc": "日常选剑演武抽牌",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
+        ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                55,
+                145,
+                976,
+                290
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyConfirmDrawCard",
+            "TrialOfSwordmancyDailyMainLoop"
+        ]
+    },
+    "TrialOfSwordmancyDailyConfirmDrawCard": {
+        "desc": "首次抽牌到第三抽时，会提醒抽取后无法更改翻倍选项，点击确认",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                55,
+                145,
+                976,
+                290
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyMainLoop"
+        ]
+    },
+    // 放弃当前演算
+    "TrialOfSwordmancyDailyGiveUp": {
+        "desc": "放弃当前演算",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyGiveUp"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                640,
+                431,
+                226,
+                67
+            ]
+        },
+        "post_delay": 0,
         "next": [
             "TrialOfSwordmancyDailyConfirmGiveUp"
         ]
@@ -131,116 +442,30 @@
         "all_of": [
             "YellowConfirmButtonType1"
         ],
-        "action": "Click",
-        "next": [
-            "TrialOfSwordmancyDailyGiveUpAndResetDoubleReward"
-        ]
-    },
-    "TrialOfSwordmancyDailyGiveUpAndResetDoubleReward": {
-        "desc": "激进模式放弃后重置双倍奖励计次",
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "ClearHitCount",
-        "custom_action_param": {
-            "nodes": [
-                "TrialOfSwordmancyDailyDoubleReward"
-            ]
-        },
-        // 无 maxhit：未开始演算直接放弃，不消耗双倍奖励机会
-        "next": [
-            "TrialOfSwordmancyDailyReEnterTrialMenu"
-        ]
-    },
-    "TrialOfSwordmancyDailyReEnterTrialMenu": {
-        "desc": "放弃后重新进入演算",
-        "recognition": "And",
-        "all_of": [
-            "InWorld"
-        ],
-        "next": [
-            "TrialOfSwordmancyAggressiveEntry",
-            "TrialOfSwordmancyConservativeMainLoop",
-            "[JumpBack]TrialOfSwordmancyEnterTrialMenu",
-            "[JumpBack]TrialOfSwordmancyGotoTrialArenaStart"
-        ]
-    },
-    // 保守模式：免费放弃次数耗尽后，6-10 均接单
-    "TrialOfSwordmancyConservativeMainLoop": {
-        "desc": "保守模式抽牌循环",
-        "recognition": "And",
-        "all_of": [
-            "TrialOfSwordmancyInTrialMenu"
-        ],
-        "next": [
-            "TrialOfSwordmancyConservativeShouldDrawCard",
-            "TrialOfSwordmancyDailyResetDoubleReward",
-            "TrialOfSwordmancyStartTrial"
-        ]
-    },
-    "TrialOfSwordmancyConservativeShouldDrawCard": {
-        "desc": "保守模式检查是否抽牌",
-        "recognition": "And",
-        "all_of": [
-            "TrialOfSwordmancyBattlePtsLessThan6",
-            {
-                "type": "Not",
-                "param": "TrialOfSwordmancyCantDrawCard"
-            }
-        ],
-        "next": [
-            "TrialOfSwordmancyConservativeDrawCard"
-        ]
-    },
-    "TrialOfSwordmancyConservativeDrawCard": {
-        "desc": "保守模式抽取铭牌",
-        "recognition": "And",
-        "all_of": [
-            "TrialOfSwordmancyDrawCard"
-        ],
         "pre_delay": 0,
         "action": "Click",
-        "post_delay": 800,
+        "post_delay": 0,
         "next": [
-            "[JumpBack]TrialOfSwordmancyConfirmDrawCard",
-            "TrialOfSwordmancyConservativeMainLoop"
+            "TrialOfSwordmancyDailyResetNavigator"
         ]
     },
-    "TrialOfSwordmancyConfirmDrawCard": {
-        "desc": "首次抽牌到第三抽时，会提醒抽取后无法更改翻倍选项，点击确认",
+    "TrialOfSwordmancyDailyResetNavigator": {
+        "desc": "重置寻路maxhit",
         "recognition": "And",
         "all_of": [
-            "YellowConfirmButtonType1"
+            "InWorld" // 确认已退出演算
         ],
-        "action": "Click",
-        "post_wait_freezes": 1000
-    },
-    // 双倍奖励处理
-    "TrialOfSwordmancyDailyDoubleReward": {
-        "desc": "开启双倍奖励",
-        "max_hit": 1,
-        "recognition": "TemplateMatch",
-        "roi": [
-            857,
-            602,
-            64,
-            71
-        ],
-        "template": "TrialOfSwordmancy/DoubleReward.png",
-        "action": "Click"
-    },
-    "TrialOfSwordmancyDailyResetDoubleReward": {
-        "desc": "开始演算后重置双倍奖励计次",
-        "max_hit": 2, // 此处意为每天最多使用 2 次双倍奖励
-        "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "ClearHitCount",
         "custom_action_param": {
             "nodes": [
-                "TrialOfSwordmancyDailyDoubleReward"
+                "TrialOfSwordmancyGotoTrialArenaCpp"
             ]
         },
+        "post_delay": 0,
         "next": [
-            "TrialOfSwordmancyStartTrial"
+            "TrialOfSwordmancyDailyMain"
         ]
     }
 }

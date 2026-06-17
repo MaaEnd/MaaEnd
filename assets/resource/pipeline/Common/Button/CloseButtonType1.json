@@ -136,37 +136,5 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
-    },
-    // 兼容 ESC 菜单的关闭入口。
-    // 先复用普通关闭按钮识别，未命中时再尝试 InESCMenu 节点。
-    "CloseButtonType2": {
-        "desc": "通用关闭按钮类型2：在右上角关闭按钮基础上兼容 ESC 菜单",
-        "recognition": {
-            "type": "Or",
-            "param": {
-                "any_of": [
-                    "CloseButtonType1",
-                    "InESCMenu"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click",
-            "param": {
-                "contact": 1
-            }
-        },
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0
     }
 }

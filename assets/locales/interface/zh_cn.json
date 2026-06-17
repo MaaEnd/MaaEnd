@@ -1035,7 +1035,8 @@
     "task.TrialOfSwordmancy.label": "🗡️选剑演武",
     "task.TrialOfSwordmancy.description": "自动完成每日选剑演武 / 刷刻章镀层",
     "option.TrialOfSwordmancyMode.label": "任务模式",
-    "option.TrialOfSwordmancyMode.description": "每日选剑演武：自动抽牌并自动作战\n刷镀层：请在处于自由演算模式下，于抽取铭牌界面开始任务",
+    "option.TrialOfSwordmancyMode.description": "每日选剑演武：自动抽牌并自动作战\n刷镀层：请在处于自由演算模式下，于抽取铭牌界面开始任务\n刷25点：同刷镀层，请在处于自由演算模式下，于抽取铭牌界面开始任务",
     "option.TrialOfSwordmancyMode.cases.Daily.label": "每日选剑演武",
-    "option.TrialOfSwordmancyMode.cases.Coating.label": "刷镀层"
+    "option.TrialOfSwordmancyMode.cases.Coating.label": "刷镀层",
+    "option.TrialOfSwordmancyMode.cases.Farm25.label": "刷25点"
 }

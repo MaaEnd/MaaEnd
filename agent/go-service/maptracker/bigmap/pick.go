@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"regexp"
 	"sync"
+	"time"
 
 	internal "github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/internal"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
@@ -38,7 +39,7 @@ type MapTrackerBigMapPickParam struct {
 	// AutoOpenMapScene controls whether to automatically open the big map scene before picking.
 	AutoOpenMapScene bool `json:"auto_open_map_scene,omitempty"`
 	// ZoomValue is the target zoom slider position.
-	// If omitted, defaults to 0.7. Set to 0 to disable auto zoom. Other values should be in range (0, 1].
+	// If omitted, defaults to 0.725. Set to 0 to disable auto zoom. Other values should be in range (0, 1].
 	ZoomValue *float64 `json:"zoom_value,omitempty"`
 }
 
@@ -50,7 +51,7 @@ const (
 
 var mapTrackerBigMapPickDefaultParam = MapTrackerBigMapPickParam{
 	OnFind:    ON_FIND_CLICK,
-	ZoomValue: func() *float64 { v := 0.7; return &v }(),
+	ZoomValue: func() *float64 { v := 0.725; return &v }(),
 }
 
 var _ maa.CustomActionRunner = &MapTrackerBigMapPick{}
@@ -110,6 +111,7 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		}
 
 		// Infer current big-map viewport
+		time.Sleep(INFER_PRE_DELAY_MS * time.Millisecond)
 		inferRes, err := doBigMapInferForMap(ctx, ctrl, param.MapName)
 		if err != nil {
 			log.Error().Err(err).Str("map", param.MapName).Int("attempt", attempt).Msg("Currently not in that map")
@@ -155,9 +157,8 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			Msg("Big-map target is not in viewport, need to pan")
 
 		segments := rand.Intn(3) + 1
-		if !doDragViewport(ca, &inferRes.ViewPort, deltaInViewX, deltaInViewY, panFactor, segments) {
-			continue
-		}
+		doDragViewport(ca, &inferRes.ViewPort, deltaInViewX, deltaInViewY, panFactor, segments)
+		time.Sleep(PAN_POST_DELAY_MS * time.Millisecond)
 	}
 
 	log.Error().
