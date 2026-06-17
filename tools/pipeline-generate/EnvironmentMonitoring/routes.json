@@ -64,36 +64,19 @@
         "Name": "蓄水源石虫",
         "Id": "CisternOriginiumSlugs",
         "EnterMap": "SceneEnterWorldWulingJingyuValley7",
-        "MapName": "map02_lv001",
+        "MapName": "Wuling_Base",
         "MapAssert": [
-            280,
-            580,
-            15,
-            15
+            747.21,
+            1516.86,
+            36.4,
+            31.87
         ],
-        "MapPath": [
-            [
-                291,
-                582
-            ],
-            [
-                298,
-                576
-            ],
-            [
-                306,
-                578
-            ],
-            [
-                309,
-                593
-            ],
-            [
-                318,
-                593
-            ]
+        "MapTarget": [
+            794,
+            1546.21
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenRight"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 235
     },
     {
         "MissionId": "m1m28",
