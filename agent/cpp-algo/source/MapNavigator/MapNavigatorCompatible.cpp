@@ -21,6 +21,7 @@
 #include <MaaUtils/NoWarningCV.hpp>
 
 #include "../MapLocator/MapLocateAction.h"
+#include "../utils.h"
 #include "action_wrapper.h"
 #include "navi_controller.h"
 #include "navi_math.h"
@@ -218,54 +219,6 @@ std::optional<MapNavigatorCompatibleLocateDetail> try_parse_locate_detail(const 
     }
     return detail;
 }
-
-class ScopedImageBuffer
-{
-public:
-    ScopedImageBuffer()
-        : buffer_(MaaImageBufferCreate())
-    {
-    }
-
-    ~ScopedImageBuffer()
-    {
-        if (buffer_ != nullptr) {
-            MaaImageBufferDestroy(buffer_);
-        }
-    }
-
-    ScopedImageBuffer(const ScopedImageBuffer&) = delete;
-    ScopedImageBuffer& operator=(const ScopedImageBuffer&) = delete;
-
-    MaaImageBuffer* Get() const { return buffer_; }
-
-private:
-    MaaImageBuffer* buffer_ = nullptr;
-};
-
-class ScopedStringBuffer
-{
-public:
-    ScopedStringBuffer()
-        : buffer_(MaaStringBufferCreate())
-    {
-    }
-
-    ~ScopedStringBuffer()
-    {
-        if (buffer_ != nullptr) {
-            MaaStringBufferDestroy(buffer_);
-        }
-    }
-
-    ScopedStringBuffer(const ScopedStringBuffer&) = delete;
-    ScopedStringBuffer& operator=(const ScopedStringBuffer&) = delete;
-
-    MaaStringBuffer* Get() const { return buffer_; }
-
-private:
-    MaaStringBuffer* buffer_ = nullptr;
-};
 
 struct MapTrackerImageCacheEntry
 {

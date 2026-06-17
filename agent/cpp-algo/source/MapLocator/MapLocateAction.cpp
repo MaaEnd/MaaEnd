@@ -96,25 +96,6 @@ fs::path getExeDir()
     return get_exe_dir();
 }
 
-class ScopedImageBuffer
-{
-public:
-    ScopedImageBuffer()
-        : buffer_(MaaImageBufferCreate())
-    {
-    }
-
-    ~ScopedImageBuffer() { MaaImageBufferDestroy(buffer_); }
-
-    ScopedImageBuffer(const ScopedImageBuffer&) = delete;
-    ScopedImageBuffer& operator=(const ScopedImageBuffer&) = delete;
-
-    MaaImageBuffer* Get() const { return buffer_; }
-
-private:
-    MaaImageBuffer* buffer_;
-};
-
 template <typename T>
 T ParseCustomRecognitionParam(const char* custom_recognition_param)
 {

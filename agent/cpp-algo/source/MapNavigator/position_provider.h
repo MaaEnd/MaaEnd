@@ -34,10 +34,17 @@ public:
     // same frame). Defaults to absent, i.e. the raw locator output is passed through unchanged.
     void SetPositionNormalizer(std::function<void(NaviPosition&)> normalizer);
 
+    // Optional per-frame observer: invoked with the full captured BGR/BGRA frame at the single capture
+    // chokepoint, BEFORE minimap extraction or locate, so it fires on every frame even when localization
+    // fails. Used to feed the async collectible scanner without a second screencap. The callback runs on
+    // the nav thread and must be cheap (it just copies a ROI out to a worker).
+    void SetFrameObserver(std::function<void(const cv::Mat&)> observer);
+
 private:
     MaaController* controller_;
     std::shared_ptr<maplocator::MapLocator> locator_;
     std::function<void(NaviPosition&)> position_normalizer_;
+    std::function<void(const cv::Mat&)> frame_observer_;
     bool uses_adb_minimap_roi_ = false;
     bool last_capture_was_held_ = false;
     bool last_capture_was_black_screen_ = false;

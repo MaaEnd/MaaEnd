@@ -42,25 +42,6 @@ bool IsBlackScreen(const cv::Mat& image)
     return mean_luma[0] <= 12.0 && stddev_luma[0] <= 10.0 && dark_ratio >= 0.98;
 }
 
-class ScopedImageBuffer
-{
-public:
-    ScopedImageBuffer()
-        : buffer_(MaaImageBufferCreate())
-    {
-    }
-
-    ~ScopedImageBuffer() { MaaImageBufferDestroy(buffer_); }
-
-    ScopedImageBuffer(const ScopedImageBuffer&) = delete;
-    ScopedImageBuffer& operator=(const ScopedImageBuffer&) = delete;
-
-    MaaImageBuffer* Get() const { return buffer_; }
-
-private:
-    MaaImageBuffer* buffer_;
-};
-
 } // namespace
 
 PositionProvider::PositionProvider(MaaController* controller, std::shared_ptr<maplocator::MapLocator> locator)
@@ -68,6 +49,11 @@ PositionProvider::PositionProvider(MaaController* controller, std::shared_ptr<ma
     , locator_(std::move(locator))
     , uses_adb_minimap_roi_(IsAdbLikeControllerType(DetectControllerType(controller_)))
 {
+}
+
+void PositionProvider::SetFrameObserver(std::function<void(const cv::Mat&)> observer)
+{
+    frame_observer_ = std::move(observer);
 }
 
 bool PositionProvider::Capture(NaviPosition* out_pos, bool force_global_search, const std::string& expected_zone_id)
@@ -89,6 +75,9 @@ bool PositionProvider::Capture(NaviPosition* out_pos, bool force_global_search, 
 
     cv::Mat image = to_mat(buffer.Get());
     last_capture_was_black_screen_ = IsBlackScreen(image);
+    if (frame_observer_) {
+        frame_observer_(image);
+    }
     cv::Mat minimap;
     if (!maplocator::TryExtractMinimap(image, uses_adb_minimap_roi_, &minimap)) {
         return false;

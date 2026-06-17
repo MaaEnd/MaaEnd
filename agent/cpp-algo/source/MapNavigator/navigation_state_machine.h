@@ -2,6 +2,8 @@
 
 #include <chrono>
 #include <functional>
+#include <memory>
+#include <string>
 
 #include "nav_run_controller.h"
 #include "navi_controller.h"
@@ -15,6 +17,8 @@ class IActionExecutor;
 class ActionWrapper;
 class MotionController;
 class PositionProvider;
+class CollectibleScanner;
+struct RouteTrackingState;
 
 class NavigationStateMachine
 {
@@ -31,6 +35,7 @@ public:
         MaaContext* maa_context);
 
     bool Run();
+    ~NavigationStateMachine();
 
 private:
     bool Bootstrap();
@@ -50,6 +55,12 @@ private:
     void StopMotion();
     bool FailNavigation(const char* reason, const char* log_message, double current_distance, double yaw_error, int64_t stalled_ms);
 
+    bool TryScanApproachCollect(const RouteTrackingState& route, const Waypoint& waypoint);
+    void PreWarmCollectOcr();
+    void StartCollectScanner();
+    void StopCollectScanner();
+    void UpdateCollectSprintSuppression();
+
     const NaviParam& param_;
     ActionWrapper* action_wrapper_;
     PositionProvider* position_provider_;
@@ -62,6 +73,12 @@ private:
     NavigationRuntimeState runtime_state_ {};
     NavRunController nav_run_controller_ {};
     std::chrono::steady_clock::time_point last_global_relocalize_at_ {};
+
+    std::unique_ptr<CollectibleScanner> collect_scanner_;
+    std::chrono::steady_clock::time_point collect_scan_last_at_ {};
+    // Anti-stuck: position of the last detection-triggered collect attempt.
+    NaviPosition collect_attempt_pos_ {};
+    bool collect_attempt_pos_valid_ = false;
 };
 
 } // namespace mapnavigator

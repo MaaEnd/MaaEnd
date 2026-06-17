@@ -125,8 +125,21 @@ bool MotionController::SupportsSprint() const
     return action_wrapper_ != nullptr && action_wrapper_->SupportsSprint();
 }
 
+void MotionController::SetSprintSuppressed(bool suppressed)
+{
+    if (suppressed && !sprint_suppressed_ && sprint_active_ && is_moving_forward_ && action_wrapper_ != nullptr) {
+        action_wrapper_->ResetForwardWalkSync(kSprintCancelReleaseMs);
+        sprint_active_ = false;
+        LogInfo << "Sprint cancelled near collect point (dropped to walking speed).";
+    }
+    sprint_suppressed_ = suppressed;
+}
+
 bool MotionController::TriggerSprint()
 {
+    if (sprint_suppressed_) {
+        return false;
+    }
     if (!SupportsSprint()) {
         return false;
     }

@@ -137,6 +137,25 @@ constexpr const char* kDefaultCollectEntry = "AutoCollectClickStart";
 constexpr const char* kCollectPipelineOverride = R"({"AutoCollectClickEnd":{"next":[]}})";
 constexpr int32_t kCollectPostSleepMs = 80;
 
+constexpr const char* kCollectPrewarmOverride =
+    R"({"AutoCollectClick":{"action":{"type":"DoNothing"},"next":[]},"AutoCollectClickEnd":{"next":[]}})";
+constexpr const char* kCollectRoiNode = "AutoCollectClick";
+constexpr int32_t kCollectRoiBaseWidth = 1280;
+constexpr int32_t kCollectRoiBaseHeight = 720;
+
+constexpr const char* kCollectIconRelativePath = "resource/image/RealTimeTask/AutoPick.png";
+constexpr double kCollectIconMatchThreshold = 0.75;
+constexpr int32_t kCollectLabelBrightThreshold = 210;  // 0-255 luma; near-white glyphs survive, grass (~200) drops
+constexpr int32_t kCollectLabelMorphWidth = 8;         // horizontal close width that merges glyphs into a word
+constexpr int32_t kCollectLabelMinWidth = 24;          // ~2-char CJK name floor (the 5-char label measured 78px)
+constexpr int32_t kCollectLabelMinHeight = 7;          // reject thin specks (label glyph row ~14px)
+constexpr int32_t kCollectLabelMaxHeight = 26;         // reject tall non-text structures
+constexpr double kCollectLabelMaxFill = 0.80;          // text is sparse (label fill ~0.4-0.66); solid blob = panel/icon
+constexpr int32_t kCollectScanIntervalMs = 1500;
+constexpr double kCollectRetryMinMoveWu = 2.5;
+constexpr double kCollectSprintSuppressBandWu = 8.0;
+constexpr int32_t kSprintCancelReleaseMs = 60;
+
 constexpr const char* kDefaultDigEntry = "AutoCollectDigStart";
 constexpr const char* kDigPipelineOverride = R"({"AutoCollectDigEnd":{"next":[]}})";
 constexpr int32_t kDigPostSleepMs = 80;

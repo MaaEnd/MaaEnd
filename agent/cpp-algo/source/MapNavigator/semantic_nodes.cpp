@@ -461,39 +461,32 @@ Result HandleArrivalSemantic(const Context& ctx, const Waypoint& waypoint, doubl
         return result;
     }
 
-    if (waypoint.action == ActionType::COLLECT || waypoint.action == ActionType::DIG) {
-        const bool is_dig = waypoint.action == ActionType::DIG;
-        const char* tag = is_dig ? "DIG" : "COLLECT";
-        const char* entry = is_dig ? kDefaultDigEntry : kDefaultCollectEntry;
-        const char* override_json = is_dig ? kDigPipelineOverride : kCollectPipelineOverride;
-        const int32_t post_sleep_ms = is_dig ? kDigPostSleepMs : kCollectPostSleepMs;
-        const char* completed_reason = is_dig ? "dig_completed" : "collect_completed";
-
+    if (waypoint.action == ActionType::DIG) {
         StopMotionAndCommitment(ctx);
 
         if (ctx.maa_context == nullptr) {
-            LogError << "Action: " << tag << " triggered but maa_context is null." << VAR(actual_distance);
+            LogError << "Action: DIG triggered but maa_context is null." << VAR(actual_distance);
             result.request_failure = true;
-            result.failure_reason = is_dig ? "dig_context_missing" : "collect_context_missing";
-            result.failure_log_message = "MaaContext is null when dispatching collect/dig subtask.";
+            result.failure_reason = "dig_context_missing";
+            result.failure_log_message = "MaaContext is null when dispatching dig subtask.";
             return result;
         }
 
-        LogInfo << "Action: " << tag << " triggered, dispatching subtask." << VAR(entry) << VAR(actual_distance);
-        const MaaTaskId sub_id = MaaContextRunTask(ctx.maa_context, entry, override_json);
+        LogInfo << "Action: DIG triggered, dispatching subtask." << VAR(kDefaultDigEntry) << VAR(actual_distance);
+        const MaaTaskId sub_id = MaaContextRunTask(ctx.maa_context, kDefaultDigEntry, kDigPipelineOverride);
         if (sub_id == MaaInvalidId) {
-            LogError << "Action: " << tag << " subtask failed to dispatch." << VAR(entry) << VAR(actual_distance);
+            LogError << "Action: DIG subtask failed to dispatch." << VAR(kDefaultDigEntry) << VAR(actual_distance);
             result.request_failure = true;
-            result.failure_reason = is_dig ? "dig_dispatch_failed" : "collect_dispatch_failed";
-            result.failure_log_message = "MaaContextRunTask returned MaaInvalidId for collect/dig subtask.";
+            result.failure_reason = "dig_dispatch_failed";
+            result.failure_log_message = "MaaContextRunTask returned MaaInvalidId for dig subtask.";
             return result;
         }
 
-        LogInfo << "Action: " << tag << " subtask returned." << VAR(sub_id);
-        utils::SleepFor(post_sleep_ms);
+        LogInfo << "Action: DIG subtask returned." << VAR(sub_id);
+        utils::SleepFor(kDigPostSleepMs);
 
-        ctx.session->NoteCanonicalFinalGoalConsumed(arrived_absolute_node_idx, *ctx.position, completed_reason);
-        ctx.session->AdvanceToNextWaypoint(waypoint.action, completed_reason);
+        ctx.session->NoteCanonicalFinalGoalConsumed(arrived_absolute_node_idx, *ctx.position, "dig_completed");
+        ctx.session->AdvanceToNextWaypoint(waypoint.action, "dig_completed");
         ctx.runtime_state->OnWaypointAdvance();
         ctx.runtime_state->route.Reset();
 
@@ -501,7 +494,7 @@ Result HandleArrivalSemantic(const Context& ctx, const Waypoint& waypoint, doubl
             ctx.session->NoteRouteTailConsumed(*ctx.position, "route_tail_consumed");
         }
         else {
-            SelectPhaseForCurrentWaypoint(ctx, completed_reason);
+            SelectPhaseForCurrentWaypoint(ctx, "dig_completed");
         }
 
         result.consumed = true;

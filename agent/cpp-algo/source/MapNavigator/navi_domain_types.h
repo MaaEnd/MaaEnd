@@ -20,11 +20,12 @@ namespace mapnavigator
 // HEADING  - 无坐标朝向节点，执行时只调整镜头到指定角度，再按下W继续前进
 // NAVMESH  - 语义寻路节点，读取 .nav 并从当前定位位置自动规划到 target
 // ZONE     - 无坐标区域声明节点，要求后续定位稳定落在指定 zone 后再继续
-// COLLECT  - 精确抵达后停车，同步触发 AutoCollectClickStart pipeline 子任务
-//            （OCR + AutoAltClickAction），不退出 NaviController，避免每次采集
-//            都重建定位/重新 Bootstrap/吃掉起步宽限
-// DIG      - 同 COLLECT，但触发的是 AutoCollectDigStart pipeline 子任务
-//            （无条件 Click target=true 两次），用于挖掘点
+// COLLECT  - 仅作为"开启采集扫描"的路径点：经过时按普通路点直接推进，不再到点停车。
+//            采集完全由行进中的异步图标检测驱动——检测到采集物才立即停车并触发
+//            AutoCollectClickStart 子任务（OCR + AutoAltClickAction），没有采集物时不空停。
+//            （检测命中后有位移防卡死门限，避免被一直匹配到的非采集物困住）
+// DIG      - 触发 AutoCollectDigStart pipeline 子任务（无条件 Click target=true 两次），用于挖掘点。
+//            与 COLLECT 不同，DIG 仍是精确抵达后停车触发（挖掘是定点动作，非行进检测）
 #define NAVI_ACTION_TYPES(X) \
     X(RUN)                   \
     X(SPRINT)                \
@@ -81,7 +82,7 @@ struct Waypoint
         }
         return strict_arrival || action == ActionType::SPRINT || action == ActionType::JUMP || action == ActionType::INTERACT
                || action == ActionType::FIGHT || action == ActionType::TRANSFER || action == ActionType::PORTAL
-               || action == ActionType::NAVMESH || action == ActionType::COLLECT || action == ActionType::DIG;
+               || action == ActionType::NAVMESH || action == ActionType::DIG;
     }
 
     bool HasPosition() const { return has_position; }

@@ -1,16 +1,23 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <filesystem>
 #include <limits>
+#include <memory>
 #include <optional>
 #include <string>
 #include <thread>
 #include <utility>
+#include <vector>
 
+#include <MaaFramework/MaaAPI.h>
+#include <MaaUtils/ImageIo.h>
 #include <MaaUtils/Logger.h>
+#include <meojson/json.hpp>
 
 #include "action_executor.h"
 #include "action_wrapper.h"
+#include "collectible_scanner.h"
 #include "motion_controller.h"
 #include "navi_config.h"
 #include "navi_math.h"
@@ -21,11 +28,83 @@
 #include "semantic_nodes.h"
 #include "steering_controller.h"
 
+#include "../utils.h"
+
 namespace mapnavigator
 {
 
 namespace
 {
+
+// Pull the collect-label ROI from the pipeline node (single source of truth) rather than hardcoding it:
+// MaaContextGetNodeData returns the node's resolved JSON, so editing AutoCollectClick.json's roi
+// automatically retargets the async scanner. The roi is authored in the 1280x720 base frame.
+bool ReadRoiArray(const json::value& holder, cv::Rect* out)
+{
+    if (!holder.is_array()) {
+        return false;
+    }
+    const auto& arr = holder.as_array();
+    if (arr.size() < 4) {
+        return false;
+    }
+    for (size_t i = 0; i < 4; ++i) {
+        if (!arr.at(i).is_number()) {
+            return false;
+        }
+    }
+    out->x = arr.at(0).as_integer();
+    out->y = arr.at(1).as_integer();
+    out->width = arr.at(2).as_integer();
+    out->height = arr.at(3).as_integer();
+    return out->width > 0 && out->height > 0;
+}
+
+bool ParseCollectRoiFromNode(MaaContext* context, const char* node_name, cv::Rect* out)
+{
+    if (context == nullptr || node_name == nullptr) {
+        return false;
+    }
+
+    ScopedStringBuffer buffer;
+    if (buffer.Get() == nullptr || !MaaContextGetNodeData(context, node_name, buffer.Get())) {
+        LogWarn << "Collect ROI: MaaContextGetNodeData failed." << VAR(node_name);
+        return false;
+    }
+    const char* raw = MaaStringBufferGet(buffer.Get());
+    if (raw == nullptr || raw[0] == '\0') {
+        LogWarn << "Collect ROI: empty node data." << VAR(node_name);
+        return false;
+    }
+
+    const auto parsed = json::parse(raw);
+    if (!parsed || !parsed->is_object()) {
+        LogWarn << "Collect ROI: node JSON is not an object." << VAR(node_name);
+        return false;
+    }
+    const auto& node = parsed->as_object();
+
+    // Canonical shape: { "recognition": { "param": { "roi": [x,y,w,h] } } }. Fall back to flatter shapes in
+    // case the framework serializes the loaded node differently.
+    if (node.contains("recognition") && node.at("recognition").is_object()) {
+        const auto& reco = node.at("recognition").as_object();
+        if (reco.contains("param") && reco.at("param").is_object()) {
+            const auto& param = reco.at("param").as_object();
+            if (param.contains("roi") && ReadRoiArray(param.at("roi"), out)) {
+                return true;
+            }
+        }
+        if (reco.contains("roi") && ReadRoiArray(reco.at("roi"), out)) {
+            return true;
+        }
+    }
+    if (node.contains("roi") && ReadRoiArray(node.at("roi"), out)) {
+        return true;
+    }
+
+    LogWarn << "Collect ROI: no usable roi array in node data." << VAR(node_name);
+    return false;
+}
 
 struct BootstrapWaypointCandidate
 {
@@ -333,8 +412,17 @@ bool NavigationStateMachine::Run()
         return false;
     }
 
+    // Absorb the collect-OCR cold start here, while the avatar is still stopped after Bootstrap and before
+    // the first forward press, so it can never land on a while-walking scan tick and freeze the thread.
+    PreWarmCollectOcr();
+
+    // Spin up the background collectible detector (no-op unless the route has a COLLECT waypoint). It runs
+    // off the nav thread on pure OpenCV; the nav loop only reacts to its flag, never recognizes inline.
+    StartCollectScanner();
+
     while (!should_stop_() && session_->phase() != NaviPhase::Finished && session_->phase() != NaviPhase::Failed) {
         if (!TickPhase(session_->phase())) {
+            StopCollectScanner();
             StopMotion();
             return false;
         }
@@ -344,6 +432,7 @@ bool NavigationStateMachine::Run()
         session_->HasSatisfiedFinalSuccess(*position_, "navigation_complete");
     }
 
+    StopCollectScanner();
     StopMotion();
     return !should_stop_() && session_->success();
 }
@@ -728,6 +817,10 @@ bool NavigationStateMachine::TickNavigate()
     }
 
     const Waypoint waypoint = session_->CurrentWaypoint();
+    if (TryScanApproachCollect(route, waypoint)) {
+        return true;
+    }
+
     const double arrival_distance =
         waypoint.action == ActionType::PORTAL ? std::max(route.arrival_band, kPortalCommitDistance) : route.arrival_band;
     if (route.waypoint_distance <= arrival_distance) {
@@ -925,6 +1018,11 @@ bool NavigationStateMachine::TickNavigate()
              << VAR(heading_error) << VAR(steering.yaw_delta_deg)
              << VAR(issued_delta_deg) << VAR(route.waypoint_distance) << VAR(route.on_route);
 
+    // Collect routes: keep sprint for travel but drop to walking speed once near a COLLECT point (cancels any
+    // active sprint), so the detection-stop can land before we overrun the collectible. No-op off collect
+    // routes. Must run before the sprint gate below so a freshly-entered zone suppresses this tick's sprint.
+    UpdateCollectSprintSuppression();
+
     // Balanced sprint gate: burst only when the agent already points down the corridor (heading aligned)
     // and no sharp turn is imminent within the scan window. No clearance term — it reads near zero on
     // bridges and locked sprint out entirely; alignment + upcoming-turn keep it from charging a corner.
@@ -981,6 +1079,152 @@ void NavigationStateMachine::SelectPhaseForCurrentWaypoint(const char* reason)
 void NavigationStateMachine::StopMotion()
 {
     motion_controller_->SetForwardState(false);
+}
+
+NavigationStateMachine::~NavigationStateMachine()
+{
+    // Backstop: guarantee the PositionProvider's frame observer (it captures `this` and reads
+    // collect_scanner_) is torn down before this object dies, even on an early Run() return path.
+    StopCollectScanner();
+}
+
+void NavigationStateMachine::StartCollectScanner()
+{
+    if (collect_scanner_ != nullptr) {
+        return;
+    }
+
+    const std::vector<Waypoint>& path = session_->original_path();
+    const bool has_collect =
+        std::any_of(path.begin(), path.end(), [](const Waypoint& wp) { return wp.action == ActionType::COLLECT; });
+    if (!has_collect) {
+        return;
+    }
+
+    cv::Rect base_roi;
+    if (!ParseCollectRoiFromNode(maa_context_, kCollectRoiNode, &base_roi)) {
+        LogWarn << "Async collectible scanner not started: could not read collect ROI from pipeline."
+                << VAR(kCollectRoiNode);
+        return;
+    }
+
+    const std::filesystem::path icon_path =
+        std::filesystem::absolute(get_exe_dir() / ".." / kCollectIconRelativePath);
+    const cv::Mat icon_template = MAA_NS::imread(icon_path, cv::IMREAD_GRAYSCALE);
+    if (icon_template.empty()) {
+        LogWarn << "Collect icon template not loaded; falling back to bright-text heuristic."
+                << VAR(MAA_NS::path_to_utf8_string(icon_path));
+    }
+    else {
+        LogInfo << "Collect icon template loaded." << VAR(MAA_NS::path_to_utf8_string(icon_path))
+                << VAR(icon_template.cols) << VAR(icon_template.rows);
+    }
+
+    collect_scanner_ = std::make_unique<CollectibleScanner>(base_roi, icon_template);
+    position_provider_->SetFrameObserver([this](const cv::Mat& frame) {
+        if (collect_scanner_ != nullptr) {
+            collect_scanner_->SubmitFrame(frame);
+        }
+    });
+    LogInfo << "Async collectible scanner started." << VAR(base_roi.x) << VAR(base_roi.y) << VAR(base_roi.width)
+            << VAR(base_roi.height);
+    // NOTE: sprint is NOT suppressed for the whole route — that killed fast travel. Suppression is driven per
+    // tick in TickNavigate (UpdateCollectSprintSuppression), enabled only when the avatar is within
+    // kCollectSprintSuppressBandWu of a COLLECT waypoint, so travel between collect points still sprints.
+}
+
+void NavigationStateMachine::StopCollectScanner()
+{
+    if (position_provider_ != nullptr) {
+        position_provider_->SetFrameObserver(nullptr);
+    }
+    if (motion_controller_ != nullptr) {
+        motion_controller_->SetSprintSuppressed(false);
+    }
+    collect_scanner_.reset();
+}
+
+void NavigationStateMachine::UpdateCollectSprintSuppression()
+{
+    if (collect_scanner_ == nullptr || motion_controller_ == nullptr) {
+        return;  // not a collect route — leave sprint behaviour entirely untouched
+    }
+
+    bool near_collect = false;
+    if (position_ != nullptr && position_->valid && session_ != nullptr) {
+        const double band_sq = kCollectSprintSuppressBandWu * kCollectSprintSuppressBandWu;
+        for (const Waypoint& waypoint : session_->current_path()) {
+            if (waypoint.action != ActionType::COLLECT || !waypoint.HasPosition()) {
+                continue;
+            }
+            const double dx = waypoint.x - position_->x;
+            const double dy = waypoint.y - position_->y;
+            if (dx * dx + dy * dy <= band_sq) {
+                near_collect = true;
+                break;
+            }
+        }
+    }
+    motion_controller_->SetSprintSuppressed(near_collect);
+}
+
+void NavigationStateMachine::PreWarmCollectOcr()
+{
+    if (maa_context_ == nullptr) {
+        return;
+    }
+
+    const std::vector<Waypoint>& path = session_->original_path();
+    const bool has_collect =
+        std::any_of(path.begin(), path.end(), [](const Waypoint& wp) { return wp.action == ActionType::COLLECT; });
+    if (!has_collect) {
+        return;
+    }
+
+    LogInfo << "Pre-warming collect OCR model before navigation (absorbs one-time cold start while stopped).";
+    MaaContextRunTask(maa_context_, kDefaultCollectEntry, kCollectPrewarmOverride);
+}
+
+bool NavigationStateMachine::TryScanApproachCollect(const RouteTrackingState& route, const Waypoint& waypoint)
+{
+    (void)waypoint;
+    if (maa_context_ == nullptr || collect_scanner_ == nullptr || !route.startup_motion_confirmed) {
+        return false;
+    }
+
+    const auto now = std::chrono::steady_clock::now();
+    if (collect_scan_last_at_.time_since_epoch().count() != 0
+        && now - collect_scan_last_at_ < std::chrono::milliseconds(kCollectScanIntervalMs)) {
+        return false;
+    }
+
+    if (!collect_scanner_->ConsumeDetection()) {
+        return false;  // background worker has not flagged a collectible — keep walking, zero cost this tick
+    }
+
+    if (collect_attempt_pos_valid_ && position_ != nullptr && position_->valid) {
+        const bool zone_changed = !collect_attempt_pos_.zone_id.empty() && !position_->zone_id.empty()
+                                  && collect_attempt_pos_.zone_id != position_->zone_id;
+        const double moved = std::hypot(position_->x - collect_attempt_pos_.x, position_->y - collect_attempt_pos_.y);
+        if (!zone_changed && moved < kCollectRetryMinMoveWu) {
+            LogDebug << "Collect detection suppressed (anti-stuck): not past the last attempt yet." << VAR(moved);
+            return false;
+        }
+    }
+
+    collect_scan_last_at_ = now;
+    if (position_ != nullptr && position_->valid) {
+        collect_attempt_pos_ = *position_;
+        collect_attempt_pos_valid_ = true;
+    }
+
+    LogInfo << "Async collectible flagged — stopping for authoritative collect." << VAR(route.waypoint_distance)
+            << VAR(session_->current_node_idx());
+    motion_controller_->SetForwardState(false);
+    utils::SleepFor(kStopWaitMs);
+    MaaContextRunTask(maa_context_, kDefaultCollectEntry, kCollectPipelineOverride);
+    utils::SleepFor(kCollectPostSleepMs);
+    return true;
 }
 
 bool NavigationStateMachine::FailNavigation(

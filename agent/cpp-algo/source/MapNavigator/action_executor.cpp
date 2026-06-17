@@ -80,7 +80,7 @@ ActionExecutionResult ActionExecutor::Execute(ActionType action)
         break;
 
     case ActionType::COLLECT:
-        LogWarn << "COLLECT action dispatched to ActionExecutor unexpectedly.";
+        LogInfo << "Action: COLLECT waypoint passed (pass-through; collection is detection-driven while walking).";
         break;
 
     case ActionType::DIG:
