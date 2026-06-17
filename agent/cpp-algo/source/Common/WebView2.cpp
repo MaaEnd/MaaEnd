@@ -138,6 +138,15 @@ void WebView2::SetContextMenuEnabled(bool enabled)
     context_menu_enabled_ = enabled;
 }
 
+void WebView2::SetUserAgent(std::string user_agent)
+{
+    if (isOpened()) {
+        LogWarn << "WebView2::SetUserAgent: ignored, must be called before Open()" << VAR(user_agent);
+        return;
+    }
+    user_agent_ = std::move(user_agent);
+}
+
 void WebView2::onUiThreadInit()
 {
     // WebView2 必须运行在 STA 线程上。CoInit 必须在任何 WebView2 调用之前完成。
@@ -266,13 +275,33 @@ void WebView2::onControllerCreated(HRESULT result, ICoreWebView2Controller* cont
         return;
     }
 
-    // 应用 SetContextMenuEnabled 配置。设置接口必须在 Navigate 之前生效，否则首屏的右键菜单仍会出现。
+    // 应用 settings 类配置。所有 settings 必须在 Navigate 之前生效，否则首屏的对应行为已经按默认值发生（比如右键菜单已弹、首次请求 UA 已发出）。
     Microsoft::WRL::ComPtr<ICoreWebView2Settings> settings;
     if (SUCCEEDED(webview_->get_Settings(&settings)) && settings) {
         settings->put_AreDefaultContextMenusEnabled(context_menu_enabled_ ? TRUE : FALSE);
+
+        if (!user_agent_.empty()) {
+            Microsoft::WRL::ComPtr<ICoreWebView2Settings2> settings2;
+            // put_UserAgent 是 Settings2 才有的扩展接口（WebView2 Runtime 86+），
+            // QI 失败说明运行时太旧；此时只记 warn，不打断初始化。
+            if (SUCCEEDED(settings.As(&settings2)) && settings2) {
+                std::wstring wua = utf8ToWide(user_agent_);
+                HRESULT ua_hr = settings2->put_UserAgent(wua.c_str());
+                if (FAILED(ua_hr)) {
+                    LogError << "WebView2: put_UserAgent failed" << VAR(ua_hr) << VAR(user_agent_);
+                }
+                else {
+                    LogInfo << "WebView2: user agent overridden" << VAR(user_agent_);
+                }
+            }
+            else {
+                LogWarn << "WebView2: ICoreWebView2Settings2 unavailable, user agent override skipped"
+                        << VAR(user_agent_);
+            }
+        }
     }
     else {
-        LogWarn << "WebView2: get_Settings failed, context menu config not applied";
+        LogWarn << "WebView2: get_Settings failed, settings (context menu / user agent) not applied";
     }
 
     resizeToClientRect();
@@ -375,6 +404,14 @@ void WebView2::SetContextMenuEnabled(bool enabled)
 {
     if (isOpened()) {
         LogWarn << "WebView2::SetContextMenuEnabled: ignored, must be called before Open()" << VAR(enabled);
+        return;
+    }
+}
+
+void WebView2::SetUserAgent(std::string user_agent)
+{
+    if (isOpened()) {
+        LogWarn << "WebView2::SetUserAgent: ignored, must be called before Open()" << VAR(user_agent);
         return;
     }
 }
