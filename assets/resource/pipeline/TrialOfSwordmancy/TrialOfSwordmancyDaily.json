@@ -11,6 +11,10 @@
     },
     "TrialOfSwordmancyDailyCheckRewardMode": {
         "desc": "检查是否处于奖励演算模式",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
+        ],
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
