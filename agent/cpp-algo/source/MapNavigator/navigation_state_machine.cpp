@@ -53,10 +53,10 @@ bool ReadRoiArray(const json::value& holder, cv::Rect* out)
             return false;
         }
     }
-    out->x = arr.at(0).as_integer();
-    out->y = arr.at(1).as_integer();
-    out->width = arr.at(2).as_integer();
-    out->height = arr.at(3).as_integer();
+    out->x = static_cast<int>(std::lround(arr.at(0).as_double()));
+    out->y = static_cast<int>(std::lround(arr.at(1).as_double()));
+    out->width = static_cast<int>(std::lround(arr.at(2).as_double()));
+    out->height = static_cast<int>(std::lround(arr.at(3).as_double()));
     return out->width > 0 && out->height > 0;
 }
 
@@ -104,6 +104,11 @@ bool ParseCollectRoiFromNode(MaaContext* context, const char* node_name, cv::Rec
 
     LogWarn << "Collect ROI: no usable roi array in node data." << VAR(node_name);
     return false;
+}
+
+bool RouteHasCollectWaypoint(const std::vector<Waypoint>& path)
+{
+    return std::any_of(path.begin(), path.end(), [](const Waypoint& wp) { return wp.action == ActionType::COLLECT; });
 }
 
 struct BootstrapWaypointCandidate
@@ -1094,10 +1099,7 @@ void NavigationStateMachine::StartCollectScanner()
         return;
     }
 
-    const std::vector<Waypoint>& path = session_->original_path();
-    const bool has_collect =
-        std::any_of(path.begin(), path.end(), [](const Waypoint& wp) { return wp.action == ActionType::COLLECT; });
-    if (!has_collect) {
+    if (!RouteHasCollectWaypoint(session_->original_path())) {
         return;
     }
 
@@ -1174,10 +1176,7 @@ void NavigationStateMachine::PreWarmCollectOcr()
         return;
     }
 
-    const std::vector<Waypoint>& path = session_->original_path();
-    const bool has_collect =
-        std::any_of(path.begin(), path.end(), [](const Waypoint& wp) { return wp.action == ActionType::COLLECT; });
-    if (!has_collect) {
+    if (!RouteHasCollectWaypoint(session_->original_path())) {
         return;
     }
 
