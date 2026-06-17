@@ -39,6 +39,8 @@ Optional parameters:
 
 - `threshold`: A real number between $(0, 1]$, default `0.4`. Controls the confidence threshold for matching. Matching results below this value will not be recognized.
 
+- `allowed_modes`: Integer, default `3`. Advanced parameter that controls which location inference modes are allowed. The value is a bitwise OR of `INFER_MODE_FULL_SEARCH = 1` and `INFER_MODE_FAST_SEARCH = 2`. This parameter must include `INFER_MODE_FULL_SEARCH`.
+
 ### Recognition: MapTrackerBigMapInfer
 
 🗺️ Infer the coordinates and map zoom of the current view area in the map within the large map interface.

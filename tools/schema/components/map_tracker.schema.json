@@ -364,6 +364,14 @@
                     "exclusiveMinimum": 0,
                     "maximum": 1,
                     "default": 0.4
+                },
+                "allowed_modes": {
+                    "title": "Allowed Modes",
+                    "description": "Bitmask controlling which location inference modes are allowed. 1 = FullSearch, 2 = FastSearch. Default 3 (both).",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 3,
+                    "default": 3
                 }
             }
         },

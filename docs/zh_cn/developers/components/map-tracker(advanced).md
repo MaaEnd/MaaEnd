@@ -39,6 +39,8 @@
 
 - `threshold`: 介于 $(0, 1]$ 的实数，默认 `0.4`。控制匹配的置信度阈值。低于此值的匹配结果将不命中识别。
 
+- `allowed_modes`: 整数，默认 `3`。高级参数，控制允许使用的定位推断模式，取值为 `INFER_MODE_FULL_SEARCH = 1` 与 `INFER_MODE_FAST_SEARCH = 2` 的按位或结果。该参数必须包含 `INFER_MODE_FULL_SEARCH`。
+
 ### Recognition: MapTrackerBigMapInfer
 
 🗺️ 在大地图界面中推断当前视野区域在地图中的坐标与地图缩放。
