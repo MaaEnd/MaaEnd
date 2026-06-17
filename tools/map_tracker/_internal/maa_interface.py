@@ -87,7 +87,7 @@ class MaaInterface:
             window = self._find_win32_window()
             self.controller = Win32Controller(
                 window.hwnd,
-                screencap_method=MaaWin32ScreencapMethodEnum.Background,
+                screencap_method=MaaWin32ScreencapMethodEnum.FramePool,
                 mouse_method=MaaWin32InputMethodEnum.Seize,
                 keyboard_method=MaaWin32InputMethodEnum.Seize,
             )
@@ -176,7 +176,9 @@ class MaaInterface:
         except Exception:
             pass
 
-    def do_infer(self) -> MapTrackerInferResult:
+    def do_infer(
+        self, *, precision: float, allowed_modes: int = 3
+    ) -> MapTrackerInferResult:
         if self.controller is None:
             raise MaaRuntimeError("Controller not initialized")
         if self.agent_client is None:
@@ -192,7 +194,8 @@ class MaaInterface:
                         "custom_recognition": "MapTrackerInfer",
                         "custom_recognition_param": {
                             "map_name_regex": ".*",
-                            "precision": 0.8,
+                            "precision": precision,
+                            "allowed_modes": allowed_modes,
                         },
                     },
                 },
@@ -266,14 +269,3 @@ class MaaInterface:
 
         if not task_detail.status.succeeded:
             raise MaaRuntimeError("Goal action failed")
-
-
-# Testing
-if __name__ == "__main__":
-    maa_interface = MaaInterface()
-    try:
-        maa_interface.init_controller()
-        maa_interface.init_agent()
-        maa_interface.do_infer()
-    finally:
-        maa_interface.dispose_agent()

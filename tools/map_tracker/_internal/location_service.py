@@ -97,7 +97,7 @@ class LocationService:
                 continue
             try:
                 with self._infer_lock:
-                    result = self._maa_interface.do_infer()
+                    result = self._maa_interface.do_infer(precision=0.9)
                 if not self._is_map_match(result["map_name"], self._expected_map_name):
                     raise ValueError(
                         f"Location map mismatch, expected '{self._expected_map_name}', got '{result['map_name']}'"
@@ -140,7 +140,7 @@ class LocationService:
     def infer_once(self, expected_map_name: str) -> MapTrackerInferResult:
         self._ensure_initialized()
         with self._infer_lock:
-            result = self._maa_interface.do_infer()
+            result = self._maa_interface.do_infer(precision=0.9)
         if not self._is_map_match(result["map_name"], expected_map_name):
             raise ValueError(
                 f"Location map mismatch, expected '{expected_map_name}', got '{result['map_name']}'"
