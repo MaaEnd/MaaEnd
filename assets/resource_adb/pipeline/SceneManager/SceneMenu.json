@@ -1,11 +1,4 @@
 {
-    "__ScenePrivateMenuListEnterWorld": {
-        "action": {
-            "param": {
-                "key": 4
-            }
-        }
-    },
     "__ScenePrivateMenuValuablesEnterValuableTab": {
         "roi": [
             0,
