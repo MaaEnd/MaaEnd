@@ -122,6 +122,25 @@ struct SteeringRateState
     }
 };
 
+// Off-route wedge watchdog clock. Fed straight-line distance to the current waypoint and only run while the agent
+// is off the route corridor, so it grows only during a genuine no-progress wedge that the corridor-fed stall
+// clocks miss. Drives a replan, then a fail-fast.
+struct OffRouteWedgeState
+{
+    std::chrono::steady_clock::time_point since {};
+    std::chrono::steady_clock::time_point last_replan_at {};
+    double best_distance = std::numeric_limits<double>::max();
+    bool active = false;
+
+    void Reset()
+    {
+        since = {};
+        last_replan_at = {};
+        best_distance = std::numeric_limits<double>::max();
+        active = false;
+    }
+};
+
 struct NavigationRuntimeState
 {
     RouteTrackerState route;
@@ -130,6 +149,7 @@ struct NavigationRuntimeState
     DynamicRecoveryState recovery;
     LocalizationLossState localization_loss;
     SteeringRateState steering_rate;
+    OffRouteWedgeState offroute;
     bool dynamic_replan_requested = false;
     bool nav_run_dirty = true;
 
@@ -138,6 +158,7 @@ struct NavigationRuntimeState
         route.ResetTracking();
         recovery.Reset();
         steering_rate.Reset();
+        offroute.Reset();
         dynamic_replan_requested = false;
         nav_run_dirty = true;
     }
@@ -149,6 +170,7 @@ struct NavigationRuntimeState
         recovery.Reset();
         localization_loss.Reset();
         steering_rate.Reset();
+        offroute.Reset();
         dynamic_replan_requested = false;
         nav_run_dirty = true;
         flow.navigate_started_at = now;
@@ -159,6 +181,7 @@ struct NavigationRuntimeState
     {
         route.ResetTracking();
         recovery.Reset();
+        offroute.Reset();
         dynamic_replan_requested = false;
         nav_run_dirty = true;
         flow.last_auto_sprint_time = {};

@@ -867,6 +867,42 @@ bool NavigationStateMachine::TickNavigate()
         }
     }
 
+    // Off-route wedge watchdog (see kOffRouteWedge* in navi_config.h). Only corridor (non-strict RUN) waypoints,
+    // where on_route is meaningful; the stall clocks above are fed corridor progress and miss a pinned-off-route
+    // cursor. Fed straight-line distance, so the timer only grows while genuinely off-route with no inward gain.
+    if (session_->phase() == NaviPhase::Navigate && waypoint.action == ActionType::RUN && !waypoint.RequiresStrictArrival()
+        && !route.on_route) {
+        OffRouteWedgeState& wedge = runtime_state_.offroute;
+        const double progress_epsilon = std::max(kNoProgressDistanceEpsilon, kMeasurementDefaultPositionQuantum);
+        if (!wedge.active || route.progress_distance + progress_epsilon < wedge.best_distance) {
+            wedge.active = true;
+            wedge.best_distance = route.progress_distance;
+            wedge.since = now;
+        }
+        const int64_t wedge_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - wedge.since).count();
+        if (wedge_ms >= kOffRouteWedgeFailMs) {
+            return FailNavigation(
+                "offroute_wedge_timeout",
+                "Off-route with no route progress past the wedge timeout; terminating so the pipeline can retry.",
+                route.progress_distance,
+                NaviMath::NormalizeAngle(route.route_heading - current_heading),
+                stalled_ms);
+        }
+        const bool replan_cooling = wedge.last_replan_at.time_since_epoch().count() > 0
+                                    && std::chrono::duration_cast<std::chrono::milliseconds>(now - wedge.last_replan_at).count()
+                                           < kOffRouteWedgeReplanCooldownMs;
+        if (wedge_ms >= kOffRouteWedgeReplanMs && !replan_cooling) {
+            wedge.last_replan_at = now;
+            LogWarn << "Off-route wedge detected; replanning from current position." << VAR(wedge_ms)
+                    << VAR(route.waypoint_distance) << VAR(route.cross_track) << VAR(session_->current_node_idx());
+            HandleDynamicReplanRequest("offroute_wedge");
+            return true;
+        }
+    }
+    else {
+        runtime_state_.offroute.Reset();
+    }
+
     // Near a strict-arrival goal only the *detour* is unsafe (it routes away from the exact point);
     // a jump is still a safe nudge, so recovery is allowed to enter here and the suppression is
     // applied to the detour step alone, below.

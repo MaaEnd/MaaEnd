@@ -94,6 +94,13 @@ constexpr double kCloseGoalDetourSuppressSlack = 6.0;
 constexpr int32_t kLocalizationLossUnstickIntervalMs = kObstacleRecoveryMinTriggerMs;
 constexpr int32_t kLocalizationLossTimeoutMs = kDynamicRecoveryTotalTimeoutMs;
 
+// Off-route wedge watchdog. Corridor progress (what the stall clocks see) keeps advancing while the authored
+// cursor is pinned far off-route, so a bad latch wanders with zero route progress until the action hard-fails.
+// Runs only while off-corridor with no straight-line gain: replan first, then fail-fast so the pipeline retries.
+constexpr int32_t kOffRouteWedgeReplanMs = 6000;
+constexpr int32_t kOffRouteWedgeReplanCooldownMs = 4000;
+constexpr int32_t kOffRouteWedgeFailMs = 12000;
+
 // --- NavRunController (RUN corridor follower) ---
 constexpr double kNavRunLookaheadLowSpeedM = 2.5;
 constexpr double kNavRunLookaheadWalkM = 4.0;
