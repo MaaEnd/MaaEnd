@@ -47,6 +47,8 @@ type MapTrackerInferParam struct {
 const (
 	INFER_MODE_FULL_SEARCH = 1
 	INFER_MODE_FAST_SEARCH = 2
+
+	POINTER_TEMPLATE_MASK_COLOR_RGB888 = 0x00FF00
 )
 
 var mapTrackerInferDefaultParam = MapTrackerInferParam{
@@ -515,9 +517,9 @@ func (i *MapTrackerInfer) inferRotation(ctrlType string, screenImg *image.RGBA, 
 			// Rotate the patch
 			rotatedRGBA := minicv.ImageRotate(patch, float64(a))
 
-			// Match against pointer template
+			// Match against pointer template and ignore green-screen pixels in the template.
 			integral := minicv.GetIntegralArray(rotatedRGBA)
-			_, _, matchVal := minicv.MatchTemplate(rotatedRGBA, integral, pointerTemplate.Image, pointerTemplate.Stats)
+			_, _, matchVal := minicv.MatchTemplateWithMask(rotatedRGBA, integral, pointerTemplate.Image, pointerTemplate.Stats, POINTER_TEMPLATE_MASK_COLOR_RGB888)
 
 			resChan <- result{a, matchVal}
 		}(angle)
