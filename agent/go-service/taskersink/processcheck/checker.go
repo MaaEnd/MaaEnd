@@ -18,6 +18,7 @@ type blacklistEntry struct {
 // Keywords matched against process names via exact (case-sensitive) equality.
 var blacklist = []blacklistEntry{
 	{"DNFAutoFire.exe", "DNFAutoFire.exe"}, // 会让alt按键事件失效
+	{"DAF连发工具.exe", "DAF连发工具.exe"},         // 会让alt按键事件失效
 }
 
 // ProcessChecker detects blacklisted processes before task execution
