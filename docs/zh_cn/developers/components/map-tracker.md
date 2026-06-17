@@ -270,8 +270,6 @@
 
 - `threshold`: 含义同 [MapTrackerInfer](./map-tracker%28advanced%29.md#recognition-maptrackerinfer) 节点中的 `threshold` 参数。
 
-- `fast_mode`: 真假值，默认 `false`。控制是否开启快速匹配模式，以额外提升识别速度。除非遇到性能瓶颈，否则不建议开启此模式。
-
 </details>
 
 #### 示例用法

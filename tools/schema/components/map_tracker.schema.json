@@ -335,12 +335,6 @@
                     "exclusiveMinimum": 0,
                     "maximum": 1,
                     "default": 0.4
-                },
-                "fast_mode": {
-                    "title": "Fast Mode",
-                    "description": "Enable fast matching mode for extra speed. Not recommended unless hitting performance bottleneck.",
-                    "type": "boolean",
-                    "default": false
                 }
             }
         },

@@ -179,8 +179,6 @@ Required parameters:
 
 - `threshold`: Same meaning as the `threshold` parameter in the [MapTrackerInfer](./map-tracker%28advanced%29.md#recognition-maptrackerinfer) node.
 
-- `fast_mode`: Boolean value, default `false`. Controls whether to enable fast matching mode to further improve recognition speed. Unless encountering performance bottlenecks, it is not recommended to enable this mode.
-
 </details>
 
 #### Example Usage

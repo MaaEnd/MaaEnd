@@ -89,6 +89,5 @@ func (r *MapTrackerAssertLocationCompatible) convertParam(param *mapLocateAssert
 			},
 		},
 		Threshold: param.LocThreshold,
-		FastMode:  true,
 	}, nil
 }
