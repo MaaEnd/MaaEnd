@@ -47,8 +47,6 @@ type MapTrackerInferParam struct {
 const (
 	INFER_MODE_FULL_SEARCH = 1
 	INFER_MODE_FAST_SEARCH = 2
-
-	POINTER_TEMPLATE_MASK_COLOR_RGB888 = 0x00FF00
 )
 
 var mapTrackerInferDefaultParam = MapTrackerInferParam{
@@ -302,9 +300,7 @@ func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, 
 	}
 
 	miniMap = minicv.ImageScale(miniMap, scale)
-	miniMapBounds := miniMap.Bounds()
-	miniMapW, miniMapH := miniMapBounds.Dx(), miniMapBounds.Dy()
-	miniMapHalfW, miniMapHalfH := float64(miniMapW)/2.0, float64(miniMapH)/2.0
+	miniMapHalfW, miniMapHalfH := float64(miniMap.Bounds().Dx())/2.0, float64(miniMap.Bounds().Dy())/2.0
 
 	// Precompute needle (minimap) statistics for all matches
 	miniStats := minicv.GetImageStats(miniMap)
@@ -519,7 +515,7 @@ func (i *MapTrackerInfer) inferRotation(ctrlType string, screenImg *image.RGBA, 
 
 			// Match against pointer template and ignore green-screen pixels in the template.
 			integral := minicv.GetIntegralArray(rotatedRGBA)
-			_, _, matchVal := minicv.MatchTemplateWithMask(rotatedRGBA, integral, pointerTemplate.Image, pointerTemplate.Stats, POINTER_TEMPLATE_MASK_COLOR_RGB888)
+			_, _, matchVal := minicv.MatchTemplateWithMask(rotatedRGBA, integral, pointerTemplate.Image, pointerTemplate.Stats, 0x00FF00)
 
 			resChan <- result{a, matchVal}
 		}(angle)
