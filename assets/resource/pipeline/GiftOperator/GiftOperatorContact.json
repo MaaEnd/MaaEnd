@@ -615,15 +615,7 @@
             }
         },
         "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    -30,
-                    50,
-                    0,
-                    0
-                ]
-            }
+            "type": "Click"
         },
         "next": [
             "GiftOperatorCheckSelected1"
@@ -643,15 +635,7 @@
             }
         },
         "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    -30,
-                    50,
-                    0,
-                    0
-                ]
-            }
+            "type": "Click"
         },
         "next": [
             "GiftOperatorCheckSelected2"
@@ -671,15 +655,7 @@
             }
         },
         "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    -30,
-                    50,
-                    0,
-                    0
-                ]
-            }
+            "type": "Click"
         },
         "next": [
             "GiftOperatorCheckSelected3"
