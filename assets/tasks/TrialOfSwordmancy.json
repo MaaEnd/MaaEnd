@@ -41,6 +41,40 @@
                             "enabled": true
                         }
                     }
+                },
+                {
+                    "name": "Farm25",
+                    "label": "$option.TrialOfSwordmancyMode.cases.Farm25.label",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyFarm25": {
+                            "enabled": true
+                        },
+                        "TrialOfSwordmancyCoatingCheck1": {
+                            "any_of": [
+                                "TrialOfSwordmancyBattlePts5"
+                            ]
+                        },
+                        "TrialOfSwordmancyCoatingCheck2": {
+                            "any_of": [
+                                "TrialOfSwordmancyBattlePts10"
+                            ]
+                        },
+                        "TrialOfSwordmancyCoatingCheck3": {
+                            "any_of": [
+                                "TrialOfSwordmancyBattlePts4"
+                            ]
+                        },
+                        "TrialOfSwordmancyCoatingCheck4": {
+                            "any_of": [
+                                "TrialOfSwordmancyBattlePts9"
+                            ]
+                        },
+                        "TrialOfSwordmancyCoatingCheck5": {
+                            "any_of": [
+                                "TrialOfSwordmancyBattlePts3"
+                            ]
+                        }
+                    }
                 }
             ]
         }
