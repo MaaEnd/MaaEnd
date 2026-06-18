@@ -272,7 +272,6 @@ double CorridorCoincidence(
     if (corridor.points.size() < 2 || authored.size() < 2) {
         return 1.0;
     }
-    const double safe_step = std::max(step, 0.1);
     size_t total = 0;
     size_t coincident = 0;
     const auto tally = [&](const navmesh::WorldPoint& p) {
@@ -281,26 +280,18 @@ double CorridorCoincidence(
             ++coincident;
         }
     };
-    tally(corridor.points.front());
-    for (size_t i = 0; i + 1 < corridor.points.size(); ++i) {
-        const navmesh::WorldPoint& a = corridor.points[i];
-        const navmesh::WorldPoint& b = corridor.points[i + 1];
-        const double seg = std::hypot(b.x - a.x, b.y - a.y);
-        const int steps = static_cast<int>(std::ceil(seg / safe_step));
-        for (int k = 1; k <= steps; ++k) {
-            const double t = static_cast<double>(k) / static_cast<double>(steps);
-            tally({ .x = a.x + (b.x - a.x) * t, .y = a.y + (b.y - a.y) * t });
-        }
-    }
+    ForEachResampledPoint(corridor.points, step, tally);
     return total == 0 ? 1.0 : static_cast<double>(coincident) / static_cast<double>(total);
 }
 
-// The authored line from the current waypoint up to and including the anchor. Fewer than 2 points when
-// the span can't be assembled (caller then keeps the navmesh corridor).
+// The authored line from the current waypoint up to and including the anchor. Returns empty unless the
+// anchor is actually reached (a control node or path end first truncates the span), so the caller falls
+// back to the navmesh corridor instead of trusting a line that stops short of the anchor.
 std::vector<navmesh::WorldPoint> BuildAuthoredSpanPolyline(const NavigationSession& session, size_t anchor_index)
 {
     const std::vector<Waypoint>& waypoints = session.current_path();
     std::vector<navmesh::WorldPoint> poly;
+    bool reached_anchor = false;
     for (size_t index = session.current_node_idx(); index < waypoints.size(); ++index) {
         const Waypoint& waypoint = waypoints[index];
         if (!waypoint.HasPosition()) {
@@ -309,8 +300,12 @@ std::vector<navmesh::WorldPoint> BuildAuthoredSpanPolyline(const NavigationSessi
         poly.push_back({ .x = waypoint.x, .y = waypoint.y });
         const std::optional<size_t> canonical = session.CanonicalIndexAtCurrentPath(index);
         if (canonical && *canonical == anchor_index) {
+            reached_anchor = true;
             break;
         }
+    }
+    if (!reached_anchor) {
+        return {};
     }
     return poly;
 }
@@ -346,7 +341,7 @@ bool NavRunController::buildPlan(
     };
 
     // The literal-vs-navmesh choice is per anchor span: decide once, reuse across soft replans.
-    // invalidate() (anchor/zone change) resets plan_ and forces a fresh decision.
+    // invalidate() (anchor/zone change, or recovery's nav_run_dirty) resets plan_ for a fresh decision.
     const bool same_span = plan_.valid && plan_.anchor_index == anchor_index;
     std::vector<navmesh::WorldPoint> authored = BuildAuthoredSpanPolyline(session, anchor_index);
     const bool authored_usable = authored.size() >= 2;

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <filesystem>
 #include <optional>
@@ -29,6 +32,29 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const navmesh::WorldPoint& start,
     const navmesh::WorldPoint& goal,
     const std::vector<uint32_t>& blocked_triangles = {});
+// Resample `poly` at ~`step` world units (clamped to >=0.1) and invoke `fn` on the leading vertex and
+// every resampled point. Shared by NavmeshOffMeshFraction and NavRunController's CorridorCoincidence so
+// both sampling passes stay identical. Caller guards poly.size() >= 2 for a meaningful result.
+template <typename Fn>
+void ForEachResampledPoint(const std::vector<navmesh::WorldPoint>& poly, double step, Fn&& fn)
+{
+    if (poly.empty()) {
+        return;
+    }
+    const double safe_step = std::max(step, 0.1);
+    fn(poly.front());
+    for (size_t i = 0; i + 1 < poly.size(); ++i) {
+        const navmesh::WorldPoint& a = poly[i];
+        const navmesh::WorldPoint& b = poly[i + 1];
+        const double seg = std::hypot(b.x - a.x, b.y - a.y);
+        const int steps = static_cast<int>(std::ceil(seg / safe_step));
+        for (int k = 1; k <= steps; ++k) {
+            const double t = static_cast<double>(k) / static_cast<double>(steps);
+            fn(navmesh::WorldPoint { .x = a.x + (b.x - a.x) * t, .y = a.y + (b.y - a.y) * t });
+        }
+    }
+}
+
 // Fraction of `polyline` (resampled every ~`step` world units, vertices included) lying OFF the
 // navmesh — the signature of water the game omits. Resolves the zone like PlanNavmeshRoute. Returns
 // 0.0 when the zone can't resolve or the line is empty (fail-safe on-mesh).

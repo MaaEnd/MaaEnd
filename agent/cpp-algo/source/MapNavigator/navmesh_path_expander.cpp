@@ -725,7 +725,6 @@ double NavmeshOffMeshFraction(
         return 0.0;
     }
 
-    const double safe_step = std::max(step, 0.1);
     size_t total = 0;
     size_t off = 0;
     // projectToBase maps a tier query onto its geometry zone (identity for a base zone), keeping the
@@ -742,17 +741,7 @@ double NavmeshOffMeshFraction(
     };
 
     // Sample both endpoints of every segment so a mid-segment water dip between on-mesh vertices counts.
-    sample(polyline.front());
-    for (size_t i = 0; i + 1 < polyline.size(); ++i) {
-        const navmesh::WorldPoint& a = polyline[i];
-        const navmesh::WorldPoint& b = polyline[i + 1];
-        const double seg = std::hypot(b.x - a.x, b.y - a.y);
-        const int steps = static_cast<int>(std::ceil(seg / safe_step));
-        for (int k = 1; k <= steps; ++k) {
-            const double t = static_cast<double>(k) / static_cast<double>(steps);
-            sample({ .x = a.x + (b.x - a.x) * t, .y = a.y + (b.y - a.y) * t });
-        }
-    }
+    ForEachResampledPoint(polyline, step, sample);
     if (total == 0) {
         return 0.0;
     }
