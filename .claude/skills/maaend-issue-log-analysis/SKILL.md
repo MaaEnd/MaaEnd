@@ -15,20 +15,24 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 ## Workflow
 
 1. 规范化输入。
+
     - `#1234` 视为 `https://github.com/MaaEnd/MaaEnd/issues/1234`
     - 如果不是 `MaaEnd/MaaEnd`，停止并说明此 skill 不适用。
 
 2. 获取 issue 内容。
+
     - 优先读取 issue 页面正文和评论。
     - 提取这些信息：版本、控制器类型、任务名、预期行为、实际行为、复现步骤、维护者评论。
     - 如果维护者已经给出结论，不要直接照抄；仍要用日志和代码自行验证，再把维护者结论作为补强证据。
 
 3. 提取日志附件链接。
+
     - 关注 `MaaEnd-logs-*.zip`。
     - 如果同一个 issue 有多个日志包，先看最新一次复现；如果 issue 在对比不同版本或不同控制器，再补看前面的包。
     - 如果 issue 没有日志包，且明确是 bug，则直接停止分析并说明证据不足。
 
 4. 下载并解压日志包。
+
     - 二进制 zip 不能用网页抓取工具直接读取，应使用终端下载。
     - 用 `curl -L` 或等价方式下载到仓库内临时目录，例如 `.cache/issue-logs/issue-<number>/`。
     - 解压后用文件工具读取，不要把整份大日志完整塞进回复。
@@ -52,12 +56,14 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
     e. 如果符号化失败或无法下载 PDB，在报告中明确说明，但仍必须输出 module+offset 级别的堆栈。
 
 6. 建立时间线。
+
     - 先从 issue 文本判断“用户觉得出问题的时刻”。
     - 再把 `mxu-web-*`、`mxu-tauri.log`、`go-service.log`、`maafw.log`、`mxu-agent*.log` 串成一条时间线。
     - 先用 `mxu-tauri.log` 或 `maafw.log` 找本次提交的 `task_id`，因为一个日志包里经常混有很多历史运行。
     - 如果有 `on_error/` 截图，用它校验当时实际停留画面；如果没有，要检查是否是未触发 `on_error`，还是日志导出因体积限制把图片截断了。
 
 7. 回溯到代码和文档。
+
     - 任务入口、节点名、控制器限制先看 MaaEnd 仓库。
     - Pipeline 运行语义不确定时查 MaaFramework 文档。
     - MXU 行为或日志分层不确定时，先查 MXU README / 文档；只有文档不足或证据已指向实现层时才看源码。
@@ -169,6 +175,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 ## How To Filter Evidence
 
 1. 先从 issue 文本拿到这几个锚点：
+
     - 版本
     - 控制器类型
     - 任务名 / 入口名
@@ -176,6 +183,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
     - 如果日志流程和当前主线代码不一致，先确认用户版本，必要时切到对应 tag（例如 `git checkout vXXX`）复核旧逻辑
 
 2. 再从日志里找这几类高价值信号：
+
     - `Tasker.Task.Starting` / `Succeeded` / `Failed`
     - `Node.Recognition.Failed` 连续重复
     - `Node.Action.Failed`
@@ -184,24 +192,29 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
     - agent 启动失败、断连、被停止
 
 3. 先锁定“这一次复现”的任务实例，再看细节：
+
     - 从 `mxu-tauri.log` 找 `post_task returned task_id`
     - 再到 `maafw.log` 用这个 `task_id` 跟完整个任务
     - 如果 issue 文本说“失败”，但目标 `task_id` 实际 `Tasker.Task.Succeeded`，要明确写出“本日志未复现用户描述的失败”
 
 4. 对 Pipeline 问题，重点看：
+
     - `maafw.log`
     - `mxu-tauri.log` 里的 `maa_ffi` 回调
 
 5. 对 Go 扩展问题，重点看：
+
     - `go-service.log`
     - `mxu-agent*.log`
 
 6. 对 UI / 配置 / 编排问题，重点看：
+
     - `mxu-web-*`
     - `mxu-tauri.log`
     - `config/*`
 
 7. 回答时只保留关键片段。
+
     - 只摘足够支撑结论的几十行，不要倾倒整份日志。
 
 8. 专项任务增强分析（Specialized Task Analysis）。
@@ -209,6 +222,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
     仅当日志中已经明确识别出具体任务入口名或 `task id` 时，才尝试加载 `.claude/skills/tasks/` 下的专项分析 skill。
 
     查找规则：
+
     - 只使用日志中的原始任务名做匹配，不要自行改写、翻译、概括或猜测任务名。
     - 优先匹配专项 skill 的文件名、header `name`、`description`、标题或开头说明中明确出现的任务名。
     - 仅在匹配结果唯一且语义明确时，读取并执行该专项 skill。
@@ -219,33 +233,40 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 ## Common Patterns
 
 - `next` 列表中的识别连续失败直到超时：
+
     - 常见于当前画面不在预期分支中、模板/OCR 失配、漏了中间节点、被弹窗打断、控制器资源分支不对。
 
 - 某个“兜底返回/退出”节点连续成功，但流程没有前进：
+
     - 常见于 Pipeline 对当前状态判断错了，或者退回动作本身就是错误行为。
     - 也可能是某控制器上该任务根本不支持，导致一直落入通用回退路径。
 
 - issue 文字说“卡死/误点”，但对应 `task_id` 最终 `Tasker.Task.Succeeded`：
+
     - 先明确“本次日志没有复现出用户描述的问题”。
     - 再区分两种情况：
         - 日志只是一次成功样本，不能证明 issue 不存在
         - 代码流程里仍可能存在脆弱点，需要作为“潜在设计风险”单独说明
 
 - 用户日志里的任务流程与当前主线代码明显不一致，且当前代码看起来已经修掉了该问题：
+
     - 先确认用户版本，必要时切到对应 tag（例如 `git checkout vXXX`）核对旧逻辑。
     - 不要用当前分支否定旧日志；旧版本问题可能真实存在。
     - 如果主线已修复，再看修复 commit 是否已进入 tag / release：已发版建议升级，未发版建议等待 release。
 
 - 奖励弹窗相关节点看起来“识别成功并点击成功”，但父流程没有再次验证弹窗真的消失：
+
     - 这是很常见的脆弱点。
     - 例如某个 `Scene*Confirm` 节点只做“识别确认按钮 -> 点击 -> 返回父节点”，没有后续场景确认。
     - 这种情况下，如果本次日志没有失败，不要直接说“已证实这里就是根因”；应写成“与 issue 描述一致的潜在风险点”。
 
 - `go-service.log` 只有 HDR / 分辨率告警，没有明确错误：
+
     - 这些更像环境风险提示，不能自动当成根因。
     - 需要和 `maafw.log` 里的识别结果、`on_error` 截图一起判断。
 
 - `mxu-agent*.log` 里有 HTML 提示，但 `go-service.log` 没有对应错误：
+
     - 说明这可能是面向用户展示的提示，不等于流程失败点本身。
 
 - `maafw.bak.*.log` 里有同一入口、同类参数的历史成功样本，而本次 `maafw.log` 失败：
@@ -257,10 +278,12 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 ### MaaEnd
 
 - 任务入口、控制器限制：
+
     - `assets/tasks/*.json`
     - `assets/interface.json`
 
 - Pipeline 节点：
+
     - `assets/resource/pipeline/**/*.json`
     - `assets/resource_adb/pipeline/**/*.json`
 
@@ -270,6 +293,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 ### MaaFramework
 
 - Pipeline 执行语义、`next` / `on_error` / `timeout` / 动作语义：
+
     - `https://github.com/MaaXYZ/MaaFramework/raw/refs/heads/main/docs/en_us/3.1-PipelineProtocol.md`
 
 - `interface.json` / agent / controller 语义：

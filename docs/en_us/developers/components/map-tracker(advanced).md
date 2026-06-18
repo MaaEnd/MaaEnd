@@ -30,6 +30,7 @@ Required parameters: None
 Optional parameters:
 
 - `map_name_regex`: A [regular expression](https://regexr.com/) used to filter map names. Only maps matching this regular expression will participate in recognition. For example:
+
     - `^map\\d+_lv\\d+$`: Default value. Matches all regular maps.
     - `^map\\d+_lv\\d+(_tier_\\d+)?$`: Matches all regular maps and tier maps (Tier).
     - `^map01_lv001$`: Matches only "map01_lv001" (Valley 4 - Hub Area).

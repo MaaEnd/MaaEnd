@@ -71,6 +71,7 @@ Optional parameters:
 - `stuck_timeout`: Positive integer, default `10000`. The time threshold for judging failure to get out of the stuck state, in milliseconds. If the stuck state is not escaped after this time, pathfinding fails immediately.
 
 - `stuck_mitigators`: List of strings, default `["MoveOrDeleteDevice", "Jump"]`. When the player is judged to be stuck, the actions in the list are executed sequentially to attempt to escape the stuck state. Doing nothing is not allowed; if this field is set to an empty list, the effect is the same as the default value. Available actions include:
+
     - `"Jump"`: Perform a jump action;
     - `"MoveOrDeleteDevice"`: Attempt to delete or move the device in front of the player.
 
@@ -132,6 +133,7 @@ Required parameters:
 Optional parameters:
 
 - `on_find`: Action to perform after the target point is found. Default is `"Click"`. Available values:
+
     - `"Click"`: Click the target point (default).
     - `"Teleport"`: Perform teleportation (requires the point to be a teleport anchor).
     - `"DoNothing"`: Perform no action.

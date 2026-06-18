@@ -609,8 +609,7 @@ After finishing this introduction, continue in order:
 | 3     | [tools-and-debug.md](./tools-and-debug.md)   | Debugging tools, Maa Pipeline Support usage                           |
 | 4     | [coding-standards.md](./coding-standards.md) | Coding conventions — must-read before submitting                      |
 
-> [!NOTE]
-> **External resources**
+> [!NOTE] > **External resources**
 >
 > These links point to separate projects or third-party services outside of MaaEnd, provided for reference.
 
@@ -632,8 +631,7 @@ When you hit something you don't understand, don't panic and don't rush to ask a
 
 ---
 
-> [!NOTE]
-> **Final Words**
+> [!NOTE] > **Final Words**
 >
 > You don't need to learn everything from start to finish before you begin. The best way to learn:
 >

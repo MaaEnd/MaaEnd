@@ -30,8 +30,7 @@ flowchart TD
 7. 用到某个高级组件时 → 查 `components/` 下的对应文档
 8. 维护某个具体任务时 → 查 `tasks/` 下的对应文档
 
-> [!WARNING]
-> **提交任何代码前，必须先通读 [编码规范](./coding-standards.md)。**
+> [!WARNING] > **提交任何代码前，必须先通读 [编码规范](./coding-standards.md)。**
 > 不合规范的 PR 会被直接打回。
 
 ## 文档索引

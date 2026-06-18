@@ -30,8 +30,7 @@ It is recommended to read in the following order:
 7.  When using a specific advanced component → Check the corresponding document under `components/`
 8.  When maintaining a specific task → Check the corresponding document under `tasks/`
 
-> [!WARNING]
-> **Before submitting any code, you must read the [Coding Standards](./coding-standards.md) first.**
+> [!WARNING] > **Before submitting any code, you must read the [Coding Standards](./coding-standards.md) first.**
 > Non-compliant PRs will be rejected immediately.
 
 ## Documentation Index

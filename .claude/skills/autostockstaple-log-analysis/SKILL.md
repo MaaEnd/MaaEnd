@@ -225,6 +225,7 @@ description: 仅分析 `AutoStockStapleMain` 的 MaaEnd 日志。用于还原该
 原因：
 
 - 它们同时满足：
+
     - `AutoStockInStapleItem`
     - `AutoStockInStapleItemDiscounts`
     - `AutoStockInStapleItemName`
