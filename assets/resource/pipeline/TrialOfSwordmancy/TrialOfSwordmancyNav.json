@@ -1,59 +1,33 @@
 {
-    "TrialOfSwordmancyGotoTrialArenaStart": {
-        "desc": "前往演武入口（子任务入口）",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingSwordVaultDale2"
-            ]
-        },
-        "next": [
-            "TrialOfSwordmancyInSwordVaultDale"
-        ]
-    },
-    "TrialOfSwordmancyGotoTrialArenaExit": {
-        "desc": "已到达演武入口，进入下一个子任务",
-        "next": [
-            //这是个空节点，触发jumpback
-        ]
-    },
-
     "TrialOfSwordmancyEnterTrialMenu": {
         "desc": "点击进入演算",
-        "recognition": {
-            "type": "Or",
-            "param": {
-                "any_of": [
-                    {
-                        "recognition": "TemplateMatch",
-                        "roi": [
-                            840,
-                            448,
-                            30,
-                            30
-                        ],
-                        "template": "TrialOfSwordmancy/TrialTrigger1.png"
-                    },
-                    {
-                        "recognition": "TemplateMatch",
-                        "roi": [
-                            840,
-                            448,
-                            30,
-                            30
-                        ],
-                        "template": "TrialOfSwordmancy/TrialTrigger2.png"
-                    }
-                ]
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    840,
+                    448,
+                    30,
+                    30
+                ],
+                "template": "TrialOfSwordmancy/TrialTrigger1.png"
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    840,
+                    448,
+                    30,
+                    30
+                ],
+                "template": "TrialOfSwordmancy/TrialTrigger2.png"
             }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoAltClickAction"
-            }
-        },
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
+        "post_delay": 0,
         "next": [
             "TrialOfSwordmancyEnterTrialMenuSuccess"
         ]
@@ -74,7 +48,33 @@
                 68,
                 60
             ]
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+
+    "TrialOfSwordmancyGotoTrialArenaStart": {
+        "desc": "前往演武入口（子任务入口）",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingSwordVaultDale2"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyInSwordVaultDale"
+        ]
+    },
+    "TrialOfSwordmancyGotoTrialArenaExit": {
+        "desc": "已到达演武入口，进入下一个子任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            //这是个空节点，触发jumpback
+        ]
     },
     "TrialOfSwordmancyInSwordVaultDale": {
         "desc": "确认在藏剑谷内",
@@ -89,13 +89,16 @@
                 18.34
             ]
         },
+        "pre_delay": 0,
         "action": "DoNothing",
+        "post_delay": 0,
         "next": ["TrialOfSwordmancyGotoTrialArenaCpp"]
     },
     "TrialOfSwordmancyGotoTrialArenaCpp": {
         "desc": "使用MapNavigator导航前往目标地点",
         "max_hit": 1,
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
@@ -207,6 +210,7 @@
                 ]
             ]
         },
+        "post_delay": 0,
         "next": ["TrialOfSwordmancyGotoTrialArenaExit"]
     }
 }
