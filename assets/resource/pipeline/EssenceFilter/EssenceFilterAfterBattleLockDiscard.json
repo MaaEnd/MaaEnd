@@ -238,10 +238,34 @@
             //无next，用来触发Jumpback
         ]
     },
+    "EssenceFilterAfterBattleCloseDetailIconJumpback": {
+        "desc": "如果基质详情页还在，则点击已获得奖励上方图标，关闭基质详情，防遮挡(JumpBack)",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    480,
+                    0,
+                    312,
+                    388
+                ],
+                "template": "EssenceFilter/EssenceDetailExit.png",
+                "green_mask": true,
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            //无next，用来触发Jumpback,作为上方Jumpback备份
+        ]
+    },
     "EssenceFilterAfterBattleRowNextItem": {
         "desc": "处理下一个命中的格子，识别不到则退出任务",
         "next": [
             "[JumpBack]EssenceFilterAfterBattleCloseDetailJumpback",
+            "[JumpBack]EssenceFilterAfterBattleCloseDetailIconJumpback",
             "EssenceFilterAfterBattleNthRecognition",
             "EssenceFilterAfterBattleExit"
         ]
@@ -268,6 +292,8 @@
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "on_error": [
+            "[JumpBack]EssenceFilterAfterBattleCloseDetailJumpback",
+            "[JumpBack]EssenceFilterAfterBattleCloseDetailIconJumpback",
             "EssenceFilterAfterBattleExit"
         ]
     }
