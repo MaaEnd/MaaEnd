@@ -115,7 +115,7 @@
                 }
             }
         },
-        "post_delay": 1000, //确保彻底停下,防止停下一瞬间看到了,靠惯性滑过目标点
+
         "next": [
             "WLMarkerStoneMoveToTriggerPointExact"
         ],
@@ -143,6 +143,7 @@
                 }
             }
         },
+        "post_delay": 1000, //确保彻底停下,防止停下一瞬间看到了,靠惯性滑过目标点
         "next": [
             "AutoEssenceAtTriggerState"
         ],
