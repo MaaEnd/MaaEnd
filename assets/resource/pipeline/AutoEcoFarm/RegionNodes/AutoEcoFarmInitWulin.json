@@ -355,7 +355,38 @@
         "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
-        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "_AutoEcoFarmBlindWalkStartNavigateWulin"
+            ],
+            "strict": false
+        },
+        "next": [
+            "_AutoEcoFarmAssertOutsideBaseWulin",
+            "_AutoEcoFarmBlindWalkPhotoMode"
+        ]
+    },
+    "_AutoEcoFarmAssertOutsideBaseWulin": {
+        "desc": "[Wulin版]已经在基地外，无需盲走",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                660.75,
+                220.38,
+                51.34,
+                60.38
+            ]
+        },
+        "action": "DoNothing",
+        "next": ["_AutoEcoFarmGotoEcoFarmStart"]
+    },
+    "_AutoEcoFarmBlindWalkStartNavigateWulin": {
+        "desc": "[Wulin版]尝试直接走出基地",
+        "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
@@ -365,15 +396,13 @@
                     "zone_id": "Wuling_Base"
                 },
                 {
-                    "action": "HEADING",
-                    "angle": 80
+                    "action": "NAVMESH",
+                    "target": [
+                        673,
+                        230
+                    ]
                 }
             ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "_AutoEcoFarmBlindWalkPhotoMode"
-        ]
+        }
     }
 }
