@@ -396,6 +396,7 @@ def build_cpp_algo(
         if resolved_arch == "aarch64":
             configure_preset_candidates = ["MSVC 2026 ARM", "MSVC 2022 ARM"]
         else:
+            # 兼容仅安装 VS2022 的环境：优先尝试 2026，失败时自动回退 2022
             configure_preset_candidates = ["MSVC 2026", "MSVC 2022"]
     elif resolved_os == "linux":
         if resolved_arch == "aarch64":
