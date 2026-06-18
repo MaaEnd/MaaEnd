@@ -938,7 +938,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "GiftOperatorClickGift": {
+                        "GiftOperatorClickGiftColorNumber": {
                             "recognition": {
                                 "param": {
                                     "index": -1

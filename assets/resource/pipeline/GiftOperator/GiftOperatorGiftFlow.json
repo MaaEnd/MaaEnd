@@ -95,6 +95,41 @@
     "GiftOperatorClickGift": {
         "desc": "选择礼物",
         "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorClickGiftColor",
+                    "GiftOperatorClickGiftColorNumber"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GiftOperatorGiftSelected"
+        ]
+    },
+    "GiftOperatorClickGiftColorNumber": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorClickGiftColor",
+                "roi_offset": [
+                    26,
+                    -24,
+                    -50,
+                    24
+                ],
+                "expected": [
+                    "[1-9]\\d*"
+                ]
+            }
+        }
+    },
+    "GiftOperatorClickGiftColor": {
+        "recognition": {
             "type": "ColorMatch",
             "param": {
                 "roi": [
@@ -117,21 +152,7 @@
                 "connected": true,
                 "count": 10
             }
-        },
-        "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    40,
-                    -60,
-                    -80,
-                    0
-                ]
-            }
-        },
-        "next": [
-            "GiftOperatorGiftSelected"
-        ]
+        }
     },
     "GiftOperatorConfirmGift": {
         "desc": "点击赠送按钮",
