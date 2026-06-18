@@ -879,7 +879,8 @@
                     "name": "No",
                     "option": [
                         "SelectOperator",
-                        "GiftCount"
+                        "GiftCount",
+                        "SendWrongGift"
                     ],
                     "pipeline_override": {}
                 }
@@ -927,6 +928,30 @@
                     "repeat_delay": 100
                 }
             }
+        },
+        "SendWrongGift": {
+            "type": "switch",
+            "label": "$option.SendWrongGift.label",
+            "description": "$option.SendWrongGift.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "GiftOperatorClickGift": {
+                            "recognition": {
+                                "param": {
+                                    "index": -1
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {}
+                }
+            ]
         }
     }
 }
