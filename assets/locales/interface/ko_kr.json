@@ -835,6 +835,8 @@
     "task.GiftOperator.focus.bag_full_clear": "가방이 가득 찼습니다. 가방 정리를 시도합니다",
     "task.GiftOperator.focus.max_affinity": "⚠️ 오퍼레이터 호감도가 이미 최대입니다",
     "task.GiftOperator.focus.all_full": "모든 오퍼레이터의 신뢰도가 이미 가득 찼습니다. 작업을 수행할 수 없습니다",
+    "task.GiftOperator.focus.select_op1": "⚠️ 모든 오퍼레이터의 신뢰도가 최대입니다. 작업을 수행할 수 없습니다",
+    "task.GiftOperator.focus.select_trust_full": "⚠️ 오퍼레이터 신뢰도가 최대입니다",
     "task.GiftOperator.focus.move_fail": "⚠️ 오퍼레이터 인식 실패",
     "task.GiftOperator.select.any_three": "임의",
     "task.AutoStockStaple.label": "🏪 안정 수요 물자 구매",

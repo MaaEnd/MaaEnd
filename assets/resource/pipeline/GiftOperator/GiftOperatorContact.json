@@ -492,7 +492,7 @@
             "GiftOperatorConfirmSelect"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.GiftOperator.focus.all_full"
+            "Node.Recognition.Succeeded": "$task.GiftOperator.focus.select_trust_full"
         }
     },
     "GiftOperatorTrustIcon": {

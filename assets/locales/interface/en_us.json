@@ -835,6 +835,8 @@
     "task.GiftOperator.focus.bag_full_clear": "Bag is full, attempting to clear bag",
     "task.GiftOperator.focus.max_affinity": "⚠️ Operator affinity is already maxed",
     "task.GiftOperator.focus.all_full": "All operators' trust is already maxed out, unable to proceed with the task",
+    "task.GiftOperator.focus.select_op1": "⚠️ All operators' trust is maxed out, unable to proceed with the task",
+    "task.GiftOperator.focus.select_trust_full": "⚠️ Operator trust is maxed out",
     "task.GiftOperator.focus.move_fail": "⚠️ Failed to locate operator",
     "task.GiftOperator.select.any_three": "Any",
     "task.AutoStockStaple.label": "🏪 Buy Staple Goods",
