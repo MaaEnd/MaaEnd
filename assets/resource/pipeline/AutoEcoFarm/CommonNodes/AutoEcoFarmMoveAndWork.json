@@ -124,10 +124,10 @@
             "[JumpBack]_AutoEcoFarmCloseEquipment",
             //识别肥料界面，有的话关了
             "[JumpBack]_AutoEcoFarmCloseFertilizer",
-            //离开农场则退出工作循环
-            "[Anchor]_AutoEcoFarmLeftFarmAnchor",
             //识别工作按钮并点击
             "_AutoEcoFarmFindMenuIcon",
+            //在农场内则继续工作循环
+            "[Anchor]_AutoEcoFarmInFarmAnchor",
             //第二次保障，判断标记还在不在
             "_AutoEcoFarmTargetExists",
             //所有条件都不满足的情况下，启动最后一跳，再给一次机会
