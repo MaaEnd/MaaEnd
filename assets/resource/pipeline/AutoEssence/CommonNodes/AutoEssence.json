@@ -421,11 +421,13 @@
     "AutoEssenceClickObtainButton": {
         "desc": "正式识别并点击领取奖励的大世界按钮（Alt 点击）",
         "recognition": {
-            "type": "Or",
+            "type": "And",
             "param": {
-                "any_of": [
-                    "__AutoEssenceRecoEssenceObtain"
-                ]
+                "all_of": [
+                    "__AutoEssenceRecoEssenceObtain",
+                    "__AutoEssenceRecoEssenceObtainText"
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -454,6 +456,27 @@
             "Node.Action.Starting": "👆点击领取奖励按钮"
         }
     },
+    "__AutoEssenceRecoEssenceObtainText": {
+        "desc": "寻找领取奖励的文字",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoEssenceRecoEssenceObtain",
+                "roi_offset": [
+                    0,
+                    0,
+                    150,
+                    0
+                ],
+                "expected": [
+                    "领取奖励",
+                    "領取獎勵",
+                    "Claim Rewards",
+                    "報酬受取"
+                ]
+            }
+        }
+    },
     "AutoEssenceClickObtainButtonFailed": {
         "desc": "未能识别到领取奖励的大世界按钮的守卫节点",
         "max_hit": 8,
@@ -466,11 +489,13 @@
     "AutoEssenceClickDiscardButton": {
         "desc": "正式识别并点击放弃奖励的大世界按钮（Alt 点击）",
         "recognition": {
-            "type": "Or",
+            "type": "And",
             "param": {
-                "any_of": [
-                    "__AutoEssenceRecoEssenceObtain"
-                ]
+                "all_of": [
+                    "__AutoEssenceRecoEssenceObtain",
+                    "__AutoEssenceRecoEssenceDiscardText"
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -497,6 +522,27 @@
         ],
         "focus": {
             "Node.Action.Starting": "👆点击放弃奖励按钮"
+        }
+    },
+    "__AutoEssenceRecoEssenceDiscardText": {
+        "desc": "寻找放弃领取奖励的文字",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoEssenceRecoEssenceObtain",
+                "roi_offset": [
+                    0,
+                    0,
+                    150,
+                    0
+                ],
+                "expected": [
+                    "放弃奖励并重置",
+                    "放棄獎勵並重置",
+                    "Abandon Rewards and Reset",
+                    "受取せずにリセット"
+                ]
+            }
         }
     },
     "AutoEssenceChooseScalingPre": {
