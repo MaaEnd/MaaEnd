@@ -45,6 +45,7 @@ type MapTrackerBigMapFindImageParam struct {
 type MapTrackerBigMapFindImageMatch struct {
 	ScreenX  float64 `json:"ScreenX"`
 	ScreenY  float64 `json:"ScreenY"`
+	MapName  string  `json:"MapName"`
 	MapX     float64 `json:"MapX"`
 	MapY     float64 `json:"MapY"`
 	Conf     float64 `json:"Conf"`
@@ -379,6 +380,11 @@ func (r *MapTrackerBigMapFindImage) buildResult(
 			Float64("conf", m.Conf).
 			Float64("rot", m.Rotation).
 			Msg("FindImage match")
+	}
+
+	// Backfill the inferred map name into each match for downstream consumers.
+	for i := range matches {
+		matches[i].MapName = mapName
 	}
 
 	detailJSON, err := json.Marshal(matches)
