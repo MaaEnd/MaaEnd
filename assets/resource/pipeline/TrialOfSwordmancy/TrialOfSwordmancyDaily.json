@@ -215,10 +215,12 @@
             80
         ],
         "count": 500,
+        "pre_delay": 0,
         "anchor": {
             "TrialOfSwordmancyDailyCheckMaxCard": "TrialOfSwordmancyDailyCheckMaxCardNoRetry",
             "TrialOfSwordmancyDailyCheckDrawCard": "TrialOfSwordmancyDailyCheckDrawCardNoRetry"
         },
+        "post_delay": 0,
         "next": [
             "TrialOfSwordmancyDailyCancelGiveUp"
         ]
@@ -243,10 +245,12 @@
             40
         ],
         "count": 500,
+        "pre_delay": 0,
         "anchor": {
             "TrialOfSwordmancyDailyCheckMaxCard": "TrialOfSwordmancyDailyCheckMaxCardHasRetry",
             "TrialOfSwordmancyDailyCheckDrawCard": "TrialOfSwordmancyDailyCheckDrawCardHasRetry"
         },
+        "post_delay": 0,
         "next": [
             "TrialOfSwordmancyDailyCancelGiveUp"
         ]
