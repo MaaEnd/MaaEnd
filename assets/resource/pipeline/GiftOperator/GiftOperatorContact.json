@@ -391,8 +391,8 @@
             }
         },
         "next": [
-            "GiftOperatorSelectOp2"
-            //"GiftOperatorTrustFull"
+            "GiftOperatorSelectOp2",
+            "GiftOperatorSelectTrustFull"
         ]
     },
     "GiftOperatorCheckSelected2": {
@@ -408,8 +408,8 @@
             }
         },
         "next": [
-            "GiftOperatorSelectOp3"
-            //"GiftOperatorTrustFull"
+            "GiftOperatorSelectOp3",
+            "GiftOperatorSelectTrustFull"
         ]
     },
     "GiftOperatorCheckSelected3": {
@@ -485,6 +485,15 @@
             "GiftOperatorWaitChat",
             "[JumpBack]GiftOperatorMoveAhead"
         ]
+    },
+    "GiftOperatorSelectTrustFull": {
+        "desc": "选择干员阶段信赖已满",
+        "next": [
+            "GiftOperatorConfirmSelect"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.GiftOperator.focus.all_full"
+        }
     },
     "GiftOperatorTrustIcon": {
         "desc": "干员信赖度图标",
@@ -617,9 +626,13 @@
         "action": {
             "type": "Click"
         },
+        "timeout": 7000,
         "next": [
             "GiftOperatorCheckSelected1"
-        ]
+        ],
+        "focus": {
+            "Tasker.Task.Failed": "$task.GiftOperator.focus.select_op1"
+        }
     },
     "GiftOperatorSelectOp2": {
         "desc": "选择第二个干员",
