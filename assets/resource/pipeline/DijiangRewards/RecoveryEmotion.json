@@ -230,8 +230,8 @@
         "post_delay": 400, // 上方tips出现需要时间，可能显示也可能不显示，避免连续点击不同干员导致覆盖提示判断错误
         "rate_limit": 0,
         "next": [
-            "RecoveryEmotionFull",
-            "RecoveryEmotionCouldNotAssist",
+            // "RecoveryEmotionFull",
+            //"RecoveryEmotionCouldNotAssist",
             "RecoveryEmotionSelectLowEmotion2"
         ]
     },
@@ -260,7 +260,7 @@
         "post_delay": 400, // 上方tips出现需要时间，可能显示也可能不显示，避免连续点击不同干员导致覆盖提示判断错误
         "rate_limit": 0,
         "next": [
-            "RecoveryEmotionFull",
+            // "RecoveryEmotionFull",
             "RecoveryEmotionCouldNotAssist",
             "RecoveryEmotionExitView2ToView1"
         ]
@@ -277,7 +277,8 @@
                     17
                 ],
                 "expected": [
-                    "0"
+                    "1",
+                    "2"
                 ],
                 "only_rec": true
             }
