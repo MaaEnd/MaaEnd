@@ -45,6 +45,18 @@
         "template": "SeizeDeliveryJobs/DepotNodePage/JobListTab.png",
         "order_by": "Score"
     },
+    "__SeizeDeliveryJobsRecoJobListLoaded": {
+        "desc": "寻找运送委托列表加载完成的特征标志（仅识别）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1170,
+            460,
+            110,
+            230
+        ],
+        "template": "SeizeDeliveryJobs/DepotNodePage/JobListLoaded.png",
+        "order_by": "Score"
+    },
     "__SeizeDeliveryJobsInWulingDepotNode": {
         "desc": "已经在武陵仓储管理页面",
         "recognition": "And",
@@ -74,13 +86,14 @@
         }
     },
     "__SeizeDeliveryJobsInJobList": {
-        "desc": "已经在运送委托列表",
+        "desc": "已经在运送委托列表，且列表已加载完成",
         "recognition": "And",
         "all_of": [
-            "__SeizeDeliveryJobsRecoJobListActive"
+            "__SeizeDeliveryJobsRecoJobListActive",
+            "__SeizeDeliveryJobsRecoJobListLoaded"
         ],
+        "pre_wait_freezes": 500, // 等待所有加载动画结束
         "pre_delay": 0,
-        "post_wait_freezes": 1000, // 等待列表加载动画结束
         "post_delay": 0,
         "next": [
             "[Anchor]SeizeDeliveryJobsAfterEnterWulingJobList" // 外部调用者需要覆写此锚点的所指

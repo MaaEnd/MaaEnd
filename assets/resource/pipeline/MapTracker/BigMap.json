@@ -125,7 +125,7 @@
                 "order_by": "Random"
             }
         },
-        "pre_delay": 0,
+        "pre_delay": 250,
         "action": {
             "type": "Swipe",
             "param": {

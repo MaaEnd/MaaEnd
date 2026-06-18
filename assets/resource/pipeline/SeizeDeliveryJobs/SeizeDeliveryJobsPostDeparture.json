@@ -18,7 +18,6 @@
         "desc": "在目的地地图界面，调用 custom 进行自动送货流程",
         "action": "Custom",
         "custom_action": "SeizeDeliveryJobsDepartureAction",
-        "post_delay": 750, // 等待提交货物按钮弹出
         "next": [
             // 结束
         ]
@@ -61,7 +60,7 @@
         "desc": "自动送委托的提交入口点（此节点由 Go 调用）",
         "enabled": true,
         "pre_delay": 0,
-        "post_delay": 0,
+        "post_delay": 2000, // 等待玩家止步
         "next": [
             "SeizeDeliveryJobsSubmit",
             "SeizeDeliveryJobsSubmitFallback"
@@ -97,6 +96,7 @@
         "all_of": [
             "CloseRewardsButton"
         ],
+        "pre_wait_freezes": 500, // 等待奖励动画播放完毕
         "action": "Click",
         "focus": {
             "Node.Action.Starting": "**成功提交货物**"
@@ -105,13 +105,11 @@
     "SeizeDeliveryJobsSubmitFallback": {
         "desc": "未能找到提交货物按钮时触发，使用缓存坐标重新返回大世界并送货（有最大尝试次数限制）",
         "max_hit": 5,
-        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SeizeDeliveryJobsDepartureAction",
         "custom_action_param": {
             "is_retry": true
         },
-        "post_delay": 0,
         "next": [
             // 完成，后续由 Go 内部逻辑来重新调用提交货物分支
         ],

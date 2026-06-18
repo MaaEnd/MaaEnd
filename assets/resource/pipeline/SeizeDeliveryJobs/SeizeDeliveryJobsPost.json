@@ -286,7 +286,7 @@
                 414.3
             ]
         },
-        "post_delay": 500, // 等待弹出接取货物按钮
+        "post_delay": 2000, // 等待玩家止步
         "next": [
             "SeizeDeliveryJobsSuccessWalkDone",
             "SeizeDeliveryJobsFetchGoods",
@@ -318,7 +318,7 @@
             "path_trim": false,
             "no_ensure_final_orientation": true
         },
-        "post_delay": 500, // 等待弹出接取货物按钮
+        "post_delay": 2000, // 等待玩家止步
         "focus": {
             "Node.Recognition.Succeeded": "正在重新走到试验园区仓储节点"
         }

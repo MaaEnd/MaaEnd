@@ -22,7 +22,7 @@
         }
     },
     "SeizeDeliveryJobsReadyToSeize": {
-        "desc": "在运送委托列表，准备开始抢单",
+        "desc": "在运送委托列表，先检查不能抢单的几种情况，随后准备抢单",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -150,7 +150,11 @@
     },
     "SeizeDeliveryJobsLoop": {
         "desc": "等待委托列表静止，随后开始抢单",
-        "pre_wait_freezes": 1000, // 等待列表加载动画结束
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoJobListLoaded"
+        ],
+        "pre_wait_freezes": 500, // 等待所有加载动画结束
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
