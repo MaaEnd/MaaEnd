@@ -154,7 +154,7 @@
         "all_of": [
             "__SeizeDeliveryJobsRecoJobListLoaded"
         ],
-        "pre_wait_freezes": 500, // 等待所有加载动画结束
+        "pre_wait_freezes": 250,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
