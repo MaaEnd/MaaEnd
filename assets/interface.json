@@ -5,7 +5,7 @@
     "version": "v0.1.0",
     "contact": "$contact.file",
     "license": "locales/LICENSE_SHORT.md",
-    "welcome": "README.md",
+    "welcome": "https://end.maafw.com/Announcement.md",
     "icon": "locales/MaaEnd-Tiny.png",
     "github": "https://github.com/MaaEnd/MaaEnd",
     "mirrorchyan_rid": "MaaEnd",
