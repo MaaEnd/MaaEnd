@@ -329,7 +329,10 @@
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyDailyGiveUp"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "数据溢出，放弃当前演算"
+        }
     },
     // 牌已满
     "TrialOfSwordmancyDailyCheckMaxCardNoRetry": {
