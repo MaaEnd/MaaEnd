@@ -297,7 +297,7 @@ func (a *SeizeDeliveryJobsDepartureAction) runGoal(ctx *maa.Context, arg *maa.Cu
 		"map_name":         mapName,
 		"target":           target,
 		"zipline_policy":   ziplinePolicy,
-		"stuck_mitigators": []string{"MoveOrDeleteDevice"},
+		"stuck_mitigators": []string{"MoveOrDeleteDevice", "Jump"},
 	})
 	if err != nil {
 		log.Error().
