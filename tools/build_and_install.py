@@ -394,10 +394,9 @@ def build_cpp_algo(
     configure_preset_candidates: list[str]
     if resolved_os == "win":
         if resolved_arch == "aarch64":
-            configure_preset_candidates = ["MSVC 2022 ARM", "MSVC 2026 ARM"]
+            configure_preset_candidates = ["MSVC 2026 ARM"]
         else:
-            # 兼容仅安装 VS2026 的环境：优先尝试 2022，失败时自动回退 2026
-            configure_preset_candidates = ["MSVC 2022", "MSVC 2026"]
+            configure_preset_candidates = ["MSVC 2026"]
     elif resolved_os == "linux":
         if resolved_arch == "aarch64":
             configure_preset_candidates = ["NinjaMulti Linux arm64"]
