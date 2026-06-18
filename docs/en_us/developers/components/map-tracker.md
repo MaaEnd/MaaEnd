@@ -160,6 +160,73 @@ Optional parameters:
 }
 ```
 
+### Recognition: MapTrackerBigMapFindImage
+
+🔍 Finds specified icons on the big-map interface via template matching.
+
+#### Node Parameters
+
+Required parameters:
+
+- `template`: Path to the template image, relative to the `assets/resource` directory. E.g., `image/MapTracker/BigMapIcons/Pointer.png` (player pointer icon).
+
+- `expected`: Boolean, non-negative integer, or condition object controlling when recognition hits:
+    - Boolean `true`: hits if at least one match is found;
+    - Boolean `false`: hits if no matches are found;
+    - Non-negative integer `n`: hits if exactly `n` matches are found;
+    - Object `{"map_name": "...", "target": [x, y, w, h]}`: hits if at least one match falls within the specified rectangular coordinate area on the specified map.
+
+Optional parameters:
+
+- `threshold`: Real number in $(0, 1]$, default `0.5`. Confidence threshold; matches below this value are ignored.
+
+- `green_mask`: Boolean, default `false`. Whether to apply a green-channel mask to the template.
+
+- `with_rotation`: Boolean, default `false`. Whether to enable arbitrary-angle matching, suitable for rotated icons (e.g., player pointer).
+
+- `zoom_value`: Real number in $[0, 1]$, default `0`. Adjust the big-map zoom slider to this position before matching. Set to `0` (default) to skip zoom adjustment.
+
+- `map_name_regex`: String, default unset. Limits the candidate maps for inference. Only set this when map misidentification is possible, e.g., `"^map02_lv002$"` locks inference to "map02_lv002".
+
+<details>
+<summary>Advanced Optional Parameters (Expand)</summary>
+
+- `max_matches`: Integer, default `32`. Maximum number of matches to return. Usually not needed to adjust.
+- `must_see_points`: List of coordinate pairs, default unset. Specifies map coordinate points that the viewport must cover during matching. If provided, the viewport is automatically dragged until all points have been seen. Suitable for large-range matching, but significantly increases latency.
+
+</details>
+
+#### Example Usage
+
+The following demonstrates how to check whether a "blue task marker" lies within a certain map region:
+
+```json
+{
+    "MyFindImageNode": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerBigMapFindImage",
+        "custom_recognition_param": {
+            "template": "image/SeizeDeliveryJobs/BlueTaskLocation.png",
+            "expected": {
+                "map_name": "map02_lv005",
+                "target": [
+                    114,
+                    514,
+                    19,
+                    19
+                ]
+            },
+            "green_mask": true,
+            "zoom_value": 0.25
+        }
+    }
+}
+```
+
+> [!TIP]
+>
+> This node can also be called from Go for richer result information. Refer to the Go code for the detailed result format.
+
 ### Recognition: MapTrackerAssertLocation
 
 ✅Judges whether the player's current map name and position coordinates meet any of the expected conditions.

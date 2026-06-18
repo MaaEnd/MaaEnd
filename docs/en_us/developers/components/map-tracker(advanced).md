@@ -51,7 +51,7 @@ Optional parameters:
 
 #### Node Parameters
 
-Please refer to the type definition of `MapTrackerBigMapInferParam` in the specific code.
+Please refer to the type definition of `MapTrackerBigMapInferParam` in the specific code, which includes `map_name_regex` and `threshold`. These parameters are also embedded into `MapTrackerBigMapFindImageParam` of the `MapTrackerBigMapFindImage` node to control its internal big-map inference behavior.
 
 ## Maintenance Methods
 
