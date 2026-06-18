@@ -610,7 +610,7 @@ Push（上传）
 | 4    | [coding-standards.md](./coding-standards.md) | 编码规范，提交前必读                       |
 
 > [!NOTE] > **外部资源**
->
+
 > 以下链接指向 MaaEnd 以外的独立项目或第三方服务，供拓展参考。
 
 - [MaaFramework 官网](https://maafw.com/)——MaaEnd 底层框架
