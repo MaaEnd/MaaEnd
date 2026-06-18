@@ -58,7 +58,8 @@
 | `TargetReverse`           | `bool`          | 否   | 为 `true` 时从范围远端计算目标：Value 模式为 `maxQuantity - Target`；Percentage 模式为 `round(maxQuantity * (100 - Target) / 100)`，钳制到 `[1, maxQuantity]`。默认 `false`。 |
 | `FinishAfterPreciseClick` | `bool`          | 否   | 为 `true` 时精确点击后直接返回成功，不再进入数量校验与微调流程。默认 `false`。                                                                                                |
 
-> [!note] > `TargetType` 与 `TargetReverse` 的组合计算逻辑：
+> [!note]
+> `TargetType` 与 `TargetReverse` 的组合计算逻辑：
 >
 > | TargetType     | TargetReverse | 有效目标                                                               |
 > | -------------- | ------------- | ---------------------------------------------------------------------- |

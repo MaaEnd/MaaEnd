@@ -64,7 +64,8 @@
 | `allow_unknown`          | `bool` | `true`  | OCR 失败时返回 `"unknown"` 而非报错。为 `false` 时 OCR 失败将导致动作失败。              |
 | `clear_cache`            | `bool` | `false` | 清空 UID 缓存并立即返回，不执行截屏 OCR。                                                |
 
-> [!note] > `clear_cache` 为 `true` 时，其余参数均不生效——动作仅清空缓存后直接返回成功。
+> [!note]
+> `clear_cache` 为 `true` 时，其余参数均不生效——动作仅清空缓存后直接返回成功。
 
 ## 在 Go 代码中直接调用
 

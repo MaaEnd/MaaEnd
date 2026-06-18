@@ -609,7 +609,8 @@ Push（上传）
 | 3    | [tools-and-debug.md](./tools-and-debug.md)   | 调试工具、Maa Pipeline Support 用法        |
 | 4    | [coding-standards.md](./coding-standards.md) | 编码规范，提交前必读                       |
 
-> [!NOTE] > **外部资源**
+> [!NOTE]
+> **外部资源**
 
 > 以下链接指向 MaaEnd 以外的独立项目或第三方服务，供拓展参考。
 
@@ -631,7 +632,8 @@ Push（上传）
 
 ---
 
-> [!NOTE] > **最后几句**
+> [!NOTE]
+> **最后几句**
 >
 > 你不需要从头学到尾才开始动手。最好的学习方式：
 >
