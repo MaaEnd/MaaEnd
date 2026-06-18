@@ -284,7 +284,7 @@
             "param": {
                 "custom_action": "autoEcoFarmInterruptibleSleep",
                 "custom_action_param": {
-                    "durationMs": 30000
+                    "durationMs": 60000
                 }
             }
         },
@@ -295,7 +295,7 @@
             "_AutoEcoFarmFindMenuLoop"
         ],
         "focus": {
-            "Node.Action.Starting": "等待30秒，让队友多干点活，不是脚本卡咯，别担心"
+            "Node.Action.Starting": "等待60秒，让队友多干点活，不是脚本卡咯，别担心"
         }
     },
     "_AutoEcoFarmCancelMove": {
@@ -313,7 +313,7 @@
     //下面是单纯靠近标记的节点
     "_AutoEcoFarmGotoTarget": {
         "desc": "不工作，直接走到标记消失为止",
-        "enabled": false,
+        "enabled": true,
         "next": [
             "_AutoEcoFarmJumpNotWork"
         ]
