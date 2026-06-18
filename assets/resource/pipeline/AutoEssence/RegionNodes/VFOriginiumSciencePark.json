@@ -134,6 +134,7 @@
         "next": [
             "AutoEssenceAtTriggerState"
         ],
+        "post_delay": 1000, //确保彻底停下,防止停下一瞬间看到了,靠惯性滑过目标点
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点"
         }
