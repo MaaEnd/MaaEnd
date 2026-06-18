@@ -240,6 +240,81 @@ int64_t ElapsedMs(std::chrono::steady_clock::time_point from, std::chrono::stead
     return std::chrono::duration_cast<std::chrono::milliseconds>(to - from).count();
 }
 
+double PointToSegmentDistance(const navmesh::WorldPoint& p, const navmesh::WorldPoint& a, const navmesh::WorldPoint& b)
+{
+    const double dx = b.x - a.x;
+    const double dy = b.y - a.y;
+    const double len_sq = dx * dx + dy * dy;
+    if (len_sq <= std::numeric_limits<double>::epsilon()) {
+        return std::hypot(p.x - a.x, p.y - a.y);
+    }
+    const double t = std::clamp(((p.x - a.x) * dx + (p.y - a.y) * dy) / len_sq, 0.0, 1.0);
+    return std::hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy));
+}
+
+double PointToPolylineDistance(const navmesh::WorldPoint& p, const std::vector<navmesh::WorldPoint>& poly)
+{
+    double best = std::numeric_limits<double>::infinity();
+    for (size_t i = 0; i + 1 < poly.size(); ++i) {
+        best = std::min(best, PointToSegmentDistance(p, poly[i], poly[i + 1]));
+    }
+    return best;
+}
+
+// Fraction of the corridor (resampled every ~`step` world units) within `eps` of the authored line:
+// ~1.0 when it tracks the line, ~0 when it detours (route3 ~0.05). 1.0 on degenerate input.
+double CorridorCoincidence(
+    const navmesh::WorldPath& corridor,
+    const std::vector<navmesh::WorldPoint>& authored,
+    double eps,
+    double step)
+{
+    if (corridor.points.size() < 2 || authored.size() < 2) {
+        return 1.0;
+    }
+    const double safe_step = std::max(step, 0.1);
+    size_t total = 0;
+    size_t coincident = 0;
+    const auto tally = [&](const navmesh::WorldPoint& p) {
+        ++total;
+        if (PointToPolylineDistance(p, authored) <= eps) {
+            ++coincident;
+        }
+    };
+    tally(corridor.points.front());
+    for (size_t i = 0; i + 1 < corridor.points.size(); ++i) {
+        const navmesh::WorldPoint& a = corridor.points[i];
+        const navmesh::WorldPoint& b = corridor.points[i + 1];
+        const double seg = std::hypot(b.x - a.x, b.y - a.y);
+        const int steps = static_cast<int>(std::ceil(seg / safe_step));
+        for (int k = 1; k <= steps; ++k) {
+            const double t = static_cast<double>(k) / static_cast<double>(steps);
+            tally({ .x = a.x + (b.x - a.x) * t, .y = a.y + (b.y - a.y) * t });
+        }
+    }
+    return total == 0 ? 1.0 : static_cast<double>(coincident) / static_cast<double>(total);
+}
+
+// The authored line from the current waypoint up to and including the anchor. Fewer than 2 points when
+// the span can't be assembled (caller then keeps the navmesh corridor).
+std::vector<navmesh::WorldPoint> BuildAuthoredSpanPolyline(const NavigationSession& session, size_t anchor_index)
+{
+    const std::vector<Waypoint>& waypoints = session.current_path();
+    std::vector<navmesh::WorldPoint> poly;
+    for (size_t index = session.current_node_idx(); index < waypoints.size(); ++index) {
+        const Waypoint& waypoint = waypoints[index];
+        if (!waypoint.HasPosition()) {
+            break;
+        }
+        poly.push_back({ .x = waypoint.x, .y = waypoint.y });
+        const std::optional<size_t> canonical = session.CanonicalIndexAtCurrentPath(index);
+        if (canonical && *canonical == anchor_index) {
+            break;
+        }
+    }
+    return poly;
+}
+
 } // namespace
 
 void NavRunController::invalidate()
@@ -251,12 +326,39 @@ void NavRunController::invalidate()
 
 bool NavRunController::buildPlan(
     const NaviParam& param,
+    const NavigationSession& session,
     const NaviPosition& position,
     size_t anchor_index,
     const Waypoint& anchor,
     NavRunReplanReason reason,
     std::chrono::steady_clock::time_point now)
 {
+    const auto commit = [&](navmesh::WorldPath path, bool literal) {
+        plan_.valid = true;
+        plan_.zone_id = position.zone_id;
+        plan_.anchor_index = anchor_index;
+        plan_.anchor_pos = { .x = anchor.x, .y = anchor.y };
+        plan_.literal = literal;
+        plan_.path = std::move(path);
+        plan_.corridor_arc_prefix = BuildCorridorArcPrefix(plan_.path);
+        plan_.cursor = 0;
+        plan_.planned_at = now;
+    };
+
+    // The literal-vs-navmesh choice is per anchor span: decide once, reuse across soft replans.
+    // invalidate() (anchor/zone change) resets plan_ and forces a fresh decision.
+    const bool same_span = plan_.valid && plan_.anchor_index == anchor_index;
+    std::vector<navmesh::WorldPoint> authored = BuildAuthoredSpanPolyline(session, anchor_index);
+    const bool authored_usable = authored.size() >= 2;
+
+    // Already literal this span: rebuild from the advanced waypoint, skip the A* (it would detour again).
+    if (same_span && plan_.literal && authored_usable) {
+        navmesh::WorldPath literal_path;
+        literal_path.points = std::move(authored);
+        commit(std::move(literal_path), true);
+        return true;
+    }
+
     const navmesh::WorldPoint start { .x = position.x, .y = position.y };
     const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
     auto route = PlanNavmeshRoute(param, position.zone_id, start, goal);
@@ -266,14 +368,35 @@ bool NavRunController::buildPlan(
         return false;
     }
 
-    plan_.valid = true;
-    plan_.zone_id = position.zone_id;
-    plan_.anchor_index = anchor_index;
-    plan_.anchor_pos = { .x = anchor.x, .y = anchor.y };
-    plan_.path = std::move(route->path);
-    plan_.corridor_arc_prefix = BuildCorridorArcPrefix(plan_.path);
-    plan_.cursor = 0;
-    plan_.planned_at = now;
+    bool literal = same_span && plan_.literal;
+    if (!same_span && authored_usable) {
+        // Fresh span: go literal iff the corridor barely coincides (detoured) AND the line really crosses
+        // water. off_mesh is sampled only after the cheap coincidence gate passes; -1 = not evaluated.
+        const double coincidence =
+            CorridorCoincidence(route->path, authored, kCorridorLiteralFidelityEpsilonM, kCorridorLiteralSampleStepM);
+        double off_mesh = -1.0;
+        if (coincidence < kCorridorLiteralMinCoincidence) {
+            off_mesh = NavmeshOffMeshFraction(param, position.zone_id, authored, kCorridorLiteralSampleStepM);
+            literal = off_mesh > kCorridorLiteralMinOffMeshFraction;
+        }
+        // Log both outcomes so the decision is diagnosable on-device (route3: coincidence ~0.05,
+        // off_mesh ~0.63, authored.size 21).
+        LogDebug << "NavRunController corridor-source decision." << VAR(anchor_index) << VAR(literal)
+                 << VAR(coincidence) << VAR(off_mesh) << VAR(route->path.points.size()) << VAR(authored.size());
+        if (literal) {
+            LogInfo << "NavRunController trusting authored RUN line (corridor detours off-mesh)."
+                    << VAR(anchor_index) << VAR(coincidence) << VAR(off_mesh) << VAR(authored.size());
+        }
+    }
+
+    if (literal && authored_usable) {
+        navmesh::WorldPath literal_path;
+        literal_path.points = std::move(authored);
+        commit(std::move(literal_path), true);
+    }
+    else {
+        commit(std::move(route->path), false);
+    }
     return true;
 }
 
@@ -336,7 +459,7 @@ NavRunTickResult NavRunController::tick(
     }
 
     if (!plan_.valid) {
-        if (!buildPlan(param, position, anchor_index, anchor, NavRunReplanReason::AnchorChanged, now)) {
+        if (!buildPlan(param, *session, position, anchor_index, anchor, NavRunReplanReason::AnchorChanged, now)) {
             return result;
         }
         last_progress_seen_ = now;
@@ -371,7 +494,7 @@ NavRunTickResult NavRunController::tick(
         if (budget_left && (hard_off || cooldown_ready)) {
             plan_.last_soft_replan_at = now;
             plan_.soft_replan_attempts += 1;
-            if (buildPlan(param, position, anchor_index, anchor, reason, now)) {
+            if (buildPlan(param, *session, position, anchor_index, anchor, reason, now)) {
                 auto reprojected = ProjectOntoCorridor(plan_.path, plan_.cursor, position);
                 if (!reprojected) {
                     invalidate();

@@ -706,6 +706,59 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     return route_result;
 }
 
+double NavmeshOffMeshFraction(
+    const NaviParam& param,
+    const std::string& locator_zone,
+    const std::vector<navmesh::WorldPoint>& polyline,
+    double step)
+{
+    if (polyline.size() < 2) {
+        return 0.0;
+    }
+    const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
+    if (navmesh_zone.empty()) {
+        return 0.0;
+    }
+    const std::filesystem::path navmesh_path = ResolveNavmeshFile(param.navmesh_file);
+    const auto navmesh = LoadCachedNavmesh(navmesh_path, navmesh_zone);
+    if (!navmesh) {
+        return 0.0;
+    }
+
+    const double safe_step = std::max(step, 0.1);
+    size_t total = 0;
+    size_t off = 0;
+    // projectToBase maps a tier query onto its geometry zone (identity for a base zone), keeping the
+    // frame aligned with the routed mesh; an unresolvable sample is skipped (treated as on-mesh).
+    const auto sample = [&](const navmesh::WorldPoint& p) {
+        const auto proj = navmesh->pack.projectToBase(navmesh_zone, p.x, p.y);
+        if (!proj || proj->geometry_zone == nullptr) {
+            return;
+        }
+        ++total;
+        if (!navmesh->planner.pointOnMesh(proj->geometry_zone->zone_id, { .x = proj->x, .y = proj->y })) {
+            ++off;
+        }
+    };
+
+    // Sample both endpoints of every segment so a mid-segment water dip between on-mesh vertices counts.
+    sample(polyline.front());
+    for (size_t i = 0; i + 1 < polyline.size(); ++i) {
+        const navmesh::WorldPoint& a = polyline[i];
+        const navmesh::WorldPoint& b = polyline[i + 1];
+        const double seg = std::hypot(b.x - a.x, b.y - a.y);
+        const int steps = static_cast<int>(std::ceil(seg / safe_step));
+        for (int k = 1; k <= steps; ++k) {
+            const double t = static_cast<double>(k) / static_cast<double>(steps);
+            sample({ .x = a.x + (b.x - a.x) * t, .y = a.y + (b.y - a.y) * t });
+        }
+    }
+    if (total == 0) {
+        return 0.0;
+    }
+    return static_cast<double>(off) / static_cast<double>(total);
+}
+
 std::optional<navmesh::BaseNavRouteResult> PlanNavmeshDetourRoute(
     const NaviParam& param,
     const NaviPosition& position,

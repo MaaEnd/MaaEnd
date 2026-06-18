@@ -35,6 +35,9 @@ struct NavRunPlan
     NaviPosition anchor_pos {};
     navmesh::WorldPath path;
     std::vector<double> corridor_arc_prefix;
+    // `path` is the authored RUN line itself (corridor would only detour around water). Decided once
+    // per anchor span, reused across its soft replans, reset when the anchor changes.
+    bool literal = false;
     size_t cursor = 0;
     std::chrono::steady_clock::time_point planned_at {};
     std::chrono::steady_clock::time_point last_soft_replan_at {};
@@ -77,6 +80,7 @@ public:
 private:
     bool buildPlan(
         const NaviParam& param,
+        const NavigationSession& session,
         const NaviPosition& position,
         size_t anchor_index,
         const Waypoint& anchor,

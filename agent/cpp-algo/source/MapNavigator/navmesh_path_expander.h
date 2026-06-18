@@ -29,6 +29,14 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const navmesh::WorldPoint& start,
     const navmesh::WorldPoint& goal,
     const std::vector<uint32_t>& blocked_triangles = {});
+// Fraction of `polyline` (resampled every ~`step` world units, vertices included) lying OFF the
+// navmesh — the signature of water the game omits. Resolves the zone like PlanNavmeshRoute. Returns
+// 0.0 when the zone can't resolve or the line is empty (fail-safe on-mesh).
+double NavmeshOffMeshFraction(
+    const NaviParam& param,
+    const std::string& locator_zone,
+    const std::vector<navmesh::WorldPoint>& polyline,
+    double step);
 std::optional<navmesh::BaseNavRouteResult> PlanNavmeshDetourRoute(
     const NaviParam& param,
     const NaviPosition& position,
