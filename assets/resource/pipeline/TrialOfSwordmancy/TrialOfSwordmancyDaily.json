@@ -81,13 +81,25 @@
         ],
         "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyDrawFirstCardSuccess"
+        ]
+    },
+    "TrialOfSwordmancyDailyDrawFirstCardSuccess": {
+        "desc": "抽取第一张牌成功",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyEnemyCard1"
+        ],
+        "pre_delay": 0,
         "post_wait_freezes": {
-            "time": 100,
+            "time": 200,
             "target": [
-                55,
-                145,
-                976,
-                290
+                62,
+                146,
+                173,
+                289
             ]
         },
         "post_delay": 0,
@@ -104,18 +116,31 @@
         ],
         "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyDrawSecondCardSuccess"
+        ]
+    },
+    "TrialOfSwordmancyDailyDrawSecondCardSuccess": {
+        "desc": "抽取第二张牌成功",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyEnemyCard2"
+        ],
+        "pre_delay": 0,
         "post_wait_freezes": {
-            "time": 100,
+            "time": 200,
             "target": [
-                55,
-                145,
-                976,
-                290
+                261,
+                146,
+                173,
+                289
             ]
         },
         "post_delay": 0,
         "next": [
-            "TrialOfSwordmancyDailyEnableDoubleReward"
+            "TrialOfSwordmancyDailyEnableDoubleReward",
+            "TrialOfSwordmancyDailyCheckGiveUp"
         ]
     },
     // 双倍奖励相关逻辑
@@ -377,19 +402,10 @@
         ],
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                55,
-                145,
-                976,
-                290
-            ]
-        },
-        "post_delay": 0,
+        "post_delay": 400, // 先等 400 ms 再等待画面稳定
         "next": [
             "TrialOfSwordmancyDailyConfirmDrawCard",
-            "TrialOfSwordmancyDailyMainLoop"
+            "TrialOfSwordmancyDailyWaitDrawCardFreezes"
         ]
     },
     "TrialOfSwordmancyDailyConfirmDrawCard": {
@@ -400,13 +416,25 @@
         ],
         "pre_delay": 0,
         "action": "Click",
+        "post_delay": 400,
+        "next": [
+            "TrialOfSwordmancyDailyWaitDrawCardFreezes"
+        ]
+    },
+    "TrialOfSwordmancyDailyWaitDrawCardFreezes": {
+        "desc": "等待抽牌动画结束",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
+        ],
+        "pre_delay": 0,
         "post_wait_freezes": {
-            "time": 100,
+            "time": 200,
             "target": [
-                55,
-                145,
-                976,
-                290
+                460,
+                146,
+                793,
+                289
             ]
         },
         "post_delay": 0,
