@@ -125,18 +125,6 @@
                     }
                 },
                 {
-                    "name": "TeleWalkFetch",
-                    "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalkFetch.label",
-                    "pipeline_override": {
-                        "SeizeDeliveryJobsPostProcessingEntry": {
-                            "enabled": true
-                        },
-                        "SeizeDeliveryJobsSuccessFetchGoods": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
                     "name": "TeleWalkFetchDeliver",
                     "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalkFetchDeliver.label",
                     "option": [
