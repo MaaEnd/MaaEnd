@@ -433,15 +433,7 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction",
-                "custom_action_param": {
-                    "target_offset": [
-                        -10,
-                        15,
-                        -10,
-                        -60
-                    ]
-                }
+                "custom_action": "AutoAltClickAction"
             }
         },
         "timeout": 2000,
@@ -501,15 +493,7 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction",
-                "custom_action_param": {
-                    "target_offset": [
-                        -10,
-                        60,
-                        -10,
-                        -60
-                    ]
-                }
+                "custom_action": "AutoAltClickAction"
             }
         },
         "timeout": 2000,
