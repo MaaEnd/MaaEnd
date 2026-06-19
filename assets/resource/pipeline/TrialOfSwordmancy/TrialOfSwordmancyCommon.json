@@ -1,48 +1,6 @@
 {
-    "TrialOfSwordmancyEnemyCard1": {
-        "desc": "第1张敌人卡牌",
-        "recognition": "TemplateMatch",
-        "roi": [
-            119,
-            318,
-            125,
-            118
-        ],
-        "template": "TrialOfSwordmancy/EnemyCard.png"
-    },
-    "TrialOfSwordmancyEnemyCard2": {
-        "desc": "第2张敌人卡牌",
-        "recognition": "TemplateMatch",
-        "roi": [
-            318,
-            318,
-            125,
-            118
-        ],
-        "template": "TrialOfSwordmancy/EnemyCard.png"
-    },
-    "TrialOfSwordmancyEnemyCard3": {
-        "desc": "第3张敌人卡牌",
-        "recognition": "TemplateMatch",
-        "roi": [
-            517,
-            318,
-            125,
-            118
-        ],
-        "template": "TrialOfSwordmancy/EnemyCard.png"
-    },
-    "TrialOfSwordmancyEnemyCard4": {
-        "desc": "第4张敌人卡牌",
-        "recognition": "TemplateMatch",
-        "roi": [
-            716,
-            318,
-            125,
-            118
-        ],
-        "template": "TrialOfSwordmancy/EnemyCard.png"
-    },
+    // 卡牌在场识别：EnemyCard1-4 已移至 TrialOfSwordmancyGo.json（仅 go-service 调用、pipeline 无引用）。
+    // EnemyCard5 仍被 Nav 的 TrialOfSwordmancyEnterTrialMenuSuccess 引用，故保留于此。
     "TrialOfSwordmancyEnemyCard5": {
         "desc": "第5张敌人卡牌",
         "recognition": "TemplateMatch",
@@ -305,17 +263,6 @@
         ],
         "template": "TrialOfSwordmancy/GiveUpGrey.png"
     },
-    "TrialOfSwordmancyOverflowExclamation": {
-        "desc": "识别溢出叹号（模板匹配）",
-        "recognition": "TemplateMatch",
-        "roi": [
-            748,
-            561,
-            49,
-            47
-        ],
-        "template": "TrialOfSwordmancy/OverflowExclamation.png"
-    },
     "TrialOfSwordmancyChallengeBackground": {
         "desc": "识别挑战界面背景（模板匹配）",
         "recognition": "TemplateMatch",
@@ -328,4 +275,5 @@
         "template": "TrialOfSwordmancy/ChallengeBackground.png",
         "green_mask": true
     }
+    // OverflowExclamation 与 PointValue 已移至 TrialOfSwordmancyGo.json（仅 go-service 调用、pipeline 无引用）。
 }

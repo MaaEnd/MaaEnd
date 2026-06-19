@@ -36,6 +36,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/cursormove"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/hdrcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/processcheck"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/visitfriends"
 	webevent202605 "github.com/MaaXYZ/MaaEnd/agent/go-service/webevent/202605"
 	"github.com/rs/zerolog/log"
@@ -86,6 +87,7 @@ func registerAll() {
 	creditshopping.Register()
 	webevent202605.Register()
 	pullcount.Register()
+	trialofswordmancy.Register()
 	log.Info().
 		Msg("All custom components and sinks registered successfully")
 }

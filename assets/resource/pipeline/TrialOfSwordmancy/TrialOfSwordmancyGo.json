@@ -1,0 +1,81 @@
+{
+    // 本文件存放「go-service 识别需要调用、但 pipeline 流程不直接引用」的节点（死节点/无引用节点）。
+    // 这些节点仅由 agent/go-service/trialofswordmancy/recognition.go 在运行时通过 ctx.RunRecognition 调用，
+    // 不出现在任何 pipeline 节点的 next / all_of / any_of 中。集中放此便于维护与区分。
+    // 注意：节点名仍与其它 pipeline 文件共享同一命名空间，Go 侧按名字直接调用。
+
+    // 卡牌在场识别（槽位 1-4）。槽位 5 的 EnemyCard5 仍被 Nav 的 EnterTrialMenuSuccess 引用，
+    // 故留在 TrialOfSwordmancyCommon.json。Go 的 recognizeHand 用这 5 个节点判卡牌是否在场。
+    "TrialOfSwordmancyEnemyCard1": {
+        "desc": "[go] 第1张敌人卡牌（在场判定）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            119,
+            318,
+            125,
+            118
+        ],
+        "template": "TrialOfSwordmancy/EnemyCard.png"
+    },
+    "TrialOfSwordmancyEnemyCard2": {
+        "desc": "[go] 第2张敌人卡牌（在场判定）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            318,
+            318,
+            125,
+            118
+        ],
+        "template": "TrialOfSwordmancy/EnemyCard.png"
+    },
+    "TrialOfSwordmancyEnemyCard3": {
+        "desc": "[go] 第3张敌人卡牌（在场判定）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            517,
+            318,
+            125,
+            118
+        ],
+        "template": "TrialOfSwordmancy/EnemyCard.png"
+    },
+    "TrialOfSwordmancyEnemyCard4": {
+        "desc": "[go] 第4张敌人卡牌（在场判定）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            716,
+            318,
+            125,
+            118
+        ],
+        "template": "TrialOfSwordmancy/EnemyCard.png"
+    },
+
+    // 溢出叹号（爆表）识别。Go 的 detectOverflow 用作观测字段（不参与 MDP 求解）。
+    "TrialOfSwordmancyOverflowExclamation": {
+        "desc": "[go] 识别溢出叹号（爆表）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            748,
+            561,
+            49,
+            47
+        ],
+        "template": "TrialOfSwordmancy/OverflowExclamation.png"
+    },
+
+    // 通用点数值识别节点：go-service 运行时用 OverridePipeline 动态设置 template（Point1-5.png）
+    // 与 roi（对应卡槽）后复用，按各点数模板匹配分数取最高得到卡牌点数值。
+    // （仿 autostockpile AutoStockpileLocateGoods 的 override 复用模式。）
+    "TrialOfSwordmancyPointValue": {
+        "desc": "[go] 通用点数值识别（运行时 override template+roi）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            1280,
+            720
+        ],
+        "template": "TrialOfSwordmancy/Point1.png"
+    }
+}
