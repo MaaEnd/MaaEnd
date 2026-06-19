@@ -250,7 +250,6 @@
                     388
                 ],
                 "template": "EssenceFilter/EssenceDetailExit.png",
-                "green_mask": true,
                 "threshold": 0.7
             }
         },
