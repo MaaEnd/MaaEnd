@@ -138,7 +138,7 @@
     "option.GiftCount.inputs.Count.label": "數量",
     "option.GiftCount.inputs.Count.description": "送出禮物的個數，須為 1 以上的整數。",
     "option.SendWrongGift.label": "故意送錯禮物",
-    "option.SendWrongGift.description": "送錯禮物的信賴值提升比較慢，防止所有角色都滿信賴無法完成每日任務。",
+    "option.SendWrongGift.description": "送錯禮物的信賴值提升比較慢，防止所有角色都滿信賴無法完成每日任務。關閉此選項可以設定贈送禮物的數量。",
     "option.SkipThumbLock.label": "跳過已鎖定",
     "option.SkipThumbLock.description": "跳過已鎖定物品。被跳過的物品不計入戰利品總結，也不參與方案推薦（可能導致重複推薦）。",
     "option.SkipThumbDiscard.label": "跳過已廢棄",

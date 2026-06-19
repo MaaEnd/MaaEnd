@@ -134,7 +134,7 @@
     "option.GiftCount.inputs.Count.label": "数量",
     "option.GiftCount.inputs.Count.description": "贈るプレゼントの個数。1 以上の整数。",
     "option.SendWrongGift.label": "わざと間違ったプレゼントを贈る",
-    "option.SendWrongGift.description": "間違ったプレゼントは信頼度の上昇が遅いため、全オペレーターの信頼度が上限に達してデイリー任務が完了できなくなるのを防ぎます。",
+    "option.SendWrongGift.description": "間違ったプレゼントは信頼度の上昇が遅いため、全オペレーターの信頼度が上限に達してデイリー任務が完了できなくなるのを防ぎます。このオプションをオフにすると、贈るプレゼントの数を設定できます。",
     "option.SkipThumbLock.label": "ロック済みをスキップ",
     "option.SkipThumbLock.description": "ロック済みをスキップします。スキップ分は戦利品集計・プリ刻印推奨の対象外です（重複推奨の可能性あり）。",
     "option.SkipThumbDiscard.label": "廃棄済みをスキップ",

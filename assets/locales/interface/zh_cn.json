@@ -138,7 +138,7 @@
     "option.GiftCount.inputs.Count.label": "数量",
     "option.GiftCount.inputs.Count.description": "送出礼物的个数，需为 1 以上的整数。",
     "option.SendWrongGift.label": "故意送错礼物",
-    "option.SendWrongGift.description": "送错礼物的信赖值提升比较慢，防止所有角色都满信赖无法完成每日任务。",
+    "option.SendWrongGift.description": "送错礼物的信赖值提升比较慢，防止所有角色都满信赖无法完成每日任务。关闭此选项可以设置赠送礼物的数量。",
     "option.SkipThumbLock.label": "跳过已锁定",
     "option.SkipThumbLock.description": "跳过已锁定的物品。被跳过的物品不计入战利品总结，也不参与方案推荐（可能导致重复推荐）。",
     "option.SkipThumbDiscard.label": "跳过已废弃",

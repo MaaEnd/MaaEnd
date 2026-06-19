@@ -138,7 +138,7 @@
     "option.GiftCount.inputs.Count.label": "Count",
     "option.GiftCount.inputs.Count.description": "Number of gifts to send. Must be a positive integer.",
     "option.SendWrongGift.label": "Send wrong gift on purpose",
-    "option.SendWrongGift.description": "Wrong gifts raise trust more slowly, helping avoid maxing out every operator and failing daily tasks.",
+    "option.SendWrongGift.description": "Wrong gifts raise trust more slowly, helping avoid maxing out every operator and failing daily tasks. Turn this option off to set how many gifts to send.",
     "option.SkipThumbLock.label": "Skip locked",
     "option.SkipThumbLock.description": "Skips locked items. Skipped items are omitted from the loot summary and plan recommendations (may suggest duplicates).",
     "option.SkipThumbDiscard.label": "Skip discarded",

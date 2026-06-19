@@ -134,7 +134,7 @@
     "option.GiftCount.inputs.Count.label": "개수",
     "option.GiftCount.inputs.Count.description": "보낼 선물의 개수. 1 이상의 정수입니다.",
     "option.SendWrongGift.label": "일부러 틀린 선물 보내기",
-    "option.SendWrongGift.description": "틀린 선물은 신뢰도 상승이 느려, 모든 오퍼레이터의 신뢰도가 최대가 되어 일일 임무를 완료하지 못하는 상황을 방지합니다.",
+    "option.SendWrongGift.description": "틀린 선물은 신뢰도 상승이 느려, 모든 오퍼레이터의 신뢰도가 최대가 되어 일일 임무를 완료하지 못하는 상황을 방지합니다. 이 옵션을 끄면 선물 개수를 설정할 수 있습니다.",
     "option.SkipThumbLock.label": "잠금 건너뛰기",
     "option.SkipThumbLock.description": "잠금된 아이템을 건너뜁니다. 건너뛴 항목은 전리품 요약·추천 계산에 포함되지 않습니다(중복 추천 가능).",
     "option.SkipThumbDiscard.label": "폐기 건너뛰기",
