@@ -62,17 +62,17 @@
         },
         "AutoAltSwipeParam": {
             "type": "object",
-            "description": "Alt + swipe parameters. When begin/end are omitted, both default to the current recognition box.",
+            "description": "Alt + swipe parameters forwarded to the sub-node Swipe action. begin/end default to arg.Box when omitted.",
             "additionalProperties": false,
             "properties": {
                 "begin": {
                     "title": "Begin",
-                    "description": "Swipe start point: [x, y] or [x, y, w, h]. Must be provided together with end.",
+                    "description": "Override swipe start. Omit to use arg.Box.",
                     "$ref": "#/$defs/SwipePoint"
                 },
                 "end": {
                     "title": "End",
-                    "description": "Swipe end point: [x, y] or [x, y, w, h]. Must be provided together with begin.",
+                    "description": "Override swipe end. Omit to use arg.Box.",
                     "$ref": "#/$defs/SwipePoint"
                 },
                 "begin_offset": {

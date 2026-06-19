@@ -134,14 +134,14 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 `AutoAltSwipeAction` 实现位于 `agent/go-service/common/autoalt`，用于执行 Alt + 滑动操作。先按下 Alt 键，再执行滑动，最后松开 Alt 键。
 
-- 参数：
-    - `begin?: [int, int] | [int, int, int, int]`：滑动起点。与 `end` 必须同时提供或同时省略；省略时默认取当前识别框，语义与内置 `Swipe` 的 `begin` 一致。
-    - `end?: [int, int] | [int, int, int, int]`：滑动终点。与 `begin` 必须同时提供或同时省略；省略时默认取当前识别框，语义与内置 `Swipe` 的 `end` 一致。
-    - `begin_offset?: [int, int, int, int]`：在默认识别框起点上叠加 `[dx, dy, dw, dh]`，语义与内置 `Swipe` 的 `begin_offset` 一致。
-    - `end_offset?: [int, int, int, int]`：在默认识别框终点上叠加 `[dx, dy, dw, dh]`，语义与内置 `Swipe` 的 `end_offset` 一致。
-    - `duration?: int`：滑动持续时间（毫秒），可选。
-    - `end_hold?: int`：滑动结束后按住时长（毫秒），可选。
-    - `only_hover?: bool`：是否仅悬停滑动，可选。
+- 参数（均可选，透传给子节点 `__AutoAltSwipeMouseSwipeAction` 的 Swipe 动作）：
+    - `begin?: [int, int] | [int, int, int, int]`：滑动起点；省略时默认 `arg.Box`。
+    - `end?: [int, int] | [int, int, int, int]`：滑动终点；省略时默认 `arg.Box`。
+    - `begin_offset?: [int, int, int, int]`：在默认起点（`arg.Box`）上叠加 `[dx, dy, dw, dh]`。
+    - `end_offset?: [int, int, int, int]`：在默认终点（`arg.Box`）上叠加 `[dx, dy, dw, dh]`。
+    - `duration?: int`：滑动持续时间（毫秒）。
+    - `end_hold?: int`：滑动结束后按住时长（毫秒）。
+    - `only_hover?: bool`：是否仅悬停滑动。
 
 ---
 
