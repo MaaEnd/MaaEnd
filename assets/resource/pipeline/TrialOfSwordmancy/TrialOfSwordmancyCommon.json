@@ -1,8 +1,12 @@
 {
-    // 卡牌在场识别：EnemyCard1-4 已移至 TrialOfSwordmancyGo.json（仅 go-service 调用、pipeline 无引用）。
-    // EnemyCard5 仍被 Nav 的 TrialOfSwordmancyEnterTrialMenuSuccess 引用，故保留于此。
+    // 选剑演武公共识别节点。
+    // 上半部分：pipeline 流程（Daily/Coating/Fight/Nav 等）直接引用的节点。
+    // ===========================================================================
+    // 下半部分（见分隔线后）：仅 go-service（recognition.go）运行时通过 ctx.RunRecognition
+    // 调用、pipeline 流程不直接引用的节点（[go] 前缀标注）。节点名仍全文件共享同一命名空间。
+
     "TrialOfSwordmancyEnemyCard5": {
-        "desc": "第5张敌人卡牌",
+        "desc": "第5张敌人卡牌（Nav 的 EnterTrialMenuSuccess 引用）",
         "recognition": "TemplateMatch",
         "roi": [
             915,
@@ -274,6 +278,83 @@
         ],
         "template": "TrialOfSwordmancy/ChallengeBackground.png",
         "green_mask": true
+    },
+
+    // ===========================================================================
+    // 以下为仅 go-service 调用、pipeline 流程不直接引用的节点（[go] 前缀）。
+    // ===========================================================================
+
+    // 卡牌在场识别（槽位 1-4）。EnemyCard5 在上方（被 Nav 引用）。Go 的 recognizeHand 用这 5 个判在场。
+    "TrialOfSwordmancyEnemyCard1": {
+        "desc": "[go] 第1张敌人卡牌（在场判定）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            119,
+            318,
+            125,
+            118
+        ],
+        "template": "TrialOfSwordmancy/EnemyCard.png"
+    },
+    "TrialOfSwordmancyEnemyCard2": {
+        "desc": "[go] 第2张敌人卡牌（在场判定）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            318,
+            318,
+            125,
+            118
+        ],
+        "template": "TrialOfSwordmancy/EnemyCard.png"
+    },
+    "TrialOfSwordmancyEnemyCard3": {
+        "desc": "[go] 第3张敌人卡牌（在场判定）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            517,
+            318,
+            125,
+            118
+        ],
+        "template": "TrialOfSwordmancy/EnemyCard.png"
+    },
+    "TrialOfSwordmancyEnemyCard4": {
+        "desc": "[go] 第4张敌人卡牌（在场判定）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            716,
+            318,
+            125,
+            118
+        ],
+        "template": "TrialOfSwordmancy/EnemyCard.png"
+    },
+
+    // 溢出叹号（爆表）识别。Go 的 detectOverflow 用作观测字段（不参与 MDP 求解）。
+    "TrialOfSwordmancyOverflowExclamation": {
+        "desc": "[go] 识别溢出叹号（爆表）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            748,
+            561,
+            49,
+            47
+        ],
+        "template": "TrialOfSwordmancy/OverflowExclamation.png"
+    },
+
+    // 通用点数值识别节点：go-service 运行时用 OverridePipeline 动态设置 template（Point1-5.png）
+    // 与 roi（对应卡槽）后复用，按各点数模板匹配分数取最高得到卡牌点数值。
+    // （仿 autostockpile AutoStockpileLocateGoods 的 override 复用模式。）
+    "TrialOfSwordmancyPointValue": {
+        "desc": "[go] 通用点数值识别（运行时 override template+roi）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            1280,
+            720
+        ],
+        "template": "TrialOfSwordmancy/Point1.png"
     }
-    // OverflowExclamation 与 PointValue 已移至 TrialOfSwordmancyGo.json（仅 go-service 调用、pipeline 无引用）。
 }

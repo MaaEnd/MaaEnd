@@ -45,12 +45,9 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	// 配置以节点参数为权威来源（与 recognition 一致），覆盖 detail 内的可能滞后值。
-	cfg, err := loadConfigFromNode(ctx, arg.CurrentTaskName)
-	if err != nil {
-		log.Warn().Err(err).Str("component", component).Msg("failed to load config, use detail config")
-		cfg = gs.Config
-	}
+	// 配置全部来自 recognition 识别（牌库/溢出模式/手牌/剩余次数/翻倍态皆从截图读出），
+	// 本节点不带 custom_action_param，无需再从节点加载。
+	cfg := gs.Config
 
 	slv := solverFor(cfg)
 	outcomes := slv.Decide(gs.State)
@@ -63,7 +60,9 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 	}
 
-	// 不可达状态（手牌超牌库 / 违反过滤 / RemainCalc==0）：没有最优决策。
+	// 不可达：识别产出了不在 MDP 状态空间的局面（识别 ROI/模板未校准、读错、或手牌超牌库等）。
+	// 这是错误，不是「奖励耗尽」—— 奖励耗尽由 pipeline 在进 Decide 前就识别并走 Finish。
+	// 这里直接让动作失败（return false），任务以错误中止，不冒充正常结束。
 	if outcomes == nil || best == solver.ActionNone {
 		log.Error().
 			Str("component", component).
@@ -72,19 +71,15 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Int("remainAband", gs.State.RemainAband).
 			Int("remainDouble", gs.State.RemainDouble).
 			Bool("isDoubled", gs.State.IsDoubled).
-			Msg("no reachable MDP decision for recognized state; routing to finish")
-		maafocus.Print(ctx, "选剑演武：当前局面无法决策（识别异常或奖励已耗尽），结束任务")
-		if err := routeNext(ctx, arg.CurrentTaskName, nodeFinish); err != nil {
-			log.Error().Err(err).Str("component", component).Msg("failed to route to finish")
-			return false
-		}
-		return true
+			Ints("deck", gs.Config.Deck[:]).
+			Msg("unreachable state: recognition produced a state outside the MDP space; aborting")
+		maafocus.Print(ctx, "选剑演武：局面识别异常（状态不可达），任务中止——请检查识别 ROI/模板校准")
+		return false
 	}
 
-	// 无状态：不推进任何跟踪。Remain*/IsDoubled/Hand 全部由下一步的 recognition 从截图重读。
-
-	if err := routeNext(ctx, arg.CurrentTaskName, executeNode(best)); err != nil {
-		log.Error().Err(err).Str("component", component).Str("action", best.String()).Msg("failed to override next")
+	// 按决策路由到执行节点（节点自行点击 + 等动画），完成后回到 Decide 形成单步循环。
+	if err := routeDecision(ctx, arg.CurrentTaskName, best); err != nil {
+		log.Error().Err(err).Str("component", component).Str("action", best.String()).Msg("failed to route decision")
 		return false
 	}
 
@@ -103,7 +98,19 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	return true
 }
 
-// executeNode 把最优决策映射到执行节点（迁移文档 §7.4）。
+// routeDecision 把最优决策映射到执行节点，并用 OverrideNext 设置当前节点的 next。
+// 实际点击/等待由各执行节点（DoDrawCard / DoDoubleReward / GiveUp / StartTrial）完成；
+// Go 只负责决策与路由。仅处理 4 种真实决策；不可达（ActionNone）在调用前已 return false。
+//
+//   - DrawCard → DoDrawCard（点击抽牌按钮 + 第三抽弹窗 + 等动画）
+//   - Double   → DoDoubleReward（点击翻倍按钮 + 等动画）
+//   - Abandon  → GiveUp 链（放弃 → 确认 → 重置寻路 → 回主入口）
+//   - Calculate→ StartTrial 战斗链
+func routeDecision(ctx *maa.Context, currentNode string, action solver.Action) error {
+	return ctx.OverrideNext(currentNode, []maa.NextItem{{Name: executeNode(action)}})
+}
+
+// executeNode 把最优决策映射到执行节点名（迁移文档 §7.4）。
 func executeNode(action solver.Action) string {
 	switch action {
 	case solver.DrawCard:
@@ -114,14 +121,8 @@ func executeNode(action solver.Action) string {
 		return nodeGiveUp
 	case solver.Calculate:
 		return nodeStartTrial
-	default:
-		return nodeFinish
 	}
-}
-
-// routeNext 设置当前节点的 next 为单一执行节点。
-func routeNext(ctx *maa.Context, currentNode, target string) error {
-	return ctx.OverrideNext(currentNode, []maa.NextItem{{Name: target}})
+	return "" // ActionNone 已在调用前 return false，此处不命中
 }
 
 // actionFocusLabel 返回决策的中文 UI 标签。

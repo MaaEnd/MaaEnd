@@ -38,14 +38,18 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		return nil, false
 	}
 
-	cfg, cfgErr := loadConfigFromNode(ctx, arg.CurrentTaskName)
-	if cfgErr != nil {
+	// 配置基线：reward/maxDouble 为等级 4 常量；overflowMode 固定 OverflowTwice（硬编码，
+	// 不再识别——奖励不按溢出归零）。deck 默认 0，识别成功才覆盖。
+	cfg := solver.DefaultConfig
+	cfg.Deck = [5]int{} // 默认 0：未识别到牌库时状态退化/不可达 → 安全结束，不用错误的默认牌库
+
+	// 牌库构成每 72h 轮换，必须 OCR 识别（不能硬编码）；未校准则 deck 留 0（见上）。
+	if deck, deckOK := recognizeDeck(ctx, arg.Img); deckOK {
+		cfg.Deck = deck
+	} else {
 		log.Warn().
-			Err(cfgErr).
 			Str("component", component).
-			Str("node", arg.CurrentTaskName).
-			Msg("failed to load config from node, falling back to defaults")
-		cfg = solver.DefaultConfig
+			Msg("deck OCR failed (roiDeckCount not calibrated?); deck stays 0 → state unreachable")
 	}
 
 	onCardScreen := r.detectCardScreen(ctx, arg.Img)
@@ -168,6 +172,20 @@ func recognizeCount(ctx *maa.Context, img image.Image, roi [4]int) (int, bool) {
 		return 0, false
 	}
 	return parseFirstInt(bestOCRText(detail))
+}
+
+// recognizeDeck OCR 读取牌库构成（各点数 1..5 的库存数）。牌库每 72h 轮换，必须从截图识别。
+// 任一点数读不到则整体失败（返回 false），由调用方决定是否回退。
+func recognizeDeck(ctx *maa.Context, img image.Image) ([5]int, bool) {
+	var deck [5]int
+	for i := 0; i < 5; i++ {
+		n, ok := recognizeCount(ctx, img, roiDeckCount[i])
+		if !ok {
+			return [5]int{}, false
+		}
+		deck[i] = n
+	}
+	return deck, true
 }
 
 // recognizeIsDoubled 用模板匹配判定本局是否已选择翻倍（命中 tplIsDoubled 模板即视为已翻倍）。

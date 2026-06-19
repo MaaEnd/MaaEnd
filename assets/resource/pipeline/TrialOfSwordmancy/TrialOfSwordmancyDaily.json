@@ -22,6 +22,7 @@
             "TrialOfSwordmancyDailyFinish"
         ]
     },
+    // 奖励耗尽 → 结束（CheckRewardMode 见非奖励模式 / Fight.json 战后 RewardExhausted 汇入）
     "TrialOfSwordmancyDailyFinish": {
         "desc": "演算结束",
         "pre_delay": 0,
@@ -31,7 +32,7 @@
         }
     },
     "TrialOfSwordmancyDailyRewardMode": {
-        "desc": "处于奖励演算模式，进入 MDP 单步决策循环",
+        "desc": "处于奖励演算模式",
         "recognition": "And",
         "all_of": [
             "TrialOfSwordmancyRewardMode"
@@ -42,30 +43,21 @@
             "TrialOfSwordmancyDecide"
         ]
     },
-    // ===== MDP 单步决策循环（go-service：识别 → 求解 → 路由执行 → 回到本节点）=====
-    // next 由 TrialOfSwordmancy.Decide 动作运行时用 OverrideNext 动态指向下面的执行节点。
-    // custom_action_param 为基础设定（均可选，缺省走等级 4 默认）；task option 的
-    // pipeline_override 可覆写以换牌库/换溢出模式，无需改代码。
     "TrialOfSwordmancyDecide": {
-        "desc": "选剑演武 MDP 单步决策",
+        "desc": "选剑演武单步决策",
         "recognition": "Custom",
         "custom_recognition": "TrialOfSwordmancy.Recognize",
         "action": "Custom",
         "custom_action": "TrialOfSwordmancy.Decide",
-        "custom_action_param": {
-            "deck": [4, 5, 6, 6, 7],
-            "overflowMode": "OverflowTwice"
-        },
         "pre_delay": 0,
         "post_delay": 0,
+        // next 由 go 运行时 override，按决策分派到：
+        //   抽牌 → DoDrawCard ｜ 翻倍 → DoDoubleReward ｜ 放弃 → DailyGiveUp ｜ 开始演算 → StartTrial（Fight.json）
         "next": []
     },
-    // —— 决策执行节点（DrawCard / Double 后回到 Decide 同局继续）——
-    // 抽牌等待策略移植自 v2 #3710：点抽牌/确认后先 post_delay 400ms 让动画起飞，
-    // 再进 DoWaitDrawCardFreezes 用 post_wait_freezes(200) 等画面稳定，
-    // 比单次 post_wait_freezes(100) 更不易在动画中途误判稳定。
+    // 抽牌 → 回 Decide（同局继续）
     "TrialOfSwordmancyDoDrawCard": {
-        "desc": "MDP 决策：抽取一张铭牌",
+        "desc": "抽取一张铭牌",
         "recognition": "And",
         "all_of": [
             "TrialOfSwordmancyDrawCard"
@@ -79,7 +71,7 @@
         ]
     },
     "TrialOfSwordmancyDoDrawCardConfirm": {
-        "desc": "抽牌到第三抽时可能弹出「抽取后无法更改翻倍」确认",
+        "desc": "抽取后无法更改翻倍确认",
         "recognition": "And",
         "all_of": [
             "YellowConfirmButtonType1"
@@ -112,8 +104,9 @@
             "TrialOfSwordmancyDecide"
         ]
     },
+    // 翻倍 → 回 Decide（同局继续）
     "TrialOfSwordmancyDoDoubleReward": {
-        "desc": "MDP 决策：选择本局翻倍",
+        "desc": "选择本局翻倍",
         "recognition": "And",
         "all_of": [
             "TrialOfSwordmancyDoubleReward"
@@ -134,8 +127,7 @@
             "TrialOfSwordmancyDecide"
         ]
     },
-    // —— 放弃当前演算（MDP 决策 Abandon 复用；等待策略移植自 v2 #3710：
-    //    GiveUp 点击后不再等待，改由 ConfirmGiveUp 在点击前 pre_wait_freezes 等确认菜单稳定）——
+    // 放弃本局 → 退出演算 → 回主入口（开新局）
     "TrialOfSwordmancyDailyGiveUp": {
         "desc": "放弃当前演算",
         "recognition": "And",
