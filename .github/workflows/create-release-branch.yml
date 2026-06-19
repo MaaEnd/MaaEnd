@@ -133,10 +133,15 @@ jobs:
             fi
 
             # 检查是否存在打开的 PR 以此分支为 base
-            OPEN_PR="$(gh pr list --base "$branch" --state open --json number --jq '.[0].number // empty' || true)"
-            if [ -n "$OPEN_PR" ]; then
-              echo "  Keeping $branch (open PR #${OPEN_PR} targets it)"
-              SKIPPED_PR=$((SKIPPED_PR + 1))
+            # 用 if 捕获 gh 退出码，失败时跳过（宁可保留分支也不盲目删除）
+            if OPEN_PR="$(gh pr list --base "$branch" --state open --json number --jq '.[0].number // empty' 2>/dev/null)"; then
+              if [ -n "$OPEN_PR" ]; then
+                echo "  Keeping $branch (open PR #${OPEN_PR} targets it)"
+                SKIPPED_PR=$((SKIPPED_PR + 1))
+                continue
+              fi
+            else
+              echo "  Skipping $branch (gh pr list failed — cannot verify open PRs)"
               continue
             fi
 

@@ -96,10 +96,13 @@ jobs:
             git cherry-pick -m 1 "$MERGE_SHA"
           fi
 
-          # 追加 [skip changelog] 避免重复出现在 changelog 中
+          # 追加 [skip changelog]，避免反向移植 commit 出现在后续版本的 changelog 中。
+          # 原始 fix 已在对应正式版的 changelog 体现，后续 RC/beta 不应再计入。
           git log -1 --format=%B > /tmp/commit_msg.txt
-          echo "" >> /tmp/commit_msg.txt
-          echo "[skip changelog]" >> /tmp/commit_msg.txt
+          if ! grep -qF '[skip changelog]' /tmp/commit_msg.txt; then
+            echo "" >> /tmp/commit_msg.txt
+            echo "[skip changelog]" >> /tmp/commit_msg.txt
+          fi
           git commit --amend -F /tmp/commit_msg.txt
 
           git push origin "$FIX_BRANCH"
