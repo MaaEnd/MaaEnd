@@ -99,10 +99,10 @@ jobs:
           echo "Cherry-picking commit: $MERGE_SHA (parents: $PARENT_COUNT)"
 
           if [ "$PARENT_COUNT" -le 1 ]; then
-            git cherry-pick "$MERGE_SHA"
+            git cherry-pick -x "$MERGE_SHA"
           else
-            echo "Merge commit detected, using -m 1"
-            git cherry-pick -m 1 "$MERGE_SHA"
+            echo "Merge commit detected, using -m 1 -x"
+            git cherry-pick -m 1 -x "$MERGE_SHA"
           fi
 
           # 追加 [skip changelog]，避免反向移植 commit 出现在后续版本的 changelog 中。
