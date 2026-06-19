@@ -2,6 +2,7 @@ package autoalt
 
 import (
 	"encoding/json"
+	"time"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -30,6 +31,67 @@ func validRectOffset(p []int) bool {
 	return len(p) == 4
 }
 
+func intsToTarget(p []int) (maa.Target, bool) {
+	switch len(p) {
+	case 2:
+		return maa.NewTargetRect(maa.Rect{p[0], p[1], 1, 1}), true
+	case 4:
+		return maa.NewTargetRect(maa.Rect{p[0], p[1], p[2], p[3]}), true
+	default:
+		return maa.Target{}, false
+	}
+}
+
+func intsToRect(p []int) (maa.Rect, bool) {
+	if len(p) != 4 {
+		return maa.Rect{}, false
+	}
+	return maa.Rect{p[0], p[1], p[2], p[3]}, true
+}
+
+func buildSwipeParam(p autoAltSwipeParam) (maa.SwipeParam, bool) {
+	hasBegin := validSwipePoint(p.Begin)
+	hasEnd := validSwipePoint(p.End)
+	if hasBegin != hasEnd {
+		return maa.SwipeParam{}, false
+	}
+
+	var param maa.SwipeParam
+	if hasBegin {
+		begin, ok := intsToTarget(p.Begin)
+		if !ok {
+			return maa.SwipeParam{}, false
+		}
+		end, ok := intsToTarget(p.End)
+		if !ok {
+			return maa.SwipeParam{}, false
+		}
+		param.Begin = begin
+		param.End = []maa.Target{end}
+	} else {
+		param.Begin = maa.NewTargetBool(true)
+		param.End = []maa.Target{maa.NewTargetBool(true)}
+		if r, ok := intsToRect(p.BeginOffset); ok {
+			param.BeginOffset = r
+		}
+		if r, ok := intsToRect(p.EndOffset); ok {
+			param.EndOffset = []maa.Rect{r}
+		}
+	}
+
+	if p.Duration != nil {
+		param.Duration = []time.Duration{time.Duration(*p.Duration) * time.Millisecond}
+	}
+	if p.EndHold != nil {
+		param.EndHold = []time.Duration{time.Duration(*p.EndHold) * time.Millisecond}
+	}
+	if p.OnlyHover != nil {
+		param.OnlyHover = *p.OnlyHover
+	}
+
+	return param, true
+}
+
 func (a *AutoAltSwipeAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	var p autoAltSwipeParam
 	if param := arg.CustomActionParam; param != "" {
@@ -44,15 +106,6 @@ func (a *AutoAltSwipeAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 	}
 
 	hasBegin := validSwipePoint(p.Begin)
-	hasEnd := validSwipePoint(p.End)
-	if hasBegin != hasEnd {
-		log.Error().
-			Str("component", "AutoAltSwipeAction").
-			Interface("begin", p.Begin).
-			Interface("end", p.End).
-			Msg("begin and end must both be provided or both omitted")
-		return false
-	}
 	if len(p.BeginOffset) > 0 && !validRectOffset(p.BeginOffset) {
 		log.Error().
 			Str("component", "AutoAltSwipeAction").
@@ -68,6 +121,16 @@ func (a *AutoAltSwipeAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		return false
 	}
 
+	swipeParam, ok := buildSwipeParam(p)
+	if !ok {
+		log.Error().
+			Str("component", "AutoAltSwipeAction").
+			Interface("begin", p.Begin).
+			Interface("end", p.End).
+			Msg("begin and end must both be provided or both omitted")
+		return false
+	}
+
 	box := arg.Box
 	if hasBegin {
 		box = maa.Rect{0, 0, 0, 0}
@@ -76,30 +139,6 @@ func (a *AutoAltSwipeAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 			Str("component", "AutoAltSwipeAction").
 			Msg("recognition box is required when begin/end are omitted")
 		return false
-	}
-
-	swipeOverride := map[string]any{}
-	if hasBegin {
-		swipeOverride["begin"] = p.Begin
-		swipeOverride["end"] = p.End
-	} else {
-		swipeOverride["begin"] = true
-		swipeOverride["end"] = true
-	}
-	if validRectOffset(p.BeginOffset) {
-		swipeOverride["begin_offset"] = p.BeginOffset
-	}
-	if validRectOffset(p.EndOffset) {
-		swipeOverride["end_offset"] = p.EndOffset
-	}
-	if p.Duration != nil {
-		swipeOverride["duration"] = *p.Duration
-	}
-	if p.EndHold != nil {
-		swipeOverride["end_hold"] = *p.EndHold
-	}
-	if p.OnlyHover != nil {
-		swipeOverride["only_hover"] = *p.OnlyHover
 	}
 
 	if _, err := ctx.RunAction("__AutoAltClickAltKeyDownAction",
@@ -111,15 +150,18 @@ func (a *AutoAltSwipeAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		return false
 	}
 
-	_, swipeErr := ctx.RunAction("__AutoAltSwipeMouseSwipeAction",
-		box, "", map[string]any{
-			"__AutoAltSwipeMouseSwipeAction": swipeOverride,
-		})
+	// Match __AutoAltSwipeMouseSwipeAction pre_delay for SeizeInput reliability.
+	time.Sleep(300 * time.Millisecond)
+
+	_, swipeErr := ctx.RunActionDirect(maa.ActionTypeSwipe, &swipeParam, box, arg.RecognitionDetail)
 	if swipeErr != nil {
 		log.Error().
 			Err(swipeErr).
 			Str("component", "AutoAltSwipeAction").
-			Msg("failed to run __AutoAltSwipeMouseSwipeAction")
+			Interface("box", box).
+			Interface("begin_offset", p.BeginOffset).
+			Interface("end_offset", p.EndOffset).
+			Msg("failed to run swipe action")
 	}
 
 	if _, err := ctx.RunAction("__AutoAltClickAltKeyUpAction",
