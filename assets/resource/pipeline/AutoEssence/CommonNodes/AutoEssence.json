@@ -382,9 +382,9 @@
             "param": {
                 "roi": [
                     738,
-                    499,
-                    442,
-                    138
+                    335,
+                    445,
+                    300
                 ],
                 "expected": [
                     "重度能量淤积点",
@@ -400,14 +400,14 @@
                 "custom_action": "AutoAltSwipeAction",
                 "custom_action_param": {
                     "begin_offset": [
-                        -10,
-                        15,
-                        -10,
-                        -60
+                        0,
+                        30,
+                        0,
+                        -10
                     ],
                     "end_offset": [
                         0,
-                        120,
+                        -120,
                         0,
                         0
                     ]
