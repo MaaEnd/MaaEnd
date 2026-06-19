@@ -1026,17 +1026,27 @@ bool NavigationStateMachine::TickNavigate()
         nav_run_result.has_corridor_heading ? nav_run_result.corridor_heading : route.route_heading;
 
     double heading_rate_deg = 0.0;
+    double heading_rate_raw_delta_deg = 0.0;
+    int64_t heading_rate_gap_ms = 0;
     if (runtime_state_.steering_rate.has_prev) {
-        const int64_t rate_gap_ms =
+        heading_rate_raw_delta_deg =
+            NaviMath::NormalizeAngle(current_heading - runtime_state_.steering_rate.prev_heading_deg);
+        heading_rate_gap_ms =
             std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.steering_rate.at).count();
-        if (rate_gap_ms >= 0 && rate_gap_ms <= kSteeringRateMaxGapMs) {
-            heading_rate_deg =
-                NaviMath::NormalizeAngle(current_heading - runtime_state_.steering_rate.prev_heading_deg);
+        const bool heading_changed = std::abs(heading_rate_raw_delta_deg) > kSteeringHeadingChangeEpsilonDeg;
+        if (heading_changed && heading_rate_gap_ms > 0 && heading_rate_gap_ms <= kSteeringRateMaxGapMs) {
+            heading_rate_deg = heading_rate_raw_delta_deg * static_cast<double>(kSteeringRateReferenceMs)
+                               / static_cast<double>(heading_rate_gap_ms);
         }
+        if (heading_changed) {
+            runtime_state_.steering_rate.prev_heading_deg = current_heading;
+            runtime_state_.steering_rate.at = now;
+        }
+    } else {
+        runtime_state_.steering_rate.prev_heading_deg = current_heading;
+        runtime_state_.steering_rate.at = now;
+        runtime_state_.steering_rate.has_prev = true;
     }
-    runtime_state_.steering_rate.prev_heading_deg = current_heading;
-    runtime_state_.steering_rate.has_prev = true;
-    runtime_state_.steering_rate.at = now;
 
     const double heading_error = NaviMath::NormalizeAngle(effective_route_heading - current_heading);
     const SteeringCommand steering = SteeringController::Update(
@@ -1056,6 +1066,7 @@ bool NavigationStateMachine::TickNavigate()
              << VAR(route.route_heading) << VAR(effective_route_heading)
              << VAR(nav_run_result.has_corridor_heading) << VAR(nav_run_result.cross_track)
              << VAR(nav_run_result.upcoming_turn_deg) << VAR(heading_rate_deg)
+             << VAR(heading_rate_raw_delta_deg) << VAR(heading_rate_gap_ms)
              << VAR(heading_error) << VAR(steering.yaw_delta_deg)
              << VAR(issued_delta_deg) << VAR(route.waypoint_distance) << VAR(route.on_route);
 
