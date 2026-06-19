@@ -1,3 +1,12 @@
+# 修复 PR 自动反向移植到 v2
+#
+# 当针对 release/v* 分支的 PR 被合并时：
+#   → cherry-pick 该合并提交到基于 v2 的 fix/pr-<N> 分支
+#   → 自动创建从 fix/pr-<N> 到 v2 的 PR
+#
+# cherry-pick 的 commit 会自动追加 [skip changelog]，
+# 防止反向移植的修复在后续版本的 changelog 中重复出现。
+
 name: cherry-pick-to-v2
 
 on:

@@ -1,3 +1,13 @@
+# 发布分支自动管理
+#
+# RC 版本（vX.Y.Z-rc.N）作为预发布被发布时：
+#   → 从该 RC tag 创建 release/vX.Y 分支
+#
+# 正式版 .0（vX.Y.0）作为正式发布被发布时：
+#   → 删除所有旧的 release/v* 分支（保留当前分支和仍有 open PR 的分支）
+#
+# Hotfix（vX.Y.Z, Z>0）发布时不会触发任何操作。
+
 name: create-release-branch
 
 on:
