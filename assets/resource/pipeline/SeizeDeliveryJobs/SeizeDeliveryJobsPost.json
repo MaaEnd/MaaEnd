@@ -44,8 +44,7 @@
             },
             "threshold": 0.325, // 主要是看地图匹配，故任务标点阈值无需过高
             "green_mask": true,
-            "zoom_value": 0.325,
-            "map_name_regex": "^map02_lv002$"
+            "zoom_value": 0.325
         },
         "pre_delay": 0,
         "anchor": {
@@ -76,8 +75,7 @@
             },
             "threshold": 0.325,
             "green_mask": true,
-            "zoom_value": 0.325,
-            "map_name_regex": "^map02_lv005$"
+            "zoom_value": 0.325
         },
         "pre_delay": 0,
         "anchor": {

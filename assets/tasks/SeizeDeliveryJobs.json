@@ -128,7 +128,7 @@
                     "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalkFetchDeliver.label",
                     "option": [
                         "SeizeDeliveryJobsPostDepartureRiskAcknowledgement",
-                        "SeizeDeliveryJobsPreferZipline"
+                        "SeizeDeliveryJobsPostDeparturePreferZipline"
                     ],
                     "pipeline_override": {
                         "SeizeDeliveryJobsPostProcessingEntry": {
@@ -160,9 +160,10 @@
                 }
             ]
         },
-        "SeizeDeliveryJobsPreferZipline": {
+        "SeizeDeliveryJobsPostDeparturePreferZipline": {
             "type": "switch",
-            "label": "$task.SeizeDeliveryJobsPreferZipline.label",
+            "label": "$task.SeizeDeliveryJobsPostDeparturePreferZipline.label",
+            "description": "$task.SeizeDeliveryJobsPostDeparturePreferZipline.description",
             "default_case": "No",
             "cases": [
                 {
