@@ -184,7 +184,7 @@ func recognizeIsDoubled(ctx *maa.Context, img image.Image) bool {
 	return runTemplateHit(ctx, img, nodeIsDoubled)
 }
 
-// probeAband 探测剩余放弃次数：点放弃 → 等弹窗 → 截新图 OCR → 点取消回正常界面。
+// probeAband 探测剩余放弃次数：点放弃 → 轮询 CancelButton 直到弹窗出现 → OCR 弹窗 → 点取消 → 等回抽牌页。
 // 返回读到的次数（0-3），读不到返回 -1。有副作用（点击、截屏），仅在 getAband()<0 时调用一次。
 func (r *Recognition) probeAband(ctx *maa.Context, img image.Image) int {
 	giveUpBox, ok := findNodeBox(ctx, img, nodeGiveUpButton)
@@ -197,27 +197,47 @@ func (r *Recognition) probeAband(ctx *maa.Context, img image.Image) int {
 		return -1
 	}
 
-	time.Sleep(300 * time.Millisecond)
+	// 轮询等待放弃确认弹窗出现：每 300ms 截图识别 CancelButton，命中即弹窗已开（替代固定延时，更稳）。
 	ctrl := ctx.GetTasker().GetController()
 	if ctrl == nil {
 		return -1
 	}
-	ctrl.PostScreencap().Wait()
-	fresh, err := ctrl.CacheImage()
-	if err != nil || fresh == nil {
-		log.Warn().Err(err).Str("component", component).Msg("probeAband: 截屏失败")
+	const probeInterval = 300 * time.Millisecond
+	deadline := time.Now().Add(10 * time.Second) // 兜底超时，弹窗没弹时不死循环
+	var popup image.Image
+	for time.Now().Before(deadline) {
+		time.Sleep(probeInterval)
+		ctrl.PostScreencap().Wait()
+		fresh, err := ctrl.CacheImage()
+		if err != nil || fresh == nil {
+			continue
+		}
+		if _, hit := findNodeBox(ctx, fresh, nodeCancelButton); hit {
+			popup = fresh
+			break
+		}
+	}
+	if popup == nil {
+		log.Warn().Str("component", component).Msg("probeAband: 等待放弃弹窗超时（CancelButton 未出现）")
 		return -1
 	}
 
-	text, _ := ocrNodeText(ctx, fresh, nodeAbandPopup)
+	// 弹窗已开：OCR 剩余放弃次数
+	text, _ := ocrNodeText(ctx, popup, nodeAbandPopup)
 	count := parseAbandCount(text)
 
-	if cancelBox, ok := findNodeBox(ctx, fresh, nodeCancelButton); ok {
+	// 点取消关闭弹窗
+	if cancelBox, ok := findNodeBox(ctx, popup, nodeCancelButton); ok {
 		if err := clickBox(ctx, cancelBox); err != nil {
 			log.Warn().Err(err).Str("component", component).Msg("probeAband: 点击取消失败，弹窗可能残留")
 		}
 	} else {
 		log.Warn().Str("component", component).Msg("probeAband: 取消按钮未找到，弹窗可能残留")
+	}
+
+	// 点完取消等画面静止，确保已回到抽牌页面再继续后续流程
+	if err := ctx.WaitFreezes(500*time.Millisecond, &maa.Rect{55, 77, 1212, 598}, nil); err != nil {
+		log.Warn().Err(err).Str("component", component).Msg("probeAband: 等待回抽牌页超时")
 	}
 
 	if count < 0 {
