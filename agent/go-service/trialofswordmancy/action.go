@@ -106,18 +106,18 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	return true
 }
 
-// formatFocus 组装识别后唯一的 focus 文本：当前局面（手牌/牌库/演算次数/翻倍次数/翻倍态）+ 决策（下一步行为）+ 路由方向。
+// formatFocus 组装识别后唯一的 focus 文本：当前局面（手牌/牌库/演算次数/翻倍次数/放弃次数/翻倍态）+ 决策（下一步行为）。
 // log 与 focus 分离——log 该写啥写啥，这里只给一份给人看的局面速览。
 func formatFocus(gs GameState, best solver.Action) string {
 	return fmt.Sprintf(
-		"选剑演武 | 手牌 %s | 牌库 %s | 演算%d 翻倍%d %s | → %s（%s）",
+		"选剑演武\n手牌 %s\n牌库 %s\n演算%d 翻倍%d 放弃%s %s\n→ %s",
 		handPointsDisplay(gs.HandRaw),
 		deckDisplay(gs.Config.Deck),
 		gs.State.RemainCalc,
 		gs.State.RemainDouble,
+		abandDisplay(gs.State.RemainAband),
 		doubledText(gs.State.IsDoubled),
 		actionFocusLabel(best),
-		executeNode(best),
 	)
 }
 
@@ -142,6 +142,14 @@ func deckDisplay(deck [5]int) string {
 		parts[i] = fmt.Sprintf("%d:%d", i+1, deck[i])
 	}
 	return strings.Join(parts, " ")
+}
+
+// abandDisplay 返回剩余放弃次数文本；未知(-1)显示「?」。
+func abandDisplay(remainAband int) string {
+	if remainAband < 0 {
+		return "?"
+	}
+	return strconv.Itoa(remainAband)
 }
 
 // doubledText 返回翻倍态中文标签。

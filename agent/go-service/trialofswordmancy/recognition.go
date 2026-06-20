@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy/solver"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -37,32 +38,31 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		return nil, false
 	}
 
-	// 配置基线：reward/maxDouble 为等级 4 常量；overflowMode 固定 OverflowTwice（奖励不按溢出归零）。
-	// deck 默认 0，识别成功才覆盖（未识别到牌库 → 状态退化/不可达 → 安全结束，不用错误默认）。
+	// —— 关键字段识别：任一读不到即 return false（任务中止），不在错误/缺失信息上做决策 ——
 	cfg := solver.DefaultConfig
-	cfg.Deck = [5]int{}
-	if deck, deckOK := recognizeDeck(ctx, arg.Img); deckOK {
-		cfg.Deck = deck
-	} else {
-		log.Warn().Str("component", component).Msg("deck OCR 失败，deck 留 0 → 状态可能不可达")
+	deck, deckOK := recognizeDeck(ctx, arg.Img)
+	if !deckOK {
+		return nil, r.recognitionFailed(ctx, "牌库 OCR 失败")
 	}
+	cfg.Deck = deck
 
 	onCardScreen := r.detectCardScreen(ctx, arg.Img)
 	overflow := r.detectOverflow(ctx, arg.Img)
-
-	handCounts, handRaw, handOK := r.recognizeHand(ctx, arg.Img)
-	if !handOK {
-		log.Warn().Str("component", component).Msg("手牌点数识别不完整，状态可能不可达")
-	}
+	handCounts, handRaw, _ := r.recognizeHand(ctx, arg.Img)
 
 	remainCalc, calcOK := recognizeCount(ctx, arg.Img, nodeRemainCalc)
+	if !calcOK {
+		return nil, r.recognitionFailed(ctx, "剩余演算次数 OCR 失败")
+	}
 	remainDouble, doubleOK := recognizeCount(ctx, arg.Img, nodeRemainDouble)
-	if !(calcOK && doubleOK) {
-		log.Warn().Str("component", component).Bool("calcOK", calcOK).Bool("doubleOK", doubleOK).Msg("剩余次数 OCR 失败，状态可能不可达")
+	if !doubleOK {
+		return nil, r.recognitionFailed(ctx, "剩余翻倍次数 OCR 失败")
 	}
 	isDoubled := recognizeIsDoubled(ctx, arg.Img)
 
-	// 剩余放弃次数：持久化缓存；未知(-1)则在所有识别之后探测（有副作用，故放最后）。
+	// 剩余放弃次数：持久化缓存；未知(-1)则探测（有副作用，故放最后）。
+	// 探测失败不在此 return false——否则 Decide 节点的 20s 识别超时内会反复点击放弃/取消；
+	// 改为留 -1 → 求解器判不可达 → Decide 动作 return false（一次性中止，不重试）。
 	remainAband := getAband()
 	if remainAband < 0 {
 		if n := r.probeAband(ctx, arg.Img); n >= 0 {
@@ -71,8 +71,11 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		}
 	}
 
+	// 屏幕的「本日剩余奖励演算次数」显示的是「当前进行中这局之外的剩余」——进入抽牌界面即扣 1，
+	// 而求解器把进行中这局也算作可用 → solver = OCR + 1（solver 态空间 RemainCalc 1..3，对应 OCR 0..2）。
+	// 仅演算次数有此偏移：放弃/翻倍次数界面显示的就是真实值，直接用。走到这里 calcOK 必为真。
 	state := solver.State{
-		RemainCalc:   remainCalc,
+		RemainCalc:   remainCalc + 1,
 		RemainAband:  remainAband,
 		RemainDouble: remainDouble,
 		IsDoubled:    isDoubled,
@@ -106,6 +109,15 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		Msg("game state recognized")
 
 	return &maa.CustomRecognitionResult{Box: arg.Roi, Detail: string(detailBytes)}, true
+}
+
+// recognitionFailed 关键字段识别失败的统一出口：记日志 + focus「识别失败」+ 返回 false。
+// 任一关键字段（牌库/演算次数/翻倍次数）读不到都走这里——读不到就不在错误信息上做决策，让任务中止。
+// （放奔次数探测失败不在此中止，见 Run 内注释。）
+func (r *Recognition) recognitionFailed(ctx *maa.Context, reason string) bool {
+	log.Warn().Str("component", component).Str("reason", reason).Msg("recognition failed, aborting task")
+	maafocus.Print(ctx, "选剑演武：识别失败")
+	return false
 }
 
 // detectCardScreen 判定是否处于抽牌界面：RewardMode 或 DrawCard 在场。
@@ -226,25 +238,42 @@ func clickBox(ctx *maa.Context, box maa.Rect) error {
 	return err
 }
 
-// ocrNodeText 跑一个 OCR 节点，返回识别文本。
+// ocrNodeText 跑一个 OCR 节点，返回该 ROI 内所有识别框文本的拼接。
+// ppocrv5 常把一行文本切成多个识别框（标点、数字往往单独成框），只取 Best 会丢掉关键数字/关键词，
+// 故此处拼接全部框，调用方再自行 parseFirstInt / 子串判断。
 func ocrNodeText(ctx *maa.Context, img image.Image, nodeName string) (string, bool) {
 	detail, err := ctx.RunRecognition(nodeName, img, nil)
 	if err != nil || detail == nil {
 		return "", false
 	}
-	return bestOCRText(detail), true
+	return allOCRText(detail)
 }
 
-// parseAbandCount 从放弃弹窗文本解析剩余次数：「已用完/用完」→0，否则取首段数字；读不出→-1。
+// 放弃确认弹窗两种形态（原文）：
+//   - 有次数：「本日剩余放弃次数x次，放弃将扣除，但不会扣除奖励演算次数，是否确认放弃？」（x ∈ 1..3）
+//   - 已耗尽：「本日放弃次数已用完，继续放弃将会扣除1次奖励演算次数，是否确认放弃？」
+//
+// 两种都含数字、都含「奖励演算次数」「扣除」「是否确认放弃」——这些词无法区分两态。
+// 只有「用完 / 继续放弃 / 将会扣除」是耗尽态独有，拿来做耗尽判定。
+// 关键陷阱：耗尽态的「1」是「扣除几次奖励演算次数」，不是放弃次数 → 必须先用耗尽标记拦截，
+// 否则 parseFirstInt 会把那个「1」误当放弃次数。
+var abandExhaustedMarkers = []string{"用完", "继续放弃", "将会扣除"}
+
+// parseAbandCount 从放弃弹窗的拼接文本解析剩余次数。
+// 耗尽标记命中 → 0；否则取首段数字（有次数态的唯一数字即放弃次数 x）；空 → 未知 -1。
 func parseAbandCount(text string) int {
-	if strings.Contains(text, "已用完") || strings.Contains(text, "用完") {
+	for _, m := range abandExhaustedMarkers {
+		if strings.Contains(text, m) {
+			return 0
+		}
+	}
+	if n, ok := parseFirstInt(text); ok {
+		return n
+	}
+	if strings.TrimSpace(text) != "" {
 		return 0
 	}
-	n, ok := parseFirstInt(text)
-	if !ok {
-		return -1
-	}
-	return n
+	return -1
 }
 
 // runTemplateHit 跑一个 TemplateMatch 节点，返回是否命中。
@@ -317,15 +346,34 @@ func bestTemplateScore(detail *maa.RecognitionDetail) (float64, bool) {
 	return tm.Score, true
 }
 
-// bestOCRText 取 OCR 最佳结果的文本。
-func bestOCRText(detail *maa.RecognitionDetail) string {
-	if detail == nil || detail.Results == nil || detail.Results.Best == nil {
-		return ""
+// allOCRText 拼接一个识别节点全部 OCR 框的文本（优先 Filtered，空则退回 All），用空串连接。
+// 配合 ppocrv5 的切框行为：把被切成多段的文本重新拼回，避免数字/关键词落在非 Best 框里被丢。
+func allOCRText(detail *maa.RecognitionDetail) (string, bool) {
+	if detail == nil || detail.Results == nil {
+		return "", false
 	}
-	if ocr, ok := detail.Results.Best.AsOCR(); ok {
-		return strings.TrimSpace(ocr.Text)
+	results := detail.Results.Filtered
+	if len(results) == 0 {
+		results = detail.Results.All
 	}
-	return ""
+	var b strings.Builder
+	hit := false
+	for _, r := range results {
+		if r == nil {
+			continue
+		}
+		ocr, ok := r.AsOCR()
+		if !ok {
+			continue
+		}
+		t := strings.TrimSpace(ocr.Text)
+		if t == "" {
+			continue
+		}
+		b.WriteString(t)
+		hit = true
+	}
+	return b.String(), hit
 }
 
 // parseFirstInt 取字符串里第一段连续数字并解析为 int。
