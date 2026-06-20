@@ -47,7 +47,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 
 	onCardScreen := r.detectCardScreen(ctx, arg.Img)
 	overflow := r.detectOverflow(ctx, arg.Img)
-	handCounts, handRaw, _ := r.recognizeHand(ctx, arg.Img)
+	handCounts, handRaw := r.recognizeHand(ctx, arg.Img)
 
 	// 牌库面板显示的是「剩余库存」（抽一张即递减）；求解器的 Deck 是「总牌量」——它自己按 Deck-Hand 推剩余
 	// （见 solver/state.go 的 remain = Deck - Hand）。故总牌量 = 剩余读数 + 已抽手牌。
@@ -141,8 +141,7 @@ func (r *Recognition) detectOverflow(ctx *maa.Context, img image.Image) bool {
 
 // recognizeHand 识别 5 个手牌位置的点数。每个位置（HandPoint1-5 节点）上匹配 Point1-5.png，
 // 最高分模板即该牌点数，同时表示该槽有牌；都没中 → 空槽。
-func (r *Recognition) recognizeHand(ctx *maa.Context, img image.Image) (handCounts [5]int, handRaw [5]int, ok bool) {
-	ok = true
+func (r *Recognition) recognizeHand(ctx *maa.Context, img image.Image) (handCounts [5]int, handRaw [5]int) {
 	for slot := 0; slot < 5; slot++ {
 		point, hit := recognizePointValue(ctx, img, slot)
 		if !hit {
@@ -153,7 +152,7 @@ func (r *Recognition) recognizeHand(ctx *maa.Context, img image.Image) (handCoun
 		}
 		handRaw[slot] = point
 	}
-	return handCounts, handRaw, ok
+	return handCounts, handRaw
 }
 
 // recognizeCount 跑一个 OCR 节点，取识别文本里第一段连续数字（兼容 "2"、"2/3"、"剩余2次"）。

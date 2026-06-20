@@ -293,49 +293,94 @@
     "TrialOfSwordmancyRemainCalc": {
         "desc": "[go] 本日剩余奖励演算次数（OCR，值 2/1/0）",
         "recognition": "OCR",
-        "roi": [547, 49, 187, 25]
+        "roi": [
+            547,
+            49,
+            187,
+            25
+        ]
     },
     "TrialOfSwordmancyRemainDouble": {
         "desc": "[go] 剩余翻倍次数（OCR，值 2/1/0）",
         "recognition": "OCR",
-        "roi": [669, 603, 111, 71]
+        "roi": [
+            669,
+            603,
+            111,
+            71
+        ]
     },
     "TrialOfSwordmancyDeckCount1": {
         "desc": "[go] 牌库点数1库存数（OCR）",
         "recognition": "OCR",
-        "roi": [1220, 116, 27, 33]
+        "roi": [
+            1220,
+            116,
+            27,
+            33
+        ]
     },
     "TrialOfSwordmancyDeckCount2": {
         "desc": "[go] 牌库点数2库存数（OCR）",
         "recognition": "OCR",
-        "roi": [1219, 168, 30, 27]
+        "roi": [
+            1219,
+            168,
+            30,
+            27
+        ]
     },
     "TrialOfSwordmancyDeckCount3": {
         "desc": "[go] 牌库点数3库存数（OCR）",
         "recognition": "OCR",
-        "roi": [1218, 215, 30, 30]
+        "roi": [
+            1218,
+            215,
+            30,
+            30
+        ]
     },
     "TrialOfSwordmancyDeckCount4": {
         "desc": "[go] 牌库点数4库存数（OCR）",
         "recognition": "OCR",
-        "roi": [1219, 265, 30, 29]
+        "roi": [
+            1219,
+            265,
+            30,
+            29
+        ]
     },
     "TrialOfSwordmancyDeckCount5": {
         "desc": "[go] 牌库点数5库存数（OCR）",
         "recognition": "OCR",
-        "roi": [1219, 312, 28, 31]
+        "roi": [
+            1219,
+            312,
+            28,
+            31
+        ]
     },
     "TrialOfSwordmancyAbandPopup": {
         "desc": "[go] 放弃确认弹窗文本（OCR：『剩余放弃次数x次』或『已用完』）",
         "recognition": "OCR",
-        "roi": [276, 325, 784, 58]
+        "roi": [
+            276,
+            325,
+            784,
+            58
+        ]
     },
 
     // —— 已翻倍指示（DoubleReward 按钮选中态，模板匹配）——
     "TrialOfSwordmancyIsDoubled": {
         "desc": "[go] 已翻倍指示",
         "recognition": "TemplateMatch",
-        "roi": [857, 602, 64, 71],
+        "roi": [
+            857,
+            602,
+            64,
+            71
+        ],
         "template": "TrialOfSwordmancy/DoubleRewardSelected.png"
     },
 
@@ -343,31 +388,56 @@
     "TrialOfSwordmancyHandPoint1": {
         "desc": "[go] 手牌槽1点数位",
         "recognition": "TemplateMatch",
-        "roi": [173, 123, 74, 80],
+        "roi": [
+            173,
+            123,
+            74,
+            80
+        ],
         "template": "TrialOfSwordmancy/Point1.png"
     },
     "TrialOfSwordmancyHandPoint2": {
         "desc": "[go] 手牌槽2点数位",
         "recognition": "TemplateMatch",
-        "roi": [373, 123, 74, 80],
+        "roi": [
+            373,
+            123,
+            74,
+            80
+        ],
         "template": "TrialOfSwordmancy/Point1.png"
     },
     "TrialOfSwordmancyHandPoint3": {
         "desc": "[go] 手牌槽3点数位",
         "recognition": "TemplateMatch",
-        "roi": [573, 123, 74, 80],
+        "roi": [
+            573,
+            123,
+            74,
+            80
+        ],
         "template": "TrialOfSwordmancy/Point1.png"
     },
     "TrialOfSwordmancyHandPoint4": {
         "desc": "[go] 手牌槽4点数位",
         "recognition": "TemplateMatch",
-        "roi": [773, 123, 74, 80],
+        "roi": [
+            773,
+            123,
+            74,
+            80
+        ],
         "template": "TrialOfSwordmancy/Point1.png"
     },
     "TrialOfSwordmancyHandPoint5": {
         "desc": "[go] 手牌槽5点数位",
         "recognition": "TemplateMatch",
-        "roi": [973, 123, 74, 80],
+        "roi": [
+            973,
+            123,
+            74,
+            80
+        ],
         "template": "TrialOfSwordmancy/Point1.png"
     },
 
@@ -375,7 +445,12 @@
     "TrialOfSwordmancyOverflowExclamation": {
         "desc": "[go] 溢出叹号（爆表）",
         "recognition": "TemplateMatch",
-        "roi": [748, 561, 49, 47],
+        "roi": [
+            748,
+            561,
+            49,
+            47
+        ],
         "template": "TrialOfSwordmancy/OverflowExclamation.png"
     }
 }
