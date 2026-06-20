@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy/solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy/solver"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -58,7 +58,7 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	outcomes := slv.Decide(gs.State)
 
 	// 不直接用求解器 Policy（其并列时按 [DrawCard,Abandon,Calculate] 取首位=抽牌）；
-	// 复刻 TS 计算器（trial-of-swordmancy-strategy.vue）的推荐规则：抽牌与放弃期望差 <1 时优先放弃。
+	// 复刻 TS 计算器（trial-of-swordmancy-strategy.vue）的推荐规则：抽牌与放弃总价值差 <1 时优先放弃。
 	best := pickDecision(outcomes)
 
 	// 不可达：识别产出了不在 MDP 状态空间的局面（识别 ROI/模板未校准、读错、或手牌超牌库等）。

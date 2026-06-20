@@ -13,10 +13,10 @@ import (
 //   - 基础设定变 → NewSolver(cfg).Solve()，缓存 *Solver（较重，状态空间数百~上千）。
 //   - 每步查询状态变 → 复用缓存的 *Solver，调 Decide(State) / Best(State)（极快，纯查表）。
 type Solver struct {
-	cfg     Config
-	states  []mdpState
-	index   map[string]int
-	solved  bool
+	cfg      Config
+	states   []mdpState
+	index    map[string]int
+	solved   bool
 	solution *Solution
 }
 

@@ -7,8 +7,8 @@ import "fmt"
 //
 // 不对外导出，避免与对外的 State 同名冲突（迁移文档 §4.4）。
 type mdpState struct {
-	isEnd bool  // 是否为吸收态（演算耗尽）
-	State       // isEnd 为 true 时为零值，无意义
+	isEnd bool // 是否为吸收态（演算耗尽）
+	State      // isEnd 为 true 时为零值，无意义
 }
 
 // endState 是唯一的吸收态实例。

@@ -75,7 +75,7 @@ func (a *Action) UnmarshalJSON(data []byte) error {
 type OverflowMode int
 
 const (
-	OverflowNone OverflowMode = iota // 不接受：总点数≥11 归零
+	OverflowNone  OverflowMode = iota // 不接受：总点数≥11 归零
 	OverflowOnce                      // 接受1次：总点数≥22 归零
 	OverflowTwice                     // 接受1至2次：无上限（默认）
 )
@@ -123,9 +123,9 @@ func (m *OverflowMode) UnmarshalJSON(data []byte) error {
 // 等级固定为 4：Reward 即等级 4 的奖励表、MaxDouble 恒为 2；
 // 实际会变的只有 Deck（牌库随刷新周期变）与 OverflowMode（随用户选项变）。
 type Config struct {
-	Deck         [5]int    `json:"deck"`         // 各点数(1..5)牌库存；默认 [4,5,6,6,7]
-	Reward       [11]int   `json:"reward"`       // 战力点 0..10 → 奖励；等级 4 常量
-	MaxDouble    int       `json:"maxDouble"`    // 翻倍次数上限；固定 2
+	Deck         [5]int       `json:"deck"`      // 各点数(1..5)牌库存；默认 [4,5,6,6,7]
+	Reward       [11]int      `json:"reward"`    // 战力点 0..10 → 奖励；等级 4 常量
+	MaxDouble    int          `json:"maxDouble"` // 翻倍次数上限；固定 2
 	OverflowMode OverflowMode `json:"overflowMode"`
 }
 
@@ -151,8 +151,8 @@ type Outcome struct {
 // Solution 是全量求解产物：每个状态的期望总奖励（价值函数）与最优决策（策略），
 // 外加状态列表与状态键索引。对外查询走 Decide / Best，通常不必直接读 Solution。
 type Solution struct {
-	Value  []float64     // 价值函数，下标对应 States
-	Policy []Action      // 最优策略，下标对应 States；吸收态为 ActionNone
-	States []State       // 状态列表，吸收态恒为 States[0]（零值 State）
+	Value  []float64      // 价值函数，下标对应 States
+	Policy []Action       // 最优策略，下标对应 States；吸收态为 ActionNone
+	States []State        // 状态列表，吸收态恒为 States[0]（零值 State）
 	Index  map[string]int // 状态键 → 下标；"END" → 0
 }

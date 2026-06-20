@@ -12,6 +12,9 @@ import (
 // custom_action_param.overflowMode 覆盖（见 DecideAction.Run / loadOverflowMode）。
 
 // —— 求解器缓存：按 Config 哈希键，Config 变化才重新 Solve ——
+// 正常一副牌 + 三种溢出模式只产生极少量键；上限兜底，防止牌库 OCR 抖动产生大量误识别键导致常驻内存增长。
+const solverCacheLimit = 16
+
 var (
 	solverCacheMu sync.Mutex
 	solverCache   = map[string]*solver.Solver{}
@@ -25,6 +28,9 @@ func solverFor(cfg solver.Config) *solver.Solver {
 	defer solverCacheMu.Unlock()
 	if s, ok := solverCache[key]; ok {
 		return s
+	}
+	if len(solverCache) >= solverCacheLimit {
+		solverCache = make(map[string]*solver.Solver) // 超阈值清空，避免无限增长
 	}
 	s := solver.NewSolver(cfg)
 	s.Solve() // 预求解并缓存
