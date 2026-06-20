@@ -40,7 +40,24 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "TrialOfSwordmancyEnsureFirstCard",
             "TrialOfSwordmancyDecide"
+        ]
+    },
+    // 若尚未抽牌（第1张 Lv 不在）则先抽一张，保证探测放弃次数时有牌；已有牌则 fall through 到 Decide
+    "TrialOfSwordmancyEnsureFirstCard": {
+        "desc": "空手则先抽一张",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyEnemyCard1"
+        ],
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": "TrialOfSwordmancyDrawCard",
+        "post_delay": 400,
+        "next": [
+            "TrialOfSwordmancyDoWaitDrawCardFreezes"
         ]
     },
     "TrialOfSwordmancyDecide": {
@@ -50,7 +67,7 @@
         "action": "Custom",
         "custom_action": "TrialOfSwordmancy.Decide",
         "pre_delay": 0,
-        "post_delay": 0,
+        "post_delay": 5000,
         // next 由 go 运行时 override，按决策分派到：
         //   抽牌 → DoDrawCard ｜ 翻倍 → DoDoubleReward ｜ 放弃 → DailyGiveUp ｜ 开始演算 → StartTrial（Fight.json）
         "next": []

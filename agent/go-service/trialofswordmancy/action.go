@@ -2,6 +2,9 @@ package trialofswordmancy
 
 import (
 	"encoding/json"
+	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy/solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -16,10 +19,10 @@ var _ maa.CustomActionRunner = &DecideAction{}
 // DecideAction 反序列化 recognition 产出的 GameState，调 solver.Decide 取最优单步决策，
 // 按决策用 OverrideNext 路由到执行节点。
 //
-// 无状态：不记忆任何进度。每步的完整 State 都由 recognition 从当前截图读出后传入；
-// 本动作只做「求解 → 路由」，不对包级状态产生副作用。单步循环靠 pipeline 的 next
-// 回到 TrialOfSwordmancyDecide（recognition 重新读图），直到 RemainCalc==0 / 奖励耗尽。
-// solver 只返回单步最优决策（迁移文档 §7.5）。
+// 几乎无状态：每步的完整 State 都由 recognition 读出后传入；本动作只做「求解 → 路由」。
+// 唯一副作用：路由到 放弃/开始演算（回合结束）时 resetAband()（放弃会扣1次致缓存失效）。
+// 单步循环靠 pipeline 的 next 回到 TrialOfSwordmancyDecide（recognition 重新读图），
+// 直到奖励耗尽（pipeline 检测 → Finish）。solver 只返回单步最优决策。
 type DecideAction struct{}
 
 // Run 执行决策。
@@ -73,8 +76,13 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Bool("isDoubled", gs.State.IsDoubled).
 			Ints("deck", gs.Config.Deck[:]).
 			Msg("unreachable state: recognition produced a state outside the MDP space; aborting")
-		maafocus.Print(ctx, "选剑演武：局面识别异常（状态不可达），任务中止——请检查识别 ROI/模板校准")
+		maafocus.Print(ctx, "选剑演武：识别失败")
 		return false
+	}
+
+	// 放弃/开始演算会结束当前回合：放弃还会扣 1 次放弃次数（缓存失效）。重置为 -1，下回合首步重新探测。
+	if best == solver.Abandon || best == solver.Calculate {
+		resetAband()
 	}
 
 	// 按决策路由到执行节点（节点自行点击 + 等动画），完成后回到 Decide 形成单步循环。
@@ -93,9 +101,55 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		Ints("hand", gs.State.Hand[:]).
 		Str("overflowMode", cfg.OverflowMode.String()).
 		Msg("decision made")
-	maafocus.Print(ctx, "选剑演武："+actionFocusLabel(best))
+	maafocus.Print(ctx, formatFocus(gs, best))
 
 	return true
+}
+
+// formatFocus 组装识别后唯一的 focus 文本：当前局面（手牌/牌库/演算次数/翻倍次数/翻倍态）+ 决策（下一步行为）+ 路由方向。
+// log 与 focus 分离——log 该写啥写啥，这里只给一份给人看的局面速览。
+func formatFocus(gs GameState, best solver.Action) string {
+	return fmt.Sprintf(
+		"选剑演武 | 手牌 %s | 牌库 %s | 演算%d 翻倍%d %s | → %s（%s）",
+		handPointsDisplay(gs.HandRaw),
+		deckDisplay(gs.Config.Deck),
+		gs.State.RemainCalc,
+		gs.State.RemainDouble,
+		doubledText(gs.State.IsDoubled),
+		actionFocusLabel(best),
+		executeNode(best),
+	)
+}
+
+// handPointsDisplay 把各槽识别到的点数拼成逗号分隔串（跳过空槽 0）；全空返回「空」。
+func handPointsDisplay(handRaw [5]int) string {
+	var pts []string
+	for _, p := range handRaw {
+		if p != 0 {
+			pts = append(pts, strconv.Itoa(p))
+		}
+	}
+	if len(pts) == 0 {
+		return "空"
+	}
+	return strings.Join(pts, ",")
+}
+
+// deckDisplay 把牌库构成拼成「点数:库存」串（点数 1-5 对应 Deck[0-4]）。
+func deckDisplay(deck [5]int) string {
+	parts := make([]string, 5)
+	for i := 0; i < 5; i++ {
+		parts[i] = fmt.Sprintf("%d:%d", i+1, deck[i])
+	}
+	return strings.Join(parts, " ")
+}
+
+// doubledText 返回翻倍态中文标签。
+func doubledText(isDoubled bool) string {
+	if isDoubled {
+		return "已翻倍"
+	}
+	return "未翻倍"
 }
 
 // routeDecision 把最优决策映射到执行节点，并用 OverrideNext 设置当前节点的 next。
@@ -110,7 +164,7 @@ func routeDecision(ctx *maa.Context, currentNode string, action solver.Action) e
 	return ctx.OverrideNext(currentNode, []maa.NextItem{{Name: executeNode(action)}})
 }
 
-// executeNode 把最优决策映射到执行节点名（迁移文档 §7.4）。
+// executeNode 把最优决策映射到执行节点名。
 func executeNode(action solver.Action) string {
 	switch action {
 	case solver.DrawCard:
@@ -143,9 +197,8 @@ func actionFocusLabel(action solver.Action) string {
 
 // —— 辅助：Custom 识别 detail 解包 ——
 
-// unwrapCustomDetail 从 Custom 识别的 RecognitionDetail.DetailJson 中取出我们写入的
-// 明文 JSON。Custom 识别结果在框架里可能被包成 {"best":{"detail": <raw>}}，兼容两种形态。
-// 仿 autostockpile extractCustomRecognitionDetailJSON。
+// unwrapCustomDetail 从 Custom 识别的 DetailJson 中取出我们写入的明文 JSON。
+// 框架可能把它包成 {"best":{"detail": <raw>}}，两种形态都兼容。
 func unwrapCustomDetail(detail *maa.RecognitionDetail) string {
 	if detail == nil || detail.DetailJson == "" {
 		return ""
