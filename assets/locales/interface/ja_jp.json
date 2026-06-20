@@ -482,6 +482,8 @@
     "task.SimpleProductionBatch.error_not_found": "**簡易制作画面で制作するアイテムを選択してから、スクリプトを起動してください**",
     "task.AndroidOpenGame.label": "🎮 ゲーム起動（Android）",
     "task.AndroidOpenGame.description": "Androidでゲームを起動します。事前にエミュレーターを手動で起動してください。",
+    "task.CloseGame.label": "❌ ゲーム終了",
+    "task.CloseGame.description": "ゲームを自動終了します。",
     "task.SeizeDeliveryJobs.label": "🏍️依頼受注と配送",
     "task.SeizeDeliveryJobs.description": "武陵城倉庫ノードの配送依頼を自動で受注します",
     "task.SeizeDeliveryJobsCommissionSource.label": "依頼荷受場所",
@@ -1070,3 +1072,4 @@
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "1-2回オーバーフローを許可",
     "option.TrialOfSwordmancyAutoFight.label": "自動戦闘を有効化"
 }
+

@@ -182,6 +182,7 @@
         "tasks/AccountSwitch.json",
         "tasks/WebEvent202605.json",
         "tasks/AndroidOpenGame.json",
+        "tasks/CloseGame.json",
         // group: realtime
         "tasks/RealTimeTask.json",
         // group: backpack

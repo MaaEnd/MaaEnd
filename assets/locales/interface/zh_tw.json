@@ -486,6 +486,8 @@
     "task.SimpleProductionBatch.error_not_found": "**請先在簡易製作頁面中選擇要製作的道具，再啟動腳本**",
     "task.AndroidOpenGame.label": "🎮打開遊戲",
     "task.AndroidOpenGame.description": "安卓端打開遊戲，需先手動打開模擬器",
+    "task.CloseGame.label": "❌關閉遊戲",
+    "task.CloseGame.description": "自動關閉遊戲",
     "task.SeizeDeliveryJobs.label": "🏍️搶委託與送貨",
     "task.SeizeDeliveryJobs.description": "自動搶武陵城倉儲節點送貨委託",
     "task.SeizeDeliveryJobsCommissionSource.label": "委託接收點",
@@ -1070,3 +1072,4 @@
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "接受1/2次溢出",
     "option.TrialOfSwordmancyAutoFight.label": "啟用自動戰鬥"
 }
+

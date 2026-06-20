@@ -1,0 +1,10 @@
+{
+    "CloseGame": {
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.hypergryph.endfield"
+            }
+        }
+    }
+}
