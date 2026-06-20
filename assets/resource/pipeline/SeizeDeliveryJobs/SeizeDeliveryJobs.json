@@ -273,7 +273,8 @@
                 "expected": [
                     "16.3"
                 ],
-                "only_rec": true
+                "only_rec": true,
+                "order_by": "Vertical"
             },
             {
                 "sub_name": "OriginOcr",
@@ -289,7 +290,8 @@
                     "武陵城",
                     "Wuling City",
                     "무릉성"
-                ]
+                ],
+                "order_by": "Vertical"
             },
             {
                 "sub_name": "AcceptOcr",
@@ -308,7 +310,8 @@
                     "配達依頼を受ける",
                     "輸送依頼を受注",
                     "輸送依頼を受ける"
-                ]
+                ],
+                "order_by": "Vertical"
             },
             {
                 "sub_name": "ViewLocationOcr",
@@ -326,7 +329,8 @@
                     "(?i)View\\s*Location",
                     "位置を確認",
                     "위치 확인"
-                ]
+                ],
+                "order_by": "Vertical"
             }
         ],
         "box_index": 3
@@ -362,7 +366,8 @@
                 "expected": [
                     "11.9"
                 ],
-                "only_rec": true
+                "only_rec": true,
+                "order_by": "Vertical"
             },
             {
                 "sub_name": "OriginOcr",
@@ -378,7 +383,8 @@
                     "武陵城",
                     "Wuling City",
                     "무릉성"
-                ]
+                ],
+                "order_by": "Vertical"
             },
             {
                 "sub_name": "AcceptOcr",
@@ -397,7 +403,8 @@
                     "配達依頼を受ける",
                     "輸送依頼を受注",
                     "輸送依頼を受ける"
-                ]
+                ],
+                "order_by": "Vertical"
             },
             {
                 "sub_name": "ViewLocationOcr",
@@ -415,7 +422,8 @@
                     "(?i)View\\s*Location",
                     "位置を確認",
                     "위치 확인"
-                ]
+                ],
+                "order_by": "Vertical"
             }
         ],
         "box_index": 3
@@ -451,7 +459,8 @@
                 "expected": [
                     "10.6"
                 ],
-                "only_rec": true
+                "only_rec": true,
+                "order_by": "Vertical"
             },
             {
                 "sub_name": "OriginOcr",
@@ -469,7 +478,8 @@
                     "(?i)Test\\s*Area",
                     "実験区域",
                     "실험 구역"
-                ]
+                ],
+                "order_by": "Vertical"
             },
             {
                 "sub_name": "AcceptOcr",
@@ -488,7 +498,8 @@
                     "配達依頼を受ける",
                     "輸送依頼を受注",
                     "輸送依頼を受ける"
-                ]
+                ],
+                "order_by": "Vertical"
             },
             {
                 "sub_name": "ViewLocationOcr",
@@ -506,7 +517,8 @@
                     "(?i)View\\s*Location",
                     "位置を確認",
                     "위치 확인"
-                ]
+                ],
+                "order_by": "Vertical"
             }
         ],
         "box_index": 3
