@@ -111,7 +111,7 @@
         ],
         "pre_delay": 0,
         "post_wait_freezes": {
-            "time": 200,
+            "time": 500,
             "target": [
                 55,
                 77,

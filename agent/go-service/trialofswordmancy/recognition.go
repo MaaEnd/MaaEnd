@@ -24,7 +24,7 @@ var _ maa.CustomRecognitionRunner = &Recognition{}
 // 各字段来源（ROI/模板都在 TrialOfSwordmancyCommon.json 的 [go] 节点里，Go 按名调用 maafw）：
 //   - 屏幕态：RewardMode / DrawCard 在场 → 处于抽牌界面。
 //   - Hand：5 个手牌位（HandPoint1-5）匹配 Point1-5.png，命中即该槽点数+在场。
-//   - Deck：牌库构成 OCR（DeckCount1-5）。
+//   - Deck：牌库「剩余库存」OCR（DeckCount1-5，抽牌递减）；总牌量 = 剩余 + 手牌。
 //   - RemainCalc / RemainDouble：OCR（RemainCalc / RemainDouble 节点）。
 //   - RemainAband：持久化缓存；未知(-1)时探测（点放弃→OCR 弹窗→取消）。
 //   - IsDoubled：模板匹配（IsDoubled 节点）。
@@ -44,11 +44,17 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	if !deckOK {
 		return nil, r.recognitionFailed(ctx, "牌库 OCR 失败")
 	}
-	cfg.Deck = deck
 
 	onCardScreen := r.detectCardScreen(ctx, arg.Img)
 	overflow := r.detectOverflow(ctx, arg.Img)
 	handCounts, handRaw, _ := r.recognizeHand(ctx, arg.Img)
+
+	// 牌库面板显示的是「剩余库存」（抽一张即递减）；求解器的 Deck 是「总牌量」——它自己按 Deck-Hand 推剩余
+	// （见 solver/state.go 的 remain = Deck - Hand）。故总牌量 = 剩余读数 + 已抽手牌。
+	// 否则抽牌后 remaining < hand，求解器会判手牌超牌库 → 不可达（实测 322 手牌 + 牌库读到 1 个点数2 即此因）。
+	for i := 0; i < 5; i++ {
+		cfg.Deck[i] = deck[i] + handCounts[i]
+	}
 
 	remainCalc, calcOK := recognizeCount(ctx, arg.Img, nodeRemainCalc)
 	if !calcOK {
@@ -159,7 +165,8 @@ func recognizeCount(ctx *maa.Context, img image.Image, nodeName string) (int, bo
 	return parseFirstInt(text)
 }
 
-// recognizeDeck 跑 DeckCount1-5 五个 OCR 节点读牌库构成；任一读不到则整体失败。
+// recognizeDeck 跑 DeckCount1-5 五个 OCR 节点读牌库「剩余库存」（抽一张递减一次）；任一读不到则整体失败。
+// 返回的是剩余量，调用方需 + hand 还原总牌量（求解器吃总牌量）。
 func recognizeDeck(ctx *maa.Context, img image.Image) ([5]int, bool) {
 	var deck [5]int
 	for i := 0; i < 5; i++ {
