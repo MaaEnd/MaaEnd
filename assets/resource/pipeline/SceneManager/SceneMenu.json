@@ -1138,8 +1138,8 @@
         },
         "post_delay": 0
     },
-    "__ScenePrivateWorldEnterMenuFriends": {
-        "desc": "从大世界进入好友菜单",
+    "__ScenePrivateWorldEnterMenuFriendsAdd": {
+        "desc": "从大世界进入好友添加菜单",
         "recognition": {
             "type": "And",
             "param": {
@@ -1149,6 +1149,30 @@
             }
         },
         "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMenuListEnterMenuFriendsNextAnchor": "__ScenePrivateMenuFriendsEnterMenuFriendsAdd"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuListEnterMenuFriends",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
+        ]
+    },
+    "__ScenePrivateWorldEnterMenuFriendsList": {
+        "desc": "从大世界进入好友列表菜单",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMenuListEnterMenuFriendsNextAnchor": "__ScenePrivateMenuFriendsEnterMenuFriendsList"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1193,10 +1217,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateAnyEnterMenuFriendsSuccess"
+            "__ScenePrivateMenuFriendsEnterMenuFriendsAnchor"
         ]
     },
-    "__ScenePrivateAnyEnterMenuFriendsSuccess": {
+    "__ScenePrivateMenuFriendsEnterMenuFriendsAnchor": {
         "desc": "成功进入好友菜单",
         "recognition": {
             "type": "OCR",
@@ -1222,6 +1246,109 @@
                 0,
                 200,
                 100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[Anchor]__ScenePrivateMenuListEnterMenuFriendsNextAnchor"
+        ]
+    },
+    "__ScenePrivateMenuFriendsEnterMenuFriendsList": {
+        "desc": "从好友菜单进入好友列表",
+        "recognition": "TemplateMatch",
+        "roi": [
+            450,
+            0,
+            400,
+            70
+        ],
+        "template": [
+            "SceneManager/FriendsList1.png",
+            "SceneManager/FriendsList2.png"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMenuFriendsEnterMenuFriendsListSuccess"
+        ]
+    },
+    "__ScenePrivateMenuFriendsEnterMenuFriendsListSuccess": {
+        "desc": "成功进入好友列表",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "好友列表",
+                    "(?i)Friends\\s*List",
+                    "フレンドリスト",
+                    "친구 목록"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                -400,
+                200,
+                400
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMenuFriendsEnterMenuFriendsAdd": {
+        "desc": "从好友菜单进入好友添加",
+        "recognition": "TemplateMatch",
+        "roi": [
+            620,
+            0,
+            200,
+            120
+        ],
+        "template": "BatchAddFriends/addFriend.png",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMenuFriendsEnterMenuFriendsAddSuccess"
+        ]
+    },
+    "__ScenePrivateMenuFriendsEnterMenuFriendsAddSuccess": {
+        "desc": "成功进入好友添加",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "添加好友",
+                    "新增好友",
+                    "(?i)Add\\s*Friend",
+                    "フレンド追加"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                -400,
+                200,
+                400
             ]
         },
         "pre_delay": 0,
