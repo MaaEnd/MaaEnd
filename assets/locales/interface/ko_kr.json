@@ -504,7 +504,7 @@
     "task.SeizeDeliveryJobsRepeatCount.cases.1.label": "최대 1회",
     "task.SeizeDeliveryJobsRepeatCount.cases.2.label": "최대 2회",
     "task.SeizeDeliveryJobsRepeatCount.cases.3.label": "최대 3회",
-    "task.SeizeDeliveryJobs.focus.loopBack": "배달 성공, 다음 회차 진행",
+    "task.SeizeDeliveryJobs.focus.loopBack": "이번 배달 성공",
     "task.SeizeDeliveryJobs.focus.testAreaFound": "실험 구역 10.6만 건을 찾았습니다!",
     "task.SeizeDeliveryJobs.focus.wulingCityFound": "무릉성 16.3만 건을 찾았습니다!",
     "task.SeizeDeliveryJobs.focus.wulingCityOrFound": "무릉성 건을 찾았습니다! (16.3/11.9만)",

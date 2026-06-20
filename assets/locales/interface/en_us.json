@@ -702,7 +702,7 @@
     "task.SeizeDeliveryJobsRepeatCount.cases.1.label": "Max 1",
     "task.SeizeDeliveryJobsRepeatCount.cases.2.label": "Max 2",
     "task.SeizeDeliveryJobsRepeatCount.cases.3.label": "Max 3",
-    "task.SeizeDeliveryJobs.focus.loopBack": "Delivery successful, continuing to next round",
+    "task.SeizeDeliveryJobs.focus.loopBack": "This delivery successful",
     "task.SeizeDeliveryJobs.focus.testAreaFound": "Found Test Area 106k order!",
     "task.SeizeDeliveryJobs.focus.wulingCityFound": "Found Wuling City 163k order!",
     "task.SeizeDeliveryJobs.focus.wulingCityOrFound": "Found Wuling City order! (163k/119k)",

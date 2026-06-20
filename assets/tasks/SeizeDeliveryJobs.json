@@ -196,9 +196,6 @@
                     "pipeline_override": {
                         "SeizeDeliveryJobsMain": {
                             "max_hit": 1
-                        },
-                        "SeizeDeliveryJobsCloseRewardDialog": {
-                            "next": ["SeizeDeliveryJobsMain"]
                         }
                     }
                 },

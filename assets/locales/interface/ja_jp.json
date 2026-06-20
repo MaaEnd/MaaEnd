@@ -504,7 +504,7 @@
     "task.SeizeDeliveryJobsRepeatCount.cases.1.label": "最大 1 回",
     "task.SeizeDeliveryJobsRepeatCount.cases.2.label": "最大 2 回",
     "task.SeizeDeliveryJobsRepeatCount.cases.3.label": "最大 3 回",
-    "task.SeizeDeliveryJobs.focus.loopBack": "配送成功、次の配送へ",
+    "task.SeizeDeliveryJobs.focus.loopBack": "今回の配送成功",
     "task.SeizeDeliveryJobs.focus.testAreaFound": "実験区域10.6万オーダーを見つけました！",
     "task.SeizeDeliveryJobs.focus.wulingCityFound": "武陵城16.3万オーダーを見つけました！",
     "task.SeizeDeliveryJobs.focus.wulingCityOrFound": "武陵城オーダーを見つけました！（16.3/11.9万）",
