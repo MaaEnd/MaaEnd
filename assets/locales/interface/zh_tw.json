@@ -1039,5 +1039,11 @@
     "option.TrialOfSwordmancyMode.description": "每日選劍演武：自動抽牌並自動作戰\n刷鍍層：請在處於自由演算模式下，於抽取銘牌界面開始任務\n刷25點：同刷鍍層，請在處於自由演算模式下，於抽取銘牌界面開始任務",
     "option.TrialOfSwordmancyMode.cases.Daily.label": "每日選劍演武",
     "option.TrialOfSwordmancyMode.cases.Coating.label": "刷鍍層",
-    "option.TrialOfSwordmancyMode.cases.Farm25.label": "刷25點"
+    "option.TrialOfSwordmancyMode.cases.Farm25.label": "刷25點",
+    "option.TrialOfSwordmancyOverflow.label": "數據溢出處理",
+    "option.TrialOfSwordmancyOverflow.description": "不接受溢出則可開啟自動戰鬥，自動刷3次\n1次溢出不推薦開啟自動戰鬥\n不推薦開啟2次溢出",
+    "option.TrialOfSwordmancyOverflow.cases.None.label": "不接受溢出",
+    "option.TrialOfSwordmancyOverflow.cases.Once.label": "接受1次溢出",
+    "option.TrialOfSwordmancyOverflow.cases.Twice.label": "接受1/2次溢出",
+    "option.TrialOfSwordmancyAutoFight.label": "啟用自動戰鬥"
 }

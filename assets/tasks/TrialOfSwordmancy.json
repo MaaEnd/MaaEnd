@@ -27,6 +27,10 @@
                 {
                     "name": "Daily",
                     "label": "$option.TrialOfSwordmancyMode.cases.Daily.label",
+                    "option": [
+                        "TrialOfSwordmancyOverflow",
+                        "TrialOfSwordmancyAutoFight"
+                    ],
                     "pipeline_override": {
                         "TrialOfSwordmancyDaily": {
                             "enabled": true
@@ -75,6 +79,59 @@
                             ]
                         }
                     }
+                }
+            ]
+        },
+        "TrialOfSwordmancyOverflow": {
+            "type": "select",
+            "label": "$option.TrialOfSwordmancyOverflow.label",
+            "description": "$option.TrialOfSwordmancyOverflow.description",
+            "default_case": "None",
+            "cases": [
+                {
+                    "name": "None",
+                    "label": "$option.TrialOfSwordmancyOverflow.cases.None.label"
+                },
+                {
+                    "name": "Once",
+                    "label": "$option.TrialOfSwordmancyOverflow.cases.Once.label",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyDecide": {
+                            "custom_action_param": {
+                                "overflowMode": "OverflowOnce"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Twice",
+                    "label": "$option.TrialOfSwordmancyOverflow.cases.Twice.label",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyDecide": {
+                            "custom_action_param": {
+                                "overflowMode": "OverflowTwice"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "TrialOfSwordmancyAutoFight": {
+            "type": "switch",
+            "label": "$option.TrialOfSwordmancyAutoFight.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyStartTrial": {
+                            "action": "DoNothing",
+                            "next": []
+                        }
+                    }
+                },
+                {
+                    "name": "Yes"
                 }
             ]
         }

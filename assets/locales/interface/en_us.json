@@ -1039,5 +1039,11 @@
     "option.TrialOfSwordmancyMode.description": "Daily Trial of Swordmancy: Auto draw cards and battle\nFarm Coating: Start from the nameplate drawing screen in Free Calculation mode\nFarm 25 Points: Same as Farm Coating — start from the nameplate drawing screen in Free Calculation mode",
     "option.TrialOfSwordmancyMode.cases.Daily.label": "Daily Trial of Swordmancy",
     "option.TrialOfSwordmancyMode.cases.Coating.label": "Farm Coating",
-    "option.TrialOfSwordmancyMode.cases.Farm25.label": "Farm 25 Points"
+    "option.TrialOfSwordmancyMode.cases.Farm25.label": "Farm 25 Points",
+    "option.TrialOfSwordmancyOverflow.label": "Data Overflow Handling",
+    "option.TrialOfSwordmancyOverflow.description": "No overflow: auto-battle can be enabled, auto-farms 3 runs\n1 overflow: enabling auto-battle is not recommended\nEnabling 2 overflows is not recommended",
+    "option.TrialOfSwordmancyOverflow.cases.None.label": "No overflow",
+    "option.TrialOfSwordmancyOverflow.cases.Once.label": "Accept 1 overflow",
+    "option.TrialOfSwordmancyOverflow.cases.Twice.label": "Accept 1-2 overflows",
+    "option.TrialOfSwordmancyAutoFight.label": "Enable auto-battle"
 }

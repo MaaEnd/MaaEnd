@@ -48,9 +48,10 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	// 配置全部来自 recognition 识别（牌库/溢出模式/手牌/剩余次数/翻倍态皆从截图读出），
-	// 本节点不带 custom_action_param，无需再从节点加载。
+	// 配置：牌库/手牌/剩余次数/翻倍态来自 recognition 截图识别；溢出模式是玩家策略选项，
+	// 由本节点 custom_action_param.overflowMode 提供（任务 select 决定），覆盖 recognition 的默认值。
 	cfg := gs.Config
+	cfg.OverflowMode = loadOverflowMode(arg.CustomActionParam)
 
 	slv := solverFor(cfg)
 	outcomes := slv.Decide(gs.State)
@@ -201,6 +202,23 @@ func actionFocusLabel(action solver.Action) string {
 	default:
 		return "未知决策"
 	}
+}
+
+// loadOverflowMode 从 Decide 节点的 custom_action_param 解析溢出模式；
+// 缺省或解析失败 → OverflowNone（不接受溢出，默认）。这是玩家策略选项（任务 select 决定），
+// 不属于截图识别范畴，故由 action 提供、覆盖 recognition 的默认。
+func loadOverflowMode(customActionParam string) solver.OverflowMode {
+	if customActionParam == "" {
+		return solver.OverflowNone
+	}
+	var p struct {
+		OverflowMode solver.OverflowMode `json:"overflowMode"`
+	}
+	if err := json.Unmarshal([]byte(customActionParam), &p); err != nil {
+		log.Warn().Err(err).Str("component", component).Msg("parse overflowMode custom_action_param 失败，回退 OverflowNone")
+		return solver.OverflowNone
+	}
+	return p.OverflowMode
 }
 
 // —— 辅助：Custom 识别 detail 解包 ——

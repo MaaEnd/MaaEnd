@@ -66,8 +66,11 @@
         "custom_recognition": "TrialOfSwordmancy.Recognize",
         "action": "Custom",
         "custom_action": "TrialOfSwordmancy.Decide",
+        "custom_action_param": {
+            "overflowMode": "OverflowNone"
+        },
         "pre_delay": 0,
-        "post_delay": 5000,
+        "post_delay": 0,
         // next 由 go 运行时 override，按决策分派到：
         //   抽牌 → DoDrawCard ｜ 翻倍 → DoDoubleReward ｜ 放弃 → DailyGiveUp ｜ 开始演算 → StartTrial（Fight.json）
         "next": []
@@ -110,10 +113,10 @@
         "post_wait_freezes": {
             "time": 200,
             "target": [
-                62,
-                146,
-                1191,
-                289
+                55,
+                77,
+                1212,
+                598
             ]
         },
         "post_delay": 0,

@@ -1039,5 +1039,11 @@
     "option.TrialOfSwordmancyMode.description": "일일 검술 연무: 자동 카드 뽑기 및 전투\n코팅 파밍: 자유 연산 모드에서 명함 뽑기 화면으로 시작하세요\n25점 파밍: 코팅 파밍과 동일, 자유 연산 모드에서 명함 뽑기 화면으로 시작하세요",
     "option.TrialOfSwordmancyMode.cases.Daily.label": "일일 검술 연무",
     "option.TrialOfSwordmancyMode.cases.Coating.label": "코팅 파밍",
-    "option.TrialOfSwordmancyMode.cases.Farm25.label": "25점 파밍"
+    "option.TrialOfSwordmancyMode.cases.Farm25.label": "25점 파밍",
+    "option.TrialOfSwordmancyOverflow.label": "오버플로우 처리",
+    "option.TrialOfSwordmancyOverflow.description": "오버플로우 안 함: 자동 전투 활성화 가능, 3회 자동 파밍\n1회 오버플로우: 자동 전투 활성화 비권장\n2회 오버플로우 활성화 비권장",
+    "option.TrialOfSwordmancyOverflow.cases.None.label": "오버플로우 안 함",
+    "option.TrialOfSwordmancyOverflow.cases.Once.label": "1회 오버플로우 허용",
+    "option.TrialOfSwordmancyOverflow.cases.Twice.label": "1-2회 오버플로우 허용",
+    "option.TrialOfSwordmancyAutoFight.label": "자동 전투 활성화"
 }
