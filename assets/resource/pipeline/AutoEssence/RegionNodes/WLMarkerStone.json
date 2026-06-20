@@ -110,7 +110,6 @@
                             394.0
                         ]
                     ],
-                    "path_trim": true,
                     "no_ensure_initial_movement_state": true
                 }
             }
