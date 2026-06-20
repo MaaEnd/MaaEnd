@@ -137,7 +137,10 @@ func (s *Solver) transitions(from mdpState, action Action) []transition {
 
 	switch action {
 	case DrawCard:
-		// 按剩余牌库概率抽一张
+		// 按剩余牌库概率抽一张。
+		// 注：totalRemain 不会为 0——空间内状态恒有 Hand[i] <= Deck[i]（handCombinations 构造时卡死），
+		// 故 remain[i] >= 0；而下面的除法被 `remain[i] > 0` 守卫，能进入除法说明至少一个 remain[i] > 0，
+		// 即 totalRemain > 0，不会除零产生 +Inf。
 		var remain [5]int
 		totalRemain := 0
 		for i := 0; i < len(remain); i++ {

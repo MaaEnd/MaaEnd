@@ -129,7 +129,7 @@ func (s *Solver) Solve() *Solution {
 }
 
 // queryIndex 把对外查询 State 解析为状态空间下标。
-// RemainCalc==0（吸收态）或不可达状态返回 -1。
+// RemainCalc==0（吸收态）返回 END 的下标（恒为 0）；不可达状态返回 -1。
 func (s *Solver) queryIndex(st State) int {
 	if !s.solved {
 		s.Solve()
@@ -152,9 +152,12 @@ func (s *Solver) Decide(st State) []Outcome {
 	if idx < 0 {
 		return nil
 	}
+	from := s.getState(st.RemainCalc, st.RemainAband, st.RemainDouble, st.IsDoubled, st.Hand)
+	if from.isEnd {
+		return nil // 吸收态（RemainCalc==0）无决策
+	}
 	sol := s.solution
 	best := sol.Policy[idx]
-	from := mdpState{State: st}
 
 	allowed := s.allowedActions(from)
 	outcomes := make([]Outcome, 0, len(allowed))
@@ -180,7 +183,7 @@ func (s *Solver) Decide(st State) []Outcome {
 func (s *Solver) Best(st State) (Action, error) {
 	idx := s.queryIndex(st)
 	if idx < 0 {
-		return ActionNone, fmt.Errorf("state is unreachable or absorbing: %+v", st)
+		return ActionNone, fmt.Errorf("state is unreachable: %+v", st)
 	}
 	best := s.solution.Policy[idx]
 	if best == ActionNone {
