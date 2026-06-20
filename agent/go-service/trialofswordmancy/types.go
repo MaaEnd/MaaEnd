@@ -7,8 +7,8 @@ import (
 // GameState 是 recognition 经 RecognitionDetail.Detail 传给 Decide 动作的 JSON 载体：
 // recognition 组装后 Marshal 进 Detail，Decide Unmarshal 读回。
 //
-// State 与 Config 的所有字段都由 recognition 从截图识别得出（reward/maxDouble 为等级 4
-// 常量、overflowMode 硬编码 Twice）；Decide 节点不带任何 custom_action_param。
+// State 与 Config 的字段主要由 recognition 从截图识别得出（reward/maxDouble 为等级 4 常量）；
+// overflowMode 在 recognition 中为默认值，最终由 Decide 节点的 custom_action_param.overflowMode 覆盖。
 type GameState struct {
 	State  solver.State  `json:"state"`
 	Config solver.Config `json:"config"`

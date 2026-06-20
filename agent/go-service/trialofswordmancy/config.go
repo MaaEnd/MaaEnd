@@ -6,9 +6,10 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy/solver"
 )
 
-// 本任务所有运行时信息都由 recognition 从截图识别（手牌/牌库/剩余次数/翻倍态），
-// overflowMode 硬编码为 OverflowTwice、reward/maxDouble 为等级 4 常量（solver.DefaultConfig）。
-// Decide 节点不带 custom_action_param，因此这里不再从节点加载配置。
+// 本任务运行时信息由 recognition 从截图识别（手牌/牌库/剩余次数/翻倍态），
+// reward/maxDouble 为等级 4 常量（solver.DefaultConfig）。
+// overflowMode 是玩家策略选项：recognition 用默认值，最终由 Decide 节点的
+// custom_action_param.overflowMode 覆盖（见 DecideAction.Run / loadOverflowMode）。
 
 // —— 求解器缓存：按 Config 哈希键，Config 变化才重新 Solve ——
 var (

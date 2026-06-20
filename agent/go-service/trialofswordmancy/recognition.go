@@ -267,7 +267,10 @@ func ocrNodeText(ctx *maa.Context, img image.Image, nodeName string) (string, bo
 var abandExhaustedMarkers = []string{"用完", "继续放弃", "将会扣除"}
 
 // parseAbandCount 从放弃弹窗的拼接文本解析剩余次数。
-// 耗尽标记命中 → 0；否则取首段数字（有次数态的唯一数字即放弃次数 x）；空 → 未知 -1。
+//   - 耗尽标记命中 → 0
+//   - 否则取首段数字（有次数态的唯一数字即放弃次数 x）
+//   - 无标记也无数字 → 未知 -1（例如有次数态的数字被 OCR 切错）。不臆断为 0/耗尽：
+//     返回 0 会被 setAband 缓存，污染整局决策；返回 -1 由上游留作未知、求解器判不可达中止。
 func parseAbandCount(text string) int {
 	for _, m := range abandExhaustedMarkers {
 		if strings.Contains(text, m) {
@@ -276,9 +279,6 @@ func parseAbandCount(text string) int {
 	}
 	if n, ok := parseFirstInt(text); ok {
 		return n
-	}
-	if strings.TrimSpace(text) != "" {
-		return 0
 	}
 	return -1
 }

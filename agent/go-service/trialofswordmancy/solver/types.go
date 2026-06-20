@@ -19,11 +19,11 @@ import (
 type Action int
 
 const (
-	ActionNone Action = 0 // 无决策（吸收态占位，不应作为查询结果返回）
-	DrawCard   Action = iota + 1
-	Abandon
-	Calculate
-	Double
+	ActionNone Action = iota // 无决策（吸收态占位，零值；不应作为查询结果返回）
+	DrawCard                 // 抽取铭牌
+	Abandon                  // 放弃
+	Calculate                // 开始演算
+	Double                   // 选择翻倍
 )
 
 // String 返回决策的可读标签，用于日志与 detail JSON。
@@ -99,7 +99,7 @@ func (m OverflowMode) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m.String())
 }
 
-// UnmarshalJSON 从字符串还原 OverflowMode；无法识别的值回退为默认 OverflowTwice。
+// UnmarshalJSON 从字符串还原 OverflowMode；无法识别的值返回 error（由调用方决定回退，如 loadOverflowMode 回退 OverflowNone）。
 func (m *OverflowMode) UnmarshalJSON(data []byte) error {
 	var s string
 	if err := json.Unmarshal(data, &s); err != nil {
