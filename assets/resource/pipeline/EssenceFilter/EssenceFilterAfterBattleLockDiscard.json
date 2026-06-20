@@ -263,8 +263,8 @@
     "EssenceFilterAfterBattleRowNextItem": {
         "desc": "处理下一个命中的格子，识别不到则退出任务",
         "next": [
+			"[JumpBack]EssenceFilterAfterBattleCloseDetailIconJumpback",
             "[JumpBack]EssenceFilterAfterBattleCloseDetailJumpback",
-            "[JumpBack]EssenceFilterAfterBattleCloseDetailIconJumpback",
             "EssenceFilterAfterBattleNthRecognition",
             "EssenceFilterAfterBattleExit"
         ]
@@ -291,8 +291,8 @@
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "on_error": [
-            "[JumpBack]EssenceFilterAfterBattleCloseDetailJumpback",
-            "[JumpBack]EssenceFilterAfterBattleCloseDetailIconJumpback",
+			"EssenceFilterAfterBattleCloseDetailIconJumpback",
+            "EssenceFilterAfterBattleCloseDetailJumpback",
             "EssenceFilterAfterBattleExit"
         ]
     }
