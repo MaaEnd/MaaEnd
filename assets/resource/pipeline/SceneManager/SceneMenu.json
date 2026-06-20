@@ -1,4 +1,24 @@
 {
+    "__ScenePrivateMenuListLoadingEnterWorld": {
+        "desc": "从菜单总列表退出到大世界，部分电脑从菜单列表回到大世界会卡很久，菜单列表是从上往下渐显加载，因此抓一下右上方先出现的特征",
+        "recognition": "OCR",
+        "roi": [
+            830,
+            0,
+            180,
+            50
+        ],
+        "expected": [
+            "BREAKING",
+            "NEWS"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuListEnterWorld"
+        ]
+    },
     "__ScenePrivateMenuListEnterWorld": {
         "desc": "从菜单总列表退出到大世界，避免电脑比较卡反复在菜单总列表和大世界之间切换",
         "recognition": "And",

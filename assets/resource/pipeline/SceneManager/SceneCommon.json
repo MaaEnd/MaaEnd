@@ -11,7 +11,7 @@
                 "key": 27 // ESC
             }
         },
-        "post_delay": 600
+        "post_delay": 1000
     },
     "__ScenePrivateLoggedOutConfirm": {
         "desc": "确认自动登出弹窗",
