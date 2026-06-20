@@ -224,16 +224,42 @@ func (a *SeizeDeliveryJobsDepartureAction) findTarget(ctx *maa.Context, arg *maa
 }
 
 func (a *SeizeDeliveryJobsDepartureAction) findBlueTaskLocation(ctx *maa.Context, arg *maa.CustomActionArg, img image.Image, mapNameRegex string) ([]maptrackerbigmap.MapTrackerBigMapFindImageMatch, error) {
-	tpl := seizeDeliveryJobsBlueTaskLocationTemplate
-	if mapNameRegex == "map02_lv005" {
-		tpl = seizeDeliveryJobsBlueTaskLocationTemplateAlt
+	templates := []string{
+		seizeDeliveryJobsBlueTaskLocationTemplate,
+		seizeDeliveryJobsBlueTaskLocationTemplateAlt,
 	}
 
+	var bestMatch *maptrackerbigmap.MapTrackerBigMapFindImageMatch
+
+	for _, tpl := range templates {
+		matches, err := a.findBlueTaskLocationWithTemplate(ctx, arg, img, mapNameRegex, tpl)
+		if err != nil {
+			log.Warn().
+				Err(err).
+				Str("component", seizeDeliveryJobsDepartureComponent).
+				Str("template", tpl).
+				Msg("failed to find blue task location with template")
+			continue
+		}
+		for i := range matches {
+			if bestMatch == nil || matches[i].Conf > bestMatch.Conf {
+				bestMatch = &matches[i]
+			}
+		}
+	}
+
+	if bestMatch == nil {
+		return nil, nil
+	}
+	return []maptrackerbigmap.MapTrackerBigMapFindImageMatch{*bestMatch}, nil
+}
+
+func (a *SeizeDeliveryJobsDepartureAction) findBlueTaskLocationWithTemplate(ctx *maa.Context, arg *maa.CustomActionArg, img image.Image, mapNameRegex string, tpl string) ([]maptrackerbigmap.MapTrackerBigMapFindImageMatch, error) {
 	paramBytes, err := json.Marshal(map[string]any{
 		"template":       tpl,
 		"expected":       true,
 		"green_mask":     true,
-		"zoom_value":     0.325,
+		"zoom_value":     0.265,
 		"max_matches":    1,
 		"map_name_regex": mapNameRegex,
 	})
