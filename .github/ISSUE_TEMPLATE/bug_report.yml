@@ -28,6 +28,7 @@ body:
       description: |
         💡 点击界面上“运行日志”右上角的 🗄️ 导出日志文件。  
         ⚠️ **请将上传导出后的 `MaaEnd-logs-xxx.zip` 文件** ⚠️  
+        ⚠️ **上传失败可上传到任意一个用户群，并在下方提供用户群名称、群文件名称** ⚠️  
         ❌ 不要复制文字发送。  
         ❌ 不要截图日志。
     validations:
@@ -38,7 +39,7 @@ body:
     attributes:
       label: 软件画面截图
       description: |
-        请提供出现问题时完整的 MaaEnd 软件画面截图。
+        请提供出现问题时完整的 MaaEnd 软件画面截图。 
         ❌ 不要留空。
     validations:
       required: true
@@ -48,7 +49,7 @@ body:
     attributes:
       label: 游戏画面截图
       description: |
-        请提供出现问题时的游戏画面截图，以便定位识别或操作相关问题。
+        请提供出现问题时的游戏画面截图，以便定位识别或操作相关问题。 
         ❌ 不要留空。
     validations:
       required: true
