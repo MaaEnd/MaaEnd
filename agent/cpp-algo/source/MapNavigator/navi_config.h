@@ -96,6 +96,12 @@ constexpr double kCloseGoalDetourSuppressSlack = 6.0;
 constexpr int32_t kLocalizationLossUnstickIntervalMs = kObstacleRecoveryMinTriggerMs;
 constexpr int32_t kLocalizationLossTimeoutMs = kDynamicRecoveryTotalTimeoutMs;
 
+// River-fall recovery (see navigator-river-fall-teleport-gap): black-screen loss = fell in water, teleported to
+// shore facing it. Turn 180° away then pulse inland until clear; hard clock bounds thin-shore re-fall loops.
+constexpr int32_t kRiverFallRecoveryTimeoutMs = kDynamicRecoveryTotalTimeoutMs;     // 30s clean fail-fast
+constexpr double kRiverFallRecoveryClearDistance = kDynamicRecoveryResetDistance;   // walked 2m clear of shore
+constexpr int32_t kRiverFallRecoveryPulseMs = kPostHeadingForwardPulseMs;           // proven heading-commit pulse
+
 // Off-route wedge watchdog. Corridor progress (what the stall clocks see) keeps advancing while the authored
 // cursor is pinned far off-route, so a bad latch wanders with zero route progress until the action hard-fails.
 // Runs only while off-corridor with no straight-line gain: replan first, then fail-fast so the pipeline retries.

@@ -523,6 +523,11 @@ bool NavigationStateMachine::HandleLocalizationLoss()
     if (loss.started_at == std::chrono::steady_clock::time_point {}) {
         loss.started_at = now;
     }
+    // River-fall discriminator: a black capture during a loss = fell in water (the locator folds it into a
+    // generic TrackingLost). Latch it so the re-acquire below can arm recovery. See navigator-river-fall.
+    if (position_provider_->LastCaptureWasBlackScreen()) {
+        loss.saw_black_screen = true;
+    }
     motion_controller_->SetForwardState(false);
 
     const auto loss_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - loss.started_at);
@@ -550,6 +555,7 @@ bool NavigationStateMachine::HandleLocalizationLoss()
             }
             LogInfo << "Localization recovered via global re-acquire; resuming navigation." << VAR(loss_elapsed.count())
                     << VAR(prior_zone) << VAR(position_->zone_id) << VAR(position_->x) << VAR(position_->y);
+            ArmRiverFallRecoveryIfBlackScreenLoss("global_reacquire");
             loss.Reset();
             runtime_state_.route.ResetTracking();
             runtime_state_.nav_run_dirty = true;
@@ -571,6 +577,23 @@ bool NavigationStateMachine::HandleLocalizationLoss()
     }
 
     utils::SleepFor(kLocatorRetryIntervalMs);
+    return true;
+}
+
+bool NavigationStateMachine::ArmRiverFallRecoveryIfBlackScreenLoss(const char* via)
+{
+    if (!runtime_state_.localization_loss.saw_black_screen) {
+        return false;
+    }
+    runtime_state_.river_fall.pending = true;
+    runtime_state_.river_fall.anchor_pos = *position_;
+    // Post-fall facing points at the water (the infinite-jump invariant); recovery turns to water_heading + 180.
+    runtime_state_.river_fall.water_heading = NaviMath::NormalizeAngle(position_->angle);
+    // River-fall owns the recovery: the pre-fall dynamic-recovery anchor is stale after the teleport, and a live
+    // recovery's escaped-obstacle check (runs before the river-fall block) would otherwise pre-empt the about-face.
+    runtime_state_.recovery.Reset();
+    LogInfo << "River-fall recovery armed (black-screen loss recovered)." << VAR(via) << VAR(position_->x)
+            << VAR(position_->y) << VAR(runtime_state_.river_fall.water_heading);
     return true;
 }
 
@@ -680,7 +703,23 @@ bool NavigationStateMachine::TickNavigate()
     if (!CaptureCurrentPosition(false)) {
         return HandleLocalizationLoss();
     }
-    runtime_state_.localization_loss.Reset();
+    {
+        LocalizationLossState& loss = runtime_state_.localization_loss;
+        if (loss.started_at != std::chrono::steady_clock::time_point {}) {
+            const auto loss_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                                     std::chrono::steady_clock::now() - loss.started_at)
+                                     .count();
+            const bool armed = ArmRiverFallRecoveryIfBlackScreenLoss("normal_reacquire");
+            LogInfo << "Localization recovered via normal tracking." << VAR(loss_ms) << VAR(loss.saw_black_screen)
+                    << VAR(armed) << VAR(position_->x) << VAR(position_->y);
+            loss.Reset();
+            if (armed) {
+                return true;
+            }
+        } else {
+            loss.Reset();
+        }
+    }
 
     const semantic_nodes::Result inline_semantic_result = semantic_nodes::ConsumeInlineSemantics(semantic_ctx);
     if (inline_semantic_result.request_failure) {
@@ -865,6 +904,44 @@ bool NavigationStateMachine::TickNavigate()
             SelectPhaseForCurrentWaypoint("waypoint_action_completed");
             return true;
         }
+    }
+
+    if (runtime_state_.river_fall.pending) {
+        RiverFallRecoveryState& rf = runtime_state_.river_fall;
+        if (session_->HardStalledMs(now) > kRiverFallRecoveryTimeoutMs) {
+            return FailNavigation(
+                "river_fall_recovery_timeout",
+                "River-fall recovery made no net progress past the timeout; terminating navigation.",
+                route.progress_distance,
+                NaviMath::NormalizeAngle(route.route_heading - current_heading),
+                stalled_ms);
+        }
+        const double rf_displacement = std::hypot(position_->x - rf.anchor_pos.x, position_->y - rf.anchor_pos.y);
+        const double rf_target_heading = NaviMath::NormalizeAngle(rf.water_heading + 180.0);
+        const double rf_heading_error = NaviMath::NormalizeAngle(rf_target_heading - current_heading);
+        if (rf_displacement >= kRiverFallRecoveryClearDistance) {
+            rf.Reset();
+            runtime_state_.recovery.Reset();
+            runtime_state_.route.ResetTracking();
+            runtime_state_.dynamic_replan_requested = false;
+            runtime_state_.nav_run_dirty = true;
+            session_->ResetProgress();
+            LogInfo << "River-fall recovery cleared; resuming navigation." << VAR(rf_displacement) << VAR(rf_heading_error);
+            SelectPhaseForCurrentWaypoint("river_fall_recovered");
+            return true;
+        }
+        motion_controller_->SetForwardState(false);
+        utils::SleepFor(kStopWaitMs);
+        int turn_units = static_cast<int>(std::lround(rf_heading_error * action_wrapper_->DefaultTurnUnitsPerDegree()));
+        if (turn_units == 0) {
+            turn_units = rf_heading_error > 0.0 ? 1 : -1;
+        }
+        action_wrapper_->SendViewDeltaSync(turn_units, 0);
+        action_wrapper_->PulseForwardSync(kRiverFallRecoveryPulseMs);
+        motion_controller_->SetForwardState(false);
+        LogInfo << "River-fall recovery turn+pulse." << VAR(rf_heading_error) << VAR(turn_units) << VAR(rf_displacement)
+                << VAR(position_->x) << VAR(position_->y);
+        return true;
     }
 
     // Off-route wedge watchdog (see kOffRouteWedge* in navi_config.h). Only corridor (non-strict RUN) waypoints,
