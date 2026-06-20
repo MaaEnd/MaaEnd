@@ -3,6 +3,7 @@ package trialofswordmancy
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -56,13 +57,9 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	slv := solverFor(cfg)
 	outcomes := slv.Decide(gs.State)
 
-	var best solver.Action
-	for _, o := range outcomes {
-		if o.IsBest {
-			best = o.Action
-			break
-		}
-	}
+	// 不直接用求解器 Policy（其并列时按 [DrawCard,Abandon,Calculate] 取首位=抽牌）；
+	// 复刻 TS 计算器（trial-of-swordmancy-strategy.vue）的推荐规则：抽牌与放弃期望差 <1 时优先放弃。
+	best := pickDecision(outcomes)
 
 	// 不可达：识别产出了不在 MDP 状态空间的局面（识别 ROI/模板未校准、读错、或手牌超牌库等）。
 	// 这是错误，不是「奖励耗尽」—— 奖励耗尽由 pipeline 在进 Decide 前就识别并走 Finish。
@@ -159,6 +156,30 @@ func doubledText(isDoubled bool) string {
 		return "已翻倍"
 	}
 	return "未翻倍"
+}
+
+// pickDecision 从各决策评估中选出要执行的动作，复刻 TS 计算器（trial-of-swordmancy-strategy.vue）
+// 的推荐规则：取总价值最高者；但当最高者是「抽牌」且「放弃」的总价值与之相差 <1（并列）时改选「放弃」。
+// 求解器自身 Policy 并列时按 [DrawCard,Abandon,Calculate] 取首位（=抽牌），与计算器展示的「并列优先放弃」不一致，
+// 故在此覆盖。空 outcomes（不可达）返回 ActionNone。
+func pickDecision(outcomes []solver.Outcome) solver.Action {
+	if len(outcomes) == 0 {
+		return solver.ActionNone
+	}
+	best := outcomes[0]
+	for _, o := range outcomes {
+		if o.Total > best.Total {
+			best = o
+		}
+	}
+	if best.Action == solver.DrawCard {
+		for _, o := range outcomes {
+			if o.Action == solver.Abandon && math.Abs(o.Total-best.Total) < 1 {
+				return solver.Abandon
+			}
+		}
+	}
+	return best.Action
 }
 
 // routeDecision 把最优决策映射到执行节点，并用 OverrideNext 设置当前节点的 next。
