@@ -84,7 +84,7 @@ Common `next` hooks:
 
 ### OCR: full strings in `expected`
 
-Write full text in `expected`, not fragments. Multilingual handling goes through the i18n toolchain. For fragments or hand-written regex, use `// @i18n-skip`. See [OCR & i18n](#ocr--i18n) below.
+Write full text in `expected`, not fragments. Multilingual handling goes through the i18n toolchain. **Only when the OCR engine cannot reliably read the full text** may you use fragments or hand-written regex; in that case add `// @i18n-skip` and leave a comment above the array preserving the full original text. See [OCR & i18n](#ocr--i18n) below.
 
 ### Reuse before adding
 
@@ -192,18 +192,20 @@ Authors do not maintain multilingual OCR by hand: write `expected` in your worki
 
 ### Rules
 
-- Use full strings in `expected`, not fragments. Example: write the whole sentence, not a substring.
-- English `expected` values become case-insensitive regex with `\\s*` between words, e.g. `Send Local Clues` → `(?i)Send\\s*Local\\s*Clues`.
-- Nodes that are not skipped get automatic `roi_offset` based on display width; `only_rec: true` nodes are excluded.
+- `expected` **must** use full strings, not fragments. Write the whole sentence, not a substring.
+- Only skip automatic i18n handling when the OCR engine cannot reliably match the full text (e.g. it stumbles on percent signs, special symbols, or visually ambiguous characters). **Truncation is a fallback, not a default.**
 
-### Skipping automatic handling
+Requirements when truncation is necessary:
 
-For fragments or custom regex, add `// @i18n-skip` inside the `expected` array:
+1. Add `// @i18n-skip` inside the `expected` array so the i18n tool skips this node;
+2. Above the array, leave a regular JSON comment with the **full original text**, so reviewers, translators, and future maintainers (once the OCR engine improves) can recover the complete match.
 
 ```jsonc
+// OCR engine cannot reliably read the "%" in "Stable Production 100%", so we truncate
 "expected": [
+    // "Stable Production 100%"
     // @i18n-skip
-    "partial text"
+    "Stable Production"
 ]
 ```
 
@@ -214,6 +216,9 @@ Default (recommended, auto i18n):
     "This is a full example sentence"
 ]
 ```
+
+- English `expected` values become case-insensitive regex with `\\s*` between words, e.g. `Send Local Clues` → `(?i)Send\\s*Local\\s*Clues`.
+- Nodes that are not skipped get automatic `roi_offset` based on display width; `only_rec: true` nodes are excluded.
 
 ## Testing
 
