@@ -2,6 +2,7 @@ package expressionrecognition
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -49,6 +50,9 @@ var (
 	expressionNodePattern = regexp.MustCompile(`\{([^{}]+)\}`)
 	ocrNumericPattern     = regexp.MustCompile(`(?i)[+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+)\s*(?:[a-z]+|万|亿)?`)
 	asciiLetterPattern    = regexp.MustCompile(`[A-Za-z]+$`)
+
+	expressionIntMax = int(^uint(0) >> 1)
+	expressionIntMin = -expressionIntMax - 1
 )
 
 // Run evaluates a boolean expression composed of numeric recognition nodes.
@@ -373,7 +377,7 @@ func evaluateASTExpression(expr ast.Expr) (any, error) {
 		if node.Kind != token.INT {
 			return nil, fmt.Errorf("unsupported literal kind %s", node.Kind.String())
 		}
-		return strconv.Atoi(node.Value)
+		return parseExpressionIntLiteral(node.Value)
 	case *ast.ParenExpr:
 		return evaluateASTExpression(node.X)
 	case *ast.UnaryExpr:
@@ -536,13 +540,51 @@ func parseOCRNumericValue(text string) (int, error) {
 	}
 
 	scaled := math.Round(value * multiplier)
-	maxInt := int(^uint(0) >> 1)
-	minInt := -maxInt - 1
-	if scaled > float64(maxInt) || scaled < float64(minInt) {
-		return 0, fmt.Errorf("ocr text %q is out of int range", cleaned)
+	if scaled > float64(expressionIntMax) || scaled < float64(expressionIntMin) {
+		clamped := clampToExpressionInt(scaled)
+		log.Warn().
+			Str("component", "ExpressionRecognition").
+			Str("ocr_text", cleaned).
+			Float64("raw_value", scaled).
+			Int("clamped_value", clamped).
+			Msg("ocr numeric value out of int range, clamped")
+		return clamped, nil
 	}
 
 	return int(scaled), nil
+}
+
+func parseExpressionIntLiteral(raw string) (int, error) {
+	value, err := strconv.Atoi(raw)
+	if err == nil {
+		return value, nil
+	}
+
+	var numErr *strconv.NumError
+	if errors.As(err, &numErr) && numErr.Err == strconv.ErrRange {
+		clamped := expressionIntMax
+		if strings.HasPrefix(strings.TrimSpace(raw), "-") {
+			clamped = expressionIntMin
+		}
+		log.Warn().
+			Str("component", "ExpressionRecognition").
+			Str("literal", raw).
+			Int("clamped_value", clamped).
+			Msg("expression integer literal out of int range, clamped")
+		return clamped, nil
+	}
+
+	return 0, err
+}
+
+func clampToExpressionInt(value float64) int {
+	if value > float64(expressionIntMax) {
+		return expressionIntMax
+	}
+	if value < float64(expressionIntMin) {
+		return expressionIntMin
+	}
+	return int(value)
 }
 
 func normalizeOCRNumericToken(token string) (string, float64, error) {

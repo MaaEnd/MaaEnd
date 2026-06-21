@@ -189,6 +189,7 @@ Notes:
 - The final expression result must be boolean, otherwise the recognition fails.
 - Referenced nodes must currently produce OCR results that can be parsed as numeric values, otherwise evaluation fails.
 - For `And` nodes, the child result selected by `box_index` in that run must directly contain OCR results that can be parsed as numeric values.
+- Integer literals in the expression, and OCR values after unit normalization, are clamped to the platform `int` maximum or minimum when they exceed the representable range (positive overflow uses the maximum, negative overflow uses the minimum). A warning is logged and evaluation continues instead of failing immediately.
 - This recognizer is only responsible for expression evaluation. Business semantics should remain in Pipeline design.
 
 ## Summary
