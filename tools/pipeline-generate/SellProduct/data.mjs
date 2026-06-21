@@ -35,6 +35,24 @@ function uniqueArray(items) {
     return [...new Set(items.filter(Boolean))];
 }
 
+function isAdminOperator(operator) {
+    return operator.name?.EN === "Endministrator" || operator.name?.CN === "管理员";
+}
+
+function getOperatorCaseName(operator) {
+    return toPascalCase(operator.name?.EN || operator.charId);
+}
+
+function buildOperatorExpected(operator) {
+    return uniqueArray([
+        operator.name?.CN,
+        operator.name?.TC,
+        operator.name?.EN,
+        operator.name?.JP,
+        operator.name?.KR,
+    ]).map(escapeRegex);
+}
+
 // 英文地名匹配允许空格和连字符有轻微 OCR 差异。
 function toFlexibleEnglishRegex(text) {
     const escaped = escapeRegex(text.trim());
@@ -74,31 +92,29 @@ const RESTORE_OPERATOR_BONUS_TYPES = new Set([
     "moneyProduceSpeed",
 ]);
 
+export function buildOperatorCaseEntry(operator) {
+    const name = getOperatorCaseName(operator);
+    if (!OPERATOR_LOCALE_ORDER.has(name)) {
+        console.warn(`[SellProduct] 缺少干员本地化条目 operator.${name}，将按名称排序回退处理`);
+    }
+
+    return {
+        name,
+        label: `$operator.${name}`,
+        expected: buildOperatorExpected(operator),
+    };
+}
+
 // 从 settlement_trade.operators 生成全局干员 case 基表，并保持现有 i18n 顺序。
 function buildOperatorCaseEntries() {
     return Object.values(settlementData.operators || {})
-        .filter((operator) => operator.name?.EN !== "Endministrator" && operator.name?.CN !== "管理员")
+        .filter((operator) => !isAdminOperator(operator))
+        .map(buildOperatorCaseEntry)
         .sort((a, b) => {
-            const aName = toPascalCase(a.name.EN || a.charId);
-            const bName = toPascalCase(b.name.EN || b.charId);
             return (
-                (OPERATOR_LOCALE_ORDER.get(aName) ?? Number.MAX_SAFE_INTEGER) -
-                    (OPERATOR_LOCALE_ORDER.get(bName) ?? Number.MAX_SAFE_INTEGER) || aName.localeCompare(bName)
+                (OPERATOR_LOCALE_ORDER.get(a.name) ?? Number.MAX_SAFE_INTEGER) -
+                    (OPERATOR_LOCALE_ORDER.get(b.name) ?? Number.MAX_SAFE_INTEGER) || a.name.localeCompare(b.name)
             );
-        })
-        .map((operator) => {
-            const name = toPascalCase(operator.name.EN || operator.charId);
-            return {
-                name,
-                label: `$operator.${name}`,
-                expected: [
-                    operator.name.CN,
-                    operator.name.TC,
-                    operator.name.EN,
-                    operator.name.JP,
-                    operator.name.KR,
-                ].filter(Boolean),
-            };
         })
         .filter((entry) => entry.expected.length > 0);
 }
@@ -113,8 +129,8 @@ function buildOperatorNameSetByBonusTypes(settlement, bonusTypes) {
         if (!hasMatchingBonus) continue;
 
         for (const operator of feature.matchingOperators || []) {
-            if (operator.name?.EN === "Endministrator" || operator.name?.CN === "管理员") continue;
-            names.add(toPascalCase(operator.name?.EN || operator.charId));
+            if (isAdminOperator(operator)) continue;
+            names.add(getOperatorCaseName(operator));
         }
     }
     return names;

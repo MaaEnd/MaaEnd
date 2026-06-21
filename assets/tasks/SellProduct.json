@@ -2212,7 +2212,6 @@
                         "SellProductInfrastructureOutpostCurrentTargetOperator": {
                             "expected": [
                                 "秋栗",
-                                "秋栗",
                                 "Akekuri",
                                 "アケクリ",
                                 "아케쿠리"
@@ -2220,7 +2219,6 @@
                         },
                         "SellProductInfrastructureOutpostSelectTargetOperator": {
                             "expected": [
-                                "秋栗",
                                 "秋栗",
                                 "Akekuri",
                                 "アケクリ",
@@ -2236,7 +2234,6 @@
                         "SellProductInfrastructureOutpostCurrentTargetOperator": {
                             "expected": [
                                 "埃特拉",
-                                "埃特拉",
                                 "Estella",
                                 "エステーラ",
                                 "에스텔라"
@@ -2244,7 +2241,6 @@
                         },
                         "SellProductInfrastructureOutpostSelectTargetOperator": {
                             "expected": [
-                                "埃特拉",
                                 "埃特拉",
                                 "Estella",
                                 "エステーラ",
@@ -3700,7 +3696,6 @@
                         "SellProductReconstructionCommandCurrentTargetOperator": {
                             "expected": [
                                 "阿列什",
-                                "阿列什",
                                 "Alesh",
                                 "アレッシュ",
                                 "알레쉬"
@@ -3708,7 +3703,6 @@
                         },
                         "SellProductReconstructionCommandSelectTargetOperator": {
                             "expected": [
-                                "阿列什",
                                 "阿列什",
                                 "Alesh",
                                 "アレッシュ",
@@ -5133,7 +5127,6 @@
                         "SellProductSkyKingFlatsCurrentTargetOperator": {
                             "expected": [
                                 "弧光",
-                                "弧光",
                                 "Arclight",
                                 "アークライト",
                                 "아크라이트"
@@ -5141,7 +5134,6 @@
                         },
                         "SellProductSkyKingFlatsSelectTargetOperator": {
                             "expected": [
-                                "弧光",
                                 "弧光",
                                 "Arclight",
                                 "アークライト",
@@ -5393,7 +5385,6 @@
                         "SellProductSkyKingFlatsCurrentRestoreOperator": {
                             "expected": [
                                 "弭弗",
-                                "弭弗",
                                 "Mi Fu",
                                 "ミ・フ",
                                 "미브"
@@ -5401,7 +5392,6 @@
                         },
                         "SellProductSkyKingFlatsSelectRestoreOperator": {
                             "expected": [
-                                "弭弗",
                                 "弭弗",
                                 "Mi Fu",
                                 "ミ・フ",
@@ -6772,7 +6762,6 @@
                         "SellProductCardiacRemediationStationCurrentTargetOperator": {
                             "expected": [
                                 "阿列什",
-                                "阿列什",
                                 "Alesh",
                                 "アレッシュ",
                                 "알레쉬"
@@ -6780,7 +6769,6 @@
                         },
                         "SellProductCardiacRemediationStationSelectTargetOperator": {
                             "expected": [
-                                "阿列什",
                                 "阿列什",
                                 "Alesh",
                                 "アレッシュ",
@@ -6844,7 +6832,6 @@
                         "SellProductCardiacRemediationStationCurrentTargetOperator": {
                             "expected": [
                                 "大潘",
-                                "大潘",
                                 "Da Pan",
                                 "ダパン",
                                 "판"
@@ -6852,7 +6839,6 @@
                         },
                         "SellProductCardiacRemediationStationSelectTargetOperator": {
                             "expected": [
-                                "大潘",
                                 "大潘",
                                 "Da Pan",
                                 "ダパン",
@@ -6868,7 +6854,6 @@
                         "SellProductCardiacRemediationStationCurrentTargetOperator": {
                             "expected": [
                                 "秋栗",
-                                "秋栗",
                                 "Akekuri",
                                 "アケクリ",
                                 "아케쿠리"
@@ -6876,7 +6861,6 @@
                         },
                         "SellProductCardiacRemediationStationSelectTargetOperator": {
                             "expected": [
-                                "秋栗",
                                 "秋栗",
                                 "Akekuri",
                                 "アケクリ",
@@ -6916,7 +6900,6 @@
                         "SellProductCardiacRemediationStationCurrentTargetOperator": {
                             "expected": [
                                 "弭弗",
-                                "弭弗",
                                 "Mi Fu",
                                 "ミ・フ",
                                 "미브"
@@ -6924,7 +6907,6 @@
                         },
                         "SellProductCardiacRemediationStationSelectTargetOperator": {
                             "expected": [
-                                "弭弗",
                                 "弭弗",
                                 "Mi Fu",
                                 "ミ・フ",
@@ -7051,7 +7033,6 @@
                         "SellProductCardiacRemediationStationCurrentRestoreOperator": {
                             "expected": [
                                 "秋栗",
-                                "秋栗",
                                 "Akekuri",
                                 "アケクリ",
                                 "아케쿠리"
@@ -7059,7 +7040,6 @@
                         },
                         "SellProductCardiacRemediationStationSelectRestoreOperator": {
                             "expected": [
-                                "秋栗",
                                 "秋栗",
                                 "Akekuri",
                                 "アケクリ",
