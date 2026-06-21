@@ -25,7 +25,7 @@
             "label": "$option.AutoUseSpMedicationExpireWithinDays.label",
             "description": "$option.AutoUseSpMedicationExpireWithinDays.description",
             "type": "select",
-            "default_case": "Days7",
+            "default_case": "Days3",
             "cases": [
                 {
                     "name": "Days1",
@@ -151,7 +151,7 @@
                     "name": "UseCount",
                     "label": "$option.AutoUseSpMedicationUseCount.inputs.UseCount.label",
                     "description": "$option.AutoUseSpMedicationUseCount.inputs.UseCount.description",
-                    "default": "1",
+                    "default": "15",
                     "pipeline_type": "int",
                     "pattern_msg": "$option.AutoUseSpMedicationUseCount.inputs.UseCount.pattern_msg",
                     "verify": "^([1-9]|1[0-5])$"
@@ -172,10 +172,10 @@
                     "name": "MaxSanity",
                     "label": "$option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.label",
                     "description": "$option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.description",
-                    "default": "999",
+                    "default": "9999",
                     "pipeline_type": "int",
                     "pattern_msg": "$option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.pattern_msg",
-                    "verify": "^([1-9]|[1-9]\\d{1,2})$"
+                    "verify": "^([1-9]\\d{0,3})$"
                 }
             ],
             "pipeline_override": {
