@@ -61,6 +61,7 @@ Required parameters:
 Optional parameters:
 
 - `align_threshold`: Positive integer, default `120`. The horizontal pixel tolerance for centering on the target. When the horizontal offset between the target center and the screen center is less than this value, the target is considered aligned and the node switches to forward/backward movement.
+- `far_target_width`: Positive integer. When the recognized bounding box width is less than this value, the target is considered too far away and the character steps forward directly, skipping rotation and alignment logic. When omitted, this check is disabled.
 
 #### Behavior Description
 
@@ -68,6 +69,7 @@ On each invocation, one of the following actions is taken based on the current f
 
 | Condition                                                                                  | Action            |
 | ------------------------------------------------------------------------------------------ | ----------------- |
+| Bounding box width < `far_target_width` (when `far_target_width` is set)                 | Step forward      |
 | Target is to the left of screen center (beyond `align_threshold`)                          | Rotate view left  |
 | Target is to the right of screen center (beyond `align_threshold`)                         | Rotate view right |
 | Target is aligned, but Y coordinate > 480 (target in lower half of screen, already passed) | Step backward     |

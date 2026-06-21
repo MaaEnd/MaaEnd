@@ -145,13 +145,22 @@ func (a *CharacterControllerForwardAxisAction) Run(ctx *maa.Context, arg *maa.Cu
 	return true
 }
 
-func moveToTarget(ctx *maa.Context, arg *maa.CustomActionArg, alignThreshold int) bool {
+func moveToTarget(ctx *maa.Context, arg *maa.CustomActionArg, alignThreshold int, farTargetWidth *int) bool {
 	if arg.RecognitionDetail == nil || !arg.RecognitionDetail.Hit {
 		log.Debug().Msg("recognition detail missing or not a hit")
 		return false
 	}
 
 	box := arg.Box
+	if farTargetWidth != nil && box.Width() < *farTargetWidth {
+		moveAxis(ctx, 200)
+		log.Debug().
+			Int("width", box.Width()).
+			Int("far_target_width", *farTargetWidth).
+			Msg("target too far — moving forward")
+		return true
+	}
+
 	targetCenterX := box.X() + box.Width()/2
 	targetCenterY := box.Y() + box.Height()/2
 	screenCenterX := 1280 / 2
@@ -197,6 +206,7 @@ func (a *CharacterMoveToTargetAction) Run(ctx *maa.Context, arg *maa.CustomActio
 	targetNotFoundCounter = 0
 	var params struct {
 		AlignThreshold *int `json:"align_threshold"`
+		FarTargetWidth *int `json:"far_target_width"`
 	}
 	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
 		log.Error().
@@ -210,7 +220,7 @@ func (a *CharacterMoveToTargetAction) Run(ctx *maa.Context, arg *maa.CustomActio
 	if params.AlignThreshold != nil {
 		alignThreshold = *params.AlignThreshold
 	}
-	return moveToTarget(ctx, arg, alignThreshold)
+	return moveToTarget(ctx, arg, alignThreshold, params.FarTargetWidth)
 }
 
 type CharacterMoveToTargetNotFoundAction struct{}

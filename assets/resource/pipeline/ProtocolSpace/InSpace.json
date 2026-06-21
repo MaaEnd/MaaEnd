@@ -499,7 +499,8 @@
         "action": "Custom",
         "custom_action": "CharacterMoveToTargetAction",
         "custom_action_param": {
-            "align_threshold": 120
+            "align_threshold": 120,
+            "far_target_width": 130
         },
         "post_delay": 600,
         "focus": {
