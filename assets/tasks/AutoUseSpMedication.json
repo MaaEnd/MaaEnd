@@ -14,54 +14,148 @@
                 "valuables_vault"
             ],
             "option": [
-                "AutoUseSpMedicationSelectMode"
+                "AutoUseSpMedicationExpireWithinDays",
+                "AutoUseSpMedicationUseCount"
             ]
         }
     ],
     "option": {
-        "AutoUseSpMedicationSelectMode": {
-            "label": "$option.AutoUseSpMedicationSelectMode.label",
-            "description": "$option.AutoUseSpMedicationSelectMode.description",
+        "AutoUseSpMedicationExpireWithinDays": {
+            "label": "$option.AutoUseSpMedicationExpireWithinDays.label",
+            "description": "$option.AutoUseSpMedicationExpireWithinDays.description",
             "type": "select",
+            "default_case": "Days7",
             "cases": [
                 {
-                    "name": "UseRegularSpMedicationTime",
-                    "label": "$option.UseRegularSpMedicationTime.label",
-                    "description": "$option.UseRegularSpMedicationTime.description",
-                    "option": [
-                        "UseRegularSpMedicationTime"
-                    ]
+                    "name": "Days1",
+                    "label": "$option.AutoUseSpMedicationExpireWithinDays.cases.Days1.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                "0小时",
+                                "1小时",
+                                "2小时",
+                                "3小时",
+                                "4小时",
+                                "5小时",
+                                "6小时",
+                                "7小时",
+                                "8小时",
+                                "9小时",
+                                "10小时",
+                                "11小时",
+                                "12小时",
+                                "13小时",
+                                "14小时",
+                                "15小时",
+                                "16小时",
+                                "17小时",
+                                "18小时",
+                                "19小时",
+                                "20小时",
+                                "21小时",
+                                "22小时",
+                                "23小时",
+                                "1天"
+                            ]
+                        }
+                    }
                 },
                 {
-                    "name": "UseAllExpireSoonSpMedication",
-                    "label": "$option.UseAllExpireSoonMedication.label",
-                    "description": "$option.UseAllExpireSoonMedication.description",
+                    "name": "Days3",
+                    "label": "$option.AutoUseSpMedicationExpireWithinDays.cases.Days3.label",
                     "pipeline_override": {
-                        "AutoUseSpMedicationSelectGreenDeadlineEmergencySanityBooster": {
-                            "enabled": false
-                        },
-                        "AutoUseSpMedicationLoop": {
-                            "max_hit": 15
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                "0小时",
+                                "1小时",
+                                "2小时",
+                                "3小时",
+                                "4小时",
+                                "5小时",
+                                "6小时",
+                                "7小时",
+                                "8小时",
+                                "9小时",
+                                "10小时",
+                                "11小时",
+                                "12小时",
+                                "13小时",
+                                "14小时",
+                                "15小时",
+                                "16小时",
+                                "17小时",
+                                "18小时",
+                                "19小时",
+                                "20小时",
+                                "21小时",
+                                "22小时",
+                                "23小时",
+                                "1天",
+                                "2天",
+                                "3天"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days7",
+                    "label": "$option.AutoUseSpMedicationExpireWithinDays.cases.Days7.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                "0小时",
+                                "1小时",
+                                "2小时",
+                                "3小时",
+                                "4小时",
+                                "5小时",
+                                "6小时",
+                                "7小时",
+                                "8小时",
+                                "9小时",
+                                "10小时",
+                                "11小时",
+                                "12小时",
+                                "13小时",
+                                "14小时",
+                                "15小时",
+                                "16小时",
+                                "17小时",
+                                "18小时",
+                                "19小时",
+                                "20小时",
+                                "21小时",
+                                "22小时",
+                                "23小时",
+                                "1天",
+                                "2天",
+                                "3天",
+                                "4天",
+                                "5天",
+                                "6天",
+                                "7天"
+                            ]
                         }
                     }
                 }
             ]
         },
-        "UseRegularSpMedicationTime": {
+        "AutoUseSpMedicationUseCount": {
             "type": "input",
+            "label": "$option.AutoUseSpMedicationUseCount.label",
+            "description": "$option.AutoUseSpMedicationUseCount.description",
             "inputs": [
                 {
                     "name": "UseCount",
-                    "label": "$option.UseRegularSpMedicationTime.inputs.UseCount.label",
-                    "description": "$option.UseRegularSpMedicationTime.inputs.UseCount.description",
+                    "label": "$option.AutoUseSpMedicationUseCount.inputs.UseCount.label",
+                    "description": "$option.AutoUseSpMedicationUseCount.inputs.UseCount.description",
                     "default": "1",
                     "pipeline_type": "int",
-                    "pattern_msg": "$option.UseRegularSpMedicationTime.inputs.UseCount.pattern_msg",
+                    "pattern_msg": "$option.AutoUseSpMedicationUseCount.inputs.UseCount.pattern_msg",
                     "verify": "^([1-9]|1[0-5])$"
                 }
             ],
-            "description": "$option.UseRegularSpMedicationTime.description",
-            "label": "$option.UseRegularSpMedicationTime.label",
             "pipeline_override": {
                 "AutoUseSpMedicationLoop": {
                     "max_hit": "{UseCount}"

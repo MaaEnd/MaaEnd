@@ -31,8 +31,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoUseSpMedicationSelectRedDeadlineEmergencySanityBooster",
-            "AutoUseSpMedicationSelectGreenDeadlineEmergencySanityBooster",
+            "AutoUseSpMedicationSelectEmergencySanityBooster",
             "AutoUseSpMedicationUseNoEmergencySanityBooster"
         ]
     },
@@ -45,7 +44,7 @@
         }
     },
     "AutoUseSpMedicationUseNoEmergencySanityBooster": {
-        "desc": "提示没有应急理智加强剂并结束任务,只有用户选择了使用应急理智加强剂的任意选项才会跳转到这个节点",
+        "desc": "提示没有符合条件的应急理智加强剂，结束任务",
         "enabled": true,
         "focus": {
             "Node.Recognition.Succeeded": "没有应急理智加强剂，结束任务"
