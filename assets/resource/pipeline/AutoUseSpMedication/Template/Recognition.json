@@ -8,7 +8,10 @@
             940,
             560
         ],
-        "template": "Valuables/EmergencySpBooster.png",
+        "template": [
+            "Valuables/EmergencySpBooster.png",
+            "Valuables/EmergencySpBoosterInCombat.png"
+        ],
         "green_mask": true,
         "threshold": 0.84,
         "order_by": "Vertical"
