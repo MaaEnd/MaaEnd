@@ -269,15 +269,6 @@
                                 "ペリカ",
                                 "펠리카"
                             ]
-                        },
-                        "SellProductRefugeeCampConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "佩丽卡",
-                                "佩麗卡",
-                                "Perlica",
-                                "ペリカ",
-                                "펠리카"
-                            ]
                         }
                     }
                 },
@@ -295,15 +286,6 @@
                             ]
                         },
                         "SellProductRefugeeCampSelectTargetOperator": {
-                            "expected": [
-                                "艾尔黛拉",
-                                "艾爾黛拉",
-                                "Ardelia",
-                                "アルデリア",
-                                "아델리아"
-                            ]
-                        },
-                        "SellProductRefugeeCampConfirmTargetOperatorSelected": {
                             "expected": [
                                 "艾尔黛拉",
                                 "艾爾黛拉",
@@ -335,15 +317,6 @@
                                 "ギルベルタ",
                                 "질베르타"
                             ]
-                        },
-                        "SellProductRefugeeCampConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "洁尔佩塔",
-                                "潔爾佩塔",
-                                "Gilberta",
-                                "ギルベルタ",
-                                "질베르타"
-                            ]
                         }
                     }
                 },
@@ -361,15 +334,6 @@
                             ]
                         },
                         "SellProductRefugeeCampSelectTargetOperator": {
-                            "expected": [
-                                "狼卫",
-                                "狼衛",
-                                "Wulfgard",
-                                "ウルフガード",
-                                "울프가드"
-                            ]
-                        },
-                        "SellProductRefugeeCampConfirmTargetOperatorSelected": {
                             "expected": [
                                 "狼卫",
                                 "狼衛",
@@ -401,15 +365,6 @@
                                 "アンタル",
                                 "안탈"
                             ]
-                        },
-                        "SellProductRefugeeCampConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "安塔尔",
-                                "安塔爾",
-                                "Antal",
-                                "アンタル",
-                                "안탈"
-                            ]
                         }
                     }
                 },
@@ -427,15 +382,6 @@
                             ]
                         },
                         "SellProductRefugeeCampSelectTargetOperator": {
-                            "expected": [
-                                "莱万汀",
-                                "萊萬汀",
-                                "Laevatain",
-                                "レーヴァテイン",
-                                "레바테인"
-                            ]
-                        },
-                        "SellProductRefugeeCampConfirmTargetOperatorSelected": {
                             "expected": [
                                 "莱万汀",
                                 "萊萬汀",
@@ -467,15 +413,6 @@
                                 "ポグラニチニク",
                                 "포그라니치니크"
                             ]
-                        },
-                        "SellProductRefugeeCampConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "骏卫",
-                                "駿衛",
-                                "Pogranichnik",
-                                "ポグラニチニク",
-                                "포그라니치니크"
-                            ]
                         }
                     }
                 },
@@ -493,15 +430,6 @@
                             ]
                         },
                         "SellProductRefugeeCampSelectTargetOperator": {
-                            "expected": [
-                                "昼雪",
-                                "晝雪",
-                                "Snowshine",
-                                "スノーシャイン",
-                                "스노우샤인"
-                            ]
-                        },
-                        "SellProductRefugeeCampConfirmTargetOperatorSelected": {
                             "expected": [
                                 "昼雪",
                                 "晝雪",
@@ -533,15 +461,6 @@
                                 "フローライト",
                                 "플루라이트"
                             ]
-                        },
-                        "SellProductRefugeeCampConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "萤石",
-                                "螢石",
-                                "Fluorite",
-                                "フローライト",
-                                "플루라이트"
-                            ]
                         }
                     }
                 },
@@ -559,15 +478,6 @@
                             ]
                         },
                         "SellProductRefugeeCampSelectTargetOperator": {
-                            "expected": [
-                                "汤汤",
-                                "湯湯",
-                                "Tangtang",
-                                "タンタン",
-                                "탕탕"
-                            ]
-                        },
-                        "SellProductRefugeeCampConfirmTargetOperatorSelected": {
                             "expected": [
                                 "汤汤",
                                 "湯湯",
@@ -623,15 +533,6 @@
                                 "アンタル",
                                 "안탈"
                             ]
-                        },
-                        "SellProductRefugeeCampConfirmRestoreOperatorSelected": {
-                            "expected": [
-                                "安塔尔",
-                                "安塔爾",
-                                "Antal",
-                                "アンタル",
-                                "안탈"
-                            ]
                         }
                     }
                 },
@@ -661,15 +562,6 @@
                                 "レーヴァテイン",
                                 "레바테인"
                             ]
-                        },
-                        "SellProductRefugeeCampConfirmRestoreOperatorSelected": {
-                            "expected": [
-                                "莱万汀",
-                                "萊萬汀",
-                                "Laevatain",
-                                "レーヴァテイン",
-                                "레바테인"
-                            ]
                         }
                     }
                 },
@@ -692,15 +584,6 @@
                             ]
                         },
                         "SellProductRefugeeCampSelectRestoreOperator": {
-                            "expected": [
-                                "洛茜",
-                                "洛西",
-                                "Rossi",
-                                "ロッシ",
-                                "로시"
-                            ]
-                        },
-                        "SellProductRefugeeCampConfirmRestoreOperatorSelected": {
                             "expected": [
                                 "洛茜",
                                 "洛西",
@@ -2127,15 +2010,6 @@
                                 "ペリカ",
                                 "펠리카"
                             ]
-                        },
-                        "SellProductInfrastructureOutpostConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "佩丽卡",
-                                "佩麗卡",
-                                "Perlica",
-                                "ペリカ",
-                                "펠리카"
-                            ]
                         }
                     }
                 },
@@ -2153,15 +2027,6 @@
                             ]
                         },
                         "SellProductInfrastructureOutpostSelectTargetOperator": {
-                            "expected": [
-                                "伊冯",
-                                "伊馮",
-                                "Yvonne",
-                                "イヴォンヌ",
-                                "이본"
-                            ]
-                        },
-                        "SellProductInfrastructureOutpostConfirmTargetOperatorSelected": {
                             "expected": [
                                 "伊冯",
                                 "伊馮",
@@ -2193,15 +2058,6 @@
                                 "チェン・センユー",
                                 "진천우"
                             ]
-                        },
-                        "SellProductInfrastructureOutpostConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "陈千语",
-                                "陳千語",
-                                "Chen Qianyu",
-                                "チェン・センユー",
-                                "진천우"
-                            ]
                         }
                     }
                 },
@@ -2219,15 +2075,6 @@
                             ]
                         },
                         "SellProductInfrastructureOutpostSelectTargetOperator": {
-                            "expected": [
-                                "狼卫",
-                                "狼衛",
-                                "Wulfgard",
-                                "ウルフガード",
-                                "울프가드"
-                            ]
-                        },
-                        "SellProductInfrastructureOutpostConfirmTargetOperatorSelected": {
                             "expected": [
                                 "狼卫",
                                 "狼衛",
@@ -2259,15 +2106,6 @@
                                 "アンタル",
                                 "안탈"
                             ]
-                        },
-                        "SellProductInfrastructureOutpostConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "安塔尔",
-                                "安塔爾",
-                                "Antal",
-                                "アンタル",
-                                "안탈"
-                            ]
                         }
                     }
                 },
@@ -2285,15 +2123,6 @@
                             ]
                         },
                         "SellProductInfrastructureOutpostSelectTargetOperator": {
-                            "expected": [
-                                "赛希",
-                                "賽希",
-                                "Xaihi",
-                                "ザイヒ",
-                                "자이히"
-                            ]
-                        },
-                        "SellProductInfrastructureOutpostConfirmTargetOperatorSelected": {
                             "expected": [
                                 "赛希",
                                 "賽希",
@@ -2325,15 +2154,6 @@
                                 "キャッチャー",
                                 "카치르"
                             ]
-                        },
-                        "SellProductInfrastructureOutpostConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "卡契尔",
-                                "卡契爾",
-                                "Catcher",
-                                "キャッチャー",
-                                "카치르"
-                            ]
                         }
                     }
                 },
@@ -2351,15 +2171,6 @@
                             ]
                         },
                         "SellProductInfrastructureOutpostSelectTargetOperator": {
-                            "expected": [
-                                "余烬",
-                                "餘燼",
-                                "Ember",
-                                "エンバー",
-                                "엠버"
-                            ]
-                        },
-                        "SellProductInfrastructureOutpostConfirmTargetOperatorSelected": {
                             "expected": [
                                 "余烬",
                                 "餘燼",
@@ -2391,15 +2202,6 @@
                                 "フローライト",
                                 "플루라이트"
                             ]
-                        },
-                        "SellProductInfrastructureOutpostConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "萤石",
-                                "螢石",
-                                "Fluorite",
-                                "フローライト",
-                                "플루라이트"
-                            ]
                         }
                     }
                 },
@@ -2417,15 +2219,6 @@
                             ]
                         },
                         "SellProductInfrastructureOutpostSelectTargetOperator": {
-                            "expected": [
-                                "秋栗",
-                                "秋栗",
-                                "Akekuri",
-                                "アケクリ",
-                                "아케쿠리"
-                            ]
-                        },
-                        "SellProductInfrastructureOutpostConfirmTargetOperatorSelected": {
                             "expected": [
                                 "秋栗",
                                 "秋栗",
@@ -2457,15 +2250,6 @@
                                 "エステーラ",
                                 "에스텔라"
                             ]
-                        },
-                        "SellProductInfrastructureOutpostConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "埃特拉",
-                                "埃特拉",
-                                "Estella",
-                                "エステーラ",
-                                "에스텔라"
-                            ]
                         }
                     }
                 },
@@ -2490,15 +2274,6 @@
                                 "ロッシ",
                                 "로시"
                             ]
-                        },
-                        "SellProductInfrastructureOutpostConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "洛茜",
-                                "洛西",
-                                "Rossi",
-                                "ロッシ",
-                                "로시"
-                            ]
                         }
                     }
                 },
@@ -2516,15 +2291,6 @@
                             ]
                         },
                         "SellProductInfrastructureOutpostSelectTargetOperator": {
-                            "expected": [
-                                "汤汤",
-                                "湯湯",
-                                "Tangtang",
-                                "タンタン",
-                                "탕탕"
-                            ]
-                        },
-                        "SellProductInfrastructureOutpostConfirmTargetOperatorSelected": {
                             "expected": [
                                 "汤汤",
                                 "湯湯",
@@ -2580,15 +2346,6 @@
                                 "イヴォンヌ",
                                 "이본"
                             ]
-                        },
-                        "SellProductInfrastructureOutpostConfirmRestoreOperatorSelected": {
-                            "expected": [
-                                "伊冯",
-                                "伊馮",
-                                "Yvonne",
-                                "イヴォンヌ",
-                                "이본"
-                            ]
                         }
                     }
                 },
@@ -2611,15 +2368,6 @@
                             ]
                         },
                         "SellProductInfrastructureOutpostSelectRestoreOperator": {
-                            "expected": [
-                                "陈千语",
-                                "陳千語",
-                                "Chen Qianyu",
-                                "チェン・センユー",
-                                "진천우"
-                            ]
-                        },
-                        "SellProductInfrastructureOutpostConfirmRestoreOperatorSelected": {
                             "expected": [
                                 "陈千语",
                                 "陳千語",
@@ -3870,15 +3618,6 @@
                                 "アルデリア",
                                 "아델리아"
                             ]
-                        },
-                        "SellProductReconstructionCommandConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "艾尔黛拉",
-                                "艾爾黛拉",
-                                "Ardelia",
-                                "アルデリア",
-                                "아델리아"
-                            ]
                         }
                     }
                 },
@@ -3896,15 +3635,6 @@
                             ]
                         },
                         "SellProductReconstructionCommandSelectTargetOperator": {
-                            "expected": [
-                                "洁尔佩塔",
-                                "潔爾佩塔",
-                                "Gilberta",
-                                "ギルベルタ",
-                                "질베르타"
-                            ]
-                        },
-                        "SellProductReconstructionCommandConfirmTargetOperatorSelected": {
                             "expected": [
                                 "洁尔佩塔",
                                 "潔爾佩塔",
@@ -3936,15 +3666,6 @@
                                 "チェン・センユー",
                                 "진천우"
                             ]
-                        },
-                        "SellProductReconstructionCommandConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "陈千语",
-                                "陳千語",
-                                "Chen Qianyu",
-                                "チェン・センユー",
-                                "진천우"
-                            ]
                         }
                     }
                 },
@@ -3962,15 +3683,6 @@
                             ]
                         },
                         "SellProductReconstructionCommandSelectTargetOperator": {
-                            "expected": [
-                                "莱万汀",
-                                "萊萬汀",
-                                "Laevatain",
-                                "レーヴァテイン",
-                                "레바테인"
-                            ]
-                        },
-                        "SellProductReconstructionCommandConfirmTargetOperatorSelected": {
                             "expected": [
                                 "莱万汀",
                                 "萊萬汀",
@@ -4002,15 +3714,6 @@
                                 "アレッシュ",
                                 "알레쉬"
                             ]
-                        },
-                        "SellProductReconstructionCommandConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "阿列什",
-                                "阿列什",
-                                "Alesh",
-                                "アレッシュ",
-                                "알레쉬"
-                            ]
                         }
                     }
                 },
@@ -4028,15 +3731,6 @@
                             ]
                         },
                         "SellProductReconstructionCommandSelectTargetOperator": {
-                            "expected": [
-                                "骏卫",
-                                "駿衛",
-                                "Pogranichnik",
-                                "ポグラニチニク",
-                                "포그라니치니크"
-                            ]
-                        },
-                        "SellProductReconstructionCommandConfirmTargetOperatorSelected": {
                             "expected": [
                                 "骏卫",
                                 "駿衛",
@@ -4068,15 +3762,6 @@
                                 "スノーシャイン",
                                 "스노우샤인"
                             ]
-                        },
-                        "SellProductReconstructionCommandConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "昼雪",
-                                "晝雪",
-                                "Snowshine",
-                                "スノーシャイン",
-                                "스노우샤인"
-                            ]
                         }
                     }
                 },
@@ -4094,15 +3779,6 @@
                             ]
                         },
                         "SellProductReconstructionCommandSelectTargetOperator": {
-                            "expected": [
-                                "庄方宜",
-                                "莊方宜",
-                                "Zhuang Fangyi",
-                                "ゾアン・ファンイ",
-                                "장방이"
-                            ]
-                        },
-                        "SellProductReconstructionCommandConfirmTargetOperatorSelected": {
                             "expected": [
                                 "庄方宜",
                                 "莊方宜",
@@ -4158,15 +3834,6 @@
                                 "ペリカ",
                                 "펠리카"
                             ]
-                        },
-                        "SellProductReconstructionCommandConfirmRestoreOperatorSelected": {
-                            "expected": [
-                                "佩丽卡",
-                                "佩麗卡",
-                                "Perlica",
-                                "ペリカ",
-                                "펠리카"
-                            ]
                         }
                     }
                 },
@@ -4196,15 +3863,6 @@
                                 "ギルベルタ",
                                 "질베르타"
                             ]
-                        },
-                        "SellProductReconstructionCommandConfirmRestoreOperatorSelected": {
-                            "expected": [
-                                "洁尔佩塔",
-                                "潔爾佩塔",
-                                "Gilberta",
-                                "ギルベルタ",
-                                "질베르타"
-                            ]
                         }
                     }
                 },
@@ -4227,15 +3885,6 @@
                             ]
                         },
                         "SellProductReconstructionCommandSelectRestoreOperator": {
-                            "expected": [
-                                "莱万汀",
-                                "萊萬汀",
-                                "Laevatain",
-                                "レーヴァテイン",
-                                "레바테인"
-                            ]
-                        },
-                        "SellProductReconstructionCommandConfirmRestoreOperatorSelected": {
                             "expected": [
                                 "莱万汀",
                                 "萊萬汀",
@@ -5426,15 +5075,6 @@
                                 "アルデリア",
                                 "아델리아"
                             ]
-                        },
-                        "SellProductSkyKingFlatsConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "艾尔黛拉",
-                                "艾爾黛拉",
-                                "Ardelia",
-                                "アルデリア",
-                                "아델리아"
-                            ]
                         }
                     }
                 },
@@ -5452,15 +5092,6 @@
                             ]
                         },
                         "SellProductSkyKingFlatsSelectTargetOperator": {
-                            "expected": [
-                                "狼卫",
-                                "狼衛",
-                                "Wulfgard",
-                                "ウルフガード",
-                                "울프가드"
-                            ]
-                        },
-                        "SellProductSkyKingFlatsConfirmTargetOperatorSelected": {
                             "expected": [
                                 "狼卫",
                                 "狼衛",
@@ -5492,15 +5123,6 @@
                                 "リーフォン",
                                 "여풍"
                             ]
-                        },
-                        "SellProductSkyKingFlatsConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "黎风",
-                                "黎風",
-                                "Lifeng",
-                                "リーフォン",
-                                "여풍"
-                            ]
                         }
                     }
                 },
@@ -5518,15 +5140,6 @@
                             ]
                         },
                         "SellProductSkyKingFlatsSelectTargetOperator": {
-                            "expected": [
-                                "弧光",
-                                "弧光",
-                                "Arclight",
-                                "アークライト",
-                                "아크라이트"
-                            ]
-                        },
-                        "SellProductSkyKingFlatsConfirmTargetOperatorSelected": {
                             "expected": [
                                 "弧光",
                                 "弧光",
@@ -5558,15 +5171,6 @@
                                 "アイビーエナ",
                                 "아비웨나"
                             ]
-                        },
-                        "SellProductSkyKingFlatsConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "艾维文娜",
-                                "艾維文娜",
-                                "Avywenna",
-                                "アイビーエナ",
-                                "아비웨나"
-                            ]
                         }
                     }
                 },
@@ -5584,15 +5188,6 @@
                             ]
                         },
                         "SellProductSkyKingFlatsSelectTargetOperator": {
-                            "expected": [
-                                "萤石",
-                                "螢石",
-                                "Fluorite",
-                                "フローライト",
-                                "플루라이트"
-                            ]
-                        },
-                        "SellProductSkyKingFlatsConfirmTargetOperatorSelected": {
                             "expected": [
                                 "萤石",
                                 "螢石",
@@ -5624,15 +5219,6 @@
                                 "ロッシ",
                                 "로시"
                             ]
-                        },
-                        "SellProductSkyKingFlatsConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "洛茜",
-                                "洛西",
-                                "Rossi",
-                                "ロッシ",
-                                "로시"
-                            ]
                         }
                     }
                 },
@@ -5650,15 +5236,6 @@
                             ]
                         },
                         "SellProductSkyKingFlatsSelectTargetOperator": {
-                            "expected": [
-                                "汤汤",
-                                "湯湯",
-                                "Tangtang",
-                                "タンタン",
-                                "탕탕"
-                            ]
-                        },
-                        "SellProductSkyKingFlatsConfirmTargetOperatorSelected": {
                             "expected": [
                                 "汤汤",
                                 "湯湯",
@@ -5714,15 +5291,6 @@
                                 "ウルフガード",
                                 "울프가드"
                             ]
-                        },
-                        "SellProductSkyKingFlatsConfirmRestoreOperatorSelected": {
-                            "expected": [
-                                "狼卫",
-                                "狼衛",
-                                "Wulfgard",
-                                "ウルフガード",
-                                "울프가드"
-                            ]
                         }
                     }
                 },
@@ -5745,15 +5313,6 @@
                             ]
                         },
                         "SellProductSkyKingFlatsSelectRestoreOperator": {
-                            "expected": [
-                                "别礼",
-                                "別禮",
-                                "Last Rite",
-                                "ラストライト",
-                                "라스트 라이트"
-                            ]
-                        },
-                        "SellProductSkyKingFlatsConfirmRestoreOperatorSelected": {
                             "expected": [
                                 "别礼",
                                 "別禮",
@@ -5790,15 +5349,6 @@
                                 "エンバー",
                                 "엠버"
                             ]
-                        },
-                        "SellProductSkyKingFlatsConfirmRestoreOperatorSelected": {
-                            "expected": [
-                                "余烬",
-                                "餘燼",
-                                "Ember",
-                                "エンバー",
-                                "엠버"
-                            ]
                         }
                     }
                 },
@@ -5828,15 +5378,6 @@
                                 "タンタン",
                                 "탕탕"
                             ]
-                        },
-                        "SellProductSkyKingFlatsConfirmRestoreOperatorSelected": {
-                            "expected": [
-                                "汤汤",
-                                "湯湯",
-                                "Tangtang",
-                                "タンタン",
-                                "탕탕"
-                            ]
                         }
                     }
                 },
@@ -5859,15 +5400,6 @@
                             ]
                         },
                         "SellProductSkyKingFlatsSelectRestoreOperator": {
-                            "expected": [
-                                "弭弗",
-                                "弭弗",
-                                "Mi Fu",
-                                "ミ・フ",
-                                "미브"
-                            ]
-                        },
-                        "SellProductSkyKingFlatsConfirmRestoreOperatorSelected": {
                             "expected": [
                                 "弭弗",
                                 "弭弗",
@@ -7206,15 +6738,6 @@
                                 "チェン・センユー",
                                 "진천우"
                             ]
-                        },
-                        "SellProductCardiacRemediationStationConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "陈千语",
-                                "陳千語",
-                                "Chen Qianyu",
-                                "チェン・センユー",
-                                "진천우"
-                            ]
                         }
                     }
                 },
@@ -7232,15 +6755,6 @@
                             ]
                         },
                         "SellProductCardiacRemediationStationSelectTargetOperator": {
-                            "expected": [
-                                "黎风",
-                                "黎風",
-                                "Lifeng",
-                                "リーフォン",
-                                "여풍"
-                            ]
-                        },
-                        "SellProductCardiacRemediationStationConfirmTargetOperatorSelected": {
                             "expected": [
                                 "黎风",
                                 "黎風",
@@ -7272,15 +6786,6 @@
                                 "アレッシュ",
                                 "알레쉬"
                             ]
-                        },
-                        "SellProductCardiacRemediationStationConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "阿列什",
-                                "阿列什",
-                                "Alesh",
-                                "アレッシュ",
-                                "알레쉬"
-                            ]
                         }
                     }
                 },
@@ -7298,15 +6803,6 @@
                             ]
                         },
                         "SellProductCardiacRemediationStationSelectTargetOperator": {
-                            "expected": [
-                                "别礼",
-                                "別禮",
-                                "Last Rite",
-                                "ラストライト",
-                                "라스트 라이트"
-                            ]
-                        },
-                        "SellProductCardiacRemediationStationConfirmTargetOperatorSelected": {
                             "expected": [
                                 "别礼",
                                 "別禮",
@@ -7338,15 +6834,6 @@
                                 "スノーシャイン",
                                 "스노우샤인"
                             ]
-                        },
-                        "SellProductCardiacRemediationStationConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "昼雪",
-                                "晝雪",
-                                "Snowshine",
-                                "スノーシャイン",
-                                "스노우샤인"
-                            ]
                         }
                     }
                 },
@@ -7364,15 +6851,6 @@
                             ]
                         },
                         "SellProductCardiacRemediationStationSelectTargetOperator": {
-                            "expected": [
-                                "大潘",
-                                "大潘",
-                                "Da Pan",
-                                "ダパン",
-                                "판"
-                            ]
-                        },
-                        "SellProductCardiacRemediationStationConfirmTargetOperatorSelected": {
                             "expected": [
                                 "大潘",
                                 "大潘",
@@ -7404,15 +6882,6 @@
                                 "アケクリ",
                                 "아케쿠리"
                             ]
-                        },
-                        "SellProductCardiacRemediationStationConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "秋栗",
-                                "秋栗",
-                                "Akekuri",
-                                "アケクリ",
-                                "아케쿠리"
-                            ]
                         }
                     }
                 },
@@ -7437,15 +6906,6 @@
                                 "ゾアン・ファンイ",
                                 "장방이"
                             ]
-                        },
-                        "SellProductCardiacRemediationStationConfirmTargetOperatorSelected": {
-                            "expected": [
-                                "庄方宜",
-                                "莊方宜",
-                                "Zhuang Fangyi",
-                                "ゾアン・ファンイ",
-                                "장방이"
-                            ]
                         }
                     }
                 },
@@ -7463,15 +6923,6 @@
                             ]
                         },
                         "SellProductCardiacRemediationStationSelectTargetOperator": {
-                            "expected": [
-                                "弭弗",
-                                "弭弗",
-                                "Mi Fu",
-                                "ミ・フ",
-                                "미브"
-                            ]
-                        },
-                        "SellProductCardiacRemediationStationConfirmTargetOperatorSelected": {
                             "expected": [
                                 "弭弗",
                                 "弭弗",
@@ -7527,15 +6978,6 @@
                                 "ペリカ",
                                 "펠리카"
                             ]
-                        },
-                        "SellProductCardiacRemediationStationConfirmRestoreOperatorSelected": {
-                            "expected": [
-                                "佩丽卡",
-                                "佩麗卡",
-                                "Perlica",
-                                "ペリカ",
-                                "펠리카"
-                            ]
                         }
                     }
                 },
@@ -7558,15 +7000,6 @@
                             ]
                         },
                         "SellProductCardiacRemediationStationSelectRestoreOperator": {
-                            "expected": [
-                                "伊冯",
-                                "伊馮",
-                                "Yvonne",
-                                "イヴォンヌ",
-                                "이본"
-                            ]
-                        },
-                        "SellProductCardiacRemediationStationConfirmRestoreOperatorSelected": {
                             "expected": [
                                 "伊冯",
                                 "伊馮",
@@ -7603,15 +7036,6 @@
                                 "ポグラニチニク",
                                 "포그라니치니크"
                             ]
-                        },
-                        "SellProductCardiacRemediationStationConfirmRestoreOperatorSelected": {
-                            "expected": [
-                                "骏卫",
-                                "駿衛",
-                                "Pogranichnik",
-                                "ポグラニチニク",
-                                "포그라니치니크"
-                            ]
                         }
                     }
                 },
@@ -7641,15 +7065,6 @@
                                 "アケクリ",
                                 "아케쿠리"
                             ]
-                        },
-                        "SellProductCardiacRemediationStationConfirmRestoreOperatorSelected": {
-                            "expected": [
-                                "秋栗",
-                                "秋栗",
-                                "Akekuri",
-                                "アケクリ",
-                                "아케쿠리"
-                            ]
                         }
                     }
                 },
@@ -7672,15 +7087,6 @@
                             ]
                         },
                         "SellProductCardiacRemediationStationSelectRestoreOperator": {
-                            "expected": [
-                                "庄方宜",
-                                "莊方宜",
-                                "Zhuang Fangyi",
-                                "ゾアン・ファンイ",
-                                "장방이"
-                            ]
-                        },
-                        "SellProductCardiacRemediationStationConfirmRestoreOperatorSelected": {
                             "expected": [
                                 "庄方宜",
                                 "莊方宜",

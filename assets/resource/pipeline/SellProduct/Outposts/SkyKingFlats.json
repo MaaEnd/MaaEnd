@@ -144,23 +144,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSkyKingFlatsConfirmTargetOperatorSelected"
-        ]
-    },
-    "SellProductSkyKingFlatsConfirmTargetOperatorSelected": {
-        "desc": "天王坪援建点确认售卖用干员已选中",
-        "recognition": "OCR",
-        "roi": [
-            140,
-            520,
-            360,
-            120
-        ],
-        "expected": [],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
             "SellProductSkyKingFlatsConfirmTargetOperator"
         ]
     },
@@ -226,8 +209,7 @@
         "desc": "天王坪援建点售卖用干员派驻完成，回到售卖循环",
         "recognition": "And",
         "all_of": [
-            "SellProductInSkyKingFlats",
-            "SellProductSkyKingFlatsCurrentTargetOperator"
+            "SellProductInSkyKingFlats"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -368,23 +350,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSkyKingFlatsConfirmRestoreOperatorSelected"
-        ]
-    },
-    "SellProductSkyKingFlatsConfirmRestoreOperatorSelected": {
-        "desc": "天王坪援建点确认恢复干员已选中",
-        "recognition": "OCR",
-        "roi": [
-            140,
-            520,
-            360,
-            120
-        ],
-        "expected": [],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
             "SellProductSkyKingFlatsConfirmRestoreOperator"
         ]
     },
@@ -450,8 +415,7 @@
         "desc": "天王坪援建点恢复干员派驻完成",
         "recognition": "And",
         "all_of": [
-            "SellProductInSkyKingFlats",
-            "SellProductSkyKingFlatsCurrentRestoreOperator"
+            "SellProductInSkyKingFlats"
         ],
         "pre_delay": 0,
         "post_delay": 0,

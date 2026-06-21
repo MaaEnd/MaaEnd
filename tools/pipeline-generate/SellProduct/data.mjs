@@ -374,7 +374,6 @@ function buildItemCases(nodePrefix, itemNum, entries) {
 function buildTargetOperatorCases(nodePrefix, operatorNames) {
     const currentKey = `SellProduct${nodePrefix}CurrentTargetOperator`;
     const selectKey = `SellProduct${nodePrefix}SelectTargetOperator`;
-    const confirmKey = `SellProduct${nodePrefix}ConfirmTargetOperatorSelected`;
     return filterOperatorCaseEntries(operatorNames).map((entry) => ({
         name: entry.name,
         label: entry.label,
@@ -385,9 +384,6 @@ function buildTargetOperatorCases(nodePrefix, operatorNames) {
             [selectKey]: {
                 expected: entry.expected,
             },
-            [confirmKey]: {
-                expected: entry.expected,
-            },
         },
     }));
 }
@@ -396,7 +392,6 @@ function buildTargetOperatorCases(nodePrefix, operatorNames) {
 function buildRestoreOperatorCases(nodePrefix, operatorNames) {
     const currentKey = `SellProduct${nodePrefix}CurrentRestoreOperator`;
     const selectKey = `SellProduct${nodePrefix}SelectRestoreOperator`;
-    const confirmKey = `SellProduct${nodePrefix}ConfirmRestoreOperatorSelected`;
     return [
         {
             name: "DoNotRestore",
@@ -422,9 +417,6 @@ function buildRestoreOperatorCases(nodePrefix, operatorNames) {
                     expected: entry.expected,
                 },
                 [selectKey]: {
-                    expected: entry.expected,
-                },
-                [confirmKey]: {
                     expected: entry.expected,
                 },
             },

@@ -144,23 +144,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductCardiacRemediationStationConfirmTargetOperatorSelected"
-        ]
-    },
-    "SellProductCardiacRemediationStationConfirmTargetOperatorSelected": {
-        "desc": "心脏修缮站确认售卖用干员已选中",
-        "recognition": "OCR",
-        "roi": [
-            140,
-            520,
-            360,
-            120
-        ],
-        "expected": [],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
             "SellProductCardiacRemediationStationConfirmTargetOperator"
         ]
     },
@@ -226,8 +209,7 @@
         "desc": "心脏修缮站售卖用干员派驻完成，回到售卖循环",
         "recognition": "And",
         "all_of": [
-            "SellProductInCardiacRemediationStation",
-            "SellProductCardiacRemediationStationCurrentTargetOperator"
+            "SellProductInCardiacRemediationStation"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -368,23 +350,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductCardiacRemediationStationConfirmRestoreOperatorSelected"
-        ]
-    },
-    "SellProductCardiacRemediationStationConfirmRestoreOperatorSelected": {
-        "desc": "心脏修缮站确认恢复干员已选中",
-        "recognition": "OCR",
-        "roi": [
-            140,
-            520,
-            360,
-            120
-        ],
-        "expected": [],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
             "SellProductCardiacRemediationStationConfirmRestoreOperator"
         ]
     },
@@ -450,8 +415,7 @@
         "desc": "心脏修缮站恢复干员派驻完成",
         "recognition": "And",
         "all_of": [
-            "SellProductInCardiacRemediationStation",
-            "SellProductCardiacRemediationStationCurrentRestoreOperator"
+            "SellProductInCardiacRemediationStation"
         ],
         "pre_delay": 0,
         "post_delay": 0,

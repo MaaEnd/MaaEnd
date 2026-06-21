@@ -276,7 +276,7 @@ SellProductSchedule
 - `SellProductAuto` 会根据当前地区建设页面自动选择四号谷地或武陵。
 - `SellProduct{Region}Sell` 进入对应地区的据点管理页，然后按 `next` 遍历该地区所有据点。
 - 每个据点节点由模板生成，负责识别当前据点、点击据点标签、设置售卖锚点和联络干员切换锚点。
-- 若启用联络干员切换，售卖前会通过 `SellProduct{LocationId}BeforeSellOperator` 检查当前干员，不一致时打开联络干员列表、选择目标干员并确认派驻。
+- 若启用联络干员切换，售卖前会通过 `SellProduct{LocationId}BeforeSellOperator` 检查当前干员，不一致时打开联络干员列表、选择目标干员，并在按钮变为「派驻」后确认派驻。
 - `SellProductSellLoop` 通过 anchor 串起最多 4 次售卖尝试。
 - 每次尝试先换货，再用 BetterSliding 把数量调到目标值，最后点击交易。
 - 若配置售卖后恢复干员，`SellProductSellLoopEnd` 会通过 `SellProductAfterSellOperator` anchor 进入 `SellProduct{LocationId}AfterSellOperator`，否则命中通用空节点结束该据点流程。
@@ -326,8 +326,8 @@ SellProductSchedule
 默认值是关闭。开启后，任务选项会：
 
 - 将 `SellProduct{LocationId}SetBeforeSellOperatorAnchor` 的 `SellProductBeforeSellOperator` anchor 指向 `SellProduct{LocationId}BeforeSellOperator`。
-- 根据 `TargetOperator` 写入当前干员识别、列表选择和选中确认节点的多语言 OCR 候选。
-- 根据 `RestoreOperator` 决定 `SellProductAfterSellOperator` anchor 是保持通用空节点，还是指向 `SellProduct{LocationId}AfterSellOperator` 并写入恢复目标的多语言 OCR 候选。
+- 根据 `TargetOperator` 写入当前干员识别和列表选择节点的多语言 OCR 候选；点击列表项后只识别「派驻」按钮，不再复核选中干员名。
+- 根据 `RestoreOperator` 决定 `SellProductAfterSellOperator` anchor 是保持通用空节点，还是指向 `SellProduct{LocationId}AfterSellOperator` 并写入恢复目标的当前干员识别和列表选择 OCR 候选；恢复流程同样只在点击列表项后识别「派驻」按钮。
 
 售卖前若当前联络干员已是目标干员，会直接进入 `SellProductSellLoop`。若列表中找不到目标干员或恢复干员，对应节点会 `StopTask` 并提示用户确认干员是否已持有或调整配置。
 

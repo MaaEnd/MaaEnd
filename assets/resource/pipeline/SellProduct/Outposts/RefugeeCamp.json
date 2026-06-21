@@ -144,23 +144,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRefugeeCampConfirmTargetOperatorSelected"
-        ]
-    },
-    "SellProductRefugeeCampConfirmTargetOperatorSelected": {
-        "desc": "难民暂居处确认售卖用干员已选中",
-        "recognition": "OCR",
-        "roi": [
-            140,
-            520,
-            360,
-            120
-        ],
-        "expected": [],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
             "SellProductRefugeeCampConfirmTargetOperator"
         ]
     },
@@ -226,8 +209,7 @@
         "desc": "难民暂居处售卖用干员派驻完成，回到售卖循环",
         "recognition": "And",
         "all_of": [
-            "SellProductInRefugeeCamp",
-            "SellProductRefugeeCampCurrentTargetOperator"
+            "SellProductInRefugeeCamp"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -368,23 +350,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRefugeeCampConfirmRestoreOperatorSelected"
-        ]
-    },
-    "SellProductRefugeeCampConfirmRestoreOperatorSelected": {
-        "desc": "难民暂居处确认恢复干员已选中",
-        "recognition": "OCR",
-        "roi": [
-            140,
-            520,
-            360,
-            120
-        ],
-        "expected": [],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
             "SellProductRefugeeCampConfirmRestoreOperator"
         ]
     },
@@ -450,8 +415,7 @@
         "desc": "难民暂居处恢复干员派驻完成",
         "recognition": "And",
         "all_of": [
-            "SellProductInRefugeeCamp",
-            "SellProductRefugeeCampCurrentRestoreOperator"
+            "SellProductInRefugeeCamp"
         ],
         "pre_delay": 0,
         "post_delay": 0,

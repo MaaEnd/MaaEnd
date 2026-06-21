@@ -144,23 +144,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionCommandConfirmTargetOperatorSelected"
-        ]
-    },
-    "SellProductReconstructionCommandConfirmTargetOperatorSelected": {
-        "desc": "重建指挥部确认售卖用干员已选中",
-        "recognition": "OCR",
-        "roi": [
-            140,
-            520,
-            360,
-            120
-        ],
-        "expected": [],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
             "SellProductReconstructionCommandConfirmTargetOperator"
         ]
     },
@@ -226,8 +209,7 @@
         "desc": "重建指挥部售卖用干员派驻完成，回到售卖循环",
         "recognition": "And",
         "all_of": [
-            "SellProductInReconstructionCommand",
-            "SellProductReconstructionCommandCurrentTargetOperator"
+            "SellProductInReconstructionCommand"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -368,23 +350,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionCommandConfirmRestoreOperatorSelected"
-        ]
-    },
-    "SellProductReconstructionCommandConfirmRestoreOperatorSelected": {
-        "desc": "重建指挥部确认恢复干员已选中",
-        "recognition": "OCR",
-        "roi": [
-            140,
-            520,
-            360,
-            120
-        ],
-        "expected": [],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
             "SellProductReconstructionCommandConfirmRestoreOperator"
         ]
     },
@@ -450,8 +415,7 @@
         "desc": "重建指挥部恢复干员派驻完成",
         "recognition": "And",
         "all_of": [
-            "SellProductInReconstructionCommand",
-            "SellProductReconstructionCommandCurrentRestoreOperator"
+            "SellProductInReconstructionCommand"
         ],
         "pre_delay": 0,
         "post_delay": 0,
