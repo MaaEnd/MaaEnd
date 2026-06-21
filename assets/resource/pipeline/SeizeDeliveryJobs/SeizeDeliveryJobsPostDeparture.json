@@ -96,7 +96,7 @@
         }
     },
     "SeizeDeliveryJobsCloseRewardDialog": {
-        "desc": "在提交货物后，关闭奖励对话框（随后任务结束）",
+        "desc": "在提交货物后，关闭奖励对话框；随后按剩余循环次数决定回到抢单入口或结束任务",
         "recognition": "And",
         "all_of": [
             "CloseRewardsButton"
