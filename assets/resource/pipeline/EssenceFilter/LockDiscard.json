@@ -63,7 +63,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "EssenceFilterRowNextItem"
+            "EssenceGridAdvance"
         ],
         "on_error": [
             "EssenceFilterLockItem"
@@ -196,7 +196,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "EssenceFilterRowNextItem"
+            "EssenceGridAdvance"
         ],
         "on_error": [
             "EssenceFilterDiscardItem"

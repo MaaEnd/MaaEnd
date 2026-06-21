@@ -73,10 +73,7 @@
         },
         "post_delay": 0,
         "next": [
-            "OCREssenceInventoryNumber",
-            "EssenceRowDetect",
-            "EssenceDetectFinal",
-            "EssenceFilterFinish"
+            "EssenceGridAdvance"
         ],
         "focus": {
             "Node.Action.Succeeded": "初始化完成"

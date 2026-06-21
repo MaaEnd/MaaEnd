@@ -11,6 +11,8 @@
                 "AutoStockpile.Recognition",
                 "DailyEventUnreadItemInitRecognition",
                 "EssenceFilterAfterBattleNthRecognition",
+                "EssenceGridAdvanceRecognition",
+                "EssenceGridPendingRecognition",
                 "ExpressionRecognition",
                 "ImageCheckNotPassedRecognition",
                 "MapLocateAssertLocation",

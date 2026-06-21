@@ -3,11 +3,21 @@
         {
             "name": "EssenceFilter",
             "label": "$task.EssenceFilter.label",
-            "entry": "EssenceFilterUnavailable",
+            "entry": "EssenceFilterMain",
             "description": "$task.EssenceFilter.description",
-            "option": [],
+            "option": [
+                "SelectInputLanguage",
+                "SelectWeaponRarity",
+                "SelectEssence",
+                "SelectExtraRules",
+                "SkipThumbLock",
+                "SkipThumbDiscard"
+            ],
             "controller": [
-                "Wlroots"
+                "Win32-Front",
+                "Wlroots",
+                "ADB",
+                "PlayCover"
             ],
             "group": [
                 "valuables_vault"
@@ -206,6 +216,15 @@
                             "attach": {
                                 "flawless_essence": true
                             }
+                        },
+                        "EssenceGridAdvance": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "flawless_essence": true
+                                    }
+                                }
+                            }
                         }
                     }
                 },
@@ -215,6 +234,15 @@
                         "EssenceFilterInit": {
                             "attach": {
                                 "flawless_essence": false
+                            }
+                        },
+                        "EssenceGridAdvance": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "flawless_essence": false
+                                    }
+                                }
                             }
                         }
                     }
@@ -233,6 +261,15 @@
                             "attach": {
                                 "pure_essence": true
                             }
+                        },
+                        "EssenceGridAdvance": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "pure_essence": true
+                                    }
+                                }
+                            }
                         }
                     }
                 },
@@ -242,6 +279,15 @@
                         "EssenceFilterInit": {
                             "attach": {
                                 "pure_essence": false
+                            }
+                        },
+                        "EssenceGridAdvance": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "pure_essence": false
+                                    }
+                                }
                             }
                         }
                     }

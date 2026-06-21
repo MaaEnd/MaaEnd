@@ -274,7 +274,7 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 	return runUnifiedSkillDecision(ctx, arg, st, st.MatchEngine, ocr, decisionNextNodes{
 		Lock:    "EssenceFilterLockItemLog",
 		Discard: "EssenceFilterDiscardItemLog",
-		Skip:    "EssenceFilterRowNextItem",
+		Skip:    "EssenceGridAdvance",
 	})
 }
 

@@ -4,6 +4,7 @@
 #include <MaaToolkit/MaaToolkitAPI.h>
 
 #include "Common/ParentProcessWatcher.h"
+#include "EssenceGridScan/EssenceGridScan.h"
 #include "MapLocator/MapLocateAction.h"
 #include "MapNavigator/MapNavigator.h"
 #include "MapNavigator/MapNavigatorCompatible.h"
@@ -45,6 +46,14 @@ int main(int argc, char** argv)
         mapnavigator::MapNavigatorAssertLocationCompatibleRun,
         nullptr);
     MaaAgentServerRegisterCustomRecognition("RecoGridRecognition", recogrid::RecoGridRecognitionRun, nullptr);
+    MaaAgentServerRegisterCustomRecognition(
+        "EssenceGridAdvanceRecognition",
+        essencegridscan::EssenceGridAdvanceRecognitionRun,
+        nullptr);
+    MaaAgentServerRegisterCustomRecognition(
+        "EssenceGridPendingRecognition",
+        essencegridscan::EssenceGridPendingRecognitionRun,
+        nullptr);
     MaaAgentServerRegisterCustomRecognition(
         "WeaponInventoryScanRecognition",
         weaponinventoryscan::WeaponInventoryScanRecognitionRun,
