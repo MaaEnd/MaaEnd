@@ -235,7 +235,7 @@ func (r *Recognition) probeAband(ctx *maa.Context, img image.Image) int {
 	}
 
 	// 点完取消后轮询等待回到抽牌界面：每 300ms 截图识别第1张卡牌 Lv 图标，命中即已回抽牌页
-	// （与前面等待放弃弹窗同构的循环识别，替代固定 WaitFreezes，更稳）。
+	// （与前面等待放弃弹窗同构的循环识别，比固定 WaitFreezes 更稳）。
 	deadline = time.Now().Add(10 * time.Second) // 兜底超时，弹窗关闭动画没结束时也不死循环
 	backToCard := false
 	for time.Now().Before(deadline) {
@@ -252,6 +252,12 @@ func (r *Recognition) probeAband(ctx *maa.Context, img image.Image) int {
 	}
 	if !backToCard {
 		log.Warn().Str("component", component).Msg("probeAband: 等待回抽牌页超时（EnemyCard1 未出现）")
+	}
+
+	// 仅识别到 Lv 还不够稳：之后若不等画面静止，后续「点击演算」会失效。
+	// 故命中后再补一次 WaitFreezes（roi 沿用抽牌 freeze 的 [62,146,1191,289]）。
+	if err := ctx.WaitFreezes(500*time.Millisecond, &maa.Rect{62, 146, 1191, 289}, nil); err != nil {
+		log.Warn().Err(err).Str("component", component).Msg("probeAband: 等待回抽牌页 freeze 超时")
 	}
 
 	if count < 0 {
