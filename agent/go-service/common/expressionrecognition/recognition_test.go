@@ -190,10 +190,9 @@ func TestParseParamsTrimsBoxNode(t *testing.T) {
 
 func TestParseExpressionIntLiteral(t *testing.T) {
 	testCases := []struct {
-		name  string
-		raw   string
-		want  int
-		clamp bool
+		name string
+		raw  string
+		want int
 	}{
 		{
 			name: "plain integer",
@@ -201,16 +200,14 @@ func TestParseExpressionIntLiteral(t *testing.T) {
 			want: 300000000,
 		},
 		{
-			name:  "positive overflow clamps to max int",
-			raw:   "99999999999999999999999999999",
-			want:  expressionIntMax,
-			clamp: true,
+			name: "positive overflow clamps to max int",
+			raw:  "99999999999999999999999999999",
+			want: expressionIntMax,
 		},
 		{
-			name:  "negative overflow clamps to min int",
-			raw:   "-99999999999999999999999999999",
-			want:  expressionIntMin,
-			clamp: true,
+			name: "negative overflow clamps to min int",
+			raw:  "-99999999999999999999999999999",
+			want: expressionIntMin,
 		},
 	}
 
