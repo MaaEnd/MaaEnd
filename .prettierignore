@@ -14,9 +14,6 @@ tools/schema/
 assets/data/ZmdMap/
 tools/pipeline-generate/data/*.json
 
-# pipeline-generate 模板 jsonc 不能被 prettier 加 trailing comma：模板会被原样渲染到 assets/resource/pipeline/ 下，加了逗号生成产物就不是 strict JSON
-tools/pipeline-generate/**/*.jsonc
-
 # 锁文件
 pnpm-lock.yaml
 package-lock.json

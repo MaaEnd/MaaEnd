@@ -30,11 +30,13 @@ export default {
         {
             files: [
                 "*.json",
+                "*.jsonc",
             ],
             options: {
                 parser: "json",
                 useTabs: false,
                 bracketSameLine: false,
+                trailingComma: "none",
             },
         },
         {
