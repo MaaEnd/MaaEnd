@@ -39,10 +39,10 @@
     },
     "SellProduct${LocationId}SetBeforeSellOperatorAnchor": {
         "desc": "${LocationDesc}设置售卖前联络干员锚点",
+        "pre_delay": 0,
         "anchor": {
             "SellProductBeforeSellOperator": ""
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -51,10 +51,10 @@
     },
     "SellProduct${LocationId}SetAfterSellOperatorAnchor": {
         "desc": "${LocationDesc}设置售卖后恢复干员锚点",
+        "pre_delay": 0,
         "anchor": {
             "SellProductAfterSellOperator": "SellProductAfterSellOperator"
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
