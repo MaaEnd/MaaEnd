@@ -187,6 +187,15 @@
                             }
                         }
                     }
+                },
+                "AutoUseSpMedicationCheckSanityEnough": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoUseSpMedicationCurrentSanity}>={MaxSanity}"
+                            }
+                        }
+                    }
                 }
             }
         }

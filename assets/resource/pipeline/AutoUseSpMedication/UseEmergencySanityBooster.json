@@ -13,12 +13,12 @@
         "action": "Click",
         "post_wait_freezes": 300,
         "next": [
-            "AutoUseSpMedicationQuickUse",
-            "AutoUseSpMedicationQuickUseCancel"
+            "AutoUseSpMedicationCheckSanity",
+            "AutoUseSpMedicationCheckSanityEnough"
         ]
     },
     "AutoUseSpMedicationCheckSanity": {
-        "desc": "检查理智",
+        "desc": "检查理智小于用户输入,继续",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -29,11 +29,34 @@
                 }
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoUseSpMedicationQuickUse",
+            "AutoUseSpMedicationQuickUseCancel"
+        ]
+    },
+    "AutoUseSpMedicationCheckSanityEnough": {
+        "desc": "检查理智大于用户输入,停止",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{AutoUseSpMedicationCurrentSanity}>=999",
+                    "box_node": "AutoUseSpMedicationCurrentSanity"
+                }
+            }
+        },
+        "pre_delay": 0,
         "action": {
             "type": "StopTask"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoUseSpMedication.focus.check_sanity_insufficient"
+            "Node.Recognition.Succeeded": "$task.AutoUseSpMedication.focus.check_sanity_sufficient"
         }
     },
     "AutoUseSpMedicationCurrentSanity": {
