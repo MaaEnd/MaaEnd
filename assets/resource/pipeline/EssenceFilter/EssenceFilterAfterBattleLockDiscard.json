@@ -225,6 +225,7 @@
                 "threshold": 0.8
             }
         },
+        "pre_wait_freezes": 100,
         "action": {
             "type": "Click",
             "param": {
@@ -242,6 +243,29 @@
         "desc": "处理下一个命中的格子，识别不到则退出任务",
         "next": [
             "[JumpBack]EssenceFilterAfterBattleCloseDetailJumpback",
+            "EssenceFilterAfterBattleCloseDetailFailsafe"
+        ]
+    },
+    "EssenceFilterAfterBattleCloseDetailFailsafe": {
+        "desc": "额外点击一次以获得奖励上方图标，防遮挡",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    480,
+                    0,
+                    312,
+                    368
+                ],
+                "template": "EssenceFilter/EssenceDetailExit.png",
+                "threshold": 0.7
+            }
+        },
+        "pre_wait_freezes": 100,
+        "action": {
+            "type": "Click"
+        },
+        "next": [
             "EssenceFilterAfterBattleNthRecognition",
             "EssenceFilterAfterBattleExit"
         ]
