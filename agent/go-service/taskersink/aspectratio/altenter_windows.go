@@ -24,15 +24,27 @@ const (
 
 	win32VkReturn = 0x0D
 
+	win32SwRestore               = 9
+	win32AttachThreadInputAttach = 1
+	win32AttachThreadInputDetach = 0
+
 	win32DPIAwarenessContextPerMonitorAwareV2 = ^uintptr(3)
 )
 
 var (
 	win32User32                       = windows.NewLazySystemDLL("user32.dll")
+	win32Kernel32                     = windows.NewLazySystemDLL("kernel32.dll")
 	win32ProcIsWindow                 = win32User32.NewProc("IsWindow")
 	win32ProcPostMessageW             = win32User32.NewProc("PostMessageW")
 	win32ProcGetClientRect            = win32User32.NewProc("GetClientRect")
 	win32ProcSetThreadDpiAwarenessCtx = win32User32.NewProc("SetThreadDpiAwarenessContext")
+	win32ProcShowWindow               = win32User32.NewProc("ShowWindow")
+	win32ProcBringWindowToTop         = win32User32.NewProc("BringWindowToTop")
+	win32ProcSetForegroundWindow      = win32User32.NewProc("SetForegroundWindow")
+	win32ProcGetForegroundWindow      = win32User32.NewProc("GetForegroundWindow")
+	win32ProcGetWindowThreadProcessID = win32User32.NewProc("GetWindowThreadProcessId")
+	win32ProcAttachThreadInput        = win32User32.NewProc("AttachThreadInput")
+	win32ProcGetCurrentThreadID       = win32Kernel32.NewProc("GetCurrentThreadId")
 )
 
 type win32ControllerInfo struct {
@@ -62,6 +74,16 @@ func sendAltEnterWin32(controller *maa.Controller) (resolutionReader, error) {
 	if ret, _, _ := win32ProcIsWindow.Call(hwnd); ret == 0 {
 		return nil, fmt.Errorf("invalid HWND: %d", hwnd)
 	}
+
+	focusConfirmed := focusWindowForAltEnterWin32(hwnd)
+	if !focusConfirmed {
+		log.Warn().
+			Uint64("target_hwnd", uint64(hwnd)).
+			Uint64("foreground_hwnd", uint64(foregroundWindowWin32())).
+			Bool("focus_confirmed", false).
+			Msg("Failed to confirm foreground window before Alt+Enter, continuing with PostMessage fallback")
+	}
+
 	if err := postMessageWin32(hwnd, win32WmSysKeyDown, win32VkReturn, win32WmSysKeyAltEnterDown, "SYSKEYDOWN"); err != nil {
 		return nil, err
 	}
@@ -70,7 +92,11 @@ func sendAltEnterWin32(controller *maa.Controller) (resolutionReader, error) {
 		return nil, err
 	}
 
-	log.Debug().Uint64("hwnd", uint64(hwnd)).Msg("Alt+Enter key sequence completed")
+	log.Debug().
+		Uint64("hwnd", uint64(hwnd)).
+		Uint64("foreground_hwnd", uint64(foregroundWindowWin32())).
+		Bool("focus_confirmed", focusConfirmed).
+		Msg("Alt+Enter key sequence completed")
 	return func() (int32, int32, error) {
 		return getClientResolutionWin32(hwnd)
 	}, nil
@@ -81,12 +107,112 @@ func ensureAltEnterWin32APIs() error {
 		win32ProcIsWindow,
 		win32ProcPostMessageW,
 		win32ProcGetClientRect,
+		win32ProcShowWindow,
+		win32ProcBringWindowToTop,
+		win32ProcSetForegroundWindow,
+		win32ProcGetForegroundWindow,
+		win32ProcGetWindowThreadProcessID,
+		win32ProcAttachThreadInput,
+		win32ProcGetCurrentThreadID,
 	} {
 		if err := p.Find(); err != nil {
-			return fmt.Errorf("user32 API unavailable: %w", err)
+			return fmt.Errorf("win32 API unavailable: %w", err)
 		}
 	}
 	return nil
+}
+
+func focusWindowForAltEnterWin32(hwnd uintptr) bool {
+	if hwnd == 0 {
+		return false
+	}
+	if foregroundWindowWin32() == hwnd {
+		log.Debug().
+			Uint64("target_hwnd", uint64(hwnd)).
+			Uint64("foreground_hwnd", uint64(hwnd)).
+			Bool("focus_confirmed", true).
+			Msg("Game window is already foreground before Alt+Enter")
+		return true
+	}
+
+	requestForegroundWindowWin32(hwnd)
+	time.Sleep(100 * time.Millisecond)
+	if foregroundWindowWin32() == hwnd {
+		log.Debug().
+			Uint64("target_hwnd", uint64(hwnd)).
+			Uint64("foreground_hwnd", uint64(hwnd)).
+			Bool("focus_confirmed", true).
+			Msg("Focused game window before Alt+Enter")
+		return true
+	}
+
+	focusWindowWithAttachedInputWin32(hwnd)
+	time.Sleep(100 * time.Millisecond)
+	foregroundHwnd := foregroundWindowWin32()
+	focusConfirmed := foregroundHwnd == hwnd
+	if focusConfirmed {
+		log.Debug().
+			Uint64("target_hwnd", uint64(hwnd)).
+			Uint64("foreground_hwnd", uint64(foregroundHwnd)).
+			Bool("focus_confirmed", true).
+			Msg("Focused game window before Alt+Enter")
+	}
+	return focusConfirmed
+}
+
+func requestForegroundWindowWin32(hwnd uintptr) {
+	win32ProcShowWindow.Call(hwnd, win32SwRestore)
+	win32ProcBringWindowToTop.Call(hwnd)
+	win32ProcSetForegroundWindow.Call(hwnd)
+}
+
+func focusWindowWithAttachedInputWin32(hwnd uintptr) {
+	currentThreadID := currentThreadIDWin32()
+	targetThreadID := windowThreadIDWin32(hwnd)
+	foregroundHwnd := foregroundWindowWin32()
+	foregroundThreadID := windowThreadIDWin32(foregroundHwnd)
+
+	detachForeground := attachThreadInputWin32(currentThreadID, foregroundThreadID)
+	defer detachForeground()
+	detachTarget := attachThreadInputWin32(currentThreadID, targetThreadID)
+	defer detachTarget()
+
+	requestForegroundWindowWin32(hwnd)
+}
+
+func attachThreadInputWin32(sourceThreadID, targetThreadID uintptr) func() {
+	if sourceThreadID == 0 || targetThreadID == 0 || sourceThreadID == targetThreadID {
+		return func() {}
+	}
+	ret, _, _ := win32ProcAttachThreadInput.Call(sourceThreadID, targetThreadID, win32AttachThreadInputAttach)
+	if ret == 0 {
+		log.Debug().
+			Uint64("source_thread_id", uint64(sourceThreadID)).
+			Uint64("target_thread_id", uint64(targetThreadID)).
+			Msg("AttachThreadInput failed while focusing game window before Alt+Enter")
+		return func() {}
+	}
+	return func() {
+		win32ProcAttachThreadInput.Call(sourceThreadID, targetThreadID, win32AttachThreadInputDetach)
+	}
+}
+
+func foregroundWindowWin32() uintptr {
+	hwnd, _, _ := win32ProcGetForegroundWindow.Call()
+	return hwnd
+}
+
+func windowThreadIDWin32(hwnd uintptr) uintptr {
+	if hwnd == 0 {
+		return 0
+	}
+	threadID, _, _ := win32ProcGetWindowThreadProcessID.Call(hwnd, 0)
+	return threadID
+}
+
+func currentThreadIDWin32() uintptr {
+	threadID, _, _ := win32ProcGetCurrentThreadID.Call()
+	return threadID
 }
 
 func postMessageWin32(hwnd, msg, wparam, lparam uintptr, op string) error {
