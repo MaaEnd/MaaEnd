@@ -72,9 +72,19 @@ MaaEnd 使用 v2 格式，recognition 和 action 放入二级字典：
 }
 ```
 
-- `expected` 写完整文本，不要写片段。
-- 无需手动维护多语言——`tools/i18n` 会自动处理。
-- 需要写片段或正则时，在 `expected` 数组中加 `// @i18n-skip` 注释。
+- `expected` **必须**写完整文本，不要写片段。多语言由 `tools/i18n` 自动展开。
+- 仅当 OCR 引擎对完整文本识别不稳定（如包含易误识字符、夹杂特殊符号），确需用片段或手写正则才能稳定命中时，才允许在 `expected` 中写截断/正则；此时必须：
+    1. 在 `expected` 数组内加 `// @i18n-skip`，让 i18n 工具跳过该节点；
+    2. 在数组上方用普通 JSON 注释保留**完整原文**，便于后续审查、多语言对照和恢复完整匹配。
+
+```jsonc
+// OCR 引擎对 "稳定生产 100%" 中的百分号识别不稳定，截断匹配
+"expected": [
+    // "稳定生产 100%"
+    // @i18n-skip
+    "稳定生产"
+]
+```
 
 ### ColorMatch（找色）
 
@@ -286,7 +296,7 @@ MaaEnd 使用 v2 格式，recognition 和 action 放入二级字典：
 - [ ] ROI / target 坐标基于 1280×720
 - [ ] JSON 格式化符合 `.prettierrc`
 - [ ] `locales/` 已添加新增任务的多语言文本
-- [ ] OCR `expected` 写完整文本
+- [ ] OCR `expected` 默认写完整文本；确需截断时已加 `// @i18n-skip`，且在数组上方注释保留完整原文
 - [ ] 优先通过中间节点避免重复点击，只在必须时用 `post_wait_freezes`
 - [ ] 未引用 `__ScenePrivate*` 内部节点
 

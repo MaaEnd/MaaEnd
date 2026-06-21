@@ -1,0 +1,162 @@
+# 修复 PR 自动反向移植到 v2
+#
+# 当针对 release/v* 分支的 PR 被合并时：
+#   → cherry-pick 该合并提交到基于 v2 的 fix/pr-<N> 分支
+#   → 自动创建从 fix/pr-<N> 到 v2 的 PR
+#
+# cherry-pick 的 commit 会自动追加 [skip changelog]，
+# 防止反向移植的修复在后续版本的 changelog 中重复出现。
+
+name: cherry-pick-to-v2
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  cherry-pick:
+    if: |
+      github.repository_owner == 'MaaEnd' &&
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.base.ref, 'release/v')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract PR metadata
+        id: pr
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -euo pipefail
+
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          MERGE_SHA="${{ github.event.pull_request.merge_commit_sha }}"
+          RELEASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+          FIX_BRANCH="fix/pr-${PR_NUMBER}"
+
+          echo "pr_number=${PR_NUMBER}" | tee -a "$GITHUB_OUTPUT"
+          echo "merge_sha=${MERGE_SHA}" | tee -a "$GITHUB_OUTPUT"
+          echo "release_branch=${RELEASE_BRANCH}" | tee -a "$GITHUB_OUTPUT"
+          echo "fix_branch=${FIX_BRANCH}" | tee -a "$GITHUB_OUTPUT"
+
+          # PR_TITLE 通过 env 传递避免 shell 注入；多行安全写入 GITHUB_OUTPUT
+          {
+            echo "pr_title<<PRTITLE_EOF"
+            echo "$PR_TITLE"
+            echo "PRTITLE_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Processing PR #${PR_NUMBER}: '${PR_TITLE}'"
+          echo "  Merged into: ${RELEASE_BRANCH}"
+          echo "  Merge commit: ${MERGE_SHA}"
+
+      # 分支存在检查放在 checkout 之前，避免全量 clone 后发现分支已存在
+      - name: Check if fix branch already exists
+        id: precheck
+        env:
+          FIX_BRANCH: ${{ steps.pr.outputs.fix_branch }}
+        run: |
+          set -euo pipefail
+
+          if git ls-remote --heads "https://github.com/${{ github.repository }}" "$FIX_BRANCH" | grep -q .; then
+            echo "Fix branch $FIX_BRANCH already exists on remote. Skipping cherry-pick."
+            echo "exists=true" | tee -a "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" | tee -a "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout repository
+        if: steps.precheck.outputs.exists != 'true'
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          ref: v2
+          # cherry-pick 需要访问 release 分支上的 commit，必须全量 clone
+          fetch-depth: 0
+
+      - name: Cherry-pick merge commit and push fix branch
+        if: steps.precheck.outputs.exists != 'true'
+        id: cherry
+        env:
+          FIX_BRANCH: ${{ steps.pr.outputs.fix_branch }}
+          MERGE_SHA: ${{ steps.pr.outputs.merge_sha }}
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -b "$FIX_BRANCH"
+
+          # 用 git cat-file 检测是否为 merge commit（有多个 parent），
+          # 比依赖 git 英文错误消息更可靠
+          PARENT_COUNT=$(git cat-file -p "$MERGE_SHA" | grep -c '^parent ' || true)
+
+          echo "Cherry-picking commit: $MERGE_SHA (parents: $PARENT_COUNT)"
+
+          if [ "$PARENT_COUNT" -le 1 ]; then
+            git cherry-pick -x "$MERGE_SHA"
+          else
+            echo "Merge commit detected, using -m 1 -x"
+            git cherry-pick -m 1 -x "$MERGE_SHA"
+          fi
+
+          # 追加 [skip changelog]，避免反向移植 commit 出现在后续版本的 changelog 中。
+          # 原始 fix 已在对应正式版的 changelog 体现，后续 RC/beta 不应再计入。
+          git log -1 --format=%B > /tmp/commit_msg.txt
+          if ! grep -qF '[skip changelog]' /tmp/commit_msg.txt; then
+            echo "" >> /tmp/commit_msg.txt
+            echo "[skip changelog]" >> /tmp/commit_msg.txt
+          fi
+          git commit --amend -F /tmp/commit_msg.txt
+
+          git push origin "$FIX_BRANCH"
+
+      - name: Create pull request to v2
+        if: steps.precheck.outputs.exists != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.MAAEND_BOT_TOKEN }}
+          FIX_BRANCH: ${{ steps.pr.outputs.fix_branch }}
+          PR_NUMBER: ${{ steps.pr.outputs.pr_number }}
+          PR_TITLE: ${{ steps.pr.outputs.pr_title }}
+          RELEASE_BRANCH: ${{ steps.pr.outputs.release_branch }}
+        run: |
+          set -euo pipefail
+
+          EXISTING_PR="$(gh pr list --base v2 --head "$FIX_BRANCH" --state open --json number --jq '.[0].number // empty')"
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "PR already exists: #${EXISTING_PR}. No new PR created."
+            exit 0
+          fi
+
+          # 用 python 做模板替换，避免 sed 注入（| & 等特殊字符）
+          PR_BODY="$(python3 -c "
+          import os
+          body = '''## Summary
+          - This PR automatically cherry-picks the fix merged into a release branch (\`__RELEASE_BRANCH__\`) back to the main development branch (\`v2\`).
+          - Original PR: #__PR_NUMBER__
+          - Original title: __PR_TITLE__
+
+          ## Why
+          The fix was first applied to a release branch. This PR ensures the same fix is also available in the main development branch (v2).
+
+          ## Auto-generated
+          This PR was created automatically by the \`cherry-pick-to-v2\` workflow.
+          [skip changelog]
+          '''
+          body = body.replace('__RELEASE_BRANCH__', os.environ['RELEASE_BRANCH'])
+          body = body.replace('__PR_NUMBER__',     os.environ['PR_NUMBER'])
+          body = body.replace('__PR_TITLE__',      os.environ['PR_TITLE'])
+          print(body)
+          ")"
+
+          gh pr create \
+            --base v2 \
+            --head "$FIX_BRANCH" \
+            --title "fix: cherry-pick #${PR_NUMBER} from ${RELEASE_BRANCH} to v2" \
+            --body "$PR_BODY"

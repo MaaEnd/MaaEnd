@@ -468,7 +468,34 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "DailyProtocolRewardsPickRewardsPreview",
             "DailyProtocolRewardsPickTargetedSupply",
+            "DailyProtocolRewardsPickSuccess"
+        ]
+    },
+    "DailyProtocolRewardsPickRewardsPreview": {
+        "desc": "当前在定向补给页面确认关闭",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    520,
+                    0,
+                    240,
+                    180
+                ],
+                "template": [
+                    "DailyRewards/RewardsPreviewIcon.png"
+                ],
+                "threshold": 0.9
+            },
+            "CancelButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
             "DailyProtocolRewardsPickSuccess"
         ]
     },

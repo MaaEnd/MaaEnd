@@ -1,0 +1,171 @@
+# 发布分支自动管理
+#
+# RC 版本（vX.Y.Z-rc.N）作为预发布被发布时：
+#   → 从该 RC tag 创建 release/vX.Y 分支
+#
+# 正式版 .0（vX.Y.0）作为正式发布被发布时：
+#   → 删除所有旧的 release/v* 分支（保留当前分支和仍有 open PR 的分支）
+#
+# Hotfix（vX.Y.Z, Z>0）发布时不会触发任何操作。
+
+name: create-release-branch
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  # ── RC 发布：创建 release/vX.Y 分支 ─────────────────────────────
+  create-branch:
+    if: |
+      github.repository_owner == 'MaaEnd' &&
+      github.event.release.prerelease == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate RC tag and extract base version
+        id: version
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.release.tag_name }}"
+
+          # 只处理 RC 标签（vX.Y.Z-rc.N），跳过 beta/alpha 等其他预发布
+          if [[ ! "$TAG" =~ ^v([0-9]+\.[0-9]+)\.[0-9]+-rc\.[0-9]+$ ]]; then
+            echo "Tag '$TAG' does not match RC pattern (required: vX.Y.Z-rc.N). Skipping."
+            exit 0
+          fi
+
+          # 提取中版本号：vX.Y.Z-rc.N → vX.Y，分支名 release/vX.Y
+          BASE_VERSION="${BASH_REMATCH[1]}"
+          BRANCH_NAME="release/${BASE_VERSION}"
+
+          echo "tag=${TAG}" | tee -a "$GITHUB_OUTPUT"
+          echo "branch_name=${BRANCH_NAME}" | tee -a "$GITHUB_OUTPUT"
+          echo "proceed=true" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Checkout repository at RC tag
+        if: steps.version.outputs.proceed == 'true'
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Create release branch
+        if: steps.version.outputs.proceed == 'true'
+        env:
+          BRANCH_NAME: ${{ steps.version.outputs.branch_name }}
+          TAG_NAME: ${{ steps.version.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          # 检查分支是否已存在
+          if git ls-remote --heads origin "$BRANCH_NAME" | grep -q .; then
+            echo "Branch $BRANCH_NAME already exists. Skipping."
+            exit 0
+          fi
+
+          # 当前处于 detached HEAD（RC tag），用 HEAD 创建分支
+          # 避免 shallow clone 下 tag ref 不可用的问题
+          git checkout -b "$BRANCH_NAME" HEAD
+          git push origin "$BRANCH_NAME"
+
+          echo "Created and pushed branch: $BRANCH_NAME (from tag: $TAG_NAME)"
+
+      - name: Log summary
+        if: steps.version.outputs.proceed == 'true'
+        run: |
+          echo "::notice::Release branch '${{ steps.version.outputs.branch_name }}' created from tag '${{ steps.version.outputs.tag }}'"
+
+  # ── Stable .0 发布：清理旧 release 分支 ────────────────────────
+  cleanup-branches:
+    if: |
+      github.repository_owner == 'MaaEnd' &&
+      github.event.release.prerelease == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate stable .0 tag
+        id: version
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.release.tag_name }}"
+
+          # 只处理 .0 结尾的正式版（vX.Y.0），跳过 hotfix（vX.Y.Z, Z>0）
+          if [[ ! "$TAG" =~ ^v([0-9]+\.[0-9]+)\.0$ ]]; then
+            echo "Tag '$TAG' is not a .0 stable release. Skipping cleanup."
+            exit 0
+          fi
+
+          # 提取中版本号：vX.Y.0 → vX.Y，分支名 release/vX.Y
+          CURRENT_BRANCH="release/${BASH_REMATCH[1]}"
+
+          echo "tag=${TAG}" | tee -a "$GITHUB_OUTPUT"
+          echo "current_branch=${CURRENT_BRANCH}" | tee -a "$GITHUB_OUTPUT"
+          echo "proceed=true" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Checkout repository
+        if: steps.version.outputs.proceed == 'true'
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          # 仅需获取凭证用于 git push --delete 等远程操作
+
+      - name: Clean up old release branches
+        if: steps.version.outputs.proceed == 'true'
+        env:
+          CURRENT_BRANCH: ${{ steps.version.outputs.current_branch }}
+          GH_TOKEN: ${{ secrets.MAAEND_BOT_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          # 仅静默 git ls-remote 自身错误，awk/sed 错误正常传播
+          OLD_BRANCHES=$(git ls-remote --heads origin 'release/v*' 2>/dev/null | awk '{print $2}' | sed 's|refs/heads/||')
+
+          if [ -z "$OLD_BRANCHES" ]; then
+            echo "No old release/v* branches found."
+            exit 0
+          fi
+
+          echo "Current release branch: $CURRENT_BRANCH"
+          echo "Existing release branches:"
+          echo "$OLD_BRANCHES"
+
+          DELETED=0
+          SKIPPED_PR=0
+          for branch in $OLD_BRANCHES; do
+            if [ "$branch" = "$CURRENT_BRANCH" ]; then
+              echo "  Keeping $branch (current)"
+              continue
+            fi
+
+            # 检查是否存在打开的 PR 以此分支为 base
+            # 用 if 捕获 gh 退出码，失败时跳过（宁可保留分支也不盲目删除）
+            if OPEN_PR="$(gh pr list --base "$branch" --state open --json number --jq '.[0].number // empty' 2>/dev/null)"; then
+              if [ -n "$OPEN_PR" ]; then
+                echo "  Keeping $branch (open PR #${OPEN_PR} targets it)"
+                SKIPPED_PR=$((SKIPPED_PR + 1))
+                continue
+              fi
+            else
+              echo "  Skipping $branch (gh pr list failed — cannot verify open PRs)"
+              continue
+            fi
+
+            echo "  Deleting $branch..."
+            git push origin --delete "$branch" 2>/dev/null && DELETED=$((DELETED + 1)) \
+              || echo "    (skipped: no longer exists or no permission)"
+          done
+
+          echo "Deleted $DELETED old release branch(es)."
+          if [ "$SKIPPED_PR" -gt 0 ]; then
+            echo "Skipped $SKIPPED_PR branch(es) with open PRs."
+          fi
+
+      - name: Log summary
+        if: steps.version.outputs.proceed == 'true'
+        run: |
+          echo "::notice::Old release branches cleaned up (current: ${{ steps.version.outputs.current_branch }})"

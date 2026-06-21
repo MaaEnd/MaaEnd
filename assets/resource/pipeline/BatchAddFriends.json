@@ -2,32 +2,8 @@
     "BatchAddFriendsMain": {
         "desc": "批量添加好友主入口",
         "next": [
-            "BatchAddFriendsOpenAddPage",
             "BatchAddFriendsOnAddPage",
-            "[JumpBack]SceneEnterMenuFriends"
-        ]
-    },
-    "BatchAddFriendsOpenAddPage": {
-        "desc": "进入添加好友界面",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    620,
-                    0,
-                    200,
-                    120
-                ],
-                "template": "BatchAddFriends/addFriend.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "BatchAddFriendsOnAddPage"
+            "[JumpBack]SceneEnterMenuFriendsAdd"
         ]
     },
     "BatchAddFriendsOnAddPage": {

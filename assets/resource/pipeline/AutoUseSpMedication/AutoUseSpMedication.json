@@ -329,8 +329,6 @@
     "AutoUseSpMedicationUseNoEmergencySanityBooster": {
         "desc": "提示没有应急理智加强剂并结束任务,只有用户选择了使用应急理智加强剂的任意选项才会跳转到这个节点",
         "enabled": true,
-        "action": "Custom",
-        "custom_action": "FalseAction",
         "focus": {
             "Node.Recognition.Succeeded": "没有应急理智加强剂，结束任务"
         }

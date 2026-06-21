@@ -27,6 +27,28 @@ var (
 	lastScrollItemName       string
 )
 
+// normalizeFriendName 清洗 OCR 识别到的好友名，去除尾部噪声：
+// 若包含右括号（) 或 ）），保留到右括号为止；
+// 否则若包含 #，保留到 # 后的 4 个字符为止。
+func normalizeFriendName(name string) string {
+	runes := []rune(name)
+	for i, r := range runes {
+		if r == ')' || r == '）' {
+			return string(runes[:i+1])
+		}
+	}
+	for i, r := range runes {
+		if r == '#' {
+			end := i + 1 + 4
+			if end > len(runes) {
+				end = len(runes)
+			}
+			return string(runes[:end])
+		}
+	}
+	return name
+}
+
 func isFriendNameExist(name string) bool {
 	if name == "" {
 		return false
@@ -144,14 +166,16 @@ func (r *VisitFriendsMenuScanTargetFriendOpenRecognition) Run(ctx *maa.Context, 
 			}
 		}
 
-		exist := isFriendNameExist(detailNameJson.Filtered[i].Text)
+		name := normalizeFriendName(detailNameJson.Filtered[i].Text)
+
+		exist := isFriendNameExist(name)
 		if exist {
-			log.Debug().Str("name", detailNameJson.Filtered[i].Text).Msg("friend item already exist, skip")
+			log.Debug().Str("name", name).Msg("friend item already exist, skip")
 			continue
 		}
 
 		hasTarget = true
-		targetItem.NameText = detailNameJson.Filtered[i].Text
+		targetItem.NameText = name
 		targetItem.ButtonBox = detailButtonJson.Filtered[i].Box
 		break
 	}
@@ -555,14 +579,15 @@ func (r *VisitFriendsMenuScanScrollFinishRecognition) Run(ctx *maa.Context, arg 
 		log.Info().Str("component", "VisitFriends").Str("step", "scan_finish_name").Msg("last item has no name")
 		return nil, false
 	}
+	lastName := normalizeFriendName(lastDetailItem.Text)
 
-	if lastScrollItemName != lastDetailItem.Text {
-		lastScrollItemName = lastDetailItem.Text
+	if lastScrollItemName != lastName {
+		lastScrollItemName = lastName
 		return nil, false
 	}
 
-	log.Info().Str("name", lastDetailItem.Text).Msg("last friend item name is same as previous, scroll finish")
-	detailJSON, _ := json.Marshal(map[string]string{"last_name": lastDetailItem.Text})
+	log.Info().Str("name", lastName).Msg("last friend item name is same as previous, scroll finish")
+	detailJSON, _ := json.Marshal(map[string]string{"last_name": lastName})
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
 		Detail: string(detailJSON),

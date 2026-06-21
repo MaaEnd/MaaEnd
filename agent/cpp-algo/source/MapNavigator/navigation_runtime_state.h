@@ -97,11 +97,30 @@ struct LocalizationLossState
 {
     std::chrono::steady_clock::time_point started_at {};
     std::chrono::steady_clock::time_point last_unstick_at {};
+    bool saw_black_screen = false;
 
     void Reset()
     {
         started_at = {};
         last_unstick_at = {};
+        saw_black_screen = false;
+    }
+};
+
+// River-fall recovery latch: a black-screen loss = fell in water + force-teleport to shore facing the water.
+// Armed on both re-acquire paths, consumed in TickNavigate. See navigator-river-fall-teleport-gap.
+struct RiverFallRecoveryState
+{
+    NaviPosition anchor_pos {};
+    // Post-fall facing (minimap arrow = toward water); recovery turns to water_heading + 180 to face inland.
+    double water_heading = 0.0;
+    bool pending = false;
+
+    void Reset()
+    {
+        anchor_pos = {};
+        water_heading = 0.0;
+        pending = false;
     }
 };
 
@@ -148,6 +167,7 @@ struct NavigationRuntimeState
     SemanticState semantic;
     DynamicRecoveryState recovery;
     LocalizationLossState localization_loss;
+    RiverFallRecoveryState river_fall;
     SteeringRateState steering_rate;
     OffRouteWedgeState offroute;
     bool dynamic_replan_requested = false;
@@ -169,6 +189,7 @@ struct NavigationRuntimeState
         semantic.ResetTransient();
         recovery.Reset();
         localization_loss.Reset();
+        river_fall.Reset();
         steering_rate.Reset();
         offroute.Reset();
         dynamic_replan_requested = false;
@@ -181,6 +202,7 @@ struct NavigationRuntimeState
     {
         route.ResetTracking();
         recovery.Reset();
+        river_fall.Reset();
         offroute.Reset();
         dynamic_replan_requested = false;
         nav_run_dirty = true;

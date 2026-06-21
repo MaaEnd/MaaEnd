@@ -9,6 +9,8 @@
                 "AccountSwitchWindowAction",
                 "AttachToExpectedRegexAction",
                 "AutoAltClickAction",
+                "AutoAltLongPressAction",
+                "AutoAltSwipeAction",
                 "AutoFightMainAction",
                 "AutoSellItemExecuteItemTaskAction",
                 "AutoStockStapleQuantityControlAction",
@@ -149,6 +151,34 @@
                         "required": [ "custom_action_param" ],
                         "properties": {
                             "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapZoomParam" }
+                        }
+                    },
+                    "else": {
+                        "if": {
+                            "type": "object",
+                            "required": [ "custom_action" ],
+                            "properties": { "custom_action": { "const": "AutoAltLongPressAction" } }
+                        },
+                        "then": {
+                            "type": "object",
+                            "required": [ "custom_action_param" ],
+                            "properties": {
+                                "custom_action_param": { "$ref": "./components/auto_alt.schema.json#/$defs/AutoAltLongPressParam" }
+                            }
+                        },
+                        "else": {
+                            "if": {
+                                "type": "object",
+                                "required": [ "custom_action" ],
+                                "properties": { "custom_action": { "const": "AutoAltSwipeAction" } }
+                            },
+                            "then": {
+                                "type": "object",
+                                "required": [ "custom_action_param" ],
+                                "properties": {
+                                    "custom_action_param": { "$ref": "./components/auto_alt.schema.json#/$defs/AutoAltSwipeParam" }
+                                }
+                            }
                         }
                     }
                 }

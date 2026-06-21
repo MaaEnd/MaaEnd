@@ -51,7 +51,7 @@
 
 #### 节点参数
 
-请参见具体代码中 `MapTrackerBigMapInferParam` 的类型定义。
+请参见具体代码中 `MapTrackerBigMapInferParam` 的类型定义，参数包括 `map_name_regex` 和 `threshold`。这些参数也被内嵌到 `MapTrackerBigMapFindImage` 节点的 `MapTrackerBigMapFindImageParam` 中，以控制其内部的大地图推断行为。
 
 ## 算法解释
 

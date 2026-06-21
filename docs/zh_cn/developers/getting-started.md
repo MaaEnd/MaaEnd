@@ -376,7 +376,9 @@ Pipeline 跑通后，补齐配套：
 git push origin feat/auto-sell-items
 ```
 
-在 GitHub 把 Draft PR 改为 **Ready for Review**，等待 maintainer review。
+在 GitHub 把 Draft PR 改为 **Ready for Review**，Base 分支选择 `v2`，等待 maintainer review。
+
+> 如果你修的 Bug 在最新正式版（Stable）里也存在，需要往 `release/vX.Y` 分支提，详见[发版流程](./release-process.md)。
 
 恭喜您完成了第一个任务！
 

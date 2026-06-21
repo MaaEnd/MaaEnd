@@ -42,9 +42,9 @@
                     9999
                 ]
             },
-            "threshold": 0.4, // 主要是看地图匹配，故任务标点阈值无需过高
+            "threshold": 0.325, // 主要是看地图匹配，故任务标点阈值无需过高
             "green_mask": true,
-            "zoom_value": 0.25
+            "zoom_value": 0.325
         },
         "pre_delay": 0,
         "anchor": {
@@ -73,9 +73,9 @@
                     9999
                 ]
             },
-            "threshold": 0.4,
+            "threshold": 0.325,
             "green_mask": true,
-            "zoom_value": 0.25
+            "zoom_value": 0.325
         },
         "pre_delay": 0,
         "anchor": {
@@ -342,7 +342,6 @@
         "custom_action": "AutoAltClickAction",
         "post_delay": 1000, // 等待接取成功的提示消失
         "next": [
-            "SeizeDeliveryJobsSuccessFetchGoods",
             "SeizeDeliveryJobsPostDepartureEntry"
         ],
         "focus": {
@@ -368,16 +367,6 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "**走到位了！记得及时送货哟~**"
-        }
-    },
-    "SeizeDeliveryJobsSuccessFetchGoods": {
-        "desc": "任务成功，触发早停，已接取货物（此节点默认关闭）",
-        "enabled": false,
-        "next": [
-            // 无后续节点，即停止任务
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "**接到货了！记得及时送货哟~**"
         }
     },
     // ===== 错误处理节点 =====
