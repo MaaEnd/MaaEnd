@@ -2,7 +2,7 @@
     "name": "maaend",
     "private": true,
     "scripts": {
-        "format": "prettier --write \"**/*.{json,yml,yaml,md}\"",
+        "format": "prettier --write \"**/*.{json,jsonc,yml,yaml,md}\"",
         "format:aggressive": "prettier --print-width 20 --write \"assets/resource/pipeline/**/*.json\" && prettier --write \"assets/resource/pipeline/**/*.json\"",
         "format:check": "prettier --check \"**/*.{json,yml,yaml,md}\"",
         "format:go": "cd agent/go-service && go fmt ./...",
