@@ -217,16 +217,11 @@
     "AutoUseSpMedicationQuickUseCancel": {
         "desc": "退出快捷使用",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    1084,
-                    203,
-                    33,
-                    31
-                ],
-                "template": "Valuables/Close.png",
-                "threshold": 0.8
+                "all_of": [
+                    "CloseButtonType1"
+                ]
             }
         },
         "action": "Click",
