@@ -387,20 +387,14 @@
         "desc": "[Wulin版]尝试直接走出基地",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "MapNavigateAction",
+        "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "map_name": "map02_lv002",
             "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        673,
-                        230
-                    ]
-                }
+                [
+                    673,
+                    230
+                ]
             ]
         }
     }
