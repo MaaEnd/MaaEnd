@@ -256,7 +256,7 @@ func (r *Recognition) probeAband(ctx *maa.Context, img image.Image) int {
 
 	// 仅识别到 Lv 还不够稳：之后若不等画面静止，后续「点击演算」会失效。
 	// 故命中后再补一次 WaitFreezes（roi 沿用抽牌 freeze 的 [62,146,1191,289]）。
-	if err := ctx.WaitFreezes(500*time.Millisecond, &maa.Rect{62, 146, 1191, 289}, nil); err != nil {
+	if err := ctx.WaitFreezes(200*time.Millisecond, &maa.Rect{62, 146, 1191, 289}, nil); err != nil {
 		log.Warn().Err(err).Str("component", component).Msg("probeAband: 等待回抽牌页 freeze 超时")
 	}
 
