@@ -234,9 +234,24 @@ func (r *Recognition) probeAband(ctx *maa.Context, img image.Image) int {
 		log.Warn().Str("component", component).Msg("probeAband: 取消按钮未找到，弹窗可能残留")
 	}
 
-	// 点完取消等画面静止，确保已回到抽牌页面再继续后续流程
-	if err := ctx.WaitFreezes(500*time.Millisecond, &maa.Rect{55, 77, 1212, 598}, nil); err != nil {
-		log.Warn().Err(err).Str("component", component).Msg("probeAband: 等待回抽牌页超时")
+	// 点完取消后轮询等待回到抽牌界面：每 300ms 截图识别第1张卡牌 Lv 图标，命中即已回抽牌页
+	// （与前面等待放弃弹窗同构的循环识别，替代固定 WaitFreezes，更稳）。
+	deadline = time.Now().Add(10 * time.Second) // 兜底超时，弹窗关闭动画没结束时也不死循环
+	backToCard := false
+	for time.Now().Before(deadline) {
+		time.Sleep(probeInterval)
+		ctrl.PostScreencap().Wait()
+		fresh, err := ctrl.CacheImage()
+		if err != nil || fresh == nil {
+			continue
+		}
+		if runTemplateHit(ctx, fresh, nodeEnemyCard1) {
+			backToCard = true
+			break
+		}
+	}
+	if !backToCard {
+		log.Warn().Str("component", component).Msg("probeAband: 等待回抽牌页超时（EnemyCard1 未出现）")
 	}
 
 	if count < 0 {

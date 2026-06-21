@@ -18,6 +18,7 @@ const (
 	nodeDrawCard            = "TrialOfSwordmancyDrawCard"            // 抽牌按钮
 	nodeDoubleReward        = "TrialOfSwordmancyDoubleReward"        // 翻倍按钮
 	nodeOverflowExclamation = "TrialOfSwordmancyOverflowExclamation" // 溢出（爆表）叹号
+	nodeEnemyCard1          = "TrialOfSwordmancyEnemyCard1"          // 第1张卡牌 Lv（在场=已回抽牌界面）
 
 	// 决策执行节点（节点自行点击按钮 + 等动画，完成后 next 回 Decide）。
 	nodeDoDrawCard            = "TrialOfSwordmancyDoDrawCard"            // 抽一张牌
