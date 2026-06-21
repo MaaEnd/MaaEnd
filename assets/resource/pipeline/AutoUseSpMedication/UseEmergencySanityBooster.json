@@ -127,7 +127,8 @@
                         "param": {
                             "expected": [
                                 "快捷使用",
-                                "Quick Use"
+                                "Quick Use",
+                                "恢复理智"
                             ],
                             "roi": [
                                 190,
@@ -137,23 +138,6 @@
                             ]
                         },
                         "type": "OCR"
-                    },
-                    {
-                        //冗余检测，避免用错
-                        "type": "OCR",
-                        "param": {
-                            "expected": [
-                                "应急理智加强剂",
-                                "緊急理智加強劑",
-                                "Emergency Sanity Booster"
-                            ],
-                            "roi": [
-                                350,
-                                335,
-                                160,
-                                40
-                            ]
-                        }
                     }
                 ],
                 "box_index": 0
