@@ -17,18 +17,12 @@
         "desc": "颜色识别,确认是时限应急理智加强剂(绿色或红色时限)",
         "recognition": "ColorMatch",
         "roi": "FindEmergencySanityBooster",
-        "roi_offset": [
-            0,
-            0,
-            -79,
-            -81
-        ],
         "method": 40,
         "lower": [
             [
                 50,
-                0,
-                0
+                200,
+                200
             ],
             [
                 161,
@@ -56,10 +50,10 @@
         "recognition": "OCR",
         "roi": "ColorRecognitionEmergencySanityBoosterDeadline",
         "roi_offset": [
-            -2,
-            -2,
-            4,
-            4
+            15,
+            -1,
+            -14,
+            2
         ],
         "expected": [
             "0小时",
@@ -94,7 +88,8 @@
             "6天",
             "7天"
         ],
-        "order_by": "Expected"
+        "order_by": "Expected",
+        "only_rec": true
     },
     "FindDeadlineEmergencySanityBooster": {
         "desc": "识别带时限的应急理智加强剂",
