@@ -33,7 +33,16 @@ The engine scans one visible grid page at a time and accumulates a session.
 6. Pending/beam transition confirms a candidate on the next frame before
    committing it to the session. This avoids committing scroll-settling or
    repeated frames too early.
-7. The session stores global `(row, col)` cells. If a later visible cell is a
+7. When a pending frame is confirmed, the engine remaps the confirmed pending
+   cells onto the current frame by global row/column. The remapped cells are
+   returned as `dispatchableCells`: they are confirmed by the next frame and
+   their `screenCell` belongs to the current screenshot, so callers may safely
+   click or sample them.
+8. End detection is deliberately conservative. A zero-offset match must be
+   strong, compare enough cells, and repeat across consecutive confirmations
+   before `reachedEnd` is reported. This avoids treating visually similar icon
+   pages as a real scroll boundary.
+9. The session stores global `(row, col)` cells. If a later visible cell is a
    better classification for the same key, it replaces the old one.
 
 Totals must come from detected visible cells plus session merge. Do not add OCR
@@ -137,6 +146,8 @@ Useful detail fields returned to Maa:
 - `rows`, `cols`, `page_rows`, `page_cols`
 - `new_cells`, `row_offset`
 - `delta_reliable`, `pending_stored`, `pending_resolved`
+- `dispatchableCells`: confirmed cells with current-frame coordinates for
+  clicking or sampling
 - `has_progress`, `reached_end`
 - `matched_cells`, `compared_cells`, `match_ratio`
 

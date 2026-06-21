@@ -29,8 +29,10 @@ struct SessionState
         int viewportStartRow = 0;
         int cols = 0;
         int lastPositiveRowOffset = 0;
+        int endConfirmations = 0;
         SessionCells cells;
         std::vector<PendingState> pending;
+        std::vector<GridScanCell> dispatchableCells;
         double score = 0.0;
     };
 
@@ -38,6 +40,9 @@ struct SessionState
     int viewportStartRow = 0;
     int cols = 0;
     int lastPositiveRowOffset = 0;
+    int endConfirmations = 0;
+    int lockedRowHeight = 0;
+    int lockedColWidth = 0;
     SessionCells cells;
     std::vector<PendingState> pending;
     std::vector<BeamState> beams;

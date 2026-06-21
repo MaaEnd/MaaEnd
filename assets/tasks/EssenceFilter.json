@@ -218,12 +218,8 @@
                             }
                         },
                         "EssenceGridAdvance": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "flawless_essence": true
-                                    }
-                                }
+                            "attach": {
+                                "flawless_essence": true
                             }
                         }
                     }
@@ -237,12 +233,8 @@
                             }
                         },
                         "EssenceGridAdvance": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "flawless_essence": false
-                                    }
-                                }
+                            "attach": {
+                                "flawless_essence": false
                             }
                         }
                     }
@@ -263,12 +255,8 @@
                             }
                         },
                         "EssenceGridAdvance": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "pure_essence": true
-                                    }
-                                }
+                            "attach": {
+                                "pure_essence": true
                             }
                         }
                     }
@@ -282,12 +270,8 @@
                             }
                         },
                         "EssenceGridAdvance": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "pure_essence": false
-                                    }
-                                }
+                            "attach": {
+                                "pure_essence": false
                             }
                         }
                     }

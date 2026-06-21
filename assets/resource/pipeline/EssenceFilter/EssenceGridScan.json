@@ -25,11 +25,13 @@
                     "min_score": 0.35,
                     "hue_weight": 0.4,
                     "incremental": true,
-                    "end_min_match_ratio": 0.95,
-                    "flawless_essence": true,
-                    "pure_essence": false
+                    "end_min_match_ratio": 0.95
                 }
             }
+        },
+        "attach": {
+            "flawless_essence": true,
+            "pure_essence": false
         },
         "pre_wait_freezes": {
             "time": 100,
@@ -88,7 +90,7 @@
             "param": {
                 "begin": [
                     135,
-                    191
+                    291
                 ],
                 "end": [
                     135,

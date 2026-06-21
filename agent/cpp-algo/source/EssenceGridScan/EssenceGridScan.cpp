@@ -1,7 +1,6 @@
 #include "EssenceGridScan.h"
 
-#include "../RecoGrid/GridRecognizer.h"
-#include "../RecoGrid/RecoGridScanCells.h"
+#include "../RecoGrid/RecoGridEngine.h"
 #include "../utils.h"
 
 #include <MaaFramework/Utility/MaaBuffer.h>
@@ -35,11 +34,12 @@ namespace
 
 constexpr const char* kRuntimeTemplatePath = "resource/image/EssenceFilter/EssenceGeneral.png";
 constexpr const char* kSourceTemplatePath = "assets/resource/image/EssenceFilter/EssenceGeneral.png";
+constexpr const char* kSessionId = "EssenceGridScan";
 constexpr const char* kClickNextNode = "EssenceGridClickPending";
 constexpr const char* kSwipeNextNode = "EssenceGridSwipeNext";
 constexpr const char* kFinishNode = "EssenceFilterFinish";
 
-std::vector<recogrid::GridClassifyTemplate> g_templates;
+recogrid::RecoGridEngine g_engine;
 bool g_loaded = false;
 MaaTaskId g_lastTaskId = MaaInvalidId;
 std::set<std::pair<int, int>> g_issuedCellKeys;
@@ -50,9 +50,6 @@ std::optional<recogrid::GridScanResult> g_lastScanResult;
 std::vector<recogrid::GridScanCell> g_currentPageQueue;
 std::size_t g_currentPageQueueIndex = 0;
 bool g_scanRequired = true;
-bool g_hasViewportSnapshot = false;
-recogrid::GridHashSnapshot g_lastViewportSnapshot;
-int g_viewportStartRow = 0;
 int g_maxSeenRow = -1;
 
 std::filesystem::path ResolveEssenceTemplatePath()
@@ -77,7 +74,7 @@ void EnsureLoaded()
     if (image.empty()) {
         throw std::runtime_error("Essence grid template image cannot be loaded: " + path.string());
     }
-    g_templates = { { "essence_general", std::move(image) } };
+    g_engine.SetTemplates({ { "essence_general", std::move(image) } });
     g_loaded = true;
 }
 
@@ -167,9 +164,7 @@ void ResetSessionForNewTask(MaaTaskId taskId)
     g_currentPageQueue.clear();
     g_currentPageQueueIndex = 0;
     g_scanRequired = true;
-    g_hasViewportSnapshot = false;
-    g_lastViewportSnapshot = {};
-    g_viewportStartRow = 0;
+    g_engine.ResetSession(kSessionId);
     g_maxSeenRow = -1;
     g_lastTaskId = taskId;
     LogInfo << "EssenceGridScan reset session" << VAR(taskId);
@@ -300,6 +295,51 @@ QualityFilter ParseQualityFilter(const char* raw)
     return filter;
 }
 
+QualityFilter ReadQualityFilter(MaaContext* context, const char* nodeName, const char* fallbackRaw)
+{
+    QualityFilter filter = ParseQualityFilter(fallbackRaw);
+    if (context == nullptr || nodeName == nullptr) {
+        return filter;
+    }
+
+    MaaStringBuffer* buffer = MaaStringBufferCreate();
+    if (buffer == nullptr) {
+        LogWarn << "EssenceGridScan quality filter buffer create failed" << VAR(nodeName);
+        return filter;
+    }
+
+    do {
+        if (!MaaContextGetNodeData(context, nodeName, buffer)) {
+            LogWarn << "EssenceGridScan quality filter node data failed" << VAR(nodeName);
+            break;
+        }
+
+        const char* raw = MaaStringBufferGet(buffer);
+        if (raw == nullptr || std::strlen(raw) == 0) {
+            LogWarn << "EssenceGridScan quality filter node data empty" << VAR(nodeName);
+            break;
+        }
+
+        const auto parsed = json::parse(raw);
+        if (!parsed || !parsed->is_object()) {
+            LogWarn << "EssenceGridScan quality filter node JSON invalid" << VAR(nodeName);
+            break;
+        }
+
+        const auto& object = parsed->as_object();
+        if (!object.contains("attach") || !object.at("attach").is_object()) {
+            break;
+        }
+
+        const json::value attachValue(object.at("attach"));
+        const std::string attachRaw = attachValue.dumps();
+        filter = ParseQualityFilter(attachRaw.c_str());
+    } while (0);
+
+    MaaStringBufferDestroy(buffer);
+    return filter;
+}
+
 bool ShouldDispatchQuality(const recogrid::GridScanCell& cell, const QualityFilter& filter)
 {
     if (!filter.hasExplicitSelection) {
@@ -347,6 +387,7 @@ void WriteAdvanceDetail(
     detail["message"] = result.message;
     detail["page_grid"] = result.totalCells;
     detail["cumulative_grid"] = result.sessionTotalCells;
+    detail["dispatchable_grid"] = static_cast<int>(result.dispatchableCells.size());
     detail["rows"] = result.sessionRows;
     detail["cols"] = result.sessionCols;
     detail["visible_candidates"] = visibleCandidates;
@@ -373,6 +414,9 @@ void WriteAdvanceDetail(
     retainedQualityCounts["high_purity_purple"] = 0;
     retainedQualityCounts["unknown"] = 0;
     for (const recogrid::GridScanCell& cell : result.cells) {
+        if (!cell.visible) {
+            continue;
+        }
         const std::string quality = CellQuality(cell);
         if (retainedQualityCounts.contains(quality) && retainedQualityCounts[quality].is_number()) {
             retainedQualityCounts[quality] = retainedQualityCounts[quality].as_integer() + 1;
@@ -443,23 +487,12 @@ bool OverrideNext(MaaContext* context, const char* nodeName, const char* nextNod
     return ok;
 }
 
-void ApplyDeltaToResult(recogrid::GridScanResult& result, const recogrid::GridDeltaResult& delta)
-{
-    result.deltaReliable = delta.reliable;
-    result.rowOffset = delta.rowOffset;
-    result.matchedCells = delta.matchedCells;
-    result.comparedCells = delta.comparedCells;
-    result.totalDistance = delta.totalDistance;
-    result.averageDistance = delta.averageDistance;
-    result.deltaScore = delta.score;
-    result.matchRatio = delta.matchRatio;
-    result.newCellIndices = delta.newCellIndices;
-    result.hasProgress = delta.hasProgress;
-}
-
 void UpdateSeenCells(const std::vector<recogrid::GridScanCell>& cells)
 {
     for (const recogrid::GridScanCell& cell : cells) {
+        if (!cell.visible) {
+            continue;
+        }
         g_seenCellKeys.insert({ cell.row, cell.col });
         g_maxSeenRow = std::max(g_maxSeenRow, cell.row);
     }
@@ -471,6 +504,9 @@ void UpdateCellQualities(const cv::Mat& image, const std::vector<recogrid::GridS
     int purpleCells = 0;
     int unknownCells = 0;
     for (const recogrid::GridScanCell& cell : cells) {
+        if (!cell.visible) {
+            continue;
+        }
         const QualityStats stats = ClassifyCellQuality(image, cell.screenCell);
         g_cellQualities[CellKey(cell)] = stats.quality;
         if (stats.quality == "flawless_gold") {
@@ -488,114 +524,16 @@ void UpdateCellQualities(const cv::Mat& image, const std::vector<recogrid::GridS
     LogInfo << "EssenceGridScan quality summary" << VAR(goldCells) << VAR(purpleCells) << VAR(unknownCells);
 }
 
-void FinalizeEssenceCounts(recogrid::GridScanResult& result)
-{
-    recogrid::FinalizeCounts(result);
-    result.sessionTotalCells = static_cast<int>(g_seenCellKeys.size());
-    result.sessionRows = g_maxSeenRow + 1;
-    if (result.sessionCols <= 0) {
-        result.sessionCols = result.cols;
-    }
-}
-
-recogrid::GridScanResult ScanCurrentViewport(
+recogrid::GridScanResult ScanWithRecoGridEngine(
     const cv::Mat& image,
-    const recogrid::GridScanOptions& options,
-    const recogrid::GridClassifyOptions& classifyOptions)
+    const recogrid::GridScanOptions& options)
 {
-    recogrid::GridScanResult result;
-    const recogrid::GridRecognitionResult recognition = recogrid::RecognizeGrid(image, options.recognition);
-    result.rows = static_cast<int>(recognition.grid.rows.size());
-    result.cols = static_cast<int>(recognition.grid.cols.size());
-    result.totalCells = result.rows * result.cols;
-    result.sessionCols = result.cols;
-
-    if (result.totalCells <= 0) {
-        result.message = recognition.message.empty() ? "Grid detected no cells" : recognition.message;
+    recogrid::GridScanResult result = g_engine.Scan(kSessionId, image, options);
+    if (!result.success) {
         return result;
     }
-
-    const recogrid::GridHashSnapshot currentSnapshot = recogrid::MakeGridHashSnapshot(
-        result.rows,
-        result.cols,
-        std::vector<recogrid::Hash>(recognition.cellHashes));
-    int currentViewportStartRow = g_viewportStartRow;
-
-    if (options.incremental && g_hasViewportSnapshot && g_lastViewportSnapshot.cols == result.cols) {
-        recogrid::GridDeltaResult delta = recogrid::ComputeGridDelta(
-            g_lastViewportSnapshot,
-            currentSnapshot,
-            { options.matchDistanceThreshold, options.minMatchRatio });
-        recogrid::AdjustLeadingPartialRowsForDelta(
-            delta,
-            recognition,
-            options,
-            image.size(),
-            g_viewportStartRow,
-            nullptr);
-        ApplyDeltaToResult(result, delta);
-
-        const double endRatio = std::clamp(options.endMinMatchRatio, 0.0, 1.0);
-        if (delta.rowOffset == 0 && delta.matchRatio >= endRatio) {
-            result.success = true;
-            result.reachedEnd = true;
-            result.message = "Grid reached end";
-            FinalizeEssenceCounts(result);
-            return result;
-        }
-        if (!delta.reliable || delta.rowOffset <= 0) {
-            result.message = "Grid delta is not reliable";
-            return result;
-        }
-
-        g_viewportStartRow += delta.rowOffset;
-        currentViewportStartRow = g_viewportStartRow;
-        g_lastViewportSnapshot = currentSnapshot;
-    }
-    else {
-        g_viewportStartRow = 0;
-        currentViewportStartRow = 0;
-        g_lastViewportSnapshot = currentSnapshot;
-        g_hasViewportSnapshot = true;
-        result.hasProgress = true;
-        result.newCellIndices = recogrid::NewCellIndicesForOffset(currentSnapshot, result.rows);
-    }
-
-    std::vector<recogrid::GridScanCell> cells = recogrid::MakeUnknownCells(
-        currentViewportStartRow,
-        result.rows,
-        result.cols,
-        recognition.grid.roi,
-        recognition.grid.cells,
-        options,
-        options.recognition,
-        image.size(),
-        options.unknownTemplateId);
-    result.totalCells = static_cast<int>(cells.size());
-
-    const std::vector<std::size_t> occupiedIndices = recogrid::CellIndices(cells);
-    const recogrid::GridClassificationResult classification = recogrid::ClassifyGridCells(
-        recognition,
-        g_templates,
-        options.recognition,
-        classifyOptions,
-        image.size(),
-        occupiedIndices);
-    recogrid::ApplyClassifications(cells, classification, result.cols, currentViewportStartRow, options.unknownTemplateId);
-
-    std::sort(cells.begin(), cells.end(), [](const recogrid::GridScanCell& lhs, const recogrid::GridScanCell& rhs) {
-        if (lhs.row != rhs.row) {
-            return lhs.row < rhs.row;
-        }
-        return lhs.col < rhs.col;
-    });
-
-    UpdateSeenCells(cells);
-    UpdateCellQualities(image, cells);
-    result.success = true;
-    result.message = recognition.message.empty() ? "Grid scanned" : recognition.message;
-    result.cells = std::move(cells);
-    FinalizeEssenceCounts(result);
+    UpdateSeenCells(result.dispatchableCells);
+    UpdateCellQualities(image, result.dispatchableCells);
     return result;
 }
 
@@ -603,7 +541,7 @@ void RebuildCurrentPageQueue(const recogrid::GridScanResult& result, const Quali
 {
     g_currentPageQueue.clear();
     g_currentPageQueueIndex = 0;
-    for (const recogrid::GridScanCell& cell : result.cells) {
+    for (const recogrid::GridScanCell& cell : result.dispatchableCells) {
         if (!cell.visible || g_issuedCellKeys.find({ cell.row, cell.col }) != g_issuedCellKeys.end() ||
             !ShouldDispatchQuality(cell, filter)) {
             continue;
@@ -661,7 +599,7 @@ MaaBool MAA_CALL EssenceGridAdvanceRecognitionRun(
         options.incremental = ReadBooleanOption(custom_recognition_param, "incremental", options.incremental);
         options.endMinMatchRatio =
             ReadDoubleOption(custom_recognition_param, "end_min_match_ratio", options.endMinMatchRatio);
-        const QualityFilter qualityFilter = ParseQualityFilter(custom_recognition_param);
+        const QualityFilter qualityFilter = ReadQualityFilter(context, node_name, custom_recognition_param);
 
         std::optional<recogrid::GridScanCell> selected = SelectNextQueuedCell();
         recogrid::GridScanResult result = g_lastScanResult.value_or(recogrid::GridScanResult {});
@@ -670,19 +608,20 @@ MaaBool MAA_CALL EssenceGridAdvanceRecognitionRun(
         if (!selected && !g_scanRequired) {
             g_pendingCell.reset();
             g_scanRequired = true;
-            nextNode = kSwipeNextNode;
+            nextNode = result.reachedEnd ? kFinishNode : kSwipeNextNode;
         }
         else if (!selected) {
-            result = ScanCurrentViewport(to_mat(image), options, request.classify);
+            result = ScanWithRecoGridEngine(to_mat(image), options);
             g_lastScanResult = result;
-            g_scanRequired = false;
             if (!result.success) {
+                g_scanRequired = true;
                 g_pendingCell.reset();
                 WriteAdvanceDetail(out_detail, result, std::nullopt, qualityFilter);
                 LogWarn << "EssenceGridScan scan miss" << VAR(result.message);
                 return MAA_FALSE;
             }
 
+            g_scanRequired = false;
             RebuildCurrentPageQueue(result, qualityFilter);
             selected = SelectNextQueuedCell();
             if (!selected) {

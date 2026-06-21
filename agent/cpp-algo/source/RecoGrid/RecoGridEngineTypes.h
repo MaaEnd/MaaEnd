@@ -72,6 +72,7 @@ struct GridScanResult
     double deltaScore = 0.0;
     double matchRatio = 0.0;
     std::vector<std::size_t> newCellIndices;
+    std::vector<GridScanCell> dispatchableCells;
     std::vector<GridScanCell> cells;
 };
 

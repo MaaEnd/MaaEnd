@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <map>
 #include <stdexcept>
 
 namespace recogrid
@@ -48,33 +49,52 @@ std::vector<Segment> FindSegments(const cv::Mat& projection, int threshold, int 
     return segments;
 }
 
-int MedianLength(std::vector<Segment> segments)
+int ModalLength(const std::vector<Segment>& segments)
 {
     if (segments.empty()) {
         return 0;
     }
 
-    std::vector<int> lengths;
-    lengths.reserve(segments.size());
+    std::map<int, int> counts;
     for (const auto& segment : segments) {
-        lengths.push_back(SegmentLength(segment));
+        const int length = SegmentLength(segment);
+        if (length > 0) {
+            counts[length]++;
+        }
     }
 
-    auto middle = lengths.begin() + static_cast<std::ptrdiff_t>(lengths.size() / 2);
-    std::nth_element(lengths.begin(), middle, lengths.end());
-    return *middle;
+    int bestLength = 0;
+    int bestCount = 0;
+    for (const auto& entry : counts) {
+        const int length = entry.first;
+        const int count = entry.second;
+        if (count > bestCount || (count == bestCount && length > bestLength)) {
+            bestLength = length;
+            bestCount = count;
+        }
+    }
+    return bestLength;
 }
 
-std::vector<Segment> FilterSmallSegments(const std::vector<Segment>& segments, double minRatio, int projectionLength, int& minLength)
+std::vector<Segment> FilterSmallSegments(
+    const std::vector<Segment>& segments,
+    double minRatio,
+    int projectionLength,
+    int lockedLength,
+    double lockedTolerance,
+    int& minLength)
 {
     std::vector<Segment> filtered;
     filtered.reserve(segments.size());
 
-    const int typicalLength = MedianLength(segments);
+    const int typicalLength = lockedLength > 0 ? lockedLength : ModalLength(segments);
     minLength = static_cast<int>(std::round(static_cast<double>(typicalLength) * minRatio));
     if (minLength <= 0) {
         return segments;
     }
+    const int maxLength = lockedLength > 0 ?
+                              static_cast<int>(std::round(static_cast<double>(lockedLength) * (1.0 + lockedTolerance))) :
+                              0;
 
     std::vector<Segment> normalized;
     normalized.reserve(segments.size());
@@ -96,7 +116,8 @@ std::vector<Segment> FilterSmallSegments(const std::vector<Segment>& segments, d
     }
 
     for (const auto& segment : normalized) {
-        if (SegmentLength(segment) >= minLength) {
+        const int length = SegmentLength(segment);
+        if (length >= minLength && (maxLength <= 0 || length <= maxLength)) {
             filtered.push_back(segment);
         }
     }
@@ -192,8 +213,20 @@ GridResult DetectGrid(const cv::Mat& image, const GridDetectOptions& options)
 
     result.rawRows = rowSegments;
     result.rawCols = colSegments;
-    rowSegments = FilterSmallSegments(rowSegments, options.minKeptSegmentRatio, rowSum.rows, result.minRowHeight);
-    colSegments = FilterSmallSegments(colSegments, options.minKeptSegmentRatio, colSum.cols, result.minColWidth);
+    rowSegments = FilterSmallSegments(
+        rowSegments,
+        options.minKeptSegmentRatio,
+        rowSum.rows,
+        options.lockedRowHeight,
+        options.lockedSegmentTolerance,
+        result.minRowHeight);
+    colSegments = FilterSmallSegments(
+        colSegments,
+        options.minKeptSegmentRatio,
+        colSum.cols,
+        options.lockedColWidth,
+        options.lockedSegmentTolerance,
+        result.minColWidth);
     result.rows = rowSegments;
     result.cols = colSegments;
 

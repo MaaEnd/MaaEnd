@@ -21,6 +21,9 @@ struct GridDetectOptions
     double colThresholdRatio = 0.40;
     int minRawSegmentLength = 10;
     double minKeptSegmentRatio = 0.70;
+    int lockedRowHeight = 0;
+    int lockedColWidth = 0;
+    double lockedSegmentTolerance = 0.35;
 };
 
 struct GridResult

@@ -118,6 +118,9 @@ void ClampOptions(GridRecognitionOptions& options)
     options.detect.colThresholdRatio = std::clamp(options.detect.colThresholdRatio, 0.0, 1.0);
     options.detect.minRawSegmentLength = std::max(1, options.detect.minRawSegmentLength);
     options.detect.minKeptSegmentRatio = std::clamp(options.detect.minKeptSegmentRatio, 0.0, 1.0);
+    options.detect.lockedRowHeight = std::max(0, options.detect.lockedRowHeight);
+    options.detect.lockedColWidth = std::max(0, options.detect.lockedColWidth);
+    options.detect.lockedSegmentTolerance = std::clamp(options.detect.lockedSegmentTolerance, 0.0, 1.0);
     options.maxPhashDistance = std::max(0, options.maxPhashDistance);
     options.minScore = std::clamp(options.minScore, 0.0, 1.0);
     options.hueWeight = std::clamp(options.hueWeight, 0.0, 1.0);
@@ -250,6 +253,9 @@ bool GridRecognitionRequest::from_json(const json::value& value)
     ReadField(object, "col_threshold_ratio", options.detect.colThresholdRatio);
     ReadField(object, "min_raw_segment_length", options.detect.minRawSegmentLength);
     ReadField(object, "min_kept_segment_ratio", options.detect.minKeptSegmentRatio);
+    ReadField(object, "locked_row_height", options.detect.lockedRowHeight);
+    ReadField(object, "locked_col_width", options.detect.lockedColWidth);
+    ReadField(object, "locked_segment_tolerance", options.detect.lockedSegmentTolerance);
     ReadMaskField(object, "mask_ratios", options.mask);
     ReadMaskField(object, "mask", options.mask);
     ReadField(object, "max_phash_distance", options.maxPhashDistance);

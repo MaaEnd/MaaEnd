@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <map>
 #include <stdexcept>
 #include <unordered_set>
 #include <utility>
@@ -60,6 +61,33 @@ GridScanResult MakeFailure(std::string message)
     GridScanResult result;
     result.message = std::move(message);
     return result;
+}
+
+int ModalSegmentLength(const std::vector<Segment>& segments)
+{
+    if (segments.empty()) {
+        return 0;
+    }
+
+    std::map<int, int> counts;
+    for (const Segment& segment : segments) {
+        const int length = SegmentLength(segment);
+        if (length > 0) {
+            counts[length]++;
+        }
+    }
+
+    int bestLength = 0;
+    int bestCount = 0;
+    for (const auto& entry : counts) {
+        const int length = entry.first;
+        const int count = entry.second;
+        if (count > bestCount || (count == bestCount && length > bestLength)) {
+            bestLength = length;
+            bestCount = count;
+        }
+    }
+    return bestLength;
 }
 
 } // namespace
@@ -160,22 +188,45 @@ GridScanResult RecoGridEngine::Scan(const std::string& sessionId, const cv::Mat&
 
     try {
         GridScanResult result;
-        GridRecognitionResult recognition = RecognizeGrid(image, options.recognition);
+        GridScanOptions effectiveOptions = options;
+        auto sessionIt = sessions_.find(sessionId);
+        const bool hasSession = sessionIt != sessions_.end();
+        if (options.incremental && hasSession) {
+            effectiveOptions.recognition.detect.lockedRowHeight = sessionIt->second.lockedRowHeight;
+            effectiveOptions.recognition.detect.lockedColWidth = sessionIt->second.lockedColWidth;
+        }
+
+        GridRecognitionResult recognition = RecognizeGrid(image, effectiveOptions.recognition);
         result.rows = static_cast<int>(recognition.grid.rows.size());
         result.cols = static_cast<int>(recognition.grid.cols.size());
         result.totalCells = result.rows * result.cols;
         if (result.totalCells <= 0) {
             result.message = recognition.message.empty() ? "Grid detected no cells" : recognition.message;
+            if (options.incremental && hasSession) {
+                result.success = true;
+                result.incrementalUsed = true;
+                result.sessionCols = sessionIt->second.cols;
+                result.cells = ToSortedCells(sessionIt->second.cells);
+                FinalizeCounts(result);
+                return result;
+            }
             sessions_.erase(sessionId);
+            return result;
+        }
+        if (options.incremental && hasSession && sessionIt->second.cols > 0 && result.cols != sessionIt->second.cols) {
+            result.success = true;
+            result.message = "Grid shape rejected; kept previous scan session";
+            result.incrementalUsed = true;
+            result.sessionCols = sessionIt->second.cols;
+            result.cells = ToSortedCells(sessionIt->second.cells);
+            FinalizeCounts(result);
             return result;
         }
 
         const GridHashSnapshot currentSnapshot = ToHashSnapshot(recognition);
         const cv::Size imageSize = image.size();
-        const GridClassifyOptions classifyOptions = ToClassifyOptions(options.recognition);
+        const GridClassifyOptions classifyOptions = ToClassifyOptions(effectiveOptions.recognition);
         constexpr int kPlacementBeamWidth = 3;
-        auto sessionIt = sessions_.find(sessionId);
-        const bool hasSession = sessionIt != sessions_.end();
 
         GridDeltaResult delta;
         if (options.incremental && hasSession && sessionIt->second.cols == result.cols) {
@@ -186,7 +237,7 @@ GridScanResult RecoGridEngine::Scan(const std::string& sessionId, const cv::Mat&
             AdjustLeadingPartialRowsForDelta(
                 delta,
                 recognition,
-                options,
+                effectiveOptions,
                 imageSize,
                 sessionIt->second.viewportStartRow,
                 &sessionIt->second.cells);
@@ -209,7 +260,7 @@ GridScanResult RecoGridEngine::Scan(const std::string& sessionId, const cv::Mat&
                 result,
                 recognition,
                 templates_,
-                options,
+                effectiveOptions,
                 classifyOptions,
                 currentSnapshot,
                 delta,
@@ -222,6 +273,8 @@ GridScanResult RecoGridEngine::Scan(const std::string& sessionId, const cv::Mat&
         session.snapshot = currentSnapshot;
         session.viewportStartRow = 0;
         session.cols = result.cols;
+        session.lockedRowHeight = ModalSegmentLength(recognition.grid.rows);
+        session.lockedColWidth = ModalSegmentLength(recognition.grid.cols);
         session.pending.clear();
         std::vector<GridScanCell> currentCells = MakeUnknownCells(
             0,
@@ -229,23 +282,24 @@ GridScanResult RecoGridEngine::Scan(const std::string& sessionId, const cv::Mat&
             result.cols,
             recognition.grid.roi,
             recognition.grid.cells,
-            options,
-            options.recognition,
+            effectiveOptions,
+            effectiveOptions.recognition,
             imageSize,
-            options.unknownTemplateId);
+            effectiveOptions.unknownTemplateId);
         result.totalCells = static_cast<int>(currentCells.size());
 
         const std::vector<std::size_t> occupiedIndices = CellIndices(currentCells);
         GridClassificationResult classification = ClassifyGridCells(
             recognition,
             templates_,
-            options.recognition,
+            effectiveOptions.recognition,
             classifyOptions,
             imageSize,
             occupiedIndices);
 
-        ApplyClassifications(currentCells, classification, result.cols, 0, options.unknownTemplateId);
+        ApplyClassifications(currentCells, classification, result.cols, 0, effectiveOptions.unknownTemplateId);
         result.newCellIndices = occupiedIndices;
+        result.dispatchableCells = currentCells;
         UpsertSessionCells(session.cells, currentCells);
         result.success = true;
         result.message = recognition.message.empty() ? "Grid scanned" : recognition.message;
