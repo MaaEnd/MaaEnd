@@ -27,7 +27,7 @@
             "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindEcoFarmWulin",
             "_AutoEcoFarmBlindWalkStartAnchor": "_AutoEcoFarmBlindWalkStartWulin",
             //AutoEcoFarmMoveAndWork.json 工作循环部分
-            "_AutoEcoFarmLeftFarmAnchor": "_AutoEcoFarmLeftFarmWulin"
+            "_AutoEcoFarmInFarmAnchor": "_AutoEcoFarmInFarmWulin"
         },
         "next": [
             "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
@@ -296,10 +296,10 @@
             //JumpBack
         ]
     },
-    //确认是否离开武陵农场，离开则退出工作循环。如需更换目标农场，请修改下方 target 坐标，
+    //确认是否在武陵农场内，在则继续工作循环。如需更换目标农场，请修改下方 target 坐标，
     //将矩形范围扩大至覆盖整块目标农场的地图区域
-    "_AutoEcoFarmLeftFarmWulin": {
-        "desc": "确认是否离开武陵农场, 离开则退出工作循环",
+    "_AutoEcoFarmInFarmWulin": {
+        "desc": "确认在武陵农场内, 在则继续工作循环",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
@@ -316,9 +316,8 @@
             ],
             "precision": 1
         },
-        "inverse": true,
         "next": [
-            "_AutoEcoFarmCancelMove"
+            "_AutoEcoFarmJump"
         ]
     },
     //识别地图上农田标题的节点，改recognition内容
@@ -355,7 +354,38 @@
         "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
-        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "_AutoEcoFarmBlindWalkStartNavigateWulin"
+            ],
+            "strict": false
+        },
+        "next": [
+            "_AutoEcoFarmAssertOutsideBaseWulin",
+            "_AutoEcoFarmBlindWalkPhotoMode"
+        ]
+    },
+    "_AutoEcoFarmAssertOutsideBaseWulin": {
+        "desc": "[Wulin版]已经在基地外，无需盲走",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                660.75,
+                220.38,
+                51.34,
+                60.38
+            ]
+        },
+        "action": "DoNothing",
+        "next": ["_AutoEcoFarmGotoEcoFarmStart"]
+    },
+    "_AutoEcoFarmBlindWalkStartNavigateWulin": {
+        "desc": "[Wulin版]尝试直接走出基地",
+        "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
@@ -365,15 +395,13 @@
                     "zone_id": "Wuling_Base"
                 },
                 {
-                    "action": "HEADING",
-                    "angle": 80
+                    "action": "NAVMESH",
+                    "target": [
+                        673,
+                        230
+                    ]
                 }
             ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "_AutoEcoFarmBlindWalkPhotoMode"
-        ]
+        }
     }
 }

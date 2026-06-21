@@ -879,7 +879,6 @@
                     "name": "No",
                     "option": [
                         "SelectOperator",
-                        "GiftCount",
                         "SendWrongGift"
                     ],
                     "pipeline_override": {}
@@ -938,6 +937,9 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
+                        "GiftOperatorClickGift": {
+                            "repeat": 1
+                        },
                         "GiftOperatorClickGiftColorNumber": {
                             "recognition": {
                                 "param": {
@@ -949,6 +951,9 @@
                 },
                 {
                     "name": "No",
+                    "option": [
+                        "GiftCount"
+                    ],
                     "pipeline_override": {}
                 }
             ]

@@ -124,10 +124,10 @@
             "[JumpBack]_AutoEcoFarmCloseEquipment",
             //识别肥料界面，有的话关了
             "[JumpBack]_AutoEcoFarmCloseFertilizer",
-            //离开农场则退出工作循环
-            "[Anchor]_AutoEcoFarmLeftFarmAnchor",
             //识别工作按钮并点击
             "_AutoEcoFarmFindMenuIcon",
+            //在农场内则继续工作循环
+            "[Anchor]_AutoEcoFarmInFarmAnchor",
             //第二次保障，判断标记还在不在
             "_AutoEcoFarmTargetExists",
             //所有条件都不满足的情况下，启动最后一跳，再给一次机会
@@ -284,7 +284,7 @@
             "param": {
                 "custom_action": "autoEcoFarmInterruptibleSleep",
                 "custom_action_param": {
-                    "durationMs": 30000
+                    "durationMs": 60000
                 }
             }
         },
@@ -295,7 +295,7 @@
             "_AutoEcoFarmFindMenuLoop"
         ],
         "focus": {
-            "Node.Action.Starting": "等待30秒，让队友多干点活，不是脚本卡咯，别担心"
+            "Node.Action.Starting": "等待60秒，让队友多干点活，不是脚本卡咯，别担心"
         }
     },
     "_AutoEcoFarmCancelMove": {
@@ -313,7 +313,7 @@
     //下面是单纯靠近标记的节点
     "_AutoEcoFarmGotoTarget": {
         "desc": "不工作，直接走到标记消失为止",
-        "enabled": false,
+        "enabled": true,
         "next": [
             "_AutoEcoFarmJumpNotWork"
         ]

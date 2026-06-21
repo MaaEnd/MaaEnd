@@ -80,13 +80,23 @@
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
-    "SceneEnterMenuFriends": {
-        "desc": "从任意界面进入好友菜单",
+    "SceneEnterMenuFriendsAdd": {
+        "desc": "从任意界面进入好友添加菜单",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateWorldEnterMenuFriends",
+            "__ScenePrivateWorldEnterMenuFriendsAdd",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuFriendsList": {
+        "desc": "从任意界面进入好友列表菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuFriendsList",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },

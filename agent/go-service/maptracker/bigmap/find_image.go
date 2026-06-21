@@ -33,6 +33,8 @@ type MapTrackerBigMapFindImageParam struct {
 	WithRotation bool `json:"with_rotation,omitempty"`
 	// MapTrackerBigMapZoomParam is the transient field set for pre-zoom operation.
 	MapTrackerBigMapZoomParam
+	// MapTrackerBigMapInferParam controls big-map inference behavior via embedded MapTrackerBigMapInfer parameters.
+	MapTrackerBigMapInferParam
 	// MaxMatches controls the maximum number of matches to return.
 	MaxMatches int `json:"max_matches,omitempty"`
 	// MustSeePoints, if specified, will perform a multi-viewport search to cover all given map coordinates.
@@ -43,6 +45,7 @@ type MapTrackerBigMapFindImageParam struct {
 type MapTrackerBigMapFindImageMatch struct {
 	ScreenX  float64 `json:"ScreenX"`
 	ScreenY  float64 `json:"ScreenY"`
+	MapName  string  `json:"MapName"`
 	MapX     float64 `json:"MapX"`
 	MapY     float64 `json:"MapY"`
 	Conf     float64 `json:"Conf"`
@@ -50,7 +53,7 @@ type MapTrackerBigMapFindImageMatch struct {
 }
 
 var mapTrackerBigMapFindImageDefaultParam = MapTrackerBigMapFindImageParam{
-	Threshold:  0.6,
+	Threshold:  0.5,
 	MaxMatches: 32,
 }
 
@@ -242,7 +245,7 @@ func (r *MapTrackerBigMapFindImage) runSingleViewportSearch(
 	param *MapTrackerBigMapFindImageParam,
 ) (*maa.CustomRecognitionResult, bool) {
 	matchImg := arg.Img
-	inferRes, err := r.inferResultWithImg(ctx, arg, matchImg)
+	inferRes, err := r.inferResultWithImg(ctx, arg, matchImg, &param.MapTrackerBigMapInferParam)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to prepare big-map viewport for FindImage")
 		return nil, false
@@ -294,7 +297,7 @@ func (r *MapTrackerBigMapFindImage) runMultiViewportSearch(
 		log.Error().Err(err).Msg("Failed to get cached image in multi-viewport search")
 		return nil, false
 	}
-	inferRes, err = r.inferResultWithImg(ctx, arg, img)
+	inferRes, err = r.inferResultWithImg(ctx, arg, img, &param.MapTrackerBigMapInferParam)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to infer viewport in multi-viewport search")
 		return nil, false
@@ -339,7 +342,7 @@ func (r *MapTrackerBigMapFindImage) runMultiViewportSearch(
 			log.Error().Err(err).Msg("Failed to get cached image in multi-viewport search")
 			return nil, false
 		}
-		inferRes, err = r.inferResultWithImg(ctx, arg, img)
+		inferRes, err = r.inferResultWithImg(ctx, arg, img, &param.MapTrackerBigMapInferParam)
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to infer viewport in multi-viewport search")
 			return nil, false
@@ -379,6 +382,11 @@ func (r *MapTrackerBigMapFindImage) buildResult(
 			Msg("FindImage match")
 	}
 
+	// Backfill the inferred map name into each match for downstream consumers.
+	for i := range matches {
+		matches[i].MapName = mapName
+	}
+
 	detailJSON, err := json.Marshal(matches)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to marshal MapTrackerBigMapFindImage result")
@@ -400,12 +408,21 @@ func (r *MapTrackerBigMapFindImage) buildResult(
 	}, hit
 }
 
-func (r *MapTrackerBigMapFindImage) inferResultWithImg(ctx *maa.Context, arg *maa.CustomRecognitionArg, img any) (*MapTrackerBigMapInferResult, error) {
+func (r *MapTrackerBigMapFindImage) inferResultWithImg(ctx *maa.Context, arg *maa.CustomRecognitionArg, img any, inferParam *MapTrackerBigMapInferParam) (*MapTrackerBigMapInferResult, error) {
+	paramJSON := ""
+	if inferParam != nil {
+		paramBytes, err := json.Marshal(inferParam)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal MapTrackerBigMapInfer parameters: %w", err)
+		}
+		paramJSON = string(paramBytes)
+	}
+
 	resultWrapper, hit := MapTrackerBigMapInferRunner.Run(ctx, &maa.CustomRecognitionArg{
 		TaskID:                 arg.TaskID,
 		CurrentTaskName:        arg.CurrentTaskName,
 		CustomRecognitionName:  "MapTrackerBigMapInfer",
-		CustomRecognitionParam: "",
+		CustomRecognitionParam: paramJSON,
 		Img:                    img.(image.Image),
 		Roi:                    arg.Roi,
 	})

@@ -65,6 +65,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 500, // 加速等待运送委托列表加载完成
         "next": [
             "__SeizeDeliveryJobsInJobList",
             "[JumpBack]__SeizeDeliveryJobsEnterJobList"
@@ -92,7 +93,7 @@
             "__SeizeDeliveryJobsRecoJobListActive",
             "__SeizeDeliveryJobsRecoJobListLoaded"
         ],
-        "pre_wait_freezes": 500, // 等待所有加载动画结束
+        "pre_wait_freezes": 250,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -158,6 +159,7 @@
             -10
         ], // 点击识别位置稍左位置，并压缩点击高度，防止点到按钮外面
         "post_wait_freezes": 500, // 等待任务详情界面弹出
+        "rate_limit": 500, // 加速等待任务详情界面弹出
         "next": [
             "__SeizeDeliveryJobsViewDestinationMap",
             "__SeizeDeliveryJobsStartTrackingTask"
@@ -178,6 +180,7 @@
         "template": "SeizeDeliveryJobs/TrackTaskButton.png",
         "order_by": "Score",
         "action": "Click",
+        "rate_limit": 500, // 加速等待大地图弹出
         "next": [
             "__SeizeDeliveryJobsInDestinationMap"
         ],
@@ -239,9 +242,6 @@
         },
         "next": [
             "[Anchor]SeizeDeliveryJobsAfterEnterDestinationMap" // 外部调用者需要覆写此锚点的所指
-        ],
-        "focus": {
-            "Node.Action.Starting": "清理图标遮挡"
-        }
+        ]
     }
 }

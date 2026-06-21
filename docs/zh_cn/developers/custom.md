@@ -130,6 +130,19 @@ Action 节点用于执行自定义动作。常见写法如下：
 - 参数：
     - `duration: int`：长按持续时间（毫秒），必填。
 
+### AutoAltSwipeAction
+
+`AutoAltSwipeAction` 实现位于 `agent/go-service/common/autoalt`，用于执行 Alt + 滑动操作。先按下 Alt 键，再执行滑动，最后松开 Alt 键。
+
+- 参数（均可选，透传给子节点 `__AutoAltSwipeMouseSwipeAction` 的 Swipe 动作）：
+    - `begin?: [int, int] | [int, int, int, int]`：滑动起点；省略时默认 `arg.Box`。
+    - `end?: [int, int] | [int, int, int, int]`：滑动终点；省略时默认 `arg.Box`。
+    - `begin_offset?: [int, int, int, int]`：在默认起点（`arg.Box`）上叠加 `[dx, dy, dw, dh]`。
+    - `end_offset?: [int, int, int, int]`：在默认终点（`arg.Box`）上叠加 `[dx, dy, dw, dh]`。
+    - `duration?: int`：滑动持续时间（毫秒）。
+    - `end_hold?: int`：滑动结束后按住时长（毫秒）。
+    - `only_hover?: bool`：是否仅悬停滑动。
+
 ---
 
 ## Custom Recognition
@@ -239,5 +252,6 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 | 按星期几门控后续节点          | `ScheduleRecognition`         |
 | 在指定位置 Alt + 点击         | `AutoAltClickAction`          |
 | 在指定位置 Alt + 长按         | `AutoAltLongPressAction`      |
+| Alt + 滑动                    | `AutoAltSwipeAction`          |
 
 所有 Custom 的 Go 代码实现在 `agent/go-service/` 下，Pipeline 作者不需要关心，照文档参数写 JSON 就行。

@@ -18,8 +18,13 @@
         "desc": "在目的地地图界面，调用 custom 进行自动送货流程",
         "action": "Custom",
         "custom_action": "SeizeDeliveryJobsDepartureAction",
+        "custom_action_param": {
+            "map_name_regex": "map02_lv002|map02_lv005", // 所有可用的送货地图名称（后续增加新地区需要更新此值）
+            "zipline_policy": "Lazy", // 默认不优先使用滑索（可以覆写为 "Active"）
+            "is_retry": false
+        },
         "next": [
-            // 结束
+            // 此 CustomAction 内部会自行规划后续节点，故无需在此处指定 next
         ]
     },
     // ===== 分割线：下面的节点由 Go 调用 =====
@@ -50,7 +55,7 @@
         "action": "Click",
         "post_delay": 0,
         "next": [
-            // 完成
+            // 后续由 Go 内部逻辑来进行后续流程控制
         ],
         "focus": {
             "Node.Action.Starting": "成功识别目的地位置"
@@ -108,10 +113,12 @@
         "action": "Custom",
         "custom_action": "SeizeDeliveryJobsDepartureAction",
         "custom_action_param": {
+            "map_name_regex": "", // 重试使用的是缓存数据，此处不填即可
+            "zipline_policy": "Never", // 重试时玩家离终点很近，不要使用滑索
             "is_retry": true
         },
         "next": [
-            // 完成，后续由 Go 内部逻辑来重新调用提交货物分支
+            // 后续由 Go 内部逻辑来重新调用提交货物分支
         ],
         "focus": {
             "Node.Action.Starting": "准备重新前往终点"

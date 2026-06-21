@@ -473,6 +473,11 @@
                     "description": "Map points that must all be covered by the big-map viewport before matching.",
                     "type": "array",
                     "items": { "$ref": "#/$defs/Coordinate2I" }
+                },
+                "map_name_regex": {
+                    "title": "Map Name Regex",
+                    "description": "Regex to filter which maps participate in inference. When set, limits MapTrackerBigMapInfer to matching candidate maps only.",
+                    "type": "string"
                 }
             }
         }

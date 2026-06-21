@@ -17,6 +17,7 @@
             "AutoEssenceTryRechallengeFromBattleResult",
             "AutoEssenceClickEssenceStartButton",
             "[JumpBack]AutoEssenceCheckObtain",
+            "[JumpBack]AutoEssenceInObtain",
             "[JumpBack]AutoEssenceLocationSetupMaybeAutoMove",
             "[Anchor]AutoEssenceMoveToTriggerPoint"
         ]
@@ -364,7 +365,6 @@
             "param": {
                 "all_of": [
                     "AutoEssenceClickObtainButton"
-                    //"AutoEssenceCheckObtainText"ocr先放着，看看后面需不需要
                 ]
             }
         },
@@ -373,6 +373,46 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "已经是刷完状态"
+        }
+    },
+    "AutoEssenceInObtain": {
+        "desc": "确认领取奖励在最下方,需要滑动",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    738,
+                    335,
+                    445,
+                    300
+                ],
+                "expected": [
+                    "重度能量淤积点",
+                    "重度能量淤積點",
+                    "Severe Energy Alluvium",
+                    "重度超域活性点"
+                ]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltSwipeAction",
+                "custom_action_param": {
+                    "begin_offset": [
+                        0,
+                        30,
+                        0,
+                        -10
+                    ],
+                    "end_offset": [
+                        0,
+                        -120,
+                        0,
+                        0
+                    ]
+                }
+            }
         }
     },
     "AutoEssenceCheckObtainText": {
@@ -433,15 +473,7 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction",
-                "custom_action_param": {
-                    "target_offset": [
-                        -10,
-                        15,
-                        -10,
-                        -60
-                    ]
-                }
+                "custom_action": "AutoAltClickAction"
             }
         },
         "timeout": 2000,
@@ -501,15 +533,7 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction",
-                "custom_action_param": {
-                    "target_offset": [
-                        -10,
-                        60,
-                        -10,
-                        -60
-                    ]
-                }
+                "custom_action": "AutoAltClickAction"
             }
         },
         "timeout": 2000,

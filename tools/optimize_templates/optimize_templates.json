@@ -839,7 +839,7 @@
     "resource/image/TrialOfSwordmancy/TrialTrigger2": "04e926de4a49ae134fb76777cdecc9b0c54d215f67150f5fae43235dc1c9ffe8",
     "resource/image/TrialOfSwordmancy/DoubleReward": "422bb77719c93efda7eed9677b9c7ba4c7c77ab5a9423a087491ef5d00c8ab38",
     "resource/image/LevelUpOperator/LevelUpWhitePlus": "b992d4a36dcead56627d3a7c10946f28c35f9b94c1be907e2b268f18f2e352fb",
-    "resource/image/SeizeDeliveryJobs/BlueTaskLocation2": "37e0950910c82de9542f773cc2d51088f896f5baeed11833db1391dd7bfcda48",
+    "resource/image/SeizeDeliveryJobs/BlueTaskLocation2": "5437572f44f0b39bd95ebe284374890289d509d58dcae7b715501a8f3c14a924",
     "resource/image/SeizeDeliveryJobs/CarryingGoods": "329cc157b761c23d26abc5fe968a5adc3f496a1d843af210a6f6be0b87ecbc80",
     "resource/image/SeizeDeliveryJobs/DepotNodePage/JobRefresh": "f7f3e60b50690c5976afc020622cb6565e620546a1e763eb6617eac32d639565",
     "resource/image/SeizeDeliveryJobs/DepotNodePage/JobSeized": "f46858ce092bac79719e4c5be88bc94653bc66c732eb553c51abadf2bd0cea93",
@@ -872,5 +872,12 @@
     "resource/image/TrialOfSwordmancy/OverflowExclamation": "764c37d79f192ef848977b540212a1b93a8b42cff562de9d923dc4a0413f67ba",
     "resource/image/TrialOfSwordmancy/GiveUpNormal": "c30564332c3d5443de8b27675cc797dea7c99510518f8ab51ff50bd9b4e6953c",
     "resource/image/MapTracker/MiniMapIcons/Pointer": "5c7290606a9c4d9f14c330bb31a9f36981c28a7213c3d91a54b9c89a430c6373",
-    "resource/image/SeizeDeliveryJobs/DepotNodePage/JobListLoaded": "d3d0aacb5c41f4f8a85d8448fbd446c6a12c919c1093346d23e0814da64f94a6"
+    "resource/image/SeizeDeliveryJobs/DepotNodePage/JobListLoaded": "d3d0aacb5c41f4f8a85d8448fbd446c6a12c919c1093346d23e0814da64f94a6",
+    "resource/image/DailyRewards/RewardsPreviewIcon": "4ce28385ef9e7f1216565fb08943c2f14c5f20ac18c758b753cb2041d04b2533",
+    "resource/image/SceneManager/FriendsList2": "571ff96f2aa22118c6d5489182afed0cc645a23db2e729e03b01a62ccd575265",
+    "resource/image/SceneManager/FriendsAdd2": "0c075f32f6a47ebcd7b97e45a03bf84ee1711b45a5cd9b9f838aa74f16ed99f6",
+    "resource/image/SceneManager/FriendsAdd1": "ba548c8256ae580f911a2b0340668bb9590e158b3cfa912596097c816b91262f",
+    "resource/image/SceneManager/FriendsProfile1": "b1d6838404be0ceb58a971b98f2240eee767e364eaab81eb0a498c9e800eba5a",
+    "resource/image/SceneManager/FriendsProfile2": "298a7ea0d899048453305fd0e16ca2c8f4b018760eb9201a9c1de2b309f74e0e",
+    "resource/image/SceneManager/FriendsList1": "6ac664dcb26f4532741494f463278b89194653f0935aa979014325732ec50f01"
 }

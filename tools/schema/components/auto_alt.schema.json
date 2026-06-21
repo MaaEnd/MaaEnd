@@ -1,0 +1,108 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "AutoAlt Component Schema",
+    "description": "AutoAlt custom action parameter definitions. Referenced by custom.action.schema.json.",
+    "$defs": {
+        "Coordinate2I": {
+            "type": "array",
+            "description": "A 2D integer coordinate [x, y].",
+            "prefixItems": [
+                { "type": "integer" },
+                { "type": "integer" }
+            ],
+            "minItems": 2,
+            "maxItems": 2,
+            "items": false
+        },
+        "Rect4I": {
+            "type": "array",
+            "description": "A rectangle [x, y, w, h].",
+            "prefixItems": [
+                { "type": "integer" },
+                { "type": "integer" },
+                { "type": "integer" },
+                { "type": "integer" }
+            ],
+            "minItems": 4,
+            "maxItems": 4,
+            "items": false
+        },
+        "SwipePoint": {
+            "description": "Swipe begin/end point: [x, y] or [x, y, w, h].",
+            "oneOf": [
+                { "$ref": "#/$defs/Coordinate2I" },
+                { "$ref": "#/$defs/Rect4I" }
+            ]
+        },
+        "AutoAltClickParam": {
+            "type": "object",
+            "description": "Optional target_offset applied to the recognition box before clicking.",
+            "additionalProperties": false,
+            "properties": {
+                "target_offset": {
+                    "title": "Target Offset",
+                    "description": "Offset [dx, dy, dw, dh] applied to the recognition box before clicking.",
+                    "$ref": "#/$defs/Rect4I"
+                }
+            }
+        },
+        "AutoAltLongPressParam": {
+            "type": "object",
+            "description": "Alt + long press parameters.",
+            "additionalProperties": false,
+            "required": [ "duration" ],
+            "properties": {
+                "duration": {
+                    "title": "Duration",
+                    "description": "Long press duration in milliseconds.",
+                    "type": "integer",
+                    "exclusiveMinimum": 0
+                }
+            }
+        },
+        "AutoAltSwipeParam": {
+            "type": "object",
+            "description": "Alt + swipe parameters forwarded to the sub-node Swipe action. begin/end default to arg.Box when omitted.",
+            "additionalProperties": false,
+            "properties": {
+                "begin": {
+                    "title": "Begin",
+                    "description": "Override swipe start. Omit to use arg.Box.",
+                    "$ref": "#/$defs/SwipePoint"
+                },
+                "end": {
+                    "title": "End",
+                    "description": "Override swipe end. Omit to use arg.Box.",
+                    "$ref": "#/$defs/SwipePoint"
+                },
+                "begin_offset": {
+                    "title": "Begin Offset",
+                    "description": "Offset [dx, dy, dw, dh] applied to begin when it defaults to the recognition box.",
+                    "$ref": "#/$defs/Rect4I"
+                },
+                "end_offset": {
+                    "title": "End Offset",
+                    "description": "Offset [dx, dy, dw, dh] applied to end when it defaults to the recognition box.",
+                    "$ref": "#/$defs/Rect4I"
+                },
+                "duration": {
+                    "title": "Duration",
+                    "description": "Swipe duration in milliseconds.",
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "end_hold": {
+                    "title": "End Hold",
+                    "description": "Extra hold time at the end point in milliseconds.",
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "only_hover": {
+                    "title": "Only Hover",
+                    "description": "Hover-only swipe without press/release.",
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}

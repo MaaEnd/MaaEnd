@@ -2,9 +2,10 @@
     "MapTrackerStuckMitigator_MoveOrDeleteDevice": {
         "pre_delay": 0,
         "post_delay": 0,
+        "timeout": 5000,
         "next": [
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractReco",
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit"
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractReco"
+            //"__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit"
         ]
     },
     "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractReco": {
@@ -56,14 +57,15 @@
                 "key": 18 // Alt
             }
         },
+        "timeout": 5000,
         "next": [
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_DeleteDevice",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveDevice",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveAICCore",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_SkipChat",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseBagDialog",
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseUnknownDeviceDialog",
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit"
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseUnknownDeviceDialog"
+            //"__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit"
         ]
     },
     "__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit": {

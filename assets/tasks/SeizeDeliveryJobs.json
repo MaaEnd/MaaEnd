@@ -6,7 +6,8 @@
             "label": "$task.SeizeDeliveryJobs.label",
             "entry": "SeizeDeliveryJobsMain",
             "option": [
-                "SeizeDeliveryJobsCommissionSource"
+                "SeizeDeliveryJobsCommissionSource",
+                "SeizeDeliveryJobsPostProcessing"
             ],
             "controller": [
                 "Win32-Front",
@@ -28,7 +29,6 @@
                     "label": "$task.SeizeDeliveryJobsCommissionSource.cases.WulingCity.label",
                     "option": [
                         "SeizeDeliveryJobsRewardWulingCity",
-                        "SeizeDeliveryJobsPostProcessing",
                         "SeizeDeliveryJobsSpecifyDeliveryPointWulingCity"
                     ]
                 },
@@ -37,7 +37,6 @@
                     "label": "$task.SeizeDeliveryJobsCommissionSource.cases.TestArea.label",
                     "option": [
                         "SeizeDeliveryJobsRewardTestArea",
-                        "SeizeDeliveryJobsPostProcessing",
                         "SeizeDeliveryJobsSpecifyDeliveryPointTestArea"
                     ]
                 }
@@ -125,22 +124,11 @@
                     }
                 },
                 {
-                    "name": "TeleWalkFetch",
-                    "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalkFetch.label",
-                    "pipeline_override": {
-                        "SeizeDeliveryJobsPostProcessingEntry": {
-                            "enabled": true
-                        },
-                        "SeizeDeliveryJobsSuccessFetchGoods": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
                     "name": "TeleWalkFetchDeliver",
                     "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalkFetchDeliver.label",
                     "option": [
-                        "SeizeDeliveryJobsPostDepartureRiskAcknowledgement"
+                        "SeizeDeliveryJobsPostDepartureRiskAcknowledgement",
+                        "SeizeDeliveryJobsPostDeparturePreferZipline"
                     ],
                     "pipeline_override": {
                         "SeizeDeliveryJobsPostProcessingEntry": {
@@ -169,6 +157,29 @@
                 },
                 {
                     "name": "Yes"
+                }
+            ]
+        },
+        "SeizeDeliveryJobsPostDeparturePreferZipline": {
+            "type": "switch",
+            "label": "$task.SeizeDeliveryJobsPostDeparturePreferZipline.label",
+            "description": "$task.SeizeDeliveryJobsPostDeparturePreferZipline.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsRunDeparture": {
+                            "custom_action_param": {
+                                "map_name_regex": "map02_lv002|map02_lv005", // 所有可用的送货地图名称（后续增加新地区需要更新此值）
+                                "zipline_policy": "Active",
+                                "is_retry": false
+                            }
+                        }
+                    }
                 }
             ]
         },
