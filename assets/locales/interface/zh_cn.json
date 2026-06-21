@@ -728,7 +728,7 @@
     "option.AutoUseSpMedicationUseCount.description": "本次任务使用的应急理智加强剂数量",
     "option.AutoUseSpMedicationUseCount.inputs.UseCount.label": "使用数量",
     "option.AutoUseSpMedicationUseCount.inputs.UseCount.description": "需要使用的应急理智加强剂数量",
-    "option.AutoUseSpMedicationUseCount.inputs.UseCount.pattern_msg": "请输入1到15之间的整数",
+    "option.AutoUseSpMedicationUseCount.inputs.UseCount.pattern_msg": "请输入1到99之间的整数",
     "option.AutoUseSpMedicationMaxSanity.label": "最大使用理智",
     "option.AutoUseSpMedicationMaxSanity.description": "当前理智达到该值时停止继续使用应急理智加强剂",
     "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.label": "最大使用理智",

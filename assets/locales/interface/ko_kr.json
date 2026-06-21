@@ -728,7 +728,7 @@
     "option.AutoUseSpMedicationUseCount.description": "이번 작업에서 사용할 응급 이성 강화제 개수",
     "option.AutoUseSpMedicationUseCount.inputs.UseCount.label": "사용 개수",
     "option.AutoUseSpMedicationUseCount.inputs.UseCount.description": "사용할 응급 이성 강화제 개수",
-    "option.AutoUseSpMedicationUseCount.inputs.UseCount.pattern_msg": "1에서 15 사이의 정수를 입력하세요",
+    "option.AutoUseSpMedicationUseCount.inputs.UseCount.pattern_msg": "1에서 99 사이의 정수를 입력하세요",
     "option.AutoUseSpMedicationMaxSanity.label": "최대 사용 이성",
     "option.AutoUseSpMedicationMaxSanity.description": "현재 이성이 이 값에 도달하면 응급 이성 강화제 사용을 중단합니다",
     "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.label": "최대 사용 이성",

@@ -728,7 +728,7 @@
     "option.AutoUseSpMedicationUseCount.description": "Number of emergency sanity boosters to use in this run",
     "option.AutoUseSpMedicationUseCount.inputs.UseCount.label": "Use count",
     "option.AutoUseSpMedicationUseCount.inputs.UseCount.description": "Number of emergency sanity boosters to use",
-    "option.AutoUseSpMedicationUseCount.inputs.UseCount.pattern_msg": "Please enter an integer between 1 and 15",
+    "option.AutoUseSpMedicationUseCount.inputs.UseCount.pattern_msg": "Please enter an integer between 1 and 99",
     "option.AutoUseSpMedicationMaxSanity.label": "Max sanity to use",
     "option.AutoUseSpMedicationMaxSanity.description": "Stop using emergency sanity boosters when current sanity reaches this value",
     "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.label": "Max sanity to use",

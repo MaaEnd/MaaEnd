@@ -534,7 +534,7 @@
     "option.AutoUseSpMedicationUseCount.description": "本次任務使用的應急理智加強劑數量",
     "option.AutoUseSpMedicationUseCount.inputs.UseCount.label": "使用數量",
     "option.AutoUseSpMedicationUseCount.inputs.UseCount.description": "需要使用的應急理智加強劑數量",
-    "option.AutoUseSpMedicationUseCount.inputs.UseCount.pattern_msg": "請輸入1到15之間的整數",
+    "option.AutoUseSpMedicationUseCount.inputs.UseCount.pattern_msg": "請輸入1到99之間的整數",
     "option.AutoUseSpMedicationMaxSanity.label": "最大使用理智",
     "option.AutoUseSpMedicationMaxSanity.description": "當前理智達到該值時停止繼續使用應急理智加強劑",
     "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.label": "最大使用理智",
