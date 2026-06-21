@@ -1,0 +1,10 @@
+{
+    "ColorRecognitionEmergencySanityBoosterDeadline": {
+        "roi_offset": [
+            0,
+            0,
+            -64,
+            -103
+        ]
+    }
+}
