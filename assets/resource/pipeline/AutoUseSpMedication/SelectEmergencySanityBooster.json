@@ -12,7 +12,7 @@
             "AutoUseSpMedicationUseEmergencySpBooster"
         ],
         "focus": {
-            "Node.Action.Starting": "开始选择应急理智加强剂"
+            "Node.Action.Starting": "$task.AutoUseSpMedication.focus.select_booster_starting"
         }
     }
 }

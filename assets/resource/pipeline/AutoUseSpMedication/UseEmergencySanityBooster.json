@@ -17,6 +17,81 @@
             "AutoUseSpMedicationQuickUseCancel"
         ]
     },
+    "AutoUseSpMedicationCheckSanity": {
+        "desc": "检查理智",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{AutoUseSpMedicationCurrentSanity}<999",
+                    "box_node": "AutoUseSpMedicationCurrentSanity"
+                }
+            }
+        },
+        "action": {
+            "type": "StopTask"
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoUseSpMedication.focus.check_sanity_insufficient"
+        }
+    },
+    "AutoUseSpMedicationCurrentSanity": {
+        "desc": "检查当前理智数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoUseSpMedicationCurrentSanityColor",
+                    "AutoUseSpMedicationCurrentSanityText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "AutoUseSpMedicationCurrentSanityColor": {
+        "desc": "识别当前理智颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    276,
+                    107,
+                    765,
+                    356
+                ],
+                "lower": [
+                    95,
+                    200,
+                    235
+                ],
+                "upper": [
+                    105,
+                    255,
+                    255
+                ],
+                "count": 10
+            }
+        }
+    },
+    "AutoUseSpMedicationCurrentSanityText": {
+        "desc": "识别当前理智文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoUseSpMedicationCurrentSanityColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [
+                    "\\d+"
+                ]
+            }
+        }
+    },
     "AutoUseSpMedicationQuickUse": {
         "desc": "确认使用应急理智加强剂",
         "recognition": {
@@ -112,7 +187,7 @@
         "custom_action": "FalseAction",
         "post_delay": 0,
         "focus": {
-            "Node.Recognition.Succeeded": "快捷使用出错，结束任务"
+            "Node.Recognition.Succeeded": "$task.AutoUseSpMedication.focus.quick_use_error"
         }
     },
     "AutoUseSpMedicationQuickUseCancel": {
@@ -135,7 +210,7 @@
             "AutoUseSpMedicationQuickUseError"
         ],
         "focus": {
-            "Node.Action.Succeeded": "无法使用应急理智加强剂！"
+            "Node.Action.Succeeded": "$task.AutoUseSpMedication.focus.quick_use_unavailable"
         }
     }
 }

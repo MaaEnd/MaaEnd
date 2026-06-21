@@ -15,7 +15,8 @@
             ],
             "option": [
                 "AutoUseSpMedicationExpireWithinDays",
-                "AutoUseSpMedicationUseCount"
+                "AutoUseSpMedicationUseCount",
+                "AutoUseSpMedicationMaxSanity"
             ]
         }
     ],
@@ -159,6 +160,33 @@
             "pipeline_override": {
                 "AutoUseSpMedicationLoop": {
                     "max_hit": "{UseCount}"
+                }
+            }
+        },
+        "AutoUseSpMedicationMaxSanity": {
+            "type": "input",
+            "label": "$option.AutoUseSpMedicationMaxSanity.label",
+            "description": "$option.AutoUseSpMedicationMaxSanity.description",
+            "inputs": [
+                {
+                    "name": "MaxSanity",
+                    "label": "$option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.label",
+                    "description": "$option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.description",
+                    "default": "999",
+                    "pipeline_type": "int",
+                    "pattern_msg": "$option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.pattern_msg",
+                    "verify": "^([1-9]|[1-9]\\d{1,2})$"
+                }
+            ],
+            "pipeline_override": {
+                "AutoUseSpMedicationCheckSanity": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoUseSpMedicationCurrentSanity}<{MaxSanity}"
+                            }
+                        }
+                    }
                 }
             }
         }
