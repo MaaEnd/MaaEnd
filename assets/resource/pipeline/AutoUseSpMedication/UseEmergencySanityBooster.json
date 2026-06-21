@@ -1,0 +1,141 @@
+{
+    "AutoUseSpMedicationUseEmergencySpBooster": {
+        "desc": "点击详情页的使用按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1"
+                ],
+                "box_index": 0
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "next": [
+            "AutoUseSpMedicationQuickUse",
+            "AutoUseSpMedicationQuickUseCancel"
+        ]
+    },
+    "AutoUseSpMedicationQuickUse": {
+        "desc": "确认使用应急理智加强剂",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType2",
+                    {
+                        "param": {
+                            "expected": [
+                                "快捷使用",
+                                "Quick Use"
+                            ],
+                            "roi": [
+                                190,
+                                205,
+                                155,
+                                35
+                            ]
+                        },
+                        "type": "OCR"
+                    },
+                    {
+                        //冗余检测，避免用错
+                        "type": "OCR",
+                        "param": {
+                            "expected": [
+                                "应急理智加强剂",
+                                "緊急理智加強劑",
+                                "Emergency Sanity Booster"
+                            ],
+                            "roi": [
+                                350,
+                                335,
+                                160,
+                                40
+                            ]
+                        }
+                    }
+                ],
+                "box_index": 0
+            }
+        },
+        "action": "Click",
+        "timeout": 5000,
+        "next": [
+            "AutoUseSpMedicationRewardsConfirm"
+        ]
+    },
+    "AutoUseSpMedicationRewardsConfirm": {
+        "desc": "点击奖励界面的确认按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "SceneNoticeRewardsConfirm"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 400,
+            "timeout": 5000,
+            "target": [
+                230,
+                250,
+                800,
+                200
+            ]
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 2000,
+            "target": [
+                500,
+                0,
+                280,
+                200
+            ]
+        },
+        "next": [
+            "AutoUseSpMedicationLoop",
+            "AutoUseSpMedicationFinish"
+        ]
+    },
+    "AutoUseSpMedicationQuickUseError": {
+        "desc": "提示错误并结束任务",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "快捷使用出错，结束任务"
+        }
+    },
+    "AutoUseSpMedicationQuickUseCancel": {
+        "desc": "退出快捷使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1084,
+                    203,
+                    33,
+                    31
+                ],
+                "template": "Valuables/Close.png",
+                "threshold": 0.8
+            }
+        },
+        "action": "Click",
+        "next": [
+            "AutoUseSpMedicationQuickUseError"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "无法使用应急理智加强剂！"
+        }
+    }
+}

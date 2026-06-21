@@ -1,0 +1,92 @@
+{
+    "FindGreenDeadlineEmergencySanityBooster": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    30,
+                    80,
+                    940,
+                    560
+                ],
+                "template": "Valuables/EmergencySpBooster.png",
+                "green_mask": true,
+                "threshold": 0.84,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "ColorRecognitionGreenEmergencySanityBooster": {
+        "desc": "颜色识别,确认是绿色时限的应急理智加强剂",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "FindGreenDeadlineEmergencySanityBooster",
+                "roi_offset": [
+                    0,
+                    0,
+                    -79,
+                    -81
+                ],
+                "method": 40,
+                "lower": [
+                    50,
+                    0,
+                    0
+                ],
+                "upper": [
+                    90,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 100
+            }
+        }
+    },
+    "FindRedDeadlineEmergencySanityBooster": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    30,
+                    80,
+                    940,
+                    560
+                ],
+                "template": "Valuables/EmergencySpBooster.png",
+                "green_mask": true,
+                "threshold": 0.84,
+                "order_by": "Score"
+            }
+        }
+    },
+    "ColorRecognitionRedEmergencySanityBooster": {
+        "desc": "颜色识别,确认是红色时限的应急理智加强剂",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "FindRedDeadlineEmergencySanityBooster",
+                "roi_offset": [
+                    0,
+                    0,
+                    -79,
+                    -81
+                ],
+                "method": 40,
+                "lower": [
+                    161,
+                    0,
+                    0
+                ],
+                "upper": [
+                    191,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 100
+            }
+        }
+    }
+}

@@ -1,0 +1,55 @@
+{
+    "AutoUseSpMedicationSelectGreenDeadlineEmergencySanityBooster": {
+        "desc": "选择任意时限应急理智加强剂",
+        "enabled": true,
+        "recognition": "Or",
+        "any_of": [
+            "AutoUseSpMedicationFindRedDeadlineEmergencySanityBooster",
+            "AutoUseSpMedicationFindGreenDeadlineEmergencySanityBooster"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "next": [
+            "AutoUseSpMedicationUseEmergencySpBooster"
+        ],
+        "focus": {
+            "Node.Action.Starting": "开始选择应急理智加强剂"
+        }
+    },
+    "AutoUseSpMedicationFindGreenDeadlineEmergencySanityBooster": {
+        "desc": "识别绿色时限(大于7天)应急理智加强剂",
+        "recognition": "And",
+        "all_of": [
+            "FindGreenDeadlineEmergencySanityBooster",
+            "ColorRecognitionGreenEmergencySanityBooster"
+        ]
+    },
+    "AutoUseSpMedicationSelectRedDeadlineEmergencySanityBooster": {
+        "desc": "选择红色时限应急理智加强剂",
+        "enabled": true,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoUseSpMedicationFindRedDeadlineEmergencySanityBooster"
+                ]
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "next": [
+            "AutoUseSpMedicationUseEmergencySpBooster"
+        ],
+        "focus": {
+            "Node.Action.Starting": "开始选择即将过期的应急理智加强剂"
+        }
+    },
+    "AutoUseSpMedicationFindRedDeadlineEmergencySanityBooster": {
+        "desc": "识别红色时限(小于7天)应急理智加强剂",
+        "recognition": "And",
+        "all_of": [
+            "FindRedDeadlineEmergencySanityBooster",
+            "ColorRecognitionRedEmergencySanityBooster"
+        ]
+    }
+}
