@@ -205,12 +205,6 @@
                     "pipeline_override": {
                         "SeizeDeliveryJobsMain": {
                             "max_hit": 2
-                        },
-                        "SeizeDeliveryJobsCloseRewardDialog": {
-                            "next": ["SeizeDeliveryJobsMain"],
-                            "focus": {
-                                "Node.Action.Starting": "$task.SeizeDeliveryJobs.focus.loopBack"
-                            }
                         }
                     }
                 },
@@ -220,12 +214,6 @@
                     "pipeline_override": {
                         "SeizeDeliveryJobsMain": {
                             "max_hit": 3
-                        },
-                        "SeizeDeliveryJobsCloseRewardDialog": {
-                            "next": ["SeizeDeliveryJobsMain"],
-                            "focus": {
-                                "Node.Action.Starting": "$task.SeizeDeliveryJobs.focus.loopBack"
-                            }
                         }
                     }
                 }

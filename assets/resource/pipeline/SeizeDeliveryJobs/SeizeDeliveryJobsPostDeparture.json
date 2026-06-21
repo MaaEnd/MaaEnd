@@ -103,6 +103,10 @@
         ],
         "pre_wait_freezes": 500, // 等待奖励动画播放完毕
         "action": "Click",
+        "next": [
+            "SeizeDeliveryJobsMain", // 有剩余次数时继续循环
+            "SeizeDeliveryJobsTaskEnd" // 次数用尽时结束任务
+        ],
         "focus": {
             "Node.Action.Starting": "**成功提交货物**"
         }
