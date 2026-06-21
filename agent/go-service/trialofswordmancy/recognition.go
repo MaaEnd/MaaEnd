@@ -6,7 +6,6 @@ import (
 	"image"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy/solver"
@@ -71,7 +70,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	// 改为留 -1 → 求解器判不可达 → Decide 动作 return false（一次性中止，不重试）。
 	remainAband := getAband()
 	if remainAband < 0 {
-		if n := r.probeAband(ctx, arg.Img); n >= 0 {
+		if n := r.probeAband(ctx); n >= 0 {
 			remainAband = n
 			setAband(n)
 		}
@@ -183,81 +182,41 @@ func recognizeIsDoubled(ctx *maa.Context, img image.Image) bool {
 	return runTemplateHit(ctx, img, nodeIsDoubled)
 }
 
-// probeAband 探测剩余放弃次数：点放弃 → 轮询 CancelButton 直到弹窗出现 → OCR 弹窗 → 点取消 → 等回抽牌页。
-// 返回读到的次数（0-3），读不到返回 -1。有副作用（点击、截屏），仅在 getAband()<0 时调用一次。
-func (r *Recognition) probeAband(ctx *maa.Context, img image.Image) int {
-	giveUpBox, ok := findNodeBox(ctx, img, nodeGiveUpButton)
-	if !ok {
-		log.Warn().Str("component", component).Msg("probeAband: 放弃按钮未找到")
-		return -1
-	}
-	if err := clickBox(ctx, giveUpBox); err != nil {
-		log.Warn().Err(err).Str("component", component).Msg("probeAband: 点击放弃失败")
+// probeAband 探测剩余放弃次数：跑两段 pipeline 子链，go 在中间读一次放弃弹窗 OCR。
+//
+// 子链定义在 TrialOfSwordmancyCommon.json（TrialOfSwordmancyAbandProbe*）：
+//   - ① 点放弃 → 轮询等放弃确认弹窗出现（弹窗留在屏上，子链结束）；
+//   - ② 点取消 → 轮询等回抽牌页（EnemyCard1）→ freeze。
+//
+// 交互/等待/点击全在 pipeline 里——pipeline 的 next 本身就是带重试的轮询（MaaFramework
+// PipelineTask::run_next：截图→识别 next 候选→没中就 sleep rate_limit 重试，直到 timeout），
+// 等价于以前 go 手写的两个轮询循环。go 只负责触发子链 + 在两段之间取一次 OCR 文本。
+// 返回读到的次数（0-3），读不到返回 -1。仅在 getAband()<0 时调用一次。
+func (r *Recognition) probeAband(ctx *maa.Context) int {
+	// ① 点放弃 → 等弹窗。RunTask 返回即弹窗已在屏上（WaitPopup 命中 CancelButton 后子链结束、空 next）。
+	if _, err := ctx.RunTask(nodeAbandProbeClickGiveUp); err != nil {
+		log.Warn().Err(err).Str("component", component).Msg("probeAband: 点放弃/等弹窗失败")
 		return -1
 	}
 
-	// 轮询等待放弃确认弹窗出现：每 300ms 截图识别 CancelButton，命中即弹窗已开（替代固定延时，更稳）。
+	// go 取 OCR：弹窗在屏上，截一张图跑放弃弹窗 OCR。
 	ctrl := ctx.GetTasker().GetController()
 	if ctrl == nil {
+		log.Warn().Str("component", component).Msg("probeAband: controller 为空")
 		return -1
 	}
-	const probeInterval = 300 * time.Millisecond
-	deadline := time.Now().Add(10 * time.Second) // 兜底超时，弹窗没弹时不死循环
-	var popup image.Image
-	for time.Now().Before(deadline) {
-		time.Sleep(probeInterval)
-		ctrl.PostScreencap().Wait()
-		fresh, err := ctrl.CacheImage()
-		if err != nil || fresh == nil {
-			continue
-		}
-		if _, hit := findNodeBox(ctx, fresh, nodeCancelButton); hit {
-			popup = fresh
-			break
-		}
-	}
-	if popup == nil {
-		log.Warn().Str("component", component).Msg("probeAband: 等待放弃弹窗超时（CancelButton 未出现）")
+	ctrl.PostScreencap().Wait()
+	img, err := ctrl.CacheImage()
+	if err != nil || img == nil {
+		log.Warn().Err(err).Str("component", component).Msg("probeAband: 截屏失败")
 		return -1
 	}
-
-	// 弹窗已开：OCR 剩余放弃次数
-	text, _ := ocrNodeText(ctx, popup, nodeAbandPopup)
+	text, _ := ocrNodeText(ctx, img, nodeAbandPopup)
 	count := parseAbandCount(text)
 
-	// 点取消关闭弹窗
-	if cancelBox, ok := findNodeBox(ctx, popup, nodeCancelButton); ok {
-		if err := clickBox(ctx, cancelBox); err != nil {
-			log.Warn().Err(err).Str("component", component).Msg("probeAband: 点击取消失败，弹窗可能残留")
-		}
-	} else {
-		log.Warn().Str("component", component).Msg("probeAband: 取消按钮未找到，弹窗可能残留")
-	}
-
-	// 点完取消后轮询等待回到抽牌界面：每 300ms 截图识别第1张卡牌 Lv 图标，命中即已回抽牌页
-	// （与前面等待放弃弹窗同构的循环识别，比固定 WaitFreezes 更稳）。
-	deadline = time.Now().Add(10 * time.Second) // 兜底超时，弹窗关闭动画没结束时也不死循环
-	backToCard := false
-	for time.Now().Before(deadline) {
-		time.Sleep(probeInterval)
-		ctrl.PostScreencap().Wait()
-		fresh, err := ctrl.CacheImage()
-		if err != nil || fresh == nil {
-			continue
-		}
-		if runTemplateHit(ctx, fresh, nodeEnemyCard1) {
-			backToCard = true
-			break
-		}
-	}
-	if !backToCard {
-		log.Warn().Str("component", component).Msg("probeAband: 等待回抽牌页超时（EnemyCard1 未出现）")
-	}
-
-	// 仅识别到 Lv 还不够稳：之后若不等画面静止，后续「点击演算」会失效。
-	// 故命中后再补一次 WaitFreezes（roi 沿用抽牌 freeze 的 [62,146,1191,289]）。
-	if err := ctx.WaitFreezes(200*time.Millisecond, &maa.Rect{62, 146, 1191, 289}, nil); err != nil {
-		log.Warn().Err(err).Str("component", component).Msg("probeAband: 等待回抽牌页 freeze 超时")
+	// ② 点取消 → 等回抽牌页 → freeze。失败只记日志（次数已读到，界面若残留由上游兜底）。
+	if _, err := ctx.RunTask(nodeAbandProbeClickCancel); err != nil {
+		log.Warn().Err(err).Str("component", component).Msg("probeAband: 点取消/等回抽牌页失败，界面可能残留")
 	}
 
 	if count < 0 {
@@ -266,23 +225,6 @@ func (r *Recognition) probeAband(ctx *maa.Context, img image.Image) int {
 		log.Info().Str("component", component).Int("aband", count).Str("ocr", text).Msg("probeAband: 探测到剩余放弃次数")
 	}
 	return count
-}
-
-// findNodeBox 跑一个识别节点，返回命中框。
-func findNodeBox(ctx *maa.Context, img image.Image, nodeName string) (maa.Rect, bool) {
-	detail, err := ctx.RunRecognition(nodeName, img, nil)
-	if err != nil || detail == nil || !detail.Hit {
-		return maa.Rect{}, false
-	}
-	return detail.Box, true
-}
-
-// clickBox 点击给定框中心。
-func clickBox(ctx *maa.Context, box maa.Rect) error {
-	_, err := ctx.RunActionDirect(maa.ActionTypeClick, &maa.ClickParam{
-		Target: maa.NewTargetRect(box),
-	}, box, nil)
-	return err
 }
 
 // ocrNodeText 跑一个 OCR 节点，返回该 ROI 内所有识别框文本的拼接。

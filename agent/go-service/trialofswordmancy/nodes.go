@@ -18,7 +18,6 @@ const (
 	nodeDrawCard            = "TrialOfSwordmancyDrawCard"            // 抽牌按钮
 	nodeDoubleReward        = "TrialOfSwordmancyDoubleReward"        // 翻倍按钮
 	nodeOverflowExclamation = "TrialOfSwordmancyOverflowExclamation" // 溢出（爆表）叹号
-	nodeEnemyCard1          = "TrialOfSwordmancyEnemyCard1"          // 第1张卡牌 Lv（在场=已回抽牌界面）
 
 	// 决策执行节点（节点自行点击按钮 + 等动画，完成后 next 回 Decide）。
 	nodeDoDrawCard            = "TrialOfSwordmancyDoDrawCard"            // 抽一张牌
@@ -30,9 +29,11 @@ const (
 	nodeGiveUp     = "TrialOfSwordmancyDailyGiveUp" // 放弃本局 → 确认 → 重置寻路 → 回主入口
 	nodeStartTrial = "TrialOfSwordmancyStartTrial"  // 开始演算 → 编队 → 战斗 → 领奖
 
-	// 探测剩余放弃次数时点击的两个按钮。
-	nodeGiveUpButton = "TrialOfSwordmancyGiveUp" // 放弃按钮（点击弹放弃确认框）
-	nodeCancelButton = "CancelButton"            // 通用取消按钮（点击不放弃、回正常界面）
+	// 探测剩余放弃次数的两段子链入口（节点定义在 TrialOfSwordmancyCommon.json，go 经 ctx.RunTask 触发）：
+	//   - ClickGiveUp：点放弃 → 轮询等弹窗（弹窗留屏，go 夹在中间读 OCR）。
+	//   - ClickCancel：点取消 → 轮询等回抽牌页 → freeze。
+	nodeAbandProbeClickGiveUp = "TrialOfSwordmancyAbandProbeClickGiveUp"
+	nodeAbandProbeClickCancel = "TrialOfSwordmancyAbandProbeClickCancel"
 )
 
 // go-service 专用识别节点名（定义在 TrialOfSwordmancyCommon.json 的 [go] 区，ROI/模板都在 JSON 里）。

@@ -452,5 +452,69 @@
             47
         ],
         "template": "TrialOfSwordmancy/OverflowExclamation.png"
+    },
+
+    // ===========================================================================
+    // 探测剩余放弃次数子链（go 经 ctx.RunTask 触发，见 recognition.go 的 probeAband）。
+    // 交互/等待/点击全在此；go 只触发子链 + 在两段之间取一次放弃弹窗 OCR。
+    //
+    // 关键：pipeline 的 next 本身就是带重试的轮询（MaaFramework PipelineTask::run_next：
+    // 截图→识别 next 候选→没中就 sleep rate_limit 重试，直到 timeout）。故「等弹窗出现」「等回抽牌页」
+    // 这类时序等待无需 go 手写循环。rate_limit/timeout 设在「点击」节点上——它同时管「本节点识别命中」
+    // 与「点完后等下一个节点出现」两段轮询（run_next 用当前节点的 timing 去轮询其 next）。
+    // ===========================================================================
+
+    // 子链①：点放弃 → 轮询等放弃确认弹窗出现。命中 CancelButton 后子链结束（空 next），弹窗留在屏上供 go OCR。
+    "TrialOfSwordmancyAbandProbeClickGiveUp": {
+        "desc": "[go] 探测放弃次数①：点放弃按钮（并以其 timing 轮询等弹窗）",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyGiveUp"
+        ],
+        "action": "Click",
+        "rate_limit": 300,
+        "timeout": 10000,
+        "next": [
+            "TrialOfSwordmancyAbandProbeWaitPopup"
+        ]
+    },
+    "TrialOfSwordmancyAbandProbeWaitPopup": {
+        "desc": "[go] 探测放弃次数①：等放弃确认弹窗出现（命中即子链结束，弹窗留屏供 go OCR）",
+        "recognition": "And",
+        "all_of": [
+            "CancelButton"
+        ],
+        "next": []
+    },
+    // 子链②：点取消 → 轮询等回抽牌页（EnemyCard1 在场）→ freeze（roi 沿用抽牌 freeze 的 [62,146,1191,289]）。
+    "TrialOfSwordmancyAbandProbeClickCancel": {
+        "desc": "[go] 探测放弃次数②：点取消按钮（并以其 timing 轮询等回抽牌页）",
+        "recognition": "And",
+        "all_of": [
+            "CancelButton"
+        ],
+        "action": "Click",
+        "rate_limit": 300,
+        "timeout": 10000,
+        "next": [
+            "TrialOfSwordmancyAbandProbeWaitBackFreeze"
+        ]
+    },
+    "TrialOfSwordmancyAbandProbeWaitBackFreeze": {
+        "desc": "[go] 探测放弃次数②：等回抽牌页并 freeze",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyEnemyCard1"
+        ],
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                62,
+                146,
+                1191,
+                289
+            ]
+        },
+        "next": []
     }
 }
