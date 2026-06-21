@@ -6,9 +6,14 @@ export default {
         maafwSort.patchPlugin(multilineArrays),
     ],
     multilineArraysWrapThreshold: 1,
+    maafwPipelinePatterns: [
+        "/pipeline/.*\\.jsonc?",
+        "/tools/pipeline-generate/(?!.*task-template\\.jsonc$).*\\.jsonc$",
+    ],
     maafwInterfacePatterns: [
-        "/interface.json",
-        "/tasks/.*\.json",
+        "/interface\\.jsonc?",
+        "/tasks/.*\\.jsonc?",
+        "/tools/pipeline-generate/.*/task-template\\.jsonc?$",
     ],
     tabWidth: 4,
     printWidth: 120,
