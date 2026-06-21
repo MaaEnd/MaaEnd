@@ -16,9 +16,7 @@
                 "PlayCover",
                 "Wlroots"
             ],
-            "group": [
-                "regional_development"
-            ]
+            "group": ["regional_development"]
         }
     ],
     "option": {
@@ -406,9 +404,7 @@
                 },
                 {
                     "name": "保留指定份数",
-                    "option": [
-                        "${RegionPrefix}${LocationId}ReserveValue1"
-                    ]
+                    "option": ["${RegionPrefix}${LocationId}ReserveValue1"]
                 }
             ]
         },
@@ -448,9 +444,7 @@
                 },
                 {
                     "name": "保留指定份数",
-                    "option": [
-                        "${RegionPrefix}${LocationId}ReserveValue2"
-                    ]
+                    "option": ["${RegionPrefix}${LocationId}ReserveValue2"]
                 }
             ]
         },
@@ -490,9 +484,7 @@
                 },
                 {
                     "name": "保留指定份数",
-                    "option": [
-                        "${RegionPrefix}${LocationId}ReserveValue3"
-                    ]
+                    "option": ["${RegionPrefix}${LocationId}ReserveValue3"]
                 }
             ]
         },
@@ -532,9 +524,7 @@
                 },
                 {
                     "name": "保留指定份数",
-                    "option": [
-                        "${RegionPrefix}${LocationId}ReserveValue4"
-                    ]
+                    "option": ["${RegionPrefix}${LocationId}ReserveValue4"]
                 }
             ]
         },
