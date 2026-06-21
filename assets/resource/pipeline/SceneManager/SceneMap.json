@@ -510,32 +510,17 @@
         "desc": "在大世界界面，进入地图界面",
         "recognition": "And",
         "all_of": [
-            "InWorld",
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    0,
-                    100,
-                    100,
-                    120
-                ],
-                "template": [
-                    "SceneManager/TaskIcon.png",
-                    "SceneManager/TaskIcon2.png"
-                ],
-                "green_mask": true
-            }
+            "InWorld"
         ],
-        "box_index": 1,
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "AutoAltClickAction",
-                "target_offset": [
-                    100,
-                    -50,
-                    0,
-                    0
+                "target": [
+                    90,
+                    90,
+                    50,
+                    50
                 ]
             }
         },
