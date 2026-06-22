@@ -575,10 +575,9 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ProtocolSpaceRewardSanityLow",
             "ProtocolSpaceRewardUsePermit",
             "ProtocolSpaceRewardDontUsePermit",
-            "ProtocolSpaceRewardClaim"
+            "ProtocolSpaceRewardDirectClaim"
         ]
     },
     "ProtocolSpaceRewardSelectNoClaim": {
@@ -622,53 +621,52 @@
     },
     "ProtocolSpaceRewardUsePermitSanityLow": {
         "desc": "使用理智消耗许可时理智不足",
-        "recognition": "ColorMatch",
+        "recognition": "OCR",
         "roi": [
-            680,
-            530,
-            110,
-            35
+            48,
+            50,
+            460,
+            424
         ],
-        "method": 4,
-        "lower": [
-            180,
-            90,
-            90
-        ],
-        "upper": [
-            255,
-            130,
-            130
-        ],
-        "count": 30,
-        "next": [
-            "ProtocolSpaceRewardDontUsePermit"
+        "expected": [
+            "恢复理智",
+            "恢復理智",
+            "Restore Sanity",
+            "理性回復"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "理智不足，尝试不使用理智消耗许可"
-        }
+        },
+        "next": [
+            "ProtocolSpaceRewardCloseSpMedication"
+        ]
+    },
+    "ProtocolSpaceRewardCloseSpMedication": {
+        "desc": "协议空间奖励界面关闭体力选择",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1"
+        ],
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceRewardDontUsePermit"
+        ]
     },
     "ProtocolSpaceRewardSanityLow": {
-        "desc": "理智不足",
-        "recognition": "ColorMatch",
+        "desc": "理智药不足",
+        "recognition": "OCR",
         "roi": [
-            680,
-            530,
-            110,
-            35
+            48,
+            50,
+            460,
+            424
         ],
-        "method": 4,
-        "lower": [
-            180,
-            90,
-            90
+        "expected": [
+            "恢复理智",
+            "恢復理智",
+            "Restore Sanity",
+            "理性回復"
         ],
-        "upper": [
-            255,
-            130,
-            130
-        ],
-        "count": 30,
         "focus": {
             "Node.Recognition.Succeeded": "理智不足，结束任务"
         }
@@ -688,8 +686,10 @@
         ],
         "action": "Click",
         "next": [
+            "ProtocolSpaceRewardClaimSuccess",
+            "[JumpBack]AutoUseSpMedicationSelectEmergencySanityBoosterInCombat",
             "ProtocolSpaceRewardSanityLow",
-            "ProtocolSpaceRewardClaim"
+            "[JumpBack]ProtocolSpaceRewardClaim"
         ],
         "focus": {
             "Node.Action.Succeeded": "不使用理智消耗许可"
@@ -713,23 +713,35 @@
         ],
         "action": "Click",
         "next": [
+            "ProtocolSpaceRewardClaimSuccess",
+            "[JumpBack]AutoUseSpMedicationSelectEmergencySanityBoosterInCombat",
             "ProtocolSpaceRewardUsePermitSanityLow",
-            "ProtocolSpaceRewardClaim"
+            "[JumpBack]ProtocolSpaceRewardClaim"
         ],
         "focus": {
             "Node.Action.Succeeded": "尝试使用理智消耗许可"
         }
     },
+    "ProtocolSpaceRewardDirectClaim": {
+        "desc": "协议空间奖励界面直接领取奖励(双倍活动)",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "next": [
+            "ProtocolSpaceRewardClaimSuccess",
+            "[JumpBack]AutoUseSpMedicationSelectEmergencySanityBoosterInCombat",
+            "ProtocolSpaceRewardSanityLow",
+            "[JumpBack]ProtocolSpaceRewardClaim"
+        ]
+    },
     "ProtocolSpaceRewardClaim": {
-        "desc": "协议空间奖励界面直接领取，比如体力活动时无需选择",
+        "desc": "协议空间奖励界面领取奖励",
         "recognition": "And",
         "all_of": [
             "YellowConfirmButtonType1"
         ],
         "action": "Click",
-        "next": [
-            "ProtocolSpaceRewardClaimSuccess"
-        ],
         "focus": {
             "Node.Action.Succeeded": "确认领取奖励"
         }

@@ -101,10 +101,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    1054,
+                    1023,
                     0,
-                    226,
-                    158
+                    257,
+                    268
                 ],
                 "template": [
                     "Common/Button/CloseButtonType4.png"
