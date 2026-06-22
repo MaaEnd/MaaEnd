@@ -155,7 +155,6 @@
         "tasks/GearAssembly.json",
         "tasks/Weapon.json",
         "tasks/BatchUseDetector.json",
-        "tasks/AutoUseSpMedication.json",
         "tasks/EssenceFilter.json",
         // group: open_world
         "tasks/ResourceRecycleStation.json",
@@ -164,8 +163,10 @@
         "tasks/PuzzleSolver.json",
         "tasks/ImportBluePrints.json",
         // group: sanity_sink
-        "tasks/AutoEssence.json",
+        "tasks/SanitySink.json",
         "tasks/ProtocolSpace.json",
+        "tasks/AutoEssence.json",
+        "tasks/AutoUseSpMedication.json",
         // group: dijiang_ship
         "tasks/DijiangRewards.json",
         "tasks/VisitFriends.json",

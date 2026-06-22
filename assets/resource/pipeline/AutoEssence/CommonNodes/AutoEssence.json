@@ -314,6 +314,7 @@
     },
     "AutoEssenceClickEssenceChallengeUsingWalk": {
         "desc": "使用走路方式挑战（利用玩家的炮台进行攻击）",
+        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [

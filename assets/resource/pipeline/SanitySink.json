@@ -1,0 +1,29 @@
+{
+    "SanitySinkMain": {
+        "desc": "理智消耗任务统一入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SanitySinkProtocolSpaceEntry",
+            "SanitySinkAutoEssenceEntry"
+        ]
+    },
+    "SanitySinkProtocolSpaceEntry": {
+        "desc": "协议空间分支入口",
+        "enabled": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceSchedule"
+        ]
+    },
+    "SanitySinkAutoEssenceEntry": {
+        "desc": "基质刷取分支入口",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceMain"
+        ]
+    }
+}

@@ -1,0 +1,1901 @@
+{
+    "task": [
+        {
+            "name": "SanitySink",
+            "label": "$task.SanitySink.label",
+            "entry": "SanitySinkMain",
+            "description": "$task.SanitySink.description",
+            "option": [
+                "ProtocolSpaceSchedule",
+                "SanitySinkMode",
+                "SanitySinkRewardMode",
+                "SanitySinkSuccessCount",
+                "AutoFightSetting",
+                "SanitySinkUseSpMedicationWhenSanityLow"
+            ],
+            "controller": [
+                "ADB",
+                "PlayCover",
+                "Win32-Front",
+                "Wlroots"
+            ],
+            "group": [
+                "sanity_sink"
+            ]
+        }
+    ],
+    "option": {
+        "ProtocolSpaceSchedule": {
+            "type": "checkbox",
+            "label": "$option.TaskSchedule.label",
+            "default_case": [
+                "ProtocolSpaceScheduleMonday",
+                "ProtocolSpaceScheduleTuesday",
+                "ProtocolSpaceScheduleWednesday",
+                "ProtocolSpaceScheduleThursday",
+                "ProtocolSpaceScheduleFriday",
+                "ProtocolSpaceScheduleSaturday",
+                "ProtocolSpaceScheduleSunday"
+            ],
+            "cases": [
+                {
+                    "name": "ProtocolSpaceScheduleMonday",
+                    "label": "$option.TaskScheduleMonday.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceScheduleEnabled": {
+                            "attach": {
+                                "monday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceScheduleTuesday",
+                    "label": "$option.TaskScheduleTuesday.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceScheduleEnabled": {
+                            "attach": {
+                                "tuesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceScheduleWednesday",
+                    "label": "$option.TaskScheduleWednesday.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceScheduleEnabled": {
+                            "attach": {
+                                "wednesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceScheduleThursday",
+                    "label": "$option.TaskScheduleThursday.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceScheduleEnabled": {
+                            "attach": {
+                                "thursday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceScheduleFriday",
+                    "label": "$option.TaskScheduleFriday.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceScheduleEnabled": {
+                            "attach": {
+                                "friday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceScheduleSaturday",
+                    "label": "$option.TaskScheduleSaturday.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceScheduleEnabled": {
+                            "attach": {
+                                "saturday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceScheduleSunday",
+                    "label": "$option.TaskScheduleSunday.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceScheduleEnabled": {
+                            "attach": {
+                                "sunday": true
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SanitySinkRewardMode": {
+            "type": "select",
+            "label": "$option.SanitySinkRewardMode.label",
+            "description": "$option.SanitySinkRewardMode.description",
+            "default_case": "SingleClaim",
+            "cases": [
+                {
+                    "name": "NoClaim",
+                    "label": "$option.SanitySinkRewardMode.cases.NoClaim.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceRewardSelectNoClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+                            "enabled": true
+                        },
+                        "AutoEssenceClickObtainButtonPre": {
+                            "next": [
+                                "AutoEssenceClickDiscardButton"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "SingleClaim",
+                    "label": "$option.SanitySinkRewardMode.cases.SingleClaim.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardSelectNoClaim": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceRewardUsePermit": {
+                            "enabled": false
+                        },
+                        "AutoEssenceClickObtainButtonPre": {
+                            "next": [
+                                "AutoEssenceClickObtainButton"
+                            ]
+                        },
+                        "AutoEssenceChooseScaling2": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "DoubleClaim",
+                    "label": "$option.SanitySinkRewardMode.cases.DoubleClaim.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardSelectNoClaim": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceRewardUsePermit": {
+                            "enabled": true
+                        },
+                        "AutoEssenceClickObtainButtonPre": {
+                            "next": [
+                                "AutoEssenceClickObtainButton"
+                            ]
+                        },
+                        "AutoEssenceChooseScaling2": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SanitySinkSuccessCount": {
+            "type": "select",
+            "label": "$option.SanitySinkSuccessCount.label",
+            "description": "$option.SanitySinkSuccessCount.description",
+            "default_case": "Unlimited",
+            "cases": [
+                {
+                    "name": "Count1",
+                    "label": "1",
+                    "pipeline_override": {
+                        "ProtocolSpaceRewardClaimSuccessContinue": {
+                            "max_hit": 0
+                        },
+                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
+                            "max_hit": 0
+                        },
+                        "AutoEssenceMain": {
+                            "max_hit": 1
+                        },
+                        "AutoEssenceOnSuccess": {
+                            "next": [
+                                "AutoEssenceMain",
+                                "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
+                                "AutoEssenceOnComplete"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Count2",
+                    "label": "2",
+                    "pipeline_override": {
+                        "ProtocolSpaceRewardClaimSuccessContinue": {
+                            "max_hit": 1
+                        },
+                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
+                            "max_hit": 1
+                        },
+                        "AutoEssenceMain": {
+                            "max_hit": 2
+                        },
+                        "AutoEssenceOnSuccess": {
+                            "next": [
+                                "AutoEssenceMain",
+                                "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
+                                "AutoEssenceOnComplete"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Count3",
+                    "label": "3",
+                    "pipeline_override": {
+                        "ProtocolSpaceRewardClaimSuccessContinue": {
+                            "max_hit": 2
+                        },
+                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
+                            "max_hit": 2
+                        },
+                        "AutoEssenceMain": {
+                            "max_hit": 3
+                        },
+                        "AutoEssenceOnSuccess": {
+                            "next": [
+                                "AutoEssenceMain",
+                                "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
+                                "AutoEssenceOnComplete"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Count4",
+                    "label": "4",
+                    "pipeline_override": {
+                        "ProtocolSpaceRewardClaimSuccessContinue": {
+                            "max_hit": 3
+                        },
+                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
+                            "max_hit": 3
+                        },
+                        "AutoEssenceMain": {
+                            "max_hit": 4
+                        },
+                        "AutoEssenceOnSuccess": {
+                            "next": [
+                                "AutoEssenceMain",
+                                "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
+                                "AutoEssenceOnComplete"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Count5",
+                    "label": "5",
+                    "pipeline_override": {
+                        "ProtocolSpaceRewardClaimSuccessContinue": {
+                            "max_hit": 4
+                        },
+                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
+                            "max_hit": 4
+                        },
+                        "AutoEssenceMain": {
+                            "max_hit": 5
+                        },
+                        "AutoEssenceOnSuccess": {
+                            "next": [
+                                "AutoEssenceMain",
+                                "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
+                                "AutoEssenceOnComplete"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Unlimited",
+                    "label": "$option.ProtocolSpaceCountUnlimited.label",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "max_hit": 99
+                        },
+                        "AutoEssenceOnSuccess": {
+                            "next": [
+                                "AutoEssenceMain",
+                                "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
+                                "AutoEssenceOnComplete"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightSetting": {
+            "type": "switch",
+            "label": "$option.AutoFightSetting.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoFightKeymap",
+                        "AutoFightHealthDangerousSwitch",
+                        "AutoFightDodge",
+                        "AutoFightLockTarget",
+                        "AutoFightAxis"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "ProtocolSpaceTeamChoose": {
+            "type": "select",
+            "label": "$option.ProtocolSpaceTeamChoose.label",
+            "default_case": "ProtocolSpaceTeamChooseDefault",
+            "cases": [
+                {
+                    "name": "ProtocolSpaceTeamChooseDefault",
+                    "label": "$option.ProtocolSpaceTeamChoose.case.ProtocolSpaceTeamChooseDefault.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceTeamChoose": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceTeamChoose01",
+                    "label": "01",
+                    "pipeline_override": {
+                        "ProtocolSpaceTeamChooseTextRecognition": {
+                            "expected": [
+                                "01"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceTeamChoose02",
+                    "label": "02",
+                    "pipeline_override": {
+                        "ProtocolSpaceTeamChooseTextRecognition": {
+                            "expected": [
+                                "02"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceTeamChoose03",
+                    "label": "03",
+                    "pipeline_override": {
+                        "ProtocolSpaceTeamChooseTextRecognition": {
+                            "expected": [
+                                "03"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceTeamChoose04",
+                    "label": "04",
+                    "pipeline_override": {
+                        "ProtocolSpaceTeamChooseTextRecognition": {
+                            "expected": [
+                                "04"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceTeamChoose05",
+                    "label": "05",
+                    "pipeline_override": {
+                        "ProtocolSpaceTeamChooseTextRecognition": {
+                            "expected": [
+                                "05"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "ProtocolSpaceFailedCount": {
+            "type": "select",
+            "label": "$option.ProtocolSpaceFailedCount.label",
+            "default_case": "ProtocolSpaceFailedCount3",
+            "cases": [
+                {
+                    "name": "ProtocolSpaceFailedCount1",
+                    "label": "1",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationFailedContinue": {
+                            "max_hit": 0
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceFailedCount2",
+                    "label": "2",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationFailedContinue": {
+                            "max_hit": 1
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceFailedCount3",
+                    "label": "3",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationFailedContinue": {
+                            "max_hit": 2
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceFailedCount4",
+                    "label": "4",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationFailedContinue": {
+                            "max_hit": 3
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceFailedCount5",
+                    "label": "5",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationFailedContinue": {
+                            "max_hit": 4
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceFailedCountUnlimited",
+                    "label": "$option.ProtocolSpaceCountUnlimited.label"
+                }
+            ]
+        },
+        "ProtocolSpaceTab": {
+            "type": "select",
+            "label": "$option.ProtocolSpaceTab.label",
+            "cases": [
+                {
+                    "name": "OperatorProgression",
+                    "label": "$option.OperatorProgression.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                            "expected": [
+                                "员养成",
+                                "Operator Progression"
+                            ],
+                            "anchor": {
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable",
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable"
+                            }
+                        },
+                        "ProtocolSpaceOperationalManualScrollEnd": {
+                            "template": "ProtocolSpace/SkillUp.png"
+                        }
+                    },
+                    "option": [
+                        "OperatorProgression",
+                        "ProtocolSpaceLevel"
+                    ]
+                },
+                {
+                    "name": "WeaponProgression",
+                    "label": "$option.WeaponProgression.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                            "expected": [
+                                "武器养成",
+                                "Weapon Progression"
+                            ],
+                            "anchor": {
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable",
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable"
+                            }
+                        },
+                        "ProtocolSpaceOperationalManualScrollEnd": {
+                            "template": [
+                                "ProtocolSpace/WeaponTune.png",
+                                "ProtocolSpace/WeaponTuneLow.png"
+                            ]
+                        }
+                    },
+                    "option": [
+                        "WeaponProgression",
+                        "ProtocolSpaceLevel"
+                    ]
+                },
+                {
+                    "name": "CrisisDrills",
+                    "label": "$option.CrisisDrills.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                            "expected": [
+                                "危境预演",
+                                "Crisis Drills"
+                            ],
+                            "anchor": {
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEnable",
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveDisable"
+                            }
+                        },
+                        "ProtocolSpaceOperationalManualScrollEnd": {
+                            "template": [
+                                "ProtocolSpace/AdvancedProgression5.png",
+                                "ProtocolSpace/AdvancedProgression5Low.png"
+                            ]
+                        }
+                    },
+                    "option": [
+                        "CrisisDrills"
+                    ]
+                }
+            ]
+        },
+        "ProtocolSpaceLevel": {
+            "type": "select",
+            "label": "$option.ProtocolSpaceLevel.label",
+            "default_case": "ProtocolSpaceLevel05",
+            "cases": [
+                {
+                    "name": "ProtocolSpaceLevel01",
+                    "label": "$option.ProtocolSpaceLevel.case.ProtocolSpaceLevel01.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 0
+                                }
+                            },
+                            "next": [
+                                "ProtocolSpacePrepareLock",
+                                "ProtocolSpaceEnterSpace"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceLevel02",
+                    "label": "$option.ProtocolSpaceLevel.case.ProtocolSpaceLevel02.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 1
+                                }
+                            },
+                            "next": [
+                                "ProtocolSpacePrepareLock",
+                                "ProtocolSpaceEnterSpace"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceLevel03",
+                    "label": "$option.ProtocolSpaceLevel.case.ProtocolSpaceLevel03.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 2
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceLevel04",
+                    "label": "$option.ProtocolSpaceLevel.case.ProtocolSpaceLevel04.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 3
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceLevel05",
+                    "label": "$option.ProtocolSpaceLevel.case.ProtocolSpaceLevel05.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 4
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "OperatorProgression": {
+            "type": "select",
+            "label": "$option.OperatorProgression.label",
+            "cases": [
+                {
+                    "name": "OperatorEXP",
+                    "label": "$option.OperatorProgression.OperatorEXP.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": [
+                                "ProtocolSpace/OperatorEXP.png",
+                                "ProtocolSpace/OperatorEXPLow.png"
+                            ]
+                        }
+                    },
+                    "option": [
+                        "OperatorEXPRewardsSetOption"
+                    ]
+                },
+                {
+                    "name": "Promotions",
+                    "label": "$option.OperatorProgression.Promotions.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": [
+                                "ProtocolSpace/Promotions.png",
+                                "ProtocolSpace/PromotionsLow.png"
+                            ]
+                        }
+                    },
+                    "option": [
+                        "PromotionsRewardsSetOption"
+                    ]
+                },
+                {
+                    "name": "T-Creds",
+                    "label": "$option.OperatorProgression.TCreds.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/T-Creds.png"
+                        }
+                    }
+                },
+                {
+                    "name": "SkillUp",
+                    "label": "$option.OperatorProgression.SkillUp.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": [
+                                "ProtocolSpace/SkillUp.png",
+                                "ProtocolSpace/SkillUpLow.png"
+                            ]
+                        }
+                    },
+                    "option": [
+                        "SkillUpRewardsSetOption"
+                    ]
+                }
+            ]
+        },
+        "WeaponProgression": {
+            "type": "select",
+            "label": "$option.WeaponProgression.label",
+            "cases": [
+                {
+                    "name": "WeaponEXP",
+                    "label": "$option.WeaponProgression.WeaponEXP.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/WeaponEXP.png"
+                        }
+                    }
+                },
+                {
+                    "name": "WeaponTune",
+                    "label": "$option.WeaponProgression.WeaponTune.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": [
+                                "ProtocolSpace/WeaponTune.png",
+                                "ProtocolSpace/WeaponTuneLow.png"
+                            ]
+                        }
+                    },
+                    "option": [
+                        "WeaponTuneRewardsSetOption"
+                    ]
+                }
+            ]
+        },
+        "CrisisDrills": {
+            "type": "select",
+            "label": "$option.CrisisDrills.label",
+            "cases": [
+                {
+                    "name": "AdvancedProgression1",
+                    "label": "$option.CrisisDrills.AdvancedProgression1.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/AdvancedProgression1.png"
+                        }
+                    }
+                },
+                {
+                    "name": "AdvancedProgression2",
+                    "label": "$option.CrisisDrills.AdvancedProgression2.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/AdvancedProgression2.png"
+                        }
+                    }
+                },
+                {
+                    "name": "AdvancedProgression3",
+                    "label": "$option.CrisisDrills.AdvancedProgression3.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/AdvancedProgression3.png"
+                        }
+                    }
+                },
+                {
+                    "name": "AdvancedProgression4",
+                    "label": "$option.CrisisDrills.AdvancedProgression4.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/AdvancedProgression4.png"
+                        }
+                    }
+                },
+                {
+                    "name": "AdvancedProgression5",
+                    "label": "$option.CrisisDrills.AdvancedProgression5.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/AdvancedProgression5.png"
+                        }
+                    }
+                }
+            ]
+        },
+        "OperatorEXPRewardsSetOption": {
+            "type": "select",
+            "label": "$option.RewardsSetOption.label",
+            "cases": [
+                {
+                    "name": "AdvancedCombatRecord",
+                    "label": "$option.OperatorEXPRewardsSetOption.cases.AdvancedCombatRecord.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "A"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "CognitiveCarriers",
+                    "label": "$option.OperatorEXPRewardsSetOption.cases.CognitiveCarriers.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "B"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "PromotionsRewardsSetOption": {
+            "type": "select",
+            "label": "$option.RewardsSetOption.label",
+            "cases": [
+                {
+                    "name": "Protodisk",
+                    "label": "$option.PromotionsRewardsSetOption.cases.Protodisk.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "A"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Protoset",
+                    "label": "$option.PromotionsRewardsSetOption.cases.Protoset.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "B"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "SkillUpRewardsSetOption": {
+            "type": "select",
+            "label": "$option.RewardsSetOption.label",
+            "cases": [
+                {
+                    "name": "Protoprism",
+                    "label": "$option.SkillUpRewardsSetOption.cases.Protoprism.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "A"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Protohedron",
+                    "label": "$option.SkillUpRewardsSetOption.cases.Protohedron.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "B"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "WeaponTuneRewardsSetOption": {
+            "type": "select",
+            "label": "$option.RewardsSetOption.label",
+            "cases": [
+                {
+                    "name": "CastDie",
+                    "label": "$option.WeaponTuneRewardsSetOption.cases.CastDie.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "A"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "HeavyCastDie",
+                    "label": "$option.WeaponTuneRewardsSetOption.cases.HeavyCastDie.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "B"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceSpecifiedLocation": {
+            "type": "select",
+            "label": "$option.AutoEssenceSpecifiedLocation.label",
+            "description": "$option.AutoEssenceSpecifiedLocation.description",
+            "default_case": "VFTheHub",
+            "cases": [
+                {
+                    "name": "VFTheHub",
+                    "label": "$global.region.TheHub",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "VFTheHubMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "VFOriginiumSciencePark",
+                    "label": "$global.region.OriginiumSciencePark",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "VFOriginiumScienceParkMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "VFOriginLodespring",
+                    "label": "$global.region.OriginLodespring",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "VFOriginLodespringMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "VFPowerPlateau",
+                    "label": "$global.region.PowerPlateau",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "VFPowerPlateauMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "WLWulingCity",
+                    "label": "$global.region.WulingCity",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "WLWulingCityMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "WLQingboStockade",
+                    "label": "$global.region.QingboStockade",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "WLQingboStockadeMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "WLMarkerStone",
+                    "label": "$global.region.MarkerStone",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "WLMarkerStoneMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "WLSwordVaultDale",
+                    "label": "$global.region.SwordVaultDale",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "WLSwordVaultDaleMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceDoOverride": {
+            "type": "switch",
+            "label": "$option.AutoEssenceDoOverride.label",
+            "description": "$option.AutoEssenceDoOverride.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoEssenceChooseOverrideOff": {
+                            "enabled": false
+                        },
+                        "AutoEssenceChooseOverrideOn": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoEssenceChooseOverrideOff": {
+                            "enabled": true
+                        },
+                        "AutoEssenceChooseOverrideOn": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattle": {
+            "type": "switch",
+            "label": "$option.EssenceFilterAfterBattle.label",
+            "description": "$option.EssenceFilterAfterBattle.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleStart": {
+                            "enabled": true
+                        },
+                        "AutoEssenceAfterBattleRunEndLootReport": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "EssenceFilterAfterBattleSelectInputLanguage",
+                        "EssenceFilterAfterBattleSelectWeaponRarity",
+                        "EssenceFilterAfterBattleSelectEssence",
+                        "EssenceFilterAfterBattleSelectExtraRules"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleStart": {
+                            "enabled": false
+                        },
+                        "AutoEssenceAfterBattleRunEndLootReport": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleSelectInputLanguage": {
+            "type": "select",
+            "label": "$option.EssenceFilterAfterBattleSelectInputLanguage.label",
+            "description": "$option.EssenceFilterAfterBattleSelectInputLanguage.description",
+            "default_case": "CN",
+            "cases": [
+                {
+                    "name": "CN",
+                    "label": "$option.EssenceFilterAfterBattleSelectInputLanguage.cases.CN.label",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "input_language": "CN"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "TC",
+                    "label": "$option.EssenceFilterAfterBattleSelectInputLanguage.cases.TC.label",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "input_language": "TC"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "EN",
+                    "label": "$option.EssenceFilterAfterBattleSelectInputLanguage.cases.EN.label",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "input_language": "EN"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "JP",
+                    "label": "$option.EssenceFilterAfterBattleSelectInputLanguage.cases.JP.label",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "input_language": "JP"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "KR",
+                    "label": "$option.EssenceFilterAfterBattleSelectInputLanguage.cases.KR.label",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "input_language": "KR"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleSelectWeaponRarity": {
+            "type": "switch",
+            "label": "$option.SelectWeaponRarity.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "EssenceFilterAfterBattleRarity6Weapon",
+                        "EssenceFilterAfterBattleRarity5Weapon",
+                        "EssenceFilterAfterBattleRarity4Weapon"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleRarity6Weapon": {
+            "type": "switch",
+            "label": "$option.Rarity6Weapon.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "rarity6_weapon": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "rarity6_weapon": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleRarity5Weapon": {
+            "type": "switch",
+            "label": "$option.Rarity5Weapon.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "rarity5_weapon": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "rarity5_weapon": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleRarity4Weapon": {
+            "type": "switch",
+            "label": "$option.Rarity4Weapon.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "rarity4_weapon": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "rarity4_weapon": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleSelectEssence": {
+            "type": "switch",
+            "label": "$option.SelectEssence.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "EssenceFilterAfterBattleFlawlessEssence",
+                        "EssenceFilterAfterBattlePureEssence"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleFlawlessEssence": {
+            "type": "switch",
+            "label": "$option.FlawlessEssence.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "flawless_essence": true
+                            }
+                        },
+                        "EssenceFilterAfterBattleIsflawless": {
+                            "next": [
+                                "EssenceAfterBattleYellowSlot1"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "flawless_essence": false
+                            }
+                        },
+                        "EssenceFilterAfterBattleIsflawless": {
+                            "next": [
+                                "EssenceFilterAfterBattleRowNextItem"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattlePureEssence": {
+            "type": "switch",
+            "label": "$option.PureEssence.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "pure_essence": true
+                            }
+                        },
+                        "EssenceFilterAfterBattleIsPure": {
+                            "next": [
+                                "EssenceAfterBattleYellowSlot1"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "pure_essence": false
+                            }
+                        },
+                        "EssenceFilterAfterBattleIsPure": {
+                            "next": [
+                                "EssenceFilterAfterBattleRowNextItem"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleSelectExtraRules": {
+            "type": "switch",
+            "label": "$option.SelectExtraRules.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "EssenceFilterAfterBattleKeepFuturePromising",
+                        "EssenceFilterAfterBattleKeepSlot3Level3Practical",
+                        "EssenceFilterAfterBattleDiscardUnmatched"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleKeepFuturePromising": {
+            "type": "switch",
+            "label": "$option.KeepFuturePromising.label",
+            "description": "$option.KeepFuturePromising.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "EssenceFilterAfterBattleFuturePromisingMinTotal",
+                        "EssenceFilterAfterBattleLockFuturePromising"
+                    ],
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "keep_future_promising": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "keep_future_promising": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleLockFuturePromising": {
+            "type": "switch",
+            "label": "$option.LockFuturePromising.label",
+            "description": "$option.LockFuturePromising.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "lock_future_promising": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "lock_future_promising": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleFuturePromisingMinTotal": {
+            "type": "input",
+            "label": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.label",
+            "description": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.description",
+            "inputs": [
+                {
+                    "name": "EssenceFilterAfterBattleFuturePromisingMinTotal",
+                    "label": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.label",
+                    "description": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.description",
+                    "pipeline_type": "int",
+                    "verify": "^[3-9]$|^1[0-5]$",
+                    "default": "6"
+                }
+            ],
+            "pipeline_override": {
+                "EssenceFilterAfterBattleInit": {
+                    "attach": {
+                        "future_promising_min_total": "{EssenceFilterAfterBattleFuturePromisingMinTotal}"
+                    }
+                }
+            }
+        },
+        "EssenceFilterAfterBattleKeepSlot3Level3Practical": {
+            "type": "switch",
+            "label": "$option.KeepSlot3Level3Practical.label",
+            "description": "$option.KeepSlot3Level3Practical.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "EssenceFilterAfterBattleSlot3MinLevel",
+                        "EssenceFilterAfterBattleLockSlot3Practical"
+                    ],
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "keep_slot3_level3_practical": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "keep_slot3_level3_practical": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleLockSlot3Practical": {
+            "type": "switch",
+            "label": "$option.LockSlot3Practical.label",
+            "description": "$option.LockSlot3Practical.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "lock_slot3_practical": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "lock_slot3_practical": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleSlot3MinLevel": {
+            "type": "input",
+            "label": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.label",
+            "description": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.description",
+            "inputs": [
+                {
+                    "name": "EssenceFilterAfterBattleSlot3MinLevel",
+                    "label": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.label",
+                    "description": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.description",
+                    "pipeline_type": "int",
+                    "verify": "^[1-3]$",
+                    "default": "3"
+                }
+            ],
+            "pipeline_override": {
+                "EssenceFilterAfterBattleInit": {
+                    "attach": {
+                        "slot3_min_level": "{EssenceFilterAfterBattleSlot3MinLevel}"
+                    }
+                }
+            }
+        },
+        "EssenceFilterAfterBattleDiscardUnmatched": {
+            "type": "switch",
+            "label": "$option.DiscardUnmatched.label",
+            "description": "$option.DiscardUnmatched.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "discard_unmatched": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "discard_unmatched": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SanitySinkUseSpMedicationWhenSanityLow": {
+            "type": "switch",
+            "label": "$option.SanitySinkUseSpMedicationWhenSanityLow.label",
+            "description": "$option.SanitySinkUseSpMedicationWhenSanityLow.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoUseSpMedicationSelectEmergencySanityBoosterInCombat": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowDialog": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLow": {
+                            "enabled": false
+                        },
+                        "AutoEssenceLowSpCancelObtain": {
+                            "enabled": false
+                        },
+                        "AutoEssenceLowSpStopTask": {
+                            "enabled": false
+                        }
+                    },
+                    "option": [
+                        "SanitySinkSpMedicationExpireWithinDays"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoUseSpMedicationSelectEmergencySanityBoosterInCombat": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowDialog": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLow": {
+                            "enabled": true
+                        },
+                        "AutoEssenceLowSpCancelObtain": {
+                            "enabled": true
+                        },
+                        "AutoEssenceLowSpStopTask": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SanitySinkSpMedicationExpireWithinDays": {
+            "type": "select",
+            "label": "$option.SanitySinkSpMedicationExpireWithinDays.label",
+            "description": "$option.SanitySinkSpMedicationExpireWithinDays.description",
+            "default_case": "Days3",
+            "cases": [
+                {
+                    "name": "Days1",
+                    "label": "$option.SanitySinkSpMedicationExpireWithinDays.cases.Days1.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                "0小时",
+                                "1小时",
+                                "2小时",
+                                "3小时",
+                                "4小时",
+                                "5小时",
+                                "6小时",
+                                "7小时",
+                                "8小时",
+                                "9小时",
+                                "10小时",
+                                "11小时",
+                                "12小时",
+                                "13小时",
+                                "14小时",
+                                "15小时",
+                                "16小时",
+                                "17小时",
+                                "18小时",
+                                "19小时",
+                                "20小时",
+                                "21小时",
+                                "22小时",
+                                "23小时",
+                                "1天"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days2",
+                    "label": "$option.SanitySinkSpMedicationExpireWithinDays.cases.Days2.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                "0小时",
+                                "1小时",
+                                "2小时",
+                                "3小时",
+                                "4小时",
+                                "5小时",
+                                "6小时",
+                                "7小时",
+                                "8小时",
+                                "9小时",
+                                "10小时",
+                                "11小时",
+                                "12小时",
+                                "13小时",
+                                "14小时",
+                                "15小时",
+                                "16小时",
+                                "17小时",
+                                "18小时",
+                                "19小时",
+                                "20小时",
+                                "21小时",
+                                "22小时",
+                                "23小时",
+                                "1天",
+                                "2天"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days3",
+                    "label": "$option.SanitySinkSpMedicationExpireWithinDays.cases.Days3.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                "0小时",
+                                "1小时",
+                                "2小时",
+                                "3小时",
+                                "4小时",
+                                "5小时",
+                                "6小时",
+                                "7小时",
+                                "8小时",
+                                "9小时",
+                                "10小时",
+                                "11小时",
+                                "12小时",
+                                "13小时",
+                                "14小时",
+                                "15小时",
+                                "16小时",
+                                "17小时",
+                                "18小时",
+                                "19小时",
+                                "20小时",
+                                "21小时",
+                                "22小时",
+                                "23小时",
+                                "1天",
+                                "2天",
+                                "3天"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days4",
+                    "label": "$option.SanitySinkSpMedicationExpireWithinDays.cases.Days4.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                "0小时",
+                                "1小时",
+                                "2小时",
+                                "3小时",
+                                "4小时",
+                                "5小时",
+                                "6小时",
+                                "7小时",
+                                "8小时",
+                                "9小时",
+                                "10小时",
+                                "11小时",
+                                "12小时",
+                                "13小时",
+                                "14小时",
+                                "15小时",
+                                "16小时",
+                                "17小时",
+                                "18小时",
+                                "19小时",
+                                "20小时",
+                                "21小时",
+                                "22小时",
+                                "23小时",
+                                "1天",
+                                "2天",
+                                "3天",
+                                "4天"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days5",
+                    "label": "$option.SanitySinkSpMedicationExpireWithinDays.cases.Days5.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                "0小时",
+                                "1小时",
+                                "2小时",
+                                "3小时",
+                                "4小时",
+                                "5小时",
+                                "6小时",
+                                "7小时",
+                                "8小时",
+                                "9小时",
+                                "10小时",
+                                "11小时",
+                                "12小时",
+                                "13小时",
+                                "14小时",
+                                "15小时",
+                                "16小时",
+                                "17小时",
+                                "18小时",
+                                "19小时",
+                                "20小时",
+                                "21小时",
+                                "22小时",
+                                "23小时",
+                                "1天",
+                                "2天",
+                                "3天",
+                                "4天",
+                                "5天"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days6",
+                    "label": "$option.SanitySinkSpMedicationExpireWithinDays.cases.Days6.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                "0小时",
+                                "1小时",
+                                "2小时",
+                                "3小时",
+                                "4小时",
+                                "5小时",
+                                "6小时",
+                                "7小时",
+                                "8小时",
+                                "9小时",
+                                "10小时",
+                                "11小时",
+                                "12小时",
+                                "13小时",
+                                "14小时",
+                                "15小时",
+                                "16小时",
+                                "17小时",
+                                "18小时",
+                                "19小时",
+                                "20小时",
+                                "21小时",
+                                "22小时",
+                                "23小时",
+                                "1天",
+                                "2天",
+                                "3天",
+                                "4天",
+                                "5天",
+                                "6天"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days7",
+                    "label": "$option.SanitySinkSpMedicationExpireWithinDays.cases.Days7.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                "0小时",
+                                "1小时",
+                                "2小时",
+                                "3小时",
+                                "4小时",
+                                "5小时",
+                                "6小时",
+                                "7小时",
+                                "8小时",
+                                "9小时",
+                                "10小时",
+                                "11小时",
+                                "12小时",
+                                "13小时",
+                                "14小时",
+                                "15小时",
+                                "16小时",
+                                "17小时",
+                                "18小时",
+                                "19小时",
+                                "20小时",
+                                "21小时",
+                                "22小时",
+                                "23小时",
+                                "1天",
+                                "2天",
+                                "3天",
+                                "4天",
+                                "5天",
+                                "6天",
+                                "7天"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "SanitySinkMode": {
+            "type": "select",
+            "label": "$option.SanitySinkMode.label",
+            "description": "$option.SanitySinkMode.description",
+            "default_case": "ProtocolSpace",
+            "cases": [
+                {
+                    "name": "ProtocolSpace",
+                    "label": "$task.ProtocolSpace.label",
+                    "pipeline_override": {
+                        "SanitySinkProtocolSpaceEntry": {
+                            "enabled": true
+                        },
+                        "SanitySinkAutoEssenceEntry": {
+                            "enabled": false
+                        }
+                    },
+                    "option": [
+                        "ProtocolSpaceTab",
+                        "ProtocolSpaceTeamChoose",
+                        "ProtocolSpaceFailedCount"
+                    ]
+                },
+                {
+                    "name": "AutoEssence",
+                    "label": "$task.AutoEssence.label",
+                    "pipeline_override": {
+                        "SanitySinkProtocolSpaceEntry": {
+                            "enabled": false
+                        },
+                        "SanitySinkAutoEssenceEntry": {
+                            "enabled": true
+                        },
+                        "AutoEssenceClickEssenceChallengeUsingWalk": {
+                            "enabled": false
+                        },
+                        "AutoEssenceClickEssenceChallengeUsingAutoFight": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceSpecifiedLocation",
+                        "AutoEssenceDoOverride",
+                        "EssenceFilterAfterBattle"
+                    ]
+                }
+            ]
+        }
+    }
+}
