@@ -10,6 +10,7 @@
 #include <meojson/json.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <filesystem>
 #include <map>
@@ -32,8 +33,12 @@ namespace essencegridscan
 namespace
 {
 
-constexpr const char* kRuntimeTemplatePath = "resource/image/EssenceFilter/EssenceGeneral.png";
-constexpr const char* kSourceTemplatePath = "assets/resource/image/EssenceFilter/EssenceGeneral.png";
+constexpr const char* kRuntimeTemplateDir = "resource/image/EssenceFilter";
+constexpr const char* kSourceTemplateDir = "assets/resource/image/EssenceFilter";
+constexpr const char* kEssenceGeneralTemplate = "EssenceGeneral.png";
+constexpr const char* kThumbDiscardTemplate = "ThumbDiscard.png";
+constexpr const char* kThumbLockTemplate = "ThumbLock.png";
+constexpr const char* kThumbLockPurpleTemplate = "LockPurple.png";
 constexpr const char* kSessionId = "EssenceGridScan";
 constexpr const char* kClickNextNode = "EssenceGridClickPending";
 constexpr const char* kSwipeNextNode = "EssenceGridSwipeNext";
@@ -45,22 +50,26 @@ MaaTaskId g_lastTaskId = MaaInvalidId;
 std::set<std::pair<int, int>> g_issuedCellKeys;
 std::set<std::pair<int, int>> g_seenCellKeys;
 std::map<std::pair<int, int>, std::string> g_cellQualities;
+std::map<std::pair<int, int>, std::string> g_cellThumbStates;
 std::optional<recogrid::GridScanCell> g_pendingCell;
 std::optional<recogrid::GridScanResult> g_lastScanResult;
 std::vector<recogrid::GridScanCell> g_currentPageQueue;
 std::size_t g_currentPageQueueIndex = 0;
 bool g_scanRequired = true;
 int g_maxSeenRow = -1;
+cv::Mat g_thumbDiscardTemplate;
+std::vector<cv::Mat> g_thumbLockTemplates;
 
-std::filesystem::path ResolveEssenceTemplatePath()
+std::filesystem::path ResolveEssenceImagePath(const char* filename)
 {
-    for (const char* path : { kRuntimeTemplatePath, kSourceTemplatePath }) {
+    for (const char* directory : { kRuntimeTemplateDir, kSourceTemplateDir }) {
+        const std::filesystem::path path = std::filesystem::path(directory) / filename;
         std::error_code ec;
         if (std::filesystem::exists(path, ec) && std::filesystem::is_regular_file(path, ec)) {
             return path;
         }
     }
-    throw std::runtime_error("Essence grid template image not found");
+    throw std::runtime_error(std::string("Essence image not found: ") + filename);
 }
 
 void EnsureLoaded()
@@ -69,10 +78,21 @@ void EnsureLoaded()
         return;
     }
 
-    const std::filesystem::path path = ResolveEssenceTemplatePath();
+    const std::filesystem::path path = ResolveEssenceImagePath(kEssenceGeneralTemplate);
     cv::Mat image = MAA_NS::imread(path, cv::IMREAD_UNCHANGED);
     if (image.empty()) {
         throw std::runtime_error("Essence grid template image cannot be loaded: " + path.string());
+    }
+    g_thumbDiscardTemplate = MAA_NS::imread(ResolveEssenceImagePath(kThumbDiscardTemplate), cv::IMREAD_UNCHANGED);
+    g_thumbLockTemplates.clear();
+    g_thumbLockTemplates.emplace_back(MAA_NS::imread(ResolveEssenceImagePath(kThumbLockTemplate), cv::IMREAD_UNCHANGED));
+    g_thumbLockTemplates.emplace_back(
+        MAA_NS::imread(ResolveEssenceImagePath(kThumbLockPurpleTemplate), cv::IMREAD_UNCHANGED));
+    const bool lockTemplateMissing = std::any_of(g_thumbLockTemplates.begin(), g_thumbLockTemplates.end(), [](const cv::Mat& templ) {
+        return templ.empty();
+    });
+    if (g_thumbDiscardTemplate.empty() || lockTemplateMissing) {
+        throw std::runtime_error("Essence thumb templates cannot be loaded");
     }
     g_engine.SetTemplates({ { "essence_general", std::move(image) } });
     g_loaded = true;
@@ -159,6 +179,7 @@ void ResetSessionForNewTask(MaaTaskId taskId)
     g_issuedCellKeys.clear();
     g_seenCellKeys.clear();
     g_cellQualities.clear();
+    g_cellThumbStates.clear();
     g_pendingCell.reset();
     g_lastScanResult.reset();
     g_currentPageQueue.clear();
@@ -194,6 +215,15 @@ std::string CellQuality(const recogrid::GridScanCell& cell)
     return iter->second;
 }
 
+std::string CellThumbState(const recogrid::GridScanCell& cell)
+{
+    const auto iter = g_cellThumbStates.find(CellKey(cell));
+    if (iter == g_cellThumbStates.end()) {
+        return "none";
+    }
+    return iter->second;
+}
+
 struct QualityStats
 {
     std::string quality = "unknown";
@@ -207,6 +237,8 @@ struct QualityFilter
     bool hasExplicitSelection = false;
     bool flawlessEssence = true;
     bool pureEssence = true;
+    bool skipThumbLock = true;
+    bool skipThumbDiscard = true;
 };
 
 bool IsGoldPixel(const cv::Vec3b& hsv)
@@ -270,6 +302,101 @@ QualityStats ClassifyCellQuality(const cv::Mat& image, const cv::Rect& screenCel
     return stats;
 }
 
+cv::Mat ToGrayForTemplate(const cv::Mat& image)
+{
+    if (image.empty()) {
+        return {};
+    }
+    if (image.channels() == 1) {
+        return image;
+    }
+
+    cv::Mat gray;
+    if (image.channels() == 4) {
+        cv::cvtColor(image, gray, cv::COLOR_BGRA2GRAY);
+    }
+    else if (image.channels() == 3) {
+        cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+    }
+    return gray;
+}
+
+struct ThumbMatchScore
+{
+    double score = 0.0;
+    cv::Point location;
+};
+
+struct ThumbDetection
+{
+    std::string state = "none";
+    cv::Rect cell;
+    cv::Rect search;
+    ThumbMatchScore lock;
+    ThumbMatchScore discard;
+};
+
+ThumbMatchScore MatchTemplateScore(const cv::Mat& search, const cv::Mat& templ)
+{
+    if (search.empty() || templ.empty() || search.cols < templ.cols || search.rows < templ.rows) {
+        return {};
+    }
+
+    const cv::Mat searchGray = ToGrayForTemplate(search);
+    const cv::Mat templateGray = ToGrayForTemplate(templ);
+    if (searchGray.empty() || templateGray.empty()) {
+        return {};
+    }
+
+    cv::Mat result;
+    cv::matchTemplate(searchGray, templateGray, result, cv::TM_CCOEFF_NORMED);
+
+    ThumbMatchScore score;
+    cv::minMaxLoc(result, nullptr, &score.score, nullptr, &score.location);
+    if (!std::isfinite(score.score)) {
+        score.score = 0.0;
+        score.location = {};
+    }
+    return score;
+}
+
+ThumbDetection DetectCellThumbState(const cv::Mat& image, const cv::Rect& screenCell)
+{
+    ThumbDetection detection;
+    const cv::Rect imageBounds(0, 0, image.cols, image.rows);
+    const cv::Rect cell = screenCell & imageBounds;
+    detection.cell = cell;
+    if (cell.empty()) {
+        return detection;
+    }
+
+    const int searchWidth = std::max(1, cell.width * 20 / 100);
+    const int searchHeight = std::max(1, cell.height * 20 / 100);
+    const cv::Rect searchRect(cell.x, cell.y + cell.height - searchHeight, searchWidth, searchHeight);
+    detection.search = searchRect & imageBounds;
+    const cv::Mat search = image(detection.search);
+
+    constexpr double kThumbLockMatchThreshold = 0.7;
+    constexpr double kThumbDiscardMatchThreshold = 0.9;
+    for (std::size_t index = 0; index < g_thumbLockTemplates.size(); ++index) {
+        const cv::Mat& lockTemplate = g_thumbLockTemplates[index];
+        const ThumbMatchScore lockScore = MatchTemplateScore(search, lockTemplate);
+        if (lockScore.score > detection.lock.score) {
+            detection.lock = lockScore;
+        }
+    }
+    detection.discard = MatchTemplateScore(search, g_thumbDiscardTemplate);
+    if (detection.discard.score >= kThumbDiscardMatchThreshold) {
+        detection.state = "discard";
+        return detection;
+    }
+    if (detection.lock.score >= kThumbLockMatchThreshold) {
+        detection.state = "lock";
+        return detection;
+    }
+    return detection;
+}
+
 QualityFilter ParseQualityFilter(const char* raw)
 {
     QualityFilter filter;
@@ -291,6 +418,12 @@ QualityFilter ParseQualityFilter(const char* raw)
     }
     if (hasPure) {
         filter.pureEssence = object.at("pure_essence").as_boolean();
+    }
+    if (object.contains("skip_thumb_lock") && object.at("skip_thumb_lock").is_boolean()) {
+        filter.skipThumbLock = object.at("skip_thumb_lock").as_boolean();
+    }
+    if (object.contains("skip_thumb_discard") && object.at("skip_thumb_discard").is_boolean()) {
+        filter.skipThumbDiscard = object.at("skip_thumb_discard").as_boolean();
     }
     return filter;
 }
@@ -356,6 +489,18 @@ bool ShouldDispatchQuality(const recogrid::GridScanCell& cell, const QualityFilt
     return false;
 }
 
+bool ShouldDispatchThumbState(const recogrid::GridScanCell& cell, const QualityFilter& filter)
+{
+    const std::string state = CellThumbState(cell);
+    if (state == "lock") {
+        return !filter.skipThumbLock;
+    }
+    if (state == "discard") {
+        return !filter.skipThumbDiscard;
+    }
+    return true;
+}
+
 void WriteError(MaaStringBuffer* outDetail, const char* message)
 {
     if (outDetail == nullptr) {
@@ -396,11 +541,14 @@ void WriteAdvanceDetail(
     detail["scan_required"] = g_scanRequired;
     detail["filter_flawless_essence"] = filter.flawlessEssence;
     detail["filter_pure_essence"] = filter.pureEssence;
+    detail["skip_thumb_lock"] = filter.skipThumbLock;
+    detail["skip_thumb_discard"] = filter.skipThumbDiscard;
     detail["filter_explicit"] = filter.hasExplicitSelection;
     detail["selected_cell_index"] = selected ? static_cast<int>(selected->cellIndex) : -1;
     detail["selected_row"] = selected ? selected->row : -1;
     detail["selected_col"] = selected ? selected->col : -1;
     detail["selected_quality"] = selected ? CellQuality(*selected) : "unknown";
+    detail["selected_thumb_state"] = selected ? CellThumbState(*selected) : "none";
     detail["selected_box"] = selected ? ToJsonRect(selected->screenCell) : json::object {};
     detail["reached_end"] = result.reachedEnd;
     detail["has_progress"] = result.hasProgress;
@@ -441,6 +589,21 @@ void WriteAdvanceDetail(
         }
     }
     detail["quality_counts"] = std::move(qualityCounts);
+
+    json::object thumbCounts;
+    thumbCounts["lock"] = 0;
+    thumbCounts["discard"] = 0;
+    thumbCounts["none"] = 0;
+    for (const recogrid::GridScanCell& cell : result.dispatchableCells) {
+        const std::string state = CellThumbState(cell);
+        if (thumbCounts.contains(state) && thumbCounts[state].is_number()) {
+            thumbCounts[state] = thumbCounts[state].as_integer() + 1;
+        }
+        else {
+            thumbCounts["none"] = thumbCounts["none"].as_integer() + 1;
+        }
+    }
+    detail["thumb_counts"] = std::move(thumbCounts);
 
     const std::string text = json::value(std::move(detail)).dumps();
     MaaStringBufferSet(outDetail, text.c_str());
@@ -500,28 +663,24 @@ void UpdateSeenCells(const std::vector<recogrid::GridScanCell>& cells)
 
 void UpdateCellQualities(const cv::Mat& image, const std::vector<recogrid::GridScanCell>& cells)
 {
-    int goldCells = 0;
-    int purpleCells = 0;
-    int unknownCells = 0;
     for (const recogrid::GridScanCell& cell : cells) {
         if (!cell.visible) {
             continue;
         }
         const QualityStats stats = ClassifyCellQuality(image, cell.screenCell);
         g_cellQualities[CellKey(cell)] = stats.quality;
-        if (stats.quality == "flawless_gold") {
-            goldCells++;
-        }
-        else if (stats.quality == "high_purity_purple") {
-            purpleCells++;
-        }
-        else {
-            unknownCells++;
-        }
-        LogInfo << "EssenceGridScan quality" << VAR(cell.row) << VAR(cell.col) << VAR(stats.quality)
-                << VAR(stats.goldPixels) << VAR(stats.purplePixels) << VAR(stats.sampledPixels);
     }
-    LogInfo << "EssenceGridScan quality summary" << VAR(goldCells) << VAR(purpleCells) << VAR(unknownCells);
+}
+
+void UpdateCellThumbStates(const cv::Mat& image, const std::vector<recogrid::GridScanCell>& cells)
+{
+    for (const recogrid::GridScanCell& cell : cells) {
+        if (!cell.visible) {
+            continue;
+        }
+        const ThumbDetection detection = DetectCellThumbState(image, cell.screenCell);
+        g_cellThumbStates[CellKey(cell)] = detection.state;
+    }
 }
 
 recogrid::GridScanResult ScanWithRecoGridEngine(
@@ -534,6 +693,7 @@ recogrid::GridScanResult ScanWithRecoGridEngine(
     }
     UpdateSeenCells(result.dispatchableCells);
     UpdateCellQualities(image, result.dispatchableCells);
+    UpdateCellThumbStates(image, result.dispatchableCells);
     return result;
 }
 
@@ -542,8 +702,16 @@ void RebuildCurrentPageQueue(const recogrid::GridScanResult& result, const Quali
     g_currentPageQueue.clear();
     g_currentPageQueueIndex = 0;
     for (const recogrid::GridScanCell& cell : result.dispatchableCells) {
-        if (!cell.visible || g_issuedCellKeys.find({ cell.row, cell.col }) != g_issuedCellKeys.end() ||
-            !ShouldDispatchQuality(cell, filter)) {
+        if (!cell.visible) {
+            continue;
+        }
+        if (g_issuedCellKeys.find({ cell.row, cell.col }) != g_issuedCellKeys.end()) {
+            continue;
+        }
+        if (!ShouldDispatchQuality(cell, filter)) {
+            continue;
+        }
+        if (!ShouldDispatchThumbState(cell, filter)) {
             continue;
         }
         g_currentPageQueue.push_back(cell);

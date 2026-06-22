@@ -31,7 +31,9 @@
         },
         "attach": {
             "flawless_essence": true,
-            "pure_essence": false
+            "pure_essence": false,
+            "skip_thumb_lock": true,
+            "skip_thumb_discard": true
         },
         "pre_wait_freezes": {
             "time": 100,
