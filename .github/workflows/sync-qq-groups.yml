@@ -12,29 +12,16 @@ jobs:
           token: ${{ secrets.MAAEND_BOT_TOKEN }}
           show-progress: false
 
-      - name: Fetch index.json and update README
+      - name: Sync QQ group references
         run: |
-          DATA=$(curl -sf https://end.maafw.com/index.json) || exit 0
-
-          USER_GROUP=$(echo "$DATA" | jq -r '.qq_groups.user.number // empty')
-          USER_LINK=$(echo "$DATA" | jq -r '.qq_groups.user.link // empty')
-          DEV_GROUP=$(echo "$DATA" | jq -r '.qq_groups.dev.number // empty')
-          DEV_LINK=$(echo "$DATA" | jq -r '.qq_groups.dev.link // empty')
-
-          if [ -z "$USER_GROUP" ] || [ -z "$USER_LINK" ] || [ -z "$DEV_GROUP" ] || [ -z "$DEV_LINK" ]; then
-            echo "Missing fields in index.json, skipping"
-            exit 0
-          fi
-
-          sed -i "s|\*\*用户 QQ 群\*\*: \[[0-9]*\](https://qm.qq.com/q/[^)]*)|**用户 QQ 群**: [$USER_GROUP]($USER_LINK)|" README.md
-          sed -i "s|\*\*开发 QQ 群\*\*: \[[0-9]*\](https://qm.qq.com/q/[^)]*)|**开发 QQ 群**: [$DEV_GROUP]($DEV_LINK)|" README.md
+          python3 .github/scripts/sync_qq_groups.py
 
       - name: Commit and push
         uses: actions-js/push@master
         with:
           rebase: true
           branch: ${{ github.ref }}
-          message: "chore: sync QQ group info in README
+          message: "chore: sync QQ group info
 
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
