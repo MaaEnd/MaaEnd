@@ -721,6 +721,8 @@
     "task.AutoUseSpMedication.label": "💊应急理智加强剂",
     "option.AutoUseSpMedicationExpireWithinDays.label": "使用几天内",
     "option.AutoUseSpMedicationExpireWithinDays.description": "仅使用剩余时间在该天数内的应急理智加强剂",
+    "option.AutoUseSpMedicationExpireWithinDays.cases.All.label": "全部",
+    "option.AutoUseSpMedicationExpireWithinDays.cases.Days10.label": "10天内",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days1.label": "1天内",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days3.label": "3天内",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days7.label": "7天内",

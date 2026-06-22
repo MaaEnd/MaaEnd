@@ -527,6 +527,8 @@
     "task.AutoUseSpMedication.label": "💊應急理智加強劑",
     "option.AutoUseSpMedicationExpireWithinDays.label": "使用幾天內",
     "option.AutoUseSpMedicationExpireWithinDays.description": "僅使用剩餘時間在該天數內的應急理智加強劑",
+    "option.AutoUseSpMedicationExpireWithinDays.cases.All.label": "全部",
+    "option.AutoUseSpMedicationExpireWithinDays.cases.Days10.label": "10天內",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days1.label": "1天內",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days3.label": "3天內",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days7.label": "7天內",
