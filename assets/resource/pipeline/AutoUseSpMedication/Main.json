@@ -22,7 +22,8 @@
             }
         },
         "next": [
-            "AutoUseSpMedicationLoop"
+            "[JumpBack]AutoUseSpMedicationLoop",
+            "EmptyNode"
         ]
     },
     "AutoUseSpMedicationLoop": {
@@ -36,19 +37,20 @@
             "AutoUseSpMedicationUseNoEmergencySanityBooster"
         ]
     },
-    "AutoUseSpMedicationFinish": {
-        "desc": "完成使用应急理智加强剂，结束任务",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "$task.AutoUseSpMedication.focus.finish_succeeded"
-        }
-    },
     "AutoUseSpMedicationUseNoEmergencySanityBooster": {
         "desc": "提示没有符合条件的应急理智加强剂，结束任务",
         "enabled": true,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab"
+                ]
+            }
+        },
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoUseSpMedication.focus.no_booster_available"
-        }
+        },
+        "action": "StopTask"
     }
 }
