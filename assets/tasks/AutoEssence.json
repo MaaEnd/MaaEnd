@@ -118,6 +118,17 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "WLTestArea",
+                    "label": "$global.region.TestArea",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "WLTestAreaMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
                 }
             ]
         },

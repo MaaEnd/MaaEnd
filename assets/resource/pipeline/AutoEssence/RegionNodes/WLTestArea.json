@@ -1,0 +1,294 @@
+{
+    "WLTestAreaMoveToTriggerPointAuto": {
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "WLTestAreaMoveToTriggerPoint1",
+            "AutoEssenceWalkAround": "WLTestAreaWalkAround1"
+        },
+        "next": [
+            "[JumpBack]WLTestAreaMaybeTeleport",
+            "WLTestAreaMoveToTriggerPoint1"
+        ]
+    },
+    "WLTestAreaLocationAssertion": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 淤积点附近
+                            "map_name": "map02_lv005_tier_321",
+                            "target": [
+                                334.8,
+                                352.3,
+                                8.1,
+                                8.1
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "WLTestAreaMoveToTriggerPoint1",
+            "AutoEssenceWalkAround": "WLTestAreaWalkAround1"
+        },
+        "focus": {
+            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>试验园区</strong></p>"
+        }
+    },
+    "WLTestAreaMaybeTeleport": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 距离淤积点最近的锚点附近
+                            "map_name": "map02_lv005",
+                            "target": [
+                                327.4,
+                                408.6,
+                                21.5,
+                                17.5
+                            ]
+                        },
+                        {
+                            // 淤积点附近
+                            "map_name": "map02_lv005",
+                            "target": [
+                                331.6,
+                                350.4,
+                                15.3,
+                                14.8
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "inverse": true,
+        "next": [
+            "SceneEnterWorldWulingTestArea1"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✈️准备传送到最近锚点"
+        }
+    },
+    "WLTestAreaMoveToTriggerPoint1": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv005",
+                    "path": [
+                        [
+                            337.0,
+                            418.4
+                        ],
+                        [
+                            337.2,
+                            399.6
+                        ],
+                        [
+                            333.9,
+                            397.1
+                        ],
+                        [
+                            312.0,
+                            397.4
+                        ],
+                        [
+                            309.1,
+                            395.3
+                        ],
+                        [
+                            308.5,
+                            364.5
+                        ],
+                        [
+                            305.5,
+                            360.7
+                        ],
+                        [
+                            290.6,
+                            360.7
+                        ],
+                        [
+                            290.4,
+                            364.9
+                        ],
+                        [
+                            301.0,
+                            365.0
+                        ]
+                    ],
+                    "path_trim": true
+                }
+            }
+        },
+        "next": [
+            "WLTestAreaMoveToTriggerPoint2"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近(1/3)"
+        }
+    },
+    "WLTestAreaMoveToTriggerPoint2": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv005_tier_322",
+                    "path": [
+                        [
+                            303.2,
+                            364.8
+                        ],
+                        [
+                            316.9,
+                            364.6
+                        ],
+                        [
+                            319.2,
+                            367.6
+                        ],
+                        [
+                            319.0,
+                            377.5
+                        ],
+                        [
+                            321.7,
+                            379.7
+                        ],
+                        [
+                            337.1,
+                            380.3
+                        ],
+                        [
+                            336.9,
+                            375.9
+                        ]
+                    ],
+                    "path_trim": true
+                }
+            }
+        },
+        "next": [
+            "WLTestAreaMoveToTriggerPoint3"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近(2/3)"
+        }
+    },
+    "WLTestAreaMoveToTriggerPoint3": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv005_tier_321",
+                    "path": [
+                        [
+                            338.7,
+                            367.6
+                        ],
+                        [
+                            338.7,
+                            359.8
+                        ]
+                    ],
+                    "path_trim": true
+                }
+            }
+        },
+        "next": [
+            "WLTestAreaMoveToTriggerPointExact"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近(3/3)"
+        }
+    },
+    "WLTestAreaMoveToTriggerPointExact": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv005_tier_321",
+                    "path": [
+                        [
+                            338.4,
+                            358.4
+                        ]
+                    ]
+                }
+            }
+        },
+        "post_delay": 1000, //确保彻底停下,防止停下一瞬间看到了,靠惯性滑过目标点
+        "next": [
+            "AutoEssenceAtTriggerState"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点"
+        }
+    },
+    "WLTestAreaWalkAround1": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv005_tier_321",
+                    "path": [
+                        [
+                            338.6,
+                            358.6
+                        ]
+                    ],
+                    "rotation_lower_threshold": 12.0,
+                    "rotation_upper_threshold": 120.0,
+                    "sprint_threshold": 6.0
+                }
+            }
+        },
+        "next": [
+            "AutoEssenceCheckOngoing",
+            "WLTestAreaWalkAround2"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在散步中"
+        }
+    },
+    "WLTestAreaWalkAround2": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv005_tier_321",
+                    "path": [
+                        [
+                            338.2,
+                            358.2
+                        ]
+                    ],
+                    "rotation_lower_threshold": 12.0,
+                    "rotation_upper_threshold": 120.0,
+                    "sprint_threshold": 6.0
+                }
+            }
+        },
+        "next": [
+            "AutoEssenceCheckOngoing",
+            "WLTestAreaWalkAround1"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在散步中"
+        }
+    }
+}
