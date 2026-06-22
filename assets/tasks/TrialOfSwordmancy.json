@@ -35,10 +35,7 @@
                         "TrialOfSwordmancyDaily": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoFightSetting"
-                    ]
+                    }
                 },
                 {
                     "name": "Coating",
