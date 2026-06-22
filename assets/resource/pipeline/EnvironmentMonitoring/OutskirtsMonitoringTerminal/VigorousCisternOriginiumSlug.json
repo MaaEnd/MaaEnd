@@ -204,12 +204,15 @@
         "desc": "在充满活力的蓄水源石虫任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
-        "custom_recognition_param": {"zone_id": "Wuling_Base", "target": [
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
                 682.09,
                 1580.41,
                 44.2,
                 48.35
-            ]},
+            ]
+        },
         "next": [
             "GoToVigorousCisternOriginiumSlugMapTrackerMove"
         ]
