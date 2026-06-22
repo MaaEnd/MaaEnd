@@ -176,7 +176,10 @@
                 {
                     "name": "ObtainScaling1",
                     "label": "$option.AutoEssenceObtainMode.cases.ObtainScaling1.label",
-                    "pipeline_override": {}
+                    "pipeline_override": {},
+                    "option": [
+                        "AutoEssenceUseSpMedicationWhenSanityLow"
+                    ]
                 },
                 {
                     "name": "ObtainScaling2",
@@ -184,6 +187,322 @@
                     "pipeline_override": {
                         "AutoEssenceChooseScaling2": {
                             "enabled": true
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceUseSpMedicationWhenSanityLow"
+                    ]
+                }
+            ]
+        },
+        "AutoEssenceUseSpMedicationWhenSanityLow": {
+            "type": "switch",
+            "label": "$option.ProtocolSpaceUseSpMedicationWhenSanityLow.label",
+            "description": "$option.ProtocolSpaceUseSpMedicationWhenSanityLow.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoUseSpMedicationSelectEmergencySanityBoosterInCombat": {
+                            "enabled": true
+                        },
+                        "AutoEssenceLowSpCancelObtain": {
+                            "enabled": false
+                        },
+                        "AutoEssenceLowSpStopTask": {
+                            "enabled": false
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceSpMedicationExpireWithinDays"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoUseSpMedicationSelectEmergencySanityBoosterInCombat": {
+                            "enabled": false
+                        },
+                        "AutoEssenceLowSpCancelObtain": {
+                            "enabled": true
+                        },
+                        "AutoEssenceLowSpStopTask": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceSpMedicationExpireWithinDays": {
+            "type": "select",
+            "label": "$option.ProtocolSpaceSpMedicationExpireWithinDays.label",
+            "description": "$option.ProtocolSpaceSpMedicationExpireWithinDays.description",
+            "default_case": "Days3",
+            "cases": [
+                {
+                    "name": "Days1",
+                    "label": "$option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days1.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                "0小时",
+                                "1小时",
+                                "2小时",
+                                "3小时",
+                                "4小时",
+                                "5小时",
+                                "6小时",
+                                "7小时",
+                                "8小时",
+                                "9小时",
+                                "10小时",
+                                "11小时",
+                                "12小时",
+                                "13小时",
+                                "14小时",
+                                "15小时",
+                                "16小时",
+                                "17小时",
+                                "18小时",
+                                "19小时",
+                                "20小时",
+                                "21小时",
+                                "22小时",
+                                "23小时",
+                                "1天"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days2",
+                    "label": "$option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days2.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                "0小时",
+                                "1小时",
+                                "2小时",
+                                "3小时",
+                                "4小时",
+                                "5小时",
+                                "6小时",
+                                "7小时",
+                                "8小时",
+                                "9小时",
+                                "10小时",
+                                "11小时",
+                                "12小时",
+                                "13小时",
+                                "14小时",
+                                "15小时",
+                                "16小时",
+                                "17小时",
+                                "18小时",
+                                "19小时",
+                                "20小时",
+                                "21小时",
+                                "22小时",
+                                "23小时",
+                                "1天",
+                                "2天"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days3",
+                    "label": "$option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days3.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                "0小时",
+                                "1小时",
+                                "2小时",
+                                "3小时",
+                                "4小时",
+                                "5小时",
+                                "6小时",
+                                "7小时",
+                                "8小时",
+                                "9小时",
+                                "10小时",
+                                "11小时",
+                                "12小时",
+                                "13小时",
+                                "14小时",
+                                "15小时",
+                                "16小时",
+                                "17小时",
+                                "18小时",
+                                "19小时",
+                                "20小时",
+                                "21小时",
+                                "22小时",
+                                "23小时",
+                                "1天",
+                                "2天",
+                                "3天"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days4",
+                    "label": "$option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days4.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                "0小时",
+                                "1小时",
+                                "2小时",
+                                "3小时",
+                                "4小时",
+                                "5小时",
+                                "6小时",
+                                "7小时",
+                                "8小时",
+                                "9小时",
+                                "10小时",
+                                "11小时",
+                                "12小时",
+                                "13小时",
+                                "14小时",
+                                "15小时",
+                                "16小时",
+                                "17小时",
+                                "18小时",
+                                "19小时",
+                                "20小时",
+                                "21小时",
+                                "22小时",
+                                "23小时",
+                                "1天",
+                                "2天",
+                                "3天",
+                                "4天"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days5",
+                    "label": "$option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days5.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                "0小时",
+                                "1小时",
+                                "2小时",
+                                "3小时",
+                                "4小时",
+                                "5小时",
+                                "6小时",
+                                "7小时",
+                                "8小时",
+                                "9小时",
+                                "10小时",
+                                "11小时",
+                                "12小时",
+                                "13小时",
+                                "14小时",
+                                "15小时",
+                                "16小时",
+                                "17小时",
+                                "18小时",
+                                "19小时",
+                                "20小时",
+                                "21小时",
+                                "22小时",
+                                "23小时",
+                                "1天",
+                                "2天",
+                                "3天",
+                                "4天",
+                                "5天"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days6",
+                    "label": "$option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days6.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                "0小时",
+                                "1小时",
+                                "2小时",
+                                "3小时",
+                                "4小时",
+                                "5小时",
+                                "6小时",
+                                "7小时",
+                                "8小时",
+                                "9小时",
+                                "10小时",
+                                "11小时",
+                                "12小时",
+                                "13小时",
+                                "14小时",
+                                "15小时",
+                                "16小时",
+                                "17小时",
+                                "18小时",
+                                "19小时",
+                                "20小时",
+                                "21小时",
+                                "22小时",
+                                "23小时",
+                                "1天",
+                                "2天",
+                                "3天",
+                                "4天",
+                                "5天",
+                                "6天"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days7",
+                    "label": "$option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days7.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                "0小时",
+                                "1小时",
+                                "2小时",
+                                "3小时",
+                                "4小时",
+                                "5小时",
+                                "6小时",
+                                "7小时",
+                                "8小时",
+                                "9小时",
+                                "10小时",
+                                "11小时",
+                                "12小时",
+                                "13小时",
+                                "14小时",
+                                "15小时",
+                                "16小时",
+                                "17小时",
+                                "18小时",
+                                "19小时",
+                                "20小时",
+                                "21小时",
+                                "22小时",
+                                "23小时",
+                                "1天",
+                                "2天",
+                                "3天",
+                                "4天",
+                                "5天",
+                                "6天",
+                                "7天"
+                            ]
                         }
                     }
                 }

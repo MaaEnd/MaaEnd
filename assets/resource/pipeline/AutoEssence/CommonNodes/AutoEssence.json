@@ -799,7 +799,10 @@
             "type": "Click"
         },
         "next": [
-            "AutoEssenceLowSpCancelObtain"
+            "[JumpBack]AutoUseSpMedicationSelectEmergencySanityBoosterInCombat",
+            "AutoEssenceLowSpCancelObtain",
+            // 选择应急理智加强剂运行成功会关闭体力界面,所以使用成功会直接返回,重新领取
+            "AutoEssenceConfirmObtain"
         ],
         "focus": {
             "Node.Action.Starting": "✖️关闭体力不足弹窗"
