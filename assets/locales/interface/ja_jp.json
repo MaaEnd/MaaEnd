@@ -51,6 +51,7 @@
     "option.AutoFight.label": "自動戦闘",
     "option.AutoFight.description": "連携スキル・戦技・必殺技の自動発動、通常攻撃・回避の自動化に対応。回避にはゲーム内設定で「エフェクト品質-高」が必要です。",
     "option.AutoFightSetting.label": "自動戦闘設定",
+    "option.AutoFightSettingFull.label": "自動戦闘詳細設定",
     "option.AutoFightAttack.label": "通常攻撃を自動",
     "option.AutoFightAttackKey.label": "マウス干渉なし通常攻撃",
     "option.AutoFightAttackKey.description": "ゲーム内設定が必要：通常攻撃-キー2を0に設定し、マウスクリックではなくキー入力による自動通常攻撃を実現",
