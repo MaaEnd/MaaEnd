@@ -131,7 +131,10 @@
                     }
                 },
                 {
-                    "name": "Yes"
+                    "name": "Yes",
+                    "option": [
+                        "AutoFightSetting"
+                    ]
                 }
             ]
         }
