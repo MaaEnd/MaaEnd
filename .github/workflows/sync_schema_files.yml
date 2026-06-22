@@ -122,7 +122,7 @@ jobs:
 
       - name: Commit and push changes
         if: steps.check_status.outputs.changes_detected == 'true'
-        uses: actions-js/push@master
+        uses: actions-js/push@v1.5
         with:
           rebase: true
           branch: ${{ github.ref }}

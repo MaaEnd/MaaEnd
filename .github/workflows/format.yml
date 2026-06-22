@@ -38,7 +38,7 @@ jobs:
         run: pnpm format:all
 
       - name: Commit and push changes
-        uses: actions-js/push@master
+        uses: actions-js/push@v1.5
         with:
           rebase: true
           branch: ${{ github.ref }}

@@ -30,7 +30,7 @@ jobs:
           sed -i "s|\*\*开发 QQ 群\*\*: \[[0-9]*\](https://qm.qq.com/q/[^)]*)|**开发 QQ 群**: [$DEV_GROUP]($DEV_LINK)|" README.md
 
       - name: Commit and push
-        uses: actions-js/push@master
+        uses: actions-js/push@v1.5
         with:
           rebase: true
           branch: ${{ github.ref }}
