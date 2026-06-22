@@ -27,7 +27,6 @@
         ]
     },
     "AutoUseSpMedicationLoop": {
-        "enabled": false, // 只有主动使用时才会启用,默认情况下是在战斗中使用体力
         "desc": "主任务循环",
         "max_hit": 1, //由选项覆盖
         "pre_delay": 0,
