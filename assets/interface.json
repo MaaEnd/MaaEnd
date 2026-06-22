@@ -193,7 +193,6 @@
         // preset
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",
-        "tasks/preset/RealtimeAssist.json",
-        "tasks/preset/EssenceFarming.json"
+        "tasks/preset/RealtimeAssist.json"
     ]
 }

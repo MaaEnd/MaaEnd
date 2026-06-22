@@ -822,8 +822,6 @@
     "preset.QuickDaily.description": "Only performs core reward-claiming tasks, saving time and effort.",
     "preset.RealtimeAssist.label": "Real-time Assist",
     "preset.RealtimeAssist.description": "Full suite of real-time assist features for AFK.",
-    "preset.EssenceFarming.label": "Essence Farming",
-    "preset.EssenceFarming.description": "Essence farming and filtering related tasks.",
     "task.AutoEcoFarm.label": "🌾Eco-Farm",
     "task.AutoEcoFarm.description": "\n## Task Function:\nThe task will automatically store all items in the backpack with one click before starting (enabled by default), then automatically complete harvesting, planting, watering, and other related operations.\n## Notice - Please prepare before starting the task:\n1. **Please place the Wuling Integrated Industrial Core near the edge of the Ecological Farm** (east side of the map) to prevent auto-pathfinding from getting stuck. If it is inconvenient to adjust the base location, enable the \"**Custom Auto-Harvest Zones → Wuling - Wuling City → Leave Wuling base with photo mode**\" option.\n2. **Please bring a full team of 3 teammates**; harvesting mostly relies on teammates. The lead character only provides guidance; missing teammates will result in huge losses of farmland.\n## Recommendations:\n1. Arrange farmland in a **dense formation as close to the center as possible**, preferably square, to avoid misses.\n2. Try not to place sprinklers on the **diagonal** of the farm, as this may cause jamming.",
     "task.AutoEcoFarm.option.SelectFarm.label": "Custom Auto-Harvest Zones",

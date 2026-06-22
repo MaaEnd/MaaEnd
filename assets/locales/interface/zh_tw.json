@@ -822,8 +822,6 @@
     "preset.QuickDaily.description": "只做最核心的領獎任務，省時省力",
     "preset.RealtimeAssist.label": "實時輔助",
     "preset.RealtimeAssist.description": "掛機時開啟的實時輔助功能全套",
-    "preset.EssenceFarming.label": "基質刷取",
-    "preset.EssenceFarming.description": "基質養成及篩選相關",
     "task.AutoEcoFarm.label": "🌾生態農場",
     "task.AutoEcoFarm.description": "\n## 任務功能：\n任務開始前會自動一鍵存放背包內的物品（預設開啟），接著自動完成採收、種植、澆水等相關操作。\n## 注意，請務必在任務開始前完成以下準備：\n1、**請將武陵集成工業核心放置在生態農場邊緣**（地圖東側），避免自動尋路卡住。如果不方便調整基地位置，可開啟「**自訂收菜區域 → 武陵 - 武陵城 → 開拍照模式離開武陵基地**」選項\n2、**請帶滿3名隊友**，採收絕大部分需要依賴隊友作業，主控角色僅負責引導，缺少隊友將會遺漏大量農田\n## 建議：\n1、將農田擺成**密集陣型，並盡量靠近農場中心**，方形為最佳，較不易遺漏\n2、盡量不要在農場的**對角線**上放置灑水器，否則容易卡住",
     "task.AutoEcoFarm.option.SelectFarm.label": "自訂收菜區域",
