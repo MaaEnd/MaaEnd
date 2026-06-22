@@ -19,7 +19,7 @@
     // AutoUseSpMedicationSelectEmergencySanityBoosterInCombat，在战斗界面快捷使用符合条件的应急理智加强剂。
     "AutoUseSpMedicationSelectEmergencySanityBoosterInCombat": {
         "desc": "选择应急理智加强剂",
-        "enabled": true,
+        "enabled": false,
         "max_hit": 3,
         "recognition": "And",
         "all_of": [
