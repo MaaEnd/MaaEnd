@@ -40,7 +40,6 @@ var htmlTemplates = map[string]string{
 	"essencefilter.plan_recommend":            "HTML/essencefilter-plan-recommend.html",
 	"essencefilter.plan_card":                 "HTML/essencefilter-plan-card.html",
 	"essencefilter.simple_message":            "HTML/essencefilter-simple-message.html",
-	"essencefilter.inventory_count":           "HTML/essencefilter-inventory-count.html",
 	"essencefilter.matched_weapons":           "HTML/essencefilter-matched-weapons.html",
 	"essencefilter.ext_rule_lock":             "HTML/essencefilter-ext-rule-lock.html",
 	"essencefilter.ext_rule_noop":             "HTML/essencefilter-ext-rule-noop.html",
