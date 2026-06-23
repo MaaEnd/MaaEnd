@@ -109,6 +109,17 @@
                     }
                 },
                 {
+                    "name": "WLTestArea",
+                    "label": "$global.region.TestArea",
+                    "pipeline_override": {
+                        "AutoEssenceSpecifiedLocation": {
+                            "next": [
+                                "WLTestAreaMoveToTriggerPointAuto"
+                            ]
+                        }
+                    }
+                },
+                {
                     "name": "WLSwordVaultDale",
                     "label": "$global.region.SwordVaultDale",
                     "pipeline_override": {

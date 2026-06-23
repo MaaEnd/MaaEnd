@@ -1,0 +1,194 @@
+{
+    "WLTestAreaMoveToTriggerPointAuto": {
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "WLTestAreaMoveToTriggerPoint",
+            "AutoEssenceWalkAround": "WLTestAreaWalkAround1"
+        },
+        "next": [
+            "[JumpBack]WLTestAreaMaybeTeleport",
+            "WLTestAreaMoveToTriggerPoint"
+        ]
+    },
+    "WLTestAreaLocationAssertion": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 淤积点附近
+                            "map_name": "map02_lv005_tier_321",
+                            "target": [
+                                330.9,
+                                347.2,
+                                20.0,
+                                20.0
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "WLTestAreaMoveToTriggerPoint",
+            "AutoEssenceWalkAround": "WLTestAreaWalkAround1"
+        },
+        "focus": {
+            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>试验园区</strong></p>"
+        }
+    },
+    "WLTestAreaMaybeTeleport": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 距离淤积点最近的锚点附近
+                            "map_name": "map02_lv005_tier_322",
+                            "target": [
+                                380.7,
+                                350.3,
+                                20.0,
+                                20.0
+                            ]
+                        },
+                        {
+                            // 淤积点附近
+                            "map_name": "map02_lv005_tier_321",
+                            "target": [
+                                330.9,
+                                347.2,
+                                20.0,
+                                20.0
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "inverse": true,
+        "next": [
+            "SceneEnterWorldWulingTestArea2"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✈️准备传送到最近锚点"
+        }
+    },
+    "WLTestAreaMoveToTriggerPoint": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv005",
+                    "path": [
+                        [
+                            390.7,
+                            360.3
+                        ],
+                        [
+                            387.3,
+                            358.0
+                        ],
+                        [
+                            340.9,
+                            357.2
+                        ]
+                    ],
+                    "path_trim": true
+                }
+            }
+        },
+        "post_delay": 1000, //确保彻底停下,防止停下一瞬间看到了,靠惯性滑过目标点
+        "next": [
+            "AutoEssenceAtTriggerState"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点"
+        }
+    },
+    "WLTestAreaWalkAround1": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv005_tier_321",
+                    "path": [
+                        [
+                            344.2,
+                            346.1
+                        ]
+                    ],
+                    "rotation_lower_threshold": 12.0,
+                    "rotation_upper_threshold": 120.0,
+                    "sprint_threshold": 6.0
+                }
+            }
+        },
+        "next": [
+            "AutoEssenceCheckOngoing",
+            "WLTestAreaWalkAround2"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在散步中"
+        }
+    },
+    "WLTestAreaWalkAround2": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv005_tier_321",
+                    "path": [
+                        [
+                            329.8,
+                            357.2
+                        ]
+                    ],
+                    "rotation_lower_threshold": 12.0,
+                    "rotation_upper_threshold": 120.0,
+                    "sprint_threshold": 6.0
+                }
+            }
+        },
+        "next": [
+            "AutoEssenceCheckOngoing",
+            "WLTestAreaWalkAround3"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在散步中"
+        }
+    },
+    "WLTestAreaWalkAround3": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv005_tier_321",
+                    "path": [
+                        [
+                            345.4,
+                            368.3
+                        ]
+                    ],
+                    "rotation_lower_threshold": 12.0,
+                    "rotation_upper_threshold": 120.0,
+                    "sprint_threshold": 6.0
+                }
+            }
+        },
+        "next": [
+            "AutoEssenceCheckOngoing",
+            "WLTestAreaWalkAround1"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在散步中"
+        }
+    }
+}

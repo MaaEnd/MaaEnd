@@ -1157,6 +1157,39 @@
             "__ScenePrivateMapTeleportConfirm"
         ]
     },
+    "__ScenePrivateMapUnknownEnterWorldWulingTestArea2Try1": {
+        "desc": "在地图界面找锚点 (试验园区-测试区)",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/MapWuling/TestArea2Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
     "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale1": {
         "desc": "在地图界面找锚点 (藏剑谷-东谷遗迹)",
         "recognition": "And",
