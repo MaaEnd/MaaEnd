@@ -163,8 +163,6 @@
         "tasks/PuzzleSolver.json",
         "tasks/ImportBluePrints.json",
         // group: sanity_sink
-        "tasks/ProtocolSpace.json",
-        "tasks/AutoEssence.json",
         "tasks/SanitySink.json",
         "tasks/AutoUseSpMedication.json",
         // group: dijiang_ship

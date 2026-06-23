@@ -6,12 +6,11 @@
             "description": "$preset.EssenceFarming.description",
             "task": [
                 {
-                    "name": "AutoEssence",
+                    "name": "SanitySink",
                     "option": {
-                        "AutoEssenceDoOverride": "Yes",
-                        "AutoEssenceRepeatCount": {
-                            "AutoEssenceRepeatCountValue": "5"
-                        }
+                        "SanitySinkMode": "AutoEssence",
+                        "SanitySinkSuccessCount": "Count5",
+                        "AutoEssenceDoOverride": "Yes"
                     }
                 },
                 {
