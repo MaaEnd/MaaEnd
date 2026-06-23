@@ -5,6 +5,39 @@
             "param": {
                 "package": "com.hypergryph.endfield"
             }
+        },
+        "next": [
+            "CloseGame_Auto_B"
+        ]
+    },
+    "CloseGame_Auto_B": {
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.hypergryph.endfield.bilibili"
+            }
+        },
+        "next": [
+            "CloseGame_Auto_Global"
+        ]
+    },
+    "CloseGame_Auto_Global": {
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.gryphline.endfield.gp"
+            }
+        },
+        "next": [
+            "CloseGame_Auto_VN"
+        ]
+    },
+    "CloseGame_Auto_VN": {
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.gryphline.endfield.gp.vn"
+            }
         }
     }
 }

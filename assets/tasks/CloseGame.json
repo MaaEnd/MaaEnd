@@ -7,6 +7,9 @@
             "description": "$task.CloseGame.description",
             "group": [
                 "other_menu"
+            ],
+            "option": [
+                "ClientVersion"
             ]
         }
     ],

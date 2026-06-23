@@ -9,8 +9,125 @@
                 "ADB",
                 "PlayCover"
             ],
-            "group": ["other_menu"]
+            "group": [
+                "other_menu"
+            ],
+            "option": [
+                "ClientVersion"
+            ]
         }
     ],
-    "option": {}
+    "option": {
+        "ClientVersion": {
+            "type": "select",
+            "controller": [
+                "ADB",
+                "PlayCover"
+            ],
+            "label": "$option.ClientVersion.label",
+            "default_case": "Auto",
+            "cases": [
+                {
+                    "name": "Auto",
+                    "label": "$option.ClientVersion.cases.Auto.label"
+                },
+                {
+                    "name": "CN",
+                    "label": "$option.ClientVersion.cases.CN.label",
+                    "pipeline_override": {
+                        "AndroidOpenGame": {
+                            "action": {
+                                "type": "StartApp",
+                                "param": {
+                                    "package": "com.hypergryph.endfield"
+                                }
+                            },
+                            "on_error": []
+                        },
+                        "CloseGame": {
+                            "action": {
+                                "type": "StopApp",
+                                "param": {
+                                    "package": "com.hypergryph.endfield"
+                                }
+                            },
+                            "next": []
+                        }
+                    }
+                },
+                {
+                    "name": "Bilibili",
+                    "label": "$option.ClientVersion.cases.Bilibili.label",
+                    "pipeline_override": {
+                        "AndroidOpenGame": {
+                            "action": {
+                                "type": "StartApp",
+                                "param": {
+                                    "package": "com.hypergryph.endfield.bilibili"
+                                }
+                            },
+                            "on_error": []
+                        },
+                        "CloseGame": {
+                            "action": {
+                                "type": "StopApp",
+                                "param": {
+                                    "package": "com.hypergryph.endfield.bilibili"
+                                }
+                            },
+                            "next": []
+                        }
+                    }
+                },
+                {
+                    "name": "Global",
+                    "label": "$option.ClientVersion.cases.Global.label",
+                    "pipeline_override": {
+                        "AndroidOpenGame": {
+                            "action": {
+                                "type": "StartApp",
+                                "param": {
+                                    "package": "com.gryphline.endfield.gp"
+                                }
+                            },
+                            "on_error": []
+                        },
+                        "CloseGame": {
+                            "action": {
+                                "type": "StopApp",
+                                "param": {
+                                    "package": "com.gryphline.endfield.gp"
+                                }
+                            },
+                            "next": []
+                        }
+                    }
+                },
+                {
+                    "name": "VN",
+                    "label": "$option.ClientVersion.cases.VN.label",
+                    "pipeline_override": {
+                        "AndroidOpenGame": {
+                            "action": {
+                                "type": "StartApp",
+                                "param": {
+                                    "package": "com.gryphline.endfield.gp.vn"
+                                }
+                            },
+                            "on_error": []
+                        },
+                        "CloseGame": {
+                            "action": {
+                                "type": "StopApp",
+                                "param": {
+                                    "package": "com.gryphline.endfield.gp.vn"
+                                }
+                            },
+                            "next": []
+                        }
+                    }
+                }
+            ]
+        }
+    }
 }

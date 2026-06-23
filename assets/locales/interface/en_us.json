@@ -1070,6 +1070,12 @@
     "option.TrialOfSwordmancyOverflow.cases.None.label": "No overflow",
     "option.TrialOfSwordmancyOverflow.cases.Once.label": "Accept 1 overflow",
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "Accept 1-2 overflows",
-    "option.TrialOfSwordmancyAutoFight.label": "Enable auto-battle"
+    "option.TrialOfSwordmancyAutoFight.label": "Enable auto-battle",
+    "option.ClientVersion.label": "Client Version",
+    "option.ClientVersion.cases.Auto.label": "Auto Detect",
+    "option.ClientVersion.cases.CN.label": "CN (Hypergryph)",
+    "option.ClientVersion.cases.Bilibili.label": "CN (Bilibili)",
+    "option.ClientVersion.cases.Global.label": "Global (Gryphline)",
+    "option.ClientVersion.cases.VN.label": "Vietnam (Gryphline)"
 }
 
