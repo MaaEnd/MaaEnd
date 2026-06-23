@@ -235,7 +235,7 @@
                     "label": "$option.ProtocolSpaceCountUnlimited.label",
                     "pipeline_override": {
                         "AutoEssenceMain": {
-                            "max_hit": 99
+                            "max_hit": 99999
                         },
                         "AutoEssenceOnSuccess": {
                             "next": [

@@ -416,6 +416,12 @@
                         "AutoUseSpMedicationSelectEmergencySanityBoosterInCombat": {
                             "enabled": true
                         },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "next": [
+                                "ProtocolSpacePopupSanityLowContinue",
+                                "ProtocolSpaceEnterSpacePrepareSuccess"
+                            ]
+                        },
                         "ProtocolSpaceRewardClaimSuccessSanityLowDialog": {
                             "enabled": false
                         },
