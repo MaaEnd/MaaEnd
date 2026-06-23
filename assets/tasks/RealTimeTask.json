@@ -428,12 +428,7 @@
                         }
                     },
                     "option": [
-                        "AutoFightKeymap",
-                        "AutoFightAttack",
-                        "AutoFightDodge",
-                        "AutoFightLockTarget",
-                        "AutoFightHealthDangerousSwitch",
-                        "AutoFightRealtimeAxis"
+                        "AutoFightSettingFull"
                     ]
                 },
                 {
@@ -443,6 +438,26 @@
                             "enabled": false
                         }
                     }
+                }
+            ]
+        },
+        "AutoFightSettingFull": {
+            "type": "switch",
+            "label": "$option.AutoFightSettingFull.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoFightKeymap",
+                        "AutoFightAttack",
+                        "AutoFightDodge",
+                        "AutoFightLockTarget",
+                        "AutoFightHealthDangerousSwitch",
+                        "AutoFightAxisFullSetting"
+                    ]
+                },
+                {
+                    "name": "No"
                 }
             ]
         },
@@ -648,7 +663,7 @@
                 }
             ]
         },
-        "AutoFightRealtimeAxis": {
+        "AutoFightAxisFullSetting": {
             "label": "$option.AutoFightAxis.label",
             "type": "switch",
             "default_case": "No",

@@ -483,20 +483,14 @@
         "desc": "[ValleyIV版]尝试直接走出基地",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "MapNavigateAction",
+        "custom_action": "MapTrackerMove",
         "custom_action_param": {
+            "map_name": "map01_lv005",
             "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "ValleyIV_Base"
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        0,
-                        0
-                    ]
-                }
+                [
+                    0,
+                    0
+                ]
             ]
         }
     }

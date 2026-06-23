@@ -207,18 +207,14 @@
     "GoToCisternOriginiumSlugsStartPos": {
         "desc": "在蓄水源石虫任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        280,
-                        580,
-                        15,
-                        15
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                747.21,
+                1516.86,
+                36.4,
+                31.87
             ]
         },
         "next": [
@@ -241,30 +237,20 @@
     "GoToCisternOriginiumSlugsMapTrackerMove": {
         "desc": "前往蓄水源石虫",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv001",
             "path": [
-                [
-                    291,
-                    582
-                ],
-                [
-                    298,
-                    576
-                ],
-                [
-                    306,
-                    578
-                ],
-                [
-                    309,
-                    593
-                ],
-                [
-                    318,
-                    593
-                ]
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        794,
+                        1546.21
+                    ]
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 235
+                }
             ]
         },
         "anchor": {
@@ -288,7 +274,7 @@
         "desc": "蓄水源石虫任务中调整朝向",
         "max_hit": 2,
         "next": [
-            "EnvironmentMonitoringSwipeScreenRight"
+            "EnvironmentMonitoringSwipeScreenDown"
         ]
     }
 }

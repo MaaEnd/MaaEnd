@@ -181,11 +181,7 @@
                 280,
                 200
             ]
-        },
-        "next": [
-            "AutoUseSpMedicationLoop",
-            "AutoUseSpMedicationFinish"
-        ]
+        }
     },
     "AutoUseSpMedicationQuickUseError": {
         "desc": "提示错误并结束任务",

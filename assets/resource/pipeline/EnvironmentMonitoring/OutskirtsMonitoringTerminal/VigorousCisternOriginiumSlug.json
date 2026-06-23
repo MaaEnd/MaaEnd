@@ -169,9 +169,7 @@
             "InVigorousCisternOriginiumSlugMission"
         ],
         "action": "Click",
-        "next": [
-            "GoToVigorousCisternOriginiumSlug"
-        ]
+        "next": ["GoToVigorousCisternOriginiumSlug"]
     },
     "AlreadyTrackedVigorousCisternOriginiumSlug": {
         "desc": "充满活力的蓄水源石虫任务已经在追踪中",
@@ -180,9 +178,7 @@
             "AlreadyTrackedMissionButton",
             "InVigorousCisternOriginiumSlugMission"
         ],
-        "next": [
-            "GoToVigorousCisternOriginiumSlug"
-        ]
+        "next": ["GoToVigorousCisternOriginiumSlug"]
     },
     "VigorousCisternOriginiumSlugNotAdapted": {
         "desc": "充满活力的蓄水源石虫任务尚未适配，仅接取并追踪",
@@ -207,18 +203,14 @@
     "GoToVigorousCisternOriginiumSlugStartPos": {
         "desc": "在充满活力的蓄水源石虫任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        210,
-                        635,
-                        15,
-                        15
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                682.09,
+                1580.41,
+                44.2,
+                48.35
             ]
         },
         "next": [
@@ -241,18 +233,14 @@
     "GoToVigorousCisternOriginiumSlugMapTrackerMove": {
         "desc": "前往充满活力的蓄水源石虫",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv001",
             "path": [
-                [
-                    213,
-                    632
-                ],
-                [
-                    216,
-                    630.4
-                ]
+                {"action": "NAVMESH", "target": [
+                        691.16,
+                        1578.78
+                    ]},
+                {"action": "HEADING", "angle": 100}
             ]
         },
         "anchor": {
@@ -268,15 +256,13 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "EnvironmentMonitoringTakePhoto"
-        ]
+        "next": ["EnvironmentMonitoringTakePhoto"]
     },
     "VigorousCisternOriginiumSlugAdjustCamera": {
         "desc": "充满活力的蓄水源石虫任务中调整朝向",
         "max_hit": 2,
         "next": [
-            "EnvironmentMonitoringSwipeScreenRight"
+            "EnvironmentMonitoringSwipeScreenDown"
         ]
     }
 }

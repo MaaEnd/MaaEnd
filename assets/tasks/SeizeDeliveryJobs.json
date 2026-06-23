@@ -128,7 +128,8 @@
                     "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalkFetchDeliver.label",
                     "option": [
                         "SeizeDeliveryJobsPostDepartureRiskAcknowledgement",
-                        "SeizeDeliveryJobsPostDeparturePreferZipline"
+                        "SeizeDeliveryJobsPostDeparturePreferZipline",
+                        "SeizeDeliveryJobsRepeatCount"
                     ],
                     "pipeline_override": {
                         "SeizeDeliveryJobsPostProcessingEntry": {
@@ -178,6 +179,41 @@
                                 "zipline_policy": "Active",
                                 "is_retry": false
                             }
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsRepeatCount": {
+            "type": "select",
+            "default_case": "1",
+            "label": "$task.SeizeDeliveryJobsRepeatCount.label",
+            "description": "$task.SeizeDeliveryJobsRepeatCount.description",
+            "cases": [
+                {
+                    "name": "1",
+                    "label": "$task.SeizeDeliveryJobsRepeatCount.cases.1.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsMain": {
+                            "max_hit": 1
+                        }
+                    }
+                },
+                {
+                    "name": "2",
+                    "label": "$task.SeizeDeliveryJobsRepeatCount.cases.2.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsMain": {
+                            "max_hit": 2
+                        }
+                    }
+                },
+                {
+                    "name": "3",
+                    "label": "$task.SeizeDeliveryJobsRepeatCount.cases.3.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsMain": {
+                            "max_hit": 3
                         }
                     }
                 }

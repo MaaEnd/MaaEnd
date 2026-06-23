@@ -96,13 +96,17 @@
         }
     },
     "SeizeDeliveryJobsCloseRewardDialog": {
-        "desc": "在提交货物后，关闭奖励对话框（随后任务结束）",
+        "desc": "在提交货物后，关闭奖励对话框；随后按剩余循环次数决定回到抢单入口或结束任务",
         "recognition": "And",
         "all_of": [
             "CloseRewardsButton"
         ],
         "pre_wait_freezes": 500, // 等待奖励动画播放完毕
         "action": "Click",
+        "next": [
+            "SeizeDeliveryJobsMain", // 有剩余次数时继续循环
+            "SeizeDeliveryJobsTaskEnd" // 次数用尽时结束任务
+        ],
         "focus": {
             "Node.Action.Starting": "**成功提交货物**"
         }

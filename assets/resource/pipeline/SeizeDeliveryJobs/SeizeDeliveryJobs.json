@@ -522,5 +522,14 @@
             }
         ],
         "box_index": 3
+    },
+    "SeizeDeliveryJobsTaskEnd": {
+        "desc": "任务结束节点：当重复次数用完时结束任务",
+        "enabled": true,
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "focus": {
+            "Node.Action.Starting": "$task.SeizeDeliveryJobs.focus.taskEnd"
+        }
     }
 }

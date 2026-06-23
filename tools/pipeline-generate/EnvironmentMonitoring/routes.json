@@ -64,36 +64,19 @@
         "Name": "蓄水源石虫",
         "Id": "CisternOriginiumSlugs",
         "EnterMap": "SceneEnterWorldWulingJingyuValley7",
-        "MapName": "map02_lv001",
+        "MapName": "Wuling_Base",
         "MapAssert": [
-            280,
-            580,
-            15,
-            15
+            747.21,
+            1516.86,
+            36.4,
+            31.87
         ],
-        "MapPath": [
-            [
-                291,
-                582
-            ],
-            [
-                298,
-                576
-            ],
-            [
-                306,
-                578
-            ],
-            [
-                309,
-                593
-            ],
-            [
-                318,
-                593
-            ]
+        "MapTarget": [
+            794,
+            1546.21
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenRight"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 235
     },
     {
         "MissionId": "m1m28",
@@ -263,24 +246,19 @@
         "Name": "充满活力的蓄水源石虫",
         "Id": "VigorousCisternOriginiumSlug",
         "EnterMap": "SceneEnterWorldWulingJingyuValley8",
-        "MapName": "map02_lv001",
+        "MapName": "Wuling_Base",
         "MapAssert": [
-            210,
-            635,
-            15,
-            15
+            682.09,
+            1580.41,
+            44.2,
+            48.35
         ],
-        "MapPath": [
-            [
-                213,
-                632
-            ],
-            [
-                216,
-                630.4
-            ]
+        "MapTarget": [
+            691.16,
+            1578.78
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenRight"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 100
     },
     {
         "MissionId": "m1m35",
