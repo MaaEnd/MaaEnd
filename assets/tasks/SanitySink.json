@@ -271,6 +271,12 @@
                         },
                         "AutoEssenceLowSpStopTask": {
                             "enabled": false
+                        },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "next": [
+                                "ProtocolSpacePopupSanityLowContinue",
+                                "ProtocolSpaceEnterSpacePrepareSuccess"
+                            ]
                         }
                     },
                     "option": [
