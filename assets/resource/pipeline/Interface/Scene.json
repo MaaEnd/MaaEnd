@@ -9,6 +9,7 @@
             "__ScenePrivateCloseADBExit",
             "__ScenePrivateMenuListLoadingEnterWorld",
             "__ScenePrivateMenuListEnterWorld",
+            "__ScenePrivateTrialOfSwordmancyEnterWorld",
             "__ScenePrivateAnyEnterWorldSuccess",
             "[JumpBack]__ScenePrivateLogin",
             "[JumpBack]__ScenePrivateNoticeRewardsUpgrade",
