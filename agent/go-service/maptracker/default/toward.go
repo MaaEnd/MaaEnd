@@ -42,8 +42,8 @@ const TOWARD_ROT_STEP = 2
 // walks backward and then forward so that the body orientation snaps to the new camera
 // facing without drifting away from the original position.
 const (
-	TOWARD_NUDGE_BACK_MS    = 200
-	TOWARD_NUDGE_FORWARD_MS = 100
+	TOWARD_NUDGE_BACK_MS    = 250
+	TOWARD_NUDGE_FORWARD_MS = 75
 )
 
 var mapTrackerTowardDefaultParam = MapTrackerTowardParam{
