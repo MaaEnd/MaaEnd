@@ -36,7 +36,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
     - 用 `curl -L` 或等价方式下载到仓库内临时目录，例如 `.cache/issue-logs/issue-<number>/`。
     - 如果日志包是 `partNN` 分包，下载前先列出计划下载的 part 清单（如 `part01`、`part02`、`part03`），再逐个下载。
     - 必须把同一逻辑日志包的全部可见 part 下载到本地，并确认每个文件都存在且非空，才能开始解压。
-    - 如果只发现 `part01` 但缺少后续 part，或 issue 文本暗示还有其他分包但附件未收集完整，不得解压；应返回 issue 正文和评论继续查找，仍找不到则停止分析并说明“日志分包不完整，证据不足”。
+    - 如果只发现 `part01` 但缺少后续 part，或 issue 文本暗示还有其他分包但附件未收集完整，不得解压；应返回 issue 正文和评论继续查找，仍找不到则先在正文输出提醒，再进行分析。
     - 解压分包时，如果这些 part 是独立 zip，逐个解压到同一输出目录；如果工具识别为分卷压缩包，必须先把全部 part 放在同一目录，再使用支持分卷的解压工具从入口卷解压。
     - 解压后用文件工具读取，不要把整份大日志完整塞进回复。
     - 先列一遍解压目录，不要假定结构固定。日志包可能包含：
@@ -434,7 +434,7 @@ Translate the complete conclusion directly into English and paste it here. Note 
 ## Reminders
 
 - **分包日志必须全量下载后再解压**：如果 issue 附件出现 `MaaEnd-logs-...-partNN.zip`，必须先收集同一前缀的全部可见 part，确认每个 part 文件存在且非空，再解压和分析。只分析 `part01` 会导致证据截断，不能据此判断根因。
-- **分包缺失要停止分析**：如果只能找到部分 part，或 issue 文本暗示还有未下载的分包，必须回到 issue 正文和评论继续查找；仍无法补全时，明确报告“日志分包不完整，证据不足”，不要用不完整日志下结论。
+- **分包缺失要停止分析**：如果只能找到部分 part，或 issue 文本暗示还有未下载的分包，必须回到 issue 正文和评论继续查找；仍找不到则先在正文输出提醒，再进行分析。
 - **报告分包完整性**：分析过程或最终报告中要能说明实际下载了哪些 part，以及是否存在缺失 part；如果日志不是分包，也按单文件日志正常处理。
 - **DMP 堆栈必须完整输出**：如果 issue 存在 `.dmp` 文件，最终报告中必须包含 `## DMP 崩溃分析` 区域，其中的崩溃堆栈必须列出 crashing thread 的全部有效帧（module+offset 或 function+line），禁止省略或用"等"代替。如果符号化帧涉及 MaaFramework/MXU，必须附上游 GitHub blob 行号链接。如果最终报告中缺少此区域而 issue 明确有 DMP，说明分析流程不完整，需要返回步骤 5 补做。
 - **DMP 分析必须先读 skill**：发现 `.dmp` 时必须先读取 `.claude/skills/dmp-analysis/SKILL.md` 再动手，不要自行发明解析流程。特别注意该 skill 中关于 `0xC0000409` 子参数含义等分析细节。
