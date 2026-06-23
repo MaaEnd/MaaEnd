@@ -61,6 +61,8 @@
     "option.AutoFightEndSkill.label": "自動釋放終結技",
     "option.AutoFightCombo.label": "自動觸發連攜技能",
     "option.AutoFightDodge.label": "自動閃避",
+    "option.AutoFightDodgeCompat.label": "相容模式",
+    "option.AutoFightDodgeCompat.description": "降低閃避識別率，避免受主控幹員重擊特效影響，例如餘燼、駿衛、萊萬汀等。",
     "option.AutoFightLockTarget.label": "自動鎖定目標",
     "option.AutoFightLockTarget.description": "當敵人不在視角內自動尋找並靠近敵人，當敵人在視角內才會放戰技、終結技",
     "option.AutoFightSaveDamage.label": "自動保存受擊圖片(測試用)",

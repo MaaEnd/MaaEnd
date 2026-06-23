@@ -53,6 +53,7 @@
     "autofight.capture_slow": "전투 인식 평균 소요 시간 %d ms, GPU 리소스 사용을 줄여 주세요",
     "autofight.adjust_view": "시점 조정",
     "autofight.move_back": "적을 오래 찾지 못해 후퇴합니다",
+    "autofight.approach_enemy": "적에게 접근",
     "autofight.move_forward": "적을 오래 찾지 못해 전진합니다",
     "autofight.move_left": "적을 오래 찾지 못해 왼쪽으로 이동합니다",
     "autofight.move_right": "적을 오래 찾지 못해 오른쪽으로 이동합니다",

@@ -53,6 +53,7 @@
     "autofight.capture_slow": "戦闘認識の平均処理時間が %d ms です。GPU リソースの使用を減らしてください",
     "autofight.adjust_view": "視点を調整",
     "autofight.move_back": "敵が長時間見つからないため、後退します",
+    "autofight.approach_enemy": "敵に接近",
     "autofight.move_forward": "敵が長時間見つからないため、前進します",
     "autofight.move_left": "敵が長時間見つからないため、左に移動します",
     "autofight.move_right": "敵が長時間見つからないため、右に移動します",
