@@ -1157,37 +1157,31 @@
             "__ScenePrivateMapTeleportConfirm"
         ]
     },
-    "__ScenePrivateMapUnknownEnterWorldWulingTestArea2Try1": {
+    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestArea2": {
         "desc": "在地图界面找锚点 (试验园区-测试区)",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingTestArea"
         ],
-        "template": [
-            "SceneManager/MapWuling/TestArea2Center.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv005",
             "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
+                391.6,
+                362.5
+            ],
+            "on_find": "Click"
         },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
         ]
     },
     "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale1": {
