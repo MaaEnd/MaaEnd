@@ -7,6 +7,19 @@ import (
 	"math"
 )
 
+/* ******** Reusable utilities ******** */
+
+// PathTotalDistance returns the cumulative Euclidean distance along a coordinate path.
+func PathTotalDistance(path [][2]float64) float64 {
+	distance := 0.0
+	for i := 1; i < len(path); i++ {
+		distance += math.Hypot(path[i][0]-path[i-1][0], path[i][1]-path[i-1][1])
+	}
+	return distance
+}
+
+/* ******** Graph searching algorithms ******** */
+
 type algoPoint struct {
 	x float64
 	y float64
