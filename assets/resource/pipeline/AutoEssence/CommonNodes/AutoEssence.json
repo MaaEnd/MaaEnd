@@ -801,12 +801,41 @@
         },
         "next": [
             "[JumpBack]AutoUseSpMedicationSelectEmergencySanityBoosterInCombat",
+            // 双倍领取且用药失败后，降级尝试单倍领取；max_hit 保证单倍仍不足时不再重复降级
+            "AutoEssenceLowSpRetryScaling1",
             "AutoEssenceLowSpCancelObtain",
             // 选择应急理智加强剂运行成功会关闭体力界面,所以使用成功会直接返回,重新领取
             "AutoEssenceConfirmObtain"
         ],
         "focus": {
             "Node.Action.Starting": "✖️关闭体力不足弹窗"
+        }
+    },
+    "AutoEssenceLowSpRetryScaling1": {
+        "desc": "双倍领取体力不足且用药失败后，降级点击单倍领取并确认",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    260,
+                    190,
+                    490,
+                    360
+                ],
+                "template": "AutoEssence/EssenceScaling1.png",
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "AutoEssenceConfirmObtain"
+        ],
+        "focus": {
+            "Node.Action.Starting": "👆体力不足，降级尝试单倍领取"
         }
     },
     "AutoEssenceLowSpCancelObtain": {

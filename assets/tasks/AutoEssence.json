@@ -152,6 +152,9 @@
                     "pipeline_override": {
                         "AutoEssenceChooseScaling2": {
                             "enabled": true
+                        },
+                        "AutoEssenceLowSpRetryScaling1": {
+                            "enabled": true
                         }
                     },
                     "option": [
@@ -171,12 +174,6 @@
                     "pipeline_override": {
                         "AutoUseSpMedicationSelectEmergencySanityBoosterInCombat": {
                             "enabled": true
-                        },
-                        "AutoEssenceLowSpCancelObtain": {
-                            "enabled": false
-                        },
-                        "AutoEssenceLowSpStopTask": {
-                            "enabled": false
                         }
                     },
                     "option": [
