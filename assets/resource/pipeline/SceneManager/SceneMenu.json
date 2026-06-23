@@ -39,6 +39,44 @@
             "__ScenePrivateAnyEnterWorldSuccess"
         ]
     },
+    "__ScenePrivateTrialOfSwordmancyEnterWorld": {
+        "desc": "从选剑演武界面退出到大世界",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "选剑演武"
+                ]
+            },
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "__ScenePrivateTrialOfSwordmancyEnterWorldConfirm",
+            "__ScenePrivateAnyEnterWorldSuccess"
+        ]
+    },
+    "__ScenePrivateTrialOfSwordmancyEnterWorldConfirm": {
+        "desc": "从选剑演武界面退出到大世界的确认界面",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "__ScenePrivateAnyEnterWorldSuccess"
+        ]
+    },
     "__ScenePrivateWorldEnterMenuList": {
         "desc": "从大世界进入菜单总列表",
         "recognition": {

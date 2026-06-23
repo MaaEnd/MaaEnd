@@ -59,6 +59,8 @@
     "option.AutoFightEndSkill.label": "궁극기 자동 사용",
     "option.AutoFightCombo.label": "연계 스킬 자동 발동",
     "option.AutoFightDodge.label": "자동 회피",
+    "option.AutoFightDodgeCompat.label": "호환 모드",
+    "option.AutoFightDodgeCompat.description": "회피 인식률을 낮춰 주控 오퍼레이터의 중격 이펙트(예: 엠버, 포그라니치니크, 레바테인 등)에 따른 오검출을 방지합니다.",
     "option.AutoFightLockTarget.label": "타깃 자동 고정",
     "option.AutoFightLockTarget.description": "적이 시야 밖에 있으면 자동으로 적을 찾아 가까이 다가가며, 적이 시야 안에 있을 때만 전투 스킬과 궁극기를 사용합니다.",
     "option.AutoFightSaveDamage.label": "피해 이미지 자동 저장(테스트용)",

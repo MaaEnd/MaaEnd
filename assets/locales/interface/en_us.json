@@ -61,6 +61,8 @@
     "option.AutoFightEndSkill.label": "Auto Use Ultimate",
     "option.AutoFightCombo.label": "Auto Trigger Link Skills",
     "option.AutoFightDodge.label": "Auto Dodge",
+    "option.AutoFightDodgeCompat.label": "Compatibility Mode",
+    "option.AutoFightDodgeCompat.description": "Lowers dodge detection sensitivity to avoid false triggers from the main operator's heavy attack VFX, such as Ember, Pogranichnik, Laevatain, etc.",
     "option.AutoFightLockTarget.label": "Auto Lock Target",
     "option.AutoFightLockTarget.description": "Automatically searches for and approaches enemies when they are outside the field of view; combat skills and ultimates are only used when enemies are visible.",
     "option.AutoFightSaveDamage.label": "Auto Save Damage Images (Test)",

@@ -61,6 +61,8 @@
     "option.AutoFightEndSkill.label": "自动释放终结技",
     "option.AutoFightCombo.label": "自动触发连携技能",
     "option.AutoFightDodge.label": "自动闪避",
+    "option.AutoFightDodgeCompat.label": "兼容模式",
+    "option.AutoFightDodgeCompat.description": "降低闪避识别率，避免受主控干员重击特效影响，例如余烬、骏卫、莱万汀等。",
     "option.AutoFightLockTarget.label": "自动锁定目标",
     "option.AutoFightLockTarget.description": "当敌人不在视角内自动寻找并靠近敌人，当敌人在视角内才会放战技、终结技",
     "option.AutoFightSaveDamage.label": "自动保存受击图片(测试用)",

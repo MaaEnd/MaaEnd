@@ -90,6 +90,11 @@
                     "enum": [ "FinalTarget", "AllTargets", "Never" ],
                     "default": "FinalTarget"
                 },
+                "on_finish": {
+                    "title": "On Finish",
+                    "description": "Inline pipeline node object executed once after navigation succeeds.",
+                    "$ref": "../pipeline.schema.json#/$defs/Node"
+                },
                 "no_ensure_initial_movement_state": {
                     "title": "No Ensure Initial Movement State",
                     "description": "Skip sprint preparation before first move.",
@@ -211,6 +216,46 @@
             "anyOf": [
                 { "required": [ "target" ] },
                 { "required": [ "entity_id" ] }
+            ]
+        },
+        "MapTrackerTowardParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerToward: adjust the player's orientation to face a given angle or map point. At least one of angle and target must be provided; angle takes precedence when both are set.",
+            "additionalProperties": false,
+            "properties": {
+                "angle": {
+                    "title": "Angle",
+                    "description": "Target orientation in degrees, where 0 is North and the value increases clockwise.",
+                    "type": "number"
+                },
+                "map_name": {
+                    "title": "Map Name",
+                    "description": "Unique map identifier. Required only in target mode (when target is set); in pure angle mode the rotation is inferred without any map dependency.",
+                    "type": "string"
+                },
+                "target": {
+                    "title": "Target",
+                    "description": "Map coordinate [x, y] the player should face toward.",
+                    "$ref": "#/$defs/Coordinate2D"
+                },
+                "rotation_threshold": {
+                    "title": "Rotation Threshold",
+                    "description": "Maximum allowed angle difference in degrees to treat the player as already facing the target orientation.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "exclusiveMaximum": 180,
+                    "default": 12
+                },
+                "map_name_match_rule": {
+                    "title": "Map Name Match Rule",
+                    "description": "Regex template for matching map names. %s is replaced by map_name (auto-escaped).",
+                    "type": "string",
+                    "default": "^%s(_tier_\\w+)?$"
+                }
+            },
+            "anyOf": [
+                { "required": [ "angle" ] },
+                { "required": [ "target", "map_name" ] }
             ]
         },
         "MapTrackerZiplineParam": {

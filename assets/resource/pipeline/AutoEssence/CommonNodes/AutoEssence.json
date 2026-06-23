@@ -79,6 +79,7 @@
             "WLMarkerStoneLocationAssertion",
             "WLTestAreaLocationAssertion",
             "WLSwordVaultDaleLocationAssertion",
+            "WLTestAreaLocationAssertion",
             // 如果上述所有地区都没有命中，则无事发生
             "AutoEssenceLocationSetupFailed"
         ],
@@ -108,6 +109,7 @@
             "WLMarkerStoneLocationAssertion",
             "WLTestAreaLocationAssertion",
             "WLSwordVaultDaleLocationAssertion",
+            "WLTestAreaLocationAssertion",
             // 如果上述所有地区都没有命中，则自动导航到指定的某个淤积点
             "AutoEssenceSpecifiedLocation"
         ],

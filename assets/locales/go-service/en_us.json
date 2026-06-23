@@ -53,6 +53,7 @@
     "autofight.capture_slow": "Combat recognition averages %d ms, please try to reduce GPU resource usage",
     "autofight.adjust_view": "Adjusting view",
     "autofight.move_back": "Enemy not found for a while, moving back",
+    "autofight.approach_enemy": "Approaching enemy",
     "autofight.move_forward": "Enemy not found for a while, moving forward",
     "autofight.move_left": "Enemy not found for a while, moving left",
     "autofight.move_right": "Enemy not found for a while, moving right",

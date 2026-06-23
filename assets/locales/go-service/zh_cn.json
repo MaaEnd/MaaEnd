@@ -53,6 +53,7 @@
     "autofight.capture_slow": "战斗识别平均耗时 %d ms，请尝试减少显卡资源占用",
     "autofight.adjust_view": "调整视角",
     "autofight.move_back": "长时间找不到敌人，后退",
+    "autofight.approach_enemy": "靠近敌人",
     "autofight.move_forward": "长时间找不到敌人，前进",
     "autofight.move_left": "长时间找不到敌人，向左移动",
     "autofight.move_right": "长时间找不到敌人，向右移动",

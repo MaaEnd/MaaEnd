@@ -26,6 +26,7 @@ type desktopControlAdaptor struct {
 
 	keys             desktopKeyBindings
 	pm               PlayerMovement
+	lastDirection    PlayerDirection
 	lastMotionIsWalk bool
 
 	// cursorDX, cursorDY track the cursor offset from the screen center accumulated
@@ -111,21 +112,22 @@ func (dca *desktopControlAdaptor) GetPlayerMovement() PlayerMovement {
 }
 
 func (dca *desktopControlAdaptor) SetPlayerMovement(movement PlayerMovement, policy PlayerMovementPolicy) {
+	dirKey := dca.directionKey(dca.lastDirection)
 	if movement.Equals(dca.pm) {
 		if policy >= PolicyActive {
 			// Actively ensure moving state
 			if movement.speed > MovementStop.speed {
-				dca.KeyDown(dca.keys.W, defaultDesktopKeyActionDelayMillis/4)
+				dca.KeyDown(dirKey, defaultDesktopKeyActionDelayMillis/4)
 			} else {
-				dca.KeyUp(dca.keys.W, defaultDesktopKeyActionDelayMillis/4)
+				dca.KeyUp(dirKey, defaultDesktopKeyActionDelayMillis/4)
 			}
 		}
 		return
 	}
 
 	if movement.speed <= MovementStop.speed {
-		// Stop moving forward
-		dca.KeyUp(dca.keys.W, defaultDesktopKeyActionDelayMillis)
+		// Stop moving toward the current direction
+		dca.KeyUp(dirKey, defaultDesktopKeyActionDelayMillis)
 	} else {
 		if dca.lastMotionIsWalk {
 			if movement.speed >= MovementSprint.speed {
@@ -158,11 +160,25 @@ func (dca *desktopControlAdaptor) SetPlayerMovement(movement PlayerMovement, pol
 			}
 		}
 		if policy >= PolicyDefault {
-			// Ensure moving forward
-			dca.KeyDown(dca.keys.W, defaultDesktopKeyActionDelayMillis/4)
+			// Ensure moving toward the current direction
+			dca.KeyDown(dirKey, defaultDesktopKeyActionDelayMillis/4)
 		}
 	}
 	dca.pm = movement
+}
+
+func (dca *desktopControlAdaptor) SetPlayerDirection(direction PlayerDirection) {
+	if direction == dca.lastDirection {
+		return
+	}
+	// If currently moving, switch the held key from the old direction to the new one,
+	// preserving the speed state. Press the new key down before releasing the old one
+	// so the movement is never interrupted during the switch.
+	if dca.pm.speed > MovementStop.speed {
+		dca.KeyDown(dca.directionKey(direction), defaultDesktopKeyActionDelayMillis/4)
+		dca.KeyUp(dca.directionKey(dca.lastDirection), defaultDesktopKeyActionDelayMillis/4)
+	}
+	dca.lastDirection = direction
 }
 
 func (dca *desktopControlAdaptor) PlayerJump() {
@@ -207,6 +223,7 @@ func (dca *desktopControlAdaptor) AggressivelyResetPlayerMovement() {
 	dca.KeyUp(dca.keys.S, defaultDesktopKeyActionDelayMillis*2)
 	dca.KeyType(dca.keys.W, defaultDesktopKeyActionDelayMillis*2)
 	dca.pm = MovementStop
+	dca.lastDirection = DirectionF
 	dca.lastMotionIsWalk = false
 }
 
@@ -214,6 +231,20 @@ const defaultDesktopKeyActionDelayMillis = 30
 
 // cursorResetMaxInterval is the maximum time a lazy cursor reset may be deferred.
 const cursorResetMaxInterval = 2 * time.Second
+
+// directionKey returns the virtual-key code for the given movement direction.
+func (dca *desktopControlAdaptor) directionKey(direction PlayerDirection) int {
+	switch direction {
+	case DirectionB: // Backward (S)
+		return dca.keys.S
+	case DirectionL: // Left (A)
+		return dca.keys.A
+	case DirectionR: // Right (D)
+		return dca.keys.D
+	default: // Forward (W)
+		return dca.keys.W
+	}
+}
 
 // defaultDesktopKeyBindings returns the default key bindings for desktop controllers.
 // Values follow Win32 Virtual-Key conventions.

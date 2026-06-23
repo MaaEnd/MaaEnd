@@ -39,7 +39,7 @@
 
 - `no_print`: 真假值，默认 `false`。是否关闭寻路状态的 UI 消息打印。为提升用户体验，不建议关闭此节点的消息打印。
 
-- `path_trim`: 真假值，默认 `false`。是否在寻路启动时选择距离角色最近的路径点作为实际起点（该点之前的路径点会被自动跳过）；关闭此功能则会始终从首个路径点开始移动。
+- `path_trim`: 真假值，默认 `false`。是否在寻路启动时选择距离角色最近的路径点作为实际起点（该点之前的路径点会被自动跳过）；否则始终从首个路径点开始移动。
 
 - `fine_approach`: 字符串，默认 `"FinalTarget"`。控制何时启用精细进近（极精确地到达目标点），可选值：
 
@@ -48,6 +48,8 @@
     | `"FinalTarget"` | 仅在最后一个目标点启用精细进近（默认） | 大多数场景                                     |
     | `"AllTargets"`  | 在每一个目标点都启用精细进近           | 对途径点的精度要求极高时（例如经过狭窄桥梁时） |
     | `"Never"`       | 不启用精细进近                         | /                                              |
+
+- `on_finish`: Pipeline 节点对象，默认不填。寻路成功后执行一次该 Pipeline 节点。有关示例可参见 [MapTrackerToward](#action-maptrackertoward) 的 Tip 部分。所填节点的 `pre_delay` 和 `post_delay` 在缺省时默认为 `0` 毫秒。
 
 <details>
 <summary>高级可选参数（展开）</summary>
@@ -133,9 +135,9 @@
 
 - `map_name`: 地图的唯一名称。例如 "map02_lv002"。
 
-- `target` 或 `entity_id`: 二者至少提供一个。
+- `target` 或 `entity_id`: 选择一种即可。
     - `target`: 由 2 个实数组成的列表 `[x, y]`，表示目标坐标点。
-    - `entity_id`: NavMesh 顶点关联的实体 ID，会从顶点的 `E` 字段查找目标点。
+    - `entity_id`: NavMesh 顶点关联的实体 ID。
 
 可选参数：
 
@@ -199,6 +201,81 @@
 >
 > 执行此节点期间，请确保玩家**始终处于**指定的地图中，并且目标点能够通过对应 NavMesh 路网抵达。
 
+### Action: MapTrackerToward
+
+➡️ 调整玩家的朝向，使其面向指定的角度或地图点位。
+
+#### 节点参数
+
+必填参数：
+
+- `angle` 或 `target`: 选择一种即可。
+    - `angle`: 实数。预期朝向的角度，单位是度。适用于需要面向固定角度值的情况，鲁棒性最好。0° 表示正北方向，以顺时针旋转为递增方向。也可以设为负数，表示逆时针旋转的角度。
+    - `target`: 由 2 个实数组成的列表 `[x, y]`，表示预期面向的地图坐标点。适用于角度不固定或需要面向某个特定点的情况。选择此参数时还需要提供 `map_name` 参数。
+
+可选参数：
+
+- `map_name`: 地图的唯一名称。仅在 `target` 模式下必填，`angle` 模式下无需提供。
+
+<details>
+<summary>高级可选参数（展开）</summary>
+
+- `rotation_threshold`: 介于 $(0, 180)$ 的实数，默认 `12.0`。判断已朝向目标的方向角偏离阈值，单位是度。
+
+- `map_name_match_rule`: 含义同 [MapTrackerMove](#action-maptrackermove) 节点中的 `map_name_match_rule` 参数。
+
+</details>
+
+#### 示例用法
+
+面向指定角度（正东方向）：
+
+```json
+{
+    "MyNodeName": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerToward",
+        "custom_action_param": {
+            "angle": 90.0
+        }
+    }
+}
+```
+
+面向指定的地图点位：
+
+```json
+{
+    "MyNodeName": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerToward",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "target": [
+                670.0,
+                350.8
+            ]
+        }
+    }
+}
+```
+
+> [!TIP]
+>
+> 如果想在寻路移动成功结束后，立即调用这个节点来调整玩家朝向，比较方便的写法是，直接在 [MapTrackerMove](#action-maptrackermove) 中提供一个 `on_finish` 参数：
+>
+> ```json
+> "on_finish": {
+>     "action": "Custom",
+>     "custom_action": "MapTrackerToward",
+>     "custom_action_param": {
+>         "angle": 90.0
+>     }
+> }
+> ```
+
 ### Action: MapTrackerZipline
 
 🎢 让滑索架上的玩家转向下一个指定的滑索架，对准后自动执行滑索移动。
@@ -211,12 +288,10 @@
 
 - `target`: 下一个滑索架所处的地图坐标 `[x, y]`。
 
-可选参数：
-
-- `rotation_threshold`: 介于 $(0, 180)$ 的正实数，默认 `9.0`。判断已朝向目标滑索点的方向角偏离阈值，单位是度。
-
 <details>
 <summary>高级可选参数（展开）</summary>
+
+- `rotation_threshold`: 介于 $(0, 180)$ 的正实数，默认 `9.0`。判断已朝向目标滑索点的方向角偏离阈值，单位是度。
 
 - `timeout`: 正整数，默认 `15000`。转向目标滑索架，以及执行滑索移动操作的超时时间，单位是毫秒。
 

@@ -59,6 +59,8 @@
     "option.AutoFightEndSkill.label": "必殺技自動使用",
     "option.AutoFightCombo.label": "連携スキル自動発動",
     "option.AutoFightDodge.label": "自動回避",
+    "option.AutoFightDodgeCompat.label": "互換モード",
+    "option.AutoFightDodgeCompat.description": "回避の認識率を下げ、主控オペレーターの重撃エフェクト（例：エンバー、ポグラニチニク、レーヴァテインなど）による誤検知を防ぎます。",
     "option.AutoFightLockTarget.label": "ターゲット自動ロック",
     "option.AutoFightLockTarget.description": "敵が視界外のときは自動で敵を探索し接近し、視界内に敵がいる場合のみ戦技・必殺技を使用します。",
     "option.AutoFightSaveDamage.label": "被ダメージ画像を自動保存（テスト用）",

@@ -624,6 +624,9 @@
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "AutoFightDodgeCompat"
+                    ],
                     "pipeline_override": {
                         "AutoFight": {
                             "attach": {
@@ -638,6 +641,34 @@
                         "AutoFight": {
                             "attach": {
                                 "enable_dodge": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightDodgeCompat": {
+            "label": "$option.AutoFightDodgeCompat.label",
+            "description": "$option.AutoFightDodgeCompat.description",
+            "type": "switch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_dodge_compat": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_dodge_compat": false
                             }
                         }
                     }

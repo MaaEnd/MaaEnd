@@ -4,6 +4,7 @@
     },
     "__ScenePrivateAnyExit": {
         "desc": "退出当前场景，返回上一个场景",
+        "max_hit": 100,
         "pre_delay": 0,
         "action": {
             "type": "ClickKey",

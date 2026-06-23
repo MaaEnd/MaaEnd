@@ -54,6 +54,12 @@ type ControlAdaptor interface {
 	// and performs necessary control actions to achieve that state.
 	SetPlayerMovement(movement PlayerMovement, policy PlayerMovementPolicy)
 
+	// SetPlayerDirection sets the player movement direction (forward/backward/left/right).
+	// The speed state set by [ControlAdaptor.SetPlayerMovement] is preserved; only the
+	// movement direction changes. If the player is currently moving, the control switches
+	// to the new direction immediately; otherwise the direction takes effect on the next move.
+	SetPlayerDirection(direction PlayerDirection)
+
 	// PlayerJump performs the player jump action once.
 	// This will not change the player movement state.
 	PlayerJump()
@@ -134,6 +140,22 @@ var (
 	MovementSprint = PlayerMovement{12.0, 1080.0}
 )
 
+/* ******** Player Direction Enumeration ******** */
+
+// PlayerDirection represents the direction the player moves toward relative to the camera.
+type PlayerDirection int
+
+const (
+	// DirectionF moves the player forward (default, "W" key / joystick up).
+	DirectionF PlayerDirection = iota
+	// DirectionB moves the player backward ("S" key / joystick down).
+	DirectionB
+	// DirectionL moves the player left ("A" key / joystick left).
+	DirectionL
+	// DirectionR moves the player right ("D" key / joystick right).
+	DirectionR
+)
+
 /* ******** Player Movement Policy Enumeration ******** */
 
 type PlayerMovementPolicy int
@@ -141,12 +163,12 @@ type PlayerMovementPolicy int
 const (
 	// PolicyLazy avoids any unnecessary key action if the new movement state is already achieved,
 	// which may cause less latency but also less robustness.
-	PolicyLazy PlayerMovementPolicy = 0
+	PolicyLazy PlayerMovementPolicy = iota
 	// PolicyDefault balances between [PolicyLazy] and [PolicyActive] policy.
-	PolicyDefault PlayerMovementPolicy = 1
+	PolicyDefault
 	// PolicyActive performs extra key actions to actively ensure the new movement state is achieved,
 	// which may cause more latency but also more robustness.
-	PolicyActive PlayerMovementPolicy = 2
+	PolicyActive
 )
 
 /* ******** Cursor Reset Policy Enumeration ******** */
@@ -156,7 +178,7 @@ type CursorResetPolicy int
 const (
 	// CursorResetLazy resets the cursor only when it nears a screen edge
 	// or the reset interval has elapsed, avoiding unnecessary reset actions.
-	CursorResetLazy CursorResetPolicy = 0
+	CursorResetLazy CursorResetPolicy = iota
 	// CursorResetActive always resets the cursor immediately.
-	CursorResetActive CursorResetPolicy = 1
+	CursorResetActive
 )
