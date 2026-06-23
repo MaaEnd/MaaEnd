@@ -1,12 +1,6 @@
 {
     "AndroidOpenGame": {
         "pre_delay": 0,
-        "action": {
-            "type": "StartApp",
-            "param": {
-                "package": "com.hypergryph.endfield"
-            }
-        },
         "post_delay": 0,
         "next": [
             "OpenGame"

@@ -1,7 +1,5 @@
 {
-    "CloseGame": {
-        "action": "StopApp"
-    },
+    "CloseGame": {},
     "CloseGame_Auto": {
         "action": "StopApp"
     },

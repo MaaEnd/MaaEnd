@@ -32,14 +32,12 @@
                     "label": "$option.ClientVersion.cases.Auto.label",
                     "pipeline_override": {
                         "AndroidOpenGame": {
-                            "action": null,
                             "next": [
                                 "AndroidOpenGame_Auto"
                             ],
                             "on_error": []
                         },
                         "CloseGame": {
-                            "action": null,
                             "next": [
                                 "CloseGame_Auto"
                             ]
@@ -51,14 +49,12 @@
                     "label": "$option.ClientVersion.cases.CN.label",
                     "pipeline_override": {
                         "AndroidOpenGame": {
-                            "action": null,
                             "next": [
                                 "AndroidOpenGame_CN"
                             ],
                             "on_error": []
                         },
                         "CloseGame": {
-                            "action": null,
                             "next": [
                                 "CloseGame_CN"
                             ]
@@ -70,14 +66,12 @@
                     "label": "$option.ClientVersion.cases.Bilibili.label",
                     "pipeline_override": {
                         "AndroidOpenGame": {
-                            "action": null,
                             "next": [
                                 "AndroidOpenGame_Bilibili"
                             ],
                             "on_error": []
                         },
                         "CloseGame": {
-                            "action": null,
                             "next": [
                                 "CloseGame_Bilibili"
                             ]
@@ -89,14 +83,12 @@
                     "label": "$option.ClientVersion.cases.Global.label",
                     "pipeline_override": {
                         "AndroidOpenGame": {
-                            "action": null,
                             "next": [
                                 "AndroidOpenGame_Global"
                             ],
                             "on_error": []
                         },
                         "CloseGame": {
-                            "action": null,
                             "next": [
                                 "CloseGame_Global"
                             ]
@@ -108,14 +100,12 @@
                     "label": "$option.ClientVersion.cases.VN.label",
                     "pipeline_override": {
                         "AndroidOpenGame": {
-                            "action": null,
                             "next": [
                                 "AndroidOpenGame_VN"
                             ],
                             "on_error": []
                         },
                         "CloseGame": {
-                            "action": null,
                             "next": [
                                 "CloseGame_VN"
                             ]
