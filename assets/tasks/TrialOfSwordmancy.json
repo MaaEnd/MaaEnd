@@ -133,8 +133,38 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "AutoFightSetting"
+                        "AutoFightSetting",
+                        "TrialOfSwordmancyRecoverBeforeBattle"
                     ]
+                }
+            ]
+        },
+        "TrialOfSwordmancyRecoverBeforeBattle": {
+            "type": "switch",
+            "label": "$option.TrialOfSwordmancyRecoverBeforeBattle.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyDailyAutoFightResetState": {
+                            "enabled": true
+                        },
+                        "TrialOfSwordmancyDailyAutoFightRearmResetState": {
+                            "enabled": true
+                        },
+                        "TrialOfSwordmancyDailyMain": {
+                            "next": [
+                                "TrialOfSwordmancyDailyAutoFightResetState",
+                                "TrialOfSwordmancyDailyCheckRewardMode",
+                                "[JumpBack]TrialOfSwordmancyEnterTrialMenu",
+                                "[JumpBack]TrialOfSwordmancyGotoTrialArenaStart"
+                            ]
+                        }
+                    }
                 }
             ]
         }

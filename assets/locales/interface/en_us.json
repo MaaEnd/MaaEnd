@@ -1068,5 +1068,6 @@
     "option.TrialOfSwordmancyOverflow.cases.None.label": "No overflow",
     "option.TrialOfSwordmancyOverflow.cases.Once.label": "Accept 1 overflow",
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "Accept 1-2 overflows",
-    "option.TrialOfSwordmancyAutoFight.label": "Enable auto-battle"
+    "option.TrialOfSwordmancyAutoFight.label": "Enable auto-battle",
+    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "Teleport to heal before each battle"
 }

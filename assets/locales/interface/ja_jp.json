@@ -1068,5 +1068,6 @@
     "option.TrialOfSwordmancyOverflow.cases.None.label": "オーバーフローしない",
     "option.TrialOfSwordmancyOverflow.cases.Once.label": "1回オーバーフローを許可",
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "1-2回オーバーフローを許可",
-    "option.TrialOfSwordmancyAutoFight.label": "自動戦闘を有効化"
+    "option.TrialOfSwordmancyAutoFight.label": "自動戦闘を有効化",
+    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "各戦闘前にテレポートしてHP回復"
 }

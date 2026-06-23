@@ -1068,5 +1068,6 @@
     "option.TrialOfSwordmancyOverflow.cases.None.label": "오버플로우 안 함",
     "option.TrialOfSwordmancyOverflow.cases.Once.label": "1회 오버플로우 허용",
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "1-2회 오버플로우 허용",
-    "option.TrialOfSwordmancyAutoFight.label": "자동 전투 활성화"
+    "option.TrialOfSwordmancyAutoFight.label": "자동 전투 활성화",
+    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "전투 전마다 순간이동해 체력 회복"
 }

@@ -1068,5 +1068,6 @@
     "option.TrialOfSwordmancyOverflow.cases.None.label": "不接受溢出",
     "option.TrialOfSwordmancyOverflow.cases.Once.label": "接受1次溢出",
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "接受1/2次溢出",
-    "option.TrialOfSwordmancyAutoFight.label": "啟用自動戰鬥"
+    "option.TrialOfSwordmancyAutoFight.label": "啟用自動戰鬥",
+    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "每次戰鬥前傳送回復血量"
 }
