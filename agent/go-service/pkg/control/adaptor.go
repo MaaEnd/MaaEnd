@@ -54,6 +54,12 @@ type ControlAdaptor interface {
 	// and performs necessary control actions to achieve that state.
 	SetPlayerMovement(movement PlayerMovement, policy PlayerMovementPolicy)
 
+	// SetPlayerDirection sets the player movement direction (forward/backward/left/right).
+	// The speed state set by [ControlAdaptor.SetPlayerMovement] is preserved; only the
+	// movement direction changes. If the player is currently moving, the control switches
+	// to the new direction immediately; otherwise the direction takes effect on the next move.
+	SetPlayerDirection(direction PlayerDirection)
+
 	// PlayerJump performs the player jump action once.
 	// This will not change the player movement state.
 	PlayerJump()
@@ -132,6 +138,22 @@ var (
 	MovementWalk   = PlayerMovement{2.0, 270.0}
 	MovementRun    = PlayerMovement{8.0, 540.0}
 	MovementSprint = PlayerMovement{12.0, 1080.0}
+)
+
+/* ******** Player Direction Enumeration ******** */
+
+// PlayerDirection represents the direction the player moves toward relative to the camera.
+type PlayerDirection int
+
+const (
+	// DirectionF moves the player forward (default, "W" key / joystick up).
+	DirectionF PlayerDirection = iota
+	// DirectionB moves the player backward ("S" key / joystick down).
+	DirectionB
+	// DirectionL moves the player left ("A" key / joystick left).
+	DirectionL
+	// DirectionR moves the player right ("D" key / joystick right).
+	DirectionR
 )
 
 /* ******** Player Movement Policy Enumeration ******** */
