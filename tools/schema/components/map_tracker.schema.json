@@ -90,6 +90,11 @@
                     "enum": [ "FinalTarget", "AllTargets", "Never" ],
                     "default": "FinalTarget"
                 },
+                "on_finish": {
+                    "title": "On Finish",
+                    "description": "Inline pipeline node object executed once after navigation succeeds.",
+                    "$ref": "../pipeline.schema.json#/$defs/Node"
+                },
                 "no_ensure_initial_movement_state": {
                     "title": "No Ensure Initial Movement State",
                     "description": "Skip sprint preparation before first move.",
@@ -178,14 +183,7 @@
                 { "$ref": "#/$defs/MapTrackerMovementBaseParam" }
             ],
             "unevaluatedProperties": false,
-            "required": [ "map_name", "path" ],
-            "properties": {
-                "on_finish": {
-                    "title": "On Finish",
-                    "description": "Inline pipeline node object executed once after navigation succeeds.",
-                    "$ref": "../pipeline.schema.json#/$defs/Node"
-                }
-            }
+            "required": [ "map_name", "path" ]
         },
         "MapTrackerGoalParam": {
             "type": "object",
