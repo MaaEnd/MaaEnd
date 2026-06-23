@@ -785,6 +785,7 @@
         ],
         "action": "Click",
         "next": [
+            "[JumpBack]ProtocolSpaceLowSanityDialog",
             "[JumpBack]SceneWaitLoadingExit",
             "ProtocolSpaceEnterSpaceSuccess",
             "ProtocolSpaceRewardClaimSuccessSanityLowDialog"
@@ -792,6 +793,31 @@
         "focus": {
             "Node.Action.Succeeded": "继续行动"
         }
+    },
+    "ProtocolSpaceLowSanityDialog": {
+        "desc": "理智不足对话框检测，点击确认按钮",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    280,
+                    220,
+                    600,
+                    230
+                ],
+                "expected": [
+                    "当前理智不足",
+                    "目前理智不足",
+                    "Insufficient Sanity",
+                    "理性が不足しているため",
+                    "현재 이성이 부족해"
+                ]
+            },
+            "YellowConfirmButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click"
     },
     "ProtocolSpaceRewardClaimSuccessSanityLowDialog": {
         "desc": "理智不足对话框检测，避免理智不足颜色检测失败",

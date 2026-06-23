@@ -53,6 +53,7 @@
     "option.AutoFight.label": "Auto Combat",
     "option.AutoFight.description": "Supports auto release of link skills, combat skills, and ultimate; supports auto basic attack and dodge. For dodge to work, set in-game: Effect Quality - High.",
     "option.AutoFightSetting.label": "Auto Combat Settings",
+    "option.AutoFightSetting.description": "When off, auto combat still runs with default settings. Turn on to customize options.",
     "option.AutoFightSettingFull.label": "Detailed Auto Combat Settings",
     "option.AutoFightAttack.label": "Auto Basic Attack",
     "option.AutoFightAttackKey.label": "Auto Attack Without Mouse Grab",
@@ -300,6 +301,7 @@
     "option.SanitySinkUseSpMedicationWhenSanityLow.description": "Automatically use eligible emergency sanity boosters in combat when sanity is insufficient",
     "option.SanitySinkSpMedicationExpireWithinDays.label": "Booster expiry window",
     "option.SanitySinkSpMedicationExpireWithinDays.description": "Only use emergency sanity boosters within the selected remaining time",
+    "option.SanitySinkSpMedicationExpireWithinDays.cases.All.label": "No limit",
     "option.SanitySinkSpMedicationExpireWithinDays.cases.Days1.label": "Within 1 day",
     "option.SanitySinkSpMedicationExpireWithinDays.cases.Days2.label": "Within 2 days",
     "option.SanitySinkSpMedicationExpireWithinDays.cases.Days3.label": "Within 3 days",
@@ -321,6 +323,7 @@
     "option.ProtocolSpaceUseSpMedicationWhenSanityLow.description": "When claiming rewards with insufficient sanity, automatically use eligible emergency sanity boosters in combat",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.label": "Booster expiry window",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.description": "Only use emergency sanity boosters within the selected remaining time",
+    "option.ProtocolSpaceSpMedicationExpireWithinDays.cases.All.label": "No limit",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days1.label": "Within 1 day",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days2.label": "Within 2 days",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days3.label": "Within 3 days",
@@ -761,7 +764,7 @@
     "task.AutoUseSpMedication.label": "💊 Emergency Sanity Booster",
     "option.AutoUseSpMedicationExpireWithinDays.label": "Within days",
     "option.AutoUseSpMedicationExpireWithinDays.description": "Only use boosters with remaining time within the selected days",
-    "option.AutoUseSpMedicationExpireWithinDays.cases.All.label": "All",
+    "option.AutoUseSpMedicationExpireWithinDays.cases.All.label": "No limit",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days10.label": "Within 10 days",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days1.label": "Within 1 day",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days3.label": "Within 3 days",
@@ -1099,5 +1102,7 @@
     "option.TrialOfSwordmancyOverflow.cases.None.label": "No overflow",
     "option.TrialOfSwordmancyOverflow.cases.Once.label": "Accept 1 overflow",
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "Accept 1-2 overflows",
-    "option.TrialOfSwordmancyAutoFight.label": "Enable auto-battle"
+    "option.TrialOfSwordmancyAutoFight.label": "Enable auto-battle",
+    "preset.EssenceFarming.label": "Essence Farming",
+    "preset.EssenceFarming.description": "Essence farming and filtering related tasks."
 }

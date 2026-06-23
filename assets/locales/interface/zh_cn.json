@@ -53,6 +53,7 @@
     "option.AutoFight.label": "自动战斗",
     "option.AutoFight.description": "支持自动释放连携技、战技、终结技，支持自动普攻、闪避。其中闪避需要把游戏画面中设置：特效质量-高",
     "option.AutoFightSetting.label": "自动战斗设置",
+    "option.AutoFightSetting.description": "关闭时不代表不进行自动战斗，仍使用默认配置。打开后可自定义各项选项。",
     "option.AutoFightSettingFull.label": "自动战斗详细设置",
     "option.AutoFightAttack.label": "自动普攻",
     "option.AutoFightAttackKey.label": "普攻不抢鼠标",
@@ -683,6 +684,7 @@
     "option.SanitySinkUseSpMedicationWhenSanityLow.description": "理智不足时自动在战斗界面使用符合条件的应急理智加强剂",
     "option.SanitySinkSpMedicationExpireWithinDays.label": "药剂时限",
     "option.SanitySinkSpMedicationExpireWithinDays.description": "仅使用剩余时间在该天数内的应急理智加强剂",
+    "option.SanitySinkSpMedicationExpireWithinDays.cases.All.label": "不限",
     "option.SanitySinkSpMedicationExpireWithinDays.cases.Days1.label": "1天内",
     "option.SanitySinkSpMedicationExpireWithinDays.cases.Days2.label": "2天内",
     "option.SanitySinkSpMedicationExpireWithinDays.cases.Days3.label": "3天内",
@@ -704,6 +706,7 @@
     "option.ProtocolSpaceUseSpMedicationWhenSanityLow.description": "领取奖励时若理智不足，自动在战斗界面使用符合条件的应急理智加强剂",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.label": "药剂时限",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.description": "仅使用剩余时间在该天数内的应急理智加强剂",
+    "option.ProtocolSpaceSpMedicationExpireWithinDays.cases.All.label": "不限",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days1.label": "1天内",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days2.label": "2天内",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days3.label": "3天内",
@@ -761,7 +764,7 @@
     "task.AutoUseSpMedication.label": "💊应急理智加强剂",
     "option.AutoUseSpMedicationExpireWithinDays.label": "使用几天内",
     "option.AutoUseSpMedicationExpireWithinDays.description": "仅使用剩余时间在该天数内的应急理智加强剂",
-    "option.AutoUseSpMedicationExpireWithinDays.cases.All.label": "全部",
+    "option.AutoUseSpMedicationExpireWithinDays.cases.All.label": "不限",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days10.label": "10天内",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days1.label": "1天内",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days3.label": "3天内",
@@ -1099,5 +1102,7 @@
     "option.TrialOfSwordmancyOverflow.cases.None.label": "不接受溢出",
     "option.TrialOfSwordmancyOverflow.cases.Once.label": "接受1次溢出",
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "接受1/2次溢出",
-    "option.TrialOfSwordmancyAutoFight.label": "启用自动战斗"
+    "option.TrialOfSwordmancyAutoFight.label": "启用自动战斗",
+    "preset.EssenceFarming.label": "基质刷取",
+    "preset.EssenceFarming.description": "基质养成及筛选相关"
 }

@@ -51,6 +51,7 @@
     "option.AutoFight.label": "自動戦闘",
     "option.AutoFight.description": "連携スキル・戦技・必殺技の自動発動、通常攻撃・回避の自動化に対応。回避にはゲーム内設定で「エフェクト品質-高」が必要です。",
     "option.AutoFightSetting.label": "自動戦闘設定",
+    "option.AutoFightSetting.description": "オフでも自動戦闘はデフォルト設定で実行されます。オンにすると各種オプションをカスタマイズできます。",
     "option.AutoFightSettingFull.label": "自動戦闘詳細設定",
     "option.AutoFightAttack.label": "通常攻撃を自動",
     "option.AutoFightAttackKey.label": "マウス干渉なし通常攻撃",
@@ -660,6 +661,7 @@
     "option.SanitySinkUseSpMedicationWhenSanityLow.description": "理智が不足している場合、戦闘画面で条件を満たす緊急理智強化剤を自動使用します",
     "option.SanitySinkSpMedicationExpireWithinDays.label": "薬剤期限",
     "option.SanitySinkSpMedicationExpireWithinDays.description": "残り時間が選択した日数以内の緊急理智強化剤のみ使用します",
+    "option.SanitySinkSpMedicationExpireWithinDays.cases.All.label": "制限なし",
     "option.SanitySinkSpMedicationExpireWithinDays.cases.Days1.label": "1日以内",
     "option.SanitySinkSpMedicationExpireWithinDays.cases.Days2.label": "2日以内",
     "option.SanitySinkSpMedicationExpireWithinDays.cases.Days3.label": "3日以内",
@@ -685,6 +687,7 @@
     "option.ProtocolSpaceUseSpMedicationWhenSanityLow.description": "報酬受取時に理智が不足している場合、戦闘画面で条件を満たす緊急理智強化剤を自動使用します",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.label": "薬剤期限",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.description": "残り時間が選択した日数以内の緊急理智強化剤のみ使用します",
+    "option.ProtocolSpaceSpMedicationExpireWithinDays.cases.All.label": "制限なし",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days1.label": "1日以内",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days2.label": "2日以内",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days3.label": "3日以内",
@@ -761,7 +764,7 @@
     "task.AutoUseSpMedication.label": "💊緊急理智強化剤",
     "option.AutoUseSpMedicationExpireWithinDays.label": "使用日数",
     "option.AutoUseSpMedicationExpireWithinDays.description": "残り時間が指定日数以内の緊急理智強化剤のみ使用します",
-    "option.AutoUseSpMedicationExpireWithinDays.cases.All.label": "すべて",
+    "option.AutoUseSpMedicationExpireWithinDays.cases.All.label": "制限なし",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days10.label": "10日以内",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days1.label": "1日以内",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days3.label": "3日以内",
@@ -1099,5 +1102,7 @@
     "option.TrialOfSwordmancyOverflow.cases.None.label": "オーバーフローしない",
     "option.TrialOfSwordmancyOverflow.cases.Once.label": "1回オーバーフローを許可",
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "1-2回オーバーフローを許可",
-    "option.TrialOfSwordmancyAutoFight.label": "自動戦闘を有効化"
+    "option.TrialOfSwordmancyAutoFight.label": "自動戦闘を有効化",
+    "preset.EssenceFarming.label": "エッセンス周回",
+    "preset.EssenceFarming.description": "エッセンス育成およびフィルタリング関連。"
 }

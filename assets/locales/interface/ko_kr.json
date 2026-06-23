@@ -51,6 +51,7 @@
     "option.AutoFight.label": "자동 전투",
     "option.AutoFight.description": "연계 스킬, 전투 스킬, 궁극기 자동 사용, 기본 공격·회피 자동 지원. 회피 사용 시 게임 내 설정: 이펙트 품질-높음 필요.",
     "option.AutoFightSetting.label": "자동 전투 설정",
+    "option.AutoFightSetting.description": "끄면 자동 전투를 하지 않는 것이 아니라 기본 설정으로 진행합니다. 켜면 옵션을 직접 설정할 수 있습니다.",
     "option.AutoFightSettingFull.label": "자동 전투 상세 설정",
     "option.AutoFightAttack.label": "기본 공격 자동",
     "option.AutoFightAttackKey.label": "마우스 간섭 없는 기본 공격",
@@ -679,6 +680,7 @@
     "option.SanitySinkUseSpMedicationWhenSanityLow.description": "이성이 부족하면 전투 화면에서 조건에 맞는 응급 이성 강화제를 자동으로 사용합니다",
     "option.SanitySinkSpMedicationExpireWithinDays.label": "약제 기한",
     "option.SanitySinkSpMedicationExpireWithinDays.description": "남은 시간이 선택한 일수 이내인 응급 이성 강화제만 사용합니다",
+    "option.SanitySinkSpMedicationExpireWithinDays.cases.All.label": "제한 없음",
     "option.SanitySinkSpMedicationExpireWithinDays.cases.Days1.label": "1일",
     "option.SanitySinkSpMedicationExpireWithinDays.cases.Days2.label": "2일",
     "option.SanitySinkSpMedicationExpireWithinDays.cases.Days3.label": "3일",
@@ -704,6 +706,7 @@
     "option.ProtocolSpaceUseSpMedicationWhenSanityLow.description": "보상 수령 시 이성이 부족하면 전투 화면에서 조건에 맞는 응급 이성 강화제를 자동으로 사용합니다",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.label": "약제 기한",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.description": "남은 시간이 선택한 일수 이내인 응급 이성 강화제만 사용합니다",
+    "option.ProtocolSpaceSpMedicationExpireWithinDays.cases.All.label": "제한 없음",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days1.label": "1일",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days2.label": "2일",
     "option.ProtocolSpaceSpMedicationExpireWithinDays.cases.Days3.label": "3일",
@@ -761,7 +764,7 @@
     "task.AutoUseSpMedication.label": "💊응급 이성 강화제",
     "option.AutoUseSpMedicationExpireWithinDays.label": "사용 일수",
     "option.AutoUseSpMedicationExpireWithinDays.description": "남은 시간이 선택한 일수 이내인 응급 이성 강화제만 사용합니다",
-    "option.AutoUseSpMedicationExpireWithinDays.cases.All.label": "전체",
+    "option.AutoUseSpMedicationExpireWithinDays.cases.All.label": "제한 없음",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days10.label": "10일 이내",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days1.label": "1일 이내",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days3.label": "3일 이내",
@@ -1099,5 +1102,7 @@
     "option.TrialOfSwordmancyOverflow.cases.None.label": "오버플로우 안 함",
     "option.TrialOfSwordmancyOverflow.cases.Once.label": "1회 오버플로우 허용",
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "1-2회 오버플로우 허용",
-    "option.TrialOfSwordmancyAutoFight.label": "자동 전투 활성화"
+    "option.TrialOfSwordmancyAutoFight.label": "자동 전투 활성화",
+    "preset.EssenceFarming.label": "에센스 파밍",
+    "preset.EssenceFarming.description": "에센스 육성 및 필터링 관련 임무입니다."
 }
