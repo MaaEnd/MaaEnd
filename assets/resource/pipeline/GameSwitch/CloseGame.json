@@ -1,0 +1,26 @@
+{
+    "CloseGame": {
+        "action": "StopApp"
+    },
+    "CloseGame_Auto": {
+        "action": "StopApp"
+    },
+    "CloseGame_CN": {
+        "action": "StopApp"
+    },
+    "CloseGame_Bilibili_Auto": {
+        "action": "StopApp"
+    },
+    "CloseGame_Bilibili": {
+        "action": "StopApp"
+    },
+    "CloseGame_Global_Auto": {
+        "action": "StopApp"
+    },
+    "CloseGame_Global": {
+        "action": "StopApp"
+    },
+    "CloseGame_VN": {
+        "action": "StopApp"
+    }
+}

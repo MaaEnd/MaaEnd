@@ -1,5 +1,5 @@
 {
-    "AndroidOpenGame": {
+    "AndroidOpenGame_Auto": {
         "action": {
             "type": "StartApp",
             "param": {
@@ -10,10 +10,21 @@
             "OpenGame"
         ],
         "on_error": [
-            "AndroidOpenGame_Auto_B"
+            "AndroidOpenGame_Bilibili"
         ]
     },
-    "AndroidOpenGame_Auto_B": {
+    "AndroidOpenGame_CN": {
+        "action": {
+            "type": "StartApp",
+            "param": {
+                "package": "com.hypergryph.endfield"
+            }
+        },
+        "next": [
+            "OpenGame"
+        ]
+    },
+    "AndroidOpenGame_Bilibili": {
         "action": {
             "type": "StartApp",
             "param": {
@@ -24,10 +35,10 @@
             "OpenGame"
         ],
         "on_error": [
-            "AndroidOpenGame_Auto_Global"
+            "AndroidOpenGame_Global"
         ]
     },
-    "AndroidOpenGame_Auto_Global": {
+    "AndroidOpenGame_Global": {
         "action": {
             "type": "StartApp",
             "param": {
@@ -38,10 +49,10 @@
             "OpenGame"
         ],
         "on_error": [
-            "AndroidOpenGame_Auto_VN"
+            "AndroidOpenGame_VN"
         ]
     },
-    "AndroidOpenGame_Auto_VN": {
+    "AndroidOpenGame_VN": {
         "action": {
             "type": "StartApp",
             "param": {

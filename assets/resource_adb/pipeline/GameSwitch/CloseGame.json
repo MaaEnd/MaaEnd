@@ -1,0 +1,67 @@
+{
+    "CloseGame_Auto": {
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.hypergryph.endfield"
+            }
+        },
+        "next": [
+            "CloseGame_Bilibili_Auto"
+        ]
+    },
+    "CloseGame_CN": {
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.hypergryph.endfield"
+            }
+        }
+    },
+    "CloseGame_Bilibili_Auto": {
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.hypergryph.endfield.bilibili"
+            }
+        },
+        "next": [
+            "CloseGame_Global_Auto"
+        ]
+    },
+    "CloseGame_Bilibili": {
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.hypergryph.endfield.bilibili"
+            }
+        }
+    },
+    "CloseGame_Global_Auto": {
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.gryphline.endfield.gp"
+            }
+        },
+        "next": [
+            "CloseGame_VN"
+        ]
+    },
+    "CloseGame_Global": {
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.gryphline.endfield.gp"
+            }
+        }
+    },
+    "CloseGame_VN": {
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.gryphline.endfield.gp.vn"
+            }
+        }
+    }
+}
