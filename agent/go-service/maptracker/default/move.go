@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"image/draw"
 	_ "image/png"
+	"maps"
 	"math"
 	"os"
 	"path/filepath"
@@ -40,6 +41,8 @@ type MapTrackerMoveParam struct {
 	PathTrim bool `json:"path_trim,omitempty"`
 	// FineApproach controls when to enable fine approaching behavior. Valid values: "FinalTarget", "AllTargets", "Never".
 	FineApproach string `json:"fine_approach,omitempty"`
+	// OnFinish is an inline pipeline node object executed once after the navigation succeeds.
+	OnFinish map[string]any `json:"on_finish,omitempty"`
 	// NoEnsureInitialMovementState controls whether to skip ensuring the movement state when starting the initial movement.
 	NoEnsureInitialMovementState bool `json:"no_ensure_initial_movement_state,omitempty"`
 	// NoEnsureFinalOrientation controls whether to skip the final camera orientation adjustment when reaching the final target.
@@ -406,6 +409,15 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		)
 	}
 
+	// Run the on_finish pipeline node once if provided
+	if len(param.OnFinish) > 0 {
+		log.Info().Msg("Running on_finish node for MapTrackerMove")
+		if err := runOnFinishNode(ctx, param.OnFinish); err != nil {
+			log.Error().Err(err).Msg("Failed to run on_finish node for MapTrackerMove")
+			return false
+		}
+	}
+
 	return true
 }
 
@@ -579,6 +591,24 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 	}
 
 	return &result, nil
+}
+
+// runOnFinishNode registers the given inline node object under a temporary name and runs it once.
+// It defaults pre_delay and post_delay to 0 ms when they are not specified by the node.
+func runOnFinishNode(ctx *maa.Context, node map[string]any) error {
+	const onFinishNodeName = "__MapTrackerMoveOnFinish"
+	nodeWithDefaults := maps.Clone(node)
+	if _, ok := nodeWithDefaults["pre_delay"]; !ok {
+		nodeWithDefaults["pre_delay"] = 0
+	}
+	if _, ok := nodeWithDefaults["post_delay"]; !ok {
+		nodeWithDefaults["post_delay"] = 0
+	}
+	override := map[string]any{onFinishNodeName: nodeWithDefaults}
+	if _, err := ctx.RunTask(onFinishNodeName, override); err != nil {
+		return fmt.Errorf("failed to run on_finish temporary node: %w", err)
+	}
+	return nil
 }
 
 func executeStuckMitigator(ctx *maa.Context, ca control.ControlAdaptor, action string) {
