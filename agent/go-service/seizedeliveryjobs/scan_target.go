@@ -17,12 +17,6 @@ type deliveryJobItem struct {
 	ViewLocationBox []int  `json:"view_location_box"`
 }
 
-type scanTargetParam struct {
-	RewardNode string `json:"reward_node"`
-}
-
-const seizeDeliveryJobsDefaultRewardNode = "SeizeDeliveryJobsFindTarget"
-
 // filteredDetail holds the parsed OCR sub-recognition result.
 // The Text field is only populated for origin (index 1); others leave it zero.
 type filteredDetail struct {
@@ -78,13 +72,11 @@ func (r *SeizeDeliveryJobsScanTargetRecognition) Run(ctx *maa.Context, arg *maa.
 	// the grab path (one commission, highest price), wrong for a full scan. So read the active tier
 	// node names from FindTarget's any_of (reflects the selected reward option) and run each template
 	// directly; each template's own CombinedResult is its 5 flat leaves.
-	param := parseScanTargetParam(arg.CustomRecognitionParam)
-	tiers, err := readRewardTierNodes(ctx, param.RewardNode)
+	tiers, err := readRewardTierNodes(ctx)
 	if err != nil || len(tiers) == 0 {
 		log.Error().Err(err).
 			Str("component", "SeizeDeliveryJobs").
 			Str("step", "scan_target").
-			Str("reward_node", param.RewardNode).
 			Msg("read reward tier nodes")
 		return nil, false
 	}
@@ -151,34 +143,11 @@ func (r *SeizeDeliveryJobsScanTargetRecognition) Run(ctx *maa.Context, arg *maa.
 	}, true
 }
 
-func parseScanTargetParam(raw string) scanTargetParam {
-	param := scanTargetParam{
-		RewardNode: seizeDeliveryJobsDefaultRewardNode,
-	}
-	if raw == "" {
-		return param
-	}
-	if err := json.Unmarshal([]byte(raw), &param); err != nil {
-		log.Warn().Err(err).
-			Str("component", "SeizeDeliveryJobs").
-			Str("step", "scan_target").
-			Msg("parse custom recognition param failed, using default reward node")
-		param.RewardNode = seizeDeliveryJobsDefaultRewardNode
-	}
-	if param.RewardNode == "" {
-		param.RewardNode = seizeDeliveryJobsDefaultRewardNode
-	}
-	return param
-}
-
 // readRewardTierNodes returns the active reward-tier template node names from
-// the configured reward node's any_of (overridden by the selected reward option).
+// SeizeDeliveryJobsFindTarget's any_of (overridden by the selected reward option).
 // Only node-name references are collected; inline recognition objects are skipped.
-func readRewardTierNodes(ctx *maa.Context, rewardNode string) ([]string, error) {
-	if rewardNode == "" {
-		rewardNode = seizeDeliveryJobsDefaultRewardNode
-	}
-	raw, err := ctx.GetNodeJSON(rewardNode)
+func readRewardTierNodes(ctx *maa.Context) ([]string, error) {
+	raw, err := ctx.GetNodeJSON("SeizeDeliveryJobsFindTarget")
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +175,7 @@ func readRewardTierNodes(ctx *maa.Context, rewardNode string) ([]string, error) 
 		anyOfRaw = top["any_of"] // V1 top-level
 	}
 	if len(anyOfRaw) == 0 {
-		return nil, fmt.Errorf("no any_of found in %s", rewardNode)
+		return nil, fmt.Errorf("no any_of found in SeizeDeliveryJobsFindTarget")
 	}
 	var elems []json.RawMessage
 	if err := json.Unmarshal(anyOfRaw, &elems); err != nil {
@@ -232,7 +201,7 @@ func readRewardTierNodes(ctx *maa.Context, rewardNode string) ([]string, error) 
 			Msg("any_of element is neither a node name nor an inline recognition; skipping")
 	}
 	if len(names) == 0 {
-		return nil, fmt.Errorf("no tier node names found in %s.any_of", rewardNode)
+		return nil, fmt.Errorf("no tier node names found in SeizeDeliveryJobsFindTarget.any_of")
 	}
 	return names, nil
 }

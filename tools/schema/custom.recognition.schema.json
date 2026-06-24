@@ -30,40 +30,12 @@
                 "VisitFriendsMenuScanTargetFriendOpenRecognition",
                 "WeaponInventoryScanRecognition",
                 "SeizeDeliveryJobsScanTargetRecognition",
-                "SeizeDeliveryJobsTimedFallbackRecognition",
                 "autoEcoFarmCalculateSwipeTarget",
                 "autoEcoFarmFindNearestRecognitionResult"
             ]
         }
     },
     "allOf": [
-        {
-            "if": {
-                "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "SeizeDeliveryJobsTimedFallbackRecognition" } }
-            },
-            "then": {
-                "type": "object",
-                "required": [ "custom_recognition_param" ],
-                "properties": {
-                    "custom_recognition_param": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "required": [ "stage" ],
-                        "properties": {
-                            "stage": {
-                                "enum": [
-                                    "Primary",
-                                    "Fallback",
-                                    "Stop"
-                                ]
-                            }
-                        }
-                    }
-                }
-            }
-        },
         {
             "if": {
                 "type": "object",

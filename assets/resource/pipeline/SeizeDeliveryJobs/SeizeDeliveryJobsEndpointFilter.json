@@ -13,23 +13,6 @@
             "SeizeDeliveryJobsScanExhausted"
         ]
     },
-    "SeizeDeliveryJobsScanTargetFallback": {
-        "desc": "限时降级策略：第二阶段委托目标扫描入口点",
-        "enabled": false,
-        "recognition": "Custom",
-        "custom_recognition": "SeizeDeliveryJobsScanTargetRecognition",
-        "custom_recognition_param": {
-            "reward_node": "SeizeDeliveryJobsFindTargetFallback"
-        },
-        "action": "Custom",
-        "custom_action": "SeizeDeliveryJobsScanTargetAction",
-        "next": [
-            "SeizeDeliveryJobsFoundTargetViewLocationClick"
-        ],
-        "on_error": [
-            "SeizeDeliveryJobsScanExhausted"
-        ]
-    },
     "SeizeDeliveryJobsFoundTargetViewLocationClick": {
         "desc": "点击委托项的查看位置按钮（由 Go 覆写 target）",
         "action": "Click",

@@ -49,10 +49,7 @@
             "cases": [
                 {
                     "name": "Sixteen3",
-                    "label": "$task.SeizeDeliveryJobsRewardWulingCity.cases.Sixteen3.label",
-                    "option": [
-                        "SeizeDeliveryJobsTimedFallback"
-                    ]
+                    "label": "$task.SeizeDeliveryJobsRewardWulingCity.cases.Sixteen3.label"
                 },
                 {
                     "name": "Sixteen3OrEleven9",
@@ -70,84 +67,6 @@
                     }
                 }
             ]
-        },
-        "SeizeDeliveryJobsTimedFallback": {
-            "type": "switch",
-            "default_case": "No",
-            "label": "$task.SeizeDeliveryJobsTimedFallback.label",
-            "description": "$task.SeizeDeliveryJobsTimedFallback.description",
-            "cases": [
-                {
-                    "name": "No"
-                },
-                {
-                    "name": "Yes",
-                    "option": [
-                        "SeizeDeliveryJobsPrimaryTimeoutMinutes",
-                        "SeizeDeliveryJobsFallbackTimeoutMinutes"
-                    ],
-                    "pipeline_override": {
-                        "SeizeDeliveryJobsMain": {
-                            "next": [
-                                "SeizeDeliveryJobsTimedFallbackReset"
-                            ]
-                        },
-                        "SeizeDeliveryJobsLoop": {
-                            "next": [
-                                "SeizeDeliveryJobsTimedFallbackPrimary",
-                                "SeizeDeliveryJobsTimedFallbackFallback",
-                                "SeizeDeliveryJobsTimedFallbackStop"
-                            ]
-                        }
-                    }
-                }
-            ]
-        },
-        "SeizeDeliveryJobsPrimaryTimeoutMinutes": {
-            "type": "input",
-            "label": "$task.SeizeDeliveryJobsPrimaryTimeoutMinutes.label",
-            "description": "$task.SeizeDeliveryJobsPrimaryTimeoutMinutes.description",
-            "inputs": [
-                {
-                    "name": "SeizeDeliveryJobsPrimaryTimeoutMinutesValue",
-                    "label": "$task.SeizeDeliveryJobsPrimaryTimeoutMinutes.inputs.Value.label",
-                    "description": "$task.SeizeDeliveryJobsPrimaryTimeoutMinutes.inputs.Value.description",
-                    "default": "30",
-                    "pipeline_type": "int",
-                    "verify": "^[1-9]\\d*$",
-                    "pattern_msg": "$task.SeizeDeliveryJobsTimeoutMinutes.inputs.Value.pattern_msg"
-                }
-            ],
-            "pipeline_override": {
-                "SeizeDeliveryJobsTimedFallbackConfig": {
-                    "attach": {
-                        "primary_timeout_minutes": "{SeizeDeliveryJobsPrimaryTimeoutMinutesValue}"
-                    }
-                }
-            }
-        },
-        "SeizeDeliveryJobsFallbackTimeoutMinutes": {
-            "type": "input",
-            "label": "$task.SeizeDeliveryJobsFallbackTimeoutMinutes.label",
-            "description": "$task.SeizeDeliveryJobsFallbackTimeoutMinutes.description",
-            "inputs": [
-                {
-                    "name": "SeizeDeliveryJobsFallbackTimeoutMinutesValue",
-                    "label": "$task.SeizeDeliveryJobsFallbackTimeoutMinutes.inputs.Value.label",
-                    "description": "$task.SeizeDeliveryJobsFallbackTimeoutMinutes.inputs.Value.description",
-                    "default": "30",
-                    "pipeline_type": "int",
-                    "verify": "^[1-9]\\d*$",
-                    "pattern_msg": "$task.SeizeDeliveryJobsTimeoutMinutes.inputs.Value.pattern_msg"
-                }
-            ],
-            "pipeline_override": {
-                "SeizeDeliveryJobsTimedFallbackConfig": {
-                    "attach": {
-                        "fallback_timeout_minutes": "{SeizeDeliveryJobsFallbackTimeoutMinutesValue}"
-                    }
-                }
-            }
         },
         "SeizeDeliveryJobsRewardTestArea": {
             "type": "select",
@@ -316,13 +235,7 @@
                         "SeizeDeliveryJobsFindTarget": {
                             "enabled": false
                         },
-                        "SeizeDeliveryJobsFindTargetFallback": {
-                            "enabled": false
-                        },
                         "SeizeDeliveryJobsScanTarget": {
-                            "enabled": true
-                        },
-                        "SeizeDeliveryJobsScanTargetFallback": {
                             "enabled": true
                         },
                         "SeizeDeliveryJobsEndpointFilterWulingCity": {
