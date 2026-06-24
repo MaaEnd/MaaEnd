@@ -54,6 +54,13 @@ function buildExpectedFromLocaleMap(localeMap) {
     }).filter(Boolean);
 }
 
+function rawJson(value) {
+    return {
+        value,
+        raw: JSON.stringify(value, null, 4),
+    };
+}
+
 const routeResolver = createRouteResolver(ROUTE_CONFIG);
 
 function buildStationName(terminalId) {
@@ -103,15 +110,15 @@ function buildRow(mission, usedIds) {
         MapTargetTier: route.MapTargetTier,
         MapGoal: route.MapGoal,
         MapAssertRecognition: route.MapAssertRecognition,
-        MapAssertParam: route.MapAssertParam,
+        MapAssertParam: rawJson(route.MapAssertParam),
         CameraSwipeDirection: route.CameraSwipeDirection,
         CameraMaxHit: route.CameraMaxHit,
         ExpectedText: buildExpectedFromLocaleMap(mission.name),
         InExpectedText: buildExpectedFromLocaleMap(mission.shotTargetName),
-        TrackOrGoToNext,
-        AfterTrackedNext,
+        TrackOrGoToNext: rawJson(TrackOrGoToNext),
+        AfterTrackedNext: rawJson(AfterTrackedNext),
         MapNavigationAction: route.MapNavigationAction,
-        MapNavigationParam: route.MapNavigationParam,
+        MapNavigationParam: rawJson(route.MapNavigationParam),
     };
 }
 
