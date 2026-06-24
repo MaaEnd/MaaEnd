@@ -169,7 +169,9 @@
             "InVigorousCisternOriginiumSlugMission"
         ],
         "action": "Click",
-        "next": ["GoToVigorousCisternOriginiumSlug"]
+        "next": [
+            "GoToVigorousCisternOriginiumSlug"
+        ]
     },
     "AlreadyTrackedVigorousCisternOriginiumSlug": {
         "desc": "充满活力的蓄水源石虫任务已经在追踪中",
@@ -178,7 +180,9 @@
             "AlreadyTrackedMissionButton",
             "InVigorousCisternOriginiumSlugMission"
         ],
-        "next": ["GoToVigorousCisternOriginiumSlug"]
+        "next": [
+            "GoToVigorousCisternOriginiumSlug"
+        ]
     },
     "VigorousCisternOriginiumSlugNotAdapted": {
         "desc": "充满活力的蓄水源石虫任务尚未适配，仅接取并追踪",
@@ -236,11 +240,17 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
-                {"action": "NAVMESH", "target": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
                         691.16,
                         1578.78
-                    ]},
-                {"action": "HEADING", "angle": 100}
+                    ]
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 100
+                }
             ]
         },
         "anchor": {
@@ -248,15 +258,8 @@
             "EnvironmentMonitoringAdjustCamera": "VigorousCisternOriginiumSlugAdjustCamera"
         },
         "next": [
-            "VigorousCisternOriginiumSlugAdjustHeading"
+            "EnvironmentMonitoringTakePhoto"
         ]
-    },
-    "VigorousCisternOriginiumSlugAdjustHeading": {
-        "desc": "充满活力的蓄水源石虫任务无需调整角色朝向",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": ["EnvironmentMonitoringTakePhoto"]
     },
     "VigorousCisternOriginiumSlugAdjustCamera": {
         "desc": "充满活力的蓄水源石虫任务中调整朝向",

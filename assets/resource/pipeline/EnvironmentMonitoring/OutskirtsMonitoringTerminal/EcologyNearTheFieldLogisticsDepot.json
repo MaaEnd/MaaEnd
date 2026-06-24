@@ -247,31 +247,19 @@
             "target": [
                 618.8,
                 901.6
-            ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 270
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "EcologyNearTheFieldLogisticsDepotAdjustCamera"
         },
-        "next": [
-            "EcologyNearTheFieldLogisticsDepotAdjustHeading"
-        ]
-    },
-    "EcologyNearTheFieldLogisticsDepotAdjustHeading": {
-        "desc": "储备站周围的生态环境任务中调整角色朝向",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "path": [
-                {
-                    "action": "HEADING",
-                    "angle": 270
-                }
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]

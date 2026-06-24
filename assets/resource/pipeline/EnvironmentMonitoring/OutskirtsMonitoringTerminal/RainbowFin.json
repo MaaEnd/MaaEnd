@@ -284,15 +284,6 @@
             "EnvironmentMonitoringAdjustCamera": "RainbowFinAdjustCamera"
         },
         "next": [
-            "RainbowFinAdjustHeading"
-        ]
-    },
-    "RainbowFinAdjustHeading": {
-        "desc": "七彩鳞任务无需调整角色朝向",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
     },

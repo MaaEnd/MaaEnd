@@ -261,31 +261,19 @@
                     180,
                     618
                 ]
-            ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 300
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "CollapsedTianshiPillarAdjustCamera"
         },
-        "next": [
-            "CollapsedTianshiPillarAdjustHeading"
-        ]
-    },
-    "CollapsedTianshiPillarAdjustHeading": {
-        "desc": "倒塌的天师桩任务中调整角色朝向",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "path": [
-                {
-                    "action": "HEADING",
-                    "angle": 300
-                }
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
