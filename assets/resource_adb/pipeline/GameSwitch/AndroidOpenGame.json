@@ -1,16 +1,7 @@
 {
     "AndroidOpenGame_Auto": {
-        "action": {
-            "type": "StartApp",
-            "param": {
-                "package": "com.hypergryph.endfield"
-            }
-        },
         "next": [
-            "OpenGame"
-        ],
-        "on_error": [
-            "AndroidOpenGame_Bilibili"
+            "AndroidOpenGame_CN"
         ]
     },
     "AndroidOpenGame_CN": {
@@ -22,6 +13,9 @@
         },
         "next": [
             "OpenGame"
+        ],
+        "on_error": [
+            "AndroidOpenGame_Bilibili"
         ]
     },
     "AndroidOpenGame_Bilibili": {
