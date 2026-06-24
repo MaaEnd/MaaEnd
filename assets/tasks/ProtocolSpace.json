@@ -7,7 +7,7 @@
             "description": "$task.ProtocolSpace.description",
             "option": [
                 "ProtocolSpaceSchedule",
-                "AutoFightSetting",
+                "AutoFightSettingHint",
                 "ProtocolSpaceTeamChoose",
                 "ProtocolSpaceSuccessAction",
                 "ProtocolSpaceSuccessCount",
@@ -113,25 +113,6 @@
                             }
                         }
                     }
-                }
-            ]
-        },
-        "AutoFightSetting": {
-            "type": "switch",
-            "label": "$option.AutoFightSetting.label",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "option": [
-                        "AutoFightKeymap",
-                        "AutoFightHealthDangerousSwitch",
-                        "AutoFightDodge",
-                        "AutoFightLockTarget",
-                        "AutoFightAxis"
-                    ]
-                },
-                {
-                    "name": "No"
                 }
             ]
         },

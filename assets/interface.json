@@ -136,6 +136,11 @@
             "default_expand": true
         },
         {
+            "name": "other_tasks",
+            "label": "$group.other_tasks.label",
+            "default_expand": true
+        },
+        {
             "name": "realtime",
             "label": "$group.realtime.label",
             "default_expand": true
@@ -182,6 +187,8 @@
         "tasks/AccountSwitch.json",
         "tasks/WebEvent202605.json",
         "tasks/AndroidOpenGame.json",
+        // group: other_tasks
+        "tasks/TaskSettings.json",
         // group: realtime
         "tasks/RealTimeTask.json",
         // group: backpack

@@ -19,6 +19,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/falseaction"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/pipelineoverride"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/poststop"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/resourceoverride"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/schedule"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
@@ -56,6 +57,7 @@ func registerAll() {
 	subtask.Register()
 	clearhitcount.Register()
 	pipelineoverride.Register()
+	resourceoverride.Register()
 	expressionrecognition.Register()
 	attachregex.Register()
 	autoalt.Register()

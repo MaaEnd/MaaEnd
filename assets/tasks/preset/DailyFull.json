@@ -6,6 +6,9 @@
             "description": "$preset.DailyFull.description",
             "task": [
                 {
+                    "name": "TaskSettings"
+                },
+                {
                     "name": "VisitFriends",
                     "option": {
                         "ProductionAssistControl": [

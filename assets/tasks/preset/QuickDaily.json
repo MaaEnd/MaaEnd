@@ -6,6 +6,9 @@
             "description": "$preset.QuickDaily.description",
             "task": [
                 {
+                    "name": "TaskSettings"
+                },
+                {
                     "name": "VisitFriends",
                     "option": {
                         "ProductionAssistControl": [

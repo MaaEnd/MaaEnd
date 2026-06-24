@@ -1,0 +1,235 @@
+{
+    "TaskSettingsMain": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]TaskSettingsAutoFightKeymap",
+            "[JumpBack]TaskSettingsAutoFightAttack",
+            "[JumpBack]TaskSettingsAutoFightCombo",
+            "[JumpBack]TaskSettingsAutoFightDodge",
+            "[JumpBack]TaskSettingsAutoFightDodgeCompat",
+            "[JumpBack]TaskSettingsAutoFightLockTarget",
+            "[JumpBack]TaskSettingsAutoFightHealthDangerousSwitch",
+            "[JumpBack]TaskSettingsAutoFightSkill",
+            "[JumpBack]TaskSettingsAutoFightEndSkill",
+            "[JumpBack]TaskSettingsAutoFightBreakAccumulatingPower",
+            "[JumpBack]TaskSettingsAutoFightReserveSkillLevel",
+            "[JumpBack]TaskSettingsAutoFightAxis",
+            "EmptyNode"
+        ]
+    },
+    "TaskSettingsAutoFightKeymap": {
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ResourceOverridePipeline",
+        "custom_action_param": {
+            "patch": {
+                "AutoFight": {
+                    "attach": {
+                        "combo_keymap": "E",
+                        "skill_keymap1": "1",
+                        "skill_keymap2": "2",
+                        "skill_keymap3": "3",
+                        "skill_keymap4": "4",
+                        "switch_operator_keymap1": "F1",
+                        "switch_operator_keymap2": "F2",
+                        "switch_operator_keymap3": "F3",
+                        "switch_operator_keymap4": "F4"
+                    }
+                }
+            }
+        },
+        "post_delay": 0
+    },
+    "TaskSettingsAutoFightAttack": {
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ResourceOverridePipeline",
+        "custom_action_param": {
+            "patch": {
+                "AutoFight": {
+                    "attach": {
+                        "enable_attack": true
+                    }
+                }
+            }
+        },
+        "post_delay": 0
+    },
+    "TaskSettingsAutoFightCombo": {
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ResourceOverridePipeline",
+        "custom_action_param": {
+            "patch": {
+                "AutoFight": {
+                    "attach": {
+                        "enable_combo": true
+                    }
+                }
+            }
+        },
+        "post_delay": 0
+    },
+    "TaskSettingsAutoFightDodge": {
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ResourceOverridePipeline",
+        "custom_action_param": {
+            "patch": {
+                "AutoFight": {
+                    "attach": {
+                        "enable_dodge": true
+                    }
+                }
+            }
+        },
+        "post_delay": 0
+    },
+    "TaskSettingsAutoFightDodgeCompat": {
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ResourceOverridePipeline",
+        "custom_action_param": {
+            "patch": {
+                "AutoFight": {
+                    "attach": {
+                        "enable_dodge_compat": false
+                    }
+                }
+            }
+        },
+        "post_delay": 0
+    },
+    "TaskSettingsAutoFightLockTarget": {
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ResourceOverridePipeline",
+        "custom_action_param": {
+            "patch": {
+                "AutoFight": {
+                    "attach": {
+                        "enable_lock_target": true
+                    }
+                }
+            }
+        },
+        "post_delay": 0
+    },
+    "TaskSettingsAutoFightHealthDangerousSwitch": {
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ResourceOverridePipeline",
+        "custom_action_param": {
+            "patch": {
+                "AutoFight": {
+                    "attach": {
+                        "enable_health_dangerous_switch": true
+                    }
+                }
+            }
+        },
+        "post_delay": 0
+    },
+    "TaskSettingsAutoFightSkill": {
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ResourceOverridePipeline",
+        "custom_action_param": {
+            "patch": {
+                "AutoFight": {
+                    "attach": {
+                        "enable_skill": true
+                    }
+                }
+            }
+        },
+        "post_delay": 0
+    },
+    "TaskSettingsAutoFightEndSkill": {
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ResourceOverridePipeline",
+        "custom_action_param": {
+            "patch": {
+                "AutoFight": {
+                    "attach": {
+                        "enable_end_skill": true
+                    }
+                }
+            }
+        },
+        "post_delay": 0
+    },
+    "TaskSettingsAutoFightBreakAccumulatingPower": {
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ResourceOverridePipeline",
+        "custom_action_param": {
+            "patch": {
+                "AutoFight": {
+                    "attach": {
+                        "enable_break_accumulating_power": true
+                    }
+                }
+            }
+        },
+        "post_delay": 0
+    },
+    "TaskSettingsAutoFightReserveSkillLevel": {
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ResourceOverridePipeline",
+        "custom_action_param": {
+            "patch": {
+                "AutoFight": {
+                    "attach": {
+                        "reserve_skill_level": 1
+                    }
+                }
+            }
+        },
+        "post_delay": 0
+    },
+    "TaskSettingsAutoFightAxis": {
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ResourceOverridePipeline",
+        "custom_action_param": {
+            "patch": {
+                "AutoFight": {
+                    "attach": {
+                        "end_axis_timeline_code": ""
+                    }
+                }
+            }
+        },
+        "post_delay": 0
+    }
+}

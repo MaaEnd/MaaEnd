@@ -133,7 +133,7 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "AutoFightSetting",
+                        "AutoFightSettingHint",
                         "TrialOfSwordmancyRecoverBeforeBattle"
                     ]
                 }

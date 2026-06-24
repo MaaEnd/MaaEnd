@@ -154,7 +154,7 @@
                     "name": "AutoFight",
                     "label": "$option.AutoEssenceChallengeMode.cases.AutoFight.label",
                     "option": [
-                        "AutoFightSettingFull"
+                        "AutoFightSettingHint"
                     ],
                     "pipeline_override": {
                         "AutoEssenceClickEssenceChallengeUsingWalk": {
