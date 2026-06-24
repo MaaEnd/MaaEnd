@@ -1,26 +1,34 @@
 {
     "CloseGame": {
-        "action": "StopApp"
+        "action": "StopApp",
+        "package": ""
     },
     "CloseGame_Auto": {
-        "action": "StopApp"
+        "action": "StopApp",
+        "package": ""
     },
     "CloseGame_CN": {
-        "action": "StopApp"
+        "action": "StopApp",
+        "package": ""
     },
     "CloseGame_Bilibili_Auto": {
-        "action": "StopApp"
+        "action": "StopApp",
+        "package": ""
     },
     "CloseGame_Bilibili": {
-        "action": "StopApp"
+        "action": "StopApp",
+        "package": ""
     },
     "CloseGame_Global_Auto": {
-        "action": "StopApp"
+        "action": "StopApp",
+        "package": ""
     },
     "CloseGame_Global": {
-        "action": "StopApp"
+        "action": "StopApp",
+        "package": ""
     },
     "CloseGame_VN": {
-        "action": "StopApp"
+        "action": "StopApp",
+        "package": ""
     }
 }
