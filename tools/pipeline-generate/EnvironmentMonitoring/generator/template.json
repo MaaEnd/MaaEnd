@@ -217,10 +217,9 @@
             "EnvironmentMonitoringAdjustCamera": "${Id}AdjustCamera"
         },
         "next": [
-            "${Id}AdjustHeading"
+            "EnvironmentMonitoringTakePhoto"
         ]
     },
-    "${Id}AdjustHeading": "${AdjustHeadingNodeBody}",
     "${Id}AdjustCamera": {
         "desc": "${Name}任务中调整朝向",
         "max_hit": "${CameraMaxHit}",

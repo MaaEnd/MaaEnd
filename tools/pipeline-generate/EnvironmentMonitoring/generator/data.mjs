@@ -89,35 +89,6 @@ function buildRow(mission, usedIds) {
     ];
     const AfterTrackedNext = route.isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
 
-    // 朝向节点：MapTarget 的 Heading 已合并到同一个 MapNavigateAction path；
-    // MapPath / MapGoal 仍需在移动后单独调用 HEADING，未配置 Heading 时退化为透传节点。
-    const AdjustHeadingNodeBody =
-        route.HasHeading && !route.HasNavigationHeading
-            ? {
-                  desc: `${sanitizeDisplayName(missionName)}任务中调整角色朝向`,
-                  pre_delay: 0,
-                  action: "Custom",
-                  custom_action: "MapNavigateAction",
-                  custom_action_param: {
-                      path: [
-                          {
-                              action: "HEADING",
-                              angle: route.Heading,
-                          },
-                      ],
-                  },
-                  post_delay: 0,
-                  rate_limit: 0,
-                  next: ["EnvironmentMonitoringTakePhoto"],
-              }
-            : {
-                  desc: `${sanitizeDisplayName(missionName)}任务无需调整角色朝向`,
-                  pre_delay: 0,
-                  post_delay: 0,
-                  rate_limit: 0,
-                  next: ["EnvironmentMonitoringTakePhoto"],
-              };
-
     return {
         Station,
         Id,
@@ -139,7 +110,6 @@ function buildRow(mission, usedIds) {
         InExpectedText: buildExpectedFromLocaleMap(mission.shotTargetName),
         TrackOrGoToNext,
         AfterTrackedNext,
-        AdjustHeadingNodeBody,
         MapNavigationAction: route.MapNavigationAction,
         MapNavigationParam: route.MapNavigationParam,
     };

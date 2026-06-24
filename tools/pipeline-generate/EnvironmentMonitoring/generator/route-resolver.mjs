@@ -109,16 +109,17 @@ function buildNavigationParams({
     hasMapGoal,
     heading,
 }) {
-    const MapNavigationAction = hasMapTarget ? "MapNavigateAction" : hasMapGoal ? "MapTrackerGoal" : "MapTrackerMove";
+    // 1. Build location assertion node
     const MapAssertRecognition = hasMapTarget ? "MapLocateAssertLocation" : "MapTrackerAssertLocation";
-    const navigationHeading = hasMapTarget && heading.HasHeading;
     const MapAssertParam =
         MapAssertRecognition === "MapLocateAssertLocation"
             ? {
+                  // Using MapLocateAssertLocation
                   zone_id: MapName,
                   target: MapAssert,
               }
             : {
+                  // Using MapTrackerAssertLocation
                   expected: [
                       {
                           map_name: MapName,
@@ -126,16 +127,34 @@ function buildNavigationParams({
                       },
                   ],
               };
+
+    // 2. Build navigation node
+    const MapNavigationAction = hasMapTarget ? "MapNavigateAction" : hasMapGoal ? "MapTrackerGoal" : "MapTrackerMove";
+    const mapTrackerExtraParams = {
+        ...(heading.HasHeading
+            ? {
+                  on_finish: {
+                      action: "Custom",
+                      custom_action: "MapTrackerToward",
+                      custom_action_param: {
+                          angle: heading.Heading,
+                      },
+                  },
+              }
+            : {}),
+        ...(NoEnsureInitialMovementState ? {no_ensure_initial_movement_state: true} : {}),
+    };
     const MapNavigationParam =
         MapNavigationAction === "MapNavigateAction"
             ? {
+                  // Using MapNavigateAction
                   path: [
                       {
                           action: "NAVMESH",
                           target: MapTarget,
                           ...(!isFieldMissing(MapTargetTier) ? {target_tier: MapTargetTier} : {}),
                       },
-                      ...(navigationHeading
+                      ...(heading.HasHeading
                           ? [
                                 {
                                     action: "HEADING",
@@ -147,14 +166,16 @@ function buildNavigationParams({
               }
             : MapNavigationAction === "MapTrackerGoal"
               ? {
+                    // Using MapTrackerGoal
                     map_name: MapName,
                     target: MapGoal,
-                    ...(NoEnsureInitialMovementState ? {no_ensure_initial_movement_state: true} : {}),
+                    ...mapTrackerExtraParams,
                 }
               : {
+                    // Using MapTrackerMove
                     map_name: MapName,
                     path: MapPath,
-                    ...(NoEnsureInitialMovementState ? {no_ensure_initial_movement_state: true} : {}),
+                    ...mapTrackerExtraParams,
                 };
 
     return {
@@ -162,7 +183,6 @@ function buildNavigationParams({
         MapAssertParam,
         MapNavigationAction,
         MapNavigationParam,
-        HasNavigationHeading: navigationHeading,
     };
 }
 
