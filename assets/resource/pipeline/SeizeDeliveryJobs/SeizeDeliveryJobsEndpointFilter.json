@@ -14,7 +14,7 @@
         ]
     },
     "SeizeDeliveryJobsScanTargetFallback": {
-        "desc": "限时降级策略：第二阶段委托目标扫描入口点",
+        "desc": "刷新次数降级策略：第二阶段委托目标扫描入口点",
         "enabled": false,
         "recognition": "Custom",
         "custom_recognition": "SeizeDeliveryJobsScanTargetRecognition",
@@ -50,6 +50,46 @@
             "SeizeDeliveryJobsEndpointFilterCheck"
         ]
     },
+    "SeizeDeliveryJobsFoundTargetViewLocationClickPrimary": {
+        "desc": "刷新次数降级策略：第一阶段点击委托项的查看位置按钮（由 Go 覆写 target）",
+        "action": "Click",
+        "target": [
+            -1,
+            -1
+        ], // 必须覆写此字段
+        "post_wait_freezes": {
+            "time": 2000,
+            "target": [
+                2,
+                164,
+                264,
+                103
+            ]
+        }, // 等待查看位置的大地图界面弹出
+        "next": [
+            "SeizeDeliveryJobsEndpointFilterCheckPrimary"
+        ]
+    },
+    "SeizeDeliveryJobsFoundTargetViewLocationClickFallback": {
+        "desc": "刷新次数降级策略：第二阶段点击委托项的查看位置按钮（由 Go 覆写 target）",
+        "action": "Click",
+        "target": [
+            -1,
+            -1
+        ], // 必须覆写此字段
+        "post_wait_freezes": {
+            "time": 2000,
+            "target": [
+                2,
+                164,
+                264,
+                103
+            ]
+        }, // 等待查看位置的大地图界面弹出
+        "next": [
+            "SeizeDeliveryJobsEndpointFilterCheckFallback"
+        ]
+    },
     "SeizeDeliveryJobsEndpointFilterCheck": {
         "desc": "在大地图中检查委托终点是否符合筛选",
         "pre_delay": 0,
@@ -57,6 +97,22 @@
         "next": [
             "SeizeDeliveryJobsEndpointFilterWulingCity",
             "SeizeDeliveryJobsEndpointFilterTestArea"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointFilterCheckPrimary": {
+        "desc": "刷新次数降级策略：第一阶段在大地图中检查委托终点是否符合筛选",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsEndpointFilterWulingCityPrimary"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointFilterCheckFallback": {
+        "desc": "刷新次数降级策略：第二阶段在大地图中检查委托终点是否符合筛选",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsEndpointFilterWulingCityFallback"
         ]
     },
     "SeizeDeliveryJobsEndpointFilterWulingCity": {
@@ -70,6 +126,32 @@
             "SeizeDeliveryJobsEndpointFilterObservatory",
             "SeizeDeliveryJobsEndpointFilterTechProductionOffice",
             "SeizeDeliveryJobsEndpointNotMatched"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointFilterWulingCityPrimary": {
+        "desc": "刷新次数降级策略：第一阶段武陵城终点筛选入口",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsEndpointFilterOwlPrimary",
+            "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitutePrimary",
+            "SeizeDeliveryJobsEndpointFilterObservatoryPrimary",
+            "SeizeDeliveryJobsEndpointFilterTechProductionOfficePrimary",
+            "SeizeDeliveryJobsEndpointNotMatched"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointFilterWulingCityFallback": {
+        "desc": "刷新次数降级策略：第二阶段武陵城终点筛选入口",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsEndpointFilterOwlFallback",
+            "SeizeDeliveryJobsEndpointFilterMaterialResearchInstituteFallback",
+            "SeizeDeliveryJobsEndpointFilterObservatoryFallback",
+            "SeizeDeliveryJobsEndpointFilterTechProductionOfficeFallback",
+            "SeizeDeliveryJobsEndpointNotMatchedFallback"
         ]
     },
     "SeizeDeliveryJobsEndpointFilterTestArea": {
@@ -217,6 +299,158 @@
             "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointJingweiFieldArea"
         }
     },
+    "SeizeDeliveryJobsEndpointFilterOwlPrimary": {
+        "desc": "刷新次数降级策略：第一阶段猫头鹰（右下）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            655,
+            515,
+            93,
+            83
+        ],
+        "template": "SeizeDeliveryJobs/Destinations/Owl.png",
+        "threshold": 0.9,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatchedPrimary"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointOwl"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitutePrimary": {
+        "desc": "刷新次数降级策略：第一阶段材料研究所（左下）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            548,
+            542,
+            122,
+            73
+        ],
+        "template": "SeizeDeliveryJobs/Destinations/MaterialResearchInstitute.png",
+        "threshold": 0.9,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatchedPrimary"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointMaterialResearchInstitute"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterObservatoryPrimary": {
+        "desc": "刷新次数降级策略：第一阶段观测站（右上）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            853,
+            209,
+            84,
+            110
+        ],
+        "template": "SeizeDeliveryJobs/Destinations/Observatory.png",
+        "threshold": 0.9,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatchedPrimary"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointObservatory"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterTechProductionOfficePrimary": {
+        "desc": "刷新次数降级策略：第一阶段技术生产办公室（左上）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            781,
+            438,
+            88,
+            103
+        ],
+        "template": "SeizeDeliveryJobs/Destinations/TechProductionOffice.png",
+        "threshold": 0.9,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatchedPrimary"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointTechProductionOffice"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterOwlFallback": {
+        "desc": "刷新次数降级策略：第二阶段猫头鹰（右下）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            655,
+            515,
+            93,
+            83
+        ],
+        "template": "SeizeDeliveryJobs/Destinations/Owl.png",
+        "threshold": 0.9,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatchedFallback"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointOwl"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterMaterialResearchInstituteFallback": {
+        "desc": "刷新次数降级策略：第二阶段材料研究所（左下）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            548,
+            542,
+            122,
+            73
+        ],
+        "template": "SeizeDeliveryJobs/Destinations/MaterialResearchInstitute.png",
+        "threshold": 0.9,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatchedFallback"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointMaterialResearchInstitute"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterObservatoryFallback": {
+        "desc": "刷新次数降级策略：第二阶段观测站（右上）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            853,
+            209,
+            84,
+            110
+        ],
+        "template": "SeizeDeliveryJobs/Destinations/Observatory.png",
+        "threshold": 0.9,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatchedFallback"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointObservatory"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterTechProductionOfficeFallback": {
+        "desc": "刷新次数降级策略：第二阶段技术生产办公室（左上）",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            781,
+            438,
+            88,
+            103
+        ],
+        "template": "SeizeDeliveryJobs/Destinations/TechProductionOffice.png",
+        "threshold": 0.9,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatchedFallback"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointTechProductionOffice"
+        }
+    },
     // ===== 下面是结果处理的流程节点 =====
     "SeizeDeliveryJobsEndpointMatched": {
         "desc": "终点匹配成功，重置 Go 扫描状态",
@@ -228,6 +462,26 @@
             "SeizeDeliveryJobsPressEscAfterMatch"
         ]
     },
+    "SeizeDeliveryJobsEndpointMatchedPrimary": {
+        "desc": "刷新次数降级策略：第一阶段终点匹配成功，重置 Go 扫描状态",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SeizeDeliveryJobsResetScanStateAction",
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsPressEscAfterMatchPrimary"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointMatchedFallback": {
+        "desc": "刷新次数降级策略：第二阶段终点匹配成功，重置 Go 扫描状态",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SeizeDeliveryJobsResetScanStateAction",
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsPressEscAfterMatchFallback"
+        ]
+    },
     "SeizeDeliveryJobsPressEscAfterMatch": {
         "desc": "终点匹配成功，关闭地图",
         "action": "ClickKey",
@@ -235,6 +489,24 @@
         "post_delay": 1000,
         "next": [
             "SeizeDeliveryJobsAcceptClick"
+        ]
+    },
+    "SeizeDeliveryJobsPressEscAfterMatchPrimary": {
+        "desc": "刷新次数降级策略：第一阶段终点匹配成功，关闭地图",
+        "action": "ClickKey",
+        "key": 27, // ESC
+        "post_delay": 1000,
+        "next": [
+            "SeizeDeliveryJobsAcceptClickPrimary"
+        ]
+    },
+    "SeizeDeliveryJobsPressEscAfterMatchFallback": {
+        "desc": "刷新次数降级策略：第二阶段终点匹配成功，关闭地图",
+        "action": "ClickKey",
+        "key": 27, // ESC
+        "post_delay": 1000,
+        "next": [
+            "SeizeDeliveryJobsAcceptClickFallback"
         ]
     },
     "SeizeDeliveryJobsAcceptClick": {
@@ -261,6 +533,54 @@
             "SeizeDeliveryJobsRefresh"
         ]
     },
+    "SeizeDeliveryJobsAcceptClickPrimary": {
+        "desc": "刷新次数降级策略：第一阶段点击接取运送委托（由 Go 覆写target）",
+        "action": "Click",
+        "target": [
+            -1,
+            -1
+        ], // 必须覆写此字段
+        "post_wait_freezes": {
+            "time": 2000,
+            "target": [
+                2,
+                164,
+                264,
+                103
+            ]
+        },
+        "timeout": 5000,
+        "next": [
+            "SeizeDeliveryJobsIsSeizeSuccess"
+        ],
+        "on_error": [
+            "SeizeDeliveryJobsRefreshCountPrimaryRecover"
+        ]
+    },
+    "SeizeDeliveryJobsAcceptClickFallback": {
+        "desc": "刷新次数降级策略：第二阶段点击接取运送委托（由 Go 覆写target）",
+        "action": "Click",
+        "target": [
+            -1,
+            -1
+        ], // 必须覆写此字段
+        "post_wait_freezes": {
+            "time": 2000,
+            "target": [
+                2,
+                164,
+                264,
+                103
+            ]
+        },
+        "timeout": 5000,
+        "next": [
+            "SeizeDeliveryJobsIsSeizeSuccess"
+        ],
+        "on_error": [
+            "SeizeDeliveryJobsRefreshCountFallbackRecover"
+        ]
+    },
     "SeizeDeliveryJobsEndpointNotMatched": {
         "desc": "终点未匹配，继续扫描下一个委托",
         "next": [
@@ -279,12 +599,46 @@
             "SeizeDeliveryJobsScanTarget"
         ]
     },
+    "SeizeDeliveryJobsEndpointNotMatchedFallback": {
+        "desc": "刷新次数降级策略：第二阶段终点未匹配，继续扫描下一个委托",
+        "next": [
+            "SeizeDeliveryJobsPressEscAfterNotMatchFallback"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointNotMatched"
+        }
+    },
+    "SeizeDeliveryJobsPressEscAfterNotMatchFallback": {
+        "desc": "刷新次数降级策略：第二阶段终点未匹配，关闭地图",
+        "action": "ClickKey",
+        "key": 27, // ESC
+        "post_delay": 1000,
+        "next": [
+            "SeizeDeliveryJobsScanTargetFallback"
+        ]
+    },
     "SeizeDeliveryJobsScanExhausted": {
         "desc": "扫描完毕未找到目标委托，重置 Go 扫描状态",
         "action": "Custom",
         "custom_action": "SeizeDeliveryJobsResetScanStateAction",
         "next": [
             "SeizeDeliveryJobsRefresh"
+        ]
+    },
+    "SeizeDeliveryJobsScanExhaustedPrimary": {
+        "desc": "刷新次数降级策略：第一阶段扫描完毕未找到目标委托，重置 Go 扫描状态",
+        "action": "Custom",
+        "custom_action": "SeizeDeliveryJobsResetScanStateAction",
+        "next": [
+            "SeizeDeliveryJobsRefreshCountPrimaryRecover"
+        ]
+    },
+    "SeizeDeliveryJobsScanExhaustedFallback": {
+        "desc": "刷新次数降级策略：第二阶段扫描完毕未找到目标委托，重置 Go 扫描状态",
+        "action": "Custom",
+        "custom_action": "SeizeDeliveryJobsResetScanStateAction",
+        "next": [
+            "SeizeDeliveryJobsRefreshCountFallbackRecover"
         ]
     }
 }

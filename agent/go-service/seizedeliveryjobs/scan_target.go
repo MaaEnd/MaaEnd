@@ -354,9 +354,13 @@ func (a *SeizeDeliveryJobsScanTargetAction) Run(ctx *maa.Context, arg *maa.Custo
 		Msg("overriding pipeline targets")
 
 	if err := ctx.OverridePipeline(map[string]any{
-		"SeizeDeliveryJobsFoundTargetViewLocationClick": map[string]any{"target": viewRect},
-		"SeizeDeliveryJobsAcceptClick":                  map[string]any{"target": acceptRect},
-		"SeizeDeliveryJobsRetryClickAccept":             map[string]any{"target": acceptRect},
+		"SeizeDeliveryJobsFoundTargetViewLocationClick":         map[string]any{"target": viewRect},
+		"SeizeDeliveryJobsFoundTargetViewLocationClickPrimary":  map[string]any{"target": viewRect},
+		"SeizeDeliveryJobsFoundTargetViewLocationClickFallback": map[string]any{"target": viewRect},
+		"SeizeDeliveryJobsAcceptClick":                         map[string]any{"target": acceptRect},
+		"SeizeDeliveryJobsAcceptClickPrimary":                  map[string]any{"target": acceptRect},
+		"SeizeDeliveryJobsAcceptClickFallback":                 map[string]any{"target": acceptRect},
+		"SeizeDeliveryJobsRetryClickAccept":                    map[string]any{"target": acceptRect},
 	}); err != nil {
 		log.Error().Err(err).
 			Str("component", "SeizeDeliveryJobs").

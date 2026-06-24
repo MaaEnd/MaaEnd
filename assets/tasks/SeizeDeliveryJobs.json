@@ -51,7 +51,7 @@
                     "name": "Sixteen3",
                     "label": "$task.SeizeDeliveryJobsRewardWulingCity.cases.Sixteen3.label",
                     "option": [
-                        "SeizeDeliveryJobsTimedFallback"
+                        "SeizeDeliveryJobsRefreshCountFallback"
                     ]
                 },
                 {
@@ -71,11 +71,11 @@
                 }
             ]
         },
-        "SeizeDeliveryJobsTimedFallback": {
+        "SeizeDeliveryJobsRefreshCountFallback": {
             "type": "switch",
             "default_case": "No",
-            "label": "$task.SeizeDeliveryJobsTimedFallback.label",
-            "description": "$task.SeizeDeliveryJobsTimedFallback.description",
+            "label": "$task.SeizeDeliveryJobsRefreshCountFallback.label",
+            "description": "$task.SeizeDeliveryJobsRefreshCountFallback.description",
             "cases": [
                 {
                     "name": "No"
@@ -83,69 +83,89 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "SeizeDeliveryJobsPrimaryTimeoutMinutes",
-                        "SeizeDeliveryJobsFallbackTimeoutMinutes"
+                        "SeizeDeliveryJobsPrimaryRefreshCount",
+                        "SeizeDeliveryJobsFallbackRefreshCount"
                     ],
                     "pipeline_override": {
                         "SeizeDeliveryJobsMain": {
                             "next": [
-                                "SeizeDeliveryJobsTimedFallbackReset"
+                                "SeizeDeliveryJobsRefreshCountFallbackReset"
                             ]
                         },
                         "SeizeDeliveryJobsLoop": {
                             "next": [
-                                "SeizeDeliveryJobsTimedFallbackPrimary",
-                                "SeizeDeliveryJobsTimedFallbackFallback",
-                                "SeizeDeliveryJobsTimedFallbackStop"
+                                "SeizeDeliveryJobsRefreshCountPrimaryStage"
+                            ]
+                        },
+                        "SeizeDeliveryJobsFindTarget": {
+                            "on_error": [
+                                "SeizeDeliveryJobsRefreshCountPrimaryRecover"
+                            ]
+                        },
+                        "SeizeDeliveryJobsFindTargetFallback": {
+                            "on_error": [
+                                "SeizeDeliveryJobsRefreshCountFallbackRecover"
+                            ]
+                        },
+                        "SeizeDeliveryJobsScanTarget": {
+                            "next": [
+                                "SeizeDeliveryJobsFoundTargetViewLocationClickPrimary"
+                            ],
+                            "on_error": [
+                                "SeizeDeliveryJobsScanExhaustedPrimary"
+                            ]
+                        },
+                        "SeizeDeliveryJobsScanTargetFallback": {
+                            "next": [
+                                "SeizeDeliveryJobsFoundTargetViewLocationClickFallback"
+                            ],
+                            "on_error": [
+                                "SeizeDeliveryJobsScanExhaustedFallback"
                             ]
                         }
                     }
                 }
             ]
         },
-        "SeizeDeliveryJobsPrimaryTimeoutMinutes": {
+        "SeizeDeliveryJobsPrimaryRefreshCount": {
             "type": "input",
-            "label": "$task.SeizeDeliveryJobsPrimaryTimeoutMinutes.label",
-            "description": "$task.SeizeDeliveryJobsPrimaryTimeoutMinutes.description",
+            "label": "$task.SeizeDeliveryJobsPrimaryRefreshCount.label",
+            "description": "$task.SeizeDeliveryJobsPrimaryRefreshCount.description",
             "inputs": [
                 {
-                    "name": "SeizeDeliveryJobsPrimaryTimeoutMinutesValue",
-                    "label": "$task.SeizeDeliveryJobsPrimaryTimeoutMinutes.inputs.Value.label",
-                    "description": "$task.SeizeDeliveryJobsPrimaryTimeoutMinutes.inputs.Value.description",
-                    "default": "30",
+                    "name": "SeizeDeliveryJobsPrimaryRefreshCountValue",
+                    "label": "$task.SeizeDeliveryJobsPrimaryRefreshCount.inputs.Value.label",
+                    "description": "$task.SeizeDeliveryJobsPrimaryRefreshCount.inputs.Value.description",
+                    "default": "40",
                     "pipeline_type": "int",
                     "verify": "^[1-9]\\d*$",
-                    "pattern_msg": "$task.SeizeDeliveryJobsTimeoutMinutes.inputs.Value.pattern_msg"
+                    "pattern_msg": "$task.SeizeDeliveryJobsRefreshCount.inputs.Value.pattern_msg"
                 }
             ],
             "pipeline_override": {
-                "SeizeDeliveryJobsTimedFallbackConfig": {
-                    "attach": {
-                        "primary_timeout_minutes": "{SeizeDeliveryJobsPrimaryTimeoutMinutesValue}"
-                    }
+                "SeizeDeliveryJobsRefreshCountPrimary": {
+                    "max_hit": "{SeizeDeliveryJobsPrimaryRefreshCountValue}"
                 }
             }
         },
-        "SeizeDeliveryJobsFallbackTimeoutMinutes": {
+        "SeizeDeliveryJobsFallbackRefreshCount": {
             "type": "input",
-            "label": "$task.SeizeDeliveryJobsFallbackTimeoutMinutes.label",
-            "description": "$task.SeizeDeliveryJobsFallbackTimeoutMinutes.description",
+            "label": "$task.SeizeDeliveryJobsFallbackRefreshCount.label",
+            "description": "$task.SeizeDeliveryJobsFallbackRefreshCount.description",
             "inputs": [
                 {
-                    "name": "SeizeDeliveryJobsFallbackTimeoutMinutesValue",
-                    "label": "$task.SeizeDeliveryJobsFallbackTimeoutMinutes.inputs.Value.label",
-                    "description": "$task.SeizeDeliveryJobsFallbackTimeoutMinutes.inputs.Value.description",
-                    "default": "30",
+                    "name": "SeizeDeliveryJobsFallbackRefreshCountValue",
+                    "label": "$task.SeizeDeliveryJobsFallbackRefreshCount.inputs.Value.label",
+                    "description": "$task.SeizeDeliveryJobsFallbackRefreshCount.inputs.Value.description",
+                    "default": "40",
                     "pipeline_type": "int",
                     "verify": "^[1-9]\\d*$",
-                    "pattern_msg": "$task.SeizeDeliveryJobsTimeoutMinutes.inputs.Value.pattern_msg"
+                    "pattern_msg": "$task.SeizeDeliveryJobsRefreshCount.inputs.Value.pattern_msg"
                 }
             ],
             "pipeline_override": {
-                "SeizeDeliveryJobsTimedFallbackConfig": {
-                    "attach": {
-                        "fallback_timeout_minutes": "{SeizeDeliveryJobsFallbackTimeoutMinutesValue}"
-                    }
+                "SeizeDeliveryJobsRefreshCountFallback": {
+                    "max_hit": "{SeizeDeliveryJobsFallbackRefreshCountValue}"
                 }
             }
         },
@@ -327,6 +347,12 @@
                         },
                         "SeizeDeliveryJobsEndpointFilterWulingCity": {
                             "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilterWulingCityPrimary": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilterWulingCityFallback": {
+                            "enabled": true
                         }
                     }
                 }
@@ -374,6 +400,12 @@
                     "pipeline_override": {
                         "SeizeDeliveryJobsEndpointFilterOwl": {
                             "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilterOwlPrimary": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilterOwlFallback": {
+                            "enabled": true
                         }
                     }
                 },
@@ -382,6 +414,12 @@
                     "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.MaterialResearchInstitute.label",
                     "pipeline_override": {
                         "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitutePrimary": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilterMaterialResearchInstituteFallback": {
                             "enabled": true
                         }
                     }
@@ -392,6 +430,12 @@
                     "pipeline_override": {
                         "SeizeDeliveryJobsEndpointFilterObservatory": {
                             "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilterObservatoryPrimary": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilterObservatoryFallback": {
+                            "enabled": true
                         }
                     }
                 },
@@ -400,6 +444,12 @@
                     "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.TechProductionOffice.label",
                     "pipeline_override": {
                         "SeizeDeliveryJobsEndpointFilterTechProductionOffice": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilterTechProductionOfficePrimary": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilterTechProductionOfficeFallback": {
                             "enabled": true
                         }
                     }

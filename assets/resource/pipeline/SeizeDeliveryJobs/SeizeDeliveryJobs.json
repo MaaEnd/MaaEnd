@@ -163,65 +163,201 @@
             "SeizeDeliveryJobsRefresh"
         ]
     },
-    // ===== 限时降级策略节点（由任务选项启用）=====
-    "SeizeDeliveryJobsTimedFallbackConfig": {
-        "desc": "承载限时降级策略参数，请勿重命名或删除",
-        "attach": {
-            "primary_timeout_minutes": 30,
-            "fallback_timeout_minutes": 30
-        }
-    },
-    "SeizeDeliveryJobsTimedFallbackReset": {
-        "desc": "限时降级策略：重置本轮抢单计时",
+    // ===== 刷新次数降级策略节点（由任务选项启用）=====
+    "SeizeDeliveryJobsRefreshCountFallbackReset": {
+        "desc": "刷新次数降级策略：重置本轮抢单刷新计数",
         "action": "Custom",
-        "custom_action": "SeizeDeliveryJobsTimedFallbackResetAction",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "SeizeDeliveryJobsRefreshCountPrimary",
+                "SeizeDeliveryJobsRefreshCountFallback"
+            ]
+        },
         "next": [
             "SeizeDeliveryJobsGuard",
             "SeizeDeliveryJobsEnterWulingJobList"
         ]
     },
-    "SeizeDeliveryJobsTimedFallbackPrimary": {
-        "desc": "限时降级策略：第一阶段",
-        "recognition": "Custom",
-        "custom_recognition": "SeizeDeliveryJobsTimedFallbackRecognition",
-        "custom_recognition_param": {
-            "stage": "Primary"
-        },
+    "SeizeDeliveryJobsRefreshCountPrimaryStage": {
+        "desc": "刷新次数降级策略：第一阶段列表稳定后尝试 16.3 万、扫描终点或限次刷新",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoJobListLoaded"
+        ],
+        "pre_wait_freezes": 250,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsFindTarget",
             "SeizeDeliveryJobsScanTarget",
-            "SeizeDeliveryJobsRefresh"
+            "SeizeDeliveryJobsRefreshCountPrimaryReady"
         ]
     },
-    "SeizeDeliveryJobsTimedFallbackFallback": {
-        "desc": "限时降级策略：第二阶段",
-        "recognition": "Custom",
-        "custom_recognition": "SeizeDeliveryJobsTimedFallbackRecognition",
-        "custom_recognition_param": {
-            "stage": "Fallback"
-        },
+    "SeizeDeliveryJobsRefreshCountPrimaryRecover": {
+        "desc": "刷新次数降级策略：第一阶段抢单失败后回到列表，优先消耗第一阶段刷新次数",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoJobListLoaded"
+        ],
+        "pre_wait_freezes": 250,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsRefreshCountPrimary",
+            "SeizeDeliveryJobsRefreshCountPrimaryExhausted"
+        ]
+    },
+    "SeizeDeliveryJobsRefreshCountPrimaryReady": {
+        "desc": "刷新次数降级策略：第一阶段刷新按钮可用，随后执行限次刷新或降级",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1160,
+            600,
+            110,
+            110
+        ],
+        "template": [
+            "SeizeDeliveryJobs/DepotNodePage/JobRefresh.png",
+            "SeizeDeliveryJobs/DepotNodePage/JobRefreshHover.png"
+        ],
+        "order_by": "Score",
+        "next": [
+            "SeizeDeliveryJobsRefreshCountPrimary",
+            "SeizeDeliveryJobsRefreshCountPrimaryExhausted"
+        ]
+    },
+    "SeizeDeliveryJobsRefreshCountPrimaryExhausted": {
+        "desc": "刷新次数降级策略：确认刷新按钮仍可用且第一阶段刷新次数已用完，进入第二阶段",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1160,
+            600,
+            110,
+            110
+        ],
+        "template": [
+            "SeizeDeliveryJobs/DepotNodePage/JobRefresh.png",
+            "SeizeDeliveryJobs/DepotNodePage/JobRefreshHover.png"
+        ],
+        "order_by": "Score",
+        "next": [
+            "SeizeDeliveryJobsRefreshCountFallbackStage"
+        ]
+    },
+    "SeizeDeliveryJobsRefreshCountFallbackStage": {
+        "desc": "刷新次数降级策略：第二阶段列表稳定后尝试 16.3 万或 11.9 万、扫描终点或限次刷新",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoJobListLoaded"
+        ],
+        "pre_wait_freezes": 250,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsFindTargetFallback",
             "SeizeDeliveryJobsScanTargetFallback",
-            "SeizeDeliveryJobsRefresh"
+            "SeizeDeliveryJobsRefreshCountFallbackReady"
         ]
     },
-    "SeizeDeliveryJobsTimedFallbackStop": {
-        "desc": "限时降级策略：两段抢单均超时，结束任务",
-        "recognition": "Custom",
-        "custom_recognition": "SeizeDeliveryJobsTimedFallbackRecognition",
-        "custom_recognition_param": {
-            "stage": "Stop"
-        },
+    "SeizeDeliveryJobsRefreshCountFallbackRecover": {
+        "desc": "刷新次数降级策略：第二阶段抢单失败后回到列表，优先消耗第二阶段刷新次数",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoJobListLoaded"
+        ],
+        "pre_wait_freezes": 250,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsRefreshCountFallback",
+            "SeizeDeliveryJobsRefreshCountFallbackStop"
+        ]
+    },
+    "SeizeDeliveryJobsRefreshCountFallbackReady": {
+        "desc": "刷新次数降级策略：第二阶段刷新按钮可用，随后执行限次刷新或停止",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1160,
+            600,
+            110,
+            110
+        ],
+        "template": [
+            "SeizeDeliveryJobs/DepotNodePage/JobRefresh.png",
+            "SeizeDeliveryJobs/DepotNodePage/JobRefreshHover.png"
+        ],
+        "order_by": "Score",
+        "next": [
+            "SeizeDeliveryJobsRefreshCountFallback",
+            "SeizeDeliveryJobsRefreshCountFallbackStop"
+        ]
+    },
+    "SeizeDeliveryJobsRefreshCountPrimary": {
+        "desc": "刷新次数降级策略：第一阶段限次刷新",
+        "max_hit": 40,
+        "recognition": "TemplateMatch",
+        "roi": [
+            1160,
+            600,
+            110,
+            110
+        ],
+        "template": [
+            "SeizeDeliveryJobs/DepotNodePage/JobRefresh.png",
+            "SeizeDeliveryJobs/DepotNodePage/JobRefreshHover.png"
+        ],
+        "order_by": "Score",
+        "action": "Click",
+        "post_delay": 1000, // 等待刷新响应
+        "next": [
+            "SeizeDeliveryJobsRefreshCountPrimaryStage"
+        ]
+    },
+    "SeizeDeliveryJobsRefreshCountFallback": {
+        "desc": "刷新次数降级策略：第二阶段限次刷新",
+        "max_hit": 40,
+        "recognition": "TemplateMatch",
+        "roi": [
+            1160,
+            600,
+            110,
+            110
+        ],
+        "template": [
+            "SeizeDeliveryJobs/DepotNodePage/JobRefresh.png",
+            "SeizeDeliveryJobs/DepotNodePage/JobRefreshHover.png"
+        ],
+        "order_by": "Score",
+        "action": "Click",
+        "post_delay": 1000, // 等待刷新响应
+        "next": [
+            "SeizeDeliveryJobsRefreshCountFallbackStage"
+        ]
+    },
+    "SeizeDeliveryJobsRefreshCountFallbackStop": {
+        "desc": "刷新次数降级策略：两段刷新次数均用完，结束任务",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1160,
+            600,
+            110,
+            110
+        ],
+        "template": [
+            "SeizeDeliveryJobs/DepotNodePage/JobRefresh.png",
+            "SeizeDeliveryJobs/DepotNodePage/JobRefreshHover.png"
+        ],
+        "order_by": "Score",
         "next": [
             "SeizeDeliveryJobsTaskEnd"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.timedFallbackStop"
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.refreshCountFallbackStop"
         }
     },
     "SeizeDeliveryJobsFindTargetFallback": {
-        "desc": "限时降级策略：第二阶段，匹配武陵城 16.3 万或 11.9 万委托",
+        "desc": "刷新次数降级策略：第二阶段，匹配武陵城 16.3 万或 11.9 万委托",
         "recognition": "Or",
         "any_of": [
             "__SeizeDeliveryJobsFindTarget16_3",
