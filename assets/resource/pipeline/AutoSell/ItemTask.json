@@ -420,7 +420,7 @@
         "rate_limit": 0
     },
     "AutoSellFriendsPricesExpectedBuy": {
-        "desc": "当前价格符合预期，在当前好友飞船上，可以直接购买",
+        "desc": "当前价格符合预期，在当前好友飞船上，可以直接售卖",
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
@@ -433,7 +433,7 @@
             "AutoSellFriendsPricesExpectedBuyBackToSellGoods"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "当前拜访好友是最高价，可以购买"
+            "Node.Recognition.Succeeded": "当前拜访好友是最高价，可以售卖"
         }
     },
     "AutoSellFriendsPricesExpectedBuyBackToSellGoods": {
