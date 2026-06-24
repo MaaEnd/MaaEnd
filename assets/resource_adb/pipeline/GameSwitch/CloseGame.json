@@ -1,5 +1,10 @@
 {
     "CloseGame_Auto": {
+        "next": [
+            "CloseGame_CN_Auto"
+        ]
+    },
+    "CloseGame_CN_Auto": {
         "action": {
             "type": "StopApp",
             "param": {
