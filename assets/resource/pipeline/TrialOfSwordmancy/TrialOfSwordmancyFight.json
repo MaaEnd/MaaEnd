@@ -147,6 +147,43 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "TrialOfSwordmancyDailyAutoFightRearmResetState",
+            "TrialOfSwordmancyMain"
+        ]
+    },
+    "TrialOfSwordmancyDailyAutoFightResetState": {
+        "desc": "自动作战模式下，一次性重置到选剑演武入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "TrialOfSwordmancyGotoTrialArenaStart"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyMain"
+        ]
+    },
+    "TrialOfSwordmancyDailyAutoFightRearmResetState": {
+        "desc": "自动作战模式下，为下一轮重新启用入口重置",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "TrialOfSwordmancyDailyAutoFightResetState",
+                "TrialOfSwordmancyGotoTrialArenaCpp"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
             "TrialOfSwordmancyMain"
         ]
     }

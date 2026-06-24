@@ -369,9 +369,9 @@
                 "recognition": "TemplateMatch",
                 "roi": [
                     0,
-                    -200,
+                    -400,
                     250,
-                    200
+                    400
                 ],
                 "template": [
                     "SceneManager/MapLayersMain.png"
