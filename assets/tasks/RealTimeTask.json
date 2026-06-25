@@ -32,7 +32,7 @@
             "type": "switch",
             "label": "$option.SklandMap.label",
             "description": "$option.SklandMap.description",
-            "default_case": "Yes",
+            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
