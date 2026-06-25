@@ -5,12 +5,12 @@
             "AutoFightTest"
         ]
     },
-    "AutoFightTest2": {
+    "AutoFightTest3": {
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
             "[JumpBack]__AutoFightRecognitionScreenTest",
-            "AutoFightTest2"
+            "AutoFightTest3"
         ]
     },
     "__AutoFightRecognitionScreenTest": {
