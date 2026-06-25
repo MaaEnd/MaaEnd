@@ -1072,7 +1072,7 @@
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "接受1/2次溢出",
     "option.TrialOfSwordmancyAutoFight.label": "啟用自動戰鬥",
     "option.ClientVersion.label": "客戶端版本 (僅安卓適用)",
-    "option.ClientVersion.cases.Auto.label": "自動偵測",
+    "option.ClientVersion.cases.Auto.label": "自動偵測(不推薦)",
     "option.ClientVersion.cases.CN.label": "官服",
     "option.ClientVersion.cases.Bilibili.label": "B服",
     "option.ClientVersion.cases.Global.label": "國際服",

@@ -1072,7 +1072,7 @@
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "1-2회 오버플로우 허용",
     "option.TrialOfSwordmancyAutoFight.label": "자동 전투 활성화",
     "option.ClientVersion.label": "클라이언트 버전 (Android 전용)",
-    "option.ClientVersion.cases.Auto.label": "자동 감지",
+    "option.ClientVersion.cases.Auto.label": "자동 감지(권장하지 않음)",
     "option.ClientVersion.cases.CN.label": "중국 서버",
     "option.ClientVersion.cases.Bilibili.label": "Bilibili",
     "option.ClientVersion.cases.Global.label": "글로벌 서버",

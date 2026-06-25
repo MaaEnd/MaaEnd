@@ -25,25 +25,8 @@
                 "PlayCover"
             ],
             "label": "$option.ClientVersion.label",
-            "default_case": "Auto",
+            "default_case": "CN",
             "cases": [
-                {
-                    "name": "Auto",
-                    "label": "$option.ClientVersion.cases.Auto.label",
-                    "pipeline_override": {
-                        "AndroidOpenGame": {
-                            "next": [
-                                "AndroidOpenGame_Auto"
-                            ],
-                            "on_error": []
-                        },
-                        "CloseGame": {
-                            "next": [
-                                "CloseGame_Auto"
-                            ]
-                        }
-                    }
-                },
                 {
                     "name": "CN",
                     "label": "$option.ClientVersion.cases.CN.label",
@@ -108,6 +91,23 @@
                         "CloseGame": {
                             "next": [
                                 "CloseGame_VN"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Auto",
+                    "label": "$option.ClientVersion.cases.Auto.label",
+                    "pipeline_override": {
+                        "AndroidOpenGame": {
+                            "next": [
+                                "AndroidOpenGame_Auto"
+                            ],
+                            "on_error": []
+                        },
+                        "CloseGame": {
+                            "next": [
+                                "CloseGame_Auto"
                             ]
                         }
                     }

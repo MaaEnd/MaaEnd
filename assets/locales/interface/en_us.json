@@ -1072,7 +1072,7 @@
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "Accept 1-2 overflows",
     "option.TrialOfSwordmancyAutoFight.label": "Enable auto-battle",
     "option.ClientVersion.label": "Client Version (Android Only)",
-    "option.ClientVersion.cases.Auto.label": "Auto Detect",
+    "option.ClientVersion.cases.Auto.label": "Auto Detect (Not recommended)",
     "option.ClientVersion.cases.CN.label": "CN (Hypergryph)",
     "option.ClientVersion.cases.Bilibili.label": "CN (Bilibili)",
     "option.ClientVersion.cases.Global.label": "Global (Gryphline)",
