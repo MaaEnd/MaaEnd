@@ -310,21 +310,8 @@
             }
         },
         "next": [
-            "AutoEssenceClickEssenceChallengeUsingWalk",
             "AutoEssenceClickEssenceChallengeUsingAutoFight"
         ]
-    },
-    "AutoEssenceClickEssenceChallengeUsingWalk": {
-        "desc": "使用走路方式挑战（利用玩家的炮台进行攻击）",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "[JumpBack]AutoEssenceLocationSetup",
-            "[Anchor]AutoEssenceWalkAround"
-        ],
-        "focus": {
-            "Node.Recognition.Starting": "🚶正在使用走路方式挑战"
-        }
     },
     "AutoEssenceClickEssenceChallengeUsingAutoFight": {
         "desc": "使用自动战斗方式挑战",
@@ -389,10 +376,10 @@
                     300
                 ],
                 "expected": [
-                    "重度能量淤积点",
-                    "重度能量淤積點",
-                    "Severe Energy Alluvium",
-                    "重度超域活性点"
+                    "重度|能量|淤积点", // 重度能量淤积点
+                    "重度|能量|淤積點", // 重度能量淤積點
+                    "Severe|Energy|Alluvium", // Severe Energy Alluvium
+                    "重度|超域|活性点" // 重度超域活性点
                 ]
             }
         },
@@ -414,23 +401,6 @@
                         0
                     ]
                 }
-            }
-        }
-    },
-    "AutoEssenceCheckObtainText": {
-        "desc": "确认有无领取奖励的文字",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    868,
-                    451,
-                    134,
-                    94
-                ],
-                "expected": [
-                    "领取奖励"
-                ]
             }
         }
     },
@@ -503,10 +473,10 @@
                     0
                 ],
                 "expected": [
-                    "领取奖励",
-                    "領取獎勵",
-                    "Claim Rewards",
-                    "報酬受取"
+                    "领取", // 领取奖励
+                    "領取", // 領取獎勵
+                    "Claim", // Claim Rewards
+                    "報酬" // 報酬受取
                 ]
             }
         }
@@ -563,11 +533,10 @@
                     0
                 ],
                 "expected": [
-                    "放弃奖励并重置",
-                    "放棄獎勵並重置",
-                    "Abandon Rewards and Reset",
-                    "受取せずにリセット",
-                    "放弃|重置"
+                    "放弃|重置", // 放弃奖励并重置
+                    "放棄|重置", // 放棄獎勵並重置
+                    "Abandon|Reset", // Abandon Rewards and Reset
+                    "受取せず|にリセット" // 受取せずにリセット
                 ]
             }
         }

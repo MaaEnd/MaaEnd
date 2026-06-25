@@ -1,8 +1,7 @@
 {
     "WLSwordVaultDaleMoveToTriggerPointAuto": {
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "WLSwordVaultDaleMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "WLSwordVaultDaleWalkAround1"
+            "AutoEssenceMoveToTriggerPoint": "WLSwordVaultDaleMoveToTriggerPoint"
         },
         "next": [
             "[JumpBack]WLSwordVaultDaleMaybeTeleport",
@@ -31,8 +30,7 @@
             }
         },
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "WLSwordVaultDaleMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "WLSwordVaultDaleWalkAround1"
+            "AutoEssenceMoveToTriggerPoint": "WLSwordVaultDaleMoveToTriggerPoint"
         },
         "focus": {
             "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>藏剑谷</strong></p>"
@@ -131,60 +129,6 @@
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点"
-        }
-    },
-    "WLSwordVaultDaleWalkAround1": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map02_lv006",
-                    "path": [
-                        [
-                            400.7,
-                            304.5
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "WLSwordVaultDaleWalkAround2"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
-        }
-    },
-    "WLSwordVaultDaleWalkAround2": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map02_lv006",
-                    "path": [
-                        [
-                            399.2,
-                            307.8
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "WLSwordVaultDaleWalkAround1"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
         }
     }
 }

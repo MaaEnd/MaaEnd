@@ -13,7 +13,7 @@
             ],
             "option": [
                 "AutoEssenceSpecifiedLocation",
-                "AutoEssenceChallengeMode",
+                "AutoFightSettingFull",
                 "AutoEssenceObtainMode",
                 "AutoEssenceDoOverride",
                 "EssenceFilterAfterBattle",
@@ -127,41 +127,6 @@
                             "next": [
                                 "WLSwordVaultDaleMoveToTriggerPointAuto"
                             ]
-                        }
-                    }
-                }
-            ]
-        },
-        "AutoEssenceChallengeMode": {
-            "type": "select",
-            "label": "$option.AutoEssenceChallengeMode.label",
-            "description": "$option.AutoEssenceChallengeMode.description",
-            "default_case": "Walk",
-            "cases": [
-                {
-                    "name": "Walk",
-                    "label": "$option.AutoEssenceChallengeMode.cases.Walk.label",
-                    "pipeline_override": {
-                        "AutoEssenceClickEssenceChallengeUsingWalk": {
-                            "enabled": true
-                        },
-                        "AutoEssenceClickEssenceChallengeUsingAutoFight": {
-                            "enabled": false
-                        }
-                    }
-                },
-                {
-                    "name": "AutoFight",
-                    "label": "$option.AutoEssenceChallengeMode.cases.AutoFight.label",
-                    "option": [
-                        "AutoFightSettingFull"
-                    ],
-                    "pipeline_override": {
-                        "AutoEssenceClickEssenceChallengeUsingWalk": {
-                            "enabled": false
-                        },
-                        "AutoEssenceClickEssenceChallengeUsingAutoFight": {
-                            "enabled": true
                         }
                     }
                 }

@@ -1,8 +1,7 @@
 {
     "VFOriginiumScienceParkMoveToTriggerPointAuto": {
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFOriginiumScienceParkMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "VFOriginiumScienceParkWalkAround1"
+            "AutoEssenceMoveToTriggerPoint": "VFOriginiumScienceParkMoveToTriggerPoint"
         },
         "next": [
             "[JumpBack]VFOriginiumScienceParkMaybeTeleport",
@@ -31,8 +30,7 @@
             }
         },
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFOriginiumScienceParkMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "VFOriginiumScienceParkWalkAround1"
+            "AutoEssenceMoveToTriggerPoint": "VFOriginiumScienceParkMoveToTriggerPoint"
         },
         "focus": {
             "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>源石研究园</strong></p>"
@@ -137,60 +135,6 @@
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点"
-        }
-    },
-    "VFOriginiumScienceParkWalkAround1": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv005",
-                    "path": [
-                        [
-                            366.9,
-                            232.9
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "VFOriginiumScienceParkWalkAround2"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
-        }
-    },
-    "VFOriginiumScienceParkWalkAround2": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv005",
-                    "path": [
-                        [
-                            383.9,
-                            253.9
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "VFOriginiumScienceParkWalkAround1"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
         }
     }
 }

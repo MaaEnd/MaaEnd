@@ -1,8 +1,7 @@
 {
     "VFOriginLodespringMoveToTriggerPointAuto": {
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFOriginLodespringMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "VFOriginLodespringWalkAround1"
+            "AutoEssenceMoveToTriggerPoint": "VFOriginLodespringMoveToTriggerPoint"
         },
         "next": [
             "[JumpBack]VFOriginLodespringMaybeTeleport",
@@ -31,8 +30,7 @@
             }
         },
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFOriginLodespringMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "VFOriginLodespringWalkAround1"
+            "AutoEssenceMoveToTriggerPoint": "VFOriginLodespringMoveToTriggerPoint"
         },
         "focus": {
             "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>矿脉源区</strong></p>"
@@ -187,60 +185,6 @@
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点"
-        }
-    },
-    "VFOriginLodespringWalkAround1": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv006_tier_109",
-                    "path": [
-                        [
-                            252.2,
-                            532.1
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "VFOriginLodespringWalkAround2"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
-        }
-    },
-    "VFOriginLodespringWalkAround2": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv006_tier_109",
-                    "path": [
-                        [
-                            271.2,
-                            552.1
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "VFOriginLodespringWalkAround1"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
         }
     }
 }

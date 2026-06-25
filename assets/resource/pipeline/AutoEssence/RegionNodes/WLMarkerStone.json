@@ -1,8 +1,7 @@
 {
     "WLMarkerStoneMoveToTriggerPointAuto": {
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "WLMarkerStoneMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "WLMarkerStoneWalkAround1"
+            "AutoEssenceMoveToTriggerPoint": "WLMarkerStoneMoveToTriggerPoint"
         },
         "next": [
             "[JumpBack]WLMarkerStoneMaybeTeleport",
@@ -31,8 +30,7 @@
             }
         },
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "WLMarkerStoneMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "WLMarkerStoneWalkAround1"
+            "AutoEssenceMoveToTriggerPoint": "WLMarkerStoneMoveToTriggerPoint"
         },
         "focus": {
             "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>首敦</strong></p>"
@@ -182,92 +180,6 @@
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点"
-        }
-    },
-    "WLMarkerStoneWalkAround1": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map02_lv004",
-                    "path": [
-                        [
-                            332.3,
-                            413.2
-                        ],
-                        [
-                            332.3,
-                            395.3
-                        ],
-                        [
-                            315.5,
-                            395.3
-                        ],
-                        [
-                            315.5,
-                            413.1
-                        ],
-                        [
-                            333.3,
-                            413.1
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "WLMarkerStoneWalkAround2"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
-        }
-    },
-    "WLMarkerStoneWalkAround2": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map02_lv004",
-                    "path": [
-                        [
-                            332.3,
-                            413.2
-                        ],
-                        [
-                            332.3,
-                            395.3
-                        ],
-                        [
-                            315.5,
-                            395.3
-                        ],
-                        [
-                            315.5,
-                            413.1
-                        ],
-                        [
-                            333.3,
-                            413.1
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "WLMarkerStoneWalkAround1"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
         }
     }
 }

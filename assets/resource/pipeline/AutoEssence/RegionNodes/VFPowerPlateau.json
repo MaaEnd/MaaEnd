@@ -1,8 +1,7 @@
 {
     "VFPowerPlateauMoveToTriggerPointAuto": {
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFPowerPlateauMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "VFPowerPlateauWalkAround1"
+            "AutoEssenceMoveToTriggerPoint": "VFPowerPlateauMoveToTriggerPoint"
         },
         "next": [
             "[JumpBack]VFPowerPlateauMaybeTeleport",
@@ -30,8 +29,7 @@
             }
         },
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFPowerPlateauMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "VFPowerPlateauWalkAround1"
+            "AutoEssenceMoveToTriggerPoint": "VFPowerPlateauMoveToTriggerPoint"
         },
         "focus": {
             "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>供能高地</strong></p>"
@@ -256,60 +254,6 @@
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点"
-        }
-    },
-    "VFPowerPlateauWalkAround1": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv007",
-                    "path": [
-                        [
-                            366.5,
-                            161.0
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "VFPowerPlateauWalkAround2"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
-        }
-    },
-    "VFPowerPlateauWalkAround2": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv007",
-                    "path": [
-                        [
-                            347.5,
-                            148.0
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "VFPowerPlateauWalkAround1"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
         }
     }
 }

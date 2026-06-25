@@ -1,8 +1,7 @@
 {
     "VFTheHubMoveToTriggerPointAuto": {
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFTheHubMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "VFTheHubWalkAround1"
+            "AutoEssenceMoveToTriggerPoint": "VFTheHubMoveToTriggerPoint"
         },
         "next": [
             "[JumpBack]VFTheHubMaybeTeleport",
@@ -31,8 +30,7 @@
             }
         },
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFTheHubMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "VFTheHubWalkAround1"
+            "AutoEssenceMoveToTriggerPoint": "VFTheHubMoveToTriggerPoint"
         },
         "focus": {
             "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>枢纽区</strong></p>"
@@ -93,60 +91,6 @@
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点"
-        }
-    },
-    "VFTheHubWalkAround1": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv001",
-                    "path": [
-                        [
-                            413.5,
-                            517.1
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "VFTheHubWalkAround2"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
-        }
-    },
-    "VFTheHubWalkAround2": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv001",
-                    "path": [
-                        [
-                            395.5,
-                            541.1
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "VFTheHubWalkAround1"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
         }
     }
 }
