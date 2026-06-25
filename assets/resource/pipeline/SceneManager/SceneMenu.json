@@ -28,8 +28,8 @@
         "pre_delay": 0,
         "action": "Click",
         "target": [
-            -20,
-            20,
+            -40,
+            40,
             20,
             20
         ],
