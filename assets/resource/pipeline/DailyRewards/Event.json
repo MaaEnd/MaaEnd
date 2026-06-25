@@ -69,8 +69,9 @@
                     -20,
                     -30,
                     20,
-                    40
+                    55
                 ],
+                // 注意文字可能是一行或两行，因此roi_offset要稍微高一点
                 "template": "DailyRewards/Event/EventSwitchSuccess.png",
                 "threshold": 0.9
             },
