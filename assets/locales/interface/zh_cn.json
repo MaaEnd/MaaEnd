@@ -1076,6 +1076,6 @@
     "option.ClientVersion.cases.CN.label": "官服",
     "option.ClientVersion.cases.Bilibili.label": "B服",
     "option.ClientVersion.cases.Global.label": "国际服",
-    "option.ClientVersion.cases.VN.label": "越南服"
+    "option.ClientVersion.cases.VN.label": "越南服",
     "option.TrialOfSwordmancyRecoverBeforeBattle.label": "每次战斗前传送回复血量"
 }

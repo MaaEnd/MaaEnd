@@ -1076,6 +1076,6 @@
     "option.ClientVersion.cases.CN.label": "중국 서버",
     "option.ClientVersion.cases.Bilibili.label": "Bilibili",
     "option.ClientVersion.cases.Global.label": "글로벌 서버",
-    "option.ClientVersion.cases.VN.label": "베트남 서버"
+    "option.ClientVersion.cases.VN.label": "베트남 서버",
     "option.TrialOfSwordmancyRecoverBeforeBattle.label": "전투 전마다 순간이동해 체력 회복"
 }

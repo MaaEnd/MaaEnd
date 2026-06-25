@@ -1076,6 +1076,6 @@
     "option.ClientVersion.cases.CN.label": "中国サーバー（ハイパーグリフ）",
     "option.ClientVersion.cases.Bilibili.label": "中国サーバー（ビリビリ）",
     "option.ClientVersion.cases.Global.label": "グローバルサーバー（グリフライン）",
-    "option.ClientVersion.cases.VN.label": "ベトナムサーバー（グリフライン）"
+    "option.ClientVersion.cases.VN.label": "ベトナムサーバー（グリフライン）",
     "option.TrialOfSwordmancyRecoverBeforeBattle.label": "各戦闘前にテレポートしてHP回復"
 }
