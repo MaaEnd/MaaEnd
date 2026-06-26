@@ -303,6 +303,36 @@ Result TickTransferWaitImpl(const Context& ctx)
     return result;
 }
 
+double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double fallback_heading)
+{
+    double achieved = fallback_heading;
+    for (int correction = 0; correction <= kHeadingVerifyMaxRetries; ++correction) {
+        if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())
+            || ctx.position_provider->LastCaptureWasHeld()) {
+            LogWarn << "Heading verify skipped: no fresh locator fix." << VAR(target_heading) << VAR(achieved);
+            return achieved;
+        }
+        achieved = NaviMath::NormalizeAngle(ctx.position->angle);
+        const double residual = NaviMath::NormalizeAngle(target_heading - achieved);
+        if (std::abs(residual) <= kHeadingAcceptToleranceDeg) {
+            return achieved;
+        }
+        if (correction == kHeadingVerifyMaxRetries) {
+            LogWarn << "Heading retries exhausted, accepting." << VAR(target_heading) << VAR(achieved)
+                    << VAR(residual);
+            return achieved;
+        }
+        LogInfo << "Heading off after turn, re-issuing." << VAR(target_heading) << VAR(achieved)
+                << VAR(residual) << VAR(correction);
+        if (!TurnToHeadingOnce(ctx, residual)) {
+            return achieved;
+        }
+        ctx.action_wrapper->PulseForwardSync(kPostHeadingForwardPulseMs);
+        ctx.motion_controller->SetForwardState(false);
+    }
+    return achieved;
+}
+
 Result ConsumeHeadingNodesImpl(const Context& ctx)
 {
     Result result;
@@ -326,6 +356,7 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
         ctx.motion_controller->SetForwardState(false);
         utils::SleepFor(kStopWaitMs);
 
+        double achieved_heading = start_heading;
         if (std::abs(heading_delta) <= 1.0) {
             LogInfo << "Heading-only node already aligned." << VAR(target_heading) << VAR(start_heading);
         }
@@ -339,7 +370,11 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
         ctx.action_wrapper->PulseForwardSync(kPostHeadingForwardPulseMs);
         ctx.motion_controller->SetForwardState(false);
 
-        LogInfo << "Heading-only node completed." << VAR(target_heading) << VAR(start_heading) << VAR(heading_delta);
+        // Closed-loop: confirm the turn landed and redo a swallowed view-drag (accept within wide band).
+        achieved_heading = VerifyAndCorrectHeading(ctx, target_heading, start_heading);
+
+        LogInfo << "Heading-only node completed." << VAR(target_heading) << VAR(start_heading)
+                << VAR(heading_delta) << VAR(achieved_heading);
         ctx.session->AdvanceToNextWaypoint(ActionType::HEADING, "heading_consumed");
         ctx.session->ResetProgress();
         ctx.runtime_state->OnWaypointAdvance();
