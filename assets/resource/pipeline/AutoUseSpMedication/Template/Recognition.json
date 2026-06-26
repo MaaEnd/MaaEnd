@@ -109,6 +109,7 @@
             "FindEmergencySanityBooster",
             "ColorRecognitionEmergencySanityBoosterDeadline",
             "OCRRecognitionEmergencySanityBoosterRemainingTime"
-        ]
+        ],
+        "box_index": 2
     }
 }
