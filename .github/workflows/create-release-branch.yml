@@ -39,9 +39,9 @@ jobs:
             exit 0
           fi
 
-          # 提取中版本号：vX.Y.Z-rc.N → vX.Y，分支名 release/vX.Y
+          # 提取中版本号：vX.Y.Z-rc.N → X.Y，分支名 release/vX.Y
           BASE_VERSION="${BASH_REMATCH[1]}"
-          BRANCH_NAME="release/${BASE_VERSION}"
+          BRANCH_NAME="release/v${BASE_VERSION}"
 
           echo "tag=${TAG}" | tee -a "$GITHUB_OUTPUT"
           echo "branch_name=${BRANCH_NAME}" | tee -a "$GITHUB_OUTPUT"
@@ -100,8 +100,8 @@ jobs:
             exit 0
           fi
 
-          # 提取中版本号：vX.Y.0 → vX.Y，分支名 release/vX.Y
-          CURRENT_BRANCH="release/${BASH_REMATCH[1]}"
+          # 提取中版本号：vX.Y.0 → X.Y，分支名 release/vX.Y
+          CURRENT_BRANCH="release/v${BASH_REMATCH[1]}"
 
           echo "tag=${TAG}" | tee -a "$GITHUB_OUTPUT"
           echo "current_branch=${CURRENT_BRANCH}" | tee -a "$GITHUB_OUTPUT"
