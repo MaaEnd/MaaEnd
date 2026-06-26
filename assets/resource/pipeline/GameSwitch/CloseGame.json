@@ -3,23 +3,11 @@
         "action": "StopApp",
         "package": ""
     },
-    "CloseGame_Auto": {
-        "action": "StopApp",
-        "package": ""
-    },
     "CloseGame_CN": {
         "action": "StopApp",
         "package": ""
     },
-    "CloseGame_Bilibili_Auto": {
-        "action": "StopApp",
-        "package": ""
-    },
     "CloseGame_Bilibili": {
-        "action": "StopApp",
-        "package": ""
-    },
-    "CloseGame_Global_Auto": {
         "action": "StopApp",
         "package": ""
     },

@@ -1,25 +1,4 @@
 {
-    "AndroidOpenGame_Auto": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "AndroidOpenGame_CN_Auto"
-        ]
-    },
-    "AndroidOpenGame_CN_Auto": {
-        "action": {
-            "type": "StartApp",
-            "param": {
-                "package": "com.hypergryph.endfield"
-            }
-        },
-        "next": [
-            "OpenGame"
-        ],
-        "on_error": [
-            "AndroidOpenGame_Bilibili_Auto"
-        ]
-    },
     "AndroidOpenGame_CN": {
         "action": {
             "type": "StartApp",
@@ -31,20 +10,6 @@
             "OpenGame"
         ]
     },
-    "AndroidOpenGame_Bilibili_Auto": {
-        "action": {
-            "type": "StartApp",
-            "param": {
-                "package": "com.hypergryph.endfield.bilibili"
-            }
-        },
-        "next": [
-            "OpenGame"
-        ],
-        "on_error": [
-            "AndroidOpenGame_Global_Auto"
-        ]
-    },
     "AndroidOpenGame_Bilibili": {
         "action": {
             "type": "StartApp",
@@ -54,20 +19,6 @@
         },
         "next": [
             "OpenGame"
-        ]
-    },
-    "AndroidOpenGame_Global_Auto": {
-        "action": {
-            "type": "StartApp",
-            "param": {
-                "package": "com.gryphline.endfield.gp"
-            }
-        },
-        "next": [
-            "OpenGame"
-        ],
-        "on_error": [
-            "AndroidOpenGame_VN"
         ]
     },
     "AndroidOpenGame_Global": {

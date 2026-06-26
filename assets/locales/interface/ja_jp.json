@@ -1072,7 +1072,6 @@
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "1-2回オーバーフローを許可",
     "option.TrialOfSwordmancyAutoFight.label": "自動戦闘を有効化",
     "option.ClientVersion.label": "クライアントバージョン (Androidのみ)",
-    "option.ClientVersion.cases.Auto.label": "自動検出(非推奨)",
     "option.ClientVersion.cases.CN.label": "中国サーバー（ハイパーグリフ）",
     "option.ClientVersion.cases.Bilibili.label": "中国サーバー（ビリビリ）",
     "option.ClientVersion.cases.Global.label": "グローバルサーバー（グリフライン）",

@@ -90,22 +90,6 @@
                             ]
                         }
                     }
-                },
-                {
-                    "name": "Auto",
-                    "label": "$option.ClientVersion.cases.Auto.label",
-                    "pipeline_override": {
-                        "AndroidOpenGame": {
-                            "next": [
-                                "AndroidOpenGame_Auto"
-                            ]
-                        },
-                        "CloseGame": {
-                            "next": [
-                                "CloseGame_Auto"
-                            ]
-                        }
-                    }
                 }
             ]
         }
