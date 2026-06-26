@@ -94,6 +94,10 @@
                 "green_mask": true
             }
         },
+        "pre_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
         "pre_delay": 0,
         "action": {
             "type": "Custom",
