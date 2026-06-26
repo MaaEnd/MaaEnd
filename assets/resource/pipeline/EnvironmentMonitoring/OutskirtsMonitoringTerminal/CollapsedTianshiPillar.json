@@ -207,18 +207,14 @@
     "GoToCollapsedTianshiPillarStartPos": {
         "desc": "在倒塌的天师桩任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        210,
-                        635,
-                        15,
-                        15
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                671.75,
+                1564.08,
+                46.31,
+                54.57
             ]
         },
         "next": [
@@ -241,34 +237,21 @@
     "GoToCollapsedTianshiPillarMapTrackerMove": {
         "desc": "前往倒塌的天师桩",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv001",
             "path": [
-                [
-                    213,
-                    632
-                ],
-                [
-                    191,
-                    616
-                ],
-                [
-                    186,
-                    621
-                ],
-                [
-                    180,
-                    618
-                ]
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
-                    "angle": 300
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        644.99,
+                        1561.89
+                    ]
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 290
                 }
-            }
+            ]
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",

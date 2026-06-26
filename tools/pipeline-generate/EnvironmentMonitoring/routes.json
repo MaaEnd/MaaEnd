@@ -169,33 +169,19 @@
         "Name": "倒塌的天师桩",
         "Id": "CollapsedTianshiPillar",
         "EnterMap": "SceneEnterWorldWulingJingyuValley8",
-        "MapName": "map02_lv001",
+        "MapName": "Wuling_Base",
         "MapAssert": [
-            210,
-            635,
-            15,
-            15
+            671.75,
+            1564.08,
+            46.31,
+            54.57
         ],
-        "MapPath": [
-            [
-                213,
-                632
-            ],
-            [
-                191,
-                616
-            ],
-            [
-                186,
-                621
-            ],
-            [
-                180,
-                618
-            ]
+        "MapTarget": [
+            644.99,
+            1561.89
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "Heading": 300
+        "Heading": 290
     },
     {
         "MissionId": "m1m32",
