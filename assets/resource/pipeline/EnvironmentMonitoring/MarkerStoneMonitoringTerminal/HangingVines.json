@@ -222,7 +222,7 @@
             ]
         },
         "next": [
-            "GoToHangingVinesMapTrackerMove"
+            "GoToHangingVinesMove"
         ]
     },
     "GoToHangingVinesNotAtStartPos": {
@@ -238,8 +238,8 @@
             "GoToHangingVinesStartPos"
         ]
     },
-    "GoToHangingVinesMapTrackerMove": {
-        "desc": "前往垂藤",
+    "GoToHangingVinesMove": {
+        "desc": "自动寻路前往垂藤",
         "action": "Custom",
         "custom_action": "MapTrackerGoal",
         "custom_action_param": {

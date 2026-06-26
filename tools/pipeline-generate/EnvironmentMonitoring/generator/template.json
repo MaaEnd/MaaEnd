@@ -191,7 +191,7 @@
         "custom_recognition": "${MapAssertRecognition}",
         "custom_recognition_param": "${MapAssertParam}",
         "next": [
-            "GoTo${Id}MapTrackerMove"
+            "GoTo${Id}Move"
         ]
     },
     "GoTo${Id}NotAtStartPos": {
@@ -207,8 +207,8 @@
             "GoTo${Id}StartPos"
         ]
     },
-    "GoTo${Id}MapTrackerMove": {
-        "desc": "前往${Name}",
+    "GoTo${Id}Move": {
+        "desc": "自动寻路前往${Name}",
         "action": "Custom",
         "custom_action": "${MapNavigationAction}",
         "custom_action_param": "${MapNavigationParam}",

@@ -222,7 +222,7 @@
             ]
         },
         "next": [
-            "GoToCleansingJadeMapTrackerMove"
+            "GoToCleansingJadeMove"
         ]
     },
     "GoToCleansingJadeNotAtStartPos": {
@@ -238,8 +238,8 @@
             "GoToCleansingJadeStartPos"
         ]
     },
-    "GoToCleansingJadeMapTrackerMove": {
-        "desc": "前往漱玉",
+    "GoToCleansingJadeMove": {
+        "desc": "自动寻路前往漱玉",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {

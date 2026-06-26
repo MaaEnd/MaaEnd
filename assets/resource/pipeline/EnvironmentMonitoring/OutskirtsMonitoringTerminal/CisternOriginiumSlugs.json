@@ -218,7 +218,7 @@
             ]
         },
         "next": [
-            "GoToCisternOriginiumSlugsMapTrackerMove"
+            "GoToCisternOriginiumSlugsMove"
         ]
     },
     "GoToCisternOriginiumSlugsNotAtStartPos": {
@@ -234,8 +234,8 @@
             "GoToCisternOriginiumSlugsStartPos"
         ]
     },
-    "GoToCisternOriginiumSlugsMapTrackerMove": {
-        "desc": "前往蓄水源石虫",
+    "GoToCisternOriginiumSlugsMove": {
+        "desc": "自动寻路前往蓄水源石虫",
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {

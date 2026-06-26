@@ -222,7 +222,7 @@
             ]
         },
         "next": [
-            "GoToEcologyNearTheFieldLogisticsDepotMapTrackerMove"
+            "GoToEcologyNearTheFieldLogisticsDepotMove"
         ]
     },
     "GoToEcologyNearTheFieldLogisticsDepotNotAtStartPos": {
@@ -238,8 +238,8 @@
             "GoToEcologyNearTheFieldLogisticsDepotStartPos"
         ]
     },
-    "GoToEcologyNearTheFieldLogisticsDepotMapTrackerMove": {
-        "desc": "前往储备站周围的生态环境",
+    "GoToEcologyNearTheFieldLogisticsDepotMove": {
+        "desc": "自动寻路前往储备站周围的生态环境",
         "action": "Custom",
         "custom_action": "MapTrackerGoal",
         "custom_action_param": {

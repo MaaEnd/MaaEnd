@@ -218,7 +218,7 @@
             ]
         },
         "next": [
-            "GoToAncientTreeMapTrackerMove"
+            "GoToAncientTreeMove"
         ]
     },
     "GoToAncientTreeNotAtStartPos": {
@@ -234,8 +234,8 @@
             "GoToAncientTreeStartPos"
         ]
     },
-    "GoToAncientTreeMapTrackerMove": {
-        "desc": "前往古树",
+    "GoToAncientTreeMove": {
+        "desc": "自动寻路前往古树",
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {

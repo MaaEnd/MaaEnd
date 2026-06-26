@@ -222,7 +222,7 @@
             ]
         },
         "next": [
-            "GoToSerenityGardenTianshiPillarMapTrackerMove"
+            "GoToSerenityGardenTianshiPillarMove"
         ]
     },
     "GoToSerenityGardenTianshiPillarNotAtStartPos": {
@@ -238,8 +238,8 @@
             "GoToSerenityGardenTianshiPillarStartPos"
         ]
     },
-    "GoToSerenityGardenTianshiPillarMapTrackerMove": {
-        "desc": "前往安思园的天师桩",
+    "GoToSerenityGardenTianshiPillarMove": {
+        "desc": "自动寻路前往安思园的天师桩",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {

@@ -222,7 +222,7 @@
             ]
         },
         "next": [
-            "GoToBambooWaterChimesMapTrackerMove"
+            "GoToBambooWaterChimesMove"
         ]
     },
     "GoToBambooWaterChimesNotAtStartPos": {
@@ -238,8 +238,8 @@
             "GoToBambooWaterChimesStartPos"
         ]
     },
-    "GoToBambooWaterChimesMapTrackerMove": {
-        "desc": "前往水竹铃",
+    "GoToBambooWaterChimesMove": {
+        "desc": "自动寻路前往水竹铃",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {

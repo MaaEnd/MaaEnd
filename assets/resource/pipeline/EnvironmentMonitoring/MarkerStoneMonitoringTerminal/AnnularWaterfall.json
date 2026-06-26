@@ -222,7 +222,7 @@
             ]
         },
         "next": [
-            "GoToAnnularWaterfallMapTrackerMove"
+            "GoToAnnularWaterfallMove"
         ]
     },
     "GoToAnnularWaterfallNotAtStartPos": {
@@ -238,8 +238,8 @@
             "GoToAnnularWaterfallStartPos"
         ]
     },
-    "GoToAnnularWaterfallMapTrackerMove": {
-        "desc": "前往环形瀑布",
+    "GoToAnnularWaterfallMove": {
+        "desc": "自动寻路前往环形瀑布",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {

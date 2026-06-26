@@ -222,7 +222,7 @@
             ]
         },
         "next": [
-            "GoToBeaconDamagedInTheBlightTideMapTrackerMove"
+            "GoToBeaconDamagedInTheBlightTideMove"
         ]
     },
     "GoToBeaconDamagedInTheBlightTideNotAtStartPos": {
@@ -238,8 +238,8 @@
             "GoToBeaconDamagedInTheBlightTideStartPos"
         ]
     },
-    "GoToBeaconDamagedInTheBlightTideMapTrackerMove": {
-        "desc": "前往侵蚀潮中损坏的信标",
+    "GoToBeaconDamagedInTheBlightTideMove": {
+        "desc": "自动寻路前往侵蚀潮中损坏的信标",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {

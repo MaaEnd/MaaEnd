@@ -222,7 +222,7 @@
             ]
         },
         "next": [
-            "GoToWaterlampMapTrackerMove"
+            "GoToWaterlampMove"
         ]
     },
     "GoToWaterlampNotAtStartPos": {
@@ -238,8 +238,8 @@
             "GoToWaterlampStartPos"
         ]
     },
-    "GoToWaterlampMapTrackerMove": {
-        "desc": "前往水灯虫",
+    "GoToWaterlampMove": {
+        "desc": "自动寻路前往水灯虫",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {

@@ -218,7 +218,7 @@
             ]
         },
         "next": [
-            "GoToFloraObservationPointMapTrackerMove"
+            "GoToFloraObservationPointMove"
         ]
     },
     "GoToFloraObservationPointNotAtStartPos": {
@@ -234,8 +234,8 @@
             "GoToFloraObservationPointStartPos"
         ]
     },
-    "GoToFloraObservationPointMapTrackerMove": {
-        "desc": "前往植物观察点",
+    "GoToFloraObservationPointMove": {
+        "desc": "自动寻路前往植物观察点",
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {

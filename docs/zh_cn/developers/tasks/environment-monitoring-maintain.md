@@ -71,7 +71,7 @@ EnvironmentMonitoringMain
                       └─ GoTo{Id}NotAtStartPos
                            └─ SubTask: ${EnterMap}            （传送）
                                 └─ GoTo{Id}StartPos           （检查是否已到任务开始位置附近）
-                                     └─ GoTo{Id}MapTrackerMove
+                                     └─ GoTo{Id}Move
                                           ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
                                           ├─ anchor: EnvironmentMonitoringAdjustCamera   → ${Id}AdjustCamera
                                           └─ next:   EnvironmentMonitoringTakePhoto

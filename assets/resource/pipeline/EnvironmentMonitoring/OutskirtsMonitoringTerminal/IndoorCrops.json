@@ -218,7 +218,7 @@
             ]
         },
         "next": [
-            "GoToIndoorCropsMapTrackerMove"
+            "GoToIndoorCropsMove"
         ]
     },
     "GoToIndoorCropsNotAtStartPos": {
@@ -234,8 +234,8 @@
             "GoToIndoorCropsStartPos"
         ]
     },
-    "GoToIndoorCropsMapTrackerMove": {
-        "desc": "前往室内作物",
+    "GoToIndoorCropsMove": {
+        "desc": "自动寻路前往室内作物",
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {

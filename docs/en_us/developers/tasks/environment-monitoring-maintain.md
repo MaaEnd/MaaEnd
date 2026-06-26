@@ -71,7 +71,7 @@ The internal chain for each observation point `{Id}Job` (rendered by `template.j
                       └─ GoTo{Id}NotAtStartPos
                            └─ SubTask: ${EnterMap}            (Teleport)
                                 └─ GoTo{Id}StartPos           (Check if already near the mission start position)
-                                     └─ GoTo{Id}MapTrackerMove
+                                     └─ GoTo{Id}Move
                                           ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
                                           ├─ anchor: EnvironmentMonitoringAdjustCamera   → ${Id}AdjustCamera
                                           └─ next:   EnvironmentMonitoringTakePhoto

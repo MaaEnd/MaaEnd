@@ -222,7 +222,7 @@
             ]
         },
         "next": [
-            "GoToMysteriousCryptidGraffitiMapTrackerMove"
+            "GoToMysteriousCryptidGraffitiMove"
         ]
     },
     "GoToMysteriousCryptidGraffitiNotAtStartPos": {
@@ -238,8 +238,8 @@
             "GoToMysteriousCryptidGraffitiStartPos"
         ]
     },
-    "GoToMysteriousCryptidGraffitiMapTrackerMove": {
-        "desc": "前往谜之生物的涂鸦",
+    "GoToMysteriousCryptidGraffitiMove": {
+        "desc": "自动寻路前往谜之生物的涂鸦",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {

@@ -222,7 +222,7 @@
             ]
         },
         "next": [
-            "GoToWaterTemperatureControllerMapTrackerMove"
+            "GoToWaterTemperatureControllerMove"
         ]
     },
     "GoToWaterTemperatureControllerNotAtStartPos": {
@@ -238,8 +238,8 @@
             "GoToWaterTemperatureControllerStartPos"
         ]
     },
-    "GoToWaterTemperatureControllerMapTrackerMove": {
-        "desc": "前往净水温控装置",
+    "GoToWaterTemperatureControllerMove": {
+        "desc": "自动寻路前往净水温控装置",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
