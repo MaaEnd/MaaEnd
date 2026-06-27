@@ -8,33 +8,6 @@
             "VFPowerPlateauMoveToTriggerPoint"
         ]
     },
-    "VFPowerPlateauLocationAssertion": {
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            "map_name": "map01_lv007",
-                            "target": [
-                                341.0,
-                                142.0,
-                                32.0,
-                                24.0
-                            ]
-                        }
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFPowerPlateauMoveToTriggerPoint"
-        },
-        "focus": {
-            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>供能高地</strong></p>"
-        }
-    },
     "VFPowerPlateauMaybeTeleport": {
         "recognition": {
             "type": "Custom",

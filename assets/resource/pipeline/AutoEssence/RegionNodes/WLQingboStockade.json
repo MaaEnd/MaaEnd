@@ -8,34 +8,6 @@
             "WLQingboStockadeMoveToTriggerPoint"
         ]
     },
-    "WLQingboStockadeLocationAssertion": {
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            // 淤积点附近（锚点也在这个区域里）
-                            "map_name": "map02_lv003",
-                            "target": [
-                                384.5,
-                                542.0,
-                                28.0,
-                                40.0
-                            ]
-                        }
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "WLQingboStockadeMoveToTriggerPoint"
-        },
-        "focus": {
-            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>清波寨</strong></p>"
-        }
-    },
     "WLQingboStockadeMaybeTeleport": {
         "recognition": {
             "type": "Custom",

@@ -8,34 +8,6 @@
             "WLMarkerStoneMoveToTriggerPoint"
         ]
     },
-    "WLMarkerStoneLocationAssertion": {
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            // 淤积点附近
-                            "map_name": "map02_lv004",
-                            "target": [
-                                312.7,
-                                393.6,
-                                21.3,
-                                20.6
-                            ]
-                        }
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "WLMarkerStoneMoveToTriggerPoint"
-        },
-        "focus": {
-            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>首敦</strong></p>"
-        }
-    },
     "WLMarkerStoneMaybeTeleport": {
         "recognition": {
             "type": "Custom",

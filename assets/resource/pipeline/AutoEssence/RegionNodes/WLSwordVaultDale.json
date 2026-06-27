@@ -8,34 +8,6 @@
             "WLSwordVaultDaleMoveToTriggerPoint"
         ]
     },
-    "WLSwordVaultDaleLocationAssertion": {
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            // 淤积点附近
-                            "map_name": "map02_lv006",
-                            "target": [
-                                386.7,
-                                294.8,
-                                21.4,
-                                20.7
-                            ]
-                        }
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "WLSwordVaultDaleMoveToTriggerPoint"
-        },
-        "focus": {
-            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>藏剑谷</strong></p>"
-        }
-    },
     "WLSwordVaultDaleMaybeTeleport": {
         "recognition": {
             "type": "Custom",
