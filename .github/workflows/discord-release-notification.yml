@@ -43,11 +43,11 @@ jobs:
 
           BASE_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}"
           WIN64_URL="${BASE_URL}/MaaEnd-win-x86_64-${TAG}.zip"
-          WINAARCH_URL="${BASE_URL}/MaaEnd-win-aarch64-${TAG}.zip"
+          WINARM_URL="${BASE_URL}/MaaEnd-win-aarch64-${TAG}.zip"
           MAC64_URL="${BASE_URL}/MaaEnd-macos-x86_64-${TAG}.dmg"
-          MACAARCH_URL="${BASE_URL}/MaaEnd-macos-aarch64-${TAG}.dmg"
+          MACARM_URL="${BASE_URL}/MaaEnd-macos-aarch64-${TAG}.dmg"
           LIN64_URL="${BASE_URL}/MaaEnd-linux-x86_64-${TAG}.tar.gz"
-          LINAARCH_URL="${BASE_URL}/MaaEnd-linux-aarch64-${TAG}.tar.gz"
+          LINARM_URL="${BASE_URL}/MaaEnd-linux-aarch64-${TAG}.tar.gz"
 
           DESCRIPTION=$(printf 'Read the full release note [here](%s).\n\nUpdate available in your MaaEnd client.\nDownload MaaEnd `%s` for your platform below.' "$URL" "$TAG")
 
@@ -55,20 +55,20 @@ jobs:
             --arg tag "$TAG" \
             --arg description "$DESCRIPTION" \
             --arg win64_url "$WIN64_URL" \
-            --arg winaarch_url "$WINAARCH_URL" \
+            --arg winarm_url "$WINARM_URL" \
             --arg mac64_url "$MAC64_URL" \
-            --arg macaarch_url "$MACAARCH_URL" \
+            --arg macarm_url "$MACARM_URL" \
             --arg lin64_url "$LIN64_URL" \
-            --arg linaarch_url "$LINAARCH_URL" \
+            --arg linarm_url "$LINARM_URL" \
             '{
               embeds: [{
                 title: ("🎉 New MaaEnd Release:  " + $tag),
                 description: $description,
                 color: 15844367,
                 fields: [
-                  { name: "Windows", value: ("[x64](" + $win64_url + ") ❘ [ARM](" + $winaarch_url + ")"), inline: true },
-                  { name: "macOS", value: ("[x64](" + $mac64_url + ") ❘ [ARM](" + $macaarch_url + ")"), inline: true },
-                  { name: "Linux", value: ("[x64](" + $lin64_url + ") ❘ [ARM](" + $linaarch_url + ")"), inline: true }
+                  { name: "Windows", value: ("[x64](" + $win64_url + ") ❘ [ARM](" + $winarm_url + ")"), inline: true },
+                  { name: "macOS", value: ("[x64](" + $mac64_url + ") ❘ [ARM](" + $macarm_url + ")"), inline: true },
+                  { name: "Linux", value: ("[x64](" + $lin64_url + ") ❘ [ARM](" + $linarm_url + ")"), inline: true }
                 ]
               }]
             }')
