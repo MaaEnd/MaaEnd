@@ -71,12 +71,14 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "StashBackpackSubTask",
-                "ItemTransferSwitchRepoToOrigin"
+                "StashBackpackSubTask"
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferSwitchRepoToOrigin"
+        ]
     },
     "ItemTransferSwitchRepoToOrigin": {
         "recognition": "OCR",
