@@ -5,6 +5,7 @@
 #include <MaaUtils/NoWarningCV.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <stdexcept>
 #include <vector>
 
@@ -15,6 +16,8 @@ namespace
 
 constexpr int kDctSize = 32;
 constexpr int kHashSize = 8;
+constexpr int kFeatureSize = 16;
+constexpr int kFeatureDistanceScale = 64;
 
 cv::Mat ToPHashGray(const cv::Mat& image)
 {
@@ -50,6 +53,25 @@ cv::Mat ToPHashGray(const cv::Mat& image)
     }
 
     return gray;
+}
+
+cv::Mat ToFeatureBgr(const cv::Mat& image)
+{
+    if (image.channels() == 3) {
+        return image;
+    }
+
+    cv::Mat bgr;
+    if (image.channels() == 4) {
+        cv::cvtColor(image, bgr, cv::COLOR_BGRA2BGR);
+    }
+    else if (image.channels() == 1) {
+        cv::cvtColor(image, bgr, cv::COLOR_GRAY2BGR);
+    }
+    else {
+        throw std::invalid_argument("Unsupported image channel count for cell feature");
+    }
+    return bgr;
 }
 
 } // namespace
@@ -128,6 +150,62 @@ std::vector<Hash> ComputeCellHashes(
     }
 
     return hashes;
+}
+
+CellFeature ComputeCellFeature(const cv::Mat& image)
+{
+    if (image.empty()) {
+        throw std::invalid_argument("Cannot compute cell feature for an empty image");
+    }
+
+    cv::Mat resized;
+    cv::resize(ToFeatureBgr(image), resized, cv::Size(kFeatureSize, kFeatureSize), 0, 0, cv::INTER_AREA);
+    if (!resized.isContinuous()) {
+        resized = resized.clone();
+    }
+
+    CellFeature feature;
+    feature.width = resized.cols;
+    feature.height = resized.rows;
+    feature.channels = resized.channels();
+    feature.data.assign(resized.datastart, resized.dataend);
+    return feature;
+}
+
+int FeatureDistance(const CellFeature& lhs, const CellFeature& rhs)
+{
+    if (lhs.data.empty() || rhs.data.empty() || lhs.data.size() != rhs.data.size() || lhs.width != rhs.width ||
+        lhs.height != rhs.height || lhs.channels != rhs.channels) {
+        return kFeatureDistanceScale;
+    }
+
+    int total = 0;
+    for (std::size_t i = 0; i < lhs.data.size(); ++i) {
+        total += std::abs(static_cast<int>(lhs.data[i]) - static_cast<int>(rhs.data[i]));
+    }
+
+    const double average = static_cast<double>(total) / static_cast<double>(lhs.data.size());
+    return static_cast<int>(std::round(average * static_cast<double>(kFeatureDistanceScale) / 255.0));
+}
+
+std::vector<CellFeature> ComputeCellFeatures(
+    const cv::Mat& roi,
+    const std::vector<cv::Rect>& cells,
+    const CellMaskRatios& maskRatios)
+{
+    std::vector<CellFeature> features;
+    features.reserve(cells.size());
+
+    for (const auto& cell : cells) {
+        const cv::Rect clipped = ClampRect(cell, roi.size());
+        if (clipped.empty()) {
+            features.push_back({});
+            continue;
+        }
+        features.push_back(ComputeCellFeature(ApplyIgnoreMask(roi(clipped), maskRatios)));
+    }
+
+    return features;
 }
 
 Hash ComputeHashResizedTo(const cv::Mat& image, cv::Size size, const CellMaskRatios& maskRatios)

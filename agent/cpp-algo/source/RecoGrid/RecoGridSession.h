@@ -4,6 +4,7 @@
 #include "RecoGridEngineTypes.h"
 
 #include <map>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -18,22 +19,6 @@ struct SessionState
     struct PendingState
     {
         GridHashSnapshot snapshot;
-        int viewportStartRow = 0;
-        std::vector<GridScanCell> cells;
-        double score = 0.0;
-    };
-
-    struct BeamState
-    {
-        GridHashSnapshot snapshot;
-        int viewportStartRow = 0;
-        int cols = 0;
-        int lastPositiveRowOffset = 0;
-        int endConfirmations = 0;
-        SessionCells cells;
-        std::vector<PendingState> pending;
-        std::vector<GridScanCell> dispatchableCells;
-        double score = 0.0;
     };
 
     GridHashSnapshot snapshot;
@@ -44,8 +29,7 @@ struct SessionState
     int lockedRowHeight = 0;
     int lockedColWidth = 0;
     SessionCells cells;
-    std::vector<PendingState> pending;
-    std::vector<BeamState> beams;
+    std::optional<PendingState> pending;
 };
 
 void FinalizeCounts(GridScanResult& result);

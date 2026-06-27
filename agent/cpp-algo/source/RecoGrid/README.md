@@ -22,22 +22,22 @@ registered as `RecoGridRecognition`.
 The engine scans one visible grid page at a time and accumulates a session.
 
 1. `RecognizeGrid` detects row/column segments, builds cell rectangles, and
-   computes per-cell pHashes.
+   computes per-cell pHashes plus compact full-cell color features.
 2. Occupancy filtering keeps only cells that look non-empty after applying the
    configured mask.
 3. The first page initializes a session and classifies all occupied cells.
-4. Later pages compute a pHash row delta against the previous snapshot.
-5. Placement candidates map the current visible page to possible global row
-   offsets. Candidates are scored by frame overlap, existing-session overlap,
-   new visible keys, and continuity.
-6. Pending/beam transition confirms a candidate on the next frame before
-   committing it to the session. This avoids committing scroll-settling or
-   repeated frames too early.
-7. When a pending frame is confirmed, the engine remaps the confirmed pending
-   cells onto the current frame by global row/column. The remapped cells are
-   returned as `dispatchableCells`: they are confirmed by the next frame and
-   their `screenCell` belongs to the current screenshot, so callers may safely
-   click or sample them.
+4. Later pages compute a row delta against the previous snapshot. The delta
+   prefers full-cell color features so colored icons remain distinguishable,
+   and falls back to pHash only when features are unavailable.
+5. A reliable positive delta is the only normal source of global row progress.
+   The engine commits the current frame at
+   `previousViewportStartRow + rowOffset`.
+6. Placement is a pure projection step. It consumes the resolved viewport start
+   row and maps local grid cells to global `(row, col)` cells; it does not score
+   offsets or choose between candidates.
+7. If a delta is unreliable, the engine stores one pending frame as evidence and
+   emits no dispatchable cells. A later frame may resolve the pending evidence
+   by producing a reliable offset chain; otherwise the committed session is kept.
 8. End detection is deliberately conservative. A zero-offset match must be
    strong, compare enough cells, and repeat across consecutive confirmations
    before `reachedEnd` is reported. This avoids treating visually similar icon
@@ -58,8 +58,9 @@ total padding/trimming or hard total compensation.
   candidate filtering followed by normalized direct cell/template comparison.
 - `GridMatcher.*`: generic single-template matcher. Its hue scoring is local
   template-match scoring; keep it separate from `GridClassifier.cpp`.
-- `GridAlignment.*`: pHash row alignment and `ComputeGridDelta`.
-- `PHashFilter.*`: pHash generation, Hamming distance, candidate filtering.
+- `GridAlignment.*`: full-cell feature row alignment and `ComputeGridDelta`.
+- `PHashFilter.*`: pHash generation, full-cell feature generation, Hamming
+  distance, feature distance, and candidate filtering.
 - `CellMask.*`: cell mask construction for pHash, classification, matching, and
   occupancy checks.
 - `GridGeometry.h`: OpenCV rectangle helpers only. Do not mix JSON output schema
@@ -67,13 +68,15 @@ total padding/trimming or hard total compensation.
 - `RecoGridEngine.*`: public engine methods, template loading, session map, and
   top-level `Scan` orchestration.
 - `RecoGridEngineTypes.h`: public scan structs included by `RecoGridEngine.h`.
-- `RecoGridSession.*`: session state, pending/beam structs, merge/replace rules,
-  visible-cell hiding, sorted output, counts, and partial-row detection.
+- `RecoGridSession.*`: committed session state, pending evidence,
+  merge/replace rules, visible-cell hiding, sorted output, counts, and
+  partial-row detection.
 - `RecoGridScanCells.*`: occupied-cell detection, scan-cell construction,
   classification application, cell indices, and leading partial-row delta
   adjustment.
-- `RecoGridPlacement.*`: candidate row offsets and placement scoring.
-- `RecoGridTransition.*`: pending/beam state transition and end detection.
+- `RecoGridPlacement.*`: pure local-to-global cell projection.
+- `RecoGridTransition.*`: offset-only state transition, pending resolver, and
+  end detection.
 
 ## WeaponInventoryScan Defaults
 
@@ -145,14 +148,16 @@ Useful detail fields returned to Maa:
 - `page_grid`, `cumulative_grid`, `unknown`
 - `rows`, `cols`, `page_rows`, `page_cols`
 - `new_cells`, `row_offset`
-- `delta_reliable`, `pending_stored`, `pending_resolved`
-- `dispatchableCells`: confirmed cells with current-frame coordinates for
+- `delta_reliable`, `resolved_row_offset`, `current_viewport_start_row`
+- `pending_stored`, `pending_resolved`, `unresolved_reason`
+- `dispatchableCells`: committed cells with current-frame coordinates for
   clicking or sampling
 - `has_progress`, `reached_end`
 - `matched_cells`, `compared_cells`, `match_ratio`
 
 If totals are wrong, inspect per-page `page_rows`, `row_offset`,
-`delta_reliable`, `pending_*`, and `unknown` before changing scoring.
+`delta_reliable`, viewport start rows, `pending_*`, and `unknown`. Production
+placement is offset-only; do not reintroduce candidate scoring for global rows.
 
 ## Validation
 

@@ -17,6 +17,7 @@ struct Snapshot
     cv::Mat roi;
     GridResult grid;
     std::vector<Hash> hashes;
+    std::vector<CellFeature> features;
 };
 
 struct AlignmentResult
@@ -34,6 +35,7 @@ struct GridHashSnapshot
     int rows = 0;
     int cols = 0;
     std::vector<Hash> hashes;
+    std::vector<CellFeature> features;
 };
 
 struct GridDeltaOptions
@@ -65,7 +67,11 @@ AlignmentResult EstimateRowOffset(
     const GridHashSnapshot& first,
     const GridHashSnapshot& second,
     int matchDistanceThreshold = 12);
-GridHashSnapshot MakeGridHashSnapshot(int rows, int cols, std::vector<Hash> hashes);
+GridHashSnapshot MakeGridHashSnapshot(
+    int rows,
+    int cols,
+    std::vector<Hash> hashes,
+    std::vector<CellFeature> features = {});
 GridDeltaResult ComputeGridDelta(
     const GridHashSnapshot& previous,
     const GridHashSnapshot& current,

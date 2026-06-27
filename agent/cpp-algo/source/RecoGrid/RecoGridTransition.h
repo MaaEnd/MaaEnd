@@ -18,7 +18,6 @@ void HandleBeamTransition(
     const GridClassifyOptions& classifyOptions,
     const GridHashSnapshot& currentSnapshot,
     const GridDeltaResult& delta,
-    cv::Size imageSize,
-    int placementBeamWidth);
+    cv::Size imageSize);
 
 } // namespace recogrid

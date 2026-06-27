@@ -60,6 +60,55 @@ int g_maxSeenRow = -1;
 cv::Mat g_thumbDiscardTemplate;
 std::vector<cv::Mat> g_thumbLockTemplates;
 
+struct EssenceScanDefaults
+{
+    cv::Rect roi;
+    cv::Size normalizedSize;
+    double rowThresholdRatio = 0.0;
+    double colThresholdRatio = 0.0;
+    int minRawSegmentLength = 0;
+    double minKeptSegmentRatio = 0.0;
+    int maxPhashDistance = 0;
+    int maxRankedCandidates = 0;
+    double minScore = 0.0;
+    double hueWeight = 0.0;
+    bool incremental = true;
+    double endMinMatchRatio = 0.0;
+};
+
+const EssenceScanDefaults kEssenceScanDefaults {
+    { 18, 72, 956, 570 },
+    { 1280, 720 },
+    0.2,
+    0.4,
+    10,
+    0.9,
+    10,
+    0,
+    0.35,
+    0.4,
+    true,
+    0.95,
+};
+
+struct HsvRange
+{
+    int hueMin = 0;
+    int hueMax = 0;
+    int saturationMin = 0;
+    int valueMin = 0;
+};
+
+constexpr HsvRange kFlawlessGoldHsvRange { 16, 29, 71, 89 };
+constexpr HsvRange kHighPurityPurpleHsvRange { 128, 158, 61, 71 };
+constexpr int kQualitySampleHeightDivisor = 10;
+constexpr int kMinQualityPixels = 80;
+constexpr int kQualityDominanceRatio = 2;
+constexpr int kThumbSearchWidthPercent = 20;
+constexpr int kThumbSearchHeightPercent = 20;
+constexpr double kThumbLockMatchThreshold = 0.7;
+constexpr double kThumbDiscardMatchThreshold = 0.9;
+
 std::filesystem::path ResolveEssenceImagePath(const char* filename)
 {
     for (const char* directory : { kRuntimeTemplateDir, kSourceTemplateDir }) {
@@ -100,18 +149,18 @@ void EnsureLoaded()
 
 void ApplyEssenceScanDefaults(recogrid::GridScanOptions& options)
 {
-    options.recognition.detect.roi = { 18, 72, 956, 570 };
-    options.recognition.detect.normalizedSize = { 1280, 720 };
-    options.recognition.detect.rowThresholdRatio = 0.2;
-    options.recognition.detect.colThresholdRatio = 0.4;
-    options.recognition.detect.minRawSegmentLength = 10;
-    options.recognition.detect.minKeptSegmentRatio = 0.9;
-    options.recognition.maxPhashDistance = 10;
-    options.recognition.maxRankedCandidates = 0;
-    options.recognition.minScore = 0.35;
-    options.recognition.hueWeight = 0.4;
-    options.incremental = true;
-    options.endMinMatchRatio = 0.95;
+    options.recognition.detect.roi = kEssenceScanDefaults.roi;
+    options.recognition.detect.normalizedSize = kEssenceScanDefaults.normalizedSize;
+    options.recognition.detect.rowThresholdRatio = kEssenceScanDefaults.rowThresholdRatio;
+    options.recognition.detect.colThresholdRatio = kEssenceScanDefaults.colThresholdRatio;
+    options.recognition.detect.minRawSegmentLength = kEssenceScanDefaults.minRawSegmentLength;
+    options.recognition.detect.minKeptSegmentRatio = kEssenceScanDefaults.minKeptSegmentRatio;
+    options.recognition.maxPhashDistance = kEssenceScanDefaults.maxPhashDistance;
+    options.recognition.maxRankedCandidates = kEssenceScanDefaults.maxRankedCandidates;
+    options.recognition.minScore = kEssenceScanDefaults.minScore;
+    options.recognition.hueWeight = kEssenceScanDefaults.hueWeight;
+    options.incremental = kEssenceScanDefaults.incremental;
+    options.endMinMatchRatio = kEssenceScanDefaults.endMinMatchRatio;
 }
 
 bool ReadBooleanOption(const char* raw, const char* key, bool defaultValue)
@@ -241,14 +290,20 @@ struct QualityFilter
     bool skipThumbDiscard = true;
 };
 
+bool IsInHsvRange(const cv::Vec3b& hsv, const HsvRange& range)
+{
+    return hsv[0] >= range.hueMin && hsv[0] <= range.hueMax && hsv[1] >= range.saturationMin &&
+           hsv[2] >= range.valueMin;
+}
+
 bool IsGoldPixel(const cv::Vec3b& hsv)
 {
-    return hsv[0] >= 16 && hsv[0] <= 29 && hsv[1] >= 71 && hsv[2] >= 89;
+    return IsInHsvRange(hsv, kFlawlessGoldHsvRange);
 }
 
 bool IsPurplePixel(const cv::Vec3b& hsv)
 {
-    return hsv[0] >= 128 && hsv[0] <= 158 && hsv[1] >= 61 && hsv[2] >= 71;
+    return IsInHsvRange(hsv, kHighPurityPurpleHsvRange);
 }
 
 QualityStats ClassifyCellQuality(const cv::Mat& image, const cv::Rect& screenCell)
@@ -260,7 +315,7 @@ QualityStats ClassifyCellQuality(const cv::Mat& image, const cv::Rect& screenCel
         return stats;
     }
 
-    const int sampleHeight = std::max(1, cell.height / 10);
+    const int sampleHeight = std::max(1, cell.height / kQualitySampleHeightDivisor);
     const cv::Rect sampleRect(cell.x, cell.y + cell.height - sampleHeight, cell.width, sampleHeight);
     cv::Mat sample = image(sampleRect);
     cv::Mat bgr;
@@ -292,11 +347,11 @@ QualityStats ClassifyCellQuality(const cv::Mat& image, const cv::Rect& screenCel
         }
     }
 
-    constexpr int kMinQualityPixels = 80;
-    if (stats.goldPixels >= kMinQualityPixels && stats.goldPixels >= stats.purplePixels * 2) {
+    if (stats.goldPixels >= kMinQualityPixels && stats.goldPixels >= stats.purplePixels * kQualityDominanceRatio) {
         stats.quality = "flawless_gold";
     }
-    else if (stats.purplePixels >= kMinQualityPixels && stats.purplePixels >= stats.goldPixels * 2) {
+    else if (stats.purplePixels >= kMinQualityPixels &&
+             stats.purplePixels >= stats.goldPixels * kQualityDominanceRatio) {
         stats.quality = "high_purity_purple";
     }
     return stats;
@@ -370,14 +425,12 @@ ThumbDetection DetectCellThumbState(const cv::Mat& image, const cv::Rect& screen
         return detection;
     }
 
-    const int searchWidth = std::max(1, cell.width * 20 / 100);
-    const int searchHeight = std::max(1, cell.height * 20 / 100);
+    const int searchWidth = std::max(1, cell.width * kThumbSearchWidthPercent / 100);
+    const int searchHeight = std::max(1, cell.height * kThumbSearchHeightPercent / 100);
     const cv::Rect searchRect(cell.x, cell.y + cell.height - searchHeight, searchWidth, searchHeight);
     detection.search = searchRect & imageBounds;
     const cv::Mat search = image(detection.search);
 
-    constexpr double kThumbLockMatchThreshold = 0.7;
-    constexpr double kThumbDiscardMatchThreshold = 0.9;
     for (std::size_t index = 0; index < g_thumbLockTemplates.size(); ++index) {
         const cv::Mat& lockTemplate = g_thumbLockTemplates[index];
         const ThumbMatchScore lockScore = MatchTemplateScore(search, lockTemplate);
@@ -535,6 +588,9 @@ void WriteAdvanceDetail(
     detail["dispatchable_grid"] = static_cast<int>(result.dispatchableCells.size());
     detail["rows"] = result.sessionRows;
     detail["cols"] = result.sessionCols;
+    detail["detected_rows"] = result.detectedRows;
+    detail["detected_cols"] = result.detectedCols;
+    detail["detected_grid"] = result.detectedTotalCells;
     detail["visible_candidates"] = visibleCandidates;
     detail["issued_cells"] = static_cast<int>(g_issuedCellKeys.size());
     detail["queue_remaining"] = remainingQueueCells;
@@ -554,6 +610,19 @@ void WriteAdvanceDetail(
     detail["has_progress"] = result.hasProgress;
     detail["row_offset"] = result.rowOffset;
     detail["match_ratio"] = result.matchRatio;
+    detail["transition_row_offset"] = result.transitionRowOffset;
+    detail["transition_match_ratio"] = result.transitionMatchRatio;
+    detail["transition_average_distance"] = result.transitionAverageDistance;
+    detail["transition_reliable"] = result.transitionReliable;
+    detail["transition_has_progress"] = result.transitionHasProgress;
+    detail["previous_viewport_start_row"] = result.previousViewportStartRow;
+    detail["current_viewport_start_row"] = result.currentViewportStartRow;
+    detail["resolved_row_offset"] = result.resolvedRowOffset;
+    detail["resolver_used"] = result.resolverUsed;
+    detail["resolver_success"] = result.resolverSuccess;
+    detail["fallback_used"] = result.fallbackUsed;
+    detail["end_confirmations"] = result.endConfirmations;
+    detail["unresolved_reason"] = result.unresolvedReason;
     detail["pending_stored"] = result.pendingStored;
     detail["pending_resolved"] = result.pendingResolved;
 
@@ -684,6 +753,7 @@ void UpdateCellThumbStates(const cv::Mat& image, const std::vector<recogrid::Gri
 }
 
 recogrid::GridScanResult ScanWithRecoGridEngine(
+    [[maybe_unused]] MaaTaskId taskId,
     const cv::Mat& image,
     const recogrid::GridScanOptions& options)
 {
@@ -772,6 +842,7 @@ MaaBool MAA_CALL EssenceGridAdvanceRecognitionRun(
         std::optional<recogrid::GridScanCell> selected = SelectNextQueuedCell();
         recogrid::GridScanResult result = g_lastScanResult.value_or(recogrid::GridScanResult {});
         const char* nextNode = nullptr;
+        cv::Mat scannedImage;
 
         if (!selected && !g_scanRequired) {
             g_pendingCell.reset();
@@ -779,7 +850,8 @@ MaaBool MAA_CALL EssenceGridAdvanceRecognitionRun(
             nextNode = result.reachedEnd ? kFinishNode : kSwipeNextNode;
         }
         else if (!selected) {
-            result = ScanWithRecoGridEngine(to_mat(image), options);
+            scannedImage = to_mat(image);
+            result = ScanWithRecoGridEngine(task_id, scannedImage, options);
             g_lastScanResult = result;
             if (!result.success) {
                 g_scanRequired = true;

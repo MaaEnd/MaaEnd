@@ -174,6 +174,7 @@ GridRecognitionResult Detect(const cv::Mat& image, const GridRecognitionOptions&
     GridRecognitionResult result;
     result.grid = DetectGrid(image, options.detect);
     result.cellHashes = ComputeCellHashes(result.grid.roi, result.grid.cells, options.mask);
+    result.cellFeatures = ComputeCellFeatures(result.grid.roi, result.grid.cells, options.mask);
     FillScreenGeometry(result, options, image.size());
 
     if (result.grid.cells.empty()) {

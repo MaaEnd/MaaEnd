@@ -68,6 +68,7 @@ struct GridRecognitionResult
     cv::Rect screenGrid;
     std::vector<cv::Rect> screenCells;
     std::vector<Hash> cellHashes;
+    std::vector<CellFeature> cellFeatures;
     std::vector<Candidate> candidates;
     std::vector<GridRecognitionMatch> matches;
     bool matched = false;

@@ -42,6 +42,22 @@ bool IsBetterAlignment(const AlignmentResult& candidate, const AlignmentResult& 
     return candidate.comparedCells > best.comparedCells;
 }
 
+int CellDistance(const GridHashSnapshot& first, std::size_t firstIndex, const GridHashSnapshot& second, std::size_t secondIndex)
+{
+    if (firstIndex < first.features.size() && secondIndex < second.features.size()) {
+        const CellFeature& firstFeature = first.features[firstIndex];
+        const CellFeature& secondFeature = second.features[secondIndex];
+        if (!firstFeature.data.empty() && !secondFeature.data.empty()) {
+            return FeatureDistance(firstFeature, secondFeature);
+        }
+    }
+
+    if (firstIndex >= first.hashes.size() || secondIndex >= second.hashes.size()) {
+        return 64;
+    }
+    return HammingDistance(first.hashes[firstIndex], second.hashes[secondIndex]);
+}
+
 AlignmentResult EstimateRowOffsetCore(
     const GridHashSnapshot& first,
     const GridHashSnapshot& second,
@@ -68,11 +84,13 @@ AlignmentResult EstimateRowOffsetCore(
             for (int col = 0; col < comparedCols; ++col) {
                 const std::size_t idx1 = CellIndex(previousRow, col, first.cols);
                 const std::size_t idx2 = CellIndex(currentRow, col, second.cols);
-                if (idx1 >= first.hashes.size() || idx2 >= second.hashes.size()) {
+                const bool hasFeaturePair = idx1 < first.features.size() && idx2 < second.features.size();
+                const bool hasHashPair = idx1 < first.hashes.size() && idx2 < second.hashes.size();
+                if (!hasFeaturePair && !hasHashPair) {
                     continue;
                 }
 
-                const int distance = HammingDistance(first.hashes[idx1], second.hashes[idx2]);
+                const int distance = CellDistance(first, idx1, second, idx2);
                 totalDistance += distance;
                 ++comparedCells;
                 if (distance <= matchDistanceThreshold) {
@@ -117,14 +135,23 @@ Snapshot BuildSnapshot(const cv::Mat& image, const GridDetectOptions& options, c
     snapshot.grid = DetectGrid(image, options);
     snapshot.roi = snapshot.grid.roi;
     snapshot.hashes = ComputeCellHashes(snapshot.roi, snapshot.grid.cells, maskRatios);
+    snapshot.features = ComputeCellFeatures(snapshot.roi, snapshot.grid.cells, maskRatios);
     return snapshot;
 }
 
 AlignmentResult EstimateRowOffset(const Snapshot& first, const Snapshot& second, int matchDistanceThreshold)
 {
     return EstimateRowOffsetCore(
-        MakeGridHashSnapshot(static_cast<int>(first.grid.rows.size()), static_cast<int>(first.grid.cols.size()), first.hashes),
-        MakeGridHashSnapshot(static_cast<int>(second.grid.rows.size()), static_cast<int>(second.grid.cols.size()), second.hashes),
+        MakeGridHashSnapshot(
+            static_cast<int>(first.grid.rows.size()),
+            static_cast<int>(first.grid.cols.size()),
+            first.hashes,
+            first.features),
+        MakeGridHashSnapshot(
+            static_cast<int>(second.grid.rows.size()),
+            static_cast<int>(second.grid.cols.size()),
+            second.hashes,
+            second.features),
         matchDistanceThreshold);
 }
 
@@ -133,9 +160,9 @@ AlignmentResult EstimateRowOffset(const GridHashSnapshot& first, const GridHashS
     return EstimateRowOffsetCore(first, second, matchDistanceThreshold);
 }
 
-GridHashSnapshot MakeGridHashSnapshot(int rows, int cols, std::vector<Hash> hashes)
+GridHashSnapshot MakeGridHashSnapshot(int rows, int cols, std::vector<Hash> hashes, std::vector<CellFeature> features)
 {
-    return { rows, cols, std::move(hashes) };
+    return { rows, cols, std::move(hashes), std::move(features) };
 }
 
 GridDeltaResult ComputeGridDelta(const GridHashSnapshot& previous, const GridHashSnapshot& current, const GridDeltaOptions& options)

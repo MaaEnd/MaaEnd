@@ -40,6 +40,7 @@ struct GridResult
 };
 
 int SegmentLength(const Segment& segment);
+int ModalSegmentLength(const std::vector<Segment>& segments);
 cv::Mat NormalizeInputSize(const cv::Mat& src, cv::Size normalizedSize);
 cv::Mat CropRoi(const cv::Mat& src, cv::Rect roi);
 GridResult DetectGrid(const cv::Mat& image, const GridDetectOptions& options = {});
