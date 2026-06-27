@@ -4,32 +4,51 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[JumpBack]AutoEssenceBackToWorld",
-            "AutoEssenceAtTriggerState"
+            "AutoEssenceDispatcher"
         ],
         "focus": {
             "Node.Action.Starting": "▶️**准备开始本次基质刷取**"
         }
     },
-    "AutoEssenceAtTriggerState": {
-        "desc": "状态识别并根据当前状态决定下一步做什么",
+    "AutoEssenceDispatcher": {
+        "desc": "自动基质刷取的主分发器，识别当前的所有可能状态并决定下一步操作",
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "AutoEssenceTryRechallengeFromBattleResult",
+            // 如果玩家已唤起了激发的界面
             "AutoEssenceClickEssenceStartButton",
-            "[JumpBack]AutoEssenceCheckObtain",
+            // 如果玩家当前已精准处于某个淤积点的交互位置
+            "AutoEssenceClickTriggerButton",
+            // 如果玩家当前已精准处于某个淤积点的交互位置，并且处于奖励待领取的状态
+            "[JumpBack]AutoEssenceClickObtainButton",
+            "[JumpBack]AutoEssenceClickDiscardButton",
             "[JumpBack]AutoEssenceInObtain",
-            "[JumpBack]AutoEssenceLocationSetupMaybeAutoMove",
-            "[Anchor]AutoEssenceMoveToTriggerPoint"
+            // 如果上述情况都不满足，则根据所选的地区，导航到对应的淤积点的交互位置
+            "AutoEssenceSpecifiedLocation"
         ]
     },
-    "AutoEssenceBackToWorld": {
-        "desc": "开始任务前万能跳转回大世界",
-        "max_hit": 1,
+    "AutoEssenceSpecifiedLocation": {
+        "desc": "自动导航到指定的淤积点（可供覆写，默认是枢纽区；此节点默认开启）",
+        "enabled": true,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "SceneAnyEnterWorld"
+            "VFTheHubMoveToTriggerPointAuto" // 覆写为其他地区的对应节点即可导航到其他地区
+        ],
+        "focus": {
+            "Node.Action.Starting": "😎滴！MapTracker智能导航已就绪"
+        }
+    },
+    "__AutoEssenceBackToWorldOnce": {
+        "desc": "仅一次，万能跳转回到大世界（需 jumpback 调用）",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]SceneAnyEnterWorld"
         ]
     },
-    "__AutoEssenceRecoEssenceTrigger": {
+    "__AutoEssenceRecoEssenceTriggerButton": {
         "desc": "寻找激发的大世界按钮（仅识别）",
         "recognition": {
             "type": "TemplateMatch",
@@ -46,93 +65,35 @@
             }
         }
     },
-    "AutoEssenceTryRechallengeFromBattleResult": {
-        "desc": "再来一次",
+    "__AutoEssenceRecoEssenceTriggerText": {
+        "desc": "寻找激发的文字（仅识别）",
         "recognition": {
-            "type": "Or",
+            "type": "OCR",
             "param": {
-                "any_of": [
-                    "__AutoEssenceRecoEssenceTrigger"
+                "roi": "__AutoEssenceRecoEssenceTriggerButton",
+                "roi_offset": [
+                    0,
+                    0,
+                    150,
+                    0
+                ],
+                "expected": [
+                    "激发", // 激发
+                    "觸發", // 觸發
+                    "Trigger", // Trigger
+                    "トリガー" // トリガー
                 ]
             }
-        },
-        "pre_wait_freezes": 600,
-        "pre_delay": 300,
-        "next": [
-            "AutoEssenceClickTriggerButton"
-        ],
-        "focus": {
-            "Node.Action.Starting": "⚡激发界面开始挑战"
-        }
-    },
-    "AutoEssenceLocationSetup": {
-        "desc": "识别和确定附近的淤积点所属的地区，如果附近没有淤积点，则无事发生（此节点仅会执行一次）",
-        "max_hit": 1,
-        "rate_limit": 2000,
-        "next": [
-            "VFTheHubLocationAssertion",
-            "VFOriginiumScienceParkLocationAssertion",
-            "VFOriginLodespringLocationAssertion",
-            "VFPowerPlateauLocationAssertion",
-            "WLWulingCityLocationAssertion",
-            "WLQingboStockadeLocationAssertion",
-            "WLMarkerStoneLocationAssertion",
-            "WLTestAreaLocationAssertion",
-            "WLSwordVaultDaleLocationAssertion",
-            // 如果上述所有地区都没有命中，则无事发生
-            "AutoEssenceLocationSetupFailed"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🔍正在寻找附近的淤积点"
-        }
-    },
-    "AutoEssenceLocationSetupFailed": {
-        "desc": "附近没有淤积点时的守卫节点",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Starting": "⚠️未能识别到附近的淤积点"
-        }
-    },
-    "AutoEssenceLocationSetupMaybeAutoMove": {
-        "desc": "识别和确定附近的淤积点所属的地区，如果附近没有淤积点，则自动导航到指定的某个淤积点（此节点仅会执行一次）",
-        "max_hit": 1,
-        "rate_limit": 2000,
-        "next": [
-            "VFTheHubLocationAssertion",
-            "VFOriginiumScienceParkLocationAssertion",
-            "VFOriginLodespringLocationAssertion",
-            "VFPowerPlateauLocationAssertion",
-            "WLWulingCityLocationAssertion",
-            "WLQingboStockadeLocationAssertion",
-            "WLMarkerStoneLocationAssertion",
-            "WLTestAreaLocationAssertion",
-            "WLSwordVaultDaleLocationAssertion",
-            // 如果上述所有地区都没有命中，则自动导航到指定的某个淤积点
-            "AutoEssenceSpecifiedLocation"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🔍正在寻找附近的淤积点"
-        }
-    },
-    "AutoEssenceSpecifiedLocation": {
-        "desc": "直接导航到指定的淤积点（可供覆写，默认是枢纽区）",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "VFTheHubMoveToTriggerPointAuto" // 覆写为其他地区的对应节点即可导航到其他地区
-        ],
-        "focus": {
-            "Node.Action.Starting": "😎滴！MapTracker智能导航已就绪"
         }
     },
     "AutoEssenceClickTriggerButton": {
-        "desc": "正式识别并点击激发的大世界按钮（Alt 点击）",
+        "desc": "识别并点击激发的大世界按钮（Alt 点击）",
         "recognition": {
             "type": "Or",
             "param": {
                 "any_of": [
-                    "__AutoEssenceRecoEssenceTrigger"
+                    "__AutoEssenceRecoEssenceTriggerButton",
+                    "__AutoEssenceRecoEssenceTriggerText"
                 ]
             }
         },
@@ -300,7 +261,7 @@
         }
     },
     "AutoEssenceChallengeEnter": {
-        "desc": "识别是否成功进入挑战",
+        "desc": "检查是否进入挑战，随后使用自动战斗方式进行挑战",
         "recognition": {
             "type": "Or",
             "param": {
@@ -309,24 +270,18 @@
                 ]
             }
         },
-        "next": [
-            "AutoEssenceClickEssenceChallengeUsingAutoFight"
-        ]
-    },
-    "AutoEssenceClickEssenceChallengeUsingAutoFight": {
-        "desc": "使用自动战斗方式挑战",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
             "[JumpBack]AutoFight",
-            "AutoEssenceCheckOngoing"
+            "AutoEssenceChallengeFinished"
         ],
         "focus": {
-            "Node.Recognition.Starting": "⚔️正在使用自动战斗方式挑战"
+            "Node.Recognition.Starting": "⚔️正在通过自动战斗挑战"
         }
     },
-    "AutoEssenceCheckOngoing": {
-        "desc": "检查挑战是否仍在进行中",
+    "AutoEssenceChallengeFinished": {
+        "desc": "检查是否挑战结束",
         "recognition": {
             "type": "Or",
             "param": {
@@ -339,33 +294,15 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[JumpBack]AutoEssenceLocationSetup",
-            "[Anchor]AutoEssenceMoveToTriggerPoint"
+            "[Anchor]AutoEssenceMoveToTriggerPoint" // 此 Anchor 最终会走回 AutoEssenceDispatcher 进行后续的奖励领取等操作
         ],
         "focus": {
             "Node.Recognition.Starting": "🔍检查挑战是否结束",
             "Node.Action.Starting": "👌识别到挑战结束"
         }
     },
-    "AutoEssenceCheckObtain": {
-        "desc": "确认是否刷完领取奖励状态",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "AutoEssenceClickObtainButton"
-                ]
-            }
-        },
-        "next": [
-            "AutoEssenceClickObtainButtonPre"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "已经是刷完状态"
-        }
-    },
     "AutoEssenceInObtain": {
-        "desc": "确认领取奖励在最下方,需要滑动",
+        "desc": "需要滑动以确保领取奖励的按钮组可见",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -402,17 +339,12 @@
                     ]
                 }
             }
+        },
+        "focus": {
+            "Node.Action.Starting": "🖐️滑动交互列表"
         }
     },
-    "AutoEssenceClickObtainButtonPre": {
-        "desc": "领取奖励的路由守卫节点（覆写其 next 为 AutoEssenceClickDiscardButton 即可实现不领取奖励）",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "AutoEssenceClickObtainButton"
-        ]
-    },
-    "__AutoEssenceRecoEssenceObtain": {
+    "__AutoEssenceRecoEssenceObtainButton": {
         "desc": "寻找领取奖励的状态（仅识别）",
         "recognition": {
             "type": "TemplateMatch",
@@ -430,13 +362,56 @@
             }
         }
     },
+    "__AutoEssenceRecoEssenceObtainText": {
+        "desc": "寻找领取奖励的文字（仅识别）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoEssenceRecoEssenceObtainButton",
+                "roi_offset": [
+                    0,
+                    0,
+                    150,
+                    0
+                ],
+                "expected": [
+                    "领取", // 领取奖励
+                    "領取", // 領取獎勵
+                    "Claim", // Claim Rewards
+                    "報酬" // 報酬受取
+                ]
+            }
+        }
+    },
+    "__AutoEssenceRecoEssenceDiscardText": {
+        "desc": "寻找放弃领取奖励的文字（仅识别）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoEssenceRecoEssenceObtainButton",
+                "roi_offset": [
+                    0,
+                    0,
+                    150,
+                    0
+                ],
+                "expected": [
+                    "放弃|重置", // 放弃奖励并重置
+                    "放棄|重置", // 放棄獎勵並重置
+                    "Abandon|Reset", // Abandon Rewards and Reset
+                    "受取せず|にリセット" // 受取せずにリセット
+                ]
+            }
+        }
+    },
     "AutoEssenceClickObtainButton": {
-        "desc": "正式识别并点击领取奖励的大世界按钮（Alt 点击）",
+        "desc": "识别并点击领取奖励的大世界按钮（Alt 点击；此节点默认开启）",
+        "enabled": true,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "__AutoEssenceRecoEssenceObtain",
+                    "__AutoEssenceRecoEssenceObtainButton",
                     "__AutoEssenceRecoEssenceObtainText"
                 ],
                 "box_index": 1
@@ -453,50 +428,18 @@
             "AutoEssenceMistakeFactoryDevice",
             "AutoEssenceChooseScalingPre"
         ],
-        "on_error": [
-            "AutoEssenceClickObtainButtonFailed"
-        ],
         "focus": {
             "Node.Action.Starting": "👆点击领取奖励按钮"
         }
     },
-    "__AutoEssenceRecoEssenceObtainText": {
-        "desc": "寻找领取奖励的文字",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": "__AutoEssenceRecoEssenceObtain",
-                "roi_offset": [
-                    0,
-                    0,
-                    150,
-                    0
-                ],
-                "expected": [
-                    "领取", // 领取奖励
-                    "領取", // 領取獎勵
-                    "Claim", // Claim Rewards
-                    "報酬" // 報酬受取
-                ]
-            }
-        }
-    },
-    "AutoEssenceClickObtainButtonFailed": {
-        "desc": "未能识别到领取奖励的大世界按钮的守卫节点",
-        "max_hit": 8,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "[Anchor]AutoEssenceMoveToTriggerPoint"
-        ]
-    },
     "AutoEssenceClickDiscardButton": {
-        "desc": "正式识别并点击放弃奖励的大世界按钮（Alt 点击）",
+        "desc": "识别并点击放弃奖励的大世界按钮（Alt 点击；此节点默认关闭）",
+        "enabled": false,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "__AutoEssenceRecoEssenceObtain",
+                    "__AutoEssenceRecoEssenceObtainButton",
                     "__AutoEssenceRecoEssenceDiscardText"
                 ],
                 "box_index": 1
@@ -513,32 +456,8 @@
             "AutoEssenceMistakeFactoryDevice",
             "AutoEssenceConfirmDiscard"
         ],
-        "on_error": [
-            "AutoEssenceClickObtainButtonFailed"
-        ],
         "focus": {
             "Node.Action.Starting": "👆点击放弃奖励按钮"
-        }
-    },
-    "__AutoEssenceRecoEssenceDiscardText": {
-        "desc": "寻找放弃领取奖励的文字",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": "__AutoEssenceRecoEssenceObtain",
-                "roi_offset": [
-                    0,
-                    0,
-                    150,
-                    0
-                ],
-                "expected": [
-                    "放弃|重置", // 放弃奖励并重置
-                    "放棄|重置", // 放棄獎勵並重置
-                    "Abandon|Reset", // Abandon Rewards and Reset
-                    "受取せず|にリセット" // 受取せずにリセット
-                ]
-            }
         }
     },
     "AutoEssenceChooseScalingPre": {
@@ -609,6 +528,8 @@
     },
     "AutoEssenceAfterChooseScaling": {
         "desc": "选择了领取倍数之后的守卫节点",
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "[JumpBack]AutoEssenceChooseOverrideOff",
             "[JumpBack]AutoEssenceChooseOverrideOn",
@@ -822,7 +743,7 @@
                 "template": "Common/Button/CancelButtonType1.png"
             }
         },
-        "pre_wait_freezes": 3000,
+        "pre_wait_freezes": 2000,
         "action": {
             "type": "Click"
         },
@@ -836,6 +757,7 @@
     },
     "AutoEssenceOnSuccess": {
         "desc": "成功完成一次基质刷取后的守卫节点",
+        "pre_delay": 0,
         "next": [
             // 循环与整次结束由任务选项覆写 next；典型为 Main -> [JumpBack]汇总 -> OnComplete（汇总无自有 next，JumpBack 后继续 OnComplete）
             "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
