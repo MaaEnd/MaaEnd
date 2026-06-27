@@ -44,7 +44,7 @@ jobs:
           BASE_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}"
           WIN64_URL="${BASE_URL}/MaaEnd-win-x86_64-${TAG}.zip"
           WINARM_URL="${BASE_URL}/MaaEnd-win-arm64-${TAG}.zip"
-          MAC_URL="${BASE_URL}/MaaEnd-macos-x86_64-${TAG}.dmg "
+          MAC_URL="${BASE_URL}/MaaEnd-macos-x86_64-${TAG}.dmg"
           LIN64_URL="${BASE_URL}/MaaEnd-linux-x86_64-${TAG}.tar.gz"
 
           DESCRIPTION=$(printf 'Read the full release note [here](%s).\n\nUpdate available in your MaaEnd client.\nOr, download `MaaEnd %s` for your platform by clicking the buttons below.' "$URL" "$TAG")
