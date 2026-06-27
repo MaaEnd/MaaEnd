@@ -84,19 +84,42 @@
                     "map_name": "map02_lv005",
                     "path": [
                         [
-                            390.7,
-                            360.3
-                        ],
-                        [
-                            387.3,
+                            388.0,
                             358.0
                         ],
+                        [
+                            354.8,
+                            357.8
+                        ],
+                        [
+                            345.7,
+                            359.4
+                        ]
+                    ],
+                    "path_trim": true
+                }
+            }
+        },
+        "next": [
+            "WLTestAreaMoveToTriggerPointExact"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近"
+        }
+    },
+    "WLTestAreaMoveToTriggerPointExact": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv005",
+                    "path": [
                         [
                             340.9,
                             357.2
                         ]
-                    ],
-                    "path_trim": true
+                    ]
                 }
             }
         },
