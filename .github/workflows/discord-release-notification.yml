@@ -1,0 +1,84 @@
+name: Discord Release Notification
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag (e.g. v6.2.3, leave empty for latest)"
+        type: string
+        required: false
+        default: ""
+
+jobs:
+  notify:
+    name: Send Discord Release Notification
+    if: ${{ github.repository_owner == 'MaaEnd' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve release info
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          MANUAL_TAG="${{ github.event.inputs.release_tag }}"
+          MANUAL_TAG="${MANUAL_TAG#"${MANUAL_TAG%%[![:space:]]*}"}"
+          MANUAL_TAG="${MANUAL_TAG%"${MANUAL_TAG##*[![:space:]]}"}"
+          if [ -z "$MANUAL_TAG" ]; then
+            TAG=$(gh release list --repo "${{ github.repository }}" --limit 1 --json tagName -q '.[0].tagName')
+          else
+            TAG="$MANUAL_TAG"
+          fi
+          URL="https://github.com/${{ github.repository }}/releases/tag/$TAG"
+
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "url=$URL" >> $GITHUB_OUTPUT
+
+      - name: Build and send Discord message
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_RELEASE_WEBHOOK_URL }}
+        run: |
+          TAG="${{ steps.release.outputs.tag }}"
+          URL="${{ steps.release.outputs.url }}"
+
+          BASE_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}"
+          WIN64_URL="${BASE_URL}/MaaEnd-win-x86_64-${TAG}.zip"
+          WINARM_URL="${BASE_URL}/MaaEnd-win-arm64-${TAG}.zip"
+          MAC_URL="${BASE_URL}/MaaEnd-macos-x86_64-${TAG}.dmg "
+          LIN64_URL="${BASE_URL}/MaaEnd-linux-x86_64-${TAG}.tar.gz"
+
+          DESCRIPTION=$(printf 'Read the full release note [here](%s).\n\nUpdate available in your MaaEnd client.\nOr, download `MaaEnd %s` for your platform by clicking the buttons below.' "$URL" "$TAG")
+
+          PAYLOAD=$(jq -n \
+            --arg tag "$TAG" \
+            --arg description "$DESCRIPTION" \
+            --arg win64_url "$WIN64_URL" \
+            --arg winarm_url "$WINARM_URL" \
+            --arg mac_url "$MAC_URL" \
+            --arg lin64_url "$LIN64_URL" \
+            '{
+              embeds: [{
+                title: ("🎉 New MaaEnd Release:  " + $tag),
+                description: $description,
+                color: 15844367,
+                fields: [
+                  { name: "Windows (x64)", value: ("[↗ Download](" + $win64_url + ")"), inline: true },
+                  { name: "Windows (ARM)", value: ("[↗ Download](" + $winarm_url + ")"), inline: true },
+                  { name: "macOS (x64)", value: ("[↗ Download](" + $mac_url + ")"), inline: true },
+                  { name: "Linux (x64)", value: ("[↗ Download](" + $lin64_url + ")"), inline: true }
+                ]
+              }]
+            }')
+
+          HTTP_STATUS=$(curl -sS -o /tmp/discord_response.txt -w "%{http_code}" \
+            -X POST "$DISCORD_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD")
+
+          echo "Discord response (HTTP $HTTP_STATUS):"
+          cat /tmp/discord_response.txt
+
+          if [ "$HTTP_STATUS" -lt 200 ] || [ "$HTTP_STATUS" -ge 300 ]; then
+            echo "Error: Discord webhook returned HTTP $HTTP_STATUS"
+            exit 1
+          fi

@@ -515,3 +515,8 @@ jobs:
           gh workflow run --repo $GITHUB_REPOSITORY mirrorchyan_release_note.yml -f tag=${{ needs.meta.outputs.tag }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Send Discord release notification
+        run: |
+          gh workflow --repo MaaAssistantArknights/MaaAssistantArknights run discord-release-notification.yml \
+            -f release_tag="${{ needs.meta.outputs.tag }}"
