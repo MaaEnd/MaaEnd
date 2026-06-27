@@ -43,7 +43,7 @@ jobs:
 
           BASE_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}"
           WIN64_URL="${BASE_URL}/MaaEnd-win-x86_64-${TAG}.zip"
-          WINARM_URL="${BASE_URL}/MaaEnd-win-arm64-${TAG}.zip"
+          WINARM_URL="${BASE_URL}/MaaEnd-win-aarch64-${TAG}.zip"
           MAC_URL="${BASE_URL}/MaaEnd-macos-x86_64-${TAG}.dmg"
           LIN64_URL="${BASE_URL}/MaaEnd-linux-x86_64-${TAG}.tar.gz"
 
