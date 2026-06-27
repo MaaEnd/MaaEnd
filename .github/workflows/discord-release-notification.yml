@@ -49,7 +49,7 @@ jobs:
           LIN64_URL="${BASE_URL}/MaaEnd-linux-x86_64-${TAG}.tar.gz"
           LINAARCH_URL="${BASE_URL}/MaaEnd-linux-aarch64-${TAG}.tar.gz"
 
-          DESCRIPTION=$(printf 'Read the full release note [here](%s).\n\nUpdate available in your MaaEnd client.\nDownload MaaEnd `%s` for your platform\nby clicking the buttons below.' "$URL" "$TAG")
+          DESCRIPTION=$(printf 'Read the full release note [here](%s).\n\nUpdate available in your MaaEnd client.\nDownload MaaEnd `%s` for your platform below.' "$URL" "$TAG")
 
           PAYLOAD=$(jq -n \
             --arg tag "$TAG" \
@@ -66,12 +66,9 @@ jobs:
                 description: $description,
                 color: 15844367,
                 fields: [
-                  { name: "Windows (x64)", value: ("[↗ Download](" + $win64_url + ")"), inline: true },
-                  { name: "macOS (x64)", value: ("[↗ Download](" + $mac64_url + ")"), inline: true },
-                  { name: "Linux (x64)", value: ("[↗ Download](" + $lin64_url + ")"), inline: true },
-                  { name: "Windows (ARM)", value: ("[↗ Download](" + $winaarch_url + ")"), inline: true },
-                  { name: "macOS (ARM)", value: ("[↗ Download](" + $macaarch_url + ")"), inline: true },
-                  { name: "Linux (ARM)", value: ("[↗ Download](" + $linaarch_url + ")"), inline: true }
+                  { name: "Windows", value: ("[x64](" + $win64_url + ") · [ARM](" + $winaarch_url + ")"), inline: true },
+                  { name: "macOS", value: ("[x64](" + $mac64_url + ")"), inline: true },
+                  { name: "Linux", value: ("[x64](" + $lin64_url + ")"), inline: true }
                 ]
               }]
             }')
