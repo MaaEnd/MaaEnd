@@ -66,9 +66,9 @@ jobs:
                 description: $description,
                 color: 15844367,
                 fields: [
-                  { name: "Windows", value: ("[x64](" + $win64_url + ") · [Aarch](" + $winaarch_url + ")"), inline: true },
-                  { name: "macOS", value: ("[x64](" + $mac64_url + ") · [Aarch](" + $macaarch_url + ")"), inline: true },
-                  { name: "Linux", value: ("[x64](" + $lin64_url + ") · [Aarch](" + $linaarch_url + ")"), inline: true }
+                  { name: "Windows", value: ("[↗x64](" + $win64_url + ") · [↗ARM](" + $winaarch_url + ")"), inline: true },
+                  { name: "macOS", value: ("[↗x64](" + $mac64_url + ") · [↗ARM](" + $macaarch_url + ")"), inline: true },
+                  { name: "Linux", value: ("[↗x64](" + $lin64_url + ") · [↗ARM](" + $linaarch_url + ")"), inline: true }
                 ]
               }]
             }')
