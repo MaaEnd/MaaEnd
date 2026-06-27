@@ -163,7 +163,6 @@
     "option.AutoEssenceDoOverride.label": "각인권 사용",
     "option.AutoEssenceDoOverride.description": "각인이 필요한 경우 미리 축적 지점 시작 인터페이스에서 각인할 속성을 선택하고 각인권이 충분한지 확인하십시오. (부족 시 비각인 수령 진행)",
     "option.AutoEssenceSpecifiedLocation.label": "지역",
-    "option.AutoEssenceSpecifiedLocation.description": "플레이어가 축적 지점 근처에 없으면 선택한 지역의 축적 지점으로 자동 이동합니다.",
     "option.AutoEssenceObtainMode.label": "수령 방식",
     "option.AutoEssenceObtainMode.description": "각 도전 종료 후 보상 처리 방식",
     "option.AutoEssenceObtainMode.cases.Discard.label": "수령 안 함(재료 파밍만)",

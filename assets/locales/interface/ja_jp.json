@@ -163,7 +163,6 @@
     "option.AutoEssenceDoOverride.label": "刻印券を使用する",
     "option.AutoEssenceDoOverride.description": "刻印が必要な場合は、あらかじめ蓄積ポイント開始画面で刻印したい属性を選択し、刻印券が十分にあることを確認してください（不足している場合は非刻印で受け取ります）",
     "option.AutoEssenceSpecifiedLocation.label": "地域",
-    "option.AutoEssenceSpecifiedLocation.description": "プレイヤーが蓄積ポイント付近にいない場合、選択した地域の蓄積ポイントへ自動で移動します。",
     "option.AutoEssenceObtainMode.label": "受け取り方法",
     "option.AutoEssenceObtainMode.description": "各挑戦終了後の報酬処理方法。",
     "option.AutoEssenceObtainMode.cases.Discard.label": "受け取らない（素材周回のみ）",

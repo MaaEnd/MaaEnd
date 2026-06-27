@@ -13,11 +13,9 @@
             ],
             "option": [
                 "AutoEssenceSpecifiedLocation",
-                "AutoFightSettingFull",
                 "AutoEssenceObtainMode",
-                "AutoEssenceDoOverride",
-                "EssenceFilterAfterBattle",
-                "AutoEssenceRepeatCount"
+                "AutoEssenceRepeatCount",
+                "AutoFightSettingFull"
             ],
             "group": [
                 "sanity_sink"
@@ -28,7 +26,6 @@
         "AutoEssenceSpecifiedLocation": {
             "type": "select",
             "label": "$option.AutoEssenceSpecifiedLocation.label",
-            "description": "$option.AutoEssenceSpecifiedLocation.description",
             "default_case": "VFTheHub",
             "cases": [
                 {
@@ -136,32 +133,57 @@
             "type": "select",
             "label": "$option.AutoEssenceObtainMode.label",
             "description": "$option.AutoEssenceObtainMode.description",
-            "default_case": "ObtainScaling1",
+            "default_case": "ObtainScaling2",
             "cases": [
                 {
                     "name": "Discard",
                     "label": "$option.AutoEssenceObtainMode.cases.Discard.label",
                     "pipeline_override": {
-                        "AutoEssenceClickObtainButtonPre": {
-                            "next": [
-                                "AutoEssenceClickDiscardButton"
-                            ]
+                        "AutoEssenceClickObtainButton": {
+                            "enabled": false
+                        },
+                        "AutoEssenceClickDiscardButton": {
+                            "enabled": true
                         }
                     }
                 },
                 {
                     "name": "ObtainScaling1",
                     "label": "$option.AutoEssenceObtainMode.cases.ObtainScaling1.label",
-                    "pipeline_override": {}
+                    "pipeline_override": {
+                        "AutoEssenceClickObtainButton": {
+                            "enabled": true
+                        },
+                        "AutoEssenceClickDiscardButton": {
+                            "enabled": false
+                        },
+                        "AutoEssenceChooseScaling2": {
+                            "enabled": false
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceDoOverride",
+                        "EssenceFilterAfterBattle"
+                    ]
                 },
                 {
                     "name": "ObtainScaling2",
                     "label": "$option.AutoEssenceObtainMode.cases.ObtainScaling2.label",
                     "pipeline_override": {
+                        "AutoEssenceClickObtainButton": {
+                            "enabled": true
+                        },
+                        "AutoEssenceClickDiscardButton": {
+                            "enabled": false
+                        },
                         "AutoEssenceChooseScaling2": {
                             "enabled": true
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoEssenceDoOverride",
+                        "EssenceFilterAfterBattle"
+                    ]
                 }
             ]
         },

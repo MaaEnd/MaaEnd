@@ -167,7 +167,6 @@
     "option.AutoEssenceDoOverride.label": "Use Inscription Vouchers",
     "option.AutoEssenceDoOverride.description": "If inscription is needed, please select the attribute to be inscribed on the accumulation point start interface in advance, and ensure sufficient inscription vouchers (if not enough, non-inscription collection will be performed).",
     "option.AutoEssenceSpecifiedLocation.label": "Region",
-    "option.AutoEssenceSpecifiedLocation.description": "If the player is not near an accumulation point, automatically navigate to the accumulation point in the selected region.",
     "option.AutoEssenceObtainMode.label": "Reward Claim Mode",
     "option.AutoEssenceObtainMode.description": "How to handle rewards after each challenge round.",
     "option.AutoEssenceObtainMode.cases.Discard.label": "Do Not Claim (Farm Materials Only)",
