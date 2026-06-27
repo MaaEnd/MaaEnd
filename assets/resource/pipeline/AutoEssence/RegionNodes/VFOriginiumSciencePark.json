@@ -8,6 +8,34 @@
             "VFOriginiumScienceParkMoveToTriggerPoint"
         ]
     },
+    "VFOriginiumScienceParkLocationAssertion": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 淤积点附近（锚点也在这个区域里）
+                            "map_name": "map01_lv005",
+                            "target": [
+                                359.0,
+                                207.0,
+                                30.0,
+                                55.0
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "VFOriginiumScienceParkMoveToTriggerPoint"
+        },
+        "focus": {
+            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>源石研究园</strong></p>"
+        }
+    },
     "VFOriginiumScienceParkMaybeTeleport": {
         "recognition": {
             "type": "Custom",

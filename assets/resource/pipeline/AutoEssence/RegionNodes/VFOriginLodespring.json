@@ -8,6 +8,34 @@
             "VFOriginLodespringMoveToTriggerPoint"
         ]
     },
+    "VFOriginLodespringLocationAssertion": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 淤积点附近
+                            "map_name": "map01_lv006_tier_109",
+                            "target": [
+                                243.0,
+                                528.0,
+                                32.0,
+                                32.0
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "VFOriginLodespringMoveToTriggerPoint"
+        },
+        "focus": {
+            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>矿脉源区</strong></p>"
+        }
+    },
     "VFOriginLodespringMaybeTeleport": {
         "recognition": {
             "type": "Custom",

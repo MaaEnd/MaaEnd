@@ -8,6 +8,34 @@
             "WLTestAreaMoveToTriggerPoint"
         ]
     },
+    "WLTestAreaLocationAssertion": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 淤积点附近
+                            "map_name": "map02_lv005_tier_321",
+                            "target": [
+                                330.9,
+                                347.2,
+                                20.0,
+                                20.0
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "WLTestAreaMoveToTriggerPoint"
+        },
+        "focus": {
+            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>试验园区</strong></p>"
+        }
+    },
     "WLTestAreaMaybeTeleport": {
         "recognition": {
             "type": "Custom",

@@ -8,6 +8,34 @@
             "WLWulingCityMoveToTriggerPoint"
         ]
     },
+    "WLWulingCityLocationAssertion": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 淤积点附近
+                            "map_name": "map02_lv002",
+                            "target": [
+                                659.0,
+                                333.0,
+                                40.0,
+                                40.0
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "WLWulingCityMoveToTriggerPoint"
+        },
+        "focus": {
+            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>武陵城</strong></p>"
+        }
+    },
     "WLWulingCityMaybeTeleport": {
         "recognition": {
             "type": "Custom",

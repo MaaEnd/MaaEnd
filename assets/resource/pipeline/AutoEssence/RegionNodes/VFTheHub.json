@@ -8,6 +8,34 @@
             "VFTheHubMoveToTriggerPoint"
         ]
     },
+    "VFTheHubLocationAssertion": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 淤积点附近（锚点也在这个区域里）
+                            "map_name": "map01_lv001",
+                            "target": [
+                                385.0,
+                                496.0,
+                                32.0,
+                                42.0
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "VFTheHubMoveToTriggerPoint"
+        },
+        "focus": {
+            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>枢纽区</strong></p>"
+        }
+    },
     "VFTheHubMaybeTeleport": {
         "recognition": {
             "type": "Custom",
