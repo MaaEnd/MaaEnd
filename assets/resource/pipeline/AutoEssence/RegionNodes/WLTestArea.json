@@ -4,7 +4,7 @@
             "AutoEssenceMoveToTriggerPoint": "WLTestAreaMoveToTriggerPoint"
         },
         "next": [
-            "[JumpBack]WLTestAreaMaybeTeleport",
+            "WLTestAreaMaybeTeleport",
             "WLTestAreaMoveToTriggerPoint"
         ]
     },
@@ -35,17 +35,27 @@
                                 20.0
                             ]
                         }
-                    ]
+                    ],
+                    "precision": 1.0
                 }
             }
         },
         "inverse": true,
         "next": [
-            "SceneEnterWorldWulingTestArea2"
+            "[JumpBack]WLTestAreaTeleportOnce",
+            "WLTestAreaMoveToTriggerPoint"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
+    },
+    "WLTestAreaTeleportOnce": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneEnterWorldWulingTestArea2"
+        ]
     },
     "WLTestAreaMoveToTriggerPoint": {
         "action": {
@@ -56,8 +66,8 @@
                     "map_name": "map02_lv005",
                     "path": [
                         [
-                            388.0,
-                            358.0
+                            389.8,
+                            357.0
                         ],
                         [
                             354.8,
@@ -68,7 +78,8 @@
                             359.4
                         ]
                     ],
-                    "path_trim": true
+                    "path_trim": true,
+                    "map_name_match_rule": "^%s_tier_(321)|(322)$" // 特殊处理
                 }
             }
         },
@@ -91,7 +102,8 @@
                             340.9,
                             357.2
                         ]
-                    ]
+                    ],
+                    "no_ensure_initial_movement_state": true
                 }
             }
         },

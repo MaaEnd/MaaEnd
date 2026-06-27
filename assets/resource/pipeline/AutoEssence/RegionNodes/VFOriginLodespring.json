@@ -4,7 +4,7 @@
             "AutoEssenceMoveToTriggerPoint": "VFOriginLodespringMoveToTriggerPoint"
         },
         "next": [
-            "[JumpBack]VFOriginLodespringMaybeTeleport",
+            "VFOriginLodespringMaybeTeleport",
             "VFOriginLodespringMoveToTriggerPoint"
         ]
     },
@@ -41,11 +41,20 @@
         },
         "inverse": true,
         "next": [
-            "SceneEnterWorldValleyIVOriginLodespring3"
+            "[JumpBack]VFOriginLodespringTeleportOnce",
+            "VFOriginLodespringMoveToTriggerPoint"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
+    },
+    "VFOriginLodespringTeleportOnce": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneEnterWorldValleyIVOriginLodespring3"
+        ]
     },
     "VFOriginLodespringMoveToTriggerPoint": {
         "action": {
@@ -147,7 +156,8 @@
                             262.2,
                             541.2
                         ]
-                    ]
+                    ],
+                    "no_ensure_initial_movement_state": true
                 }
             }
         },

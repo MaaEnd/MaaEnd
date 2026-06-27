@@ -4,7 +4,7 @@
             "AutoEssenceMoveToTriggerPoint": "WLWulingCityMoveToTriggerPoint"
         },
         "next": [
-            "[JumpBack]WLWulingCityMaybeTeleport",
+            "WLWulingCityMaybeTeleport",
             "WLWulingCityMoveToTriggerPoint"
         ]
     },
@@ -41,11 +41,20 @@
         },
         "inverse": true,
         "next": [
-            "SceneEnterWorldWulingWulingCity0"
+            "[JumpBack]WLWulingCityTeleportOnce",
+            "WLWulingCityMoveToTriggerPoint"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
+    },
+    "WLWulingCityTeleportOnce": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneEnterWorldWulingWulingCity0"
+        ]
     },
     "WLWulingCityMoveToTriggerPoint": {
         "action": {
@@ -159,7 +168,8 @@
                             680.9,
                             350.9
                         ]
-                    ]
+                    ],
+                    "no_ensure_initial_movement_state": true
                 }
             }
         },

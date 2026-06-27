@@ -4,7 +4,7 @@
             "AutoEssenceMoveToTriggerPoint": "WLSwordVaultDaleMoveToTriggerPoint"
         },
         "next": [
-            "[JumpBack]WLSwordVaultDaleMaybeTeleport",
+            "WLSwordVaultDaleMaybeTeleport",
             "WLSwordVaultDaleMoveToTriggerPoint"
         ]
     },
@@ -41,11 +41,20 @@
         },
         "inverse": true,
         "next": [
-            "SceneEnterWorldWulingSwordVaultDale3"
+            "[JumpBack]WLSwordVaultDaleTeleportOnce",
+            "WLSwordVaultDaleMoveToTriggerPoint"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
+    },
+    "WLSwordVaultDaleTeleportOnce": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneEnterWorldWulingSwordVaultDale3"
+        ]
     },
     "WLSwordVaultDaleMoveToTriggerPoint": {
         "action": {
@@ -87,7 +96,8 @@
                             399.5,
                             306.8
                         ]
-                    ]
+                    ],
+                    "no_ensure_initial_movement_state": true
                 }
             }
         },

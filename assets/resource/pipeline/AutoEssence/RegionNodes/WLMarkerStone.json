@@ -4,7 +4,7 @@
             "AutoEssenceMoveToTriggerPoint": "WLMarkerStoneMoveToTriggerPoint"
         },
         "next": [
-            "[JumpBack]WLMarkerStoneMaybeTeleport",
+            "WLMarkerStoneMaybeTeleport",
             "WLMarkerStoneMoveToTriggerPoint"
         ]
     },
@@ -41,11 +41,20 @@
         },
         "inverse": true,
         "next": [
-            "SceneEnterWorldWulingMarkerStone2"
+            "[JumpBack]WLMarkerStoneTeleportOnce",
+            "WLMarkerStoneMoveToTriggerPoint"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
+    },
+    "WLMarkerStoneTeleportOnce": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneEnterWorldWulingMarkerStone2"
+        ]
     },
     "WLMarkerStoneMoveToTriggerPoint": {
         "desc": "导航入口：已在淤积点附近则只走末段，否则走含圈完整路径",
@@ -142,7 +151,8 @@
                             324.6,
                             403.5
                         ]
-                    ]
+                    ],
+                    "no_ensure_initial_movement_state": true
                 }
             }
         },

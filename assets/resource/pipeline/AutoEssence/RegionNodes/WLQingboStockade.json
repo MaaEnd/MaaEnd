@@ -4,7 +4,7 @@
             "AutoEssenceMoveToTriggerPoint": "WLQingboStockadeMoveToTriggerPoint"
         },
         "next": [
-            "[JumpBack]WLQingboStockadeMaybeTeleport",
+            "WLQingboStockadeMaybeTeleport",
             "WLQingboStockadeMoveToTriggerPoint"
         ]
     },
@@ -31,11 +31,20 @@
         },
         "inverse": true,
         "next": [
-            "SceneEnterWorldWulingQingboStockade2"
+            "[JumpBack]WLQingboStockadeTeleportOnce",
+            "WLQingboStockadeMoveToTriggerPoint"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
+    },
+    "WLQingboStockadeTeleportOnce": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneEnterWorldWulingQingboStockade2"
+        ]
     },
     "WLQingboStockadeMoveToTriggerPoint": {
         "action": {

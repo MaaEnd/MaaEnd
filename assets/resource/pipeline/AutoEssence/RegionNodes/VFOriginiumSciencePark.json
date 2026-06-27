@@ -4,7 +4,7 @@
             "AutoEssenceMoveToTriggerPoint": "VFOriginiumScienceParkMoveToTriggerPoint"
         },
         "next": [
-            "[JumpBack]VFOriginiumScienceParkMaybeTeleport",
+            "VFOriginiumScienceParkMaybeTeleport",
             "VFOriginiumScienceParkMoveToTriggerPoint"
         ]
     },
@@ -31,11 +31,20 @@
         },
         "inverse": true,
         "next": [
-            "SceneEnterWorldValleyIVOriginiumSciencePark1"
+            "[JumpBack]VFOriginiumScienceParkTeleportOnce",
+            "VFOriginiumScienceParkMoveToTriggerPoint"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
+    },
+    "VFOriginiumScienceParkTeleportOnce": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneEnterWorldValleyIVOriginiumSciencePark1"
+        ]
     },
     "VFOriginiumScienceParkMoveToTriggerPoint": {
         "action": {
@@ -97,7 +106,8 @@
                             376.9,
                             241.9
                         ]
-                    ]
+                    ],
+                    "no_ensure_initial_movement_state": true
                 }
             }
         },

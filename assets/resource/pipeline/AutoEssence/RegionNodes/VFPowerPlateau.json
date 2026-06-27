@@ -4,7 +4,7 @@
             "AutoEssenceMoveToTriggerPoint": "VFPowerPlateauMoveToTriggerPoint"
         },
         "next": [
-            "[JumpBack]VFPowerPlateauMaybeTeleport",
+            "VFPowerPlateauMaybeTeleport",
             "VFPowerPlateauMoveToTriggerPoint"
         ]
     },
@@ -51,11 +51,20 @@
         },
         "inverse": true,
         "next": [
-            "SceneEnterWorldValleyIVPowerPlateau1"
+            "[JumpBack]VFPowerPlateauTeleportOnce",
+            "VFPowerPlateauMoveToTriggerPoint"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
+    },
+    "VFPowerPlateauTeleportOnce": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneEnterWorldValleyIVPowerPlateau1"
+        ]
     },
     "VFPowerPlateauMoveToTriggerPoint": {
         "action": {
@@ -217,7 +226,8 @@
                             359.1,
                             154.1
                         ]
-                    ]
+                    ],
+                    "no_ensure_initial_movement_state": true
                 }
             }
         },

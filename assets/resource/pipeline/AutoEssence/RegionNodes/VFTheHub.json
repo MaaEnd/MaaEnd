@@ -4,7 +4,7 @@
             "AutoEssenceMoveToTriggerPoint": "VFTheHubMoveToTriggerPoint"
         },
         "next": [
-            "[JumpBack]VFTheHubMaybeTeleport",
+            "VFTheHubMaybeTeleport",
             "VFTheHubMoveToTriggerPoint"
         ]
     },
@@ -31,11 +31,20 @@
         },
         "inverse": true,
         "next": [
-            "SceneEnterWorldValleyIVTheHub1"
+            "[JumpBack]VFTheHubTeleportOnce",
+            "VFTheHubMoveToTriggerPoint"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
+    },
+    "VFTheHubTeleportOnce": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneEnterWorldValleyIVTheHub1"
+        ]
     },
     "VFTheHubMoveToTriggerPoint": {
         "action": {
