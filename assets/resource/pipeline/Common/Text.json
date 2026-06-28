@@ -71,7 +71,8 @@
             "本地區倉儲節點",
             "(?i)Local\\s*Depot\\s*Node",
             "地域保管ボックス",
-            "현재 지역 저장고 노드"
+            "현재 지역 저장고 노드",
+            "地域保管"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -97,7 +98,6 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-
     "CheckChangeRegionConfirmText": {
         "desc": "检查更换地区确认界面中的文本",
         "recognition": "OCR",
