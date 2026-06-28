@@ -1,7 +1,7 @@
 # Developer Guide — Gift Operator Maintenance
 
 This document describes the file layout of `GiftOperator` and its two execution routes.  
-Last updated June 6, 2026.
+Last updated June 28, 2026.
 
 ## File overview
 
@@ -23,7 +23,7 @@ Last updated June 6, 2026.
 
 ## Paths to update when adding an operator
 
-When adding a new operator, update at least these 5 places (`<Name>` is the operator identifier and must match the template filename and option case name):
+When adding a new operator, update at least these 6 places (`<Name>` is the operator identifier and must match the template filename and option case name):
 
 | #   | Path                                                               | Description                                                                                                    |
 | --- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
@@ -31,7 +31,8 @@ When adding a new operator, update at least these 5 places (`<Name>` is the oper
 | 2   | `assets/resource_adb/image/GiftOperator/Operators/<Name>.png`      | ADB operator portrait template; same processing as above                                                       |
 | 3   | `assets/tasks/GiftOperator.json` → `SelectOperator`                | Add a case for UI selection and to supply operator info for the receive-only route                             |
 | 4   | `assets/resource/pipeline/GiftOperator/Operator/Operator.json`     | Per-operator OCR recognition and whitelist in receive-only mode                                                |
-| 5   | `assets/locales/interface/*.json` → `operator.<Name>`              | Localized operator display names                                                                               |
+| 5   | `assets/resource/pipeline/GiftOperator/GiftOperatorContact.json` → `GiftOperatorSelectGiftOp.next` | Append `GiftOperatorSelect_<Name>` to the `next` array, or the receive-only route never triggers the new operator node |
+| 6   | `assets/locales/interface/*.json` → `operator.<Name>`              | Localized operator display names                                                                               |
 
 ## Route 1: Default (give + receive)
 

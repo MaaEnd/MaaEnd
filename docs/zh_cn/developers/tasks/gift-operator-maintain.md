@@ -1,7 +1,7 @@
 # 开发手册 - 赠送干员礼物维护文档
 
 本文说明 `GiftOperator` 的文件分布与两条执行路线。  
-该文档更新于 2026 年 6 月 6 日。
+该文档更新于 2026 年 6 月 28 日。
 
 ## 文件路径
 
@@ -23,7 +23,7 @@
 
 ## 新增干员时需改的路径
 
-新增一名干员时，至少需同步以下 5 处（`<Name>` 为干员标识，与模板文件名、option case 名保持一致）：
+新增一名干员时，至少需同步以下 6 处（`<Name>` 为干员标识，与模板文件名、option case 名保持一致）：
 
 | #   | 路径                                                               | 说明                                                                                      |
 | --- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
@@ -31,7 +31,8 @@
 | 2   | `assets/resource_adb/image/GiftOperator/Operators/<Name>.png`      | ADB 干员头像模板；同上处理                                                                |
 | 3   | `assets/tasks/GiftOperator.json` → `SelectOperator`                | 新增 case，在 UI 提供可选干员，并为「只收礼物」路线提供干员信息                           |
 | 4   | `assets/resource/pipeline/GiftOperator/Operator/Operator.json`     | 「只收礼物」模式下各干员的 OCR 识别与白名单                                               |
-| 5   | `assets/locales/interface/*.json` → `operator.<Name>`              | 各语言干员显示名称                                                                        |
+| 5   | `assets/resource/pipeline/GiftOperator/GiftOperatorContact.json` → `GiftOperatorSelectGiftOp.next` | 在「只收礼物」选人节点的 `next` 数组追加 `GiftOperatorSelect_<Name>`，否则该干员节点不会被触发 |
+| 6   | `assets/locales/interface/*.json` → `operator.<Name>`              | 各语言干员显示名称                                                                        |
 
 ## 路线一：默认（送礼 + 收礼）
 
