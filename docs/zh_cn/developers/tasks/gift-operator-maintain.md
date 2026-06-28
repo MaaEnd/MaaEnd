@@ -21,6 +21,18 @@
 | `tools/gift_operator/fill_gift_operator_green_box.py`               | 干员头像 green_mask 格式化    |
 | `assets/locales/interface/*.json`                                   | 任务、选项与干员名称文案      |
 
+## 新增干员时需改的路径
+
+新增一名干员时，至少需同步以下 5 处（`<Name>` 为干员标识，与模板文件名、option case 名保持一致）：
+
+| #   | 路径                                                               | 说明                                                                                      |
+| --- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| 1   | `assets/resource/image/GiftOperator/Operators/<Name>.png`          | Win32 干员头像模板；入库前须用 `tools/gift_operator/fill_gift_operator_green_box.py` 处理 |
+| 2   | `assets/resource_adb/image/GiftOperator/Operators/<Name>.png`      | ADB 干员头像模板；同上处理                                                                |
+| 3   | `assets/tasks/GiftOperator.json` → `SelectOperator`                | 新增 case，在 UI 提供可选干员，并为「只收礼物」路线提供干员信息                           |
+| 4   | `assets/resource/pipeline/GiftOperator/Operator/Operator.json`     | 「只收礼物」模式下各干员的 OCR 识别与白名单                                               |
+| 5   | `assets/locales/interface/*.json` → `operator.<Name>`              | 各语言干员显示名称                                                                        |
+
 ## 路线一：默认（送礼 + 收礼）
 
 对应选项「只收礼物」关闭。可配置赠送对象与赠送数量。
@@ -130,11 +142,3 @@
 
 「任意」路线不靠头像，而是：切信赖度升序 → 从上到下找**信赖未满且未被选中**的行，连点三名。  
 「指定干员」路线与收礼第二步类似，直接在列表里用头像模板匹配，但不需要先找礼物图标。
-
-## 新增干员时需改的路径
-
-1. `assets/resource/image/GiftOperator/Operators/<Name>.png`
-2. `assets/resource_adb/image/GiftOperator/Operators/<Name>.png`（跑 `fill_gift_operator_green_box.py`）
-3. `assets/tasks/GiftOperator.json`（`SelectOperator` 新增 case）
-4. `assets/resource/pipeline/GiftOperator/Operator/Operator.json`（收礼模式干员识别）
-5. `assets/locales/interface/*.json`（`operator.<Name>` 与多语言名称）

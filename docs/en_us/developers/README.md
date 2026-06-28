@@ -95,6 +95,7 @@ Only need to be read when maintaining the corresponding task.
 | [CreditShopping](./tasks/credit-shopping-maintain.md)               | Purchase priority, credit linkage, refresh strategy & product extension                           |
 | [EnvironmentMonitoring](./tasks/environment-monitoring-maintain.md) | Observation point route data, `pipeline-generate` auto-generation & new point integration process |
 | [SellProduct](./tasks/sell-product-maintain.md)                     | zmdmap data generation, stronghold selling Pipeline & priority item maintenance                   |
+| [GiftOperator](./tasks/gift-operator-maintain.md)                   | Navigation, contact selection, give/receive branches, and operator extension maintenance          |
 
 ### Third-Party Protocol Documentation (`protocol/`)
 
