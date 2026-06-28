@@ -629,13 +629,18 @@
                 ]
             }
         },
-        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 200,
-        "post_delay": 0,
-        "rate_limit": 0
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                1065,
+                0,
+                179,
+                41
+            ]
+        }
     },
     "ReceptionRoomSendCluesSelectFriend": {
         "desc": "[会客室·线索] 先识别缺失线索的好友",
