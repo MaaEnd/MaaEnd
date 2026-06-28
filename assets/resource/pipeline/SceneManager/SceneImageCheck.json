@@ -114,12 +114,14 @@
         ]
     },
     "__SceneImageCheckAICPlanColorFailedFinish": {
-        "desc": "检查颜色失败",
+        "desc": "检查颜色失败,截图保存到 debug 目录",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FalseAction",
+        "action": "Screencap",
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "AbortPipelineOnSceneCheckFail"
+        ],
         "focus": {
             "Node.Action.Starting": "$task.SceneManager.focus.color_match_failed_prefix"
         }
