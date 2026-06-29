@@ -210,7 +210,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AbortPipelineOnSceneCheckFail"
+            "__SceneCheckAbortPipeline"
         ]
     },
     "__SceneCheckOSD": {
@@ -247,13 +247,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AbortPipelineOnSceneCheckFail"
+            "__SceneCheckAbortPipeline"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">屏幕存在遮挡，请尝试关闭帧率显示</span>"
         }
     },
-    "AbortPipelineOnSceneCheckFail": {
+    "__SceneCheckAbortPipeline": {
         "desc": "运用 poststop 接口停止整个任务链",
         "pre_delay": 0,
         "action": {
