@@ -79,6 +79,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	// 屏幕的「本日剩余奖励演算次数」显示的是「当前进行中这局之外的剩余」——进入抽牌界面即扣 1，
 	// 而求解器把进行中这局也算作可用 → solver = OCR + 1（solver 态空间 RemainCalc 1..3，对应 OCR 0..2）。
 	// 仅演算次数有此偏移：放弃/翻倍次数界面显示的就是真实值，直接用。走到这里 calcOK 必为真。
+	// 跨天残局那局白送：OCR 读到 3 → RemainCalc=4，超出态空间上界——本处不钳制，原样交给 Decide 直接放弃。
 	state := solver.State{
 		RemainCalc:   remainCalc + 1,
 		RemainAband:  remainAband,

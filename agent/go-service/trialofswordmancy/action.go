@@ -17,6 +17,11 @@ import (
 
 var _ maa.CustomActionRunner = &DecideAction{}
 
+// remainCalcEndgame 标志跨天残局：求解器态空间 RemainCalc 上界 3（每日演算上限），
+// recognition 用 OCR+1 还原后，残局那局 OCR 读到 3 → RemainCalc=4，超出态空间。残局不求解，
+// Decide 直接放弃这局（见 DecideAction.Run）。
+const remainCalcEndgame = 4
+
 // DecideAction 反序列化 recognition 产出的 GameState，调 solver.Decide 取最优单步决策，
 // 按决策用 OverrideNext 路由到执行节点。
 //
@@ -47,6 +52,23 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if err := json.Unmarshal([]byte(detailJSON), &gs); err != nil {
 		log.Error().Err(err).Str("component", component).Msg("failed to parse game state")
 		return false
+	}
+
+	// 跨天残局：recognition 读出 RemainCalc=4（OCR=3，超出求解器态空间上界 3=每日演算上限）。
+	// 残局那局白送、且放弃只扣放弃次数不扣演算次数——跳过求解，直接放弃这局，回到主入口开正常的 3 局。
+	// （求解器态空间不支持 4 层；故残局直接放弃，不在 recognition 钳制近似。）
+	if gs.State.RemainCalc == remainCalcEndgame {
+		resetAband() // 放弃扣 1 次放弃次数，缓存失效，下回合首步重新探测
+		if err := routeDecision(ctx, arg.CurrentTaskName, solver.Abandon); err != nil {
+			log.Error().Err(err).Str("component", component).Msg("failed to route endgame give-up")
+			return false
+		}
+		log.Info().
+			Str("component", component).
+			Int("remainCalc", gs.State.RemainCalc).
+			Msg("cross-day endgame (RemainCalc=4): skip solver, give up the free run")
+		maafocus.Print(ctx, "选剑演武\n跨天残局\n→ 放弃本局")
+		return true
 	}
 
 	// 配置：牌库/手牌/剩余次数/翻倍态来自 recognition 截图识别；溢出模式是玩家策略选项，
