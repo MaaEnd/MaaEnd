@@ -829,6 +829,36 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "Camille",
+                    "label": "$operator.Camille",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Camille.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
+                        }
+                    }
                 }
             ]
         },
