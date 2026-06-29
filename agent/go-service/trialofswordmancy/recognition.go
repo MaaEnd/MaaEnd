@@ -76,15 +76,11 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		}
 	}
 
-	// 屏幕的「本日剩余奖励演算次数」显示的是「当前进行中这局之外的剩余」——抽取第一张手牌时扣 1，
-	// 故 solver = OCR + 1（态空间 RemainCalc 1..3，对应 OCR 0..2）。仅演算次数有此偏移：放弃/翻倍次数
-	// 界面显示即真实值，直接用。走到这里 calcOK 必为真。
-	//
-	// 跨天残局：当天实际 4 次演算（残局这局白送），放弃/双倍不受影响、照常读；
-	// 求解器态空间上界 3，钳制 RemainCalc 到 3 喂入。
-	remainCalcSolver := min(remainCalc+1, 3)
+	// 屏幕的「本日剩余奖励演算次数」显示的是「当前进行中这局之外的剩余」——进入抽牌界面即扣 1，
+	// 而求解器把进行中这局也算作可用 → solver = OCR + 1（solver 态空间 RemainCalc 1..3，对应 OCR 0..2）。
+	// 仅演算次数有此偏移：放弃/翻倍次数界面显示的就是真实值，直接用。走到这里 calcOK 必为真。
 	state := solver.State{
-		RemainCalc:   remainCalcSolver,
+		RemainCalc:   remainCalc + 1,
 		RemainAband:  remainAband,
 		RemainDouble: remainDouble,
 		IsDoubled:    isDoubled,
