@@ -9,11 +9,11 @@
 
 The current implementation is located in `agent/go-service/captureuid/`:
 
-| File          | Responsibility                                                                |
-| ------------- | ----------------------------------------------------------------------------- |
+| File          | Responsibility                                                                     |
+| ------------- | ---------------------------------------------------------------------------------- |
 | `action.go`   | CustomAction entry point, deserializes parameters, calls `Capture` or `ClearCache` |
-| `capture.go`  | Core logic: screenshot, OCR, hashing, caching                                  |
-| `register.go` | Registers the `CaptureUid` custom action with MaaFramework                      |
+| `capture.go`  | Core logic: screenshot, OCR, hashing, caching                                      |
+| `register.go` | Registers the `CaptureUid` custom action with MaaFramework                         |
 
 ## Calling in Pipeline
 
@@ -57,12 +57,12 @@ After switching accounts, the cache must be cleared to prevent reuse of old UIDs
 
 ## Parameter Description
 
-| Field                    | Type   | Default | Description                                                                                     |
-| ------------------------ | ------ | ------- | ----------------------------------------------------------------------------------------------- |
-| `use_cache`              | `bool` | `true`  | If the cache contains a UID, return it directly without taking a new screenshot for OCR.        |
+| Field                    | Type   | Default | Description                                                                                                                   |
+| ------------------------ | ------ | ------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `use_cache`              | `bool` | `true`  | If the cache contains a UID, return it directly without taking a new screenshot for OCR.                                      |
 | `stay_on_current_screen` | `bool` | `true`  | Whether to take a screenshot for OCR on the current screen. If `false`, navigates to `SceneEnterMenuOperationalManual` first. |
-| `allow_unknown`          | `bool` | `true`  | If OCR fails, return `"unknown"` instead of throwing an error. If `false`, OCR failure causes the action to fail. |
-| `clear_cache`            | `bool` | `false` | Clear the UID cache and return immediately, without performing screenshot OCR.                   |
+| `allow_unknown`          | `bool` | `true`  | If OCR fails, return `"unknown"` instead of throwing an error. If `false`, OCR failure causes the action to fail.             |
+| `clear_cache`            | `bool` | `false` | Clear the UID cache and return immediately, without performing screenshot OCR.                                                |
 
 > [!note]
 > When `clear_cache` is `true`, all other parameters are ignored—the action only clears the cache and returns success directly.
@@ -111,9 +111,9 @@ The action executes in the following order:
 
 ## Existing Integration
 
-| User                   | File                                                                                  | Method                    | Purpose                     |
-| ---------------------- | ------------------------------------------------------------------------------------- | ------------------------- | --------------------------- |
-| AutoStockpile          | `assets/resource/pipeline/AutoStockpile/Main.json` (`AutoStockpileGetUid` node)       | Pipeline                  | Get and cache UID           |
-| AutoStockpile selector | `agent/go-service/autostockpile/selector.go`                                          | Go API (`GetCachedUID`)   | Correlate price data with pseudonymous identity |
-| CreditShopping         | `agent/go-service/creditshopping/action_record.go`                                    | Go API (`Capture`)        | Correlate UID when recording shelf snapshots |
-| AccountSwitch          | `assets/resource/pipeline/AccountSwitch.json` (`__AccountSwitchClearUidCache` node)   | Pipeline (`clear_cache`)  | Clear cache after switching accounts |
+| User                   | File                                                                                | Method                   | Purpose                                         |
+| ---------------------- | ----------------------------------------------------------------------------------- | ------------------------ | ----------------------------------------------- |
+| AutoStockpile          | `assets/resource/pipeline/AutoStockpile/Main.json` (`AutoStockpileGetUid` node)     | Pipeline                 | Get and cache UID                               |
+| AutoStockpile selector | `agent/go-service/autostockpile/selector.go`                                        | Go API (`GetCachedUID`)  | Correlate price data with pseudonymous identity |
+| CreditShopping         | `agent/go-service/creditshopping/action_record.go`                                  | Go API (`Capture`)       | Correlate UID when recording shelf snapshots    |
+| AccountSwitch          | `assets/resource/pipeline/AccountSwitch.json` (`__AccountSwitchClearUidCache` node) | Pipeline (`clear_cache`) | Clear cache after switching accounts            |

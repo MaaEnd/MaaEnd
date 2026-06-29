@@ -12,11 +12,11 @@
 
 ## Chapter Zero · Figure Out Which Kind of Beginner You Are
 
-| Your situation | Jump to where |
-| --- | --- |
-| I just want to **use** MaaEnd for automation, not write code | → [Official Website Download](https://maaend.com/), you don't need developer documentation |
-| I want to help write Pipeline (JSON configuration, no coding needed) | → Read this whole guide → [getting-started.md](./getting-started.md) |
-| I want to write Go Service / modify underlying logic | → Read this whole guide → Learn Go basics → [getting-started.md](./getting-started.md) |
+| Your situation                                                       | Jump to where                                                                              |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| I just want to **use** MaaEnd for automation, not write code         | → [Official Website Download](https://maaend.com/), you don't need developer documentation |
+| I want to help write Pipeline (JSON configuration, no coding needed) | → Read this whole guide → [getting-started.md](./getting-started.md)                       |
+| I want to write Go Service / modify underlying logic                 | → Read this whole guide → Learn Go basics → [getting-started.md](./getting-started.md)     |
 
 **The vast majority of contributors only take the Pipeline path. No programming skills or Go code writing required.**
 
@@ -26,21 +26,21 @@
 
 Before starting, let's explain common terms in the simplest language. Precision isn't needed, just enough to get the job done.
 
-| Term | Plain English Explanation |
-| --- | --- |
-| **Git** | A "save system" for code. Each save can have a note, and you can go back to old versions anytime |
-| **GitHub** | A website that "puts Git saves online," where everyone can collaborate |
-| **Terminal/Command Line** | That black box. Use typing instead of a mouse to operate the computer |
-| **VS Code** | An enhanced notepad specifically for writing code and configuration files |
-| **JSON** | A form-filling format. `{}` is a table, `[]` is a list |
-| **Pipeline** | An assembly line. In order: recognize screen → act → recognize screen → act... like following a recipe |
-| **Fork** | Copy someone else's repository to your own name |
-| **Clone** | Download code from the internet to your computer |
-| **Branch** | A branch. Open your own line, don't mess with others' |
-| **Commit** | Save. Take a snapshot of current changes, write a line of notes |
-| **Push** | Upload local saves to GitHub |
-| **PR** | Pull Request. Send your changes to the project manager for review |
-| **Template Matching** | Find a small image in a larger one. E.g., "find this button on the screen" |
+| Term                      | Plain English Explanation                                                                              |
+| ------------------------- | ------------------------------------------------------------------------------------------------------ |
+| **Git**                   | A "save system" for code. Each save can have a note, and you can go back to old versions anytime       |
+| **GitHub**                | A website that "puts Git saves online," where everyone can collaborate                                 |
+| **Terminal/Command Line** | That black box. Use typing instead of a mouse to operate the computer                                  |
+| **VS Code**               | An enhanced notepad specifically for writing code and configuration files                              |
+| **JSON**                  | A form-filling format. `{}` is a table, `[]` is a list                                                 |
+| **Pipeline**              | An assembly line. In order: recognize screen → act → recognize screen → act... like following a recipe |
+| **Fork**                  | Copy someone else's repository to your own name                                                        |
+| **Clone**                 | Download code from the internet to your computer                                                       |
+| **Branch**                | A branch. Open your own line, don't mess with others'                                                  |
+| **Commit**                | Save. Take a snapshot of current changes, write a line of notes                                        |
+| **Push**                  | Upload local saves to GitHub                                                                           |
+| **PR**                    | Pull Request. Send your changes to the project manager for review                                      |
+| **Template Matching**     | Find a small image in a larger one. E.g., "find this button on the screen"                             |
 
 ---
 
@@ -258,13 +258,13 @@ After pushing, open your browser and visit `https://github.com/your-username/Maa
 
 This project follows [Conventional Commits](https://www.conventionalcommits.org/zh-hans/v1.0.0/), see [getting-started.md § 0. Commit Guidelines](./getting-started.md) for details. Below is a quick reference for common prefixes:
 
-| Prefix | When to use |
-| --- | --- |
-| `feat:` | New features (Pipeline nodes, recognition templates, etc.) |
-| `fix:` | Bug fixes |
-| `docs:` | Documentation changes only |
+| Prefix   | When to use                                                     |
+| -------- | --------------------------------------------------------------- |
+| `feat:`  | New features (Pipeline nodes, recognition templates, etc.)      |
+| `fix:`   | Bug fixes                                                       |
+| `docs:`  | Documentation changes only                                      |
 | `style:` | Formatting/whitespace adjustments (doesn't affect code meaning) |
-| `chore:` | Build, dependencies, and other miscellaneous |
+| `chore:` | Build, dependencies, and other miscellaneous                    |
 
 Examples: `feat(SellProduct): Add sell button recognition template`, `fix: Fix startup crash`.
 
@@ -453,19 +453,19 @@ Each Pipeline node does three things:
 
 Translated line by line into plain English:
 
-| Field | Plain English |
-| --- | --- |
-| `"desc"` | Comment for humans, ignored by the machine |
-| `"recognition"` → `"type": "TemplateMatch"` | Recognition method: template matching (find a small image on the screen) |
-| `"template"` | Where the image to find is stored |
-| `"roi"` | Only search within this box — `[top-left x, top-left y, width, height]`, screen top-left corner is the origin |
-| `"threshold": 0.7` | 70% similarity counts as a match |
-| `"green_mask": true` | Green mask: If true, parts of the image you don't want to match are painted green RGB: (0, 255, 0), green areas are skipped during matching |
-| `"action"` → `"type": "Click"` | If recognized, click; defaults to clicking the recognized position |
-| `"pre_delay": 0` | How many milliseconds to wait after recognition, before executing the action. Entry node screen is stable, set to 0 |
-| `"post_delay": 0` | How many milliseconds to wait after executing the action, before recognizing next. Here `post_wait_freezes` is used instead |
-| `"post_wait_freezes": 100` | Wait for the screen to stop moving after executing the action, then wait an additional 100ms. More reliable than a fixed `post_delay` |
-| `"next": ["SellProductLoop"]` | After completion, try each node in next in order, only execute the first one recognized |
+| Field                                       | Plain English                                                                                                                               |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `"desc"`                                    | Comment for humans, ignored by the machine                                                                                                  |
+| `"recognition"` → `"type": "TemplateMatch"` | Recognition method: template matching (find a small image on the screen)                                                                    |
+| `"template"`                                | Where the image to find is stored                                                                                                           |
+| `"roi"`                                     | Only search within this box — `[top-left x, top-left y, width, height]`, screen top-left corner is the origin                               |
+| `"threshold": 0.7`                          | 70% similarity counts as a match                                                                                                            |
+| `"green_mask": true`                        | Green mask: If true, parts of the image you don't want to match are painted green RGB: (0, 255, 0), green areas are skipped during matching |
+| `"action"` → `"type": "Click"`              | If recognized, click; defaults to clicking the recognized position                                                                          |
+| `"pre_delay": 0`                            | How many milliseconds to wait after recognition, before executing the action. Entry node screen is stable, set to 0                         |
+| `"post_delay": 0`                           | How many milliseconds to wait after executing the action, before recognizing next. Here `post_wait_freezes` is used instead                 |
+| `"post_wait_freezes": 100`                  | Wait for the screen to stop moving after executing the action, then wait an additional 100ms. More reliable than a fixed `post_delay`       |
+| `"next": ["SellProductLoop"]`               | After completion, try each node in next in order, only execute the first one recognized                                                     |
 
 > Use delay fields only when necessary: `pre_delay` waits for the screen to appear, `post_delay` waits for animations to finish, `post_wait_freezes` waits for the screen to stabilize. Most nodes can be set to 0. SellProductMain is the task entry, the screen itself is stable, so both pre/post_delay are 0.
 >
@@ -473,13 +473,13 @@ Translated line by line into plain English:
 
 ### 5.3 Common Recognition Methods Quick Reference
 
-| Method | Keyword | When to use |
-| --- | --- | --- |
-| Template Matching | `TemplateMatch` | Find fixed icons, buttons — given an image, find it on the screen |
-| OCR | `OCR` | Read text on the screen — e.g., confirm which screen you're on |
-| Color Matching | `ColorMatch` | Detect the color of a specific point |
-| All conditions met | `And` + `all_of` | Multiple conditions all met for a match |
-| Any condition met | `Or` + `any_of` | One condition met is enough |
+| Method             | Keyword          | When to use                                                       |
+| ------------------ | ---------------- | ----------------------------------------------------------------- |
+| Template Matching  | `TemplateMatch`  | Find fixed icons, buttons — given an image, find it on the screen |
+| OCR                | `OCR`            | Read text on the screen — e.g., confirm which screen you're on    |
+| Color Matching     | `ColorMatch`     | Detect the color of a specific point                              |
+| All conditions met | `And` + `all_of` | Multiple conditions all met for a match                           |
+| Any condition met  | `Or` + `any_of`  | One condition met is enough                                       |
 
 ### 5.4 Next Step Jump Logic
 
@@ -538,17 +538,17 @@ Click the branch name in the lower left corner → "Create new branch" → `feat
 
 Choose whichever method is easiest for you:
 
-| Method | Operation |
-| --- | --- |
-| VS Code Interface | `Ctrl + Shift + G` → Click `+` to stage → Write commit message → Click `✓` |
-| Terminal (Chapter 3 Route B) | `git add .` then `git commit -m "feat(task-name): what you did"` |
+| Method                       | Operation                                                                  |
+| ---------------------------- | -------------------------------------------------------------------------- |
+| VS Code Interface            | `Ctrl + Shift + G` → Click `+` to stage → Write commit message → Click `✓` |
+| Terminal (Chapter 3 Route B) | `git add .` then `git commit -m "feat(task-name): what you did"`           |
 
 ### Step 6: Push
 
-| Method | Operation |
-| --- | --- |
-| VS Code Interface | Click the "Sync Changes" button in the lower left corner |
-| Terminal (Chapter 3 Route B) | `git push -u origin feat/add-template-xxx` |
+| Method                       | Operation                                                |
+| ---------------------------- | -------------------------------------------------------- |
+| VS Code Interface            | Click the "Sync Changes" button in the lower left corner |
+| Terminal (Chapter 3 Route B) | `git push -u origin feat/add-template-xxx`               |
 
 ### Step 7: Open PR (On the Webpage)
 
@@ -602,12 +602,12 @@ Wait for review ✅
 
 After completing this guide, proceed in order:
 
-| Order | Document | What you'll learn |
-| --- | --- | --- |
-| 1 | [getting-started.md](./getting-started.md) | Set up the environment, get it running, complete a full Pipeline task |
-| 2 | [components-guide.md](./components-guide.md) | Project architecture, reusable nodes |
-| 3 | [tools-and-debug.md](./tools-and-debug.md) | Debugging tools, Maa Pipeline Support usage |
-| 4 | [coding-standards.md](./coding-standards.md) | Coding standards, must-read before committing |
+| Order | Document                                     | What you'll learn                                                     |
+| ----- | -------------------------------------------- | --------------------------------------------------------------------- |
+| 1     | [getting-started.md](./getting-started.md)   | Set up the environment, get it running, complete a full Pipeline task |
+| 2     | [components-guide.md](./components-guide.md) | Project architecture, reusable nodes                                  |
+| 3     | [tools-and-debug.md](./tools-and-debug.md)   | Debugging tools, Maa Pipeline Support usage                           |
+| 4     | [coding-standards.md](./coding-standards.md) | Coding standards, must-read before committing                         |
 
 > [!NOTE]
 > **External Resources**

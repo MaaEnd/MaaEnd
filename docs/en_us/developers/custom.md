@@ -239,18 +239,18 @@ When a weekday flag is omitted, it defaults to `false` (do not execute that day)
 
 When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe` can handle most needs. When they fall short—for example, comparing two OCR values, dynamically adjusting parameters at runtime, or batch running subtasks—then refer to this document to see if there's an existing Custom action or recognition to use.
 
-| Scenario                          | Use                             |
-| --------------------------------- | ------------------------------- |
-| Run a series of subtasks in order | `SubTask`                       |
-| Clear hit count of a node         | `ClearHitCount`                 |
-| Force an Action to fail           | `FalseAction`                   |
-| Actively stop the current task    | `PostStop`                      |
-| Change node parameters at runtime | `PipelineOverride`              |
+| Scenario                                 | Use                           |
+| ---------------------------------------- | ----------------------------- |
+| Run a series of subtasks in order        | `SubTask`                     |
+| Clear hit count of a node                | `ClearHitCount`               |
+| Force an Action to fail                  | `FalseAction`                 |
+| Actively stop the current task           | `PostStop`                    |
+| Change node parameters at runtime        | `PipelineOverride`            |
 | Write keywords as regex back to OCR node | `AttachToExpectedRegexAction` |
-| Evaluate OCR numerical expressions | `ExpressionRecognition`        |
-| Gate subsequent nodes by day of week | `ScheduleRecognition`        |
-| Alt + Click at specified position | `AutoAltClickAction`            |
-| Alt + Long Press at specified position | `AutoAltLongPressAction`   |
-| Alt + Swipe                       | `AutoAltSwipeAction`            |
+| Evaluate OCR numerical expressions       | `ExpressionRecognition`       |
+| Gate subsequent nodes by day of week     | `ScheduleRecognition`         |
+| Alt + Click at specified position        | `AutoAltClickAction`          |
+| Alt + Long Press at specified position   | `AutoAltLongPressAction`      |
+| Alt + Swipe                              | `AutoAltSwipeAction`          |
 
 All Custom Go code implementations are located under `agent/go-service/`. Pipeline authors do not need to concern themselves with this; just write the JSON according to the documentation parameters.

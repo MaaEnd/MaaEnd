@@ -6,7 +6,7 @@ This document explains how to use the **MapNavigator** related nodes and how to 
 
 **MapNavigator** is MaaEnd's current high-precision automatic navigation Action module. It relies on underlying localization capabilities to continuously obtain the character's current area, global coordinates, and orientation. Then, it drives the character to move point-by-point according to the developer-provided `path` waypoint sequence, executing actions like sprinting, jumping, interaction, and map transition at key points.
 
-In addition to traditional recorded paths, MapNavigator now also supports `NAVMESH` semantic pathfinding based on BNAV v2. The GUI can directly load `base.nav.gz` for triangle-face A* preview. During runtime, the `NAVMESH` node is expanded into ordinary `RUN` waypoints, allowing preview, copying, and execution to all use the same set of BaseNav data.
+In addition to traditional recorded paths, MapNavigator now also supports `NAVMESH` semantic pathfinding based on BNAV v2. The GUI can directly load `base.nav.gz` for triangle-face A\* preview. During runtime, the `NAVMESH` node is expanded into ordinary `RUN` waypoints, allowing preview, copying, and execution to all use the same set of BaseNav data.
 
 ### Boundary Description
 
@@ -156,7 +156,7 @@ The operational flow of `NAVMESH` is:
 
 1. At runtime, prioritize loading `assets/resource/model/map/navmesh/base.nav.gz`; fall back to `base.nav` if it doesn't exist.
 2. Infer the BaseNav zone based on the current localization area.
-3. Execute A* on the `.nav` triangle graph, only traversing BaseNav's own edges.
+3. Execute A\* on the `.nav` triangle graph, only traversing BaseNav's own edges.
 4. Expand the planning result into ordinary `RUN` waypoints, which are then handed over to the old movement execution chain.
 
 In the GUI, clicking `Load BaseNav` makes the tool enter the same BaseNav preview logic; clicking `Copy NAVMESH` copies this type of node to the clipboard.
@@ -287,7 +287,7 @@ It supports:
 4. Importing existing JSON / JSONC, recursively searching for recognizable `path` data and continuing editing.
 5. One-click copying of canonical `path` that can be directly pasted into `custom_action_param.path`.
 6. Through an independent `Assert mode` to manually select the base map and frame rectangular areas, exporting `MapLocateAssertLocation` nodes.
-7. Entering BaseNav A* mode, loading `.nav.gz` / `.nav`, previewing paths on the red triangle face overlay, and copying `NAVMESH` nodes.
+7. Entering BaseNav A\* mode, loading `.nav.gz` / `.nav`, previewing paths on the red triangle face overlay, and copying `NAVMESH` nodes.
 
 An additional note is that the current GUI editor primarily round-trips path points with coordinates and `ZONE` declarations derived from area information.
 Non-coordinate control nodes like `HEADING` and semantic pathfinding nodes like `NAVMESH` are not regular point editing objects in the GUI. It is recommended to manually add back or maintain `HEADING` after exporting the `path`, while `NAVMESH` can be directly generated using `Copy NAVMESH`.
@@ -349,10 +349,10 @@ After recording starts, switch back to the game and simply **walk through once a
 
 During recording, you can use the following shortcut keys:
 
-| Shortcut Key | Function                                                                                                          |
-| ------------ | ----------------------------------------------------------------------------------------------------------------- |
+| Shortcut Key | Function                                                                                                                        |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------- |
 | `G`          | 📋 **Copy the current coordinates to the clipboard** in `[x, y]` format (does not affect recorded data, can be pressed anytime) |
-| `X`          | 📌 **Force insert a strict arrival (strict) path point** at the current precise location into the recorded data              |
+| `X`          | 📌 **Force insert a strict arrival (strict) path point** at the current precise location into the recorded data                 |
 
 > [!TIP]
 >
@@ -505,11 +505,11 @@ In `custom_action_param.path`, change the third element of the target coordinate
 
 ### Files Path Authors Need to Care About
 
-| File                                                          | Responsibility                                                                 | When Changes Are Needed                         |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------- |
-| `assets/resource/pipeline/AutoCollect/AutoCollectRoute*.json` | Path definitions, containing `MapNavigateAction` nodes and collection coordinates | Add new routes, adjust coordinates, add/remove collection points |
-| `assets/resource/pipeline/AutoCollect/AutoCollectClick.json`  | OCR and click subtask triggered by `COLLECT`, entry point is `AutoCollectClickStart` | Add or delete OCR-recognized collection object names |
-| `assets/resource/pipeline/AutoCollect/AutoCollectDig.json`    | Digging subtask triggered by `DIG`, entry point is `AutoCollectDigStart`        | When digging interaction logic changes          |
+| File                                                          | Responsibility                                                                       | When Changes Are Needed                                          |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| `assets/resource/pipeline/AutoCollect/AutoCollectRoute*.json` | Path definitions, containing `MapNavigateAction` nodes and collection coordinates    | Add new routes, adjust coordinates, add/remove collection points |
+| `assets/resource/pipeline/AutoCollect/AutoCollectClick.json`  | OCR and click subtask triggered by `COLLECT`, entry point is `AutoCollectClickStart` | Add or delete OCR-recognized collection object names             |
+| `assets/resource/pipeline/AutoCollect/AutoCollectDig.json`    | Digging subtask triggered by `DIG`, entry point is `AutoCollectDigStart`             | When digging interaction logic changes                           |
 
 **In most cases, path authors only need to modify `AutoCollectRoute*.json`.**
 

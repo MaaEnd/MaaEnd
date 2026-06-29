@@ -5,34 +5,34 @@ This documentation was last updated on June 28, 2026.
 
 ## File Paths
 
-| Path                                                                | Purpose                          |
-| ------------------------------------------------------------------- | -------------------------------- |
-| `assets/interface.json`                                             | Task mounting (`dijiang_ship` group) |
-| `assets/tasks/GiftOperator.json`                                    | Task entry and interface options |
-| `assets/resource/pipeline/GiftOperator/GiftOperatorMain.json`       | Entry, Di Jiang ship location    |
-| `assets/resource/pipeline/GiftOperator/GiftOperatorNavigation.json` | Pathfinding and contact point interaction |
-| `assets/resource/pipeline/GiftOperator/GiftOperatorContact.json`    | Contact interface operator selection |
-| `assets/resource/pipeline/GiftOperator/GiftOperatorGiftFlow.json`   | Gift giving / receiving during dialogue |
-| `assets/resource/pipeline/GiftOperator/GiftOperatorBagFull.json`    | Bag full handling                |
+| Path                                                                | Purpose                                       |
+| ------------------------------------------------------------------- | --------------------------------------------- |
+| `assets/interface.json`                                             | Task mounting (`dijiang_ship` group)          |
+| `assets/tasks/GiftOperator.json`                                    | Task entry and interface options              |
+| `assets/resource/pipeline/GiftOperator/GiftOperatorMain.json`       | Entry, Di Jiang ship location                 |
+| `assets/resource/pipeline/GiftOperator/GiftOperatorNavigation.json` | Pathfinding and contact point interaction     |
+| `assets/resource/pipeline/GiftOperator/GiftOperatorContact.json`    | Contact interface operator selection          |
+| `assets/resource/pipeline/GiftOperator/GiftOperatorGiftFlow.json`   | Gift giving / receiving during dialogue       |
+| `assets/resource/pipeline/GiftOperator/GiftOperatorBagFull.json`    | Bag full handling                             |
 | `assets/resource/pipeline/GiftOperator/Operator/Operator.json`      | Operator identification for receive-only mode |
-| `assets/resource/image/GiftOperator/`                               | Win32 recognition images         |
-| `assets/resource_adb/image/GiftOperator/`                           | ADB recognition images           |
-| `assets/resource_adb/pipeline/GiftOperator/`                        | ADB Pipeline mirror              |
-| `tools/gift_operator/fill_gift_operator_green_box.py`               | Operator avatar green_mask formatting |
-| `assets/locales/interface/*.json`                                   | Task, option, and operator name text |
+| `assets/resource/image/GiftOperator/`                               | Win32 recognition images                      |
+| `assets/resource_adb/image/GiftOperator/`                           | ADB recognition images                        |
+| `assets/resource_adb/pipeline/GiftOperator/`                        | ADB Pipeline mirror                           |
+| `tools/gift_operator/fill_gift_operator_green_box.py`               | Operator avatar green_mask formatting         |
+| `assets/locales/interface/*.json`                                   | Task, option, and operator name text          |
 
 ## Paths to Modify When Adding a New Operator
 
 When adding a new operator, at least the following 6 locations need to be updated synchronously (`<Name>` is the operator identifier, consistent with the template filename and option case name):
 
-| #   | Path                                                                                               | Description                                                                                           |
-| --- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| 1   | `assets/resource/image/GiftOperator/Operators/<Name>.png`                                          | Win32 operator avatar template; must be processed with `tools/gift_operator/fill_gift_operator_green_box.py` before storage |
-| 2   | `assets/resource_adb/image/GiftOperator/Operators/<Name>.png`                                      | ADB operator avatar template; processed similarly                                                      |
-| 3   | `assets/tasks/GiftOperator.json` → `SelectOperator`                                                | Add a case to provide selectable operators in the UI and supply operator information for the "Receive Only" route |
-| 4   | `assets/resource/pipeline/GiftOperator/Operator/Operator.json`                                     | OCR recognition and whitelist for each operator in "Receive Only" mode                                |
+| #   | Path                                                                                               | Description                                                                                                                                              |
+| --- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `assets/resource/image/GiftOperator/Operators/<Name>.png`                                          | Win32 operator avatar template; must be processed with `tools/gift_operator/fill_gift_operator_green_box.py` before storage                              |
+| 2   | `assets/resource_adb/image/GiftOperator/Operators/<Name>.png`                                      | ADB operator avatar template; processed similarly                                                                                                        |
+| 3   | `assets/tasks/GiftOperator.json` → `SelectOperator`                                                | Add a case to provide selectable operators in the UI and supply operator information for the "Receive Only" route                                        |
+| 4   | `assets/resource/pipeline/GiftOperator/Operator/Operator.json`                                     | OCR recognition and whitelist for each operator in "Receive Only" mode                                                                                   |
 | 5   | `assets/resource/pipeline/GiftOperator/GiftOperatorContact.json` → `GiftOperatorSelectGiftOp.next` | Append `GiftOperatorSelect_<Name>` to the `next` array at the "Receive Only" operator selection node; otherwise, the operator node will not be triggered |
-| 6   | `assets/locales/interface/*.json` → `operator.<Name>`                                              | Operator display name for each language                                                                |
+| 6   | `assets/locales/interface/*.json` → `operator.<Name>`                                              | Operator display name for each language                                                                                                                  |
 
 ## Route 1: Default (Give + Receive)
 
@@ -124,11 +124,11 @@ After call confirmation, the task first waits for the operator to appear and att
 
 Correction sequence is fixed to three preset groups, each attempted once (the count is reset at the start of the task to avoid residuals from the previous round):
 
-| Order | Orientation     | Movement Target  |
-| ----- | --------------- | ---------------- |
-| 1     | West (270°)     | (186.6, 175.0)   |
-| 2     | North (0°)      | (188.0, 175.3)   |
-| 3     | East (90°)      | (188.6, 176.2)   |
+| Order | Orientation | Movement Target |
+| ----- | ----------- | --------------- |
+| 1     | West (270°) | (186.6, 175.0)  |
+| 2     | North (0°)  | (188.0, 175.3)  |
+| 3     | East (90°)  | (188.6, 176.2)  |
 
 Each group is "turn first → then move a short distance → wait for the character to stop", then re-attempt to find the dialogue button.
 

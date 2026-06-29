@@ -55,43 +55,43 @@ GridScanResult Scan(
 
 Input:
 
-| Input       | How to Obtain                                         | Notes                                                              |
-| ----------- | ----------------------------------------------------- | ------------------------------------------------------------------ |
+| Input       | How to Obtain                                             | Notes                                                                                                                  |
+| ----------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `sessionId` | Business-customized string, e.g., `"WeaponInventoryScan"` | Must remain consistent for the same scrolling list; reset at new task start; do not share between different businesses |
-| `image`     | Convert `MaaImageBuffer` from Maa callback to `cv::Mat` | Empty image will return failure; coordinates will be normalized based on `normalizedSize` |
-| `options`   | Business default values + Pipeline override parameters | Let default values run through first, then expose a few parameters to Pipeline |
+| `image`     | Convert `MaaImageBuffer` from Maa callback to `cv::Mat`   | Empty image will return failure; coordinates will be normalized based on `normalizedSize`                              |
+| `options`   | Business default values + Pipeline override parameters    | Let default values run through first, then expose a few parameters to Pipeline                                         |
 
 Output `GridScanResult`:
 
-| Field                               | Meaning                                      | How to View During Debugging          |
-| ----------------------------------- | -------------------------------------------- | ------------------------------------- |
-| `success` / `message`               | Whether this frame scanned successfully, and the reason for failure | For failure, first check empty image, template directory, ROI |
-| `rows` / `cols`                     | Rows and columns detected on the current visible page | Determine if grid detection is stable |
-| `totalCells`                        | Number of valid cells on current page, not just `rows * cols` | Affected by empty cell filtering      |
-| `sessionRows` / `sessionCols`       | Rows and columns of the accumulated session  | Determine the shape of the accumulated list |
-| `sessionTotalCells`                 | Accumulated number of valid cells            | Usually the primary concern for business |
-| `knownCells` / `unknownCells`       | Accumulated count of classified / unclassified | Determine template classification quality |
-| `rowOffset`                         | Number of rows advanced relative to the previous state | Determine if scrolling is stable      |
-| `deltaReliable`                     | Whether pHash alignment between current page and historical pages is reliable | Prioritize checking this when rolling accumulation is incorrect |
-| `hasProgress`                       | Whether this frame brought new cells         | Should usually be true for middle pages |
-| `reachedEnd`                        | Whether it is determined that the end has been reached | Used to decide whether to continue scrolling or stop |
-| `pendingStored` / `pendingResolved` | Pending / beam status                        | Appears when scrolling is not stable  |
-| `matchRatio` / `averageDistance`    | Page overlap matching quality                | Check these two when adjusting scroll parameters |
-| `newCellIndices`                    | Indices of new cells on the current page     | Can be used to determine how many new contents this frame added |
-| `cells`                             | Sorted list of accumulated cells             | Not recommended to write completely into `out_detail` by default |
+| Field                               | Meaning                                                                       | How to View During Debugging                                     |
+| ----------------------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `success` / `message`               | Whether this frame scanned successfully, and the reason for failure           | For failure, first check empty image, template directory, ROI    |
+| `rows` / `cols`                     | Rows and columns detected on the current visible page                         | Determine if grid detection is stable                            |
+| `totalCells`                        | Number of valid cells on current page, not just `rows * cols`                 | Affected by empty cell filtering                                 |
+| `sessionRows` / `sessionCols`       | Rows and columns of the accumulated session                                   | Determine the shape of the accumulated list                      |
+| `sessionTotalCells`                 | Accumulated number of valid cells                                             | Usually the primary concern for business                         |
+| `knownCells` / `unknownCells`       | Accumulated count of classified / unclassified                                | Determine template classification quality                        |
+| `rowOffset`                         | Number of rows advanced relative to the previous state                        | Determine if scrolling is stable                                 |
+| `deltaReliable`                     | Whether pHash alignment between current page and historical pages is reliable | Prioritize checking this when rolling accumulation is incorrect  |
+| `hasProgress`                       | Whether this frame brought new cells                                          | Should usually be true for middle pages                          |
+| `reachedEnd`                        | Whether it is determined that the end has been reached                        | Used to decide whether to continue scrolling or stop             |
+| `pendingStored` / `pendingResolved` | Pending / beam status                                                         | Appears when scrolling is not stable                             |
+| `matchRatio` / `averageDistance`    | Page overlap matching quality                                                 | Check these two when adjusting scroll parameters                 |
+| `newCellIndices`                    | Indices of new cells on the current page                                      | Can be used to determine how many new contents this frame added  |
+| `cells`                             | Sorted list of accumulated cells                                              | Not recommended to write completely into `out_detail` by default |
 
 Common fields for each `GridScanCell` in `cells`:
 
-| Field                                  | Meaning                              |
-| -------------------------------------- | ------------------------------------ |
-| `row` / `col`                          | Global row and column in the session |
-| `cellIndex`                            | Cell index within the current visible page |
+| Field                                  | Meaning                                           |
+| -------------------------------------- | ------------------------------------------------- |
+| `row` / `col`                          | Global row and column in the session              |
+| `cellIndex`                            | Cell index within the current visible page        |
 | `screenCell`                           | Cell rectangle in original screenshot coordinates |
-| `templateId`                           | Classification id, from the template filename |
-| `matched`                              | Whether classification was successful |
-| `visible`                              | Whether it is visible in this frame  |
-| `score` / `templateScore` / `hueScore` | Classification score                 |
-| `phashDistance`                        | pHash distance from the template     |
+| `templateId`                           | Classification id, from the template filename     |
+| `matched`                              | Whether classification was successful             |
+| `visible`                              | Whether it is visible in this frame               |
+| `score` / `templateScore` / `hueScore` | Classification score                              |
+| `phashDistance`                        | pHash distance from the template                  |
 
 ## Recommended Development Order
 
@@ -135,14 +135,14 @@ options.recognition.detect.minKeptSegmentRatio = 0.8;
 
 How to set parameters:
 
-| Parameter               | How to Fill Initially               | What to Observe                                  | How to Adjust                          |
-| ----------------------- | ----------------------------------- | ------------------------------------------------ | -------------------------------------- |
-| `normalizedSize`        | Usually fixed `{1280, 720}`         | Overall coordinate offset                        | Confirm if screenshot annotation is based on 720p |
-| `roi`                   | Frame the complete grid, minimize irrelevant UI | Wrong row/column count, misidentification of titles/buttons | Tighten to the cell area; do not cut off the main body of complete cells |
-| `rowThresholdRatio`     | `0.2` to `0.4`                      | Too many rows: noise mistaken for rows; too few rows: cells missed | Too many rows: increase; too few rows: decrease |
-| `colThresholdRatio`     | `0.3` to `0.5`                      | Too many or too few columns                      | Too many columns: increase; too few columns: decrease |
-| `minRawSegmentLength`   | `8` to `12`                         | Many small fragments                             | Increase; if thin cells are missed, decrease |
-| `minKeptSegmentRatio`   | `0.8` to `0.9` recommended for scrolling lists | Top/bottom half cells treated as full rows       | Increase; if valid rows are filtered, decrease |
+| Parameter             | How to Fill Initially                           | What to Observe                                                    | How to Adjust                                                            |
+| --------------------- | ----------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| `normalizedSize`      | Usually fixed `{1280, 720}`                     | Overall coordinate offset                                          | Confirm if screenshot annotation is based on 720p                        |
+| `roi`                 | Frame the complete grid, minimize irrelevant UI | Wrong row/column count, misidentification of titles/buttons        | Tighten to the cell area; do not cut off the main body of complete cells |
+| `rowThresholdRatio`   | `0.2` to `0.4`                                  | Too many rows: noise mistaken for rows; too few rows: cells missed | Too many rows: increase; too few rows: decrease                          |
+| `colThresholdRatio`   | `0.3` to `0.5`                                  | Too many or too few columns                                        | Too many columns: increase; too few columns: decrease                    |
+| `minRawSegmentLength` | `8` to `12`                                     | Many small fragments                                               | Increase; if thin cells are missed, decrease                             |
+| `minKeptSegmentRatio` | `0.8` to `0.9` recommended for scrolling lists  | Top/bottom half cells treated as full rows                         | Increase; if valid rows are filtered, decrease                           |
 
 Determining if grid detection is qualified:
 
@@ -181,11 +181,11 @@ options.recognition.mask.bottomHeight = 0.0;
 
 Meanings:
 
-| Field                                    | Ignored Area           |
-| ---------------------------------------- | ---------------------- |
-| `leftHeaderWidth` + `leftHeaderHeight`   | Top-left rectangle     |
-| `rightHeaderWidth` + `rightHeaderHeight` | Top-right rectangle    |
-| `bottomHeight`                           | Entire bottom strip    |
+| Field                                    | Ignored Area        |
+| ---------------------------------------- | ------------------- |
+| `leftHeaderWidth` + `leftHeaderHeight`   | Top-left rectangle  |
+| `rightHeaderWidth` + `rightHeaderHeight` | Top-right rectangle |
+| `bottomHeight`                           | Entire bottom strip |
 
 For example, if a cell is approximately `96x96` and you want to ignore the top-left `20x20`, top-right `30x30`, and bottom `20px`:
 
@@ -261,12 +261,12 @@ Internal judgment logic:
 
 Parameter adjustment table:
 
-| Phenomenon                                        | Priority Adjustment                                     |
-| ------------------------------------------------- | ------------------------------------------------------- |
-| Empty cells treated as items, `page_grid` too large | Increase `minOccupiedMean` or `minOccupiedBrightRatio`  |
-| Dark items missed, `page_grid` too small          | Decrease `minOccupiedMean` or `minOccupiedBrightRatio`  |
-| Bright border/badge causes empty cell misjudgment  | Set mask, or increase `minOccupiedBrightRatio`          |
-| Very few bright icons on a dark background         | Decrease `minOccupiedBrightRatio`, do not just decrease `occupiedBrightThreshold` |
+| Phenomenon                                          | Priority Adjustment                                                               |
+| --------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Empty cells treated as items, `page_grid` too large | Increase `minOccupiedMean` or `minOccupiedBrightRatio`                            |
+| Dark items missed, `page_grid` too small            | Decrease `minOccupiedMean` or `minOccupiedBrightRatio`                            |
+| Bright border/badge causes empty cell misjudgment   | Set mask, or increase `minOccupiedBrightRatio`                                    |
+| Very few bright icons on a dark background          | Decrease `minOccupiedBrightRatio`, do not just decrease `occupiedBrightThreshold` |
 
 It is recommended to first make `page_grid` close to the number of "cells with content" seen by the naked eye, then adjust classification. Otherwise, classification parameters will be skewed by empty cell noise.
 
@@ -290,12 +290,12 @@ However, note: in multi-template classification, `maxRankedCandidates = 0` is no
 
 Parameter adjustment table:
 
-| Parameter               | Effect                          | Increase                                        | Decrease                                        |
-| ----------------------- | ------------------------------- | ----------------------------------------------- | ----------------------------------------------- |
-| `maxPhashDistance`      | pHash initial screening distance | More candidates, reduces unknown, but slower, easier to misclassify | Fewer candidates, faster, but may miss matches |
-| `minScore`              | Final acceptance threshold      | Reduces misclassification, increases unknown    | Reduces unknown, increases misclassification risk |
-| `hueWeight`             | Hue score weight                | Values color more, suitable for distinguishing colorful icons | Values shape/brightness more, suitable when color is easily affected by environment |
-| `maxRankedCandidates`   | Number of templates entering fine sort per cell | Reduces false screening risk, but slower        | Faster, but correct templates ranked lower in pHash may not enter |
+| Parameter             | Effect                                          | Increase                                                            | Decrease                                                                            |
+| --------------------- | ----------------------------------------------- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `maxPhashDistance`    | pHash initial screening distance                | More candidates, reduces unknown, but slower, easier to misclassify | Fewer candidates, faster, but may miss matches                                      |
+| `minScore`            | Final acceptance threshold                      | Reduces misclassification, increases unknown                        | Reduces unknown, increases misclassification risk                                   |
+| `hueWeight`           | Hue score weight                                | Values color more, suitable for distinguishing colorful icons       | Values shape/brightness more, suitable when color is easily affected by environment |
+| `maxRankedCandidates` | Number of templates entering fine sort per cell | Reduces false screening risk, but slower                            | Faster, but correct templates ranked lower in pHash may not enter                   |
 
 Recommended adjustment method:
 
@@ -338,36 +338,36 @@ options.endMinMatchRatio = 0.95;
 
 These parameters look at "how many cells' pHash can match between adjacent pages."
 
-| Parameter                  | Effect                               | Increase                                                     | Decrease                                       |
-| -------------------------- | ------------------------------------ | ------------------------------------------------------------ | ---------------------------------------------- |
-| `incremental`              | Whether to enable session accumulation | Usually keep `true`                                          | `false` only scans current page                |
-| `matchDistanceThreshold`   | Maximum pHash distance for two cells to match | Easier to consider same cell match, delta more reliable, but higher risk of misalignment | Stricter, less misalignment, but slight changes during scrolling may not match |
-| `minMatchRatio`            | Matching ratio required for delta reliability | More conservative, reduces misaligned accumulation           | More aggressive, reduces sticking, but may misalign |
-| `weakMinMatchRatio`        | Ratio for accepting weak progress in pending/beam | More conservative                                            | Easier to advance                               |
-| `endMinMatchRatio`         | Ratio for judging repeated pages to determine end | Less likely to end prematurely, but may scroll a few extra times | Easier to end, but may stop prematurely         |
+| Parameter                | Effect                                            | Increase                                                                                 | Decrease                                                                       |
+| ------------------------ | ------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `incremental`            | Whether to enable session accumulation            | Usually keep `true`                                                                      | `false` only scans current page                                                |
+| `matchDistanceThreshold` | Maximum pHash distance for two cells to match     | Easier to consider same cell match, delta more reliable, but higher risk of misalignment | Stricter, less misalignment, but slight changes during scrolling may not match |
+| `minMatchRatio`          | Matching ratio required for delta reliability     | More conservative, reduces misaligned accumulation                                       | More aggressive, reduces sticking, but may misalign                            |
+| `weakMinMatchRatio`      | Ratio for accepting weak progress in pending/beam | More conservative                                                                        | Easier to advance                                                              |
+| `endMinMatchRatio`       | Ratio for judging repeated pages to determine end | Less likely to end prematurely, but may scroll a few extra times                         | Easier to end, but may stop prematurely                                        |
 
 Observe `out_detail`:
 
-| Field               | How to View                                  |
-| ------------------- | -------------------------------------------- |
-| `row_offset`        | How many rows approximately advanced per scroll, should be relatively stable |
-| `delta_reliable`    | Should often be `true` on normal middle pages |
-| `match_ratio`       | Higher means page overlap is more obvious    |
-| `new_cells`         | Should be > 0 on middle pages; may be 0 on repeated pages or at the end |
-| `pending_stored`    | Current candidate stored for confirmation in next frame |
-| `pending_resolved`  | Previous frame candidate confirmed           |
-| `has_progress`      | Whether new content was actually added       |
-| `reached_end`       | Whether the list end is determined           |
+| Field              | How to View                                                                  |
+| ------------------ | ---------------------------------------------------------------------------- |
+| `row_offset`       | How many rows approximately advanced per scroll, should be relatively stable |
+| `delta_reliable`   | Should often be `true` on normal middle pages                                |
+| `match_ratio`      | Higher means page overlap is more obvious                                    |
+| `new_cells`        | Should be > 0 on middle pages; may be 0 on repeated pages or at the end      |
+| `pending_stored`   | Current candidate stored for confirmation in next frame                      |
+| `pending_resolved` | Previous frame candidate confirmed                                           |
+| `has_progress`     | Whether new content was actually added                                       |
+| `reached_end`      | Whether the list end is determined                                           |
 
 Common issues:
 
-| Phenomenon                                | First Check                                      | Adjustment Direction                                                                 |
-| ----------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------ |
-| No accumulation growth after scrolling    | `row_offset <= 0`, `delta_reliable = false`      | Decrease `minMatchRatio`, or increase `matchDistanceThreshold`; also check if page actually changed after scrolling |
-| Accumulation skips rows or repeats        | `row_offset` fluctuates wildly                   | First check if `page_rows/page_cols` is stable, then increase `minMatchRatio`       |
-| Ends prematurely                          | `reached_end = true` but not at the bottom visually | Increase `endMinMatchRatio`, or increase single scroll distance to avoid repeated frames |
-| Keeps scrolling at the bottom             | Low `match_ratio` at the end page                | Decrease `endMinMatchRatio`, or ensure the waiting area is stable after scrolling    |
-| Middle pages often pending but not resolved | Large changes in consecutive screenshots or unstable waiting | Pipeline adds `post_wait_freezes`, do not add hard delays                            |
+| Phenomenon                                  | First Check                                                  | Adjustment Direction                                                                                                |
+| ------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| No accumulation growth after scrolling      | `row_offset <= 0`, `delta_reliable = false`                  | Decrease `minMatchRatio`, or increase `matchDistanceThreshold`; also check if page actually changed after scrolling |
+| Accumulation skips rows or repeats          | `row_offset` fluctuates wildly                               | First check if `page_rows/page_cols` is stable, then increase `minMatchRatio`                                       |
+| Ends prematurely                            | `reached_end = true` but not at the bottom visually          | Increase `endMinMatchRatio`, or increase single scroll distance to avoid repeated frames                            |
+| Keeps scrolling at the bottom               | Low `match_ratio` at the end page                            | Decrease `endMinMatchRatio`, or ensure the waiting area is stable after scrolling                                   |
+| Middle pages often pending but not resolved | Large changes in consecutive screenshots or unstable waiting | Pipeline adds `post_wait_freezes`, do not add hard delays                                                           |
 
 First ensure screenshots are stable after scrolling before adjusting these parameters. Unfinished scroll animation frames will make pHash delta appear random, and parameters will be unreliable no matter how adjusted.
 
@@ -495,19 +495,19 @@ Recommended fields:
 
 Field meanings:
 
-| Field                 | Source                               | Purpose                      |
-| --------------------- | ------------------------------------ | ---------------------------- |
-| `page_grid`           | `result.totalCells`                  | Number of valid cells on current page |
-| `cumulative_grid`     | `result.sessionTotalCells`           | Accumulated cell count       |
-| `known`               | `result.knownCells`                  | Number classified            |
-| `unknown`             | `result.unknownCells`                | Number unclassified          |
-| `page_rows/page_cols` | `result.rows/cols`                   | Current page detected rows/columns |
-| `rows/cols`           | `result.sessionRows/sessionCols`     | Accumulated session rows/columns |
-| `new_cells`           | `result.newCellIndices.size()`       | New cells in this frame      |
-| `row_offset`          | `result.rowOffset`                   | Rows advanced relative to previous state |
-| `delta_reliable`      | `result.deltaReliable`               | Whether alignment is reliable |
-| `reached_end`         | `result.reachedEnd`                  | Whether at list end          |
-| `match_ratio`         | `result.matchRatio`                  | Page overlap matching ratio  |
+| Field                 | Source                           | Purpose                                  |
+| --------------------- | -------------------------------- | ---------------------------------------- |
+| `page_grid`           | `result.totalCells`              | Number of valid cells on current page    |
+| `cumulative_grid`     | `result.sessionTotalCells`       | Accumulated cell count                   |
+| `known`               | `result.knownCells`              | Number classified                        |
+| `unknown`             | `result.unknownCells`            | Number unclassified                      |
+| `page_rows/page_cols` | `result.rows/cols`               | Current page detected rows/columns       |
+| `rows/cols`           | `result.sessionRows/sessionCols` | Accumulated session rows/columns         |
+| `new_cells`           | `result.newCellIndices.size()`   | New cells in this frame                  |
+| `row_offset`          | `result.rowOffset`               | Rows advanced relative to previous state |
+| `delta_reliable`      | `result.deltaReliable`           | Whether alignment is reliable            |
+| `reached_end`         | `result.reachedEnd`              | Whether at list end                      |
+| `match_ratio`         | `result.matchRatio`              | Page overlap matching ratio              |
 
 When exporting the complete result is needed, a business switch can be added, e.g., `return_cells`, to output only during debugging or when there is a consumer:
 
@@ -696,17 +696,17 @@ Scan-specific fields, such as `incremental`, `end_min_match_ratio`, and occupanc
 
 ## Quick Troubleshooting Table
 
-| Problem                    | First Check                             | Common Fix                                                                 |
-| -------------------------- | --------------------------------------- | -------------------------------------------------------------------------- |
-| Complete recognition failure on current page | `success/message`, `roi`                | Check if ROI is within the screenshot, if the screenshot is empty          |
-| Unstable row/column count  | `page_rows/page_cols`                   | Adjust `roi`, `rowThresholdRatio`, `colThresholdRatio`, `minKeptSegmentRatio` |
-| Many empty cells           | `page_grid` too large                   | Adjust occupancy filtering and mask                                        |
-| Items missed               | `page_grid` too small                   | Decrease occupancy filtering thresholds, check if mask occludes main body  |
-| Many unknowns              | `unknown`, classification scores        | Adjust templates, mask, `maxPhashDistance`, `minScore`                      |
-| Many misclassifications    | `score/templateScore/hueScore`          | Increase `minScore`, decrease `maxPhashDistance`, adjust `hueWeight`        |
-| No growth after scrolling  | `row_offset`, `delta_reliable`, `new_cells` | Wait for stability before scanning; adjust `matchDistanceThreshold`, `minMatchRatio` |
-| Ends prematurely           | `reached_end`, `match_ratio`            | Increase `endMinMatchRatio`, check scroll distance                         |
-| Does not stop at the end   | `match_ratio` on end page               | Decrease `endMinMatchRatio`, ensure end repeated page is stable            |
+| Problem                                      | First Check                                 | Common Fix                                                                           |
+| -------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Complete recognition failure on current page | `success/message`, `roi`                    | Check if ROI is within the screenshot, if the screenshot is empty                    |
+| Unstable row/column count                    | `page_rows/page_cols`                       | Adjust `roi`, `rowThresholdRatio`, `colThresholdRatio`, `minKeptSegmentRatio`        |
+| Many empty cells                             | `page_grid` too large                       | Adjust occupancy filtering and mask                                                  |
+| Items missed                                 | `page_grid` too small                       | Decrease occupancy filtering thresholds, check if mask occludes main body            |
+| Many unknowns                                | `unknown`, classification scores            | Adjust templates, mask, `maxPhashDistance`, `minScore`                               |
+| Many misclassifications                      | `score/templateScore/hueScore`              | Increase `minScore`, decrease `maxPhashDistance`, adjust `hueWeight`                 |
+| No growth after scrolling                    | `row_offset`, `delta_reliable`, `new_cells` | Wait for stability before scanning; adjust `matchDistanceThreshold`, `minMatchRatio` |
+| Ends prematurely                             | `reached_end`, `match_ratio`                | Increase `endMinMatchRatio`, check scroll distance                                   |
+| Does not stop at the end                     | `match_ratio` on end page                   | Decrease `endMinMatchRatio`, ensure end repeated page is stable                      |
 
 ## Build and Check
 

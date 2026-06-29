@@ -67,13 +67,13 @@ Optional parameters:
 
 Each time it is called, one of the following logics is executed based on the current frame's recognition result:
 
-| Condition                                                           | Action Taken        |
-| ------------------------------------------------------------------- | ------------------- |
-| Recognition box width < `far_target_width` (and `far_target_width` is set) | Move forward        |
-| Target is left of screen center (exceeds `align_threshold`)         | Rotate view left    |
-| Target is right of screen center (exceeds `align_threshold`)        | Rotate view right   |
-| Target is aligned, but Y-coordinate > 480 (target in lower half, passed) | Move backward       |
-| Target is aligned, and Y-coordinate ≤ 480 (target in upper half)    | Move forward        |
+| Condition                                                                  | Action Taken      |
+| -------------------------------------------------------------------------- | ----------------- |
+| Recognition box width < `far_target_width` (and `far_target_width` is set) | Move forward      |
+| Target is left of screen center (exceeds `align_threshold`)                | Rotate view left  |
+| Target is right of screen center (exceeds `align_threshold`)               | Rotate view right |
+| Target is aligned, but Y-coordinate > 480 (target in lower half, passed)   | Move backward     |
+| Target is aligned, and Y-coordinate ≤ 480 (target in upper half)           | Move forward      |
 
 ## Complete Example
 

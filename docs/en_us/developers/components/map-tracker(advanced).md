@@ -80,10 +80,10 @@ A threshold $k$ can be set. When $f(d, \Delta\theta) < k$, we consider that $p3$
 
 | Strategy     | Zipline Enabled | Approaching Zipline Point | Leaving Zipline Point | Between Zipline Points |
 | ------------ | --------------- | ------------------------: | --------------------: | ---------------------: |
-| `Never`      | No              |                      `64` |                  `16` |                   `2.0` |
-| `Lazy`       | Yes             |                      `64` |                  `16` |                   `2.0` |
-| `Active`     | Yes             |                       `8` |                   `4` |                   `0.5` |
-| `Aggressive` | Yes             |                       `1` |                   `1` |                  `0.25` |
+| `Never`      | No              |                      `64` |                  `16` |                  `2.0` |
+| `Lazy`       | Yes             |                      `64` |                  `16` |                  `2.0` |
+| `Active`     | Yes             |                       `8` |                   `4` |                  `0.5` |
+| `Aggressive` | Yes             |                       `1` |                   `1` |                 `0.25` |
 
 ## Maintenance Methods
 

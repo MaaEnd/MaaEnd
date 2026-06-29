@@ -6,20 +6,20 @@ This document was updated on June 6, 2026.
 
 ## File Paths
 
-| Path                                                        | Function                                       |
-| ----------------------------------------------------------- | ---------------------------------------------- |
-| `assets/interface.json`                                     | Task mounting (`other_menu` / `daily` group)   |
+| Path                                                        | Function                                                                                   |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `assets/interface.json`                                     | Task mounting (`other_menu` / `daily` group)                                               |
 | `assets/tasks/CreditShopping.json`                          | Task entry, three-tier purchases, reserve threshold, refresh and credit collection options |
-| `assets/resource/pipeline/CreditShopping/GoToShop.json`     | Enter shop and switch to credit exchange tab   |
-| `assets/resource/pipeline/CreditShopping/ClaimCredit.json`  | Claim pending credits                          |
-| `assets/resource/pipeline/CreditShopping/Shopping.json`     | Initialization, scan decision, purchase/refresh/end |
-| `assets/resource/pipeline/CreditShopping/Item.json`         | Item anchors, sold out status, price, name, discount recognition chain |
-| `assets/resource/pipeline/CreditShopping/BuyItem.json`      | Purchase popup confirmation and failure handling |
-| `assets/resource/pipeline/CreditShopping/BuyItemFocus.json` | Popup item OCR and purchase focus record       |
-| `assets/resource/pipeline/CreditShopping/Reflash.json`      | Refresh button, cost, unable-to-refresh state  |
-| `assets/resource/pipeline/DijiangRewards/NeedCredit.json`   | Return to base to replenish credit when credit is insufficient (clue exchange/gifting) |
-| `agent/go-service/common/attachregex/action.go`             | Merge attach keywords into OCR whitelist regex |
-| `assets/locales/interface/*.json`                           | Task, option, and focus text                   |
+| `assets/resource/pipeline/CreditShopping/GoToShop.json`     | Enter shop and switch to credit exchange tab                                               |
+| `assets/resource/pipeline/CreditShopping/ClaimCredit.json`  | Claim pending credits                                                                      |
+| `assets/resource/pipeline/CreditShopping/Shopping.json`     | Initialization, scan decision, purchase/refresh/end                                        |
+| `assets/resource/pipeline/CreditShopping/Item.json`         | Item anchors, sold out status, price, name, discount recognition chain                     |
+| `assets/resource/pipeline/CreditShopping/BuyItem.json`      | Purchase popup confirmation and failure handling                                           |
+| `assets/resource/pipeline/CreditShopping/BuyItemFocus.json` | Popup item OCR and purchase focus record                                                   |
+| `assets/resource/pipeline/CreditShopping/Reflash.json`      | Refresh button, cost, unable-to-refresh state                                              |
+| `assets/resource/pipeline/DijiangRewards/NeedCredit.json`   | Return to base to replenish credit when credit is insufficient (clue exchange/gifting)     |
+| `agent/go-service/common/attachregex/action.go`             | Merge attach keywords into OCR whitelist regex                                             |
+| `assets/locales/interface/*.json`                           | Task, option, and focus text                                                               |
 
 ## Execution Flow
 
@@ -84,11 +84,11 @@ Each tier needs to maintain nodes on both sides simultaneously; when troubleshoo
 
 The structure is the same for all three tiers, but the default strategies differ (`CreditShopping.json`):
 
-| Tier           | Default "Unconditional Purchase" | Default "Auto Replenish Credit" | Typical Use Case                 |
-| -------------- | -------------------------------- | ------------------------------- | -------------------------------- |
-| Priority 1     | On                               | On                              | Essential items worth buying even when credit is nearly depleted |
-| Priority 2     | Off                              | Off                             | Only buy if reserve threshold is met |
-| Priority 3     | Off                              | Off                             | Same as above, lower priority    |
+| Tier       | Default "Unconditional Purchase" | Default "Auto Replenish Credit" | Typical Use Case                                                 |
+| ---------- | -------------------------------- | ------------------------------- | ---------------------------------------------------------------- |
+| Priority 1 | On                               | On                              | Essential items worth buying even when credit is nearly depleted |
+| Priority 2 | Off                              | Off                             | Only buy if reserve threshold is met                             |
+| Priority 3 | Off                              | Off                             | Same as above, lower priority                                    |
 
 Each tier can be independently configured: selected items, minimum discount, whether to skip the reserve threshold, whether to allow credit replenishment when unaffordable.  
 Only after all three tiers fail to match does the unified reserve threshold node handle the fallback exit.
@@ -119,11 +119,11 @@ Discount rules must cover both the affordable and unaffordable sides.
 
 The fallback after all three tiers fail to match is determined by `CreditShoppingForce`:
 
-| Strategy           | Behavior                             |
-| ------------------ | ------------------------------------ |
-| Exit               | Do not purchase any item, do not refresh, end directly |
-| Ignore Blacklist   | Purchase any affordable, not sold-out item |
-| Refresh            | Attempt to refresh the shelf; can expand to "stable refresh" |
+| Strategy         | Behavior                                                     |
+| ---------------- | ------------------------------------------------------------ |
+| Exit             | Do not purchase any item, do not refresh, end directly       |
+| Ignore Blacklist | Purchase any affordable, not sold-out item                   |
+| Refresh          | Attempt to refresh the shelf; can expand to "stable refresh" |
 
 **Stable Refresh**: If "Current credit − Refresh cost < Stable refresh threshold" and there are still purchasable items on the shelf, then do not refresh, but directly purchase instead.  
 This threshold and the "Reserve Credit Points" are two independent conditions; do not mix them.
@@ -140,12 +140,12 @@ After adding a case, remember to check whether `default_case` also needs to incl
 
 ## Maintenance Key Points
 
-| Phenomenon                   | Priority Check                                                   |
-| ---------------------------- | ---------------------------------------------------------------- |
-| Target item not recognized   | The merged attach regex; recognition chain from black → pink layer by layer |
-| Affordable but not purchasing | The tier's reserve threshold / unconditional purchase switch     |
+| Phenomenon                               | Priority Check                                                                   |
+| ---------------------------------------- | -------------------------------------------------------------------------------- |
+| Target item not recognized               | The merged attach regex; recognition chain from black → pink layer by layer      |
+| Affordable but not purchasing            | The tier's reserve threshold / unconditional purchase switch                     |
 | Unaffordable but not replenishing credit | The tier's AutoGetCredits switch; the unaffordable side's whitelist and discount |
-| Abnormal refresh behavior    | `CreditShoppingForce`; stable refresh threshold                 |
-| Inconsistent behavior between options | `CreditShopping.json`'s `pipeline_override` and scan `next` order |
+| Abnormal refresh behavior                | `CreditShoppingForce`; stable refresh threshold                                  |
+| Inconsistent behavior between options    | `CreditShopping.json`'s `pipeline_override` and scan `next` order                |
 
 Maintenance location is done in four layers: Entry (enter shop, claim credit) → Scan Decision (buy/stop/replenish/refresh) → Recognition Chain (`Item.json`) → Parameter Assembly (task options + Go).

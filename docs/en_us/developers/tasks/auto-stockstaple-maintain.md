@@ -6,24 +6,24 @@ This document was updated on June 6, 2026.
 
 ## File Paths
 
-| Path | Purpose |
-| --- | --- |
-| `assets/interface.json` | Task mounting (`regional_development` group) |
-| `assets/tasks/AutoStockStaple.json` | Task entry point, region switches, item selection, upper limits, and discount options |
-| `assets/resource/pipeline/AutoStockStaple/Main.json` | Execution cycle, entry initialization, regional sub-task dispatch |
-| `assets/resource/pipeline/AutoStockStaple/ValleyIV.json` | Valley IV list scan loop |
-| `assets/resource/pipeline/AutoStockStaple/Wuling.json` | Wuling list scan loop |
-| `assets/resource/pipeline/AutoStockStaple/General/Item.json` | Item anchors, name/discount recognition, BetterSliding, purchase confirmation |
-| `assets/resource/pipeline/AutoStockStaple/General/Goods.json` | Item OCR within the purchase popup |
-| `assets/resource/pipeline/AutoStockStaple/General/GoodsCountValidate.json` | OCR of held quantity in the top-right corner of the popup |
-| `assets/resource/pipeline/AutoStockStaple/General/QuantityControl.json` | Popup branch dispatch, item exclusion, purchase confirmation |
-| `assets/resource/pipeline/AutoStockStaple/General/Template.json` | Common templates for sold-out, dispatch tickets, purchase confirmation, etc. |
-| `assets/resource/pipeline/Interface/InScene/StockStaple.json` | Region and stable supply interface scene recognition |
-| `assets/resource_adb/pipeline/AutoStockStaple/` | ADB ROI offset mirror (must be checked in sync with Win32) |
-| `agent/go-service/autostockstaple/action.go` | Calculates purchase quantity and drives BetterSliding |
-| `agent/go-service/common/attachregex/action.go` | Merges attach keywords into an OCR whitelist regex |
-| `tools/pipeline-generate/AutoStockStaple/General/` | Batch generation of Goods / CountValidate / QuantityControl |
-| `assets/locales/interface/*.json` | Task, option, and focus text |
+| Path                                                                       | Purpose                                                                               |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `assets/interface.json`                                                    | Task mounting (`regional_development` group)                                          |
+| `assets/tasks/AutoStockStaple.json`                                        | Task entry point, region switches, item selection, upper limits, and discount options |
+| `assets/resource/pipeline/AutoStockStaple/Main.json`                       | Execution cycle, entry initialization, regional sub-task dispatch                     |
+| `assets/resource/pipeline/AutoStockStaple/ValleyIV.json`                   | Valley IV list scan loop                                                              |
+| `assets/resource/pipeline/AutoStockStaple/Wuling.json`                     | Wuling list scan loop                                                                 |
+| `assets/resource/pipeline/AutoStockStaple/General/Item.json`               | Item anchors, name/discount recognition, BetterSliding, purchase confirmation         |
+| `assets/resource/pipeline/AutoStockStaple/General/Goods.json`              | Item OCR within the purchase popup                                                    |
+| `assets/resource/pipeline/AutoStockStaple/General/GoodsCountValidate.json` | OCR of held quantity in the top-right corner of the popup                             |
+| `assets/resource/pipeline/AutoStockStaple/General/QuantityControl.json`    | Popup branch dispatch, item exclusion, purchase confirmation                          |
+| `assets/resource/pipeline/AutoStockStaple/General/Template.json`           | Common templates for sold-out, dispatch tickets, purchase confirmation, etc.          |
+| `assets/resource/pipeline/Interface/InScene/StockStaple.json`              | Region and stable supply interface scene recognition                                  |
+| `assets/resource_adb/pipeline/AutoStockStaple/`                            | ADB ROI offset mirror (must be checked in sync with Win32)                            |
+| `agent/go-service/autostockstaple/action.go`                               | Calculates purchase quantity and drives BetterSliding                                 |
+| `agent/go-service/common/attachregex/action.go`                            | Merges attach keywords into an OCR whitelist regex                                    |
+| `tools/pipeline-generate/AutoStockStaple/General/`                         | Batch generation of Goods / CountValidate / QuantityControl                           |
+| `assets/locales/interface/*.json`                                          | Task, option, and focus text                                                          |
 
 ## Execution Flow
 
@@ -113,11 +113,11 @@ Matched when `limit <= current_held_quantity`:
 
 ### Runtime Override Summary
 
-| Timing | Action | Purpose |
-| --- | --- | --- |
-| Task Entry | `AttachToExpectedRegexAction` | Merge attach → item name OCR regex |
-| After Item Exclusion | `PipelineOverrideAction` + then `AttachToExpectedRegexAction` | Remove attach key and refresh whitelist |
-| Before Confirming Purchase | `AutoStockStapleQuantityControlAction` | Calculate difference and override BetterSliding target quantity |
+| Timing                     | Action                                                        | Purpose                                                         |
+| -------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------- |
+| Task Entry                 | `AttachToExpectedRegexAction`                                 | Merge attach → item name OCR regex                              |
+| After Item Exclusion       | `PipelineOverrideAction` + then `AttachToExpectedRegexAction` | Remove attach key and refresh whitelist                         |
+| Before Confirming Purchase | `AutoStockStapleQuantityControlAction`                        | Calculate difference and override BetterSliding target quantity |
 
 ## Paths to Modify When Adding a New Item
 
@@ -180,9 +180,9 @@ The `AutoStockUseDiscountsValleyIV` option can rewrite this node:
 
 Unlike the Credit Store, the stable supply list scan **does not** have a separate "unit price ColorMatch / CanAfford" node. Affordability is handled in two layers:
 
-| Stage | Mechanism |
-| --- | --- |
-| Before List Scan | `AutoStockTargetCanNotBuyValleyIV`: Whether remaining dispatch tickets are still above the retention threshold |
+| Stage                 | Mechanism                                                                                                             |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Before List Scan      | `AutoStockTargetCanNotBuyValleyIV`: Whether remaining dispatch tickets are still above the retention threshold        |
 | Within Purchase Popup | `AutoStockStapleGoodsStockBillInsufficientValidate`: Recognizes the bottom red "Insufficient Dispatch Tickets" prompt |
 
 Therefore, the `And` conditions for `AutoStockBuyItemValleyIVTask` are:
@@ -282,11 +282,11 @@ The Exclude branch **does not** purchase; it only removes "reached target" items
 
 This task has two types of runtime overrides; do not confuse them during maintenance:
 
-| Action | Trigger Location | Purpose |
-| --- | --- | --- |
-| `AttachToExpectedRegexAction` | `AutoStockStapleMain` entry; Exclude → Reset node | Merge attach keywords → OCR whitelist regex |
-| `PipelineOverrideAction` | Each item's `{Item}RemoveFilter` | Set specified attach key to `false`, excluding the item |
-| `AutoStockStapleQuantityControlAction` | Each item's `{Item}Buy` | Calculate difference and override BetterSliding's `Target` / `enabled` |
+| Action                                 | Trigger Location                                  | Purpose                                                                |
+| -------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------- |
+| `AttachToExpectedRegexAction`          | `AutoStockStapleMain` entry; Exclude → Reset node | Merge attach keywords → OCR whitelist regex                            |
+| `PipelineOverrideAction`               | Each item's `{Item}RemoveFilter`                  | Set specified attach key to `false`, excluding the item                |
+| `AutoStockStapleQuantityControlAction` | Each item's `{Item}Buy`                           | Calculate difference and override BetterSliding's `Target` / `enabled` |
 
 `attach` semantics (see `attachregex/action.go`):
 
@@ -324,22 +324,22 @@ The existing Wuling implementation is a mirror of Valley IV; you can directly di
 
 ## Debugging Suggestions
 
-| Symptom | Priority Check |
-| --- | --- |
-| Target item not recognized in list | `AttachToExpectedRegexAction`'s `expected` regex in `go-service.log`; whether anchor `AutoStockInStapleItem` matched |
-| Item recognized but not purchased | Whether quantity control went to `Exclude` or `StockBillInsufficient`; `AutoStockStapleQuantityControl{Item}Buy/Exclude` in `maafw*.log` |
-| Purchase quantity is incorrect | `threshold/current_count/target` in `AutoStockStapleQuantityControlAction` log; BetterSliding ROI |
-| Scanning stops even though dispatch tickets seem sufficient | `AutoStockTargetCompareValleyIV` expression and user input `{ReserveValleyIV}` |
-| Repeatedly clicking the same reached-target item | Whether `{Item}RemoveFilter` and `ResetRecognitionParams` executed after Exclude |
+| Symptom                                                     | Priority Check                                                                                                                           |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Target item not recognized in list                          | `AttachToExpectedRegexAction`'s `expected` regex in `go-service.log`; whether anchor `AutoStockInStapleItem` matched                     |
+| Item recognized but not purchased                           | Whether quantity control went to `Exclude` or `StockBillInsufficient`; `AutoStockStapleQuantityControl{Item}Buy/Exclude` in `maafw*.log` |
+| Purchase quantity is incorrect                              | `threshold/current_count/target` in `AutoStockStapleQuantityControlAction` log; BetterSliding ROI                                        |
+| Scanning stops even though dispatch tickets seem sufficient | `AutoStockTargetCompareValleyIV` expression and user input `{ReserveValleyIV}`                                                           |
+| Repeatedly clicking the same reached-target item            | Whether `{Item}RemoveFilter` and `ResetRecognitionParams` executed after Exclude                                                         |
 
 Log analysis can reference the skill: `.claude/skills/autostockstaple-log-analysis/SKILL.md`.
 
 ## Differences from AutoStockpile
 
-| Aspect | AutoStockStaple (Stable Demand) | AutoStockpile (Flexible Stockpiling) |
-| --- | --- | --- |
-| Decision Core | Pipeline + minimal Go | Go Service dominated |
-| Item Location | List time anchor + OCR offset chain | Template matching + OCR mapping |
-| Quantity Control | Popup BetterSliding + expressions | Go parses detail page to adjust |
+| Aspect           | AutoStockStaple (Stable Demand)     | AutoStockpile (Flexible Stockpiling) |
+| ---------------- | ----------------------------------- | ------------------------------------ |
+| Decision Core    | Pipeline + minimal Go               | Go Service dominated                 |
+| Item Location    | List time anchor + OCR offset chain | Template matching + OCR mapping      |
+| Quantity Control | Popup BetterSliding + expressions   | Go parses detail page to adjust      |
 
 Both have similar interfaces but independent logic; log analysis is in `.claude/skills/autostockstaple-log-analysis/SKILL.md`.

@@ -56,11 +56,11 @@ Each step of operation is based on recognition.
 For example:
 
 1. In interface navigation, you need to recognize the navigation button → click the navigation button → recognize that the interface has finished navigating.
-_You cannot guarantee that the screen will still be the same after clicking the close button. In extreme cases, a game might pop up a new pool announcement, and directly clicking the next node might lead you into the gacha system._
-_You cannot guarantee whether background loading is needed during interface navigation, causing the screen to freeze. Directly clicking the next node might have no effect._
+   _You cannot guarantee that the screen will still be the same after clicking the close button. In extreme cases, a game might pop up a new pool announcement, and directly clicking the next node might lead you into the gacha system._
+   _You cannot guarantee whether background loading is needed during interface navigation, causing the screen to freeze. Directly clicking the next node might have no effect._
 
-2. When clicking a button that changes account data, you need to recognize the submit button → click the submit button → recognize that the button click was successful._
-_You cannot guarantee that every user's network is smooth. If the button click event does not successfully interact with the server, the entire interactive interface may freeze and become unresponsive, no matter how many times you click._
+2. When clicking a button that changes account data, you need to recognize the submit button → click the submit button → recognize that the button click was successful.\_
+   _You cannot guarantee that every user's network is smooth. If the button click event does not successfully interact with the server, the entire interactive interface may freeze and become unresponsive, no matter how many times you click._
 
 ### Do Not Blindly Retry or Add Limits
 
@@ -71,13 +71,13 @@ _You cannot guarantee that every user's network is smooth. If the button click e
 For example:
 
 1. When a click has no response, clicking again.
-_Wait for the screen to stabilize using `pre_wait_freezes`, `post_wait_freezes`, or add an intermediate node to confirm the button is clickable before executing. The second click might have already acted on an element on the next screen. See [Issue #816](https://github.com/MaaEnd/MaaEnd/issues/816) for details._
+   _Wait for the screen to stabilize using `pre_wait_freezes`, `post_wait_freezes`, or add an intermediate node to confirm the button is clickable before executing. The second click might have already acted on an element on the next screen. See [Issue #816](https://github.com/MaaEnd/MaaEnd/issues/816) for details._
 
 2. Rerunning a sub-task after it fails.
-_Retrying only slightly increases the success rate and does not fundamentally solve the problem. It only makes the code harder to maintain, eventually leading to trying A, then B, then C if it fails, retrying A 3 times and B 2 times, making the problem difficult to locate._
+   _Retrying only slightly increases the success rate and does not fundamentally solve the problem. It only makes the code harder to maintain, eventually leading to trying A, then B, then C if it fails, retrying A 3 times and B 2 times, making the problem difficult to locate._
 
-3. Adding max_hit after a node enters an infinite loop.
-_An infinite loop is usually caused by recognition issues or logical flaws. Blindly adding `max_hit` will only interrupt the logic, similar to blindly throwing exceptions in code to break out of a task, leading to unpredictable consequences._
+3. Adding max*hit after a node enters an infinite loop.
+   \_An infinite loop is usually caused by recognition issues or logical flaws. Blindly adding `max_hit` will only interrupt the logic, similar to blindly throwing exceptions in code to break out of a task, leading to unpredictable consequences.*
 
 ### Handling Pop-ups and Loading
 
@@ -233,12 +233,12 @@ MaaEnd uses maa-tools for node testing. See [Node Testing Documentation](./node-
 
 ## Common Pitfalls
 
-| Pitfall | Handling |
-| ----------------------------------- | --------------------------------------------------------------------------------------- |
-| `pnpm check` / `pnpm test` fails to run | `pnpm install` |
-| Model or C++ dependency directory missing | `git submodule update --init --recursive` or `python tools/setup_workspace.py --update` |
-| Go changes not taking effect | Forgot `python tools/build_and_install.py` |
-| Directly referenced `__ScenePrivate*` nodes | Should reference scene interface nodes exposed in the `Interface` directory |
-| Only focusing on the main flow, not handling pop-ups/loading | Treat pop-ups, loading, and intermediate states as normal scenarios |
-| Changed tasks but didn't add text | Text goes in `assets/locales/` |
-| Runs locally but not for others | Filters enabled/different frame rates/slightly different colors due to different GPUs/RGB too rigid |
+| Pitfall                                                      | Handling                                                                                            |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| `pnpm check` / `pnpm test` fails to run                      | `pnpm install`                                                                                      |
+| Model or C++ dependency directory missing                    | `git submodule update --init --recursive` or `python tools/setup_workspace.py --update`             |
+| Go changes not taking effect                                 | Forgot `python tools/build_and_install.py`                                                          |
+| Directly referenced `__ScenePrivate*` nodes                  | Should reference scene interface nodes exposed in the `Interface` directory                         |
+| Only focusing on the main flow, not handling pop-ups/loading | Treat pop-ups, loading, and intermediate states as normal scenarios                                 |
+| Changed tasks but didn't add text                            | Text goes in `assets/locales/`                                                                      |
+| Runs locally but not for others                              | Filters enabled/different frame rates/slightly different colors due to different GPUs/RGB too rigid |

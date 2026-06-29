@@ -165,10 +165,10 @@ Confirm that the shared `tierBases` covers the tiers required by the new region.
 
 Add the following fields in all language versions of `assets/locales/interface/*.json`:
 
-| Field Key                                                         | Purpose                  |
-| ----------------------------------------------------------------- | ------------------------ |
+| Field Key                                                         | Purpose                    |
+| ----------------------------------------------------------------- | -------------------------- |
 | `global.region.{NewRegion}`                                       | Region global display name |
-| `task.AutoStockpile.option.AutoStockpileElastic{NewRegion}.label` | Task option label        |
+| `task.AutoStockpile.option.AutoStockpileElastic{NewRegion}.label` | Task option label          |
 
 Language files to update: `zh_cn.json`, `en_us.json`, `ja_jp.json`, `ko_kr.json`, `zh_tw.json`.
 

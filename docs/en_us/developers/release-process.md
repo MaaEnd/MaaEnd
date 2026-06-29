@@ -10,10 +10,10 @@ The following content is essential for all contributors to understand. It primar
 
 ### Branch Model
 
-| Branch           | Purpose                               | Allowed merge types                                      |
-| ---------------- | ------------------------------------ | -------------------------------------------------------- |
-| `v2`           | Main development branch                         | `feat` `refactor` `perf` `fix` `docs` `chore` … All types |
-| `release/vX.Y` | Current release branch (e.g., `release/v2.16`) | **Only `fix`**                                             |
+| Branch         | Purpose                                        | Allowed merge types                                       |
+| -------------- | ---------------------------------------------- | --------------------------------------------------------- |
+| `v2`           | Main development branch                        | `feat` `refactor` `perf` `fix` `docs` `chore` … All types |
+| `release/vX.Y` | Current release branch (e.g., `release/v2.16`) | **Only `fix`**                                            |
 
 > Daily development (new features, refactoring, bug fixes) defaults to submitting PRs to the `v2` branch. The `release/vX.Y` branch is used only in specific scenarios.
 
@@ -63,11 +63,11 @@ Daily     Beta (vX.Y.Z-beta.N) → Based on v2 (No Beta on Thursdays; RC is rele
 
 ### Automation
 
-| Trigger Event                 | Automatic Behavior                                      | Workflow                      |
-| ------------------------ | --------------------------------------------- | --------------------------- |
-| RC version release              | Creates the `release/vX.Y` branch                      | `create-release-branch.yml` |
-| Stable `.0` release         | Deletes old `release/v*` branches (excluding those with open PRs) | `create-release-branch.yml` |
-| Fix PR merged into release branch | Cherry-picks to `fix/pr-N` and creates a PR to `v2`   | `cherry-pick-to-v2.yml`     |
+| Trigger Event                     | Automatic Behavior                                                | Workflow                    |
+| --------------------------------- | ----------------------------------------------------------------- | --------------------------- |
+| RC version release                | Creates the `release/vX.Y` branch                                 | `create-release-branch.yml` |
+| Stable `.0` release               | Deletes old `release/v*` branches (excluding those with open PRs) | `create-release-branch.yml` |
+| Fix PR merged into release branch | Cherry-picks to `fix/pr-N` and creates a PR to `v2`               | `cherry-pick-to-v2.yml`     |
 
 ### Hotfix Process
 

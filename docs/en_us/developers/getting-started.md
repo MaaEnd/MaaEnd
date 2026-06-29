@@ -35,13 +35,13 @@ pnpm install
 
 **Common parameters for `setup_workspace.py`:**
 
-| Parameter             | Description                                                                                               |
-| --------------------- | --------------------------------------------------------------------------------------------------------- |
-| (No parameters)       | First-time initialization, skips already installed components                                              |
-| `--update`            | Force update all installed dependencies to the latest version                                              |
-| `--clean-cache`       | Clean the download cache directory                                                                         |
+| Parameter             | Description                                                                                                      |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| (No parameters)       | First-time initialization, skips already installed components                                                    |
+| `--update`            | Force update all installed dependencies to the latest version                                                    |
+| `--clean-cache`       | Clean the download cache directory                                                                               |
 | `--cpp-algo-pr <N>`   | Download cpp-algo from the latest successful CI run of a specified PR (for quick testing of unmerged PR changes) |
-| `--cpp-algo-run <ID>` | Download cpp-algo from a specified workflow run ID                                                         |
+| `--cpp-algo-run <ID>` | Download cpp-algo from a specified workflow run ID                                                               |
 
 > `--cpp-algo-pr` and `--cpp-algo-run` are mutually exclusive; choose one. If not specified, defaults to downloading from the latest push build of the `v2` branch.
 
@@ -283,10 +283,10 @@ It is recommended to directly call existing scene transition nodes. After comple
 
 Common reusable entry points are listed below:
 
-| Node             | Description                                                                        | Documentation                                   |
-| ---------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------- |
-| Common Buttons   | White/yellow confirm, cancel, close, teleport, etc.                                | [common-buttons.md](./common-buttons.md)       |
-| SceneManager     | Universal jump: automatically navigate to the target scene from any interface      | [scene-manager.md](./scene-manager.md)         |
+| Node           | Description                                                                   | Documentation                            |
+| -------------- | ----------------------------------------------------------------------------- | ---------------------------------------- |
+| Common Buttons | White/yellow confirm, cancel, close, teleport, etc.                           | [common-buttons.md](./common-buttons.md) |
+| SceneManager   | Universal jump: automatically navigate to the target scene from any interface | [scene-manager.md](./scene-manager.md)   |
 
 ## 5. Debugging and Testing
 

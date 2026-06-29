@@ -21,47 +21,47 @@ The execution path for a task:
 
 ## Determining "Which Part to Modify This Time"
 
-| Change Type | Where to Look |
-|---|---|
-| Interface text, task names, option text | `assets/locales/interface/zh_cn.json` |
-| Task orchestration, entry nodes, UI options | `assets/tasks/**/*.json` |
-| Recognition, clicking, jumping, waiting, process details | `assets/resource/pipeline/**/*.json` |
-| Complex logic (algorithms, traversal, calculations) | `agent/go-service/**` |
+| Change Type                                              | Where to Look                         |
+| -------------------------------------------------------- | ------------------------------------- |
+| Interface text, task names, option text                  | `assets/locales/interface/zh_cn.json` |
+| Task orchestration, entry nodes, UI options              | `assets/tasks/**/*.json`              |
+| Recognition, clicking, jumping, waiting, process details | `assets/resource/pipeline/**/*.json`  |
+| Complex logic (algorithms, traversal, calculations)      | `agent/go-service/**`                 |
 
 ## Pipeline Reusable Nodes
 
 The following nodes can be called directly within Pipelines. It is recommended that all developers master them first:
 
-| Node | Description | Documentation |
-|---|---|---|
-| Common Buttons | White/yellow confirm, cancel, close, teleport, etc. | [common-buttons.md](./common-buttons.md) |
-| InScene | Universal scene recognition: determines the current screen scene | [in-scene.md](./in-scene.md) |
-| SceneManager | Universal navigation: automatically navigates to the target scene from any interface | [scene-manager.md](./scene-manager.md) |
+| Node           | Description                                                                          | Documentation                            |
+| -------------- | ------------------------------------------------------------------------------------ | ---------------------------------------- |
+| Common Buttons | White/yellow confirm, cancel, close, teleport, etc.                                  | [common-buttons.md](./common-buttons.md) |
+| InScene        | Universal scene recognition: determines the current screen scene                     | [in-scene.md](./in-scene.md)             |
+| SceneManager   | Universal navigation: automatically navigates to the target scene from any interface | [scene-manager.md](./scene-manager.md)   |
 
 ## Custom Reusable Nodes
 
 The following nodes are implemented based on Go/C++ and have high business-specific features. According to the [coding standards](./coding-standards.md#go-service-standards), they should not be used unnecessarily.
 
-| Node | Description | Documentation |
-|---|---|---|
-| SubTask / ClearHitCount / ExpressionRecognition | Sub-task scheduling, count clearing, expression recognition | [custom.md](./custom.md) |
-| AutoFight | Automatic operation during combat | [components/auto-fight.md](./components/auto-fight.md) |
-| CharacterController | Character view rotation, movement, facing targets | [components/character-controller.md](./components/character-controller.md) |
-| BetterSliding | Discrete quantity slider adjustment | [components/better-sliding.md](./components/better-sliding.md) |
-| MapLocator | AI + CV minimap positioning | [components/map-locator.md](./components/map-locator.md) |
-| MapTracker | Minimap tracking and path movement | [components/map-tracker.md](./components/map-tracker.md) |
-| MapNavigator | High-precision automatic navigation + BaseNav A* preview | [components/map-navigator.md](./components/map-navigator.md) |
-| RecoGrid Engine | C++ grid recognition and rolling cumulative scanning engine | [components/recogrid-engine.md](./components/recogrid-engine.md) |
+| Node                                            | Description                                                 | Documentation                                                              |
+| ----------------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------- |
+| SubTask / ClearHitCount / ExpressionRecognition | Sub-task scheduling, count clearing, expression recognition | [custom.md](./custom.md)                                                   |
+| AutoFight                                       | Automatic operation during combat                           | [components/auto-fight.md](./components/auto-fight.md)                     |
+| CharacterController                             | Character view rotation, movement, facing targets           | [components/character-controller.md](./components/character-controller.md) |
+| BetterSliding                                   | Discrete quantity slider adjustment                         | [components/better-sliding.md](./components/better-sliding.md)             |
+| MapLocator                                      | AI + CV minimap positioning                                 | [components/map-locator.md](./components/map-locator.md)                   |
+| MapTracker                                      | Minimap tracking and path movement                          | [components/map-tracker.md](./components/map-tracker.md)                   |
+| MapNavigator                                    | High-precision automatic navigation + BaseNav A\* preview   | [components/map-navigator.md](./components/map-navigator.md)               |
+| RecoGrid Engine                                 | C++ grid recognition and rolling cumulative scanning engine | [components/recogrid-engine.md](./components/recogrid-engine.md)           |
 
 ## Task Maintenance Documentation
 
 The following tasks have dedicated maintenance documentation. **You must read the corresponding documentation before modifying these tasks**:
 
-| Task | Documentation |
-|---|---|
-| AutoStockpile (Automatic Stockpiling) | [tasks/auto-stockpile-maintain.md](./tasks/auto-stockpile-maintain.md) |
-| DijiangRewards (Base Building Tasks) | [tasks/dijiang-rewards-maintain.md](./tasks/dijiang-rewards-maintain.md) |
-| CreditShopping (Credit Point Store) | [tasks/credit-shopping-maintain.md](./tasks/credit-shopping-maintain.md) |
+| Task                                  | Documentation                                                            |
+| ------------------------------------- | ------------------------------------------------------------------------ |
+| AutoStockpile (Automatic Stockpiling) | [tasks/auto-stockpile-maintain.md](./tasks/auto-stockpile-maintain.md)   |
+| DijiangRewards (Base Building Tasks)  | [tasks/dijiang-rewards-maintain.md](./tasks/dijiang-rewards-maintain.md) |
+| CreditShopping (Credit Point Store)   | [tasks/credit-shopping-maintain.md](./tasks/credit-shopping-maintain.md) |
 
 ## External Documentation
 
