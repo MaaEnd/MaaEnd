@@ -1,8 +1,5 @@
 {
-    "CloseGame": {
-        "action": "StopApp",
-        "package": ""
-    },
+    "CloseGame": {    },
     "CloseGame_CN": {
         "action": "StopApp",
         "package": ""

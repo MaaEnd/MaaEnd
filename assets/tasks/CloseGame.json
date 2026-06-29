@@ -10,8 +10,10 @@
             ],
             "option": [
                 "ClientVersion"
+            ],
+            "controller": [
+                "ADB"
             ]
         }
-    ],
-    "option": {}
+    ]
 }
