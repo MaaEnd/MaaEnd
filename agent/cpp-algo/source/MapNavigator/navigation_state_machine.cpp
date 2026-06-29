@@ -628,6 +628,12 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
                 << VAR(route->path.points.size());
         return false;
     }
+    if (generated_prefix.empty()
+        && std::hypot(anchor.x - position_->x, anchor.y - position_->y) > ArrivalBandForStartupBypass(anchor)) {
+        generated_prefix.emplace_back(position_->x, position_->y, ActionType::RUN);
+        LogInfo << "Dynamic overlay seeded leading node to avoid single-point path." << VAR(reason)
+                << VAR(continue_index) << VAR(position_->x) << VAR(position_->y);
+    }
     const size_t generated_count = generated_prefix.size();
     session_->ApplyDynamicOverlay(std::move(generated_prefix), continue_index, *position_);
     runtime_state_.route.Reset();

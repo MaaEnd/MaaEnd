@@ -33,8 +33,8 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const navmesh::WorldPoint& goal,
     const std::vector<uint32_t>& blocked_triangles = {});
 // Resample `poly` at ~`step` world units (clamped to >=0.1) and invoke `fn` on the leading vertex and
-// every resampled point. Shared by NavmeshOffMeshFraction and NavRunController's CorridorCoincidence so
-// both sampling passes stay identical. Caller guards poly.size() >= 2 for a meaningful result.
+// every resampled point. Used by NavmeshOffMeshFraction. Caller guards poly.size() >= 2 for a
+// meaningful result.
 template <typename Fn>
 void ForEachResampledPoint(const std::vector<navmesh::WorldPoint>& poly, double step, Fn&& fn)
 {

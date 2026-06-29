@@ -125,11 +125,6 @@ constexpr int32_t kNavRunSoftReplanCooldownMs = 1200;
 constexpr int32_t kNavRunSoftReplanMaxPerAnchor = 3;
 constexpr int32_t kNavRunProgressRegressionMs = 800;
 
-constexpr double kCorridorLiteralFidelityEpsilonM = 2.0;     // corridor sample within this of the line "coincides"
-constexpr double kCorridorLiteralMinCoincidence = 0.5;       // coincidence below this => corridor detoured (route3 ~0.05)
-constexpr double kCorridorLiteralMinOffMeshFraction = 0.15;  // span must be this much off-mesh to qualify (route3 ~0.43)
-constexpr double kCorridorLiteralSampleStepM = 1.0;          // resample step (world units)
-
 // --- Zone / Portal / Transfer Constants ---
 constexpr int32_t kZoneConfirmRetryIntervalMs = 120;
 constexpr int32_t kZoneConfirmTimeoutMs = 12000;
