@@ -1,11 +1,11 @@
-# Development Guide - Custom Action and Recognition Reference
+# Development Manual - Custom Actions and Recognition Reference
 
-`Custom` is used in Pipeline to invoke project-registered custom logic. It has two forms:
+`Custom` is used to invoke custom logic registered on the project side within a Pipeline. It is divided into two categories:
 
-- `Custom Action`: executes action logic such as subtask scheduling, state cleanup, or complex interactions.
-- `Custom Recognition`: executes recognition logic and returns whether it matches, optionally with detail payload.
+- `Custom Action`: Executes action logic, such as subtask scheduling, state cleanup, and complex interactions.
+- `Custom Recognition`: Executes recognition logic, returns whether it matches, and optionally provides detailed recognition results.
 
-Go implementations in this project are usually located under `agent/go-service/` and registered via:
+Go implementations in the project are typically located under `agent/go-service/` and are registered via:
 
 - `maa.AgentServerRegisterCustomAction(...)`
 - `maa.AgentServerRegisterCustomRecognition(...)`
@@ -14,7 +14,7 @@ Go implementations in this project are usually located under `agent/go-service/`
 
 ## Custom Action
 
-An action node can invoke a custom action like this:
+Action nodes are used to execute custom actions. A common format is as follows:
 
 ```json
 {
@@ -26,70 +26,66 @@ An action node can invoke a custom action like this:
 }
 ```
 
-- `custom_action`: the registered action name.
-- `custom_action_param`: any JSON value, serialized by the framework and passed to the implementation.
+- `custom_action`: The registration name.
+- `custom_action_param`: An arbitrary JSON value, serialized by the framework and passed to the implementation side.
 
 ### SubTask
 
-`SubTask` is implemented in `agent/go-service/subtask` and runs a list of subtasks in sequence.
+The `SubTask` implementation is located in `agent/go-service/subtask` and is used to execute a series of subtasks sequentially.
 
 - Parameters:
-    - `sub: string[]`: required list of subtask names.
-    - `continue?: bool`: whether to continue after a subtask fails. Default is `false`.
-    - `strict?: bool`: whether the current action should fail when a subtask fails. Default is `true`.
+    - `sub: string[]`: A list of subtask names. Required.
+    - `continue?: bool`: Whether to continue executing subsequent subtasks if one fails. Default is `false`.
+    - `strict?: bool`: Whether the current Action returns a failure if any subtask fails. Default is `true`.
 
 Example file: [`SubTask.json`](../../../assets/resource/pipeline/Interface/Example/SubTask.json)
 
 ### ClearHitCount
 
-`ClearHitCount` is implemented in `agent/go-service/clearhitcount` and clears hit counters of specific nodes.
+The `ClearHitCount` implementation is located in `agent/go-service/clearhitcount` and is used to clear the hit count of specified nodes.
 
 - Parameters:
-    - `nodes: string[]`: required list of node names to clear.
-    - `strict?: bool`: whether the current action should fail when clearing any node fails. Default is `false`.
+    - `nodes: string[]`: A list of node names to clear. Required.
+    - `strict?: bool`: Whether the current Action returns a failure if clearing any node fails. Default is `false`.
 
 Example file: [`ClearHitCount.json`](../../../assets/resource/pipeline/Interface/Example/ClearHitCount.json)
 
+### FalseAction
+
+The `FalseAction` implementation is located in `agent/go-service/common/falseaction` and always returns a failure. It is commonly used as a placeholder in Pipelines where an Action needs to be forced to fail.
+
+- Parameters: None.
+
 ### PipelineOverride
 
-`PipelineOverride` is implemented in `agent/go-service/common/pipelineoverride`. It merges **partial per-node JSON** into the current pipeline at runtime (`ctx.OverridePipeline`). Use it to toggle nodes or tweak recognition params **without** rewriting the static transition graph when `allow_next` stays `false`.
+The `PipelineOverride` implementation is located in `agent/go-service/common/pipelineoverride` and is used at runtime to merge **node-organized partial JSON** into the current Pipeline (`ctx.OverridePipeline`). It is suitable for dynamically toggling node switches or adjusting recognition/action parameters **without changing the static flow topology**.
 
 - Parameters:
-    - `patch: object`: required. Keys are **node names**; values are **partial** node objects. Semantics match MaaFramework `OverridePipeline` (merge same-named nodes, overwrite same-named properties).
-    - `allow_next?: bool`: whether each partial node object may include a top-level `next`. Default `false`; when `false`, `next` is **removed** from every patch entry before applying, so runtime changes do not alter the preset topology.
-    - `strict?: bool`: when `allow_next` is `false`, whether a patch that still contains `next` is an error. Default `false` (`next` is stripped and INFO-logged); when `true`, the action **fails** and nothing is applied—helps catch accidental `next` in `patch`. If `allow_next` is `true`, `strict` is ignored and normalized to `false`.
+    - `patch: object`: Required. Keys are **node names**, and values are the **partial override objects** for those nodes. Semantics are consistent with MaaFramework's `OverridePipeline`: same-named nodes are merged, same-named fields are overwritten.
+    - `allow_next?: bool`: Whether to allow partial node objects to contain top-level `next`. Default is `false`; when `false`, `next` will be removed from each patch item before application to avoid runtime modification of the preset topology.
+    - `strict?: bool`: When `allow_next` is `false`, if a patch still contains `next`, whether to immediately report an error and fail. Default is `false` (will remove `next` and log it); if `true`, the current Action fails immediately and no overrides are applied. If `allow_next` is `true`, `strict` is ignored and treated as `false`.
 
-**Usage guidelines:**
+Usage Recommendations:
 
-- Prefer changing strategy at the **workflow entry**; if you must change mid-run, limit edits to fields like `enabled` or recognizer/action params, not the `next` graph.
-- If you truly need to change `next` at runtime, set `allow_next: true` deliberately and assess debugging/regression cost; keep it off by default.
-- Pair large overrides with logging/screenshot nodes when troubleshooting.
-- Logs only record non-sensitive metadata such as node counts, node keys, and payload length. Do not rely on runtime logs to capture full `custom_action_param` or patch content, because those payloads may contain credentials or tokens.
+- Prioritize deciding the strategy at the **process entry point**; if adjustments are necessary midway, try to only modify fields like `enabled`, recognizer parameters, and action parameters. Avoid arbitrarily changing the `next` graph structure.
+- If runtime modification of `next` is genuinely required, explicitly set `allow_next: true` and self-assess the debugging and regression costs; it should be kept off by default.
+- For troubleshooting, use in conjunction with additional log or screenshot nodes.
+- Runtime logs only record non-sensitive metadata such as node count, node names, and parameter length; they do not output the complete `custom_action_param` or patch content, which may contain sensitive information like credentials and tokens.
 
 Example file: [`PipelineOverride.json`](../../../assets/resource/pipeline/Interface/Example/PipelineOverride.json)
 
-### PostStop
-
-`PostStop` is implemented in `agent/go-service/common/poststop`. It calls `Tasker.PostStop()` to asynchronously stop the current task. Use it when a certain condition in the pipeline warrants terminating the entire task proactively.
-
-- Parameters: none.
-
 ### AttachToExpectedRegexAction
 
-`AttachToExpectedRegexAction` is implemented in `agent/go-service/common/attachregex`. It generically reads keywords from the target node's own `attach`, then writes the merged whitelist regex back into that target OCR node's `expected`.
+The `AttachToExpectedRegexAction` implementation is located in `agent/go-service/common/attachregex`. It is used to generically read keywords from the target node's own `attach` and write the merged allowlist regex back to the target OCR node's `expected`.
 
 - Parameters:
-    - `target: string`: required target node name whose `expected` will be overridden.
+    - `target: string`: The target node name (which will have its `expected` overwritten). Required.
 
-Behavior:
+Processing Rules:
 
-- `attach` values support `string`, `string[]`, and `false`; string values are trimmed, deduplicated, and regex-escaped.
-- When `attach.<key>` is `false`, that item key is **explicitly excluded** from the whitelist built for the current run and does not contribute any keywords to `expected`.
-- `attach.<key> = true` currently does **not** mean "use default keywords"; it produces no whitelist keywords. Use an explicit string or string array instead.
-- If the keyword list is empty, it generates `a^` (never matches).
-- The final result is applied through `OverridePipeline` to the target node's `expected`.
-
-A common pattern is: task options first write multiple item-name groups into one OCR node's `attach`; later in the run, once one item reaches its target amount, `PipelineOverride` can set that `attach.<key>` to `false` so future whitelist regeneration no longer matches that item.
+- `attach` supports both `string` and `string[]` value types; it automatically trims whitespace, deduplicates, and applies regex escaping.
+- When the keyword list is empty, `a^` (equivalent to "never match") is generated.
+- The final merged regex overrides the target node's `expected` via `OverridePipeline`.
 
 Example:
 
@@ -103,20 +99,53 @@ Example:
 }
 ```
 
-Compatibility note:
+Compatibility Notes:
 
-- Credit shop has switched to direct use of `AttachToExpectedRegexAction`.
-- If multiple targets need override, prefer multiple `Custom` nodes chained by `next` in Pipeline.
-- If multiple nodes need the same whitelist, write the same `attach` content into each node in task configuration.
-- Other tasks should also prefer this generic action name to avoid business coupling.
+- The Credit Shop has been switched to directly use `AttachToExpectedRegexAction`.
+- If multiple target nodes need to be overridden, it is recommended to split them into multiple `Custom` nodes in the Pipeline and link them via `next`.
+- If multiple nodes require the same allowlist, the same `attach` should be written into their respective nodes in the task configuration.
+- Other tasks are also recommended to use the generic name to avoid coupling with specific business logic.
 
-Example file: [`AttachToExpectedRegexAction.json`](../../../assets/resource/pipeline/Interface/Example/AttachToExpectedRegexAction.json)
+### PostStop
+
+The `PostStop` implementation is located in `agent/go-service/common/poststop`. It calls `Tasker.PostStop()` to asynchronously stop the current task. It is suitable for scenarios where a condition in the Pipeline requires actively terminating the entire task.
+
+- Parameters: None.
+
+### AutoAltClickAction
+
+The `AutoAltClickAction` implementation is located in `agent/go-service/common/autoalt`. It performs an Alt + Click operation at a specified position. It first presses the Alt key, clicks the target position, and then releases the Alt key.
+
+- Parameters:
+    - `target_offset?: [int, int, int, int]`: Optional. Format like `[dx, dy, dw, dh]`, overlaid onto `box` before clicking the center; semantics are consistent with the `target_offset` of the built-in `Click` action. If omitted, it directly clicks the center of `box`.
+
+The default target position is determined by the `box` of the Pipeline node.
+
+### AutoAltLongPressAction
+
+The `AutoAltLongPressAction` implementation is located in `agent/go-service/common/autoalt`. It performs an Alt + Long Press operation at a specified position.
+
+- Parameters:
+    - `duration: int`: Long press duration in milliseconds. Required.
+
+### AutoAltSwipeAction
+
+The `AutoAltSwipeAction` implementation is located in `agent/go-service/common/autoalt`. It performs an Alt + Swipe operation. It first presses the Alt key, executes the swipe, and then releases the Alt key.
+
+- Parameters (all optional, passed through to the Swipe action of the child node `__AutoAltSwipeMouseSwipeAction`):
+    - `begin?: [int, int] | [int, int, int, int]`: Swipe start point; defaults to `arg.Box` if omitted.
+    - `end?: [int, int] | [int, int, int, int]`: Swipe end point; defaults to `arg.Box` if omitted.
+    - `begin_offset?: [int, int, int, int]`: Overlays `[dx, dy, dw, dh]` onto the default start point (`arg.Box`).
+    - `end_offset?: [int, int, int, int]`: Overlays `[dx, dy, dw, dh]` onto the default end point (`arg.Box`).
+    - `duration?: int`: Swipe duration in milliseconds.
+    - `end_hold?: int`: Hold duration after the swipe ends in milliseconds.
+    - `only_hover?: bool`: Whether to only hover swipe.
 
 ---
 
 ## Custom Recognition
 
-A recognition node can invoke a custom recognition like this:
+Recognition nodes are used to execute custom recognition. A common format is as follows:
 
 ```json
 {
@@ -132,31 +161,31 @@ A recognition node can invoke a custom recognition like this:
 }
 ```
 
-- `custom_recognition`: the registered recognition name.
-- `custom_recognition_param`: any JSON value, serialized by the framework and passed to the implementation.
-- Returning `true` means matched; returning `false` means not matched.
+- `custom_recognition`: The registration name.
+- `custom_recognition_param`: An arbitrary JSON value, serialized by the framework and passed to the implementation side.
+- Returns `true` to indicate a match; returns `false` to indicate no match.
 
 ### ExpressionRecognition
 
-`ExpressionRecognition` is implemented in `agent/go-service/common/expressionrecognition` and evaluates boolean expressions composed of numeric recognition nodes.
+The `ExpressionRecognition` implementation is located in `agent/go-service/common/expressionrecognition`. It is used to evaluate boolean expressions composed of numerical recognition nodes.
 
 Parameters:
 
-- `expression: string`: required. The final result of the expression must be boolean.
-- `box_node?: string`: optional. Which recognition node's result box should be returned when the expression matches; if that node is an `And`, it is executed first and the box is read directly from the child result selected by that node's native `box_index` in that run.
+- `expression: string`: Required. The expression must ultimately evaluate to a boolean value.
+- `box_node?: string`: Optional. Which recognition node's result box to return upon a match; if the node is `And`, it will first execute that node, then read the corresponding sub-recognition result's box directly from the current recognition results based on its native `box_index`.
 
-Placeholder rules:
+Placeholder Rules:
 
-- Use `{NodeName}` to reference another recognition node.
-- Each referenced node is executed once against the current image `arg.Img`.
-- If the referenced node is an `And`, the current implementation first executes that `And` node itself, then reads the child result selected by that node's native `box_index` directly from that run's returned combined result, and treats it as the final value source of the `And` node.
-- The current implementation extracts numeric values from the referenced node's OCR result and supports common abbreviated formats such as `1.38万`, `13.8K`, and `22.01M`; these values are normalized to integers before expression evaluation. Formats such as `1.2W` are not supported.
+- Use `{NodeName}` to reference other recognition nodes.
+- Referenced nodes are executed once with the current image `arg.Img`.
+- If a referenced node is `And`, the current implementation first executes the `And` node itself, then reads the corresponding sub-recognition result directly from the current recognition results based on that node's native `box_index`, and treats it as the final source for that node's value.
+- The current implementation extracts numerical values from the referenced node's OCR results to participate in the calculation and supports common abbreviation formats, such as `1.38万`, `13.8K`, `22.01M`; these values are converted to integers before participating in the expression calculation.
 
-Supported operators:
+Supported Operations:
 
 - Arithmetic: `+` `-` `*` `/` `%`
 - Comparison: `<` `<=` `>` `>=` `==` `!=`
-- Logic: `&&` `||` `!`
+- Logical: `&&` `||` `!`
 - Grouping: `(...)`
 
 Example:
@@ -176,33 +205,52 @@ Example:
 }
 ```
 
-Other examples:
+Another example:
 
 - `{CurrentCredit}<300`
 - `{CurrentCredit}-{RefreshCost}<400`
 - `({NodeA}+{NodeB})>=100 && {NodeC}==1`
 
-Example file: [`ExpressionRecognition.json`](../../../assets/resource/pipeline/Interface/Example/ExpressionRecognition.json)
+Important Notes:
 
-Notes:
+- The expression result must be a boolean value; otherwise, recognition fails.
+- Referenced nodes should currently return a parseable OCR numerical result; otherwise, expression evaluation fails.
+- For `And` nodes, the sub-recognition result pointed to by `box_index` currently needs to directly contain a parseable OCR numerical result.
+- Integer literals in expressions, and values converted from OCR, if they exceed the range representable by the platform's `int`, are automatically clamped to the `int` maximum or minimum (positive overflow takes the maximum, negative overflow takes the minimum), and a warning log is output; expression evaluation continues rather than failing immediately.
+- This recognizer is only responsible for expression evaluation, not for the business semantics itself; the business side should organize nodes and thresholds within the Pipeline.
 
-- The final expression result must be boolean, otherwise the recognition fails.
-- Referenced nodes must currently produce OCR results that can be parsed as numeric values, otherwise evaluation fails.
-- For `And` nodes, the child result selected by `box_index` in that run must directly contain OCR results that can be parsed as numeric values.
-- Integer literals in the expression, and OCR values after unit normalization, are clamped to the platform `int` maximum or minimum when they exceed the representable range (positive overflow uses the maximum, negative overflow uses the minimum). A warning is logged and evaluation continues instead of failing immediately.
-- This recognizer is only responsible for expression evaluation. Business semantics should remain in Pipeline design.
+### ScheduleRecognition
+
+The `ScheduleRecognition` implementation is located in `agent/go-service/common/schedule`. It is used to determine whether the current task should continue executing based on the day of the week. It only returns whether recognition matches; it does not directly run subtasks in Go; subsequent flows should be organized via the Pipeline's `next`.
+
+- Parameters: None.
+- `attach` field (written in the current recognition node, can be merged in the task configuration):
+    - `monday: bool` — Whether to execute on Monday.
+    - `tuesday: bool` — Whether to execute on Tuesday.
+    - `wednesday: bool` — Whether to execute on Wednesday.
+    - `thursday: bool` — Whether to execute on Thursday.
+    - `friday: bool` — Whether to execute on Friday.
+    - `saturday: bool` — Whether to execute on Saturday.
+    - `sunday: bool` — Whether to execute on Sunday.
+
+When a weekday flag is omitted, it defaults to `false` (do not execute that day). If the current day is not within the scheduling range, this Recognition emits a localized prompt "Skipping today" and returns no match.
 
 ## Summary
 
-When writing Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe` cover the vast majority of needs. Come back to this doc when they fall short — for example, comparing two OCR values, adjusting parameters at runtime, or running subtasks in batch — to see if an existing Custom fits the bill.
+When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe` can handle most needs. When they fall short—for example, comparing two OCR values, dynamically adjusting parameters at runtime, or batch running subtasks—then refer to this document to see if there's an existing Custom action or recognition to use.
 
-| Scenario                                                            | Use                           |
-| ------------------------------------------------------------------- | ----------------------------- |
-| Run a sequence of subtasks                                          | `SubTask`                     |
-| Clear a node's hit count                                            | `ClearHitCount`               |
-| Proactively stop the current task                                   | `PostStop`                    |
-| Change node parameters at runtime                                   | `PipelineOverride`            |
-| Build a regex whitelist from keywords and write it into an OCR node | `AttachToExpectedRegexAction` |
-| Evaluate OCR numeric expressions                                    | `ExpressionRecognition`       |
+| Scenario                          | Use                             |
+| --------------------------------- | ------------------------------- |
+| Run a series of subtasks in order | `SubTask`                       |
+| Clear hit count of a node         | `ClearHitCount`                 |
+| Force an Action to fail           | `FalseAction`                   |
+| Actively stop the current task    | `PostStop`                      |
+| Change node parameters at runtime | `PipelineOverride`              |
+| Write keywords as regex back to OCR node | `AttachToExpectedRegexAction` |
+| Evaluate OCR numerical expressions | `ExpressionRecognition`        |
+| Gate subsequent nodes by day of week | `ScheduleRecognition`        |
+| Alt + Click at specified position | `AutoAltClickAction`            |
+| Alt + Long Press at specified position | `AutoAltLongPressAction`   |
+| Alt + Swipe                       | `AutoAltSwipeAction`            |
 
-All Custom Go implementations live under `agent/go-service/`. Pipeline authors don't need to touch them — just write JSON according to the documented parameters.
+All Custom Go code implementations are located under `agent/go-service/`. Pipeline authors do not need to concern themselves with this; just write the JSON according to the documentation parameters.

@@ -1,19 +1,19 @@
 {
     "source_lang": "zh_cn",
     "target_lang": "en_us",
-    "source_count": 26,
+    "source_count": 30,
     "sources": {
         "docs/zh_cn/developers/README.md": {
             "source_path": "docs/zh_cn/developers/README.md",
             "relative_path": "developers/README.md",
             "target_path": "docs/en_us/developers/README.md",
-            "source_sha256": "fd52bb566bd03b3866d8455a23574e638bd098dd6a39b94121991dd5e30bb60c"
+            "source_sha256": "89f1fd4a9cba615687ff2ea4fd86b076b5d6a3f0f23073b2a197e96ee1a17e4b"
         },
         "docs/zh_cn/developers/coding-standards.md": {
             "source_path": "docs/zh_cn/developers/coding-standards.md",
             "relative_path": "developers/coding-standards.md",
             "target_path": "docs/en_us/developers/coding-standards.md",
-            "source_sha256": "807521e380db4094d8c88e92486ef254d6966ede2238042497787dc386270c0d"
+            "source_sha256": "1435e981b2060a6de4ce6405c0626605b24a6ba875ff365936a6ace6a772aeed"
         },
         "docs/zh_cn/developers/common-buttons.md": {
             "source_path": "docs/zh_cn/developers/common-buttons.md",
@@ -31,13 +31,19 @@
             "source_path": "docs/zh_cn/developers/components/better-sliding.md",
             "relative_path": "developers/components/better-sliding.md",
             "target_path": "docs/en_us/developers/components/better-sliding.md",
-            "source_sha256": "1fc218c7c9cab33373d7549347b3686cc46eec5e19495acde56535a42f5a8a18"
+            "source_sha256": "396b64ebdfcb9e7b4170a6da8a1ab14eb6cc2443e3a68d3498dbb4740c2dda42"
+        },
+        "docs/zh_cn/developers/components/capture-uid.md": {
+            "source_path": "docs/zh_cn/developers/components/capture-uid.md",
+            "relative_path": "developers/components/capture-uid.md",
+            "target_path": "docs/en_us/developers/components/capture-uid.md",
+            "source_sha256": "2195806cf202b1c6386a01a1b3d643e1673436479486002be9cd6c7beece6192"
         },
         "docs/zh_cn/developers/components/character-controller.md": {
             "source_path": "docs/zh_cn/developers/components/character-controller.md",
             "relative_path": "developers/components/character-controller.md",
             "target_path": "docs/en_us/developers/components/character-controller.md",
-            "source_sha256": "cd70031349851af4ad3724c5d69a3959f10f61d46609b53ed9a58ae8e72fee0e"
+            "source_sha256": "2f4dd3f10a105e387a42c3a753c78af4a83014d79a5073ca0e76246577136645"
         },
         "docs/zh_cn/developers/components/map-locator.md": {
             "source_path": "docs/zh_cn/developers/components/map-locator.md",
@@ -49,37 +55,43 @@
             "source_path": "docs/zh_cn/developers/components/map-navigator.md",
             "relative_path": "developers/components/map-navigator.md",
             "target_path": "docs/en_us/developers/components/map-navigator.md",
-            "source_sha256": "89726b1de755f638312170898b6e431b1fbe310a651509d0888524c01f3d0ea4"
+            "source_sha256": "35ad94d2b22a23972eedabc33b50b3ae0ab4fc42689c24ac228b9ebc929257eb"
         },
         "docs/zh_cn/developers/components/map-tracker(advanced).md": {
             "source_path": "docs/zh_cn/developers/components/map-tracker(advanced).md",
             "relative_path": "developers/components/map-tracker(advanced).md",
             "target_path": "docs/en_us/developers/components/map-tracker(advanced).md",
-            "source_sha256": "21e682c3a0015a8abf74d6ce7cba28623ef9d1c736832e9fbc7f549037c00ab3"
+            "source_sha256": "126dfa962ab27d3b076885246e0685af3cf068401b7e5526e6ee9e341377a4f1"
         },
         "docs/zh_cn/developers/components/map-tracker.md": {
             "source_path": "docs/zh_cn/developers/components/map-tracker.md",
             "relative_path": "developers/components/map-tracker.md",
             "target_path": "docs/en_us/developers/components/map-tracker.md",
-            "source_sha256": "76d599b5f6569b9fe628e8458b9086542d63927b560ade11efe8bf0704ab18cf"
+            "source_sha256": "9d2934fcc998e2d8c12703b5b8ed877cc814007b8662fe8e61b5147cd634a25d"
+        },
+        "docs/zh_cn/developers/components/recogrid-engine.md": {
+            "source_path": "docs/zh_cn/developers/components/recogrid-engine.md",
+            "relative_path": "developers/components/recogrid-engine.md",
+            "target_path": "docs/en_us/developers/components/recogrid-engine.md",
+            "source_sha256": "92dae364b996b390d92b2c5656ee828ac989ca500723944b92ba0899a46f482e"
         },
         "docs/zh_cn/developers/components-guide.md": {
             "source_path": "docs/zh_cn/developers/components-guide.md",
             "relative_path": "developers/components-guide.md",
             "target_path": "docs/en_us/developers/components-guide.md",
-            "source_sha256": "f1014dfd2b9a2330db96ae088301d5878c247a7eca3e30f2836a9a121c3c14b9"
+            "source_sha256": "9fd88d58e0b52d4fcb5d5d46c449758a2523ec12ce5b33763ff18a8ab0a7af2c"
         },
         "docs/zh_cn/developers/custom.md": {
             "source_path": "docs/zh_cn/developers/custom.md",
             "relative_path": "developers/custom.md",
             "target_path": "docs/en_us/developers/custom.md",
-            "source_sha256": "07f1571ffaa4519b9544ce1969224a833969ff6032e52e0bc639cfbd8ff2d5f5"
+            "source_sha256": "eaf2d3c75d9c68eae734898fc2cbe8e1e3feba363ea04187817c109cde92aa2a"
         },
         "docs/zh_cn/developers/getting-started.md": {
             "source_path": "docs/zh_cn/developers/getting-started.md",
             "relative_path": "developers/getting-started.md",
             "target_path": "docs/en_us/developers/getting-started.md",
-            "source_sha256": "7fd306be5919a303d936c19b33b8632bac0b8c5dc58e9671bbe5d160195861ef"
+            "source_sha256": "01bda1645f102582c004c74cfeecbd1c212ae742170a63e5fa13633e73d2e2e7"
         },
         "docs/zh_cn/developers/in-scene.md": {
             "source_path": "docs/zh_cn/developers/in-scene.md",
@@ -93,6 +105,12 @@
             "target_path": "docs/en_us/developers/node-testing.md",
             "source_sha256": "0552caab38b07e4b141c803a338414feeaa7fe9e04ab58e66f929e30b8a1eadf"
         },
+        "docs/zh_cn/developers/release-process.md": {
+            "source_path": "docs/zh_cn/developers/release-process.md",
+            "relative_path": "developers/release-process.md",
+            "target_path": "docs/en_us/developers/release-process.md",
+            "source_sha256": "ab83b5c0a8a1c953b8dd2e963ff73cf09dd3e4560d568be8d1dcf60c052c2ec3"
+        },
         "docs/zh_cn/developers/scene-manager.md": {
             "source_path": "docs/zh_cn/developers/scene-manager.md",
             "relative_path": "developers/scene-manager.md",
@@ -103,43 +121,49 @@
             "source_path": "docs/zh_cn/developers/super-basic-introduction.md",
             "relative_path": "developers/super-basic-introduction.md",
             "target_path": "docs/en_us/developers/super-basic-introduction.md",
-            "source_sha256": "83e40d5b86aca6210d310dc0cf7ea758e72a69229a0220a8ddb4f7a7f74b8a4f"
+            "source_sha256": "184427cfb65cbd1578770e95770f33c9a5770f05b549e833cea01cdf0817538d"
         },
         "docs/zh_cn/developers/tasks/auto-stockpile-maintain.md": {
             "source_path": "docs/zh_cn/developers/tasks/auto-stockpile-maintain.md",
             "relative_path": "developers/tasks/auto-stockpile-maintain.md",
             "target_path": "docs/en_us/developers/tasks/auto-stockpile-maintain.md",
-            "source_sha256": "8880784a26347c43422f7d7149ba4c0ab8c531fdb7c08f38b54d0441298b6507"
+            "source_sha256": "aba13810293007c8efa108e25f31c68991126849f8ff5e270bdb0610ff26863d"
         },
         "docs/zh_cn/developers/tasks/auto-stockstaple-maintain.md": {
             "source_path": "docs/zh_cn/developers/tasks/auto-stockstaple-maintain.md",
             "relative_path": "developers/tasks/auto-stockstaple-maintain.md",
             "target_path": "docs/en_us/developers/tasks/auto-stockstaple-maintain.md",
-            "source_sha256": "8a0fb40e3b21e00475f30c5f4b5ef29d01c6dad91c6de2ca3a5b9690cf686007"
+            "source_sha256": "1f4a5fed7979a6208f49b0dce68f544e82b75f821707847a70ca9503adf1d787"
         },
         "docs/zh_cn/developers/tasks/credit-shopping-maintain.md": {
             "source_path": "docs/zh_cn/developers/tasks/credit-shopping-maintain.md",
             "relative_path": "developers/tasks/credit-shopping-maintain.md",
             "target_path": "docs/en_us/developers/tasks/credit-shopping-maintain.md",
-            "source_sha256": "95047a038260e7fd94b18cdd4e6f98bb53124d127b6f2d682dbfaa19a1a4b7c9"
+            "source_sha256": "104f12144e0c66cd725d609eb8de940e52fc9703b4a9804108954b92ac62787f"
         },
         "docs/zh_cn/developers/tasks/dijiang-rewards-maintain.md": {
             "source_path": "docs/zh_cn/developers/tasks/dijiang-rewards-maintain.md",
             "relative_path": "developers/tasks/dijiang-rewards-maintain.md",
             "target_path": "docs/en_us/developers/tasks/dijiang-rewards-maintain.md",
-            "source_sha256": "baad0c346b0c81fdc4500fddbbf144bed642eb7750ec68b46cb57d5ff8b52260"
+            "source_sha256": "88d0f55d08b2bce87ddaf3e0d648c20f296d648d33cea7b144be223315e7bfe1"
         },
         "docs/zh_cn/developers/tasks/environment-monitoring-maintain.md": {
             "source_path": "docs/zh_cn/developers/tasks/environment-monitoring-maintain.md",
             "relative_path": "developers/tasks/environment-monitoring-maintain.md",
             "target_path": "docs/en_us/developers/tasks/environment-monitoring-maintain.md",
-            "source_sha256": "6f6c51afcbd7825b18704b416d74a701f259f955d7112016aa6a2c2658c9e6c7"
+            "source_sha256": "84d9b9380999f075ad4d2f6c1186f5d8409ebb69590fb36fd9a95e8ef9093b23"
+        },
+        "docs/zh_cn/developers/tasks/gift-operator-maintain.md": {
+            "source_path": "docs/zh_cn/developers/tasks/gift-operator-maintain.md",
+            "relative_path": "developers/tasks/gift-operator-maintain.md",
+            "target_path": "docs/en_us/developers/tasks/gift-operator-maintain.md",
+            "source_sha256": "d3daa3ac6884e97769a3aa19009dc22a6a204502b012fe990123545cafc18789"
         },
         "docs/zh_cn/developers/tasks/sell-product-maintain.md": {
             "source_path": "docs/zh_cn/developers/tasks/sell-product-maintain.md",
             "relative_path": "developers/tasks/sell-product-maintain.md",
             "target_path": "docs/en_us/developers/tasks/sell-product-maintain.md",
-            "source_sha256": "6ad57c26a7fe722a2b19a5a2d2598b7bb682194b28c987d20fa6432161c0ec39"
+            "source_sha256": "7dd7ec13108ebb02bd6752b3707f5f243befe511e084f81c61dec4a8e567052a"
         },
         "docs/zh_cn/developers/tools-and-debug.md": {
             "source_path": "docs/zh_cn/developers/tools-and-debug.md",
@@ -160,5 +184,5 @@
             "source_sha256": "e17e54999a8fdeef557b11bfc3592638cee395b40b79e53c172ce28a735947b5"
         }
     },
-    "updated_at_utc": "2026-06-01T14:50:32.287257+00:00"
+    "updated_at_utc": "2026-06-29T07:31:01.710778+00:00"
 }

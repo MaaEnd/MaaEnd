@@ -1,39 +1,39 @@
 # Developer Manual - SellProduct Maintenance Documentation
 
-This document explains the generation chain, Pipeline organization, task options, priority item matching, reserve quantity, and maintenance procedures for adding new outposts/items for the `SellProduct` (Sell Product) task.
+This document explains the generation pipeline, Pipeline organization, task options, priority item matching, reserved quantity, and maintenance procedures for adding new outposts/items for the `SellProduct` task.
 
-The core feature of `SellProduct` is **zmdmap data-driven + Pipeline template generation**: outposts, sellable items, task options, and duplicate nodes for each outpost are not hand-written individually but are batch-rendered by `tools/pipeline-generate/SellProduct/` after reading `tools/pipeline-generate/data/settlement_trade.json`. The `settlement_trade.json` is downloaded and cached from the zmdmap API by `pnpm fetch:zmdmap`.
+The core feature of `SellProduct` is **zmdmap data-driven + Pipeline template generation**: outposts, sellable items, task options, and outpost repeat nodes are not manually written one by one, but are batch-rendered by `tools/pipeline-generate/SellProduct/` after reading `tools/pipeline-generate/data/settlement_trade.json`. The `settlement_trade.json` is downloaded and cached from the zmdmap API via `pnpm fetch:zmdmap`.
 
 > [!IMPORTANT]
 >
-> `assets/tasks/SellProduct.json`, `assets/resource/pipeline/SellProduct/Outposts/*.json`, and `assets/resource_adb/pipeline/SellProduct/Outposts/*.json` are all **generated artifacts**. Do not directly hand-edit these files; to modify outposts, product lists, priority item candidates, sell attempt templates, or Win/ADB coordinates, you should modify the data assembly or templates under `tools/pipeline-generate/SellProduct/` and then regenerate.
+> `assets/tasks/SellProduct.json`, `assets/resource/pipeline/SellProduct/Outposts/*.json`, and `assets/resource_adb/pipeline/SellProduct/Outposts/*.json` are all **generated artifacts**. Do not edit these files directly; to modify outposts, item lists, priority item candidates, sell attempt templates, or Win/ADB coordinates, modify the data assembly or templates under `tools/pipeline-generate/SellProduct/`, then regenerate.
 
 ## Overview
 
 The core maintenance points for SellProduct are as follows:
 
-| Module                           | Path                                                              | Function                                                                                                                                   |
-| -------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| zmdmap cache data                | `tools/pipeline-generate/data/settlement_trade.json`              | Raw data for outposts, prosperity, tradeable items, multilingual names, rarity, unit price, etc.                                           |
-| Data assembly                    | `tools/pipeline-generate/SellProduct/data.mjs`                    | Converts zmdmap data into `settlementFlatRows` consumable by templates                                                                     |
-| Outpost Pipeline template        | `tools/pipeline-generate/SellProduct/pipeline-template.jsonc`     | Generates each outpost sell node for the Win resource pack                                                                                 |
-| ADB outpost template             | `tools/pipeline-generate/SellProduct/pipeline-adb-template.jsonc` | Generates ADB resource pack override nodes for outpost quantity OCR                                                                        |
-| Task options template            | `tools/pipeline-generate/SellProduct/task-template.jsonc`         | Generates region, outpost, operator switch, sell attempts, priority items, and reserve quantity options in `assets/tasks/SellProduct.json` |
-| Win outpost generation config    | `tools/pipeline-generate/SellProduct/pipeline-config.json`        | Output to `assets/resource/pipeline/SellProduct/Outposts/${LocationId}.json`                                                               |
-| ADB outpost generation config    | `tools/pipeline-generate/SellProduct/pipeline-adb-config.json`    | Output to `assets/resource_adb/pipeline/SellProduct/Outposts/${LocationId}.json`                                                           |
-| Task options generation config   | `tools/pipeline-generate/SellProduct/task-config.json`            | Output to `assets/tasks/SellProduct.json`                                                                                                  |
-| Task entry point                 | `assets/resource/pipeline/SellProduct.json`                       | `ScheduleRecognition`, main loop, region entry; manually maintained                                                                        |
-| Region sell entry point          | `assets/resource/pipeline/SellProduct/Sell.json`                  | `next` list from region to outposts; manually maintained                                                                                   |
-| Common sell core                 | `assets/resource/pipeline/SellProduct/SellCore.json`              | Sell loop, handling for out-of-stock/insufficient dispatch coupons/exceeded redemption limits, final transaction process                   |
-| Common exchange process          | `assets/resource/pipeline/SellProduct/ChangeGoods.json`           | Enter item selection interface, select priority item or default item                                                                       |
-| Common outpost recognition       | `assets/resource/pipeline/SellProduct/EnterOutpost.json`          | Outpost interface, region outpost page, and outpost management text recognition                                                            |
-| Common operator recognition      | `assets/resource/pipeline/SellProduct/Operator.json`              | Operator liaison list interface and open-button recognition                                                                                |
-| ADB common sell core             | `assets/resource_adb/pipeline/SellProduct/SellCore.json`          | Common sell core under ADB resource pack                                                                                                   |
-| Priority item custom recognition | `agent/go-service/sellproduct/normalized_match.go`                | `SellProductNormalizedItemMatch`, anti-noise exact matching for OCR results and candidate names                                            |
-| Multilingual text                | `assets/locales/interface/*.json`                                 | `SellProduct` task text, outpost names, item labels                                                                                        |
-| Generation entry point           | `package.json`'s `generate:SellProduct` / `fetch:zmdmap`          | Updates zmdmap cache and re-renders generated artifacts                                                                                    |
+| Module                      | Path                                                              | Purpose                                                                                              |
+| --------------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| zmdmap Cached Data          | `tools/pipeline-generate/data/settlement_trade.json`              | Raw data for outposts, prosperity, tradeable items, multilingual names, rarity, unit price, etc.     |
+| Data Assembly               | `tools/pipeline-generate/SellProduct/data.mjs`                    | Converts zmdmap data into `settlementFlatRows` consumable by templates.                              |
+| Outpost Pipeline Template   | `tools/pipeline-generate/SellProduct/pipeline-template.jsonc`     | Generates each outpost selling node for the Win resource pack.                                       |
+| ADB Outpost Template        | `tools/pipeline-generate/SellProduct/pipeline-adb-template.jsonc` | Generates outpost quantity OCR override nodes for the ADB resource pack.                             |
+| Task Option Template        | `tools/pipeline-generate/SellProduct/task-template.jsonc`         | Generates region, outpost, operator switch, sell attempts, priority item, and reserve quantity options in `assets/tasks/SellProduct.json`. |
+| Win Outpost Generation Config | `tools/pipeline-generate/SellProduct/pipeline-config.json`      | Outputs to `assets/resource/pipeline/SellProduct/Outposts/${LocationId}.json`.                       |
+| ADB Outpost Generation Config | `tools/pipeline-generate/SellProduct/pipeline-adb-config.json`  | Outputs to `assets/resource_adb/pipeline/SellProduct/Outposts/${LocationId}.json`.                   |
+| Task Option Generation Config | `tools/pipeline-generate/SellProduct/task-config.json`          | Outputs to `assets/tasks/SellProduct.json`.                                                          |
+| Task Entry                  | `assets/resource/pipeline/SellProduct.json`                       | `ScheduleRecognition`, main loop, region entry; manually maintained.                                 |
+| Region Sell Entry           | `assets/resource/pipeline/SellProduct/Sell.json`                  | `next` list for region to outpost mapping; manually maintained.                                      |
+| Generic Sell Core           | `assets/resource/pipeline/SellProduct/SellCore.json`              | Sell loop, out-of-stock/dispatch ticket insufficient/exchange limit exceeded handling, final trade flow. |
+| Generic Change Goods Flow   | `assets/resource/pipeline/SellProduct/ChangeGoods.json`           | Enter goods selection interface, select priority item or default item.                               |
+| Generic Outpost Recognition | `assets/resource/pipeline/SellProduct/EnterOutpost.json`          | Outpost interface, region outpost page, and outpost management text recognition.                     |
+| Contact Operator Recognition | `assets/resource/pipeline/SellProduct/Operator.json`              | Contact operator list interface and open button recognition.                                         |
+| ADB Generic Sell Core       | `assets/resource_adb/pipeline/SellProduct/SellCore.json`          | Generic sell core under the ADB resource pack.                                                       |
+| Priority Item Custom Recognition | `agent/go-service/sellproduct/normalized_match.go`                | `SellProductNormalizedItemMatch`, performs noise-resistant exact matching on OCR results and candidate names. |
+| Multilingual Text           | `assets/locales/interface/*.json`                                 | `SellProduct` task text, outpost names, item labels.                                                 |
+| Generation Entry            | `package.json`'s `generate:SellProduct` / `fetch:zmdmap`          | Updates zmdmap cache and re-renders generated artifacts.                                             |
 
-## Generated Artifacts vs. Hand-Maintained Files
+## Generated Artifacts vs. Handwritten File Boundary
 
 ### Generated Artifacts
 
@@ -45,15 +45,15 @@ The following files are rendered by `@joebao/maa-pipeline-generate` and will be 
 
 The sources for these files are:
 
-| Artifact                        | Template                      | Data Source               |
-| ------------------------------- | ----------------------------- | ------------------------- |
-| `assets/tasks/SellProduct.json` | `task-template.jsonc`         | `data.mjs` + zmdmap cache |
-| Win outpost Pipeline            | `pipeline-template.jsonc`     | `data.mjs` + zmdmap cache |
-| ADB quantity OCR overrides      | `pipeline-adb-template.jsonc` | `data.mjs` + zmdmap cache |
+| Artifact                        | Template                          | Data Source                |
+| ------------------------------- | --------------------------------- | -------------------------- |
+| `assets/tasks/SellProduct.json` | `task-template.jsonc`             | `data.mjs` + zmdmap cache  |
+| Win Outpost Pipeline            | `pipeline-template.jsonc`         | `data.mjs` + zmdmap cache  |
+| ADB Outpost Quantity OCR Override | `pipeline-adb-template.jsonc`   | `data.mjs` + zmdmap cache  |
 
-### Hand-Maintained Files
+### Handwritten Maintenance Files
 
-The following files are not overwritten by the SellProduct generator and must be manually updated by maintainers as business changes occur:
+The following files are not overwritten by the SellProduct generator and must be manually updated by maintainers based on business changes:
 
 - `assets/resource/pipeline/SellProduct.json`
 - `assets/resource/pipeline/SellProduct/Sell.json`
@@ -65,9 +65,9 @@ The following files are not overwritten by the SellProduct generator and must be
 - `agent/go-service/sellproduct/*.go`
 - `assets/locales/interface/*.json`
 
-When adding new regions or outposts, the generator can create task options and outpost nodes, but the region entry point, the `next` list from region to outposts, SceneManager jump nodes, and outpost management page entry recognition may still need to be hand-completed.
+When adding new regions or outposts, the generator can create task options and outpost nodes, but the region entry, region-to-outpost `next` list, SceneManager jump nodes, and outpost management page entry recognition may still need to be manually supplemented.
 
-## Naming Rules and Data Model
+## Naming Conventions & Data Model
 
 ### Outpost Node ID (`LocationId`)
 
@@ -78,52 +78,52 @@ assets/resource/pipeline/SellProduct/Outposts/${LocationId}.json
 assets/resource_adb/pipeline/SellProduct/Outposts/${LocationId}.json
 ```
 
-By default, `LocationId` is derived by converting the zmdmap English outpost name to PascalCase. In actual maintenance, first check `data.mjs`'s `SETTLEMENT_OVERRIDE`: if a `LocationId` is configured for an outpost there, the generator will use the override value.
+By default, `LocationId` is derived from the zmdmap English outpost name converted to PascalCase. In actual maintenance, check `SETTLEMENT_OVERRIDE` in `data.mjs` first: if an outpost has a `LocationId` configured here, the generator will use the overridden value.
 
-`LocationId` is only used for node names and filenames, not display text. The outpost name shown in the user interface is provided by `task.SellProduct.{RegionPrefix}{LocationId}` in `assets/locales/interface/*.json`.
+`LocationId` is only used for node names and filenames, not for display text. The outpost name displayed in the user interface is provided by `task.SellProduct.{RegionPrefix}{LocationId}` in `assets/locales/interface/*.json`.
 
 ### Region Prefix (`RegionPrefix`)
 
-`RegionPrefix` is the region ID used for task options and region entry points, for example, `ValleyIV`, `Wuling`. It is mapped from the zmdmap `domainId` by `DOMAIN_REGION_PREFIX`.
+`RegionPrefix` is the region ID used by task options and region entry nodes, e.g., `ValleyIV`, `Wuling`. It is mapped from zmdmap's `domainId` by `DOMAIN_REGION_PREFIX`.
 
-When adding a new region, do not directly rely on default fallback names like `domain_3`; instead, first configure a stable project region ID in `DOMAIN_REGION_PREFIX`.
+When adding a new region, do not rely directly on default fallback names like `domain_3`; first configure a stable project region ID in `DOMAIN_REGION_PREFIX`.
 
 ### zmdmap Data Fields
 
 `settlement_trade.json` currently mainly provides:
 
 - `settlements`: List of outposts, with keys like `stm_tundra_1`.
-- `settlement.domainId`: The region the outpost belongs to, for example, `domain_1`, `domain_2`.
-- `settlement.settlementName`: Multilingual outpost name.
+- `settlement.domainId`: The region the outpost belongs to, e.g., `domain_1`, `domain_2`.
+- `settlement.settlementName`: Multilingual outpost names.
 - `settlement.byProsperityLevel[*].tradeItems`: List of tradeable items under different prosperity levels.
 - `tradeItems[*].itemId`: Item ID.
 - `tradeItems[*].name`: Multilingual item name.
-- `tradeItems[*].rarity` / `unitPrice`: Used for sorting priority item options.
+- `tradeItems[*].rarity` / `unitPrice`: Used for sorting to generate priority item options.
 
-`data.mjs` assembles this raw data into `settlementFlatRows` (one row per outpost), which is then consumed by the three generation configs.
+`data.mjs` assembles this raw data into `settlementFlatRows` with one row per outpost, which is then consumed by the three generation configs.
 
-Currently generated outposts are:
+The currently generated outposts are:
 
-| zmdmap settlementId | Region   | LocationId                  | Outpost Name                |
-| ------------------- | -------- | --------------------------- | --------------------------- |
-| `stm_tundra_1`      | ValleyIV | `RefugeeCamp`               | Refugee Temporary Camp      |
-| `stm_tundra_2`      | ValleyIV | `InfrastructureOutpost`     | Infrastructure Outpost      |
-| `stm_tundra_3`      | ValleyIV | `ReconstructionCommand`     | Reconstruction Command      |
-| `stm_hongs_1`       | Wuling   | `SkyKingFlats`              | Sky King Flats Aid Station  |
+| zmdmap settlementId | Region   | LocationId                  | Outpost Name              |
+| ------------------- | -------- | --------------------------- | ------------------------- |
+| `stm_tundra_1`      | ValleyIV | `RefugeeCamp`               | Refugee Camp              |
+| `stm_tundra_2`      | ValleyIV | `InfrastructureOutpost`     | Infrastructure Outpost    |
+| `stm_tundra_3`      | ValleyIV | `ReconstructionCommand`     | Reconstruction Command    |
+| `stm_hongs_1`       | Wuling   | `SkyKingFlats`              | Sky King Flats            |
 | `stm_hongs_2`       | Wuling   | `CardiacRemediationStation` | Cardiac Remediation Station |
 
-## Automatic Generation Mechanism
+## Auto-Generation Mechanism
 
-### Run Command
+### Running Commands
 
 ```shell
-# Recommended: Run from repository root, automatically updates zmdmap cache and regenerates
+# Recommended: Run in repository root to automatically update zmdmap cache and regenerate
 pnpm generate:SellProduct
 
 # Only update zmdmap cache
 pnpm fetch:zmdmap
 
-# When cache is already updated, can also render individually in the generator directory
+# If cache is already updated, you can also render individually in the generator directory
 cd tools/pipeline-generate/SellProduct
 npx @joebao/maa-pipeline-generate --config pipeline-config.json
 npx @joebao/maa-pipeline-generate --config task-config.json
@@ -143,7 +143,7 @@ npx @joebao/maa-pipeline-generate --config pipeline-adb-config.json
 }
 ```
 
-Each data row generates one Win resource pack outpost file.
+Each row of data generates one Win resource pack outpost file.
 
 ### ADB Outpost Pipeline: `pipeline-adb-config.json`
 
@@ -158,7 +158,7 @@ Each data row generates one Win resource pack outpost file.
 }
 ```
 
-The ADB outpost template does not fully duplicate the Win outpost flow. It only generates override configuration for the 4 `BetterSliding` nodes of each outpost, replacing the quantity OCR regions with `QuantityBoxAdb` and `MaxTargetBoxAdb`. The rest of the outpost flow continues to reuse the node structure generated for the Win resource pack.
+The ADB outpost template does not fully copy the Win outpost flow; instead, it only generates override configurations for each outpost's 4 `BetterSliding` nodes. These replace the quantity OCR area with `QuantityBoxAdb` and `MaxTargetBoxAdb`, while the rest of the outpost flow continues to reuse the node structure generated by the Win resource pack.
 
 ### Task Options: `task-config.json`
 
@@ -173,7 +173,7 @@ The ADB outpost template does not fully duplicate the Win outpost flow. It only 
 }
 ```
 
-This configuration generates region switches, outpost switches, operator switch, 4 sell attempts, priority item, and reserve quantity configuration in the user interface.
+This configuration generates the region switches, outpost switches, contact operator switch, 4 sell attempts, priority item, and reserve quantity configurations in the user interface.
 
 ### Data Assembly: `data.mjs`
 
@@ -182,31 +182,31 @@ This configuration generates region switches, outpost switches, operator switch,
 It currently handles:
 
 1. Reading `tools/pipeline-generate/data/settlement_trade.json`.
-2. Looking up `item.*` keys from `assets/locales/interface/zh_cn.json` to generate task option labels as `$item.xxx` where possible.
+2. Reverse-looking up `item.*` keys from `assets/locales/interface/zh_cn.json` to generate task option labels as `$item.xxx` where possible.
 3. Building a global item dictionary from zmdmap's `tradeItems`.
-4. Counting sellable items per outpost and sorting them by `rarity`, `unitPrice` in descending order.
-5. Mapping `domainId` to the `RegionPrefix` used in tasks.
-6. Generating `LocationId`, outpost OCR `TextExpected`, task options, priority item candidate names for outposts.
-7. Injecting Win/ADB BetterSliding quantity OCR regions.
+4. Aggregating sellable items per outpost and sorting them by `rarity` and `unitPrice` in descending order.
+5. Mapping `domainId` to the `RegionPrefix` used by the task.
+6. Generating `LocationId`, outpost OCR `TextExpected`, task options, and priority item candidate names for outposts.
+7. Injecting Win / ADB sets of BetterSliding quantity OCR regions.
 
 ### Outpost Naming Override
 
-`SETTLEMENT_OVERRIDE` is used when the zmdmap original name is unsuitable for direct node ID generation or when OCR requires special candidate text.
+`SETTLEMENT_OVERRIDE` is used to handle cases where the zmdmap raw name is unsuitable for directly generating a node ID, or OCR requires special candidate text.
 
 Current overrides include:
 
 - `LocationId`: Overrides the default `toPascalCase(EN)`, determining the generated node prefix and filename.
-- `TextExpected`: Overrides the outpost OCR candidate. Once filled, it completely replaces the default CN/TC/JP/EN candidates; you need to manually override necessary languages and common OCR noise.
+- `TextExpected`: Overrides the outpost OCR candidate. Once filled, it completely replaces the default CN / TC / JP / EN candidates; necessary languages and common OCR noise must be overridden individually.
 
 Typical scenarios:
 
-- English name is too long or doesn't fit project naming conventions.
-- Actual display in game UI differs from zmdmap name.
-- OCR frequently misrecognizes a certain outpost as a fixed erroneous text, for example, reading `HQ` incorrectly.
+- The English name is too long or doesn't match project naming conventions.
+- The actual display in the game UI differs from the zmdmap name.
+- OCR consistently misrecognizes a certain outpost as fixed incorrect text, e.g., reading `HQ` incorrectly.
 
 ### Region Mapping Override
 
-`DOMAIN_REGION_PREFIX` is responsible for mapping zmdmap's `domainId` to region IDs in the project:
+`DOMAIN_REGION_PREFIX` is responsible for mapping zmdmap's `domainId` to the project's region ID:
 
 ```js
 const DOMAIN_REGION_PREFIX = {
@@ -215,37 +215,37 @@ const DOMAIN_REGION_PREFIX = {
 };
 ```
 
-When onboarding a new region, if zmdmap adds `domain_3`, you typically need to first add a stable `RegionPrefix` here. Unconfigured domains will fall back to `toPascalCase(domainId)`, which is usually unsuitable as user-visible configuration and Pipeline prefixes.
+When integrating a new region, if zmdmap adds a `domain_3`, a stable `RegionPrefix` usually needs to be added here first. Unconfigured domains will fall back to `toPascalCase(domainId)`, which is generally unsuitable for direct use as a user-visible configuration and Pipeline prefix.
 
-### Temporarily Excluding Event Items
+### Temporary Exclusion of Event Items
 
-`TEMP_EXCLUDED_ITEM_CN_NAMES` is used to temporarily exclude event items that still appear in zmdmap data but should no longer appear in the sell configuration.
+`TEMP_EXCLUDED_ITEM_CN_NAMES` is used to temporarily exclude event items that still appear in the zmdmap data but should no longer appear in the sell configuration.
 
 Maintenance rules:
 
 - Only for short-term compatibility with event data.
 - The comment should clearly state the deletion condition.
-- When zmdmap data is updated and the event item is confirmed removed, the corresponding exclusion entry should be deleted.
+- When the zmdmap data is updated and the event items are confirmed removed, the corresponding exclusion should be deleted.
 
 ### Priority Item Candidate Names
 
-Each generated priority item option overrides the corresponding node:
+Each generated priority item option will override the corresponding node:
 
 ```text
 SellProduct{LocationId}SelectItem{N}
 ```
 
-Override content includes:
+The override content includes:
 
 - `enabled: true`
 - `custom_recognition_param.candidates`
-- Miss handling anchor
+- Miss handler anchor
 
-`candidates` comes from zmdmap's CN/TC/JP/EN names. The English name has certain easily interfering symbols removed before entering candidates.
+`candidates` come from the zmdmap CN / TC / JP / EN names. The English name has certain symbols that might interfere with matching removed before entering the candidates.
 
 ## Main Flow
 
-The overall flow can be understood by the following chain:
+The overall flow can be understood via the following pipeline:
 
 ```text
 SellProductSchedule
@@ -271,29 +271,29 @@ SellProductSchedule
 
 Key points:
 
-- `SellProductScheduleEnabled` determines the weekday selected by the user via `ScheduleRecognition`; when it hits, the Pipeline enters `SellProductMain`.
-- `SellProductLoop` only continues execution in the region construction interface; when not on the target interface, it hands over to `SceneEnterMenuRegionalDevelopment`.
+- `SellProductScheduleEnabled` determines the day of the week selected by the user via `ScheduleRecognition`. Upon match, the Pipeline enters `SellProductMain`.
+- `SellProductLoop` continues execution only in the region construction interface; when not in the target interface, it hands off to `SceneEnterMenuRegionalDevelopment`.
 - `SellProductAuto` automatically selects Valley IV or Wuling based on the current region construction page.
-- `SellProduct{Region}Sell` enters the outpost management page of the corresponding region, then iterates through all outposts in that region via `next`.
-- Each outpost node is generated by a template, responsible for recognizing the current outpost, clicking the outpost tag, and setting sell and operator-switch anchors.
-- If operator switching is enabled, `SellProduct{LocationId}BeforeSellOperator` checks the current operator before selling. If it differs from the selected target, the flow opens the operator liaison list, selects the target operator, and confirms assignment.
-- `SellProductSellLoop` chains up to 4 sell attempts via anchor.
-- Each attempt first exchanges goods, then adjusts the quantity to the target value using BetterSliding, and finally clicks to trade.
-- If an after-sell restore operator is configured, `SellProductSellLoopEnd` enters `SellProduct{LocationId}AfterSellOperator` through the `SellProductAfterSellOperator` anchor. Otherwise it hits the common empty node and ends the current outpost flow.
+- `SellProduct{Region}Sell` enters the outpost management page of the corresponding region, then traverses all outposts in that region via `next`.
+- Each outpost node is generated by a template, responsible for recognizing the current outpost, clicking the outpost tab, setting the sell anchor, and setting the contact operator switch anchor.
+- If contact operator switching is enabled, `SellProduct{LocationId}BeforeSellOperator` checks the current operator before selling. If inconsistent, it opens the contact operator list, selects the target operator, and confirms the assignment after the button changes to "Assign".
+- `SellProductSellLoop` strings up to 4 sell attempts via anchors.
+- Each attempt first changes goods, then uses BetterSliding to adjust the quantity to the target value, and finally clicks Trade.
+- If post-sell operator restoration is configured, `SellProductSellLoopEnd` enters `SellProduct{LocationId}AfterSellOperator` via the `SellProductAfterSellOperator` anchor; otherwise, it hits a generic empty node to end the outpost flow.
 
 ## How Task Options Modify Pipeline
 
-`assets/tasks/SellProduct.json` is generated by `task-template.jsonc`. Configurations selected by the user in the interface modify the Pipeline via `pipeline_override`.
+`assets/tasks/SellProduct.json` is generated by `task-template.jsonc`. The configuration selected by the user in the interface modifies the Pipeline via `pipeline_override`.
 
 ### Top-Level Options
 
-| Option                | Behavior                                                                                                                                     |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SellProductSchedule` | Writes weekday booleans to `SellProductSchedule.attach`                                                                                      |
-| `SellBeyondAidQuota`  | Controls whether to stop the task or automatically confirm to continue trading when exceeding the outpost's redeemable dispatch coupon limit |
-| `{RegionPrefix}Sell`  | Controls whether the region entry node `SellProduct{RegionPrefix}` is enabled                                                                |
+| Option                  | Behavior                                                                                       |
+| ----------------------- | ---------------------------------------------------------------------------------------------- |
+| `SellProductSchedule`   | Writes the day-of-week boolean values to `SellProductSchedule.attach`.                         |
+| `SellBeyondAidQuota`    | Controls whether to stop the task or automatically confirm to continue trading when the exchangeable dispatch ticket quota at an outpost is exceeded. |
+| `{RegionPrefix}Sell`    | Controls whether the region entry node `SellProduct{RegionPrefix}` is enabled.                 |
 
-### Outposts and Sell Attempts
+### Outpost & Sell Attempts
 
 Each outpost generates a set of switches:
 
@@ -308,14 +308,14 @@ Each outpost generates a set of switches:
 
 Default behavior:
 
-- Outpost switches are enabled by default.
-- Operator switching is disabled by default. When enabled, it requires selecting the selling operator and can optionally select an operator to restore after selling.
+- The outpost switch is enabled by default.
+- The contact operator switch is disabled by default; when enabled, an operator for selling must be selected, and an option to restore the operator after selling is available.
 - The 1st and 2nd sell attempts are enabled by default.
 - The 3rd and 4th sell attempts are disabled by default.
 
-### Operator Switching
+### Contact Operator Switch
 
-Each outpost has an optional operator-switch configuration:
+Each outpost has an optional contact operator switch configuration:
 
 ```text
 {RegionPrefix}{LocationId}Operator
@@ -323,13 +323,13 @@ Each outpost has an optional operator-switch configuration:
 {RegionPrefix}{LocationId}RestoreOperator
 ```
 
-The default is disabled. When enabled, the task option will:
+The default value is disabled. When enabled, the task options will:
 
-- Point the `SellProductBeforeSellOperator` anchor in `SellProduct{LocationId}SetBeforeSellOperatorAnchor` to `SellProduct{LocationId}BeforeSellOperator`.
-- Write multilingual OCR candidates for the current-operator check, list selection, and selected-confirmation nodes according to `TargetOperator`.
-- Decide from `RestoreOperator` whether the `SellProductAfterSellOperator` anchor should remain on the common empty node or point to `SellProduct{LocationId}AfterSellOperator`, and write multilingual OCR candidates for the restore target.
+- Point the `SellProductBeforeSellOperator` anchor of `SellProduct{LocationId}SetBeforeSellOperatorAnchor` to `SellProduct{LocationId}BeforeSellOperator`.
+- Based on `TargetOperator`, write multilingual OCR candidates for the current operator recognition and list selection nodes; after clicking a list item, only the "Assign" button is recognized, without re-checking the selected operator name.
+- Based on `RestoreOperator`, decide whether the `SellProductAfterSellOperator` anchor remains a generic empty node or points to `SellProduct{LocationId}AfterSellOperator` and writes OCR candidates for the restoration target's current operator recognition and list selection; the restoration flow similarly only recognizes the "Assign" button after clicking a list item.
 
-Before selling, if the current liaison operator is already the target operator, the flow enters `SellProductSellLoop` directly. If the target or restore operator cannot be found in the list, the corresponding node stops the task and asks the user to confirm operator ownership or adjust the outpost configuration.
+If the current contact operator is already the target operator before selling, it will directly enter `SellProductSellLoop`. If the target operator or restoration operator cannot be found in the list, the corresponding node will `StopTask` and prompt the user to confirm if the operator is already held or to adjust the configuration.
 
 ### Priority Items
 
@@ -339,13 +339,13 @@ Each sell attempt has a priority item selection:
 {RegionPrefix}{LocationId}Item{1..4}
 ```
 
-The default is `None`. When a specific item is selected, the task option will:
+The default value is `None`. Selecting a specific item will:
 
 - Enable `SellProduct{LocationId}SelectItem{N}`.
 - Write the multilingual candidate names for that item.
-- Set the miss handling to `SellProductPriorityGoodMissWarning`.
+- Set the miss handler to `SellProductPriorityGoodMissWarning`.
 
-If the priority item is missed, the flow will prompt "Priority item configured but no matching item currently recognized," then select the default item to continue selling, preventing the entire task from stopping at the item selection interface.
+If the priority item is missed, the flow will prompt "Priority goods configured but no matching item currently recognized", then select the default goods to continue selling, preventing the entire task from halting at the goods selection interface.
 
 ### Reserve Quantity
 
@@ -356,17 +356,17 @@ Each sell attempt has a reserve quantity configuration:
 {RegionPrefix}{LocationId}ReserveValue{1..4}
 ```
 
-The default is `Sell All`. When `Reserve Specific Quantity` is selected, it overrides the corresponding BetterSliding node:
+The default is `Sell All`. Selecting `Reserve Specified Quantity` will override the corresponding BetterSliding node:
 
 - `next` is changed to first attempt `SellProductSkipToNextSellLoop`, then attempt `SellProductSellThenLoop`.
 - `attach.Target` is written with the user-input reserve quantity.
 - `attach.TargetReverse` is set to `true`.
 
-This means BetterSliding will calculate the target as "Current maximum sellable quantity - Reserve quantity". If the reserve quantity is greater than or equal to current inventory, it goes to `SellProductSkipToNextSellLoop`, skipping this sell attempt and proceeding to the next.
+This means BetterSliding will calculate the target as "current maximum sellable quantity - reserve quantity". If the reserve quantity is greater than or equal to the current inventory, it takes `SellProductSkipToNextSellLoop`, skipping this sell attempt and proceeding to the next one.
 
 ## Priority Item Recognition
 
-Priority item nodes use Go custom recognition:
+The priority item node uses Go custom recognition:
 
 ```text
 SellProductNormalizedItemMatch
@@ -378,19 +378,19 @@ Implementation file:
 agent/go-service/sellproduct/normalized_match.go
 ```
 
-This recognizer runs OCR within the ROI of the item selection interface, then performs two layers of strict matching between OCR text and `candidates`:
+This recognizer runs OCR within the ROI of the goods selection interface, then performs two layers of strict matching on the OCR text and `candidates`:
 
-1. Tier A: Strips whitespace, brackets, vertical bars, hyphens, dots, commas, and other common separators, unifies ASCII case, then checks for strict equality.
-2. Tier B: Based on Tier A, additionally strips ASCII letters and numbers, used for handling CJK names mixed with English noise.
+1. Tier A: Strips whitespace, brackets, vertical bars, hyphens, periods, enumeration commas, etc., and standardizes ASCII case before strict equality check.
+2. Tier B: Based on Tier A, strips ASCII letters and numbers, used to handle cases where CJK names are mixed with English noise.
 
-Notes during maintenance:
+When maintaining, note:
 
-- Do not change it to loose edit distance matching, otherwise it's easy to mistakenly match "Citrus Preserves" to "Premium Citrus Preserves" or "Select Citrus Preserves."
+- Do not change it to loose edit distance matching, as it could easily mis-match "Citrus Can" to "Premium Citrus Can" or "Select Citrus Can".
 - When adding candidate names, prioritize generating them from zmdmap multilingual names.
-- If OCR has fixed noise, prioritize adding accurate candidates to `data.mjs`'s data assembly logic rather than expanding the matching algorithm.
-- After modifying the matching algorithm, run the regression tests covered by `agent/go-service/sellproduct/normalized_match_test.go`.
+- If OCR has fixed noise, prioritize adding accurate candidates to the data assembly logic in `data.mjs` rather than expanding the matching algorithm.
+- After modifying the matching algorithm, run the regression test covered by `agent/go-service/sellproduct/normalized_match_test.go`.
 
-## BetterSliding and Quantity Region
+## BetterSliding & Quantity Regions
 
 Each outpost generates 4 BetterSliding nodes:
 
@@ -406,118 +406,118 @@ Default parameters:
 - `Target: 999999`
 - `ClampTargetToMax: true`
 - `Direction: "right"`
-- `MaxTarget.Box`: Reads maximum sellable quantity.
-- `Quantity.Box`: Reads current transaction quantity.
+- `MaxTarget.Box`: Reads the maximum sellable quantity.
+- `Quantity.Box`: Reads the current trade quantity.
 - `ExceedingOverrideEnable: "SellProductSkipToNextSellLoop"`
 
 Quantity regions are uniformly maintained in `data.mjs`:
 
-| Constant               | Purpose                                            |
-| ---------------------- | -------------------------------------------------- |
-| `QUANTITY_BOX`         | Win resource pack current transaction quantity OCR |
-| `MAX_QUANTITY_BOX`     | Win resource pack maximum sellable quantity OCR    |
-| `QUANTITY_BOX_ADB`     | ADB resource pack current transaction quantity OCR |
-| `MAX_QUANTITY_BOX_ADB` | ADB resource pack maximum sellable quantity OCR    |
+| Constant                | Purpose                                  |
+| ----------------------- | ---------------------------------------- |
+| `QUANTITY_BOX`          | Win resource pack current trade quantity OCR |
+| `MAX_QUANTITY_BOX`      | Win resource pack maximum sellable quantity OCR |
+| `QUANTITY_BOX_ADB`      | ADB resource pack current trade quantity OCR |
+| `MAX_QUANTITY_BOX_ADB`  | ADB resource pack maximum sellable quantity OCR |
 
-If the game UI adjusts quantity positions, only these constants need to be changed, then regenerated to synchronize all outposts and 4 attempts.
+If the game UI adjusts the quantity positions, only these constants need to be changed, and regeneration will synchronize all outposts and 4 attempts.
 
-## Maintenance Process
+## Maintenance Procedures
 
-### Update zmdmap Data and Regenerate
+### Update zmdmap Data & Regenerate
 
 ```shell
 pnpm generate:SellProduct
 ```
 
-This command first executes the equivalent logic of `pnpm fetch:zmdmap`, updating `tools/pipeline-generate/data/settlement_trade.json`, then runs the generation configs under the `SellProduct` directory sequentially.
+This command first executes logic equivalent to `pnpm fetch:zmdmap`, updating `tools/pipeline-generate/data/settlement_trade.json`, then runs the generation configs under the `SellProduct` directory sequentially.
 
 ### zmdmap Adds New Sellable Item
 
 1. Run `pnpm generate:SellProduct`.
 2. Check if the new item appears in the priority item options for the corresponding outpost in `assets/tasks/SellProduct.json`.
-3. If the new item label didn't generate `$item.xxx`, add the corresponding `item.*` multilingual text in `assets/locales/interface/*.json`.
-4. If OCR name has fixed misrecognition, then evaluate whether you need to adjust `data.mjs` candidate name assembly logic.
+3. If the new item label did not generate as `$item.xxx`, add the corresponding `item.*` multilingual text in `assets/locales/interface/*.json`.
+4. If OCR names have fixed misrecognitions, evaluate whether to adjust the candidate name assembly logic in `data.mjs`.
 
-Ordinary new items typically don't require modifying outpost Pipeline templates.
+Normal item additions usually do not require changes to the outpost Pipeline template.
 
 ### zmdmap Adds New Outpost
 
-1. Run `pnpm fetch:zmdmap` to update cache.
-2. Check in `data.mjs` if you need to add `SETTLEMENT_OVERRIDE`, ensuring `LocationId`, `TextExpected` are stable.
+1. Run `pnpm fetch:zmdmap` to update the cache.
+2. In `data.mjs`, check if `SETTLEMENT_OVERRIDE` needs to be added to ensure stable `LocationId` and `TextExpected`.
 3. If it's a new region, add `DOMAIN_REGION_PREFIX`.
 4. Run `pnpm generate:SellProduct`.
-5. Add the new outpost to the corresponding region's `next` list in `assets/resource/pipeline/SellProduct/Sell.json`.
-6. If there's a new region, add region entry point and auto-selection logic in `assets/resource/pipeline/SellProduct.json`.
-7. Add nodes required for SceneManager to enter the outpost management page of that region.
-8. Add `task.SellProduct.{RegionPrefix}{LocationId}` and new region text in `assets/locales/interface/*.json`.
+5. Add the new outpost to the `next` list of the corresponding region in `assets/resource/pipeline/SellProduct/Sell.json`.
+6. If it's a new region, add the region entry and automatic selection logic in `assets/resource/pipeline/SellProduct.json`.
+7. Supplement the nodes required for SceneManager to enter the outpost management page of that region.
+8. Add `task.SellProduct.{RegionPrefix}{LocationId}` and the new region text in `assets/locales/interface/*.json`.
 9. Check both Win and ADB generation results.
 
-The generator doesn't automatically determine how a new outpost is accessed in the game UI, nor does it automatically add SceneManager jumps.
+The generator does not automatically determine how to enter a new outpost in the game UI, nor does it automatically add SceneManager jumps.
 
-### Outpost OCR Unstable
+### Unstable Outpost OCR
 
-First check:
+Prioritize checking:
 
 - `SellProductCheck{LocationId}TabText`
 - `SellProductCheck{LocationId}Text`
 - `SETTLEMENT_OVERRIDE[settlementId].TextExpected`
 
-If it's fixed misrecognized text, directly add candidates to `TextExpected`. If it's just an unsuitable ROI, you need to modify the `roi` of the corresponding OCR node in `pipeline-template.jsonc` and `pipeline-adb-template.jsonc`, then regenerate.
+If it's a fixed misrecognized text, directly add the candidate to `TextExpected`. If it's just an unsuitable ROI, modify the `roi` of the corresponding OCR node in `pipeline-template.jsonc` and `pipeline-adb-template.jsonc`, then regenerate.
 
 ### Priority Item Often Not Selected
 
 Troubleshooting order:
 
-1. Confirm if the task option really selected that priority item.
-2. Check the generated `SellProduct{LocationId}SelectItem{N}.custom_recognition_param.candidates`.
-3. Check if zmdmap multilingual names include the actual display name in game UI.
-4. Check `SellProductNormalizedItemMatch`'s `ocr_texts` and `candidates` in Go logs.
-5. Fixed noise should be supplemented with candidates first; only modify Go matching logic when the algorithm really can't express it.
+1. Confirm the task option actually selected that priority item.
+2. View the generated `SellProduct{LocationId}SelectItem{N}.custom_recognition_param.candidates`.
+3. Check if zmdmap multilingual names contain the name actually displayed in the game UI.
+4. View the `ocr_texts` and `candidates` of `SellProductNormalizedItemMatch` in the Go logs.
+5. Prioritize adding candidates for fixed noise; only modify the Go matching logic when the algorithm truly cannot express it.
 
-### Reserve Quantity Doesn't Meet Expectations
+### Reserve Quantity Not Working as Expected
 
-First check:
+Prioritize checking:
 
 - Whether the corresponding `ReserveValue{N}` overrode the correct `SellProduct{LocationId}BetterSliding{N}`.
 - Whether `attach.Target` is the user-input value.
 - Whether `attach.TargetReverse` is `true`.
 - Whether `MaxTarget.Box` can read the maximum sellable quantity.
-- Whether `Quantity.Box` can read the current transaction quantity.
+- Whether `Quantity.Box` can read the current trade quantity.
 - Whether Win and ADB resource packs used their respective correct OCR regions.
 
 ## Self-Check List
 
-After modifying the generator or data, it's recommended to execute:
+After modifying the generator or data, it is recommended to execute:
 
 ```shell
 pnpm generate:SellProduct
 pnpm prettier --write "docs/zh_cn/developers/tasks/sell-product-maintain.md" "docs/zh_cn/developers/README.md"
 ```
 
-If Go matching logic was changed:
+If the Go matching logic was modified:
 
 ```shell
 cd agent/go-service
 go test ./sellproduct
 ```
 
-Before submission, at least check:
+Before committing, at least check:
 
 1. Whether `assets/tasks/SellProduct.json` conforms to interface V2.
-2. Whether generated outpost files have no residual old outposts.
-3. Whether region `next` in `SellProduct/Sell.json` contains corresponding outposts.
-4. Whether the hierarchy of regions, outposts, attempts, priority items, and reserve quantities in task options is complete.
+2. Whether the generated outpost files have no residual old outposts.
+3. Whether the region `next` in `SellProduct/Sell.json` includes the corresponding outposts.
+4. Whether the hierarchy of regions, outposts, attempts, priority items, and reserve quantities in the task options is complete.
 5. Whether both Win and ADB `Outposts/*.json` have been regenerated.
 6. Whether JSON/Markdown conforms to `.prettierrc`.
 
 ## Common Pitfalls
 
-- **Directly hand-editing generated artifacts**: Next time `pnpm generate:SellProduct` is run, changes will be overwritten. Should modify `data.mjs`, templates, or hand-written linked files.
-- **Only generating Win, not ADB**: `pipeline-adb-config.json` is responsible for ADB outpost nodes. When involving quantity regions, outpost OCR, or sell attempt templates, you must also confirm ADB artifacts.
-- **New item without translatable label**: `data.mjs` looks up `item.*` keys from `zh_cn.json`. If not found, it can still generate options, but the label will fall back to the plain name; multilingual text needs to be added.
-- **New region has task options but flow can't enter**: Task option generation doesn't mean the entry chain is complete. You also need to add `SellProduct.json`, `Sell.json`, and SceneManager jumps.
-- **Expanding priority item matching causes item mix-up**: Don't use loose similarity to replace the current strict matching. There are many similar product names; the matching strategy must avoid substring false positives.
+- **Directly editing generated artifacts**: The next run of `pnpm generate:SellProduct` will overwrite the changes. Modify `data.mjs`, templates, or handwritten linked files instead.
+- **Generating only Win but not ADB**: `pipeline-adb-config.json` is responsible for ADB outpost nodes. When involving quantity regions, outpost OCR, or sell attempt templates, confirm the ADB artifacts as well.
+- **New item has no translatable label**: `data.mjs` reverse-looks up `item.*` keys from `zh_cn.json`. If not found, options can still be generated, but the label falls back to the normal name; multilingual text needs to be added.
+- **New region has task options but flow cannot enter**: Task option generation does not equal the entry pipeline being complete. `SellProduct.json`, `Sell.json`, and SceneManager jumps still need to be added.
+- **Expanding priority item matching causes item mix-up**: Do not replace the current strict matching with loose similarity. Similar item names are common, and matching strategies must avoid substring false positives.
 
-## Acknowledgements
+## Acknowledgments
 
-The outpost and tradeable item data for SellProduct comes from `zmdmap`, downloaded to `tools/pipeline-generate/data/settlement_trade.json` by `pnpm fetch:zmdmap` before participating in generation.
+The outpost and tradeable item data for SellProduct comes from `zmdmap`, downloaded to `tools/pipeline-generate/data/settlement_trade.json` via `pnpm fetch:zmdmap` for generation.

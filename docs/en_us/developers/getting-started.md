@@ -1,8 +1,8 @@
-# Getting started
+# Quick Start
 
-This guide walks through the full flow from idea to merge, using **auto-selling items** as an example.
+Take "Auto-sell Items" as an example, go through the complete development process from requirement to merge.
 
-## Prerequisites
+## Environment Preparation
 
 - Git
 - Python 3.10+
@@ -10,17 +10,17 @@ This guide walks through the full flow from idea to merge, using **auto-selling 
 - pnpm 10+
 - Go 1.25.6+
 
-### Check your local environment
+### Check Local Environment
 
 ```bash
 git --version
-python3 --version   # or python --version (watch out for Python 2)
+python3 --version   # or python --version (be mindful of Python 2)
 node --version
 pnpm --version
 go version
 ```
 
-### Clone and set up
+### Project Pull and Deployment
 
 ```bash
 git clone --recursive https://github.com/MaaEnd/MaaEnd.git
@@ -31,128 +31,133 @@ pnpm install
 
 > [!NOTE]
 >
-> If `setup_workspace.py` fails, see the [manual setup guide](#manual-setup-guide) below.
+> If `setup_workspace.py` fails, refer to the [Manual Configuration Guide](#手动配置指南) below.
 
-**Common `setup_workspace.py` options:**
+**Common parameters for `setup_workspace.py`:**
 
-| Option                | Description                                                                                                      |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| (no args)             | First-time setup — skips already-installed components automatically                                              |
-| `--update`            | Force update all installed dependencies to the latest version                                                    |
-| `--clean-cache`       | Clean the download cache directory                                                                               |
-| `--cpp-algo-pr <N>`   | Download cpp-algo from a specific PR's latest successful CI run (useful for quickly testing unmerged PR changes) |
-| `--cpp-algo-run <ID>` | Download cpp-algo from a specific workflow run ID                                                                |
+| Parameter             | Description                                                                                               |
+| --------------------- | --------------------------------------------------------------------------------------------------------- |
+| (No parameters)       | First-time initialization, skips already installed components                                              |
+| `--update`            | Force update all installed dependencies to the latest version                                              |
+| `--clean-cache`       | Clean the download cache directory                                                                         |
+| `--cpp-algo-pr <N>`   | Download cpp-algo from the latest successful CI run of a specified PR (for quick testing of unmerged PR changes) |
+| `--cpp-algo-run <ID>` | Download cpp-algo from a specified workflow run ID                                                         |
 
-> `--cpp-algo-pr` and `--cpp-algo-run` are mutually exclusive. When neither is specified, the default behavior downloads from the latest successful push build on the v2 branch.
+> `--cpp-algo-pr` and `--cpp-algo-run` are mutually exclusive; choose one. If not specified, defaults to downloading from the latest push build of the `v2` branch.
 
-### Editor (recommended)
+### Editor (Recommended)
 
-We recommend [Visual Studio Code](https://code.visualstudio.com/) (VS Code) for day-to-day development. After the clone and setup commands above, **open the repo root** in VS Code (it must contain `.vscode/extensions.json`) and install the **workspace recommended extensions** so your setup matches the team—Black, Prettier, **Maa Pipeline Support**, Markdownlint, Go, LLDB, and others listed in `.vscode/extensions.json`.
+We recommend using [Visual Studio Code](https://code.visualstudio.com/) (VS Code) as the daily development IDE for this project. After completing the clone and initialization above, **open the repository root directory** (must contain `.vscode/extensions.json`) with VS Code, and install the **Workspace Recommendations**, to align with the team environment (e.g., Black, Prettier, **Maa Pipeline Support**, Markdownlint, Go, LLDB, etc., full list in `.vscode/extensions.json` in the repository).
 
-**How to install recommended extensions:**
+**Install Recommended Extensions:**
 
-1. **Open the workspace:** **File → Open Folder…** and select the cloned repository root.
-2. **Notification:** If VS Code shows “This workspace has extension recommendations,” choose **Install** / **Install All**.
-3. **Extensions view:** Press `Ctrl+Shift+X` (Windows/Linux) or `Cmd+Shift+X` (macOS), type `@recommended` in the search box, expand **Workspace Recommendations**, then **Install** what you need.
-4. **Command Palette:** `Ctrl+Shift+P` / `Cmd+Shift+P` → run **`Extensions: Show Recommended Extensions`** and install from the list.
+1.  **Open Workspace**: Menu **File → Open Folder…**, select the cloned repository root directory.
+2.  **Notification Bar Installation**: If prompted in the bottom right corner with "This workspace has extension recommendations" or similar, choose **Install** / **Install All**.
+3.  **Extensions View**: Press `Ctrl+Shift+X` (macOS: `Cmd+Shift+X`) to open the Extensions sidebar, type `@recommended` in the search box, expand **Workspace Recommendations**, and click **Install** for the needed extensions.
+4.  **Command Palette**: `Ctrl+Shift+P` (macOS: `Cmd+Shift+P`) → Run **`Extensions: Show Recommended Extensions`**, and install from the list.
 
-See also: [Workspace recommended extensions](https://code.visualstudio.com/docs/editor/extension-marketplace#_workspace-recommended-extensions) in the VS Code docs.
+For more complete instructions, see the VS Code documentation: [Workspace Recommended Extensions](https://code.visualstudio.com/docs/editor/extension-marketplace#_workspace-recommended-extensions).
 
-## 0. Git basics and conventions
+## 0. Git Prerequisites and Conventions
 
-This project relies on Git features—**submodules** in particular. Before you dive into code, be comfortable with basic branching and history.
+This project relies on certain Git features (especially submodules). Before you start writing code, ensure you are familiar with basic Git branching operations.
 
-**If Git is still new, work through this interactive tutorial first:**
-👉 **[Learn Git Branching](https://learngitbranching.js.org/)**
+**If you are not very familiar with Git, please be sure to practice interactively through the following link first, and continue only after you are proficient:**
+👉 **[Learn Git Branching (Git Interactive Learning and Practice)](https://learngitbranching.js.org/)**
 
-Beyond `add` / `commit` / `push` / `pull`, two topics matter here:
+In addition to basic `add` / `commit` / `push` / `pull`, participating in this project requires you to understand the following two points:
 
-### Conventional Commits
+### Commit Conventions (Conventional Commits)
 
-Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). A clear history helps reviewers. Use these prefixes:
+Code commits in this project strictly follow the [Conventional Commits specification](https://www.conventionalcommits.org/zh-hans/v1.0.0/). A clear commit history helps Reviewers quickly understand your intent. Use the following prefixes for each commit:
 
-- `feat:` new feature (e.g. new Pipeline nodes)
-- `fix:` bug fix (e.g. incorrect ROI)
-- `docs:` documentation only
-- `style:` formatting, whitespace, etc. (no behavior change)
-- `chore:` tooling and housekeeping (not production logic)
+- `feat:` A new feature (e.g., wrote a new Pipeline node)
+- `fix:` A Bug fix (e.g., fixed an ROI coordinate error)
+- `docs:` Documentation only changes
+- `style:` Changes that do not affect the meaning of the code (whitespace, formatting, missing semicolons, etc.)
+- `chore:` Changes to the build process or auxiliary tools (does not involve production code)
 
-> **Example:** `feat(SellProduct): add Regional Development auto-sell Pipeline`
+> **Example**: `feat(SellProduct): Add regional construction auto-sell Pipeline`
 
-### Submodule updates
+### About Submodule Updates
 
-Git submodules hold standalone dependencies and large assets (e.g. recognition **model** libraries).
+This project uses Git Submodules to manage some independent dependency libraries and large files (e.g., model libraries used for recognition).
 
-**Common pitfall:** When you commit, `git status` may show `model` (or another submodule) as modified even though you never touched those files. You often just **pulled** or **switched branches**: the superproject now records a new submodule revision, but your **local submodule checkout is out of date**, so Git reports a diff.
+**🚧 Common pitfalls for beginners:**
+When preparing a `commit` to submit code, you might see a prompt in the Git status indicating that `model` (or another submodule) has been modified, even though you are sure you haven't changed any model files.
+This usually happens because you just pulled the latest code or switched branches, the submodule version pointer recorded in the main repository has been updated, but **your local submodule files haven't been synced yet**, causing Git to think you "modified" it.
 
-The same mismatch can show up as strange changes or “model not found” errors after a pull or branch switch.
+Similarly, after pulling updates from the main branch or switching branches, you might encounter inexplicable modifications, or the code might report that the model cannot be found—this is also often because **the pointer in the main repository has been updated, but your local submodule files haven't been synced**.
 
-**What to do:** Whenever you see that ghost diff, or after each `git pull`, run this from the repo root:
+> The main repository doesn't store the file contents of submodules, only a "pointer"—pointing to a specific commit SHA of the submodule repository.
+> **💡 Solution:**
+> When encountering this "ghost modification," or after every `git pull` to get the latest code, run the following command in the repository root directory:
 
 ```bash
 git submodule update --init --recursive
 ```
 
-## 1. Confirm the requirement
+## 1. Confirm Requirements
 
-Open or file an [Issue](https://github.com/MaaEnd/MaaEnd/issues), e.g. “Automatically sell selected items from inventory.”
+Go to the [Issue](https://github.com/MaaEnd/MaaEnd/issues) to find or create the corresponding requirement. For example: "Want to auto-sell specified items in the backpack."
 
-- Check whether the idea is in scope and whether someone is already working on it.
-- If unsure, discuss in the Issue thread or ping a maintainer via Issue/PR.
+- First, confirm if the requirement is reasonable and if someone is already working on it.
+- If unsure, discuss it in the Issue, or directly create an Issue / PR to communicate with the maintainer.
 
-## 2. Fork and open a Draft PR
+## 2. Fork and Create a Draft PR
 
 ```bash
-# After forking, clone your fork and create a feature branch
+# After forking, clone your repository and create a feature branch
 git checkout -b feat/auto-sell-items
 ```
 
-Open a **Draft PR** on GitHub early, with a clear title. Others can see work in progress and avoid duplicate effort.
+Create a **Draft PR** on GitHub as early as possible, with a clear title stating what you are doing. This lets others know someone is working on it, avoiding duplicate work.
 
-## 3. Author Pipeline
+## 3. Write the Pipeline
 
-Skim the [components guide](./components-guide.md) so you know where changes belong.
+First, read the [Component Guide](./components-guide.md) to understand the project structure and confirm where you should make changes.
 
-For “sell items,” organize Pipeline under the task name **SellProduct**: put the entry in `assets/resource/pipeline/SellProduct.json`, and split into the `SellProduct/` subfolder when the flow grows (same layout as the existing **Sell Product** task in this repo), then add nodes.
+For "Sell Product", organize the Pipeline by task name **SellProduct**: the entry point is written in `assets/resource/pipeline/SellProduct.json`. If the process is complex, you can create a subdirectory `SellProduct/` in the same location and split it into multiple JSON files (consistent with the existing "Sell Product" task in the MaaEnd repository), then start writing nodes.
 
 ### Naming
 
-Use PascalCase and keep the task prefix, e.g. `SellProductOpenBag`, `SellProductSelectItem`, `SellProductConfirmSell`.
+Node names use PascalCase and are consistent with the task prefix, e.g., `SellProductOpenBag`, `SellProductSelectItem`, `SellProductConfirmSell`.
 
-### Think like a state machine / decision tree
+### Think like a State Machine/Decision Tree
 
-Pipeline core logic is similar to a **finite state machine (FSM)** / **decision tree**: each node recognizes the screen, acts, then follows `next`:
+The core logic of the Pipeline is similar to a **Finite State Machine (FSM) / Decision Tree**: each node first recognizes the current screen, performs an operation, then uses `next` to jump to the next state:
 
 ```text
-Open bag → recognize item → tap item → recognize sell → tap sell → recognize confirm → confirm → back to list
+Open backpack → Recognize item → Click item → Recognize sell button → Click sell → Recognize confirmation popup → Confirm → Return to list
 ```
 
-**Recognize before you act—never tap blind.** See [coding standards](./coding-standards.md) for more.
+**Always recognize first, then act. Never click blindly.** See the [Coding Standards](./coding-standards.md) for more rules.
 
-## 4. Screenshots and templates
+## 4. Screenshots and Templates
 
-Recognition needs template images. Capture them with the [dev tools](./tools-and-debug.md#development-tools):
+Recognition nodes require template images. Use the [Development Tools](./tools-and-debug.md#开发工具) to take screenshots:
 
-- **Maa Pipeline Support** (VS Code extension)—screenshots, ROI, color pick.
-- Or [MaaPipelineEditor](https://mpe.codax.site/docs) for visual Pipeline editing.
-- All images and coordinates assume **1280×720**; with **Maa Pipeline Support** you do not need to change the game resolution—the framework scales captures.
+- Recommended: **Maa Pipeline Support** (VS Code plugin) — allows direct screenshot capture, ROI selection, and color picking.
+- You can also use [MaaPipelineEditor](https://mpe.codax.site/docs) to visually build Pipelines.
+- All images and coordinates are based on **1280×720**. In the image below, we use **Maa Pipeline Support**; you don't need to switch the game resolution yourself, the framework will automatically resize images.
 
-When capturing, avoid HDR, night mode, and overlays such as NVIDIA filters or game++—they skew colors and break recognition.
+> [!NOTE]
+> When taking screenshots, ensure HDR, night mode, and filters from Nvidia or game++ etc. are disabled, as colors will interfere with recognition. Use the color picker tool to verify if the color code is standard.
 
 ![screenshot](https://github.com/user-attachments/assets/c9bb7157-97e4-4049-bb0a-e937456456f8)
 
-Background clutter hurts match quality; an automatic green-screen tool helps. (Doing green-screen by hand is slow and inaccurate.)
+As you can see, our image has background interference, which reduces matching efficiency. We can use the automatic green screen tool to solve this problem. (Manual green screening is not recommended as it is slow and inaccurate)
 
 ![green background](https://github.com/user-attachments/assets/4da87f61-30fe-4a94-b6ed-68672877fff3)
 
-Save templates under `assets/resource/image/SellProduct/`.
+Place the captured templates under `assets/resource/image/SellProduct/`.
 
-With images in place, add your first node. The example below uses **TemplateMatch** to find the **Regional Development** entry on the main screen, then **Click**; set `template` to the path under `assets/resource/image/`, tighten `roi` with the plugin (tune to your template and UI); if you used green-screen processing, set `green_mask`.
+Once we have the images, we can start writing the first node. Below, we use **TemplateMatch** to find the "Regional Construction" entry on the main interface, and after a hit, **Click** to enter. `template` is the relative path to your image placed under `assets/resource/image/`, `roi` is selected using the plugin to narrow the search area (needs adjustment based on your template and interface); if you processed the template with a green screen, you can add `green_mask`.
 
 ```json
 {
     "SellProductMain": {
-        "desc": "On main screen, find Regional Development entry and tap",
+        "desc": "On the main interface, recognize the regional construction entry and click to enter",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -181,18 +186,18 @@ With images in place, add your first node. The example below uses **TemplateMatc
 }
 ```
 
-On hit, `Click` runs (default: tap center of the match box).
+This node will recognize this image. When a recognition hit occurs, it will execute `Click` (defaulting to the center of the match box).
 
-Coding standards: avoid `pre_delay` / `post_delay` as fixed waits—device performance varies; 10 fps vs 60 fps changes how long animations take, and hard delays hide bugs that only show up for users.
+Coding Standard: Using hard delays like `pre_delay` or `post_delay` is not recommended because performance varies greatly across devices. Waiting times for animations differ completely between 10 fps and 60 fps. Hard delays can mask many issues; what works in a development environment may not work in a user environment.
 
-Only use `pre_wait_freezes` / `post_wait_freezes` when the screen must settle; avoid delays otherwise. They track pixel change in the match ROI. Here `"post_wait_freezes": 100` means: after pixels in `[400, 200, 480, 320]` settle, wait another 100 ms.
+Use `pre_wait_freezes` or `post_wait_freezes` only when necessary to wait for the screen to stabilize; otherwise, delays should be avoided as much as possible. For example, `"post_wait_freezes": 100` in the text above means waiting 100 ms after pixel changes in the `roi` area `[400, 200, 480, 320]` have stopped.
 
-The next node, `SellProductLoop`, should **recognize** that you are in Regional Development—do not assume the tap always succeeds. FSM rule: **recognize state, then act.**
+The next step in `SellProductLoop` should continue using a recognition node to confirm entry into the regional construction interface, rather than assuming the click was successful. The most important rule for an FSM is: recognize and confirm the current state first, then perform the operation.
 
 ```json
 {
     "SellProductLoop": {
-        "desc": "Main loop; expects to start from Regional Development",
+        "desc": "Main loop, only supports starting from the regional construction interface",
         "recognition": "And",
         "all_of": [
             "InRegionalDevelopment"
@@ -210,20 +215,20 @@ The next node, `SellProductLoop`, should **recognize** that you are in Regional 
 }
 ```
 
-`InRegionalDevelopment` is a shared recognition node already defined in the project. **You can reuse any existing recognition logic by simply referencing its node name**—no need to duplicate the definition.
+The `InRegionalDevelopment` called in `all_of` above is a recognition node already defined in the project, used to confirm you are currently on the main regional construction interface. **You can directly reuse existing recognition logic by filling in the node name**, avoiding rewriting the same code.
 
-> **💡 Tip: Combination recognition (And / Or)**
+> **💡 Advanced Tip: Combinational Recognition (And / Or)**
 >
-> Beyond `TemplateMatch`, `Color`, and other basic methods, Pipeline supports logical **`And`** and **`Or`** conditions to combine multiple recognition nodes—useful for complex or variable UI states.
+> In addition to traditional basic methods like `TemplateMatch` (template matching) and `Color` (color matching), the Pipeline also supports using logical conditions **`And`** and **`Or`** to combine multiple recognition nodes. This is very useful when dealing with complex or variable UI states.
 >
-> See [MaaFramework Pipeline protocol – And/Or](https://maafw.com/docs/3.1-PipelineProtocol#and) for syntax and advanced usage.
+> For specific syntax and advanced usage of combinational recognition, please refer to the [MaaFramework Official Documentation - Pipeline Protocol](https://maafw.com/docs/3.1-PipelineProtocol#and).
 
-The example below shows `InRegionalDevelopmentView2`, which recognizes the Regional Development secondary screen by OCR'ing the top function names.
+The example below shows another node, `InRegionalDevelopmentView2`, used to recognize the secondary interface of regional construction. It uses OCR to recognize the top function name to accurately confirm the current interface state:
 
 ```json
 {
     "InRegionalDevelopmentView2": {
-        "desc": "Regional Development secondary screen",
+        "desc": "On the regional construction secondary interface",
         "recognition": "OCR",
         "roi": [
             0,
@@ -257,14 +262,14 @@ The example below shows `InRegionalDevelopmentView2`, which recognizes the Regio
 }
 ```
 
-Use **OCR** for text so i18n can apply; do not use TemplateMatch for text. The snippet above is illustrative—production uses more reusable patterns.
+For text recognition, use OCR to support i18n; do not use TemplateMatch for text recognition. The above is for demonstration purposes only; the project already has a more mature reusable solution.
 
-Prefer calling existing scene navigation nodes, then **JumpBack**, then the next state—don’t reinvent the wheel.
+It is recommended to directly call existing scene transition nodes. After completion, return via JumpBack, and then enter the next state, avoiding reinventing the wheel.
 
 ```json
 {
     "SellProductMain": {
-        "desc": "Task entry",
+        "desc": "Script entry point",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -276,42 +281,42 @@ Prefer calling existing scene navigation nodes, then **JumpBack**, then the next
 }
 ```
 
-Handy entry points:
+Common reusable entry points are listed below:
 
-| Area           | Description                                   | Doc                                      |
-| -------------- | --------------------------------------------- | ---------------------------------------- |
-| Common buttons | White/yellow confirm, cancel, close, teleport | [common-buttons.md](./common-buttons.md) |
-| SceneManager   | Navigate from any screen to a target scene    | [scene-manager.md](./scene-manager.md)   |
+| Node             | Description                                                                        | Documentation                                   |
+| ---------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Common Buttons   | White/yellow confirm, cancel, close, teleport, etc.                                | [common-buttons.md](./common-buttons.md)       |
+| SceneManager     | Universal jump: automatically navigate to the target scene from any interface      | [scene-manager.md](./scene-manager.md)         |
 
-## 5. Debug and test
+## 5. Debugging and Testing
 
-After a task is in place, test it. Tools and workflow: [Tools & debugging](./tools-and-debug.md).
+After completing a set of tasks, testing is required. See [Tools and Debugging](./tools-and-debug.md) for optional tools and procedures.
 
-Load resources in a dev tool, connect an emulator or PC client, and run your nodes.
+Load resources with the development tool, connect to the emulator or PC client, and run your nodes.
 
-- After each Pipeline edit, **reload resources** in the tool—no rebuild.
-- Different frame rates (12 fps vs 60 fps) change animation timing and can shift when recognition fires.
+- Every time you modify the Pipeline, simply **reload the resources** in the tool; no recompilation is needed.
+- Be aware that animation transition speeds differ at different frame rates (e.g., 12 fps vs 60 fps), which may cause recognition timing discrepancies.
 
-> If you changed Go Service, run `python tools/build_and_install.py` first.
+> If you modified the Go Service, you must first run `python tools/build_and_install.py` to recompile.
 
-This walkthrough uses **Maa Pipeline Support**: open **Admin mode** in the control panel and attach the window.
+The current example uses **Maa Pipeline Support** (VS Code plugin): enable Admin Mode on the control panel and connect to the window.
 
 ![admin](https://github.com/user-attachments/assets/9d86ae89-0985-4606-bfa6-d4ec96dbee6f)
 
-Click **Launch** on the Pipeline task to run and parse the flow. Logs show which nodes ran and which failed.
+Then click Launch on the Pipeline task; it will automatically start executing and parsing the task. Which nodes were executed and which node reported an error can be viewed in the logs.
 
 ![launch](https://github.com/user-attachments/assets/6392310c-756c-4c33-b54a-9ab5ff9f4ad2)
 ![debug panel](https://github.com/user-attachments/assets/653c5314-f6ba-4ffc-91a5-739ab15382dc)
 
-Iterate from there.
+Next, debug based on the feedback.
 
-## 6. Ship supporting files
+## 6. Complete Supporting Files
 
-Once Pipeline works, wire up the rest:
+After the Pipeline runs, complete the supporting files:
 
-### Task definition
+### Task Definition
 
-Create or edit JSON under `assets/tasks/` to define the task entry and options for the UI. Example:
+Create or modify a JSON file under `assets/tasks/` to define the task entry node and options for importing into the frontend. For example:
 
 ```json
 {
@@ -333,18 +338,18 @@ Create or edit JSON under `assets/tasks/` to define the task entry and options f
 }
 ```
 
-### i18n
+### i18n Text
 
-Add task name/description keys under `assets/locales/interface/`. Example:
+Add translation keys for the task name and description in `assets/locales/interface/`. For example:
 
 ```json
 {
     "task.SellProduct.label": "🛒 Sell Products",
-    "task.SellProduct.description": "Use products at various outposts to exchange for corresponding procurement vouchers.\nTask options allow you to enable or disable sales features in specific regions."
+    "task.SellProduct.description": "Use products to redeem corresponding dispatch vouchers at various outposts.\nYou can enable or disable sales functions for specific regions in the task options."
 }
 ```
 
-Import the task file from `assets/interface.json`:
+Finally, import the task file via `import` in `assets/interface.json`, for example:
 
 ```json
 {
@@ -357,62 +362,64 @@ Import the task file from `assets/interface.json`:
 }
 ```
 
-(Real `import` lists are longer—append in the same style as the rest of the project.)
+(The actual file will have more entries; simply append according to the existing order in the project.)
 
-## 7. Verify and submit
+## 7. Verification and Submission
 
-### Verify in MXU
+### Verification in MXU
 
-Run `install/mxu.exe` and confirm the task appears and runs.
+Launch `install/mxu.exe` and confirm that the task displays and runs correctly in the UI.
 
-### Push and request review
+### Push and Request Review
 
 ```bash
 git push origin feat/auto-sell-items
 ```
 
-Mark the Draft PR **Ready for review** and wait for maintainer feedback.
+On GitHub, change the Draft PR to **Ready for Review**, select `v2` as the Base branch, and wait for maintainer review.
 
-Congratulations on shipping your first task!
+> If the Bug you fixed also exists in the latest stable release, you need to submit to the `release/vX.Y` branch. See the [Release Process](./release-process.md) for details.
 
-## What to read next
+Congratulations, you've completed your first task!
 
-- Reusable nodes → [components guide](./components-guide.md)
-- Dev tools in depth → [tools & debugging](./tools-and-debug.md)
-- Full coding standards → [coding standards](./coding-standards.md)
-- Doc index → [README.md](./README.md)
-- Pipeline protocol details → [Pipeline protocol](https://maafw.com/docs/3.1-PipelineProtocol/)
+## What's Next
+
+- Learn about reusable nodes to avoid reinventing the wheel → [Component Guide](./components-guide.md)
+- Master development tool details → [Tools and Debugging](./tools-and-debug.md)
+- View the complete version of coding standards → [Coding Standards](./coding-standards.md)
+- All documentation index → [README.md](./README.md)
+- More specific Pipeline protocol explanation → [Pipeline Protocol](https://maafw.com/docs/3.1-PipelineProtocol/)
 
 ---
 
-## Manual setup guide
+## Manual Configuration Guide
 
 <details>
 
-1. Fully clone the repo and submodules.
+1.  Fully clone the project and sub-repositories.
 
-2. Download [MaaFramework](https://github.com/MaaXYZ/MaaFramework/releases) and extract into `deps/`.
+2.  Download [MaaFramework](https://github.com/MaaXYZ/MaaFramework/releases) and extract its contents into the `deps` folder.
 
-3. Download MaaDeps pre-built:
+3.  Download MaaDeps pre-built.
 
     ```bash
     python tools/maadeps-download.py
     ```
 
-4. Build go-service and configure paths:
+4.  Compile go-service and configure paths.
 
     ```bash
     python tools/build_and_install.py
     ```
 
-    > To build cpp-algo as well, add `--cpp-algo`:
+    > If you also need to compile cpp-algo, add the `--cpp-algo` parameter:
     >
     > ```bash
     > python tools/build_and_install.py --cpp-algo
     > ```
 
-5. Copy contents of `deps/bin` from step 2 into `install/maafw/`.
+5.  Copy the contents of `deps/bin` extracted in Step 2 to `install/maafw/`.
 
-6. Download [MXU](https://github.com/MistEO/MXU/releases) and extract into `install/`.
+6.  Download [MXU](https://github.com/MistEO/MXU/releases) and extract it to `install/`.
 
 </details>
