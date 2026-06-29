@@ -1,19 +1,10 @@
 {
-    "CloseGame": {    },
-    "CloseGame_CN": {
-        "action": "StopApp",
-        "package": ""
+    "CloseGame": {
+        "desc": "关闭游戏,该节点由 ClientVersion 选项覆盖next"
     },
-    "CloseGame_Bilibili": {
-        "action": "StopApp",
-        "package": ""
-    },
-    "CloseGame_Global": {
-        "action": "StopApp",
-        "package": ""
-    },
-    "CloseGame_VN": {
-        "action": "StopApp",
-        "package": ""
-    }
+    // 以下节点由其他资源覆盖
+    "CloseGame_CN": {},
+    "CloseGame_Bilibili": {},
+    "CloseGame_Global": {},
+    "CloseGame_VN": {}
 }
