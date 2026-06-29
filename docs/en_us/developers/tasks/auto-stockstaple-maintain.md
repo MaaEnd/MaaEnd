@@ -27,15 +27,15 @@ This document was updated on June 6, 2026.
 
 ## Execution Flow
 
-1.  Check if today is within the [execution cycle](#执行周期); if not, end directly.
-2.  Read the user-selected purchase items, [merge them into a product name OCR whitelist](#attach-与白名单初始化) (implementation in `Main.json` + `attachregex/action.go`).
+1.  Check if today is within the [execution cycle](#execution-cycle); if not, end directly.
+2.  Read the user-selected purchase items, [merge them into a product name OCR whitelist](#attach-and-whitelist-initialization) (implementation in `Main.json` + `attachregex/action.go`).
 3.  Sequentially enter enabled regions (Valley IV / Wuling) based on options, and jump to the stable supply interface for that region.
 4.  Loop scan on the list page, judging sequentially each round:
-    - Whether remaining dispatch tickets are [below the retention threshold](#调度券保留阈值) → stop scanning this region.
-    - Whether a [buyable target item is recognized](#商品识别链) → click to enter the purchase popup.
+    - Whether remaining dispatch tickets are [below the retention threshold](#dispatch-ticket-retention-threshold) → stop scanning this region.
+    - Whether a [buyable target item is recognized](#item-recognition-chain) → click to enter the purchase popup.
     - Whether it is sold out → stop scanning this region.
     - Otherwise, swipe down the list to continue searching (max 25 swipes per region).
-5.  Handle the purchase popup according to the [three-branch quantity control](#数量控制三分支): exit due to insufficient tickets / purchase if under the limit / exclude if the limit is reached.
+5.  Handle the purchase popup according to the [three-branch quantity control](#quantity-control-three-branches): exit due to insufficient tickets / purchase if under the limit / exclude if the limit is reached.
 6.  End after all enabled regions are completed.
 
 > Recognizing and clicking an item in the list does not equal a successful purchase; an order is only placed when the quantity control reaches the confirmation step.

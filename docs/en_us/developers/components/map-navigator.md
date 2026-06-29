@@ -88,8 +88,8 @@ Indicates that a `SPRINT` action should be executed upon reaching this point. Cu
 - `TRANSFER`: Stop upon arrival, wait for external force to move the character to the next path segment, then continue navigation from subsequent points.
 - `PORTAL`: Cross-area transition point, upon triggering, enter blind walk to wait for area switch.
 - `HEADING`: Adjust the camera to a specified orientation, then press `W` once.
-- `COLLECT`: Collection point, upon precise arrival, synchronously trigger AutoCollect OCR + click, without exiting NaviController. See [Collection Semantics](#采集语义-collect--dig).
-- `DIG`: Digging point, same as `COLLECT`, but triggers a digging subtask. See [Collection Semantics](#采集语义-collect--dig).
+- `COLLECT`: Collection point, upon precise arrival, synchronously trigger AutoCollect OCR + click, without exiting NaviController. See [Collection Semantics](#collection-semantics-collect--dig).
+- `DIG`: Digging point, same as `COLLECT`, but triggers a digging subtask. See [Collection Semantics](#collection-semantics-collect--dig).
 
 ##### **3. Strict Arrival Point**
 

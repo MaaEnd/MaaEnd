@@ -91,7 +91,7 @@ Common practice is to add to `next`:
 
 ### OCR Write Complete Text
 
-`expected` must contain the complete text, not partial. Multi-language processing is delegated to the i18n toolchain. **Only when the OCR engine is unstable in recognizing complete text** is it allowed to use fragments or handwritten regular expressions. In this case, you must add `// @i18n-skip` and a comment above the array to retain the complete original text. See below [OCR and i18n](#ocr-与-i18n) for details.
+`expected` must contain the complete text, not partial. Multi-language processing is delegated to the i18n toolchain. **Only when the OCR engine is unstable in recognizing complete text** is it allowed to use fragments or handwritten regular expressions. In this case, you must add `// @i18n-skip` and a comment above the array to retain the complete original text. See below [OCR and i18n](#ocr-and-i18n) for details.
 
 ### Reuse First, Then Add New
 

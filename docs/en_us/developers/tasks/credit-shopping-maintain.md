@@ -23,14 +23,14 @@ This document was updated on June 6, 2026.
 
 ## Execution Flow
 
-1. Enter the credit exchange tab; if not in the shop, navigate first, then [claim pending credits](#领取信用) (`ClaimCredit.json`).
-2. Before entering the scan loop, [initialize the item name whitelist for each tier once](#attach-与白名单初始化) (`Shopping.json` + `attachregex/action.go`).
+1. Enter the credit exchange tab; if not in the shop, navigate first, then [claim pending credits](#claiming-credits) (`ClaimCredit.json`).
+2. Before entering the scan loop, [initialize the item name whitelist for each tier once](#attach-and-whitelist-initialization) (`Shopping.json` + `attachregex/action.go`).
 3. In each round, for the current shelf snapshot, evaluate in a fixed priority order (`Shopping.json`):
-    - A target item in some tier [is affordable but credit is insufficient](#自动补信用) → jump to base to replenish credit and return.
-    - Whether it matches [Priority Purchase 1 / 2 / 3](#三档购买优先级) → enter the purchase popup.
-    - Whether the current credit is [below the reserve threshold](#保留信用点阈值) → end the task.
-    - Whether refresh attempts are exhausted, whether to trigger [stable refresh to direct purchase](#强制策略与刷新).
-    - Follow the [force strategy](#强制策略与刷新) to purchase any affordable item / refresh the shelf / end directly.
+    - A target item in some tier [is affordable but credit is insufficient](#automatic-credit-replenishment) → jump to base to replenish credit and return.
+    - Whether it matches [Priority Purchase 1 / 2 / 3](#three-tier-purchase-priority) → enter the purchase popup.
+    - Whether the current credit is [below the reserve threshold](#credit-point-reserve-threshold) → end the task.
+    - Whether refresh attempts are exhausted, whether to trigger [stable refresh to direct purchase](#force-strategy-and-refresh).
+    - Follow the [force strategy](#force-strategy-and-refresh) to purchase any affordable item / refresh the shelf / end directly.
 4. In the purchase popup, confirm the item, record the focus (`BuyItem.json` + `BuyItemFocus.json`), return to the list, and continue scanning.
 
 > The `next` order of the scan loop defines the business priority; to change behavior, examine the entire chain, not just a single recognizer.
@@ -101,7 +101,7 @@ To make a tier ignore the threshold, modify the corresponding tier's "Unconditio
 
 ### Automatic Credit Replenishment
 
-If a tier has "Auto Replenish Credit" enabled, and the [credit replenishment recognition chain](#商品识别链) matches, it jumps to `NeedCredit.json`:
+If a tier has "Auto Replenish Credit" enabled, and the [credit replenishment recognition chain](#credit-replenishment-chain) matches, it jumps to `NeedCredit.json`:
 
 1. Return to the base reception room, and according to the configuration, gift clues or initiate clue exchange.
 2. The number of gifts is controlled by `CreditShoppingClueSend` (`0` = no gifts).

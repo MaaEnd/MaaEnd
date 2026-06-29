@@ -25,7 +25,7 @@ The following sections detail the specific usage of **common nodes** provided by
 
 > [!IMPORTANT]
 >
-> A **GUI tool** is provided in the repository, which can conveniently generate, import, and edit waypoints. Please refer to the [tool instructions](#工具说明) to learn how to maximize efficiency by using the tool.
+> A **GUI tool** is provided in the repository, which can conveniently generate, import, and edit waypoints. Please refer to the [tool instructions](#tool-description) to learn how to maximize efficiency by using the tool.
 
 #### Node Parameters
 

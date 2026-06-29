@@ -31,7 +31,7 @@ pnpm install
 
 > [!NOTE]
 >
-> If `setup_workspace.py` fails, refer to the [Manual Configuration Guide](#手动配置指南) below.
+> If `setup_workspace.py` fails, refer to the [Manual Configuration Guide](#manual-configuration-guide) below.
 
 **Common parameters for `setup_workspace.py`:**
 
@@ -135,7 +135,7 @@ Open backpack → Recognize item → Click item → Recognize sell button → Cl
 
 ## 4. Screenshots and Templates
 
-Recognition nodes require template images. Use the [Development Tools](./tools-and-debug.md#开发工具) to take screenshots:
+Recognition nodes require template images. Use the [Development Tools](./tools-and-debug.md#development-tools) to take screenshots:
 
 - Recommended: **Maa Pipeline Support** (VS Code plugin) — allows direct screenshot capture, ROI selection, and color picking.
 - You can also use [MaaPipelineEditor](https://mpe.codax.site/docs) to visually build Pipelines.

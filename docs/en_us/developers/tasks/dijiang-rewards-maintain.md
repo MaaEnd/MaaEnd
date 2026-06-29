@@ -27,11 +27,11 @@ This document was updated on June 9, 2026 (synchronized with the recovery of the
 
 1. Enter the Dijiang ship central hub from the task entry (`Entry.json`).
 2. At the central hub, attempt each sub-stage in a fixed sequence (`MainFlow.json`); after completing one stage, return to the hub to continue to the next:
-    - (Optional) [One-click collect](#一键收取) products and clues
-    - [Recover mood](#恢复心情)
-    - [Reception room](#会客室)
+    - (Optional) [One-click collect](#one-click-collect) products and clues
+    - [Recover mood](#recover-mood)
+    - [Reception room](#reception-room)
     - Manufacturing chamber: claim output → restock → assist → exit
-    - [Cultivation chamber](#培养舱选项) (most option overrides)
+    - [Cultivation chamber](#cultivation-chamber-options) (most option overrides)
 3. End the task when no stages are triggered.
 
 Each stage can be individually toggled via `StageTaskSetting`; by default, the recommended full process is followed.
@@ -53,7 +53,7 @@ Operator selection logic: Click the first operator on the left → check if mood
 
 Upon entering the reception room, attempt in order: handle exchange completion popup → collect clues → receive clues → place/replace clues → (optional) start clue exchange → exit.
 
-When clue inventory is full, follow the [clue gifting](#线索赠予) branch, which is not an independent top-level stage.
+When clue inventory is full, follow the [clue gifting](#clue-gifting) branch, which is not an independent top-level stage.
 Whether to actively "start clue exchange" is controlled by `AutoStartExchange`, disabled by default, reserved for credit store linkage.
 
 ### Manufacturing Chamber
@@ -65,7 +65,7 @@ Upon entry: claim output → restock → use assist → exit. Maintenance focus 
 Default behavior: claim mature rewards → normal material selection for growth → exit. "Replant" is disabled by default and must be explicitly enabled by an option.
 
 Detail page loop: claim reward → (optional) replant → (optional) enter material selection list → find target → confirm growth or extract base core → return to detail page to continue.
-Material selection logic is almost entirely overridden by [cultivation chamber options](#培养舱选项), which is the maintenance focus.
+Material selection logic is almost entirely overridden by [cultivation chamber options](#cultivation-chamber-options), which is the maintenance focus.
 
 ## Special Handling
 

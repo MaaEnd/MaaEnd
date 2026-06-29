@@ -55,7 +55,7 @@ Before starting, let's explain common terms in the simplest language. Precision 
 **Learning Git? Recommended resources, in order:**
 
 1. [Learn Git Branching](https://learngitbranching.js.org/) — Highly recommended! Interactive challenges, learn while playing, also recommended in project documentation
-2. [Liao Xuefeng's Git Tutorial](https://www.liaoxuefeng.com/wiki/896043488029600) — In Chinese, very detailed, watch this if you don't want to do challenges
+2. [Pro Git](https://git-scm.com/book/en/v2) — The official book, thorough and well-written
 
 ### 2.2 Terminal
 
@@ -78,7 +78,7 @@ That's enough.
 
 - Download: [code.visualstudio.com](https://code.visualstudio.com/)
 - During installation, it's recommended to check "Add to PATH" and "Add Code to right-click menu"
-- VS Code itself just needs to be installed; plugins can be installed after cloning and opening the project folder — because `@recommended` workspace recommendations require a project to be open. See [B.2 Clone — Download Locally](#b2-clone下载到本地)
+- VS Code itself just needs to be installed; plugins can be installed after cloning and opening the project folder — because `@recommended` workspace recommendations require a project to be open. See [B.2 Clone — Download Locally](#b2-clone--download-locally)
 - Most important plugin: **Maa Pipeline Support** — for screenshots, selecting recognition areas (you can also search and install this in the Extensions marketplace first)
 
 ### 2.4 Node.js + pnpm
@@ -518,7 +518,7 @@ Wait a few seconds, it will jump to `https://github.com/your-username/MaaEnd` �
 
 ### Step 2: Clone Your Own Repository
 
-> Forgot what clone means? → [Go back to Chapter 3 to review](#第三章--github-最小求生指南)
+> Forgot what clone means? → [Go back to Chapter 3 to review](#chapter-three--minimum-github-survival-guide)
 
 VS Code → `F1` → `Git: Clone` → Enter **the address you forked**, not the original.
 

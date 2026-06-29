@@ -40,7 +40,7 @@ The following nodes can be called directly within Pipelines. It is recommended t
 
 ## Custom Reusable Nodes
 
-The following nodes are implemented based on Go/C++ and have high business-specific features. According to the [coding standards](./coding-standards.md#go-service-规范), they should not be used unnecessarily.
+The following nodes are implemented based on Go/C++ and have high business-specific features. According to the [coding standards](./coding-standards.md#go-service-standards), they should not be used unnecessarily.
 
 | Node | Description | Documentation |
 |---|---|---|

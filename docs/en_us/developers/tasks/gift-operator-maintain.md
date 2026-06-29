@@ -40,13 +40,13 @@ Corresponds to the "Receive Only" option being disabled. Configurable gift recip
 
 1. Store bag before starting the task, then enter the Di Jiang ship bridge world.
 2. Navigate to the operator contact point and open the contact interface.
-3. Select operators (must pass [Selection State Verification](#选中态校验) after clicking; implementation in `GiftOperatorContact.json`):
+3. Select operators (must pass [Selection State Verification](#selection-state-verification) after clicking; implementation in `GiftOperatorContact.json`):
     - **Any**: Switch to trust ascending order, select three consecutive operators with incomplete trust; verify sequence number 1 → 2 → 3 for each click, confirm the call only after all three are selected.
     - **Specific Operator**: Match the target operator in the list using the avatar template, then verify the selection state before calling.
-4. Confirm the call; if the operator is not in position, use [Preset Orientation and Coordinate Movement Fallback](#召唤干员后找不到对话按钮怎么办) (implementation in `GiftOperatorNavigation.json`).
+4. Confirm the call; if the operator is not in position, use [Preset Orientation and Coordinate Movement Fallback](#after-calling-operator-what-to-do-if-dialogue-button-not-found) (implementation in `GiftOperatorNavigation.json`).
 5. Wait for the operator to appear, enter dialogue.
 6. Handle dialogue based on priority:
-    - Can give gift → Select gift (also pass [Selection State Verification](#选中态校验) after selection; implementation in `GiftOperatorGiftFlow.json`), confirm giving, skip dialogue, leave.
+    - Can give gift → Select gift (also pass [Selection State Verification](#selection-state-verification) after selection; implementation in `GiftOperatorGiftFlow.json`), confirm giving, skip dialogue, leave.
     - Can receive gift → Collect gift, skip dialogue, leave.
     - Affection is full → Leave directly.
 7. Number of gifts given is controlled by the "Gift Quantity" option, default allows multiple consecutive gifts.
@@ -56,7 +56,7 @@ Corresponds to the "Receive Only" option being disabled. Configurable gift recip
 Corresponds to the "Receive Only" option being enabled. No longer actively gives gifts, only receives gifts from operators.
 
 1. Similarly, store the bag first, then navigate to the operator contact point.
-2. In the contact list, [identify operators with gift icons](#收礼模式如何正确选中目标干员) (implementation in `GiftOperatorContact.json` and `Operator/Operator.json`), rather than selecting by trust order or specific operator.
+2. In the contact list, [identify operators with gift icons](#receive-mode-how-to-correctly-select-the-target-operator) (implementation in `GiftOperatorContact.json` and `Operator/Operator.json`), rather than selecting by trust order or specific operator.
 3. Confirm the call, enter dialogue, prioritize clicking "Accept Gift".
 4. After receiving:
     - **Accept All Gifts** disabled → Skip dialogue, then leave, task ends.
@@ -108,7 +108,7 @@ Receive mode cannot rely on OCR of operator names to directly click the list. In
     > **Example**: If `Operators/Gilberta.png` is secondarily matched next to a gift row in the contact list, the whitelist is narrowed to "Gilberta / Gilberta / …" for only that operator. After the call, when waiting for dialogue in the world, it must simultaneously see the dialogue icon and the name OCR hit that whitelist before clicking; if other operators like Pelica or Yvonne appear on the field, the names don't match, **no mis-clicks**.
 
 3. **Step 3: Confirm Selection State**  
-   Reuse the [Selection State Verification](#选中态校验) logic above, confirm the list row is highlighted and the sequence number is `1`, then click the yellow confirm button to call.
+   Reuse the [Selection State Verification](#selection-state-verification) logic above, confirm the list row is highlighted and the sequence number is `1`, then click the yellow confirm button to call.
 
 4. **Step 4: Secondary Verification During Dialogue Stage**  
    After the operator arrives, simultaneously recognize the "dialogue icon" and "operator name OCR"; interaction is initiated only if both hit.  
