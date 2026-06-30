@@ -25,17 +25,15 @@
             "default_case": "No",
             "cases": [
                 {
-                    "name": "No",
-                    "pipeline_override": {
-                        "TrialOfSwordmancyMain": {
-                            "next": [
-                                "TrialOfSwordmancyDisabledError"
-                            ]
-                        }
-                    }
+                    "name": "No"
                 },
                 {
-                    "name": "Yes"
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyDisabledError": {
+                            "enabled": false
+                        }
+                    }
                 }
             ]
         },
