@@ -161,7 +161,7 @@
     "option.DiscardUnmatched.label": "Discard Unmatched",
     "option.DiscardUnmatched.description": "When enabled, matrices that don't match target skill combinations will be discarded instead of skipped",
     "option.ExportCalculatorScript.label": "Recommend Pre-inscription Plans",
-    "option.ExportCalculatorScript.description": "After filtering, lists pre-inscription plans by ungraduated needs, logs recommendations, and saves EssencePlan.html in the working directory",
+    "option.ExportCalculatorScript.description": "After filtering, lists pre-inscription plans by ungraduated needs, logs recommendations, and saves EssencePlan.html in the working directory.",
     "task.AutoEssence.label": "🎱Essence Farm",
     "task.AutoEssence.description": "Automatically challenge heavily accumulated points.\n## WARNING:\n- Please make sure to enable the **Global Hotkey** option in **[Settings] - [Hotkey]**, and remember the **End Task** key. When the program fails, long-press this key to stop.",
     "option.AutoEssenceDoOverride.label": "Use Inscription Vouchers",

@@ -161,7 +161,7 @@
     "option.DiscardUnmatched.label": "未匹配时废弃",
     "option.DiscardUnmatched.description": "开启后，未匹配到目标技能组合的基质将被废弃而非跳过",
     "option.ExportCalculatorScript.label": "推荐预刻写方案",
-    "option.ExportCalculatorScript.description": "筛选结束后，枚举所有预刻写方案，按能满足的未毕业武器数量降序，直接在日志中输出推荐方案，并且保存到工作目录下的 EssencePlan.html",
+    "option.ExportCalculatorScript.description": "筛选结束后，枚举所有预刻写方案，按能满足的未毕业武器数量降序，直接在日志中输出推荐方案，并且保存到工作目录下的 EssencePlan.html。",
     "task.AutoEssence.label": "🎱基质刷取",
     "task.AutoEssence.description": "自动挑战重度淤积点\n## 警告：\n- 请务必在 **[设置] - [快捷键]** 中开启 **全局快捷键** 选项，并牢记 **结束任务** 的按键。当程序出现故障时，长按该按键即可停止。",
     "option.AutoEssenceDoOverride.label": "使用刻写券",
