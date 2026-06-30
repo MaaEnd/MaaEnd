@@ -86,7 +86,7 @@
             "type": "select",
             "label": "$option.TrialOfSwordmancyOverflow.label",
             "description": "$option.TrialOfSwordmancyOverflow.description",
-            "default_case": "None",
+            "default_case": "Once",
             "cases": [
                 {
                     "name": "None",
