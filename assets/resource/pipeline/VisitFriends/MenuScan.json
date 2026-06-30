@@ -7,6 +7,7 @@
             "VisitFriendsMenuScanFriendsFull",
             "[JumpBack][Anchor]VisitFriendsMenuScanTargetFriendAnchorOpen",
             "VisitFriendsMenuScanScrollFinish",
+            "VisitFriendsMenuScanScrollFinishSpecial",
             "[JumpBack]VisitFriendsMenuScanScrollList"
         ]
     },
@@ -58,6 +59,50 @@
         "post_delay": 0,
         "focus": {
             "Node.Recognition.Succeeded": "好友列表已滚动到底部，拜访完成"
+        }
+    },
+    "VisitFriendsMenuScanScrollFinishSpecial": {
+        "desc": "判断是否只有一个好友",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "_CanVisitText",
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            0,
+                            0,
+                            307,
+                            203
+                        ],
+                        "expected": [
+                            "可拜访"
+                        ]
+                    }
+                }
+            },
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": "_CanVisitText",
+                        "roi_offset": [
+                            0,
+                            0,
+                            15,
+                            0
+                        ],
+                        "expected": [
+                            "1$"
+                        ],
+                        "only_rec": true
+                    }
+                }
+            }
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "当前只有一个好友"
         }
     },
     "VisitFriendsMenuScanFriendsFull": {
