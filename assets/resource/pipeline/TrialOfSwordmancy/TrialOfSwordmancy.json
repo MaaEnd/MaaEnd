@@ -37,5 +37,17 @@
         "next": [
             "TrialOfSwordmancyCoatingMain"
         ]
+    },
+    "TrialOfSwordmancyDisabledError": {
+        "desc": "未确认运行：直接报错结束，避免自动战斗打不过时浪费整次演算次数（由 TrialOfSwordmancyConfirmRisk=No 注入到主入口 next）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.TrialOfSwordmancy.error.not_confirmed"
+        }
     }
 }

@@ -68,7 +68,7 @@
         "action": "Custom",
         "custom_action": "TrialOfSwordmancy.Decide",
         "custom_action_param": {
-            "overflowMode": "OverflowNone"
+            "overflowMode": "OverflowTwice"
         },
         "post_delay": 0,
         // next 由 go 运行时 override，按决策分派到：
