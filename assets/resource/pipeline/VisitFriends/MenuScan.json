@@ -111,11 +111,8 @@
     },
     "VisitFriendsMenuScanFriendsFull": {
         "desc": "拜访好友已达到上限",
-        "recognition": "And",
-        "all_of": [
-            "VisitFriendsAssistFull",
-            "VisitFriendsClueExchangeFull"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "VisitFriendsMenuScanScrollFullRecognition",
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
