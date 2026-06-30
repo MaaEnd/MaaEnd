@@ -41,12 +41,12 @@
         "action": "Click",
         "post_wait_freezes": {
             "target": [
-                -300,
-                -150,
-                300,
-                150
+                0,
+                644,
+                135,
+                32
             ],
-            "time": 200
+            "time": 300
         },
         "post_delay": 0,
         "rate_limit": 0,
