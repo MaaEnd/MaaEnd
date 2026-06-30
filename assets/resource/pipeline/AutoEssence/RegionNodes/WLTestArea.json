@@ -1,14 +1,17 @@
 {
-    "WLTestAreaMoveToTriggerPointAuto": {
+    "GotoTriggerPointSetAnchor_WLTestArea": {
+        "enabled": false,
+        "pre_delay": 0,
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "WLTestAreaMoveToTriggerPoint"
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_WLTestArea",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLTestArea"
         },
-        "next": [
-            "WLTestAreaMaybeTeleport",
-            "WLTestAreaMoveToTriggerPoint"
-        ]
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "📌目标地点：试验园区"
+        }
     },
-    "WLTestAreaMaybeTeleport": {
+    "GotoTriggerPointMaybeTeleport_WLTestArea": {
         "recognition": {
             "type": "Custom",
             "param": {
@@ -42,14 +45,14 @@
         },
         "inverse": true,
         "next": [
-            "[JumpBack]WLTestAreaTeleportOnce",
-            "WLTestAreaMoveToTriggerPoint"
+            "[JumpBack]__GotoTriggerPointTeleportOnce_WLTestArea",
+            "GotoTriggerPointMove_WLTestArea"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
     },
-    "WLTestAreaTeleportOnce": {
+    "__GotoTriggerPointTeleportOnce_WLTestArea": {
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
@@ -57,7 +60,7 @@
             "SceneEnterWorldWulingTestArea2"
         ]
     },
-    "WLTestAreaMoveToTriggerPoint": {
+    "GotoTriggerPointMove_WLTestArea": {
         "action": {
             "type": "Custom",
             "param": {
@@ -84,13 +87,13 @@
             }
         },
         "next": [
-            "WLTestAreaMoveToTriggerPointExact"
+            "GotoTriggerPointMoveExact_WLTestArea"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点附近"
         }
     },
-    "WLTestAreaMoveToTriggerPointExact": {
+    "GotoTriggerPointMoveExact_WLTestArea": {
         "action": {
             "type": "Custom",
             "param": {

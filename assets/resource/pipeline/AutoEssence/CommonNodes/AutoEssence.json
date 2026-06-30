@@ -4,10 +4,55 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            // 在 SetupLocation 节点的 max_hit 未耗尽时，先经过该节点进行初始化步骤
+            "AutoEssenceSetupLocation",
+            // 如果 SetupLocation 节点的 max_hit 已耗尽，则会直接进入 Dispatcher 节点
             "AutoEssenceDispatcher"
         ],
         "focus": {
             "Node.Action.Starting": "▶️**准备开始本次基质刷取**"
+        }
+    },
+    "AutoEssenceSetupLocation": {
+        "desc": "抽取一个已启用的淤积点，调用其 Anchor 赋值节点，为自动导航的节点赋值（此节点默认最多执行 1 次）",
+        "max_hit": 1, // 设为 1 表示全程只刷取一个地区；若修改此值为一个很大的数，即可实现每次循环刷取都重新选地区
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    // 根据 SubTask 的内部执行逻辑，若节点 enabled 字段为 false，则会被过滤掉，便不会被抽到
+                    "sub": [
+                        "GotoTriggerPointSetAnchor_VFTheHub",
+                        "GotoTriggerPointSetAnchor_VFOriginiumSciencePark",
+                        "GotoTriggerPointSetAnchor_VFOriginLodespring",
+                        "GotoTriggerPointSetAnchor_VFPowerPlateau",
+                        "GotoTriggerPointSetAnchor_WLWulingCity",
+                        "GotoTriggerPointSetAnchor_WLQingboStockade",
+                        "GotoTriggerPointSetAnchor_WLMarkerStone",
+                        "GotoTriggerPointSetAnchor_WLTestArea",
+                        "GotoTriggerPointSetAnchor_WLSwordVaultDale"
+                    ],
+                    "continue": false,
+                    "strict": true,
+                    "random_choice": 1
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceDispatcher"
+        ],
+        "on_error": [
+            "AutoEssenceSetupLocationFailed"
+        ]
+    },
+    "AutoEssenceSetupLocationFailed": {
+        "desc": "抽取淤积点失败（通常是因为所有淤积点均未启用），此时结束任务",
+        "action": "StopTask",
+        "focus": {
+            "Node.Action.Starting": "🤔**未选择任何地区**\n请在任务设置中至少勾选一个地区后重试~"
         }
     },
     "AutoEssenceDispatcher": {
@@ -24,19 +69,13 @@
             "[JumpBack]AutoEssenceClickDiscardButton",
             "[JumpBack]AutoEssenceInObtain",
             // 如果上述情况都不满足，则根据所选的地区，导航到对应的淤积点的交互位置
-            "AutoEssenceSpecifiedLocation"
-        ]
-    },
-    "AutoEssenceSpecifiedLocation": {
-        "desc": "自动导航到指定的淤积点（可供覆写，默认是枢纽区；此节点默认开启）",
-        "enabled": true,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "VFTheHubMoveToTriggerPointAuto" // 覆写为其他地区的对应节点即可导航到其他地区
+            // 下述 Anchor 的指向目标需要由 AutoEssenceSetupLocation 节点来进行赋值
+            "[JumpBack]__AutoEssenceBackToWorldOnce",
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport",
+            "[Anchor]AutoEssenceMoveToTriggerPoint"
         ],
         "focus": {
-            "Node.Action.Starting": "😎滴！MapTracker智能导航已就绪"
+            "Node.Action.Starting": "🧠正在判断当前状态"
         }
     },
     "__AutoEssenceBackToWorldOnce": {
@@ -45,8 +84,11 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[JumpBack]SceneAnyEnterWorld"
-        ]
+            "SceneAnyEnterWorld"
+        ],
+        "focus": {
+            "Node.Action.Starting": "↩️返回大世界"
+        }
     },
     "__AutoEssenceRecoEssenceTriggerButton": {
         "desc": "寻找激发的大世界按钮（仅识别）",
@@ -716,13 +758,13 @@
         },
         "next": [
             "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
-            "AutoEssenceLowSpStopTask"
+            "AutoEssenceLowSpStop"
         ],
         "focus": {
             "Node.Action.Starting": "✖️关闭领取奖励界面"
         }
     },
-    "AutoEssenceLowSpStopTask": {
+    "AutoEssenceLowSpStop": {
         "desc": "体力不足分支最终停止任务并展示提示",
         "action": "StopTask",
         "focus": {

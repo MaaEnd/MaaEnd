@@ -2,15 +2,17 @@ package subtask
 
 import (
 	"encoding/json"
+	"math/rand"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 type subTaskParam struct {
-	Sub      []string `json:"sub"`
-	Continue *bool    `json:"continue,omitempty"`
-	Strict   *bool    `json:"strict,omitempty"`
+	Sub          []string `json:"sub"`
+	Continue     *bool    `json:"continue,omitempty"`
+	Strict       *bool    `json:"strict,omitempty"`
+	RandomChoice *int     `json:"random_choice,omitempty"`
 }
 
 type SubTaskAction struct{}
@@ -33,11 +35,6 @@ func (a *SubTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	if len(params.Sub) == 0 {
-		log.Error().Msg("SubTask requires non-empty custom_action_param.sub")
-		return false
-	}
-
 	continueOnSubFailure := false
 	if params.Continue != nil {
 		continueOnSubFailure = *params.Continue
@@ -48,9 +45,55 @@ func (a *SubTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		failActionOnSubFailure = *params.Strict
 	}
 
+	subTasks := params.Sub
+
+	// Keep only the sub tasks whose node is resolvable and enabled
+	{
+		enabled := make([]string, 0, len(subTasks))
+		for _, taskName := range subTasks {
+			if taskName == "" {
+				continue
+			}
+			node, err := ctx.GetNode(taskName)
+			if err != nil {
+				log.Warn().
+					Err(err).
+					Str("task", taskName).
+					Msg("SubTask failed to get sub task node, skipping it")
+				continue
+			}
+			if node.Enabled == nil || *node.Enabled {
+				enabled = append(enabled, taskName)
+			}
+		}
+		subTasks = enabled
+	}
+
+	// If random choice is specified
+	if params.RandomChoice != nil && *params.RandomChoice > 0 {
+		count := min(*params.RandomChoice, len(subTasks))
+		shuffled := make([]string, len(subTasks))
+		copy(shuffled, subTasks)
+		rand.Shuffle(len(shuffled), func(i, j int) {
+			shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
+		})
+		subTasks = shuffled[:count]
+		log.Info().
+			Int("random_choice", *params.RandomChoice).
+			Int("picked_count", count).
+			Strs("tasks", subTasks).
+			Msg("SubTask randomly picked sub tasks to run")
+	}
+
+	if len(subTasks) == 0 {
+		log.Error().Msg("SubTask has no resolvable and enabled sub tasks to run")
+		return false
+	}
+
 	hasSubFailure := false
 
-	for i, taskName := range params.Sub {
+	// Sequentially run the filtered sub tasks
+	for i, taskName := range subTasks {
 		if taskName == "" {
 			log.Error().
 				Int("index", i).

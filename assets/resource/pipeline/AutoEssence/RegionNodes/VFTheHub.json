@@ -1,14 +1,17 @@
 {
-    "VFTheHubMoveToTriggerPointAuto": {
+    "GotoTriggerPointSetAnchor_VFTheHub": {
+        "enabled": false,
+        "pre_delay": 0,
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFTheHubMoveToTriggerPoint"
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_VFTheHub",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_VFTheHub"
         },
-        "next": [
-            "VFTheHubMaybeTeleport",
-            "VFTheHubMoveToTriggerPoint"
-        ]
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "📌目标地点：枢纽区"
+        }
     },
-    "VFTheHubMaybeTeleport": {
+    "GotoTriggerPointMaybeTeleport_VFTheHub": {
         "recognition": {
             "type": "Custom",
             "param": {
@@ -31,14 +34,14 @@
         },
         "inverse": true,
         "next": [
-            "[JumpBack]VFTheHubTeleportOnce",
-            "VFTheHubMoveToTriggerPoint"
+            "[JumpBack]__GotoTriggerPointTeleportOnce_VFTheHub",
+            "GotoTriggerPointMove_VFTheHub"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
     },
-    "VFTheHubTeleportOnce": {
+    "__GotoTriggerPointTeleportOnce_VFTheHub": {
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
@@ -46,7 +49,7 @@
             "SceneEnterWorldValleyIVTheHub1"
         ]
     },
-    "VFTheHubMoveToTriggerPoint": {
+    "GotoTriggerPointMove_VFTheHub": {
         "action": {
             "type": "Custom",
             "param": {

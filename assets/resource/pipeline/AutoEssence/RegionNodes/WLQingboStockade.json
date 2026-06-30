@@ -1,14 +1,17 @@
 {
-    "WLQingboStockadeMoveToTriggerPointAuto": {
+    "GotoTriggerPointSetAnchor_WLQingboStockade": {
+        "enabled": false,
+        "pre_delay": 0,
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "WLQingboStockadeMoveToTriggerPoint"
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_WLQingboStockade",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLQingboStockade"
         },
-        "next": [
-            "WLQingboStockadeMaybeTeleport",
-            "WLQingboStockadeMoveToTriggerPoint"
-        ]
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "📌目标地点：清波寨"
+        }
     },
-    "WLQingboStockadeMaybeTeleport": {
+    "GotoTriggerPointMaybeTeleport_WLQingboStockade": {
         "recognition": {
             "type": "Custom",
             "param": {
@@ -31,14 +34,14 @@
         },
         "inverse": true,
         "next": [
-            "[JumpBack]WLQingboStockadeTeleportOnce",
-            "WLQingboStockadeMoveToTriggerPoint"
+            "[JumpBack]__GotoTriggerPointTeleportOnce_WLQingboStockade",
+            "GotoTriggerPointMove_WLQingboStockade"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
     },
-    "WLQingboStockadeTeleportOnce": {
+    "__GotoTriggerPointTeleportOnce_WLQingboStockade": {
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
@@ -46,7 +49,7 @@
             "SceneEnterWorldWulingQingboStockade2"
         ]
     },
-    "WLQingboStockadeMoveToTriggerPoint": {
+    "GotoTriggerPointMove_WLQingboStockade": {
         "action": {
             "type": "Custom",
             "param": {

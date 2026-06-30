@@ -1,14 +1,17 @@
 {
-    "VFOriginiumScienceParkMoveToTriggerPointAuto": {
+    "GotoTriggerPointSetAnchor_VFOriginiumSciencePark": {
+        "enabled": false,
+        "pre_delay": 0,
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFOriginiumScienceParkMoveToTriggerPoint"
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_VFOriginiumSciencePark",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_VFOriginiumSciencePark"
         },
-        "next": [
-            "VFOriginiumScienceParkMaybeTeleport",
-            "VFOriginiumScienceParkMoveToTriggerPoint"
-        ]
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "📌目标地点：源石研究园"
+        }
     },
-    "VFOriginiumScienceParkMaybeTeleport": {
+    "GotoTriggerPointMaybeTeleport_VFOriginiumSciencePark": {
         "recognition": {
             "type": "Custom",
             "param": {
@@ -31,14 +34,14 @@
         },
         "inverse": true,
         "next": [
-            "[JumpBack]VFOriginiumScienceParkTeleportOnce",
-            "VFOriginiumScienceParkMoveToTriggerPoint"
+            "[JumpBack]__GotoTriggerPointTeleportOnce_VFOriginiumSciencePark",
+            "GotoTriggerPointMove_VFOriginiumSciencePark"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
     },
-    "VFOriginiumScienceParkTeleportOnce": {
+    "__GotoTriggerPointTeleportOnce_VFOriginiumSciencePark": {
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
@@ -46,7 +49,7 @@
             "SceneEnterWorldValleyIVOriginiumSciencePark1"
         ]
     },
-    "VFOriginiumScienceParkMoveToTriggerPoint": {
+    "GotoTriggerPointMove_VFOriginiumSciencePark": {
         "action": {
             "type": "Custom",
             "param": {
@@ -84,13 +87,13 @@
             }
         },
         "next": [
-            "VFOriginiumScienceParkMoveToTriggerPointExact"
+            "GotoTriggerPointMoveExact_VFOriginiumSciencePark"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往预备位置"
         }
     },
-    "VFOriginiumScienceParkMoveToTriggerPointExact": {
+    "GotoTriggerPointMoveExact_VFOriginiumSciencePark": {
         "action": {
             "type": "Custom",
             "param": {

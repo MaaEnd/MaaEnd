@@ -1,14 +1,17 @@
 {
-    "WLMarkerStoneMoveToTriggerPointAuto": {
+    "GotoTriggerPointSetAnchor_WLMarkerStone": {
+        "enabled": false,
+        "pre_delay": 0,
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "WLMarkerStoneMoveToTriggerPoint"
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_WLMarkerStone",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLMarkerStone"
         },
-        "next": [
-            "WLMarkerStoneMaybeTeleport",
-            "WLMarkerStoneMoveToTriggerPoint"
-        ]
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "📌目标地点：首墩"
+        }
     },
-    "WLMarkerStoneMaybeTeleport": {
+    "GotoTriggerPointMaybeTeleport_WLMarkerStone": {
         "recognition": {
             "type": "Custom",
             "param": {
@@ -41,14 +44,14 @@
         },
         "inverse": true,
         "next": [
-            "[JumpBack]WLMarkerStoneTeleportOnce",
-            "WLMarkerStoneMoveToTriggerPoint"
+            "[JumpBack]__GotoTriggerPointTeleportOnce_WLMarkerStone",
+            "GotoTriggerPointMove_WLMarkerStone"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
     },
-    "WLMarkerStoneTeleportOnce": {
+    "__GotoTriggerPointTeleportOnce_WLMarkerStone": {
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
@@ -56,17 +59,17 @@
             "SceneEnterWorldWulingMarkerStone2"
         ]
     },
-    "WLMarkerStoneMoveToTriggerPoint": {
+    "GotoTriggerPointMove_WLMarkerStone": {
         "desc": "导航入口：已在淤积点附近则只走末段，否则走含圈完整路径",
         "next": [
-            "WLMarkerStoneMoveToTriggerPointNearTrigger",
-            "WLMarkerStoneMoveToTriggerPointMain"
+            "GotoTriggerPointMoveNearTrigger_WLMarkerStone",
+            "GotoTriggerPointMoveMain_WLMarkerStone"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点附近"
         }
     },
-    "WLMarkerStoneMoveToTriggerPointNearTrigger": {
+    "GotoTriggerPointMoveNearTrigger_WLMarkerStone": {
         "desc": "已在淤积点/激发点区域，跳过圈路径",
         "recognition": {
             "type": "Custom",
@@ -88,13 +91,13 @@
             }
         },
         "next": [
-            "WLMarkerStoneMoveToTriggerPointExact"
+            "GotoTriggerPointMoveExact_WLMarkerStone"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点"
         }
     },
-    "WLMarkerStoneMoveToTriggerPointMain": {
+    "GotoTriggerPointMoveMain_WLMarkerStone": {
         "desc": "从锚点侧经圈路径接近激发点",
         "action": {
             "type": "Custom",
@@ -129,13 +132,13 @@
             }
         },
         "next": [
-            "WLMarkerStoneMoveToTriggerPointExact"
+            "GotoTriggerPointMoveExact_WLMarkerStone"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点附近"
         }
     },
-    "WLMarkerStoneMoveToTriggerPointExact": {
+    "GotoTriggerPointMoveExact_WLMarkerStone": {
         "action": {
             "type": "Custom",
             "param": {

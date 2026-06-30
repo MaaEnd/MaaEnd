@@ -1,14 +1,17 @@
 {
-    "VFOriginLodespringMoveToTriggerPointAuto": {
+    "GotoTriggerPointSetAnchor_VFOriginLodespring": {
+        "enabled": false,
+        "pre_delay": 0,
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFOriginLodespringMoveToTriggerPoint"
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_VFOriginLodespring",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_VFOriginLodespring"
         },
-        "next": [
-            "VFOriginLodespringMaybeTeleport",
-            "VFOriginLodespringMoveToTriggerPoint"
-        ]
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "📌目标地点：矿脉源区"
+        }
     },
-    "VFOriginLodespringMaybeTeleport": {
+    "GotoTriggerPointMaybeTeleport_VFOriginLodespring": {
         "recognition": {
             "type": "Custom",
             "param": {
@@ -41,14 +44,14 @@
         },
         "inverse": true,
         "next": [
-            "[JumpBack]VFOriginLodespringTeleportOnce",
-            "VFOriginLodespringMoveToTriggerPoint"
+            "[JumpBack]__GotoTriggerPointTeleportOnce_VFOriginLodespring",
+            "GotoTriggerPointMove_VFOriginLodespring"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
     },
-    "VFOriginLodespringTeleportOnce": {
+    "__GotoTriggerPointTeleportOnce_VFOriginLodespring": {
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
@@ -56,7 +59,7 @@
             "SceneEnterWorldValleyIVOriginLodespring3"
         ]
     },
-    "VFOriginLodespringMoveToTriggerPoint": {
+    "GotoTriggerPointMove_VFOriginLodespring": {
         "action": {
             "type": "Custom",
             "param": {
@@ -138,13 +141,13 @@
             }
         },
         "next": [
-            "VFOriginLodespringMoveToTriggerPointExact"
+            "GotoTriggerPointMoveExact_VFOriginLodespring"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点附近"
         }
     },
-    "VFOriginLodespringMoveToTriggerPointExact": {
+    "GotoTriggerPointMoveExact_VFOriginLodespring": {
         "action": {
             "type": "Custom",
             "param": {

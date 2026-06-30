@@ -1,14 +1,17 @@
 {
-    "VFPowerPlateauMoveToTriggerPointAuto": {
+    "GotoTriggerPointSetAnchor_VFPowerPlateau": {
+        "enabled": false,
+        "pre_delay": 0,
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFPowerPlateauMoveToTriggerPoint"
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_VFPowerPlateau",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_VFPowerPlateau"
         },
-        "next": [
-            "VFPowerPlateauMaybeTeleport",
-            "VFPowerPlateauMoveToTriggerPoint"
-        ]
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "📌目标地点：供能高地"
+        }
     },
-    "VFPowerPlateauMaybeTeleport": {
+    "GotoTriggerPointMaybeTeleport_VFPowerPlateau": {
         "recognition": {
             "type": "Custom",
             "param": {
@@ -51,14 +54,14 @@
         },
         "inverse": true,
         "next": [
-            "[JumpBack]VFPowerPlateauTeleportOnce",
-            "VFPowerPlateauMoveToTriggerPoint"
+            "[JumpBack]__GotoTriggerPointTeleportOnce_VFPowerPlateau",
+            "GotoTriggerPointMove_VFPowerPlateau"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
     },
-    "VFPowerPlateauTeleportOnce": {
+    "__GotoTriggerPointTeleportOnce_VFPowerPlateau": {
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
@@ -66,7 +69,7 @@
             "SceneEnterWorldValleyIVPowerPlateau1"
         ]
     },
-    "VFPowerPlateauMoveToTriggerPoint": {
+    "GotoTriggerPointMove_VFPowerPlateau": {
         "action": {
             "type": "Custom",
             "param": {
@@ -208,13 +211,13 @@
             }
         },
         "next": [
-            "VFPowerPlateauMoveToTriggerPointExact"
+            "GotoTriggerPointMoveExact_VFPowerPlateau"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点附近"
         }
     },
-    "VFPowerPlateauMoveToTriggerPointExact": {
+    "GotoTriggerPointMoveExact_VFPowerPlateau": {
         "action": {
             "type": "Custom",
             "param": {
