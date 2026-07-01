@@ -58,6 +58,61 @@ jobs:
             - Game Version: ${{ steps.version.outputs.game_version }}
             - Resource Version: ${{ steps.version.outputs.res_version }}
 
+  sync-pipeline-generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          ref: ${{ github.event.repository.default_branch }}
+
+      - uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: |
+          pnpm install --frozen-lockfile
+
+      - name: Generate pipeline data
+        run: |
+          pnpm generate:EnvironmentMonitoring
+          pnpm generate:SellProduct
+
+      - name: Get version info
+        id: version
+        run: |
+          echo "version=$(cat tools/pipeline-generate/data/version.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          add-paths: |
+            tools/pipeline-generate
+            assets
+          commit-message: "chore: sync zmdmap pipeline data ${{ steps.version.outputs.version }}"
+          branch: chore/sync-zmdmap-pipeline-data
+          title: "chore: sync zmdmap pipeline data ${{ steps.version.outputs.version }}"
+          body: |
+            ## Summary
+
+            This PR automatically synchronized zmdmap data used by pipeline-generate and regenerated dependent artifacts.
+
+            Please review the changes before merging it.
+
+            **Generated Tasks:**
+            - EnvironmentMonitoring
+            - SellProduct
+
+            **Version Information:**
+            - Version: ${{ steps.version.outputs.version }}
+
   sync-map:
     runs-on: ubuntu-latest
     steps:
