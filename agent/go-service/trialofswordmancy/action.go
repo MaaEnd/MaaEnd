@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy/solver"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -67,7 +68,7 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Str("component", component).
 			Int("remainCalc", gs.State.RemainCalc).
 			Msg("cross-day endgame (RemainCalc=4): skip solver, give up the free run")
-		maafocus.Print(ctx, "选剑演武\n跨天残局\n→ 放弃本局")
+		maafocus.Print(ctx, i18n.T("trialofswordmancy.endgame"))
 		return true
 	}
 
@@ -96,7 +97,7 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Bool("isDoubled", gs.State.IsDoubled).
 			Ints("deck", gs.Config.Deck[:]).
 			Msg("unreachable state: recognition produced a state outside the MDP space; aborting")
-		maafocus.Print(ctx, "选剑演武：识别失败")
+		maafocus.Print(ctx, i18n.T("trialofswordmancy.recognition_failed"))
 		return false
 	}
 
@@ -129,8 +130,7 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 // formatFocus 组装识别后唯一的 focus 文本：当前局面（手牌/牌库/演算次数/翻倍次数/放弃次数/翻倍态）+ 决策（下一步行为）。
 // log 与 focus 分离——log 该写啥写啥，这里只给一份给人看的局面速览。
 func formatFocus(gs GameState, best solver.Action) string {
-	return fmt.Sprintf(
-		"选剑演武\n手牌 %s\n牌库 %s\n演算%d 翻倍%d 放弃%s %s\n抽牌决策 → %s",
+	return i18n.T("trialofswordmancy.focus",
 		handPointsDisplay(gs.HandRaw),
 		deckDisplay(gs.Config.Deck),
 		gs.State.RemainCalc,
@@ -150,7 +150,7 @@ func handPointsDisplay(handRaw [5]int) string {
 		}
 	}
 	if len(pts) == 0 {
-		return "空"
+		return i18n.T("trialofswordmancy.hand_empty")
 	}
 	return strings.Join(pts, ",")
 }
@@ -175,9 +175,9 @@ func abandDisplay(remainAband int) string {
 // doubledText 返回翻倍态中文标签。
 func doubledText(isDoubled bool) string {
 	if isDoubled {
-		return "已翻倍"
+		return i18n.T("trialofswordmancy.doubled")
 	}
-	return "未翻倍"
+	return i18n.T("trialofswordmancy.undoubled")
 }
 
 // pickDecision 从各决策评估中选出要执行的动作，复刻 TS 计算器（trial-of-swordmancy-strategy.vue）
@@ -235,15 +235,15 @@ func executeNode(action solver.Action) string {
 func actionFocusLabel(action solver.Action) string {
 	switch action {
 	case solver.DrawCard:
-		return "抽牌"
+		return i18n.T("trialofswordmancy.action.drawcard")
 	case solver.Abandon:
-		return "放弃本局"
+		return i18n.T("trialofswordmancy.action.abandon")
 	case solver.Calculate:
-		return "开始演算"
+		return i18n.T("trialofswordmancy.action.calculate")
 	case solver.Double:
-		return "选择翻倍"
+		return i18n.T("trialofswordmancy.action.double")
 	default:
-		return "未知决策"
+		return i18n.T("trialofswordmancy.action.unknown")
 	}
 }
 

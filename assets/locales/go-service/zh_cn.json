@@ -179,5 +179,16 @@
     "seizedeliveryjobs.endpoint_matched": "送货点匹配成功，接取委托",
     "seizedeliveryjobs.endpoint_not_matched": "送货点不匹配，跳过",
     "seizedeliveryjobs.no_more_targets": "当前列表无匹配委托，刷新",
-    "seizedeliveryjobs.accepting": "接取运送委托"
+    "seizedeliveryjobs.accepting": "接取运送委托",
+    "trialofswordmancy.focus": "选剑演武\n手牌 %s\n牌库 %s\n演算%d 翻倍%d 放弃%s %s\n抽牌决策 → %s",
+    "trialofswordmancy.action.drawcard": "抽牌",
+    "trialofswordmancy.action.abandon": "放弃本局",
+    "trialofswordmancy.action.calculate": "开始演算",
+    "trialofswordmancy.action.double": "选择翻倍",
+    "trialofswordmancy.action.unknown": "未知决策",
+    "trialofswordmancy.hand_empty": "空",
+    "trialofswordmancy.doubled": "已翻倍",
+    "trialofswordmancy.undoubled": "未翻倍",
+    "trialofswordmancy.endgame": "选剑演武\n跨天残局\n→ 放弃本局",
+    "trialofswordmancy.recognition_failed": "选剑演武：识别失败"
 }

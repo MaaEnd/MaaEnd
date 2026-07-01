@@ -179,5 +179,16 @@
     "seizedeliveryjobs.endpoint_matched": "배달지 일치, 의뢰 수락",
     "seizedeliveryjobs.endpoint_not_matched": "배달지 불일치, 건너뛰기",
     "seizedeliveryjobs.no_more_targets": "일치하는 의뢰 없음, 새로고침",
-    "seizedeliveryjobs.accepting": "배달 의뢰 수락 중"
+    "seizedeliveryjobs.accepting": "배달 의뢰 수락 중",
+    "trialofswordmancy.focus": "검술 연무\n패 %s\n덱 %s\n연산%d 더블%d 포기%s %s\n드로우 결정 → %s",
+    "trialofswordmancy.action.drawcard": "드로우",
+    "trialofswordmancy.action.abandon": "포기",
+    "trialofswordmancy.action.calculate": "연산",
+    "trialofswordmancy.action.double": "더블 선택",
+    "trialofswordmancy.action.unknown": "알 수 없음",
+    "trialofswordmancy.hand_empty": "없음",
+    "trialofswordmancy.doubled": "더블됨",
+    "trialofswordmancy.undoubled": "더블 아님",
+    "trialofswordmancy.endgame": "검술 연무\n이월된 판\n→ 포기",
+    "trialofswordmancy.recognition_failed": "검술 연무: 인식 실패"
 }

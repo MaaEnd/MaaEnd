@@ -179,5 +179,16 @@
     "seizedeliveryjobs.endpoint_matched": "配達先が一致、依頼を受注",
     "seizedeliveryjobs.endpoint_not_matched": "配達先が不一致、スキップ",
     "seizedeliveryjobs.no_more_targets": "一致する依頼なし、更新",
-    "seizedeliveryjobs.accepting": "配達依頼を受注中"
+    "seizedeliveryjobs.accepting": "配達依頼を受注中",
+    "trialofswordmancy.focus": "剣術演武\n手札 %s\n山札 %s\n演算%d ダブル%d 放棄%s %s\nドロー判断 → %s",
+    "trialofswordmancy.action.drawcard": "ドロー",
+    "trialofswordmancy.action.abandon": "放棄",
+    "trialofswordmancy.action.calculate": "演算開始",
+    "trialofswordmancy.action.double": "ダブル選択",
+    "trialofswordmancy.action.unknown": "不明",
+    "trialofswordmancy.hand_empty": "空",
+    "trialofswordmancy.doubled": "ダブル中",
+    "trialofswordmancy.undoubled": "ダブルなし",
+    "trialofswordmancy.endgame": "剣術演武\n持ち越しの残局\n→ 放棄",
+    "trialofswordmancy.recognition_failed": "剣術演武：認識失敗"
 }
