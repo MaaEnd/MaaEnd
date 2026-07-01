@@ -130,7 +130,7 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 // log 与 focus 分离——log 该写啥写啥，这里只给一份给人看的局面速览。
 func formatFocus(gs GameState, best solver.Action) string {
 	return fmt.Sprintf(
-		"选剑演武\n手牌 %s\n牌库 %s\n演算%d 翻倍%d 放弃%s %s\n→ %s",
+		"选剑演武\n手牌 %s\n牌库 %s\n演算%d 翻倍%d 放弃%s %s\n抽牌决策 → %s",
 		handPointsDisplay(gs.HandRaw),
 		deckDisplay(gs.Config.Deck),
 		gs.State.RemainCalc,
