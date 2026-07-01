@@ -185,7 +185,7 @@
     "trialofswordmancy.action.abandon": "放棄",
     "trialofswordmancy.action.calculate": "演算開始",
     "trialofswordmancy.action.double": "ダブル選択",
-    "trialofswordmancy.action.unknown": "不明",
+    "trialofswordmancy.action.unreachable": "到達不能状態",
     "trialofswordmancy.hand_empty": "空",
     "trialofswordmancy.doubled": "ダブル中",
     "trialofswordmancy.undoubled": "ダブルなし",

@@ -185,7 +185,7 @@
     "trialofswordmancy.action.abandon": "Abandon round",
     "trialofswordmancy.action.calculate": "Calculate",
     "trialofswordmancy.action.double": "Take double",
-    "trialofswordmancy.action.unknown": "Unknown",
+    "trialofswordmancy.action.unreachable": "unreachable state",
     "trialofswordmancy.hand_empty": "empty",
     "trialofswordmancy.doubled": "Doubled",
     "trialofswordmancy.undoubled": "Not doubled",

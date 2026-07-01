@@ -105,20 +105,13 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	// 复刻 TS 计算器（trial-of-swordmancy-strategy.vue）的推荐规则：抽牌与放弃总价值差 <1 时优先放弃。
 	best := pickDecision(outcomes)
 
-	// 不可达：识别产出了不在 MDP 状态空间的局面（识别 ROI/模板未校准、读错、或手牌超牌库等）。
-	// 这是错误，不是「奖励耗尽」—— 奖励耗尽由 pipeline 在进 Decide 前就识别并走 Finish。
-	// 这里直接让动作失败（return false），任务以错误中止，不冒充正常结束。
+	// 不可达：识别产出了不在 MDP 状态空间的局面（ROI/模板未校准、读错、手牌超牌库等），是错误而非
+	// 「奖励耗尽」（耗尽由 pipeline 在进 Decide 前就走 Finish）。用 focus 给用户一份局面速览（复用
+	// formatFocus，决策行显示「状态不可达」），并整体标红以醒目；不写 log.Error——否则 zerolog 的 ERR
+	// 会直接刷到用户界面；任务仍以错误中止。排查所需状态字段已在 recognition 的 "game state recognized" 日志里。
 	if outcomes == nil || best == solver.ActionNone {
-		log.Error().
-			Str("component", component).
-			Ints("hand", gs.State.Hand[:]).
-			Int("remainCalc", gs.State.RemainCalc).
-			Int("remainAband", gs.State.RemainAband).
-			Int("remainDouble", gs.State.RemainDouble).
-			Bool("isDoubled", gs.State.IsDoubled).
-			Ints("deck", gs.Config.Deck[:]).
-			Msg("unreachable state: recognition produced a state outside the MDP space; aborting")
-		maafocus.Print(ctx, i18n.T("trialofswordmancy.recognition_failed"))
+		red := "<span style=\"color:#ff4d4f;\">" + strings.ReplaceAll(formatFocus(gs, solver.ActionNone), "\n", "<br/>") + "</span>"
+		maafocus.Print(ctx, red)
 		return false
 	}
 
@@ -264,7 +257,7 @@ func actionFocusLabel(action solver.Action) string {
 	case solver.Double:
 		return i18n.T("trialofswordmancy.action.double")
 	default:
-		return i18n.T("trialofswordmancy.action.unknown")
+		return i18n.T("trialofswordmancy.action.unreachable")
 	}
 }
 

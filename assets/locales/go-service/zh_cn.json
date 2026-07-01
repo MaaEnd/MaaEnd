@@ -185,7 +185,7 @@
     "trialofswordmancy.action.abandon": "放弃本局",
     "trialofswordmancy.action.calculate": "开始演算",
     "trialofswordmancy.action.double": "选择翻倍",
-    "trialofswordmancy.action.unknown": "未知决策",
+    "trialofswordmancy.action.unreachable": "状态不可达",
     "trialofswordmancy.hand_empty": "空",
     "trialofswordmancy.doubled": "已翻倍",
     "trialofswordmancy.undoubled": "未翻倍",

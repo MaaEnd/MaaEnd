@@ -185,7 +185,7 @@
     "trialofswordmancy.action.abandon": "포기",
     "trialofswordmancy.action.calculate": "연산",
     "trialofswordmancy.action.double": "더블 선택",
-    "trialofswordmancy.action.unknown": "알 수 없음",
+    "trialofswordmancy.action.unreachable": "상태 도달 불가",
     "trialofswordmancy.hand_empty": "없음",
     "trialofswordmancy.doubled": "더블됨",
     "trialofswordmancy.undoubled": "더블 아님",
