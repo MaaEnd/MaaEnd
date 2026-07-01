@@ -216,6 +216,28 @@
               "matchedTags": [
                 "tag_expert_agile"
               ]
+            },
+            {
+              "charId": "chr_0033_camille",
+              "name": {
+                "BR": "Camille",
+                "CN": "卡缪",
+                "DE": "Camille",
+                "EN": "Camille",
+                "FR": "Camille",
+                "ID": "Camille",
+                "IT": "Camille",
+                "JP": "カミーユ",
+                "KR": "카뮤",
+                "MX": "Camille",
+                "RU": "Камиль",
+                "TC": "卡繆",
+                "TH": "คา​มิลล์",
+                "VN": "Camille"
+              },
+              "matchedTags": [
+                "tag_expert_agile"
+              ]
             }
           ]
         },
@@ -3229,6 +3251,28 @@
               "matchedTags": [
                 "tag_hobby_creativity"
               ]
+            },
+            {
+              "charId": "chr_0033_camille",
+              "name": {
+                "BR": "Camille",
+                "CN": "卡缪",
+                "DE": "Camille",
+                "EN": "Camille",
+                "FR": "Camille",
+                "ID": "Camille",
+                "IT": "Camille",
+                "JP": "カミーユ",
+                "KR": "카뮤",
+                "MX": "Camille",
+                "RU": "Камиль",
+                "TC": "卡繆",
+                "TH": "คา​มิลล์",
+                "VN": "Camille"
+              },
+              "matchedTags": [
+                "tag_hobby_creativity"
+              ]
             }
           ]
         },
@@ -3372,6 +3416,28 @@
                 "TC": "洛西",
                 "TH": "รอส​ซี",
                 "VN": "Rossi"
+              },
+              "matchedTags": [
+                "tag_expert_sense"
+              ]
+            },
+            {
+              "charId": "chr_0033_camille",
+              "name": {
+                "BR": "Camille",
+                "CN": "卡缪",
+                "DE": "Camille",
+                "EN": "Camille",
+                "FR": "Camille",
+                "ID": "Camille",
+                "IT": "Camille",
+                "JP": "カミーユ",
+                "KR": "카뮤",
+                "MX": "Camille",
+                "RU": "Камиль",
+                "TC": "卡繆",
+                "TH": "คา​มิลล์",
+                "VN": "Camille"
               },
               "matchedTags": [
                 "tag_expert_sense"
@@ -4737,6 +4803,28 @@
                 "TC": "伊馮",
                 "TH": "อี​วอน",
                 "VN": "Yvonne"
+              },
+              "matchedTags": [
+                "tag_hobby_tech"
+              ]
+            },
+            {
+              "charId": "chr_0033_camille",
+              "name": {
+                "BR": "Camille",
+                "CN": "卡缪",
+                "DE": "Camille",
+                "EN": "Camille",
+                "FR": "Camille",
+                "ID": "Camille",
+                "IT": "Camille",
+                "JP": "カミーユ",
+                "KR": "카뮤",
+                "MX": "Camille",
+                "RU": "Камиль",
+                "TC": "卡繆",
+                "TH": "คา​มิลล์",
+                "VN": "Camille"
               },
               "matchedTags": [
                 "tag_hobby_tech"
@@ -12155,6 +12243,210 @@
             "TC": "生活",
             "TH": "วิถีชีวิต",
             "VN": "Phong Cách Sống"
+          }
+        }
+      ]
+    },
+    "chr_0033_camille": {
+      "charId": "chr_0033_camille",
+      "name": {
+        "BR": "Camille",
+        "CN": "卡缪",
+        "DE": "Camille",
+        "EN": "Camille",
+        "FR": "Camille",
+        "ID": "Camille",
+        "IT": "Camille",
+        "JP": "カミーユ",
+        "KR": "카뮤",
+        "MX": "Camille",
+        "RU": "Камиль",
+        "TC": "卡繆",
+        "TH": "คา​มิลล์",
+        "VN": "Camille"
+      },
+      "rarity": 6,
+      "blocTag": {
+        "tagId": "tag_power_sesqa",
+        "group": "power",
+        "groupName": {
+          "BR": "Facção",
+          "CN": "阵营",
+          "DE": "Fraktion",
+          "EN": "Faction",
+          "FR": "Faction",
+          "ID": "Faksi",
+          "IT": "Fazione",
+          "JP": "陣営",
+          "KR": "진영",
+          "MX": "Facción",
+          "RU": "Фракция",
+          "TC": "陣營",
+          "TH": "ฝ่าย",
+          "VN": "Phe"
+        },
+        "name": {
+          "BR": "Seš'qa",
+          "CN": "塞什卡",
+          "DE": "Seš’qa",
+          "EN": "Seš'qa",
+          "FR": "Seš'qa",
+          "ID": "Seš’qa",
+          "IT": "Seš'qa",
+          "JP": "セシュカ",
+          "KR": "세쉬카",
+          "MX": "Seš’qa",
+          "RU": "Сеш’ка",
+          "TC": "塞什卡",
+          "TH": "เซ​ช​กา",
+          "VN": "Seš'qa"
+        }
+      },
+      "expertTags": [
+        {
+          "tagId": "tag_expert_sense",
+          "group": "expert",
+          "groupName": {
+            "BR": "Especialização",
+            "CN": "专长",
+            "DE": "Expertise",
+            "EN": "Expertise",
+            "FR": "Expertise",
+            "ID": "Keahlian",
+            "IT": "Specialità",
+            "JP": "特長",
+            "KR": "특기",
+            "MX": "Especialidad",
+            "RU": "Профиль",
+            "TC": "專長",
+            "TH": "ความชำนาญ",
+            "VN": "Chuyên Môn"
+          },
+          "name": {
+            "BR": "Análise Situacional",
+            "CN": "局势分析",
+            "DE": "Situationsbezogene Analyse",
+            "EN": "Situational Analysis",
+            "FR": "Analyse contextuelle",
+            "ID": "Analisis Situasi",
+            "IT": "Analisi della situazione",
+            "JP": "情勢分析",
+            "KR": "전황 분석",
+            "MX": "Análisis situacional",
+            "RU": "Анализ обстановки",
+            "TC": "局勢分析",
+            "TH": "การ​วิเคราะห์​สถานการณ์",
+            "VN": "Phân Tích Tình Huống"
+          }
+        },
+        {
+          "tagId": "tag_expert_agile",
+          "group": "expert",
+          "groupName": {
+            "BR": "Especialização",
+            "CN": "专长",
+            "DE": "Expertise",
+            "EN": "Expertise",
+            "FR": "Expertise",
+            "ID": "Keahlian",
+            "IT": "Specialità",
+            "JP": "特長",
+            "KR": "특기",
+            "MX": "Especialidad",
+            "RU": "Профиль",
+            "TC": "專長",
+            "TH": "ความชำนาญ",
+            "VN": "Chuyên Môn"
+          },
+          "name": {
+            "BR": "Agilidade",
+            "CN": "敏捷",
+            "DE": "Beweglich-\nkeit",
+            "EN": "Agility",
+            "FR": "Agilité",
+            "ID": "Kegesitan",
+            "IT": "Agilità",
+            "JP": "俊敏",
+            "KR": "민첩",
+            "MX": "Agilidad",
+            "RU": "Ловкость",
+            "TC": "敏捷",
+            "TH": "ความคล่องแคล่ว",
+            "VN": "Nhanh Nhẹn"
+          }
+        }
+      ],
+      "hobbyTags": [
+        {
+          "tagId": "tag_hobby_creativity",
+          "group": "hobby",
+          "groupName": {
+            "BR": "Hobbies",
+            "CN": "爱好",
+            "DE": "Hobbys",
+            "EN": "Hobbies",
+            "FR": "Loisirs",
+            "ID": "Hobi",
+            "IT": "Interessi",
+            "JP": "趣味",
+            "KR": "취미",
+            "MX": "Pasatiempo",
+            "RU": "Хобби",
+            "TC": "愛好",
+            "TH": "งานอดิเรก",
+            "VN": "Sở thích"
+          },
+          "name": {
+            "BR": "Criatividade",
+            "CN": "创意",
+            "DE": "Kreatives",
+            "EN": "Creative",
+            "FR": "Créativité",
+            "ID": "Kreatif",
+            "IT": "Creatività",
+            "JP": "創造性",
+            "KR": "창의",
+            "MX": "Creatividad",
+            "RU": "Творчество",
+            "TC": "創意",
+            "TH": "สร้างสรรค์",
+            "VN": "Sáng Tạo"
+          }
+        },
+        {
+          "tagId": "tag_hobby_tech",
+          "group": "hobby",
+          "groupName": {
+            "BR": "Hobbies",
+            "CN": "爱好",
+            "DE": "Hobbys",
+            "EN": "Hobbies",
+            "FR": "Loisirs",
+            "ID": "Hobi",
+            "IT": "Interessi",
+            "JP": "趣味",
+            "KR": "취미",
+            "MX": "Pasatiempo",
+            "RU": "Хобби",
+            "TC": "愛好",
+            "TH": "งานอดิเรก",
+            "VN": "Sở thích"
+          },
+          "name": {
+            "BR": "Tecnologia",
+            "CN": "科技",
+            "DE": "Technologie",
+            "EN": "Technology",
+            "FR": "Technologie",
+            "ID": "Teknologi",
+            "IT": "Tecnologia",
+            "JP": "科学技術",
+            "KR": "과학기술",
+            "MX": "Tecnología",
+            "RU": "Технологии",
+            "TC": "科技",
+            "TH": "เทคโนโลยี",
+            "VN": "Công Nghệ"
           }
         }
       ]

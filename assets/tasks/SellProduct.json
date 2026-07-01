@@ -487,6 +487,30 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "Camille",
+                    "label": "$operator.Camille",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampCurrentTargetOperator": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectTargetOperator": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
+                        }
+                    }
                 }
             ]
         },
@@ -590,6 +614,35 @@
                                 "Rossi",
                                 "ロッシ",
                                 "로시"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Camille",
+                    "label": "$operator.Camille",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
+                            }
+                        },
+                        "SellProductRefugeeCampCurrentRestoreOperator": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectRestoreOperator": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
                             ]
                         }
                     }
@@ -2293,6 +2346,30 @@
                                 "Tangtang",
                                 "タンタン",
                                 "탕탕"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Camille",
+                    "label": "$operator.Camille",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostCurrentTargetOperator": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectTargetOperator": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
                             ]
                         }
                     }
@@ -5234,6 +5311,30 @@
                                 "Tangtang",
                                 "タンタン",
                                 "탕탕"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Camille",
+                    "label": "$operator.Camille",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsCurrentTargetOperator": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectTargetOperator": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
                             ]
                         }
                     }
