@@ -190,5 +190,6 @@
     "trialofswordmancy.doubled": "더블됨",
     "trialofswordmancy.undoubled": "더블 아님",
     "trialofswordmancy.endgame": "검술 연무\n이월된 판\n→ 포기",
+    "trialofswordmancy.legacy_double": "검술 연무\n이월 횟수가 당일 더블 횟수를 소모함\n→ 연산을 시작해 정상 상태로 복귀",
     "trialofswordmancy.recognition_failed": "검술 연무: 인식 실패"
 }

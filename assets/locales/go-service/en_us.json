@@ -190,5 +190,6 @@
     "trialofswordmancy.doubled": "Doubled",
     "trialofswordmancy.undoubled": "Not doubled",
     "trialofswordmancy.endgame": "Trial of Swordmancy\nCross-day endgame\n→ Abandon round",
+    "trialofswordmancy.legacy_double": "Trial of Swordmancy\nLegacy trial runs consumed today's double uses\n→ Calculate now to restore a valid state",
     "trialofswordmancy.recognition_failed": "Trial of Swordmancy: recognition failed"
 }

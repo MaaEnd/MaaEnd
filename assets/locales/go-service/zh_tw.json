@@ -190,5 +190,6 @@
     "trialofswordmancy.doubled": "已翻倍",
     "trialofswordmancy.undoubled": "未翻倍",
     "trialofswordmancy.endgame": "選劍演武\n跨天殘局\n→ 放棄本局",
+    "trialofswordmancy.legacy_double": "選劍演武\n識別到有之前遺留的演算獎勵次數消耗了當日的雙倍次數\n→ 直接開始演算以回歸正確狀態",
     "trialofswordmancy.recognition_failed": "選劍演武：識別失敗"
 }

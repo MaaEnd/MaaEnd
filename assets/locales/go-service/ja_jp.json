@@ -190,5 +190,6 @@
     "trialofswordmancy.doubled": "ダブル中",
     "trialofswordmancy.undoubled": "ダブルなし",
     "trialofswordmancy.endgame": "剣術演武\n持ち越しの残局\n→ 放棄",
+    "trialofswordmancy.legacy_double": "剣術演武\n持ち越し分が当日の倍化回数を消費している\n→ 演算を開始して正常状態に戻す",
     "trialofswordmancy.recognition_failed": "剣術演武：認識失敗"
 }
