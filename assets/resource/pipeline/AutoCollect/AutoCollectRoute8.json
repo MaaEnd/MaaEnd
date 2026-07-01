@@ -78,60 +78,24 @@
     "AutoCollectRoute8GotoFindLine1": {
         "desc": "前往星门菌采集点",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv002",
-            "path": [
-                [
-                    426.0,
-                    851.2
-                ],
-                [
-                    421.0,
-                    853.8
-                ],
-                [
-                    411.0,
-                    855.0
-                ],
-                [
-                    408.5,
-                    841.3
-                ],
-                [
-                    408.5,
-                    832.5
-                ],
-                [
-                    396.1,
-                    830.1
-                ],
-                [
-                    393.5,
-                    817.6
-                ],
-                [
-                    383.4,
-                    815.1
-                ]
+            "target": [
+                383.4,
+                815.1
             ]
         }
     },
     "AutoCollectRoute8GotoFind1": {
         "desc": "前往收集地1",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv002",
-            "path": [
-                [
-                    383.4,
-                    815.1
-                ],
-                [
-                    387.2,
-                    805.1
-                ]
+            "target": [
+                387.2,
+                805.1
             ]
         },
         "anchor": {
@@ -144,22 +108,12 @@
     "AutoCollectRoute8GotoFind2": {
         "desc": "前往收集地2",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv002",
-            "path": [
-                [
-                    387.3,
-                    805.1
-                ],
-                [
-                    384.8,
-                    809.9
-                ],
-                [
-                    389.7,
-                    803.9
-                ]
+            "target": [
+                389.7,
+                803.9
             ]
         },
         "anchor": {
@@ -172,22 +126,12 @@
     "AutoCollectRoute8GotoFind3": {
         "desc": "前往收集地3",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv002",
-            "path": [
-                [
-                    389.7,
-                    803.9
-                ],
-                [
-                    393.4,
-                    801.3
-                ],
-                [
-                    390.9,
-                    797.6
-                ]
+            "target": [
+                390.9,
+                797.6
             ]
         },
         "anchor": {
@@ -200,22 +144,12 @@
     "AutoCollectRoute8GotoFind4": {
         "desc": "前往收集地4",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv002",
-            "path": [
-                [
-                    390.9,
-                    797.6
-                ],
-                [
-                    393.4,
-                    793.8
-                ],
-                [
-                    392.2,
-                    800.0
-                ]
+            "target": [
+                392.2,
+                800.0
             ]
         },
         "anchor": {
@@ -228,22 +162,12 @@
     "AutoCollectRoute8GotoFind5": {
         "desc": "前往收集地5",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv002",
-            "path": [
-                [
-                    392.2,
-                    800.0
-                ],
-                [
-                    393.4,
-                    793.8
-                ],
-                [
-                    388.4,
-                    797.5
-                ]
+            "target": [
+                388.4,
+                797.5
             ]
         },
         "anchor": {
@@ -256,22 +180,12 @@
     "AutoCollectRoute8GotoFind6": {
         "desc": "前往收集地6",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv002",
-            "path": [
-                [
-                    388.4,
-                    797.5
-                ],
-                [
-                    393.4,
-                    793.8
-                ],
-                [
-                    388.6,
-                    795.0
-                ]
+            "target": [
+                388.6,
+                795.0
             ]
         },
         "anchor": {
@@ -284,18 +198,12 @@
     "AutoCollectRoute8GotoFind7": {
         "desc": "前往收集地7",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv002",
-            "path": [
-                [
-                    388.6,
-                    795.0
-                ],
-                [
-                    383.5,
-                    800.1
-                ]
+            "target": [
+                383.5,
+                800.1
             ]
         },
         "anchor": {
@@ -308,18 +216,12 @@
     "AutoCollectRoute8GotoFind8": {
         "desc": "前往收集地8",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv002",
-            "path": [
-                [
-                    383.5,
-                    800.1
-                ],
-                [
-                    384.7,
-                    803.8
-                ]
+            "target": [
+                384.7,
+                803.8
             ]
         },
         "anchor": {
