@@ -2,8 +2,9 @@
 // 从 zmdmap API 获取最新版本，下载数据文件到 tools/pipeline-generate/data/ 目录。
 // 若本地已是最新版本则跳过下载。
 //
-// 用法：node tools/pipeline-generate/fetch-data.mjs [--force]
+// 用法：node tools/pipeline-generate/fetch-data.mjs [--force] [--cache-bust]
 //   --force  忽略本地版本缓存，强制重新下载
+//   --cache-bust  下载数据文件时追加时间戳参数，绕过远端缓存
 
 import {mkdirSync, readFileSync, writeFileSync} from "node:fs";
 import {resolve} from "node:path";
@@ -18,7 +19,10 @@ const DATA_FILES = [
 ];
 
 const VERSION_FILE = "version.txt";
-const force = process.argv.includes("--force");
+const isGitHubActions = process.env.GITHUB_ACTIONS === "true";
+const shouldCacheBust = process.argv.includes("--cache-bust") || isGitHubActions;
+const force = process.argv.includes("--force") || shouldCacheBust;
+const cacheBustToken = shouldCacheBust ? Date.now().toString() : null;
 
 function readCachedVersion() {
     try {
@@ -56,7 +60,11 @@ async function fetchAndCache(version) {
     mkdirSync(dataDir, {recursive: true});
 
     for (const file of DATA_FILES) {
-        const url = `${DATA_BASE_URL}/${file}?ver=${encodeURIComponent(version)}`;
+        const url = new URL(`${DATA_BASE_URL}/${file}`);
+        url.searchParams.set("ver", version);
+        if (cacheBustToken) {
+            url.searchParams.set("t", cacheBustToken);
+        }
         console.log(`[fetch-data] 下载 ${url}`);
         const res = await fetch(url);
         if (!res.ok) {
