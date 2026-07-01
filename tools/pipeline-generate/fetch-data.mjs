@@ -4,7 +4,7 @@
 //
 // 用法：node tools/pipeline-generate/fetch-data.mjs [--force] [--cache-bust]
 //   --force  忽略本地版本缓存，强制重新下载
-//   --cache-bust  下载数据文件时追加时间戳参数，绕过远端缓存
+//   --cache-bust  等价于 --force，并在下载数据文件时追加时间戳参数，绕过远端缓存
 
 import {mkdirSync, readFileSync, writeFileSync} from "node:fs";
 import {resolve} from "node:path";
