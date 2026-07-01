@@ -73,11 +73,11 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	// 手动残局：玩家手动打了跨天残局并消耗了翻倍 → 翻倍消耗超前于演算消耗，落进求解器 stateFilter
-	// 判不可达的状态（第3条 RemainDouble >= RemainCalc+MaxDouble-3，MaxDouble=2 即 RemainDouble >= RemainCalc-1），
-	// 典型如开局 331（Calc=3,Double=1）。放弃只扣放弃次数、不扣演算，放完仍非法；演算才扣演算次数。故跳过
-	// 求解直接演算：未翻倍 331→231 即合法；已翻倍演算再扣 1 次翻倍（331→230→130），每步 RemainCalc 至少 -1，
-	// 到 Calc=1 时 Double>=0 恒成立，必然落回合法态空间，不死循环。
-	if gs.State.RemainDouble < gs.State.RemainCalc-1 {
+	// 判不可达的状态（第3条 RemainDouble >= RemainCalc-3+MaxDouble）。典型如开局 331（Calc=3,Double=1）。
+	// 放弃只扣放弃次数、不扣演算，放完仍非法；演算才扣演算次数。故跳过求解直接演算：未翻倍 331→231 即合法；
+	// 已翻倍演算再扣 1 次翻倍（331→230→130），每步 RemainCalc 至少 -1，到 Calc=1 时 Double>=0 恒成立，
+	// 必然落回合法态空间，不死循环。
+	if gs.State.RemainDouble < gs.State.RemainCalc-3+solver.MaxDouble {
 		resetAband() // 开始演算结束本回合，下回合新局首步重新探测放弃次数
 		if err := routeDecision(ctx, arg.CurrentTaskName, solver.Calculate); err != nil {
 			log.Error().Err(err).Str("component", component).Msg("failed to route manual-endgame calculate")
@@ -88,7 +88,7 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Int("remainCalc", gs.State.RemainCalc).
 			Int("remainDouble", gs.State.RemainDouble).
 			Bool("isDoubled", gs.State.IsDoubled).
-			Msg("manual endgame (Double<Calc-1): skip solver, calculate to restore valid state")
+			Msg("manual endgame (Double<Calc-3+MaxDouble): skip solver, calculate to restore valid state")
 		maafocus.Print(ctx, i18n.T("trialofswordmancy.legacy_double"))
 		return true
 	}
