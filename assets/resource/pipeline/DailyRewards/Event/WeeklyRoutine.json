@@ -29,11 +29,13 @@
                 "recognition": "OCR",
                 "roi": "color",
                 "expected": [
-                    "每周事务",
-                    "每週事務",
-                    "Weekly Routine",
-                    "ウィークリークエスト",
-                    "주간 업무"
+                    // 每周事务
+                    // @i18n-skip
+                    "周事务",
+                    "週事務",
+                    "Routine",
+                    "リークエスト",
+                    "업무"
                 ],
                 "only_rec": true
             }
