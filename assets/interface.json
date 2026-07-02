@@ -194,6 +194,8 @@
         // preset
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",
-        "tasks/preset/RealtimeAssist.json"
+        "tasks/preset/RealtimeAssist.json",
+        // setting
+        "tasks/setting/Keymap.json"
     ]
 }

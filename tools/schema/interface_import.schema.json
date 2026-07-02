@@ -444,6 +444,50 @@
                 "entry"
             ],
             "additionalProperties": false
+        },
+        "settingItem": {
+            "type": "object",
+            "title": "任务设置分区",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "title": "设置分区唯一标识符",
+                    "description": "用作设置分区 ID"
+                },
+                "label": {
+                    "$ref": "#/definitions/i18nString",
+                    "title": "显示名称",
+                    "description": "用于在用户界面中展示，支持国际化。如果未设置，则显示 name 字段的值"
+                },
+                "description": {
+                    "$ref": "#/definitions/i18nString",
+                    "title": "详细描述",
+                    "description": "帮助用户理解该设置分区的用途。支持文件路径、URL 或直接文本，内容支持 Markdown 格式"
+                },
+                "icon": {
+                    "$ref": "#/definitions/i18nString",
+                    "title": "图标路径",
+                    "description": "设置分区图标文件路径，相对于项目根目录"
+                },
+                "option": {
+                    "type": "array",
+                    "title": "设置项列表",
+                    "description": "💡 v2.7.0 可选。引用顶层 option 配置中的键名，Client 按数组顺序渲染对应控件",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "default_expand": {
+                    "type": "boolean",
+                    "title": "默认展开",
+                    "description": "💡 v2.7.0 可选。该设置分区在 Client 中是否默认展开",
+                    "default": true
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "additionalProperties": false
         }
     },
     "properties": {
@@ -461,6 +505,14 @@
             "description": "为一个对象映射，包含配置项的信息",
             "additionalProperties": {
                 "$ref": "#/definitions/optionDefinition"
+            }
+        },
+        "global_option": {
+            "type": "array",
+            "title": "全局选项配置",
+            "description": "💡 v2.3.0 可选。全局选项配置，为一个字符串数组，数组元素应与 option 配置中的键名对应。该选项生成的参数会参与到所有任务的 pipeline override 中，无论用户选择了什么资源包或控制器",
+            "items": {
+                "type": "string"
             }
         },
         "preset": {
@@ -524,6 +576,14 @@
                 },
                 "required": ["name"],
                 "additionalProperties": false
+            }
+        },
+        "setting": {
+            "type": "array",
+            "title": "任务设置配置",
+            "description": "💡 v2.7.0 可选。任务设置 UI 声明，供 Client 渲染全局任务配置区域",
+            "items": {
+                "$ref": "#/definitions/settingItem"
             }
         }
     },

@@ -444,11 +444,11 @@
         "AutoFightSettingFull": {
             "type": "switch",
             "label": "$option.AutoFightSettingFull.label",
+            "description": "$option.AutoFightSettingFull.description",
             "cases": [
                 {
                     "name": "Yes",
                     "option": [
-                        "AutoFightKeymap",
                         "AutoFightAttack",
                         "AutoFightDodge",
                         "AutoFightLockTarget",
@@ -460,108 +460,6 @@
                     "name": "No"
                 }
             ]
-        },
-        "AutoFightKeymap": {
-            "label": "$option.AutoFightKeymap.label",
-            "description": "$option.AutoFightKeymap.description",
-            "type": "switch",
-            "default_case": "No",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "option": [
-                        "AutoFightKeymapInput"
-                    ]
-                },
-                {
-                    "name": "No"
-                }
-            ]
-        },
-        "AutoFightKeymapInput": {
-            "label": "$option.AutoFightKeymapInput.label",
-            "description": "$option.AutoFightKeymapInput.description",
-            "type": "input",
-            "inputs": [
-                {
-                    "name": "AutoFightKeymapCombo",
-                    "label": "$option.AutoFightKeymapInput.inputs.AutoFightKeymapCombo.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
-                    "default": "E"
-                },
-                {
-                    "name": "AutoFightKeymapSkill1",
-                    "label": "$option.AutoFightKeymapInput.inputs.AutoFightKeymapSkill1.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
-                    "default": "1"
-                },
-                {
-                    "name": "AutoFightKeymapSkill2",
-                    "label": "$option.AutoFightKeymapInput.inputs.AutoFightKeymapSkill2.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
-                    "default": "2"
-                },
-                {
-                    "name": "AutoFightKeymapSkill3",
-                    "label": "$option.AutoFightKeymapInput.inputs.AutoFightKeymapSkill3.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
-                    "default": "3"
-                },
-                {
-                    "name": "AutoFightKeymapSkill4",
-                    "label": "$option.AutoFightKeymapInput.inputs.AutoFightKeymapSkill4.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
-                    "default": "4"
-                },
-                {
-                    "name": "AutoFightKeymapSwitchOperator1",
-                    "label": "$option.AutoFightKeymapInput.inputs.AutoFightKeymapSwitchOperator1.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
-                    "default": "F1"
-                },
-                {
-                    "name": "AutoFightKeymapSwitchOperator2",
-                    "label": "$option.AutoFightKeymapInput.inputs.AutoFightKeymapSwitchOperator2.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
-                    "default": "F2"
-                },
-                {
-                    "name": "AutoFightKeymapSwitchOperator3",
-                    "label": "$option.AutoFightKeymapInput.inputs.AutoFightKeymapSwitchOperator3.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
-                    "default": "F3"
-                },
-                {
-                    "name": "AutoFightKeymapSwitchOperator4",
-                    "label": "$option.AutoFightKeymapInput.inputs.AutoFightKeymapSwitchOperator4.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
-                    "default": "F4"
-                }
-            ],
-            "pipeline_override": {
-                "AutoFight": {
-                    "attach": {
-                        "combo_keymap": "{AutoFightKeymapCombo}",
-                        "skill_keymap1": "{AutoFightKeymapSkill1}",
-                        "skill_keymap2": "{AutoFightKeymapSkill2}",
-                        "skill_keymap3": "{AutoFightKeymapSkill3}",
-                        "skill_keymap4": "{AutoFightKeymapSkill4}",
-                        "switch_operator_keymap1": "{AutoFightKeymapSwitchOperator1}",
-                        "switch_operator_keymap2": "{AutoFightKeymapSwitchOperator2}",
-                        "switch_operator_keymap3": "{AutoFightKeymapSwitchOperator3}",
-                        "switch_operator_keymap4": "{AutoFightKeymapSwitchOperator4}"
-                    }
-                }
-            }
         },
         "AutoFightAttack": {
             "label": "$option.AutoFightAttack.label",
