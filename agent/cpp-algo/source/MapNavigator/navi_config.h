@@ -91,6 +91,16 @@ constexpr int32_t kDynamicRecoveryTotalTimeoutMs = 30000;
 constexpr int32_t kRecoveryJumpAttemptsBeforeDetour = 2;
 constexpr double kDynamicRecoveryResetDistance = 2.0;
 constexpr double kCloseGoalDetourSuppressSlack = 6.0;
+constexpr int32_t kRecoveryDetourAttemptsBeforeUnstick = 1;
+constexpr double kUnstickSampleStepM = 0.5;        // per-ray on/off scan resolution (world units)
+constexpr double kUnstickMaxRockCrossingM = 2.0;   // tolerate this much off-mesh (the rock) before solid ground; longer = water => reject bearing
+constexpr double kUnstickMeshMarginM = 1.0;        // step this far past the mesh edge so we land ON solid ground
+constexpr double kUnstickMinDistanceM = 2.5;       // shortest committed dislodge step
+constexpr double kUnstickMaxDistanceM = 6.0;       // ray-scan reach / longest dislodge step
+constexpr int32_t kUnstickPulseMs = 270;           // per forward pulse after turning to the escape bearing
+constexpr int32_t kUnstickMaxPulses = 8;           // committed-walk cap; displacement exit usually ends it sooner
+constexpr double kUnstickResetDistanceM = 2.0;     // relocated this far from the unstick origin => reset bearing rotation
+constexpr double kUnstickSuccessFraction = 0.6;    // displacement >= this * planned dist => a real dislodge step
 // When the locator yields no usable fix for a sustained period (e.g. the agent was shoved across a
 // zone boundary into a sub-zone the active route was not planned in, so every fix fails zone
 // validation), stop holding forward into the obstacle, hop periodically to dislodge, and fail-fast
@@ -110,6 +120,20 @@ constexpr int32_t kRiverFallRecoveryPulseMs = kPostHeadingForwardPulseMs;       
 constexpr int32_t kOffRouteWedgeReplanMs = 6000;
 constexpr int32_t kOffRouteWedgeReplanCooldownMs = 4000;
 constexpr int32_t kOffRouteWedgeFailMs = 12000;
+
+// Cross-tier escape (wrong-tier fall): plan ONE navmesh corridor from a walkable FLOORED-tier fix back to the
+// nearest reachable authored waypoint and follow it as a fixed corridor (riding the legitimate tier<->base
+// oscillation). Exit needs BOTH arrival distance AND a floor-blind (base) zone — a shaft's lower loops pass under
+// the rim in (x,y), so distance alone fires early on the tier.
+constexpr double kCrossTierEscapeArrivalM = 3.0;
+// Escape fast-fail (mode B: escape stays active but the corridor is walled/unfollowable). Keyed on the
+// hard-progress clock, which mid-escape overlay re-applies cannot reset, so it measures genuine no-corridor-
+// progress. Progress-aware: a long-but-advancing escape is never killed early; only a continuously stuck one trips.
+constexpr int32_t kCrossTierEscapeHardStallMs = 12000;
+// Wrong-tier thrash fast-fail (mode A: recover<->re-lose storm). Every global re-acquire resets every progress/
+// loss clock, so no timeout fires; instead count consecutive global re-acquires since the last waypoint advance
+// and fail here. Normal travel sees 0-1 transient losses per leg, so this many with zero advance is pathological.
+constexpr int32_t kLocalizationThrashFailCount = 5;
 
 // --- NavRunController (RUN corridor follower) ---
 constexpr double kNavRunLookaheadLowSpeedM = 2.5;

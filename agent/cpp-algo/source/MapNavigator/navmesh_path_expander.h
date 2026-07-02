@@ -32,6 +32,8 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const navmesh::WorldPoint& start,
     const navmesh::WorldPoint& goal,
     const std::vector<uint32_t>& blocked_triangles = {});
+float NavmeshFloorYForZone(const NaviParam& param, const std::string& locator_zone);
+bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a, const std::string& zone_b);
 // Resample `poly` at ~`step` world units (clamped to >=0.1) and invoke `fn` on the leading vertex and
 // every resampled point. Used by NavmeshOffMeshFraction. Caller guards poly.size() >= 2 for a
 // meaningful result.
@@ -69,6 +71,13 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshDetourRoute(
     const Waypoint& anchor,
     double route_heading,
     navmesh::WorldPoint* out_detour_vertex = nullptr);
-bool AppendGeneratedNavmeshWaypoints(const navmesh::WorldPath& world_path, std::vector<Waypoint>& out_path, bool include_goal);
+std::optional<navmesh::WorldPoint> PlanUnstickTarget(
+    const NaviParam& param,
+    const NaviPosition& position,
+    double stuck_heading,
+    int attempt_index,
+    double* out_distance = nullptr);
+bool AppendGeneratedNavmeshWaypoints(
+    const navmesh::WorldPath& world_path, std::vector<Waypoint>& out_path, bool include_goal, bool emit_interior_corners = false);
 
 } // namespace mapnavigator

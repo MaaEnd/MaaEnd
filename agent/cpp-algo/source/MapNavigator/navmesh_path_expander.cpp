@@ -706,6 +706,49 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     return route_result;
 }
 
+float NavmeshFloorYForZone(const NaviParam& param, const std::string& locator_zone)
+{
+    if (locator_zone.empty()) {
+        return navmesh::kBaseNavFloorYNone;
+    }
+    const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
+    if (navmesh_zone.empty()) {
+        return navmesh::kBaseNavFloorYNone;
+    }
+    const auto navmesh = LoadCachedNavmesh(ResolveNavmeshFile(param.navmesh_file), navmesh_zone);
+    if (!navmesh) {
+        return navmesh::kBaseNavFloorYNone;
+    }
+    return navmesh->pack.floorYForZoneName(locator_zone);
+}
+
+bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a, const std::string& zone_b)
+{
+    if (zone_a.empty() || zone_b.empty()) {
+        return false;
+    }
+    if (zone_a == zone_b) {
+        return true;
+    }
+    const std::string navmesh_zone = InferBaseNavZone(zone_a, param.map_name);
+    if (navmesh_zone.empty()) {
+        return false;
+    }
+    const auto navmesh = LoadCachedNavmesh(ResolveNavmeshFile(param.navmesh_file), navmesh_zone);
+    if (!navmesh) {
+        return false;
+    }
+    const auto geometry_id = [&navmesh](const std::string& name) -> int {
+        const navmesh::BaseNavZone* zone = navmesh->pack.findZoneByName(name);
+        if (zone == nullptr) {
+            return -1;
+        }
+        return navmesh::IsTierZone(*zone) ? static_cast<int>(zone->component_count) : static_cast<int>(zone->zone_id);
+    };
+    const int geom_a = geometry_id(zone_a);
+    return geom_a >= 0 && geom_a == geometry_id(zone_b);
+}
+
 double NavmeshOffMeshFraction(
     const NaviParam& param,
     const std::string& locator_zone,
@@ -840,7 +883,65 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshDetourRoute(
     return best;
 }
 
-bool AppendGeneratedNavmeshWaypoints(const navmesh::WorldPath& world_path, std::vector<Waypoint>& out_path, bool include_goal)
+std::optional<navmesh::WorldPoint> PlanUnstickTarget(
+    const NaviParam& param,
+    const NaviPosition& position,
+    double stuck_heading,
+    int attempt_index,
+    double* out_distance)
+{
+    const std::string navmesh_zone = InferBaseNavZone(position.zone_id, param.map_name);
+    if (navmesh_zone.empty()) {
+        return std::nullopt;
+    }
+    const std::filesystem::path navmesh_path = ResolveNavmeshFile(param.navmesh_file);
+    const auto navmesh = LoadCachedNavmesh(navmesh_path, navmesh_zone);
+    if (!navmesh) {
+        return std::nullopt;
+    }
+    const auto on_mesh = [&](const navmesh::WorldPoint& p) {
+        const auto proj = navmesh->pack.projectToBase(navmesh_zone, p.x, p.y);
+        if (!proj || proj->geometry_zone == nullptr) {
+            return true;
+        }
+        return navmesh->planner.pointOnMesh(proj->geometry_zone->zone_id, { .x = proj->x, .y = proj->y });
+    };
+
+    static constexpr double kFan[] = { 180.0, -135.0, 135.0, -90.0, 90.0 };
+    constexpr int kFanCount = static_cast<int>(sizeof(kFan) / sizeof(kFan[0]));
+    const int rot = ((attempt_index % kFanCount) + kFanCount) % kFanCount;
+
+    for (int i = 0; i < kFanCount; ++i) {
+        const double bearing = NaviMath::NormalizeHeading(stuck_heading + kFan[(i + rot) % kFanCount]);
+        double run = 0.0;
+        double longest = 0.0;
+        double solid_start = -1.0;  // distance where the trailing contiguous on-mesh stretch begins
+        for (double d = kUnstickSampleStepM; d <= kUnstickMaxDistanceM + 1e-9; d += kUnstickSampleStepM) {
+            if (on_mesh(OffsetPoint(position, bearing, d))) {
+                if (solid_start < 0.0) {
+                    solid_start = d;
+                }
+                run = 0.0;
+            }
+            else {
+                solid_start = -1.0;
+                run += kUnstickSampleStepM;
+                longest = std::max(longest, run);
+            }
+        }
+        if (solid_start >= 0.0 && longest <= kUnstickMaxRockCrossingM) {
+            const double dist = std::clamp(solid_start + kUnstickMeshMarginM, kUnstickMinDistanceM, kUnstickMaxDistanceM);
+            if (out_distance != nullptr) {
+                *out_distance = dist;
+            }
+            return OffsetPoint(position, bearing, dist);
+        }
+    }
+    return std::nullopt;
+}
+
+bool AppendGeneratedNavmeshWaypoints(
+    const navmesh::WorldPath& world_path, std::vector<Waypoint>& out_path, bool include_goal, bool emit_interior_corners)
 {
     if (world_path.points.empty()) {
         return false;
@@ -851,6 +952,12 @@ bool AppendGeneratedNavmeshWaypoints(const navmesh::WorldPath& world_path, std::
     const size_t loop_end = include_goal ? total : (total > 0 ? total - 1 : 0);
 
     for (size_t index = 1; index < loop_end; ++index) {
+        if (emit_interior_corners) {
+            const navmesh::WorldPoint& point = world_path.points[index];
+            out_path.emplace_back(point.x, point.y, ActionType::RUN);
+            out_path.back().strict_arrival = false;
+            continue;
+        }
         if (!segment_breaks.contains(index)) {
             continue;
         }

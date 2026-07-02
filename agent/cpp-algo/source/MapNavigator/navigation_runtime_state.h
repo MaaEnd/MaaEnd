@@ -124,6 +124,23 @@ struct RiverFallRecoveryState
     }
 };
 
+// Physical lateral-bypass escalation. Deliberately persists across recovery.Reset() so consecutive bypasses
+// at the same stuck spot grow the step and alternate sides; cleared only on genuine progress (waypoint
+// advance / new navigation) or once the agent has moved away from `origin`.
+struct LateralBypassState
+{
+    NaviPosition origin {};
+    int count = 0;
+    bool active = false;
+
+    void Reset()
+    {
+        origin = {};
+        count = 0;
+        active = false;
+    }
+};
+
 // Previous-tick heading, used to estimate the agent's own turn rate for the steering damping term. Only the
 // physical heading is tracked here; the rate is gated at the call site on the elapsed gap and on plausibility,
 // so a stale entry after a recovery / relocation pause simply yields a zero rate that tick rather than a spike.
@@ -160,6 +177,30 @@ struct OffRouteWedgeState
     }
 };
 
+// Cross-tier escape. The agent fell onto a wrong FLOORED tier (one the route never planned for); we plan ONE
+// navmesh corridor from that tier fix back to a reachable authored waypoint and follow it, tolerating the
+// open-air shaft's tier<->base oscillation as a live guard rather than re-planning on every flip. Everything is
+// gated on `active`: when false the navigator and the real-loss handling are byte-for-byte unchanged.
+// `anchor_zone` is the tier we fell into; it defines the same-geometry span we tolerate flipping within. `goal_*`
+// is the base-pixel rejoin waypoint (arrival exits the mode). A continuously-stuck escape is bounded at the call
+// site by the hard-progress stall clock (no field needed here); a recover<->re-lose thrash is bounded by the
+// top-level re-acquire streak below.
+struct CrossTierEscapeState
+{
+    bool active = false;
+    std::string anchor_zone;
+    double goal_x = 0.0;
+    double goal_y = 0.0;
+
+    void Reset()
+    {
+        active = false;
+        anchor_zone.clear();
+        goal_x = 0.0;
+        goal_y = 0.0;
+    }
+};
+
 struct NavigationRuntimeState
 {
     RouteTrackerState route;
@@ -168,8 +209,15 @@ struct NavigationRuntimeState
     DynamicRecoveryState recovery;
     LocalizationLossState localization_loss;
     RiverFallRecoveryState river_fall;
+    LateralBypassState bypass;
     SteeringRateState steering_rate;
     OffRouteWedgeState offroute;
+    CrossTierEscapeState cross_tier_escape;
+    // Consecutive global re-acquires (the navigation_state_machine "recovered via global re-acquire" path) since
+    // the last genuine waypoint advance. Top-level on purpose: the loss/escape/overlay Resets that fire all through
+    // a wrong-tier thrash storm never clear it — only real forward progress does — so it is the one storm-proof
+    // fast-fail signal. Reset in OnWaypointAdvance / BeginNavigation only.
+    int global_reacquire_streak = 0;
     bool dynamic_replan_requested = false;
     bool nav_run_dirty = true;
 
@@ -190,8 +238,11 @@ struct NavigationRuntimeState
         recovery.Reset();
         localization_loss.Reset();
         river_fall.Reset();
+        bypass.Reset();
         steering_rate.Reset();
         offroute.Reset();
+        cross_tier_escape.Reset();
+        global_reacquire_streak = 0;
         dynamic_replan_requested = false;
         nav_run_dirty = true;
         flow.navigate_started_at = now;
@@ -203,7 +254,9 @@ struct NavigationRuntimeState
         route.ResetTracking();
         recovery.Reset();
         river_fall.Reset();
+        bypass.Reset();
         offroute.Reset();
+        global_reacquire_streak = 0;
         dynamic_replan_requested = false;
         nav_run_dirty = true;
         flow.last_auto_sprint_time = {};
