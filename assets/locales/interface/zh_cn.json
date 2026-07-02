@@ -84,7 +84,7 @@
     "option.AutoFightKeymapInput.inputs.AutoFightKeymapSwitchOperator4.label": "切换到4号干员",
     "option.AutoFightAxis.label": "使用排轴",
     "option.AutoFightAxisData.label": "排轴数据",
-    "option.AutoFightAxisData.description": "- 打开 www.end-axis.com 创建排轴，或使用别人分享的排轴。\n- 在排轴中添加干员、添加战技、终结技释放时机即可，多余元素不会读取。\n- 建议在网站中点击左上角 + 至少添加一个无终结技方案以保证可循环。\n- 内部将根据终结技状态自动选择其中一个排轴方案。",
+    "option.AutoFightAxisData.description": "- 打开 www.end-axis.com 创建排轴，或在 www.end-axis.com/shares 排轴分享广场使用他人分享的排轴。\n- 在排轴中添加干员、添加战技、终结技释放时机即可，多余元素不会读取。\n- 建议在网站中点击左上角 + 至少添加一个无终结技方案以保证可循环。\n- 内部将根据终结技状态自动选择其中一个排轴方案。",
     "option.AutoFightAxisCodeString.label": "数据码",
     "option.AutoFightAxisCodeString.description": "在网站中选择一个排轴方案，点击右上角导出-复制数据码，然后粘贴到这里",
     "option.AutoPick.label": "自动拾取",

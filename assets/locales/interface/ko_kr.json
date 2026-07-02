@@ -82,7 +82,7 @@
     "option.AutoFightKeymapInput.inputs.AutoFightKeymapSwitchOperator4.label": "4번 오퍼레이터로 전환",
     "option.AutoFightAxis.label": "타임라인 전투 사용",
     "option.AutoFightAxisData.label": "타임라인 데이터",
-    "option.AutoFightAxisData.description": "- www.end-axis.com 에서 타임라인을 만들거나, 다른 사람이 공유한 타임라인을 사용하세요.\n- 타임라인에 오퍼레이터, 전술 스킬, 필살기 사용 시점을 추가하면 됩니다. 불필요한 요소는 읽지 않습니다.\n- 사이트 좌측 상단 + 를 눌러 종결기 없는 방안을 최소 1개 추가해 순환 가능하도록 하는 것을 권장합니다.\n- 내부에서 필살기 충전 상태에 따라 타임라인 방안 중 하나를 자동으로 선택합니다.",
+    "option.AutoFightAxisData.description": "- www.end-axis.com 에서 타임라인을 만들거나, www.end-axis.com/shares 공유 광장에서 다른 사람이 공유한 타임라인을 사용하세요.\n- 타임라인에 오퍼레이터, 전술 스킬, 필살기 사용 시점을 추가하면 됩니다. 불필요한 요소는 읽지 않습니다.\n- 사이트 좌측 상단 + 를 눌러 종결기 없는 방안을 최소 1개 추가해 순환 가능하도록 하는 것을 권장합니다.\n- 내부에서 필살기 충전 상태에 따라 타임라인 방안 중 하나를 자동으로 선택합니다.",
     "option.AutoFightAxisCodeString.label": "데이터 코드",
     "option.AutoFightAxisCodeString.description": "사이트에서 타임라인 방안을 선택한 뒤, 우측 상단 내보내기→데이터 코드 복사 후 여기에 붙여넣으세요.",
     "option.AutoPick.label": "자동 줍기",

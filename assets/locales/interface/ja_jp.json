@@ -82,7 +82,7 @@
     "option.AutoFightKeymapInput.inputs.AutoFightKeymapSwitchOperator4.label": "4番オペレーターに切替",
     "option.AutoFightAxis.label": "軸取り戦闘を使用",
     "option.AutoFightAxisData.label": "軸取りデータ",
-    "option.AutoFightAxisData.description": "- www.end-axis.com を開いて排軸を作成するか、他人が共有した排軸を使用してください。\n- 排軸にオペレーター、戦技、終結技の発動タイミングを追加すれば十分です。余分な要素は読み取られません。\n- サイト左上の + から終結技なしの方案を少なくとも1つ追加し、ループできるようにすることを推奨します。\n- 内部で終結技の状態に応じて、排軸方案のいずれかを自動選択します。",
+    "option.AutoFightAxisData.description": "- www.end-axis.com を開いて排軸を作成するか、www.end-axis.com/shares の排軸共有広場で他人が共有した排軸を使用してください。\n- 排軸にオペレーター、戦技、終結技の発動タイミングを追加すれば十分です。余分な要素は読み取られません。\n- サイト左上の + から終結技なしの方案を少なくとも1つ追加し、ループできるようにすることを推奨します。\n- 内部で終結技の状態に応じて、排軸方案のいずれかを自動選択します。",
     "option.AutoFightAxisCodeString.label": "データコード",
     "option.AutoFightAxisCodeString.description": "サイトで排軸方案を選び、右上のエクスポート→データコードをコピーして、ここに貼り付けてください。",
     "option.AutoPick.label": "自動拾取",
