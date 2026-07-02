@@ -77,6 +77,7 @@
         "all_of": [
             "InMapWulingJingyuValley"
         ],
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0
     },
@@ -86,6 +87,7 @@
         "all_of": [
             "InMapWulingWulingCity"
         ],
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0
     },
@@ -95,6 +97,7 @@
         "all_of": [
             "InMapWulingQingboStockade"
         ],
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0
     },
@@ -104,6 +107,7 @@
         "all_of": [
             "InMapWulingMarkerStone"
         ],
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0
     },
@@ -113,6 +117,7 @@
         "all_of": [
             "InMapWulingTestArea"
         ],
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0
     },
@@ -122,6 +127,7 @@
         "all_of": [
             "InMapWulingSwordVaultDale"
         ],
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0
     },
