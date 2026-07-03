@@ -66,7 +66,6 @@
         "recognition": "And",
         "all_of": [
             {
-                "sub_name": "_CanVisitText",
                 "recognition": {
                     "type": "OCR",
                     "param": {
@@ -77,30 +76,13 @@
                             203
                         ],
                         "expected": [
-                            "可拜访的好友",
-                            "可拜訪的好友",
-                            "Visitable Friends",
-                            "訪問できるフレンド",
-                            "可拜访"
+                            // 可拜访的好友
+                            // @i18n-skip
+                            "好友1",
+                            "好友1",
+                            "Friends 1",
+                            "レンド1"
                         ]
-                    }
-                }
-            },
-            {
-                "recognition": {
-                    "type": "OCR",
-                    "param": {
-                        "roi": "_CanVisitText",
-                        "roi_offset": [
-                            0,
-                            0,
-                            15,
-                            0
-                        ],
-                        "expected": [
-                            "1$"
-                        ],
-                        "only_rec": true
                     }
                 }
             }
