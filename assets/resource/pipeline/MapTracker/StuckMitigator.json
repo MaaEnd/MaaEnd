@@ -293,7 +293,7 @@
         "action": {
             "type": "Click"
         },
-        "post_delay": 250,
+        "post_delay": 300,
         "next": [
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CancelMove"
         ]
