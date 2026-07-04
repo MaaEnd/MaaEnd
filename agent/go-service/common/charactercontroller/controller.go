@@ -2,9 +2,7 @@ package charactercontroller
 
 import (
 	"encoding/json"
-	"math"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -37,7 +35,6 @@ type characterControllerRelativeMoveParam struct {
 	Begin []int `json:"begin"`
 }
 
-// on wlroots, dx/dy are compensated by control.WlrootsRelativeMoveScale.
 // When "begin" is specified, dx/dy are computed from begin to arg.Box
 // (resolved from pipeline "target") instead of the explicit dx/dy fields.
 type CharacterControllerRelativeMoveAction struct{}
@@ -68,14 +65,7 @@ func (a *CharacterControllerRelativeMoveAction) Run(ctx *maa.Context, arg *maa.C
 		dy = arg.Box.Y() - params.Begin[1]
 	}
 
-	scaledDX := int32(dx)
-	scaledDY := int32(dy)
-	controlType, _ := control.GetControlType(ctx.GetTasker().GetController())
-	if controlType == control.CONTROL_TYPE_WLROOTS {
-		scaledDX = int32(math.Round(float64(dx) * control.WlrootsRelativeMoveScale))
-		scaledDY = int32(math.Round(float64(dy) * control.WlrootsRelativeMoveScale))
-	}
-	ctx.GetTasker().GetController().PostRelativeMove(scaledDX, scaledDY).Wait()
+	ctx.GetTasker().GetController().PostRelativeMove(int32(dx), int32(dy)).Wait()
 	return true
 }
 
