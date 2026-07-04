@@ -243,7 +243,16 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 500,
+        "post_wait_freezes": {
+            "target": [
+                520,
+                300,
+                240,
+                120
+            ],
+            "time": 500,
+            "timeout": 10000
+        },
         "next": [
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_DeleteDeviceConfirm"
         ]
@@ -330,7 +339,16 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 500,
+        "post_wait_freezes": {
+            "target": [
+                520,
+                300,
+                240,
+                120
+            ],
+            "time": 500,
+            "timeout": 10000
+        },
         "next": [
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_SkipChatConfirm"
         ]
