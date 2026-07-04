@@ -98,6 +98,7 @@
                             0
                         ],
                         "expected": [
+                            // @i18n-skip
                             "(^|[^\\d])1(?!\\d)"
                         ],
                         "only_rec": true
