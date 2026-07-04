@@ -31,6 +31,7 @@
             "渡し場の水車",
             "부두 물레방아"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckPierWaterwheelIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Pier\\s*Waterwheel",
             "渡し場の水車の写真を撮る",
             "부두 물레방아를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptPierWaterwheel": {
         "desc": "接取码头水车委托",

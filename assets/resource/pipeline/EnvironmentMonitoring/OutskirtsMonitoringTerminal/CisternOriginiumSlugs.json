@@ -31,6 +31,7 @@
             "貯水オリジムシ",
             "저수 원석충"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckCisternOriginiumSlugsIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photograph\\s*a\\s*group\\s*of\\s*Cistern\\s*Originium\\s*Slugs",
             "貯水オリジムシの群れの写真を撮る",
             "저수 원석충 무리를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptCisternOriginiumSlugs": {
         "desc": "接取蓄水源石虫委托",

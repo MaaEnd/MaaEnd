@@ -31,6 +31,7 @@
             "「棲霞留影」",
             "'노을의 그림자'"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckEternalSunsetIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*\"Eternal\\s*Sunset\"",
             "東屋中央の「棲霞留影」の写真を撮る",
             "정자 한가운데에 자라는 '노을의 그림자'를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptEternalSunset": {
         "desc": "接取栖霞驻影委托",

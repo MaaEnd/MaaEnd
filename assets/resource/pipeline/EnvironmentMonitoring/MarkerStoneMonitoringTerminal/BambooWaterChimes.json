@@ -31,6 +31,7 @@
             "水竹鈴",
             "수죽령"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckBambooWaterChimesIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Bamboo\\s*Water\\s*Chimes",
             "水竹鈴の写真を撮る",
             "수죽령을 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptBambooWaterChimes": {
         "desc": "接取水竹铃委托",

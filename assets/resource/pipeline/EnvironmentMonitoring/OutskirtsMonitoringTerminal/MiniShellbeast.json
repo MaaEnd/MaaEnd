@@ -31,6 +31,12 @@
             "小さな甲獣",
             "작은 셸비스트"
         ],
+        "replace": [
+            [
+                "売",
+                "壳"
+            ]
+        ],
         "order_by": "Vertical"
     },
     "CheckMiniShellbeastIcon": {
@@ -120,6 +126,12 @@
             "(?i)Photo:\\s*Mini\\s*Shellbeast\\s*in\\s*Defense",
             "殻にこもる小さな甲獣の写真を撮る",
             "껍질 속으로 숨은 작은 셸비스트를 촬영하기"
+        ],
+        "replace": [
+            [
+                "売",
+                "壳"
+            ]
         ]
     },
     "AcceptMiniShellbeast": {

@@ -427,7 +427,13 @@
                 702.7
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Replace": [
+            [
+                "売",
+                "壳"
+            ]
+        ]
     },
     {
         "MissionId": "m1m57",

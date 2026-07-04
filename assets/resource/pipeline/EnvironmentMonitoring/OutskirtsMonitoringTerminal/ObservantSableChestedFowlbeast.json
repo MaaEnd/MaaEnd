@@ -31,6 +31,7 @@
             "キョロキョロする黒腹羽獣",
             "두리번거리는 세이블체스티드 파울비스트"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckObservantSableChestedFowlbeastIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Sable\\s*-\\s*chested\\s*Fowlbeast",
             "農地でキョロキョロする黒腹羽獣の写真を撮る",
             "논밭에서 두리번거리는 세이블체스티드 파울비스트를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptObservantSableChestedFowlbeast": {
         "desc": "接取东张西望的黑腹雉羽兽委托",

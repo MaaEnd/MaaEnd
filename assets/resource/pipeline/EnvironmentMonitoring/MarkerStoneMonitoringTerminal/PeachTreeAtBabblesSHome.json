@@ -31,6 +31,7 @@
             "ネンネンの家にある桃の木",
             "염념이네 복숭아나무"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckPeachTreeAtBabblesSHomeIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Peach\\s*Tree\\s*at\\s*Babbles's\\s*Home",
             "ネンネンの家にある桃の木の写真を撮る",
             "염념이네 복숭아나무를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptPeachTreeAtBabblesSHome": {
         "desc": "接取念念家的桃树委托",

@@ -31,6 +31,7 @@
             "枯れ枝",
             "마른 가지"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckWitheredBranchesIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Withered\\s*Branches",
             "祖泉周辺の枯れ枝の写真を撮る",
             "선조의 샘 주변의 마른 가지를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptWitheredBranches": {
         "desc": "接取枯枝委托",

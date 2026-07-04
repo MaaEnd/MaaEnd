@@ -31,6 +31,7 @@
             "活発になっている貯水オリジムシ",
             "활기찬 저수 원석충"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckVigorousCisternOriginiumSlugIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photograph\\s*a\\s*Vigorous\\s*Cistern\\s*Originium\\s*Slug",
             "活発になっている貯水オリジムシの写真を撮る",
             "활기찬 저수 원석충 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptVigorousCisternOriginiumSlug": {
         "desc": "接取充满活力的蓄水源石虫委托",

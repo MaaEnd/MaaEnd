@@ -31,6 +31,7 @@
             "侵蝕潮で壊れたビーコン",
             "침식 조류로 인해 훼손된 신호기"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckBeaconDamagedInTheBlightTideIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Damaged\\s*Beacon",
             "侵蝕潮で破損したビーコンの写真を撮る",
             "침식 조류로 인해 훼손된 신호기를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptBeaconDamagedInTheBlightTide": {
         "desc": "接取侵蚀潮中损坏的信标委托",

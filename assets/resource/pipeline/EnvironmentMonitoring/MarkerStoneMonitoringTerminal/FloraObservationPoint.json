@@ -31,6 +31,7 @@
             "植物観察スポット",
             "식물 관찰 지점"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckFloraObservationPointIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Flora\\s*Observation\\s*Point",
             "植物観察スポットの写真を撮る",
             "식물 관찰 지점을 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptFloraObservationPoint": {
         "desc": "接取植物观察点委托",

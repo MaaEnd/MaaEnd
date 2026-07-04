@@ -31,6 +31,7 @@
             "栖雲生態スポット",
             "서운 생태 지점"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckCloudrestEcoSiteIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Cloudrest\\s*Eco\\s*-\\s*Site",
             "栖雲生態スポットの写真を撮る",
             "서운 생태 지점을 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptCloudrestEcoSite": {
         "desc": "接取栖云生态点委托",

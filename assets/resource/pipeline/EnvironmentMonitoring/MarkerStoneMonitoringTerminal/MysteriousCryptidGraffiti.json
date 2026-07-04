@@ -31,6 +31,7 @@
             "謎の生物に関する落書き",
             "미지의 생물이 남긴 낙서"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckMysteriousCryptidGraffitiIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Mysterious\\s*Cryptid\\s*Graffiti",
             "謎の生物に関する落書きの写真を撮る",
             "미지의 생물이 남긴 낙서를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptMysteriousCryptidGraffiti": {
         "desc": "接取谜之生物的涂鸦委托",

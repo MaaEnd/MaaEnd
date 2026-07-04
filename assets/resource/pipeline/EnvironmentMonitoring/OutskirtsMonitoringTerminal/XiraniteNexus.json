@@ -31,6 +31,7 @@
             "枢壌儀",
             "중추 식양 장치"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckXiraniteNexusIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Xiranite\\s*Nexus",
             "枢壌儀の写真を撮る",
             "중추 식양 장치를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptXiraniteNexus": {
         "desc": "接取枢壤仪委托",

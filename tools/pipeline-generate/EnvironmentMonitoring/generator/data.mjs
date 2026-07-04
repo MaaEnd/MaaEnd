@@ -115,6 +115,7 @@ function buildRow(mission, usedIds) {
         CameraMaxHit: route.CameraMaxHit,
         ExpectedText: buildExpectedFromLocaleMap(mission.name),
         InExpectedText: buildExpectedFromLocaleMap(mission.shotTargetName),
+        OcrReplace: rawJson(route.Replace),
         TrackOrGoToNext: rawJson(TrackOrGoToNext),
         AfterTrackedNext: rawJson(AfterTrackedNext),
         MapNavigationAction: route.MapNavigationAction,

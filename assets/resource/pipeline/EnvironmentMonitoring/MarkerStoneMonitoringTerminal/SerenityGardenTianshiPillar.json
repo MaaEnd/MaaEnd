@@ -31,6 +31,7 @@
             "安思園の天師杭",
             "안사원의 천사장"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckSerenityGardenTianshiPillarIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Serenity\\s*Garden\\s*Tianshi\\s*Pillar",
             "安思園の天師杭の写真を撮る",
             "안사원의 천사장을 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptSerenityGardenTianshiPillar": {
         "desc": "接取安思园的天师桩委托",

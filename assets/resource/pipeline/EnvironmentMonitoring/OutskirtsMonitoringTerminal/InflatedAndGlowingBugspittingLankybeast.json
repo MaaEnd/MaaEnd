@@ -31,6 +31,7 @@
             "腹が膨らんで光る虫吐き長脚獣",
             "배를 부풀려 빛을 내는 버그스피팅 랭키비스트"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckInflatedAndGlowingBugspittingLankybeastIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photograph\\s*an\\s*Inflated\\s*and\\s*Glowing\\s*Bugspitting\\s*Lankybeast",
             "腹が膨らんで光る虫吐き長脚獣の写真を撮る",
             "배를 부풀려 빛을 내는 버그스피팅 랭키비스트를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptInflatedAndGlowingBugspittingLankybeast": {
         "desc": "接取肚子鼓气后发光的吐虫长股兽委托",

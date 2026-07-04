@@ -31,6 +31,7 @@
             "環状滝",
             "원형 폭포"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckAnnularWaterfallIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Annular\\s*Waterfall",
             "祖泉周辺の環状滝の写真を撮る",
             "선조의 샘 주변의 원형 폭포를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptAnnularWaterfall": {
         "desc": "接取环形瀑布委托",

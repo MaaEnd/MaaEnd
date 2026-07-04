@@ -31,6 +31,7 @@
             "浄水温度調整装置",
             "정수 온도 조절 장치"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckWaterTemperatureControllerIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Water\\s*Temperature\\s*Controller",
             "浄水温度調整装置の写真を撮る",
             "정수 온도 조절 장치를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptWaterTemperatureController": {
         "desc": "接取净水温控装置委托",

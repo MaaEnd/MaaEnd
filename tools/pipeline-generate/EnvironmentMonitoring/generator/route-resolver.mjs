@@ -12,6 +12,7 @@ export const ROUTE_CONFIG_FIELDS = [
     "MapGoal",
     "CameraSwipeDirection",
     "CameraMaxHit",
+    "Replace",
     "Heading",
     "NoEnsureInitialMovementState",
 ];
@@ -236,6 +237,7 @@ export function createRouteResolver(routeConfig, options = {}) {
             const MapGoal =
                 navigationConfigCount === 1 && hasMapGoal ? override.MapGoal : UNREACHABLE_ROUTE_PLACEHOLDER.MapGoal;
             const CameraMaxHit = override?.CameraMaxHit ?? CAMERA_MAX_HIT_DEFAULT;
+            const Replace = override?.Replace ?? [];
             const NoEnsureInitialMovementState = override?.NoEnsureInitialMovementState ?? false;
             const heading = normalizeHeading(override?.Heading, mission, missionName, warn);
             const isAdapted = override != null && missingFields.length === 0;
@@ -265,6 +267,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                 MapGoal,
                 CameraSwipeDirection,
                 CameraMaxHit,
+                Replace,
                 NoEnsureInitialMovementState,
                 ...heading,
                 ...buildNavigationParams({

@@ -31,6 +31,7 @@
             "水灯虫",
             "수등충"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckWaterlampIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Waterlamps",
             "水灯虫の写真を撮る",
             "수등충을 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptWaterlamp": {
         "desc": "接取水灯虫委托",

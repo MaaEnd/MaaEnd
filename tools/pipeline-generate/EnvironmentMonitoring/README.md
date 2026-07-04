@@ -66,6 +66,13 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
     "CameraMaxHit": 2,
         // 可选；调整摄像头时的最大滑屏命中次数，默认值为 2。
         // 拍照目标较难对准时可适当调大。
+    "Replace": [
+        [
+            "売",
+            "壳"
+        ]
+    ],
+        // 可选；任务列表和任务详情页 OCR 易混字符替换。
     "NoEnsureInitialMovementState": true,
         // 可选；默认 false。一般只在路线起点紧贴桥边、悬崖边等危险地形时开启，
         // 用于跳过 MapTrackerMove 开局的冲刺准备动作，避免角色因为这一步直接掉下桥或掉下悬崖。

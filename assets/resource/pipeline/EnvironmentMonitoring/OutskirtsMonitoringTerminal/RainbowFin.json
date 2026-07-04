@@ -31,6 +31,7 @@
             "七色鱗獣",
             "무지개 린수"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckRainbowFinIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Rainbow\\s*Fin\\s*in\\s*Water",
             "水中の七色鱗獣の写真を撮る",
             "물속의 무지개 린수를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptRainbowFin": {
         "desc": "接取七彩鳞委托",
