@@ -3,7 +3,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractReco",
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPre",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit"
         ]
     },
@@ -14,7 +14,7 @@
             // Finish pipeline execution
         ]
     },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractReco": {
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPre": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -30,11 +30,6 @@
                 "order_by": "Score"
             }
         },
-        "next": [
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPre"
-        ]
-    },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPre": {
         "action": {
             "type": "KeyDown",
             "param": {
@@ -49,7 +44,7 @@
         "action": {
             "type": "Click",
             "param": {
-                "target": "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractReco"
+                "target": "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPre"
             }
         },
         "next": [
