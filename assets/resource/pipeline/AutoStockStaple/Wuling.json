@@ -110,7 +110,7 @@
             }
         },
         "post_wait_freezes": {
-            "time": 150,
+            "time": 300,
             "target": [
                 89,
                 200,
