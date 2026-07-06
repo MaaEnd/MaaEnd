@@ -52,7 +52,6 @@ Optional parameters:
 <summary>Advanced Optional Parameters (Expand)</summary>
 
 - `no_ensure_initial_movement_state`: Boolean, default `false`. Whether to skip the "sprint" preparation action before the first move begins. If enabled, it will proceed directly to the pathfinding process without actively resetting to a stable initial movement state.
-- `no_ensure_final_orientation`: Boolean, default `false`. Whether to disable adjusting the player's orientation when reaching the last target point to ensure the camera faces the last direction of the path.
 - `arrival_threshold`: Positive real number, default `2.5`. The distance threshold for judging arrival at the next target point, in pixel distance. A larger value makes it easier to be judged as having reached the target point, but may cause incomplete pathfinding; a smaller value requires more precise arrival at the target point, but may cause pathfinding difficulty.
 - `arrival_timeout`: Positive integer, default `60000`. The time threshold for judging inability to reach the next target point, in milliseconds. If the next target point is not reached within this time, pathfinding fails immediately.
 - `rotation_lower_threshold`: A real number in the range $(0, 180]$, default `7.5`. The directional angle deviation threshold for judging that fine-tuning of orientation is needed, in degrees.

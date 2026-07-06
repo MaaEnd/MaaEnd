@@ -101,12 +101,6 @@
                     "type": "boolean",
                     "default": false
                 },
-                "no_ensure_final_orientation": {
-                    "title": "No Ensure Final Orientation",
-                    "description": "Skip camera orientation adjustment at final target.",
-                    "type": "boolean",
-                    "default": false
-                },
                 "arrival_threshold": {
                     "title": "Arrival Threshold",
                     "description": "Distance threshold in pixels to consider a target reached.",
