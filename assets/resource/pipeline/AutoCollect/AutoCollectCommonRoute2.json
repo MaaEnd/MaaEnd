@@ -263,7 +263,6 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "no_ensure_final_orientation": true,
             "map_name": "map01_lv001",
             "path": [
                 [
@@ -300,7 +299,6 @@
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "no_ensure_final_orientation": true,
             "map_name": "map01_lv001",
             "path": [
                 [

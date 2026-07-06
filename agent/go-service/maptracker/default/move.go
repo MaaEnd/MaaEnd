@@ -45,8 +45,6 @@ type MapTrackerMoveParam struct {
 	OnFinish map[string]any `json:"on_finish,omitempty"`
 	// NoEnsureInitialMovementState controls whether to skip ensuring the movement state when starting the initial movement.
 	NoEnsureInitialMovementState bool `json:"no_ensure_initial_movement_state,omitempty"`
-	// NoEnsureFinalOrientation controls whether to skip the final camera orientation adjustment when reaching the final target.
-	NoEnsureFinalOrientation bool `json:"no_ensure_final_orientation,omitempty"`
 	// ArrivalThreshold is the minimum distance to consider a target reached.
 	ArrivalThreshold float64 `json:"arrival_threshold,omitempty"`
 	// ArrivalTimeout is the maximum allowed time in milliseconds to reach each target point.
@@ -247,15 +245,6 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					log.Debug().Float64("nextDeltaRot", float64(nextDeltaRot)).Msg("Finishing target, foreseeing rotation adjustment for next target")
 					augNextDeltaRot := float64(nextDeltaRot) * 0.618
 					ca.RotateCamera(int(augNextDeltaRot*rotationSpeed), 0)
-					ca.ResetCursor(control.CursorResetLazy)
-				} else if !param.NoEnsureFinalOrientation && i == len(param.Path)-1 && len(param.Path) >= 2 {
-					// Ensure camera orientation when reached the final target
-					finalTarget := param.Path[len(param.Path)-1]
-					prevTarget := param.Path[len(param.Path)-2]
-					orientTargetRot := calcTargetRotation(prevTarget[0], prevTarget[1], finalTarget[0], finalTarget[1])
-					orientDeltaRot := calcDeltaRotation(rot, orientTargetRot)
-					log.Debug().Float64("orientDeltaRot", float64(orientDeltaRot)).Msg("Finishing target, ensuring final camera orientation")
-					ca.RotateCamera(int(float64(orientDeltaRot)*rotationSpeed), 0)
 					ca.ResetCursor(control.CursorResetLazy)
 				}
 			}

@@ -483,7 +483,6 @@ func (a *MapTrackerGoal) runMoveToZiplineSource(goalCtx *goalContext, pathIDs []
 	moveParam := goalCtx.param.MapTrackerMoveParam
 	moveParam.Path = movePath
 	moveParam.MapName = goalCtx.param.MapName
-	moveParam.NoEnsureFinalOrientation = true
 	log.Info().Int("vertex", sourceID).Int("pathCount", len(movePath)).Msg("Moving only to next zipline point")
 	return a.runMoveWithParam(goalCtx, moveParam, false)
 }

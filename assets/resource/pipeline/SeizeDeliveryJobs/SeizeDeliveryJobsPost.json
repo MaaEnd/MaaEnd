@@ -225,8 +225,7 @@
                     789.2
                 ]
             ],
-            "path_trim": false,
-            "no_ensure_final_orientation": true
+            "path_trim": false
         },
         "post_delay": 500, // 等待弹出接取货物按钮
         "focus": {
@@ -315,8 +314,7 @@
                     414.3
                 ]
             ],
-            "path_trim": false,
-            "no_ensure_final_orientation": true
+            "path_trim": false
         },
         "post_delay": 2000, // 等待玩家止步
         "focus": {
