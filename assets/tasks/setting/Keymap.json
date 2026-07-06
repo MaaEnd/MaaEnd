@@ -17,115 +17,116 @@
     "option": {
         "KeymapGeneral": {
             "label": "$option.KeymapGeneral.label",
-            "type": "input",
-            "inputs": [
+            "type": "hotkey",
+            "hotkeys": [
                 {
                     "name": "KeymapUseCurrentQuickTool",
                     "label": "$option.KeymapGeneral.inputs.KeymapUseCurrentQuickTool.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
                     "default": "R"
                 }
-            ]
+            ],
+            "pipeline_override": {
+                "EnterCameraModeLongPress": {
+                    "action": "KeyDown",
+                    "key": "{KeymapUseCurrentQuickTool.primary}"
+                },
+                "EnterCameraModeKeyDown": {
+                    "action": "KeyDown",
+                    "key": "{KeymapUseCurrentQuickTool.primary}"
+                }
+            }
         },
         "KeymapFight": {
             "label": "$option.KeymapFight.label",
-            "type": "input",
-            "inputs": [
+            "type": "hotkey",
+            "hotkeys": [
                 {
                     "name": "KeymapFightCombo",
                     "label": "$option.KeymapFight.inputs.KeymapFightCombo.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
                     "default": "E"
                 },
                 {
                     "name": "KeymapFightSkill1",
                     "label": "$option.KeymapFight.inputs.KeymapFightSkill1.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
                     "default": "1"
                 },
                 {
                     "name": "KeymapFightSkill2",
                     "label": "$option.KeymapFight.inputs.KeymapFightSkill2.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
                     "default": "2"
                 },
                 {
                     "name": "KeymapFightSkill3",
                     "label": "$option.KeymapFight.inputs.KeymapFightSkill3.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
                     "default": "3"
                 },
                 {
                     "name": "KeymapFightSkill4",
                     "label": "$option.KeymapFight.inputs.KeymapFightSkill4.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
                     "default": "4"
                 },
                 {
                     "name": "KeymapFightSwitchOperator1",
                     "label": "$option.KeymapFight.inputs.KeymapFightSwitchOperator1.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
                     "default": "F1"
                 },
                 {
                     "name": "KeymapFightSwitchOperator2",
                     "label": "$option.KeymapFight.inputs.KeymapFightSwitchOperator2.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
                     "default": "F2"
                 },
                 {
                     "name": "KeymapFightSwitchOperator3",
                     "label": "$option.KeymapFight.inputs.KeymapFightSwitchOperator3.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
                     "default": "F3"
                 },
                 {
                     "name": "KeymapFightSwitchOperator4",
                     "label": "$option.KeymapFight.inputs.KeymapFightSwitchOperator4.label",
-                    "pipeline_type": "string",
-                    "verify": "^(F([1-9]|1[0-2])|[A-Z]|[0-9])$",
                     "default": "F4"
                 }
             ],
             "pipeline_override": {
-                "AutoFight": {
-                    "attach": {
-                        "combo_keymap": "{KeymapFightCombo}",
-                        "skill_keymap1": "{KeymapFightSkill1}",
-                        "skill_keymap2": "{KeymapFightSkill2}",
-                        "skill_keymap3": "{KeymapFightSkill3}",
-                        "skill_keymap4": "{KeymapFightSkill4}",
-                        "switch_operator_keymap1": "{KeymapFightSwitchOperator1}",
-                        "switch_operator_keymap2": "{KeymapFightSwitchOperator2}",
-                        "switch_operator_keymap3": "{KeymapFightSwitchOperator3}",
-                        "switch_operator_keymap4": "{KeymapFightSwitchOperator4}"
-                    }
+                "__AutoFightActionComboClick": {
+                    "key": "{KeymapFightCombo.primary}"
+                },
+                "__AutoFightActionSkillOperators1": {
+                    "key": "{KeymapFightSkill1.primary}"
+                },
+                "__AutoFightActionSkillOperators2": {
+                    "key": "{KeymapFightSkill2.primary}"
+                },
+                "__AutoFightActionSkillOperators3": {
+                    "key": "{KeymapFightSkill3.primary}"
+                },
+                "__AutoFightActionSkillOperators4": {
+                    "key": "{KeymapFightSkill4.primary}"
+                },
+                "__AutoFightActionEndSkillOperators1": {
+                    "key": "{KeymapFightSkill1.primary}"
+                },
+                "__AutoFightActionEndSkillOperators2": {
+                    "key": "{KeymapFightSkill2.primary}"
+                },
+                "__AutoFightActionEndSkillOperators3": {
+                    "key": "{KeymapFightSkill3.primary}"
+                },
+                "__AutoFightActionEndSkillOperators4": {
+                    "key": "{KeymapFightSkill4.primary}"
+                },
+                "__AutoFightActionSwitchCharacterOperators1": {
+                    "key": "{KeymapFightSwitchOperator1.primary}"
+                },
+                "__AutoFightActionSwitchCharacterOperators2": {
+                    "key": "{KeymapFightSwitchOperator2.primary}"
+                },
+                "__AutoFightActionSwitchCharacterOperators3": {
+                    "key": "{KeymapFightSwitchOperator3.primary}"
+                },
+                "__AutoFightActionSwitchCharacterOperators4": {
+                    "key": "{KeymapFightSwitchOperator4.primary}"
                 }
             }
-        },
-        "KeymapTestSwitch": {
-            "label": "开关测试",
-            "type": "switch",
-            "default_case": "Off",
-            "cases": [
-                {
-                    "name": "On",
-                    "label": "开"
-                },
-                {
-                    "name": "Off",
-                    "label": "关"
-                }
-            ]
         },
         "KeymapTestInput": {
             "label": "输入测试",
