@@ -57,7 +57,8 @@
                 345
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 90
     },
     {
         "MissionId": "m1m27",
@@ -124,7 +125,8 @@
                 755
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 45
     },
     {
         "MissionId": "m1m29",
@@ -205,7 +207,8 @@
                 296
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 60
     },
     {
         "MissionId": "m1m33",
@@ -225,7 +228,8 @@
                 394
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 300
     },
     {
         "MissionId": "m1m34",
@@ -268,7 +272,8 @@
                 842.5
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 45
     },
     {
         "MissionId": "m1m36",
@@ -292,7 +297,8 @@
                 135.6
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 105
     },
     {
         "MissionId": "m1m37",
@@ -331,7 +337,8 @@
                 844
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 30
     },
     {
         "MissionId": "m1m39",
@@ -375,7 +382,8 @@
                 674.6
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 270
     },
     {
         "MissionId": "m1m40",
@@ -399,7 +407,8 @@
                 192
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 105
     },
     {
         "MissionId": "m1m56",
@@ -433,7 +442,8 @@
                 "売",
                 "壳"
             ]
-        ]
+        ],
+        "Heading": 15
     },
     {
         "MissionId": "m1m57",
@@ -465,7 +475,8 @@
                 330.5
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 15
     },
     {
         "MissionId": "m1m58",
@@ -497,7 +508,8 @@
                 458.1
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft",
+        "Heading": 345
     },
     {
         "MissionId": "m1m59",
@@ -521,7 +533,8 @@
                 379.2
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 135
     },
     {
         "MissionId": "m1m60",
@@ -601,7 +614,8 @@
                 531.7
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft",
+        "Heading": 165
     },
     {
         "MissionId": "m1m61",
@@ -790,7 +804,8 @@
             ]
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "CameraMaxHit": 4
+        "CameraMaxHit": 4,
+        "Heading": 180
     },
     {
         "MissionId": "m1m65",
@@ -949,7 +964,8 @@
             ]
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "NoEnsureInitialMovementState": true
+        "NoEnsureInitialMovementState": true,
+        "Heading": 270
     },
     {
         "MissionId": "m1m68",
@@ -998,6 +1014,7 @@
             ]
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "NoEnsureInitialMovementState": true
+        "NoEnsureInitialMovementState": true,
+        "Heading": 270
     }
 ]

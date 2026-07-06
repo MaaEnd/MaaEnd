@@ -304,6 +304,13 @@
                     238.8
                 ]
             ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 270
+                }
+            },
             "no_ensure_initial_movement_state": true
         },
         "anchor": {
