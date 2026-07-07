@@ -31,6 +31,7 @@
             "腹が膨らんで光る虫吐き長脚獣",
             "배를 부풀려 빛을 내는 버그스피팅 랭키비스트"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckInflatedAndGlowingBugspittingLankybeastIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photograph\\s*an\\s*Inflated\\s*and\\s*Glowing\\s*Bugspitting\\s*Lankybeast",
             "腹が膨らんで光る虫吐き長脚獣の写真を撮る",
             "배를 부풀려 빛을 내는 버그스피팅 랭키비스트를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptInflatedAndGlowingBugspittingLankybeast": {
         "desc": "接取肚子鼓气后发光的吐虫长股兽委托",
@@ -222,11 +224,11 @@
             ]
         },
         "next": [
-            "GoToInflatedAndGlowingBugspittingLankybeastMapTrackerMove"
+            "GoToInflatedAndGlowingBugspittingLankybeastMove"
         ]
     },
     "GoToInflatedAndGlowingBugspittingLankybeastNotAtStartPos": {
-        "desc": "不在肚子鼓气后发光的吐虫长股兽任务开始位置附近，先传送再复核落点",
+        "desc": "不在肚子鼓气后发光的吐虫长股兽任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,95 +237,37 @@
             ]
         },
         "next": [
-            "GoToInflatedAndGlowingBugspittingLankybeastRecheckStartPos",
-            "GoToInflatedAndGlowingBugspittingLankybeastReEnterMap"
+            "GoToInflatedAndGlowingBugspittingLankybeastStartPos"
         ]
     },
-    "GoToInflatedAndGlowingBugspittingLankybeastRecheckStartPos": {
-        "desc": "传送后再次检查是否已在肚子鼓气后发光的吐虫长股兽任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        416.7,
-                        844.3,
-                        11.4,
-                        10.6
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToInflatedAndGlowingBugspittingLankybeastMapTrackerMove"
-        ]
-    },
-    "GoToInflatedAndGlowingBugspittingLankybeastReEnterMap": {
-        "desc": "传送后仍未到达肚子鼓气后发光的吐虫长股兽任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingWulingCity7"
-            ]
-        },
-        "next": [
-            "GoToInflatedAndGlowingBugspittingLankybeastFinalCheckStartPos"
-        ]
-    },
-    "GoToInflatedAndGlowingBugspittingLankybeastFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在肚子鼓气后发光的吐虫长股兽任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        416.7,
-                        844.3,
-                        11.4,
-                        10.6
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToInflatedAndGlowingBugspittingLankybeastMapTrackerMove"
-        ]
-    },
-    "GoToInflatedAndGlowingBugspittingLankybeastMapTrackerMove": {
-        "desc": "前往肚子鼓气后发光的吐虫长股兽",
+    "GoToInflatedAndGlowingBugspittingLankybeastMove": {
+        "desc": "自动寻路前往肚子鼓气后发光的吐虫长股兽",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
             "map_name": "map02_lv002",
             "path": [
                 [
-                    425,
+                    426,
                     851.2
                 ],
                 [
-                    436.3,
+                    437.3,
                     842.5
                 ]
-            ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 45
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "InflatedAndGlowingBugspittingLankybeastAdjustCamera"
         },
-        "next": [
-            "InflatedAndGlowingBugspittingLankybeastAdjustHeading"
-        ]
-    },
-    "InflatedAndGlowingBugspittingLankybeastAdjustHeading": {
-        "desc": "肚子鼓气后发光的吐虫长股兽任务无需调整角色朝向",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]

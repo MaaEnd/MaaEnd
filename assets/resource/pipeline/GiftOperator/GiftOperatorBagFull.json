@@ -5,10 +5,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    528,
-                    107,
-                    219,
-                    34
+                    478,
+                    57,
+                    319,
+                    134
                 ],
                 "expected": [
                     "礼物",
@@ -46,22 +46,32 @@
             "param": {}
         },
         "next": [
-            "GiftOperatorLeave"
+            "FailedNode"
         ]
     },
     "GiftOperatorBagFullLeave": {
         "desc": "背包满时点击离开",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    945,
-                    404,
-                    228,
-                    249
+                    900,
+                    334,
+                    350,
+                    318
                 ],
-                "template": [
-                    "GiftOperator/Leave.png"
+                "expected": [
+                    // @i18n-skip
+                    "暂时离开",
+                    "暫時離開",
+                    "(?i)Leave\\s*for\\s*now",
+                    "一旦離れる",
+                    "(?i)Exit",
+                    "退出",
+                    "离开",
+                    "離開",
+                    "(?i)Leave",
+                    "離れる"
                 ]
             }
         },

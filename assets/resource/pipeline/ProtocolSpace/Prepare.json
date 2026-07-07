@@ -18,33 +18,41 @@
         "post_wait_freezes": 200,
         "post_delay": 0,
         "next": [
-            "ProtocolSpaceNormalPrepareChooseLevel"
+            "ProtocolSpaceLevelChoose"
         ]
     },
-    "ProtocolSpaceNormalPrepareChooseLevel": {
-        "desc": "在普通协议空间准备界面，选择关卡",
-        "recognition": "OCR",
-        "roi": [
-            0,
-            0,
-            150,
-            400
-        ],
-        "expected": [
-            "五级",
-            "五級",
-            "(?i)Level\\s*5",
-            "Lv.5"
-        ],
+    "ProtocolSpaceLevelChoose": {
+        "desc": "根据 index 垂直顺序选择协议空间等级",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    291,
+                    354
+                ],
+                "template": [
+                    "ProtocolSpace/LevelCompleted.png",
+                    "ProtocolSpace/LevelCompletedChosenWhite.png",
+                    "ProtocolSpace/LevelUncompleted.png",
+                    "ProtocolSpace/LevelLocked.png"
+                ],
+                "order_by": "Vertical",
+                "index": 0
+            }
+        },
+        "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "ProtocolSpacePrepareLock",
             "ProtocolSpaceNormalPrepareChooseReward",
             "ProtocolSpaceEnterSpace"
         ],
         "focus": {
-            "Node.Action.Succeeded": "选择五级关卡"
+            "Node.Action.Succeeded": "选择关卡等级"
         }
     },
     "ProtocolSpaceNormalPrepareChooseReward": {

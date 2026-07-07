@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/autostockpile/levenshtein"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/levenshtein"
 )
 
 //go:embed item_map.json
@@ -105,7 +105,7 @@ func MatchGoodsName(ocrText string, itemMap *ItemMap, maxDistance int) (id strin
 
 	for candidateName, candidateID := range itemMap.NameToID {
 		dist := levenshtein.Distance(ocrText, candidateName)
-		if dist <= maxDistance && dist < bestDistance {
+		if dist <= maxDistance && (dist < bestDistance || dist == bestDistance && candidateName < bestName) {
 			bestDistance = dist
 			bestName = candidateName
 			bestID = candidateID

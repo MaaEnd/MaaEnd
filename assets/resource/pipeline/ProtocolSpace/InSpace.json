@@ -24,12 +24,30 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ProtocolSpacePopupSanityLow",
-            "ProtocolSpaceEnterSpacePrepareSuccess"
+            "ProtocolSpaceEnterSpaceSelectClaimReward",
+            "ProtocolSpaceEnterSpaceSelectNoClaimReward"
         ],
         "focus": {
             "Node.Action.Succeeded": "进入协议空间"
         }
+    },
+    "ProtocolSpaceEnterSpaceSelectClaimReward": {
+        "desc": "进入协议空间奖励界面，选择领取",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpacePopupSanityLowExit",
+            "ProtocolSpaceEnterSpacePrepareSuccess"
+        ]
+    },
+    "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+        "desc": "进入协议空间奖励界面，选择领取",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpacePopupSanityLowContinue",
+            "ProtocolSpaceEnterSpacePrepareSuccess"
+        ]
     },
     "ProtocolSpaceEnterSpacePrepareSuccess": {
         "desc": "进入协议空间准备界面成功",
@@ -87,16 +105,17 @@
                     0
                 ],
                 "lower": [
-                    30,
-                    30,
-                    30
+                    0,
+                    0,
+                    0
                 ],
                 "upper": [
                     45,
                     45,
                     45
                 ],
-                "connected": true
+                "connected": true,
+                "count": 200
             }
         ],
         "pre_delay": 0,
@@ -107,7 +126,7 @@
             "Node.Action.Succeeded": "选择队伍"
         }
     },
-    "ProtocolSpacePopupSanityLow": {
+    "ProtocolSpacePopupSanityLowExit": {
         "desc": "弹出理智不足，退出任务",
         "recognition": {
             "type": "OCR",
@@ -126,6 +145,34 @@
         },
         "focus": {
             "Node.Recognition.Succeeded": "理智不足，结束任务"
+        }
+    },
+    "ProtocolSpacePopupSanityLowContinue": {
+        "desc": "弹出理智不足，继续下一轮",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    279,
+                    295,
+                    310,
+                    40
+                ],
+                "expected": [
+                    "理智不足",
+                    "Insufficient Sanity"
+                ]
+            },
+            "YellowConfirmButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceEnterSpacePrepareSuccess"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "理智不足，继续行动"
         }
     },
     "ProtocolSpaceEnterSpaceConfirm": {
@@ -391,15 +438,44 @@
         "action": "Custom",
         "custom_action": "AutoAltClickAction",
         "next": [
+            "ProtocolSpaceFightStartWait"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "开始行动"
+        }
+    },
+    "ProtocolSpaceFightStartWait": {
+        "desc": "等待战斗开始",
+        "recognition": "And",
+        "all_of": [
+            "InProtocolSpace"
+        ],
+        "next": [
+            "ProtocolSpaceFightStartSuccess",
+            "ProtocolSpaceFightStartWait"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "等待战斗开始"
+        }
+    },
+    "ProtocolSpaceFightStartSuccess": {
+        "desc": "战斗开始",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            200,
+            160,
+            120
+        ],
+        "template": "ProtocolSpace/SpaceResart.png",
+        "green_mask": true,
+        "next": [
             "ProtocolSpaceTouchExitTouch",
             "ProtocolSpaceOperationFailed",
             "[JumpBack]AutoFight",
             "[JumpBack]ProtocolSpaceTouchExitMoveToTarget",
             "[JumpBack]ProtocolSpaceTouchExitNotFound"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "开始行动"
-        }
+        ]
     },
     "ProtocolSpaceTouchExitMoveToTarget": {
         "desc": "向目标移动",
@@ -423,7 +499,8 @@
         "action": "Custom",
         "custom_action": "CharacterMoveToTargetAction",
         "custom_action_param": {
-            "align_threshold": 120
+            "align_threshold": 120,
+            "far_target_width": 130
         },
         "post_delay": 600,
         "focus": {
@@ -478,7 +555,7 @@
             "ProtocolSpaceReward"
         ],
         "focus": {
-            "Node.Action.Succeeded": "领取奖励"
+            "Node.Action.Succeeded": "打开奖励"
         }
     },
     "ProtocolSpaceReward": {
@@ -489,39 +566,81 @@
         ],
         "pre_wait_freezes": 200,
         "next": [
+            "ProtocolSpaceRewardSelectClaim",
+            "ProtocolSpaceRewardSelectNoClaim"
+        ]
+    },
+    "ProtocolSpaceRewardSelectClaim": {
+        "desc": "协议空间奖励界面，选择领取",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
             "ProtocolSpaceRewardSanityLow",
             "ProtocolSpaceRewardUsePermit",
             "ProtocolSpaceRewardDontUsePermit",
             "ProtocolSpaceRewardClaim"
         ]
     },
-    "ProtocolSpaceRewardSanityLowFilter": {
-        "recognition": "ColorMatch",
-        "method": 4,
-        "lower": [
-            100,
-            50,
-            50
-        ],
-        "upper": [
-            255,
-            130,
-            130
+    "ProtocolSpaceRewardSelectNoClaim": {
+        "desc": "协议空间奖励界面，选择不领取",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceRewardNoClaimSuccessContinue",
+            "ProtocolSpaceRewardNoClaimSuccessFinish"
         ]
+    },
+    "ProtocolSpaceRewardNoClaimSuccessContinue": {
+        "desc": "协议空间奖励界面不领取奖励成功，继续下一轮",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceEntry"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "继续行动"
+        }
+    },
+    "ProtocolSpaceRewardNoClaimSuccessFinish": {
+        "desc": "协议空间奖励界面领取奖励成功，结束任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceOperationExitToWorld",
+            "[JumpBack]SceneAnyEnterWorld"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "行动成功次数已满，结束任务"
+        }
     },
     "ProtocolSpaceRewardUsePermitSanityLow": {
         "desc": "使用理智消耗许可时理智不足",
-        "recognition": "OCR",
+        "recognition": "ColorMatch",
         "roi": [
             680,
             530,
             110,
             35
         ],
-        "expected": [
-            "\\d"
+        "method": 4,
+        "lower": [
+            180,
+            90,
+            90
         ],
-        "color_filter": "ProtocolSpaceRewardSanityLowFilter",
+        "upper": [
+            255,
+            130,
+            130
+        ],
+        "count": 30,
         "next": [
             "ProtocolSpaceRewardDontUsePermit"
         ],
@@ -531,17 +650,25 @@
     },
     "ProtocolSpaceRewardSanityLow": {
         "desc": "理智不足",
-        "recognition": "OCR",
+        "recognition": "ColorMatch",
         "roi": [
             680,
             530,
-            90,
+            110,
             35
         ],
-        "expected": [
-            "\\d"
+        "method": 4,
+        "lower": [
+            180,
+            90,
+            90
         ],
-        "color_filter": "ProtocolSpaceRewardSanityLowFilter",
+        "upper": [
+            255,
+            130,
+            130
+        ],
+        "count": 30,
         "focus": {
             "Node.Recognition.Succeeded": "理智不足，结束任务"
         }
@@ -647,11 +774,42 @@
         "action": "Click",
         "next": [
             "[JumpBack]SceneWaitLoadingExit",
-            "ProtocolSpaceEnterSpaceSuccess"
+            "ProtocolSpaceEnterSpaceSuccess",
+            "ProtocolSpaceRewardClaimSuccessSanityLowDialog"
         ],
         "focus": {
             "Node.Action.Succeeded": "继续行动"
         }
+    },
+    "ProtocolSpaceRewardClaimSuccessSanityLowDialog": {
+        "desc": "理智不足对话框检测，避免理智不足颜色检测失败",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    280,
+                    220,
+                    600,
+                    230
+                ],
+                "expected": [
+                    "当前理智不足",
+                    "目前理智不足",
+                    "Insufficient Sanity",
+                    "理性が不足しているため",
+                    "현재 이성이 부족해",
+                    "// @i18n-skip"
+                ]
+            },
+            "CancelButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 200,
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceRewardClaimSuccessSanityLowFinish"
+        ]
     },
     "ProtocolSpaceRewardClaimSuccessSanityLow": {
         "desc": "使用理智消耗许可时理智不足",
@@ -682,8 +840,26 @@
         "desc": "协议空间奖励界面，结束任务",
         "recognition": "And",
         "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    520,
+                    0,
+                    240,
+                    180
+                ],
+                "expected": [
+                    "获得奖励",
+                    "獲得獎勵",
+                    "Rewards Acquired",
+                    "報酬一覧",
+                    "보상 획득"
+                ]
+            },
             "CancelButton"
         ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
         "action": "Click",
         "next": [
             "ProtocolSpaceOperationExitToWorld",

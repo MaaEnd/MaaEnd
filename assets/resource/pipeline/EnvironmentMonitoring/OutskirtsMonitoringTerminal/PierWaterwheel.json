@@ -31,6 +31,7 @@
             "渡し場の水車",
             "부두 물레방아"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckPierWaterwheelIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Pier\\s*Waterwheel",
             "渡し場の水車の写真を撮る",
             "부두 물레방아를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptPierWaterwheel": {
         "desc": "接取码头水车委托",
@@ -222,11 +224,11 @@
             ]
         },
         "next": [
-            "GoToPierWaterwheelMapTrackerMove"
+            "GoToPierWaterwheelMove"
         ]
     },
     "GoToPierWaterwheelNotAtStartPos": {
-        "desc": "不在码头水车任务开始位置附近，先传送再复核落点",
+        "desc": "不在码头水车任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,67 +237,11 @@
             ]
         },
         "next": [
-            "GoToPierWaterwheelRecheckStartPos",
-            "GoToPierWaterwheelReEnterMap"
+            "GoToPierWaterwheelStartPos"
         ]
     },
-    "GoToPierWaterwheelRecheckStartPos": {
-        "desc": "传送后再次检查是否已在码头水车任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        492.5,
-                        178,
-                        13.2,
-                        13
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToPierWaterwheelMapTrackerMove"
-        ]
-    },
-    "GoToPierWaterwheelReEnterMap": {
-        "desc": "传送后仍未到达码头水车任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingJingyuValley1"
-            ]
-        },
-        "next": [
-            "GoToPierWaterwheelFinalCheckStartPos"
-        ]
-    },
-    "GoToPierWaterwheelFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在码头水车任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        492.5,
-                        178,
-                        13.2,
-                        13
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToPierWaterwheelMapTrackerMove"
-        ]
-    },
-    "GoToPierWaterwheelMapTrackerMove": {
-        "desc": "前往码头水车",
+    "GoToPierWaterwheelMove": {
+        "desc": "自动寻路前往码头水车",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -309,21 +255,19 @@
                     512,
                     192
                 ]
-            ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 105
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "PierWaterwheelAdjustCamera"
         },
-        "next": [
-            "PierWaterwheelAdjustHeading"
-        ]
-    },
-    "PierWaterwheelAdjustHeading": {
-        "desc": "码头水车任务无需调整角色朝向",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]

@@ -1,8 +1,14 @@
 {
     "AutoCollectRoute999Start": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVPowerPlateau1"
+            ]
+        },
         "next": [
-            "AutoCollectRoute999AssertLocation",
-            "[JumpBack]SceneEnterWorldValleyIVPowerPlateau1"
+            "AutoCollectRoute999AssertLocation"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "开始路线999"

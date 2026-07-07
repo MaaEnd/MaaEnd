@@ -10,10 +10,10 @@
                         {
                             "map_name": "base01_lv003",
                             "target": [
-                                181.4,
-                                172.2,
-                                11.4,
-                                9.3
+                                180.4,
+                                171.4,
+                                19.6,
+                                11.8
                             ]
                         }
                     ]
@@ -22,11 +22,11 @@
         },
         "next": [
             "GiftOperatorMoveLocation3",
-            "GiftOperatorMoveLocation3Move",
+            //"GiftOperatorMoveLocation3Move",
             "GiftOperatorMoveLocation2",
-            "GiftOperatorMoveLocation2Move",
+            //"GiftOperatorMoveLocation2Move",
             "GiftOperatorMoveLocation1",
-            "GiftOperatorMoveLocation1Move",
+            //"GiftOperatorMoveLocation1Move",
             "GiftOperatorMoveFail"
         ]
     },
@@ -40,7 +40,7 @@
     },
     "GiftOperatorMoveLocation1": {
         "desc": "转向270度(正西)尝试接触到干员(预设位置1)",
-        "max_hit": 1,
+        "max_hit": 2,
         "action": {
             "type": "Custom",
             "param": {
@@ -49,12 +49,14 @@
                     "path": [
                         {
                             "action": "HEADING",
-                            "angle": 270
+                            "angle": 270,
+                            "zone_id": "OMVBase01"
                         }
                     ]
                 }
             }
-        }
+        },
+        "post_delay": 1000 //需要等待角色彻底停下
     },
     "GiftOperatorMoveLocation1Move": {
         "desc": "移动尝试接触到干员(预设位置1)",
@@ -84,11 +86,12 @@
                 121
             ],
             "timeout": 2000
-        }
+        },
+        "post_delay": 1000 //需要等待角色彻底停下
     },
     "GiftOperatorMoveLocation2": {
         "desc": "转向0度(正北)尝试接触到干员(预设位置2)",
-        "max_hit": 1,
+        "max_hit": 2,
         "action": {
             "type": "Custom",
             "param": {
@@ -97,12 +100,14 @@
                     "path": [
                         {
                             "action": "HEADING",
-                            "angle": 0
+                            "angle": 0,
+                            "zone_id": "OMVBase01"
                         }
                     ]
                 }
             }
-        }
+        },
+        "post_delay": 1000 //需要等待角色彻底停下
     },
     "GiftOperatorMoveLocation2Move": {
         "desc": "移动尝试接触到干员(预设位置2)",
@@ -132,11 +137,12 @@
                 121
             ],
             "timeout": 2000
-        }
+        },
+        "post_delay": 1000 //需要等待角色彻底停下
     },
     "GiftOperatorMoveLocation3": {
         "desc": "转向90度(正东)尝试接触到干员(预设位置3)",
-        "max_hit": 1,
+        "max_hit": 2,
         "action": {
             "type": "Custom",
             "param": {
@@ -145,12 +151,14 @@
                     "path": [
                         {
                             "action": "HEADING",
-                            "angle": 90
+                            "angle": 90,
+                            "zone_id": "OMVBase01"
                         }
                     ]
                 }
             }
-        }
+        },
+        "post_delay": 1000 //需要等待角色彻底停下
     },
     "GiftOperatorMoveLocation3Move": {
         "desc": "移动尝试接触到干员(预设位置3)",
@@ -180,7 +188,8 @@
                 121
             ],
             "timeout": 2000
-        }
+        },
+        "post_delay": 1000 //需要等待角色彻底停下
     },
     "GiftOperatorMoveMapTracker": {
         "desc": "使用 MapTracker 识别寻路走到干员联络台",
@@ -192,28 +201,48 @@
                     "map_name": "base01_lv003",
                     "path": [
                         [
-                            167.9,
-                            195.5
+                            184.1,
+                            195.4
                         ],
                         [
-                            177.6,
-                            192.9
+                            189.8,
+                            183.2
                         ],
                         [
-                            181.3,
-                            185.2
-                        ],
-                        [
-                            185.8,
-                            177.2
+                            186.0,
+                            177.3
                         ]
                     ]
                 }
             }
         },
         "next": [
-            "GiftOperatorClickContact"
+            "GiftOperatorClickContact",
+            "[JumpBack]GiftOperatorGoAheadContact"
         ]
+    },
+    "GiftOperatorGoAheadContact": {
+        "desc": "继续向前走尝试接触联络台",
+        "max_hit": 6,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "HEADING",
+                            "target": [
+                                183,
+                                174
+                            ],
+                            "zone_id": "OMVBase01"
+                        }
+                    ]
+                }
+            }
+        },
+        "post_delay": 1000 //需要等待角色彻底停下
     },
     "GiftOperatorMoveMapTrackerSC": {
         "desc": "使用 MapTracker 识别寻路走到干员联络台",
@@ -224,7 +253,10 @@
                 "custom_action_param": {
                     "map_name": "base01_lv003",
                     "path": [
-                        [186.0, 176.6]
+                        [
+                            186.0,
+                            176.6
+                        ]
                     ]
                 }
             }

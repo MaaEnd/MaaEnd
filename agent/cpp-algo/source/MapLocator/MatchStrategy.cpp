@@ -406,9 +406,11 @@ public:
         v.isTeleported = currentSpeed > trackingCfg.maxNormalSpeed;
 
         // 追踪态高分豁免
-        bool accept = (trackResult.score >= 0.85) || (trackResult.score >= 0.42 && trackResult.delta >= 0.04 && trackResult.psr >= 3.8)
+        bool accept = (trackResult.score >= 0.85) || (trackResult.score >= 0.70 && trackResult.delta >= 0.25 && trackResult.psr >= 2.0)
+                      || (trackResult.score >= 0.42 && trackResult.delta >= 0.04 && trackResult.psr >= 3.8)
                       || (trackResult.score >= 0.40 && trackResult.delta >= 0.05 && trackResult.psr >= 3.8);
-        bool hold = trackResult.score >= 0.35 && trackResult.psr >= 4.0;
+        bool hold = (trackResult.score >= 0.70 && trackResult.delta >= 0.25 && trackResult.psr >= 2.0)
+                    || (trackResult.score >= 0.35 && trackResult.psr >= 4.0);
 
         bool ambiguous = !accept;
         v.isScreenBlocked = !accept && !hold;
@@ -420,9 +422,7 @@ public:
 
     bool validateGlobalSearch(const MatchResultRaw& fineRes, double& outScore) override
     {
-        bool globalAccept = (fineRes.score >= 0.85) || (fineRes.score >= 0.42 && fineRes.delta >= 0.04 && fineRes.psr >= 3.8)
-                            || (fineRes.score >= 0.40 && fineRes.delta >= 0.05 && fineRes.psr >= 3.8);
-        if (!globalAccept) {
+        if (fineRes.score < matchCfg.passThreshold) {
             return false;
         }
         outScore = fineRes.score;

@@ -1,10 +1,12 @@
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <exception>
 #include <filesystem>
 #include <format>
 #include <future>
 #include <mutex>
+#include <string_view>
 #include <thread>
 #include <vector>
 
@@ -34,6 +36,16 @@ std::string TrimLeadingZeros(std::string value)
 {
     value.erase(0, std::min(value.find_first_not_of('0'), value.size() - 1));
     return value;
+}
+
+bool IsSupportedMapImage(const fs::path& path)
+{
+    static constexpr std::array<std::string_view, 5> kMapImageExtensions {
+        ".png", ".jpg", ".jpeg", ".webp", ".bmp"
+    };
+    std::string ext = path.extension().string();
+    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+    return std::ranges::any_of(kMapImageExtensions, [&ext](std::string_view candidate) { return candidate == ext; });
 }
 
 bool MatchesExpectedZoneSelector(const std::string& expected_zone_selector, const YoloCoarseResult& coarse)
@@ -151,7 +163,6 @@ private:
         IMatchStrategy* strategy,
         const std::string& targetZoneId);
     std::optional<MapPosition> tryConstrainedFineSearch(const SearchExecutionContext& ctx);
-    std::optional<MapPosition> tryLegacyCoarseSearch(const SearchExecutionContext& ctx);
 
     void refreshAsyncYoloState(const cv::Mat& minimap, TimePoint now);
     std::optional<LocateResult>
@@ -161,7 +172,7 @@ private:
         const std::string& targetZoneId,
         const YoloCoarseResult& coarse) const;
     std::optional<MapPosition>
-        tryGlobalSearchWithFallback(const cv::Mat& minimap, const std::string& targetZoneId, const SearchConstraint& constraint);
+        tryGlobalSearchWithFallback(const cv::Mat& minimap, const std::string& targetZoneId, const SearchConstraint& constraint, MapPosition* outBestRaw = nullptr);
     MapPosition stabilizePosition(const MapPosition& raw);
     MapPosition acceptPosition(const MapPosition& raw, TimePoint now);
     void drainBackgroundGlobalSearchTasks();
@@ -260,7 +271,9 @@ void MapLocator::Impl::loadAvailableZones(const std::string& root)
 
         cv::Mat img = MAA_NS::imread(entryPath, cv::IMREAD_UNCHANGED);
         if (img.empty()) {
-            LogError << "Failed to load map: " << MAA_NS::path_to_utf8_string(entryPath);
+            if (IsSupportedMapImage(entryPath)) {
+                LogError << "Failed to load map: " << MAA_NS::path_to_utf8_string(entryPath);
+            }
             continue;
         }
         if (img.channels() == 3) {
@@ -541,6 +554,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
                 held.scale = trackScale;
                 held.isHeld = true;
                 motionTracker->hold(held, now);
+                motionTracker->markLost();
                 LogInfo << "Tracking outlier rejected, holding last pos." << VAR(jumpDist) << VAR(trackResult->score) << VAR(trackScale);
                 return held;
             }
@@ -712,223 +726,6 @@ std::optional<MapPosition> MapLocator::Impl::tryConstrainedFineSearch(const Sear
     return directResult;
 }
 
-std::optional<MapPosition> MapLocator::Impl::tryLegacyCoarseSearch(const SearchExecutionContext& ctx)
-{
-    const cv::Rect mapBounds(0, 0, ctx.bigMap.cols, ctx.bigMap.rows);
-
-    // 图像金字塔：全图匹配耗时极高，因此粗搜先固定在 coarseScale (约 0.2~0.3) 的降采样级别寻找可能的高分岛
-    double coarseScale = matchCfg.coarseScale;
-
-    cv::Mat constrainedMap = ctx.bigMap(ctx.constrainedRect);
-    cv::Mat smallMap;
-    cv::resize(constrainedMap, smallMap, cv::Size(), coarseScale, coarseScale, cv::INTER_AREA);
-
-    auto coarseSearchFeat = ctx.strategy->extractSearchFeature(smallMap);
-    cv::Mat mapToUse;
-    if (coarseSearchFeat.image.channels() == 3) {
-        cv::cvtColor(coarseSearchFeat.image, mapToUse, cv::COLOR_BGR2GRAY);
-    }
-    else if (coarseSearchFeat.image.channels() == 4) {
-        cv::cvtColor(coarseSearchFeat.image, mapToUse, cv::COLOR_BGRA2GRAY);
-    }
-    else {
-        mapToUse = coarseSearchFeat.image.clone();
-    }
-
-    if (matchCfg.blurSize > 0 && !ctx.strategy->needsChamferCompensation()) {
-        cv::GaussianBlur(mapToUse, mapToUse, cv::Size(matchCfg.blurSize, matchCfg.blurSize), 0);
-    }
-
-    cv::Mat tmplGrayToUse;
-    if (ctx.tmplFeat.image.channels() == 3) {
-        cv::cvtColor(ctx.tmplFeat.image, tmplGrayToUse, cv::COLOR_BGR2GRAY);
-    }
-    else if (ctx.tmplFeat.image.channels() == 4) {
-        cv::cvtColor(ctx.tmplFeat.image, tmplGrayToUse, cv::COLOR_BGRA2GRAY);
-    }
-    else {
-        tmplGrayToUse = ctx.tmplFeat.image.clone();
-    }
-
-    struct CoarseCand
-    {
-        double s;
-        double score;
-        cv::Point loc;
-    };
-
-    std::vector<CoarseCand> cands;
-    int topNPerScale = 3;
-    int topK = 8;
-    double coarseMin = 0.20;
-
-    for (double s = 0.90; s <= 1.101; s += 0.02) {
-        double currentScale = coarseScale * s;
-        cv::Mat smallTempl, smallWeightMask;
-        cv::resize(tmplGrayToUse, smallTempl, cv::Size(), currentScale, currentScale, cv::INTER_LINEAR);
-        cv::resize(ctx.tmplFeat.mask, smallWeightMask, cv::Size(), currentScale, currentScale, cv::INTER_NEAREST);
-
-        if (cv::countNonZero(smallWeightMask) < 5) {
-            continue;
-        }
-
-        cv::Mat smallResult;
-        cv::matchTemplate(mapToUse, smallTempl, smallResult, cv::TM_CCOEFF_NORMED, smallWeightMask);
-        cv::patchNaNs(smallResult, -1.0f);
-
-        // NMS 非极大值抑制的变体：
-        // 在同一尺度下，同一位置附近极容易出现多个连块的高分点。
-        // 我们用当前小模板尺寸的一半做为排异屏蔽半径 sr，取出一个最高分后便将其原位“挖去” (设为 -2)，再取下一个。
-        // 这能保证获取的一批候选点分别位于不同的地形特征块中，增加后续回大图细搜抗错抓的鲁棒度。
-        int sr = std::max(4, std::min(smallTempl.cols, smallTempl.rows) / 2);
-
-        for (int i = 0; i < topNPerScale; ++i) {
-            double mv;
-            cv::Point ml;
-            cv::minMaxLoc(smallResult, nullptr, &mv, nullptr, &ml);
-            if (!std::isfinite(mv) || mv < coarseMin) {
-                break;
-            }
-
-            cands.push_back({ s, mv, ml });
-
-            cv::Rect sup(ml.x - sr, ml.y - sr, sr * 2 + 1, sr * 2 + 1);
-            sup &= cv::Rect(0, 0, smallResult.cols, smallResult.rows);
-            smallResult(sup).setTo(-2.0f);
-        }
-    }
-
-    if (cands.empty()) {
-        return std::nullopt;
-    }
-
-    std::stable_sort(cands.begin(), cands.end(), [](const auto& a, const auto& b) {
-        if (a.score != b.score) {
-            return a.score > b.score;
-        }
-        if (a.s != b.s) {
-            return a.s < b.s;
-        }
-        if (a.loc.y != b.loc.y) {
-            return a.loc.y < b.loc.y;
-        }
-        return a.loc.x < b.loc.x;
-    });
-    if ((int)cands.size() > topK) {
-        cands.resize(topK);
-    }
-
-    double bestFine = -1.0;
-    double bestScale = 1.0;
-    MatchResultRaw bestFineRes;
-    cv::Rect bestValidFineRect;
-    cv::Mat bestScaledTempl, bestScaledMask;
-
-    double fallbackScore = -1.0;
-    double fallbackScale = 1.0;
-    MatchResultRaw fallbackFineRes;
-    cv::Rect fallbackValidFineRect;
-    cv::Mat fallbackScaledTempl, fallbackScaledMask;
-
-    int searchRadius = matchCfg.fineSearchRadius;
-
-    for (auto& cand : cands) {
-        double s = cand.s;
-        int coarseX = static_cast<int>(cand.loc.x / coarseScale) + ctx.constrainedRect.x;
-        int coarseY = static_cast<int>(cand.loc.y / coarseScale) + ctx.constrainedRect.y;
-
-        cv::Mat scaledTempl, scaledWeightMask;
-        if (std::abs(s - 1.0) > 0.001) {
-            cv::resize(ctx.tmplFeat.image, scaledTempl, cv::Size(), s, s, cv::INTER_LINEAR);
-            cv::resize(ctx.tmplFeat.mask, scaledWeightMask, cv::Size(), s, s, cv::INTER_NEAREST);
-        }
-        else {
-            scaledTempl = ctx.tmplFeat.image;
-            scaledWeightMask = ctx.tmplFeat.mask;
-        }
-
-        cv::Rect fineRect(
-            coarseX - searchRadius,
-            coarseY - searchRadius,
-            scaledTempl.cols + searchRadius * 2,
-            scaledTempl.rows + searchRadius * 2);
-        cv::Rect validFineRect = fineRect & mapBounds;
-
-        if (validFineRect.empty()) {
-            continue;
-        }
-
-        cv::Mat fineMap = ctx.bigMap(validFineRect);
-
-        auto fineSearchFeat = ctx.strategy->extractSearchFeature(fineMap);
-        auto fineRes = CoreMatch(fineSearchFeat.image, scaledTempl, scaledWeightMask, matchCfg.blurSize);
-
-        if (!fineRes) {
-            continue;
-        }
-
-        if (fineRes->score > fallbackScore) {
-            fallbackScore = fineRes->score;
-            fallbackScale = s;
-            fallbackFineRes = *fineRes;
-            fallbackValidFineRect = validFineRect;
-            fallbackScaledTempl = scaledTempl;
-            fallbackScaledMask = scaledWeightMask;
-        }
-
-        bool ambiguous = false;
-        if (ctx.strategy->needsChamferCompensation()) { // i.e. PathHeatmap
-            ambiguous = (fineRes->psr < 6.0) || (fineRes->delta < 0.04);
-            if (fineRes->score < 0.45 && ambiguous) {
-                continue;
-            }
-        }
-        else {
-            double lowScoreCut = (ctx.targetZoneId.find("Base") != std::string::npos) ? 0.85 : 0.75;
-            ambiguous = (fineRes->score < lowScoreCut) && (fineRes->psr < 6.0 || fineRes->delta < 0.02);
-            if (ambiguous) {
-                continue;
-            }
-        }
-
-        if (fineRes->score > bestFine) {
-            bestFine = fineRes->score;
-            bestScale = s;
-            bestFineRes = *fineRes;
-            bestValidFineRect = validFineRect;
-            bestScaledTempl = scaledTempl;
-            bestScaledMask = scaledWeightMask;
-        }
-    }
-
-    if (bestFine < 0) {
-        if (fallbackScore < 0) {
-            return std::nullopt;
-        }
-        bestFine = fallbackScore;
-        bestScale = fallbackScale;
-        bestFineRes = fallbackFineRes;
-        bestValidFineRect = fallbackValidFineRect;
-        bestScaledTempl = fallbackScaledTempl;
-        bestScaledMask = fallbackScaledMask;
-        LogInfo << "Global Search: All candidates ambiguous, using fallback (score " << fallbackScore << ")";
-    }
-
-    if (ctx.outRawPos && bestFine >= 0.0) {
-        ctx.outRawPos->zoneId = ctx.targetZoneId;
-        ctx.outRawPos->x = bestValidFineRect.x + bestFineRes.loc.x + bestScaledTempl.cols / 2.0;
-        ctx.outRawPos->y = bestValidFineRect.y + bestFineRes.loc.y + bestScaledTempl.rows / 2.0;
-        ctx.outRawPos->score = bestFine;
-        ctx.outRawPos->scale = bestScale;
-    }
-
-    auto res = evaluateAndAcceptResult(bestFineRes, bestValidFineRect, bestScaledTempl, ctx.strategy, ctx.targetZoneId);
-    if (res) {
-        res->scale = bestScale;
-    }
-    return res;
-}
-
 std::optional<MapPosition> MapLocator::Impl::tryGlobalSearch(
     const MatchFeature& tmplFeat,
     IMatchStrategy* strategy,
@@ -947,6 +744,11 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearch(
         return std::nullopt;
     }
 
+    if (!constraint.yolo_validated) {
+        LogInfo << "Global Search Aborted: no validated YOLO constraint." << VAR(targetZoneId);
+        return std::nullopt;
+    }
+
     const cv::Mat& bigMap = zones.at(targetZoneId);
     const cv::Rect mapBounds(0, 0, bigMap.cols, bigMap.rows);
     if (constraint.mode == GlobalSearchMode::RoiFine) {
@@ -958,11 +760,7 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearch(
         return tryConstrainedFineSearch({ tmplFeat, strategy, bigMap, constrainedRect, targetZoneId, outRawPos });
     }
 
-    if (constraint.mode == GlobalSearchMode::FullMapFine) {
-        return tryConstrainedFineSearch({ tmplFeat, strategy, bigMap, mapBounds, targetZoneId, outRawPos });
-    }
-
-    return tryLegacyCoarseSearch({ tmplFeat, strategy, bigMap, mapBounds, targetZoneId, outRawPos });
+    return tryConstrainedFineSearch({ tmplFeat, strategy, bigMap, mapBounds, targetZoneId, outRawPos });
 }
 
 YoloCoarseResult MapLocator::Impl::predictCoarse(const cv::Mat& minimap) const
@@ -1018,6 +816,9 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
     if (options.force_global_search) {
         return std::nullopt;
     }
+    if (!motionTracker) {
+        return std::nullopt;
+    }
 
     refreshAsyncYoloState(minimap, now);
 
@@ -1040,7 +841,11 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
     const bool trackingHeld = trackingResult.has_value() && trackingResult->isHeld;
 
     if (trackingResult && !trackingHeld) {
-        return LocateResult { .status = LocateStatus::Success, .position = trackingResult, .debugMessage = "Tracking Success" };
+        return LocateResult {
+            .status = LocateStatus::Success,
+            .position = trackingResult,
+            .debugMessage = "Tracking Success",
+        };
     }
 
     const bool shouldTryDualTracking = !isPathHeatmapZone && rawPrimaryPos.score > 0.1 && (!trackingResult || trackingHeld);
@@ -1050,8 +855,12 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
         auto fallbackTmpl = fallbackStrategy->extractTemplateFeature(minimap);
 
         MapPosition rawFallbackPos {};
-        auto fallbackResult = tryTracking(fallbackTmpl, fallbackStrategy.get(), now, options, &rawFallbackPos);
-        const bool fallbackHeld = fallbackResult.has_value() && fallbackResult->isHeld;
+        // fallback 只作为 dual 互证的第二路信号；试算后立即恢复状态，避免两策略不一致时单独推进或 hold tracker
+        auto savedMotionTracker = *motionTracker;
+        const auto savedStablePosition = stablePosition;
+        tryTracking(fallbackTmpl, fallbackStrategy.get(), now, options, &rawFallbackPos);
+        *motionTracker = savedMotionTracker;
+        stablePosition = savedStablePosition;
         const double dist = std::hypot(rawPrimaryPos.x - rawFallbackPos.x, rawPrimaryPos.y - rawFallbackPos.y);
 
         // 双策略互证：两者分数均需满足最低要求，且坐标差在容差内，才视为结果可信
@@ -1068,11 +877,8 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
                 .debugMessage = "Dual-Mode Tracking Success",
             };
         }
-
-        if (fallbackResult && !fallbackHeld) {
-            LogInfo << "Dual-Mode Tracking: accepted fallback strategy result independently. Dist was " << dist;
-            return LocateResult { .status = LocateStatus::Success, .position = fallbackResult, .debugMessage = "Tracking Success" };
-        }
+        LogInfo << "Dual-Mode Tracking rejected" << VAR(rawPrimaryPos.score) << VAR(rawPrimaryPos.x) << VAR(rawPrimaryPos.y)
+                << VAR(rawFallbackPos.score) << VAR(rawFallbackPos.x) << VAR(rawFallbackPos.y) << VAR(dist);
     }
 
     if (!trackingHeld) {
@@ -1099,7 +905,8 @@ SearchConstraint MapLocator::Impl::buildSearchConstraint(
 
     const bool isPathHeatmapZone = IsPathHeatmapZone(targetZoneId);
     if (isPathHeatmapZone) {
-        LogInfo << "YOLO validated path-heatmap zone; keeping legacy coarse heatmap search." << VAR(expectedZoneSelector)
+        constraint.mode = GlobalSearchMode::FullMapFine;
+        LogInfo << "YOLO validated path-heatmap zone; using full-map direct fine search." << VAR(expectedZoneSelector)
                 << VAR(coarse.raw_class) << VAR(targetZoneId);
         return constraint;
     }
@@ -1138,11 +945,12 @@ SearchConstraint MapLocator::Impl::buildSearchConstraint(
 std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
     const cv::Mat& minimap,
     const std::string& targetZoneId,
-    const SearchConstraint& constraint)
+    const SearchConstraint& constraint,
+    MapPosition* outBestRaw)
 {
     const bool isPathHeatmapZone = IsPathHeatmapZone(targetZoneId);
     const unsigned hardwareThreads = std::max(1U, std::thread::hardware_concurrency());
-    const bool canSpeculateDualMode = !isPathHeatmapZone && constraint.mode != GlobalSearchMode::LegacyCoarse && hardwareThreads >= 8;
+    const bool canSpeculateDualMode = !isPathHeatmapZone && constraint.yolo_validated && hardwareThreads >= 8;
 
     auto runSearch = [this, &constraint, &targetZoneId](const cv::Mat& searchMinimap, MatchMode mode) -> GlobalSearchAttempt {
         GlobalSearchAttempt attempt;
@@ -1179,8 +987,12 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
     auto globalResult = primaryAttempt.result;
     const MapPosition& rawGlobalPrimaryPos = primaryAttempt.rawPos;
 
+    if (outBestRaw) {
+        *outBestRaw = rawGlobalPrimaryPos;
+    }
+
     const bool shouldTryDualMode =
-        !globalResult && !isPathHeatmapZone && (constraint.mode != GlobalSearchMode::LegacyCoarse || rawGlobalPrimaryPos.score > 0.1);
+        !globalResult && !isPathHeatmapZone && (constraint.yolo_validated || rawGlobalPrimaryPos.score > 0.1);
     if (!shouldTryDualMode) {
         if (fallbackTask.valid()) {
             // Keep the future alive so its destructor cannot block the successful path.
@@ -1200,6 +1012,10 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
     auto fallbackResult = fallbackAttempt.result;
     const MapPosition& rawGlobalFallbackPos = fallbackAttempt.rawPos;
     const double dist = std::hypot(rawGlobalPrimaryPos.x - rawGlobalFallbackPos.x, rawGlobalPrimaryPos.y - rawGlobalFallbackPos.y);
+
+    if (outBestRaw && rawGlobalFallbackPos.score > rawGlobalPrimaryPos.score) {
+        *outBestRaw = rawGlobalFallbackPos;
+    }
 
     // 双策略验证：正常图传和梯度图传独立得出的坐标若极度相近，且双方分数都过线，才视为互证。
     if (rawGlobalPrimaryPos.score >= kDualGlobalVerifyMinScore && rawGlobalFallbackPos.score >= kDualGlobalVerifyMinScore
@@ -1262,6 +1078,13 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
 
     std::string targetZoneId = expectedZoneId;
     const YoloCoarseResult coarse = angleGuardCoarse.value_or(predictCoarse(minimap));
+    if (coarse.valid && coarse.is_none) {
+        return LocateResult {
+            .status = LocateStatus::TrackingLost,
+            .debugMessage = kColdStartCollectingMessage,
+        };
+    }
+
     if (targetZoneId.empty() && coarse.valid) {
         targetZoneId = coarse.zone_id;
     }
@@ -1299,14 +1122,23 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     }
 
     int maxAllowedLost = IsPathHeatmapZone(targetZoneId) ? 10 : options.max_lost_frames;
-    auto globalResult = tryGlobalSearchWithFallback(minimap, targetZoneId, constraint);
+    MapPosition bestRawGlobal {};
+    auto globalResult = tryGlobalSearchWithFallback(minimap, targetZoneId, constraint, &bestRawGlobal);
     if (!globalResult) {
-        motionTracker->markLost();
-        if (motionTracker->getLostCount() > maxAllowedLost) {
-            motionTracker->forceLost();
-            stablePosition.reset();
+        if (bestRawGlobal.score > kSeamFallbackMinPeakScore) {
+            bestRawGlobal.isHeld = true;
+            globalResult = bestRawGlobal;
+            LogInfo << "Global gate low-confidence: releasing best raw peak (held) to avoid cold-start deadlock."
+                    << VAR(bestRawGlobal.x) << VAR(bestRawGlobal.y) << VAR(bestRawGlobal.score);
         }
-        return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Global search failed." };
+        else {
+            motionTracker->markLost();
+            if (motionTracker->getLostCount() > maxAllowedLost) {
+                motionTracker->forceLost();
+                stablePosition.reset();
+            }
+            return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Global search failed." };
+        }
     }
 
     const auto lastPosOpt = motionTracker->getLastPos();
@@ -1335,7 +1167,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
         if (!IsTightCluster(coldStartBuffer, kPositionConsensusRadius)) {
             LogInfo << "Cold-start: collecting." << VAR(coldStartBuffer.size()) << VAR(globalResult->x) << VAR(globalResult->y)
                     << VAR(globalResult->score);
-            return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Cold-start collecting." };
+            return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = kColdStartCollectingMessage };
         }
         LogInfo << "Cold-start: consensus." << VAR(globalResult->x) << VAR(globalResult->y) << VAR(globalResult->score);
     }

@@ -208,7 +208,10 @@
             "type": "Screencap"
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "__SceneCheckAbortPipeline"
+        ]
     },
     "__SceneCheckOSD": {
         "desc": "检查窗口是否有遮挡",
@@ -222,6 +225,7 @@
         ]
     },
     "__SceneCheckOSDFailed": {
+        "desc": "检查遮挡失败时，截图保存到 debug 目录",
         "recognition": "OCR",
         "roi": [
             0,
@@ -239,12 +243,26 @@
             "(?i)\\bload\\b|负载|負載"
         ],
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FalseAction",
+        "action": "Screencap",
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "__SceneCheckAbortPipeline"
+        ],
         "focus": {
             "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">屏幕存在遮挡，请尝试关闭帧率显示</span>"
         }
+    },
+    "__SceneCheckAbortPipeline": {
+        "desc": "运用 poststop 接口停止整个任务链",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PostStop"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

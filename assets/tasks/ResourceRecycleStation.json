@@ -8,6 +8,10 @@
             "option": [
                 "ResourceRecycleStationRegion"
             ],
+            "controller": [
+                "Win32-Front",
+                "Wlroots"
+            ],
             "group": [
                 "open_world"
             ]

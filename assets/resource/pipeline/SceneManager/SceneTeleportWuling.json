@@ -1,4 +1,5 @@
 {
+    // https://assets.zmdmap.com/data/entity/1.2.5/maaend_entities.json
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCityCoreTry1": {
         "desc": "在地图界面找锚点 (武陵城核心区)",
         "recognition": "And",
@@ -428,7 +429,7 @@
             100,
             100,
             1080,
-            520
+            420
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley4Top.png",
@@ -871,8 +872,8 @@
         "custom_action_param": {
             "map_name": "map02_lv002",
             "target": [
-                694,
-                916
+                695.9,
+                917.5
             ],
             "on_find": "Click"
         },
@@ -1033,8 +1034,8 @@
         "custom_action_param": {
             "map_name": "map02_lv004",
             "target": [
-                498.8,
-                203.5
+                498.9,
+                199.9
             ],
             "on_find": "Click"
         },
@@ -1060,8 +1061,8 @@
         "custom_action_param": {
             "map_name": "map02_lv004",
             "target": [
-                418.8,
-                322.3
+                419.0,
+                317.0
             ],
             "on_find": "Click"
         },
@@ -1087,8 +1088,8 @@
         "custom_action_param": {
             "map_name": "map02_lv004",
             "target": [
-                600.1,
-                328.4
+                600.6,
+                328.7
             ],
             "on_find": "Click"
         },
@@ -1114,8 +1115,143 @@
         "custom_action_param": {
             "map_name": "map02_lv004",
             "target": [
-                512.9,
-                673.5
+                512.1,
+                672.8
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestArea1": {
+        "desc": "在地图界面找锚点 (试验园区-综合科研区下)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingTestArea"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv005",
+            "target": [
+                336.3,
+                420.1
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestArea2": {
+        "desc": "在地图界面找锚点 (试验园区-测试区)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingTestArea"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv005",
+            "target": [
+                391.6,
+                362.5
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale1": {
+        "desc": "在地图界面找锚点 (藏剑谷-东谷遗迹)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingSwordVaultDale"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv006",
+            "target": [
+                578.5,
+                383.2
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale2": {
+        "desc": "在地图界面找锚点 (藏剑谷-悬谷台)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingSwordVaultDale"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv006",
+            "target": [
+                601.6,
+                479.3
+            ],
+            "on_find": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale3": {
+        "desc": "在地图界面找锚点 (藏剑谷-谷底秘库)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingSwordVaultDale"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv006",
+            "target": [
+                356.5,
+                297.2
             ],
             "on_find": "Click"
         },
@@ -1204,7 +1340,7 @@
             100,
             100,
             1080,
-            520
+            420
         ],
         "template": [
             "SceneManager/MapWuling/MarkerStone4Top.png",
@@ -1242,10 +1378,10 @@
                     100,
                     100,
                     1080,
-                    520
+                    420
                 ],
                 "template": [
-                    "SceneManager/MapWuling/MarkerStoneCoreLeftTop.png"
+                    "SceneManager/MapWuling/MarkerStoneCoreTop.png"
                 ],
                 "threshold": 0.9
             },
@@ -1256,20 +1392,20 @@
                         "recognition": "ColorMatch",
                         "roi": "TargetLeft",
                         "roi_offset": [
+                            0,
                             100,
                             0,
-                            120,
-                            140
+                            0
                         ],
                         "lower": [
-                            235,
-                            220,
-                            140
+                            212,
+                            195,
+                            125
                         ],
                         "upper": [
                             255,
-                            255,
-                            170
+                            244,
+                            166
                         ],
                         "count": 20
                     },
@@ -1277,10 +1413,10 @@
                         "recognition": "ColorMatch",
                         "roi": "TargetLeft",
                         "roi_offset": [
+                            0,
                             100,
                             0,
-                            120,
-                            140
+                            0
                         ],
                         "lower": [
                             245,
@@ -1327,7 +1463,7 @@
                     520
                 ],
                 "template": [
-                    "SceneManager/MapWuling/MarkerStoneCoreLeftBottom.png"
+                    "SceneManager/MapWuling/MarkerStoneCoreLeft.png"
                 ],
                 "threshold": 0.9
             },
@@ -1339,19 +1475,19 @@
                         "roi": "TargetLeft",
                         "roi_offset": [
                             100,
-                            -140,
-                            120,
-                            140
+                            0,
+                            0,
+                            0
                         ],
                         "lower": [
-                            235,
-                            220,
-                            140
+                            212,
+                            195,
+                            125
                         ],
                         "upper": [
                             255,
-                            255,
-                            170
+                            244,
+                            166
                         ],
                         "count": 20
                     },
@@ -1360,9 +1496,9 @@
                         "roi": "TargetLeft",
                         "roi_offset": [
                             100,
-                            -140,
-                            120,
-                            140
+                            0,
+                            0,
+                            0
                         ],
                         "lower": [
                             245,
@@ -1420,20 +1556,20 @@
                         "recognition": "ColorMatch",
                         "roi": "TargetLeft",
                         "roi_offset": [
-                            0,
                             100,
-                            120,
-                            140
+                            100,
+                            0,
+                            0
                         ],
                         "lower": [
-                            235,
-                            220,
-                            140
+                            212,
+                            195,
+                            125
                         ],
                         "upper": [
                             255,
-                            255,
-                            170
+                            244,
+                            166
                         ],
                         "count": 20
                     },
@@ -1441,10 +1577,10 @@
                         "recognition": "ColorMatch",
                         "roi": "TargetLeft",
                         "roi_offset": [
-                            0,
                             100,
-                            120,
-                            140
+                            100,
+                            0,
+                            0
                         ],
                         "lower": [
                             245,

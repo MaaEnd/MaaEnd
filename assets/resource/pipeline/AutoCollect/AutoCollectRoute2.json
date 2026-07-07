@@ -1,11 +1,18 @@
 {
     "AutoCollectRoute2Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCity2"
+            ]
+        },
         "next": [
-            "AutoCollectRoute2AssertLocation",
-            "[JumpBack]SceneEnterWorldWulingWulingCity2"
+            "AutoCollectRoute2AssertLocation"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "开始路线2"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute2.label"
         }
     },
     "AutoCollectRoute2End": {
@@ -48,59 +55,59 @@
                     "fine_approach": "AllTargets",
                     "path": [
                         [
-                            635.0,
+                            636.0,
                             537.0
                         ],
                         [
-                            630.0,
+                            631.0,
                             533.3
                         ],
                         [
-                            586.3,
+                            587.3,
                             533.2
                         ],
                         [
-                            586.3,
+                            587.3,
                             530.8
                         ],
                         [
-                            588.7,
+                            589.7,
                             527.0
                         ],
                         [
-                            591.3,
+                            592.3,
                             519.6
                         ],
                         [
-                            597.4,
+                            598.4,
                             510.7
                         ],
                         [
-                            595.0,
+                            596.0,
                             503.3
                         ],
                         [
-                            587.5,
+                            588.5,
                             494.5
                         ],
                         [
-                            582.5,
+                            583.5,
                             489.5
                         ],
                         [
-                            577.5,
+                            578.5,
                             484.4
                         ],
                         [
-                            572.5,
+                            573.5,
                             479.5
                         ],
                         [
-                            565.0,
+                            566.0,
                             477.1
                         ],
                         [
-                            532.5,
+                            533.5,
                             472.0
                         ]
                     ]
@@ -123,9 +130,10 @@
                 "custom_action_param": {
                     "map_name": "map02_lv002",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
-                            530.1,
+                            531.1,
                             465.7
                         ]
                     ]
@@ -148,9 +156,10 @@
                 "custom_action_param": {
                     "map_name": "map02_lv002",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
-                            528.8,
+                            529.8,
                             469.6
                         ]
                     ]
@@ -173,9 +182,10 @@
                 "custom_action_param": {
                     "map_name": "map02_lv002",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
-                            531.2,
+                            532.2,
                             472.0
                         ]
                     ]
@@ -198,9 +208,10 @@
                 "custom_action_param": {
                     "map_name": "map02_lv002",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
-                            531.3,
+                            532.3,
                             475.8
                         ]
                     ]
@@ -223,9 +234,10 @@
                 "custom_action_param": {
                     "map_name": "map02_lv002",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
-                            532.5,
+                            533.5,
                             478.2
                         ]
                     ]
@@ -248,9 +260,10 @@
                 "custom_action_param": {
                     "map_name": "map02_lv002",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
-                            530.1,
+                            531.1,
                             476.9
                         ]
                     ]
@@ -273,9 +286,10 @@
                 "custom_action_param": {
                     "map_name": "map02_lv002",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
-                            525.1,
+                            526.1,
                             475.8
                         ]
                     ]
@@ -298,9 +312,10 @@
                 "custom_action_param": {
                     "map_name": "map02_lv002",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
-                            523.8,
+                            524.8,
                             473.1
                         ]
                     ]

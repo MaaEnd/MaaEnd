@@ -1,5 +1,4 @@
 {
-    // TODO 后面和fast/common中Region.json合并
     "InMapAny": {
         "desc": "在任意地图界面",
         "recognition": "And",
@@ -114,6 +113,48 @@
             }
         ]
     },
+    "InMapWulingTestArea": {
+        "desc": "在武陵-试验园区地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "试验园区",
+                    "Test Area",
+                    "實驗園區"
+                ]
+            }
+        ]
+    },
+    "InMapWulingSwordVaultDale": {
+        "desc": "在武陵-藏剑谷地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "藏剑谷",
+                    "Sword Vault Dale",
+                    "藏劍谷"
+                ]
+            }
+        ]
+    },
     "InMapDijiang": {
         "desc": "在帝江号地图界面",
         "recognition": "And",
@@ -224,6 +265,62 @@
             }
         ]
     },
+    "InBackpack": {
+        "desc": "在背包界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    700,
+                    50,
+                    250,
+                    210
+                ],
+                "template": [
+                    "SceneManager/MenuBackpack.png"
+                ]
+            }
+        }
+    },
+    "InMenuList": {
+        "desc": "在菜单列表界面",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    420,
+                    -100,
+                    450,
+                    100
+                ],
+                "expected": [
+                    "FIELD",
+                    "ENDFIELD"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    0,
+                    -200,
+                    200,
+                    200
+                ],
+                "lower": [
+                    90,
+                    35,
+                    35
+                ],
+                "upper": [
+                    191,
+                    83,
+                    85
+                ],
+                "count": 100
+            }
+        ]
+    },
     "InNoticeRewards": {
         "desc": "在奖励领取界面",
         "recognition": {
@@ -301,34 +398,36 @@
     },
     "InRegionalDevelopmentView2": {
         "desc": "在地区建设二级界面",
-        "recognition": "OCR",
-        "roi": [
-            0,
-            0,
-            400,
-            70
-        ],
-        "expected": [
-            "据点",
-            "據點",
-            "(?i)Outpost",
-            "拠点",
-            "物资调度",
-            "物資調度",
-            "(?i)Stock\\s*Redistribution",
-            "商品取引",
-            "仓储节点",
-            "倉儲節點",
-            "(?i)Depot\\s*Node",
-            "保管ボックス",
-            "环境监测",
-            "環境監測",
-            "(?i)Environment\\s*Monitoring",
-            "環境観測",
-            "거점",
-            "물자 관리",
-            "저장고 노드",
-            "환경 관측"
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    70
+                ],
+                "expected": [
+                    "据点",
+                    "據點",
+                    "(?i)Outpost",
+                    "拠点",
+                    "物资调度",
+                    "物資調度",
+                    "(?i)Stock\\s*Redistribution",
+                    "商品取引",
+                    "环境监测",
+                    "環境監測",
+                    "(?i)Environment\\s*Monitoring",
+                    "環境観測",
+                    "거점",
+                    "물자 관리",
+                    "저장고 노드",
+                    "환경 관측"
+                ]
+            },
+            "CheckLocalDepotNodeText"
         ]
     },
     "InWorld": {
@@ -356,17 +455,17 @@
         "desc": "在工业计划界面",
         "recognition": "OCR",
         "roi": [
+            -250,
             0,
-            0,
-            200,
+            250,
             60
         ],
         "expected": [
-            "工业计划",
-            "工業計劃",
-            "AIC Plan",
-            "工業計画",
-            "공업 계획"
+            "工业点数",
+            "工業點",
+            "AIC Index",
+            "工業ポイント",
+            "공업 포인트"
         ],
         "pre_delay": 0,
         "post_delay": 0,

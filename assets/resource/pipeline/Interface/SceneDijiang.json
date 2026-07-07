@@ -25,7 +25,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopLeft",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopLeft",
+            "__ScenePrivateMapSwipeToStep2Anchor": "__ScenePrivateMapSwipeToStep2TopLeft",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3TopLeft",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4TopLeft",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldDijiang0Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldDijiang0Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldDijiang0Try3"
@@ -43,7 +45,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopRight",
+            "__ScenePrivateMapSwipeToStep2Anchor": "__ScenePrivateMapSwipeToStep2TopRight",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3TopRight",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4TopRight",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldDijiang1Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldDijiang1Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldDijiang1Try3"
@@ -61,7 +65,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopLeft",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopLeft",
+            "__ScenePrivateMapSwipeToStep2Anchor": "__ScenePrivateMapSwipeToStep2TopLeft",
+            "__ScenePrivateMapSwipeToStep3Anchor": "__ScenePrivateMapSwipeToStep3TopLeft",
+            "__ScenePrivateMapSwipeToStep4Anchor": "__ScenePrivateMapSwipeToStep4TopLeft",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldDijiang2Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldDijiang2Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldDijiang2Try3"

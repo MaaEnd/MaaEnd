@@ -30,10 +30,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    139,
-                    263,
-                    87,
-                    100
+                    24,
+                    190,
+                    88,
+                    101
                 ],
                 "template": [
                     "Common/Button/ChangeRegionButton.png"
@@ -52,10 +52,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    139,
-                    263,
-                    87,
-                    100
+                    24,
+                    190,
+                    88,
+                    101
                 ],
                 "template": [
                     "Common/Button/ChangeRegionButtonHover.png"

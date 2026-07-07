@@ -173,22 +173,12 @@
     "EssenceFilterAfterBattleCloseDetail": {
         "desc": "关闭详情页后继续处理下一个基质（Skip路径专用）",
         "recognition": {
-            "type": "OCR",
+            "type": "Or",
             "param": {
-                "roi": "EssenceFindLockItem",
-                "roi_offset": [
-                    -253,
-                    -127,
-                    157,
-                    20
-                ],
-                "expected": [
-                    "基质",
-                    "基質",
-                    "(?i)Essence",
-                    "기질"
-                ],
-                "threshold": 0.8
+                "any_of": [
+                    "EssenceFilterCloseDetailFourth",
+                    "EssenceFilterCloseDetailWuling"
+                ]
             }
         },
         "action": {
@@ -204,27 +194,48 @@
             "EssenceFilterAfterBattleRowNextItem"
         ]
     },
+    "EssenceFilterCloseDetailFourth": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    276,
+                    87,
+                    972,
+                    486
+                ],
+                "template": "EssenceFilter/EssenceFilterFourth.png",
+                "threshold": 0.8
+            }
+        }
+    },
+    "EssenceFilterCloseDetailWuling": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    276,
+                    87,
+                    972,
+                    486
+                ],
+                "template": "EssenceFilter/EssenceFilterWuling.png",
+                "threshold": 0.8
+            }
+        }
+    },
     "EssenceFilterAfterBattleCloseDetailJumpback": {
         "desc": "如果基质详情页还在，则点击左上角，关闭基质详情，防遮挡（JumpBack专用）",
         "recognition": {
-            "type": "OCR",
+            "type": "Or",
             "param": {
-                "roi": "EssenceFindLockItem",
-                "roi_offset": [
-                    -253,
-                    -127,
-                    157,
-                    20
-                ],
-                "expected": [
-                    "基质",
-                    "基質",
-                    "(?i)Essence",
-                    "기질"
-                ],
-                "threshold": 0.8
+                "any_of": [
+                    "EssenceFilterCloseDetailFourth",
+                    "EssenceFilterCloseDetailWuling"
+                ]
             }
         },
+        "pre_wait_freezes": 100,
         "action": {
             "type": "Click",
             "param": {

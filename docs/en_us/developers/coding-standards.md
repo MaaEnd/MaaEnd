@@ -1,205 +1,244 @@
-# Coding standards
+# Coding Standards
 
-## Pipeline low-code standards
+## AI Programming Standards
+
+### Prohibit Brainless Use of AI for Development
+
+- Issuing vague commands to AI directly, such as "help me develop xxx feature and submit a PR" or "help me fix this bug and submit a PR."
+- In critical modules, using AI to generate large amounts of hard-to-maintain, hard-to-understand "black box" code—for example, meaningless over-encapsulation or piling thousands of lines of Go/C++ for simple features.
+- Submitting code that you cannot understand or control in critical modules.
+
+> [!CAUTION]
+> It is prohibited to have AI directly write Pipelines without providing context such as game interface screenshots and interface navigation logic.
+> MaaFramework's Pipeline is heavily dependent on the game interface and business logic. AI lacking interface information can only rely on hallucinations and existing project code to piece things together, resulting in very low-quality code.
+> Adequate information must include: each recognition node needs to provide `roi` and template images, and explain the navigation relationship between interfaces (from which interface, click what, to where).
+>
+> PRs that do not meet the above conditions will be closed directly.
+
+_Custom code is usually only maintainable by the original author. If even the author cannot understand it, don't even think about extending new features—no one will dare to fix bugs either. Moreover, you cannot thoughtlessly let AI take full responsibility for fixes—neither reviewing nor understanding the changes yourself; furthermore, the success rate of fully handing things over to AI is still relatively low in this project._
+
+### Recommended AI Development Approach
+
+- First learn the coding standards of this project; design the architecture yourself, or use AI suggestions as a reference.
+- Use AI for targeted incremental development, and review the generated code yourself to ensure it meets expectations.
+- Submit a PR only after confirming everything is correct.
+
+## Pipeline Low-Code Standards
 
 ### Naming: PascalCase
 
-Node names use PascalCase and are prefixed by task or module name inside the same task, e.g. `ResellMain`, `DailyProtocolPassInMenu`, `RealTimeAutoFightEntry`.
+Node names use PascalCase, prefixed with the task name or module name within the same task. For example, `ResellMain`, `DailyProtocolPassInMenu`, `RealTimeAutoFightEntry`.
 
-### Avoid hard delays
+### Prohibit Hard Delays
 
-Use `pre_delay`, `post_delay`, `timeout`, and `on_error` sparingly. Prefer extra recognition nodes instead of blind sleeps.
+Use `pre_delay`, `post_delay`, `timeout`, `on_error` as little as possible. Avoid blind sleep by adding intermediate recognition nodes.
 
-Only use `pre_wait_freezes` / `post_wait_freezes` when the screen must settle; avoid delays otherwise.  
-**Don't use delays to work around instability — add intermediate recognition nodes instead. A delay hides the real problem and will still fail on slower devices.**
+Use `pre_wait_freezes` / `post_wait_freezes` only when it is absolutely necessary to wait for the screen to stabilize; otherwise, avoid delays as much as possible.  
+**Do not use delays for stability; instead, add intermediate node judgments, because delays are actually masking problems and will still be unstable when the user's device has high latency.**
 
 > [!NOTE]
 >
-> For more on delays, see [ALAS basic operating mode](https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/1.-Start#%E5%9F%BA%E6%9C%AC%E8%BF%90%E4%BD%9C%E6%A8%A1%E5%BC%8F); the recommended practice aligns with our `next` field.
+> For more on delays, you can read the [basic operating mode of the neighboring ALAS](https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/1.-Start#%E5%9F%BA%E6%9C%AC%E8%BF%90%E4%BD%9C%E6%A8%A1%E5%BC%8F), whose recommended practices are essentially equivalent to our `next` field.
 
-### Hit the right node on the first screenshot pass
+### `next` Hit on the First Round
 
-Expand `next` so every plausible game screen maps to an expected node—aim for one capture to land on the right state.  
-**The project generally rejects any form of retry mechanism. Tasks must complete in a single pass. If a problem seems unsolvable without retries, it must be discussed in the dev group.**
+Expand the `next` list as much as possible to ensure that any game screen is expected, achieving the target node hit with a single screenshot.  
+**The project generally rejects all forms of retry mechanisms. All tasks must be completed in a single process, unless encountering an unsolvable problem, which must be discussed in the development group.**
 
-### Recognize → act → recognize again
+### Recognize → Operate → Recognize Again
 
-Every action must be grounded in recognition.
+Each step of operation is based on recognition.
 
-**Good:** recognize A → tap A → recognize B → tap B
+**Recommended:** Recognize A → Click A → Recognize B → Click B
 
-**Bad:** recognize once → tap A → tap B → tap C
+**Prohibited:** Recognize everything once → Click A → Click B → Click C
 
-_You cannot assume the screen stays the same after A—e.g. a gacha banner might appear and the next tap hits the wrong UI._
+For example:
 
-### Do not double-tap blindly
+1. In interface navigation, you need to recognize the navigation button → click the navigation button → recognize that the interface has finished navigating.
+   _You cannot guarantee that the screen will still be the same after clicking the close button. In extreme cases, a game might pop up a new pool announcement, and directly clicking the next node might lead you into the gacha system._
+   _You cannot guarantee whether background loading is needed during interface navigation, causing the screen to freeze. Directly clicking the next node might have no effect._
 
-Use `pre_wait_freezes` / `post_wait_freezes` to wait for a stable frame, or insert intermediate nodes so a button is confirmed clickable. A second tap may already apply to the next screen. See [Issue #816](https://github.com/MaaEnd/MaaEnd/issues/816).
+2. When clicking a button that changes account data, you need to recognize the submit button → click the submit button → recognize that the button click was successful.\_
+   _You cannot guarantee that every user's network is smooth. If the button click event does not successfully interact with the server, the entire interactive interface may freeze and become unresponsive, no matter how many times you click._
 
-### Handle pop-ups and loading
+### Do Not Blindly Retry or Add Limits
 
-A solid flow handles the happy path **and** pop-ups, loading, and “wrong scene” recovery.
+**Recommended:** When encountering a bug, find the root cause, specifying which node failed, which recognition did not meet expectations, and what the game triggered that caused the unintended interaction or lack of response. Then fix the recognition and operation issues of the corresponding node.
 
-Common `next` hooks:
+**Prohibited:** Trying the same operation again, blindly adding max_hit.
+
+For example:
+
+1. When a click has no response, clicking again.
+   _Wait for the screen to stabilize using `pre_wait_freezes`, `post_wait_freezes`, or add an intermediate node to confirm the button is clickable before executing. The second click might have already acted on an element on the next screen. See [Issue #816](https://github.com/MaaEnd/MaaEnd/issues/816) for details._
+
+2. Rerunning a sub-task after it fails.
+   _Retrying only slightly increases the success rate and does not fundamentally solve the problem. It only makes the code harder to maintain, eventually leading to trying A, then B, then C if it fails, retrying A 3 times and B 2 times, making the problem difficult to locate._
+
+3. Adding max*hit after a node enters an infinite loop.
+   \_An infinite loop is usually caused by recognition issues or logical flaws. Blindly adding `max_hit` will only interrupt the logic, similar to blindly throwing exceptions in code to break out of a task, leading to unpredictable consequences.*
+
+### Handling Pop-ups and Loading
+
+A good process is not just "the main flow works," but: the normal main flow works, pop-ups can be handled, loading can be waited through, and it can automatically jump past when not in the target scenario.
+
+Common practice is to add to `next`:
 
 - `[JumpBack]SceneDialogConfirm`
 - `[JumpBack]SceneWaitLoadingExit`
 - `[JumpBack]SceneAnyEnterWorld`
 
-### OCR: full strings in `expected`
+### OCR Write Complete Text
 
-Write full text in `expected`, not fragments. Multilingual handling goes through the i18n toolchain. For fragments or hand-written regex, use `// @i18n-skip`. See [OCR & i18n](#ocr--i18n) below.
+`expected` must contain the complete text, not partial. Multi-language processing is delegated to the i18n toolchain. **Only when the OCR engine is unstable in recognizing complete text** is it allowed to use fragments or handwritten regular expressions. In this case, you must add `// @i18n-skip` and a comment above the array to retain the complete original text. See below [OCR and i18n](#ocr-and-i18n) for details.
 
-### Color matching: prefer HSV / grayscale
+### Reuse First, Then Add New
 
-Different GPUs render slightly differently; raw RGB is unstable across devices. See [Color matching: HSV first](#color-matching-hsv-first) under Resource standards.
+Before writing new nodes, first check the [Component Guide](./components-guide.md) to confirm if there is existing capability.
 
-### Reuse before adding
+## Go Service Standards
 
-Before writing a new node, check the [components guide](./components-guide.md) for existing capabilities.
+Go Service is only for handling complex image algorithms or special interaction logic that is difficult to implement with Pipeline. **The overall process is still connected by Pipeline. It is prohibited to write extensive process code in Go.**
 
-## Go Service standards
+For example, in a product purchase task, Go Service only does price comparison, product traversal, etc.; opening product details, clicking buy, returning to the list, etc., are handled by Pipeline.
 
-Go Service is for recognition or interaction that Pipeline cannot express well.**Overall flow stays in Pipeline—do not implement large flowcharts in Go.**
+In one sentence: **Pipeline manages the process, Go manages the difficulties.**  
+_Unnecessary Go logic greatly increases code complexity, making it extremely difficult for the next developer to develop and debug, and very challenging for cross-platform adaptation._
 
-Example: in a shopping task, Go may compare prices or iterate items; opening details, tapping buy, and returning to the list stay in Pipeline.
+## Cpp Algo Standards
 
-**Pipeline owns the flow; Go owns the hard parts.**
+Cpp Algo supports native OpenCV and ONNX Runtime, but it is only recommended for implementing individual recognition algorithms. Various business logic like operations is recommended to be written using Go Service.
 
-## Cpp Algo standards
+Refer to the [MaaFramework Development Standards](https://github.com/MaaXYZ/MaaFramework/blob/main/AGENTS.md#%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83) for other standards.
 
-Cpp Algo can use OpenCV and ONNX Runtime, but only for single recognition algorithms. Prefer Go Service for operations and business glue.
-
-Other rules: [MaaFramework AGENTS.md](https://github.com/MaaXYZ/MaaFramework/blob/main/AGENTS.md).
-
-## Pre-submit checks
+## Pre-submission Check
 
 ```bash
 pnpm format        # JSON/YAML formatting
 pnpm format:go     # Go formatting
-pnpm check         # Resource & schema checks
-pnpm test          # Node tests
+pnpm check         # Resource and schema check
+pnpm test          # Node testing
 ```
 
-CI runs along the same lines: `pnpm check`, `python tools/validate_schema.py`, `pnpm test`, `pnpm format:all`.
+CI is also built around these validations: `pnpm check`, `python tools/validate_schema.py`, `pnpm test`, `pnpm format:all`.
 
-## Files that often change together
+## Supporting Files
 
-A single feature rarely touches only one file.
+A functional change in MaaEnd often involves more than one place.
 
-### New or updated tasks
+### Adding or Modifying Tasks
 
 - `assets/tasks/*.json`
 - `assets/resource/pipeline/**/*.json`
-- `assets/locales/interface/en_us.json` (and other locales)
+- `assets/locales/interface/zh_cn.json`
 - `assets/interface.json`
 - `tests/**/*.json`
 
-### New Go Custom pieces
+### Adding Go Custom Components
 
-- Register in the subpackage `register.go`
-- Wire in `registerAll()` in `agent/go-service/register.go`
-- Run `python tools/build_and_install.py` again
+- Register in the corresponding sub-package `register.go`
+- Integrate in `agent/go-service/register.go`'s `registerAll()`
+- Re-run `python tools/build_and_install.py`
 
-> MXU is an end-user GUI—not recommended for day-to-day dev debugging. The MaaFramework dev tools above are far more productive.
+> MXU is a GUI for end-users and is not recommended for daily development and debugging. The above development tools can greatly improve development efficiency.
 
-## Debugging workflow
+## Debug Workflow
 
 ### Editing Pipeline
 
-After changing `assets/resource/pipeline/**/*.json`, reload resources in the dev tool—no rebuild.
+After modifying `assets/resource/pipeline/**/*.json`, just reload the resource in the development tool; no recompilation is needed.
 
 ### Editing Go Service
 
-After changing `agent/go-service/`, rebuild:
+After modifying `agent/go-service/`, you must recompile:
 
 ```bash
 python tools/build_and_install.py
 ```
 
-You can use the VS Code `build` task, or set breakpoints / attach to go-service.
+You can use the `build` task in VS Code's terminal run tasks for quick execution, or set breakpoints or attach debugging to go-service.
 
 ### Editing `interface.json`
 
-`assets/interface.json` is the source of truth. After edits:
+`assets/interface.json` is the main source file. After modification, run:
 
 ```bash
 python tools/build_and_install.py
 ```
 
-If you edited `install/interface.json` via a tool, sync back to `assets/interface.json`.
+If `install/interface.json` is modified through a tool, it needs to be manually synced back to `assets/interface.json`.
 
 ### Editing Cpp Algo
 
-Requires the VC toolchain and CMake—most contributors skip this:
+Requires a VC generator and cmake; generally, developers do not need to change it:
 
 ```bash
 python tools/build_and_install.py --cpp-algo
 ```
 
-## Resource standards
+## Resource Standards
 
-### Resolution: 720p baseline
+### Resolution: 720p Base
 
-All images and coordinates (`roi`, `target`, `box`) use **1280×720** as the design resolution. MaaFramework scales at runtime. Use dev tools for screenshots and coordinate conversion.
+All images and coordinates (`roi`, `target`, `box`) are based on **1280x720**. MaaFramework automatically converts based on the user's device at runtime. It is recommended to use the above development tools for screenshots and coordinate conversion.
 
-<a id="color-matching-hsv-first"></a>
+### HDR / Color Management
 
-### Color matching: HSV first
+**When prompted that features like "HDR" or "Automatically manage application colors" are enabled, do not perform screenshots, color picking, or other operations**, as this may cause the template effect to differ from the user's actual display.
 
-Vendor GPUs (NVIDIA, AMD, Intel) differ; raw RGB is unstable across devices. Prefer fixing hue in HSV and tuning saturation/brightness.
+### Resource Folder Link
 
-### HDR / color management
+The resource folder is in a linked state. Modifying `assets` is equivalent to modifying the content in `install`; no additional copying is needed. **However, `interface.json` is a copy**; modification requires manual sync or running `build_and_install.py`.
 
-**If HDR or “automatically manage color for apps” is on, do not capture screenshots or pick colors**—templates may not match what users see.
+<a id="ocr-与-i18n"></a>
 
-### Linked asset folder
+## OCR and i18n
 
-The asset tree is linked: editing `assets` is equivalent to editing what ships under `install` without extra copy steps.**`interface.json` is copied**—sync manually or run `build_and_install.py`.
+Developers do not need to manually maintain multi-language OCR; just write the expected text in the current language, and `tools/i18n` will automatically process it.
 
-<a id="ocr--i18n"></a>
+### Writing Requirements
 
-## OCR & i18n
+- `expected` should contain the complete text, not just a fragment. For example, write "This is an example content" instead of just "example content."
+- Only when the OCR engine is unstable in recognizing complete text (e.g., containing percent signs, special symbols, easily confused characters) and it is truly necessary to use fragments or handwritten regular expressions for stable matching is skipping automatic processing allowed. **Truncation is not a default method but a fallback.**
 
-Authors do not maintain multilingual OCR by hand: write `expected` in your working language and `tools/i18n` will expand it.
+Requirements:
 
-### Rules
-
-- Use full strings in `expected`, not fragments. Example: write the whole sentence, not a substring.
-- English `expected` values become case-insensitive regex with `\\s*` between words, e.g. `Send Local Clues` → `(?i)Send\\s*Local\\s*Clues`.
-- Nodes that are not skipped get automatic `roi_offset` based on display width; `only_rec: true` nodes are excluded.
-
-### Skipping automatic handling
-
-For fragments or custom regex, add `// @i18n-skip` inside the `expected` array:
+1. Add `// @i18n-skip` inside the `expected` array to have the i18n tool skip that node;
+2. Add a normal JSON comment above the array to retain the **complete original text** for review, multilingual reference, and future restoration of complete matching after OCR engine upgrades.
 
 ```jsonc
+// OCR engine is unstable with percent signs in "stable production 100%", using truncated match
 "expected": [
+    // "稳定生产 100%"
     // @i18n-skip
-    "partial text"
+    "稳定生产"
 ]
 ```
 
-Default (recommended, auto i18n):
+Default writing (recommended, automatic i18n processing):
 
 ```jsonc
 "expected": [
-    "This is a full example sentence"
+    "This is an example content"
 ]
 ```
+
+- English `expected` will automatically generate case-insensitive regular expressions after processing, using `\\s*` between words. For example, `Send Local Clues` → `(?i)Send\\s*Local\\s*Clues`.
+- For OCR nodes not skipped in processing, the script will automatically supplement `roi_offset` based on display width differences; nodes with `only_rec: true` are excluded.
 
 ## Testing
 
-MaaEnd uses maa-tools for node tests—see [node testing](./node-testing.md). Add test cases when you add recognition nodes.
+MaaEnd uses maa-tools for node testing. See [Node Testing Documentation](./node-testing.md) for details. Please try to add test cases when writing recognition nodes.
 
-## Common pitfalls
+## Common Pitfalls
 
-| Problem                             | What to do                                                                              |
-| ----------------------------------- | --------------------------------------------------------------------------------------- |
-| `pnpm check` / `pnpm test` fails    | Run `pnpm install`                                                                      |
-| Missing model or C++ deps           | `git submodule update --init --recursive` or `python tools/setup_workspace.py --update` |
-| Go changes not applied              | Forgot `python tools/build_and_install.py`                                              |
-| Referencing `__ScenePrivate*` nodes | Use the public scene interface nodes under `Interface/`                                 |
-| Only happy-path, no pop-up/loading  | Treat pop-ups, loading, and in-between states as normal                                 |
-| Task changed but strings missing    | Add copy under `assets/locales/`                                                        |
-| Works locally but not for others    | Filters on / different FPS / GPU color drift—RGB too strict                             |
+| Pitfall                                                      | Handling                                                                                            |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| `pnpm check` / `pnpm test` fails to run                      | `pnpm install`                                                                                      |
+| Model or C++ dependency directory missing                    | `git submodule update --init --recursive` or `python tools/setup_workspace.py --update`             |
+| Go changes not taking effect                                 | Forgot `python tools/build_and_install.py`                                                          |
+| Directly referenced `__ScenePrivate*` nodes                  | Should reference scene interface nodes exposed in the `Interface` directory                         |
+| Only focusing on the main flow, not handling pop-ups/loading | Treat pop-ups, loading, and intermediate states as normal scenarios                                 |
+| Changed tasks but didn't add text                            | Text goes in `assets/locales/`                                                                      |
+| Runs locally but not for others                              | Filters enabled/different frame rates/slightly different colors due to different GPUs/RGB too rigid |

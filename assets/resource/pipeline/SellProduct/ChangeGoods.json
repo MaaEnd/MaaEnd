@@ -18,7 +18,8 @@
             "(?i)Select\\s*Goods",
             "商品選択",
             "상품 교체",
-            "상품 선택"
+            "상품 선택",
+            "商品变更"
         ],
         "pre_delay": 0,
         "action": "Click",

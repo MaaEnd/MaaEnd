@@ -36,10 +36,7 @@
         "pre_delay": 0,
         "action": "ClickKey",
         "key": 160, // Shift键
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "触发闪避"
-        }
+        "post_delay": 0
     },
     "__AutoFightActionLockTarget": {
         "pre_delay": 0,
@@ -57,46 +54,31 @@
         "pre_delay": 0,
         "action": "ClickKey",
         "key": 48, // 0键
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "触发普攻"
-        }
+        "post_delay": 0
     },
     "__AutoFightActionSkillOperators1": {
         "pre_delay": 0,
         "action": "ClickKey",
         "key": 49, // 1键
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "触发干员1技能"
-        }
+        "post_delay": 0
     },
     "__AutoFightActionSkillOperators2": {
         "pre_delay": 0,
         "action": "ClickKey",
         "key": 50, // 2键
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "触发干员2技能"
-        }
+        "post_delay": 0
     },
     "__AutoFightActionSkillOperators3": {
         "pre_delay": 0,
         "action": "ClickKey",
         "key": 51, // 3键
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "触发干员3技能"
-        }
+        "post_delay": 0
     },
     "__AutoFightActionSkillOperators4": {
         "pre_delay": 0,
         "action": "ClickKey",
         "key": 52, // 4键
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "触发干员4技能"
-        }
+        "post_delay": 0
     },
     "__AutoFightActionEndSkillAltKeyDown": {
         "desc": "alt按键",
@@ -126,80 +108,98 @@
         "key": 83,
         "post_delay": 0
     },
+    "__AutoFightActionMoveForwardKeyDown": {
+        "desc": "W键",
+        "pre_delay": 0,
+        "action": "KeyDown",
+        "key": 87,
+        "post_delay": 0
+    },
+    "__AutoFightActionMoveForwardKeyUp": {
+        "desc": "W键",
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 87,
+        "post_delay": 0
+    },
+    "__AutoFightActionMoveLeftKeyDown": {
+        "desc": "A键",
+        "pre_delay": 0,
+        "action": "KeyDown",
+        "key": 65,
+        "post_delay": 0
+    },
+    "__AutoFightActionMoveLeftKeyUp": {
+        "desc": "A键",
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 65,
+        "post_delay": 0
+    },
+    "__AutoFightActionMoveRightKeyDown": {
+        "desc": "D键",
+        "pre_delay": 0,
+        "action": "KeyDown",
+        "key": 68,
+        "post_delay": 0
+    },
+    "__AutoFightActionMoveRightKeyUp": {
+        "desc": "D键",
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 68,
+        "post_delay": 0
+    },
     "__AutoFightActionEndSkillOperators1": {
         "pre_delay": 0,
         "action": "LongPressKey",
         "duration": 1500,
         "key": 49, // 1键
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "触发干员1终结技"
-        }
+        "post_delay": 0
     },
     "__AutoFightActionEndSkillOperators2": {
         "pre_delay": 0,
         "action": "LongPressKey",
         "duration": 1500,
         "key": 50, // 2键
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "触发干员2终结技"
-        }
+        "post_delay": 0
     },
     "__AutoFightActionEndSkillOperators3": {
         "pre_delay": 0,
         "action": "LongPressKey",
         "duration": 1500,
         "key": 51, // 3键
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "触发干员3终结技"
-        }
+        "post_delay": 0
     },
     "__AutoFightActionEndSkillOperators4": {
         "pre_delay": 0,
         "action": "LongPressKey",
         "duration": 1500,
         "key": 52, // 4键
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "触发干员4终结技"
-        }
+        "post_delay": 0
     },
     "__AutoFightActionSwitchCharacterOperators1": {
         "pre_delay": 0,
         "action": "ClickKey",
         "key": 112, // F1
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "切换到干员1"
-        }
+        "post_delay": 0
     },
     "__AutoFightActionSwitchCharacterOperators2": {
         "pre_delay": 0,
         "action": "ClickKey",
         "key": 113, // F2
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "切换到干员2"
-        }
+        "post_delay": 0
     },
     "__AutoFightActionSwitchCharacterOperators3": {
         "pre_delay": 0,
         "action": "ClickKey",
         "key": 114, // F3
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "切换到干员3"
-        }
+        "post_delay": 0
     },
     "__AutoFightActionSwitchCharacterOperators4": {
         "pre_delay": 0,
         "action": "ClickKey",
         "key": 115, // F4
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "切换到干员4"
-        }
+        "post_delay": 0
     }
 }

@@ -14,10 +14,10 @@
                 "SkipThumbDiscard"
             ],
             "controller": [
-                "Win32-Window",
-                "Win32-Window-Background",
                 "Win32-Front",
-                "Wlroots"
+                "Wlroots",
+                "ADB",
+                "PlayCover"
             ],
             "group": [
                 "valuables_vault"
@@ -216,6 +216,11 @@
                             "attach": {
                                 "flawless_essence": true
                             }
+                        },
+                        "EssenceGridAdvance": {
+                            "attach": {
+                                "flawless_essence": true
+                            }
                         }
                     }
                 },
@@ -223,6 +228,11 @@
                     "name": "No",
                     "pipeline_override": {
                         "EssenceFilterInit": {
+                            "attach": {
+                                "flawless_essence": false
+                            }
+                        },
+                        "EssenceGridAdvance": {
                             "attach": {
                                 "flawless_essence": false
                             }
@@ -243,6 +253,11 @@
                             "attach": {
                                 "pure_essence": true
                             }
+                        },
+                        "EssenceGridAdvance": {
+                            "attach": {
+                                "pure_essence": true
+                            }
                         }
                     }
                 },
@@ -250,6 +265,11 @@
                     "name": "No",
                     "pipeline_override": {
                         "EssenceFilterInit": {
+                            "attach": {
+                                "pure_essence": false
+                            }
+                        },
+                        "EssenceGridAdvance": {
                             "attach": {
                                 "pure_essence": false
                             }
@@ -271,6 +291,11 @@
                             "attach": {
                                 "skip_thumb_lock": true
                             }
+                        },
+                        "EssenceGridAdvance": {
+                            "attach": {
+                                "skip_thumb_lock": true
+                            }
                         }
                     }
                 },
@@ -278,6 +303,11 @@
                     "name": "No",
                     "pipeline_override": {
                         "EssenceFilterInit": {
+                            "attach": {
+                                "skip_thumb_lock": false
+                            }
+                        },
+                        "EssenceGridAdvance": {
                             "attach": {
                                 "skip_thumb_lock": false
                             }
@@ -299,6 +329,11 @@
                             "attach": {
                                 "skip_thumb_discard": true
                             }
+                        },
+                        "EssenceGridAdvance": {
+                            "attach": {
+                                "skip_thumb_discard": true
+                            }
                         }
                     }
                 },
@@ -306,6 +341,11 @@
                     "name": "No",
                     "pipeline_override": {
                         "EssenceFilterInit": {
+                            "attach": {
+                                "skip_thumb_discard": false
+                            }
+                        },
+                        "EssenceGridAdvance": {
                             "attach": {
                                 "skip_thumb_discard": false
                             }

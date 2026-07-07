@@ -1,12 +1,19 @@
 {
     "AutoCollectRoute9Start": {
         "desc": "燎石",
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCity7"
+            ]
+        },
         "next": [
-            "AutoCollectRoute9AssertLocation1",
-            "[JumpBack]SceneEnterWorldWulingWulingCity7"
+            "AutoCollectRoute9AssertLocation1"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "开始路线9"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute9.label"
         }
     },
     "AutoCollectRoute9End": {
@@ -78,7 +85,7 @@
             ]
         },
         "next": [
-            "AutoCollectRoute9GotoFind1Sub"
+            "AutoCollectRoute9GotoFind1"
         ]
     },
     "AutoCollectRoute9GotoFindLine1": {
@@ -89,76 +96,47 @@
             "map_name": "map02_lv002",
             "path": [
                 [
-                    425.0,
+                    426.0,
                     851.3
                 ],
                 [
-                    428.8,
-                    853.7
+                    437.5,
+                    841.2
                 ],
                 [
-                    439.2,
-                    853.4
+                    462.5,
+                    851.3
                 ],
                 [
-                    452.1,
-                    854.9
-                ],
-                [
-                    465.0,
-                    858.7
-                ],
-                [
-                    479.0,
+                    480.0,
                     866.5
                 ],
                 [
-                    488.4,
+                    489.4,
                     886.4
                 ],
                 [
-                    502.4,
+                    503.4,
                     896.0
                 ],
                 [
-                    517.5,
+                    518.5,
                     897.5
                 ],
                 [
-                    524.6,
+                    525.6,
                     889.7
                 ],
                 [
-                    531.3,
+                    532.3,
                     896.2
                 ],
                 [
-                    557.5,
+                    558.5,
                     901.3
                 ]
             ]
         }
-    },
-    "AutoCollectRoute9GotoFind1Sub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute9GotoFind1",
-                "AutoCollectRoute9GotoFind2",
-                "AutoCollectRoute9GotoFind3",
-                "AutoCollectRoute9GotoFind4",
-                "AutoCollectRoute9GotoFind5",
-                "AutoCollectRoute9GotoFind6",
-                "AutoCollectRoute9GotoFind7",
-                "AutoCollectRoute9GotoFind8"
-            ],
-            "continue": true,
-            "strict": true
-        },
-        "next": [
-            "AutoCollectRoute9Wait10sec"
-        ]
     },
     "AutoCollectRoute9GotoFind1": {
         "desc": "前往收集地1",
@@ -168,14 +146,17 @@
             "map_name": "map02_lv002",
             "path": [
                 [
-                    558.8,
+                    559.8,
                     905.0
                 ],
                 [
-                    556.3,
+                    557.3,
                     908.8
                 ]
             ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind2"
         },
         "next": [
             "AutoCollectDigStart"
@@ -189,14 +170,17 @@
             "map_name": "map02_lv002",
             "path": [
                 [
-                    558.8,
+                    559.8,
                     905.0
                 ],
                 [
-                    555.0,
+                    556.0,
                     907.4
                 ]
             ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind3"
         },
         "next": [
             "AutoCollectDigStart"
@@ -210,14 +194,17 @@
             "map_name": "map02_lv002",
             "path": [
                 [
-                    558.8,
+                    559.8,
                     905.0
                 ],
                 [
-                    552.5,
+                    553.5,
                     908.8
                 ]
             ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind4"
         },
         "next": [
             "AutoCollectDigStart"
@@ -231,14 +218,17 @@
             "map_name": "map02_lv002",
             "path": [
                 [
-                    558.8,
+                    559.8,
                     905.0
                 ],
                 [
-                    560.0,
+                    561.0,
                     911.2
                 ]
             ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind5"
         },
         "next": [
             "AutoCollectDigStart"
@@ -252,14 +242,17 @@
             "map_name": "map02_lv002",
             "path": [
                 [
-                    558.8,
+                    559.8,
                     905.0
                 ],
                 [
-                    562.5,
+                    563.5,
                     911.3
                 ]
             ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind6"
         },
         "next": [
             "AutoCollectDigStart"
@@ -273,14 +266,17 @@
             "map_name": "map02_lv002",
             "path": [
                 [
-                    562.5,
+                    563.5,
                     907.5
                 ],
                 [
-                    561.2,
+                    562.2,
                     912.5
                 ]
             ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind7"
         },
         "next": [
             "AutoCollectDigStart"
@@ -294,14 +290,17 @@
             "map_name": "map02_lv002",
             "path": [
                 [
-                    562.5,
+                    563.5,
                     907.5
                 ],
                 [
-                    562.5,
+                    563.5,
                     914.9
                 ]
             ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute9GotoFind8"
         },
         "next": [
             "AutoCollectDigStart"
@@ -315,14 +314,17 @@
             "map_name": "map02_lv002",
             "path": [
                 [
-                    562.5,
+                    563.5,
                     907.5
                 ],
                 [
-                    560.0,
+                    561.0,
                     915.0
                 ]
             ]
+        },
+        "anchor": {
+            "AutoCollectDigAfter": "AutoCollectRoute9Wait10sec"
         },
         "next": [
             "AutoCollectDigStart"

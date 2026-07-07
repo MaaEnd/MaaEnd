@@ -31,6 +31,7 @@
             "浄水温度調整装置",
             "정수 온도 조절 장치"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckWaterTemperatureControllerIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Water\\s*Temperature\\s*Controller",
             "浄水温度調整装置の写真を撮る",
             "정수 온도 조절 장치를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptWaterTemperatureController": {
         "desc": "接取净水温控装置委托",
@@ -222,11 +224,11 @@
             ]
         },
         "next": [
-            "GoToWaterTemperatureControllerMapTrackerMove"
+            "GoToWaterTemperatureControllerMove"
         ]
     },
     "GoToWaterTemperatureControllerNotAtStartPos": {
-        "desc": "不在净水温控装置任务开始位置附近，先传送再复核落点",
+        "desc": "不在净水温控装置任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,67 +237,11 @@
             ]
         },
         "next": [
-            "GoToWaterTemperatureControllerRecheckStartPos",
-            "GoToWaterTemperatureControllerReEnterMap"
+            "GoToWaterTemperatureControllerStartPos"
         ]
     },
-    "GoToWaterTemperatureControllerRecheckStartPos": {
-        "desc": "传送后再次检查是否已在净水温控装置任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        408.5,
-                        312.7,
-                        16.8,
-                        18.2
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToWaterTemperatureControllerMapTrackerMove"
-        ]
-    },
-    "GoToWaterTemperatureControllerReEnterMap": {
-        "desc": "传送后仍未到达净水温控装置任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingMarkerStone2"
-            ]
-        },
-        "next": [
-            "GoToWaterTemperatureControllerFinalCheckStartPos"
-        ]
-    },
-    "GoToWaterTemperatureControllerFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在净水温控装置任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        408.5,
-                        312.7,
-                        16.8,
-                        18.2
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToWaterTemperatureControllerMapTrackerMove"
-        ]
-    },
-    "GoToWaterTemperatureControllerMapTrackerMove": {
-        "desc": "前往净水温控装置",
+    "GoToWaterTemperatureControllerMove": {
+        "desc": "自动寻路前往净水温控装置",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -303,76 +249,74 @@
             "path": [
                 [
                     418.8,
-                    322.2
+                    321.3
                 ],
                 [
                     418.8,
-                    327.9
+                    327
                 ],
                 [
                     415.2,
-                    327.9
+                    327
                 ],
                 [
                     415,
-                    322.3
+                    321.4
                 ],
                 [
                     395,
-                    322.3
+                    321.4
                 ],
                 [
                     323.7,
-                    322.2
+                    321.3
                 ],
                 [
                     322.8,
-                    278.9
+                    278
                 ],
                 [
                     332.7,
-                    272
+                    271.1
                 ],
                 [
                     333.5,
-                    265.1
+                    264.2
                 ],
                 [
                     333.7,
-                    255.4
+                    254.5
                 ],
                 [
                     350,
-                    256
+                    255.1
                 ],
                 [
                     358.8,
-                    256
+                    255.1
                 ],
                 [
                     358.8,
-                    239.7
+                    238.8
                 ],
                 [
                     343.8,
-                    239.7
+                    238.8
                 ]
             ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 270
+                }
+            },
             "no_ensure_initial_movement_state": true
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "WaterTemperatureControllerAdjustCamera"
         },
-        "next": [
-            "WaterTemperatureControllerAdjustHeading"
-        ]
-    },
-    "WaterTemperatureControllerAdjustHeading": {
-        "desc": "净水温控装置任务无需调整角色朝向",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]

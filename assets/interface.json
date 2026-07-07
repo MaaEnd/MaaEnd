@@ -19,34 +19,6 @@
     },
     "controller": [
         {
-            "name": "Win32-Window",
-            "label": "$controller.Win32-Window.label",
-            "description": "$controller.Win32-Window.description",
-            "type": "Win32",
-            "win32": {
-                "class_regex": "UnityWndClass",
-                "window_regex": "Endfield",
-                "screencap": "Background",
-                "mouse": "SendMessageWithCursorPos",
-                "keyboard": "PostMessage"
-            },
-            "permission_required": true
-        },
-        {
-            "name": "Win32-Window-Background",
-            "label": "$controller.Win32-Window-Background.label",
-            "description": "$controller.Win32-Window-Background.description",
-            "type": "Win32",
-            "win32": {
-                "class_regex": "UnityWndClass",
-                "window_regex": "Endfield",
-                "screencap": "PrintWindow",
-                "mouse": "SendMessageWithWindowPos",
-                "keyboard": "PostMessage"
-            },
-            "permission_required": true
-        },
-        {
             "name": "Win32-Front",
             "label": "$controller.Win32-Front.label",
             "description": "$controller.Win32-Front.description",
@@ -60,6 +32,21 @@
             },
             "permission_required": true
         },
+        // Win32-Window-Background: 因游戏更新无法继续适配，已弃用
+        // {
+        //     "name": "Win32-Window-Background",
+        //     "label": "$controller.Win32-Window-Background.label",
+        //     "description": "$controller.Win32-Window-Background.description",
+        //     "type": "Win32",
+        //     "win32": {
+        //         "class_regex": "UnityWndClass",
+        //         "window_regex": "Endfield",
+        //         "screencap": "PrintWindow",
+        //         "mouse": "SendMessageWithWindowPos",
+        //         "keyboard": "PostMessage"
+        //     },
+        //     "permission_required": true
+        // },
         {
             "name": "ADB",
             "label": "$controller.ADB.label",
@@ -74,7 +61,11 @@
             "type": "PlayCover",
             "playcover": {
                 "uuid": "maa.playcover"
-            }
+            },
+            "attach_resource_path": [
+                "./resource_adb",
+                "./resource_playcover"
+            ]
         },
         {
             "name": "Wlroots",
@@ -158,7 +149,7 @@
         "pretasks/GameSetting.json",
         // group: regional_development
         "tasks/SellProduct.json",
-        "tasks/SeizeEntrustTask.json",
+        "tasks/SeizeDeliveryJobs.json",
         "tasks/DeliveryJobs.json",
         "tasks/AutoStockpile.json",
         "tasks/AutoStockStaple.json",
@@ -168,9 +159,7 @@
         "tasks/GearAssembly.json",
         "tasks/Weapon.json",
         "tasks/BatchUseDetector.json",
-        "tasks/AutoUseSpMedication.json",
         "tasks/EssenceFilter.json",
-        "tasks/AutoArtificing.json",
         // group: open_world
         "tasks/ResourceRecycleStation.json",
         "tasks/AutoCollect.json",
@@ -178,6 +167,7 @@
         "tasks/PuzzleSolver.json",
         "tasks/ImportBluePrints.json",
         // group: sanity_sink
+        "tasks/AutoUseSpMedication.json",
         "tasks/AutoEssence.json",
         "tasks/ProtocolSpace.json",
         // group: dijiang_ship
@@ -186,12 +176,17 @@
         "tasks/GiftOperator.json",
         "tasks/BatchAddFriends.json",
         // group: other_menu
+        "tasks/PullCountCalculator.json",
         "tasks/BakerEntry.json",
         "tasks/ReadAllWiki.json",
         "tasks/DailyRewards.json",
         "tasks/ClaimSimulationRewards.json",
+        "tasks/TrialOfSwordmancy.json",
         "tasks/CreditShopping.json",
+        "tasks/AccountSwitch.json",
+        "tasks/WebEvent202605.json",
         "tasks/AndroidOpenGame.json",
+        "tasks/CloseGame.json",
         // group: realtime
         "tasks/RealTimeTask.json",
         // group: backpack
@@ -199,10 +194,10 @@
         "tasks/Crafting.json",
         "tasks/SimpleProductionBatchStart.json",
         "tasks/ReceiveProdManual.json",
+        "tasks/StashBackpack.json",
         // preset
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",
-        "tasks/preset/RealtimeAssist.json",
-        "tasks/preset/EssenceFarming.json"
+        "tasks/preset/RealtimeAssist.json"
     ]
 }

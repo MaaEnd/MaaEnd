@@ -8,39 +8,45 @@ import (
 	"strings"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
-	"github.com/rs/zerolog/log"
 )
 
 /* ******** Controller Type ******** */
 
+const (
+	CONTROL_TYPE_WIN32   = "win32"
+	CONTROL_TYPE_WLROOTS = "wlroots"
+	CONTROL_TYPE_ADB     = "adb"
+)
+
+type maaControllerInfoDto struct {
+	Type string `json:"type"`
+	HWnd uint64 `json:"hwnd"`
+}
+
 // GetControlType retrieves the control type of the given controller by parsing its info string.
 func GetControlType(ctrl *maa.Controller) (string, error) {
+	if ctrl == nil {
+		return "", fmt.Errorf("nil controller")
+	}
+
 	infoStr, err := ctrl.GetInfo()
 	if err != nil {
 		return "", err
 	}
-	log.Info().Str("controllerInfo", infoStr).Msg("Fetched controller info")
 	if infoStr == "" {
 		return "", fmt.Errorf("empty controller info")
 	}
 
-	type maaControllerInfo struct {
-		Type string `json:"type"`
-	}
-
-	var info maaControllerInfo
+	var info maaControllerInfoDto
 	if err := json.Unmarshal([]byte(infoStr), &info); err != nil {
 		// Fallback
 		if strings.Contains(infoStr, CONTROL_TYPE_WIN32) {
-			CachedControlType = CONTROL_TYPE_WIN32
 			return CONTROL_TYPE_WIN32, nil
 		}
 		if strings.Contains(infoStr, CONTROL_TYPE_WLROOTS) {
-			CachedControlType = CONTROL_TYPE_WLROOTS
 			return CONTROL_TYPE_WLROOTS, nil
 		}
 		if strings.Contains(infoStr, CONTROL_TYPE_ADB) {
-			CachedControlType = CONTROL_TYPE_ADB
 			return CONTROL_TYPE_ADB, nil
 		}
 		return "", fmt.Errorf("failed to parse controller info via JSON: %w, and fallback parsing also failed", err)
@@ -50,27 +56,16 @@ func GetControlType(ctrl *maa.Controller) (string, error) {
 	}
 
 	if info.Type == CONTROL_TYPE_WIN32 {
-		CachedControlType = CONTROL_TYPE_WIN32
 		return CONTROL_TYPE_WIN32, nil
 	}
 	if info.Type == CONTROL_TYPE_WLROOTS {
-		CachedControlType = CONTROL_TYPE_WLROOTS
 		return CONTROL_TYPE_WLROOTS, nil
 	}
 	if info.Type == CONTROL_TYPE_ADB {
-		CachedControlType = CONTROL_TYPE_ADB
 		return CONTROL_TYPE_ADB, nil
 	}
 	return "", fmt.Errorf("unsupported controller type: %s", info.Type)
 }
-
-const (
-	CONTROL_TYPE_WIN32   = "win32"
-	CONTROL_TYPE_WLROOTS = "wlroots"
-	CONTROL_TYPE_ADB     = "adb"
-)
-
-var CachedControlType string = ""
 
 /* ******** Screen Diagonal Size ******** */
 

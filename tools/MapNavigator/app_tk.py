@@ -1,8 +1,13 @@
 from __future__ import annotations
 
 import json
+import threading
 import tkinter as tk
+from concurrent.futures import ThreadPoolExecutor
 from tkinter import filedialog, messagebox, ttk
+from typing import Any
+
+from PIL import Image, ImageTk
 
 from connection_models import AdbConnectionConfig, RecordingSessionConfig, Win32ConnectionConfig
 from connectors import list_adb_devices, resolve_adb_path
@@ -12,14 +17,18 @@ from json_import import (
     export_path_nodes,
     infer_missing_zones,
     list_available_zone_ids,
+    load_assert_location_from_json_file,
     load_points_from_json_file,
     split_route_into_segments,
 )
+from maptracker_compat import convert_maptracker_points_to_mapnavigator, maptracker_base_map_name_from_zone
+from basenav_preview import PreviewRoute, find_preview_route, load_basenav_field
 from model import (
     ACTION_COLORS,
     ACTION_MENU_NAMES,
     ACTION_NAMES,
     ActionType,
+    BASE_NAV_DISPLAY_ZONE_IDS,
     PathPoint,
     get_point_actions,
     normalize_path_points,
@@ -30,7 +39,7 @@ from model import (
 from point_editing import PointEditingService
 from recording_service import RecordingService
 from renderer_tk import MapRenderer
-from runtime import MAP_IMAGE_DIR, configure_runtime_env, load_maa_runtime
+from runtime import MAP_IMAGE_DIR, PROJECT_ROOT, configure_runtime_env, load_maa_runtime
 from settings_store import MapNavigatorSettings, MapNavigatorSettingsStore
 from zone_index import ZoneState
 
@@ -42,11 +51,18 @@ def _compact_number(value: float) -> int | float:
     return rounded
 
 
+ASTAR_PREVIEW_SNAP_RADIUS = 5.0
+
+
 class RouteEditorApp:
     """轨迹录制与编辑 GUI。"""
 
     BOX_SELECT_MODIFIER_MASK = 0x0004
     DRAG_ACTIVATION_DISTANCE = 4
+    # 拖拽停顿多少毫秒后补一帧精确底图
+    PAN_SETTLE_DELAY_MS = 90
+    # 底图额外渲染的边距（按可视区比例），让拖拽时画布位移有预渲染内容可滑入
+    PAN_MARGIN_FRACTION = 0.6
 
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
@@ -75,8 +91,13 @@ class RouteEditorApp:
         self.raw_points: list[PathPoint] = []
         self.points: list[PathPoint] = []
         self.available_zone_ids = list_available_zone_ids()
+        self.astar_display_zone_ids = list(BASE_NAV_DISPLAY_ZONE_IDS)
         self.assert_mode_var = tk.BooleanVar(value=False)
         self.assert_zone_var = tk.StringVar(value="")
+        self.astar_mode_var = tk.BooleanVar(value=False)
+        self.astar_zone_var = tk.StringVar(value="")
+        self.astar_display_zone_var = tk.StringVar(value="")
+        self.astar_basenav_path_var = tk.StringVar(value="")
         self.strict_var = tk.BooleanVar(value=False)
         self.action_chain_var = tk.StringVar(value="Run")
         self.locator_debug_var = tk.StringVar(value="Locator: --")
@@ -106,6 +127,18 @@ class RouteEditorApp:
         self.selection_rect_id: int | None = None
         self.assert_rect_id: int | None = None
         self.assert_rect_text_id: int | None = None
+        self.astar_item_ids: list[int] = []
+        self.astar_overlay_id: int | None = None
+        self.astar_overlay_photo: ImageTk.PhotoImage | None = None
+        self._astar_overlay_params: tuple[int, str, float, float, float, int, int] | None = None
+        self._astar_walkable_dots_photo: ImageTk.PhotoImage | None = None
+        self._astar_walkable_dots_id: int | None = None
+        self._astar_walkable_dots_params: tuple[int, str, float, float, float, int, int] | None = None
+        self._load_progress_visible = False
+        self._astar_overlay_timer: str | None = None
+        self._astar_render_executor = ThreadPoolExecutor(max_workers=1)
+        self._astar_overlay_render_seq = 0
+        self._astar_dots_render_seq = 0
 
         # 交互状态
         self.drag_start_x = 0
@@ -120,9 +153,16 @@ class RouteEditorApp:
         self.assert_start_world_x = 0.0
         self.assert_start_world_y = 0.0
         self.assert_rect_world: tuple[float, float, float, float] | None = None
+        self.astar_field: Any | None = None
+        self.astar_start: tuple[float, float] | None = None
+        self.astar_goal: tuple[float, float] | None = None
+        self.astar_route: PreviewRoute | None = None
         self.pointer_down_x = 0
         self.pointer_down_y = 0
         self._redraw_pending = False
+        # 拖拽期间只做画布级整体位移，停顿/松手后才补一帧精确渲染
+        self._pan_settle_timer: str | None = None
+        self._pan_dirty = False
 
         self._build_layout()
         self.renderer = MapRenderer(self.canvas, root, MAP_IMAGE_DIR)
@@ -130,6 +170,7 @@ class RouteEditorApp:
         self._sync_connection_controls()
         self._refresh_connection_summary()
         self._sync_assert_controls()
+        self._sync_astar_controls()
         self._refresh_zone_label()
 
     def _build_layout(self) -> None:
@@ -250,6 +291,17 @@ class RouteEditorApp:
         self.assert_zone_combo.pack(side=tk.LEFT, padx=(2, 8))
         self.assert_zone_combo.bind("<<ComboboxSelected>>", lambda _event: self._on_assert_zone_changed())
 
+        self.astar_mode_check = tk.Checkbutton(
+            secondary_row,
+            text="A* 模式",
+            variable=self.astar_mode_var,
+            onvalue=True,
+            offvalue=False,
+            font=("Microsoft YaHei", 9),
+            command=self._on_astar_mode_changed,
+        )
+        self.astar_mode_check.pack(side=tk.LEFT, padx=(4, 2))
+
         self.strict_check = tk.Checkbutton(
             secondary_row,
             text="严格",
@@ -309,6 +361,59 @@ class RouteEditorApp:
 
         self.adb_target_combo.bind("<<ComboboxSelected>>", lambda _event: self._on_adb_target_selected())
 
+        astar_row = tk.Frame(toolbar_frame)
+        astar_row.pack(fill=tk.X, pady=(4, 0))
+
+        tk.Label(astar_row, text="A*:", font=("Microsoft YaHei", 9)).pack(side=tk.LEFT, padx=(0, 4))
+        self.btn_load_basenav = tk.Button(astar_row, text="加载 BaseNav", command=self.load_basenav_preview, width=12)
+        self.btn_load_basenav.pack(side=tk.LEFT, padx=(0, 4))
+        self.astar_path_label = tk.Label(
+            astar_row,
+            textvariable=self.astar_basenav_path_var,
+            font=("Consolas", 8),
+            fg="#475569",
+            width=26,
+            anchor="w",
+        )
+        self.astar_path_label.pack(side=tk.LEFT, padx=(0, 8))
+        tk.Label(astar_row, text="zone:", font=("Microsoft YaHei", 9)).pack(side=tk.LEFT, padx=(0, 4))
+        self.astar_display_zone_combo = ttk.Combobox(
+            astar_row,
+            values=self.astar_display_zone_ids,
+            width=20,
+            textvariable=self.astar_display_zone_var,
+            state="disabled",
+        )
+        self.astar_display_zone_combo.pack(side=tk.LEFT, padx=(0, 8))
+        self.astar_display_zone_combo.bind("<<ComboboxSelected>>", lambda _event: self._on_astar_display_zone_changed())
+        tk.Label(astar_row, text="tier:", font=("Microsoft YaHei", 9)).pack(side=tk.LEFT, padx=(0, 4))
+        self.astar_zone_combo = ttk.Combobox(astar_row, width=20, textvariable=self.astar_zone_var, state="disabled")
+        self.astar_zone_combo.pack(side=tk.LEFT, padx=(0, 8))
+        self.astar_zone_combo.bind("<<ComboboxSelected>>", lambda _event: self._on_astar_zone_changed())
+        self.btn_clear_astar = tk.Button(astar_row, text="清除预览", command=self.clear_astar_preview, width=10)
+        self.btn_clear_astar.pack(side=tk.LEFT, padx=(0, 4))
+        self.btn_copy_navmesh = tk.Button(astar_row, text="复制 NAVMESH", command=self.copy_navmesh_target, width=12)
+        self.btn_copy_navmesh.pack(side=tk.LEFT, padx=(0, 4))
+
+        self.load_progress_frame = tk.Frame(toolbar_frame)
+
+        self.load_progress_bar = ttk.Progressbar(
+            self.load_progress_frame,
+            mode="determinate",
+            maximum=100,
+            length=360,
+        )
+        self.load_progress_bar.pack(side=tk.LEFT, padx=(0, 8))
+
+        self.load_progress_label = tk.Label(
+            self.load_progress_frame,
+            text="",
+            font=("Microsoft YaHei", 8),
+            fg="#3b82f6",
+            anchor="w",
+        )
+        self.load_progress_label.pack(side=tk.LEFT, fill=tk.X)
+
         self.status_label = tk.Label(
             self.root,
             text="准备就绪",
@@ -343,8 +448,8 @@ class RouteEditorApp:
         self.canvas.bind("<Button-4>", self.on_scroll)
         self.canvas.bind("<Button-5>", self.on_scroll)
 
-        self.root.bind_all("<Control-z>", lambda _event: self.undo())
-        self.root.bind_all("<Control-y>", lambda _event: self.redo())
+        self.root.bind_all("<Control-z>", self._on_undo_key)
+        self.root.bind_all("<Control-y>", self._on_redo_key)
         self.root.bind_all("<Delete>", self._on_delete_key)
         self.root.bind_all("<BackSpace>", self._on_delete_key)
         self.root.bind_all("<plus>", lambda _event: self.zoom_in())
@@ -358,6 +463,16 @@ class RouteEditorApp:
         self.adb_path_var.trace_add("write", lambda *_args: self._refresh_connection_summary())
         self.adb_target_var.trace_add("write", lambda *_args: self._refresh_connection_summary())
         self.win32_window_title_var.trace_add("write", lambda *_args: self._refresh_connection_summary())
+
+    def _on_undo_key(self, _event) -> None:
+        if self.astar_mode_var.get():
+            return
+        self.undo()
+
+    def _on_redo_key(self, _event) -> None:
+        if self.astar_mode_var.get():
+            return
+        self.redo()
 
     def _on_delete_key(self, event) -> None:
         widget = event.widget.focus_get() if hasattr(event.widget, "focus_get") else None
@@ -387,6 +502,29 @@ class RouteEditorApp:
             if ttk_widget_type is not None:
                 text_like_types.append(ttk_widget_type)
         if isinstance(widget, tuple(text_like_types)):
+            return
+
+        if self.astar_mode_var.get():
+            # Copied coords are navmesh waypoints, always in base-px. The route is already
+            # base-px; the start/goal fallback is in the display frame, so map tier-px back.
+            points = self.astar_route.points if self.astar_route is not None else []
+            if not points:
+                points = [point for point in (self.astar_start, self.astar_goal) if point is not None]
+                tier_id = self._active_display_tier_id()
+                if tier_id is not None:
+                    points = [self.astar_field.tier_to_base(tier_id, point[0], point[1]) for point in points]
+            if not points:
+                self._set_status("当前没有可复制的 A* 预览点。", "#f59e0b")
+                return
+            coord_text = json.dumps(
+                [[_compact_number(point[0]), _compact_number(point[1])] for point in points],
+                ensure_ascii=False,
+                indent=4,
+            )
+            self.root.clipboard_clear()
+            self.root.clipboard_append(coord_text)
+            self.root.update()
+            self._set_status(f"📋 已复制 A* 预览点：{len(points)} 个", "#10b981")
             return
 
         # 如果正在录制，由录制服务的 G 键处理，C 键不重复
@@ -617,7 +755,15 @@ class RouteEditorApp:
             return current_zone
         return self.available_zone_ids[0] if self.available_zone_ids else ""
 
+    def _default_astar_display_zone(self) -> str:
+        current_zone = normalize_zone_id(self.astar_display_zone_var.get())
+        if current_zone in self.astar_display_zone_ids:
+            return current_zone
+        return self.astar_display_zone_ids[0] if self.astar_display_zone_ids else ""
+
     def _display_zone_id(self) -> str:
+        if self.astar_mode_var.get():
+            return normalize_zone_id(self.astar_display_zone_var.get(), default=self._default_astar_display_zone())
         if self.assert_mode_var.get():
             return normalize_zone_id(self.assert_zone_var.get(), default=self._default_assert_zone())
         return self.zone_state.current_zone()
@@ -656,6 +802,8 @@ class RouteEditorApp:
 
     def _on_assert_mode_changed(self) -> None:
         if self.assert_mode_var.get():
+            self.astar_mode_var.set(False)
+            self._sync_astar_controls()
             if not self.available_zone_ids and not normalize_zone_id(self.zone_state.current_zone()):
                 messagebox.showerror("Assert 模式不可用", "未找到可用 zone 底图，无法进入 Assert 模式。")
                 self.assert_mode_var.set(False)
@@ -668,7 +816,306 @@ class RouteEditorApp:
             self._set_status("返回路径编辑模式。", "#10b981")
         self._sync_assert_controls()
         self._refresh_zone_label()
+        self.schedule_redraw(fast=False)
+
+    def _sync_astar_controls(self) -> None:
+        active = self.astar_mode_var.get()
+        zone_state = "readonly" if active and self.astar_field is not None else "disabled"
+        display_state = "readonly" if active and self.astar_display_zone_ids else "disabled"
+        self.astar_zone_combo.config(state=zone_state)
+        self.astar_display_zone_combo.config(state=display_state)
+        if not self.assert_mode_var.get():
+            self.btn_prev.config(state=tk.NORMAL)
+            self.btn_next.config(state=tk.NORMAL)
+
+    def _on_astar_mode_changed(self) -> None:
+        if self.astar_mode_var.get():
+            self.assert_mode_var.set(False)
+            self._sync_assert_controls()
+            if not normalize_zone_id(self.astar_display_zone_var.get()):
+                self.astar_display_zone_var.set(self._default_astar_display_zone())
+            self._refresh_astar_zone_choices()
+            self._set_status("A* 模式：左键点起点，再点终点生成预览路线。", "#3b82f6")
+        else:
+            self._set_status("返回路径编辑模式。", "#10b981")
+            self._hide_astar_overlay()
+            self._hide_walkable_dots_overlay()
+        self._sync_astar_controls()
+        self._refresh_zone_label()
         self.fit_view()
+
+    def _on_astar_display_zone_changed(self) -> None:
+        zone_id = normalize_zone_id(self.astar_display_zone_var.get())
+        if not zone_id:
+            return
+        self.astar_display_zone_var.set(zone_id)
+        self._refresh_astar_zone_choices()
+        self._reset_astar_view_state()
+        self._refresh_zone_label()
+        self.fit_view()
+
+    def _on_astar_zone_changed(self) -> None:
+        self._select_astar_display_for_zone()
+        self._reset_astar_view_state()
+        self._refresh_zone_label()
+        self.fit_view()
+
+    def load_basenav_preview(self) -> None:
+        navmesh_dir = PROJECT_ROOT / "assets" / "resource" / "model" / "map" / "navmesh"
+        input_file = navmesh_dir / "base.nav.gz"
+        if not input_file.exists():
+            input_file = navmesh_dir / "base.nav"
+        if not input_file.exists():
+            messagebox.showerror("加载失败", f"未找到固定 NavMesh 文件：{input_file}")
+            return
+
+        self.btn_load_basenav.config(state=tk.DISABLED)
+        self.astar_mode_var.set(False)
+        self._sync_astar_controls()
+        self._show_load_progress()
+        self._update_load_progress(0.0)
+        threading.Thread(target=self._load_basenav_worker, args=(input_file,), daemon=True).start()
+
+    def _show_load_progress(self) -> None:
+        if self._load_progress_visible:
+            return
+        self._load_progress_visible = True
+        self.load_progress_frame.pack(fill=tk.X, pady=(2, 0))
+        self.load_progress_bar["value"] = 0
+        self.load_progress_label.config(text="")
+
+    def _hide_load_progress(self) -> None:
+        if not self._load_progress_visible:
+            return
+        self._load_progress_visible = False
+        self.load_progress_frame.pack_forget()
+
+    def _update_load_progress(self, progress: float) -> None:
+        self.load_progress_bar["value"] = int(progress * 100)
+        if self.btn_load_basenav.cget("state") == "normal":
+            self.load_progress_label.config(text="生成预览图像...")
+        elif progress < 0.03:
+            self.load_progress_label.config(text="读取文件...")
+        elif progress < 0.25:
+            self.load_progress_label.config(text="解析 NavMesh 数据...")
+        elif progress < 0.70:
+            self.load_progress_label.config(text="构建空间索引...")
+        else:
+            self.load_progress_label.config(text="生成预览图像...")
+
+    def _load_basenav_worker(self, input_file) -> None:
+        try:
+            def _progress(progress: float) -> None:
+                scaled = progress * 0.70
+                self.root.after(0, lambda: self._update_load_progress(scaled))
+
+            field = load_basenav_field(input_file, progress_callback=_progress)
+            self.root.after(0, lambda: self._on_basenav_core_loaded(field, input_file))
+
+            zone_ids = field.zone_ids()
+            zones_total = max(1, len(zone_ids))
+            self.root.after(0, lambda: self._set_status("正在生成预览图像...", "#3b82f6"))
+
+            for _index, zone_id in enumerate(zone_ids):
+                def _make_overlay_cb(zi):
+                    def _cb(local):
+                        p = 0.70 + 0.18 * (zi + local) / zones_total
+                        self.root.after(0, lambda: self._update_load_progress(p))
+                    return _cb
+
+                field.overlay_image(zone_id, progress_callback=_make_overlay_cb(_index))
+
+            for _index, zone_id in enumerate(zone_ids):
+                def _make_dots_cb(zi):
+                    def _cb(local):
+                        p = 0.88 + 0.12 * (zi + local) / zones_total
+                        self.root.after(0, lambda: self._update_load_progress(p))
+                    return _cb
+
+                field.walkable_dots_image(zone_id, progress_callback=_make_dots_cb(_index))
+
+            self.root.after(0, lambda: self._update_load_progress(1.0))
+            self.root.after(0, lambda: self._set_status("预览图像已就绪", "#10b981"))
+            self.root.after(0, lambda: self._hide_load_progress())
+            # 完整性校验（FNV-64）在后台线程进行，不阻塞 UI 交互
+            field.start_background_verify()
+        except Exception as exc:
+            self.root.after(0, lambda: self._on_basenav_load_error(str(exc)))
+
+    def _on_basenav_core_loaded(self, field, input_file) -> None:
+        self.astar_field = field
+        self.astar_basenav_path_var.set(input_file.name)
+        self.astar_mode_var.set(True)
+        self.astar_display_zone_ids = list(BASE_NAV_DISPLAY_ZONE_IDS)
+        self.astar_display_zone_combo["values"] = self.astar_display_zone_ids
+        if (
+            not normalize_zone_id(self.astar_display_zone_var.get())
+            or self.astar_display_zone_var.get() not in self.astar_display_zone_ids
+        ):
+            self.astar_display_zone_var.set(self._default_astar_display_zone())
+        # 右侧 zone 下拉只列出当前底图(base)自己的 tier,不跨 base 混用。
+        self._refresh_astar_zone_choices()
+        self._sync_astar_controls()
+        self.clear_astar_preview(redraw=False)
+        self.btn_load_basenav.config(state=tk.NORMAL)
+        self._set_status("A* 模式：左键点起点，再点终点生成预览路线。", "#3b82f6")
+        self._refresh_zone_label()
+        self.fit_view()
+
+    def _on_basenav_load_error(self, error_msg: str) -> None:
+        self.btn_load_basenav.config(state=tk.NORMAL)
+        self._hide_load_progress()
+        self._set_status("BaseNav 加载失败", "#ef4444")
+        messagebox.showerror("加载失败", error_msg)
+
+    def clear_astar_preview(self, redraw: bool = True) -> None:
+        self.astar_start = None
+        self.astar_goal = None
+        self.astar_route = None
+        for item_id in self.astar_item_ids:
+            self.canvas.delete(item_id)
+        self.astar_item_ids.clear()
+        self._hide_walkable_dots_overlay()
+        if not (self.astar_mode_var.get() and self.astar_field is not None and hasattr(self.astar_field, "overlay_image")):
+            self._hide_astar_overlay()
+        if redraw:
+            self.schedule_redraw(fast=True)
+
+    def _reset_astar_view_state(self) -> None:
+        self.clear_astar_preview(redraw=False)
+        self._hide_astar_overlay()
+        self._hide_walkable_dots_overlay()
+        self.renderer.reset_view(clear_cache=True)
+
+    def _handle_astar_click(self, event) -> None:
+        if self.astar_field is None:
+            messagebox.showinfo("提示", "请先加载 .nav / .nav.gz 文件。")
+            return
+
+        point = self.renderer.canvas_to_world(event.x, event.y)
+        if self.astar_start is None or self.astar_goal is not None:
+            self.astar_start = point
+            self.astar_goal = None
+            self.astar_route = None
+            self._set_status(f"A* 起点: [{point[0]:.1f}, {point[1]:.1f}]，再点击终点。", "#3b82f6")
+            self.schedule_redraw(fast=True)
+            return
+
+        self.astar_goal = point
+        self._calculate_astar_preview()
+
+    def _calculate_astar_preview(self) -> None:
+        if self.astar_field is None or self.astar_start is None or self.astar_goal is None:
+            return
+        try:
+            zone_id = self._astar_routing_zone_id()
+            # Clicks land in the display frame; when a real tier底图 is shown that frame is
+            # tier-px, but the mesh (snap/A*) lives in base-px on the parent zone. Map the
+            # endpoints tier_px -> base_px so routing is correct; route points come back in
+            # base-px and are re-expressed for drawing via _route_display_points().
+            tier_id = self._active_display_tier_id()
+            start = self.astar_start
+            goal = self.astar_goal
+            if tier_id is not None:
+                start = self.astar_field.tier_to_base(tier_id, start[0], start[1])
+                goal = self.astar_field.tier_to_base(tier_id, goal[0], goal[1])
+            # The selected tier's baked dominant-floor height scopes snap to the right floor
+            # (the parent base mesh stacks every floor at each (u,v)). None for base/overview
+            # selections, which keeps the floor-blind legacy routing untouched.
+            floor_y = self.astar_field.floor_y_for(self._astar_zone_id())
+            self.astar_route = find_preview_route(
+                self.astar_field,
+                zone_id,
+                self._display_zone_id(),
+                start,
+                goal,
+                ASTAR_PREVIEW_SNAP_RADIUS,
+                floor_y,
+            )
+        except Exception as exc:
+            self.astar_route = None
+            messagebox.showerror("A* 失败", str(exc))
+            self.schedule_redraw(fast=True)
+            return
+
+        self._set_status(f"A* 路线已生成：{len(self.astar_route.points)} 点。", "#10b981")
+        self.schedule_redraw(fast=True)
+
+    def _astar_zone_id(self) -> int:
+        return int(self.astar_zone_var.get().split(":", maxsplit=1)[0])
+
+    def _astar_routing_zone_id(self) -> int:
+        # tier zones have no triangles; route/snap against the parent geometry zone.
+        zone_id = self._astar_zone_id()
+        if self.astar_field is not None:
+            return self.astar_field.geometry_zone_id(zone_id)
+        return zone_id
+
+    def _active_display_tier_id(self) -> int | None:
+        # zone_id of the tier whose OWN template should back the canvas (tier-px world
+        # frame), or None for the plain base view. The identity "…_Base" tier resolves to
+        # the base image and maps tier_px==base_px, so it is treated as base (None) — only
+        # a real, translated tier swaps the底图 to its template.
+        if not self.astar_mode_var.get() or self.astar_field is None:
+            return None
+        try:
+            zone_id = self._astar_zone_id()
+        except (ValueError, AttributeError):
+            return None
+        if not self.astar_field.is_tier(zone_id):
+            return None
+        zone = self.astar_field.zone_by_id.get(zone_id)
+        if zone is None:
+            return None
+        sx, tx, sy, ty = zone.transform
+        if tx == 0.0 and ty == 0.0 and sx == 1.0 and sy == 1.0:
+            return None
+        return zone_id
+
+    def _render_background_zone(self) -> str:
+        # Zone-id string handed to the renderer for the底图: a real tier shows its OWN
+        # template; otherwise the selected base composite. world == that image's pixels.
+        tier_id = self._active_display_tier_id()
+        if tier_id is not None:
+            zone = self.astar_field.zone_by_id.get(tier_id)
+            if zone is not None and zone.name:
+                return zone.name
+        return self._display_zone_id()
+
+    def _route_display_points(self) -> list[tuple[float, float]]:
+        # A* route points in the CURRENT display frame: tier-px when a real tier is shown
+        # (the route is planned in base-px on the parent mesh), else base-px unchanged.
+        if self.astar_route is None or not self.astar_route.points:
+            return []
+        tier_id = self._active_display_tier_id()
+        if tier_id is None:
+            return list(self.astar_route.points)
+        return [self.astar_field.base_to_tier(tier_id, point[0], point[1]) for point in self.astar_route.points]
+
+    def _refresh_astar_zone_choices(self) -> None:
+        # Repopulate the right-hand zone dropdown with ONLY the selected底图(base)'s
+        # tiers. Keep the current selection if it still belongs; else default to the
+        # first entry (the identity "…_Base" = whole base view).
+        if self.astar_field is None:
+            return
+        choices = self.astar_field.zone_choices_for_base(self._display_zone_id())
+        self.astar_zone_combo["values"] = choices
+        if choices and self.astar_zone_var.get() not in choices:
+            self.astar_zone_var.set(choices[0])
+
+    def _select_astar_display_for_zone(self) -> None:
+        # A selected tier's parent (component_count) decides the底图; in practice the
+        # dropdown only offers the current base's tiers so this just keeps them in sync.
+        if self.astar_field is None:
+            return
+        try:
+            base_id = self.astar_field.geometry_zone_id(self._astar_zone_id())
+        except (ValueError, AttributeError):
+            return
+        base = self.astar_field.zone_by_id.get(base_id)
+        if base is not None and base.name in self.astar_display_zone_ids and self.astar_display_zone_var.get() != base.name:
+            self.astar_display_zone_var.set(base.name)
+            self._refresh_astar_zone_choices()
 
     def _on_assert_zone_changed(self) -> None:
         zone_id = normalize_zone_id(self.assert_zone_var.get())
@@ -676,10 +1123,16 @@ class RouteEditorApp:
             return
         self.assert_zone_var.set(zone_id)
         self._clear_assert_rect(redraw=False)
+        self.renderer.reset_view(clear_cache=True)
         self._refresh_zone_label()
         self.fit_view()
 
     def _refresh_zone_label(self) -> None:
+        if self.astar_mode_var.get():
+            zone_id = self._display_zone_id()
+            text = f"A*: {zone_id}" if zone_id else "A*: 请选择底图"
+            self.zone_label.config(text=self._compact_zone_label_text(text))
+            return
         if self.assert_mode_var.get():
             zone_id = self._display_zone_id()
             text = f"Assert: {zone_id}" if zone_id else "Assert: 请选择地图"
@@ -818,6 +1271,7 @@ class RouteEditorApp:
         if self.recording_service and self.recording_service.is_running:
             self.recording_service.stop()
         self._persist_settings()
+        self._astar_render_executor.shutdown(wait=False)
         self.root.destroy()
 
     # ---- 视图交互 ----
@@ -843,20 +1297,50 @@ class RouteEditorApp:
     def on_pan_move(self, event) -> None:
         if not self.is_panning:
             return
-        dx = (event.x - self.drag_start_x) / self.renderer.view_scale
-        dy = (event.y - self.drag_start_y) / self.renderer.view_scale
-        self.renderer.view_offset_x += dx
-        self.renderer.view_offset_y += dy
+        self._pan_by_pixels(event.x - self.drag_start_x, event.y - self.drag_start_y)
         self.drag_start_x, self.drag_start_y = event.x, event.y
-        self.schedule_redraw(fast=True)
 
     def on_pan_end(self, _event) -> None:
         self.is_panning = False
         self.canvas.config(cursor="cross")
+        self._finish_pan()
+
+    def _pan_by_pixels(self, px: int, py: int) -> None:
+        """拖拽期间仅做画布级整体位移（C 级、瞬时），停顿后再补一帧精确底图。
+
+        不在每一帧重渲染底图/节点：那会反复创建全视口 PhotoImage 并重建所有
+        覆盖物，正是“一卡一卡”的根源。改为整体平移已渲染内容，靠预渲染边距
+        （PAN_MARGIN_FRACTION）填充滑入区域，手势停顿后 _settle_pan 再补精确帧。
+        """
+        if px == 0 and py == 0:
+            return
+        self.renderer.view_offset_x += px / self.renderer.view_scale
+        self.renderer.view_offset_y += py / self.renderer.view_scale
+        self.canvas.move("all", px, py)
+        self._pan_dirty = True
+        if self._pan_settle_timer is not None:
+            self.root.after_cancel(self._pan_settle_timer)
+        self._pan_settle_timer = self.root.after(self.PAN_SETTLE_DELAY_MS, self._settle_pan)
+
+    def _settle_pan(self) -> None:
+        self._pan_settle_timer = None
+        if not self._pan_dirty:
+            return
+        self._pan_dirty = False
+        self.schedule_redraw(fast=True, margin_fraction=self.PAN_MARGIN_FRACTION)
+
+    def _finish_pan(self) -> None:
+        if self._pan_settle_timer is not None:
+            self.root.after_cancel(self._pan_settle_timer)
+            self._pan_settle_timer = None
+        if not self._pan_dirty:
+            return
+        self._pan_dirty = False
+        self.schedule_redraw(fast=False, margin_fraction=self.PAN_MARGIN_FRACTION)
 
     def fit_view(self) -> None:
-        zone_id = self._display_zone_id()
-        points = [] if self.assert_mode_var.get() else self.zone_state.current_points(self.points)
+        zone_id = self._render_background_zone()
+        points = [] if self.assert_mode_var.get() or self.astar_mode_var.get() else self.zone_state.current_points(self.points)
 
         box_min_x, box_max_x, box_min_y, box_max_y = 0, 100, 0, 100
         map_image = self.renderer._get_map_pil(zone_id)
@@ -864,10 +1348,24 @@ class RouteEditorApp:
             box_max_x, box_max_y = map_image.size
 
         assert_target = self._current_assert_target()
+        route_points = self._route_display_points()
         if self.assert_mode_var.get() and assert_target is not None:
             target_x, target_y, target_w, target_h = assert_target
             box_min_x, box_max_x = target_x, target_x + target_w
             box_min_y, box_max_y = target_y, target_y + target_h
+        elif self.astar_mode_var.get() and route_points:
+            xs = [point[0] for point in route_points]
+            ys = [point[1] for point in route_points]
+            box_min_x, box_max_x = min(xs), max(xs)
+            box_min_y, box_max_y = min(ys), max(ys)
+        elif self.astar_mode_var.get() and self.astar_field is not None and self.astar_zone_var.get() and map_image is None:
+            bounds = self.astar_field.zone_bounds(self._astar_zone_id(), self._display_zone_id())
+            if bounds is not None:
+                if isinstance(bounds, tuple):
+                    box_min_x, box_min_y, box_max_x, box_max_y = bounds
+                else:
+                    box_min_x, box_max_x = bounds.left, bounds.right
+                    box_min_y, box_max_y = bounds.top, bounds.bottom
         elif points:
             xs = [point["x"] for point in points]
             ys = [point["y"] for point in points]
@@ -887,26 +1385,34 @@ class RouteEditorApp:
         self.schedule_redraw(fast=False)
 
     # ---- 渲染调度 ----
-    def schedule_redraw(self, fast: bool = True) -> None:
+    def schedule_redraw(self, fast: bool = True, margin_fraction: float = 0.0) -> None:
         if self._redraw_pending:
             return
         self._redraw_pending = True
-        self.root.after(16, lambda: self._do_redraw(fast))
+        self.root.after(16, lambda: self._do_redraw(fast, margin_fraction))
 
-    def _do_redraw(self, fast: bool) -> None:
+    def _do_redraw(self, fast: bool, margin_fraction: float = 0.0) -> None:
         self._redraw_pending = False
-        zone_id = self._display_zone_id()
-        if self.assert_mode_var.get():
+        render_zone = self._render_background_zone()
+        if render_zone != self.renderer.last_params[0]:
+            self.renderer.reset_view()
+        if self.assert_mode_var.get() or self.astar_mode_var.get():
             self.zone_point_global_indices = []
             points = []
         else:
             self.zone_point_global_indices = self.zone_state.point_indices(self.points)
             points = [self.points[index] for index in self.zone_point_global_indices]
 
-        self.renderer.request_render(zone_id, fast=fast)
+        self.renderer.request_render(render_zone, fast=fast, margin_fraction=margin_fraction)
         self._render_path(points)
         self._render_nodes(points)
         self._render_assert_rect()
+        self._render_astar_preview(fast=fast)
+
+        if fast and self.astar_mode_var.get():
+            if self._astar_overlay_timer is not None:
+                self.root.after_cancel(self._astar_overlay_timer)
+            self._astar_overlay_timer = self.root.after(120, self._refresh_astar_overlay)
 
     def _render_path(self, points: list[PathPoint]) -> None:
         if len(points) <= 1:
@@ -988,6 +1494,262 @@ class RouteEditorApp:
         if self.selection_rect_id is not None:
             self.canvas.tag_raise(self.selection_rect_id)
 
+    def _render_astar_preview(self, fast: bool = False) -> None:
+        for item_id in self.astar_item_ids:
+            self.canvas.delete(item_id)
+        self.astar_item_ids.clear()
+        if not self.astar_mode_var.get():
+            if not fast:
+                self._hide_astar_overlay()
+                self._hide_walkable_dots_overlay()
+            return
+
+        preview_points = []
+        if self.astar_route is not None:
+            preview_points = self._route_display_points()
+        elif self.astar_start is not None:
+            preview_points = [self.astar_start]
+
+        if not fast:
+            if self.astar_field is not None and self.astar_zone_var.get() and hasattr(self.astar_field, "overlay_image"):
+                self._render_astar_overlay()
+                self._hide_walkable_dots_overlay()
+            elif self.astar_field is not None and self.astar_zone_var.get():
+                self._hide_astar_overlay()
+                self._render_walkable_dots_overlay()
+            else:
+                self._hide_astar_overlay()
+                self._hide_walkable_dots_overlay()
+
+        if len(preview_points) >= 2:
+            for segment in self._astar_preview_segments(preview_points):
+                if len(segment) < 2:
+                    continue
+                coords = []
+                for point in segment:
+                    coords.extend(self.renderer.world_to_canvas(point[0], point[1]))
+                self.astar_item_ids.append(self.canvas.create_line(*coords, fill="#22c55e", width=3))
+
+        for index, point in enumerate(preview_points):
+            cx, cy = self.renderer.world_to_canvas(point[0], point[1])
+            radius = max(2, min(7, 4 * self.renderer.view_scale))
+            self.astar_item_ids.append(
+                self.canvas.create_oval(
+                    cx - radius,
+                    cy - radius,
+                    cx + radius,
+                    cy + radius,
+                    fill="#22c55e",
+                    outline="#052e16",
+                    width=1,
+                )
+            )
+            if index == 0 or index == len(preview_points) - 1:
+                label = "S" if index == 0 else "G"
+                self.astar_item_ids.append(
+                    self.canvas.create_text(
+                        cx,
+                        cy - radius - 8,
+                        text=label,
+                        fill="#dcfce7",
+                        font=("Consolas", 9, "bold"),
+                    )
+                )
+
+        if self.astar_goal is not None and self.astar_route is None:
+            cx, cy = self.renderer.world_to_canvas(self.astar_goal[0], self.astar_goal[1])
+            self.astar_item_ids.append(
+                self.canvas.create_text(cx, cy - 12, text="G", fill="#fecaca", font=("Consolas", 9, "bold"))
+            )
+
+        if self.astar_overlay_id is not None:
+            self.canvas.tag_lower(self.astar_overlay_id)
+            if self.renderer.bg_image_id is not None:
+                self.canvas.tag_raise(self.astar_overlay_id, self.renderer.bg_image_id)
+        for item_id in self.astar_item_ids:
+            self.canvas.tag_raise(item_id)
+
+    def _astar_preview_segments(self, points: list[tuple[float, float]]) -> list[list[tuple[float, float]]]:
+        if self.astar_route is None or not self.astar_route.segment_breaks:
+            return [points]
+        segments = []
+        start = 0
+        for break_index in self.astar_route.segment_breaks:
+            if start < break_index:
+                segments.append(points[start:break_index])
+            start = break_index
+        if start < len(points):
+            segments.append(points[start:])
+        return segments
+
+    def _render_astar_overlay(self) -> None:
+        if self.astar_field is None or not hasattr(self.astar_field, "overlay_image"):
+            self._hide_astar_overlay()
+            return
+        zone_id = self._astar_zone_id()
+        image = self.astar_field.overlay_image(zone_id)
+        if image is None:
+            self._hide_astar_overlay()
+            return
+
+        canvas_width = self.canvas.winfo_width()
+        canvas_height = self.canvas.winfo_height()
+        if canvas_width <= 1 or canvas_height <= 1:
+            self._hide_astar_overlay()
+            return
+
+        x0, y0 = self.renderer.canvas_to_world(0, 0)
+        x1, y1 = self.renderer.canvas_to_world(canvas_width, canvas_height)
+        image_width, image_height = image.size
+        left = max(0, int(x0))
+        top = max(0, int(y0))
+        right = min(image_width, int(x1) + 1)
+        bottom = min(image_height, int(y1) + 1)
+        if right <= left or bottom <= top:
+            self._hide_astar_overlay()
+            return
+
+        target_width = int((right - left) * self.renderer.view_scale)
+        target_height = int((bottom - top) * self.renderer.view_scale)
+        if target_width <= 0 or target_height <= 0:
+            self._hide_astar_overlay()
+            return
+
+        overlay_params = (
+            zone_id,
+            self._display_zone_id(),
+            self.renderer.view_scale,
+            self.renderer.view_offset_x,
+            self.renderer.view_offset_y,
+            canvas_width,
+            canvas_height,
+        )
+        if self.astar_overlay_id is not None and self._astar_overlay_params == overlay_params:
+            return
+
+        self._astar_overlay_render_seq += 1
+        seq = self._astar_overlay_render_seq
+        crop_rect = (left, top, right, bottom)
+        target_size = (target_width, target_height)
+        canvas_x, canvas_y = self.renderer.world_to_canvas(left, top)
+
+        def _worker():
+            cropped = image.crop(crop_rect)
+            resized = cropped.resize(target_size, resample=Image.Resampling.NEAREST)
+            self.root.after(0, lambda: self._apply_astar_overlay(seq, resized, canvas_x, canvas_y, overlay_params))
+
+        self._astar_render_executor.submit(_worker)
+
+    def _apply_astar_overlay(self, seq: int, _resized, _canvas_x, _canvas_y, _overlay_params) -> None:
+        if seq != self._astar_overlay_render_seq:
+            return
+        self.astar_overlay_photo = ImageTk.PhotoImage(_resized)
+        if self.astar_overlay_id is None:
+            self.astar_overlay_id = self.canvas.create_image(
+                _canvas_x, _canvas_y, image=self.astar_overlay_photo, anchor="nw"
+            )
+        else:
+            self.canvas.itemconfig(self.astar_overlay_id, image=self.astar_overlay_photo, state="normal")
+            self.canvas.coords(self.astar_overlay_id, _canvas_x, _canvas_y)
+        self._astar_overlay_params = _overlay_params
+
+    def _refresh_astar_overlay(self) -> None:
+        self._astar_overlay_timer = None
+        if not self.astar_mode_var.get() or self.astar_field is None:
+            return
+        if self.astar_zone_var.get():
+            if hasattr(self.astar_field, "overlay_image"):
+                self._render_astar_overlay()
+                self._hide_walkable_dots_overlay()
+            elif hasattr(self.astar_field, "walkable_dots_image"):
+                self._hide_astar_overlay()
+                self._render_walkable_dots_overlay()
+
+    def _hide_astar_overlay(self) -> None:
+        if self.astar_overlay_id is not None:
+            self.canvas.delete(self.astar_overlay_id)
+            self.astar_overlay_id = None
+        self.astar_overlay_photo = None
+        self._astar_overlay_params = None
+
+    def _hide_walkable_dots_overlay(self) -> None:
+        if self._astar_walkable_dots_id is not None:
+            self.canvas.delete(self._astar_walkable_dots_id)
+            self._astar_walkable_dots_id = None
+        self._astar_walkable_dots_photo = None
+        self._astar_walkable_dots_params = None
+
+    def _render_walkable_dots_overlay(self) -> None:
+        if self.astar_field is None or not hasattr(self.astar_field, "walkable_dots_image"):
+            self._hide_walkable_dots_overlay()
+            return
+        zone_id = self._astar_zone_id()
+        image = self.astar_field.walkable_dots_image(zone_id, display_zone_id=self._display_zone_id())
+        if image is None:
+            self._hide_walkable_dots_overlay()
+            return
+
+        canvas_width = self.canvas.winfo_width()
+        canvas_height = self.canvas.winfo_height()
+        if canvas_width <= 1 or canvas_height <= 1:
+            self._hide_walkable_dots_overlay()
+            return
+
+        x0, y0 = self.renderer.canvas_to_world(0, 0)
+        x1, y1 = self.renderer.canvas_to_world(canvas_width, canvas_height)
+        image_width, image_height = image.size
+        left = max(0, int(x0))
+        top = max(0, int(y0))
+        right = min(image_width, int(x1) + 1)
+        bottom = min(image_height, int(y1) + 1)
+        if right <= left or bottom <= top:
+            self._hide_walkable_dots_overlay()
+            return
+
+        target_width = int((right - left) * self.renderer.view_scale)
+        target_height = int((bottom - top) * self.renderer.view_scale)
+        if target_width <= 0 or target_height <= 0:
+            self._hide_walkable_dots_overlay()
+            return
+
+        dots_params = (
+            zone_id,
+            self._display_zone_id(),
+            self.renderer.view_scale,
+            self.renderer.view_offset_x,
+            self.renderer.view_offset_y,
+            canvas_width,
+            canvas_height,
+        )
+        if self._astar_walkable_dots_id is not None and self._astar_walkable_dots_params == dots_params:
+            return
+
+        self._astar_dots_render_seq += 1
+        seq = self._astar_dots_render_seq
+        crop_rect = (left, top, right, bottom)
+        target_size = (target_width, target_height)
+        canvas_x, canvas_y = self.renderer.world_to_canvas(left, top)
+
+        def _worker():
+            cropped = image.crop(crop_rect)
+            resized = cropped.resize(target_size, resample=Image.Resampling.NEAREST)
+            self.root.after(0, lambda: self._apply_walkable_dots_overlay(seq, resized, canvas_x, canvas_y, dots_params))
+
+        self._astar_render_executor.submit(_worker)
+
+    def _apply_walkable_dots_overlay(self, seq: int, _resized, _canvas_x, _canvas_y, _dots_params) -> None:
+        if seq != self._astar_dots_render_seq:
+            return
+        self._astar_walkable_dots_photo = ImageTk.PhotoImage(_resized)
+        if self._astar_walkable_dots_id is None:
+            self._astar_walkable_dots_id = self.canvas.create_image(
+                _canvas_x, _canvas_y, image=self._astar_walkable_dots_photo, anchor="nw"
+            )
+        else:
+            self.canvas.itemconfig(self._astar_walkable_dots_id, image=self._astar_walkable_dots_photo, state="normal")
+            self.canvas.coords(self._astar_walkable_dots_id, _canvas_x, _canvas_y)
+        self._astar_walkable_dots_params = _dots_params
+
     def _render_assert_rect(self) -> None:
         target = self._current_assert_target()
         if not self.assert_mode_var.get() or target is None:
@@ -1046,6 +1808,9 @@ class RouteEditorApp:
 
     # ---- 区域导航 ----
     def prev_zone(self) -> None:
+        if self.astar_mode_var.get():
+            self._move_astar_display_zone(-1)
+            return
         self.zone_state.prev_zone()
         self._clear_selection()
         self._reset_point_property_controls()
@@ -1053,9 +1818,26 @@ class RouteEditorApp:
         self.fit_view()
 
     def next_zone(self) -> None:
+        if self.astar_mode_var.get():
+            self._move_astar_display_zone(1)
+            return
         self.zone_state.next_zone()
         self._clear_selection()
         self._reset_point_property_controls()
+        self._refresh_zone_label()
+        self.fit_view()
+
+    def _move_astar_display_zone(self, delta: int) -> None:
+        if not self.astar_display_zone_ids:
+            return
+        current = normalize_zone_id(self.astar_display_zone_var.get(), default=self._default_astar_display_zone())
+        try:
+            index = self.astar_display_zone_ids.index(current)
+        except ValueError:
+            index = 0
+        self.astar_display_zone_var.set(self.astar_display_zone_ids[(index + delta) % len(self.astar_display_zone_ids)])
+        self._refresh_astar_zone_choices()
+        self._reset_astar_view_state()
         self._refresh_zone_label()
         self.fit_view()
 
@@ -1149,6 +1931,16 @@ class RouteEditorApp:
         )
 
     def on_click(self, event) -> None:
+        if self.astar_mode_var.get():
+            self.is_dragging = False
+            self.is_pan_candidate = True
+            self.is_panning = False
+            self.is_box_selecting = False
+            self.is_assert_selecting = False
+            self.pointer_down_x = event.x
+            self.pointer_down_y = event.y
+            return
+
         if self.assert_mode_var.get():
             zone_id = self._display_zone_id()
             if not zone_id:
@@ -1249,6 +2041,12 @@ class RouteEditorApp:
         self._on_points_structure_changed(redraw_fast=False)
 
     def delete_selected_point(self) -> None:
+        if self.astar_mode_var.get():
+            self.clear_astar_preview(redraw=False)
+            self._set_status("已清除 A* 预览。", "#10b981")
+            self.schedule_redraw(fast=True)
+            return
+
         if self.assert_mode_var.get():
             if self.assert_rect_world is None:
                 messagebox.showinfo("提示", "当前没有可删除的 Assert 区域")
@@ -1273,6 +2071,20 @@ class RouteEditorApp:
             self._on_points_structure_changed(redraw_fast=False)
 
     def on_drag(self, event) -> None:
+        if self.astar_mode_var.get():
+            if self.is_pan_candidate:
+                if not self._movement_exceeded_threshold(self.pointer_down_x, self.pointer_down_y, event.x, event.y):
+                    return
+                self.is_pan_candidate = False
+                self.is_panning = True
+                self.drag_start_x, self.drag_start_y = event.x, event.y
+                self.canvas.config(cursor="fleur")
+                return
+            if self.is_panning:
+                self._pan_by_pixels(event.x - self.drag_start_x, event.y - self.drag_start_y)
+                self.drag_start_x, self.drag_start_y = event.x, event.y
+            return
+
         if self.assert_mode_var.get():
             if not self.is_assert_selecting:
                 return
@@ -1295,12 +2107,8 @@ class RouteEditorApp:
             return
 
         if self.is_panning:
-            dx = (event.x - self.drag_start_x) / self.renderer.view_scale
-            dy = (event.y - self.drag_start_y) / self.renderer.view_scale
-            self.renderer.view_offset_x += dx
-            self.renderer.view_offset_y += dy
+            self._pan_by_pixels(event.x - self.drag_start_x, event.y - self.drag_start_y)
             self.drag_start_x, self.drag_start_y = event.x, event.y
-            self.schedule_redraw(fast=True)
             return
 
         if not self.is_dragging:
@@ -1318,6 +2126,17 @@ class RouteEditorApp:
             self.schedule_redraw(fast=True)
 
     def on_release(self, event) -> None:
+        if self.astar_mode_var.get():
+            if self.is_panning:
+                self.is_panning = False
+                self.canvas.config(cursor="cross")
+                self._finish_pan()
+                return
+            if self.is_pan_candidate:
+                self.is_pan_candidate = False
+                self._handle_astar_click(event)
+            return
+
         if self.assert_mode_var.get():
             if not self.is_assert_selecting:
                 return
@@ -1362,6 +2181,7 @@ class RouteEditorApp:
         if self.is_panning:
             self.is_panning = False
             self.canvas.config(cursor="cross")
+            self._finish_pan()
             return
 
         if self.is_pan_candidate:
@@ -1394,17 +2214,22 @@ class RouteEditorApp:
         try:
             imported = load_points_from_json_file(input_path, apply_zone_inference=False)
         except Exception as exc:
+            if self._try_import_assert_json(input_path):
+                return
             messagebox.showerror("导入失败", str(exc))
             return
 
         imported_points = imported.points
+        converted_count = imported.converted_maptracker_point_count
         if not imported.source_has_zone_info:
             assigned_points = self._prompt_zone_assignment_for_import(imported_points)
             if assigned_points is None:
                 return
-            imported_points = assigned_points
+            imported_points, assigned_converted_count = convert_maptracker_points_to_mapnavigator(assigned_points)
+            converted_count += assigned_converted_count
 
         imported_points = infer_missing_zones(imported_points)
+        imported_points = normalize_path_points(imported_points)
         if not self._validate_zone_assignments(imported_points, title="导入失败"):
             return
 
@@ -1419,7 +2244,35 @@ class RouteEditorApp:
         status = f"已导入 {len(self.points)} 个路径点"
         if imported.route_count > 1:
             status += f"（共找到 {imported.route_count} 条候选路径，已加载点数最多的一条）"
+        if converted_count > 0:
+            status += f"，已转换 {converted_count} 个 MapTracker 坐标"
         self._set_status(status, "#10b981")
+
+    def _try_import_assert_json(self, input_path: str) -> bool:
+        try:
+            imported_assert = load_assert_location_from_json_file(input_path)
+        except Exception:
+            return False
+
+        if resolve_zone_image(imported_assert.zone_id, MAP_IMAGE_DIR) is None:
+            messagebox.showerror("导入失败", f"Assert zone 无法映射到底图：{imported_assert.zone_id}")
+            return True
+
+        x, y, width, height = imported_assert.target
+        self.assert_mode_var.set(True)
+        self.assert_zone_var.set(imported_assert.zone_id)
+        self._set_assert_rect_world(x, y, x + width, y + height)
+        self._sync_assert_controls()
+        self._refresh_zone_label()
+        self.fit_view()
+
+        status = f"已导入 Assert: zone={imported_assert.zone_id} target=[{x:.1f}, {y:.1f}, {width:.1f}, {height:.1f}]"
+        if imported_assert.condition_count > 1:
+            status += f"（共找到 {imported_assert.condition_count} 个条件，已加载第一个）"
+        if imported_assert.converted_from_maptracker:
+            status += "，已转换 MapTracker 坐标"
+        self._set_status(status, "#10b981")
+        return True
 
     def _prompt_zone_assignment_for_import(self, points: list[PathPoint]) -> list[PathPoint] | None:
         segments = split_route_into_segments(points)
@@ -1491,6 +2344,7 @@ class RouteEditorApp:
                 if not zone_name:
                     messagebox.showwarning("区域未选择", "请先为每个片段选择对应地图。", parent=dialog)
                     return
+                zone_name = maptracker_base_map_name_from_zone(zone_name) or zone_name
                 selected_zone_names.append(zone_name)
                 for point_idx in range(start, end):
                     assigned_points[point_idx]["zone"] = zone_name
@@ -1551,6 +2405,44 @@ class RouteEditorApp:
         )
 
     # ---- 导出 ----
+    def copy_navmesh_target(self) -> None:
+        zone_id = self._display_zone_id()
+        if not zone_id:
+            messagebox.showwarning("复制失败", "请先选择 NAVMESH 底图")
+            return
+
+        target = self.astar_goal or self.astar_start
+        if target is None:
+            messagebox.showwarning("复制失败", "请先在 A* 模式点击目标点")
+            return
+
+        payload = {
+            "action": "NAVMESH",
+            "target": [
+                _compact_number(target[0]),
+                _compact_number(target[1]),
+            ],
+        }
+        # When a real tier底图 is shown the click is in that tier's coordinate frame. Emit the
+        # raw tier-frame coordinate plus target_tier (the tier's zone name) and let the runtime
+        # project it onto the base routing frame via the tier's baked affine — do NOT convert
+        # here. (Authoring contract: base targets carry only `target`; tier targets carry
+        # `target` + `target_tier`.)
+        tier_id = self._active_display_tier_id()
+        tier_name = ""
+        if tier_id is not None:
+            zone = self.astar_field.zone_by_id.get(tier_id)
+            if zone is not None and zone.name:
+                tier_name = zone.name
+                payload["target_tier"] = tier_name
+
+        target_text = json.dumps(payload, indent=4, ensure_ascii=False)
+        self.root.clipboard_clear()
+        self.root.clipboard_append(target_text)
+        self.root.update()
+        tier_note = f" target_tier={tier_name}" if tier_name else ""
+        self._set_status(f"NAVMESH 目标已复制: zone={zone_id} target={payload['target']}{tier_note}", "#10b981")
+
     def copy_assert_location(self) -> None:
         zone_id = self._display_zone_id()
         if not zone_id:

@@ -33,7 +33,10 @@
                         "AutoSellExecuteValleyIVMain": {
                             "enabled": true
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoSellTicketOverflowValleyIV"
+                    ]
                 },
                 {
                     "name": "No",
@@ -62,7 +65,10 @@
                         "AutoSellExecuteWulingMain": {
                             "enabled": true
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoSellTicketOverflowWuling"
+                    ]
                 },
                 {
                     "name": "No",
@@ -80,7 +86,7 @@
         "AutoSellPriceType": {
             "type": "select",
             "label": "$option.AutoSellPriceType.label",
-            "default_case": "AutoSellPriceTypeGlobal",
+            "default_case": "AutoSellPriceTypePerCategory",
             "cases": [
                 {
                     "name": "AutoSellPriceTypeGlobal",
@@ -97,6 +103,48 @@
                     ]
                 }
             ]
+        },
+        "AutoSellTicketOverflowValleyIV": {
+            "type": "input",
+            "label": "$option.AutoSellTicketOverflow.label",
+            "inputs": [
+                {
+                    "name": "AutoSellTicketOverflowValleyIVValue",
+                    "label": "$option.inputs.AutoSellTicketOverflowValue.label",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "30000000"
+                }
+            ],
+            "pipeline_override": {
+                "AutoSellTicketValleyIVOverflow": {
+                    "custom_recognition_param": {
+                        "expression": "{AutoSellTicketOverflowValleyIVValue} < {AutoSellOwnTicketCountRecognition}",
+                        "focus_matched_resolved_expression": true
+                    }
+                }
+            }
+        },
+        "AutoSellTicketOverflowWuling": {
+            "type": "input",
+            "label": "$option.AutoSellTicketOverflow.label",
+            "inputs": [
+                {
+                    "name": "AutoSellTicketOverflowWulingValue",
+                    "label": "$option.inputs.AutoSellTicketOverflowValue.label",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "30000000"
+                }
+            ],
+            "pipeline_override": {
+                "AutoSellTicketWulingOverflow": {
+                    "custom_recognition_param": {
+                        "expression": "{AutoSellTicketOverflowWulingValue} < {AutoSellOwnTicketCountRecognition}",
+                        "focus_matched_resolved_expression": true
+                    }
+                }
+            }
         },
         "AutoSellPriceGlobal": {
             "type": "input",

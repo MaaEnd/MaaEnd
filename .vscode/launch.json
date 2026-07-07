@@ -9,7 +9,10 @@
             "args": [
                 "{AGENT_ID}"
             ],
-            "cwd": "${workspaceFolder}/install"
+            "cwd": "${workspaceFolder}/install",
+            "env": {
+                "GOTRACEBACK": "crash"
+            }
         },
         {
             "name": "launch-cpp-agent",

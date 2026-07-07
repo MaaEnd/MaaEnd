@@ -1,0 +1,155 @@
+{
+    "WeaponInventoryScan": {
+        "desc": "Start weapon inventory scan",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WeaponInventoryScanListReady",
+            "[JumpBack]SceneEnterMenuValuables"
+        ]
+    },
+    "WeaponInventoryScanListReady": {
+        "desc": "Confirm weapon inventory list page",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    155,
+                    85
+                ],
+                "expected": [
+                    "武器",
+                    "武器",
+                    "(?i)Weapon"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                -400,
+                400,
+                400
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WeaponInventoryScanRecognizePage"
+        ]
+    },
+    "WeaponInventoryScanRecognizePage": {
+        "desc": "Recognize current weapon inventory page",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "WeaponInventoryScanRecognition",
+                "custom_recognition_param": {
+                    "roi": [
+                        20,
+                        70,
+                        960,
+                        600
+                    ],
+                    "normalized_size": [
+                        1280,
+                        720
+                    ],
+                    "row_threshold_ratio": 0.2,
+                    "col_threshold_ratio": 0.4,
+                    "min_raw_segment_length": 10,
+                    "min_kept_segment_ratio": 0.9,
+                    "max_phash_distance": 10,
+                    "max_ranked_candidates": 0,
+                    "min_score": 0.6,
+                    "hue_weight": 0.4,
+                    "incremental": true,
+                    "end_min_match_ratio": 0.95
+                }
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                20,
+                70,
+                960,
+                600
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WeaponInventoryScanFinish"
+        ]
+    },
+    "WeaponInventoryScanSwipeNext": {
+        "desc": "Swipe to next weapon inventory page",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    500,
+                    540
+                ],
+                "end": [
+                    500,
+                    380
+                ],
+                "end_hold": 400,
+                "duration": 200
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WeaponInventoryScanMoveCursorAway"
+        ]
+    },
+    "WeaponInventoryScanMoveCursorAway": {
+        "desc": "Move cursor away from weapon inventory grid",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                20,
+                70,
+                960,
+                600
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WeaponInventoryScanRecognizePage"
+        ]
+    },
+    "WeaponInventoryScanFinish": {
+        "desc": "Finish weapon inventory scan",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

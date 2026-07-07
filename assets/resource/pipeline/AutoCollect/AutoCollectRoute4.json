@@ -1,11 +1,18 @@
 {
     "AutoCollectRoute4Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVPowerPlateau3"
+            ]
+        },
         "next": [
-            "AutoCollectRoute4AssertLocation",
-            "[JumpBack]SceneEnterWorldValleyIVPowerPlateau3"
+            "AutoCollectRoute4AssertLocation"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "开始路线4"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute4.label"
         }
     },
     "AutoCollectRoute4End": {
@@ -39,129 +46,18 @@
     },
     "AutoCollectRoute4GotoFind1": {
         "desc": "前往采集点",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv007",
-                    "fine_approach": "AllTargets",
-                    "path": [
-                        [
-                            413.6,
-                            408.0
-                        ],
-                        [
-                            417.1,
-                            408.1
-                        ],
-                        [
-                            419.7,
-                            411.8
-                        ],
-                        [
-                            431.0,
-                            425.5
-                        ],
-                        [
-                            437.2,
-                            425.6
-                        ],
-                        [
-                            442.3,
-                            428.0
-                        ],
-                        [
-                            448.5,
-                            426.8
-                        ],
-                        [
-                            458.5,
-                            428.0
-                        ],
-                        [
-                            463.5,
-                            431.8
-                        ],
-                        [
-                            462.2,
-                            435.5
-                        ],
-                        [
-                            467.2,
-                            436.7
-                        ],
-                        [
-                            474.8,
-                            430.5
-                        ],
-                        [
-                            477.2,
-                            430.5
-                        ],
-                        [
-                            483.5,
-                            425.5
-                        ],
-                        [
-                            486.0,
-                            425.5
-                        ],
-                        [
-                            497.2,
-                            418.0
-                        ],
-                        [
-                            502.2,
-                            415.5
-                        ],
-                        [
-                            508.5,
-                            410.4
-                        ],
-                        [
-                            511.0,
-                            406.8
-                        ],
-                        [
-                            509.8,
-                            403.0
-                        ],
-                        [
-                            503.5,
-                            401.8
-                        ],
-                        [
-                            496.0,
-                            408.0
-                        ],
-                        [
-                            493.5,
-                            408.0
-                        ],
-                        [
-                            492.2,
-                            409.2
-                        ],
-                        [
-                            488.5,
-                            408.0
-                        ],
-                        [
-                            488.5,
-                            405.6
-                        ],
-                        [
-                            487.3,
-                            405.5
-                        ],
-                        [
-                            482.3,
-                            406.8
-                        ]
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        728.68,
+                        366.75
                     ]
                 }
-            }
+            ]
         },
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectRoute4GotoFind2"
@@ -179,9 +75,10 @@
                 "custom_action_param": {
                     "map_name": "map01_lv007",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
-                            482.2,
+                            482.7,
                             409.3
                         ]
                     ]
@@ -204,9 +101,10 @@
                 "custom_action_param": {
                     "map_name": "map01_lv007",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
-                            481.0,
+                            481.5,
                             411.8
                         ]
                     ]
@@ -229,9 +127,10 @@
                 "custom_action_param": {
                     "map_name": "map01_lv007",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
-                            477.2,
+                            477.7,
                             414.3
                         ]
                     ]
@@ -254,9 +153,10 @@
                 "custom_action_param": {
                     "map_name": "map01_lv007",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
-                            476.0,
+                            476.5,
                             411.8
                         ]
                     ]
@@ -279,9 +179,10 @@
                 "custom_action_param": {
                     "map_name": "map01_lv007",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
-                            473.5,
+                            474.0,
                             410.4
                         ]
                     ]
@@ -304,9 +205,10 @@
                 "custom_action_param": {
                     "map_name": "map01_lv007",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
-                            476.0,
+                            476.5,
                             406.8
                         ]
                     ]
@@ -329,9 +231,10 @@
                 "custom_action_param": {
                     "map_name": "map01_lv007",
                     "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
                     "path": [
                         [
-                            478.5,
+                            479.0,
                             404.3
                         ]
                     ]

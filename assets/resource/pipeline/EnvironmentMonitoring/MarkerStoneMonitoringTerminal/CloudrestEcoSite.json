@@ -31,6 +31,7 @@
             "栖雲生態スポット",
             "서운 생태 지점"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckCloudrestEcoSiteIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Cloudrest\\s*Eco\\s*-\\s*Site",
             "栖雲生態スポットの写真を撮る",
             "서운 생태 지점을 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptCloudrestEcoSite": {
         "desc": "接取栖云生态点委托",
@@ -213,189 +215,163 @@
                 {
                     "map_name": "map02_lv004",
                     "target": [
-                        604.3,
-                        422.8,
-                        42.7,
-                        39.4
+                        602.8,
+                        325,
+                        9.7,
+                        8.1
                     ]
                 }
             ]
         },
         "next": [
-            "GoToCloudrestEcoSiteMapTrackerMove"
+            "GoToCloudrestEcoSiteMove"
         ]
     },
     "GoToCloudrestEcoSiteNotAtStartPos": {
-        "desc": "不在栖云生态点任务开始位置附近，先传送再复核落点",
+        "desc": "不在栖云生态点任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStoneCore"
+                "SceneEnterWorldWulingMarkerStone3"
             ]
         },
         "next": [
-            "GoToCloudrestEcoSiteRecheckStartPos",
-            "GoToCloudrestEcoSiteReEnterMap"
+            "GoToCloudrestEcoSiteStartPos"
         ]
     },
-    "GoToCloudrestEcoSiteRecheckStartPos": {
-        "desc": "传送后再次检查是否已在栖云生态点任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        604.3,
-                        422.8,
-                        42.7,
-                        39.4
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToCloudrestEcoSiteMapTrackerMove"
-        ]
-    },
-    "GoToCloudrestEcoSiteReEnterMap": {
-        "desc": "传送后仍未到达栖云生态点任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingMarkerStoneCore"
-            ]
-        },
-        "next": [
-            "GoToCloudrestEcoSiteFinalCheckStartPos"
-        ]
-    },
-    "GoToCloudrestEcoSiteFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在栖云生态点任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        604.3,
-                        422.8,
-                        42.7,
-                        39.4
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToCloudrestEcoSiteMapTrackerMove"
-        ]
-    },
-    "GoToCloudrestEcoSiteMapTrackerMove": {
-        "desc": "前往栖云生态点",
+    "GoToCloudrestEcoSiteMove": {
+        "desc": "自动寻路前往栖云生态点",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
             "map_name": "map02_lv004",
             "path": [
                 [
-                    608.1,
-                    435.7
+                    617.3,
+                    325.5
+                ],
+                [
+                    633.8,
+                    324.5
+                ],
+                [
+                    637.5,
+                    328.2
+                ],
+                [
+                    641.4,
+                    341.8
+                ],
+                [
+                    646.2,
+                    364.5
+                ],
+                [
+                    647.5,
+                    418.3
+                ],
+                [
+                    602.5,
+                    419.5
+                ],
+                [
+                    602.3,
+                    432.7
+                ],
+                [
+                    590,
+                    433.3
                 ],
                 [
                     565,
-                    434.7
+                    433.8
                 ],
                 [
                     522.5,
-                    452.3
+                    451.4
                 ],
                 [
                     525.2,
-                    460
+                    459.1
                 ],
                 [
                     514.2,
-                    466.7
+                    465.8
                 ],
                 [
                     517.5,
-                    473.5
+                    472.6
                 ],
                 [
                     512,
-                    476.8
+                    475.9
                 ],
                 [
                     511.2,
-                    481.7
+                    480.8
                 ],
                 [
                     502.2,
-                    486.8
+                    485.9
                 ],
                 [
                     485,
-                    482.2
+                    481.3
                 ],
                 [
                     477.3,
-                    475.6
+                    474.7
                 ],
                 [
                     453.8,
-                    473.5
+                    472.6
                 ],
                 [
                     447.5,
-                    473.5
+                    472.6
                 ],
                 [
                     443.2,
-                    476.6
+                    475.7
                 ],
                 [
                     440.7,
-                    482.1
+                    481.2
                 ],
                 [
                     438.4,
-                    487.6
+                    486.7
                 ],
                 [
                     438,
-                    493
+                    492.1
                 ],
                 [
                     437.9,
-                    499.3
+                    498.4
                 ],
                 [
                     438.1,
-                    504.3
+                    503.4
                 ],
                 [
                     438.1,
-                    510.1
+                    509.2
                 ]
-            ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 180
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "CloudrestEcoSiteAdjustCamera"
         },
-        "next": [
-            "CloudrestEcoSiteAdjustHeading"
-        ]
-    },
-    "CloudrestEcoSiteAdjustHeading": {
-        "desc": "栖云生态点任务无需调整角色朝向",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]

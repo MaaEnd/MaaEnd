@@ -176,22 +176,12 @@
     "EssenceFilterAfterBattleCloseDetailThenExit": {
         "desc": "关闭详情页后退出（边界停扫专用）",
         "recognition": {
-            "type": "OCR",
+            "type": "Or",
             "param": {
-                "roi": "EssenceFindLockItem",
-                "roi_offset": [
-                    -253,
-                    -127,
-                    157,
-                    20
-                ],
-                "expected": [
-                    "基质",
-                    "基質",
-                    "(?i)Essence",
-                    "기질"
-                ],
-                "threshold": 0.8
+                "any_of": [
+                    "EssenceFilterCloseDetailFourth",
+                    "EssenceFilterCloseDetailWuling"
+                ]
             }
         },
         "action": {

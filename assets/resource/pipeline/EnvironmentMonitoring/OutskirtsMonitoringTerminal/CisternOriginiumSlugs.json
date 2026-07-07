@@ -31,6 +31,7 @@
             "貯水オリジムシ",
             "저수 원석충"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckCisternOriginiumSlugsIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photograph\\s*a\\s*group\\s*of\\s*Cistern\\s*Originium\\s*Slugs",
             "貯水オリジムシの群れの写真を撮る",
             "저수 원석충 무리를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptCisternOriginiumSlugs": {
         "desc": "接取蓄水源石虫委托",
@@ -207,26 +209,22 @@
     "GoToCisternOriginiumSlugsStartPos": {
         "desc": "在蓄水源石虫任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        280,
-                        580,
-                        15,
-                        15
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                747.21,
+                1516.86,
+                36.4,
+                31.87
             ]
         },
         "next": [
-            "GoToCisternOriginiumSlugsMapTrackerMove"
+            "GoToCisternOriginiumSlugsMove"
         ]
     },
     "GoToCisternOriginiumSlugsNotAtStartPos": {
-        "desc": "不在蓄水源石虫任务开始位置附近，先传送再复核落点",
+        "desc": "不在蓄水源石虫任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,107 +233,32 @@
             ]
         },
         "next": [
-            "GoToCisternOriginiumSlugsRecheckStartPos",
-            "GoToCisternOriginiumSlugsReEnterMap"
+            "GoToCisternOriginiumSlugsStartPos"
         ]
     },
-    "GoToCisternOriginiumSlugsRecheckStartPos": {
-        "desc": "传送后再次检查是否已在蓄水源石虫任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        280,
-                        580,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToCisternOriginiumSlugsMapTrackerMove"
-        ]
-    },
-    "GoToCisternOriginiumSlugsReEnterMap": {
-        "desc": "传送后仍未到达蓄水源石虫任务开始位置附近，重试一次传送",
+    "GoToCisternOriginiumSlugsMove": {
+        "desc": "自动寻路前往蓄水源石虫",
         "action": "Custom",
-        "custom_action": "SubTask",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingJingyuValley7"
-            ]
-        },
-        "next": [
-            "GoToCisternOriginiumSlugsFinalCheckStartPos"
-        ]
-    },
-    "GoToCisternOriginiumSlugsFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在蓄水源石虫任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        280,
-                        580,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToCisternOriginiumSlugsMapTrackerMove"
-        ]
-    },
-    "GoToCisternOriginiumSlugsMapTrackerMove": {
-        "desc": "前往蓄水源石虫",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv001",
             "path": [
-                [
-                    291,
-                    582
-                ],
-                [
-                    298,
-                    576
-                ],
-                [
-                    306,
-                    578
-                ],
-                [
-                    309,
-                    593
-                ],
-                [
-                    318,
-                    593
-                ]
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        794,
+                        1546.21
+                    ]
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 235
+                }
             ]
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "CisternOriginiumSlugsAdjustCamera"
         },
-        "next": [
-            "CisternOriginiumSlugsAdjustHeading"
-        ]
-    },
-    "CisternOriginiumSlugsAdjustHeading": {
-        "desc": "蓄水源石虫任务无需调整角色朝向",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
@@ -344,7 +267,7 @@
         "desc": "蓄水源石虫任务中调整朝向",
         "max_hit": 2,
         "next": [
-            "EnvironmentMonitoringSwipeScreenRight"
+            "EnvironmentMonitoringSwipeScreenDown"
         ]
     }
 }

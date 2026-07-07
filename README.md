@@ -1,9 +1,11 @@
 <!-- markdownlint-disable MD033 MD041 -->
 <p align="center">
-  <img alt="不要去森空岛讨论MAA" src="docs/img/NoSkland.png" width="280" />
+  <img alt="不要去森空岛讨论MAA" src="https://end.maafw.com/NoSkland-Tiny.webp" width="280" />
 </p>
 
-<p align="center"><strong>不要去森空岛讨论MAA!!!!!</strong></p>
+<p align="center"><strong>不要去森空岛讨论 MAA 了!!!!!</strong></p>
+
+---
 
 <p align="center">
   <img alt="LOGO" src="https://end.maafw.com/MaaEnd-Tiny-512.png" width="256" height="256" />
@@ -67,7 +69,7 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
 - 💬 **Baker 嘴替**：自动清掉会话消息，聊天红点和提示一并收拾干净！
 - 📅 **日常自动化**：日常奖励（任务/通行证/邮件/暂存区/活动）、模拟空间奖励、百科红点、简制手册领取……一键清空！✅
 - 💊 **自动吃药**：应急理智加强剂一键开吃，省一步是一步~💊
-- 💻 **多端适配**：支持 PC 端 (Win32 默认/后台/前台) 与安卓端 (ADB)，无论你在哪个平台，我们都能陪你摸鱼~ 🐟
+- 💻 **多端适配**：支持 PC 端 (Win32 前台) 与安卓端 (ADB)，无论你在哪个平台，我们都能陪你摸鱼~ 🐟
 
 ## 🛠️ 开发者指南
 
@@ -87,10 +89,11 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
 
 来和大家一起玩耍吧！
 
-- 💬 **用户 QQ 群**: [1097256935](https://qm.qq.com/q/2AK5MoVfOQ)  
+- 💬 **用户 QQ 群**: [1103911816](https://qm.qq.com/q/YLkMv83h0Q)  
   使用问题、功能建议、闲聊摸鱼，欢迎来撩~
 - 👨‍💻 **开发 QQ 群**: [1072587329](https://qm.qq.com/q/EyirQpBiW4)  
   这是干活群，欢迎开发者加入一起造轮子！（仅限技术讨论，使用问题请去用户群哦）
+- <img src="https://cdn.simpleicons.org/discord/5865F2" width="16" height="16" alt="Discord" /> **Discord**: [加入 Discord 社区](https://discord.gg/JKu5pgcdCC)
 
 ## ☕ 请我们喝咖啡
 

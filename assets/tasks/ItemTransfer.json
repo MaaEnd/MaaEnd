@@ -11,10 +11,9 @@
                 "TransferAll",
                 "OriginRegion",
                 "DestinationRegion",
-                "PreClearBag"
+                "ItemTransferStashBackpack"
             ],
             "controller": [
-                "Win32-Window",
                 "Win32-Front",
                 "Wlroots"
             ],
@@ -3376,9 +3375,18 @@
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 124
                         },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
-                                "target_class": 124
+                                "target_class": 124,
+                                "descending": true
                             }
                         },
                         "ItemTransferFindItemFallbackBag": {
@@ -3409,9 +3417,18 @@
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 102
                         },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
-                                "target_class": 102
+                                "target_class": 102,
+                                "descending": true
                             }
                         },
                         "ItemTransferFindItemFallbackBag": {
@@ -3484,9 +3501,18 @@
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 131
                         },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
-                                "target_class": 131
+                                "target_class": 131,
+                                "descending": true
                             }
                         },
                         "ItemTransferFindItemFallbackBag": {
@@ -3568,9 +3594,18 @@
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 177
                         },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
-                                "target_class": 177
+                                "target_class": 177,
+                                "descending": true
                             }
                         },
                         "ItemTransferFindItemFallbackBag": {
@@ -3601,9 +3636,18 @@
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 100
                         },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
-                                "target_class": 100
+                                "target_class": 100,
+                                "descending": true
                             }
                         },
                         "ItemTransferFindItemFallbackBag": {
@@ -3854,10 +3898,10 @@
             ],
             "default_case": "Wuling"
         },
-        "PreClearBag": {
+        "ItemTransferStashBackpack": {
             "type": "switch",
-            "label": "$task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label",
-            "description": "$task.ItemTransfer.option.PreClearBag.description",
+            "label": "$task.ItemTransfer.option.ItemTransferStashBackpack.label",
+            "default_case": "No",
             "cases": [
                 {
                     "name": "No"
@@ -3865,10 +3909,13 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "ItemTransferPreClearBag": {
+                        "StashBackpackMain": {
                             "enabled": true
                         }
-                    }
+                    },
+                    "option": [
+                        "StashBackpackType"
+                    ]
                 }
             ]
         }

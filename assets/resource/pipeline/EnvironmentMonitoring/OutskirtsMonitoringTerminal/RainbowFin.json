@@ -31,6 +31,7 @@
             "七色鱗獣",
             "무지개 린수"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckRainbowFinIcon": {
@@ -117,10 +118,11 @@
         "expected": [
             "拍摄水中的七彩鳞",
             "拍攝水中的七彩鱗",
-            "(?i)Photograph\\s*the\\s*rainbow\\s*fin\\s*in\\s*the\\s*water",
+            "(?i)Photo:\\s*Rainbow\\s*Fin\\s*in\\s*Water",
             "水中の七色鱗獣の写真を撮る",
             "물속의 무지개 린수를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptRainbowFin": {
         "desc": "接取七彩鳞委托",
@@ -222,11 +224,11 @@
             ]
         },
         "next": [
-            "GoToRainbowFinMapTrackerMove"
+            "GoToRainbowFinMove"
         ]
     },
     "GoToRainbowFinNotAtStartPos": {
-        "desc": "不在七彩鳞任务开始位置附近，先传送再复核落点",
+        "desc": "不在七彩鳞任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,67 +237,11 @@
             ]
         },
         "next": [
-            "GoToRainbowFinRecheckStartPos",
-            "GoToRainbowFinReEnterMap"
+            "GoToRainbowFinStartPos"
         ]
     },
-    "GoToRainbowFinRecheckStartPos": {
-        "desc": "传送后再次检查是否已在七彩鳞任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        125,
-                        815,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToRainbowFinMapTrackerMove"
-        ]
-    },
-    "GoToRainbowFinReEnterMap": {
-        "desc": "传送后仍未到达七彩鳞任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingJingyuValley10"
-            ]
-        },
-        "next": [
-            "GoToRainbowFinFinalCheckStartPos"
-        ]
-    },
-    "GoToRainbowFinFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在七彩鳞任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        125,
-                        815,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToRainbowFinMapTrackerMove"
-        ]
-    },
-    "GoToRainbowFinMapTrackerMove": {
-        "desc": "前往七彩鳞",
+    "GoToRainbowFinMove": {
+        "desc": "自动寻路前往七彩鳞",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -333,21 +279,19 @@
                     205,
                     755
                 ]
-            ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 45
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "RainbowFinAdjustCamera"
         },
-        "next": [
-            "RainbowFinAdjustHeading"
-        ]
-    },
-    "RainbowFinAdjustHeading": {
-        "desc": "七彩鳞任务无需调整角色朝向",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]

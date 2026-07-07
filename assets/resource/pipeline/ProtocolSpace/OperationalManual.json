@@ -83,7 +83,16 @@
             950,
             280
         ],
-        "end_hold": 200
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                825,
+                210,
+                280,
+                350
+            ],
+            "time": 200
+        }
     },
     "ProtocolSpaceOperationalManualScrollEnd": {
         "desc": "右侧滚动模拟空间列表找到最后一个item图标，表示到末尾了",

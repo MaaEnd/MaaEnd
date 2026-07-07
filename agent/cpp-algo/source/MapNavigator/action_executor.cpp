@@ -71,12 +71,16 @@ ActionExecutionResult ActionExecutor::Execute(ActionType action)
         LogWarn << "HEADING action dispatched to ActionExecutor unexpectedly.";
         break;
 
+    case ActionType::NAVMESH:
+        LogWarn << "NAVMESH action dispatched to ActionExecutor unexpectedly.";
+        break;
+
     case ActionType::ZONE:
         LogWarn << "ZONE action dispatched to ActionExecutor unexpectedly.";
         break;
 
     case ActionType::COLLECT:
-        LogWarn << "COLLECT action dispatched to ActionExecutor unexpectedly.";
+        LogInfo << "Action: COLLECT waypoint passed (pass-through; collection is detection-driven while walking).";
         break;
 
     case ActionType::DIG:

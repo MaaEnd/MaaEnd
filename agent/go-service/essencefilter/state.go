@@ -26,33 +26,18 @@ type RunState struct {
 	TargetSkillCombinations   []matchapi.SkillCombination
 	MatchedCombinationSummary map[string]*matchapi.SkillCombinationSummary
 
-	// Grid traversal
-	CurrentRow          int
-	MaxItemsPerRow      int
-	TotalCount          int // OCR 得到的库存总数，0 表示未知；用于计算剩余是否 <= 45 以决定是否尾扫
-	FirstRowSwipeDone   bool
-	FinalLargeScanUsed  bool
-	InFinalScan         bool // 当前 RowBoxes 来自 EssenceDetectFinal（尾扫大 ROI）
-	PendingFinalScan    bool // 剩余 ≤ 45 时先补一次 swipe，下次进 RowNextItem 再进尾扫
-	SwipeCalibrateRetry int
-
 	// Current item's three skills cache
 	CurrentSkills      [3]string
 	CurrentSkillLevels [3]int
 
-	// Row processing
+	// After-battle grid cache
 	RowBoxes [][4]int
 	RowIndex int
-
-	// 记录本行扫描到的真实物理格子总数
-	PhysicalItemCount int
 
 	// Essence types selected for this run (e.g. Flawless, Pure)
 	EssenceTypes []EssenceMeta
 	// EssenceMode derived from selection: flawless_only / pure_only / both
 	EssenceMode EssenceMode
-	// EncounteredTierBoundary is set when flawless-only mode encounters pure (inventory scan should stop)
-	EncounteredTierBoundary bool
 
 	// PipelineOpts is a copy of EssenceFilterInit attach JSON; filled in Init for the run (avoids re-parsing).
 	PipelineOpts EssenceFilterOptions
@@ -70,22 +55,12 @@ func (s *RunState) Reset() {
 	s.TargetSkillCombinations = nil
 	s.MatchedCombinationSummary = nil
 	s.MatchEngine = nil
-	s.CurrentRow = 1
-	s.MaxItemsPerRow = 9
-	s.TotalCount = 0
-	s.FirstRowSwipeDone = false
-	s.FinalLargeScanUsed = false
-	s.InFinalScan = false
-	s.PendingFinalScan = false
-	s.SwipeCalibrateRetry = 0
 	s.CurrentSkills = [3]string{}
 	s.CurrentSkillLevels = [3]int{}
 	s.RowBoxes = nil
 	s.RowIndex = 0
-	s.PhysicalItemCount = 0
 	s.PipelineOpts = EssenceFilterOptions{}
 	s.InputLanguage = ""
-	s.EncounteredTierBoundary = false
 	// EssenceTypes and EssenceMode are set by Init from options, not cleared here
 }
 

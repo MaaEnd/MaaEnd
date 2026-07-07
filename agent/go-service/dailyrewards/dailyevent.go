@@ -28,14 +28,7 @@ var (
 
 func (r *DailyEventUnreadItemInitRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	var items []dailyEventUnreadItem
-
-	// 在左侧区域查找所有红点图标
-	overrideParamRedDot := map[string]any{
-		"DailyEventRecognitionRedDot": map[string]any{
-			"roi": maa.Rect{0, 0, 300, 720},
-		},
-	}
-	detail, err := ctx.RunRecognition("DailyEventRecognitionRedDot", arg.Img, overrideParamRedDot)
+	detail, err := ctx.RunRecognition("DailyEventRecognitionRedDot", arg.Img)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to run TemplateMatch for RedDot")
 		return nil, false
@@ -167,13 +160,17 @@ func (a *DailyEventUnreadItemInitAction) Run(ctx *maa.Context, arg *maa.CustomAc
 			},
 		}
 		detail, err := ctx.RunTask("DailyEventUnreadItemSwitch", override)
-		if err != nil {
+		if err != nil || detail == nil {
 			log.Error().
 				Err(err).
 				Str("task", "DailyEventUnreadItemSwitch").
 				Str("text", item.Text).
 				Interface("box", item.Box).
 				Msg("DailyEventUnreadItemSwitch task failed")
+			actionResult = false
+			break
+		}
+		if !detail.Status.Success() {
 			actionResult = false
 		}
 		log.Debug().

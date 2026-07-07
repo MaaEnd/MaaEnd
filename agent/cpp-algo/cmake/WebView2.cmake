@@ -8,7 +8,7 @@
 # SDK 路径按以下顺序解析：
 #   1. CMake cache 变量 WEBVIEW2_SDK_DIR
 #   2. 同名环境变量 WEBVIEW2_SDK_DIR
-#   3. 默认位置 <repo-root>/3rdparty/webview2（由 tools/setup_workspace.py 准备）
+#   3. 默认位置 <repo>/agent/cpp-algo/3rdparty/webview2（由 tools/setup_workspace.py 准备）
 #
 # 期望的目录结构（NuGet 包解压后的根目录）：
 #   <root>/build/native/include/WebView2.h
@@ -41,10 +41,10 @@ if(NOT WEBVIEW2_SDK_DIR)
 endif()
 
 if(NOT WEBVIEW2_SDK_DIR)
-    # 默认位置：仓库根目录下的 3rdparty/webview2，由 tools/setup_workspace.py
+    # 默认位置：cpp-algo 自己的 3rdparty/webview2 子目录，由 tools/setup_workspace.py
     # 在工作区初始化阶段一次性下载并解压。
-    # 当前文件位于 <repo>/agent/cpp-algo/cmake/，所以 ../../../3rdparty 指向仓库根。
-    set(_webview2_default_dir "${CMAKE_CURRENT_LIST_DIR}/../../../3rdparty/webview2")
+    # 当前文件位于 <repo>/agent/cpp-algo/cmake/，所以 ../3rdparty 指向 <repo>/agent/cpp-algo/3rdparty。
+    set(_webview2_default_dir "${CMAKE_CURRENT_LIST_DIR}/../3rdparty/webview2")
     if(EXISTS "${_webview2_default_dir}/build/native/include/WebView2.h")
         get_filename_component(WEBVIEW2_SDK_DIR "${_webview2_default_dir}" ABSOLUTE)
     endif()
@@ -56,8 +56,8 @@ if(NOT WEBVIEW2_SDK_DIR)
     message(FATAL_ERROR
         "WebView2 SDK is required for the Windows build but cannot be located.\n"
         "Choose one of the following:\n"
-        "  - Run `python tools/setup_workspace.py` (downloads SDK to 3rdparty/webview2/)\n"
-        "  - Run `python tools/3rdparty_download.py --webview2` to only fetch the SDK\n"
+        "  - Run `python tools/setup_workspace.py` (downloads SDK to agent/cpp-algo/3rdparty/webview2/)\n"
+        "  - Run `python tools/dep_3rdparty.py --webview2` to only fetch the SDK\n"
         "  - Pass -DWEBVIEW2_SDK_DIR=<extracted NuGet root> to cmake configure\n"
         "  - Set WEBVIEW2_SDK_DIR environment variable to point at an extracted SDK")
 endif()

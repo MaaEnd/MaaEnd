@@ -6,14 +6,17 @@
             "entry": "GiftOperatorMain",
             "description": "$task.GiftOperator.description",
             "option": [
+                "StashBackpackSubTask",
                 "OnlyReceiveGift"
-            ],
-            "controller": [
-                "Win32-Front",
-                "Wlroots"
             ],
             "group": [
                 "dijiang_ship"
+            ],
+            "controller": [
+                "Win32-Front",
+                "Wlroots",
+                "ADB",
+                "PlayCover"
             ]
         }
     ],
@@ -796,17 +799,10 @@
                             ]
                         }
                     }
-                }
-            ]
-        },
-        "OnlyReceiveGift": {
-            "type": "switch",
-            "label": "$option.OnlyReceiveGift.label",
-            "description": "$option.OnlyReceiveGift.description",
-            "default_case": "No",
-            "cases": [
+                },
                 {
-                    "name": "Yes",
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
                     "pipeline_override": {
                         "GiftOperatorContacSortOrder": {
                             "enabled": false
@@ -820,14 +816,78 @@
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": true,
                             "template": [
-                                "GiftOperator/Gift.png"
-                            ],
-                            "target_offset": [
-                                40,
-                                0,
-                                0,
-                                0
+                                "GiftOperator/Operators/MiFu.png"
                             ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Camille",
+                    "label": "$operator.Camille",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Camille.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "OnlyReceiveGift": {
+            "type": "switch",
+            "label": "$option.OnlyReceiveGift.label",
+            "description": "$option.OnlyReceiveGift.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AcceptAllGifts"
+                    ],
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": true
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": false
                         },
                         "GiftOperatorName": {
                             "expected": [
@@ -849,8 +909,30 @@
                     "name": "No",
                     "option": [
                         "SelectOperator",
-                        "GiftCount"
+                        "SendWrongGift"
                     ],
+                    "pipeline_override": {}
+                }
+            ]
+        },
+        "AcceptAllGifts": {
+            "type": "switch",
+            "label": "$option.AcceptAllGifts.label",
+            "description": "$option.AcceptAllGifts.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No",
                     "pipeline_override": {}
                 }
             ]
@@ -875,6 +957,36 @@
                     "repeat_delay": 100
                 }
             }
+        },
+        "SendWrongGift": {
+            "type": "switch",
+            "label": "$option.SendWrongGift.label",
+            "description": "$option.SendWrongGift.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "GiftOperatorClickGift": {
+                            "repeat": 1
+                        },
+                        "GiftOperatorClickGiftColorNumber": {
+                            "recognition": {
+                                "param": {
+                                    "index": -1
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "option": [
+                        "GiftCount"
+                    ],
+                    "pipeline_override": {}
+                }
+            ]
         }
     }
 }

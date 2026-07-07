@@ -2,7 +2,6 @@ import sys
 import os
 import re
 import math
-import base64
 import tkinter as tk
 from typing import Literal, TypeAlias
 
@@ -32,37 +31,7 @@ Point: TypeAlias = tuple[int, int]
 Color: TypeAlias = int  # 0xRRGGBB
 MapType: TypeAlias = Literal["normal", "tier", "base", "dung"]
 
-
-ICON_DATA = {
-    "AssertLocation": "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAC7UlEQVR4AdSWIXMUQRCFJ6jEgQOXuMjEgQsOFIXEgUQBClAQBwokuDh+AjjiiEscuETiiEvc8b256a7O3M7cLimK4qp7e6b7Tfeb3tnbvZL+8e//JjCbzdall2nipA5QbBM9Q7NQ+FiaJ/OLYlv4RssoAuReRWdk/Y6uoi1R7BDsWQtQ+5cSINkmi+qE5/heoLeLvsaeoiaZMGvXzdGyXQIkuMpC7RqT5WRl/lvDvEX3i+5ir4FYQ09Qk+OSw+YLtksA9C/U5A1FNmwyZImfo8KoIwaJOczntkkA5q8cldIBiV+GeSKu3WGy6PB5u8Hugt1Hs4CIubLPLk0CAHwXJLzF3IWEOpBekIAOnwjpvDBNiTU6H6n8PFeZu+kRMNCeDWQprkdPQ6mKSDWWHuoS9IONWafzZFO3gwQAP3dESo/DWEPb+Qa7zIcQ531Uok7Imj6zAfYhuiCDBEDtoFkookcuj3VhbhJP+xPFagUY196r45q3CFxXcIzSrXfgjPBdxi0ZfwvI8ANdKhR/CkiKSXvs+Etq/wZztjoQHyE/2QO5tXu5jyj+SIOoEIyd9JwRM0iAZB8D6FMYt4YPGoHP5q9ymjsNEvDofNB7u20D2Sb5YHuJ9dYSTl0C/udDK+vnOy+msFp/lCfVhTXxHeK5KlibAMkPANtjtEXChbOALwu4C4JTO3d8yXUBY5Nlt0BvOMPGHeldUP/pGE42dizmUOyCdgnAXB3w/3F25t8FJabX8krMCEbvCXO9Bxe/E8zvtktAKBLozfZTY1QfGt4JYiKIey4U9xieU+LxrxjXoiwloCUkuiFbVN+FX8vYDcXV9njfu623haMICAyJ2OodCvozzvgbGB08TNKrOGJT7zeaQEmiT64yTHcorA9Q7fymOSui5m7aSQRIrnseSWjX0lyA+Oid5wVcJhEAr/bWJOSWf3JxLZxMQIvYqT4+rWAcKzxJ/4iAVYCIJN4SC422lyIwukoH+NcJdGrn0G8AAAD//yDmQk4AAAAGSURBVAMAn0P5QeU4gvcAAAAASUVORK5CYII=",
-    "Import": "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABtklEQVR4AdSXLVbDQBSFE1SR3QW44rA4JJIdYLEoQCGRsAMkOJDsACTLwFEXvjun6Zkmb35pgXLem8nM3HfvzZBM253mj/+200DXdbPcTG1w8Q4gfAvpW26CV3yBN6PIAEwSPzeZ4pMTai8tSLYBCIbiRxAeZCQQFyeuHTRZBgzx/bZtX8n3VA70RsOkgYD4x4ipciJqYNPi8hw08BviQQOI37DoP+36n69t2+FeRmgHjpeIptmYuDRCBrTmkqfcvHN2SachnYuZA1c0SQMVnEUl22eADT8L3SJr5mkXwmu+aAcQ0HF8T/+sYj+Ze2D8SG+e+ayZkW0A4gkM/aupt0SCTLm4oz0lFVcLrK6TmW2At2EO25TsY6+/oD8k+5gusP042mcbEAvEn/S+CYYrIXFhViZjgyIDIoqYKBYXX7EBFRkmqsTFVWVAhZ6JanHxVBtQsUwodV2bPzJQK+rX/X8DHCr61KtO/26t69AOPHng7N8A1FhYpl28uHbQmAZ4sK7B6eSjW0vM4bywmEwDAlKwS6/M+e4fxMCjEA904wgaEJRKOU9+9wcXxIgnllEDscLctRTuGwAA//+VtDp6AAAABklEQVQDADmP90GLDoaEAAAAAElFTkSuQmCC",
-    "Move": "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACCElEQVR4AeyVoVIDMRCGKYo66pDlDXiE4sAhi8O1DguKoqBPAChwgAJXUCBx4MC1EkcduPJt22W2171e0rsZhhmY/ye7m2T3Ty5JFxd++e/vCxgMBkdQcRC7obl2gKobFNyDihaxmjohbS4BFPBW7MUY6iOvgFsn7ZUTSw3lElAqldpk/oKKPrEzdULaXAKkAAXLUFGRWAznEsBBq8IuVER9dyswSgDVGnBAgi6sQoWcfrkR6ge3QQIoegml8OmMzJ0ZfaldmQLGheupGUwHYx+MG2RmCkhkqctpS8SsW0NE1KeIEfBC8WsKLNuKjt1hzIkTd0MxAjRBQ41E2zJ+ExECEbOFsWT6Jsx5BDQnMoycN3bnEHMTWsjnuCGwAl3MI8BeP006fP0QcQdLBO0PFG46QgSsMl2YXB3hH0xcT0S04RCMkJeyR+siUwBZemO+uxlGwddRM/2fufa3YmpApgA7g8O0Y31jD59m4webUQLIugsVcsDUllZEfIoRwykBrFKeXXnzvfu+psnZ2nsoB85ucep103nJdkoAA+TZlUP1gRjFM4a7/YgoM6cP54InwEskKz83HckDWZwAViTbKtfumIJpiS/oKwTuDiBCrt4+bQUOQTUrSl49QvnhCvDSosKKsgfPGx4cCxYQnDFy4L+AonbgiZ1/HJMmHIUI4IBuw3VhsnSW/w0AAP//0JOdfAAAAAZJREFUAwAJJaxB9oUiDAAAAABJRU5ErkJggg==",
-}
-
-_GLOBAL_ICON_CACHE: dict[str, np.ndarray | None] = {}
 _TK: tk.Tk | None = None
-
-
-def get_icon_image(icon_name: str | None) -> np.ndarray | None:
-    if not icon_name:
-        return None
-    if icon_name in _GLOBAL_ICON_CACHE:
-        return _GLOBAL_ICON_CACHE[icon_name]
-
-    raw = ICON_DATA.get(icon_name)
-    if not raw:
-        _GLOBAL_ICON_CACHE[icon_name] = None
-        return None
-
-    try:
-        decoded = base64.b64decode(raw)
-        arr = np.frombuffer(decoded, dtype=np.uint8)
-        img = cv2.imdecode(arr, cv2.IMREAD_UNCHANGED)
-        _GLOBAL_ICON_CACHE[icon_name] = img
-        return img
-    except Exception:
-        _GLOBAL_ICON_CACHE[icon_name] = None
-        return None
 
 
 def clipboard_copy_text(text: str) -> bool:
@@ -279,6 +248,13 @@ class Drawer:
     def circle(self, center: Point, radius: int, *, color: Color, thickness: int):
         cv2.circle(self._img, center, radius, self._to_bgr(color), thickness)
 
+    def polygon(self, points: list[Point], *, color: Color, thickness: int):
+        pts = np.array(points, dtype=np.int32)
+        if thickness < 0:
+            cv2.fillPoly(self._img, [pts], self._to_bgr(color))
+        else:
+            cv2.polylines(self._img, [pts], True, self._to_bgr(color), thickness)
+
     def line(self, pt1: Point, pt2: Point, *, color: Color, thickness: int):
         cv2.line(self._img, pt1, pt2, self._to_bgr(color), thickness)
 
@@ -325,7 +301,7 @@ class Drawer:
 
     def paste(
         self,
-        img: np.ndarray,
+        img: cv2.typing.MatLike,
         pos: Point,
         *,
         scale_w: int | None = None,
@@ -525,7 +501,14 @@ class ViewportManager:
         self._vx = real_x - view_w / 2.0
         self._vy = real_y - view_h / 2.0
 
-    def fit_to(self, real_points: list[Point], padding: float = 0.3) -> None:
+    def fit_to(
+        self,
+        real_points: list[Point],
+        *,
+        padding: float = 0.0,
+        min_zoom: float | None = None,
+        max_zoom: float | None = None,
+    ) -> None:
         if not real_points:
             return
         min_x = min(p[0] for p in real_points)
@@ -538,8 +521,11 @@ class ViewportManager:
         padding = max(0.0, min(0.49, padding))
         fit_w = max(1.0, self._vw * (1.0 - 2.0 * padding))
         fit_h = max(1.0, self._vh * (1.0 - 2.0 * padding))
+
         target_zoom = min(fit_w / span_x, fit_h / span_y)
-        self.zoom = target_zoom
+        min_zoom = self._min_zoom if min_zoom is None else max(self._min_zoom, min_zoom)
+        max_zoom = self._max_zoom if max_zoom is None else min(self._max_zoom, max_zoom)
+        self.zoom = max(min_zoom, min(max_zoom, target_zoom))
 
         view_w = self._vw / self._zoom
         view_h = self._vh / self._zoom
@@ -560,11 +546,11 @@ class Layer:
 class MapImageLayer(Layer):
     """Renders a background map image with viewport zoom/pan support."""
 
-    def __init__(self, view: ViewportManager, img: np.ndarray):
+    def __init__(self, view: ViewportManager, img: cv2.typing.MatLike):
         super().__init__(view)
         self._img = img
         self._cache_key: tuple | None = None
-        self._cache_scaled: np.ndarray | None = None
+        self._cache_scaled: cv2.typing.MatLike | None = None
 
     def render(self, drawer: Drawer) -> None:
         zoom = self.view.zoom

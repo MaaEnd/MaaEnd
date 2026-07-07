@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <optional>
 
 #include <MaaUtils/Logger.h>
 
@@ -70,9 +71,12 @@ size_t NavigationSession::current_node_idx() const
     return current_node_idx_;
 }
 
-size_t NavigationSession::CurrentAbsoluteNodeIndex() const
+std::optional<size_t> NavigationSession::CurrentAbsoluteNodeIndex() const
 {
-    return path_origin_index_ + std::min(current_node_idx_, current_path_.size());
+    if (current_node_idx_ < generated_prefix_size_) {
+        return std::nullopt;
+    }
+    return path_origin_index_ + current_node_idx_ - generated_prefix_size_;
 }
 
 bool NavigationSession::HasCanonicalFinalGoal() const
@@ -146,9 +150,12 @@ void NavigationSession::CommitSuccessfulCompletion(const NaviPosition& position,
     UpdatePhase(NaviPhase::Finished, reason);
 }
 
-void NavigationSession::NoteCanonicalFinalGoalConsumed(size_t consumed_absolute_index, const NaviPosition& position, const char* reason)
+void NavigationSession::NoteCanonicalFinalGoalConsumed(
+    std::optional<size_t> consumed_absolute_index,
+    const NaviPosition& position,
+    const char* reason)
 {
-    if (!HasCanonicalFinalGoal() || consumed_absolute_index != canonical_final_goal_index_) {
+    if (!HasCanonicalFinalGoal() || !consumed_absolute_index || *consumed_absolute_index != canonical_final_goal_index_) {
         return;
     }
     RecordFinalArrivalEvidence(position, false, canonical_final_goal_index_, reason);
@@ -195,6 +202,21 @@ const Waypoint& NavigationSession::CurrentPathAt(size_t index) const
     return current_path_[index];
 }
 
+std::optional<size_t> NavigationSession::CanonicalIndexAtCurrent() const
+{
+    RequireCurrentWaypoint("CanonicalIndexAtCurrent");
+    return CanonicalIndexAtCurrentPath(current_node_idx_);
+}
+
+std::optional<size_t> NavigationSession::CanonicalIndexAtCurrentPath(size_t index) const
+{
+    RequireWaypointIndex(index, "CanonicalIndexAtCurrentPath");
+    if (index < generated_prefix_size_) {
+        return std::nullopt;
+    }
+    return path_origin_index_ + index - generated_prefix_size_;
+}
+
 const std::string& NavigationSession::current_zone_id() const
 {
     return current_zone_id_;
@@ -210,6 +232,7 @@ void NavigationSession::AdvanceToNextWaypoint(const char* reason)
     RequireCurrentWaypoint(reason);
     ++current_node_idx_;
     ResetProgress();
+    ResetHardProgress();
 }
 
 void NavigationSession::AdvanceToNextWaypoint(ActionType expected_action, const char* reason)
@@ -226,6 +249,7 @@ void NavigationSession::SkipPastWaypoint(size_t waypoint_idx, const char* reason
     assert(waypoint_idx >= current_node_idx_ && "SkipPastWaypoint cannot move backward.");
     current_node_idx_ = waypoint_idx + 1;
     ResetProgress();
+    ResetHardProgress();
 }
 
 void NavigationSession::ResetProgress()
@@ -266,22 +290,60 @@ double NavigationSession::best_distance_to_target() const
     return best_distance_to_target_;
 }
 
-size_t NavigationSession::FindRejoinSliceStart(size_t continue_index) const
+void NavigationSession::ObserveHardProgress(size_t waypoint_idx, double actual_distance, const std::chrono::steady_clock::time_point& now)
 {
-    size_t slice_start = continue_index;
-    while (slice_start > 0 && original_path_[slice_start - 1].IsZoneDeclaration()) {
-        --slice_start;
+    const double progress_epsilon = std::max(kNoProgressDistanceEpsilon, kMeasurementDefaultPositionQuantum);
+    if (!hard_progress_initialized_ || hard_progress_waypoint_idx_ != waypoint_idx) {
+        hard_progress_waypoint_idx_ = waypoint_idx;
+        hard_best_distance_ = actual_distance;
+        hard_last_progress_time_ = now;
+        hard_progress_initialized_ = true;
+        return;
     }
-    return slice_start;
+
+    if (actual_distance < hard_best_distance_ - progress_epsilon) {
+        hard_best_distance_ = actual_distance;
+        hard_last_progress_time_ = now;
+    }
 }
 
-void NavigationSession::ApplyRejoinSlice(size_t slice_start, const NaviPosition& pos)
+int64_t NavigationSession::HardStalledMs(const std::chrono::steady_clock::time_point& now) const
 {
-    current_path_.assign(original_path_.begin() + static_cast<std::ptrdiff_t>(slice_start), original_path_.end());
-    path_origin_index_ = slice_start;
+    if (!hard_progress_initialized_ || hard_last_progress_time_.time_since_epoch().count() == 0) {
+        return 0;
+    }
+    return std::chrono::duration_cast<std::chrono::milliseconds>(now - hard_last_progress_time_).count();
+}
+
+void NavigationSession::ResetHardProgress()
+{
+    hard_progress_waypoint_idx_ = std::numeric_limits<size_t>::max();
+    hard_best_distance_ = std::numeric_limits<double>::max();
+    hard_last_progress_time_ = {};
+    hard_progress_initialized_ = false;
+}
+
+void NavigationSession::ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos,
+                                            bool reset_hard_progress)
+{
+    assert(continue_index <= original_path_.size() && "Dynamic overlay continue index is out of range.");
+    current_path_ = std::move(generated_prefix);
+    const size_t generated_count = current_path_.size();
+    current_path_.insert(current_path_.end(), original_path_.begin() + static_cast<std::ptrdiff_t>(continue_index), original_path_.end());
+
+    path_origin_index_ = continue_index;
+    generated_prefix_size_ = generated_count;
     current_node_idx_ = 0;
     current_zone_id_ = pos.zone_id;
     ResetProgress();
+    // Skipped by the unstick replan: it re-applies to the SAME waypoint every recovery retry, so clearing the
+    // hard clock here would keep re-arming it and defeat the recovery timeout. A genuine waypoint change is
+    // re-baselined by ObserveHardProgress on its own, so the clock still tracks real progress either way.
+    if (reset_hard_progress) {
+        ResetHardProgress();
+    }
+    LogInfo << "Dynamic route overlay applied." << VAR(generated_count) << VAR(continue_index) << VAR(current_path_.size())
+            << VAR(pos.x) << VAR(pos.y) << VAR(pos.zone_id);
 }
 
 NaviPhase NavigationSession::phase() const

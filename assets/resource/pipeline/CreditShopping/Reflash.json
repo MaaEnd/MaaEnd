@@ -36,6 +36,40 @@
             }
         }
     },
+    "RefreshUsedUp": {
+        "desc": "刷新次数已用尽",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    885,
+                    535,
+                    395,
+                    185
+                ],
+                "expected": [
+                    "今日刷新次数已用尽",
+                    "今日更新次數已用盡",
+                    "(?i)Daily\\s*refreshes\\s*used\\s*up",
+                    "本日のリセット回数は上限到達",
+                    "刷新次数",
+                    "用尽"
+                ]
+            }
+        }
+    },
+    "RefreshButton": {
+        "desc": "刷新按钮",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "RefreshCost",
+                    "RefreshUsedUp"
+                ]
+            }
+        }
+    },
     "RefreshColor": {
         "recognition": {
             "type": "ColorMatch",

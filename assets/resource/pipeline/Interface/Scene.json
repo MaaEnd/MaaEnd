@@ -7,12 +7,14 @@
         "rate_limit": 0,
         "next": [
             "__ScenePrivateCloseADBExit",
+            "__ScenePrivateMenuListLoadingEnterWorld",
             "__ScenePrivateMenuListEnterWorld",
-            "__SceneImageCheck",
+            "__ScenePrivateTrialOfSwordmancyEnterWorld",
             "__ScenePrivateAnyEnterWorldSuccess",
             "[JumpBack]__ScenePrivateLogin",
             "[JumpBack]__ScenePrivateNoticeRewardsUpgrade",
             "[JumpBack]__ScenePrivateWorldSpaceExit",
+            "[JumpBack]__ScenePrivateWorldStorySkip",
             "[JumpBack]__ScenePrivateLoggedOutConfirm",
             "[JumpBack]SceneWaitLoadingExit",
             "[JumpBack]__ScenePrivateAnyExit"

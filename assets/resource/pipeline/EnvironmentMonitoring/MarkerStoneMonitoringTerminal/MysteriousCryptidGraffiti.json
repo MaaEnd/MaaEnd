@@ -31,6 +31,7 @@
             "謎の生物に関する落書き",
             "미지의 생물이 남긴 낙서"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckMysteriousCryptidGraffitiIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Mysterious\\s*Cryptid\\s*Graffiti",
             "謎の生物に関する落書きの写真を撮る",
             "미지의 생물이 남긴 낙서를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptMysteriousCryptidGraffiti": {
         "desc": "接取谜之生物的涂鸦委托",
@@ -222,11 +224,11 @@
             ]
         },
         "next": [
-            "GoToMysteriousCryptidGraffitiMapTrackerMove"
+            "GoToMysteriousCryptidGraffitiMove"
         ]
     },
     "GoToMysteriousCryptidGraffitiNotAtStartPos": {
-        "desc": "不在谜之生物的涂鸦任务开始位置附近，先传送再复核落点",
+        "desc": "不在谜之生物的涂鸦任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,67 +237,11 @@
             ]
         },
         "next": [
-            "GoToMysteriousCryptidGraffitiRecheckStartPos",
-            "GoToMysteriousCryptidGraffitiReEnterMap"
+            "GoToMysteriousCryptidGraffitiStartPos"
         ]
     },
-    "GoToMysteriousCryptidGraffitiRecheckStartPos": {
-        "desc": "传送后再次检查是否已在谜之生物的涂鸦任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv003",
-                    "target": [
-                        384.5,
-                        542,
-                        28,
-                        28
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToMysteriousCryptidGraffitiMapTrackerMove"
-        ]
-    },
-    "GoToMysteriousCryptidGraffitiReEnterMap": {
-        "desc": "传送后仍未到达谜之生物的涂鸦任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingQingboStockade2"
-            ]
-        },
-        "next": [
-            "GoToMysteriousCryptidGraffitiFinalCheckStartPos"
-        ]
-    },
-    "GoToMysteriousCryptidGraffitiFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在谜之生物的涂鸦任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv003",
-                    "target": [
-                        384.5,
-                        542,
-                        28,
-                        28
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToMysteriousCryptidGraffitiMapTrackerMove"
-        ]
-    },
-    "GoToMysteriousCryptidGraffitiMapTrackerMove": {
-        "desc": "前往谜之生物的涂鸦",
+    "GoToMysteriousCryptidGraffitiMove": {
+        "desc": "自动寻路前往谜之生物的涂鸦",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -365,21 +311,19 @@
                     442.5,
                     531.7
                 ]
-            ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 165
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "MysteriousCryptidGraffitiAdjustCamera"
         },
-        "next": [
-            "MysteriousCryptidGraffitiAdjustHeading"
-        ]
-    },
-    "MysteriousCryptidGraffitiAdjustHeading": {
-        "desc": "谜之生物的涂鸦任务无需调整角色朝向",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]

@@ -3,6 +3,7 @@
 #   "pillow",
 #   "maafw",
 #   "pynput",
+#   "numpy",
 # ]
 # ///
 

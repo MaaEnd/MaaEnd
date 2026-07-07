@@ -31,6 +31,7 @@
             "「漱玉」",
             "'수옥'"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckCleansingJadeIcon": {
@@ -117,10 +118,11 @@
         "expected": [
             "拍摄在石柱上侧向生长的“漱玉”",
             "拍攝在石柱上往側邊生長的「漱玉」",
-            "(?i)Photograph\\s*the\\s*\"Cleansing\\s*Jade\"\\s*growing\\s*out\\s*of\\s*a\\s*pillar",
+            "(?i)Photo:\\s*\"Cleansing\\s*Jade\"",
             "石柱の横にある「漱玉」の写真を撮る",
             "돌기둥 옆에서 자라는 '수옥'을 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptCleansingJade": {
         "desc": "接取漱玉委托",
@@ -222,11 +224,11 @@
             ]
         },
         "next": [
-            "GoToCleansingJadeMapTrackerMove"
+            "GoToCleansingJadeMove"
         ]
     },
     "GoToCleansingJadeNotAtStartPos": {
-        "desc": "不在漱玉任务开始位置附近，先传送再复核落点",
+        "desc": "不在漱玉任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,67 +237,11 @@
             ]
         },
         "next": [
-            "GoToCleansingJadeRecheckStartPos",
-            "GoToCleansingJadeReEnterMap"
+            "GoToCleansingJadeStartPos"
         ]
     },
-    "GoToCleansingJadeRecheckStartPos": {
-        "desc": "传送后再次检查是否已在漱玉任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        255,
-                        395,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToCleansingJadeMapTrackerMove"
-        ]
-    },
-    "GoToCleansingJadeReEnterMap": {
-        "desc": "传送后仍未到达漱玉任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingJingyuValley4"
-            ]
-        },
-        "next": [
-            "GoToCleansingJadeFinalCheckStartPos"
-        ]
-    },
-    "GoToCleansingJadeFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在漱玉任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        255,
-                        395,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToCleansingJadeMapTrackerMove"
-        ]
-    },
-    "GoToCleansingJadeMapTrackerMove": {
-        "desc": "前往漱玉",
+    "GoToCleansingJadeMove": {
+        "desc": "自动寻路前往漱玉",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -305,21 +251,19 @@
                     246,
                     394
                 ]
-            ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 300
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "CleansingJadeAdjustCamera"
         },
-        "next": [
-            "CleansingJadeAdjustHeading"
-        ]
-    },
-    "CleansingJadeAdjustHeading": {
-        "desc": "漱玉任务无需调整角色朝向",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]

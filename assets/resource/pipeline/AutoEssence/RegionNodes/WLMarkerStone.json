@@ -1,44 +1,17 @@
 {
-    "WLMarkerStoneMoveToTriggerPointAuto": {
+    "GotoTriggerPointSetAnchor_WLMarkerStone": {
+        "enabled": false,
+        "pre_delay": 0,
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "WLMarkerStoneMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "WLMarkerStoneWalkAround1"
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_WLMarkerStone",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLMarkerStone"
         },
-        "next": [
-            "[JumpBack]WLMarkerStoneMaybeTeleport",
-            "WLMarkerStoneMoveToTriggerPoint"
-        ]
-    },
-    "WLMarkerStoneLocationAssertion": {
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            // 淤积点附近
-                            "map_name": "map02_lv004",
-                            "target": [
-                                312.7,
-                                393.6,
-                                21.3,
-                                20.6
-                            ]
-                        }
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "WLMarkerStoneMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "WLMarkerStoneWalkAround1"
-        },
+        "post_delay": 0,
         "focus": {
-            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>首敦</strong></p>"
+            "Node.Action.Starting": "📌目标地点：首墩"
         }
     },
-    "WLMarkerStoneMaybeTeleport": {
+    "GotoTriggerPointMaybeTeleport_WLMarkerStone": {
         "recognition": {
             "type": "Custom",
             "param": {
@@ -71,57 +44,101 @@
         },
         "inverse": true,
         "next": [
-            "SceneEnterWorldWulingMarkerStone2"
+            "[JumpBack]__GotoTriggerPointTeleportOnce_WLMarkerStone",
+            "GotoTriggerPointMove_WLMarkerStone"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
     },
-    "WLMarkerStoneMoveToTriggerPoint": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map02_lv004",
-                    "path": [
-                        [
-                            418.8,
-                            322.3
-                        ],
-                        [
-                            418.8,
-                            328.5
-                        ],
-                        [
-                            415.0,
-                            328.5
-                        ],
-                        [
-                            415.0,
-                            322.2
-                        ],
-                        [
-                            323.8,
-                            322.2
-                        ],
-                        [
-                            323.2,
-                            394.9
-                        ]
-                    ],
-                    "path_trim": true
-                }
-            }
-        },
+    "__GotoTriggerPointTeleportOnce_WLMarkerStone": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "WLMarkerStoneMoveToTriggerPointExact"
+            "SceneEnterWorldWulingMarkerStone2"
+        ]
+    },
+    "GotoTriggerPointMove_WLMarkerStone": {
+        "desc": "导航入口：已在淤积点附近则只走末段，否则走含圈完整路径",
+        "next": [
+            "GotoTriggerPointMoveNearTrigger_WLMarkerStone",
+            "GotoTriggerPointMoveMain_WLMarkerStone"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点附近"
         }
     },
-    "WLMarkerStoneMoveToTriggerPointExact": {
+    "GotoTriggerPointMoveNearTrigger_WLMarkerStone": {
+        "desc": "已在淤积点/激发点区域，跳过圈路径",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            "map_name": "map02_lv004",
+                            "target": [
+                                287.2,
+                                365.1,
+                                79.8,
+                                85.8
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "GotoTriggerPointMoveExact_WLMarkerStone"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点"
+        }
+    },
+    "GotoTriggerPointMoveMain_WLMarkerStone": {
+        "desc": "从锚点侧经圈路径接近激发点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv004",
+                    "path": [
+                        [
+                            418.8,
+                            321.4
+                        ],
+                        [
+                            418.8,
+                            327.6
+                        ],
+                        [
+                            415.0,
+                            327.6
+                        ],
+                        [
+                            415.0,
+                            321.3
+                        ],
+                        [
+                            323.8,
+                            321.3
+                        ]
+                    ],
+                    "no_ensure_initial_movement_state": true
+                }
+            }
+        },
+        "next": [
+            "GotoTriggerPointMoveExact_WLMarkerStone"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近"
+        }
+    },
+    "GotoTriggerPointMoveExact_WLMarkerStone": {
         "action": {
             "type": "Custom",
             "param": {
@@ -131,83 +148,23 @@
                     "path": [
                         [
                             323.2,
-                            394.9
+                            394.0
                         ],
                         [
-                            324.9,
-                            404.7
+                            324.6,
+                            403.5
                         ]
-                    ]
+                    ],
+                    "no_ensure_initial_movement_state": true
                 }
             }
         },
+        "post_delay": 1500, // 确保彻底停下，规避移动惯性
         "next": [
-            "AutoEssenceAtTriggerState"
+            "AutoEssenceDispatcher"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点"
-        }
-    },
-    "WLMarkerStoneWalkAround1": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map02_lv004",
-                    "path": [
-                        [
-                            332.6,
-                            413.5
-                        ],
-                        [
-                            313.7,
-                            394.5
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "WLMarkerStoneWalkAround2"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
-        }
-    },
-    "WLMarkerStoneWalkAround2": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map02_lv004",
-                    "path": [
-                        [
-                            313.7,
-                            394.5
-                        ],
-                        [
-                            332.6,
-                            413.5
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "WLMarkerStoneWalkAround1"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
         }
     }
 }

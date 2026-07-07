@@ -31,6 +31,7 @@
             "ネンネンの家にある桃の木",
             "염념이네 복숭아나무"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckPeachTreeAtBabblesSHomeIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Peach\\s*Tree\\s*at\\s*Babbles's\\s*Home",
             "ネンネンの家にある桃の木の写真を撮る",
             "염념이네 복숭아나무를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptPeachTreeAtBabblesSHome": {
         "desc": "接取念念家的桃树委托",
@@ -222,11 +224,11 @@
             ]
         },
         "next": [
-            "GoToPeachTreeAtBabblesSHomeMapTrackerMove"
+            "GoToPeachTreeAtBabblesSHomeMove"
         ]
     },
     "GoToPeachTreeAtBabblesSHomeNotAtStartPos": {
-        "desc": "不在念念家的桃树任务开始位置附近，先传送再复核落点",
+        "desc": "不在念念家的桃树任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,67 +237,11 @@
             ]
         },
         "next": [
-            "GoToPeachTreeAtBabblesSHomeRecheckStartPos",
-            "GoToPeachTreeAtBabblesSHomeReEnterMap"
+            "GoToPeachTreeAtBabblesSHomeStartPos"
         ]
     },
-    "GoToPeachTreeAtBabblesSHomeRecheckStartPos": {
-        "desc": "传送后再次检查是否已在念念家的桃树任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004_tier_328",
-                    "target": [
-                        514,
-                        666,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToPeachTreeAtBabblesSHomeMapTrackerMove"
-        ]
-    },
-    "GoToPeachTreeAtBabblesSHomeReEnterMap": {
-        "desc": "传送后仍未到达念念家的桃树任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingMarkerStone4"
-            ]
-        },
-        "next": [
-            "GoToPeachTreeAtBabblesSHomeFinalCheckStartPos"
-        ]
-    },
-    "GoToPeachTreeAtBabblesSHomeFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在念念家的桃树任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004_tier_328",
-                    "target": [
-                        514,
-                        666,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToPeachTreeAtBabblesSHomeMapTrackerMove"
-        ]
-    },
-    "GoToPeachTreeAtBabblesSHomeMapTrackerMove": {
-        "desc": "前往念念家的桃树",
+    "GoToPeachTreeAtBabblesSHomeMove": {
+        "desc": "自动寻路前往念念家的桃树",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -309,31 +255,19 @@
                     524.7,
                     665.8
                 ]
-            ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 90
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "PeachTreeAtBabblesSHomeAdjustCamera"
         },
-        "next": [
-            "PeachTreeAtBabblesSHomeAdjustHeading"
-        ]
-    },
-    "PeachTreeAtBabblesSHomeAdjustHeading": {
-        "desc": "念念家的桃树任务中调整角色朝向",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "path": [
-                {
-                    "action": "HEADING",
-                    "angle": 90
-                }
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]

@@ -1,0 +1,12 @@
+{
+    "GiftOperatorBranchReceive": {
+        "pre_wait_freezes": {
+            "target": [
+                953,
+                413,
+                90,
+                43
+            ]
+        }
+    }
+}

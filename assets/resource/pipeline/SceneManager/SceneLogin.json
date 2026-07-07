@@ -16,8 +16,9 @@
             }
         },
         "next": [
-            "__ScenePrivateLoginContinue",
             "[JumpBack]__ScenePrivateCloseLoginAnnouncement",
+            "[JumpBack]__ScenePrivateCloseErrorDialog",
+            "__ScenePrivateLoginContinue",
             "__ScenePrivateLogin"
         ]
     },
@@ -51,6 +52,19 @@
             "__ScenePrivateLoginSuccess",
             "[JumpBack]__ScenePrivateLoginCloseDialog"
         ]
+    },
+    "__ScenePrivateCloseErrorDialog": {
+        "desc": "关闭登录时错误弹窗提示",
+        "recognition": "TemplateMatch",
+        "roi": [
+            350,
+            180,
+            600,
+            350
+        ],
+        "template": "SceneManager/LoginDialogConfirm.png",
+        "threshold": 0.9,
+        "action": "Click"
     },
     "__ScenePrivateCloseLoginAnnouncement": {
         "desc": "关闭登录时公告界面",
@@ -119,7 +133,7 @@
                 ]
             }
         },
-        "pre_delay": 1000, // 3d移动，pre_wait_freeze不生效
+        "pre_delay": 1200, // 3d移动，pre_wait_freeze不生效
         "action": {
             "type": "Click"
         }

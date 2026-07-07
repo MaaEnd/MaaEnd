@@ -17,20 +17,5 @@
     },
     "ADBSpecial": {
         "enabled": true
-    },
-    "CreditShoppingScanItem": {
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": [
-                    841,
-                    200
-                ],
-                "end": [
-                    841,
-                    300
-                ]
-            }
-        }
     }
 }

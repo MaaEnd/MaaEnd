@@ -12,6 +12,12 @@
                 "DailyEventRewards",
                 "DailyProtocolPassRewards"
             ],
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
             "group": [
                 "other_menu"
             ]
@@ -40,8 +46,6 @@
                 }
             ],
             "controller": [
-                "Win32-Window",
-                "Win32-Window-Background",
                 "Win32-Front",
                 "Wlroots"
             ]
@@ -68,8 +72,6 @@
                 }
             ],
             "controller": [
-                "Win32-Window",
-                "Win32-Window-Background",
                 "Win32-Front",
                 "Wlroots"
             ]
@@ -102,8 +104,6 @@
                 }
             ],
             "controller": [
-                "Win32-Window",
-                "Win32-Window-Background",
                 "Win32-Front",
                 "Wlroots"
             ]
@@ -152,8 +152,6 @@
                 }
             ],
             "controller": [
-                "Win32-Window",
-                "Win32-Window-Background",
                 "Win32-Front",
                 "Wlroots"
             ]

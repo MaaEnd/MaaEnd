@@ -18,7 +18,7 @@ import (
 var (
 	Resource = &MapTrackerResource{
 		PointerTemplateLoader: minicv.NewTemplateLoaderOfDynamicPath(
-			func() string { return resource.FindResource("resource/image/MapTracker/pointer.png") },
+			func() string { return resource.FindResource("resource/image/MapTracker/MiniMapIcons/Pointer.png") },
 		),
 		ZoomInTemplate: minicv.NewTemplateLoaderOfDynamicPath(
 			func() string { return resource.FindResource("resource/image/MapTracker/BigMapZoomIn.png") },

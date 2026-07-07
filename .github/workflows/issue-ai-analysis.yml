@@ -13,7 +13,7 @@ on:
         type: number
 
 jobs:
-  copilot-analysis:
+  ai-analysis:
     if: |
       (github.event_name == 'issues' && github.event.action == 'opened') ||
       github.event_name == 'workflow_dispatch' ||
@@ -22,6 +22,7 @@ jobs:
        contains(github.event.comment.body, '@MaaEndBot') &&
        github.event.comment.user.type != 'Bot')
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
       issues: write
@@ -31,38 +32,33 @@ jobs:
           curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
           cargo binstall -y minidump-stackwalk dump_syms
 
-      # 这个 action 只负责编排，分析质量仍依赖配套的 issue/log analysis skill。
-      # 详细使用文档：https://github.com/MistEO/ai-issue-analysis
-      # 最佳实践参考：
-      # - https://github.com/MaaEnd/MaaEnd/blob/v2/.claude/skills/maaend-issue-log-analysis/SKILL.md
-      # - https://github.com/MaaAssistantArknights/MaaAssistantArknights/blob/dev-v2/.claude/skills/maa-issue-log-analysis/SKILL.md
+      # 分析质量仍依赖：.claude/skills/maaend-issue-log-analysis/SKILL.md
       - name: Analyze issue with AI
         id: analysis
-        uses: Misteo/ai-issue-analysis@main
+        continue-on-error: true
+        uses: MistEO/ai-issue-analysis@main
         with:
+          agent: ${{ secrets.BOT_AI_AGENT }}
+          api-key: ${{ secrets.BOT_AI_API_KEY }}
+          api-base-url: ${{ secrets.BOT_AI_API_BASE_URL }}
+          model: ${{ secrets.BOT_AI_MODEL }}
           github-token: ${{ secrets.MAAEND_BOT_TOKEN }}
-          copilot-github-token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           bot-name: '@MaaEndBot'
           initial-comment-body: |
-            🤖 **MaaEndBot 正在分析该 Issue...**  
-            
+            🤖 **MaaEndBot 正在分析该 Issue...**
+
             感谢您的反馈！AI 正在自动分析该问题，预计耗时约 10 分钟。
           prompt-template: |
-            分析 GitHub Issue {{issue_number}}。把最终结论写到 {{copilot_answer_file}}。
+            严格按照 .claude/skills/maaend-issue-log-analysis/SKILL.md 中的规则，分析 GitHub Issue {{issue_number}}。把最终结论写到 {{answer_file}}。
 
       - name: 查看完整输入输出
         if: always()
         env:
-          ANALYSIS_PROMPT: ${{ steps.analysis.outputs.analysis-prompt }}
           ISSUE_NUMBER: ${{ steps.analysis.outputs.issue-number }}
           COMMENT_ID: ${{ steps.analysis.outputs.comment-id }}
           COMMENT_URL: ${{ steps.analysis.outputs.comment-url }}
-          COPILOT_OUTPUT: ${{ steps.analysis.outputs.copilot-output }}
-          FINAL_CONCLUSION: ${{ steps.analysis.outputs.final-conclusion }}
         run: |
-          printf '%s\n' "$ANALYSIS_PROMPT"
           echo "issue_number=$ISSUE_NUMBER"
           echo "comment_id=$COMMENT_ID"
           echo "comment_url=$COMMENT_URL"
-          printf '%s\n' "$COPILOT_OUTPUT"
-          printf '%s\n' "$FINAL_CONCLUSION"
+          echo "(Full agent-output and final-conclusion are available in the uploaded artifacts)"

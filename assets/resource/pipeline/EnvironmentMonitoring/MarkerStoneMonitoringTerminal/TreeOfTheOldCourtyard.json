@@ -29,8 +29,9 @@
             "「舊庭樹」",
             "(?i)\"Tree\\s*of\\s*the\\s*Old\\s*Courtyard\"",
             "「旧庭の木」",
-            "'옛 정원의 나무'"
+            "옛 정원의 나무"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckTreeOfTheOldCourtyardIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*\"Tree\\s*of\\s*the\\s*Old\\s*Courtyard\"",
             "「旧庭の木」の写真を撮る",
             "'옛 정원의 나무'를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptTreeOfTheOldCourtyard": {
         "desc": "接取旧庭树委托",
@@ -207,26 +209,22 @@
     "GoToTreeOfTheOldCourtyardStartPos": {
         "desc": "在旧庭树任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        491.2,
-                        197.9,
-                        11.7,
-                        10.7
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                480.76,
+                1056.91,
+                21.99,
+                23.92
             ]
         },
         "next": [
-            "GoToTreeOfTheOldCourtyardMapTrackerMove"
+            "GoToTreeOfTheOldCourtyardMove"
         ]
     },
     "GoToTreeOfTheOldCourtyardNotAtStartPos": {
-        "desc": "不在旧庭树任务开始位置附近，先传送再复核落点",
+        "desc": "不在旧庭树任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,115 +233,33 @@
             ]
         },
         "next": [
-            "GoToTreeOfTheOldCourtyardRecheckStartPos",
-            "GoToTreeOfTheOldCourtyardReEnterMap"
+            "GoToTreeOfTheOldCourtyardStartPos"
         ]
     },
-    "GoToTreeOfTheOldCourtyardRecheckStartPos": {
-        "desc": "传送后再次检查是否已在旧庭树任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        491.2,
-                        197.9,
-                        11.7,
-                        10.7
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToTreeOfTheOldCourtyardMapTrackerMove"
-        ]
-    },
-    "GoToTreeOfTheOldCourtyardReEnterMap": {
-        "desc": "传送后仍未到达旧庭树任务开始位置附近，重试一次传送",
+    "GoToTreeOfTheOldCourtyardMove": {
+        "desc": "自动寻路前往旧庭树",
         "action": "Custom",
-        "custom_action": "SubTask",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingMarkerStone1"
-            ]
-        },
-        "next": [
-            "GoToTreeOfTheOldCourtyardFinalCheckStartPos"
-        ]
-    },
-    "GoToTreeOfTheOldCourtyardFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在旧庭树任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        491.2,
-                        197.9,
-                        11.7,
-                        10.7
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToTreeOfTheOldCourtyardMapTrackerMove"
-        ]
-    },
-    "GoToTreeOfTheOldCourtyardMapTrackerMove": {
-        "desc": "前往旧庭树",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv004",
             "path": [
-                [
-                    500,
-                    211
-                ],
-                [
-                    520.8,
-                    211.2
-                ],
-                [
-                    520.8,
-                    196.3
-                ],
-                [
-                    538.3,
-                    195.1
-                ],
-                [
-                    539.4,
-                    178.7
-                ],
-                [
-                    555.8,
-                    177.5
-                ],
-                [
-                    555.8,
-                    178.8
-                ]
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        98.4,
+                        111
+                    ],
+                    "target_tier": "Wuling_L4_330"
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 180
+                }
             ]
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "TreeOfTheOldCourtyardAdjustCamera"
         },
-        "next": [
-            "TreeOfTheOldCourtyardAdjustHeading"
-        ]
-    },
-    "TreeOfTheOldCourtyardAdjustHeading": {
-        "desc": "旧庭树任务无需调整角色朝向",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]

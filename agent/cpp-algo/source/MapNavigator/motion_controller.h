@@ -20,6 +20,7 @@ public:
     TurnCommandResult ApplySteering(double yaw_delta_deg);
     bool TriggerSprint();
     bool SupportsSprint() const;
+    void SetSprintSuppressed(bool suppressed);
     void SetAction(LocalDriverAction action, bool force);
 
     bool IsMoving() const;
@@ -44,6 +45,7 @@ private:
     bool is_moving_ = false;
     bool is_moving_forward_ = false;
     bool sprint_active_ = false;
+    bool sprint_suppressed_ = false;
 };
 
 } // namespace mapnavigator

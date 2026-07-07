@@ -41,9 +41,9 @@
             "time": 100,
             "target": [
                 0,
-                -200,
-                200,
-                200
+                -400,
+                400,
+                400
             ]
         },
         "pre_delay": 0,
@@ -87,6 +87,7 @@
     },
     "WeaponUpgradeClickLevelUpButton": {
         "desc": "进入升级UI",
+        "max_hit": 5,
         "recognition": "And",
         "all_of": [
             "LevelUpButton"
@@ -100,14 +101,18 @@
                 200
             ]
         },
-        "pre_delay": 1500, // 显示升级按钮后会偶现会卡一会，pre_wait_freezes不好使
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
         "post_delay": 0,
+        "timeout": 5000,
         "rate_limit": 0,
         "next": [
             "WeaponUpgradeClickAddUpgradeMaterial"
+        ],
+        "on_error": [
+            "WeaponUpgradeClickLevelUpButton" // 此动画过渡过程中会卡住时间较久，没办法了增加重试
         ]
     },
     "WeaponUpgradeClickAddUpgradeMaterial": {
@@ -195,9 +200,11 @@
     "WeaponUpgradeSwitchLowLevel": {
         "desc": "识别品质，切换到等级分类",
         "max_hit": 5,
-        "recognition": {
-            "type": "OCR",
-            "param": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "order_text",
+                "recognition": "OCR",
                 "roi": [
                     16,
                     561,
@@ -205,12 +212,31 @@
                     133
                 ],
                 "expected": [
+                    "降序",
+                    "(?i)DESC",
+                    "降順",
+                    "升序",
+                    "(?i)ASC",
+                    "昇順"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": "order_text",
+                "roi_offset": [
+                    -150,
+                    -10,
+                    50,
+                    20
+                ],
+                "expected": [
                     "品质",
                     "品質",
                     "(?i)Quality"
                 ]
             }
-        },
+        ],
+        "box_index": 1,
         "pre_delay": 0,
         "action": {
             "type": "Click"
@@ -232,14 +258,34 @@
     },
     "WeaponUpgradeClickLevelSort": {
         "desc": "在下拉菜单中识别武器等级并选择",
-        "recognition": {
-            "type": "OCR",
-            "param": {
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "order_text",
+                "recognition": "OCR",
                 "roi": [
                     16,
                     561,
                     375,
                     133
+                ],
+                "expected": [
+                    "降序",
+                    "(?i)DESC",
+                    "降順",
+                    "升序",
+                    "(?i)ASC",
+                    "昇順"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": "order_text",
+                "roi_offset": [
+                    -150,
+                    -100,
+                    50,
+                    70
                 ],
                 "expected": [
                     "武器等级",
@@ -248,7 +294,8 @@
                     "レベル"
                 ]
             }
-        },
+        ],
+        "box_index": 1,
         "pre_wait_freezes": {
             "time": 300,
             "target": [
@@ -298,8 +345,36 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 100,
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
+            "WeaponUpgradeSwitchAscendingSuccess"
+        ]
+    },
+    "WeaponUpgradeSwitchAscendingSuccess": {
+        "desc": "成功切换到升序",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    16,
+                    561,
+                    375,
+                    133
+                ],
+                "expected": [
+                    "升序",
+                    "(?i)ASC",
+                    "昇順"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 300,
             "target": [
                 0,
                 -300,
@@ -307,7 +382,7 @@
                 300
             ]
         },
-        "post_delay": 0,
-        "rate_limit": 0
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }

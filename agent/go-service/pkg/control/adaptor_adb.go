@@ -14,11 +14,12 @@ type ADBControlAdaptor struct {
 	h    int
 
 	pm               PlayerMovement
+	lastDirection    PlayerDirection
 	lastMotionIsWalk bool
 }
 
 func newADBControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int) *ADBControlAdaptor {
-	return &ADBControlAdaptor{ctx, ctrl, w, h, MovementStop, false}
+	return &ADBControlAdaptor{ctx: ctx, ctrl: ctrl, w: w, h: h, pm: MovementStop, lastDirection: DirectionF, lastMotionIsWalk: false}
 }
 
 func (aca *ADBControlAdaptor) Ctx() *maa.Context {
@@ -41,6 +42,11 @@ func (aca *ADBControlAdaptor) TouchClick(contact, x, y int, durationMillis, dela
 	aca.ctrl.PostTouchDown(int32(contact), int32(x), int32(y), 1).Wait()
 	time.Sleep(time.Duration(durationMillis) * time.Millisecond)
 	aca.ctrl.PostTouchUp(int32(contact)).Wait()
+	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
+}
+
+func (aca *ADBControlAdaptor) TouchMove(contact, x, y int, delayMillis int) {
+	aca.ctrl.PostTouchMove(int32(contact), int32(x), int32(y), 1).Wait()
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
 
@@ -80,10 +86,12 @@ func (aca *ADBControlAdaptor) GetPlayerMovement() PlayerMovement {
 
 func (aca *ADBControlAdaptor) SetPlayerMovement(movement PlayerMovement, policy PlayerMovementPolicy) {
 	joystickRunForward := func() {
-		aca.TouchDown(joystickContact, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_RUN_DY, 0)
+		dx, dy := joystickOffset(aca.lastDirection, -JOYSTICK_RUN_DY)
+		aca.TouchDown(joystickContact, JOYSTICK_CENTER_X+dx, JOYSTICK_CENTER_Y+dy, 0)
 	}
 	joystickWalkForward := func() {
-		aca.TouchDown(joystickContact, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_WALK_DY, 0)
+		dx, dy := joystickOffset(aca.lastDirection, -JOYSTICK_WALK_DY)
+		aca.TouchDown(joystickContact, JOYSTICK_CENTER_X+dx, JOYSTICK_CENTER_Y+dy, 0)
 	}
 	joystickStopForward := func() {
 		aca.TouchUp(joystickContact, defaultTouchActionDelayMillis)
@@ -153,16 +161,45 @@ func (aca *ADBControlAdaptor) SetPlayerMovement(movement PlayerMovement, policy 
 	aca.pm = movement
 }
 
+func (aca *ADBControlAdaptor) SetPlayerDirection(direction PlayerDirection) {
+	if direction == aca.lastDirection {
+		return
+	}
+	aca.lastDirection = direction
+	if aca.pm.speed > MovementStop.speed {
+		if aca.pm.speed >= MovementRun.speed {
+			dx, dy := joystickOffset(direction, -JOYSTICK_RUN_DY)
+			aca.TouchDown(joystickContact, JOYSTICK_CENTER_X+dx, JOYSTICK_CENTER_Y+dy, 0)
+		} else {
+			dx, dy := joystickOffset(direction, -JOYSTICK_WALK_DY)
+			aca.TouchDown(joystickContact, JOYSTICK_CENTER_X+dx, JOYSTICK_CENTER_Y+dy, 0)
+		}
+	}
+}
+
 func (aca *ADBControlAdaptor) PlayerJump() {
 	aca.TouchClick(jumpButtonContact, JUMP_BUTTON_X, JUMP_BUTTON_Y, defaultTouchActionDelayMillis*4, 0)
 }
 
-func (aca *ADBControlAdaptor) AggressivelyResetCamera() {
-	// ADB has no need to reset camera aggressively
+func (aca *ADBControlAdaptor) ResetCursor(_ CursorResetPolicy) {
+	// ADB has no need to reset cursor
 }
 
 func (aca *ADBControlAdaptor) AggressivelyResetPlayerMovement() {
 	// ADB has no need to reset player movement aggressively
+}
+
+func joystickOffset(direction PlayerDirection, magnitude int) (dx, dy int) {
+	switch direction {
+	case DirectionB: // Backward ↓
+		return 0, magnitude
+	case DirectionL: // Left ←
+		return -magnitude, 0
+	case DirectionR: // Right →
+		return magnitude, 0
+	default: // Forward ↑
+		return 0, -magnitude
+	}
 }
 
 const (
@@ -183,5 +220,5 @@ const (
 	cameraContact                 = 1
 	sprintButtonContact           = 2
 	jumpButtonContact             = 3
-	defaultTouchActionDelayMillis = 50
+	defaultTouchActionDelayMillis = 60
 )

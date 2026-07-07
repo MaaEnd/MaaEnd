@@ -7,6 +7,7 @@
             "VisitFriendsMenuScanFriendsFull",
             "[JumpBack][Anchor]VisitFriendsMenuScanTargetFriendAnchorOpen",
             "VisitFriendsMenuScanScrollFinish",
+            "VisitFriendsMenuScanScrollFinishSpecial",
             "[JumpBack]VisitFriendsMenuScanScrollList"
         ]
     },
@@ -58,6 +59,55 @@
         "post_delay": 0,
         "focus": {
             "Node.Recognition.Succeeded": "好友列表已滚动到底部，拜访完成"
+        }
+    },
+    "VisitFriendsMenuScanScrollFinishSpecial": {
+        "desc": "判断是否只有一个好友",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "_CanVisitText",
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            0,
+                            0,
+                            307,
+                            203
+                        ],
+                        "expected": [
+                            "可拜访的好友",
+                            "可拜訪的好友",
+                            "Visitable Friends",
+                            "訪問できるフレンド",
+                            "可拜访"
+                        ]
+                    }
+                }
+            },
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": "_CanVisitText",
+                        "roi_offset": [
+                            0,
+                            0,
+                            15,
+                            0
+                        ],
+                        "expected": [
+                            // @i18n-skip
+                            "(^|[^\\d])1(?!\\d)"
+                        ],
+                        "only_rec": true
+                    }
+                }
+            }
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "当前只有一个好友"
         }
     },
     "VisitFriendsMenuScanFriendsFull": {
@@ -131,6 +181,7 @@
     },
     "VisitFriendsMenuScanDetailOpen": {
         "desc": "识别进入好友船的按钮",
+        "pre_delay": 0,
         "action": "Click",
         "target": [
             -100,
@@ -144,15 +195,19 @@
             -10,
             -10
         ],
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                400,
-                300,
-                500,
-                100
-            ]
-        },
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuScanDetailOpenSuccess"
+        ]
+    },
+    "VisitFriendsMenuScanDetailOpenSuccess": {
+        "desc": "成功打开好友详情弹窗",
+        "recognition": "And",
+        "all_of": [
+            "GrayCancelButton"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
         "post_delay": 0,
         "next": [
             "VisitFriendsMenuScanDetailSaveAssist"

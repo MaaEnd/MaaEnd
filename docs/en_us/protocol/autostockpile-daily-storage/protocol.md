@@ -1,6 +1,6 @@
 # AutoStockpile Local Daily Goods-Price Records — Third-Party Read Protocol
 
-When the `AutoStockpileAllowDataUpload` option is enabled, the Go Service writes the per-round recognized goods prices to `data/AutoStockpile/daily_storage.json` after successful goods recognition and region/server-day resolution. This path is for local file records only and does not trigger remote uploads.
+When the `AutoStockpileAllowDataUpload` option is enabled, the Go Service writes the per-round recognized goods prices to `debug/record/ElasticGoodsPrices.json` after successful goods recognition and region/server-day resolution. This path is for local file records only and does not trigger remote uploads.
 
 This document defines the file format and path resolution rules for third-party tools (data analysis dashboards, web frontends, users) to read reliably.
 
@@ -63,7 +63,7 @@ A corresponding JSON Schema file is provided for third-party tools to validate t
 - **Do not contain** the old `captured_at_utc` field. This field is deprecated in files with `schema_version ≥ 2`.
 - A new record with the same `server_date + region + uid` **overwrites** the old record. Different `uid` values on the same server date and region are kept independently.
 - At most **120 distinct** `server_date` values are retained. When exceeded, the earliest date and all its region records are discarded.
-- Writes use a same-directory temporary file + rename **atomic write** process. Readers can safely read `daily_storage.json` at any time without seeing a partially written file.
+- Writes use a same-directory temporary file + rename **atomic write** process. Readers can safely read `ElasticGoodsPrices.json` at any time without seeing a partially written file.
 - Write failures only log a warning and continue AutoStockpile; the task is not aborted.
 
 ---
@@ -73,37 +73,21 @@ A corresponding JSON Schema file is provided for third-party tools to validate t
 ### Target File
 
 ```text
-{Data Directory}/AutoStockpile/daily_storage.json
+debug/record/ElasticGoodsPrices.json
 ```
 
-### Data Directory Resolution Priority
-
-Search in the following order, using the first path that satisfies the condition:
-
-1. **Environment variable `MAAEND_DATA_DIR`** — If set and non-empty, use it directly (after `filepath.Clean`).
-2. **Upward search from current working directory** — Starting from the current working directory, walk upward looking for an existing `data/` or `assets/data/` directory; use the first one found.
-3. **Upward search from executable directory** — Starting from `os.Executable()`'s directory, walk upward looking for an existing `data/` or `assets/data/` directory; use the first one found.
-4. **Fallback** — If none of the above found, use `<working directory>/data/`. The directory is created via `MkdirAll` if it does not exist.
-
-### Upward Search Algorithm
-
-When walking upward from the starting directory, check two candidate paths at each level (in order):
-
-1. `{base}/data/`
-2. `{base}/assets/data/`
-
-The first path that exists and is a directory is the result. If the search reaches the filesystem root without finding a match, an empty string is returned.
+The path is a fixed relative path from the MaaEnd working directory. No upward search or environment variable resolution is performed. The directory is created via `MkdirAll` if it does not exist.
 
 ### Atomic Write Process
 
-1. Create a temporary file in the same directory (naming pattern `.{daily_storage.json}.*.tmp`)
+1. Create a temporary file in the same directory (naming pattern `.{ElasticGoodsPrices.json}.*.tmp`)
 2. Write the complete JSON content
 3. `chmod` the file to `0644`
 4. `Sync` to flush to disk
 5. `Close` the file handle
 6. `os.Rename` to atomically replace the target file
 
-Readers can safely read `daily_storage.json` at any time and will never see a partially written file.
+Readers can safely read `ElasticGoodsPrices.json` at any time and will never see a partially written file.
 
 ### Write Failure Behavior
 

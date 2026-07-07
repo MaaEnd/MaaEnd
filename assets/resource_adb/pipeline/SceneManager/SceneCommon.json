@@ -6,13 +6,5 @@
                 "key": 4 // ESC
             }
         }
-    },
-    "__ScenePrivateCloseADBExit": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 4 // ESC
-            }
-        }
     }
 }

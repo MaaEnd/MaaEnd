@@ -1,11 +1,18 @@
 {
     "AutoCollectRoute1Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCity5"
+            ]
+        },
         "next": [
-            "AutoCollectRoute1AssertLocation",
-            "[JumpBack]SceneEnterWorldWulingWulingCity5"
+            "AutoCollectRoute1AssertLocation"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "开始路线1"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute1.label"
         }
     },
     "AutoCollectRoute1End": {

@@ -35,8 +35,8 @@
             "type": "Or",
             "param": {
                 "any_of": [
-                    "ReceptionRoomExchangeEnd1",
-                    "ReceptionRoomExchangeEnd2"
+                    "ReceptionRoomExchangeEnd1"
+                    // "ReceptionRoomExchangeEnd2" //原本识别到信用点增加也会判断命中情报交流结束,为了防止误伤先关闭
                 ]
             }
         },
@@ -46,10 +46,10 @@
         "rate_limit": 0,
         "next": [
             "ReceptionRoomClueExchangeConfirm"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "命中线索交流结束界面" //测试输出
-        }
+        ]
+        //"focus": {
+        //    "Node.Recognition.Succeeded": "命中线索交流结束界面" //测试输出
+        //}
     },
     "ReceptionRoomExchangeEnd2": {
         "desc": "[会客室·线索] 识别到信用点增加,且在会客室界面，确认情报交流结束",
@@ -186,6 +186,8 @@
             "[JumpBack]ReceptionRoomReceiveClues",
             "[JumpBack]ReceptionRoomSetClues",
             "[JumpBack]ReceptionRoomStartExchange",
+            "[JumpBack]ReceptionRoomSendCluesDirect",
+            "ReceptionRoomClueExchangeWait",
             "ReceptionRoomExit"
         ],
         "focus": {
@@ -213,6 +215,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "ReceptionRoomClueExchangeWait",
             "ReceptionRoomSendCluesClueCollectionOpen"
         ]
     },
@@ -356,10 +359,7 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {
-                "contact": 1
-            }
+            "type": "Click"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -387,6 +387,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "ReceptionRoomClueExchangeWait",
             "SceneNoticeRewardsConfirm"
         ]
     },
@@ -411,6 +412,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "ReceptionRoomClueExchangeWait",
             "ReceptionRoomReceiveCluesOpen"
         ]
     },
@@ -603,10 +605,10 @@
         "post_wait_freezes": {
             "time": 1000,
             "target": [
-                -450,
-                -300,
-                450,
-                300
+                1128,
+                0,
+                83,
+                42
             ]
         },
         "post_delay": 0,
@@ -627,13 +629,18 @@
                 ]
             }
         },
-        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 200,
-        "post_delay": 0,
-        "rate_limit": 0
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                1065,
+                0,
+                179,
+                41
+            ]
+        }
     },
     "ReceptionRoomSendCluesSelectFriend": {
         "desc": "[会客室·线索] 先识别缺失线索的好友",
@@ -734,6 +741,46 @@
         "rate_limit": 0,
         "next": [
             "InReceptionRoom"
+        ]
+    },
+    "ReceptionRoomSendCluesDirect": {
+        "desc": "[会客室·线索] 在会客室主界面直接点击「赠予」进入发送线索界面",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1182,
+                    296,
+                    98,
+                    102
+                ],
+                "expected": [
+                    "赠予",
+                    "贈予",
+                    "(?i)Send",
+                    "譲り渡す"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                -300,
+                0,
+                300,
+                150
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesViewIn"
         ]
     },
     "ReceptionRoomSendCluesEntry": {
@@ -862,6 +909,7 @@
     },
     "ReceptionRoomSetClues": {
         "desc": "[会客室·线索] 识别到会客室内的线索红点，准备放置线索",
+        "max_hit": 14,
         "recognition": {
             "type": "And",
             "param": {
@@ -887,6 +935,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "ReceptionRoomClueExchangeWait",
             "ReceptionRoomSetCluesChooseClues"
         ]
     },
@@ -1083,6 +1132,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "ReceptionRoomClueExchangeWait",
             "InDijiangControlNexus"
         ]
     }

@@ -1,7 +1,204 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Custom Action Schema",
     "description": "Schema for custom actions in MaaFramework pipeline",
-    "type": "object",
-    "additionalProperties": true
+    "properties": {
+        "custom_action": {
+            "enum": [
+                "325",
+                "AccountSwitchWindowAction",
+                "AttachToExpectedRegexAction",
+                "AutoAltClickAction",
+                "AutoAltLongPressAction",
+                "AutoAltSwipeAction",
+                "AutoFightMainAction",
+                "AutoSellItemExecuteItemTaskAction",
+                "AutoStockStapleQuantityControlAction",
+                "AutoStockpile.CaptureUid",
+                "AutoStockpile.ReconcileDecision",
+                "AutoStockpile.SelectItem",
+                "BatchAddFriendsAction",
+                "BatchAddFriendsFriendListFullAction",
+                "BatchAddFriendsStrangersFinishAction",
+                "BatchAddFriendsStrangersOnAddAction",
+                "BatchAddFriendsUIDEnterAction",
+                "BatchAddFriendsUIDFinishAction",
+                "BatchAddFriendsUIDLoopTopAction",
+                "BatchAddFriendsUIDOnAddAction",
+                "BatchAddFriendsUIDOnEmptyAction",
+                "BetterSliding",
+                "CharacterControllerForwardAxisAction",
+                "CharacterControllerPitchDeltaAction",
+                "CharacterControllerRelativeMoveAction",
+                "CharacterControllerYawDeltaAction",
+                "CharacterMoveToTargetAction",
+                "CharacterMoveToTargetNotFoundAction",
+                "CaptureUid",
+                "ClearHitCount",
+                "CreditShoppingScanItemAction",
+                "DailyEventUnreadItemInitAction",
+                "ERROR",
+                "EssenceFilterAfterBattleSkillDecisionAction",
+                "EssenceFilterAfterBattleTierGateAction",
+                "EssenceFilterCheckItemAction",
+                "EssenceFilterCheckItemLevelAction",
+                "EssenceFilterFinishAction",
+                "EssenceFilterInitAction",
+                "EssenceFilterRowCollectAction",
+                "EssenceFilterRowNextItemAction",
+                "EssenceFilterSkillDecisionAction",
+                "EssenceFilterSwipeCalibrateAction",
+                "EssenceFilterTraceAction",
+                "FalseAction",
+                "ImageCheckSetResultAction",
+                "ImportBluePrintsEnterCodeAction",
+                "ImportBluePrintsFinishAction",
+                "ImportBluePrintsInitTextAction",
+                "ItemTransferFallbackAction",
+                "ItemTransferOCRAction",
+                "MapNavigateAction",
+                "MapTrackerBigMapPick",
+                "MapTrackerBigMapZoom",
+                "MapTrackerGoal",
+                "MapTrackerMove",
+                "MapTrackerMoveCompatible",
+                "MapTrackerToward",
+                "MapTrackerZipline",
+                "OCREssenceInventoryNumberAction",
+                "PipelineOverride",
+                "PipelineOverrideAction",
+                "PostStop",
+                "PullCountCalculatorAction",
+                "PuzzleAction",
+                "SeizeDeliveryJobsDepartureAction",
+                "SeizeDeliveryJobsResetScanStateAction",
+                "SeizeDeliveryJobsScanTargetAction",
+                "RealTimeTaskAction",
+                "SceneManagerMenuListClickItemAction",
+                "SubTask",
+                "TrialOfSwordmancy.Decide",
+                "VisitFriendsExecuteVisitAction",
+                "VisitFriendsMainAction",
+                "VisitFriendsMenuClueAssistAction",
+                "VisitFriendsMenuClueAssistFullAction",
+                "VisitFriendsMenuClueExchangeAction",
+                "VisitFriendsMenuClueExchangeFullAction",
+                "VisitFriendsMenuScanTargetFriendOpenAction",
+                "WebEvent202605Action",
+                "autoEcoFarmInterruptibleSleep",
+                "autoEcoFarmOverrideTargetTemplate",
+                "autoEcoFarmResetSwipeState"
+            ]
+        }
+    },
+    "if": {
+        "type": "object",
+        "required": [ "custom_action" ],
+        "properties": { "custom_action": { "const": "MapTrackerMove" } }
+    },
+    "then": {
+        "type": "object",
+        "required": [ "custom_action_param" ],
+        "properties": {
+            "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerMoveParam" }
+        }
+    },
+    "else": {
+        "if": {
+            "type": "object",
+            "required": [ "custom_action" ],
+            "properties": { "custom_action": { "const": "MapTrackerGoal" } }
+        },
+        "then": {
+            "type": "object",
+            "required": [ "custom_action_param" ],
+            "properties": {
+                "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerGoalParam" }
+            }
+        },
+        "else": {
+            "if": {
+                "type": "object",
+                "required": [ "custom_action" ],
+                "properties": { "custom_action": { "const": "MapTrackerZipline" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_action_param" ],
+                "properties": {
+                    "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerZiplineParam" }
+                }
+            },
+            "else": {
+                "if": {
+                    "type": "object",
+                    "required": [ "custom_action" ],
+                    "properties": { "custom_action": { "const": "MapTrackerToward" } }
+                },
+                "then": {
+                    "type": "object",
+                    "required": [ "custom_action_param" ],
+                    "properties": {
+                        "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerTowardParam" }
+                    }
+                },
+                "else": {
+                    "if": {
+                        "type": "object",
+                        "required": [ "custom_action" ],
+                        "properties": { "custom_action": { "const": "MapTrackerBigMapPick" } }
+                    },
+                    "then": {
+                        "type": "object",
+                        "required": [ "custom_action_param" ],
+                        "properties": {
+                            "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapPickParam" }
+                        }
+                    },
+                    "else": {
+                        "if": {
+                            "type": "object",
+                            "required": [ "custom_action" ],
+                            "properties": { "custom_action": { "const": "MapTrackerBigMapZoom" } }
+                        },
+                        "then": {
+                            "type": "object",
+                            "required": [ "custom_action_param" ],
+                            "properties": {
+                                "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapZoomParam" }
+                            }
+                        },
+                        "else": {
+                            "if": {
+                                "type": "object",
+                                "required": [ "custom_action" ],
+                                "properties": { "custom_action": { "const": "AutoAltLongPressAction" } }
+                            },
+                            "then": {
+                                "type": "object",
+                                "required": [ "custom_action_param" ],
+                                "properties": {
+                                    "custom_action_param": { "$ref": "./components/auto_alt.schema.json#/$defs/AutoAltLongPressParam" }
+                                }
+                            },
+                            "else": {
+                                "if": {
+                                    "type": "object",
+                                    "required": [ "custom_action" ],
+                                    "properties": { "custom_action": { "const": "AutoAltSwipeAction" } }
+                                },
+                                "then": {
+                                    "type": "object",
+                                    "required": [ "custom_action_param" ],
+                                    "properties": {
+                                        "custom_action_param": { "$ref": "./components/auto_alt.schema.json#/$defs/AutoAltSwipeParam" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

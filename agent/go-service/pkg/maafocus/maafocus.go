@@ -5,12 +5,21 @@ package maafocus
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 const nodeName = "_GO_SERVICE_FOCUS_"
+
+// 进程级的限频时间戳表：以 PrintThrottle 的 content 字符串作为 key，
+// 记录上次成功输出的时间。结构小、访问不频繁，简单 mutex 足够。
+// 该表只增不减，不做主动清理：调用方应保证 content 取值集合有界
+// （例如来自 i18n 模板而不是任意外部输入）。
+var (
+	throttleHistory = make(map[string]time.Time)
+)
 
 // Print sends focus payload on node action starting event,
 // so that the client can make the payload visible to users.
@@ -43,6 +52,35 @@ func Print(ctx *maa.Context, content string) {
 			Str("event", "node_action_starting").
 			Msg("failed to send focus")
 	}
+}
+
+// PrintThrottle behaves like [Print] but throttles output by content:
+// the same content string will be forwarded to [Print] at most once within
+// the given interval. Distinct content strings are tracked independently.
+//
+// Typical use: a recognition/action handler that is invoked once per polling
+// tick and would otherwise flood the user with identical status hints.
+//
+// Notes:
+//   - The throttle key is the exact (already-formatted) content string;
+//     identical strings from different call sites share the same window.
+//   - Throttle state is process-wide and never auto-evicted; callers should
+//     keep the set of distinct content values bounded.
+//   - If interval <= 0, this degenerates to a plain [Print] call.
+func PrintThrottle(ctx *maa.Context, interval time.Duration, content string) {
+	if interval > 0 && !shouldPrintThrottled(content, interval) {
+		return
+	}
+	Print(ctx, content)
+}
+
+func shouldPrintThrottled(content string, interval time.Duration) bool {
+	now := time.Now()
+	if last, ok := throttleHistory[content]; ok && now.Sub(last) < interval {
+		return false
+	}
+	throttleHistory[content] = now
+	return true
 }
 
 // PrintLargeContent sends payload to [fmt.Println] as an alternative to the [Print] function.

@@ -31,6 +31,7 @@
             "「棲霞留影」",
             "'노을의 그림자'"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckEternalSunsetIcon": {
@@ -117,10 +118,11 @@
         "expected": [
             "拍摄生长在亭子中间的“栖霞驻影”",
             "拍攝生長在亭子中間的「棲霞駐影」",
-            "(?i)Photograph\\s*the\\s*\"Eternal\\s*Sunset\"\\s*growing\\s*in\\s*the\\s*middle\\s*of\\s*the\\s*pavilion",
+            "(?i)Photo:\\s*\"Eternal\\s*Sunset\"",
             "東屋中央の「棲霞留影」の写真を撮る",
             "정자 한가운데에 자라는 '노을의 그림자'를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptEternalSunset": {
         "desc": "接取栖霞驻影委托",
@@ -222,11 +224,11 @@
             ]
         },
         "next": [
-            "GoToEternalSunsetMapTrackerMove"
+            "GoToEternalSunsetMove"
         ]
     },
     "GoToEternalSunsetNotAtStartPos": {
-        "desc": "不在栖霞驻影任务开始位置附近，先传送再复核落点",
+        "desc": "不在栖霞驻影任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,67 +237,11 @@
             ]
         },
         "next": [
-            "GoToEternalSunsetRecheckStartPos",
-            "GoToEternalSunsetReEnterMap"
+            "GoToEternalSunsetStartPos"
         ]
     },
-    "GoToEternalSunsetRecheckStartPos": {
-        "desc": "传送后再次检查是否已在栖霞驻影任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        315,
-                        305,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToEternalSunsetMapTrackerMove"
-        ]
-    },
-    "GoToEternalSunsetReEnterMap": {
-        "desc": "传送后仍未到达栖霞驻影任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingJingyuValley2"
-            ]
-        },
-        "next": [
-            "GoToEternalSunsetFinalCheckStartPos"
-        ]
-    },
-    "GoToEternalSunsetFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在栖霞驻影任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        315,
-                        305,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToEternalSunsetMapTrackerMove"
-        ]
-    },
-    "GoToEternalSunsetMapTrackerMove": {
-        "desc": "前往栖霞驻影",
+    "GoToEternalSunsetMove": {
+        "desc": "自动寻路前往栖霞驻影",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -309,21 +255,19 @@
                     346,
                     296
                 ]
-            ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 60
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "EternalSunsetAdjustCamera"
         },
-        "next": [
-            "EternalSunsetAdjustHeading"
-        ]
-    },
-    "EternalSunsetAdjustHeading": {
-        "desc": "栖霞驻影任务无需调整角色朝向",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]

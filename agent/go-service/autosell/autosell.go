@@ -154,7 +154,14 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 			},
 			"AutoSellFriendsPricesExpected": map[string]any{
 				"custom_recognition_param": map[string]any{
-					"lowest_price": targetPrice,
+					"expression":                          "{AutoSellFriendsPriceRecognition} >= " + strconv.Itoa(targetPrice),
+					"focus_matched_resolved_expression":   true,
+					"focus_unmatched_resolved_expression": true,
+				},
+			},
+			"AutoSellFriendsPricesExpectedBuy": map[string]any{
+				"custom_recognition_param": map[string]any{
+					"expression": "{AutoSellFriendsPriceCurrentRecognition} >= " + strconv.Itoa(targetPrice),
 				},
 			},
 			"AutoSellStockRedistributionItemFindTextRecognition": map[string]any{
@@ -168,70 +175,16 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 			hasError = true
 			break
 		}
+		if !detail.Status.Success() {
+			hasError = true
+			break
+		}
 	}
 	if hasError {
 		return false
 	}
 
 	return true
-}
-
-type AutoSellPriceCompareRecognition struct{}
-
-func (r *AutoSellPriceCompareRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	if arg == nil || arg.Img == nil {
-		return nil, false
-	}
-
-	var params struct {
-		LowestPrice int `json:"lowest_price"`
-	}
-
-	if paramsErr := json.Unmarshal([]byte(arg.CustomRecognitionParam), &params); paramsErr != nil {
-		log.Error().Err(paramsErr).Str("component", "autosell").Str("step", "price_compare").Msg("parse params")
-		return nil, false
-	}
-	lowestPrice := params.LowestPrice
-
-	detail, recoErr := ctx.RunRecognition("AutoSellFriendsPriceRecognition", arg.Img)
-	if recoErr != nil || detail == nil {
-		log.Error().Err(recoErr).Str("component", "autosell").Str("step", "price_compare").Msg("run recognition")
-		return nil, false
-	}
-
-	if !detail.Hit || detail.CombinedResult == nil || len(detail.CombinedResult) < 2 {
-		log.Warn().Str("component", "autosell").Str("step", "price_compare").Msg("recognition miss")
-		return nil, false
-	}
-
-	var detailJson struct {
-		Best struct {
-			Text string `json:"text"`
-		} `json:"best"`
-	}
-	// Results.Best是空，暂时只能这样获取
-	if detailJsonErr := json.Unmarshal([]byte(detail.CombinedResult[1].DetailJson), &detailJson); detailJsonErr != nil {
-		log.Error().Err(detailJsonErr).Str("component", "autosell").Str("step", "price_compare").Msg("parse detail json")
-		return nil, false
-	}
-
-	ocrPrice, atoiErr := strconv.Atoi(detailJson.Best.Text)
-	if atoiErr != nil {
-		log.Error().Err(atoiErr).Str("component", "autosell").Str("step", "price_compare").Str("raw_text", detailJson.Best.Text).Msg("parse ocr price")
-		return nil, false
-	}
-
-	log.Info().Str("component", "autosell").Str("step", "price_compare").Int("ocr_price", ocrPrice).Int("lowest_price", lowestPrice).Msg("price compare")
-	if ocrPrice < lowestPrice {
-		maafocus.Print(ctx, i18n.T("autosell.price_compare_fail", ocrPrice, lowestPrice))
-		return nil, false
-	}
-
-	maafocus.Print(ctx, i18n.T("autosell.price_compare_ok", ocrPrice, lowestPrice))
-	return &maa.CustomRecognitionResult{
-		Box:    arg.Roi,
-		Detail: `{"custom": "fake result"}`,
-	}, true
 }
 
 // firstContainedKeyword 按 subs 顺序返回首个被 s 包含的关键词，无匹配则返回空串。
@@ -246,13 +199,12 @@ func firstContainedKeyword(s string, subs []string) string {
 
 var (
 	moderatePriceKeywords = []string{"锚点", "悬空", "巫术", "天使", "岳研", "冬虫", "武陵", "武侠"}
-	largePriceKeywords    = []string{"谷地水", "团结", "塞什", "星体", "天师", "息壤", "清波"}
+	largePriceKeywords    = []string{"谷地水", "团结", "塞什", "星体", "天师", "息壤净", "息壤色", "清波", "飞天"}
 	massivePriceKeywords  = []string{"源石", "警戒", "硬脑", "边角"}
 )
 
 // Compile-time interface checks
 var (
 	_ maa.CustomRecognitionRunner = (*AutoSellScanItemRecognition)(nil)
-	_ maa.CustomRecognitionRunner = (*AutoSellPriceCompareRecognition)(nil)
 	_ maa.CustomActionRunner      = (*AutoSellItemExecuteItemTaskAction)(nil)
 )

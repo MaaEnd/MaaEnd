@@ -34,7 +34,32 @@
         "desc": "进入拍照模式，准备盲走",
         "next": [
             "[JumpBack]_AutoEcoFarmEnterCameraModeKeyDownR",
+            "[JumpBack]_AutoEcoFarmPressTab",
             "_AutoEcoFarmPressW"
+        ]
+    },
+    "_AutoEcoFarmPressTab": {
+        "desc": "检测到移动镜头时按Tab键",
+        "max_hit": 3,
+        "recognition": "OCR",
+        "roi": [
+            1210,
+            409,
+            57,
+            25
+        ],
+        "expected": [
+            "移动镜头",
+            "移動鏡頭",
+            "Move Camera",
+            "視点移動",
+            "카메라 이동"
+        ],
+        "action": "ClickKey",
+        "key": 9,
+        "post_delay": 100,
+        "next": [
+            "_AutoEcoFarmJumpBack"
         ]
     },
     "_AutoEcoFarmPressW": {

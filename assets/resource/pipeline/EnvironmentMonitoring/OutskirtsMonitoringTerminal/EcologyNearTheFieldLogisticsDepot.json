@@ -31,6 +31,7 @@
             "備蓄施設周辺の生態環境",
             "보급소 주변의 생태 환경"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckEcologyNearTheFieldLogisticsDepotIcon": {
@@ -117,10 +118,11 @@
         "expected": [
             "拍摄储备站周围的生态环境",
             "拍攝儲備站周圍的生態環境",
-            "(?i)Photograph\\s*the\\s*ecology\\s*near\\s*the\\s*Field\\s*Logistics\\s*Depot",
+            "(?i)Photo:\\s*Field\\s*Logistics\\s*Depot\\s*Ecology",
             "備蓄施設周辺の生態環境の写真を撮る",
             "보급소 주변의 생태 환경을 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptEcologyNearTheFieldLogisticsDepot": {
         "desc": "接取储备站周围的生态环境委托",
@@ -213,20 +215,20 @@
                 {
                     "map_name": "map02_lv002",
                     "target": [
-                        689.6,
-                        917.3,
-                        6,
-                        5.5
+                        684.3,
+                        910.9,
+                        20.5,
+                        20.5
                     ]
                 }
             ]
         },
         "next": [
-            "GoToEcologyNearTheFieldLogisticsDepotMapTrackerMove"
+            "GoToEcologyNearTheFieldLogisticsDepotMove"
         ]
     },
     "GoToEcologyNearTheFieldLogisticsDepotNotAtStartPos": {
-        "desc": "不在储备站周围的生态环境任务开始位置附近，先传送再复核落点",
+        "desc": "不在储备站周围的生态环境任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,131 +237,31 @@
             ]
         },
         "next": [
-            "GoToEcologyNearTheFieldLogisticsDepotRecheckStartPos",
-            "GoToEcologyNearTheFieldLogisticsDepotReEnterMap"
+            "GoToEcologyNearTheFieldLogisticsDepotStartPos"
         ]
     },
-    "GoToEcologyNearTheFieldLogisticsDepotRecheckStartPos": {
-        "desc": "传送后再次检查是否已在储备站周围的生态环境任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        689.6,
-                        917.3,
-                        6,
-                        5.5
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToEcologyNearTheFieldLogisticsDepotMapTrackerMove"
-        ]
-    },
-    "GoToEcologyNearTheFieldLogisticsDepotReEnterMap": {
-        "desc": "传送后仍未到达储备站周围的生态环境任务开始位置附近，重试一次传送",
+    "GoToEcologyNearTheFieldLogisticsDepotMove": {
+        "desc": "自动寻路前往储备站周围的生态环境",
         "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingWulingCity8"
-            ]
-        },
-        "next": [
-            "GoToEcologyNearTheFieldLogisticsDepotFinalCheckStartPos"
-        ]
-    },
-    "GoToEcologyNearTheFieldLogisticsDepotFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在储备站周围的生态环境任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        689.6,
-                        917.3,
-                        6,
-                        5.5
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToEcologyNearTheFieldLogisticsDepotMapTrackerMove"
-        ]
-    },
-    "GoToEcologyNearTheFieldLogisticsDepotMapTrackerMove": {
-        "desc": "前往储备站周围的生态环境",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv002",
-            "path": [
-                [
-                    691.3,
-                    922.7
-                ],
-                [
-                    678.3,
-                    925.9
-                ],
-                [
-                    672.5,
-                    918.3
-                ],
-                [
-                    648.4,
-                    916.3
-                ],
-                [
-                    648.7,
-                    928.2
-                ],
-                [
-                    653.1,
-                    931.8
-                ],
-                [
-                    666.8,
-                    907.8
-                ],
-                [
-                    664.6,
-                    897.7
-                ],
-                [
-                    661.4,
-                    892.6
-                ],
-                [
-                    627.7,
-                    898.2
-                ],
-                [
-                    617.8,
-                    901.6
-                ]
-            ]
+            "target": [
+                618.8,
+                901.6
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 270
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "EcologyNearTheFieldLogisticsDepotAdjustCamera"
         },
-        "next": [
-            "EcologyNearTheFieldLogisticsDepotAdjustHeading"
-        ]
-    },
-    "EcologyNearTheFieldLogisticsDepotAdjustHeading": {
-        "desc": "储备站周围的生态环境任务无需调整角色朝向",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]

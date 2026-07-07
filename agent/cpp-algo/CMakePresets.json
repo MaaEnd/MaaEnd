@@ -52,18 +52,6 @@
             }
         },
         {
-            "name": "MSVC 2022",
-            "displayName": "MSVC 2022",
-            "description": "MSVC 2022",
-            "generator": "Visual Studio 17 2022",
-            "binaryDir": "${sourceDir}/build",
-            "condition": {
-                "type": "equals",
-                "lhs": "${hostSystemName}",
-                "rhs": "Windows"
-            }
-        },
-        {
             "name": "MSVC 2026",
             "displayName": "MSVC 2026",
             "description": "MSVC 2026",
@@ -76,10 +64,22 @@
             }
         },
         {
-            "name": "MSVC 2022 ARM",
-            "displayName": "MSVC 2022 ARM",
-            "description": "MSVC 2022 ARM",
+            "name": "MSVC 2022",
+            "displayName": "MSVC 2022",
+            "description": "MSVC 2022",
             "generator": "Visual Studio 17 2022",
+            "binaryDir": "${sourceDir}/build",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "MSVC 2026 ARM",
+            "displayName": "MSVC 2026 ARM",
+            "description": "MSVC 2026 ARM",
+            "generator": "Visual Studio 18 2026",
             "binaryDir": "${sourceDir}/build",
             "condition": {
                 "type": "equals",
@@ -92,10 +92,10 @@
             }
         },
         {
-            "name": "MSVC 2026 ARM",
-            "displayName": "MSVC 2026 ARM",
-            "description": "MSVC 2026 ARM",
-            "generator": "Visual Studio 18 2026",
+            "name": "MSVC 2022 ARM",
+            "displayName": "MSVC 2022 ARM",
+            "description": "MSVC 2022 ARM",
+            "generator": "Visual Studio 17 2022",
             "binaryDir": "${sourceDir}/build",
             "condition": {
                 "type": "equals",
@@ -134,14 +134,6 @@
             "jobs": 16
         },
         {
-            "name": "MSVC 2022 - RelWithDebInfo",
-            "displayName": "MSVC 2022 RelWithDebInfo",
-            "description": "MSVC 2022 RelWithDebInfo",
-            "configurePreset": "MSVC 2022",
-            "configuration": "RelWithDebInfo",
-            "jobs": 16
-        },
-        {
             "name": "MSVC 2026 - RelWithDebInfo",
             "displayName": "MSVC 2026 RelWithDebInfo",
             "description": "MSVC 2026 RelWithDebInfo",
@@ -150,10 +142,10 @@
             "jobs": 16
         },
         {
-            "name": "MSVC 2022 ARM - RelWithDebInfo",
-            "displayName": "MSVC 2022 ARM RelWithDebInfo",
-            "description": "MSVC 2022 ARM RelWithDebInfo",
-            "configurePreset": "MSVC 2022 ARM",
+            "name": "MSVC 2022 - RelWithDebInfo",
+            "displayName": "MSVC 2022 RelWithDebInfo",
+            "description": "MSVC 2022 RelWithDebInfo",
+            "configurePreset": "MSVC 2022",
             "configuration": "RelWithDebInfo",
             "jobs": 16
         },
@@ -162,6 +154,14 @@
             "displayName": "MSVC 2026 ARM RelWithDebInfo",
             "description": "MSVC 2026 ARM RelWithDebInfo",
             "configurePreset": "MSVC 2026 ARM",
+            "configuration": "RelWithDebInfo",
+            "jobs": 16
+        },
+        {
+            "name": "MSVC 2022 ARM - RelWithDebInfo",
+            "displayName": "MSVC 2022 ARM RelWithDebInfo",
+            "description": "MSVC 2022 ARM RelWithDebInfo",
+            "configurePreset": "MSVC 2022 ARM",
             "configuration": "RelWithDebInfo",
             "jobs": 16
         }

@@ -31,6 +31,7 @@
             "侵蝕潮で壊れたビーコン",
             "침식 조류로 인해 훼손된 신호기"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckBeaconDamagedInTheBlightTideIcon": {
@@ -117,10 +118,11 @@
         "expected": [
             "拍摄侵蚀潮中损坏的信标",
             "拍攝侵蝕潮中損壞的信標",
-            "(?i)Photograph\\s*the\\s*beacon\\s*damaged\\s*in\\s*the\\s*Blight\\s*Tide",
+            "(?i)Photo:\\s*Damaged\\s*Beacon",
             "侵蝕潮で破損したビーコンの写真を撮る",
             "침식 조류로 인해 훼손된 신호기를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptBeaconDamagedInTheBlightTide": {
         "desc": "接取侵蚀潮中损坏的信标委托",
@@ -222,11 +224,11 @@
             ]
         },
         "next": [
-            "GoToBeaconDamagedInTheBlightTideMapTrackerMove"
+            "GoToBeaconDamagedInTheBlightTideMove"
         ]
     },
     "GoToBeaconDamagedInTheBlightTideNotAtStartPos": {
-        "desc": "不在侵蚀潮中损坏的信标任务开始位置附近，先传送再复核落点",
+        "desc": "不在侵蚀潮中损坏的信标任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,131 +237,73 @@
             ]
         },
         "next": [
-            "GoToBeaconDamagedInTheBlightTideRecheckStartPos",
-            "GoToBeaconDamagedInTheBlightTideReEnterMap"
+            "GoToBeaconDamagedInTheBlightTideStartPos"
         ]
     },
-    "GoToBeaconDamagedInTheBlightTideRecheckStartPos": {
-        "desc": "传送后再次检查是否已在侵蚀潮中损坏的信标任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        640,
-                        255,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToBeaconDamagedInTheBlightTideMapTrackerMove"
-        ]
-    },
-    "GoToBeaconDamagedInTheBlightTideReEnterMap": {
-        "desc": "传送后仍未到达侵蚀潮中损坏的信标任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingWulingCity0"
-            ]
-        },
-        "next": [
-            "GoToBeaconDamagedInTheBlightTideFinalCheckStartPos"
-        ]
-    },
-    "GoToBeaconDamagedInTheBlightTideFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在侵蚀潮中损坏的信标任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        640,
-                        255,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToBeaconDamagedInTheBlightTideMapTrackerMove"
-        ]
-    },
-    "GoToBeaconDamagedInTheBlightTideMapTrackerMove": {
-        "desc": "前往侵蚀潮中损坏的信标",
+    "GoToBeaconDamagedInTheBlightTideMove": {
+        "desc": "自动寻路前往侵蚀潮中损坏的信标",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
             "map_name": "map02_lv002",
             "path": [
                 [
-                    641,
+                    642,
                     272
                 ],
                 [
-                    639,
+                    640,
                     299
                 ],
                 [
-                    628,
+                    629,
                     301
                 ],
                 [
-                    623,
+                    624,
                     302
                 ],
                 [
-                    641,
+                    642,
                     317
                 ],
                 [
-                    648,
+                    649,
                     317
-                ],
-                [
-                    685,
-                    318
                 ],
                 [
                     686,
+                    318
+                ],
+                [
+                    687,
                     329
                 ],
                 [
-                    680,
+                    681,
                     333
                 ],
                 [
-                    691,
+                    692,
                     344
                 ],
                 [
-                    701,
+                    702,
                     345
                 ]
-            ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 90
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "BeaconDamagedInTheBlightTideAdjustCamera"
         },
-        "next": [
-            "BeaconDamagedInTheBlightTideAdjustHeading"
-        ]
-    },
-    "BeaconDamagedInTheBlightTideAdjustHeading": {
-        "desc": "侵蚀潮中损坏的信标任务无需调整角色朝向",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]

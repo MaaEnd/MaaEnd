@@ -31,6 +31,7 @@
             "室内の作物",
             "실내 작물"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckIndoorCropsIcon": {
@@ -117,10 +118,11 @@
         "expected": [
             "拍摄室内培育的作物",
             "拍攝室內培育的作物",
-            "(?i)Photograph\\s*the\\s*growing\\s*crop",
+            "(?i)Photo:\\s*Growing\\s*Crop",
             "室内栽培の作物の写真を撮る",
             "실내 재배하고 있는 작물을 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptIndoorCrops": {
         "desc": "接取室内作物委托",
@@ -207,26 +209,22 @@
     "GoToIndoorCropsStartPos": {
         "desc": "在室内作物任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        240,
-                        695,
-                        15,
-                        15
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                517.16,
+                675.72,
+                31.13,
+                26.64
             ]
         },
         "next": [
-            "GoToIndoorCropsMapTrackerMove"
+            "GoToIndoorCropsMove"
         ]
     },
     "GoToIndoorCropsNotAtStartPos": {
-        "desc": "不在室内作物任务开始位置附近，先传送再复核落点",
+        "desc": "不在室内作物任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,119 +233,32 @@
             ]
         },
         "next": [
-            "GoToIndoorCropsRecheckStartPos",
-            "GoToIndoorCropsReEnterMap"
+            "GoToIndoorCropsStartPos"
         ]
     },
-    "GoToIndoorCropsRecheckStartPos": {
-        "desc": "传送后再次检查是否已在室内作物任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        240,
-                        695,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToIndoorCropsMapTrackerMove"
-        ]
-    },
-    "GoToIndoorCropsReEnterMap": {
-        "desc": "传送后仍未到达室内作物任务开始位置附近，重试一次传送",
+    "GoToIndoorCropsMove": {
+        "desc": "自动寻路前往室内作物",
         "action": "Custom",
-        "custom_action": "SubTask",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingWulingCity4"
-            ]
-        },
-        "next": [
-            "GoToIndoorCropsFinalCheckStartPos"
-        ]
-    },
-    "GoToIndoorCropsFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在室内作物任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        240,
-                        695,
-                        15,
-                        15
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToIndoorCropsMapTrackerMove"
-        ]
-    },
-    "GoToIndoorCropsMapTrackerMove": {
-        "desc": "前往室内作物",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv002",
             "path": [
-                [
-                    237,
-                    703
-                ],
-                [
-                    219,
-                    705
-                ],
-                [
-                    214,
-                    716
-                ],
-                [
-                    211,
-                    727
-                ],
-                [
-                    198,
-                    729
-                ],
-                [
-                    195,
-                    721
-                ],
-                [
-                    187,
-                    721
-                ],
-                [
-                    190,
-                    729
-                ]
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        474.12,
+                        716.18
+                    ]
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 180
+                }
             ]
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "IndoorCropsAdjustCamera"
         },
-        "next": [
-            "IndoorCropsAdjustHeading"
-        ]
-    },
-    "IndoorCropsAdjustHeading": {
-        "desc": "室内作物任务无需调整角色朝向",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]

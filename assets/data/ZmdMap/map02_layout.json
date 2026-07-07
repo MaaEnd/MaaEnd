@@ -1,0 +1,45 @@
+{
+  "base_map": "map02",
+  "canvas_width": 12600,
+  "canvas_height": 12000,
+  "tile_w": 600,
+  "tile_h": 600,
+  "levels": {
+    "map02_lv001": {
+      "x": 3000,
+      "y": 6000,
+      "width": 4800,
+      "height": 5400
+    },
+    "map02_lv002": {
+      "x": 1800,
+      "y": 0,
+      "width": 5400,
+      "height": 6600
+    },
+    "map02_lv003": {
+      "x": 5400,
+      "y": 4800,
+      "width": 4800,
+      "height": 5400
+    },
+    "map02_lv004": {
+      "x": 0,
+      "y": 5400,
+      "width": 4800,
+      "height": 5400
+    },
+    "map02_lv005": {
+      "x": 6000,
+      "y": 1800,
+      "width": 4200,
+      "height": 3600
+    },
+    "map02_lv006": {
+      "x": 7800,
+      "y": 8400,
+      "width": 4800,
+      "height": 3600
+    }
+  }
+}

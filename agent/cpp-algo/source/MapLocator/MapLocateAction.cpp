@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <filesystem>
 #include <string_view>
@@ -90,41 +91,10 @@ struct MapLocateAssertLocationOutput
 
 fs::path getExeDir()
 {
-#ifdef _WIN32
-    const auto process_path = MAA_NS::get_process_path(GetCurrentProcessId());
-#else
-    const auto process_path = MAA_NS::get_process_path(::getpid());
-#endif
-    if (process_path && !process_path->empty()) {
-        return process_path->parent_path();
-    }
-
-    std::error_code ec;
-    const fs::path cwd = fs::current_path(ec);
-    if (!ec && !cwd.empty()) {
-        return cwd;
-    }
-    return {};
+    // Shared single-source resolution (see source/utils.h). Kept as a thin alias so MapLocator and
+    // MapNavigator anchor resources identically.
+    return get_exe_dir();
 }
-
-class ScopedImageBuffer
-{
-public:
-    ScopedImageBuffer()
-        : buffer_(MaaImageBufferCreate())
-    {
-    }
-
-    ~ScopedImageBuffer() { MaaImageBufferDestroy(buffer_); }
-
-    ScopedImageBuffer(const ScopedImageBuffer&) = delete;
-    ScopedImageBuffer& operator=(const ScopedImageBuffer&) = delete;
-
-    MaaImageBuffer* Get() const { return buffer_; }
-
-private:
-    MaaImageBuffer* buffer_;
-};
 
 template <typename T>
 T ParseCustomRecognitionParam(const char* custom_recognition_param)
@@ -238,6 +208,36 @@ bool IsPositionInsideRect(const MapPosition& position, const MaaRect& rect)
     return position.x >= left && position.x < right && position.y >= top && position.y < bottom;
 }
 
+constexpr int kAssertSettleMaxFrames = 60;
+constexpr int kAssertStableWindow = kColdStartConsensusFrames;
+constexpr double kAssertStableRadius = kPositionConsensusRadius;
+constexpr auto kAssertSettlePollDelay = std::chrono::milliseconds(250);
+
+bool IsAssertWindowSettled(const std::vector<MapPosition>& window, MapPosition* out_centroid)
+{
+    if (static_cast<int>(window.size()) < kAssertStableWindow) {
+        return false;
+    }
+    MapPosition centroid = window.back();
+    double sx = 0.0;
+    double sy = 0.0;
+    for (const auto& p : window) {
+        sx += p.x;
+        sy += p.y;
+    }
+    centroid.x = sx / static_cast<double>(window.size());
+    centroid.y = sy / static_cast<double>(window.size());
+    for (const auto& p : window) {
+        if (std::hypot(p.x - centroid.x, p.y - centroid.y) > kAssertStableRadius) {
+            return false;
+        }
+    }
+    if (out_centroid != nullptr) {
+        *out_centroid = centroid;
+    }
+    return true;
+}
+
 std::string DetectControllerType(MaaContext* context)
 {
     if (context == nullptr) {
@@ -299,7 +299,7 @@ bool TryLocateOnMinimap(
 
     const MaaImageBuffer* actual_image = image;
     ScopedImageBuffer captured_image;
-    if (MaaImageBufferIsEmpty(actual_image)) {
+    if (actual_image == nullptr || MaaImageBufferIsEmpty(actual_image)) {
         auto controller = MaaTaskerGetController(MaaContextGetTasker(context));
         const MaaCtrlId screencap_id = MaaControllerPostScreencap(controller);
         MaaControllerWait(controller, screencap_id);
@@ -310,7 +310,7 @@ bool TryLocateOnMinimap(
         actual_image = captured_image.Get();
     }
 
-    if (MaaImageBufferIsEmpty(actual_image)) {
+    if (actual_image == nullptr || MaaImageBufferIsEmpty(actual_image)) {
         LogError << "MapLocateRecognition: Image buffer is empty";
         return false;
     }
@@ -423,24 +423,69 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
         return MAA_FALSE;
     }
 
-    LocateResult result;
-    if (!TryLocateOnMinimap(context, image, BuildAssertLocateOptions(param), &result)) {
+    auto locator = getOrInitLocator();
+    if (!locator) {
+        LogError << "MapLocateAssertLocation: Locator init failed";
         return MAA_FALSE;
     }
+    locator->resetTrackingState();
 
-    const bool matched = result.status == LocateStatus::Success && result.position.has_value()
-                         && result.position->zoneId == param.zone_id && IsPositionInsideRect(result.position.value(), target_rect);
+    LocateOptions options = BuildAssertLocateOptions(param);
+    options.force_global_search = true;
 
+    std::vector<MapPosition> window;
+    window.reserve(kAssertStableWindow);
+
+    LocateResult result;
+    bool settled = false;
+    MapPosition stable_pos {};
+
+    for (int frame = 0; frame < kAssertSettleMaxFrames; ++frame) {
+        const MaaImageBuffer* frame_image = frame == 0 ? image : nullptr;
+        if (!TryLocateOnMinimap(context, frame_image, options, &result)) {
+            return MAA_FALSE;
+        }
+
+        const bool usable = result.status == LocateStatus::Success && result.position.has_value()
+                            && result.position->zoneId == param.zone_id && !result.position->isHeld;
+        if (usable) {
+            window.push_back(result.position.value());
+            if (static_cast<int>(window.size()) > kAssertStableWindow) {
+                window.erase(window.begin());
+            }
+            if (IsAssertWindowSettled(window, &stable_pos)) {
+                settled = true;
+                break;
+            }
+        }
+        else {
+            window.clear();
+        }
+
+        LogInfo << "MapLocateAssertLocation settling" << VAR(frame) << VAR(param.zone_id) << VAR(usable)
+                << VAR(window.size()) << VAR(result.debugMessage);
+        if (frame + 1 < kAssertSettleMaxFrames) {
+            std::this_thread::sleep_for(kAssertSettlePollDelay);
+        }
+    }
+
+    const bool matched = settled && IsPositionInsideRect(stable_pos, target_rect);
+
+    if (settled && result.position.has_value()) {
+        result.position->x = stable_pos.x;
+        result.position->y = stable_pos.y;
+    }
     WriteJsonDetail(out_detail, BuildAssertLocationOutput(result, param, matched));
 
     if (!matched) {
-        if (result.position.has_value()) {
-            LogInfo << "MapLocateAssertLocation miss" << VAR(param.zone_id) << VAR(result.position->zoneId)
-                    << VAR(result.position->x) << VAR(result.position->y) << VAR(target_rect.x) << VAR(target_rect.y)
-                    << VAR(target_rect.width) << VAR(target_rect.height);
+        if (settled) {
+            LogInfo << "MapLocateAssertLocation miss (settled outside target)" << VAR(param.zone_id) << VAR(stable_pos.x)
+                    << VAR(stable_pos.y) << VAR(target_rect.x) << VAR(target_rect.y) << VAR(target_rect.width)
+                    << VAR(target_rect.height);
         }
         else {
-            LogInfo << "MapLocateAssertLocation miss" << VAR(param.zone_id) << VAR(result.debugMessage);
+            LogInfo << "MapLocateAssertLocation miss (not settled within budget)" << VAR(param.zone_id)
+                    << VAR(result.debugMessage);
         }
         return MAA_FALSE;
     }
@@ -449,7 +494,7 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
         *out_box = target_rect;
     }
 
-    LogInfo << "MapLocateAssertLocation matched" << VAR(param.zone_id) << VAR(result.position->x) << VAR(result.position->y)
+    LogInfo << "MapLocateAssertLocation matched (settled)" << VAR(param.zone_id) << VAR(stable_pos.x) << VAR(stable_pos.y)
             << VAR(target_rect.x) << VAR(target_rect.y) << VAR(target_rect.width) << VAR(target_rect.height);
     return MAA_TRUE;
 }

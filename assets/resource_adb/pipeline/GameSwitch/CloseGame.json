@@ -1,0 +1,34 @@
+{
+    "CloseGame_CN": {
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.hypergryph.endfield"
+            }
+        }
+    },
+    "CloseGame_Bilibili": {
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.hypergryph.endfield.bilibili"
+            }
+        }
+    },
+    "CloseGame_Global": {
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.gryphline.endfield.gp"
+            }
+        }
+    },
+    "CloseGame_VN": {
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.gryphline.endfield.gp.vn"
+            }
+        }
+    }
+}

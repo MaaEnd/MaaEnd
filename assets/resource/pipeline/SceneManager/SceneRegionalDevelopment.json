@@ -251,6 +251,7 @@
             "WhiteConfirmButtonType1",
             "CheckChangeRegionConfirmText"
         ],
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -271,7 +272,7 @@
                 0,
                 0,
                 200,
-                100
+                250
             ]
         },
         "pre_delay": 0,
@@ -290,7 +291,7 @@
                 0,
                 0,
                 200,
-                100
+                250
             ]
         },
         "pre_delay": 0,
@@ -384,10 +385,10 @@
         "desc": "在四号谷地地区建设界面，进入物资调度界面成功",
         "recognition": "TemplateMatch",
         "roi": [
-            340,
-            55,
-            60,
-            70
+            335,
+            46,
+            180,
+            123
         ],
         "template": [
             "AutoStockpile/ElasticGoodsButton.png",
@@ -491,7 +492,7 @@
         ],
         // 刚进入界面时可能会遇到元素未加载完成，必须等待页面稳定后才能继续
         "pre_wait_freezes": {
-            "time": 80,
+            "time": 200,
             "target": [
                 66,
                 221,
@@ -527,7 +528,7 @@
         ],
         // 刚进入界面时可能会遇到元素未加载完成，必须等待页面稳定后才能继续
         "pre_wait_freezes": {
-            "time": 80,
+            "time": 200,
             "target": [
                 66,
                 221,

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/levenshtein"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -121,7 +122,7 @@ func (a *ItemTransferFallbackAction) Run(ctx *maa.Context, arg *maa.CustomAction
 
 	// Case 2.2 + Step 3: binary search among visible grid cells
 	if targetIdx >= 0 && len(categoryOrder) > 0 {
-		result := binarySearchOnPage(ctx, tasker, ctrl, items, categoryOrder, targetIdx, itemInfo.Name)
+		result := binarySearchOnPage(ctx, tasker, ctrl, items, categoryOrder, targetIdx, itemInfo.Name, params.MaxDistance)
 		if result != nil {
 			return ctrlClick(ctrl, result.CenterX, result.CenterY)
 		}
@@ -352,14 +353,14 @@ func matchesAnyTarget(names []string, targetName string) bool {
 
 // resolveOCRIndex finds the first OCR text that exists in categoryOrder
 // and returns its name and index. Falls back to fuzzy matching.
-func resolveOCRIndex(names []string, categoryOrder []string) (string, int) {
+func resolveOCRIndex(names []string, categoryOrder []string, maxDistance int) (string, int) {
 	for _, n := range names {
 		if i := indexOf(categoryOrder, n); i >= 0 {
 			return n, i
 		}
 	}
 	for _, n := range names {
-		if i := fuzzyIndexOf(categoryOrder, n); i >= 0 {
+		if i := fuzzyIndexOf(categoryOrder, n, maxDistance); i >= 0 {
 			return n, i
 		}
 	}
@@ -384,7 +385,7 @@ func cleanOCRNoise(s string) string {
 // Always starts from cell 0 (top-left) to establish a baseline, then
 // converges forward via binary search on the remaining range.
 // Returns the target item if found, or nil when the range is exhausted.
-func binarySearchOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, items []gridItem, categoryOrder []string, targetIdx int, targetName string) *gridItem {
+func binarySearchOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, items []gridItem, categoryOrder []string, targetIdx int, targetName string, maxDistance int) *gridItem {
 	if len(items) == 0 {
 		return nil
 	}
@@ -405,7 +406,7 @@ func binarySearchOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controll
 	}
 
 	if len(names) > 0 {
-		name, ocrIdx := resolveOCRIndex(names, categoryOrder)
+		name, ocrIdx := resolveOCRIndex(names, categoryOrder, maxDistance)
 		if ocrIdx >= 0 && ocrIdx > targetIdx {
 			log.Info().Str("component", componentName).
 				Str("ocr_name", name).Int("ocr_idx", ocrIdx).Int("target_idx", targetIdx).
@@ -440,7 +441,7 @@ func binarySearchOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controll
 			return item
 		}
 
-		name, ocrIdx := resolveOCRIndex(names, categoryOrder)
+		name, ocrIdx := resolveOCRIndex(names, categoryOrder, maxDistance)
 		if ocrIdx < 0 {
 			consecutiveMisses++
 			if consecutiveMisses >= maxConsecutiveCategoryMisses {
@@ -537,20 +538,23 @@ func indexOf(order []string, name string) int {
 	return -1
 }
 
-func fuzzyIndexOf(order []string, name string) int {
+// fuzzyIndexOf 在有序候选列表中查找与 name 编辑距离最小的项。
+// maxDistance 由调用方通过 custom_action_param.max_distance 指定。
+func fuzzyIndexOf(order []string, name string, maxDistance int) int {
 	name = strings.TrimSpace(name)
-	if name == "" {
+	if name == "" || maxDistance <= 0 {
 		return -1
 	}
 	bestIdx := -1
-	bestDist := len(name) + 1
+	bestDist := maxDistance + 1
 	for i, n := range order {
-		if strings.Contains(n, name) || strings.Contains(name, n) {
-			d := abs(len(n) - len(name))
-			if d < bestDist {
-				bestDist = d
-				bestIdx = i
-			}
+		if d := len(n) - len(name); d > maxDistance || d < -maxDistance {
+			continue
+		}
+		dist := levenshtein.Distance(name, n)
+		if dist <= maxDistance && dist < bestDist {
+			bestDist = dist
+			bestIdx = i
 		}
 	}
 	return bestIdx
@@ -566,11 +570,4 @@ func reversed(s []string) []string {
 		out[i], out[j] = out[j], out[i]
 	}
 	return out
-}
-
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
 }

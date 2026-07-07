@@ -6,8 +6,6 @@
             "entry": "AutoStockpileMain",
             "description": "$task.AutoStockpile.description",
             "controller": [
-                "Win32-Window",
-                "Win32-Window-Background",
                 "Win32-Front",
                 "Wlroots"
             ],
@@ -124,6 +122,12 @@
                             "attach": {
                                 "allow_data_upload": true
                             }
+                        },
+                        "AutoStockpileEnterRegionalDevelopment": {
+                            "enabled": true
+                        },
+                        "AutoStockpileGetUid": {
+                            "enabled": true
                         }
                     }
                 },
@@ -134,6 +138,12 @@
                             "attach": {
                                 "allow_data_upload": false
                             }
+                        },
+                        "AutoStockpileEnterRegionalDevelopment": {
+                            "enabled": false
+                        },
+                        "AutoStockpileGetUid": {
+                            "enabled": false
                         }
                     }
                 }

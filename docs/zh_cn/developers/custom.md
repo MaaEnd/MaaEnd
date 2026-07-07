@@ -52,6 +52,12 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 示例文件：[`ClearHitCount.json`](../../../assets/resource/pipeline/Interface/Example/ClearHitCount.json)
 
+### FalseAction
+
+`FalseAction` 实现位于 `agent/go-service/common/falseaction`，始终返回失败。常用于 Pipeline 中需要强制让 Action 执行失败的占位场景。
+
+- 参数：无。
+
 ### PipelineOverride
 
 `PipelineOverride` 实现位于 `agent/go-service/common/pipelineoverride`，用于在运行时把**按节点组织的局部 JSON** 合并到当前 Pipeline 中（`ctx.OverridePipeline`）。适合在**不改静态流转拓扑**的前提下，动态切换节点开关或调整识别/动作参数。
@@ -101,6 +107,41 @@ Action 节点用于执行自定义动作。常见写法如下：
 - 若需要覆盖多个目标节点，建议在 Pipeline 中拆成多个 `Custom` 节点并通过 `next` 串联。
 - 若多个节点需要相同白名单，应在任务配置中分别把同一份 `attach` 写入各自节点。
 - 其他任务也建议优先使用通用名，避免与具体业务耦合。
+
+### PostStop
+
+`PostStop` 实现位于 `agent/go-service/common/poststop`，调用 `Tasker.PostStop()` 异步停止当前任务。适合在 Pipeline 中某个条件满足后主动终止整个任务的场景。
+
+- 参数：无。
+
+### AutoAltClickAction
+
+`AutoAltClickAction` 实现位于 `agent/go-service/common/autoalt`，用于在指定位置执行 Alt + 点击操作。先按下 Alt 键，再点击目标位置，最后松开 Alt 键。
+
+- 参数：
+    - `target_offset?: [int, int, int, int]`：可选。形如 `[dx, dy, dw, dh]`，叠加到 `box` 后再取中心点击，语义与内置 `Click` 动作的 `target_offset` 一致；省略时直接点击 `box` 中心。
+
+默认目标位置由 Pipeline 节点的 `box` 决定。
+
+### AutoAltLongPressAction
+
+`AutoAltLongPressAction` 实现位于 `agent/go-service/common/autoalt`，用于在指定位置执行 Alt + 长按操作。
+
+- 参数：
+    - `duration: int`：长按持续时间（毫秒），必填。
+
+### AutoAltSwipeAction
+
+`AutoAltSwipeAction` 实现位于 `agent/go-service/common/autoalt`，用于执行 Alt + 滑动操作。先按下 Alt 键，再执行滑动，最后松开 Alt 键。
+
+- 参数（均可选，透传给子节点 `__AutoAltSwipeMouseSwipeAction` 的 Swipe 动作）：
+    - `begin?: [int, int] | [int, int, int, int]`：滑动起点；省略时默认 `arg.Box`。
+    - `end?: [int, int] | [int, int, int, int]`：滑动终点；省略时默认 `arg.Box`。
+    - `begin_offset?: [int, int, int, int]`：在默认起点（`arg.Box`）上叠加 `[dx, dy, dw, dh]`。
+    - `end_offset?: [int, int, int, int]`：在默认终点（`arg.Box`）上叠加 `[dx, dy, dw, dh]`。
+    - `duration?: int`：滑动持续时间（毫秒）。
+    - `end_hold?: int`：滑动结束后按住时长（毫秒）。
+    - `only_hover?: bool`：是否仅悬停滑动。
 
 ---
 
@@ -177,7 +218,24 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 - 表达式结果必须是布尔值，否则识别失败。
 - 被引用节点当前应能返回可解析的 OCR 数值结果，否则表达式求值失败。
 - 对 `And` 节点，`box_index` 指向的本次子识别结果当前需要直接包含可解析的 OCR 数值结果。
+- 表达式中的整数字面量，以及 OCR 换算后的数值，若超出当前平台 `int` 可表示范围，会自动钳制到 `int` 最大值或最小值（正溢出取最大值，负溢出取最小值），并输出警告日志；表达式会继续求值，而不是直接失败。
 - 该识别器只负责表达式求值，不负责业务语义本身，业务侧应在 Pipeline 中自行组织节点与阈值。
+
+### ScheduleRecognition
+
+`ScheduleRecognition` 实现位于 `agent/go-service/common/schedule`，用于按星期几判断当前任务是否应继续执行。它只返回识别是否命中，不在 Go 中直接运行子任务；后续流程应通过 Pipeline 的 `next` 组织。
+
+- 参数：无。
+- `attach` 字段（写在当前识别节点中，可以在任务配置中合并）：
+    - `monday: bool` — 周一是否执行。
+    - `tuesday: bool` — 周二是否执行。
+    - `wednesday: bool` — 周三是否执行。
+    - `thursday: bool` — 周四是否执行。
+    - `friday: bool` — 周五是否执行。
+    - `saturday: bool` — 周六是否执行。
+    - `sunday: bool` — 周日是否执行。
+
+省略某个工作日标志时，默认视为 `false`（当天不执行）。若当天不在调度范围内，该 Recognition 会发出一条“今日跳过”的本地化提示并返回未命中。
 
 ## 小结
 
@@ -187,8 +245,14 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 | ----------------------------- | ----------------------------- |
 | 按顺序跑一组子任务            | `SubTask`                     |
 | 清零某节点的命中计数          | `ClearHitCount`               |
+| 强制让 Action 失败            | `FalseAction`                 |
+| 主动停止当前任务              | `PostStop`                    |
 | 运行时改节点参数              | `PipelineOverride`            |
 | 把关键词拼成正则写回 OCR 节点 | `AttachToExpectedRegexAction` |
 | 计算 OCR 数值表达式           | `ExpressionRecognition`       |
+| 按星期几门控后续节点          | `ScheduleRecognition`         |
+| 在指定位置 Alt + 点击         | `AutoAltClickAction`          |
+| 在指定位置 Alt + 长按         | `AutoAltLongPressAction`      |
+| Alt + 滑动                    | `AutoAltSwipeAction`          |
 
 所有 Custom 的 Go 代码实现在 `agent/go-service/` 下，Pipeline 作者不需要关心，照文档参数写 JSON 就行。

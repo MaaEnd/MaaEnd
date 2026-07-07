@@ -2,6 +2,7 @@ package expressionrecognition
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -11,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -20,8 +23,10 @@ var _ maa.CustomRecognitionRunner = &Recognition{}
 type Recognition struct{}
 
 type Params struct {
-	Expression string `json:"expression"`
-	BoxNode    string `json:"box_node"`
+	Expression                       string `json:"expression"`
+	BoxNode                          string `json:"box_node"`
+	FocusMatchedResolvedExpression   bool   `json:"focus_matched_resolved_expression"`
+	FocusUnmatchedResolvedExpression bool   `json:"focus_unmatched_resolved_expression"`
 }
 
 type nodeDefinition struct {
@@ -45,6 +50,9 @@ var (
 	expressionNodePattern = regexp.MustCompile(`\{([^{}]+)\}`)
 	ocrNumericPattern     = regexp.MustCompile(`(?i)[+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+)\s*(?:[a-z]+|万|亿)?`)
 	asciiLetterPattern    = regexp.MustCompile(`[A-Za-z]+$`)
+
+	expressionIntMax = int(^uint(0) >> 1)
+	expressionIntMin = -expressionIntMax - 1
 )
 
 // Run evaluates a boolean expression composed of numeric recognition nodes.
@@ -94,6 +102,11 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	}
 
 	logEvaluationResult(params.Expression, resolvedExpression, values, matched)
+	if matched && params.FocusMatchedResolvedExpression {
+		maafocus.Print(ctx, i18n.T("expressionrecognition.focus_matched", resolvedExpression))
+	} else if !matched && params.FocusUnmatchedResolvedExpression {
+		maafocus.Print(ctx, i18n.T("expressionrecognition.focus_unmatched", resolvedExpression))
+	}
 
 	if !matched {
 		return nil, false
@@ -364,7 +377,7 @@ func evaluateASTExpression(expr ast.Expr) (any, error) {
 		if node.Kind != token.INT {
 			return nil, fmt.Errorf("unsupported literal kind %s", node.Kind.String())
 		}
-		return strconv.Atoi(node.Value)
+		return parseExpressionIntLiteral(node.Value)
 	case *ast.ParenExpr:
 		return evaluateASTExpression(node.X)
 	case *ast.UnaryExpr:
@@ -527,13 +540,51 @@ func parseOCRNumericValue(text string) (int, error) {
 	}
 
 	scaled := math.Round(value * multiplier)
-	maxInt := int(^uint(0) >> 1)
-	minInt := -maxInt - 1
-	if scaled > float64(maxInt) || scaled < float64(minInt) {
-		return 0, fmt.Errorf("ocr text %q is out of int range", cleaned)
+	if scaled > float64(expressionIntMax) || scaled < float64(expressionIntMin) {
+		clamped := clampToExpressionInt(scaled)
+		log.Warn().
+			Str("component", "ExpressionRecognition").
+			Str("ocr_text", cleaned).
+			Float64("raw_value", scaled).
+			Int("clamped_value", clamped).
+			Msg("ocr numeric value out of int range, clamped")
+		return clamped, nil
 	}
 
 	return int(scaled), nil
+}
+
+func parseExpressionIntLiteral(raw string) (int, error) {
+	value, err := strconv.Atoi(raw)
+	if err == nil {
+		return value, nil
+	}
+
+	var numErr *strconv.NumError
+	if errors.As(err, &numErr) && numErr.Err == strconv.ErrRange {
+		clamped := expressionIntMax
+		if strings.HasPrefix(strings.TrimSpace(raw), "-") {
+			clamped = expressionIntMin
+		}
+		log.Warn().
+			Str("component", "ExpressionRecognition").
+			Str("literal", raw).
+			Int("clamped_value", clamped).
+			Msg("expression integer literal out of int range, clamped")
+		return clamped, nil
+	}
+
+	return 0, err
+}
+
+func clampToExpressionInt(value float64) int {
+	if value > float64(expressionIntMax) {
+		return expressionIntMax
+	}
+	if value < float64(expressionIntMin) {
+		return expressionIntMin
+	}
+	return int(value)
 }
 
 func normalizeOCRNumericToken(token string) (string, float64, error) {

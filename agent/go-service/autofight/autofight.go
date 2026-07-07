@@ -24,6 +24,7 @@ type autoFightAttach struct {
 	EnableAttack                 bool   `json:"enable_attack"`
 	EnableCombo                  bool   `json:"enable_combo"`
 	EnableDodge                  bool   `json:"enable_dodge"`
+	EnableDodgeCompat            bool   `json:"enable_dodge_compat"`
 	EnableHealthDangerousSwitch  bool   `json:"enable_health_dangerous_switch"`
 	EnableBreakAccumulatingPower bool   `json:"enable_break_accumulating_power"`
 	EnableSkill                  bool   `json:"enable_skill"`
@@ -39,6 +40,7 @@ type autoFightAttach struct {
 	SwitchOperatorKeymap2        string `json:"switch_operator_keymap2"`
 	SwitchOperatorKeymap3        string `json:"switch_operator_keymap3"`
 	SwitchOperatorKeymap4        string `json:"switch_operator_keymap4"`
+	EndAxisTimelineCode          string `json:"end_axis_timeline_code"`
 }
 
 // keymapOverrides 是预先生成好的 pipeline override JSON，
@@ -84,6 +86,65 @@ func getCharactorLevelShow(ctx *maa.Context, img image.Image) bool {
 		return false
 	}
 	return detail.Hit
+}
+
+// captureDurationTracker 统计截图识别的平均耗时：每 reportWindow 计算一次窗口内平均值并重置，
+// 若平均耗时超过 alertThreshold，则通过 maafocus 提醒用户降低显卡资源占用。
+type captureDurationTracker struct {
+	reportWindow   time.Duration
+	alertThreshold time.Duration
+	total          time.Duration
+	count          int
+	windowStart    time.Time
+}
+
+// record 累计一次耗时，并在窗口结束时返回该窗口的平均耗时（毫秒）；
+// 仅当窗口刚结束时 ok 为 true，否则 ok 为 false。
+func (t *captureDurationTracker) record(d time.Duration) (avgMs int64, ok bool) {
+	now := time.Now()
+	if t.windowStart.IsZero() {
+		t.windowStart = now
+	}
+	t.total += d
+	t.count++
+
+	if now.Sub(t.windowStart) < t.reportWindow {
+		return 0, false
+	}
+
+	avg := t.total / time.Duration(t.count)
+	t.total = 0
+	t.count = 0
+	t.windowStart = now
+	return avg.Milliseconds(), true
+}
+
+var capturePerf = &captureDurationTracker{
+	reportWindow:   5 * time.Second,
+	alertThreshold: 500 * time.Millisecond,
+}
+
+// captureAndUpdateScreenDetail 因 DirectHit 耗时 50ms，在 action 里直接截图并更新屏幕分析状态。
+func captureAndUpdateScreenDetail(ctx *maa.Context) (image.Image, bool) {
+	start := time.Now()
+	defer func() {
+		if avgMs, ok := capturePerf.record(time.Since(start)); ok &&
+			time.Duration(avgMs)*time.Millisecond > capturePerf.alertThreshold {
+			maafocus.Print(ctx, i18n.T("autofight.capture_slow", avgMs))
+		}
+	}()
+
+	ctx.GetTasker().GetController().PostScreencap().Wait()
+	img, err := ctx.GetTasker().GetController().CacheImage()
+	if err != nil {
+		log.Error().Err(err).Str("component", "AutoFight").Msg("failed to cache image")
+		return nil, false
+	}
+	if !screenAnalyzer.UpdateScreenDetail(ctx, img) {
+		log.Error().Str("component", "AutoFight").Msg("failed to update screen detail")
+		return nil, false
+	}
+	return img, true
 }
 
 type AutoFightEntryRecognition struct{}
@@ -141,6 +202,15 @@ func saveExitImage(img image.Image, reason string) {
 	log.Info().Str("component", "AutoFight").Str("path", path).Str("reason", reason).Msg("saved exit frame to disk")
 }
 
+type lockStage int
+
+const (
+	lockStageLocked  lockStage = -1
+	lockStageInitial lockStage = 0
+	lockStageRetry   lockStage = 1
+	lockStageRecover lockStage = 2
+)
+
 type ActionType int
 
 const (
@@ -161,7 +231,10 @@ const (
 	ActionSwitchCharacter2
 	ActionSwitchCharacter3
 	ActionSwitchCharacter4
-	ActionTurnRound
+	ActionMoveBack
+	ActionMoveForward
+	ActionMoveLeft
+	ActionMoveRight
 )
 
 func skillAction(idx int) ActionType {
@@ -183,11 +256,19 @@ type fightAction struct {
 
 var actionQueue []fightAction
 
+// lastDodgeAt 记录最近一次入队闪避/移动动作的时间（含移动动作内置的闪避），
+// 用于在 EnableLockTarget 中判断一段时间内是否发生过闪避。
+var lastDodgeAt time.Time
+
 func enqueueAction(a fightAction) {
 	actionQueue = append(actionQueue, a)
 	sort.Slice(actionQueue, func(i, j int) bool {
 		return actionQueue[i].executeAt.Before(actionQueue[j].executeAt)
 	})
+	switch a.action {
+	case ActionDodge, ActionMoveBack, ActionMoveForward, ActionMoveLeft, ActionMoveRight:
+		lastDodgeAt = time.Now()
+	}
 }
 
 func dequeueAction() (fightAction, bool) {
@@ -223,6 +304,21 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		return false
 	}
 	params := nodeWithAttach.Attach
+
+	// 尝试加载 EndAxis 时间轴：成功则在循环里替换 endSkill / skill 决策，失败则回退到原逻辑。
+	var timeline *EndAxisTimeline
+	if params.EndAxisTimelineCode != "" {
+		tl := NewEndAxisTimeline()
+		if tl.SetTimelineCode(params.EndAxisTimelineCode) {
+			timeline = tl
+			log.Info().Str("component", "AutoFight").Msg("endaxis timeline enabled")
+			maafocus.Print(ctx, i18n.T("autofight.endaxis.timeline_enabled"))
+		} else {
+			log.Info().Str("component", "AutoFight").Msg("endaxis timeline code invalid, fallback to default skill logic")
+			maafocus.Print(ctx, i18n.T("autofight.endaxis.timeline_invalid_fallback"))
+		}
+	}
+
 	overrides := keymapOverrides{
 		combo: keyOverride("__AutoFightActionComboClick", params.ComboKeymap, "E"),
 		skill: [4]string{
@@ -246,8 +342,11 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	}
 	log.Debug().Str("component", "AutoFight").Interface("params", params).Interface("overrides", overrides).Msg("parsed action attach parameters and built keymap overrides")
 	var pauseStart time.Time
-	var facingOnlyStart time.Time
 	var lastLevelShowCheck time.Time
+	var noLockStart time.Time
+	var lockTargetStage lockStage
+	lastDodgeAt = time.Now()
+	firstNoLockIteration := true
 	characterCount := -1
 	skillCycleIndex := 1
 
@@ -265,23 +364,15 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		}
 
 		// 因DirectHit耗时50ms，因此在action里直接截图
-		ctx.GetTasker().GetController().PostScreencap().Wait()
-		img, err := ctx.GetTasker().GetController().CacheImage()
-		if err != nil {
-			log.Error().Err(err).Str("component", "AutoFight").Msg("failed to cache image")
-			result = false
-			break
-		}
-
-		if !screenAnalyzer.UpdateScreenDetail(ctx, img) {
-			log.Error().Str("component", "AutoFight").Msg("failed to update screen detail")
+		img, ok := captureAndUpdateScreenDetail(ctx)
+		if !ok {
 			result = false
 			break
 		}
 
 		// 暂停判定：检查是否在战斗空间内
-		inFightSpace := (screenAnalyzer.GetMenuList() || screenAnalyzer.GetMenuOperators())
-
+		charSelect := screenAnalyzer.GetCharacterSelect()
+		inFightSpace := charSelect > 0
 		if inFightSpace {
 			pauseStart = time.Time{}
 		} else {
@@ -303,7 +394,9 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		// comboEmpty := screenAnalyzer.GetCharacterComboEmpty()
 		if screenAnalyzer.GetCharacterLevel() &&
 			!screenAnalyzer.GetEnemyTarget() &&
-			!screenAnalyzer.GetEnemyFacing() &&
+			!screenAnalyzer.GetEnemyFacingLeft() &&
+			!screenAnalyzer.GetEnemyFacingRight() &&
+			!screenAnalyzer.GetEnemyFacingBack() &&
 			len(comboFull) == 0 {
 			log.Info().Str("component", "AutoFight").Msg("exiting fight")
 			maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
@@ -345,69 +438,133 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			maafocus.Print(ctx, i18n.T("autofight.character_count", characterCount))
 		}
 
-		// 战斗决策
-		if params.EnableLockTarget {
-			/*
-				场景一：boss正在登场，一般面向boss，此时没有facing提示
-				场景二：boss在身后，此时有facing提示，需要立刻转身
-				场景三：boss在中间，四周有小怪，四面八方有facing提示
-				场景四：只有小怪，有target提示，有facing提示
-				场景五：只有小怪，无target提示，有facing提示
-				场景六：只有小怪，有target提示，无facing提示
-			*/
-			enemyTargetCenter := screenAnalyzer.GetEnemyTargetCenter()
-			enemyTarget := screenAnalyzer.GetEnemyTarget()
-			enemyFacing := screenAnalyzer.GetEnemyFacing()
-
-			if enemyTargetCenter {
-				facingOnlyStart = time.Time{}
-			} else if enemyTarget {
-				facingOnlyStart = time.Time{}
-				maafocus.Print(ctx, i18n.T("autofight.adjust_view"))
+		if params.EnableDodge {
+			// 地面攻击必闪；否则按是否启用兼容模式选择普通/兼容闪避检测
+			dodgeCheck := screenAnalyzer.GetEnemyDodge
+			if params.EnableDodgeCompat {
+				dodgeCheck = screenAnalyzer.GetEnemyDodgeCompat
+			}
+			if screenAnalyzer.GetEnemyAttackGroundDodge() || dodgeCheck() {
 				enqueueAction(fightAction{
 					executeAt: time.Now().Add(time.Millisecond),
-					action:    ActionLockTarget,
+					action:    ActionDodge,
 				})
-				drainActionQueue(ctx, overrides)
-				continue
-			} else if enemyFacing {
-				if facingOnlyStart.IsZero() {
-					facingOnlyStart = time.Now()
+			}
+		}
+
+		if params.EnableLockTarget {
+			// 锁定目标时序状态机（按距上次检测到 EnemyLocked 的累计时长划分）：
+			//   首次未锁定的那一帧               -> 直接 continue，过滤瞬时识别抖动
+			//   阶段 0 [0, 3s)    -> 宽限期，不特殊处理，正常进入战斗决策
+			//   阶段 1 [3s, 6s)   -> 进入时发一次 ActionLockTarget
+			//   阶段 2 [6s, 9s)   -> 进入时根据 EnemyFacing 方向升级动作：
+			//                        左/右/后 -> 对应方向移动 + Sleep + Sleep + ActionLockTarget
+			//                        无 facing -> 前进 + ActionLockTarget
+			//   阶段 3 [9s, ∞)    -> 重置 noLockStart 重新进入阶段 0（含首帧 continue），循环重试
+			//   任意时刻检测到 EnemyLocked     -> 把 noLockStart 推回当前时刻、回到阶段 0，并重置首帧标记
+			if screenAnalyzer.GetEnemyLocked() {
+				noLockStart = time.Now()
+				lockTargetStage = lockStageLocked
+				firstNoLockIteration = false
+				// 5秒内没有闪避/冲刺则向前冲刺一次，防止怪跑远
+				if time.Since(lastDodgeAt) >= 5*time.Second {
+					maafocus.Print(ctx, i18n.T("autofight.approach_enemy"))
+					enqueueAction(fightAction{
+						executeAt: time.Now().Add(time.Millisecond),
+						action:    ActionMoveForward,
+					})
 				}
-				if time.Since(facingOnlyStart) < 10*time.Second {
-					maafocus.Print(ctx, i18n.T("autofight.lock_target"))
-					enqueueAction(fightAction{
-						executeAt: time.Now().Add(time.Millisecond),
-						action:    ActionLockTarget,
-					})
-					drainActionQueue(ctx, overrides)
-					continue
-				} else {
-					maafocus.Print(ctx, i18n.T("autofight.turn_round"))
-					facingOnlyStart = time.Time{}
-					enqueueAction(fightAction{
-						executeAt: time.Now().Add(time.Millisecond),
-						action:    ActionTurnRound,
-					})
-					enqueueAction(fightAction{
-						executeAt: time.Now().Add(time.Millisecond),
-						action:    ActionSleepSecond,
-					})
-					enqueueAction(fightAction{
-						executeAt: time.Now().Add(time.Millisecond),
-						action:    ActionSleepSecond,
-					})
-					enqueueAction(fightAction{
-						executeAt: time.Now().Add(time.Millisecond),
-						action:    ActionLockTarget,
-					})
-					drainActionQueue(ctx, overrides)
-					continue
+			} else {
+				if noLockStart.IsZero() {
+					noLockStart = time.Now()
+					lockTargetStage = lockStageLocked
+				}
+				if time.Since(noLockStart) >= 9*time.Second {
+					noLockStart = time.Now()
+					lockTargetStage = lockStageLocked
+				}
+				elapsed := time.Since(noLockStart)
+
+				switch {
+				case elapsed < 3*time.Second:
+					if firstNoLockIteration {
+						if lockTargetStage < lockStageInitial {
+							maafocus.Print(ctx, i18n.T("autofight.start_combat_lock_target"))
+							enqueueAction(fightAction{
+								executeAt: time.Now().Add(time.Millisecond),
+								action:    ActionLockTarget,
+							})
+							lockTargetStage = lockStageInitial
+						}
+					}
+				case elapsed < 6*time.Second:
+					if lockTargetStage < lockStageRetry {
+						maafocus.Print(ctx, i18n.T("autofight.lock_target"))
+						enqueueAction(fightAction{
+							executeAt: time.Now().Add(time.Millisecond),
+							action:    ActionLockTarget,
+						})
+						lockTargetStage = lockStageRetry
+					}
+				default:
+					if lockTargetStage < lockStageRecover {
+						facingBack := screenAnalyzer.GetEnemyFacingBack()
+						facingLeft := screenAnalyzer.GetEnemyFacingLeft()
+						facingRight := screenAnalyzer.GetEnemyFacingRight()
+						switch {
+						case facingBack:
+							maafocus.Print(ctx, i18n.T("autofight.move_back"))
+							enqueueAction(fightAction{
+								executeAt: time.Now().Add(time.Millisecond),
+								action:    ActionMoveBack,
+							})
+						case facingLeft:
+							maafocus.Print(ctx, i18n.T("autofight.move_left"))
+							enqueueAction(fightAction{
+								executeAt: time.Now().Add(time.Millisecond),
+								action:    ActionMoveLeft,
+							})
+						case facingRight:
+							maafocus.Print(ctx, i18n.T("autofight.move_right"))
+							enqueueAction(fightAction{
+								executeAt: time.Now().Add(time.Millisecond),
+								action:    ActionMoveRight,
+							})
+						default:
+							maafocus.Print(ctx, i18n.T("autofight.move_forward"))
+							enqueueAction(fightAction{
+								executeAt: time.Now().Add(time.Millisecond),
+								action:    ActionMoveForward,
+							})
+						}
+						if facingBack || facingLeft || facingRight {
+							enqueueAction(fightAction{
+								executeAt: time.Now().Add(time.Millisecond),
+								action:    ActionSleepSecond,
+							})
+							enqueueAction(fightAction{
+								executeAt: time.Now().Add(time.Millisecond),
+								action:    ActionSleepSecond,
+							})
+						}
+						enqueueAction(fightAction{
+							executeAt: time.Now().Add(time.Millisecond),
+							action:    ActionLockTarget,
+						})
+						lockTargetStage = lockStageRecover
+					}
 				}
 			}
 		}
+
+		hasEnemyTarget := false
+		if params.EnableLockTarget && screenAnalyzer.GetEnemyLocked() {
+			hasEnemyTarget = true
+		} else if !params.EnableLockTarget {
+			hasEnemyTarget = true
+		}
+
 		if params.EnableHealthDangerousSwitch {
-			charSelect := screenAnalyzer.GetCharacterSelect()
 			if charSelect > 0 && slices.Contains(healthDangerous, charSelect) && len(healthNormal) > 0 {
 				switchTo := healthNormal[0]
 				maafocus.Print(ctx, i18n.T("autofight.health_dangerous_switch", charSelect, switchTo))
@@ -417,64 +574,114 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				})
 			}
 		}
-		if params.EnableDodge && screenAnalyzer.GetEnemyDodge() {
-			enqueueAction(fightAction{
-				executeAt: time.Now().Add(time.Millisecond),
-				action:    ActionDodge,
-			})
-		}
-		// } else if params.EnableAttack {
-		// 	enqueueAction(fightAction{
-		// 		executeAt: time.Now(),
-		// 		action:    ActionAttack,
-		// 	})
-		// }
-		if params.EnableCombo && screenAnalyzer.GetCharacterComboActive() {
-			enqueueAction(fightAction{
-				executeAt: time.Now(),
-				action:    ActionCombo,
-			})
-		} else if endSkillFull := screenAnalyzer.GetEndSkillFull(true); params.EnableEndSkill && len(endSkillFull) > 0 {
-			screenAnalyzer.MarkLabelUsed(LabelEndSkillFull)
-			for _, idx := range endSkillFull {
-				if idx >= 5-characterCount {
-					op := idx + characterCount - 4
+
+		endSkillFull := screenAnalyzer.GetEndSkillFull(true)
+		energyLevel := screenAnalyzer.GetEnergyLevel(true)
+		if timeline == nil {
+			if params.EnableCombo && screenAnalyzer.GetCharacterComboActive() {
+				enqueueAction(fightAction{
+					executeAt: time.Now(),
+					action:    ActionCombo,
+				})
+			}
+
+			if params.EnableEndSkill && hasEnemyTarget {
+				if len(endSkillFull) > 0 {
+					screenAnalyzer.MarkLabelUsed(LabelEndSkillFull)
+					for _, idx := range endSkillFull {
+						if idx >= 5-characterCount {
+							op := idx + characterCount - 4
+							enqueueAction(fightAction{
+								executeAt: time.Now(),
+								action:    endSkillAction(op),
+							})
+						}
+						break
+					}
+				}
+			}
+			if params.EnableSkill && energyLevel >= 1 {
+				if params.EnableBreakAccumulatingPower && screenAnalyzer.GetEnemyAccumulatingPower(true) {
+					maafocus.Print(ctx, i18n.T("autofight.enemy_accumulating_power"))
+					op := skillCycleIndex
+					if characterCount > 0 {
+						op = ((op - 1) % characterCount) + 1
+					}
 					enqueueAction(fightAction{
 						executeAt: time.Now(),
-						action:    endSkillAction(op),
+						action:    skillAction(op),
+					})
+					skillCycleIndex++
+				} else if energyLevel > params.ReserveSkillLevel && hasEnemyTarget {
+					log.Debug().
+						Str("component", "AutoFight").
+						Int("energyLevel", energyLevel).
+						Int("reserveLevel", params.ReserveSkillLevel).
+						Msg("energy level above reserve, using skill")
+					op := skillCycleIndex
+					if characterCount > 0 {
+						op = ((op - 1) % characterCount) + 1
+					}
+					enqueueAction(fightAction{
+						executeAt: time.Now(),
+						action:    skillAction(op),
+					})
+					skillCycleIndex++
+				}
+				screenAnalyzer.MarkLabelUsed(LabelEnergyLevelFull)
+			}
+		} else {
+			if hasEnemyTarget && timeline.ActionFinish() {
+				maafocus.PrintThrottle(ctx, 3*time.Second, i18n.T("autofight.endaxis.retry_timeline"))
+				timeline.SelectScenario(ctx, characterCount, comboFull, endSkillFull, energyLevel)
+			}
+
+			if screenAnalyzer.GetCharacterComboActive() && !timeline.ActionFinish() {
+				if screenAnalyzer.GetCharacterComboActive() {
+					enqueueAction(fightAction{
+						executeAt: time.Now(),
+						action:    ActionCombo,
 					})
 				}
-				break
 			}
-		} else if params.EnableSkill && screenAnalyzer.GetEnergyLevel(true) >= 1 {
-			if params.EnableBreakAccumulatingPower && screenAnalyzer.GetEnemyAccumulatingPower(true) {
-				maafocus.Print(ctx, i18n.T("autofight.enemy_accumulating_power"))
-				op := skillCycleIndex
-				if characterCount > 0 {
-					op = ((op - 1) % characterCount) + 1
+
+			action := timeline.FrontAction()
+			if action != nil {
+				op := action.TrackIdx + 1
+				if op < 1 || op > characterCount {
+					// timeline 设计的 track 在当前队伍里没有对应角色，直接丢弃这个动作
+					log.Warn().
+						Str("component", "AutoFight").
+						Str("step", "timelineDecision").
+						Int("trackIdx", action.TrackIdx).
+						Int("characterCount", characterCount).
+						Msg("timeline action targets non-existent character, skip")
+					timeline.PopFrontAction()
+				} else {
+					screenSlot := op + 4 - characterCount
+
+					switch action.Type {
+					case "ultimate":
+						if slices.Contains(endSkillFull, screenSlot) && hasEnemyTarget {
+							enqueueAction(fightAction{
+								executeAt: time.Now(),
+								action:    endSkillAction(op),
+							})
+							screenAnalyzer.MarkLabelUsed(LabelEndSkillFull)
+							timeline.PopFrontAction()
+						}
+					case "skill":
+						if energyLevel >= 1 && hasEnemyTarget {
+							enqueueAction(fightAction{
+								executeAt: time.Now(),
+								action:    skillAction(op),
+							})
+							screenAnalyzer.MarkLabelUsed(LabelEnergyLevelFull)
+							timeline.PopFrontAction()
+						}
+					}
 				}
-				enqueueAction(fightAction{
-					executeAt: time.Now(),
-					action:    skillAction(op),
-				})
-				skillCycleIndex++
-			} else if screenAnalyzer.GetEnergyLevel(true) > params.ReserveSkillLevel {
-				log.Debug().
-					Str("component", "AutoFight").
-					Int("energyLevel", screenAnalyzer.GetEnergyLevel(true)).
-					Int("reserveLevel", params.ReserveSkillLevel).
-					Msg("energy level above reserve, using skill")
-				op := skillCycleIndex
-				if characterCount > 0 {
-					op = ((op - 1) % characterCount) + 1
-				}
-				enqueueAction(fightAction{
-					executeAt: time.Now(),
-					action:    skillAction(op),
-				})
-				skillCycleIndex++
 			}
-			screenAnalyzer.MarkLabelUsed(LabelEnergyLevelFull)
 		}
 
 		drainActionQueue(ctx, overrides)
@@ -482,9 +689,25 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	if params.EnableAttack {
 		ctx.RunAction("__AutoFightActionAttackTouchUp", maa.Rect{600, 320, 80, 80}, "", nil)
 	}
-	if !ctx.GetTasker().Stopping() {
-		// 确保最后的攻击动作执行完毕，避免还在位移时进入下一个pipeline
-		time.Sleep(3 * time.Second)
+
+	// 确保最后的攻击动作执行完毕，避免还在位移时进入下一个pipeline
+	waitStart := time.Now()
+	for time.Since(waitStart) < 3*time.Second {
+		if ctx.GetTasker().Stopping() {
+			break
+		}
+		_, ok := captureAndUpdateScreenDetail(ctx)
+		if !ok {
+			break
+		}
+	}
+
+	if !ctx.GetTasker().Stopping() && screenAnalyzer.GetEnemyLockedReliable() {
+		enqueueAction(fightAction{
+			executeAt: time.Now().Add(time.Millisecond),
+			action:    ActionLockTarget,
+		})
+		drainActionQueue(ctx, overrides)
 	}
 	return result
 }
@@ -500,41 +723,67 @@ func drainActionQueue(ctx *maa.Context, overrides keymapOverrides) {
 		case ActionAttack:
 			ctx.RunAction("__AutoFightActionAttackClick", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionCombo:
+			maafocus.Print(ctx, i18n.T("autofight.combo"))
 			ctx.RunAction("__AutoFightActionComboClick", maa.Rect{600, 320, 80, 80}, "", overrides.combo)
 		case ActionSkill1:
+			maafocus.Print(ctx, i18n.T("autofight.skill", 1))
 			ctx.RunAction("__AutoFightActionSkillOperators1", maa.Rect{600, 320, 80, 80}, "", overrides.skill[0])
 		case ActionSkill2:
+			maafocus.Print(ctx, i18n.T("autofight.skill", 2))
 			ctx.RunAction("__AutoFightActionSkillOperators2", maa.Rect{600, 320, 80, 80}, "", overrides.skill[1])
 		case ActionSkill3:
+			maafocus.Print(ctx, i18n.T("autofight.skill", 3))
 			ctx.RunAction("__AutoFightActionSkillOperators3", maa.Rect{600, 320, 80, 80}, "", overrides.skill[2])
 		case ActionSkill4:
+			maafocus.Print(ctx, i18n.T("autofight.skill", 4))
 			ctx.RunAction("__AutoFightActionSkillOperators4", maa.Rect{600, 320, 80, 80}, "", overrides.skill[3])
 		case ActionEndSkill1:
+			maafocus.Print(ctx, i18n.T("autofight.end_skill", 1))
 			ctx.RunAction("__AutoFightActionEndSkillOperators1", maa.Rect{600, 320, 80, 80}, "", overrides.endSkill[0])
 		case ActionEndSkill2:
+			maafocus.Print(ctx, i18n.T("autofight.end_skill", 2))
 			ctx.RunAction("__AutoFightActionEndSkillOperators2", maa.Rect{600, 320, 80, 80}, "", overrides.endSkill[1])
 		case ActionEndSkill3:
+			maafocus.Print(ctx, i18n.T("autofight.end_skill", 3))
 			ctx.RunAction("__AutoFightActionEndSkillOperators3", maa.Rect{600, 320, 80, 80}, "", overrides.endSkill[2])
 		case ActionEndSkill4:
+			maafocus.Print(ctx, i18n.T("autofight.end_skill", 4))
 			ctx.RunAction("__AutoFightActionEndSkillOperators4", maa.Rect{600, 320, 80, 80}, "", overrides.endSkill[3])
 		case ActionLockTarget:
 			ctx.RunAction("__AutoFightActionLockTarget", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionDodge:
+			maafocus.Print(ctx, i18n.T("autofight.dodge"))
 			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionSleepSecond:
 			time.Sleep(1000 * time.Millisecond)
 		case ActionSwitchCharacter1:
+			maafocus.Print(ctx, i18n.T("autofight.switch_character", 1))
 			ctx.RunAction("__AutoFightActionSwitchCharacterOperators1", maa.Rect{600, 320, 80, 80}, "", overrides.switchCharacter[0])
 		case ActionSwitchCharacter2:
+			maafocus.Print(ctx, i18n.T("autofight.switch_character", 2))
 			ctx.RunAction("__AutoFightActionSwitchCharacterOperators2", maa.Rect{600, 320, 80, 80}, "", overrides.switchCharacter[1])
 		case ActionSwitchCharacter3:
+			maafocus.Print(ctx, i18n.T("autofight.switch_character", 3))
 			ctx.RunAction("__AutoFightActionSwitchCharacterOperators3", maa.Rect{600, 320, 80, 80}, "", overrides.switchCharacter[2])
 		case ActionSwitchCharacter4:
+			maafocus.Print(ctx, i18n.T("autofight.switch_character", 4))
 			ctx.RunAction("__AutoFightActionSwitchCharacterOperators4", maa.Rect{600, 320, 80, 80}, "", overrides.switchCharacter[3])
-		case ActionTurnRound:
+		case ActionMoveBack:
 			ctx.RunAction("__AutoFightActionMoveBackKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionMoveBackKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
+		case ActionMoveForward:
+			ctx.RunAction("__AutoFightActionMoveForwardKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionMoveForwardKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
+		case ActionMoveLeft:
+			ctx.RunAction("__AutoFightActionMoveLeftKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionMoveLeftKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
+		case ActionMoveRight:
+			ctx.RunAction("__AutoFightActionMoveRightKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionMoveRightKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
 		}
 	}
 }

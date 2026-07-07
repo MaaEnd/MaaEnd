@@ -19,7 +19,6 @@
                 "AutoTaskInterval"
             ],
             "controller": [
-                "Win32-Window",
                 "Win32-Front",
                 "Wlroots"
             ],
@@ -33,7 +32,7 @@
             "type": "switch",
             "label": "$option.SklandMap.label",
             "description": "$option.SklandMap.description",
-            "default_case": "Yes",
+            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -429,14 +428,7 @@
                         }
                     },
                     "option": [
-                        "AutoFightKeymap",
-                        "AutoFightAttack",
-                        "AutoFightCombo",
-                        "AutoFightDodge",
-                        "AutoFightSkill",
-                        "AutoFightEndSkill",
-                        "AutoFightLockTarget",
-                        "AutoFightHealthDangerousSwitch"
+                        "AutoFightSettingFull"
                     ]
                 },
                 {
@@ -446,6 +438,26 @@
                             "enabled": false
                         }
                     }
+                }
+            ]
+        },
+        "AutoFightSettingFull": {
+            "type": "switch",
+            "label": "$option.AutoFightSettingFull.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoFightKeymap",
+                        "AutoFightAttack",
+                        "AutoFightDodge",
+                        "AutoFightLockTarget",
+                        "AutoFightHealthDangerousSwitch",
+                        "AutoFightAxisFullSetting"
+                    ]
+                },
+                {
+                    "name": "No"
                 }
             ]
         },
@@ -612,6 +624,9 @@
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "AutoFightDodgeCompat"
+                    ],
                     "pipeline_override": {
                         "AutoFight": {
                             "attach": {
@@ -631,6 +646,95 @@
                     }
                 }
             ]
+        },
+        "AutoFightDodgeCompat": {
+            "label": "$option.AutoFightDodgeCompat.label",
+            "description": "$option.AutoFightDodgeCompat.description",
+            "type": "switch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_dodge_compat": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "enable_dodge_compat": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightAxis": {
+            "label": "$option.AutoFightAxis.label",
+            "type": "switch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoFightAxisData"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "option": [
+                        "AutoFightReserveSkillLevel"
+                    ]
+                }
+            ]
+        },
+        "AutoFightAxisFullSetting": {
+            "label": "$option.AutoFightAxis.label",
+            "type": "switch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoFightAxisData"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "option": [
+                        "AutoFightCombo",
+                        "AutoFightSkill",
+                        "AutoFightEndSkill"
+                    ]
+                }
+            ]
+        },
+        "AutoFightAxisData": {
+            "label": "$option.AutoFightAxisData.label",
+            "description": "$option.AutoFightAxisData.description",
+            "type": "input",
+            "inputs": [
+                {
+                    "name": "AutoFightAxisCodeString",
+                    "label": "$option.AutoFightAxisCodeString.label",
+                    "description": "$option.AutoFightAxisCodeString.description",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "AutoFight": {
+                    "attach": {
+                        "end_axis_timeline_code": "{AutoFightAxisCodeString}"
+                    }
+                }
+            }
         },
         "AutoFightSkill": {
             "label": "$option.AutoFightSkill.label",
@@ -788,6 +892,7 @@
         },
         "AutoFightLockTarget": {
             "label": "$option.AutoFightLockTarget.label",
+            "description": "$option.AutoFightLockTarget.description",
             "type": "switch",
             "default_case": "Yes",
             "cases": [

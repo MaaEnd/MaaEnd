@@ -5,76 +5,300 @@
             "entry": "AutoUseSpMedicationEntry",
             "label": "$task.AutoUseSpMedication.label",
             "name": "AutoUseSpMedication",
+            "controller": [
+                "Win32-Front",
+                "Wlroots",
+                "ADB"
+            ],
             "group": [
-                "valuables_vault"
+                "sanity_sink"
             ],
             "option": [
-                "UseRegularSpMedication",
-                "UseAllExpireSoonSpMedication"
+                "AutoUseSpMedicationExpireWithinDays",
+                "AutoUseSpMedicationUseCount",
+                "AutoUseSpMedicationMaxSanity"
             ]
         }
     ],
     "option": {
-        "UseRegularSpMedication": {
-            "type": "switch",
-            "description": "$option.UseRegularSpMedication.description",
-            "label": "$option.UseRegularSpMedication.label",
-            "default_case": "Yes",
+        "AutoUseSpMedicationExpireWithinDays": {
+            "label": "$option.AutoUseSpMedicationExpireWithinDays.label",
+            "description": "$option.AutoUseSpMedicationExpireWithinDays.description",
+            "type": "select",
+            "default_case": "Days3",
             "cases": [
                 {
-                    "name": "Yes",
+                    "name": "All",
+                    "label": "$option.AutoUseSpMedicationExpireWithinDays.cases.All.label",
                     "pipeline_override": {
-                        "AutoUseSpMedicationChooseEmergencySanityBooster": {
-                            "enabled": true
-                        },
-                        "AutoUseSpMedicationChooseEmergencySanityBoosterExpSoon": {
-                            "enabled": true
-                        },
-                        "AutoUseSpMedicationUseNoEmergencySanityBooster": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "AutoUseSpMedicationChooseEmergencySanityBooster": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        "UseAllExpireSoonSpMedication": {
-            "type": "switch",
-            "description": "$option.UseAllExpireSoonMedication.description",
-            "label": "$option.UseAllExpireSoonMedication.label",
-            "default_case": "No",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "AutoUseSpMedicationUseNoEmergencySanityBooster": {
-                            "enabled": true
-                        },
-                        "AutoUseSpMedicationChooseEmergencySanityBoosterExpSoon": {
-                            "enabled": true,
-                            "next": [
-                                "AutoUseSpMedicationIfExpireSoon"
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                // 剩余时间 OCR：行首锚定，避免匹配「剩余23小时」「剩余1天」等带前缀文本
+                                // @i18n-skip
+                                "^0小时",
+                                "^1小时",
+                                "^2小时",
+                                "^3小时",
+                                "^4小时",
+                                "^5小时",
+                                "^6小时",
+                                "^7小时",
+                                "^8小时",
+                                "^9小时",
+                                "^10小时",
+                                "^11小时",
+                                "^12小时",
+                                "^13小时",
+                                "^14小时",
+                                "^15小时",
+                                "^16小时",
+                                "^17小时",
+                                "^18小时",
+                                "^19小时",
+                                "^20小时",
+                                "^21小时",
+                                "^22小时",
+                                "^23小时",
+                                "^1天",
+                                "^2天",
+                                "^3天",
+                                "^4天",
+                                "^5天",
+                                "^6天",
+                                "^7天",
+                                "^8天",
+                                "^9天",
+                                "^10天",
+                                "^11天",
+                                "^12天",
+                                "^13天"
                             ]
                         }
                     }
                 },
                 {
-                    "name": "No",
+                    "name": "Days10",
+                    "label": "$option.AutoUseSpMedicationExpireWithinDays.cases.Days10.label",
                     "pipeline_override": {
-                        "AutoUseSpMedicationIfExpireSoon": {
-                            //如果用户不选择使用全部即将过期的药剂,在检测到即将过期的药剂时只使用一次,即不进人添加药剂使用次数的节点
-                            "enabled": false
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                // 剩余时间 OCR：行首锚定，避免匹配「剩余23小时」「剩余1天」等带前缀文本
+                                // @i18n-skip
+                                "^0小时",
+                                "^1小时",
+                                "^2小时",
+                                "^3小时",
+                                "^4小时",
+                                "^5小时",
+                                "^6小时",
+                                "^7小时",
+                                "^8小时",
+                                "^9小时",
+                                "^10小时",
+                                "^11小时",
+                                "^12小时",
+                                "^13小时",
+                                "^14小时",
+                                "^15小时",
+                                "^16小时",
+                                "^17小时",
+                                "^18小时",
+                                "^19小时",
+                                "^20小时",
+                                "^21小时",
+                                "^22小时",
+                                "^23小时",
+                                "^1天",
+                                "^2天",
+                                "^3天",
+                                "^4天",
+                                "^5天",
+                                "^6天",
+                                "^7天",
+                                "^8天",
+                                "^9天",
+                                "^10天"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days7",
+                    "label": "$option.AutoUseSpMedicationExpireWithinDays.cases.Days7.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                // 剩余时间 OCR：行首锚定，避免匹配「剩余23小时」「剩余1天」等带前缀文本
+                                // @i18n-skip
+                                "^0小时",
+                                "^1小时",
+                                "^2小时",
+                                "^3小时",
+                                "^4小时",
+                                "^5小时",
+                                "^6小时",
+                                "^7小时",
+                                "^8小时",
+                                "^9小时",
+                                "^10小时",
+                                "^11小时",
+                                "^12小时",
+                                "^13小时",
+                                "^14小时",
+                                "^15小时",
+                                "^16小时",
+                                "^17小时",
+                                "^18小时",
+                                "^19小时",
+                                "^20小时",
+                                "^21小时",
+                                "^22小时",
+                                "^23小时",
+                                "^1天",
+                                "^2天",
+                                "^3天",
+                                "^4天",
+                                "^5天",
+                                "^6天",
+                                "^7天"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days3",
+                    "label": "$option.AutoUseSpMedicationExpireWithinDays.cases.Days3.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                // 剩余时间 OCR：行首锚定，避免匹配「剩余23小时」「剩余1天」等带前缀文本
+                                // @i18n-skip
+                                "^0小时",
+                                "^1小时",
+                                "^2小时",
+                                "^3小时",
+                                "^4小时",
+                                "^5小时",
+                                "^6小时",
+                                "^7小时",
+                                "^8小时",
+                                "^9小时",
+                                "^10小时",
+                                "^11小时",
+                                "^12小时",
+                                "^13小时",
+                                "^14小时",
+                                "^15小时",
+                                "^16小时",
+                                "^17小时",
+                                "^18小时",
+                                "^19小时",
+                                "^20小时",
+                                "^21小时",
+                                "^22小时",
+                                "^23小时",
+                                "^1天",
+                                "^2天",
+                                "^3天"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days1",
+                    "label": "$option.AutoUseSpMedicationExpireWithinDays.cases.Days1.label",
+                    "pipeline_override": {
+                        "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                // 剩余时间 OCR：行首锚定，避免匹配「剩余23小时」「剩余1天」等带前缀文本
+                                // @i18n-skip
+                                "^0小时",
+                                "^1小时",
+                                "^2小时",
+                                "^3小时",
+                                "^4小时",
+                                "^5小时",
+                                "^6小时",
+                                "^7小时",
+                                "^8小时",
+                                "^9小时",
+                                "^10小时",
+                                "^11小时",
+                                "^12小时",
+                                "^13小时",
+                                "^14小时",
+                                "^15小时",
+                                "^16小时",
+                                "^17小时",
+                                "^18小时",
+                                "^19小时",
+                                "^20小时",
+                                "^21小时",
+                                "^22小时",
+                                "^23小时",
+                                "^1天"
+                            ]
                         }
                     }
                 }
             ]
+        },
+        "AutoUseSpMedicationUseCount": {
+            "type": "input",
+            "label": "$option.AutoUseSpMedicationUseCount.label",
+            "description": "$option.AutoUseSpMedicationUseCount.description",
+            "inputs": [
+                {
+                    "name": "UseCount",
+                    "label": "$option.AutoUseSpMedicationUseCount.inputs.UseCount.label",
+                    "description": "$option.AutoUseSpMedicationUseCount.inputs.UseCount.description",
+                    "default": "99",
+                    "pipeline_type": "int",
+                    "pattern_msg": "$option.AutoUseSpMedicationUseCount.inputs.UseCount.pattern_msg",
+                    "verify": "^([1-9]\\d?)$"
+                }
+            ],
+            "pipeline_override": {
+                "AutoUseSpMedicationLoop": {
+                    "max_hit": "{UseCount}"
+                }
+            }
+        },
+        "AutoUseSpMedicationMaxSanity": {
+            "type": "input",
+            "label": "$option.AutoUseSpMedicationMaxSanity.label",
+            "description": "$option.AutoUseSpMedicationMaxSanity.description",
+            "inputs": [
+                {
+                    "name": "MaxSanity",
+                    "label": "$option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.label",
+                    "description": "$option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.description",
+                    "default": "9999",
+                    "pipeline_type": "int",
+                    "pattern_msg": "$option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.pattern_msg",
+                    "verify": "^([1-9]\\d{0,3})$"
+                }
+            ],
+            "pipeline_override": {
+                "AutoUseSpMedicationCheckSanity": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoUseSpMedicationCurrentSanity}<{MaxSanity}"
+                            }
+                        }
+                    }
+                },
+                "AutoUseSpMedicationCheckSanityEnough": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoUseSpMedicationCurrentSanity}>={MaxSanity}"
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

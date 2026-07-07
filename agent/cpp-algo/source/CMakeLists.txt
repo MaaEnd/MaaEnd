@@ -7,7 +7,7 @@ target_include_directories(cpp-algo
 
 target_link_libraries(cpp-algo
     PRIVATE MaaUtils MaaFramework::MaaToolkit MaaAgentServer::MaaAgentServer
-    PRIVATE Boost::system ${OpenCV_LIBS} ONNXRuntime::ONNXRuntime)
+    PRIVATE Boost::system ${OpenCV_LIBS} ONNXRuntime::ONNXRuntime ZLIB::ZLIB)
 
 if(LINUX)
     target_link_libraries(cpp-algo PRIVATE pthread dl)
@@ -50,5 +50,7 @@ install(TARGETS cpp-algo
 )
 
 if(WIN32)
+    # cpp-algo imports zlib on Windows; install the app-local runtime beside the exe.
+    install(FILES "$<TARGET_FILE_DIR:cpp-algo>/z.dll" DESTINATION agent OPTIONAL)
     install(FILES $<TARGET_PDB_FILE:cpp-algo> DESTINATION agent OPTIONAL)
 endif()

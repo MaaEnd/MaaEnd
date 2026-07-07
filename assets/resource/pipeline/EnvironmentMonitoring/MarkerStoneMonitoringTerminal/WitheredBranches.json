@@ -31,6 +31,7 @@
             "枯れ枝",
             "마른 가지"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckWitheredBranchesIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Withered\\s*Branches",
             "祖泉周辺の枯れ枝の写真を撮る",
             "선조의 샘 주변의 마른 가지를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptWitheredBranches": {
         "desc": "接取枯枝委托",
@@ -213,20 +215,20 @@
                 {
                     "map_name": "map02_lv003",
                     "target": [
-                        502.2,
-                        360.2,
-                        13.2,
-                        13.9
+                        496.1,
+                        360.1,
+                        19.3,
+                        14.3
                     ]
                 }
             ]
         },
         "next": [
-            "GoToWitheredBranchesMapTrackerMove"
+            "GoToWitheredBranchesMove"
         ]
     },
     "GoToWitheredBranchesNotAtStartPos": {
-        "desc": "不在枯枝任务开始位置附近，先传送再复核落点",
+        "desc": "不在枯枝任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,67 +237,11 @@
             ]
         },
         "next": [
-            "GoToWitheredBranchesRecheckStartPos",
-            "GoToWitheredBranchesReEnterMap"
+            "GoToWitheredBranchesStartPos"
         ]
     },
-    "GoToWitheredBranchesRecheckStartPos": {
-        "desc": "传送后再次检查是否已在枯枝任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv003",
-                    "target": [
-                        502.2,
-                        360.2,
-                        13.2,
-                        13.9
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToWitheredBranchesMapTrackerMove"
-        ]
-    },
-    "GoToWitheredBranchesReEnterMap": {
-        "desc": "传送后仍未到达枯枝任务开始位置附近，重试一次传送",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingQingboStockade3"
-            ]
-        },
-        "next": [
-            "GoToWitheredBranchesFinalCheckStartPos"
-        ]
-    },
-    "GoToWitheredBranchesFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在枯枝任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv003",
-                    "target": [
-                        502.2,
-                        360.2,
-                        13.2,
-                        13.9
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToWitheredBranchesMapTrackerMove"
-        ]
-    },
-    "GoToWitheredBranchesMapTrackerMove": {
-        "desc": "前往枯枝",
+    "GoToWitheredBranchesMove": {
+        "desc": "自动寻路前往枯枝",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -309,21 +255,19 @@
                     507.5,
                     379.2
                 ]
-            ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 135
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "WitheredBranchesAdjustCamera"
         },
-        "next": [
-            "WitheredBranchesAdjustHeading"
-        ]
-    },
-    "WitheredBranchesAdjustHeading": {
-        "desc": "枯枝任务无需调整角色朝向",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]

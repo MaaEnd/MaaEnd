@@ -5,7 +5,15 @@
             "label": "$task.ReceiveProdManual.label",
             "entry": "ProdManualStart",
             "description": "$task.ReceiveProdManual.description",
-            "group": ["backpack"]
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
+            "group": [
+                "backpack"
+            ]
         }
     ],
     "option": {}

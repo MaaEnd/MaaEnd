@@ -31,6 +31,7 @@
             "植物観察スポット",
             "식물 관찰 지점"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckFloraObservationPointIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Flora\\s*Observation\\s*Point",
             "植物観察スポットの写真を撮る",
             "식물 관찰 지점을 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptFloraObservationPoint": {
         "desc": "接取植物观察点委托",
@@ -207,26 +209,22 @@
     "GoToFloraObservationPointStartPos": {
         "desc": "在植物观察点任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        602.8,
-                        325,
-                        9.7,
-                        8.1
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                567.66,
+                1154.92,
+                65.56,
+                55.32
             ]
         },
         "next": [
-            "GoToFloraObservationPointMapTrackerMove"
+            "GoToFloraObservationPointMove"
         ]
     },
     "GoToFloraObservationPointNotAtStartPos": {
-        "desc": "不在植物观察点任务开始位置附近，先传送再复核落点",
+        "desc": "不在植物观察点任务开始位置附近，先传送再检查落点",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,163 +233,33 @@
             ]
         },
         "next": [
-            "GoToFloraObservationPointRecheckStartPos",
-            "GoToFloraObservationPointReEnterMap"
+            "GoToFloraObservationPointStartPos"
         ]
     },
-    "GoToFloraObservationPointRecheckStartPos": {
-        "desc": "传送后再次检查是否已在植物观察点任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        602.8,
-                        325,
-                        9.7,
-                        8.1
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToFloraObservationPointMapTrackerMove"
-        ]
-    },
-    "GoToFloraObservationPointReEnterMap": {
-        "desc": "传送后仍未到达植物观察点任务开始位置附近，重试一次传送",
+    "GoToFloraObservationPointMove": {
+        "desc": "自动寻路前往植物观察点",
         "action": "Custom",
-        "custom_action": "SubTask",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingMarkerStone3"
-            ]
-        },
-        "next": [
-            "GoToFloraObservationPointFinalCheckStartPos"
-        ]
-    },
-    "GoToFloraObservationPointFinalCheckStartPos": {
-        "desc": "二次传送后再次检查是否已在植物观察点任务开始位置附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        602.8,
-                        325,
-                        9.7,
-                        8.1
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "GoToFloraObservationPointMapTrackerMove"
-        ]
-    },
-    "GoToFloraObservationPointMapTrackerMove": {
-        "desc": "前往植物观察点",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv004",
             "path": [
-                [
-                    606.3,
-                    322.3
-                ],
-                [
-                    606.2,
-                    313.5
-                ],
-                [
-                    603.8,
-                    309.7
-                ],
-                [
-                    596.2,
-                    309.8
-                ],
-                [
-                    595,
-                    310.9
-                ],
-                [
-                    590.9,
-                    310.6
-                ],
-                [
-                    587.6,
-                    308.6
-                ],
-                [
-                    587.4,
-                    304.7
-                ],
-                [
-                    586.3,
-                    303.5
-                ],
-                [
-                    580,
-                    303.5
-                ],
-                [
-                    577.5,
-                    298.5
-                ],
-                [
-                    576.3,
-                    294.7
-                ],
-                [
-                    572.5,
-                    282.3
-                ],
-                [
-                    530,
-                    281.6
-                ],
-                [
-                    525.4,
-                    277.4
-                ],
-                [
-                    526.1,
-                    269.9
-                ],
-                [
-                    543.3,
-                    269.5
-                ],
-                [
-                    545.8,
-                    252.6
-                ],
-                [
-                    550.7,
-                    252.6
-                ]
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        93.84,
+                        185.41
+                    ],
+                    "target_tier": "Wuling_L4_330"
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 0
+                }
             ]
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "FloraObservationPointAdjustCamera"
         },
-        "next": [
-            "FloraObservationPointAdjustHeading"
-        ]
-    },
-    "FloraObservationPointAdjustHeading": {
-        "desc": "植物观察点任务无需调整角色朝向",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]

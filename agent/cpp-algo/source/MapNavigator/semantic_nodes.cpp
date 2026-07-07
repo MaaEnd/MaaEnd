@@ -2,6 +2,7 @@
 #include <chrono>
 #include <cmath>
 #include <limits>
+#include <optional>
 #include <thread>
 
 #include <MaaFramework/MaaAPI.h>
@@ -162,6 +163,7 @@ Result TickPortalTransit(const Context& ctx)
         ctx.runtime_state->semantic.portal_transit_keep_moving_until_fix = false;
         ctx.runtime_state->semantic.portal_transit_needs_reacquire = false;
         ctx.runtime_state->semantic.portal_transit_started = {};
+        ctx.runtime_state->dynamic_replan_requested = true;
         ClearHeldZoneCandidate(ctx.runtime_state);
         LogInfo << "Portal transit landing confirmed." << VAR(ctx.position->zone_id);
         result.consumed = true;
@@ -301,15 +303,51 @@ Result TickTransferWaitImpl(const Context& ctx)
     return result;
 }
 
+double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double fallback_heading)
+{
+    double achieved = fallback_heading;
+    for (int correction = 0; correction <= kHeadingVerifyMaxRetries; ++correction) {
+        if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())
+            || ctx.position_provider->LastCaptureWasHeld()) {
+            LogWarn << "Heading verify skipped: no fresh locator fix." << VAR(target_heading) << VAR(achieved);
+            return achieved;
+        }
+        achieved = NaviMath::NormalizeAngle(ctx.position->angle);
+        const double residual = NaviMath::NormalizeAngle(target_heading - achieved);
+        if (std::abs(residual) <= kHeadingAcceptToleranceDeg) {
+            return achieved;
+        }
+        if (correction == kHeadingVerifyMaxRetries) {
+            LogWarn << "Heading retries exhausted, accepting." << VAR(target_heading) << VAR(achieved)
+                    << VAR(residual);
+            return achieved;
+        }
+        LogInfo << "Heading off after turn, re-issuing." << VAR(target_heading) << VAR(achieved)
+                << VAR(residual) << VAR(correction);
+        if (!TurnToHeadingOnce(ctx, residual)) {
+            return achieved;
+        }
+        ctx.action_wrapper->PulseForwardSync(kPostHeadingForwardPulseMs);
+        ctx.motion_controller->SetForwardState(false);
+    }
+    return achieved;
+}
+
 Result ConsumeHeadingNodesImpl(const Context& ctx)
 {
     Result result;
     bool consumed = false;
     while (ctx.session->HasCurrentWaypoint() && ctx.session->CurrentWaypoint().IsHeadingOnly()) {
         const Waypoint heading_node = ctx.session->CurrentWaypoint();
-        double target_heading = std::fmod(heading_node.heading_angle, 360.0);
-        if (target_heading < 0.0) {
-            target_heading += 360.0;
+        double target_heading = 0.0;
+        if (heading_node.heading_uses_target) {
+            target_heading = NaviMath::CalcTargetRotation(ctx.position->x, ctx.position->y, heading_node.x, heading_node.y);
+        }
+        else {
+            target_heading = std::fmod(heading_node.heading_angle, 360.0);
+            if (target_heading < 0.0) {
+                target_heading += 360.0;
+            }
         }
 
         const double start_heading = NaviMath::NormalizeAngle(ctx.position->angle);
@@ -318,6 +356,7 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
         ctx.motion_controller->SetForwardState(false);
         utils::SleepFor(kStopWaitMs);
 
+        double achieved_heading = start_heading;
         if (std::abs(heading_delta) <= 1.0) {
             LogInfo << "Heading-only node already aligned." << VAR(target_heading) << VAR(start_heading);
         }
@@ -331,7 +370,11 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
         ctx.action_wrapper->PulseForwardSync(kPostHeadingForwardPulseMs);
         ctx.motion_controller->SetForwardState(false);
 
-        LogInfo << "Heading-only node completed." << VAR(target_heading) << VAR(start_heading) << VAR(heading_delta);
+        // Closed-loop: confirm the turn landed and redo a swallowed view-drag (accept within wide band).
+        achieved_heading = VerifyAndCorrectHeading(ctx, target_heading, start_heading);
+
+        LogInfo << "Heading-only node completed." << VAR(target_heading) << VAR(start_heading)
+                << VAR(heading_delta) << VAR(achieved_heading);
         ctx.session->AdvanceToNextWaypoint(ActionType::HEADING, "heading_consumed");
         ctx.session->ResetProgress();
         ctx.runtime_state->OnWaypointAdvance();
@@ -391,7 +434,7 @@ Result ConsumeInlineSemantics(const Context& ctx)
 Result HandleArrivalSemantic(const Context& ctx, const Waypoint& waypoint, double actual_distance)
 {
     Result result;
-    const size_t arrived_absolute_node_idx = ctx.session->CurrentAbsoluteNodeIndex();
+    const std::optional<size_t> arrived_absolute_node_idx = ctx.session->CurrentAbsoluteNodeIndex();
 
     if (waypoint.RequiresStrictArrival() && ctx.motion_controller->IsMoving()) {
         StopMotionAndCommitment(ctx);
@@ -453,39 +496,32 @@ Result HandleArrivalSemantic(const Context& ctx, const Waypoint& waypoint, doubl
         return result;
     }
 
-    if (waypoint.action == ActionType::COLLECT || waypoint.action == ActionType::DIG) {
-        const bool is_dig = waypoint.action == ActionType::DIG;
-        const char* tag = is_dig ? "DIG" : "COLLECT";
-        const char* entry = is_dig ? kDefaultDigEntry : kDefaultCollectEntry;
-        const char* override_json = is_dig ? kDigPipelineOverride : kCollectPipelineOverride;
-        const int32_t post_sleep_ms = is_dig ? kDigPostSleepMs : kCollectPostSleepMs;
-        const char* completed_reason = is_dig ? "dig_completed" : "collect_completed";
-
+    if (waypoint.action == ActionType::DIG) {
         StopMotionAndCommitment(ctx);
 
         if (ctx.maa_context == nullptr) {
-            LogError << "Action: " << tag << " triggered but maa_context is null." << VAR(actual_distance);
+            LogError << "Action: DIG triggered but maa_context is null." << VAR(actual_distance);
             result.request_failure = true;
-            result.failure_reason = is_dig ? "dig_context_missing" : "collect_context_missing";
-            result.failure_log_message = "MaaContext is null when dispatching collect/dig subtask.";
+            result.failure_reason = "dig_context_missing";
+            result.failure_log_message = "MaaContext is null when dispatching dig subtask.";
             return result;
         }
 
-        LogInfo << "Action: " << tag << " triggered, dispatching subtask." << VAR(entry) << VAR(actual_distance);
-        const MaaTaskId sub_id = MaaContextRunTask(ctx.maa_context, entry, override_json);
+        LogInfo << "Action: DIG triggered, dispatching subtask." << VAR(kDefaultDigEntry) << VAR(actual_distance);
+        const MaaTaskId sub_id = MaaContextRunTask(ctx.maa_context, kDefaultDigEntry, kDigPipelineOverride);
         if (sub_id == MaaInvalidId) {
-            LogError << "Action: " << tag << " subtask failed to dispatch." << VAR(entry) << VAR(actual_distance);
+            LogError << "Action: DIG subtask failed to dispatch." << VAR(kDefaultDigEntry) << VAR(actual_distance);
             result.request_failure = true;
-            result.failure_reason = is_dig ? "dig_dispatch_failed" : "collect_dispatch_failed";
-            result.failure_log_message = "MaaContextRunTask returned MaaInvalidId for collect/dig subtask.";
+            result.failure_reason = "dig_dispatch_failed";
+            result.failure_log_message = "MaaContextRunTask returned MaaInvalidId for dig subtask.";
             return result;
         }
 
-        LogInfo << "Action: " << tag << " subtask returned." << VAR(sub_id);
-        utils::SleepFor(post_sleep_ms);
+        LogInfo << "Action: DIG subtask returned." << VAR(sub_id);
+        utils::SleepFor(kDigPostSleepMs);
 
-        ctx.session->NoteCanonicalFinalGoalConsumed(arrived_absolute_node_idx, *ctx.position, completed_reason);
-        ctx.session->AdvanceToNextWaypoint(waypoint.action, completed_reason);
+        ctx.session->NoteCanonicalFinalGoalConsumed(arrived_absolute_node_idx, *ctx.position, "dig_completed");
+        ctx.session->AdvanceToNextWaypoint(waypoint.action, "dig_completed");
         ctx.runtime_state->OnWaypointAdvance();
         ctx.runtime_state->route.Reset();
 
@@ -493,7 +529,7 @@ Result HandleArrivalSemantic(const Context& ctx, const Waypoint& waypoint, doubl
             ctx.session->NoteRouteTailConsumed(*ctx.position, "route_tail_consumed");
         }
         else {
-            SelectPhaseForCurrentWaypoint(ctx, completed_reason);
+            SelectPhaseForCurrentWaypoint(ctx, "dig_completed");
         }
 
         result.consumed = true;

@@ -1,7 +1,11 @@
 package autofight
 
 import (
+	"fmt"
 	"image"
+	"image/png"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -21,8 +25,10 @@ const (
 	LabelEnemyAccumPower          = "EnemyAccumulatingPower"
 	LabelEnemyBossHealth          = "EnemyBossHealth"
 	LabelEnemyDodge               = "EnemyDodge"
+	LabelEnemyAttackGroundDodge   = "EnemyAttackGroundDodge"
 	LabelEnemyTarget              = "EnemyTarget"
 	LabelEnemyFacing              = "EnemyFacing"
+	LabelEnemyLocked              = "EnemyLocked"
 	LabelEnergyLevelEmpty         = "EnergyLevelEmpty"
 	LabelEnergyLevelFull          = "EnergyLevelFull"
 	LabelMenuList                 = "MenuList"
@@ -76,7 +82,11 @@ func (sa *ScreenAnalyzer) UpdateScreenDetail(ctx *maa.Context, arg image.Image) 
 		return true
 	}
 
+	// debugLabel 为本地调试用：检测到该 label 时保存当前画面并打印位置，按需修改。
+	const debugLabel = LabelEnemyDodge
+
 	frame := screenFrame{Timestamp: time.Now()}
+	var debugBoxes []maa.Rect
 	for _, m := range detail_reco.Results.All {
 		detail, ok := m.AsNeuralNetworkDetect()
 		if !ok {
@@ -88,8 +98,15 @@ func (sa *ScreenAnalyzer) UpdateScreenDetail(ctx *maa.Context, arg image.Image) 
 			Label: detail.Label,
 			Score: detail.Score,
 		})
+		if detail.Label == debugLabel {
+			debugBoxes = append(debugBoxes, detail.Box)
+		}
 	}
 	sa.frames = append(sa.frames, frame)
+
+	if len(debugBoxes) > 0 {
+		// saveLabelDebugImage(debugLabel, arg, debugBoxes)
+	}
 
 	// labels := make([]string, 0, len(frame.Detections))
 	// scores := make([]float64, 0, len(frame.Detections))
@@ -115,6 +132,39 @@ func (sa *ScreenAnalyzer) UpdateScreenDetail(ctx *maa.Context, arg image.Image) 
 	sa.frames = newFrames
 
 	return true
+}
+
+// saveLabelDebugImage 用于调试：检测到指定 label 时把当前画面保存到 debug/autofight_label 目录，
+// 并在日志中输出该 label 每个命中框的位置。仅供本地排查识别使用。
+func saveLabelDebugImage(label string, img image.Image, boxes []maa.Rect) {
+	log.Info().
+		Str("component", "AutoFight").
+		Str("label", label).
+		Int("count", len(boxes)).
+		Interface("boxes", boxes).
+		Msg("debug label detected")
+
+	if img == nil {
+		return
+	}
+	dir := filepath.Join("debug", "autofight_label")
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		log.Debug().Err(err).Str("component", "AutoFight").Str("dir", dir).Msg("failed to create debug dir for label image")
+		return
+	}
+	name := fmt.Sprintf("%s_%s.png", label, time.Now().Format("20060102_150405.000"))
+	path := filepath.Join(dir, name)
+	f, err := os.Create(path)
+	if err != nil {
+		log.Debug().Err(err).Str("component", "AutoFight").Str("path", path).Msg("failed to create file for label image")
+		return
+	}
+	defer f.Close()
+	if err := png.Encode(f, img); err != nil {
+		log.Debug().Err(err).Str("component", "AutoFight").Str("path", path).Msg("failed to encode label image")
+		return
+	}
+	log.Info().Str("component", "AutoFight").Str("label", label).Str("path", path).Msg("saved debug label frame to disk")
 }
 
 func (sa *ScreenAnalyzer) hasLabelInFrames(label string, n int, unused bool, region ...maa.Rect) bool {
@@ -204,14 +254,32 @@ func (sa *ScreenAnalyzer) GetEnergyLevel(unused bool) int {
 	return -1
 }
 
-var enemyFacingRegion = maa.Rect{250, 160, 900, 400}
+var enemyFacingLeftRegion = maa.Rect{330, 200, 320, 400}
+var enemyFacingRightRegion = maa.Rect{650, 200, 320, 400}
+var enemyFacingBackRegion = maa.Rect{330, 480, 640, 150}
 
-func (sa *ScreenAnalyzer) GetEnemyFacing() bool {
-	return sa.hasLabelInFrames(LabelEnemyFacing, 10, false, enemyFacingRegion)
+func (sa *ScreenAnalyzer) GetEnemyFacingLeft() bool {
+	return sa.hasLabelInFrames(LabelEnemyFacing, 3, false, enemyFacingLeftRegion)
+}
+
+func (sa *ScreenAnalyzer) GetEnemyFacingRight() bool {
+	return sa.hasLabelInFrames(LabelEnemyFacing, 3, false, enemyFacingRightRegion)
+}
+
+func (sa *ScreenAnalyzer) GetEnemyFacingBack() bool {
+	return sa.hasLabelInFrames(LabelEnemyFacing, 3, false, enemyFacingBackRegion)
 }
 
 func (sa *ScreenAnalyzer) GetEnemyTarget() bool {
-	return sa.hasLabelInDuration(LabelEnemyTarget, 3*time.Second)
+	return sa.hasLabelInDuration(LabelEnemyTarget, 5*time.Second)
+}
+
+func (sa *ScreenAnalyzer) GetEnemyLocked() bool {
+	return sa.hasLabelInFrames(LabelEnemyLocked, 1, false)
+}
+
+func (sa *ScreenAnalyzer) GetEnemyLockedReliable() bool {
+	return sa.hasLabelInFrames(LabelEnemyLocked, 5, false)
 }
 
 func (sa *ScreenAnalyzer) GetEnemyBossHealth() bool {
@@ -226,6 +294,25 @@ func (sa *ScreenAnalyzer) GetEnemyTargetCenter() bool {
 
 func (sa *ScreenAnalyzer) GetEnemyDodge() bool {
 	return sa.hasLabelInFrames(LabelEnemyDodge, 1, false)
+}
+
+// dodgeCompatRegion 为闪避兼容模式忽略区域：闪避框中心落在此区域内视为无需处理。
+var dodgeCompatRegion = maa.Rect{500, 265, 280, 325}
+
+// GetEnemyDodgeCompat 闪避兼容模式：取最近一帧的 EnemyDodge 框中心点，
+// 中心点落在 dodgeCompatRegion 内时返回 false，落在该区域外时返回 true。
+func (sa *ScreenAnalyzer) GetEnemyDodgeCompat() bool {
+	box, ok := sa.latestLabelBox(LabelEnemyDodge, 1)
+	if !ok {
+		return false
+	}
+	cx := box[0] + box[2]/2
+	cy := box[1] + box[3]/2
+	return !pointInRect(cx, cy, dodgeCompatRegion)
+}
+
+func (sa *ScreenAnalyzer) GetEnemyAttackGroundDodge() bool {
+	return sa.hasLabelInFrames(LabelEnemyAttackGroundDodge, 1, false)
 }
 
 func (sa *ScreenAnalyzer) GetEnemyAccumulatingPower(unused bool) bool {
@@ -253,6 +340,25 @@ var endSkillRegions = [4]maa.Rect{
 func boxIntersects(a, b maa.Rect) bool {
 	return a[0] < b[0]+b[2] && b[0] < a[0]+a[2] &&
 		a[1] < b[1]+b[3] && b[1] < a[1]+a[3]
+}
+
+// pointInRect 判断点 (x, y) 是否落在矩形 r 内（r 为 [x, y, w, h]）。
+func pointInRect(x, y int, r maa.Rect) bool {
+	return x >= r[0] && x < r[0]+r[2] && y >= r[1] && y < r[1]+r[3]
+}
+
+// latestLabelBox 在最近 n 帧内查找指定 label，返回最新一次命中的检测框。
+func (sa *ScreenAnalyzer) latestLabelBox(label string, n int) (maa.Rect, bool) {
+	total := 0
+	for fi := len(sa.frames) - 1; fi >= 0 && total < n; fi-- {
+		total++
+		for _, det := range sa.frames[fi].Detections {
+			if det.Label == label {
+				return det.Box, true
+			}
+		}
+	}
+	return maa.Rect{}, false
 }
 
 func (sa *ScreenAnalyzer) GetEndSkillFull(unused bool) []int {

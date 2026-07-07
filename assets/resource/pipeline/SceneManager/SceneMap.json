@@ -159,7 +159,9 @@
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "",
             "__ScenePrivateMapSwipeToStep1Anchor": "",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": ""
+            "__ScenePrivateMapSwipeToStep2Anchor": "",
+            "__ScenePrivateMapSwipeToStep3Anchor": "",
+            "__ScenePrivateMapSwipeToStep4Anchor": ""
         },
         "next": [
             "[JumpBack]SceneWaitLoadingExit",
@@ -245,7 +247,8 @@
                     200
                 ],
                 "template": [
-                    "SceneManager/MapOverviewEnter.png"
+                    "SceneManager/MapOverviewEnter.png",
+                    "SceneManager/MapOverviewEnterHover.png"
                 ],
                 "green_mask": true,
                 "threshold": 0.9
@@ -366,9 +369,9 @@
                 "recognition": "TemplateMatch",
                 "roi": [
                     0,
-                    -200,
+                    -400,
                     250,
-                    200
+                    400
                 ],
                 "template": [
                     "SceneManager/MapLayersMain.png"
@@ -507,32 +510,17 @@
         "desc": "在大世界界面，进入地图界面",
         "recognition": "And",
         "all_of": [
-            "InWorld",
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    0,
-                    100,
-                    100,
-                    120
-                ],
-                "template": [
-                    "SceneManager/TaskIcon.png",
-                    "SceneManager/TaskIcon2.png"
-                ],
-                "green_mask": true
-            }
+            "InWorld"
         ],
-        "box_index": 1,
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "AutoAltClickAction",
-                "target_offset": [
-                    100,
-                    -50,
-                    0,
-                    0
+                "target": [
+                    90,
+                    90,
+                    50,
+                    50
                 ]
             }
         },

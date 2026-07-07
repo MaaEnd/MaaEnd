@@ -4,8 +4,6 @@ package maptrackerdefault
 import (
 	"encoding/json"
 	"fmt"
-	"regexp"
-	"strings"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -27,8 +25,6 @@ type MapTrackerAssertLocationParam struct {
 	Precision float64 `json:"precision,omitempty"`
 	// Threshold controls the minimum confidence required to consider the inference successful.
 	Threshold float64 `json:"threshold,omitempty"`
-	// Whether to enable fast mode for matching.
-	FastMode bool `json:"fast_mode,omitempty"`
 }
 
 var _ maa.CustomRecognitionRunner = &MapTrackerAssertLocation{}
@@ -42,28 +38,9 @@ func (r *MapTrackerAssertLocation) Run(ctx *maa.Context, arg *maa.CustomRecognit
 		return nil, false
 	}
 
-	mapNameRegex := ".*"
-	if param.FastMode {
-		// Build map_name_regex based on expected conditions to focus the search
-		mapNamesMap := make(map[string]struct{})
-		var mapNames []string
-		for _, condition := range param.Expected {
-			if _, exists := mapNamesMap[condition.MapName]; !exists {
-				mapNamesMap[condition.MapName] = struct{}{}
-				mapNames = append(mapNames, regexp.QuoteMeta(condition.MapName))
-			}
-		}
-		if len(mapNames) == 0 {
-			log.Error().Msg("Failed to extract map names from expected conditions")
-			return nil, false
-		}
-
-		mapNameRegex = "^(" + strings.Join(mapNames, "|") + ")$"
-	}
-
 	// Prepare and run MapTrackerInfer
 	inferConfig := map[string]any{
-		"map_name_regex": mapNameRegex,
+		"map_name_regex": ".*",
 		"precision":      param.Precision,
 		"threshold":      param.Threshold,
 	}
@@ -111,7 +88,7 @@ func (r *MapTrackerAssertLocation) Run(ctx *maa.Context, arg *maa.CustomRecognit
 			x, y, w, h := condition.Target[0], condition.Target[1], condition.Target[2], condition.Target[3]
 			if result.X >= x && result.X < x+w && result.Y >= y && result.Y < y+h {
 				log.Info().
-					Interface("expected", condition).
+					Interface("condition", condition).
 					Msg("Location assertion satisfied")
 
 				return &maa.CustomRecognitionResult{
@@ -122,8 +99,17 @@ func (r *MapTrackerAssertLocation) Run(ctx *maa.Context, arg *maa.CustomRecognit
 		}
 	}
 
-	log.Info().Msg("Location assertion not satisfied, no conditions met")
-	return nil, false
+	log.Info().
+		Str("mapName", result.MapName).
+		Float64("x", result.X).
+		Float64("y", result.Y).
+		Interface("expected", param.Expected).
+		Msg("Location assertion not satisfied, no conditions met")
+
+	return &maa.CustomRecognitionResult{
+		Box:    arg.Roi,
+		Detail: fmt.Sprintf("Expected hit one of %v, but got map_name=%s, x=%.1f, y=%.1f", param.Expected, result.MapName, result.X, result.Y),
+	}, false
 }
 
 func (r *MapTrackerAssertLocation) parseParam(paramStr string) (*MapTrackerAssertLocationParam, error) {

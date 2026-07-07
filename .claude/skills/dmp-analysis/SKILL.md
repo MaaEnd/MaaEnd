@@ -58,7 +58,7 @@ Identify the **crashing module** from the exception address or the top stack fra
 ### 3. Correlate DMP with logs
 
 The DMP filename often contains the crashing PID (e.g. `MaaEnd.exe.18188.dmp` → PID 18188).
-Match this with `maa.log` entries tagged `[Px18188]` to pinpoint the exact crashing session and its timeline.
+Match this with `maafw.log` entries tagged `[Px18188]` to pinpoint the exact crashing session and its timeline.
 
 ### 4. Determine dependency versions
 
