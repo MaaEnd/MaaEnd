@@ -3909,7 +3909,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "StashBackpackMain": {
+                        "ItemTransferStashBackpackMain": {
                             "enabled": true
                         }
                     },
