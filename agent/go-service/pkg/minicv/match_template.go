@@ -120,7 +120,7 @@ func runMatchWorkers(workerCount int, fn func(workerID int)) {
 }
 
 func subpixelOffset(neg, pivot, pos float64) float64 {
-	if pivot <= 0 || neg <= 0 || pos <= 0 {
+	if pivot <= 0 || neg <= 0 || pos <= 0 || neg > pivot || pos > pivot {
 		return 0.0
 	}
 
