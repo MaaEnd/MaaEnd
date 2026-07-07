@@ -81,6 +81,15 @@ public:
     // isSegmentWalkable it ignores adjacency, so it does not misjudge on overlapping/fragmented meshes.
     bool pointOnMesh(uint16_t zone_id, const WorldPoint& point) const;
 
+    // Height-continuity drivability of a straight route leg (no blocked mask): the reliable oracle the
+    // waypoint emitter uses to decide whether a collapsed straight leg stays on walkable mesh. Unlike the
+    // marching isSegmentWalkable it does not false-negative at coplanar overlap seams.
+    bool isRouteSegmentDrivable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b) const;
+
+    // Zone id owning a triangle (pack layout). Recovers the geometry zone a planned route lives in from
+    // route.triangles.front() without re-resolving the zone name.
+    uint16_t triangleZone(uint32_t triangle_index) const;
+
 private:
     const BaseNavPack& pack_;
     std::vector<uint16_t> triangle_zones_;

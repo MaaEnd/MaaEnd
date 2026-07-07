@@ -489,7 +489,9 @@ bool AppendBlindTargetFallback(
         return false;
     }
 
-    if (!AppendGeneratedNavmeshWaypoints(approach.path, out_path, true)) {
+    const uint16_t approach_zone =
+        approach.triangles.empty() ? 0 : navmesh.planner.triangleZone(approach.triangles.front());
+    if (!AppendGeneratedNavmeshWaypoints(approach.path, out_path, true, false, &navmesh.planner, approach_zone)) {
         return false;
     }
     if (blind_gap > kWaypointArrivalSlack) {
@@ -527,7 +529,9 @@ bool AppendNavmeshWaypoint(
     }
 
     LogGeneratedNavmeshPath(state, request, route_result);
-    if (!AppendGeneratedNavmeshWaypoints(route_result.path, out_path, true)) {
+    const uint16_t drivable_zone =
+        route_result.triangles.empty() ? 0 : navmesh.planner.triangleZone(route_result.triangles.front());
+    if (!AppendGeneratedNavmeshWaypoints(route_result.path, out_path, true, false, &navmesh.planner, drivable_zone)) {
         LogError << "NAVMESH planning returned an empty path." << VAR(state.navmesh_zone);
         return false;
     }
@@ -941,7 +945,8 @@ std::optional<navmesh::WorldPoint> PlanUnstickTarget(
 }
 
 bool AppendGeneratedNavmeshWaypoints(
-    const navmesh::WorldPath& world_path, std::vector<Waypoint>& out_path, bool include_goal, bool emit_interior_corners)
+    const navmesh::WorldPath& world_path, std::vector<Waypoint>& out_path, bool include_goal,
+    bool emit_interior_corners, const navmesh::BaseNavPlanner* drivability_planner, uint16_t drivable_zone_id)
 {
     if (world_path.points.empty()) {
         return false;
@@ -951,13 +956,36 @@ bool AppendGeneratedNavmeshWaypoints(
     const size_t total = world_path.points.size();
     const size_t loop_end = include_goal ? total : (total > 0 ? total - 1 : 0);
 
-    for (size_t index = 1; index < loop_end; ++index) {
-        if (emit_interior_corners) {
+    if (emit_interior_corners) {
+        for (size_t index = 1; index < loop_end; ++index) {
             const navmesh::WorldPoint& point = world_path.points[index];
             out_path.emplace_back(point.x, point.y, ActionType::RUN);
             out_path.back().strict_arrival = false;
-            continue;
         }
+        if (include_goal && total >= 2) {
+            const navmesh::WorldPoint& goal = world_path.points[total - 1];
+            out_path.emplace_back(goal.x, goal.y, ActionType::RUN);
+            out_path.back().strict_arrival = true;
+        }
+        return true;
+    }
+
+    size_t prev = 0; // the driven line starts at points[0] — the route origin / character's current position
+    const auto flush_leg_to = [&](size_t anchor, bool strict_arrival) {
+        if (drivability_planner != nullptr && anchor > prev + 1
+            && !drivability_planner->isRouteSegmentDrivable(
+                drivable_zone_id, world_path.points[prev], world_path.points[anchor])) {
+            for (size_t corner = prev + 1; corner < anchor; ++corner) {
+                out_path.emplace_back(world_path.points[corner].x, world_path.points[corner].y, ActionType::RUN);
+                out_path.back().strict_arrival = false;
+            }
+        }
+        out_path.emplace_back(world_path.points[anchor].x, world_path.points[anchor].y, ActionType::RUN);
+        out_path.back().strict_arrival = strict_arrival;
+        prev = anchor;
+    };
+
+    for (size_t index = 1; index < loop_end; ++index) {
         if (!segment_breaks.contains(index)) {
             continue;
         }
@@ -965,15 +993,11 @@ bool AppendGeneratedNavmeshWaypoints(
         if (emit_idx == 0) {
             continue;
         }
-        const navmesh::WorldPoint& point = world_path.points[emit_idx];
-        out_path.emplace_back(point.x, point.y, ActionType::RUN);
-        out_path.back().strict_arrival = true;
+        flush_leg_to(emit_idx, true);
     }
 
     if (include_goal && total >= 2) {
-        const navmesh::WorldPoint& goal = world_path.points[total - 1];
-        out_path.emplace_back(goal.x, goal.y, ActionType::RUN);
-        out_path.back().strict_arrival = true;
+        flush_leg_to(total - 1, true);
     }
 
     return true;
