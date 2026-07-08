@@ -44,9 +44,13 @@ _MIN_SAMPLE_DISTANCE = 10.0
 _PREVIEW_CROP_SIZE = (400, 300)
 
 # batch_test pass constants
-_MAX_COORD_ERROR = 2.0
+_MAX_LOC_ERROR = 1.733
+_MIN_LOC_PASSRATE = 0.95
 _MAX_ROT_ERROR = 6.0
+_MIN_ROT_PASSRATE = 0.95
+_SUBPIXEL_ENTROPY_GEQ = 0.6
 _BATCH_PRECISION = 0.7
+
 _FULL_SEARCH_MODE = 0b01
 _FAST_SEARCH_MODE = 0b11
 _FAST_SEARCH_REPEATS = 4
@@ -616,7 +620,7 @@ def _evaluate_case(case: BatchCase, result: dict) -> tuple[bool, float, float, b
     map_ok = result["map_name"] == case.map_name
     coord_err = math.hypot(result["x"] - case.x, result["y"] - case.y)
     rot_err = _rotation_error(case.rot, result["rot"])
-    passed = map_ok and coord_err <= _MAX_COORD_ERROR and rot_err <= _MAX_ROT_ERROR
+    passed = map_ok and coord_err <= _MAX_LOC_ERROR and rot_err <= _MAX_ROT_ERROR
     return passed, coord_err, rot_err, map_ok
 
 
@@ -690,6 +694,12 @@ def _print_time_distributions(
     )
 
 
+def _maybe_output_ci_error(msg: str) -> None:
+    """Prints a message to stderr if running in CI."""
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        print(f"::error::{msg}")
+
+
 def _infer_on_image(
     maa_interface: MaaInterface,
     image: np.ndarray,
@@ -713,12 +723,15 @@ def cmd_batch_test(input_dir: str, precision: float = _BATCH_PRECISION) -> None:
     """Load labelled sample images and report inference accuracy against them."""
     if not os.path.isdir(input_dir):
         print(f"  {_R}Input directory not found: {input_dir}{_0}")
+        print(f"    Did you forget to setup test set repository via git submodule?")
+        _maybe_output_ci_error(f"Input directory not found: {input_dir}")
         raise SystemExit(1)
 
     parser = SampleFilenameParser()
     cases = _load_batch_cases(input_dir, parser)
     if not cases:
-        print(f"  {_Y}No valid sample images found in {input_dir}{_0}")
+        print(f"  {_R}No valid sample images found in {input_dir}{_0}")
+        _maybe_output_ci_error(f"No valid sample images found in {input_dir}")
         raise SystemExit(1)
 
     maa_interface = MaaInterface()
@@ -796,7 +809,7 @@ def cmd_batch_test(input_dir: str, precision: float = _BATCH_PRECISION) -> None:
                 fast_search_times.append(float(fast_result["infer_time_ms"]))
 
             passed, coord_err, rot_err, map_ok = _evaluate_case(case, result)
-            loc_passed = map_ok and coord_err <= _MAX_COORD_ERROR
+            loc_passed = map_ok and coord_err <= _MAX_LOC_ERROR
             rot_passed = rot_err <= _MAX_ROT_ERROR
             loc_confidences.append(result["loc_conf"])
             rot_confidences.append(result["rot_conf"])
@@ -823,10 +836,12 @@ def cmd_batch_test(input_dir: str, precision: float = _BATCH_PRECISION) -> None:
             )
     except MaaInitializationError as e:
         print(f"  {_R}Initialization failed: {e}{_0}")
+        _maybe_output_ci_error(f"Initialization failed: {e}")
         raise SystemExit(1) from e
     finally:
         maa_interface.dispose_agent()
 
+    # Result display
     print("\n[Summary]")
     _print_inference_matrix(
         "Location Inference", loc_passed_count, loc_failed_count, loc_confidences
@@ -838,9 +853,36 @@ def cmd_batch_test(input_dir: str, precision: float = _BATCH_PRECISION) -> None:
 
     print(f"\n{_C}[Subpixel Analysis]{_0}")
     entropy_x = _normalized_entropy(subpixel_frac_x)
+    entropy_x_color = _G if entropy_x >= _SUBPIXEL_ENTROPY_GEQ else _R
     entropy_y = _normalized_entropy(subpixel_frac_y)
-    print(f"  X normalized entropy = {_C}{entropy_x:.4f}{_0}")
-    print(f"  Y normalized entropy = {_C}{entropy_y:.4f}{_0}")
+    entropy_y_color = _G if entropy_y >= _SUBPIXEL_ENTROPY_GEQ else _R
+    print(f"  X normalized entropy = {entropy_x_color}{entropy_x:.1%}{_A} / 100.0%{_0}")
+    print(f"  Y normalized entropy = {entropy_y_color}{entropy_y:.1%}{_A} / 100.0%{_0}")
+
+    # Final pass/fail decision
+    print(f"\n{_C}[Standard Check]{_0}")
+    should_fail = False
+    matrix = [
+        ("Location pass rate", loc_passed_count / len(cases), _MIN_LOC_PASSRATE),
+        ("Rotation pass rate", rot_passed_count / len(cases), _MIN_ROT_PASSRATE),
+        ("X subpixel entropy", entropy_x, _SUBPIXEL_ENTROPY_GEQ),
+        ("Y subpixel entropy", entropy_y, _SUBPIXEL_ENTROPY_GEQ),
+    ]
+    for name, value, threshold in matrix:
+        if value < threshold:
+            should_fail = True
+            print(f"  {_R}FAIL{_0} {name}: {value:>6.1%}{_A}  < {threshold:.1%}{_0}")
+            _maybe_output_ci_error(
+                f"Standard not satisfied: {name} is {value:.1%}, expected at least {threshold:.1%}"
+            )
+        else:
+            print(f"  {_G}PASS{_0} {name}: {value:>6.1%}{_A} >= {threshold:.1%}{_0}")
+
+    if should_fail:
+        print(f"\n{_R}Batch test failed because some standards were not satisfied.{_0}")
+        raise SystemExit(1)
+    else:
+        print(f"\n{_G}Batch test completed and passed all standards.{_0}")
 
 
 def main() -> None:

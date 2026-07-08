@@ -53,6 +53,7 @@ jobs:
 
   map-tracker-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -68,7 +69,7 @@ jobs:
             agent/go-service/go.sum
 
       - name: Build and install
-        run: python tools/build_and_install.py --ci --os linux --arch x86_64 # without cpp-algo
+        run: python -u tools/build_and_install.py --ci --os linux --arch x86_64 # without cpp-algo
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -80,4 +81,4 @@ jobs:
         run: pip install -r ./tools/map_tracker/requirements.txt
 
       - name: Run MapTracker test
-        run: python ./tools/map_tracker/map_tracker_tester.py batch_test -i ./tests/MaaEndTestset/Win32/Official_CN/map_tracker
+        run: python -u tools/map_tracker/map_tracker_tester.py batch_test -i ./tests/MaaEndTestset/Win32/Official_CN/map_tracker
