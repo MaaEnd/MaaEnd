@@ -38,6 +38,178 @@
             "maxItems": 4,
             "items": false
         },
+        "MapNavigateActionType": {
+            "type": "string",
+            "description": "Semantic action tokens accepted by MapNavigateAction waypoints.",
+            "enum": [
+                "RUN",
+                "SPRINT",
+                "JUMP",
+                "FIGHT",
+                "INTERACT",
+                "TRANSFER",
+                "PORTAL",
+                "HEADING",
+                "NAVMESH",
+                "ZONE",
+                "COLLECT",
+                "DIG"
+            ]
+        },
+        "MapNavigateActionList": {
+            "anyOf": [
+                { "$ref": "#/$defs/MapNavigateActionType" },
+                {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/MapNavigateActionType" }
+                }
+            ]
+        },
+        "MapNavigateWaypointArray": {
+            "type": "array",
+            "description": "MapNavigateAction tuple waypoint: [x, y, optional actions / strict flag / zone id].",
+            "prefixItems": [
+                { "type": "number" },
+                { "type": "number" }
+            ],
+            "minItems": 2,
+            "items": {
+                "anyOf": [
+                    { "$ref": "#/$defs/MapNavigateActionList" },
+                    { "type": "boolean" },
+                    { "type": "string" }
+                ]
+            }
+        },
+        "MapNavigateWaypointObject": {
+            "type": "object",
+            "description": "MapNavigateAction object waypoint, including ZONE, HEADING and NAVMESH semantic nodes.",
+            "additionalProperties": false,
+            "properties": {
+                "action": { "$ref": "#/$defs/MapNavigateActionType" },
+                "actions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/MapNavigateActionType" }
+                },
+                "zone_id": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "zoneId": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "zone": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "map_name": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "mapName": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "target_tier": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "targetTier": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "strict": { "type": "boolean" },
+                "strict_arrival": { "type": "boolean" },
+                "strictArrival": { "type": "boolean" },
+                "x": { "type": "number" },
+                "y": { "type": "number" },
+                "angle": { "type": "number" },
+                "heading": { "type": "number" },
+                "yaw": { "type": "number" },
+                "target": { "$ref": "#/$defs/Coordinate2D" }
+            },
+            "anyOf": [
+                { "required": [ "action" ] },
+                { "required": [ "actions" ] },
+                { "required": [ "x", "y" ] },
+                { "required": [ "angle" ] },
+                { "required": [ "heading" ] },
+                { "required": [ "yaw" ] },
+                { "required": [ "target" ] },
+                { "required": [ "zone_id" ] },
+                { "required": [ "zoneId" ] },
+                { "required": [ "zone" ] },
+                { "required": [ "map_name" ] },
+                { "required": [ "mapName" ] }
+            ]
+        },
+        "MapNavigateParam": {
+            "type": "object",
+            "description": "Parameters for MapNavigateAction, parsed by agent/cpp-algo/source/MapNavigator/navi_param_parser.cpp.",
+            "additionalProperties": false,
+            "properties": {
+                "map_name": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "path": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "anyOf": [
+                            { "$ref": "#/$defs/MapNavigateWaypointArray" },
+                            { "$ref": "#/$defs/MapNavigateWaypointObject" }
+                        ]
+                    }
+                },
+                "arrival_timeout": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 60000
+                },
+                "sprint_threshold": {
+                    "type": "number",
+                    "minimum": 0,
+                    "default": 16
+                },
+                "enable_local_driver": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "navmesh_file": { "type": "string" },
+                "nav_file": { "type": "string" },
+                "navmesh_snap_radius": {
+                    "type": "number",
+                    "minimum": 0,
+                    "default": 5
+                },
+                "snap_radius": {
+                    "type": "number",
+                    "minimum": 0,
+                    "default": 5
+                },
+                "navmesh_max_cost": {
+                    "type": "number",
+                    "minimum": 0,
+                    "default": 0
+                },
+                "action": { "$ref": "#/$defs/MapNavigateActionType" },
+                "actions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/MapNavigateActionType" }
+                },
+                "x": { "type": "number" },
+                "y": { "type": "number" },
+                "angle": { "type": "number" },
+                "heading": { "type": "number" },
+                "yaw": { "type": "number" },
+                "target": { "$ref": "#/$defs/Coordinate2D" }
+            }
+        },
         "LocationCondition": {
             "type": "object",
             "description": "A single map location condition: map_name + bounding box.",
