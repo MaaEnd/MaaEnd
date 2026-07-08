@@ -102,7 +102,11 @@ class MaaInterface:
 
     WORK_DIR = Path("./install")
     ASSET_DIR = Path("./") / "assets"
-    AGENT_PATH = WORK_DIR / "agent" / ("go-service.exe" if sys.platform == "win32" else "go-service")
+    AGENT_PATH = (
+        WORK_DIR
+        / "agent"
+        / ("go-service.exe" if sys.platform == "win32" else "go-service")
+    )
 
     def __init__(self):
         self.resource = Resource()
@@ -175,7 +179,9 @@ class MaaInterface:
             self._offline_controller.post_connection().wait()
             self._bind_tasker(self._offline_controller)
         except Exception as e:
-            raise MaaInitializationError("Failed to initialize offline controller") from e
+            raise MaaInitializationError(
+                "Failed to initialize offline controller"
+            ) from e
 
     def init_controller(self):
         if self.controller is not None:
@@ -263,6 +269,16 @@ class MaaInterface:
                     pass
         except Exception:
             pass
+
+    def capture_screen(self) -> np.ndarray:
+        if self.controller is None:
+            raise MaaRuntimeError("Controller not initialized")
+
+        self.controller.post_screencap().wait()
+        image = self.controller.cached_image
+        if image is None:
+            raise MaaRuntimeError("Screencap succeeded but no cached image found")
+        return image
 
     @staticmethod
     def _parse_infer_detail(task_detail: TaskDetail | None) -> MapTrackerInferResult:

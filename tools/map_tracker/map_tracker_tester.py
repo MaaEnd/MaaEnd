@@ -10,6 +10,7 @@
 #
 # Usage:
 #   python map_tracker_tester.py collect_data -o/--output-dir <dir>
+#   python map_tracker_tester.py batch_test -i/--input-dir <dir> [-p/--precision <0.0-1.0>]
 
 import argparse
 import math
@@ -31,6 +32,7 @@ from _internal.maa_interface import (
     MaaRuntimeError,
 )
 
+# collect_data mode constants
 _INTERVAL_SECONDS = 1.0
 _MOSAIC_CELL_SIZE = 10
 _UNMOSAIC_TOP_LEFT_SIZE = (260, 180)
@@ -41,12 +43,12 @@ _MAX_CANDIDATES = 30
 _MIN_SAMPLE_DISTANCE = 10.0
 _PREVIEW_CROP_SIZE = (400, 300)
 
-# batch_test pass thresholds.
+# batch_test pass constants
 _MAX_COORD_ERROR = 2.0
 _MAX_ROT_ERROR = 6.0
 _BATCH_PRECISION = 0.7
-_FULL_SEARCH_MODE = 1
-_FAST_SEARCH_MODE = 3
+_FULL_SEARCH_MODE = 0b01
+_FAST_SEARCH_MODE = 0b11
 _FAST_SEARCH_REPEATS = 4
 
 _INVALID_FILENAME_CHARS = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
@@ -57,7 +59,6 @@ _DISTRIBUTION_COLUMNS = (
     ("P75", 75),
     ("P99", 99),
 )
-_DISTRIBUTION_CELL_WIDTH = 6
 
 
 class SampleFilenameParser:
@@ -139,17 +140,6 @@ class SampleCoordinateIndex:
             if (x - known_x) ** 2 + (y - known_y) ** 2 <= self.min_distance**2:
                 return False
         return True
-
-
-def _capture_screen(maa_interface: MaaInterface):
-    if maa_interface.controller is None:
-        raise MaaRuntimeError("Controller not initialized")
-
-    maa_interface.controller.post_screencap().wait()
-    image = maa_interface.controller.cached_image
-    if image is None:
-        raise MaaRuntimeError("Screencap succeeded but no cached image found")
-    return image
 
 
 def _mosaic_private_regions(image: np.ndarray) -> np.ndarray:
@@ -494,7 +484,7 @@ def _inference_worker(
         loop_started_at = time.monotonic()
         try:
             result = maa_interface.do_infer(precision=1.0)
-            image = _mosaic_private_regions(_capture_screen(maa_interface))
+            image = _mosaic_private_regions(maa_interface.capture_screen())
         except MaaRuntimeError as e:
             print(f"  {_Y}Warning: {e}{_0}", flush=True)
         except Exception as e:
@@ -642,26 +632,21 @@ def _load_batch_cases(input_dir: str, parser: SampleFilenameParser) -> list[Batc
     return cases
 
 
-def _format_distribution_row(values: list[float], value_format: str) -> str:
-    """Formats P1/P25/P50/P75/P99 percentiles as a right-aligned row."""
-    if not values:
-        cells = [f"{'N/A':>{_DISTRIBUTION_CELL_WIDTH}}" for _ in _DISTRIBUTION_COLUMNS]
-    else:
-        percentiles = np.percentile(values, [p for _, p in _DISTRIBUTION_COLUMNS])
-        cells = [f"{value:{value_format}}" for value in percentiles]
-    return "| " + " | ".join(cells) + " |"
-
-
-def _format_distribution_header() -> str:
-    """Formats a right-aligned P1/P25/P50/P75/P99 table header."""
-    cells = [
-        f"{label:>{_DISTRIBUTION_CELL_WIDTH}}" for label, _ in _DISTRIBUTION_COLUMNS
-    ]
-    return "| " + " | ".join(cells) + " |"
-
-
 def _print_distribution(title: str, values: list[float], value_format: str) -> None:
     """Prints a percentile distribution table."""
+
+    def _format_distribution_header() -> str:
+        cells = [f"{label:>6}" for label, _ in _DISTRIBUTION_COLUMNS]
+        return "| " + " | ".join(cells) + " |"
+
+    def _format_distribution_row(values: list[float], value_format: str) -> str:
+        if not values:
+            cells = [f"{'N/A':>6}" for _ in _DISTRIBUTION_COLUMNS]
+        else:
+            percentiles = np.percentile(values, [p for _, p in _DISTRIBUTION_COLUMNS])
+            cells = [f"{value:{value_format}}" for value in percentiles]
+        return "| " + " | ".join(cells) + " |"
+
     print(f"{_Y}{title}{_0}")
     print(f"  {_A}{_format_distribution_header()}{_0}")
     print(f"  {_C}{_format_distribution_row(values, value_format)}{_0}")
@@ -690,11 +675,7 @@ def _print_inference_matrix(
     total = passed + failed
     print(f"\n{_C}[{title}]{_0}")
     print(f"Passed={_G}{passed}{_0}, Failed={_R}{failed}{_0}, Total={_C}{total}{_0}")
-    _print_distribution(
-        "Confidence Distribution:",
-        confidences,
-        f">{_DISTRIBUTION_CELL_WIDTH}.3f",
-    )
+    _print_distribution("Confidence Distribution:", confidences, f">6.3f")
 
 
 def _print_time_distributions(
@@ -702,14 +683,10 @@ def _print_time_distributions(
 ) -> None:
     """Prints internal MapTracker inference time percentiles in milliseconds."""
     _print_distribution(
-        "Full Search Time Distribution (ms):",
-        full_search_times,
-        f">{_DISTRIBUTION_CELL_WIDTH}.1f",
+        "Full Search Time Distribution (ms):", full_search_times, f">6.1f"
     )
     _print_distribution(
-        "Fast Search Time Distribution (ms):",
-        fast_search_times,
-        f">{_DISTRIBUTION_CELL_WIDTH}.1f",
+        "Fast Search Time Distribution (ms):", fast_search_times, f">6.1f"
     )
 
 
