@@ -2,7 +2,11 @@
 
 package gamesetting
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/rs/zerolog/log"
+)
 
 var ErrUnsupported = errors.New("gamesetting: only supported on windows")
 
@@ -172,4 +176,15 @@ func GetVideoTextureQuality1() (uint32, error) {
 
 func SetVideoTextureQuality1(_ uint32) error {
 	return ErrUnsupported
+}
+
+// Apply 在非 Windows 平台不可用。
+func Apply(region, displayType, resolution string) bool {
+	log.Error().
+		Str("component", "gamesetting").
+		Str("region", region).
+		Str("display_type", displayType).
+		Str("resolution", resolution).
+		Msg("apply is only supported on windows")
+	return false
 }

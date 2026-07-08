@@ -9,7 +9,7 @@ import (
 )
 
 // runAgent 启动 MaaFramework Agent Server 子进程主循环。
-// 由 MaaPiCli/MXU 等 Client 通过 `agent/go-service --agent <socket_id>` 拉起。
+// 由 MaaPiCli/MXU 等 Client 通过 `agent/go-service <socket_id>` 拉起。
 func runAgent(identifier string) {
 	log.Info().
 		Str("identifier", identifier).

@@ -5,37 +5,44 @@ package gamesetting
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
+	"github.com/rs/zerolog/log"
 	"golang.org/x/sys/windows/registry"
 )
 
-const registryPath = `Software\Hypergryph\Endfield`
+const (
+	registryPathCN     = `Software\Hypergryph\Endfield`
+	registryPathGlobal = `Software\Gryphline\Endfield`
+)
+
+var registryPath = registryPathCN
 
 var ErrUnsupported = errors.New("gamesetting: only supported on windows")
 
 const (
-	valuePrefixScreenmanagerFullscreenMode          = `Screenmanager Fullscreen mode_h`
-	valuePrefixScreenmanagerResolutionHeight        = `Screenmanager Resolution Height_h`
-	valuePrefixScreenmanagerResolutionWidth         = `Screenmanager Resolution Width_h`
-	valuePrefixScreenmanagerResolutionWindowHeight  = `Screenmanager Resolution Window Height_h`
-	valuePrefixScreenmanagerResolutionWindowWidth   = `Screenmanager Resolution Window Width_h`
-	valuePrefixScreenmanagerWindowPositionX         = `Screenmanager Window Position X_h`
-	valuePrefixScreenmanagerWindowPositionY         = `Screenmanager Window Position Y_h`
-	valuePrefixVideoCustomQuality                   = `video_custom_quality_h`
-	valuePrefixVideoFrameRate8                      = `video_frame_rate_8_h`
-	valuePrefixVideoFullScreen                      = `video_full_screen_h`
-	valuePrefixVideoQualityAnisoLevel1              = `video_quality_anisoLevel_1_h`
-	valuePrefixVideoQualityContactShadow            = `video_quality_contactshadow_h`
-	valuePrefixVideoQualityDLSSMode1                = `video_quality_dlss_mode_1_h`
-	valuePrefixVideoQualityMain                     = `video_quality_main_h`
-	valuePrefixVideoQualityReflex                   = `video_quality_reflex_h`
-	valuePrefixVideoQualitySharpness                = `video_quality_sharpness_h`
-	valuePrefixVideoQualityUpscaler                 = `video_quality_upscaler_h`
-	valuePrefixVideoResolution                      = `video_resolution_h`
-	valuePrefixVideoResolutionHeight                = `video_resolution_height_h`
-	valuePrefixVideoResolutionWidth                 = `video_resolution_width_h`
-	valuePrefixVideoTextureQuality1                 = `video_texture_quality_1_h`
+	valuePrefixScreenmanagerFullscreenMode         = `Screenmanager Fullscreen mode_h`
+	valuePrefixScreenmanagerResolutionHeight       = `Screenmanager Resolution Height_h`
+	valuePrefixScreenmanagerResolutionWidth        = `Screenmanager Resolution Width_h`
+	valuePrefixScreenmanagerResolutionWindowHeight = `Screenmanager Resolution Window Height_h`
+	valuePrefixScreenmanagerResolutionWindowWidth  = `Screenmanager Resolution Window Width_h`
+	valuePrefixScreenmanagerWindowPositionX        = `Screenmanager Window Position X_h`
+	valuePrefixScreenmanagerWindowPositionY        = `Screenmanager Window Position Y_h`
+	valuePrefixVideoCustomQuality                  = `video_custom_quality_h`
+	valuePrefixVideoFrameRate8                     = `video_frame_rate_8_h`
+	valuePrefixVideoFullScreen                     = `video_full_screen_h`
+	valuePrefixVideoQualityAnisoLevel1             = `video_quality_anisoLevel_1_h`
+	valuePrefixVideoQualityContactShadow           = `video_quality_contactshadow_h`
+	valuePrefixVideoQualityDLSSMode1               = `video_quality_dlss_mode_1_h`
+	valuePrefixVideoQualityMain                    = `video_quality_main_h`
+	valuePrefixVideoQualityReflex                  = `video_quality_reflex_h`
+	valuePrefixVideoQualitySharpness               = `video_quality_sharpness_h`
+	valuePrefixVideoQualityUpscaler                = `video_quality_upscaler_h`
+	valuePrefixVideoResolution                     = `video_resolution_h`
+	valuePrefixVideoResolutionHeight               = `video_resolution_height_h`
+	valuePrefixVideoResolutionWidth                = `video_resolution_width_h`
+	valuePrefixVideoTextureQuality1                = `video_texture_quality_1_h`
 )
 
 func GetScreenmanagerFullscreenMode() (uint32, error) {
@@ -264,4 +271,140 @@ func findValueNameByPrefix(k registry.Key, prefix string) (string, error) {
 	default:
 		return "", fmt.Errorf("gamesetting: ambiguous prefix %q under HKCU\\%s, matched %v", prefix, registryPath, matches)
 	}
+}
+
+const (
+	// Unity FullScreenMode：3 = Windowed，1 = FullScreenWindow。
+	screenmanagerModeWindowed   uint32 = 3
+	screenmanagerModeFullscreen uint32 = 1
+
+	videoFullScreenOff uint32 = 0
+	videoFullScreenOn  uint32 = 1
+)
+
+func setRegistryPath(region string) error {
+	switch region {
+	case regionCN:
+		registryPath = registryPathCN
+	case regionGlobal:
+		registryPath = registryPathGlobal
+	default:
+		return fmt.Errorf("gamesetting: unknown region %q", region)
+	}
+	return nil
+}
+
+// Apply 按 pretask 选项写入游戏显示相关注册表项。
+func Apply(region, displayType, resolution string) bool {
+	if err := setRegistryPath(region); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "gamesetting").
+			Str("region", region).
+			Msg("invalid game region")
+		return false
+	}
+
+	width, height, err := parseResolution(resolution)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "gamesetting").
+			Str("resolution", resolution).
+			Msg("invalid resolution")
+		return false
+	}
+
+	switch displayType {
+	case displayTypeWindow:
+		return applyWindowed(width, height)
+	case displayTypeFullscreen:
+		return applyFullscreen(width, height)
+	default:
+		log.Error().
+			Str("component", "gamesetting").
+			Str("display_type", displayType).
+			Msg("unknown display type")
+		return false
+	}
+}
+
+func applyWindowed(width, height uint32) bool {
+	ok := applyResolution(width, height)
+	displaySetters := []struct {
+		key string
+		fn  func(uint32) error
+		val uint32
+	}{
+		{"Screenmanager Fullscreen mode", SetScreenmanagerFullscreenMode, screenmanagerModeWindowed},
+		{"video_full_screen", SetVideoFullScreen, videoFullScreenOff},
+	}
+	return applySetters(displaySetters) && ok
+}
+
+func applyFullscreen(width, height uint32) bool {
+	ok := applyResolution(width, height)
+	displaySetters := []struct {
+		key string
+		fn  func(uint32) error
+		val uint32
+	}{
+		{"Screenmanager Fullscreen mode", SetScreenmanagerFullscreenMode, screenmanagerModeFullscreen},
+		{"video_full_screen", SetVideoFullScreen, videoFullScreenOn},
+	}
+	return applySetters(displaySetters) && ok
+}
+
+func applyResolution(width, height uint32) bool {
+	setters := []struct {
+		key string
+		fn  func(uint32) error
+		val uint32
+	}{
+		{"video_resolution_width", SetVideoResolutionWidth, width},
+		{"video_resolution_height", SetVideoResolutionHeight, height},
+		{"Screenmanager Resolution Width", SetScreenmanagerResolutionWidth, width},
+		{"Screenmanager Resolution Height", SetScreenmanagerResolutionHeight, height},
+	}
+	return applySetters(setters)
+}
+
+func applySetters(setters []struct {
+	key string
+	fn  func(uint32) error
+	val uint32
+}) bool {
+	ok := true
+	for _, item := range setters {
+		if err := item.fn(item.val); err != nil {
+			log.Error().
+				Err(err).
+				Str("component", "gamesetting").
+				Str("key", item.key).
+				Uint32("value", item.val).
+				Msg("failed to apply setting")
+			ok = false
+		}
+	}
+	return ok
+}
+
+func parseResolution(resolution string) (uint32, uint32, error) {
+	parts := strings.Split(strings.ToLower(strings.TrimSpace(resolution)), "x")
+	if len(parts) != 2 {
+		return 0, 0, fmt.Errorf("gamesetting: resolution %q must be WIDTHxHEIGHT", resolution)
+	}
+
+	width, err := strconv.ParseUint(parts[0], 10, 32)
+	if err != nil {
+		return 0, 0, fmt.Errorf("gamesetting: parse width from %q: %w", resolution, err)
+	}
+	height, err := strconv.ParseUint(parts[1], 10, 32)
+	if err != nil {
+		return 0, 0, fmt.Errorf("gamesetting: parse height from %q: %w", resolution, err)
+	}
+	if width == 0 || height == 0 {
+		return 0, 0, fmt.Errorf("gamesetting: resolution %q is invalid", resolution)
+	}
+	return uint32(width), uint32(height), nil
 }

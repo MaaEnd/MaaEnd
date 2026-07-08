@@ -5,13 +5,14 @@ import (
 	"runtime"
 	"runtime/debug"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/exetask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/parentwatch"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/rs/zerolog/log"
 )
 
-const usage = "Usage: go-service --agent <identifier> | --pretask <taskname> [args...]"
+const usage = "Usage: go-service <identifier> | go-service --exetask <taskname> [args...]"
 
 func main() {
 	if _, ok := os.LookupEnv("GOTRACEBACK"); !ok {
@@ -71,20 +72,11 @@ func main() {
 		log.Fatal().Msg(usage)
 	}
 
-	mode := os.Args[1]
-	switch mode {
-	case "--agent":
-		if len(os.Args) < 3 {
-			log.Fatal().
-				Msg("Usage: go-service --agent <identifier>")
-		}
-		runAgent(os.Args[2])
-	case "--pretask":
-		runPretask(os.Args[2:])
+	switch os.Args[1] {
+	case "--exetask":
+		exetask.Run(os.Args[2:])
 	default:
-		log.Fatal().
-			Str("arg", mode).
-			Msg("Unknown mode, expected --agent or --pretask")
+		runAgent(os.Args[1])
 	}
 }
 
