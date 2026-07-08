@@ -491,7 +491,7 @@ After modifying the generator or data, it is recommended to execute:
 
 ```shell
 pnpm generate:SellProduct
-pnpm prettier --write "docs/zh_cn/developers/tasks/sell-product-maintain.md" "docs/zh_cn/developers/README.md"
+pnpm prettier --write "docs/en_us/developers/tasks/sell-product-maintain.md" "docs/en_us/developers/README.md"
 ```
 
 If the Go matching logic was modified:
