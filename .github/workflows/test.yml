@@ -24,17 +24,19 @@ jobs:
   maa-tools-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout repository
+        uses: actions/checkout@v6
         with:
           submodules: true
 
-      - uses: pnpm/action-setup@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
 
-      - name: Use Node
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
         with:
           node-version: 22
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -48,3 +50,23 @@ jobs:
         with:
           name: logs
           path: tests/maatools
+
+  map-tracker-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r ./tools/map_tracker/requirements.txt
+
+      - name: Run MapTracker test
+        run: python ./tools/map_tracker/map_tracker_tester.py batch_test -i ./tests/MaaEndTestset/Win32/Official_CN/map_tracker
