@@ -60,7 +60,7 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 200,
+            "time": 250,
             "target": [
                 512,
                 387,
