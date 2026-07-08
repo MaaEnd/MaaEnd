@@ -3,24 +3,32 @@ import uuid
 from pathlib import Path
 from typing import TypedDict
 
+import numpy as np
+
 from maa.agent_client import AgentClient
 from maa.tasker import Tasker, TaskDetail
+from maa.pipeline import JRecognitionType, JCustomRecognition
 from maa.toolkit import Toolkit, DesktopWindow, AdbDevice
 from maa.resource import Resource
 from maa.controller import (
     Controller,
     Win32Controller,
     AdbController,
+    CustomController,
     MaaWin32ScreencapMethodEnum,
     MaaWin32InputMethodEnum,
 )
 
 
 class MapTrackerInferResult(TypedDict):
+    infer_mode: str
+    infer_time_ms: int
     loc_conf: float
+    loc_time_ms: int
     map_name: str
     rot: int
     rot_conf: float
+    rot_time_ms: int
     x: float
     y: float
 
@@ -31,6 +39,60 @@ class MaaInitializationError(Exception):
 
 class MaaRuntimeError(Exception):
     pass
+
+
+class _OfflineController(CustomController):
+    """Provides a no-op controller so Tasker can run fixed-image recognition."""
+
+    def __init__(self):
+        super().__init__()
+        self._connected = False
+
+    def connect(self) -> bool:
+        self._connected = True
+        return True
+
+    def connected(self) -> bool:
+        return self._connected
+
+    def request_uuid(self) -> str:
+        return "MapTrackerOfflineController"
+
+    def start_app(self, intent: str) -> bool:
+        return True
+
+    def stop_app(self, intent: str) -> bool:
+        return True
+
+    def screencap(self) -> np.ndarray:
+        return np.zeros((1, 1, 3), dtype=np.uint8)
+
+    def click(self, x: int, y: int) -> bool:
+        return True
+
+    def swipe(self, x1: int, y1: int, x2: int, y2: int, duration: int) -> bool:
+        return True
+
+    def touch_down(self, contact: int, x: int, y: int, pressure: int) -> bool:
+        return True
+
+    def touch_move(self, contact: int, x: int, y: int, pressure: int) -> bool:
+        return True
+
+    def touch_up(self, contact: int) -> bool:
+        return True
+
+    def click_key(self, keycode: int) -> bool:
+        return True
+
+    def input_text(self, text: str) -> bool:
+        return True
+
+    def key_down(self, keycode: int) -> bool:
+        return True
+
+    def key_up(self, keycode: int) -> bool:
+        return True
 
 
 class MaaInterface:
@@ -47,8 +109,10 @@ class MaaInterface:
         self.toolkit = Toolkit()
         self.toolkit.init_option(MaaInterface.WORK_DIR)
         self.controller: Controller | None = None
+        self._offline_controller: Controller | None = None
         self.agent_client: AgentClient | None = None
         self.agent_process: subprocess.Popen | None = None
+        self._resource_initialized = False
 
     def _find_win32_window(self) -> DesktopWindow:
         # Win32
@@ -78,6 +142,40 @@ class MaaInterface:
             raise MaaInitializationError("No adb device found")
         return all_adb[0]
 
+    def init_resource(self):
+        if self._resource_initialized:
+            return
+
+        if not MaaInterface.ASSET_DIR.exists():
+            raise MaaInitializationError(
+                f"Asset directory not found at {MaaInterface.ASSET_DIR}"
+            )
+
+        try:
+            self.resource.post_bundle(self.ASSET_DIR / "resource").wait()
+            self.tasker.set_log_dir(self.WORK_DIR / "logs")
+        except Exception as e:
+            raise MaaInitializationError("Failed to initialize resource") from e
+        self._resource_initialized = True
+
+    def _bind_tasker(self, controller: Controller) -> None:
+        try:
+            self.init_resource()
+            self.tasker.bind(self.resource, controller)
+        except Exception as e:
+            raise MaaInitializationError("Failed to initialize tasker") from e
+
+    def init_offline_controller(self):
+        if self._offline_controller is not None:
+            return
+
+        try:
+            self._offline_controller = _OfflineController()
+            self._offline_controller.post_connection().wait()
+            self._bind_tasker(self._offline_controller)
+        except Exception as e:
+            raise MaaInitializationError("Failed to initialize offline controller") from e
+
     def init_controller(self):
         if self.controller is not None:
             return
@@ -106,20 +204,7 @@ class MaaInterface:
         except Exception as e:
             raise MaaInitializationError("Failed to connect controller") from e
 
-        if not MaaInterface.ASSET_DIR.exists():
-            raise MaaInitializationError(
-                f"Asset directory not found at {MaaInterface.ASSET_DIR}"
-            )
-
-        # Init resource and tasker
-        try:
-            self.resource.post_bundle(self.ASSET_DIR / "resource").wait()
-            self.tasker.set_log_dir(self.WORK_DIR / "logs")
-            self.tasker.bind(self.resource, self.controller)
-        except Exception as e:
-            raise MaaInitializationError(
-                "Failed to initialize resource or tasker"
-            ) from e
+        self._bind_tasker(self.controller)
 
     def init_agent(self):
         if self.agent_client is not None:
@@ -130,6 +215,8 @@ class MaaInterface:
                 f"Agent executable not found at {self.AGENT_PATH}"
             )
 
+        if not self.tasker.inited:
+            self.init_offline_controller()
         agent_id = f"__MapTrackerEditorAgent-{uuid.uuid4()}"
 
         try:
@@ -176,6 +263,42 @@ class MaaInterface:
         except Exception:
             pass
 
+    @staticmethod
+    def _parse_infer_detail(task_detail: TaskDetail | None) -> MapTrackerInferResult:
+        """Extracts the MapTrackerInfer result from a recognition task detail."""
+        if task_detail is None:
+            raise MaaRuntimeError("Inference failed: task detail not found")
+        if not task_detail.status.succeeded:
+            raise MaaRuntimeError("Inference failed")
+        best_result = task_detail.nodes[0].recognition.best_result
+        if not best_result:
+            raise MaaRuntimeError("Inference succeeded but no result found")
+        data = best_result.detail
+        return MapTrackerInferResult(
+            infer_mode=data["inferMode"],
+            infer_time_ms=data["inferTimeMs"],
+            loc_conf=data["locConf"],
+            loc_time_ms=data["locTimeMs"],
+            map_name=data["mapName"],
+            rot=data["rot"],
+            rot_conf=data["rotConf"],
+            rot_time_ms=data["rotTimeMs"],
+            x=data["x"],
+            y=data["y"],
+        )
+
+    @staticmethod
+    def _build_infer_param(precision: float, allowed_modes: int) -> JCustomRecognition:
+        """Builds the MapTrackerInfer recognition parameter."""
+        return JCustomRecognition(
+            custom_recognition="MapTrackerInfer",
+            custom_recognition_param={
+                "map_name_regex": ".*",
+                "precision": precision,
+                "allowed_modes": allowed_modes,
+            },
+        )
+
     def do_infer(
         self, *, precision: float, allowed_modes: int = 3
     ) -> MapTrackerInferResult:
@@ -208,21 +331,25 @@ class MaaInterface:
         task_detail: TaskDetail = (
             self.tasker.post_task(ENTRY_NAME, pipeline).wait().get()
         )
+        return self._parse_infer_detail(task_detail)
 
-        if task_detail.status.succeeded:
-            best_result = task_detail.nodes[0].recognition.best_result
-            if best_result:
-                data = best_result.detail
-                return MapTrackerInferResult(
-                    loc_conf=data["locConf"],
-                    map_name=data["mapName"],
-                    rot=data["rot"],
-                    rot_conf=data["rotConf"],
-                    x=data["x"],
-                    y=data["y"],
-                )
-            raise MaaRuntimeError("Inference succeeded but no result found")
-        raise MaaRuntimeError(f"Inference failed")
+    def do_infer_on_image(
+        self, image: np.ndarray, *, precision: float, allowed_modes: int = 3
+    ) -> MapTrackerInferResult:
+        """Runs MapTrackerInfer against a fixed image instead of a live screencap."""
+        if self.agent_client is None:
+            raise MaaRuntimeError("Agent client not initialized")
+
+        task_detail: TaskDetail = (
+            self.tasker.post_recognition(
+                JRecognitionType.Custom,
+                self._build_infer_param(precision, allowed_modes),
+                image,
+            )
+            .wait()
+            .get()
+        )
+        return self._parse_infer_detail(task_detail)
 
     def do_goal(
         self,
