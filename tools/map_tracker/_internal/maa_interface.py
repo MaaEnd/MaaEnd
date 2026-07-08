@@ -236,7 +236,15 @@ class MaaInterface:
             )
             self.agent_client = AgentClient(agent_id)
             self.agent_client.bind(self.resource)
-            self.agent_client.connect()
+            self.agent_client.set_timeout(60 * 1000)
+            if not self.agent_client.connect():
+                if self.agent_process.poll() is not None:
+                    raise MaaInitializationError(
+                        f"Agent exited early with code {self.agent_process.returncode}"
+                    )
+                raise MaaInitializationError("Agent client failed to connect")
+        except MaaInitializationError:
+            raise
         except Exception as e:
             raise MaaInitializationError(f"Failed to start agent: {e}") from e
 

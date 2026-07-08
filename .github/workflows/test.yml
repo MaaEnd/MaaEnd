@@ -48,7 +48,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: logs
+          name: maa-tools-test-logs
           path: tests/maatools
 
   map-tracker-test:
@@ -71,6 +71,22 @@ jobs:
       - name: Build and install
         run: python -u tools/build_and_install.py --ci --os linux --arch x86_64 # without cpp-algo
 
+      - name: Download MaaFW runtime
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: MaaXYZ/MaaFramework
+          fileName: "MAA-linux-x86_64-*"
+          latest: true
+          out-file-path: "deps"
+          extract: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install MaaFW runtime
+        run: |
+          cp -r deps/bin/* install/maafw/
+          cp -r deps/share/MaaAgentBinary install/maafw/
+          rm -rf install/maafw/MaaNode*
+
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
@@ -82,3 +98,10 @@ jobs:
 
       - name: Run MapTracker test
         run: python -u tools/map_tracker/map_tracker_tester.py batch_test -i ./tests/MaaEndTestset/Win32/Official_CN/map_tracker
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: map-tracker-test-logs
+          path: install/debug
