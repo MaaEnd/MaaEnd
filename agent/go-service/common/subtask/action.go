@@ -117,6 +117,7 @@ func (a *SubTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			if !continueOnSubFailure {
 				break
 			}
+			continue
 		}
 
 		if !detail.Status.Success() {
