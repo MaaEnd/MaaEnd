@@ -40,3 +40,34 @@ func TestPickDecisionPrefersAbandonWhenCloseToDraw(t *testing.T) {
 		t.Fatalf("pickDecision() = %v, want %v", got, solver.Abandon)
 	}
 }
+
+func TestPickDecisionPrefersAbandonOnTie(t *testing.T) {
+	got := pickDecision([]solver.Outcome{
+		{Action: solver.DrawCard, Total: 10},
+		{Action: solver.Abandon, Total: 10},
+	})
+	if got != solver.Abandon {
+		t.Fatalf("pickDecision(tie) = %v, want %v", got, solver.Abandon)
+	}
+}
+
+func TestPickDecisionPrefersDrawWhenAbandonMuchWorse(t *testing.T) {
+	got := pickDecision([]solver.Outcome{
+		{Action: solver.DrawCard, Total: 10},
+		{Action: solver.Abandon, Total: 5},
+	})
+	if got != solver.DrawCard {
+		t.Fatalf("pickDecision(large gap) = %v, want %v", got, solver.DrawCard)
+	}
+}
+
+func TestPickDecisionWithMultipleOutcomes(t *testing.T) {
+	got := pickDecision([]solver.Outcome{
+		{Action: solver.DrawCard, Total: 10},
+		{Action: solver.Abandon, Total: 9.5},
+		{Action: solver.Calculate, Total: 12},
+	})
+	if got != solver.Calculate {
+		t.Fatalf("pickDecision(multiple outcomes) = %v, want %v", got, solver.Calculate)
+	}
+}

@@ -248,9 +248,9 @@ def main():
     parser.add_argument(
         "--environment-monitoring-routes-files",
         type=str,
-        nargs="*",
+        nargs="+",
         default=["tools/pipeline-generate/EnvironmentMonitoring/routes.json"],
-        help="Path to EnvironmentMonitoring routes.json files (default: tools/pipeline-generate/EnvironmentMonitoring/routes.json)",
+        help="Path(s) to EnvironmentMonitoring routes.json files (default: tools/pipeline-generate/EnvironmentMonitoring/routes.json)",
     )
 
     args = parser.parse_args()
