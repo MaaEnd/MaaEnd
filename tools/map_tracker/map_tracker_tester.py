@@ -487,8 +487,9 @@ def _inference_worker(
     while not stop_event.is_set():
         loop_started_at = time.monotonic()
         try:
-            result = maa_interface.do_infer(precision=1.0)
-            image = _mosaic_private_regions(maa_interface.capture_screen())
+            raw_image = maa_interface.capture_screen()
+            result = maa_interface.do_infer_on_image(raw_image, precision=1.0)
+            image = _mosaic_private_regions(raw_image)
         except MaaRuntimeError as e:
             print(f"  {_Y}Warning: {e}{_0}", flush=True)
         except Exception as e:
