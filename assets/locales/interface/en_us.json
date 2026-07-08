@@ -1046,6 +1046,7 @@
     "task.BatchUseDetector.option.Category.Compass": "Compass",
     "task.BatchUseDetector.option.Times.label": "Use Count",
     "task.BatchUseDetector.option.Times.input.label": "Count",
+    "task.BatchUseDetector.option.Times.input.error": "Enter a valid count.",
     "task.ResourceRecycleStation.label": "🦉Resource Recycle Station",
     "task.ResourceRecycleStation.description": "Automatically collect resources from Resource Recycle Stations in Wuling and Valley IV",
     "option.ResourceRecycleStationRegion.label": "Collect Region",

@@ -245,6 +245,13 @@ def main():
         default=[],
         help="Directories containing task files to validate against interface_import.schema.json (default: none)",
     )
+    parser.add_argument(
+        "--environment-monitoring-routes-files",
+        type=str,
+        nargs="*",
+        default=["tools/pipeline-generate/EnvironmentMonitoring/routes.json"],
+        help="Path to EnvironmentMonitoring routes.json files (default: tools/pipeline-generate/EnvironmentMonitoring/routes.json)",
+    )
 
     args = parser.parse_args()
 
@@ -369,6 +376,30 @@ def main():
         else:
             print(
                 f"Warning: Task schema {task_schema_path} does not exist, skipping task validation..."
+            )
+
+    if args.environment_monitoring_routes_files:
+        print("\nValidating EnvironmentMonitoring routes files...")
+        routes_schema_path = schema_dir / "environment_monitoring_routes.schema.json"
+        if routes_schema_path.exists():
+            routes_schema = load_jsonc(routes_schema_path)
+            routes_schema_uri = routes_schema_path.as_uri()
+            schema_store[routes_schema_uri] = routes_schema
+
+            routes_validator = create_validator(routes_schema, schema_store)
+
+            for routes_file in args.environment_monitoring_routes_files:
+                routes_path = Path(routes_file)
+                if routes_path.exists():
+                    if not validate_file(routes_path, routes_validator):
+                        all_valid = False
+                else:
+                    print(
+                        f"Warning: EnvironmentMonitoring routes file {routes_file} does not exist, skipping..."
+                    )
+        else:
+            print(
+                f"Warning: EnvironmentMonitoring routes schema {routes_schema_path} does not exist, skipping routes validation..."
             )
 
     if all_valid:

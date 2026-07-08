@@ -9,6 +9,8 @@ on:
       - "assets/**"
       - "!assets/resource/model"
       - "tools/schema/**"
+      - "tools/validate_schema.py"
+      - "tools/pipeline-generate/EnvironmentMonitoring/routes.json"
       - "package.json"
       - "maatools.config.mts"
 
@@ -20,6 +22,8 @@ on:
       - "assets/**"
       - "!assets/resource/model"
       - "tools/schema/**"
+      - "tools/validate_schema.py"
+      - "tools/pipeline-generate/EnvironmentMonitoring/routes.json"
       - "package.json"
       - "maatools.config.mts"
 

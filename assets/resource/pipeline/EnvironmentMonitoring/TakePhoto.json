@@ -85,7 +85,8 @@
         "next": [
             "EnvironmentMonitoringShutterButtonHighlighted",
             "EnvironmentMonitoringShutterButtonPhotographyTarget",
-            "[JumpBack][Anchor]EnvironmentMonitoringAdjustCamera"
+            "[JumpBack][Anchor]EnvironmentMonitoringAdjustCamera",
+            "EnvironmentMonitoringTakePhoto"
         ]
     },
     "EnvironmentMonitoringCheckPhotographyTarget": {

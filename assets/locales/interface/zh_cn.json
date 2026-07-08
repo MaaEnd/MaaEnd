@@ -1046,6 +1046,7 @@
     "task.BatchUseDetector.option.Category.Compass": "罗盘",
     "task.BatchUseDetector.option.Times.label": "使用次数",
     "task.BatchUseDetector.option.Times.input.label": "次数",
+    "task.BatchUseDetector.option.Times.input.error": "请输入有效次数。",
     "task.ResourceRecycleStation.label": "🦉资源回收站",
     "task.ResourceRecycleStation.description": "自动收取武陵和四号谷地的资源回收站物资",
     "option.ResourceRecycleStationRegion.label": "收取地区",

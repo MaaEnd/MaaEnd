@@ -1046,6 +1046,7 @@
     "task.BatchUseDetector.option.Category.Compass": "나침반",
     "task.BatchUseDetector.option.Times.label": "사용 횟수",
     "task.BatchUseDetector.option.Times.input.label": "횟수",
+    "task.BatchUseDetector.option.Times.input.error": "유효한 횟수를 입력하세요.",
     "task.ResourceRecycleStation.label": "🦉자원 재활용 스테이션",
     "task.ResourceRecycleStation.description": "무릉과 4호 계곡의 자원 재활용 스테이션에서 자동으로 수집합니다",
     "option.ResourceRecycleStationRegion.label": "수집 지역",

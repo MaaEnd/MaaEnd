@@ -1046,6 +1046,7 @@
     "task.BatchUseDetector.option.Category.Compass": "コンパス",
     "task.BatchUseDetector.option.Times.label": "使用回数",
     "task.BatchUseDetector.option.Times.input.label": "回数",
+    "task.BatchUseDetector.option.Times.input.error": "有効な回数を入力してください。",
     "task.ResourceRecycleStation.label": "🦉資源回収ステーション",
     "task.ResourceRecycleStation.description": "武陵と四号谷地の資源回収ステーションから自動的に収集します",
     "option.ResourceRecycleStationRegion.label": "収集地域",
