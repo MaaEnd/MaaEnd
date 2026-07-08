@@ -59,6 +59,17 @@ jobs:
         with:
           submodules: true
 
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: "agent/go-service/go.mod"
+          cache-dependency-path: |
+            agent/go-service/go.mod
+            agent/go-service/go.sum
+
+      - name: Build and install
+        run: python tools/build_and_install.py --ci --os linux --arch x86_64 # without cpp-algo
+
       - name: Setup Python
         uses: actions/setup-python@v6
         with:

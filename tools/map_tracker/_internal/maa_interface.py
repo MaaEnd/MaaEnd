@@ -1,4 +1,5 @@
 import subprocess
+import sys
 import uuid
 from pathlib import Path
 from typing import TypedDict
@@ -101,7 +102,7 @@ class MaaInterface:
 
     WORK_DIR = Path("./install")
     ASSET_DIR = Path("./") / "assets"
-    AGENT_PATH = WORK_DIR / "agent" / "go-service.exe"
+    AGENT_PATH = WORK_DIR / "agent" / ("go-service.exe" if sys.platform == "win32" else "go-service")
 
     def __init__(self):
         self.resource = Resource()
@@ -221,7 +222,7 @@ class MaaInterface:
 
         try:
             self.agent_process = subprocess.Popen(
-                [self.AGENT_PATH, agent_id],
+                [self.AGENT_PATH.resolve(), agent_id],
                 cwd=MaaInterface.WORK_DIR,
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
