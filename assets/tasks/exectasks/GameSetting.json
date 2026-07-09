@@ -8,6 +8,9 @@
         "name": "GameSetting",
         "description": "$pretask.GameSetting.description",
         "label": "$pretask.GameSetting.label",
+        "controller": [
+            "Win32-Front"
+        ],
         "option": [
             "GameSettingRegion",
             "GameSettingDisplayType"
