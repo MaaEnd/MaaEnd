@@ -24,7 +24,7 @@ type gameSettingOptions struct {
 	Resolution  string `json:"GameSettingResolution"`
 }
 
-// Run 对应 assets/tasks/exectasks/GameSetting.json 的 pretask 入口。
+// Run 对应 assets/tasks/pretasks/GameSetting.json 的 pretask 入口。
 // Client 会把 option 取值序列化为 JSON 并追加为最后一个参数。
 func Run(args []string) bool {
 	opts, err := parseGameSettingOptions(args)
