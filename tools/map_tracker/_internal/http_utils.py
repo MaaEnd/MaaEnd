@@ -1,5 +1,6 @@
 import json
 import os
+import time
 import urllib.request
 import urllib.error
 import warnings
@@ -26,7 +27,8 @@ def download(
     url: str,
     *,
     max_retries: int = 5,
-    timeout: float = 120.0,
+    base_delay: float = 0.5,
+    timeout: float = 60.0,
 ) -> bytes | None:
     """Download raw bytes from URL (with retries), returns bytes or None on failure."""
     retries = 0
@@ -34,9 +36,11 @@ def download(
     warning_msg = None
     while retries <= max_retries:
         if retries > 0:
+            this_delay = base_delay * (2 ** (retries - 1))
             _http_utils_notice(
-                f"Retrying download from {url} (attempt {retries}/{max_retries})"
+                f"Retrying download from {url} (attempt {retries}/{max_retries}, delay {this_delay:.1f}s)"
             )
+            time.sleep(this_delay)
         try:
             req = urllib.request.Request(url, headers=_HEADERS)
             with urllib.request.urlopen(req, timeout=timeout) as resp:
@@ -48,9 +52,7 @@ def download(
         except urllib.error.HTTPError as e:
             warning_msg = f"Failed to download from {url}: HTTP {e.code} - {e.reason}"
             break  # HTTP errors are unlikely to be resolved by retries
-        except urllib.error.URLError as e:
-            warning_msg = f"Failed to download from {url}: {type(e).__name__} - {e}"
-        except TimeoutError as e:
+        except Exception as e:
             warning_msg = f"Failed to download from {url}: {type(e).__name__} - {e}"
         retries += 1
 
