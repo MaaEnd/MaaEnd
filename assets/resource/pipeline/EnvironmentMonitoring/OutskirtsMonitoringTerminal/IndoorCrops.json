@@ -31,6 +31,7 @@
             "室内の作物",
             "실내 작물"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckIndoorCropsIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Growing\\s*Crop",
             "室内栽培の作物の写真を撮る",
             "실내 재배하고 있는 작물을 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptIndoorCrops": {
         "desc": "接取室内作物委托",

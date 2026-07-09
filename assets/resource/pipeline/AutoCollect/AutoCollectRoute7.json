@@ -660,7 +660,6 @@
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
             "fine_approach": "AllTargets",
-            "no_ensure_final_orientation": true,
             "map_name": "map02_lv002",
             "path": [
                 [

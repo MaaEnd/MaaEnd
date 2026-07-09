@@ -510,13 +510,15 @@ jobs:
       - name: Trigger MirrorChyanUploading
         if: ${{ github.repository_owner == 'MaaEnd' }}
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh workflow run --repo $GITHUB_REPOSITORY mirrorchyan_release.yml -f tag=${{ needs.meta.outputs.tag }}
           gh workflow run --repo $GITHUB_REPOSITORY mirrorchyan_release_note.yml -f tag=${{ needs.meta.outputs.tag }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Send Discord release notification
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh workflow run --repo $GITHUB_REPOSITORY discord-release-notification.yml \
             -f release_tag="${{ needs.meta.outputs.tag }}"

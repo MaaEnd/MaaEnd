@@ -50,6 +50,16 @@ constexpr double kRouteFloorMaxTranslate = 4.0;  // 单点相对原位的累计�
 constexpr int kRouteFloorIterations = 14;        // 中轴梯度上升迭代上限(收敛即停;已达标点设 settled 永久跳过)
 constexpr int kRouteFloorProbeDirs = 8;          // 各向探测方向数(8 足够辨最近边界方向)
 constexpr double kRouteFloorProbeMargin = 1.0;   // 墙距探测早停余量:只探到 地板+此 即够判达标(px)
+// 断崖抗掉落(收尾)。真实断崖(高度不连续,踩上去掉落)与无害接缝(高度连续,可走)在点包含式墙距里都是"边界",
+// 前面几道居中一视同仁、且小步/刚性块移;遇窄口(一侧断崖、开阔侧也不宽)贴断崖点卡在原地——小步一迈就跨崖出界被
+// 连段守卫拒掉,永远推不动(离崖~0)。这里只针对贴真实断崖的点,允许大步跨到开阔侧,取离崖最远的合法候选。
+constexpr bool kRouteGapRepelEnable = true;
+constexpr double kRouteGapRepelTrigger = 1.5;      // 仅处理点距真实断崖 < 此的点(px);开阔/贴接缝者不动
+constexpr double kRouteGapRepelSafe = 2.0;         // 推离断崖力争达到的距离(px);达到即停,窄口够不到则尽力
+constexpr double kRouteGapRepelMaxTranslate = 4.0; // 单点相对原位的最大跳离位移(px)
+constexpr double kRouteGapRepelStep = 0.3;         // 跳离步进(px):允许大步跨到开阔侧,不像地板小步会被断崖对岸卡住
+constexpr int kRouteGapRepelProbeDirs = 16;        // 各向探测方向数(断崖方向任意,须够密以免漏判)
+constexpr double kRouteGapRepelProbeStep = 0.15;   // 离崖距探测步进(px):须细于居中默认,否则窄口 0.1->0.4 的改善看不见
 
 double MaxOffsetOnMesh(
     const WorldPoint& origin,
@@ -1082,6 +1092,119 @@ std::vector<WorldPoint> ClearanceFloorWithBreaks(
     return result;
 }
 
+std::vector<WorldPoint> RealGapRepelWithBreaks(
+    const std::vector<WorldPoint>& points,
+    const std::vector<size_t>& segment_breaks,
+    const PointOnMeshFn& point_on_mesh,
+    const SegmentWalkableFn& height_walkable)
+{
+    const size_t point_count = points.size();
+    if (point_count <= 3 || !point_on_mesh || !height_walkable || !kRouteGapRepelEnable) {
+        return points;
+    }
+    const double trigger = kRouteGapRepelTrigger;
+    const double safe = kRouteGapRepelSafe;
+    double probe_dx[kRouteGapRepelProbeDirs];
+    double probe_dy[kRouteGapRepelProbeDirs];
+    for (int k = 0; k < kRouteGapRepelProbeDirs; ++k) {
+        const double angle = 2.0 * std::numbers::pi * k / kRouteGapRepelProbeDirs;
+        probe_dx[k] = std::cos(angle);
+        probe_dy[k] = std::sin(angle);
+    }
+    const std::vector<WorldPoint> original = points;
+    std::vector<WorldPoint> result = points;
+    std::unordered_set<size_t> frozen { size_t { 0 }, size_t { 1 }, point_count - 2, point_count - 1 };
+    for (const size_t break_index : segment_breaks) {
+        for (int delta = -2; delta <= 2; ++delta) {
+            const long long idx = static_cast<long long>(break_index) + delta;
+            if (idx >= 0) {
+                frozen.insert(static_cast<size_t>(idx));
+            }
+        }
+    }
+    std::vector<double> origin_turn(point_count, 0.0);
+    for (size_t index = 1; index + 1 < point_count; ++index) {
+        origin_turn[index] = RouteTurnAngleDeg(original[index - 1], original[index], original[index + 1]);
+    }
+    const auto turn_at = [&](const std::vector<WorldPoint>& arr, size_t index) -> double {
+        if (index == 0 || index + 1 >= point_count) {
+            return 0.0;
+        }
+        return RouteTurnAngleDeg(arr[index - 1], arr[index], arr[index + 1]);
+    };
+    const auto gap_distance = [&](const WorldPoint& p) -> double {
+        double nearest = -1.0;
+        for (int k = 0; k < kRouteGapRepelProbeDirs; ++k) {
+            const double offset =
+                MaxOffsetOnMesh(p, probe_dx[k], probe_dy[k], trigger, point_on_mesh, kRouteGapRepelProbeStep);
+            if (offset >= trigger) {
+                continue;
+            }
+            const WorldPoint beyond {
+                .x = p.x + probe_dx[k] * (offset + kRouteGapRepelProbeStep),
+                .y = p.y + probe_dy[k] * (offset + kRouteGapRepelProbeStep),
+            };
+            if (!height_walkable(p, beyond)) {
+                if (nearest < 0.0 || offset < nearest) {
+                    nearest = offset;
+                }
+            }
+        }
+        return nearest;
+    };
+
+    for (size_t index = 1; index + 1 < point_count; ++index) {
+        if (frozen.contains(index)) {
+            continue;
+        }
+        const WorldPoint here = result[index];
+        const double base = gap_distance(here);
+        if (base < 0.0 || base >= safe) {
+            continue;
+        }
+        const WorldPoint& a = result[index - 1];
+        const WorldPoint& c = result[index + 1];
+        WorldPoint best = here;
+        double best_score = base;
+        for (int k = 0; k < kRouteGapRepelProbeDirs; ++k) {
+            for (double push = kRouteGapRepelStep; push <= kRouteGapRepelMaxTranslate + 1e-9;
+                 push += kRouteGapRepelStep) {
+                const WorldPoint candidate { .x = here.x + probe_dx[k] * push, .y = here.y + probe_dy[k] * push };
+                if (!point_on_mesh(candidate)) {
+                    break;  // 此向已出界,不必再远
+                }
+                if (!(SegmentOnMesh(a, candidate, point_on_mesh) && SegmentOnMesh(candidate, c, point_on_mesh))) {
+                    continue;
+                }
+                const WorldPoint saved = result[index];
+                result[index] = candidate;
+                bool within_cap = true;
+                for (const size_t neighbor : { index - 1, index, index + 1 }) {
+                    if (turn_at(result, neighbor) > std::max(kRouteRelaxTurnCap, origin_turn[neighbor]) + 1e-6) {
+                        within_cap = false;
+                        break;
+                    }
+                }
+                result[index] = saved;
+                if (!within_cap) {
+                    continue;
+                }
+                const double beyond_gap = gap_distance(candidate);
+                const double score = (beyond_gap < 0.0) ? (safe + 1.0) : beyond_gap;
+                if (score > best_score) {
+                    best = candidate;
+                    best_score = score;
+                }
+            }
+            if (best_score >= safe) {
+                break;  // 已够远,不必再试其它方向
+            }
+        }
+        result[index] = best;
+    }
+    return result;
+}
+
 }
 
 RoutePointsWithBreaks PostProcessRoutePoints(
@@ -1108,6 +1231,10 @@ RoutePointsWithBreaks PostProcessRoutePoints(
     // 居中细化三:抗噪裕度地板,把残留贴 navmesh 内角的点(含 pinned 拐角)沿中轴推离边界到地板,
     // 确保全程留抗噪余量(上游图像定位有噪,贴可走面边界=出界风险)。
     densified_final.points = ClearanceFloorWithBreaks(densified_final.points, densified_final.segment_breaks, point_on_mesh);
+    // 断崖抗掉落(收尾):上面各道把真实断崖(会掉落)与无害接缝一视同仁、且小步/刚性块移,遇窄口贴断崖点卡在原地。
+    // 这里只挑贴真实断崖(高度不连续)的点,允许大步向开阔侧跳离,尽力拉开抗噪余量;守卫同地板(网格/连段/不新增折返)。
+    densified_final.points =
+        RealGapRepelWithBreaks(densified_final.points, densified_final.segment_breaks, point_on_mesh, is_segment_walkable);
     return densified_final;
 }
 

@@ -123,6 +123,7 @@
                 ]
             }
         },
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0
     },
@@ -145,6 +146,7 @@
                 ]
             }
         },
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0
     },
@@ -168,6 +170,7 @@
                 ]
             }
         },
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0
     },
@@ -191,6 +194,7 @@
                 ]
             }
         },
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0
     },
@@ -214,6 +218,7 @@
                 ]
             }
         },
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0
     },
@@ -236,6 +241,7 @@
                 ]
             }
         },
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0
     },

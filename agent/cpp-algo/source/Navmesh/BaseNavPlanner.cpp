@@ -737,6 +737,16 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
     return best;
 }
 
+bool BaseNavPlanner::isRouteSegmentDrivable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b) const
+{
+    return segmentHeightWalkable(zone_id, a, b, nullptr);
+}
+
+uint16_t BaseNavPlanner::triangleZone(uint32_t triangle_index) const
+{
+    return triangle_index < triangle_zones_.size() ? triangle_zones_[triangle_index] : 0;
+}
+
 bool BaseNavPlanner::isSegmentWalkable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b) const
 {
     if (pack_.findZone(zone_id) == nullptr) {

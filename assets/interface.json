@@ -91,8 +91,7 @@
     ],
     "agent": [
         {
-            "child_exec": "agent/go-service",
-            "child_args": []
+            "child_exec": "agent/go-service"
         },
         {
             "child_exec": "agent/cpp-algo",
@@ -143,6 +142,8 @@
     ],
     "task": [],
     "import": [
+        // pretask
+        "tasks/exectasks/GameSetting.json",
         // group: regional_development
         "tasks/SellProduct.json",
         "tasks/SeizeDeliveryJobs.json",

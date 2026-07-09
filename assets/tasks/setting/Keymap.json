@@ -29,10 +29,6 @@
                 "EnterCameraModeLongPress": {
                     "action": "KeyDown",
                     "key": "{KeymapUseCurrentQuickTool.primary}"
-                },
-                "EnterCameraModeKeyDown": {
-                    "action": "KeyDown",
-                    "key": "{KeymapUseCurrentQuickTool.primary}"
                 }
             }
         },
@@ -127,25 +123,6 @@
                     "key": "{KeymapFightSwitchOperator4.primary}"
                 }
             }
-        },
-        "KeymapTestInput": {
-            "label": "输入测试",
-            "description": "填点啥都行",
-            "type": "input",
-            "inputs": [
-                {
-                    "name": "TestFieldA",
-                    "label": "参数 A",
-                    "pipeline_type": "string",
-                    "default": "hello"
-                },
-                {
-                    "name": "TestFieldB",
-                    "label": "参数 B",
-                    "pipeline_type": "int",
-                    "default": "42"
-                }
-            ]
         }
     }
 }

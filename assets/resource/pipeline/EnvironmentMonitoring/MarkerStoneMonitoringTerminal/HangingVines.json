@@ -31,6 +31,7 @@
             "垂れ藤",
             "덩굴 식물"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckHangingVinesIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Hanging\\s*Vines",
             "垂れ藤の写真を撮る",
             "덩굴 식물 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptHangingVines": {
         "desc": "接取垂藤委托",

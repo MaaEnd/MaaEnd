@@ -31,6 +31,7 @@
             "虹",
             "무지개"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckRainbowIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Rainbow",
             "虹の写真を撮る",
             "무지개를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptRainbow": {
         "desc": "接取彩虹委托",

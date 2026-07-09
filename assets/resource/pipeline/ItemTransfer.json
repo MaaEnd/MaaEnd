@@ -57,27 +57,138 @@
         ]
     },
     "ItemTransferStartOpenRepo": {
-        "action": "ClickKey",
-        "key": 66, // B
-        "post_wait_freezes": 400,
+        "desc": "直接打开背包而非通过快捷键",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -250,
+                                    0,
+                                    200,
+                                    200
+                                ],
+                                "template": [
+                                    "SceneManager/Backpack.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    400,
+                                    80
+                                ],
+                                "template": [
+                                    "SceneManager/WorldDijiangMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -200,
+                                    0,
+                                    200,
+                                    200
+                                ],
+                                "template": [
+                                    "SceneManager/WorldMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    }
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 400,
+            "target": [
+                900,
+                100,
+                250,
+                160
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferStartOpenRepoSuccess"
+        ]
+    },
+    "ItemTransferStartOpenRepoSuccess": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "ItemTransferInBackpack"
         ]
     },
     "ItemTransferInBackpack": {
         "desc": "当前在背包界面，开始转移任务",
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "StashBackpackSubTask"
+                "ItemTransferStashBackpackSubTask"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "ItemTransferSwitchRepoToOrigin"
+        ]
+    },
+    "ItemTransferStashBackpackSubTask": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferStashBackpackMain",
+            "EmptyNode"
+        ]
+    },
+    "ItemTransferStashBackpackMain": {
+        "desc": "保留整理背包功能，不复用通用整理背包传送兜底",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackEnterSuccess"
         ]
     },
     "ItemTransferSwitchRepoToOrigin": {

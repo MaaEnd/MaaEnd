@@ -57,7 +57,8 @@
                 345
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 90
     },
     {
         "MissionId": "m1m27",
@@ -124,7 +125,8 @@
                 755
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 45
     },
     {
         "MissionId": "m1m29",
@@ -205,7 +207,8 @@
                 296
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 60
     },
     {
         "MissionId": "m1m33",
@@ -225,7 +228,8 @@
                 394
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 300
     },
     {
         "MissionId": "m1m34",
@@ -268,7 +272,8 @@
                 842.5
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 45
     },
     {
         "MissionId": "m1m36",
@@ -292,7 +297,8 @@
                 135.6
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 105
     },
     {
         "MissionId": "m1m37",
@@ -331,7 +337,8 @@
                 844
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 30
     },
     {
         "MissionId": "m1m39",
@@ -375,7 +382,8 @@
                 674.6
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 270
     },
     {
         "MissionId": "m1m40",
@@ -399,7 +407,8 @@
                 192
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 105
     },
     {
         "MissionId": "m1m56",
@@ -427,7 +436,14 @@
                 702.7
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Replace": [
+            [
+                "売",
+                "壳"
+            ]
+        ],
+        "Heading": 15
     },
     {
         "MissionId": "m1m57",
@@ -459,7 +475,8 @@
                 330.5
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 15
     },
     {
         "MissionId": "m1m58",
@@ -491,7 +508,8 @@
                 458.1
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft",
+        "Heading": 345
     },
     {
         "MissionId": "m1m59",
@@ -515,7 +533,8 @@
                 379.2
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 135
     },
     {
         "MissionId": "m1m60",
@@ -595,7 +614,8 @@
                 531.7
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft"
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft",
+        "Heading": 165
     },
     {
         "MissionId": "m1m61",
@@ -669,122 +689,13 @@
             9.7,
             8.1
         ],
-        "MapPath": [
-            [
-                617.3,
-                325.5
-            ],
-            [
-                633.8,
-                324.5
-            ],
-            [
-                637.5,
-                328.2
-            ],
-            [
-                641.4,
-                341.8
-            ],
-            [
-                646.2,
-                364.5
-            ],
-            [
-                647.5,
-                418.3
-            ],
-            [
-                602.5,
-                419.5
-            ],
-            [
-                602.3,
-                432.7
-            ],
-            [
-                590,
-                433.3
-            ],
-            [
-                565,
-                433.8
-            ],
-            [
-                522.5,
-                451.4
-            ],
-            [
-                525.2,
-                459.1
-            ],
-            [
-                514.2,
-                465.8
-            ],
-            [
-                517.5,
-                472.6
-            ],
-            [
-                512,
-                475.9
-            ],
-            [
-                511.2,
-                480.8
-            ],
-            [
-                502.2,
-                485.9
-            ],
-            [
-                485,
-                481.3
-            ],
-            [
-                477.3,
-                474.7
-            ],
-            [
-                453.8,
-                472.6
-            ],
-            [
-                447.5,
-                472.6
-            ],
-            [
-                443.2,
-                475.7
-            ],
-            [
-                440.7,
-                481.2
-            ],
-            [
-                438.4,
-                486.7
-            ],
-            [
-                438,
-                492.1
-            ],
-            [
-                437.9,
-                498.4
-            ],
-            [
-                438.1,
-                503.4
-            ],
-            [
-                438.1,
-                509.2
-            ]
+        "MapGoal": [
+            438.1,
+            509.2
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "CameraMaxHit": 4
+        "CameraMaxHit": 4,
+        "Heading": 180
     },
     {
         "MissionId": "m1m65",
@@ -943,7 +854,8 @@
             ]
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "NoEnsureInitialMovementState": true
+        "NoEnsureInitialMovementState": true,
+        "Heading": 270
     },
     {
         "MissionId": "m1m68",
@@ -957,41 +869,18 @@
             20.8,
             17.4
         ],
-        "MapPath": [
-            [
-                418.8,
-                321.4
-            ],
-            [
-                418.8,
-                327.6
-            ],
-            [
-                415,
-                327.6
-            ],
-            [
-                415,
-                321.3
-            ],
-            [
-                323.8,
-                321.3
-            ],
-            [
-                325,
-                377.7
-            ],
-            [
-                324.9,
-                403.8
-            ],
-            [
-                295.1,
-                403.8
-            ]
+        "MapGoal": [
+            295.1,
+            403.8
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "NoEnsureInitialMovementState": true
+        "NoEnsureInitialMovementState": true,
+        "Heading": 270,
+        "Replace": [
+            [
+                "椿",
+                "樁"
+            ]
+        ]
     }
 ]

@@ -31,6 +31,7 @@
             "備蓄施設周辺の生態環境",
             "보급소 주변의 생태 환경"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckEcologyNearTheFieldLogisticsDepotIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Field\\s*Logistics\\s*Depot\\s*Ecology",
             "備蓄施設周辺の生態環境の写真を撮る",
             "보급소 주변의 생태 환경을 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptEcologyNearTheFieldLogisticsDepot": {
         "desc": "接取储备站周围的生态环境委托",

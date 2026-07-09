@@ -323,7 +323,8 @@ void NavigationSession::ResetHardProgress()
     hard_progress_initialized_ = false;
 }
 
-void NavigationSession::ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos)
+void NavigationSession::ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos,
+                                            bool reset_hard_progress)
 {
     assert(continue_index <= original_path_.size() && "Dynamic overlay continue index is out of range.");
     current_path_ = std::move(generated_prefix);
@@ -335,7 +336,12 @@ void NavigationSession::ApplyDynamicOverlay(std::vector<Waypoint> generated_pref
     current_node_idx_ = 0;
     current_zone_id_ = pos.zone_id;
     ResetProgress();
-    ResetHardProgress();
+    // Skipped by the unstick replan: it re-applies to the SAME waypoint every recovery retry, so clearing the
+    // hard clock here would keep re-arming it and defeat the recovery timeout. A genuine waypoint change is
+    // re-baselined by ObserveHardProgress on its own, so the clock still tracks real progress either way.
+    if (reset_hard_progress) {
+        ResetHardProgress();
+    }
     LogInfo << "Dynamic route overlay applied." << VAR(generated_count) << VAR(continue_index) << VAR(current_path_.size())
             << VAR(pos.x) << VAR(pos.y) << VAR(pos.zone_id);
 }

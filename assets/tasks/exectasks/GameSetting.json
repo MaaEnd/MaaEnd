@@ -1,0 +1,73 @@
+{
+    "pretask": {
+        "exec": "agent/go-service",
+        "args": [
+            "--exetask",
+            "GameSetting"
+        ],
+        "name": "GameSetting",
+        "description": "$pretask.GameSetting.description",
+        "label": "$pretask.GameSetting.label",
+        "controller": [
+            "Win32-Front"
+        ],
+        "option": [
+            "GameSettingRegion",
+            "GameSettingDisplayType"
+        ]
+    },
+    "option": {
+        "GameSettingRegion": {
+            "label": "$option.GameSettingRegion.label",
+            "type": "select",
+            "default_case": "CN",
+            "cases": [
+                {
+                    "name": "CN",
+                    "label": "$option.GameSettingRegion.cases.CN.label"
+                },
+                {
+                    "name": "Global",
+                    "label": "$option.GameSettingRegion.cases.Global.label"
+                }
+            ]
+        },
+        "GameSettingDisplayType": {
+            "label": "$option.GameSettingDisplayType.label",
+            "type": "select",
+            "default_case": "Window",
+            "cases": [
+                {
+                    "name": "Window",
+                    "label": "$option.GameSettingDisplayType.cases.Window.label",
+                    "option": [
+                        "GameSettingResolution"
+                    ]
+                },
+                {
+                    "name": "Fullscreen",
+                    "label": "$option.GameSettingDisplayType.cases.Fullscreen.label",
+                    "option": [
+                        "GameSettingResolution"
+                    ]
+                }
+            ]
+        },
+        "GameSettingResolution": {
+            "label": "$option.GameSettingResolution.label",
+            "type": "select",
+            "default_case": "1280x720",
+            "cases": [
+                {
+                    "name": "1280x720"
+                },
+                {
+                    "name": "1920x1080"
+                },
+                {
+                    "name": "2560x1440"
+                }
+            ]
+        }
+    }
+}

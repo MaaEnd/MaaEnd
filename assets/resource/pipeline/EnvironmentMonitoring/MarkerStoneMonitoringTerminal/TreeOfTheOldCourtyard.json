@@ -31,6 +31,7 @@
             "「旧庭の木」",
             "옛 정원의 나무"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckTreeOfTheOldCourtyardIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*\"Tree\\s*of\\s*the\\s*Old\\s*Courtyard\"",
             "「旧庭の木」の写真を撮る",
             "'옛 정원의 나무'를 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptTreeOfTheOldCourtyard": {
         "desc": "接取旧庭树委托",

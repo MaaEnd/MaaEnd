@@ -31,6 +31,7 @@
             "古木",
             "고목"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckAncientTreeIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Ancient\\s*Tree\\s*in\\s*Lake",
             "水中から生えた古木の写真を撮る",
             "작은 웅덩이에서 자라는 고목을 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptAncientTree": {
         "desc": "接取古树委托",

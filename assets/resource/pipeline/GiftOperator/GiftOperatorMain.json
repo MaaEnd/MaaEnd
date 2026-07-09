@@ -69,6 +69,7 @@
     },
     "GiftOperatorLeave": {
         "desc": "点击离开",
+        "pre_wait_freezes": 300,
         "recognition": {
             "type": "OCR",
             "param": {

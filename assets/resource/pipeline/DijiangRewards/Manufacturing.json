@@ -139,8 +139,7 @@
                 "all_of": [
                     "YellowConfirmButtonType1",
                     "MFGCabinNeedTakeText"
-                ],
-                "box_index": 1
+                ]
             }
         },
         "pre_delay": 0,
@@ -246,8 +245,7 @@
                 "all_of": [
                     "YellowConfirmButtonType1",
                     "UseAssistText"
-                ],
-                "box_index": 1
+                ]
             }
         },
         "pre_wait_freezes": {
@@ -332,8 +330,7 @@
                 "all_of": [
                     "YellowConfirmButtonType1",
                     "YellowButtonConfirmText"
-                ],
-                "box_index": 1
+                ]
             }
         },
         "pre_wait_freezes": {

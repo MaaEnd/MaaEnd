@@ -489,7 +489,9 @@ bool AppendBlindTargetFallback(
         return false;
     }
 
-    if (!AppendGeneratedNavmeshWaypoints(approach.path, out_path, true)) {
+    const uint16_t approach_zone =
+        approach.triangles.empty() ? 0 : navmesh.planner.triangleZone(approach.triangles.front());
+    if (!AppendGeneratedNavmeshWaypoints(approach.path, out_path, true, false, &navmesh.planner, approach_zone)) {
         return false;
     }
     if (blind_gap > kWaypointArrivalSlack) {
@@ -527,7 +529,9 @@ bool AppendNavmeshWaypoint(
     }
 
     LogGeneratedNavmeshPath(state, request, route_result);
-    if (!AppendGeneratedNavmeshWaypoints(route_result.path, out_path, true)) {
+    const uint16_t drivable_zone =
+        route_result.triangles.empty() ? 0 : navmesh.planner.triangleZone(route_result.triangles.front());
+    if (!AppendGeneratedNavmeshWaypoints(route_result.path, out_path, true, false, &navmesh.planner, drivable_zone)) {
         LogError << "NAVMESH planning returned an empty path." << VAR(state.navmesh_zone);
         return false;
     }
@@ -706,6 +710,49 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     return route_result;
 }
 
+float NavmeshFloorYForZone(const NaviParam& param, const std::string& locator_zone)
+{
+    if (locator_zone.empty()) {
+        return navmesh::kBaseNavFloorYNone;
+    }
+    const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
+    if (navmesh_zone.empty()) {
+        return navmesh::kBaseNavFloorYNone;
+    }
+    const auto navmesh = LoadCachedNavmesh(ResolveNavmeshFile(param.navmesh_file), navmesh_zone);
+    if (!navmesh) {
+        return navmesh::kBaseNavFloorYNone;
+    }
+    return navmesh->pack.floorYForZoneName(locator_zone);
+}
+
+bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a, const std::string& zone_b)
+{
+    if (zone_a.empty() || zone_b.empty()) {
+        return false;
+    }
+    if (zone_a == zone_b) {
+        return true;
+    }
+    const std::string navmesh_zone = InferBaseNavZone(zone_a, param.map_name);
+    if (navmesh_zone.empty()) {
+        return false;
+    }
+    const auto navmesh = LoadCachedNavmesh(ResolveNavmeshFile(param.navmesh_file), navmesh_zone);
+    if (!navmesh) {
+        return false;
+    }
+    const auto geometry_id = [&navmesh](const std::string& name) -> int {
+        const navmesh::BaseNavZone* zone = navmesh->pack.findZoneByName(name);
+        if (zone == nullptr) {
+            return -1;
+        }
+        return navmesh::IsTierZone(*zone) ? static_cast<int>(zone->component_count) : static_cast<int>(zone->zone_id);
+    };
+    const int geom_a = geometry_id(zone_a);
+    return geom_a >= 0 && geom_a == geometry_id(zone_b);
+}
+
 double NavmeshOffMeshFraction(
     const NaviParam& param,
     const std::string& locator_zone,
@@ -840,7 +887,66 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshDetourRoute(
     return best;
 }
 
-bool AppendGeneratedNavmeshWaypoints(const navmesh::WorldPath& world_path, std::vector<Waypoint>& out_path, bool include_goal)
+std::optional<navmesh::WorldPoint> PlanUnstickTarget(
+    const NaviParam& param,
+    const NaviPosition& position,
+    double stuck_heading,
+    int attempt_index,
+    double* out_distance)
+{
+    const std::string navmesh_zone = InferBaseNavZone(position.zone_id, param.map_name);
+    if (navmesh_zone.empty()) {
+        return std::nullopt;
+    }
+    const std::filesystem::path navmesh_path = ResolveNavmeshFile(param.navmesh_file);
+    const auto navmesh = LoadCachedNavmesh(navmesh_path, navmesh_zone);
+    if (!navmesh) {
+        return std::nullopt;
+    }
+    const auto on_mesh = [&](const navmesh::WorldPoint& p) {
+        const auto proj = navmesh->pack.projectToBase(navmesh_zone, p.x, p.y);
+        if (!proj || proj->geometry_zone == nullptr) {
+            return true;
+        }
+        return navmesh->planner.pointOnMesh(proj->geometry_zone->zone_id, { .x = proj->x, .y = proj->y });
+    };
+
+    static constexpr double kFan[] = { 180.0, -135.0, 135.0, -90.0, 90.0 };
+    constexpr int kFanCount = static_cast<int>(sizeof(kFan) / sizeof(kFan[0]));
+    const int rot = ((attempt_index % kFanCount) + kFanCount) % kFanCount;
+
+    for (int i = 0; i < kFanCount; ++i) {
+        const double bearing = NaviMath::NormalizeHeading(stuck_heading + kFan[(i + rot) % kFanCount]);
+        double run = 0.0;
+        double longest = 0.0;
+        double solid_start = -1.0;  // distance where the trailing contiguous on-mesh stretch begins
+        for (double d = kUnstickSampleStepM; d <= kUnstickMaxDistanceM + 1e-9; d += kUnstickSampleStepM) {
+            if (on_mesh(OffsetPoint(position, bearing, d))) {
+                if (solid_start < 0.0) {
+                    solid_start = d;
+                }
+                run = 0.0;
+            }
+            else {
+                solid_start = -1.0;
+                run += kUnstickSampleStepM;
+                longest = std::max(longest, run);
+            }
+        }
+        if (solid_start >= 0.0 && longest <= kUnstickMaxRockCrossingM) {
+            const double dist = std::clamp(solid_start + kUnstickMeshMarginM, kUnstickMinDistanceM, kUnstickMaxDistanceM);
+            if (out_distance != nullptr) {
+                *out_distance = dist;
+            }
+            return OffsetPoint(position, bearing, dist);
+        }
+    }
+    return std::nullopt;
+}
+
+bool AppendGeneratedNavmeshWaypoints(
+    const navmesh::WorldPath& world_path, std::vector<Waypoint>& out_path, bool include_goal,
+    bool emit_interior_corners, const navmesh::BaseNavPlanner* drivability_planner, uint16_t drivable_zone_id)
 {
     if (world_path.points.empty()) {
         return false;
@@ -850,6 +956,35 @@ bool AppendGeneratedNavmeshWaypoints(const navmesh::WorldPath& world_path, std::
     const size_t total = world_path.points.size();
     const size_t loop_end = include_goal ? total : (total > 0 ? total - 1 : 0);
 
+    if (emit_interior_corners) {
+        for (size_t index = 1; index < loop_end; ++index) {
+            const navmesh::WorldPoint& point = world_path.points[index];
+            out_path.emplace_back(point.x, point.y, ActionType::RUN);
+            out_path.back().strict_arrival = false;
+        }
+        if (include_goal && total >= 2) {
+            const navmesh::WorldPoint& goal = world_path.points[total - 1];
+            out_path.emplace_back(goal.x, goal.y, ActionType::RUN);
+            out_path.back().strict_arrival = true;
+        }
+        return true;
+    }
+
+    size_t prev = 0; // the driven line starts at points[0] — the route origin / character's current position
+    const auto flush_leg_to = [&](size_t anchor, bool strict_arrival) {
+        if (drivability_planner != nullptr && anchor > prev + 1
+            && !drivability_planner->isRouteSegmentDrivable(
+                drivable_zone_id, world_path.points[prev], world_path.points[anchor])) {
+            for (size_t corner = prev + 1; corner < anchor; ++corner) {
+                out_path.emplace_back(world_path.points[corner].x, world_path.points[corner].y, ActionType::RUN);
+                out_path.back().strict_arrival = false;
+            }
+        }
+        out_path.emplace_back(world_path.points[anchor].x, world_path.points[anchor].y, ActionType::RUN);
+        out_path.back().strict_arrival = strict_arrival;
+        prev = anchor;
+    };
+
     for (size_t index = 1; index < loop_end; ++index) {
         if (!segment_breaks.contains(index)) {
             continue;
@@ -858,15 +993,11 @@ bool AppendGeneratedNavmeshWaypoints(const navmesh::WorldPath& world_path, std::
         if (emit_idx == 0) {
             continue;
         }
-        const navmesh::WorldPoint& point = world_path.points[emit_idx];
-        out_path.emplace_back(point.x, point.y, ActionType::RUN);
-        out_path.back().strict_arrival = true;
+        flush_leg_to(emit_idx, true);
     }
 
     if (include_goal && total >= 2) {
-        const navmesh::WorldPoint& goal = world_path.points[total - 1];
-        out_path.emplace_back(goal.x, goal.y, ActionType::RUN);
-        out_path.back().strict_arrival = true;
+        flush_leg_to(total - 1, true);
     }
 
     return true;

@@ -155,6 +155,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 | `MapName` / `MapAssert` / `MapPath` / `MapTarget` / `MapTargetTier` / `MapGoal` | `routes.json[*]`，对应落点复核与后续寻路参数；`MapPath` 生成 `MapTrackerAssertLocation` + `MapTrackerMove`，`MapTarget` 生成 `MapLocateAssertLocation` + `MapNavigateAction` 的 `NAVMESH` 目标点，`MapTargetTier` 可选生成 `target_tier`，`MapGoal` 生成 `MapTrackerAssertLocation` + `MapTrackerGoal`；`MapPath` / `MapTarget` / `MapGoal` 三者必须且只能选一个 |
 | `CameraSwipeDirection`                                                          | `routes.json[*]`，必须是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 之一                                                                                                                                                                                                                                                                             |
 | `CameraMaxHit`                                                                  | `routes.json[*].CameraMaxHit`，缺省为 `2`；对应 `${Id}AdjustCamera` 滑屏动作的最大命中次数                                                                                                                                                                                                                                                                       |
+| `OcrReplace`                                                                    | 由 `routes.json[*].Replace` 透传到 `Check${Id}Text.replace` 与 `In${Id}Mission.replace`；用于按任务配置任务列表和任务详情页 OCR 的易混字符替换，不影响路线是否已适配的判断                                                                                                                                                                                       |
 | `ExpectedText`                                                                  | 由 `kite_station_i18n.json` 的 `mission.name` 多语言 map 自动展开（5 语言，英文转柔性正则）                                                                                                                                                                                                                                                                      |
 | `InExpectedText`                                                                | 由 `kite_station_i18n.json` 的 `mission.shotTargetName` 自动展开                                                                                                                                                                                                                                                                                                 |
 | `TrackOrGoToNext` / `AfterTrackedNext`                                          | 由 `data.mjs` 根据路线是否完整自动决定：`TrackOrGoToNext` 收敛到 `Track${Id}` / `AlreadyTracked${Id}`，`AfterTrackedNext` 在已适配时为 `GoTo${Id}`、未适配时为 `${Id}NotAdapted`                                                                                                                                                                                 |
@@ -259,8 +260,9 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
     // "MapTarget": [x, y],             // MapNavigateAction 的 NAVMESH 目标点
     // "MapTargetTier": "ValleyIV_L1_171", // 可选；MapTarget 坐标所在的 target_tier，目标与起点不在同一 tier 时填写
     // "MapGoal": [x, y],               // MapTrackerGoal 目标点，生成时会自动使用 MapTrackerGoal
-    "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp" // 朝向调整方向
+    "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp", // 朝向调整方向
     // "CameraMaxHit": 2,  // 可选；滑屏最大命中次数，默认为 2；拍摄目标较难对准时可适当调大
+    // "Replace": [["売", "壳"]] // 可选；任务列表和任务详情页 OCR 易混字符替换
 }
 ```
 

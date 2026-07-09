@@ -25,6 +25,7 @@
             71
         ],
         "expected": "${ExpectedText}",
+        "replace": "${OcrReplace}",
         "order_by": "Vertical"
     },
     "Check${Id}Icon": {
@@ -108,7 +109,8 @@
             855,
             241
         ],
-        "expected": "${InExpectedText}"
+        "expected": "${InExpectedText}",
+        "replace": "${OcrReplace}"
     },
     "Accept${Id}": {
         "desc": "接取${Name}委托",

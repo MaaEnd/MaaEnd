@@ -103,6 +103,9 @@
                 ]
             }
         },
+        "action": {
+            "type": "Click"
+        },
         "next": [
             "CreditShoppingScanItem"
         ]

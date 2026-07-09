@@ -19,7 +19,8 @@ import (
 )
 
 // 时间单位与游戏一致：60fps，prepDuration=300，因此战斗 t=0 对应 frame 300。
-// 上层只看 ultimate / skill 两类动作，其余 type（link / attack 等）不进入派发队列。
+// 上层只看 ultimate / skill 两类动作；Endaxis 的 battleSkill 与 skill 等价派发。
+// 其余 type（link / attack / comboSkill 等）不进入派发队列。
 const (
 	timelineFrameBase = 300
 	timelineFPS       = 60.0
@@ -27,7 +28,7 @@ const (
 
 // EndAxisAction 是从时间轴中提取出的一个待派发的 ultimate/skill 动作。
 type EndAxisAction struct {
-	Type      string // "ultimate" | "skill"
+	Type      string // "ultimate" | "skill"（battleSkill 收集时已规范化为 skill）
 	TrackIdx  int    // 0..3，对应 scenario.data.tracks 的下标
 	StartTime int    // 帧（与 JSON 里 startTime 一致，基准 300）
 	Duration  int    // 帧
@@ -188,7 +189,7 @@ func decodeEndAxisShareCode(code string) ([]byte, error) {
 //  2. 对每个 scenario，逐个 track i ∈ [0, characterCount) 检查：若该 track 含 type==ultimate
 //     的 action，则对应角色编号 i+1 必须在 endSkillFull 列表中；任一项不满足则跳过该
 //     scenario，并通过 maafocus.PrintThrottle（3s）输出"终结技未充能完毕"的提示；
-//  3. scenario 内若没有任何 type==ultimate / skill 的 action（即没有可派发的动作），
+//  3. scenario 内若没有任何 type==ultimate / skill / battleSkill 的 action（即没有可派发的动作），
 //     也跳过该 scenario，并通过 maafocus.PrintThrottle（3s）输出"没有战技或终结技"的提示；
 //  4. 所有 scenario 都不满足时返回 false。
 //
@@ -407,16 +408,21 @@ func computeTimelineEndFrame(sc *timelineScenarioRaw) int {
 }
 
 // collectTimelineActions 从 scenario 的 4 条 track 中抽取所有 ultimate/skill 动作，
-// 并按 startTime 升序合并为一个全局派发队列。
+// 并按 startTime 升序合并为一个全局派发队列。battleSkill 与 skill 等价，统一为 skill。
 func collectTimelineActions(sc *timelineScenarioRaw) []EndAxisAction {
 	var out []EndAxisAction
 	for trackIdx, track := range sc.Data.Tracks {
 		for _, a := range track.Actions {
-			if a.Type != "ultimate" && a.Type != "skill" {
+			actionType := a.Type
+			switch actionType {
+			case "battleSkill":
+				actionType = "skill"
+			case "ultimate", "skill":
+			default:
 				continue
 			}
 			out = append(out, EndAxisAction{
-				Type:      a.Type,
+				Type:      actionType,
 				TrackIdx:  trackIdx,
 				StartTime: a.StartTime,
 				Duration:  a.Duration,

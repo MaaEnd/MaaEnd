@@ -24,17 +24,19 @@ jobs:
   maa-tools-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout repository
+        uses: actions/checkout@v6
         with:
           submodules: true
 
-      - uses: pnpm/action-setup@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
 
-      - name: Use Node
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
         with:
           node-version: 22
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -46,5 +48,60 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: logs
+          name: maa-tools-test-logs
           path: tests/maatools
+
+  map-tracker-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: "agent/go-service/go.mod"
+          cache-dependency-path: |
+            agent/go-service/go.mod
+            agent/go-service/go.sum
+
+      - name: Build and install
+        run: python -u tools/build_and_install.py --ci --os linux --arch x86_64 # without cpp-algo
+
+      - name: Download MaaFW runtime
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: MaaXYZ/MaaFramework
+          fileName: "MAA-linux-x86_64-*"
+          latest: true
+          out-file-path: "deps"
+          extract: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install MaaFW runtime
+        run: |
+          cp -r deps/bin/* install/maafw/
+          cp -r deps/share/MaaAgentBinary install/maafw/
+          rm -rf install/maafw/MaaNode*
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r ./tools/map_tracker/requirements.txt
+
+      - name: Run MapTracker test
+        run: python -u tools/map_tracker/map_tracker_tester.py batch_test -i ./tests/MaaEndTestset/Win32/Official_CN/map_tracker
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: map-tracker-test-logs
+          path: install/debug

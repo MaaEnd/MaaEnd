@@ -16,9 +16,9 @@
             }
         },
         "next": [
-            "__ScenePrivateLoginContinue",
             "[JumpBack]__ScenePrivateCloseLoginAnnouncement",
             "[JumpBack]__ScenePrivateCloseErrorDialog",
+            "__ScenePrivateLoginContinue",
             "__ScenePrivateLogin"
         ]
     },

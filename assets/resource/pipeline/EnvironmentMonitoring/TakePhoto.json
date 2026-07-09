@@ -64,12 +64,12 @@
         "threshold": 0.8,
         "action": "Click",
         "next": [
-            "EnterCameraModeKeyDown"
+            "EnterCameraModeKeyUp"
         ]
     },
-    "EnterCameraModeKeyDown": {
+    "EnterCameraModeKeyUp": {
         "desc": "进入拍照模式，退出按键",
-        "action": "KeyDown",
+        "action": "KeyUp",
         "key": 82, // R 0x52
         "next": [
             "EnvironmentMonitoringWaitShutterButton"

@@ -65,7 +65,8 @@ struct NavigationSession
     int64_t HardStalledMs(const std::chrono::steady_clock::time_point& now) const;
     void ResetHardProgress();
 
-    void ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos);
+    void ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos,
+                             bool reset_hard_progress = true);
 
     NaviPhase phase() const;
     void UpdatePhase(NaviPhase next_phase, const char* reason);

@@ -31,6 +31,12 @@
             "安思園の天師杭",
             "안사원의 천사장"
         ],
+        "replace": [
+            [
+                "椿",
+                "樁"
+            ]
+        ],
         "order_by": "Vertical"
     },
     "CheckSerenityGardenTianshiPillarIcon": {
@@ -120,6 +126,12 @@
             "(?i)Photo:\\s*Serenity\\s*Garden\\s*Tianshi\\s*Pillar",
             "安思園の天師杭の写真を撮る",
             "안사원의 천사장을 촬영하기"
+        ],
+        "replace": [
+            [
+                "椿",
+                "樁"
+            ]
         ]
     },
     "AcceptSerenityGardenTianshiPillar": {
@@ -241,43 +253,20 @@
     "GoToSerenityGardenTianshiPillarMove": {
         "desc": "自动寻路前往安思园的天师桩",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv004",
-            "path": [
-                [
-                    418.8,
-                    321.4
-                ],
-                [
-                    418.8,
-                    327.6
-                ],
-                [
-                    415,
-                    327.6
-                ],
-                [
-                    415,
-                    321.3
-                ],
-                [
-                    323.8,
-                    321.3
-                ],
-                [
-                    325,
-                    377.7
-                ],
-                [
-                    324.9,
-                    403.8
-                ],
-                [
-                    295.1,
-                    403.8
-                ]
+            "target": [
+                295.1,
+                403.8
             ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 270
+                }
+            },
             "no_ensure_initial_movement_state": true
         },
         "anchor": {

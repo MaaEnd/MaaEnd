@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	_ "image/png"
+	"math"
 	"os"
 	"runtime"
 	"sync"
@@ -118,19 +119,22 @@ func runMatchWorkers(workerCount int, fn func(workerID int)) {
 	wg.Wait()
 }
 
-func subpixelOffset(neg, pos float64) float64 {
-	wn := max(0.0, neg)
-	wp := max(0.0, pos)
-	wn2 := wn * wn
-	wp2 := wp * wp
-
-	sum := wn2 + wp2
-	if sum < 1e-12 {
+func subpixelOffset(neg, pivot, pos float64) float64 {
+	if pivot <= 0 || neg <= 0 || pos <= 0 || neg > pivot || pos > pivot {
 		return 0.0
 	}
 
-	offset := (wp2 - wn2) / sum
-	return min(1.0, max(-1.0, offset))
+	lnNeg := math.Log(neg)
+	lnCenter := math.Log(pivot)
+	lnPos := math.Log(pos)
+
+	// Gaussian interpolation
+	denom := 2.0 * (lnNeg + lnPos - 2.0*lnCenter)
+	if denom > -1e-12 {
+		return 0.0
+	}
+
+	return -(lnPos - lnNeg) / denom
 }
 
 // MatchTemplate performs template matching on the whole image,
@@ -244,10 +248,7 @@ func MatchTemplateInArea(
 		rightNCC = ComputeNCC(img, imgIntArr, tpl, tplStats, fx+1, fy)
 	}
 
-	subX := float64(fx) + subpixelOffset(leftNCC, rightNCC)
-	subY := float64(fy) + subpixelOffset(upNCC, downNCC)
-
-	return subX, subY, fm
+	return float64(fx) + subpixelOffset(leftNCC, fm, rightNCC), float64(fy) + subpixelOffset(upNCC, fm, downNCC), fm
 }
 
 // MatchTemplateInAreaWithMask performs template matching in a rectangular search area while ignoring template pixels of the mask color.
@@ -343,10 +344,7 @@ func MatchTemplateInAreaWithMask(
 	leftNCC := evalOr(fx-1, fy, fm)
 	rightNCC := evalOr(fx+1, fy, fm)
 
-	subX := float64(fx) + subpixelOffset(leftNCC, rightNCC)
-	subY := float64(fy) + subpixelOffset(upNCC, downNCC)
-
-	return subX, subY, fm
+	return float64(fx) + subpixelOffset(leftNCC, fm, rightNCC), float64(fy) + subpixelOffset(upNCC, fm, downNCC), fm
 }
 
 // BuildCircleMaskTemplate creates a template whose pixels outside the circle are filled with the mask color.
@@ -613,7 +611,7 @@ func subpixelNCCInMatrix(matrix [][]float64, x, y int, val float64) (float64, fl
 	if y+1 < len(matrix) {
 		downNCC = matrix[y+1][x]
 	}
-	return float64(x) + subpixelOffset(leftNCC, rightNCC), float64(y) + subpixelOffset(upNCC, downNCC)
+	return float64(x) + subpixelOffset(leftNCC, val, rightNCC), float64(y) + subpixelOffset(upNCC, val, downNCC)
 }
 
 func suppressNCCMatrix(matrix [][]float64, x, y, w, h int) {

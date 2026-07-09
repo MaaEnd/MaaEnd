@@ -31,6 +31,7 @@
             "倒れた天師杭",
             "무너진 천사장"
         ],
+        "replace": [],
         "order_by": "Vertical"
     },
     "CheckCollapsedTianshiPillarIcon": {
@@ -120,7 +121,8 @@
             "(?i)Photo:\\s*Collapsed\\s*Tianshi\\s*Pillar",
             "倒れた天師杭の写真を撮る",
             "무너진 천사장을 촬영하기"
-        ]
+        ],
+        "replace": []
     },
     "AcceptCollapsedTianshiPillar": {
         "desc": "接取倒塌的天师桩委托",
