@@ -313,6 +313,9 @@
         ],
         "next": [
             "ItemTransferCtrlKeyUpRepo"
+        ],
+        "on_error": [
+            "ItemTransferReleaseCtrlOnError"
         ]
     },
     "ItemTransferCtrlKeyUpRepo": {
@@ -487,6 +490,9 @@
         ],
         "next": [
             "ItemTransferCtrlKeyUpBag"
+        ],
+        "on_error": [
+            "ItemTransferReleaseCtrlOnError"
         ]
     },
     "ItemTransferCtrlKeyUpBag": {
@@ -684,6 +690,9 @@
         ],
         "next": [
             "ItemTransferCtrlKeyUpBagReturn"
+        ],
+        "on_error": [
+            "ItemTransferReleaseCtrlOnError"
         ]
     },
     "ItemTransferCtrlKeyUpBagReturn": {
@@ -751,6 +760,14 @@
         "focus": {
             "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_stash_completed"
         }
+    },
+    "ItemTransferReleaseCtrlOnError": {
+        "desc": "Ctrl 批量转移链路的异常清理：中间点击失败时释放 Ctrl，避免修饰键残留到后续任务",
+        "action": "KeyUp",
+        "key": 17,
+        "next": [
+            "ItemTransferStop"
+        ]
     },
     "ItemTransferStop": {
         "action": "StopTask"
