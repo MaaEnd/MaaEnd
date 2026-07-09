@@ -662,7 +662,8 @@
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInBagReturn",
-            "ItemTransferFindItemFallbackBagReturn"
+            "ItemTransferFindItemFallbackBagReturn",
+            "ItemTransferBagReturnCompleted"
         ]
     },
     "ItemTransferCtrlKeyDownBagReturn": {
@@ -688,8 +689,67 @@
     "ItemTransferCtrlKeyUpBagReturn": {
         "action": "KeyUp",
         "key": 17,
+        "next": [
+            "ItemTransferCheckIfFullReturn",
+            "ItemTransferBagReturnCompleted"
+        ]
+    },
+    "ItemTransferCheckIfFullReturn": {
+        "recognition": "OCR",
+        "roi": [
+            493,
+            112,
+            291,
+            20
+        ],
+        "expected": [
+            "已充满",
+            "已充滿",
+            "(?i)Full",
+            "FULL",
+            "已满",
+            "已満"
+        ],
+        "next": [
+            "ItemTransferClickQuickStashReturn",
+            "ItemTransferBagReturnManualCleanup"
+        ]
+    },
+    "ItemTransferClickQuickStashReturn": {
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            871,
+            472,
+            162,
+            125
+        ],
+        "template": [
+            "StashBackpack/QuickStash.png"
+        ],
+        "order_by": "Score",
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferBagReturnStashCompleted"
+        ]
+    },
+    "ItemTransferBagReturnCompleted": {
+        "action": "StopTask",
         "focus": {
             "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_completed"
+        }
+    },
+    "ItemTransferBagReturnManualCleanup": {
+        "action": "StopTask",
+        "focus": {
+            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_manual_cleanup"
+        }
+    },
+    "ItemTransferBagReturnStashCompleted": {
+        "action": "StopTask",
+        "focus": {
+            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_stash_completed"
         }
     },
     "ItemTransferStop": {
@@ -771,9 +831,10 @@
             "side": "bag",
             "max_distance": 1
         },
-        "focus": {
-            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_completed"
-        }
+        "next": [
+            "ItemTransferCheckIfFullReturn",
+            "ItemTransferBagReturnCompleted"
+        ]
     },
     "ItemTransferFindItemFallback": {
         "desc": "NND 兜底：hover + OCR + 二分法查找（仓库侧）",
@@ -812,8 +873,9 @@
             "side": "bag",
             "max_distance": 1
         },
-        "focus": {
-            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_completed"
-        }
+        "next": [
+            "ItemTransferCheckIfFullReturn",
+            "ItemTransferBagReturnCompleted"
+        ]
     }
 }

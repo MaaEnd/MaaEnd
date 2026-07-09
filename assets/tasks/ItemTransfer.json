@@ -11,6 +11,7 @@
                 "TransferAll",
                 "OriginRegion",
                 "DestinationRegion",
+                "ItemTransferStashBackpackWhenBothFull",
                 "ItemTransferStashBackpack"
             ],
             "controller": [
@@ -3916,6 +3917,25 @@
                     "option": [
                         "StashBackpackType"
                     ]
+                }
+            ]
+        },
+        "ItemTransferStashBackpackWhenBothFull": {
+            "type": "switch",
+            "label": "$option.ItemTransferStashBackpackWhenBothFull.label",
+            "description": "$option.ItemTransferStashBackpackWhenBothFull.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ItemTransferClickQuickStashReturn": {
+                            "enabled": true
+                        }
+                    }
                 }
             ]
         }
