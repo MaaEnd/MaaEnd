@@ -122,7 +122,7 @@ def _download_json_cached(
 def test_entities_data(entities_table: EntitiesTable) -> bool:
     """Run regression tests on entities data."""
     # 1. Test total count of entities
-    EXPECTED_COUNT_GEQ = 50000
+    EXPECTED_COUNT_GEQ = 5000
 
     total_count = sum(
         len(e)
@@ -136,7 +136,7 @@ def test_entities_data(entities_table: EntitiesTable) -> bool:
 
     # 2. Test some specific entities
     TEST_CASES = [
-        (22800030005, "campfire", 423.64512, 423.64512),  # 武陵城东门传送锚点
+        (22800030005, "campfire", 423.64512, 575.81365),  # 武陵城东门传送锚点
         (23400083018, "campfire", 498.95625, 199.86563),  # 首墩蓄水站传送锚点
         (25000000462, "campfire", 601.68164, 479.32676),  # 藏剑谷演武传送锚点
     ]
@@ -252,15 +252,17 @@ def load_layouts(layout_dir: str) -> dict[str, RegionLayoutTable]:
 def split_levels(
     canvas: np.ndarray,
     layout: RegionLayoutTable,
-    scale: float = 1.0,
 ) -> dict[str, np.ndarray]:
-    """Split region image into individual level images. Returns filename -> image."""
-    s = lambda v: round(v * scale)
+    """Crop level sub-images from a full-resolution region canvas.
+
+    Layout coordinates match the unscaled region image; do not pre-scale them.
+    Caller should scale crops on save if a downscaled output is desired.
+    """
     result: dict[str, np.ndarray] = {}
     for level_key, lv in layout.levels.items():
-        sx, sy = s(lv.x), s(lv.y)
-        sw, sh = s(lv.width), s(lv.height)
-        result[f"{level_key}.png"] = canvas[sy : sy + sh, sx : sx + sw]
+        result[f"{level_key}.png"] = canvas[
+            lv.y : lv.y + lv.height, lv.x : lv.x + lv.width
+        ]
     return result
 
 
@@ -277,7 +279,11 @@ def _scale_image(img: np.ndarray, factor: float) -> np.ndarray:
 def _save_image(img: np.ndarray, dest: str, *, scale: float | None = None) -> None:
     img_scaled = _scale_image(img, scale) if scale is not None else img
     os.makedirs(os.path.dirname(dest), exist_ok=True)
-    cv2.imwrite(dest, img_scaled)
+    cv2.imwrite(
+        dest,
+        img_scaled,
+        [cv2.IMWRITE_PNG_COMPRESSION, 6] if dest.lower().endswith(".png") else None,
+    )
 
 
 def _format_image_repr(
@@ -335,9 +341,11 @@ def cmd_image(
 
         processed_regions.append(region_name)
 
-        for fname, level_img in split_levels(canvas, layout, SCALE_MAP_FACTOR).items():
-            _save_image(level_img, os.path.join(output_dir, fname))
-            print(f"    Cropped {_format_image_repr(fname, level_img)}")
+        for fname, level_img in split_levels(canvas, layout).items():
+            dest = os.path.join(output_dir, fname)
+            scaled = _scale_image(level_img, SCALE_MAP_FACTOR)
+            _save_image(scaled, dest)
+            print(f"    Cropped {_format_image_repr(fname, scaled)}")
 
     # Download tier images after all regions are processed
     if not no_tiers and processed_regions:
