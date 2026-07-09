@@ -129,6 +129,50 @@ def _download_json_cached(
 # ── json subcommand ───────────────────────────────────────────────────────────
 
 
+def test_entities_data(entities_table: EntitiesTable) -> bool:
+    """Run regression tests on entities data."""
+    # 1. Test total count of entities
+    EXPECTED_COUNT_GEQ = 50000
+
+    total_count = sum(
+        len(e)
+        for r in entities_table.regions.values()
+        for l in r.levels.values()
+        for e in l.categories.values()
+    )
+    if total_count < EXPECTED_COUNT_GEQ:
+        print(f"  {_Y}Entities: total entities quantity {total_count} is too small{_0}")
+        return False
+
+    # 2. Test some specific entities
+    TEST_CASES = [
+        (22800030005, "campfire", 423.64512, 423.64512),  # 武陵城东门传送锚点
+        (23400083018, "campfire", 498.95625, 199.86563),  # 首墩蓄水站传送锚点
+        (25000000462, "campfire", 601.68164, 479.32676),  # 藏剑谷演武传送锚点
+    ]
+
+    for case in TEST_CASES:
+        entity_id, expected_key_contains, expected_x, expected_y = case
+        entity = entities_table.find_entity_by_id(entity_id)
+        if entity is None:
+            print(f"  {_Y}Entities: test entity {entity_id} not found{_0}")
+            return False
+        if expected_key_contains not in entity.key_name:
+            print(
+                f"  {_Y}Entities: test entity {entity_id} key name mismatch: "
+                f"expected to contain '{expected_key_contains}', got '{entity.key_name}'{_0}"
+            )
+            return False
+        got_x, got_y = entity.map_location
+        if abs(got_x - expected_x) > 0.1 or abs(got_y - expected_y) > 0.1:
+            print(
+                f"  {_Y}Entities: test entity {entity_id} position mismatch: "
+                f"expected ({expected_x}, {expected_y}), got ({got_x}, {got_y}){_0}"
+            )
+            return False
+    return True
+
+
 def cmd_json(output_dir: str, use_cache: bool = False) -> None:
     """Download version, layout, and grid_tiers JSON to output_dir."""
     os.makedirs(output_dir, exist_ok=True)
@@ -163,15 +207,14 @@ def cmd_json(output_dir: str, use_cache: bool = False) -> None:
         raise SystemExit(1)
 
     entities_table = EntitiesTable.load(entities_dest)
-    total = sum(
-        len(e)
-        for r in entities_table.regions.values()
-        for l in r.levels.values()
-        for e in l.categories.values()
-    )
-    print(
-        f"  {_G}Entities: {_C}{total}{_G} entries across {_C}{len(entities_table.regions)}{_G} regions{_0}"
-    )
+    print(f"  {_G}Entities: totally {_C}{len(entities_table.regions)}{_G} regions{_0}")
+    if test_entities_data(entities_table):
+        print(f"  {_G}Entities: data passed regression tests{_0}")
+    else:
+        print(f"  {_R}Entities: data failed regression tests{_0}")
+        print(f"    {_Y}Source URL:{_0} {entities_url}")
+        print(f"    {_Y}Please report this issue to the upstream data provider{_0}")
+        raise SystemExit(1)
 
     # Download grid_tiers first to discover region names
     print(f"  Downloading grid_tiers...")
