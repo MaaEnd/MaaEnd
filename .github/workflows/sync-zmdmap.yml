@@ -21,6 +21,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -28,7 +29,7 @@ jobs:
 
       - name: Download JSON data
         run: |
-          python3 tools/map_tracker/map_fetcher.py json -o assets/data/ZmdMap
+          python3 -u tools/map_tracker/map_fetcher.py json -o assets/data/ZmdMap
 
       - name: Get version info
         id: version
@@ -126,6 +127,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -134,7 +136,7 @@ jobs:
 
       - name: Download JSON data
         run: |
-          python3 tools/map_tracker/map_fetcher.py json -o .cache/data
+          python3 -u tools/map_tracker/map_fetcher.py json -o .cache/data
 
       - name: Get version info
         id: version
@@ -146,15 +148,15 @@ jobs:
 
       - name: Download map images
         run: |
-          python3 tools/map_tracker/map_fetcher.py image -i .cache/data -o .cache/images
+          python3 -u tools/map_tracker/map_fetcher.py image -i .cache/data -o .cache/images
 
       - name: Generate level maps
         run: |
-          python3 tools/map_tracker/map_generator.py distinguish_levels -i .cache/images -o .cache/final --layout-dir .cache/data
+          python3 -u tools/map_tracker/map_generator.py distinguish_levels -i .cache/images -o .cache/final --layout-dir .cache/data
 
       - name: Generate tier maps
         run: |
-          python3 tools/map_tracker/map_generator.py tidy_tiers -i .cache/images -o .cache/final
+          python3 -u tools/map_tracker/map_generator.py tidy_tiers -i .cache/images -o .cache/final
 
       - name: Copy images to assets
         run: |
@@ -162,7 +164,7 @@ jobs:
 
       - name: Generate bbox data
         run: |
-          python3 tools/map_tracker/map_generator.py bbox -i assets/resource/image/MapTracker/map -o assets/data/MapTracker
+          python3 -u tools/map_tracker/map_generator.py bbox -i assets/resource/image/MapTracker/map -o assets/data/MapTracker
 
       - name: Setup oxipng
         uses: baptiste0928/cargo-install@v3

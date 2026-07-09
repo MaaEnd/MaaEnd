@@ -27,8 +27,17 @@ class APIEndpoint(NamedTuple):
     re_url: str  # Reversed string for anti searching purposes
     file_name: str
 
-    def format(self, **kwargs) -> str:
-        return self.re_url[::-1].format(**kwargs)
+    def format(self, *, append_query: bool = True, **kwargs) -> str:
+        result = self.re_url[::-1].format(**kwargs)
+        if append_query:
+            from datetime import datetime, timezone
+
+            assert "?" not in result, "URL already has query parameters"
+            result += (
+                f"?source=MaaEnd"
+                f"&t={datetime.now(timezone.utc).strftime('%Y%m%d%H%M00')}"
+            )
+        return result
 
 
 VERSION_API = APIEndpoint(
@@ -77,7 +86,11 @@ Groups:
 """
 
 
-def _save_json(data: dict, dest: str) -> None:
+def _save_json(data: dict | list, dest: str, *, sort_dict: bool) -> None:
+    if isinstance(data, dict) and sort_dict:
+        data = dict(sorted(data.items()))
+    elif not isinstance(data, list):
+        raise ValueError(f"Data must be a dict or list, got {type(data)}")
     with open(dest, "w", encoding="utf-8") as f:
         json_str = json.dumps(data, ensure_ascii=False, indent=2)
         f.write(json_str)
@@ -93,14 +106,23 @@ def _scale_image(img: np.ndarray, factor: float) -> np.ndarray:
     )
 
 
-def _download_json_cached(url: str, dest: str, use_cache: bool = False) -> bool:
-    """Download JSON from url to dest. Skips download if use_cache and file exists."""
+def _download_json_cached(
+    url: str,
+    dest: str,
+    use_cache: bool = False,
+    sort_dict: bool = True,
+) -> bool:
+    """Download JSON from a remote URL to local destination.
+
+    Skips download if use_cache and file exists.
+    If sort_dict, the JSON will be saved with sorted top layer keys.
+    """
     if use_cache and os.path.exists(dest):
         return True
     data = download_json(url)
     if data is None:
         return False
-    _save_json(data, dest)
+    _save_json(data, dest, sort_dict=sort_dict)
     return True
 
 
@@ -122,7 +144,7 @@ def cmd_json(output_dir: str, use_cache: bool = False) -> None:
         if ver_raw is None:
             print(f"  {_R}Failed to fetch version{_0}")
             raise SystemExit(1)
-        _save_json(ver_raw, ver_dest)
+        _save_json(ver_raw, ver_dest, sort_dict=True)
 
     ver_list = ver_raw.get("data", {}).get("list", [])
     if not ver_list:
