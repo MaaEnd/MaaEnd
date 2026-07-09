@@ -182,6 +182,8 @@
     "task.AutoEssence.focus.essence_filter_after_battle_start": "기질을 인식했습니다. 유효한 기질 필터링 및 잠금을 시작합니다.",
     "task.AutoEssence.focus.essence_filter_after_battle_init_succeeded": "초기화가 완료되었습니다.",
     "task.PuzzleSolver.label": "🧩 퍼즐 해결",
+    "task.SwitchTeam.label": "🔄 편성 전환",
+    "option.SwitchTeamTeamChoose.label": "팀 선택",
     "task.PuzzleSolver.description": "퍼즐 미니게임을 자동으로 해결해 줍니다. 더 이상 생각할 필요가 없습니다!",
     "task.PullCountCalculator.label": "🧮 모집 횟수 계산",
     "task.PullCountCalculator.description": "오퍼레이터 모집 화면의 상단 자원 바를 읽고 귀중품 보관함의 모집권도 스캔해 현재 풀과 다음 버전 풀 모집 횟수를 계산합니다. 먼저 대상 모집 화면으로 이동해 주세요.",

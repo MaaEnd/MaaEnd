@@ -186,6 +186,8 @@
     "task.AutoEssence.focus.essence_filter_after_battle_start": "Essence detected. Start filtering and locking useful ones.",
     "task.AutoEssence.focus.essence_filter_after_battle_init_succeeded": "Initialization completed.",
     "task.PuzzleSolver.label": "🧩 Solve Puzzle",
+    "task.SwitchTeam.label": "🔄 Switch Team",
+    "option.SwitchTeamTeamChoose.label": "Select Team",
     "task.PuzzleSolver.description": "Automatically solve puzzle mini-games for you. No need to think anymore!",
     "task.PullCountCalculator.label": "🧮 Pull Count Calculator",
     "task.PullCountCalculator.description": "Read the top resource bar on the Operator Recruitment screen, then scan recruitment vouchers in Valuables to estimate current and next-version pulls. Switch to the target recruitment page first.",

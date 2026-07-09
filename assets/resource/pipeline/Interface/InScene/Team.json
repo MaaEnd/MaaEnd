@@ -1,0 +1,20 @@
+{
+    "InTeam": {
+        "desc": "在编队菜单",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    100,
+                    100
+                ],
+                "template": [
+                    "ProtocolSpace/TeamChooseIcon.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    }
+}

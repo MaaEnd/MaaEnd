@@ -186,6 +186,8 @@
     "task.AutoEssence.focus.essence_filter_after_battle_start": "识别到基质，开始筛选并锁定有用的",
     "task.AutoEssence.focus.essence_filter_after_battle_init_succeeded": "初始化完成",
     "task.PuzzleSolver.label": "🧩解拼图",
+    "task.SwitchTeam.label": "🔄切换编队",
+    "option.SwitchTeamTeamChoose.label": "选择队伍",
     "task.PuzzleSolver.description": "自动帮你通关拼图小游戏，太好了不用自己动脑子了.jpg",
     "task.PullCountCalculator.label": "🧮抽数计算",
     "task.PullCountCalculator.description": "从干员寻访界面读取顶部资源栏，再进入贵重品库扫描寻访券，估算当前池和下版本池子抽数。请先手动切到目标寻访页面。",

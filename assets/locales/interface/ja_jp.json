@@ -182,6 +182,8 @@
     "task.AutoEssence.focus.essence_filter_after_battle_start": "基質を検出。有用な基質の絞り込みとロックを開始します。",
     "task.AutoEssence.focus.essence_filter_after_battle_init_succeeded": "初期化が完了しました。",
     "task.PuzzleSolver.label": "🧩 パズル解決",
+    "task.SwitchTeam.label": "🔄 編成切替",
+    "option.SwitchTeamTeamChoose.label": "チーム選択",
     "task.PuzzleSolver.description": "パズルミニゲームを自動で解決します。もう考える必要はありません！",
     "task.PullCountCalculator.label": "🧮 スカウト回数計算",
     "task.PullCountCalculator.description": "オペレーター募集画面の上部リソース欄を読み取り、貴重品庫のスカウト券もスキャンして、現在と次バージョンのスカウト回数を見積もります。先に対象の募集ページへ移動してください。",
