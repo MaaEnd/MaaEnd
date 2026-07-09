@@ -83,8 +83,15 @@ func (r *DailyEventUnreadItemInitRecognition) Run(ctx *maa.Context, arg *maa.Cus
 			continue
 		}
 
+		itemBox := ocrResult.Box
+		// 识别时某些item是选中状态，比较宽，来回点击可能在非选中状态点不上，因此宽缩短一点
 		items = append(items, dailyEventUnreadItem{
-			Box:  ocrResult.Box,
+			Box: maa.Rect{
+				itemBox.X(),
+				itemBox.Y(),
+				itemBox.Width() * 2 / 3,
+				itemBox.Height(),
+			},
 			Text: ocrResult.Text,
 		})
 		log.Debug().
