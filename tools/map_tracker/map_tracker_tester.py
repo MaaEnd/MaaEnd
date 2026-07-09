@@ -683,18 +683,6 @@ def _print_inference_matrix(
     _print_distribution("Confidence Distribution:", confidences, f">6.3f")
 
 
-def _print_time_distributions(
-    full_search_times: list[float], fast_search_times: list[float]
-) -> None:
-    """Prints internal MapTracker inference time percentiles in milliseconds."""
-    _print_distribution(
-        "Full Search Time Distribution (ms):", full_search_times, f">6.1f"
-    )
-    _print_distribution(
-        "Fast Search Time Distribution (ms):", fast_search_times, f">6.1f"
-    )
-
-
 def _maybe_output_ci_error(msg: str) -> None:
     """Prints a message to stderr if running in CI."""
     if os.environ.get("GITHUB_ACTIONS") == "true":
@@ -847,7 +835,12 @@ def cmd_batch_test(input_dir: str, precision: float = _BATCH_PRECISION) -> None:
     _print_inference_matrix(
         "Location Inference", loc_passed_count, loc_failed_count, loc_confidences
     )
-    _print_time_distributions(full_search_times, fast_search_times)
+    _print_distribution(
+        "Full Search Time Distribution (ms):", full_search_times, f">6.1f"
+    )
+    _print_distribution(
+        "Fast Search Time Distribution (ms):", fast_search_times, f">6.1f"
+    )
     _print_inference_matrix(
         "Rotation Inference", rot_passed_count, rot_failed_count, rot_confidences
     )
