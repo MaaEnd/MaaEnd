@@ -5,14 +5,14 @@ import (
 	"runtime"
 	"runtime/debug"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/exetask"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/parentwatch"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/rs/zerolog/log"
 )
 
-const usage = "Usage: go-service <identifier> | go-service --exetask <taskname> [args...]"
+const usage = "Usage: go-service <identifier> | go-service --pretask <taskname> [args...]"
 
 func main() {
 	if _, ok := os.LookupEnv("GOTRACEBACK"); !ok {
@@ -73,8 +73,8 @@ func main() {
 	}
 
 	switch os.Args[1] {
-	case "--exetask":
-		exetask.Run(os.Args[2:])
+	case "--pretask":
+		pretask.Run(os.Args[2:])
 	default:
 		runAgent(os.Args[1])
 	}

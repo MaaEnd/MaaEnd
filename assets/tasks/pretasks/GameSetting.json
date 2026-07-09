@@ -2,7 +2,7 @@
     "pretask": {
         "exec": "agent/go-service",
         "args": [
-            "--exetask",
+            "--pretask",
             "GameSetting"
         ],
         "name": "GameSetting",
