@@ -184,14 +184,14 @@ class DistinMapPage:
             print(f"    {_C}{nm}{_0} -> ({x}, {y})")
         canvas = self._composite_canvas(maps, positions, canvas_h, canvas_w)
 
-        # --- Remove islands ---
+        # Remove islands
         maps = self._remove_islands(maps)
 
         # Recomposite canvas after island removal
         canvas = self._composite_canvas(maps, positions, canvas_h, canvas_w)
 
-        # --- Automatic split: separates overlapping maps with graph cuts ---
-        self._auto_split(group_key, maps, positions, names_list, canvas)
+        # Automatic split: separates overlapping maps with graph cuts
+        self._auto_split(maps, positions, names_list, canvas)
 
     @staticmethod
     def _brightness_weight(gray: np.ndarray) -> np.ndarray:
@@ -287,7 +287,6 @@ class DistinMapPage:
 
     def _auto_split(
         self,
-        group_key: str,
         maps: Dict[str, np.ndarray],
         positions: Dict[str, Tuple[int, int]],
         names_list: List[str],
@@ -328,7 +327,6 @@ class DistinMapPage:
         if not overlap.any():
             print(f"    {_G}No overlaps, exporting maps as-is.{_0}")
             self._export_split_maps(
-                group_key,
                 maps,
                 positions,
                 names_list,
@@ -433,23 +431,15 @@ class DistinMapPage:
         ownership_masks = [(owner == i).astype(np.uint8) for i in range(n_maps)]
         print(f"    {_G}Auto split complete.{_0}")
         self._export_split_maps(
-            group_key,
-            maps,
-            positions,
-            names_list,
-            ownership_masks,
-            canvas,
-            weights,
+            maps, positions, names_list, ownership_masks, canvas, weights
         )
 
     def _remove_islands(self, maps: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
         """Remove island pixels from each map.
 
-        For each map, land pixels connected to the center region (within
-        5% of width/height from the center) are kept as the "continent".
-        All other disconnected land clusters are considered islands —
-        typically fragments of neighboring maps captured at the edge —
-        and are set to black.
+        For each map, land pixels connected to the center region (within 5%
+        of width/height from the center) are kept as the "continent".
+        All other disconnected land clusters are considered islands and set to black.
         """
         print(f"\n  {_G}Removing islands...{_0}")
         result: Dict[str, np.ndarray] = {}
@@ -458,7 +448,7 @@ class DistinMapPage:
             h, w = img.shape[:2]
             land = self._content_mask(img).astype(np.uint8)
 
-            # Connected components (4-connectivity)
+            # Connected components
             n_labels, labels = cv2.connectedComponents(land, connectivity=4)
 
             # Center region: 5% margin around center
@@ -500,247 +490,8 @@ class DistinMapPage:
 
         return result
 
-    def _manual_split(
-        self,
-        group_key: str,
-        maps: Dict[str, np.ndarray],
-        positions: Dict[str, Tuple[int, int]],
-        names_list: List[str],
-        canvas: np.ndarray,
-    ) -> None:
-        """Let the user draw barriers to split overlapping regions, then propagate ownership.
-
-        All logic works on binary land masks (gray > 1). Pixel colors are only
-        used at the final export step.
-
-        Controls:
-          Left drag       draw barrier
-          Right drag      erase barrier
-          ENTER           confirm and export
-          ESC             skip (each map retains its full land, overlap not split)
-        """
-        print(f"\n  {_G}Manual split mode{_0}")
-
-        canvas_h, canvas_w = canvas.shape[:2]
-        n_maps = len(names_list)
-
-        # ------------------------------------------------------------------
-        # Step 1: Pre-compute binary land masks on canvas for every map.
-        # Each mask is dilated so that thin peninsulas / isolated edge pixels
-        # are connected to the main body and do not appear as stray dots.
-        # ------------------------------------------------------------------
-        _land_dil_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-        land_masks: List[np.ndarray] = []  # each: bool (canvas_h, canvas_w)
-        for nm in names_list:
-            img = maps[nm]
-            px, py = positions[nm]
-            h, w = img.shape[:2]
-            m = np.zeros((canvas_h, canvas_w), dtype=np.uint8)
-            ey = min(py + h, canvas_h)
-            ex = min(px + w, canvas_w)
-            bin_local = self._content_mask(img)[: ey - py, : ex - px].astype(np.uint8)
-            m[py:ey, px:ex] = bin_local
-            # Dilate to close small gaps & connect isolated edge pixels
-            m = cv2.dilate(m, _land_dil_kernel, iterations=2)
-            land_masks.append(m.astype(bool))
-
-        # overlap[y,x] = True  ↔  land in 2+ maps
-        any_land = np.zeros((canvas_h, canvas_w), dtype=bool)
-        multi_hit = np.zeros((canvas_h, canvas_w), dtype=bool)
-        for m in land_masks:
-            multi_hit |= any_land & m
-            any_land |= m
-        overlap = multi_hit  # pixels that need splitting
-
-        if not overlap.any():
-            print(f"    {_G}No overlaps, exporting maps as-is.{_0}")
-            fin = [m.astype(np.uint8) for m in land_masks]
-            self._export_split_maps(group_key, maps, positions, names_list, fin, canvas)
-            return
-
-        print(f"    Overlap pixels: {np.count_nonzero(overlap)}")
-
-        # owner[y,x]:  -1 = non-land,  -2 = unresolved overlap,  i = map i
-        owner = np.full((canvas_h, canvas_w), -1, dtype=np.int16)
-        for i, m in enumerate(land_masks):
-            exclusive = m & ~overlap
-            owner[exclusive] = i
-        owner[overlap] = -2
-
-        print("  You're now drawing manual splitting barriers.")
-        print("    LDrag=draw  RDrag=erase  ENTER=confirm  ESC=skip")
-
-        # ------------------------------------------------------------------
-        # Step 2: Interactive barrier drawing (works on canvas coordinates)
-        # ------------------------------------------------------------------
-        barrier = np.zeros((canvas_h, canvas_w), dtype=np.uint8)
-
-        # Pre-compute scaled base image (done once, not every frame)
-        s = min(self.window_w / canvas_w, self.window_h / canvas_h, 1.0)
-        dw, dh = int(canvas_w * s), int(canvas_h * s)
-        ox = (self.window_w - dw) // 2
-        oy = (self.window_h - dh) // 2
-
-        base_rgb = canvas[:, :, :3].astype(np.float32)
-        base_rgb[overlap] = (
-            base_rgb[overlap] * 0.35 + np.array([255, 140, 0], np.float32) * 0.65
-        )
-        base_scaled = cv2.resize(
-            np.clip(base_rgb, 0, 255).astype(np.uint8),
-            (dw, dh),
-            interpolation=cv2.INTER_AREA,
-        )
-
-        drawing = [False]
-        erasing = [False]
-        last_pt: List[Tuple[int, int] | None] = [None]
-
-        def to_canvas_pt(mx: int, my: int) -> Tuple[int, int]:
-            return int((mx - ox) / s), int((my - oy) / s)
-
-        def mouse_cb(event, mx, my, flags, _param):
-            cx, cy = to_canvas_pt(mx, my)
-            if event == cv2.EVENT_LBUTTONDOWN:
-                drawing[0] = True
-                last_pt[0] = (cx, cy)
-                cv2.circle(barrier, (cx, cy), 1, 1, -1)
-            elif event == cv2.EVENT_RBUTTONDOWN:
-                erasing[0] = True
-                last_pt[0] = (cx, cy)
-                cv2.circle(barrier, (cx, cy), 1, 0, -1)
-            elif event == cv2.EVENT_MOUSEMOVE:
-                if drawing[0] and last_pt[0]:
-                    cv2.line(barrier, last_pt[0], (cx, cy), 1, 3)
-                    last_pt[0] = (cx, cy)
-                elif erasing[0] and last_pt[0]:
-                    cv2.line(barrier, last_pt[0], (cx, cy), 0, 3)
-                    last_pt[0] = (cx, cy)
-            elif event in (cv2.EVENT_LBUTTONUP, cv2.EVENT_RBUTTONUP):
-                drawing[0] = erasing[0] = False
-                last_pt[0] = None
-
-        # Pre-allocated display frame
-        frame = np.zeros((self.window_h, self.window_w, 3), dtype=np.uint8)
-
-        def make_display() -> np.ndarray:
-            frame[:] = 0
-            # Copy pre-computed base into frame
-            frame[oy : oy + dh, ox : ox + dw] = base_scaled
-            # Overlay barrier (red) on the scaled region
-            barrier_scaled = cv2.resize(
-                barrier, (dw, dh), interpolation=cv2.INTER_NEAREST
-            )
-            barrier_mask = barrier_scaled > 0
-            region = frame[oy : oy + dh, ox : ox + dw]
-            region[barrier_mask] = [255, 0, 0]  # red in RGB
-            cv2.putText(
-                frame,
-                "Operations: LeftDrag=draw  RightDrag=erase  ENTER=confirm  ESC=skip",
-                (8, 18),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.45,
-                (220, 220, 220),
-                1,
-                cv2.LINE_AA,
-            )
-            return cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-
-        win = self.window_name
-        cv2.namedWindow(win)
-        cv2.setMouseCallback(win, mouse_cb)
-        while True:
-            cv2.imshow(win, make_display())
-            key = cv2.waitKey(30) & 0xFF
-            if key == 13:  # ENTER
-                break
-            elif key == 27:  # ESC
-                print(
-                    f"  {_Y}Splitting skipped — each map retains its full land (overlap not split).{_0}"
-                )
-                if cv2.getWindowProperty(win, cv2.WND_PROP_VISIBLE) >= 1:
-                    cv2.destroyWindow(win)
-                fin = [m.astype(np.uint8) for m in land_masks]
-                self._export_split_maps(
-                    group_key, maps, positions, names_list, fin, canvas
-                )
-                return
-            elif cv2.getWindowProperty(win, cv2.WND_PROP_VISIBLE) < 1:
-                break
-        if cv2.getWindowProperty(win, cv2.WND_PROP_VISIBLE) >= 1:
-            cv2.destroyWindow(win)
-
-        # ------------------------------------------------------------------
-        # Step 3: Barrier-aware label-then-assign
-        # ------------------------------------------------------------------
-        cross_kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
-        wall = cv2.dilate(barrier, cross_kernel, iterations=1).astype(bool)
-        print(f"    Barrier pixels (after dilate): {wall.sum()}")
-
-        # Fillable = overlap pixels that are NOT wall
-        fillable = (owner == -2) & ~wall
-        fillable_u8 = fillable.astype(np.uint8)
-
-        # Connected components of fillable (4-connectivity)
-        n_cc, cc_labels = cv2.connectedComponents(fillable_u8, connectivity=4)
-        print(f"    Fillable components: {n_cc - 1}")
-
-        exclusive_masks = [(owner == i) for i in range(n_maps)]
-
-        for cc_id in range(1, n_cc):
-            cc_mask = (cc_labels == cc_id).astype(np.uint8)
-            cc_bool = cc_mask.astype(bool)
-            # Dilate to get 4-connected ring around the component
-            nbr = cv2.dilate(cc_mask, cross_kernel, iterations=1).astype(bool)
-            nbr &= ~cc_bool  # ring only, not inside
-
-            # Count exclusive pixels per map that touch this component
-            best_map = -1
-            best_cnt = 0
-            for i in range(n_maps):
-                cnt = int(np.count_nonzero(nbr & exclusive_masks[i]))
-                if cnt > best_cnt:
-                    best_cnt = cnt
-                    best_map = i
-
-            if best_map >= 0:
-                owner[cc_bool] = best_map
-            else:
-                best_map_dt = -1
-                best_dist = np.inf
-                for i in range(n_maps):
-                    if not exclusive_masks[i].any():
-                        continue
-                    not_excl = (~exclusive_masks[i]).astype(np.uint8)
-                    dist_map = cv2.distanceTransform(not_excl, cv2.DIST_L2, 3)
-                    min_dist = float(dist_map[cc_bool].min())
-                    if min_dist < best_dist:
-                        best_dist = min_dist
-                        best_map_dt = i
-                if best_map_dt >= 0:
-                    owner[cc_bool] = best_map_dt
-                # If still not found, fallback (wall-pixel pass) handles it
-
-        wall_unresolved = (owner == -2) & any_land
-        if wall_unresolved.any():
-            alpha_order = sorted(range(n_maps), key=lambda i: names_list[i])
-            for i in alpha_order:
-                assign = wall_unresolved & land_masks[i]
-                owner[assign] = i
-                wall_unresolved &= ~assign
-        print(
-            f"    {_G}Split complete. Still unresolved: {int((owner == -2).sum())}{_0}"
-        )
-
-        # ------------------------------------------------------------------
-        # Step 4: Build final per-map binary masks from ownership array
-        # ------------------------------------------------------------------
-        fin = [(owner == i).astype(np.uint8) for i in range(n_maps)]
-
-        self._export_split_maps(group_key, maps, positions, names_list, fin, canvas)
-
     def _export_split_maps(
         self,
-        group_key: str,
         maps: Dict[str, np.ndarray],
         positions: Dict[str, Tuple[int, int]],
         names_list: List[str],
