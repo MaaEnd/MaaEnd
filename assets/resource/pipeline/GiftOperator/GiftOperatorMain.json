@@ -93,7 +93,6 @@
                 ]
             }
         },
-        "pre_wait_freezes": 300,
         "action": {
             "type": "Click",
             "param": {}

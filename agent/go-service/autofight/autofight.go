@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"slices"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
@@ -30,7 +31,45 @@ type autoFightAttach struct {
 	EnableEndSkill               bool   `json:"enable_end_skill"`
 	EnableLockTarget             bool   `json:"enable_lock_target"`
 	ReserveSkillLevel            int    `json:"reserve_skill_level"`
+	ComboKeymap                  string `json:"combo_keymap"`
+	SkillKeymap1                 string `json:"skill_keymap1"`
+	SkillKeymap2                 string `json:"skill_keymap2"`
+	SkillKeymap3                 string `json:"skill_keymap3"`
+	SkillKeymap4                 string `json:"skill_keymap4"`
+	SwitchOperatorKeymap1        string `json:"switch_operator_keymap1"`
+	SwitchOperatorKeymap2        string `json:"switch_operator_keymap2"`
+	SwitchOperatorKeymap3        string `json:"switch_operator_keymap3"`
+	SwitchOperatorKeymap4        string `json:"switch_operator_keymap4"`
 	EndAxisTimelineCode          string `json:"end_axis_timeline_code"`
+}
+
+// keymapOverrides 是预先生成好的 pipeline override JSON，
+// 直接传给 ctx.RunAction，仅覆盖对应节点的 key 字段。
+type keymapOverrides struct {
+	combo           string
+	skill           [4]string
+	endSkill        [4]string
+	switchCharacter [4]string
+}
+
+// keyOverride 解析 attach 中的按键字符串，失败或为空时回退到 fallback，
+// 然后生成形如 {"<entry>":{"key":<code>}} 的 pipeline override JSON。
+func keyOverride(entry, raw, fallback string) string {
+	s := strings.TrimSpace(raw)
+	if s == "" {
+		s = fallback
+	}
+	code, err := VirtualKeyCode(s)
+	if err != nil {
+		log.Warn().Err(err).
+			Str("component", "AutoFight").
+			Str("entry", entry).
+			Str("value", raw).
+			Str("fallback", fallback).
+			Msg("invalid keymap, fallback to default")
+		code, _ = VirtualKeyCode(fallback)
+	}
+	return fmt.Sprintf(`{%q:{"key":%d}}`, entry, code)
 }
 
 var screenAnalyzer = NewScreenAnalyzer()
@@ -280,7 +319,28 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		}
 	}
 
-	log.Debug().Str("component", "AutoFight").Interface("params", params).Msg("parsed action attach parameters")
+	overrides := keymapOverrides{
+		combo: keyOverride("__AutoFightActionComboClick", params.ComboKeymap, "E"),
+		skill: [4]string{
+			keyOverride("__AutoFightActionSkillOperators1", params.SkillKeymap1, "1"),
+			keyOverride("__AutoFightActionSkillOperators2", params.SkillKeymap2, "2"),
+			keyOverride("__AutoFightActionSkillOperators3", params.SkillKeymap3, "3"),
+			keyOverride("__AutoFightActionSkillOperators4", params.SkillKeymap4, "4"),
+		},
+		endSkill: [4]string{
+			keyOverride("__AutoFightActionEndSkillOperators1", params.SkillKeymap1, "1"),
+			keyOverride("__AutoFightActionEndSkillOperators2", params.SkillKeymap2, "2"),
+			keyOverride("__AutoFightActionEndSkillOperators3", params.SkillKeymap3, "3"),
+			keyOverride("__AutoFightActionEndSkillOperators4", params.SkillKeymap4, "4"),
+		},
+		switchCharacter: [4]string{
+			keyOverride("__AutoFightActionSwitchCharacterOperators1", params.SwitchOperatorKeymap1, "F1"),
+			keyOverride("__AutoFightActionSwitchCharacterOperators2", params.SwitchOperatorKeymap2, "F2"),
+			keyOverride("__AutoFightActionSwitchCharacterOperators3", params.SwitchOperatorKeymap3, "F3"),
+			keyOverride("__AutoFightActionSwitchCharacterOperators4", params.SwitchOperatorKeymap4, "F4"),
+		},
+	}
+	log.Debug().Str("component", "AutoFight").Interface("params", params).Interface("overrides", overrides).Msg("parsed action attach parameters and built keymap overrides")
 	var pauseStart time.Time
 	var lastLevelShowCheck time.Time
 	var noLockStart time.Time
@@ -624,7 +684,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			}
 		}
 
-		drainActionQueue(ctx)
+		drainActionQueue(ctx, overrides)
 	}
 	if params.EnableAttack {
 		ctx.RunAction("__AutoFightActionAttackTouchUp", maa.Rect{600, 320, 80, 80}, "", nil)
@@ -647,12 +707,12 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			executeAt: time.Now().Add(time.Millisecond),
 			action:    ActionLockTarget,
 		})
-		drainActionQueue(ctx)
+		drainActionQueue(ctx, overrides)
 	}
 	return result
 }
 
-func drainActionQueue(ctx *maa.Context) {
+func drainActionQueue(ctx *maa.Context, overrides keymapOverrides) {
 	now := time.Now()
 	for len(actionQueue) > 0 && !actionQueue[0].executeAt.After(now) {
 		fa, ok := dequeueAction()
@@ -664,31 +724,31 @@ func drainActionQueue(ctx *maa.Context) {
 			ctx.RunAction("__AutoFightActionAttackClick", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionCombo:
 			maafocus.Print(ctx, i18n.T("autofight.combo"))
-			ctx.RunAction("__AutoFightActionComboClick", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionComboClick", maa.Rect{600, 320, 80, 80}, "", overrides.combo)
 		case ActionSkill1:
 			maafocus.Print(ctx, i18n.T("autofight.skill", 1))
-			ctx.RunAction("__AutoFightActionSkillOperators1", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionSkillOperators1", maa.Rect{600, 320, 80, 80}, "", overrides.skill[0])
 		case ActionSkill2:
 			maafocus.Print(ctx, i18n.T("autofight.skill", 2))
-			ctx.RunAction("__AutoFightActionSkillOperators2", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionSkillOperators2", maa.Rect{600, 320, 80, 80}, "", overrides.skill[1])
 		case ActionSkill3:
 			maafocus.Print(ctx, i18n.T("autofight.skill", 3))
-			ctx.RunAction("__AutoFightActionSkillOperators3", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionSkillOperators3", maa.Rect{600, 320, 80, 80}, "", overrides.skill[2])
 		case ActionSkill4:
 			maafocus.Print(ctx, i18n.T("autofight.skill", 4))
-			ctx.RunAction("__AutoFightActionSkillOperators4", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionSkillOperators4", maa.Rect{600, 320, 80, 80}, "", overrides.skill[3])
 		case ActionEndSkill1:
 			maafocus.Print(ctx, i18n.T("autofight.end_skill", 1))
-			ctx.RunAction("__AutoFightActionEndSkillOperators1", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionEndSkillOperators1", maa.Rect{600, 320, 80, 80}, "", overrides.endSkill[0])
 		case ActionEndSkill2:
 			maafocus.Print(ctx, i18n.T("autofight.end_skill", 2))
-			ctx.RunAction("__AutoFightActionEndSkillOperators2", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionEndSkillOperators2", maa.Rect{600, 320, 80, 80}, "", overrides.endSkill[1])
 		case ActionEndSkill3:
 			maafocus.Print(ctx, i18n.T("autofight.end_skill", 3))
-			ctx.RunAction("__AutoFightActionEndSkillOperators3", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionEndSkillOperators3", maa.Rect{600, 320, 80, 80}, "", overrides.endSkill[2])
 		case ActionEndSkill4:
 			maafocus.Print(ctx, i18n.T("autofight.end_skill", 4))
-			ctx.RunAction("__AutoFightActionEndSkillOperators4", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionEndSkillOperators4", maa.Rect{600, 320, 80, 80}, "", overrides.endSkill[3])
 		case ActionLockTarget:
 			ctx.RunAction("__AutoFightActionLockTarget", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionDodge:
@@ -698,16 +758,16 @@ func drainActionQueue(ctx *maa.Context) {
 			time.Sleep(1000 * time.Millisecond)
 		case ActionSwitchCharacter1:
 			maafocus.Print(ctx, i18n.T("autofight.switch_character", 1))
-			ctx.RunAction("__AutoFightActionSwitchCharacterOperators1", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionSwitchCharacterOperators1", maa.Rect{600, 320, 80, 80}, "", overrides.switchCharacter[0])
 		case ActionSwitchCharacter2:
 			maafocus.Print(ctx, i18n.T("autofight.switch_character", 2))
-			ctx.RunAction("__AutoFightActionSwitchCharacterOperators2", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionSwitchCharacterOperators2", maa.Rect{600, 320, 80, 80}, "", overrides.switchCharacter[1])
 		case ActionSwitchCharacter3:
 			maafocus.Print(ctx, i18n.T("autofight.switch_character", 3))
-			ctx.RunAction("__AutoFightActionSwitchCharacterOperators3", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionSwitchCharacterOperators3", maa.Rect{600, 320, 80, 80}, "", overrides.switchCharacter[2])
 		case ActionSwitchCharacter4:
 			maafocus.Print(ctx, i18n.T("autofight.switch_character", 4))
-			ctx.RunAction("__AutoFightActionSwitchCharacterOperators4", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionSwitchCharacterOperators4", maa.Rect{600, 320, 80, 80}, "", overrides.switchCharacter[3])
 		case ActionMoveBack:
 			ctx.RunAction("__AutoFightActionMoveBackKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)

@@ -143,7 +143,7 @@
     "task": [],
     "import": [
         // pretask
-        "tasks/pretasks/GameSetting.json",
+        "tasks/exectasks/GameSetting.json",
         // group: regional_development
         "tasks/SellProduct.json",
         "tasks/SeizeDeliveryJobs.json",
@@ -196,8 +196,6 @@
         // preset
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",
-        "tasks/preset/RealtimeAssist.json",
-        // setting
-        "tasks/setting/Keymap.json"
+        "tasks/preset/RealtimeAssist.json"
     ]
 }
