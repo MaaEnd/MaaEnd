@@ -869,42 +869,18 @@
             20.8,
             17.4
         ],
-        "MapPath": [
-            [
-                418.8,
-                321.4
-            ],
-            [
-                418.8,
-                327.6
-            ],
-            [
-                415,
-                327.6
-            ],
-            [
-                415,
-                321.3
-            ],
-            [
-                323.8,
-                321.3
-            ],
-            [
-                325,
-                377.7
-            ],
-            [
-                324.9,
-                403.8
-            ],
-            [
-                295.1,
-                403.8
-            ]
+        "MapGoal": [
+            295.1,
+            403.8
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "NoEnsureInitialMovementState": true,
-        "Heading": 270
+        "Heading": 270,
+        "Replace": [
+            [
+                "椿",
+                "樁"
+            ]
+        ]
     }
 ]
