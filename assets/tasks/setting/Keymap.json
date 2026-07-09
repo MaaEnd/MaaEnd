@@ -29,6 +29,10 @@
                 "EnterCameraModeLongPress": {
                     "action": "KeyDown",
                     "key": "{KeymapUseCurrentQuickTool.primary}"
+                },
+                "EnterCameraModeKeyUp": {
+                    "action": "KeyUp",
+                    "key": "{KeymapUseCurrentQuickTool.primary}"
                 }
             }
         },
