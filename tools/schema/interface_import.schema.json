@@ -107,6 +107,36 @@
             ],
             "additionalProperties": false
         },
+        "hotkeyItem": {
+            "type": "object",
+            "title": "快捷键字段",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "title": "快捷键字段唯一标识符",
+                    "description": "用作快捷键字段 ID"
+                },
+                "label": {
+                    "$ref": "#/definitions/i18nString",
+                    "title": "显示名称",
+                    "description": "用于在用户界面中展示，支持国际化。如果未设置，则显示 name 字段的值"
+                },
+                "description": {
+                    "$ref": "#/definitions/i18nString",
+                    "title": "详细描述",
+                    "description": "帮助用户理解该快捷键的用途。支持文件路径、URL 或直接文本，内容支持 Markdown 格式"
+                },
+                "default": {
+                    "type": "string",
+                    "title": "默认值",
+                    "description": "💡 v2.8.0 人类可读的快捷键字符串，如 \"E\"、\"1\"、\"ALT+A\"，无需填写虚拟按键码"
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "additionalProperties": false
+        },
         "optionDefinition": {
             "type": "object",
             "title": "配置项定义",
@@ -163,6 +193,62 @@
                     "required": [
                         "type",
                         "inputs"
+                    ],
+                    "additionalProperties": false
+                },
+                {
+                    "title": "hotkeyOption",
+                    "type": "object",
+                    "description": "💡 v2.8.0 快捷键捕获框，允许用户通过按键捕获快捷键",
+                    "properties": {
+                        "type": {
+                            "const": "hotkey",
+                            "description": "💡 v2.8.0 快捷键捕获框，允许用户通过按键捕获快捷键"
+                        },
+                        "label": {
+                            "$ref": "#/definitions/i18nString",
+                            "title": "显示标签",
+                            "description": "用于在用户界面中展示，支持国际化"
+                        },
+                        "description": {
+                            "$ref": "#/definitions/i18nString",
+                            "title": "详细描述",
+                            "description": "帮助用户理解配置项的作用。支持文件路径、URL 或直接文本，内容支持 Markdown 格式"
+                        },
+                        "icon": {
+                            "$ref": "#/definitions/i18nString",
+                            "title": "图标路径",
+                            "description": "配置项图标文件路径，相对于项目根目录"
+                        },
+                        "controller": {
+                            "type": "array",
+                            "title": "适用的控制器",
+                            "description": "💡 v2.3.0 可选。指定该配置项适用的控制器类型列表",
+                            "items": { "type": "string" }
+                        },
+                        "resource": {
+                            "type": "array",
+                            "title": "适用的资源包",
+                            "description": "💡 v2.3.0 可选。指定该配置项适用的资源包列表",
+                            "items": { "type": "string" }
+                        },
+                        "hotkeys": {
+                            "type": "array",
+                            "title": "快捷键配置",
+                            "description": "定义用户可捕获的快捷键字段；输出为 ClickKey 可用的虚拟按键码",
+                            "items": {
+                                "$ref": "#/definitions/hotkeyItem"
+                            }
+                        },
+                        "pipeline_override": {
+                            "$ref": "#/definitions/pipelineOverride",
+                            "title": "Pipeline 覆盖模板",
+                            "description": "支持使用 {名称} 格式引用快捷键字段的值，替换结果应为整数数组"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "hotkeys"
                     ],
                     "additionalProperties": false
                 },
@@ -445,6 +531,50 @@
             ],
             "additionalProperties": false
         },
+        "settingItem": {
+            "type": "object",
+            "title": "任务设置分区",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "title": "设置分区唯一标识符",
+                    "description": "用作设置分区 ID"
+                },
+                "label": {
+                    "$ref": "#/definitions/i18nString",
+                    "title": "显示名称",
+                    "description": "用于在用户界面中展示，支持国际化。如果未设置，则显示 name 字段的值"
+                },
+                "description": {
+                    "$ref": "#/definitions/i18nString",
+                    "title": "详细描述",
+                    "description": "帮助用户理解该设置分区的用途。支持文件路径、URL 或直接文本，内容支持 Markdown 格式"
+                },
+                "icon": {
+                    "$ref": "#/definitions/i18nString",
+                    "title": "图标路径",
+                    "description": "设置分区图标文件路径，相对于项目根目录"
+                },
+                "option": {
+                    "type": "array",
+                    "title": "设置项列表",
+                    "description": "💡 v2.7.0 可选。引用顶层 option 配置中的键名，Client 按数组顺序渲染对应控件",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "default_expand": {
+                    "type": "boolean",
+                    "title": "默认展开",
+                    "description": "💡 v2.7.0 可选。该设置分区在 Client 中是否默认展开",
+                    "default": true
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "additionalProperties": false
+        },
         "pretaskConfig": {
             "type": "object",
             "title": "预任务配置",
@@ -615,6 +745,14 @@
                 "$ref": "#/definitions/optionDefinition"
             }
         },
+        "global_option": {
+            "type": "array",
+            "title": "全局选项配置",
+            "description": "💡 v2.3.0 可选。全局选项配置，为一个字符串数组，数组元素应与 option 配置中的键名对应。该选项生成的参数会参与到所有任务的 pipeline override 中，无论用户选择了什么资源包或控制器",
+            "items": {
+                "type": "string"
+            }
+        },
         "preset": {
             "type": "array",
             "title": "预设配置",
@@ -676,6 +814,14 @@
                 },
                 "required": ["name"],
                 "additionalProperties": false
+            }
+        },
+        "setting": {
+            "type": "array",
+            "title": "任务设置配置",
+            "description": "💡 v2.7.0 可选。任务设置 UI 声明，供 Client 渲染全局任务配置区域",
+            "items": {
+                "$ref": "#/definitions/settingItem"
             }
         }
     },

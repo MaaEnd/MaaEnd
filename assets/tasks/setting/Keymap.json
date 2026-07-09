@@ -1,0 +1,128 @@
+{
+    "setting": [
+        {
+            "name": "Keymap",
+            "label": "$option.Keymap.label",
+            "description": "$option.Keymap.description",
+            "option": [
+                "KeymapGeneral",
+                "KeymapFight"
+            ]
+        }
+    ],
+    "global_option": [
+        "KeymapGeneral",
+        "KeymapFight"
+    ],
+    "option": {
+        "KeymapGeneral": {
+            "label": "$option.KeymapGeneral.label",
+            "type": "hotkey",
+            "hotkeys": [
+                {
+                    "name": "KeymapUseCurrentQuickTool",
+                    "label": "$option.KeymapGeneral.inputs.KeymapUseCurrentQuickTool.label",
+                    "default": "R"
+                }
+            ],
+            "pipeline_override": {
+                "EnterCameraModeLongPress": {
+                    "action": "KeyDown",
+                    "key": "{KeymapUseCurrentQuickTool.primary}"
+                }
+            }
+        },
+        "KeymapFight": {
+            "label": "$option.KeymapFight.label",
+            "type": "hotkey",
+            "hotkeys": [
+                {
+                    "name": "KeymapFightCombo",
+                    "label": "$option.KeymapFight.inputs.KeymapFightCombo.label",
+                    "default": "E"
+                },
+                {
+                    "name": "KeymapFightSkill1",
+                    "label": "$option.KeymapFight.inputs.KeymapFightSkill1.label",
+                    "default": "1"
+                },
+                {
+                    "name": "KeymapFightSkill2",
+                    "label": "$option.KeymapFight.inputs.KeymapFightSkill2.label",
+                    "default": "2"
+                },
+                {
+                    "name": "KeymapFightSkill3",
+                    "label": "$option.KeymapFight.inputs.KeymapFightSkill3.label",
+                    "default": "3"
+                },
+                {
+                    "name": "KeymapFightSkill4",
+                    "label": "$option.KeymapFight.inputs.KeymapFightSkill4.label",
+                    "default": "4"
+                },
+                {
+                    "name": "KeymapFightSwitchOperator1",
+                    "label": "$option.KeymapFight.inputs.KeymapFightSwitchOperator1.label",
+                    "default": "F1"
+                },
+                {
+                    "name": "KeymapFightSwitchOperator2",
+                    "label": "$option.KeymapFight.inputs.KeymapFightSwitchOperator2.label",
+                    "default": "F2"
+                },
+                {
+                    "name": "KeymapFightSwitchOperator3",
+                    "label": "$option.KeymapFight.inputs.KeymapFightSwitchOperator3.label",
+                    "default": "F3"
+                },
+                {
+                    "name": "KeymapFightSwitchOperator4",
+                    "label": "$option.KeymapFight.inputs.KeymapFightSwitchOperator4.label",
+                    "default": "F4"
+                }
+            ],
+            "pipeline_override": {
+                "__AutoFightActionComboClick": {
+                    "key": "{KeymapFightCombo.primary}"
+                },
+                "__AutoFightActionSkillOperators1": {
+                    "key": "{KeymapFightSkill1.primary}"
+                },
+                "__AutoFightActionSkillOperators2": {
+                    "key": "{KeymapFightSkill2.primary}"
+                },
+                "__AutoFightActionSkillOperators3": {
+                    "key": "{KeymapFightSkill3.primary}"
+                },
+                "__AutoFightActionSkillOperators4": {
+                    "key": "{KeymapFightSkill4.primary}"
+                },
+                "__AutoFightActionEndSkillOperators1": {
+                    "key": "{KeymapFightSkill1.primary}"
+                },
+                "__AutoFightActionEndSkillOperators2": {
+                    "key": "{KeymapFightSkill2.primary}"
+                },
+                "__AutoFightActionEndSkillOperators3": {
+                    "key": "{KeymapFightSkill3.primary}"
+                },
+                "__AutoFightActionEndSkillOperators4": {
+                    "key": "{KeymapFightSkill4.primary}"
+                },
+                "__AutoFightActionSwitchCharacterOperators1": {
+                    "key": "{KeymapFightSwitchOperator1.primary}"
+                },
+                "__AutoFightActionSwitchCharacterOperators2": {
+                    "key": "{KeymapFightSwitchOperator2.primary}"
+                },
+                "__AutoFightActionSwitchCharacterOperators3": {
+                    "key": "{KeymapFightSwitchOperator3.primary}"
+                },
+                "__AutoFightActionSwitchCharacterOperators4": {
+                    "key": "{KeymapFightSwitchOperator4.primary}"
+                }
+            }
+        }
+    }
+}
