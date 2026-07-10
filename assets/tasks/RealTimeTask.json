@@ -37,6 +37,7 @@
                 {
                     "name": "Yes",
                     "option": [
+                        "SklandMapRegion",
                         "SklandMapOpacity"
                     ],
                     "pipeline_override": {
@@ -53,6 +54,35 @@
                         "RealTimeTaskMain": {
                             "attach": {
                                 "skland_map_enable": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SklandMapRegion": {
+            "type": "select",
+            "label": "$option.SklandMapRegion.label",
+            "default_case": "CN",
+            "cases": [
+                {
+                    "name": "CN",
+                    "label": "$option.SklandMapRegion.cases.CN.label",
+                    "pipeline_override": {
+                        "RealTimeTaskMain": {
+                            "attach": {
+                                "skland_map_url": "https://game.skland.com/map/endfield"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Global",
+                    "label": "$option.SklandMapRegion.cases.Global.label",
+                    "pipeline_override": {
+                        "RealTimeTaskMain": {
+                            "attach": {
+                                "skland_map_url": "https://game.skport.com/map/endfield"
                             }
                         }
                     }

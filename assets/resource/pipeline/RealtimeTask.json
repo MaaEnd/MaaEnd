@@ -26,6 +26,7 @@
         },
         "attach": {
             "skland_map_enable": false,
+            "skland_map_url": "https://game.skland.com/map/endfield",
             "skland_map_opacity": 100,
             "video_browser_enable": false,
             "video_browser_opacity": 100,
