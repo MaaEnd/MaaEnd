@@ -21,15 +21,6 @@
             "reserve_skill_level": 1,
             "enable_end_skill": true,
             "enable_lock_target": true,
-            "combo_keymap": "E",
-            "skill_keymap1": "1",
-            "skill_keymap2": "2",
-            "skill_keymap3": "3",
-            "skill_keymap4": "4",
-            "switch_operator_keymap1": "F1",
-            "switch_operator_keymap2": "F2",
-            "switch_operator_keymap3": "F3",
-            "switch_operator_keymap4": "F4",
             "end_axis_timeline_code": ""
         }
     }

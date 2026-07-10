@@ -74,13 +74,36 @@ bool TurnToHeadingOnce(const Context& ctx, double heading_delta)
         return true;
     }
 
-    int units = static_cast<int>(std::lround(heading_delta * ctx.action_wrapper->DefaultTurnUnitsPerDegree()));
-    if (units == 0) {
-        units = heading_delta > 0.0 ? 1 : -1;
+    const SteeringTransportProfile profile = ctx.action_wrapper->SteeringProfile();
+    const int step_count = static_cast<int>(std::ceil(std::abs(heading_delta) / profile.max_batch_delta_deg));
+    const double step_deg = heading_delta / step_count;
+    const int step_interval_ms = std::max<int>(kHeadingTurnStepIntervalMs, profile.min_send_interval_ms);
+    LogInfo << "Heading-only node turn." << VAR(heading_delta) << VAR(step_count) << VAR(step_deg);
+    for (int step = 0; step < step_count; ++step) {
+        int units = static_cast<int>(std::lround(step_deg * ctx.action_wrapper->DefaultTurnUnitsPerDegree()));
+        if (units == 0) {
+            units = step_deg > 0.0 ? 1 : -1;
+        }
+        if (!ctx.action_wrapper->SendViewDeltaSync(units, 0)) {
+            return false;
+        }
+        if (step + 1 < step_count) {
+            utils::SleepFor(step_interval_ms);
+        }
     }
+    return true;
+}
 
-    LogInfo << "Heading-only node turn." << VAR(heading_delta) << VAR(units);
-    return ctx.action_wrapper->SendViewDeltaSync(units, 0);
+bool CommitHeadingTurn(const Context& ctx, double heading_delta)
+{
+    if (!TurnToHeadingOnce(ctx, heading_delta)) {
+        return false;
+    }
+    utils::SleepFor(kWaitAfterFirstTurnMs);
+    ctx.action_wrapper->PulseForwardSync(kPostHeadingForwardPulseMs);
+    ctx.motion_controller->SetForwardState(false);
+    utils::SleepFor(kWaitAfterFirstTurnMs);
+    return true;
 }
 
 void ConsumeMatchedZoneNodes(const Context& ctx)
@@ -303,16 +326,37 @@ Result TickTransferWaitImpl(const Context& ctx)
     return result;
 }
 
+bool CaptureStableHeading(const Context& ctx, double* out_heading)
+{
+    std::optional<double> previous;
+    for (int frame = 0; frame < kHeadingStableReadMaxFrames; ++frame) {
+        if (frame > 0) {
+            utils::SleepFor(kHeadingStableReadIntervalMs);
+        }
+        if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())
+            || ctx.position_provider->LastCaptureWasHeld()) {
+            continue;
+        }
+        const double current = NaviMath::NormalizeAngle(ctx.position->angle);
+        if (previous && std::abs(NaviMath::NormalizeAngle(current - *previous)) <= kHeadingStableReadToleranceDeg) {
+            *out_heading = current;
+            return true;
+        }
+        previous = current;
+    }
+    return false;
+}
+
 double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double fallback_heading)
 {
     double achieved = fallback_heading;
     for (int correction = 0; correction <= kHeadingVerifyMaxRetries; ++correction) {
-        if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())
-            || ctx.position_provider->LastCaptureWasHeld()) {
-            LogWarn << "Heading verify skipped: no fresh locator fix." << VAR(target_heading) << VAR(achieved);
+        double stable_heading = 0.0;
+        if (!CaptureStableHeading(ctx, &stable_heading)) {
+            LogWarn << "Heading verify skipped: no stable locator fix." << VAR(target_heading) << VAR(achieved);
             return achieved;
         }
-        achieved = NaviMath::NormalizeAngle(ctx.position->angle);
+        achieved = stable_heading;
         const double residual = NaviMath::NormalizeAngle(target_heading - achieved);
         if (std::abs(residual) <= kHeadingAcceptToleranceDeg) {
             return achieved;
@@ -324,11 +368,9 @@ double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double
         }
         LogInfo << "Heading off after turn, re-issuing." << VAR(target_heading) << VAR(achieved)
                 << VAR(residual) << VAR(correction);
-        if (!TurnToHeadingOnce(ctx, residual)) {
+        if (!CommitHeadingTurn(ctx, residual)) {
             return achieved;
         }
-        ctx.action_wrapper->PulseForwardSync(kPostHeadingForwardPulseMs);
-        ctx.motion_controller->SetForwardState(false);
     }
     return achieved;
 }
@@ -359,16 +401,15 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
         double achieved_heading = start_heading;
         if (std::abs(heading_delta) <= 1.0) {
             LogInfo << "Heading-only node already aligned." << VAR(target_heading) << VAR(start_heading);
+            ctx.action_wrapper->PulseForwardSync(kPostHeadingForwardPulseMs);
+            ctx.motion_controller->SetForwardState(false);
         }
-        else if (!TurnToHeadingOnce(ctx, heading_delta)) {
+        else if (!CommitHeadingTurn(ctx, heading_delta)) {
             result.request_failure = true;
             result.failure_reason = "heading_turn_failed";
             result.failure_log_message = "HEADING node failed to issue view turn.";
             return result;
         }
-
-        ctx.action_wrapper->PulseForwardSync(kPostHeadingForwardPulseMs);
-        ctx.motion_controller->SetForwardState(false);
 
         // Closed-loop: confirm the turn landed and redo a swallowed view-drag (accept within wide band).
         achieved_heading = VerifyAndCorrectHeading(ctx, target_heading, start_heading);
