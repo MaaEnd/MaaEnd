@@ -440,6 +440,7 @@
     "task.ItemTransfer.label": "🐌库存转移",
     "task.ItemTransfer.description": "将指定物品在不同地区之间批量转移。请在帝江号<span style=\"color: #C62828\">会客室传送点</span>处将<span style=\"color: #C62828\">视角抬至最高</span>，<span style=\"color: #C62828\">使用天花板为背景</span>。",
     "task.ItemTransfer.item_not_found": "未能找到目标物品，已回顶但识别失败",
+    "task.ItemTransfer.same_region_skipped": "目的与来源仓库相同，跳过",
     "task.ItemTransfer.bag_return_completed": "目标仓库已满，剩余物品被放回原仓库",
     "task.ItemTransfer.bag_return_stash_completed": "目标与原仓库已满，已一键存放背包内物品",
     "task.ItemTransfer.bag_return_manual_cleanup": "目标与原仓库已满，请手动清理背包内剩余物品",

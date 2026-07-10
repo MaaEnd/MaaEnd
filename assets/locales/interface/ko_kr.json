@@ -534,6 +534,7 @@
     "task.ItemTransfer.label": "🐌재고 이전",
     "task.ItemTransfer.description": "지정된 아이템을 서로 다른 지역 간에 일괄 전송합니다. 제강호 <span style=\"color: #C62828\">접견실 텔레포트 지점</span>에서 <span style=\"color: #C62828\">시점을 최대한 올려</span> <span style=\"color: #C62828\">천장을 배경으로 사용</span>하세요.",
     "task.ItemTransfer.item_not_found": "대상 아이템을 찾을 수 없습니다. 맨 위로 돌아갔지만 인식에 실패했습니다",
+    "task.ItemTransfer.same_region_skipped": "목적지와 출발지 창고가 동일하여 건너뜁니다",
     "task.ItemTransfer.bag_return_completed": "대상 창고가 가득 찼습니다. 남은 아이템을 원래 창고로 반환했습니다",
     "task.ItemTransfer.bag_return_stash_completed": "대상 창고와 원래 창고가 가득 차 배낭의 아이템을 원클릭 보관했습니다",
     "task.ItemTransfer.bag_return_manual_cleanup": "대상 창고와 원래 창고가 가득 찼습니다. 배낭에 남은 아이템을 수동으로 정리해 주세요.",

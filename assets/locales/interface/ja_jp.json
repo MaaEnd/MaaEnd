@@ -534,6 +534,7 @@
     "task.ItemTransfer.label": "🐌在庫転送",
     "task.ItemTransfer.description": "指定されたアイテムを異なる地域間で一括転送します。帝江号<span style=\"color: #C62828\">応接室のテレポートポイント</span>で<span style=\"color: #C62828\">視点を最大まで上げ</span>、<span style=\"color: #C62828\">天井を背景に</span>してください。",
     "task.ItemTransfer.item_not_found": "ターゲットアイテムが見つかりませんでした。トップに戻りましたが認識に失敗しました",
+    "task.ItemTransfer.same_region_skipped": "目的地と出発元の倉庫が同じため、スキップしました",
     "task.ItemTransfer.bag_return_completed": "目標倉庫がいっぱいのため、残りのアイテムを元の倉庫に戻しました",
     "task.ItemTransfer.bag_return_stash_completed": "目標倉庫と元の倉庫が満杯のため、バックパック内のアイテムをワンクリック収納しました",
     "task.ItemTransfer.bag_return_manual_cleanup": "目標倉庫と元の倉庫が満杯です。バックパック内の残りアイテムを手動で整理してください。",

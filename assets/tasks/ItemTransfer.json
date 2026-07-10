@@ -3796,6 +3796,9 @@
                     "name": "ValleyIV",
                     "label": "$global.region.ValleyIV",
                     "pipeline_override": {
+                        "ItemTransferSkipSameRegionValleyIV": {
+                            "enabled": true
+                        },
                         "ItemTransferClickOrigin": {
                             "expected": [
                                 "四号谷地",
@@ -3826,6 +3829,9 @@
                     "name": "Wuling",
                     "label": "$global.region.Wuling",
                     "pipeline_override": {
+                        "ItemTransferSkipSameRegionWuling": {
+                            "enabled": true
+                        },
                         "ItemTransferClickOrigin": {
                             "expected": [
                                 "武陵",
@@ -3864,6 +3870,9 @@
                     "name": "ValleyIV",
                     "label": "$global.region.ValleyIV",
                     "pipeline_override": {
+                        "ItemTransferSkipSameRegionWuling": {
+                            "enabled": false
+                        },
                         "ItemTransferClickDestination": {
                             "expected": [
                                 "四号谷地",
@@ -3882,6 +3891,9 @@
                     "name": "Wuling",
                     "label": "$global.region.Wuling",
                     "pipeline_override": {
+                        "ItemTransferSkipSameRegionValleyIV": {
+                            "enabled": false
+                        },
                         "ItemTransferClickDestination": {
                             "expected": [
                                 "武陵",

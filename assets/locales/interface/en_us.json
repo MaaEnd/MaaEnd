@@ -510,6 +510,7 @@
     "task.ItemTransfer.label": "🐌 Inventory Transfer",
     "task.ItemTransfer.description": "Batch transfer specified items between different regions. At the Dijiang <span style=\"color: #C62828\">Reception Room teleport point</span>, <span style=\"color: #C62828\">raise the camera to the highest</span> and <span style=\"color: #C62828\">use the ceiling as background</span>.",
     "task.ItemTransfer.item_not_found": "Failed to find target item, scrolled back to top but recognition failed",
+    "task.ItemTransfer.same_region_skipped": "Destination and source warehouses are the same; skipped",
     "task.ItemTransfer.bag_return_completed": "Destination warehouse is full, remaining items have been returned to origin warehouse",
     "task.ItemTransfer.bag_return_stash_completed": "Destination and origin warehouses are full; backpack items were stashed with one-click stash",
     "task.ItemTransfer.bag_return_manual_cleanup": "Destination and origin warehouses are full. Please manually clear remaining backpack items.",
