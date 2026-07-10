@@ -1001,6 +1001,86 @@
         "pre_delay": 0,
         "post_delay": 0
     },
+    "__ScenePrivateWorldEnterMenuTeam": {
+        "desc": "从大世界进入编队菜单",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuListEnterMenuTeam",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
+        ]
+    },
+    "__ScenePrivateMenuListEnterMenuTeam": {
+        "desc": "从菜单列表进入编队菜单",
+        "recognition": "And",
+        "all_of": [
+            "InMenuList",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            -400,
+                            0,
+                            400,
+                            720
+                        ],
+                        "expected": [
+                            "编队",
+                            "編隊",
+                            "(?i)Team",
+                            "編成",
+                            "편성"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SceneManagerMenuListClickItemAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuTeamSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuTeamSuccess": {
+        "desc": "成功进入编队菜单",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InTeam"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                100,
+                200
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "__ScenePrivateWorldEnterMenuProtocolPass": {
         "desc": "从大世界进入通行证菜单",
         "recognition": {

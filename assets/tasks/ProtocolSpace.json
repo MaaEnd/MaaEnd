@@ -119,11 +119,11 @@
         "AutoFightSetting": {
             "type": "switch",
             "label": "$option.AutoFightSetting.label",
+            "description": "$option.AutoFightSetting.description",
             "cases": [
                 {
                     "name": "Yes",
                     "option": [
-                        "AutoFightKeymap",
                         "AutoFightHealthDangerousSwitch",
                         "AutoFightDodge",
                         "AutoFightLockTarget",

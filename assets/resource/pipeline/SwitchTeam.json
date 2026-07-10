@@ -1,0 +1,139 @@
+{
+    "SwitchTeamMain": {
+        "desc": "切换编队入口",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuTeam"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SwitchTeamIn"
+        ]
+    },
+    "SwitchTeamIn": {
+        "desc": "已进入编队菜单，准备切换队伍",
+        "recognition": "And",
+        "all_of": [
+            "InTeam"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SwitchTeamChooseNeed",
+            "SwitchTeamChooseNotNeed"
+        ]
+    },
+    "SwitchTeamChooseTextRecognition": {
+        "desc": "识别协议空间队伍",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            -60,
+            500,
+            35
+        ],
+        "expected": [
+            "01"
+        ]
+    },
+    "SwitchTeamChooseNeed": {
+        "desc": "选择协议空间队伍",
+        "recognition": "And",
+        "all_of": [
+            "SwitchTeamChooseTextRecognition",
+            {
+                "recognition": "ColorMatch",
+                "roi": "SwitchTeamChooseTextRecognition",
+                "roi_offset": [
+                    -30,
+                    0,
+                    10,
+                    0
+                ],
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    45,
+                    45,
+                    45
+                ],
+                "connected": true,
+                "count": 200
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "SwitchTeamConfirm"
+        ]
+    },
+    "SwitchTeamChooseNotNeed": {
+        "desc": "选择协议空间队伍",
+        "recognition": "And",
+        "all_of": [
+            "SwitchTeamChooseTextRecognition",
+            {
+                "recognition": "ColorMatch",
+                "roi": "SwitchTeamChooseTextRecognition",
+                "roi_offset": [
+                    -30,
+                    0,
+                    10,
+                    0
+                ],
+                "lower": [
+                    200,
+                    200,
+                    200
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 200
+            }
+        ],
+        "pre_delay": 0,
+        "post_wait_freezes": 200,
+        "post_delay": 0
+    },
+    "SwitchTeamConfirm": {
+        "desc": "确认切换编队",
+        "recognition": "Or",
+        "any_of": [
+            "YellowConfirmButtonType2"
+        ],
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SwitchTeamConfirmSuccess"
+        ]
+    },
+    "SwitchTeamConfirmSuccess": {
+        "desc": "切换编队成功",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType2"
+        ],
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

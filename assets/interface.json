@@ -91,8 +91,7 @@
     ],
     "agent": [
         {
-            "child_exec": "agent/go-service",
-            "child_args": []
+            "child_exec": "agent/go-service"
         },
         {
             "child_exec": "agent/cpp-algo",
@@ -143,6 +142,8 @@
     ],
     "task": [],
     "import": [
+        // pretask
+        "tasks/pretasks/GameSetting.json",
         // group: regional_development
         "tasks/SellProduct.json",
         "tasks/SeizeDeliveryJobs.json",
@@ -161,6 +162,7 @@
         "tasks/AutoCollect.json",
         "tasks/AutoEcoFarm.json",
         "tasks/PuzzleSolver.json",
+        "tasks/SwitchTeam.json",
         "tasks/ImportBluePrints.json",
         // group: sanity_sink
         "tasks/AutoUseSpMedication.json",
@@ -194,6 +196,8 @@
         // preset
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",
-        "tasks/preset/RealtimeAssist.json"
+        "tasks/preset/RealtimeAssist.json",
+        // setting
+        "tasks/setting/Keymap.json"
     ]
 }
