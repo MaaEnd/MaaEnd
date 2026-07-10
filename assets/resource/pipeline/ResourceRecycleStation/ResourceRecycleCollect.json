@@ -155,8 +155,11 @@
             198
         ],
         "expected": [
-            "上限",
+            "已充满",
+            "已充滿",
             "(?i)Full",
+            "FULL",
+            "上限",
             "최대"
         ],
         "action": "Swipe",
@@ -177,6 +180,13 @@
         "focus": {
             "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.LimitReached"
         }
+    ,
+        "roi_offset": [
+            0,
+            0,
+            133,
+            0
+        ]
     },
 
     "ResourceRecycleCheckLimitValleyIV": {
@@ -190,8 +200,11 @@
             198
         ],
         "expected": [
-            "上限",
+            "已充满",
+            "已充滿",
             "(?i)Full",
+            "FULL",
+            "上限",
             "최대"
         ],
         "action": "Swipe",
@@ -212,6 +225,13 @@
         "focus": {
             "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.LimitReached"
         }
+    ,
+        "roi_offset": [
+            0,
+            0,
+            133,
+            0
+        ]
     },
 
     "ResourceRecycleCheckEmpty": {
@@ -251,6 +271,7 @@
             "远程收取资源",
             "遠端收取資源",
             "(?i)Remote\\s*Resource\\s*Collection",
+            "資源の遠隔受取",
             "遠隔受取",
             "원거리로 자원 수령"
         ],

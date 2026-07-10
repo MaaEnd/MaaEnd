@@ -118,8 +118,9 @@
         "expected": [
             "拍摄农田中东张西望的黑腹雉羽兽",
             "拍攝農田中東張西望的黑腹雉羽獸",
-            "(?i)Photo:\\s*Sable\\s*-\\s*chested\\s*Fowlbeast",
+            "(?i)Photo\\s*:\\s*Sable\\s*-\\s*chested\\s*Fowlbeast",
             "農地でキョロキョロする黒腹羽獣の写真を撮る",
+            "(?i)Photo:\\s*Sable\\s*-\\s*chested\\s*Fowlbeast",
             "논밭에서 두리번거리는 세이블체스티드 파울비스트를 촬영하기"
         ],
         "replace": []

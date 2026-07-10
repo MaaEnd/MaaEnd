@@ -129,7 +129,8 @@
                     "月パス残り",
                     "今日月卡奖励",
                     "今日月卡獎勵",
-                    "(?i)Daily\\s*Monthly\\s*Pass\\s*Rewards"
+                    "(?i)Daily\\s*Monthly\\s*Pass\\s*Rewards",
+                    "本日報酬"
                 ]
             }
         },
@@ -153,9 +154,18 @@
                 "expected": [
                     "焕新月卡赠礼",
                     "煥新月卡贈禮",
+                    "(?i)\\[\\s*Pristine\\s*Monthly\\s*Pass\\s*Tribute\\s*\\]",
+                    "新・月パス特典",
                     "Pristine Monthly Pass Tribute",
                     "月パス特典",
                     "리뉴얼 월정액 선물"
+                ]
+            ,
+                "roi_offset": [
+                    0,
+                    0,
+                    130,
+                    0
                 ]
             }
         },

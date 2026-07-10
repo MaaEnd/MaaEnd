@@ -9,14 +9,23 @@
             50
         ],
         "expected": [
-            "BREAKING",
-            "NEWS"
+            "公告",
+            "(?i)News",
+            "お知らせ",
+            "BREAKING"
         ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "__ScenePrivateMenuListEnterWorld"
+        ]
+    ,
+        "roi_offset": [
+            0,
+            0,
+            180,
+            0
         ]
     },
     "__ScenePrivateMenuListEnterWorld": {
@@ -1430,8 +1439,16 @@
                 "expected": [
                     "好友列表",
                     "(?i)Friends\\s*List",
+                    "フレンド一覧",
                     "フレンドリスト",
                     "친구 목록"
+                ]
+            ,
+                "roi_offset": [
+                    0,
+                    0,
+                    19,
+                    0
                 ]
             }
         },
@@ -1943,7 +1960,7 @@
                     100
                 ],
                 "expected": [
-                    "BAKER"
+                    "Baker"
                 ]
             }
         },

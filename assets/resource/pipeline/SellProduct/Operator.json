@@ -11,7 +11,7 @@
         "expected": [
             "联络干员",
             "聯絡幹員",
-            "Operator Liaison",
+            "(?i)Operator\\s*Liaison",
             "オペレーター",
             "접선 오퍼레이터"
         ],

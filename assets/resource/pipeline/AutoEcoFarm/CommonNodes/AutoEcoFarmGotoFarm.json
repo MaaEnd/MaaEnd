@@ -51,7 +51,7 @@
         "expected": [
             "移动镜头",
             "移動鏡頭",
-            "Move Camera",
+            "(?i)Move\\s*Camera",
             "視点移動",
             "카메라 이동"
         ],

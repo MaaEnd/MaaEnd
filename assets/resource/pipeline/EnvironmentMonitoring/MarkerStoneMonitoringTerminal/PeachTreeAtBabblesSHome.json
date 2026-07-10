@@ -27,8 +27,9 @@
         "expected": [
             "念念家的桃树",
             "念念家的桃樹",
-            "(?i)Peach\\s*Tree\\s*at\\s*Babbles's\\s*Home",
+            "(?i)Peach\\s*Tree\\s*at\\s*Babbles\\s*'\\s*s\\s*Home",
             "ネンネンの家にある桃の木",
+            "(?i)Peach\\s*Tree\\s*at\\s*Babbles's\\s*Home",
             "염념이네 복숭아나무"
         ],
         "replace": [],

@@ -520,9 +520,9 @@
                 "expected": [
                     "陈皮拌笋",
                     "陳皮拌筍",
-                    "(?i)Rind-Flavored\\s*Sprouts",
+                    "(?i)Rind\\s*-\\s*Flavored\\s*Sprouts",
                     "陳皮と筍の和え物",
-                    "Rind-Flavored Sprouts"
+                    "(?i)Rind-Flavored\\s*Sprouts"
                 ]
             }
         }
@@ -706,9 +706,9 @@
                 "expected": [
                     "炸鳞薯条",
                     "炸鱗薯條",
-                    "(?i)Fin-n-Chips",
+                    "(?i)Fin\\s*-\\s*n\\s*-\\s*Chips",
                     "鱗獣アンドチップス",
-                    "Fin-n-Chips"
+                    "(?i)Fin-n-Chips"
                 ]
             }
         }
@@ -728,8 +728,7 @@
                     "怪味纸杯蛋糕",
                     "怪味杯子蛋糕",
                     "(?i)Bizarro\\s*Cupcake",
-                    "複雑な味のカップケーキ",
-                    "Bizarro Cupcake"
+                    "複雑な味のカップケーキ"
                 ]
             }
         }

@@ -26,7 +26,6 @@
         ],
         "expected": [
             "枯枝",
-            "枯枝",
             "(?i)Withered\\s*Branches",
             "枯れ枝",
             "마른 가지"
@@ -118,8 +117,9 @@
         "expected": [
             "拍摄祖泉周边的枯枝",
             "拍攝祖泉周邊的枯枝",
-            "(?i)Photo:\\s*Withered\\s*Branches",
+            "(?i)Photo\\s*:\\s*Withered\\s*Branches",
             "祖泉周辺の枯れ枝の写真を撮る",
+            "(?i)Photo:\\s*Withered\\s*Branches",
             "선조의 샘 주변의 마른 가지를 촬영하기"
         ],
         "replace": []

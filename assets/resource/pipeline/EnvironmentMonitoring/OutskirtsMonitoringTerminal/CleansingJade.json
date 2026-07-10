@@ -27,12 +27,19 @@
         "expected": [
             "“漱玉”",
             "「漱玉」",
+            "(?i)\"\\s*Cleansing\\s*Jade\\s*\"",
             "(?i)\"Cleansing\\s*Jade\"",
-            "「漱玉」",
             "'수옥'"
         ],
         "replace": [],
         "order_by": "Vertical"
+    ,
+        "roi_offset": [
+            0,
+            0,
+            59,
+            0
+        ]
     },
     "CheckCleansingJadeIcon": {
         "desc": "检查漱玉文本下方的图标",
