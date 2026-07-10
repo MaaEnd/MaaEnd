@@ -28,30 +28,47 @@ var (
 
 func (r *DailyEventUnreadItemInitRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	var items []dailyEventUnreadItem
-	detail, err := ctx.RunRecognition("DailyEventRecognitionRedDot", arg.Img)
+	var markerBoxes []maa.Rect
+
+	redDotDetail, err := ctx.RunRecognition("DailyEventRecognitionRedDot", arg.Img)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to run TemplateMatch for RedDot")
-		return nil, false
-	}
-	if detail == nil || !detail.Hit || detail.Results == nil || len(detail.Results.Filtered) == 0 {
-		log.Info().Msg("No red dot found in event list")
-		return nil, false
-	}
-
-	// 遍历所有红点位置，在其左下侧区域调用OCR获取文本坐标，确认是否为未读活动
-	for _, result := range detail.Results.Filtered {
-		tmResult, ok := result.AsTemplateMatch()
-		if !ok {
-			continue
+	} else if redDotDetail != nil && redDotDetail.Hit && redDotDetail.Results != nil {
+		for _, result := range redDotDetail.Results.Filtered {
+			tmResult, ok := result.AsTemplateMatch()
+			if !ok {
+				continue
+			}
+			markerBoxes = append(markerBoxes, tmResult.Box)
 		}
+	}
 
-		redDotBox := tmResult.Box
+	newDetail, err := ctx.RunRecognition("DailyEventRecognitionNew", arg.Img)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to run OCR for NEW")
+	} else if newDetail != nil && newDetail.Hit && newDetail.Results != nil {
+		for _, result := range newDetail.Results.Filtered {
+			ocrResult, ok := result.AsOCR()
+			if !ok {
+				continue
+			}
+			markerBoxes = append(markerBoxes, ocrResult.Box)
+		}
+	}
+
+	if len(markerBoxes) == 0 {
+		log.Info().Msg("No red dot or NEW marker found in event list")
+		return nil, false
+	}
+
+	// 遍历所有红点/NEW 位置，在其左下侧区域调用OCR获取文本坐标，确认是否为未读活动
+	for _, markerBox := range markerBoxes {
 		overrideParamItemText := map[string]any{
 			"DailyEventRecognitionItemText": map[string]any{
 				"roi": maa.Rect{
 					0,
-					redDotBox.Y(),
-					redDotBox.X(),
+					markerBox.Y(),
+					markerBox.X(),
 					60, // 一个列表项高度大约60
 				},
 			},
@@ -83,14 +100,12 @@ func (r *DailyEventUnreadItemInitRecognition) Run(ctx *maa.Context, arg *maa.Cus
 			continue
 		}
 
-		itemBox := ocrResult.Box
-		// 识别时某些item是选中状态，比较宽，来回点击可能在非选中状态点不上，因此宽缩短一点
 		items = append(items, dailyEventUnreadItem{
 			Box: maa.Rect{
-				itemBox.X(),
-				itemBox.Y(),
-				itemBox.Width() * 2 / 3,
-				itemBox.Height(),
+				0,
+				markerBox.Y(),
+				markerBox.X(),
+				60, // 一个列表项高度大约60
 			},
 			Text: ocrResult.Text,
 		})
