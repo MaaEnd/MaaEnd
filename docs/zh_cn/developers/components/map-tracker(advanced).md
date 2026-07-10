@@ -106,7 +106,7 @@ python tools/map_tracker/map_tracker_tester.py batch_test -i tests/MaaEndTestset
 > 运行这个测试脚本前，您需要安装 Python 及 `opencv-python`、`maafw` 库，并事先配置好本项目的开发环境。
 
 > [!TIP]
-> 
+>
 > 如你所见，测试集位于 Git Submodule `tests/MaaEndTestset` 的 `Win32/Official_CN/map_tracker` 目录。您需要确保该 Submodule 已经被正确拉取到本地。
 
 如果需要采集新的测试样本图，您可以运行下面的脚本来从游戏中实时录制：

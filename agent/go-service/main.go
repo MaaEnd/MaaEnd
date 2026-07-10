@@ -5,10 +5,10 @@ import (
 	"runtime"
 	"runtime/debug"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/parentwatch"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask"
 	"github.com/rs/zerolog/log"
 )
 
