@@ -30,6 +30,7 @@ jobs:
         id: pr
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
           set -euo pipefail
 
@@ -43,11 +44,17 @@ jobs:
           echo "release_branch=${RELEASE_BRANCH}" | tee -a "$GITHUB_OUTPUT"
           echo "fix_branch=${FIX_BRANCH}" | tee -a "$GITHUB_OUTPUT"
 
-          # PR_TITLE 通过 env 传递避免 shell 注入；多行安全写入 GITHUB_OUTPUT
+          # PR_TITLE / PR_BODY 通过 env 传递避免 shell 注入；多行安全写入 GITHUB_OUTPUT
           {
             echo "pr_title<<PRTITLE_EOF"
             echo "$PR_TITLE"
             echo "PRTITLE_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "pr_body<<PRBODY_EOF"
+            echo "$PR_BODY"
+            echo "PRBODY_EOF"
           } >> "$GITHUB_OUTPUT"
 
           echo "Processing PR #${PR_NUMBER}: '${PR_TITLE}'"
@@ -123,6 +130,7 @@ jobs:
           FIX_BRANCH: ${{ steps.pr.outputs.fix_branch }}
           PR_NUMBER: ${{ steps.pr.outputs.pr_number }}
           PR_TITLE: ${{ steps.pr.outputs.pr_title }}
+          PR_BODY: ${{ steps.pr.outputs.pr_body }}
           RELEASE_BRANCH: ${{ steps.pr.outputs.release_branch }}
         run: |
           set -euo pipefail
@@ -134,29 +142,22 @@ jobs:
             exit 0
           fi
 
-          # 用 python 做模板替换，避免 sed 注入（| & 等特殊字符）
+          # 用 python 拼接原 PR body + footer，避免 shell 注入
           PR_BODY="$(python3 -c "
           import os
-          body = '''## Summary
-          - This PR automatically cherry-picks the fix merged into a release branch (\`__RELEASE_BRANCH__\`) back to the main development branch (\`v2\`).
-          - Original PR: #__PR_NUMBER__
-          - Original title: __PR_TITLE__
-
-          ## Why
-          The fix was first applied to a release branch. This PR ensures the same fix is also available in the main development branch (v2).
-
-          ## Auto-generated
-          This PR was created automatically by the \`cherry-pick-to-v2\` workflow.
-          [skip changelog]
-          '''
-          body = body.replace('__RELEASE_BRANCH__', os.environ['RELEASE_BRANCH'])
-          body = body.replace('__PR_NUMBER__',     os.environ['PR_NUMBER'])
-          body = body.replace('__PR_TITLE__',      os.environ['PR_TITLE'])
-          print(body)
+          original = os.environ.get('PR_BODY', '') or ''
+          n = os.environ['PR_NUMBER']
+          r = os.environ['RELEASE_BRANCH']
+          footer = (
+              '\n\n---\n\n'
+              f'> Cherry-pick of #{n} from \`{r}\` to \`v2\`.\n'
+              '[skip changelog]'
+          )
+          print(original.rstrip() + footer)
           ")"
 
           gh pr create \
             --base v2 \
             --head "$FIX_BRANCH" \
-            --title "fix: cherry-pick #${PR_NUMBER} from ${RELEASE_BRANCH} to v2" \
+            --title "${PR_TITLE} (cherry-pick of #${PR_NUMBER})" \
             --body "$PR_BODY"
