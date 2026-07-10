@@ -10,7 +10,7 @@
     "visitfriends.can_control_nexus": "助力總控中樞",
     "visitfriends.can_mfg_cabin": "助力製造艙",
     "visitfriends.can_growth_chamber": "助力生長艙",
-    "visitfriends.current_counts": "當前助力次數：%d，線索交換次數：%d",
+    "visitfriends.current_counts": "已嘗試助力次數：%d，線索交換次數：%d",
     "visitfriends.check_friend": "檢查好友 %s",
     "visitfriends.no_assist_enabled": "需要至少選擇一個助力方式",
     "autosell.check_item_price_moderate": "檢查物資 %s 價格，該物資價格變動適中",

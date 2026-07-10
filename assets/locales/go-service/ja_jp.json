@@ -10,7 +10,7 @@
     "visitfriends.can_control_nexus": "制御中枢を支援",
     "visitfriends.can_mfg_cabin": "製造キャビンを支援",
     "visitfriends.can_growth_chamber": "成長室を支援",
-    "visitfriends.current_counts": "支援回数: %d、手がかり交換回数: %d",
+    "visitfriends.current_counts": "試行支援回数: %d、手がかり交換回数: %d",
     "visitfriends.check_friend": "フレンドを確認中: %s",
     "visitfriends.no_assist_enabled": "支援方式を1つ以上選択してください",
     "autosell.check_item_price_moderate": "物資 %s の価格を確認中（価格変動は中程度）",

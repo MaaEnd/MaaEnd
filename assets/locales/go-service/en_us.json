@@ -10,7 +10,7 @@
     "visitfriends.can_control_nexus": "assist Control Nexus",
     "visitfriends.can_mfg_cabin": "assist MFG Cabin",
     "visitfriends.can_growth_chamber": "assist Growth Chamber",
-    "visitfriends.current_counts": "Assist count: %d, Clue exchange count: %d",
+    "visitfriends.current_counts": "Attempted assist count: %d, Clue exchange count: %d",
     "visitfriends.check_friend": "Checking friend %s",
     "visitfriends.no_assist_enabled": "At least one assist method must be selected",
     "autosell.check_item_price_moderate": "Checking price for %s; moderate price volatility",

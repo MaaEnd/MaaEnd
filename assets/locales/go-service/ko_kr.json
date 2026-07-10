@@ -10,7 +10,7 @@
     "visitfriends.can_control_nexus": "컨트롤 넥서스 지원",
     "visitfriends.can_mfg_cabin": "제조 캐빈 지원",
     "visitfriends.can_growth_chamber": "성장실 지원",
-    "visitfriends.current_counts": "현재 지원 횟수: %d, 단서 교환 횟수: %d",
+    "visitfriends.current_counts": "시도한 지원 횟수: %d, 단서 교환 횟수: %d",
     "visitfriends.check_friend": "친구 확인 중: %s",
     "visitfriends.no_assist_enabled": "최소 하나 이상의 지원 방식을 선택해야 합니다",
     "autosell.check_item_price_moderate": "%s 물자 가격 확인 중, 가격 변동 보통",

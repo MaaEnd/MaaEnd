@@ -10,7 +10,7 @@
     "visitfriends.can_control_nexus": "助力总控中枢",
     "visitfriends.can_mfg_cabin": "助力制造舱",
     "visitfriends.can_growth_chamber": "助力生长舱",
-    "visitfriends.current_counts": "当前助力次数：%d，线索交换次数：%d",
+    "visitfriends.current_counts": "已尝试助力次数：%d，线索交换次数：%d",
     "visitfriends.check_friend": "检查好友 %s",
     "visitfriends.no_assist_enabled": "需要至少选择一个助力方式",
     "autosell.check_item_price_moderate": "检查物资 %s 价格，该物资价格变动适中",
