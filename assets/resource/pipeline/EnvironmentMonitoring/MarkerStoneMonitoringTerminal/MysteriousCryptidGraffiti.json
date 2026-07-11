@@ -9,6 +9,11 @@
             "CheckMysteriousCryptidGraffitiReadyText"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "EnvironmentMonitoringSetCurrentRoute",
+        "custom_action_param": {
+            "name": "谜之生物的涂鸦"
+        },
         "post_delay": 0,
         "next": [
             "AcceptMysteriousCryptidGraffiti",

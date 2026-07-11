@@ -34,8 +34,8 @@ function reorderBySpecificity(items) {
 function buildTerminalNext(station) {
     const stationRows = rows.filter((row) => row.Station === station);
     return reorderBySpecificity(stationRows)
-        .map((row) => `[JumpBack]${row.Id}Job`)
-        .concat("EnvironmentMonitoringFinish");
+		.map((row) => `[JumpBack]${row.Id}Job`)
+		.concat("EnvironmentMonitoringTerminalFinish");
 }
 
 export default MONITORING_TERMINAL_IDS.map((terminalId) => {
@@ -43,6 +43,7 @@ export default MONITORING_TERMINAL_IDS.map((terminalId) => {
     return {
         Id,
         Name: buildTerminalName(terminalId),
+		GoToMonitoringTerminal: `EnvironmentMonitoringGoTo${Id}`,
         Next: buildTerminalNext(Id),
     };
 });

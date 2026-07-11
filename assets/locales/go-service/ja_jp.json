@@ -1,4 +1,6 @@
 {
+    "environmentmonitoring.failed_summary": "環境モニタリングは残りのルートを完了しました。次のルートが失敗しました：%s",
+    "environmentmonitoring.route_failed": "ルート「%s」に失敗しました。記録して、ほかのルートを続行します。",
     "visitfriends.friend_missing": "フレンドに %s がありません",
     "visitfriends.clue_exchange": "手がかり交換",
     "visitfriends.control_nexus_assist": "制御中枢支援",

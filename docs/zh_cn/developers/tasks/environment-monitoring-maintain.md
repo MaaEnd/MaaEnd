@@ -46,11 +46,11 @@ EnvironmentMonitoringMain
        ├─ [JumpBack]OutskirtsMonitoringTerminal  （城郊监测终端）
        │    └─ OutskirtsMonitoringTerminalLoop
        │         ├─ [JumpBack]{Id}Job × N        （遍历该终端下的所有观察点）
-       │         └─ EnvironmentMonitoringFinish
+       │         └─ EnvironmentMonitoringTerminalFinish
        ├─ [JumpBack]MarkerStoneMonitoringTerminal（首墩监测终端）
        │    └─ MarkerStoneMonitoringTerminalLoop
        │         ├─ [JumpBack]{Id}Job × N
-       │         └─ EnvironmentMonitoringFinish
+       │         └─ EnvironmentMonitoringTerminalFinish
        └─ EnvironmentMonitoringFinish
 ```
 
@@ -79,6 +79,8 @@ EnvironmentMonitoringTakePhoto       （进入拍照模式 → 朝向 → 拍照
   └─ [Anchor]EnvironmentMonitoringBackToTerminal
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
 ```
+
+每个 `{Id}Job` 命中时会通过 Go Service 记录当前路线。若子路线失败，终端循环的 `on_error` 会记录该路线、返回当前监测终端并继续后续路线；全部终端遍历结束后，`EnvironmentMonitoringFinish` 统一输出失败路线。只要记录中存在失败路线，环境监测任务最终就会返回失败。
 
 > [!NOTE]
 >
@@ -173,7 +175,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 }
 ```
 
-`terminals-data.mjs` 会扫描 `data.mjs` 装配后的全部行，按 `Station` 分组，把每个观察点的 `[JumpBack]{Id}Job` 串到对应终端的 `next` 列表里，并以 `EnvironmentMonitoringFinish` 收尾。
+`terminals-data.mjs` 会扫描 `data.mjs` 装配后的全部行，按 `Station` 分组，把每个观察点的 `[JumpBack]{Id}Job` 串到对应终端的 `next` 列表里，并以 `EnvironmentMonitoringTerminalFinish` 收尾。终端循环通过 `on_error` 处理单条路线失败；两个终端都结束后，由主流程的 `EnvironmentMonitoringFinish` 汇总结果。
 
 ### 运行命令
 
@@ -320,7 +322,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 1. `tools/pipeline-generate/EnvironmentMonitoring/routes.json` 中新增/修改条目是否字段齐全。
 2. `routes.json` 中新增条目的 `MissionId` 是否能匹配 `kite_station_i18n.json` 的 `missionId`；`Id` 由生成器自动刷新。
 3. 已适配条目的 `EnterMap`、`MapAssert`、`CameraSwipeDirection` 均已填写真实值，且 `MapPath` / `MapTarget` / `MapGoal` 已三选一填写。
-4. 重生成的 `Terminals.json` 中各 `{Station}MonitoringTerminalLoop.next` 包含全部新 `[JumpBack]{Id}Job`，并以 `EnvironmentMonitoringFinish` 收尾。
+4. 重生成的 `Terminals.json` 中各 `{Station}MonitoringTerminalLoop.next` 包含全部新 `[JumpBack]{Id}Job`，并以 `EnvironmentMonitoringTerminalFinish` 收尾。
 5. `EnterMap` 引用的 `Scene*` 节点确实存在于 `assets/resource/pipeline/SceneManager/` 与 `Interface/` 中。
 6. `CameraSwipeDirection` 是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 四者之一。
 7. **没有手改** `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` 或 `Terminals.json`（手改会被下次生成覆盖；如确需特殊节点，应在 `template.json` / `terminals-template.json` 中扩展）。

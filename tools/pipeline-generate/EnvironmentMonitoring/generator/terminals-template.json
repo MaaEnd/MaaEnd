@@ -18,6 +18,30 @@
         "all_of": [
             "EnvironmentMonitoringIn${Id}"
         ],
-        "next": "${Next}"
+        "next": "${Next}",
+        "on_error": [
+            "EnvironmentMonitoringRecord${Id}Failure"
+        ]
+    },
+    "EnvironmentMonitoringRecord${Id}Failure": {
+        "desc": "记录${Name}路线失败并恢复终端界面",
+        "action": "Custom",
+        "custom_action": "EnvironmentMonitoringRecordFailure",
+        "next": [
+            "EnvironmentMonitoringRecover${Id}AfterFailure"
+        ]
+    },
+    "EnvironmentMonitoringRecover${Id}AfterFailure": {
+        "desc": "路线失败后返回${Name}",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "${GoToMonitoringTerminal}"
+            ]
+        },
+        "next": [
+            "${Id}Loop"
+        ]
     }
 }

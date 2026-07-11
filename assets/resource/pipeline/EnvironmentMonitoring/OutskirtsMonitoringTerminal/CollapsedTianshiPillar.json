@@ -9,6 +9,11 @@
             "CheckCollapsedTianshiPillarReadyText"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "EnvironmentMonitoringSetCurrentRoute",
+        "custom_action_param": {
+            "name": "倒塌的天师桩"
+        },
         "post_delay": 0,
         "next": [
             "AcceptCollapsedTianshiPillar",

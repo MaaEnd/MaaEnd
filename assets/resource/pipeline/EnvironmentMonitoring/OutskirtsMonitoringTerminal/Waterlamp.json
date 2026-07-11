@@ -9,6 +9,11 @@
             "CheckWaterlampReadyText"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "EnvironmentMonitoringSetCurrentRoute",
+        "custom_action_param": {
+            "name": "水灯虫"
+        },
         "post_delay": 0,
         "next": [
             "AcceptWaterlamp",

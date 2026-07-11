@@ -1,4 +1,6 @@
 {
+    "environmentmonitoring.failed_summary": "環境監測已完成其餘路線，以下路線執行失敗：%s",
+    "environmentmonitoring.route_failed": "路線「%s」執行失敗，已標記並繼續執行其他路線。",
     "visitfriends.friend_missing": "該好友缺少 %s",
     "visitfriends.clue_exchange": "線索交換",
     "visitfriends.control_nexus_assist": "總控中樞助力",

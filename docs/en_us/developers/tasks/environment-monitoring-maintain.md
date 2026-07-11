@@ -46,11 +46,11 @@ EnvironmentMonitoringMain
        ├─ [JumpBack]OutskirtsMonitoringTerminal  (Outskirts Monitoring Terminal)
        │    └─ OutskirtsMonitoringTerminalLoop
        │         ├─ [JumpBack]{Id}Job × N        (Iterates through all observation points under this terminal)
-       │         └─ EnvironmentMonitoringFinish
+       │         └─ EnvironmentMonitoringTerminalFinish
        ├─ [JumpBack]MarkerStoneMonitoringTerminal (Marker Stone Monitoring Terminal)
        │    └─ MarkerStoneMonitoringTerminalLoop
        │         ├─ [JumpBack]{Id}Job × N
-       │         └─ EnvironmentMonitoringFinish
+       │         └─ EnvironmentMonitoringTerminalFinish
        └─ EnvironmentMonitoringFinish
 ```
 
@@ -79,6 +79,8 @@ EnvironmentMonitoringTakePhoto       (Enter photo mode -> orientation -> take ph
   └─ [Anchor]EnvironmentMonitoringBackToTerminal
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
 ```
+
+When each `{Id}Job` is matched, the Go Service records it as the current route. If a child route fails, the terminal loop's `on_error` records that route, returns to the current monitoring terminal, and continues with the remaining routes. After all terminals have been processed, `EnvironmentMonitoringFinish` reports the failed routes and returns failure when the list is not empty.
 
 > [!NOTE]
 >
@@ -173,7 +175,7 @@ The default export of `data.mjs` is an array, where each element = the rendering
 }
 ```
 
-`terminals-data.mjs` scans all rows assembled by `data.mjs`, groups them by `Station`, links each observation point's `[JumpBack]{Id}Job` into the corresponding terminal's `next` list, and ends with `EnvironmentMonitoringFinish`.
+`terminals-data.mjs` scans all rows assembled by `data.mjs`, groups them by `Station`, links each observation point's `[JumpBack]{Id}Job` into the corresponding terminal's `next` list, and ends with `EnvironmentMonitoringTerminalFinish`. The terminal loop handles individual route failures through `on_error`; after both terminals finish, the main flow uses `EnvironmentMonitoringFinish` to summarize the result.
 
 ### Run Commands
 
@@ -320,7 +322,7 @@ Before submission, at least check:
 1. Are the fields for new/modified entries in `tools/pipeline-generate/EnvironmentMonitoring/routes.json` complete?
 2. Does the `MissionId` for new entries in `routes.json` match the `missionId` in `kite_station_i18n.json`; `Id` is automatically refreshed by the generator.
 3. Have the `EnterMap`, `MapAssert`, `CameraSwipeDirection` for adapted entries been filled with real values, and has one of `MapPath` / `MapTarget` / `MapGoal` been selected and filled?
-4. In the regenerated `Terminals.json`, does each `{Station}MonitoringTerminalLoop.next` contain all new `[JumpBack]{Id}Job`, and end with `EnvironmentMonitoringFinish`?
+4. In the regenerated `Terminals.json`, does each `{Station}MonitoringTerminalLoop.next` contain all new `[JumpBack]{Id}Job`, and end with `EnvironmentMonitoringTerminalFinish`?
 5. Does the `Scene*` node referenced by `EnterMap` actually exist in `assets/resource/pipeline/SceneManager/` and `Interface/`?
 6. Is `CameraSwipeDirection` one of the four: `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}`?
 7. **No manual modifications** were made to `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` or `Terminals.json` (manual modifications will be overwritten by the next generation; if special nodes are truly needed, they should be extended in `template.json` / `terminals-template.json`).

@@ -2,8 +2,17 @@
     "EnvironmentMonitoringMain": {
         "desc": "环境监测主流程",
         "next": [
+            "EnvironmentMonitoringReset",
             "EnvironmentMonitoringLoop",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring"
+        ]
+    },
+    "EnvironmentMonitoringReset": {
+        "desc": "重置环境监测路线执行结果",
+        "action": "Custom",
+        "custom_action": "EnvironmentMonitoringReset",
+        "next": [
+            "EnvironmentMonitoringLoop"
         ]
     },
     "EnvironmentMonitoringLoop": {
@@ -19,6 +28,11 @@
         ]
     },
     "EnvironmentMonitoringFinish": {
-        "desc": "环境监测完成"
+        "desc": "汇总环境监测路线执行结果",
+        "action": "Custom",
+        "custom_action": "EnvironmentMonitoringFinish"
+    },
+    "EnvironmentMonitoringTerminalFinish": {
+        "desc": "当前环境监测终端完成"
     }
 }
