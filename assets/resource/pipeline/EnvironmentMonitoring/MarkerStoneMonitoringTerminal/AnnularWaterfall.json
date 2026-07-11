@@ -22,7 +22,7 @@
     "AnnularWaterfallFailed": {
         "desc": "环形瀑布任务执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.AnnularWaterfall.label"
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.AnnularWaterfall.failed"
         }
     },
     "AnnularWaterfallExecute": {

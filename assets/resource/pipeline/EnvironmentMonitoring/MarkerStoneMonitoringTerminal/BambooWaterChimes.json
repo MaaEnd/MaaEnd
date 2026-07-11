@@ -22,7 +22,7 @@
     "BambooWaterChimesFailed": {
         "desc": "水竹铃任务执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.BambooWaterChimes.label"
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.BambooWaterChimes.failed"
         }
     },
     "BambooWaterChimesExecute": {

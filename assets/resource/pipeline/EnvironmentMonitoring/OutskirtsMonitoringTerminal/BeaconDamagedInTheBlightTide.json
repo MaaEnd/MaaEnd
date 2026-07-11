@@ -22,7 +22,7 @@
     "BeaconDamagedInTheBlightTideFailed": {
         "desc": "侵蚀潮中损坏的信标任务执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.BeaconDamagedInTheBlightTide.label"
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.BeaconDamagedInTheBlightTide.failed"
         }
     },
     "BeaconDamagedInTheBlightTideExecute": {

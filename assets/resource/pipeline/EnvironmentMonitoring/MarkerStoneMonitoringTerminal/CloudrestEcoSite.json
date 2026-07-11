@@ -22,7 +22,7 @@
     "CloudrestEcoSiteFailed": {
         "desc": "栖云生态点任务执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.CloudrestEcoSite.label"
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.CloudrestEcoSite.failed"
         }
     },
     "CloudrestEcoSiteExecute": {

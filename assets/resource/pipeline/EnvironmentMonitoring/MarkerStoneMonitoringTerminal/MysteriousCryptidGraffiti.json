@@ -22,7 +22,7 @@
     "MysteriousCryptidGraffitiFailed": {
         "desc": "谜之生物的涂鸦任务执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.MysteriousCryptidGraffiti.label"
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.MysteriousCryptidGraffiti.failed"
         }
     },
     "MysteriousCryptidGraffitiExecute": {

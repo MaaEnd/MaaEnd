@@ -22,7 +22,7 @@
     "CleansingJadeFailed": {
         "desc": "漱玉任务执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.CleansingJade.label"
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.CleansingJade.failed"
         }
     },
     "CleansingJadeExecute": {

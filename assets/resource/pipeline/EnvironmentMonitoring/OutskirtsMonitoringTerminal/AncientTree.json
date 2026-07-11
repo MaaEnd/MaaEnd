@@ -22,7 +22,7 @@
     "AncientTreeFailed": {
         "desc": "古树任务执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.AncientTree.label"
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.AncientTree.failed"
         }
     },
     "AncientTreeExecute": {

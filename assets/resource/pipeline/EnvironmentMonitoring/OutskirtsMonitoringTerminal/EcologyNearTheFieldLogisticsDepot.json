@@ -22,7 +22,7 @@
     "EcologyNearTheFieldLogisticsDepotFailed": {
         "desc": "储备站周围的生态环境任务执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.EcologyNearTheFieldLogisticsDepot.label"
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.EcologyNearTheFieldLogisticsDepot.failed"
         }
     },
     "EcologyNearTheFieldLogisticsDepotExecute": {

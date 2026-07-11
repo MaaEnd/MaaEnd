@@ -22,7 +22,7 @@
     "WaterTemperatureControllerFailed": {
         "desc": "净水温控装置任务执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.WaterTemperatureController.label"
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.WaterTemperatureController.failed"
         }
     },
     "WaterTemperatureControllerExecute": {

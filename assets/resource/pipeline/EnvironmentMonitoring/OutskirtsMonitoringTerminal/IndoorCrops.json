@@ -22,7 +22,7 @@
     "IndoorCropsFailed": {
         "desc": "室内作物任务执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.IndoorCrops.label"
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.IndoorCrops.failed"
         }
     },
     "IndoorCropsExecute": {

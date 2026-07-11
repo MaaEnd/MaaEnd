@@ -22,7 +22,7 @@
     "VigorousCisternOriginiumSlugFailed": {
         "desc": "充满活力的蓄水源石虫任务执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.VigorousCisternOriginiumSlug.label"
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.VigorousCisternOriginiumSlug.failed"
         }
     },
     "VigorousCisternOriginiumSlugExecute": {

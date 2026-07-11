@@ -381,133 +381,133 @@
     "AutoCollectRoute1Failed": {
         "desc": "AutoCollectRoute1执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute1.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute1.failed"
         }
     },
     "AutoCollectRoute2Failed": {
         "desc": "AutoCollectRoute2执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute2.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute2.failed"
         }
     },
     "AutoCollectRoute3Failed": {
         "desc": "AutoCollectRoute3执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute3.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute3.failed"
         }
     },
     "AutoCollectRoute4Failed": {
         "desc": "AutoCollectRoute4执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute4.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute4.failed"
         }
     },
     "AutoCollectRoute5Failed": {
         "desc": "AutoCollectRoute5执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute5.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute5.failed"
         }
     },
     "AutoCollectRoute6Failed": {
         "desc": "AutoCollectRoute6执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute6.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute6.failed"
         }
     },
     "AutoCollectRoute7Failed": {
         "desc": "AutoCollectRoute7执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute7.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute7.failed"
         }
     },
     "AutoCollectRoute8Failed": {
         "desc": "AutoCollectRoute8执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute8.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute8.failed"
         }
     },
     "AutoCollectRoute9Failed": {
         "desc": "AutoCollectRoute9执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute9.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute9.failed"
         }
     },
     "AutoCollectRoute10Failed": {
         "desc": "AutoCollectRoute10执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute10.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute10.failed"
         }
     },
     "AutoCollectRoute11Failed": {
         "desc": "AutoCollectRoute11执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute11.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute11.failed"
         }
     },
     "AutoCollectRoute12Failed": {
         "desc": "AutoCollectRoute12执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute12.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute12.failed"
         }
     },
     "AutoCollectRoute13Failed": {
         "desc": "AutoCollectRoute13执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute13.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute13.failed"
         }
     },
     "AutoCollectRoute14Failed": {
         "desc": "AutoCollectRoute14执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute14.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute14.failed"
         }
     },
     "AutoCollectCommonRoute1Failed": {
         "desc": "AutoCollectCommonRoute1执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute1.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute1.failed"
         }
     },
     "AutoCollectCommonRoute2Failed": {
         "desc": "AutoCollectCommonRoute2执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute2.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute2.failed"
         }
     },
     "AutoCollectCommonRoute3Failed": {
         "desc": "AutoCollectCommonRoute3执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute3.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute3.failed"
         }
     },
     "AutoCollectCommonRoute4Failed": {
         "desc": "AutoCollectCommonRoute4执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute4.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute4.failed"
         }
     },
     "AutoCollectCommonRoute5Failed": {
         "desc": "AutoCollectCommonRoute5执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute5.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute5.failed"
         }
     },
     "AutoCollectCommonRoute6Failed": {
         "desc": "AutoCollectCommonRoute6执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute6.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute6.failed"
         }
     },
     "AutoCollectCommonRoute7Failed": {
         "desc": "AutoCollectCommonRoute7执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute7.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute7.failed"
         }
     },
     "AutoCollectCommonRoute8Failed": {
         "desc": "AutoCollectCommonRoute8执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute8.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute8.failed"
         }
     }
 }

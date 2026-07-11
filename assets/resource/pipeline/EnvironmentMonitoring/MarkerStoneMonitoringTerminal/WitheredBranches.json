@@ -22,7 +22,7 @@
     "WitheredBranchesFailed": {
         "desc": "枯枝任务执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.WitheredBranches.label"
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.WitheredBranches.failed"
         }
     },
     "WitheredBranchesExecute": {

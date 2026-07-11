@@ -22,7 +22,7 @@
     "XiraniteNexusFailed": {
         "desc": "枢壤仪任务执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.XiraniteNexus.label"
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.XiraniteNexus.failed"
         }
     },
     "XiraniteNexusExecute": {
