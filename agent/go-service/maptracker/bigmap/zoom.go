@@ -27,8 +27,8 @@ type MapTrackerBigMapZoomParam struct {
 
 const (
 	SLIDER_UI_TRIGGER_MS = 100
-	SLIDER_UI_DELAY_MS   = 250
-	ZOOMING_RESPONSE_MS  = 250
+	SLIDER_UI_DELAY_MS   = 100
+	ZOOMING_RESPONSE_MS  = 500
 )
 
 var _ maa.CustomActionRunner = &MapTrackerBigMapZoom{}
