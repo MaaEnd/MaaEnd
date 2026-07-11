@@ -17,13 +17,12 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateCloseLoginAnnouncement",
-            "[JumpBack]__ScenePrivateCloseErrorDialog",
             "__ScenePrivateLoginContinue",
             "__ScenePrivateLogin"
         ]
     },
     "__ScenePrivateLoginContinue": {
-        "desc": "等待登录页面出现按钮继续",
+        "desc": "等待登录界面 点击任意位置继续",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -42,9 +41,37 @@
                 ]
             }
         },
+        "max_hit": 10,
         "action": {
             "type": "Click"
         },
+        "next": [
+            "[JumpBack]__ScenePrivateCloseErrorDialog",
+            "__ScenePrivateLoginContinueDisappeared",
+            "__ScenePrivateLoginContinue"
+        ]
+    },
+    "__ScenePrivateLoginContinueDisappeared": {
+        "desc": "等待登录界面 点击任意位置继续 文字消失",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -250,
+                    200,
+                    250,
+                    400
+                ],
+                "expected": [
+                    "点击任意位置继续",
+                    "按下任意位置繼續",
+                    "Click to continue",
+                    "クリックして続ける",
+                    "아무 곳이나 눌러 계속하기"
+                ]
+            }
+        },
+        "inverse": true,
         "next": [
             "[JumpBack]SceneWaitLoadingExit",
             "[JumpBack]__ScenePrivateLoginMonthlyPassConfirm",
