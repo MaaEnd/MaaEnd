@@ -1,6 +1,7 @@
 import {
     buildDefaultId,
     buildMonitoringTerminalIds,
+    buildStationId,
     collectMonitoringMissions,
     ensureUniqueId,
     LOCALES,
@@ -8,7 +9,6 @@ import {
     readJson,
     ROUTES_PATH,
     sanitizeDisplayName,
-    toPascalCase,
 } from "./common.mjs";
 import {createRouteResolver} from "./route-resolver.mjs";
 
@@ -63,18 +63,6 @@ function rawJson(value) {
 
 const routeResolver = createRouteResolver(ROUTE_CONFIG);
 
-function buildStationName(terminalId) {
-    const stationEnglishName = kiteStationData?.[terminalId]?.level?.name?.["en-US"];
-    if (!stationEnglishName) {
-        // 没匹配到游戏数据时通常意味着 mission.kiteStation 与 zmdmap 数据主键脱节，
-        // 直接 PascalCase terminalId 容易得到中文/纯数字串这种诡异结果。打个 warn 让维护者尽早发现。
-        console.warn(
-            `[EnvironmentMonitoring] 找不到 ${terminalId} 对应的英文站点名，已退化使用 terminalId。请检查 zmdmap 缓存数据是否同步。`,
-        );
-    }
-    return toPascalCase(stationEnglishName || terminalId) || terminalId;
-}
-
 function buildGoToMonitoringTerminal(station) {
     // Locations.json 中节点统一遵循 EnvironmentMonitoringGoTo{Station} 命名，新终端在 Locations.json 手写补齐。
     return `EnvironmentMonitoringGoTo${station}`;
@@ -86,7 +74,7 @@ function buildRow(mission, usedIds) {
 
     const baseId = route.override?.Id || buildDefaultId(mission);
     const Id = ensureUniqueId(baseId, usedIds, mission?.missionId);
-    const Station = buildStationName(mission?.kiteStation || mission?.__terminalId);
+    const Station = buildStationId(kiteStationData, mission?.kiteStation || mission?.__terminalId);
     const GoToMonitoringTerminal = buildGoToMonitoringTerminal(Station);
 
     // 游戏内未追踪时无法完成任务，已适配点也要先走追踪确认。
@@ -132,7 +120,7 @@ routeResolver.warnUnusedRouteOverrides();
 const rowsByStation = Map.groupBy(rows, (row) => row.Station);
 
 export const taskOptionRows = MONITORING_TERMINAL_IDS.map((terminalId) => {
-    const Station = buildStationName(terminalId);
+    const Station = buildStationId(kiteStationData, terminalId);
     const stationRows = rowsByStation.get(Station) || [];
     return {
         Station,
