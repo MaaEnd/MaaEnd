@@ -14,7 +14,9 @@ pnpm fetch:zmdmap
 # 如果已经更新过 zmdmap 缓存，也可以在生成器目录单独渲染
 cd tools/pipeline-generate/EnvironmentMonitoring/generator
 node sync-routes.mjs
+node sync-task-locales.mjs
 npx @joebao/maa-pipeline-generate
+npx @joebao/maa-pipeline-generate --config task-config.json
 npx @joebao/maa-pipeline-generate --config terminals-config.json
 ```
 
@@ -22,7 +24,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 1. **更新游戏数据**：运行 `pnpm fetch:zmdmap`，数据会缓存到 `tools/pipeline-generate/data/kite_station_i18n.json`。
 2. **补充路线配置**：在 `routes.json` 中新增或修改对应观察点的条目（传送点、地图名、寻路路径、摄像头朝向等）。若暂无数据，生成器会将该观察点标记为未适配，生成的 Pipeline 只会接取并追踪，不会前往拍照。
-3. **重新生成 Pipeline**：运行上方两条命令，分别生成观察点节点文件与终端分组文件。
+3. **重新生成任务与 Pipeline**：运行上方命令，生成任务选项、观察点节点文件与终端分组文件。
 4. **提交**：将 `routes.json` 与 `assets/resource/pipeline/EnvironmentMonitoring/` 下重新生成的文件一并提交。
 
 > `pnpm generate:EnvironmentMonitoring` 会在渲染前显式运行 `generator/sync-routes.mjs`：按 zmdmap 数据补齐/刷新 `MissionId`、`Name`、`Id`，并按 `MissionId` 排序。单独渲染时也请先运行 `node sync-routes.mjs`。

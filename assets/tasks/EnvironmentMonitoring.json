@@ -5,6 +5,10 @@
             "label": "$task.EnvironmentMonitoring.label",
             "entry": "EnvironmentMonitoringMain",
             "description": "$task.EnvironmentMonitoring.description",
+            "option": [
+                "OutskirtsMonitoringTerminalMonitoring",
+                "MarkerStoneMonitoringTerminalMonitoring"
+            ],
             "controller": [
                 "Win32-Front",
                 "Wlroots",
@@ -15,5 +19,433 @@
                 "regional_development"
             ]
         }
-    ]
+    ],
+    "option": {
+        "OutskirtsMonitoringTerminalMonitoring": {
+            "type": "switch",
+            "label": "$task.EnvironmentMonitoring.option.OutskirtsMonitoringTerminal",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "BeaconDamagedInTheBlightTideJob": {
+                            "enabled": false
+                        },
+                        "CisternOriginiumSlugsJob": {
+                            "enabled": false
+                        },
+                        "RainbowFinJob": {
+                            "enabled": false
+                        },
+                        "IndoorCropsJob": {
+                            "enabled": false
+                        },
+                        "AncientTreeJob": {
+                            "enabled": false
+                        },
+                        "CollapsedTianshiPillarJob": {
+                            "enabled": false
+                        },
+                        "EternalSunsetJob": {
+                            "enabled": false
+                        },
+                        "CleansingJadeJob": {
+                            "enabled": false
+                        },
+                        "VigorousCisternOriginiumSlugJob": {
+                            "enabled": false
+                        },
+                        "InflatedAndGlowingBugspittingLankybeastJob": {
+                            "enabled": false
+                        },
+                        "ObservantSableChestedFowlbeastJob": {
+                            "enabled": false
+                        },
+                        "EcologyNearTheFieldLogisticsDepotJob": {
+                            "enabled": false
+                        },
+                        "WaterlampJob": {
+                            "enabled": false
+                        },
+                        "XiraniteNexusJob": {
+                            "enabled": false
+                        },
+                        "PierWaterwheelJob": {
+                            "enabled": false
+                        },
+                        "MiniShellbeastJob": {
+                            "enabled": false
+                        }
+                    },
+                    "option": [
+                        "OutskirtsMonitoringTerminalMonitoringTasks"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "OutskirtsMonitoringTerminal": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "OutskirtsMonitoringTerminalMonitoringTasks": {
+            "type": "checkbox",
+            "label": "$task.EnvironmentMonitoring.option.OutskirtsMonitoringTerminal",
+            "default_case": [
+                "BeaconDamagedInTheBlightTide",
+                "CisternOriginiumSlugs",
+                "RainbowFin",
+                "IndoorCrops",
+                "AncientTree",
+                "CollapsedTianshiPillar",
+                "EternalSunset",
+                "CleansingJade",
+                "VigorousCisternOriginiumSlug",
+                "InflatedAndGlowingBugspittingLankybeast",
+                "ObservantSableChestedFowlbeast",
+                "EcologyNearTheFieldLogisticsDepot",
+                "Waterlamp",
+                "XiraniteNexus",
+                "PierWaterwheel",
+                "MiniShellbeast"
+            ],
+            "cases": [
+                {
+                    "name": "BeaconDamagedInTheBlightTide",
+                    "label": "$task.EnvironmentMonitoring.option.BeaconDamagedInTheBlightTide",
+                    "pipeline_override": {
+                        "BeaconDamagedInTheBlightTideJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "CisternOriginiumSlugs",
+                    "label": "$task.EnvironmentMonitoring.option.CisternOriginiumSlugs",
+                    "pipeline_override": {
+                        "CisternOriginiumSlugsJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "RainbowFin",
+                    "label": "$task.EnvironmentMonitoring.option.RainbowFin",
+                    "pipeline_override": {
+                        "RainbowFinJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "IndoorCrops",
+                    "label": "$task.EnvironmentMonitoring.option.IndoorCrops",
+                    "pipeline_override": {
+                        "IndoorCropsJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "AncientTree",
+                    "label": "$task.EnvironmentMonitoring.option.AncientTree",
+                    "pipeline_override": {
+                        "AncientTreeJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "CollapsedTianshiPillar",
+                    "label": "$task.EnvironmentMonitoring.option.CollapsedTianshiPillar",
+                    "pipeline_override": {
+                        "CollapsedTianshiPillarJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "EternalSunset",
+                    "label": "$task.EnvironmentMonitoring.option.EternalSunset",
+                    "pipeline_override": {
+                        "EternalSunsetJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "CleansingJade",
+                    "label": "$task.EnvironmentMonitoring.option.CleansingJade",
+                    "pipeline_override": {
+                        "CleansingJadeJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "VigorousCisternOriginiumSlug",
+                    "label": "$task.EnvironmentMonitoring.option.VigorousCisternOriginiumSlug",
+                    "pipeline_override": {
+                        "VigorousCisternOriginiumSlugJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "InflatedAndGlowingBugspittingLankybeast",
+                    "label": "$task.EnvironmentMonitoring.option.InflatedAndGlowingBugspittingLankybeast",
+                    "pipeline_override": {
+                        "InflatedAndGlowingBugspittingLankybeastJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "ObservantSableChestedFowlbeast",
+                    "label": "$task.EnvironmentMonitoring.option.ObservantSableChestedFowlbeast",
+                    "pipeline_override": {
+                        "ObservantSableChestedFowlbeastJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "EcologyNearTheFieldLogisticsDepot",
+                    "label": "$task.EnvironmentMonitoring.option.EcologyNearTheFieldLogisticsDepot",
+                    "pipeline_override": {
+                        "EcologyNearTheFieldLogisticsDepotJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Waterlamp",
+                    "label": "$task.EnvironmentMonitoring.option.Waterlamp",
+                    "pipeline_override": {
+                        "WaterlampJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "XiraniteNexus",
+                    "label": "$task.EnvironmentMonitoring.option.XiraniteNexus",
+                    "pipeline_override": {
+                        "XiraniteNexusJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "PierWaterwheel",
+                    "label": "$task.EnvironmentMonitoring.option.PierWaterwheel",
+                    "pipeline_override": {
+                        "PierWaterwheelJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "MiniShellbeast",
+                    "label": "$task.EnvironmentMonitoring.option.MiniShellbeast",
+                    "pipeline_override": {
+                        "MiniShellbeastJob": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "MarkerStoneMonitoringTerminalMonitoring": {
+            "type": "switch",
+            "label": "$task.EnvironmentMonitoring.option.MarkerStoneMonitoringTerminal",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AnnularWaterfallJob": {
+                            "enabled": false
+                        },
+                        "BambooWaterChimesJob": {
+                            "enabled": false
+                        },
+                        "WitheredBranchesJob": {
+                            "enabled": false
+                        },
+                        "MysteriousCryptidGraffitiJob": {
+                            "enabled": false
+                        },
+                        "TreeOfTheOldCourtyardJob": {
+                            "enabled": false
+                        },
+                        "HangingVinesJob": {
+                            "enabled": false
+                        },
+                        "FloraObservationPointJob": {
+                            "enabled": false
+                        },
+                        "CloudrestEcoSiteJob": {
+                            "enabled": false
+                        },
+                        "RainbowJob": {
+                            "enabled": false
+                        },
+                        "PeachTreeAtBabblesSHomeJob": {
+                            "enabled": false
+                        },
+                        "WaterTemperatureControllerJob": {
+                            "enabled": false
+                        },
+                        "SerenityGardenTianshiPillarJob": {
+                            "enabled": false
+                        }
+                    },
+                    "option": [
+                        "MarkerStoneMonitoringTerminalMonitoringTasks"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "MarkerStoneMonitoringTerminal": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "MarkerStoneMonitoringTerminalMonitoringTasks": {
+            "type": "checkbox",
+            "label": "$task.EnvironmentMonitoring.option.MarkerStoneMonitoringTerminal",
+            "default_case": [
+                "AnnularWaterfall",
+                "BambooWaterChimes",
+                "WitheredBranches",
+                "MysteriousCryptidGraffiti",
+                "TreeOfTheOldCourtyard",
+                "HangingVines",
+                "FloraObservationPoint",
+                "CloudrestEcoSite",
+                "Rainbow",
+                "PeachTreeAtBabblesSHome",
+                "WaterTemperatureController",
+                "SerenityGardenTianshiPillar"
+            ],
+            "cases": [
+                {
+                    "name": "AnnularWaterfall",
+                    "label": "$task.EnvironmentMonitoring.option.AnnularWaterfall",
+                    "pipeline_override": {
+                        "AnnularWaterfallJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "BambooWaterChimes",
+                    "label": "$task.EnvironmentMonitoring.option.BambooWaterChimes",
+                    "pipeline_override": {
+                        "BambooWaterChimesJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "WitheredBranches",
+                    "label": "$task.EnvironmentMonitoring.option.WitheredBranches",
+                    "pipeline_override": {
+                        "WitheredBranchesJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "MysteriousCryptidGraffiti",
+                    "label": "$task.EnvironmentMonitoring.option.MysteriousCryptidGraffiti",
+                    "pipeline_override": {
+                        "MysteriousCryptidGraffitiJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "TreeOfTheOldCourtyard",
+                    "label": "$task.EnvironmentMonitoring.option.TreeOfTheOldCourtyard",
+                    "pipeline_override": {
+                        "TreeOfTheOldCourtyardJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "HangingVines",
+                    "label": "$task.EnvironmentMonitoring.option.HangingVines",
+                    "pipeline_override": {
+                        "HangingVinesJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "FloraObservationPoint",
+                    "label": "$task.EnvironmentMonitoring.option.FloraObservationPoint",
+                    "pipeline_override": {
+                        "FloraObservationPointJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "CloudrestEcoSite",
+                    "label": "$task.EnvironmentMonitoring.option.CloudrestEcoSite",
+                    "pipeline_override": {
+                        "CloudrestEcoSiteJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Rainbow",
+                    "label": "$task.EnvironmentMonitoring.option.Rainbow",
+                    "pipeline_override": {
+                        "RainbowJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "PeachTreeAtBabblesSHome",
+                    "label": "$task.EnvironmentMonitoring.option.PeachTreeAtBabblesSHome",
+                    "pipeline_override": {
+                        "PeachTreeAtBabblesSHomeJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "WaterTemperatureController",
+                    "label": "$task.EnvironmentMonitoring.option.WaterTemperatureController",
+                    "pipeline_override": {
+                        "WaterTemperatureControllerJob": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "SerenityGardenTianshiPillar",
+                    "label": "$task.EnvironmentMonitoring.option.SerenityGardenTianshiPillar",
+                    "pipeline_override": {
+                        "SerenityGardenTianshiPillarJob": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        }
+    }
 }

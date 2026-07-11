@@ -6,7 +6,7 @@
 
 > [!WARNING]
 >
-> `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` 与 `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` 都是 **生成产物**。手改这些文件会在下次重新生成时被覆盖。所有维护都应该改 `tools/pipeline-generate/EnvironmentMonitoring/` 下的生成配置，或通过 `pnpm fetch:zmdmap` 更新 `tools/pipeline-generate/data/` 下的 zmdmap 缓存。
+> `assets/tasks/EnvironmentMonitoring.json`、`assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` 与 `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` 都是 **生成产物**。手改这些文件会在下次重新生成时被覆盖。所有维护都应该改 `tools/pipeline-generate/EnvironmentMonitoring/` 下的生成配置，或通过 `pnpm fetch:zmdmap` 更新 `tools/pipeline-generate/data/` 下的 zmdmap 缓存。
 
 ## 概览
 
@@ -14,7 +14,7 @@
 
 | 模块               | 路径                                                                              | 作用                                                                                                                                                                                                                                                                      |
 | ------------------ | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 任务入口           | `assets/tasks/EnvironmentMonitoring.json`                                         | interface 任务定义（无可配置选项，控制器 = Win32-Front / Wlroots / ADB）                                                                                                                                                                                                  |
+| 任务入口           | `assets/tasks/EnvironmentMonitoring.json`                                         | interface 任务定义，包含地区总开关及各环境监测任务开关（控制器 = Win32-Front / Wlroots / ADB / PlayCover）                                                                                                                                                                |
 | 主流程 Pipeline    | `assets/resource/pipeline/EnvironmentMonitoring.json`                             | 主入口节点 `EnvironmentMonitoringMain`，循环识别两个监测终端                                                                                                                                                                                                              |
 | 终端分组（生成）   | `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json`                   | 城郊监测终端 / 首墩监测终端的入口节点与各自的观察点 `next` 列表（**生成**）                                                                                                                                                                                               |
 | 终端跳转           | `assets/resource/pipeline/EnvironmentMonitoring/Locations.json`                   | `EnvironmentMonitoringGoTo*` 与 `Select*` 节点，从主菜单进入对应终端                                                                                                                                                                                                      |
@@ -328,7 +328,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 ## 常见坑
 
-- **手改生成产物**：直接编辑 `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json` 或 `Terminals.json`，下次重新生成时改动会丢。改生成配置 / 更新 zmdmap 缓存后重新生成才是正确做法。
+- **手改生成产物**：直接编辑 `assets/tasks/EnvironmentMonitoring.json`、`assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json` 或 `Terminals.json`，下次重新生成时改动会丢。改生成配置 / 更新 zmdmap 缓存后重新生成才是正确做法。
 - **`MissionId` 与游戏数据对不上**：`routes.json` 条目里的 `MissionId` 才是匹配主键；`Name` / `Id` 只用于人工阅读和搜索。`MissionId` 匹配失败时生成器会提示该条目未使用，对应观察点会按未适配处理（仅接取并追踪）。
 - **把 `Id` 当匹配键**：`Id` 只是最终模板节点 ID，方便搜索生成节点/文件名；匹配仍然只看 `MissionId`。
 - **`Id` 与 `kite_station_i18n.json` 英文名漂移**：当游戏侧改英文名后，自动算出的 `Id` 会变，可能带来生成文件重命名或旧文件残留；重新生成后 `routes.json` 里的 `Id` 会同步刷新。

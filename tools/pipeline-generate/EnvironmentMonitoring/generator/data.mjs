@@ -101,6 +101,8 @@ function buildRow(mission, usedIds) {
         Id,
         MissionId: mission?.missionId,
         Name: sanitizeDisplayName(missionName),
+        NameLocales: mission?.name || {},
+        OptionLabel: `$task.EnvironmentMonitoring.option.${Id}`,
         GoToMonitoringTerminal,
         EnterMap: route.EnterMap,
         MapName: route.MapName,
@@ -126,5 +128,32 @@ function buildRow(mission, usedIds) {
 const usedIds = new Set();
 const rows = collectMonitoringMissions(kiteStationData).map((mission) => buildRow(mission, usedIds));
 routeResolver.warnUnusedRouteOverrides();
+
+const rowsByStation = Map.groupBy(rows, (row) => row.Station);
+
+export const taskOptionRows = MONITORING_TERMINAL_IDS.map((terminalId) => {
+    const Station = buildStationName(terminalId);
+    const stationRows = rowsByStation.get(Station) || [];
+    return {
+        Station,
+        StationLabel: `$task.EnvironmentMonitoring.option.${Station}`,
+        MissionDefaultCases: stationRows.map((row) => row.Id),
+        MissionDisabledOverrides: Object.fromEntries(
+            stationRows.map((row) => [
+                `${row.Id}Job`,
+                {enabled: false},
+            ]),
+        ),
+        MissionCases: stationRows.map((row) => ({
+            name: row.Id,
+            label: row.OptionLabel,
+            pipeline_override: {
+                [`${row.Id}Job`]: {
+                    enabled: true,
+                },
+            },
+        })),
+    };
+});
 
 export default rows;
