@@ -10,8 +10,9 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "EnvironmentMonitoringSetCurrentRoute",
+        "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
+            "key": "EnvironmentMonitoring",
             "name": "枯枝"
         },
         "post_delay": 0,

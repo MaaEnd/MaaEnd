@@ -16,6 +16,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/charactercontroller"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/clearhitcount"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expressionrecognition"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/failurecollector"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/falseaction"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/pipelineoverride"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/poststop"
@@ -23,7 +24,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/environmentmonitoring"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker"
@@ -55,6 +55,7 @@ func registerAll() {
 
 	// General Custom
 	subtask.Register()
+	failurecollector.Register()
 	clearhitcount.Register()
 	pipelineoverride.Register()
 	expressionrecognition.Register()
@@ -73,7 +74,6 @@ func registerAll() {
 	puzzle.Register()
 	bettersliding.Register()
 	essencefilter.Register()
-	environmentmonitoring.Register()
 	dailyrewards.Register()
 	maptracker.Register()
 	batchaddfriends.Register()

@@ -510,8 +510,11 @@ In `custom_action_param.path`, change the third element of the target coordinate
 | `assets/resource/pipeline/AutoCollect/AutoCollectRoute*.json` | Path definitions, containing `MapNavigateAction` nodes and collection coordinates    | Add new routes, adjust coordinates, add/remove collection points |
 | `assets/resource/pipeline/AutoCollect/AutoCollectClick.json`  | OCR and click subtask triggered by `COLLECT`, entry point is `AutoCollectClickStart` | Add or delete OCR-recognized collection object names             |
 | `assets/resource/pipeline/AutoCollect/AutoCollectDig.json`    | Digging subtask triggered by `DIG`, entry point is `AutoCollectDigStart`             | When digging interaction logic changes                           |
+| `assets/resource/pipeline/AutoCollect.json`                   | Route iteration, failure collection, and backpack storage before/after collection    | Add route entries or adjust the overall flow                     |
 
 **In most cases, path authors only need to modify `AutoCollectRoute*.json`.**
+
+The overall Auto Collect flow uses `AutoCollectLoop` to invoke enabled routes in order. If one route fails, the loop's `on_error` records it through the generic `FailureCollector` and continues. After all routes and the final backpack storage step finish, `AutoCollectFinish` reports failed items and makes the Auto Collect task return failure. Route iteration is not orchestrated by the Go `SubTask` action.
 
 ### Parts Path Authors Do Not Need to Touch
 

@@ -26,7 +26,7 @@
 | 终端模板            | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-template.json` | 终端分组节点模板                                                                                                                                                                                                                                                          |
 | 路线/坐标数据       | `tools/pipeline-generate/EnvironmentMonitoring/routes.json`                       | 按观察点 `MissionId` 匹配的路线覆盖（传送点、地图、路径、摄像头滑动方向）；`Name` 仅供人工阅读，`Id` 是最终模板节点 ID，方便搜索生成节点/文件名                                                                                                                           |
 | 路线 JSON Schema    | `tools/schema/environment_monitoring_routes.schema.json`                          | `routes.json` 的字段约束（必填项、枚举、坐标数组形状），通过 `.vscode/settings.json` 自动关联，提供 IDE 字段补全和校验                                                                                                                                                    |
-| 运行状态参数 Schema | `tools/schema/components/environment_monitoring.schema.json`                      | 环境监测 Custom Action 的参数约束；动作名称注册在 `tools/schema/custom.action.schema.json`                                                                                                                                                                                |
+| 失败收集参数 Schema | `tools/schema/components/failure_collector.schema.json`                           | 通用失败收集 Custom Action 的参数约束；动作名称注册在 `tools/schema/custom.action.schema.json`                                                                                                                                                                            |
 | 路线同步逻辑        | `tools/pipeline-generate/EnvironmentMonitoring/generator/sync-routes.mjs`         | 在生成前自动同步 `routes.json` 的 `MissionId` / `Name` / `Id`，并按 `MissionId` 排序                                                                                                                                                                                      |
 | 路线解析逻辑        | `tools/pipeline-generate/EnvironmentMonitoring/generator/route-resolver.mjs`      | 将 `routes.json` 条目解析为模板需要的寻路识别/动作参数，并统一处理未适配降级                                                                                                                                                                                              |
 | 终端列表数据        | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-data.mjs`      | 从 `data.mjs` 的行数据和自动派生的终端列表生成各终端 `next`                                                                                                                                                                                                               |
@@ -81,7 +81,7 @@ EnvironmentMonitoringTakePhoto       （进入拍照模式 → 朝向 → 拍照
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
 ```
 
-每个 `{Id}Job` 命中时会通过 Go Service 记录当前路线。若子路线失败，终端循环的 `on_error` 会记录该路线、返回当前监测终端并继续后续路线；全部终端遍历结束后，`EnvironmentMonitoringFinish` 统一输出失败路线。只要记录中存在失败路线，环境监测任务最终就会返回失败。
+每个 `{Id}Job` 命中时会通过通用 `FailureCollectorSetCurrent` 记录当前路线。若子路线失败，终端循环的 `on_error` 会通过 `FailureCollectorRecord` 记录该路线、返回当前监测终端并继续后续路线；全部终端遍历结束后，`EnvironmentMonitoringFinish` 通过 `FailureCollectorFinish` 统一输出失败路线。只要记录中存在失败路线，环境监测任务最终就会返回失败。
 
 > [!NOTE]
 >

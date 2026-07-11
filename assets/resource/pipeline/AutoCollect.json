@@ -20,7 +20,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AutoCollectStart"
+            "AutoCollectResetFailures"
         ],
         "attach": {
             "monday": false,
@@ -32,41 +32,95 @@
             "sunday": false
         }
     },
-    "AutoCollectStart": {
+    "AutoCollectResetFailures": {
+        "desc": "重置自动采集路线执行结果",
+        "action": "Custom",
+        "custom_action": "FailureCollectorReset",
+        "custom_action_param": {
+            "key": "AutoCollect"
+        },
+        "next": [
+            "AutoCollectBeforeStashBackpack"
+        ]
+    },
+    "AutoCollectBeforeStashBackpack": {
+        "desc": "自动采集前存放背包",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "StashBackpackSubTask",
-                "AutoCollectRoute1Sub",
-                "AutoCollectRoute2Sub",
-                "AutoCollectRoute3Sub",
-                "AutoCollectRoute4Sub",
-                "AutoCollectRoute5Sub",
-                "AutoCollectRoute6Sub",
-                "AutoCollectRoute7Sub",
-                "AutoCollectRoute8Sub",
-                "AutoCollectRoute9Sub",
-                "AutoCollectRoute10Sub",
-                "AutoCollectRoute11Sub",
-                "AutoCollectRoute12Sub",
-                "AutoCollectRoute13Sub",
-                "AutoCollectRoute14Sub",
-                "AutoCollectCommonRoute1Sub",
-                "AutoCollectCommonRoute2Sub",
-                "AutoCollectCommonRoute3Sub",
-                "AutoCollectCommonRoute4Sub",
-                "AutoCollectCommonRoute5Sub",
-                "AutoCollectCommonRoute6Sub",
-                "AutoCollectCommonRoute7Sub",
-                "AutoCollectCommonRoute8Sub",
                 "StashBackpackSubTask"
-            ],
-            "continue": true,
-            "strict": true
+            ]
         },
         "post_delay": 0,
+        "next": [
+            "AutoCollectLoop"
+        ]
+    },
+    "AutoCollectLoop": {
+        "desc": "依次执行已启用的自动采集路线",
+        "next": [
+            "[JumpBack]AutoCollectRoute1Sub",
+            "[JumpBack]AutoCollectRoute2Sub",
+            "[JumpBack]AutoCollectRoute3Sub",
+            "[JumpBack]AutoCollectRoute4Sub",
+            "[JumpBack]AutoCollectRoute5Sub",
+            "[JumpBack]AutoCollectRoute6Sub",
+            "[JumpBack]AutoCollectRoute7Sub",
+            "[JumpBack]AutoCollectRoute8Sub",
+            "[JumpBack]AutoCollectRoute9Sub",
+            "[JumpBack]AutoCollectRoute10Sub",
+            "[JumpBack]AutoCollectRoute11Sub",
+            "[JumpBack]AutoCollectRoute12Sub",
+            "[JumpBack]AutoCollectRoute13Sub",
+            "[JumpBack]AutoCollectRoute14Sub",
+            "[JumpBack]AutoCollectCommonRoute1Sub",
+            "[JumpBack]AutoCollectCommonRoute2Sub",
+            "[JumpBack]AutoCollectCommonRoute3Sub",
+            "[JumpBack]AutoCollectCommonRoute4Sub",
+            "[JumpBack]AutoCollectCommonRoute5Sub",
+            "[JumpBack]AutoCollectCommonRoute6Sub",
+            "[JumpBack]AutoCollectCommonRoute7Sub",
+            "[JumpBack]AutoCollectCommonRoute8Sub",
+            "AutoCollectAfterStashBackpack"
+        ],
+        "on_error": [
+            "AutoCollectRecordRouteFailure"
+        ]
+    },
+    "AutoCollectRecordRouteFailure": {
+        "desc": "记录自动采集路线失败",
+        "action": "Custom",
+        "custom_action": "FailureCollectorRecord",
+        "custom_action_param": {
+            "key": "AutoCollect"
+        },
+        "next": [
+            "AutoCollectLoop"
+        ]
+    },
+    "AutoCollectAfterStashBackpack": {
+        "desc": "自动采集后存放背包",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackSubTask"
+            ]
+        },
+        "next": [
+            "AutoCollectFinish"
+        ]
+    },
+    "AutoCollectFinish": {
+        "desc": "汇总自动采集子任务执行结果",
+        "action": "Custom",
+        "custom_action": "FailureCollectorFinish",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "summary_key": "autocollect.failed_summary"
+        },
         "next": [
             "AutoCollectEnd"
         ]
@@ -78,6 +132,12 @@
     "AutoCollectRoute1Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectRoute1"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectRoute1Start",
@@ -87,6 +147,12 @@
     "AutoCollectRoute2Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectRoute2"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectRoute2Start",
@@ -96,6 +162,12 @@
     "AutoCollectRoute3Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectRoute3"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectRoute3Start",
@@ -105,6 +177,12 @@
     "AutoCollectRoute4Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectRoute4"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectRoute4Start",
@@ -114,6 +192,12 @@
     "AutoCollectRoute5Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectRoute5"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectRoute5Start",
@@ -123,6 +207,12 @@
     "AutoCollectRoute6Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectRoute6"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectRoute6Start",
@@ -132,6 +222,12 @@
     "AutoCollectRoute7Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectRoute7"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectRoute7Start",
@@ -141,6 +237,12 @@
     "AutoCollectRoute8Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectRoute8"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectRoute8Start",
@@ -150,6 +252,12 @@
     "AutoCollectRoute9Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectRoute9"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectRoute9Start",
@@ -159,6 +267,12 @@
     "AutoCollectRoute10Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectRoute10"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectRoute10Start",
@@ -168,6 +282,12 @@
     "AutoCollectRoute11Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectRoute11"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectRoute11Start",
@@ -177,6 +297,12 @@
     "AutoCollectRoute12Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectRoute12"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectRoute12Start",
@@ -186,6 +312,12 @@
     "AutoCollectRoute13Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectRoute13"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectRoute13Start",
@@ -195,6 +327,12 @@
     "AutoCollectRoute14Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectRoute14"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectRoute14Start",
@@ -204,6 +342,12 @@
     "AutoCollectCommonRoute1Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectCommonRoute1"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectCommonRoute1Start",
@@ -213,6 +357,12 @@
     "AutoCollectCommonRoute2Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectCommonRoute2"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectCommonRoute2Start",
@@ -222,6 +372,12 @@
     "AutoCollectCommonRoute3Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectCommonRoute3"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectCommonRoute3Start",
@@ -231,6 +387,12 @@
     "AutoCollectCommonRoute4Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectCommonRoute4"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectCommonRoute4Start",
@@ -240,6 +402,12 @@
     "AutoCollectCommonRoute5Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectCommonRoute5"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectCommonRoute5Start",
@@ -249,6 +417,12 @@
     "AutoCollectCommonRoute6Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectCommonRoute6"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectCommonRoute6Start",
@@ -258,6 +432,12 @@
     "AutoCollectCommonRoute7Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectCommonRoute7"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectCommonRoute7Start",
@@ -267,6 +447,12 @@
     "AutoCollectCommonRoute8Sub": {
         "max_hit": 1,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "name": "AutoCollectCommonRoute8"
+        },
         "post_delay": 0,
         "next": [
             "AutoCollectCommonRoute8Start",

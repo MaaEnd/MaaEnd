@@ -44,7 +44,11 @@
     "EnvironmentMonitoringRecordOutskirtsMonitoringTerminalFailure": {
         "desc": "记录城郊监测终端路线失败并恢复终端界面",
         "action": "Custom",
-        "custom_action": "EnvironmentMonitoringRecordFailure",
+        "custom_action": "FailureCollectorRecord",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "item_key": "environmentmonitoring.route_failed"
+        },
         "next": [
             "EnvironmentMonitoringRecoverOutskirtsMonitoringTerminalAfterFailure"
         ]
@@ -103,7 +107,11 @@
     "EnvironmentMonitoringRecordMarkerStoneMonitoringTerminalFailure": {
         "desc": "记录首墩监测终端路线失败并恢复终端界面",
         "action": "Custom",
-        "custom_action": "EnvironmentMonitoringRecordFailure",
+        "custom_action": "FailureCollectorRecord",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "item_key": "environmentmonitoring.route_failed"
+        },
         "next": [
             "EnvironmentMonitoringRecoverMarkerStoneMonitoringTerminalAfterFailure"
         ]

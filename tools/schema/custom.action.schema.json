@@ -49,10 +49,10 @@
                 "EssenceFilterSkillDecisionAction",
                 "EssenceFilterSwipeCalibrateAction",
                 "EssenceFilterTraceAction",
-				"EnvironmentMonitoringFinish",
-				"EnvironmentMonitoringRecordFailure",
-				"EnvironmentMonitoringReset",
-				"EnvironmentMonitoringSetCurrentRoute",
+				"FailureCollectorFinish",
+				"FailureCollectorRecord",
+				"FailureCollectorReset",
+				"FailureCollectorSetCurrent",
                 "FalseAction",
                 "ImageCheckSetResultAction",
                 "ImportBluePrintsEnterCodeAction",
@@ -95,6 +95,50 @@
             ]
         }
     },
+	"allOf": [
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "FailureCollectorReset" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/BaseParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "FailureCollectorRecord" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/RecordParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "FailureCollectorFinish" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/FinishParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		}
+	],
     "if": {
         "type": "object",
         "required": [ "custom_action" ],
@@ -202,15 +246,15 @@
 									"if": {
 										"type": "object",
 										"required": [ "custom_action" ],
-										"properties": {
-											"custom_action": { "const": "EnvironmentMonitoringSetCurrentRoute" }
-										}
+                                    "properties": {
+                                        "custom_action": { "const": "FailureCollectorSetCurrent" }
+                                    }
 									},
 									"then": {
 										"type": "object",
 										"required": [ "custom_action_param" ],
 										"properties": {
-											"custom_action_param": { "$ref": "./components/environment_monitoring.schema.json#/$defs/SetCurrentRouteParam" }
+                                        "custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/SetCurrentParam" }
 										}
 									}
                                 }

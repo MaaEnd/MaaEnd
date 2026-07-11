@@ -1,4 +1,5 @@
 {
+    "autocollect.failed_summary": "Auto Collect completed the remaining subtasks. The following subtasks failed: %s",
     "environmentmonitoring.failed_summary": "Environment Monitoring completed the remaining routes. The following routes failed: %s",
     "environmentmonitoring.route_failed": "Route \"%s\" failed. It was recorded, and the remaining routes will continue.",
     "visitfriends.friend_missing": "Friend is missing: %s",

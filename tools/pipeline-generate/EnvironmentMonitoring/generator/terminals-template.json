@@ -26,7 +26,11 @@
     "EnvironmentMonitoringRecord${Id}Failure": {
         "desc": "记录${Name}路线失败并恢复终端界面",
         "action": "Custom",
-        "custom_action": "EnvironmentMonitoringRecordFailure",
+        "custom_action": "FailureCollectorRecord",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "item_key": "environmentmonitoring.route_failed"
+        },
         "next": [
             "EnvironmentMonitoringRecover${Id}AfterFailure"
         ]

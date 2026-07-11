@@ -42,6 +42,17 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 示例文件：[`SubTask.json`](../../../assets/resource/pipeline/Interface/Example/SubTask.json)
 
+### FailureCollector
+
+`FailureCollector` 是跨 Pipeline 节点共享的通用失败收集器，流程仍由 Pipeline 编排：
+
+- `FailureCollectorReset`：使用 `key` 清空一次运行的状态。
+- `FailureCollectorSetCurrent`：使用 `key`、`name` 标记当前子任务。
+- `FailureCollectorRecord`：记录当前子任务失败；可通过 `item_key` 指定即时提示的 Go Service i18n key。
+- `FailureCollectorFinish`：汇总失败项；可通过 `summary_key` 指定汇总提示的 Go Service i18n key。存在失败项时 Action 返回失败。
+
+它适用于“单个子任务失败后继续，全部结束后统一失败”的 Pipeline。调用方必须在入口执行 `Reset`，并保证同一流程使用一致且唯一的 `key`。
+
 ### ClearHitCount
 
 `ClearHitCount` 实现位于 `agent/go-service/clearhitcount`，用于清除指定节点的命中计数。

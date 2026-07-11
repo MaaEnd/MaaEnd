@@ -10,7 +10,10 @@
     "EnvironmentMonitoringReset": {
         "desc": "重置环境监测路线执行结果",
         "action": "Custom",
-        "custom_action": "EnvironmentMonitoringReset",
+        "custom_action": "FailureCollectorReset",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring"
+        },
         "next": [
             "EnvironmentMonitoringLoop"
         ]
@@ -30,7 +33,11 @@
     "EnvironmentMonitoringFinish": {
         "desc": "汇总环境监测路线执行结果",
         "action": "Custom",
-        "custom_action": "EnvironmentMonitoringFinish"
+        "custom_action": "FailureCollectorFinish",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "summary_key": "environmentmonitoring.failed_summary"
+        }
     },
     "EnvironmentMonitoringTerminalFinish": {
         "desc": "当前环境监测终端完成"
