@@ -49,6 +49,10 @@
                 "EssenceFilterSkillDecisionAction",
                 "EssenceFilterSwipeCalibrateAction",
                 "EssenceFilterTraceAction",
+				"EnvironmentMonitoringFinish",
+				"EnvironmentMonitoringRecordFailure",
+				"EnvironmentMonitoringReset",
+				"EnvironmentMonitoringSetCurrentRoute",
                 "FalseAction",
                 "ImageCheckSetResultAction",
                 "ImportBluePrintsEnterCodeAction",
@@ -193,6 +197,22 @@
                                     "properties": {
                                         "custom_action_param": { "$ref": "./components/auto_alt.schema.json#/$defs/AutoAltSwipeParam" }
                                     }
+								},
+								"else": {
+									"if": {
+										"type": "object",
+										"required": [ "custom_action" ],
+										"properties": {
+											"custom_action": { "const": "EnvironmentMonitoringSetCurrentRoute" }
+										}
+									},
+									"then": {
+										"type": "object",
+										"required": [ "custom_action_param" ],
+										"properties": {
+											"custom_action_param": { "$ref": "./components/environment_monitoring.schema.json#/$defs/SetCurrentRouteParam" }
+										}
+									}
                                 }
                             }
                         }

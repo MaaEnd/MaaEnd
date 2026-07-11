@@ -1,0 +1,21 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Environment Monitoring Component Schemas",
+    "description": "Parameter definitions for EnvironmentMonitoring custom actions.",
+    "$defs": {
+        "SetCurrentRouteParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "当前环境监测路线的展示名称。"
+                }
+            }
+        }
+    }
+}
