@@ -516,7 +516,7 @@ uv run main.py
 
 **绝大多数情况下，路径作者只需要改 `AutoCollectRoute*.json`。**
 
-自动采集总流程由 `AutoCollectLoop` 依次调用路线包装节点。每个包装节点使用通用 `FailureCollectorRunTask` 执行已启用路线；路线内部任意节点失败时，包装 Action 会调用该路线的 `{Route}Failed` Pipeline 节点输出现有 `$option.*.label` 本地化文案，并返回成功让 Pipeline 继续下一条路线。所有路线及后置背包整理结束后，`AutoCollectFinish` 根据收集结果让自动采集任务返回失败。
+自动采集总流程由 `AutoCollectLoop` 依次调用路线包装节点。每个包装节点使用通用 `FailureCollectorRunTask` 执行已启用路线；路线内部任意节点失败时，包装 Action 会记录该路线的 `{Route}Failed` Pipeline 节点，并返回成功让 Pipeline 继续下一条路线。所有路线及后置背包整理结束后，`AutoCollectFinish` 按失败顺序依次调用这些节点，输出 `$option.*.label` 本地化文案，再让自动采集任务返回失败。
 
 ### 路径作者不需要碰的部分
 

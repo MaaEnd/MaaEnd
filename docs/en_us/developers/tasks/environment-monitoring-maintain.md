@@ -81,7 +81,7 @@ EnvironmentMonitoringTakePhoto       (Enter photo mode -> orientation -> take ph
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
 ```
 
-Each `{Id}Job` still identifies its observation point list item, then uses the generic `FailureCollectorRunTask` action to execute the `{Id}Execute` route. The generator synchronizes zmdmap's five-language `mission.name` data into `task.EnvironmentMonitoring.route.{Id}.label`. If any node inside the route fails, the wrapper Action calls the `{Id}Failed` Pipeline node to output that localized text, runs `recovery_task` to return to the current monitoring terminal, and reports success outward so the remaining routes continue. After all terminals have been processed, `EnvironmentMonitoringFinish` uses `FailureCollectorFinish` to return overall failure. The Agent does not produce user-facing messages.
+Each `{Id}Job` still identifies its observation point list item, then uses the generic `FailureCollectorRunTask` action to execute the `{Id}Execute` route. The generator synchronizes zmdmap's five-language `mission.name` data into `task.EnvironmentMonitoring.route.{Id}.label`. If any node inside the route fails, the wrapper Action records `{Id}Failed`, runs `recovery_task` to return to the current monitoring terminal, and reports success outward so the remaining routes continue. After all terminals have been processed, `EnvironmentMonitoringFinish` uses `FailureCollectorFinish` to call those notification nodes in failure order, then returns overall failure. The Agent does not directly print user-facing messages.
 
 > [!NOTE]
 >

@@ -47,8 +47,8 @@ Action 节点用于执行自定义动作。常见写法如下：
 `FailureCollector` 是跨 Pipeline 节点共享的通用失败收集器，流程仍由 Pipeline 编排：
 
 - `FailureCollectorReset`：使用 `key` 清空一次运行的状态。
-- `FailureCollectorRunTask`：执行 `task` 指定的单个子任务。失败时记录状态并调用 `failure_task` 指定的 Pipeline 提示节点，但 Action 本身返回成功以便 Pipeline 继续；可用 `recovery_task` 执行失败恢复。
-- `FailureCollectorFinish`：检查是否存在失败项；存在时 Action 返回失败。用户提示由各自的 `failure_task` Pipeline 输出，Agent 不输出汇总提示。
+- `FailureCollectorRunTask`：执行 `task` 指定的单个子任务。失败时按发生顺序记录 `failure_task`，但 Action 本身返回成功以便 Pipeline 继续；可用 `recovery_task` 执行失败恢复。
+- `FailureCollectorFinish`：依次调用本轮记录的全部 `failure_task` Pipeline 提示节点，然后在存在失败项时返回失败。Agent 不直接输出用户提示。
 
 它适用于“单个子任务失败后继续，全部结束后统一失败”的 Pipeline。调用方必须在入口执行 `Reset`，通过 Pipeline `next` 编排多个 `RunTask` 包装节点，并保证同一流程使用一致且唯一的 `key`。
 

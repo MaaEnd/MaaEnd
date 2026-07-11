@@ -56,12 +56,8 @@ func (a *RunTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if err == nil && detail != nil && detail.Status.Success() {
 		return true
 	}
-	Record(param.Key, param.Task)
+	Record(param.Key, param.FailureTask)
 	log.Error().Err(err).Str("task", param.Task).Msg("FailureCollector subtask failed")
-	failure, failureErr := ctx.RunTask(param.FailureTask)
-	if failureErr != nil || failure == nil || !failure.Status.Success() {
-		log.Error().Err(failureErr).Str("task", param.FailureTask).Msg("FailureCollector failure notification task failed")
-	}
 	if param.RecoveryTask != "" {
 		recovery, recoveryErr := ctx.RunTask(param.RecoveryTask)
 		if recoveryErr != nil || recovery == nil || !recovery.Status.Success() {
@@ -71,11 +67,17 @@ func (a *RunTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	return true
 }
 
-func (a *FinishAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *FinishAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	param, ok := parseParam(arg)
 	if !ok {
 		return false
 	}
 	failures := Finish(param.Key)
+	for _, failureTask := range failures {
+		detail, err := ctx.RunTask(failureTask)
+		if err != nil || detail == nil || !detail.Status.Success() {
+			log.Error().Err(err).Str("task", failureTask).Msg("FailureCollector failure notification task failed")
+		}
+	}
 	return len(failures) == 0
 }
