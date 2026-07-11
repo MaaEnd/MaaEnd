@@ -13,7 +13,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "EnvironmentMonitoring",
-            "name": "栖霞驻影"
+            "name_key": "task.EnvironmentMonitoring.route.EternalSunset.label"
         },
         "post_delay": 0,
         "next": [

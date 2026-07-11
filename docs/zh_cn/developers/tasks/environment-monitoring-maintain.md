@@ -81,7 +81,7 @@ EnvironmentMonitoringTakePhoto       （进入拍照模式 → 朝向 → 拍照
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
 ```
 
-每个 `{Id}Job` 命中时会通过通用 `FailureCollectorSetCurrent` 记录当前路线。若子路线失败，终端循环的 `on_error` 会通过 `FailureCollectorRecord` 记录该路线、返回当前监测终端并继续后续路线；全部终端遍历结束后，`EnvironmentMonitoringFinish` 通过 `FailureCollectorFinish` 统一输出失败路线。只要记录中存在失败路线，环境监测任务最终就会返回失败。
+每个 `{Id}Job` 命中时会通过通用 `FailureCollectorSetCurrent` 记录当前路线。生成器把 zmdmap 的五语言 `mission.name` 同步为 `task.EnvironmentMonitoring.route.{Id}.label`，Pipeline 只传 `name_key`，由 Go Service 按当前客户端语言解析展示名。若子路线失败，终端循环的 `on_error` 会通过 `FailureCollectorRecord` 记录该路线、返回当前监测终端并继续后续路线；全部终端遍历结束后，`EnvironmentMonitoringFinish` 通过 `FailureCollectorFinish` 统一输出失败路线。只要记录中存在失败路线，环境监测任务最终就会返回失败。
 
 > [!NOTE]
 >

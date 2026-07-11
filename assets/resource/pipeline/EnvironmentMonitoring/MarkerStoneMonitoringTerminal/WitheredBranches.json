@@ -13,7 +13,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "EnvironmentMonitoring",
-            "name": "枯枝"
+            "name_key": "task.EnvironmentMonitoring.route.WitheredBranches.label"
         },
         "post_delay": 0,
         "next": [

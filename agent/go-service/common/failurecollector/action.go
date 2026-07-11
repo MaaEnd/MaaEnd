@@ -13,6 +13,7 @@ import (
 type actionParam struct {
 	Key        string `json:"key"`
 	Name       string `json:"name,omitempty"`
+	NameKey    string `json:"name_key,omitempty"`
 	ItemKey    string `json:"item_key,omitempty"`
 	SummaryKey string `json:"summary_key,omitempty"`
 }
@@ -45,8 +46,11 @@ func (a *ResetAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
 
 func (a *SetCurrentAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
 	param, ok := parseParam(arg)
-	if !ok || param.Name == "" {
+	if !ok || (param.Name == "" && param.NameKey == "") {
 		return false
+	}
+	if param.NameKey != "" {
+		param.Name = i18n.InterfaceT(param.NameKey)
 	}
 	SetCurrent(param.Key, param.Name)
 	return true

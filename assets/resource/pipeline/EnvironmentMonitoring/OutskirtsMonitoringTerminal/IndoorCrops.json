@@ -13,7 +13,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "EnvironmentMonitoring",
-            "name": "室内作物"
+            "name_key": "task.EnvironmentMonitoring.route.IndoorCrops.label"
         },
         "post_delay": 0,
         "next": [

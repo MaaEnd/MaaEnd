@@ -13,7 +13,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "EnvironmentMonitoring",
-            "name": "蓄水源石虫"
+            "name_key": "task.EnvironmentMonitoring.route.CisternOriginiumSlugs.label"
         },
         "post_delay": 0,
         "next": [

@@ -13,7 +13,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "EnvironmentMonitoring",
-            "name": "东张西望的黑腹雉羽兽"
+            "name_key": "task.EnvironmentMonitoring.route.ObservantSableChestedFowlbeast.label"
         },
         "post_delay": 0,
         "next": [

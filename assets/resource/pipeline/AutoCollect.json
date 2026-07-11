@@ -136,7 +136,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectRoute1"
+            "name_key": "option.AutoCollectRoute1.label"
         },
         "post_delay": 0,
         "next": [
@@ -151,7 +151,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectRoute2"
+            "name_key": "option.AutoCollectRoute2.label"
         },
         "post_delay": 0,
         "next": [
@@ -166,7 +166,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectRoute3"
+            "name_key": "option.AutoCollectRoute3.label"
         },
         "post_delay": 0,
         "next": [
@@ -181,7 +181,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectRoute4"
+            "name_key": "option.AutoCollectRoute4.label"
         },
         "post_delay": 0,
         "next": [
@@ -196,7 +196,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectRoute5"
+            "name_key": "option.AutoCollectRoute5.label"
         },
         "post_delay": 0,
         "next": [
@@ -211,7 +211,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectRoute6"
+            "name_key": "option.AutoCollectRoute6.label"
         },
         "post_delay": 0,
         "next": [
@@ -226,7 +226,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectRoute7"
+            "name_key": "option.AutoCollectRoute7.label"
         },
         "post_delay": 0,
         "next": [
@@ -241,7 +241,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectRoute8"
+            "name_key": "option.AutoCollectRoute8.label"
         },
         "post_delay": 0,
         "next": [
@@ -256,7 +256,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectRoute9"
+            "name_key": "option.AutoCollectRoute9.label"
         },
         "post_delay": 0,
         "next": [
@@ -271,7 +271,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectRoute10"
+            "name_key": "option.AutoCollectRoute10.label"
         },
         "post_delay": 0,
         "next": [
@@ -286,7 +286,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectRoute11"
+            "name_key": "option.AutoCollectRoute11.label"
         },
         "post_delay": 0,
         "next": [
@@ -301,7 +301,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectRoute12"
+            "name_key": "option.AutoCollectRoute12.label"
         },
         "post_delay": 0,
         "next": [
@@ -316,7 +316,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectRoute13"
+            "name_key": "option.AutoCollectRoute13.label"
         },
         "post_delay": 0,
         "next": [
@@ -331,7 +331,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectRoute14"
+            "name_key": "option.AutoCollectRoute14.label"
         },
         "post_delay": 0,
         "next": [
@@ -346,7 +346,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectCommonRoute1"
+            "name_key": "option.AutoCollectCommonRoute1.label"
         },
         "post_delay": 0,
         "next": [
@@ -361,7 +361,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectCommonRoute2"
+            "name_key": "option.AutoCollectCommonRoute2.label"
         },
         "post_delay": 0,
         "next": [
@@ -376,7 +376,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectCommonRoute3"
+            "name_key": "option.AutoCollectCommonRoute3.label"
         },
         "post_delay": 0,
         "next": [
@@ -391,7 +391,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectCommonRoute4"
+            "name_key": "option.AutoCollectCommonRoute4.label"
         },
         "post_delay": 0,
         "next": [
@@ -406,7 +406,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectCommonRoute5"
+            "name_key": "option.AutoCollectCommonRoute5.label"
         },
         "post_delay": 0,
         "next": [
@@ -421,7 +421,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectCommonRoute6"
+            "name_key": "option.AutoCollectCommonRoute6.label"
         },
         "post_delay": 0,
         "next": [
@@ -436,7 +436,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectCommonRoute7"
+            "name_key": "option.AutoCollectCommonRoute7.label"
         },
         "post_delay": 0,
         "next": [
@@ -451,7 +451,7 @@
         "custom_action": "FailureCollectorSetCurrent",
         "custom_action_param": {
             "key": "AutoCollect",
-            "name": "AutoCollectCommonRoute8"
+            "name_key": "option.AutoCollectCommonRoute8.label"
         },
         "post_delay": 0,
         "next": [

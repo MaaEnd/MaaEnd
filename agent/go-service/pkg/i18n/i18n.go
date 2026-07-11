@@ -53,10 +53,11 @@ var htmlTemplates = map[string]string{
 }
 
 var (
-	currentLang string
-	localeDir   string
-	messages    map[string]string
-	mu          sync.RWMutex
+	currentLang       string
+	localeDir         string
+	messages          map[string]string
+	interfaceMessages map[string]string
+	mu                sync.RWMutex
 
 	fileCache   map[string]string
 	fileCacheMu sync.RWMutex
@@ -72,12 +73,14 @@ func Init() {
 
 	resolved := resolveLocaleDir()
 	loadedMessages := loadMessages(resolved, lang)
+	loadedInterfaceMessages := loadMessages(filepath.Join(filepath.Dir(resolved), "interface"), lang)
 	messageCount := len(loadedMessages)
 
 	mu.Lock()
 	currentLang = lang
 	localeDir = resolved
 	messages = loadedMessages
+	interfaceMessages = loadedInterfaceMessages
 	fileCache = make(map[string]string)
 	mu.Unlock()
 
@@ -87,6 +90,19 @@ func Init() {
 		Str("locale_dir", resolved).
 		Int("message_count", messageCount).
 		Msg("i18n initialized")
+}
+
+// InterfaceT returns a localized string from the interface locale catalog.
+// It allows Go Service components to reuse task and option labels without
+// duplicating them in locales/go-service.
+func InterfaceT(key string) string {
+	mu.RLock()
+	val, ok := interfaceMessages[key]
+	mu.RUnlock()
+	if !ok {
+		return key
+	}
+	return val
 }
 
 func NormalizeLang(s string) string {

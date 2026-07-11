@@ -516,7 +516,7 @@ uv run main.py
 
 **绝大多数情况下，路径作者只需要改 `AutoCollectRoute*.json`。**
 
-自动采集总流程由 `AutoCollectLoop` 依次调用已启用路线。单条路线失败时，循环的 `on_error` 会通过通用 `FailureCollector` 记录路线并继续；所有路线及后置背包整理结束后，`AutoCollectFinish` 统一输出失败项并让自动采集任务返回失败。路线遍历不由 Go `SubTask` 调度。
+自动采集总流程由 `AutoCollectLoop` 依次调用已启用路线。单条路线失败时，循环的 `on_error` 会通过通用 `FailureCollector` 记录路线并继续；路线包装节点使用 `name_key` 复用 `assets/locales/interface/*.json` 中的选项文案，因此失败列表会按当前客户端语言显示“线路5：蓬茸锦草”等名称。所有路线及后置背包整理结束后，`AutoCollectFinish` 统一输出失败项并让自动采集任务返回失败。路线遍历不由 Go `SubTask` 调度。
 
 ### 路径作者不需要碰的部分
 

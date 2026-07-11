@@ -22,15 +22,20 @@
                 },
                 {
                     "type": "object",
-                    "required": [
-                        "name"
-                    ],
-                    "properties": {
+					"properties": {
                         "name": {
                             "type": "string",
                             "minLength": 1
-                        }
-                    }
+						},
+						"name_key": {
+							"type": "string",
+							"minLength": 1
+						}
+					},
+					"oneOf": [
+						{ "required": [ "name" ] },
+						{ "required": [ "name_key" ] }
+					]
                 }
             ],
             "unevaluatedProperties": false

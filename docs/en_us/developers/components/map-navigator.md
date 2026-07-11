@@ -514,7 +514,7 @@ In `custom_action_param.path`, change the third element of the target coordinate
 
 **In most cases, path authors only need to modify `AutoCollectRoute*.json`.**
 
-The overall Auto Collect flow uses `AutoCollectLoop` to invoke enabled routes in order. If one route fails, the loop's `on_error` records it through the generic `FailureCollector` and continues. After all routes and the final backpack storage step finish, `AutoCollectFinish` reports failed items and makes the Auto Collect task return failure. Route iteration is not orchestrated by the Go `SubTask` action.
+The overall Auto Collect flow uses `AutoCollectLoop` to invoke enabled routes in order. If one route fails, the loop's `on_error` records it through the generic `FailureCollector` and continues. Route wrapper nodes use `name_key` to reuse option labels from `assets/locales/interface/*.json`, so the failure list is displayed in the current client language. After all routes and the final backpack storage step finish, `AutoCollectFinish` reports failed items and makes the Auto Collect task return failure. Route iteration is not orchestrated by the Go `SubTask` action.
 
 ### Parts Path Authors Do Not Need to Touch
 

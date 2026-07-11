@@ -45,7 +45,7 @@ Example file: [`SubTask.json`](../../../assets/resource/pipeline/Interface/Examp
 `FailureCollector` is a generic failure collector shared across Pipeline nodes. Pipeline remains responsible for orchestration:
 
 - `FailureCollectorReset`: Clears one run's state using `key`.
-- `FailureCollectorSetCurrent`: Marks the current subtask using `key` and `name`.
+- `FailureCollectorSetCurrent`: Marks the current subtask using `key`; `name_key` resolves a localized display name from `assets/locales/interface/*.json`. `name` is only a fallback when no locale key exists, and the two fields are mutually exclusive.
 - `FailureCollectorRecord`: Records the current subtask as failed; `item_key` optionally specifies a Go Service i18n key for an immediate message.
 - `FailureCollectorFinish`: Summarizes failed items; `summary_key` optionally specifies a Go Service i18n key for the summary. The Action returns failure when any item was recorded.
 

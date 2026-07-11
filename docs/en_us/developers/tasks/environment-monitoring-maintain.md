@@ -81,7 +81,7 @@ EnvironmentMonitoringTakePhoto       (Enter photo mode -> orientation -> take ph
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
 ```
 
-When each `{Id}Job` is matched, the generic `FailureCollectorSetCurrent` action records it as the current route. If a child route fails, the terminal loop's `on_error` uses `FailureCollectorRecord` to record that route, returns to the current monitoring terminal, and continues with the remaining routes. After all terminals have been processed, `EnvironmentMonitoringFinish` uses `FailureCollectorFinish` to report the failed routes and returns failure when the list is not empty.
+When each `{Id}Job` is matched, the generic `FailureCollectorSetCurrent` action records it as the current route. The generator synchronizes zmdmap's five-language `mission.name` data into `task.EnvironmentMonitoring.route.{Id}.label`; Pipeline passes only `name_key`, and the Go Service resolves the display name using the current client language. If a child route fails, the terminal loop's `on_error` uses `FailureCollectorRecord` to record that route, returns to the current monitoring terminal, and continues with the remaining routes. After all terminals have been processed, `EnvironmentMonitoringFinish` uses `FailureCollectorFinish` to report the failed routes and returns failure when the list is not empty.
 
 > [!NOTE]
 >
