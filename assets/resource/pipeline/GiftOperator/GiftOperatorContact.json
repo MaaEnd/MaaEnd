@@ -289,8 +289,8 @@
                 "method": 40,
                 "lower": [
                     27,
-                    255,
-                    255
+                    240,
+                    240
                 ],
                 "upper": [
                     30,
@@ -298,6 +298,7 @@
                     255
                 ],
                 "connected": true,
+                "order_by": "Area",
                 "count": 10
             }
         }
@@ -309,16 +310,16 @@
             "param": {
                 "roi": "GiftOperatorCheckSelectedLabelColor",
                 "lower": [
-                    40,
-                    40,
+                    0,
+                    0,
                     45
                 ],
                 "upper": [
                     80,
                     78,
-                    53
+                    55
                 ],
-                "count": 10
+                "count": 15
             }
         }
     },
