@@ -91,7 +91,7 @@
     },
     "GiftOperatorMoveLocation2": {
         "desc": "转向0度(正北)尝试接触到干员(预设位置2)",
-        "max_hit": 1,
+        "max_hit": 2,
         "action": {
             "type": "Custom",
             "param": {
