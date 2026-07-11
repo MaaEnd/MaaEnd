@@ -81,7 +81,7 @@ EnvironmentMonitoringTakePhoto       (Enter photo mode -> orientation -> take ph
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
 ```
 
-When each `{Id}Job` is matched, the generic `FailureCollectorSetCurrent` action records it as the current route. The generator synchronizes zmdmap's five-language `mission.name` data into `task.EnvironmentMonitoring.route.{Id}.label`; Pipeline passes only `name_key`, and the Go Service resolves the display name using the current client language. If a child route fails, the terminal loop's `on_error` uses `FailureCollectorRecord` to record that route, returns to the current monitoring terminal, and continues with the remaining routes. After all terminals have been processed, `EnvironmentMonitoringFinish` uses `FailureCollectorFinish` to report the failed routes and returns failure when the list is not empty.
+Each `{Id}Job` still identifies its observation point list item, then uses the generic `FailureCollectorRunTask` action to execute the `{Id}Execute` route. The generator synchronizes zmdmap's five-language `mission.name` data into `task.EnvironmentMonitoring.route.{Id}.label`; Pipeline passes only `name_key`, and the Go Service resolves the display name using the current client language. If any node inside the route fails, the wrapper Action records the route, runs `recovery_task` to return to the current monitoring terminal, and reports success outward so the remaining routes continue. After all terminals have been processed, `EnvironmentMonitoringFinish` uses `FailureCollectorFinish` to report the failed routes and returns failure when the list is not empty.
 
 > [!NOTE]
 >
@@ -176,7 +176,7 @@ The default export of `data.mjs` is an array, where each element = the rendering
 }
 ```
 
-`terminals-data.mjs` scans all rows assembled by `data.mjs`, groups them by `Station`, links each observation point's `[JumpBack]{Id}Job` into the corresponding terminal's `next` list, and ends with `EnvironmentMonitoringTerminalFinish`. The terminal loop handles individual route failures through `on_error`; after both terminals finish, the main flow uses `EnvironmentMonitoringFinish` to summarize the result.
+`terminals-data.mjs` scans all rows assembled by `data.mjs`, groups them by `Station`, links each observation point's `[JumpBack]{Id}Job` into the corresponding terminal's `next` list, and ends with `EnvironmentMonitoringTerminalFinish`. Each `{Id}Job` handles route failures through its `FailureCollectorRunTask` wrapper Action; after both terminals finish, the main flow uses `EnvironmentMonitoringFinish` to summarize the result.
 
 ### Run Commands
 

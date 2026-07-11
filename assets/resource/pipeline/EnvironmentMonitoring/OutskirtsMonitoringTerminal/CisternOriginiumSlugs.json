@@ -10,12 +10,18 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action": "FailureCollectorRunTask",
         "custom_action_param": {
             "key": "EnvironmentMonitoring",
-            "name_key": "task.EnvironmentMonitoring.route.CisternOriginiumSlugs.label"
+            "task": "CisternOriginiumSlugsExecute",
+            "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "name_key": "task.EnvironmentMonitoring.route.CisternOriginiumSlugs.label",
+            "item_key": "environmentmonitoring.route_failed"
         },
-        "post_delay": 0,
+        "post_delay": 0
+    },
+    "CisternOriginiumSlugsExecute": {
+        "desc": "执行蓄水源石虫任务路线",
         "next": [
             "AcceptCisternOriginiumSlugs",
             "GoToCisternOriginiumSlugsMission"

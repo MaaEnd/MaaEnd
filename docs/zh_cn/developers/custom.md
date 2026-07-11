@@ -47,11 +47,10 @@ Action 节点用于执行自定义动作。常见写法如下：
 `FailureCollector` 是跨 Pipeline 节点共享的通用失败收集器，流程仍由 Pipeline 编排：
 
 - `FailureCollectorReset`：使用 `key` 清空一次运行的状态。
-- `FailureCollectorSetCurrent`：使用 `key` 标记当前子任务；`name_key` 从 `assets/locales/interface/*.json` 解析本地化展示名。`name` 仅作为没有语言 key 时的兜底，两者互斥。
-- `FailureCollectorRecord`：记录当前子任务失败；可通过 `item_key` 指定即时提示的 Go Service i18n key。
+- `FailureCollectorRunTask`：执行 `task` 指定的单个子任务。失败时按 `name_key` 记录本地化名称，但 Action 本身返回成功以便 Pipeline 继续；可用 `item_key` 即时提示，并用 `recovery_task` 执行失败恢复。
 - `FailureCollectorFinish`：汇总失败项；可通过 `summary_key` 指定汇总提示的 Go Service i18n key。存在失败项时 Action 返回失败。
 
-它适用于“单个子任务失败后继续，全部结束后统一失败”的 Pipeline。调用方必须在入口执行 `Reset`，并保证同一流程使用一致且唯一的 `key`。
+它适用于“单个子任务失败后继续，全部结束后统一失败”的 Pipeline。调用方必须在入口执行 `Reset`，通过 Pipeline `next` 编排多个 `RunTask` 包装节点，并保证同一流程使用一致且唯一的 `key`。
 
 ### ClearHitCount
 

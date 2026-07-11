@@ -36,34 +36,6 @@
             "[JumpBack]PierWaterwheelJob",
             "[JumpBack]MiniShellbeastJob",
             "EnvironmentMonitoringTerminalFinish"
-        ],
-        "on_error": [
-            "EnvironmentMonitoringRecordOutskirtsMonitoringTerminalFailure"
-        ]
-    },
-    "EnvironmentMonitoringRecordOutskirtsMonitoringTerminalFailure": {
-        "desc": "记录城郊监测终端路线失败并恢复终端界面",
-        "action": "Custom",
-        "custom_action": "FailureCollectorRecord",
-        "custom_action_param": {
-            "key": "EnvironmentMonitoring",
-            "item_key": "environmentmonitoring.route_failed"
-        },
-        "next": [
-            "EnvironmentMonitoringRecoverOutskirtsMonitoringTerminalAfterFailure"
-        ]
-    },
-    "EnvironmentMonitoringRecoverOutskirtsMonitoringTerminalAfterFailure": {
-        "desc": "路线失败后返回城郊监测终端",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
-            ]
-        },
-        "next": [
-            "OutskirtsMonitoringTerminalLoop"
         ]
     },
     "MarkerStoneMonitoringTerminal": {
@@ -99,34 +71,6 @@
             "[JumpBack]WaterTemperatureControllerJob",
             "[JumpBack]SerenityGardenTianshiPillarJob",
             "EnvironmentMonitoringTerminalFinish"
-        ],
-        "on_error": [
-            "EnvironmentMonitoringRecordMarkerStoneMonitoringTerminalFailure"
-        ]
-    },
-    "EnvironmentMonitoringRecordMarkerStoneMonitoringTerminalFailure": {
-        "desc": "记录首墩监测终端路线失败并恢复终端界面",
-        "action": "Custom",
-        "custom_action": "FailureCollectorRecord",
-        "custom_action_param": {
-            "key": "EnvironmentMonitoring",
-            "item_key": "environmentmonitoring.route_failed"
-        },
-        "next": [
-            "EnvironmentMonitoringRecoverMarkerStoneMonitoringTerminalAfterFailure"
-        ]
-    },
-    "EnvironmentMonitoringRecoverMarkerStoneMonitoringTerminalAfterFailure": {
-        "desc": "路线失败后返回首墩监测终端",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal"
-            ]
-        },
-        "next": [
-            "MarkerStoneMonitoringTerminalLoop"
         ]
     }
 }

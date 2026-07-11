@@ -81,7 +81,7 @@ EnvironmentMonitoringTakePhoto       （进入拍照模式 → 朝向 → 拍照
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
 ```
 
-每个 `{Id}Job` 命中时会通过通用 `FailureCollectorSetCurrent` 记录当前路线。生成器把 zmdmap 的五语言 `mission.name` 同步为 `task.EnvironmentMonitoring.route.{Id}.label`，Pipeline 只传 `name_key`，由 Go Service 按当前客户端语言解析展示名。若子路线失败，终端循环的 `on_error` 会通过 `FailureCollectorRecord` 记录该路线、返回当前监测终端并继续后续路线；全部终端遍历结束后，`EnvironmentMonitoringFinish` 通过 `FailureCollectorFinish` 统一输出失败路线。只要记录中存在失败路线，环境监测任务最终就会返回失败。
+每个 `{Id}Job` 仍负责识别观察点列表项，命中后通过通用 `FailureCollectorRunTask` 执行 `{Id}Execute` 路线。生成器把 zmdmap 的五语言 `mission.name` 同步为 `task.EnvironmentMonitoring.route.{Id}.label`，Pipeline 只传 `name_key`，由 Go Service 按当前客户端语言解析展示名。若路线内部任意节点失败，包装 Action 会记录路线、运行 `recovery_task` 返回当前监测终端，并向外返回成功以继续后续路线；全部终端遍历结束后，`EnvironmentMonitoringFinish` 通过 `FailureCollectorFinish` 统一输出失败路线。只要记录中存在失败路线，环境监测任务最终就会返回失败。
 
 > [!NOTE]
 >
@@ -176,7 +176,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 }
 ```
 
-`terminals-data.mjs` 会扫描 `data.mjs` 装配后的全部行，按 `Station` 分组，把每个观察点的 `[JumpBack]{Id}Job` 串到对应终端的 `next` 列表里，并以 `EnvironmentMonitoringTerminalFinish` 收尾。终端循环通过 `on_error` 处理单条路线失败；两个终端都结束后，由主流程的 `EnvironmentMonitoringFinish` 汇总结果。
+`terminals-data.mjs` 会扫描 `data.mjs` 装配后的全部行，按 `Station` 分组，把每个观察点的 `[JumpBack]{Id}Job` 串到对应终端的 `next` 列表里，并以 `EnvironmentMonitoringTerminalFinish` 收尾。单条路线失败由 `{Id}Job` 的 `FailureCollectorRunTask` 包装 Action 处理；两个终端都结束后，由主流程的 `EnvironmentMonitoringFinish` 汇总结果。
 
 ### 运行命令
 

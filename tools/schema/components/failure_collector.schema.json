@@ -15,44 +15,35 @@
                 }
             }
         },
-        "SetCurrentParam": {
+		"RunTaskParam": {
             "allOf": [
                 {
                     "$ref": "#/$defs/BaseParam"
                 },
                 {
                     "type": "object",
+					"required": [
+						"task",
+						"name_key"
+					],
 					"properties": {
-                        "name": {
-                            "type": "string",
-                            "minLength": 1
+						"task": {
+							"type": "string",
+							"minLength": 1
 						},
 						"name_key": {
 							"type": "string",
 							"minLength": 1
+						},
+						"item_key": {
+							"type": "string",
+							"minLength": 1
+						},
+						"recovery_task": {
+							"type": "string",
+							"minLength": 1
 						}
-					},
-					"oneOf": [
-						{ "required": [ "name" ] },
-						{ "required": [ "name_key" ] }
-					]
-                }
-            ],
-            "unevaluatedProperties": false
-        },
-        "RecordParam": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/BaseParam"
-                },
-                {
-                    "type": "object",
-                    "properties": {
-                        "item_key": {
-                            "type": "string",
-                            "minLength": 1
-                        }
-                    }
+					}
                 }
             ],
             "unevaluatedProperties": false

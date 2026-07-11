@@ -3,7 +3,6 @@ package failurecollector
 import "sync"
 
 type state struct {
-	current  string
 	failures []string
 }
 
@@ -16,28 +15,6 @@ func Reset(key string) {
 	states.Lock()
 	states.byKey[key] = state{}
 	states.Unlock()
-}
-
-func SetCurrent(key, name string) {
-	states.Lock()
-	value := states.byKey[key]
-	value.current = name
-	states.byKey[key] = value
-	states.Unlock()
-}
-
-func RecordCurrent(key string) string {
-	states.Lock()
-	defer states.Unlock()
-	value := states.byKey[key]
-	if value.current == "" {
-		return ""
-	}
-	failed := value.current
-	value.failures = append(value.failures, failed)
-	value.current = ""
-	states.byKey[key] = value
-	return failed
 }
 
 func Record(key, name string) {

@@ -11,16 +11,16 @@ import (
 )
 
 type actionParam struct {
-	Key        string `json:"key"`
-	Name       string `json:"name,omitempty"`
-	NameKey    string `json:"name_key,omitempty"`
-	ItemKey    string `json:"item_key,omitempty"`
-	SummaryKey string `json:"summary_key,omitempty"`
+	Key          string `json:"key"`
+	NameKey      string `json:"name_key,omitempty"`
+	Task         string `json:"task,omitempty"`
+	RecoveryTask string `json:"recovery_task,omitempty"`
+	ItemKey      string `json:"item_key,omitempty"`
+	SummaryKey   string `json:"summary_key,omitempty"`
 }
 
 type ResetAction struct{}
-type SetCurrentAction struct{}
-type RecordAction struct{}
+type RunTaskAction struct{}
 type FinishAction struct{}
 
 func parseParam(arg *maa.CustomActionArg) (actionParam, bool) {
@@ -44,30 +44,34 @@ func (a *ResetAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
 	return true
 }
 
-func (a *SetCurrentAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *RunTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	param, ok := parseParam(arg)
-	if !ok || (param.Name == "" && param.NameKey == "") {
+	if !ok || param.Task == "" || param.NameKey == "" {
 		return false
 	}
-	if param.NameKey != "" {
-		param.Name = i18n.InterfaceT(param.NameKey)
-	}
-	SetCurrent(param.Key, param.Name)
-	return true
-}
-
-func (a *RecordAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	param, ok := parseParam(arg)
-	if !ok {
+	node, err := ctx.GetNode(param.Task)
+	if err != nil {
+		log.Error().Err(err).Str("task", param.Task).Msg("FailureCollector failed to get subtask node")
 		return false
 	}
-	failed := RecordCurrent(param.Key)
-	if failed == "" {
-		log.Error().Str("key", param.Key).Msg("FailureCollector has no current item")
-		return false
+	if node.Enabled != nil && !*node.Enabled {
+		return true
 	}
+	detail, err := ctx.RunTask(param.Task)
+	if err == nil && detail != nil && detail.Status.Success() {
+		return true
+	}
+	failed := i18n.InterfaceT(param.NameKey)
+	Record(param.Key, failed)
+	log.Error().Err(err).Str("task", param.Task).Str("item", failed).Msg("FailureCollector subtask failed")
 	if param.ItemKey != "" {
 		maafocus.Print(ctx, i18n.T(param.ItemKey, failed))
+	}
+	if param.RecoveryTask != "" {
+		recovery, recoveryErr := ctx.RunTask(param.RecoveryTask)
+		if recoveryErr != nil || recovery == nil || !recovery.Status.Success() {
+			log.Error().Err(recoveryErr).Str("task", param.RecoveryTask).Msg("FailureCollector recovery subtask failed")
+		}
 	}
 	return true
 }

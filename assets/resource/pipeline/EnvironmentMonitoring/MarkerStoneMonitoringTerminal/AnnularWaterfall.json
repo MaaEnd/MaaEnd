@@ -10,12 +10,18 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action": "FailureCollectorRunTask",
         "custom_action_param": {
             "key": "EnvironmentMonitoring",
-            "name_key": "task.EnvironmentMonitoring.route.AnnularWaterfall.label"
+            "task": "AnnularWaterfallExecute",
+            "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "name_key": "task.EnvironmentMonitoring.route.AnnularWaterfall.label",
+            "item_key": "environmentmonitoring.route_failed"
         },
-        "post_delay": 0,
+        "post_delay": 0
+    },
+    "AnnularWaterfallExecute": {
+        "desc": "执行环形瀑布任务路线",
         "next": [
             "AcceptAnnularWaterfall",
             "GoToAnnularWaterfallMission"

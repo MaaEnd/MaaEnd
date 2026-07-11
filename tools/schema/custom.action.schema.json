@@ -50,9 +50,8 @@
                 "EssenceFilterSwipeCalibrateAction",
                 "EssenceFilterTraceAction",
 				"FailureCollectorFinish",
-				"FailureCollectorRecord",
+				"FailureCollectorRunTask",
 				"FailureCollectorReset",
-				"FailureCollectorSetCurrent",
                 "FalseAction",
                 "ImageCheckSetResultAction",
                 "ImportBluePrintsEnterCodeAction",
@@ -113,13 +112,13 @@
 		{
 			"if": {
 				"properties": {
-					"custom_action": { "const": "FailureCollectorRecord" }
+					"custom_action": { "const": "FailureCollectorRunTask" }
 				},
 				"required": [ "custom_action" ]
 			},
 			"then": {
 				"properties": {
-					"custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/RecordParam" }
+					"custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/RunTaskParam" }
 				},
 				"required": [ "custom_action_param" ]
 			}
@@ -247,14 +246,14 @@
 										"type": "object",
 										"required": [ "custom_action" ],
                                     "properties": {
-                                        "custom_action": { "const": "FailureCollectorSetCurrent" }
+										"custom_action": { "const": "FailureCollectorRunTask" }
                                     }
 									},
 									"then": {
 										"type": "object",
 										"required": [ "custom_action_param" ],
 										"properties": {
-                                        "custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/SetCurrentParam" }
+										"custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/RunTaskParam" }
 										}
 									}
                                 }

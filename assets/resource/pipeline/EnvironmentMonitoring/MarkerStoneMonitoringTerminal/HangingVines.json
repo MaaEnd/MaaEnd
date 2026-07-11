@@ -10,12 +10,18 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action": "FailureCollectorRunTask",
         "custom_action_param": {
             "key": "EnvironmentMonitoring",
-            "name_key": "task.EnvironmentMonitoring.route.HangingVines.label"
+            "task": "HangingVinesExecute",
+            "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "name_key": "task.EnvironmentMonitoring.route.HangingVines.label",
+            "item_key": "environmentmonitoring.route_failed"
         },
-        "post_delay": 0,
+        "post_delay": 0
+    },
+    "HangingVinesExecute": {
+        "desc": "执行垂藤任务路线",
         "next": [
             "AcceptHangingVines",
             "GoToHangingVinesMission"

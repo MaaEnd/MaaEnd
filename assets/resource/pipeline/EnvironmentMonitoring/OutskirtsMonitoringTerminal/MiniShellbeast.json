@@ -10,12 +10,18 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action": "FailureCollectorRunTask",
         "custom_action_param": {
             "key": "EnvironmentMonitoring",
-            "name_key": "task.EnvironmentMonitoring.route.MiniShellbeast.label"
+            "task": "MiniShellbeastExecute",
+            "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "name_key": "task.EnvironmentMonitoring.route.MiniShellbeast.label",
+            "item_key": "environmentmonitoring.route_failed"
         },
-        "post_delay": 0,
+        "post_delay": 0
+    },
+    "MiniShellbeastExecute": {
+        "desc": "执行小壳兽任务路线",
         "next": [
             "AcceptMiniShellbeast",
             "GoToMiniShellbeastMission"

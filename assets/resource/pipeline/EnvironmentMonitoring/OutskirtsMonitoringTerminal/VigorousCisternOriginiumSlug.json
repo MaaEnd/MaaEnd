@@ -10,12 +10,18 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action": "FailureCollectorRunTask",
         "custom_action_param": {
             "key": "EnvironmentMonitoring",
-            "name_key": "task.EnvironmentMonitoring.route.VigorousCisternOriginiumSlug.label"
+            "task": "VigorousCisternOriginiumSlugExecute",
+            "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "name_key": "task.EnvironmentMonitoring.route.VigorousCisternOriginiumSlug.label",
+            "item_key": "environmentmonitoring.route_failed"
         },
-        "post_delay": 0,
+        "post_delay": 0
+    },
+    "VigorousCisternOriginiumSlugExecute": {
+        "desc": "执行充满活力的蓄水源石虫任务路线",
         "next": [
             "AcceptVigorousCisternOriginiumSlug",
             "GoToVigorousCisternOriginiumSlugMission"

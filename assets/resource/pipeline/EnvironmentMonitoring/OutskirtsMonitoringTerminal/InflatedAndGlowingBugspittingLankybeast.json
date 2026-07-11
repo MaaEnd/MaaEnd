@@ -10,12 +10,18 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "FailureCollectorSetCurrent",
+        "custom_action": "FailureCollectorRunTask",
         "custom_action_param": {
             "key": "EnvironmentMonitoring",
-            "name_key": "task.EnvironmentMonitoring.route.InflatedAndGlowingBugspittingLankybeast.label"
+            "task": "InflatedAndGlowingBugspittingLankybeastExecute",
+            "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "name_key": "task.EnvironmentMonitoring.route.InflatedAndGlowingBugspittingLankybeast.label",
+            "item_key": "environmentmonitoring.route_failed"
         },
-        "post_delay": 0,
+        "post_delay": 0
+    },
+    "InflatedAndGlowingBugspittingLankybeastExecute": {
+        "desc": "执行肚子鼓气后发光的吐虫长股兽任务路线",
         "next": [
             "AcceptInflatedAndGlowingBugspittingLankybeast",
             "GoToInflatedAndGlowingBugspittingLankybeastMission"
