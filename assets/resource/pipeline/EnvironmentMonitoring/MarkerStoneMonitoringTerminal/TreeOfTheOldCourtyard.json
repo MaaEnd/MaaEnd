@@ -27,12 +27,20 @@
         "expected": [
             "“旧庭树”",
             "「舊庭樹」",
-            "(?i)\"Tree\\s*of\\s*the\\s*Old\\s*Courtyard\"",
+            "(?i)\"\\s*Tree\\s*of\\s*the\\s*Old\\s*Courtyard\\s*\"",
             "「旧庭の木」",
+            "(?i)\"Tree\\s*of\\s*the\\s*Old\\s*Courtyard\"",
             "옛 정원의 나무"
         ],
         "replace": [],
         "order_by": "Vertical"
+    ,
+        "roi_offset": [
+            0,
+            0,
+            59,
+            0
+        ]
     },
     "CheckTreeOfTheOldCourtyardIcon": {
         "desc": "检查旧庭树文本下方的图标",

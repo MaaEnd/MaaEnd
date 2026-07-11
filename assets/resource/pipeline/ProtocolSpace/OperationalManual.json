@@ -37,11 +37,22 @@
         "expected": [
             "索引",
             "(?i)Index",
+            "周回",
+            "协议空间",
+            "協議空間",
+            "(?i)Protocol\\s*Space",
             "協約空間"
         ],
         "action": "Click",
         "next": [
             "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab"
+        ]
+    ,
+        "roi_offset": [
+            0,
+            0,
+            130,
+            0
         ]
     },
     "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {

@@ -746,7 +746,7 @@
         "expected": [
             "获得奖励",
             "獲得獎勵",
-            "Rewards Acquired",
+            "(?i)Rewards\\s*Acquired",
             "報酬一覧",
             "보상 획득"
         ],
@@ -901,7 +901,7 @@
         "expected": [
             "行动失败",
             "行動失敗",
-            "Operation Failed",
+            "(?i)Operation\\s*Failed",
             "작전 실패"
         ],
         "pre_wait_freezes": 200,

@@ -27,12 +27,20 @@
         "expected": [
             "“栖霞驻影”",
             "「棲霞駐影」",
-            "(?i)\"Eternal\\s*Sunset\"",
+            "(?i)\"\\s*Eternal\\s*Sunset\\s*\"",
             "「棲霞留影」",
+            "(?i)\"Eternal\\s*Sunset\"",
             "'노을의 그림자'"
         ],
         "replace": [],
         "order_by": "Vertical"
+    ,
+        "roi_offset": [
+            0,
+            0,
+            59,
+            0
+        ]
     },
     "CheckEternalSunsetIcon": {
         "desc": "检查栖霞驻影文本下方的图标",
