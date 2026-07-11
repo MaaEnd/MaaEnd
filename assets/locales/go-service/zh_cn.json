@@ -1,7 +1,4 @@
 {
-    "autocollect.failed_summary": "自动采集已完成其余子任务，以下子任务执行失败：%s",
-    "environmentmonitoring.failed_summary": "环境监测已完成其余路线，以下路线执行失败：%s",
-    "environmentmonitoring.route_failed": "路线“%s”执行失败，已标记并继续执行其他路线。",
     "visitfriends.friend_missing": "该好友缺少 %s",
     "visitfriends.clue_exchange": "线索交换",
     "visitfriends.control_nexus_assist": "总控中枢助力",

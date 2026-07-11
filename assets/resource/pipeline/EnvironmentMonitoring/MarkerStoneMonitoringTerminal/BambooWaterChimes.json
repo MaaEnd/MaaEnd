@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "BambooWaterChimesExecute",
             "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.BambooWaterChimes.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "BambooWaterChimesFailed"
         },
         "post_delay": 0
+    },
+    "BambooWaterChimesFailed": {
+        "desc": "水竹铃任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.BambooWaterChimes.label"
+        }
     },
     "BambooWaterChimesExecute": {
         "desc": "执行水竹铃任务路线",

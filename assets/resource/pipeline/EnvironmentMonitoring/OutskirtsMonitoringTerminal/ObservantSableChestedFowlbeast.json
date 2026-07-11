@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "ObservantSableChestedFowlbeastExecute",
             "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.ObservantSableChestedFowlbeast.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "ObservantSableChestedFowlbeastFailed"
         },
         "post_delay": 0
+    },
+    "ObservantSableChestedFowlbeastFailed": {
+        "desc": "东张西望的黑腹雉羽兽任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.ObservantSableChestedFowlbeast.label"
+        }
     },
     "ObservantSableChestedFowlbeastExecute": {
         "desc": "执行东张西望的黑腹雉羽兽任务路线",

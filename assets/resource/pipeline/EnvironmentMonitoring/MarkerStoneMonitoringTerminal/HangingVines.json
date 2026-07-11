@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "HangingVinesExecute",
             "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.HangingVines.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "HangingVinesFailed"
         },
         "post_delay": 0
+    },
+    "HangingVinesFailed": {
+        "desc": "垂藤任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.HangingVines.label"
+        }
     },
     "HangingVinesExecute": {
         "desc": "执行垂藤任务路线",

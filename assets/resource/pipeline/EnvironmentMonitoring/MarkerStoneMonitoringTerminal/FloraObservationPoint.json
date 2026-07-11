@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "FloraObservationPointExecute",
             "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.FloraObservationPoint.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "FloraObservationPointFailed"
         },
         "post_delay": 0
+    },
+    "FloraObservationPointFailed": {
+        "desc": "植物观察点任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.FloraObservationPoint.label"
+        }
     },
     "FloraObservationPointExecute": {
         "desc": "执行植物观察点任务路线",

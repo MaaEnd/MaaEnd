@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "BeaconDamagedInTheBlightTideExecute",
             "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.BeaconDamagedInTheBlightTide.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "BeaconDamagedInTheBlightTideFailed"
         },
         "post_delay": 0
+    },
+    "BeaconDamagedInTheBlightTideFailed": {
+        "desc": "侵蚀潮中损坏的信标任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.BeaconDamagedInTheBlightTide.label"
+        }
     },
     "BeaconDamagedInTheBlightTideExecute": {
         "desc": "执行侵蚀潮中损坏的信标任务路线",

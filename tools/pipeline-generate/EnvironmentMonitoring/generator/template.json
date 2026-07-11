@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "${Id}Execute",
             "recovery_task": "${GoToMonitoringTerminal}",
-            "name_key": "${NameKey}",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "${Id}Failed"
         },
         "post_delay": 0
+    },
+    "${Id}Failed": {
+        "desc": "${Name}任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$${NameKey}"
+        }
     },
     "${Id}Execute": {
         "desc": "执行${Name}任务路线",

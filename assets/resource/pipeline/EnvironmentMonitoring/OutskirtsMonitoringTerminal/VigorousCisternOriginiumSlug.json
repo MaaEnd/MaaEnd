@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "VigorousCisternOriginiumSlugExecute",
             "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.VigorousCisternOriginiumSlug.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "VigorousCisternOriginiumSlugFailed"
         },
         "post_delay": 0
+    },
+    "VigorousCisternOriginiumSlugFailed": {
+        "desc": "充满活力的蓄水源石虫任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.VigorousCisternOriginiumSlug.label"
+        }
     },
     "VigorousCisternOriginiumSlugExecute": {
         "desc": "执行充满活力的蓄水源石虫任务路线",

@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "WaterlampExecute",
             "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.Waterlamp.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "WaterlampFailed"
         },
         "post_delay": 0
+    },
+    "WaterlampFailed": {
+        "desc": "水灯虫任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.Waterlamp.label"
+        }
     },
     "WaterlampExecute": {
         "desc": "执行水灯虫任务路线",

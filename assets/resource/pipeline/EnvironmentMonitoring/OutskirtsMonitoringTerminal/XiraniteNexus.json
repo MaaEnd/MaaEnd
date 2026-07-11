@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "XiraniteNexusExecute",
             "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.XiraniteNexus.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "XiraniteNexusFailed"
         },
         "post_delay": 0
+    },
+    "XiraniteNexusFailed": {
+        "desc": "枢壤仪任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.XiraniteNexus.label"
+        }
     },
     "XiraniteNexusExecute": {
         "desc": "执行枢壤仪任务路线",

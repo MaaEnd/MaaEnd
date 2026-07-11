@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "PeachTreeAtBabblesSHomeExecute",
             "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.PeachTreeAtBabblesSHome.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "PeachTreeAtBabblesSHomeFailed"
         },
         "post_delay": 0
+    },
+    "PeachTreeAtBabblesSHomeFailed": {
+        "desc": "念念家的桃树任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.PeachTreeAtBabblesSHome.label"
+        }
     },
     "PeachTreeAtBabblesSHomeExecute": {
         "desc": "执行念念家的桃树任务路线",

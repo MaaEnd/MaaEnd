@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "MiniShellbeastExecute",
             "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.MiniShellbeast.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "MiniShellbeastFailed"
         },
         "post_delay": 0
+    },
+    "MiniShellbeastFailed": {
+        "desc": "小壳兽任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.MiniShellbeast.label"
+        }
     },
     "MiniShellbeastExecute": {
         "desc": "执行小壳兽任务路线",

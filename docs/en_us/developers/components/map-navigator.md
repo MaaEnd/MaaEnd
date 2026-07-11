@@ -514,7 +514,7 @@ In `custom_action_param.path`, change the third element of the target coordinate
 
 **In most cases, path authors only need to modify `AutoCollectRoute*.json`.**
 
-The overall Auto Collect flow uses `AutoCollectLoop` to invoke route wrapper nodes in order. Each wrapper uses the generic `FailureCollectorRunTask` to execute an enabled route; if any node inside the route fails, the wrapper Action records the failure and returns success so Pipeline continues with the next route. Route wrappers use `name_key` to reuse option labels from `assets/locales/interface/*.json`, so the failure list is displayed in the current client language. After all routes and the final backpack storage step finish, `AutoCollectFinish` reports failed items and makes the Auto Collect task return failure.
+The overall Auto Collect flow uses `AutoCollectLoop` to invoke route wrapper nodes in order. Each wrapper uses the generic `FailureCollectorRunTask` to execute an enabled route; if any node inside the route fails, the wrapper Action calls that route's `{Route}Failed` Pipeline node to output the existing localized `$option.*.label`, then returns success so Pipeline continues with the next route. After all routes and the final backpack storage step finish, `AutoCollectFinish` uses the collected state to make the Auto Collect task return failure.
 
 ### Parts Path Authors Do Not Need to Touch
 

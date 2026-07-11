@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "IndoorCropsExecute",
             "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.IndoorCrops.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "IndoorCropsFailed"
         },
         "post_delay": 0
+    },
+    "IndoorCropsFailed": {
+        "desc": "室内作物任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.IndoorCrops.label"
+        }
     },
     "IndoorCropsExecute": {
         "desc": "执行室内作物任务路线",

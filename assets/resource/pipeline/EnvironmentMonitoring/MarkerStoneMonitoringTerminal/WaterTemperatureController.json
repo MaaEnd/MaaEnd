@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "WaterTemperatureControllerExecute",
             "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.WaterTemperatureController.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "WaterTemperatureControllerFailed"
         },
         "post_delay": 0
+    },
+    "WaterTemperatureControllerFailed": {
+        "desc": "净水温控装置任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.WaterTemperatureController.label"
+        }
     },
     "WaterTemperatureControllerExecute": {
         "desc": "执行净水温控装置任务路线",

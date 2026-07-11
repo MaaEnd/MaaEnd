@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "EcologyNearTheFieldLogisticsDepotExecute",
             "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.EcologyNearTheFieldLogisticsDepot.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "EcologyNearTheFieldLogisticsDepotFailed"
         },
         "post_delay": 0
+    },
+    "EcologyNearTheFieldLogisticsDepotFailed": {
+        "desc": "储备站周围的生态环境任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.EcologyNearTheFieldLogisticsDepot.label"
+        }
     },
     "EcologyNearTheFieldLogisticsDepotExecute": {
         "desc": "执行储备站周围的生态环境任务路线",

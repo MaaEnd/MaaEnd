@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "EternalSunsetExecute",
             "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.EternalSunset.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "EternalSunsetFailed"
         },
         "post_delay": 0
+    },
+    "EternalSunsetFailed": {
+        "desc": "栖霞驻影任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.EternalSunset.label"
+        }
     },
     "EternalSunsetExecute": {
         "desc": "执行栖霞驻影任务路线",

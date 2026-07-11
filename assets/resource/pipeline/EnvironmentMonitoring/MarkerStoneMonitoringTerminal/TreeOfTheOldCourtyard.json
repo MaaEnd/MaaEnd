@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "TreeOfTheOldCourtyardExecute",
             "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.TreeOfTheOldCourtyard.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "TreeOfTheOldCourtyardFailed"
         },
         "post_delay": 0
+    },
+    "TreeOfTheOldCourtyardFailed": {
+        "desc": "旧庭树任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.TreeOfTheOldCourtyard.label"
+        }
     },
     "TreeOfTheOldCourtyardExecute": {
         "desc": "执行旧庭树任务路线",

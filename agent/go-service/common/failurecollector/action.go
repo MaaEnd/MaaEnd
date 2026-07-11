@@ -2,21 +2,16 @@ package failurecollector
 
 import (
 	"encoding/json"
-	"strings"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 type actionParam struct {
 	Key          string `json:"key"`
-	NameKey      string `json:"name_key,omitempty"`
 	Task         string `json:"task,omitempty"`
 	RecoveryTask string `json:"recovery_task,omitempty"`
-	ItemKey      string `json:"item_key,omitempty"`
-	SummaryKey   string `json:"summary_key,omitempty"`
+	FailureTask  string `json:"failure_task,omitempty"`
 }
 
 type ResetAction struct{}
@@ -46,7 +41,7 @@ func (a *ResetAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
 
 func (a *RunTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	param, ok := parseParam(arg)
-	if !ok || param.Task == "" || param.NameKey == "" {
+	if !ok || param.Task == "" || param.FailureTask == "" {
 		return false
 	}
 	node, err := ctx.GetNode(param.Task)
@@ -61,11 +56,11 @@ func (a *RunTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if err == nil && detail != nil && detail.Status.Success() {
 		return true
 	}
-	failed := i18n.InterfaceT(param.NameKey)
-	Record(param.Key, failed)
-	log.Error().Err(err).Str("task", param.Task).Str("item", failed).Msg("FailureCollector subtask failed")
-	if param.ItemKey != "" {
-		maafocus.Print(ctx, i18n.T(param.ItemKey, failed))
+	Record(param.Key, param.Task)
+	log.Error().Err(err).Str("task", param.Task).Msg("FailureCollector subtask failed")
+	failure, failureErr := ctx.RunTask(param.FailureTask)
+	if failureErr != nil || failure == nil || !failure.Status.Success() {
+		log.Error().Err(failureErr).Str("task", param.FailureTask).Msg("FailureCollector failure notification task failed")
 	}
 	if param.RecoveryTask != "" {
 		recovery, recoveryErr := ctx.RunTask(param.RecoveryTask)
@@ -76,17 +71,11 @@ func (a *RunTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	return true
 }
 
-func (a *FinishAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *FinishAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
 	param, ok := parseParam(arg)
 	if !ok {
 		return false
 	}
 	failures := Finish(param.Key)
-	if len(failures) == 0 {
-		return true
-	}
-	if param.SummaryKey != "" {
-		maafocus.Print(ctx, i18n.T(param.SummaryKey, strings.Join(failures, i18n.Separator())))
-	}
-	return false
+	return len(failures) == 0
 }

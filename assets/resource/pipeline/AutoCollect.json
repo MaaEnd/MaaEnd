@@ -104,8 +104,7 @@
         "action": "Custom",
         "custom_action": "FailureCollectorFinish",
         "custom_action_param": {
-            "key": "AutoCollect",
-            "summary_key": "autocollect.failed_summary"
+            "key": "AutoCollect"
         },
         "next": [
             "AutoCollectEnd"
@@ -123,7 +122,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectRoute1Start",
-            "name_key": "option.AutoCollectRoute1.label"
+            "failure_task": "AutoCollectRoute1Failed"
         },
         "post_delay": 0
     },
@@ -135,7 +134,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectRoute2Start",
-            "name_key": "option.AutoCollectRoute2.label"
+            "failure_task": "AutoCollectRoute2Failed"
         },
         "post_delay": 0
     },
@@ -147,7 +146,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectRoute3Start",
-            "name_key": "option.AutoCollectRoute3.label"
+            "failure_task": "AutoCollectRoute3Failed"
         },
         "post_delay": 0
     },
@@ -159,7 +158,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectRoute4Start",
-            "name_key": "option.AutoCollectRoute4.label"
+            "failure_task": "AutoCollectRoute4Failed"
         },
         "post_delay": 0
     },
@@ -171,7 +170,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectRoute5Start",
-            "name_key": "option.AutoCollectRoute5.label"
+            "failure_task": "AutoCollectRoute5Failed"
         },
         "post_delay": 0
     },
@@ -183,7 +182,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectRoute6Start",
-            "name_key": "option.AutoCollectRoute6.label"
+            "failure_task": "AutoCollectRoute6Failed"
         },
         "post_delay": 0
     },
@@ -195,7 +194,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectRoute7Start",
-            "name_key": "option.AutoCollectRoute7.label"
+            "failure_task": "AutoCollectRoute7Failed"
         },
         "post_delay": 0
     },
@@ -207,7 +206,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectRoute8Start",
-            "name_key": "option.AutoCollectRoute8.label"
+            "failure_task": "AutoCollectRoute8Failed"
         },
         "post_delay": 0
     },
@@ -219,7 +218,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectRoute9Start",
-            "name_key": "option.AutoCollectRoute9.label"
+            "failure_task": "AutoCollectRoute9Failed"
         },
         "post_delay": 0
     },
@@ -231,7 +230,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectRoute10Start",
-            "name_key": "option.AutoCollectRoute10.label"
+            "failure_task": "AutoCollectRoute10Failed"
         },
         "post_delay": 0
     },
@@ -243,7 +242,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectRoute11Start",
-            "name_key": "option.AutoCollectRoute11.label"
+            "failure_task": "AutoCollectRoute11Failed"
         },
         "post_delay": 0
     },
@@ -255,7 +254,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectRoute12Start",
-            "name_key": "option.AutoCollectRoute12.label"
+            "failure_task": "AutoCollectRoute12Failed"
         },
         "post_delay": 0
     },
@@ -267,7 +266,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectRoute13Start",
-            "name_key": "option.AutoCollectRoute13.label"
+            "failure_task": "AutoCollectRoute13Failed"
         },
         "post_delay": 0
     },
@@ -279,7 +278,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectRoute14Start",
-            "name_key": "option.AutoCollectRoute14.label"
+            "failure_task": "AutoCollectRoute14Failed"
         },
         "post_delay": 0
     },
@@ -291,7 +290,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectCommonRoute1Start",
-            "name_key": "option.AutoCollectCommonRoute1.label"
+            "failure_task": "AutoCollectCommonRoute1Failed"
         },
         "post_delay": 0
     },
@@ -303,7 +302,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectCommonRoute2Start",
-            "name_key": "option.AutoCollectCommonRoute2.label"
+            "failure_task": "AutoCollectCommonRoute2Failed"
         },
         "post_delay": 0
     },
@@ -315,7 +314,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectCommonRoute3Start",
-            "name_key": "option.AutoCollectCommonRoute3.label"
+            "failure_task": "AutoCollectCommonRoute3Failed"
         },
         "post_delay": 0
     },
@@ -327,7 +326,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectCommonRoute4Start",
-            "name_key": "option.AutoCollectCommonRoute4.label"
+            "failure_task": "AutoCollectCommonRoute4Failed"
         },
         "post_delay": 0
     },
@@ -339,7 +338,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectCommonRoute5Start",
-            "name_key": "option.AutoCollectCommonRoute5.label"
+            "failure_task": "AutoCollectCommonRoute5Failed"
         },
         "post_delay": 0
     },
@@ -351,7 +350,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectCommonRoute6Start",
-            "name_key": "option.AutoCollectCommonRoute6.label"
+            "failure_task": "AutoCollectCommonRoute6Failed"
         },
         "post_delay": 0
     },
@@ -363,7 +362,7 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectCommonRoute7Start",
-            "name_key": "option.AutoCollectCommonRoute7.label"
+            "failure_task": "AutoCollectCommonRoute7Failed"
         },
         "post_delay": 0
     },
@@ -375,8 +374,140 @@
         "custom_action_param": {
             "key": "AutoCollect",
             "task": "AutoCollectCommonRoute8Start",
-            "name_key": "option.AutoCollectCommonRoute8.label"
+            "failure_task": "AutoCollectCommonRoute8Failed"
         },
         "post_delay": 0
+    },
+    "AutoCollectRoute1Failed": {
+        "desc": "AutoCollectRoute1执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute1.label"
+        }
+    },
+    "AutoCollectRoute2Failed": {
+        "desc": "AutoCollectRoute2执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute2.label"
+        }
+    },
+    "AutoCollectRoute3Failed": {
+        "desc": "AutoCollectRoute3执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute3.label"
+        }
+    },
+    "AutoCollectRoute4Failed": {
+        "desc": "AutoCollectRoute4执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute4.label"
+        }
+    },
+    "AutoCollectRoute5Failed": {
+        "desc": "AutoCollectRoute5执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute5.label"
+        }
+    },
+    "AutoCollectRoute6Failed": {
+        "desc": "AutoCollectRoute6执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute6.label"
+        }
+    },
+    "AutoCollectRoute7Failed": {
+        "desc": "AutoCollectRoute7执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute7.label"
+        }
+    },
+    "AutoCollectRoute8Failed": {
+        "desc": "AutoCollectRoute8执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute8.label"
+        }
+    },
+    "AutoCollectRoute9Failed": {
+        "desc": "AutoCollectRoute9执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute9.label"
+        }
+    },
+    "AutoCollectRoute10Failed": {
+        "desc": "AutoCollectRoute10执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute10.label"
+        }
+    },
+    "AutoCollectRoute11Failed": {
+        "desc": "AutoCollectRoute11执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute11.label"
+        }
+    },
+    "AutoCollectRoute12Failed": {
+        "desc": "AutoCollectRoute12执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute12.label"
+        }
+    },
+    "AutoCollectRoute13Failed": {
+        "desc": "AutoCollectRoute13执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute13.label"
+        }
+    },
+    "AutoCollectRoute14Failed": {
+        "desc": "AutoCollectRoute14执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute14.label"
+        }
+    },
+    "AutoCollectCommonRoute1Failed": {
+        "desc": "AutoCollectCommonRoute1执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute1.label"
+        }
+    },
+    "AutoCollectCommonRoute2Failed": {
+        "desc": "AutoCollectCommonRoute2执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute2.label"
+        }
+    },
+    "AutoCollectCommonRoute3Failed": {
+        "desc": "AutoCollectCommonRoute3执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute3.label"
+        }
+    },
+    "AutoCollectCommonRoute4Failed": {
+        "desc": "AutoCollectCommonRoute4执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute4.label"
+        }
+    },
+    "AutoCollectCommonRoute5Failed": {
+        "desc": "AutoCollectCommonRoute5执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute5.label"
+        }
+    },
+    "AutoCollectCommonRoute6Failed": {
+        "desc": "AutoCollectCommonRoute6执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute6.label"
+        }
+    },
+    "AutoCollectCommonRoute7Failed": {
+        "desc": "AutoCollectCommonRoute7执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute7.label"
+        }
+    },
+    "AutoCollectCommonRoute8Failed": {
+        "desc": "AutoCollectCommonRoute8执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute8.label"
+        }
     }
 }

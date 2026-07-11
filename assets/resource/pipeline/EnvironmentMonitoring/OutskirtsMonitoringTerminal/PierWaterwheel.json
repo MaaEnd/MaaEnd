@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "PierWaterwheelExecute",
             "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.PierWaterwheel.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "PierWaterwheelFailed"
         },
         "post_delay": 0
+    },
+    "PierWaterwheelFailed": {
+        "desc": "码头水车任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.PierWaterwheel.label"
+        }
     },
     "PierWaterwheelExecute": {
         "desc": "执行码头水车任务路线",

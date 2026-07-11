@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "AnnularWaterfallExecute",
             "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.AnnularWaterfall.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "AnnularWaterfallFailed"
         },
         "post_delay": 0
+    },
+    "AnnularWaterfallFailed": {
+        "desc": "环形瀑布任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.AnnularWaterfall.label"
+        }
     },
     "AnnularWaterfallExecute": {
         "desc": "执行环形瀑布任务路线",

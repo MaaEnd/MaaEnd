@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "MysteriousCryptidGraffitiExecute",
             "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.MysteriousCryptidGraffiti.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "MysteriousCryptidGraffitiFailed"
         },
         "post_delay": 0
+    },
+    "MysteriousCryptidGraffitiFailed": {
+        "desc": "谜之生物的涂鸦任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.MysteriousCryptidGraffiti.label"
+        }
     },
     "MysteriousCryptidGraffitiExecute": {
         "desc": "执行谜之生物的涂鸦任务路线",

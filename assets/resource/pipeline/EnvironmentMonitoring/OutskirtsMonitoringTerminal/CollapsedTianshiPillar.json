@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "CollapsedTianshiPillarExecute",
             "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.CollapsedTianshiPillar.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "CollapsedTianshiPillarFailed"
         },
         "post_delay": 0
+    },
+    "CollapsedTianshiPillarFailed": {
+        "desc": "倒塌的天师桩任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.CollapsedTianshiPillar.label"
+        }
     },
     "CollapsedTianshiPillarExecute": {
         "desc": "执行倒塌的天师桩任务路线",

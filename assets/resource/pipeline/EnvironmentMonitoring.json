@@ -35,8 +35,7 @@
         "action": "Custom",
         "custom_action": "FailureCollectorFinish",
         "custom_action_param": {
-            "key": "EnvironmentMonitoring",
-            "summary_key": "environmentmonitoring.failed_summary"
+            "key": "EnvironmentMonitoring"
         }
     },
     "EnvironmentMonitoringTerminalFinish": {

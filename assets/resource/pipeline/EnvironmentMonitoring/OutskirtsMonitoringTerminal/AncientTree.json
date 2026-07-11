@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "AncientTreeExecute",
             "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.AncientTree.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "AncientTreeFailed"
         },
         "post_delay": 0
+    },
+    "AncientTreeFailed": {
+        "desc": "古树任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.AncientTree.label"
+        }
     },
     "AncientTreeExecute": {
         "desc": "执行古树任务路线",

@@ -24,18 +24,14 @@
                     "type": "object",
 					"required": [
 						"task",
-						"name_key"
+						"failure_task"
 					],
 					"properties": {
 						"task": {
 							"type": "string",
 							"minLength": 1
 						},
-						"name_key": {
-							"type": "string",
-							"minLength": 1
-						},
-						"item_key": {
+						"failure_task": {
 							"type": "string",
 							"minLength": 1
 						},
@@ -53,15 +49,9 @@
                 {
                     "$ref": "#/$defs/BaseParam"
                 },
-                {
-                    "type": "object",
-                    "properties": {
-                        "summary_key": {
-                            "type": "string",
-                            "minLength": 1
-                        }
-                    }
-                }
+				{
+					"type": "object"
+				}
             ],
             "unevaluatedProperties": false
         }

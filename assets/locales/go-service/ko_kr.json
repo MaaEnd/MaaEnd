@@ -1,7 +1,4 @@
 {
-    "autocollect.failed_summary": "자동 수집의 나머지 하위 작업을 완료했습니다. 다음 하위 작업이 실패했습니다: %s",
-    "environmentmonitoring.failed_summary": "환경 모니터링의 나머지 경로를 완료했습니다. 다음 경로가 실패했습니다: %s",
-    "environmentmonitoring.route_failed": "경로 \"%s\" 실행에 실패했습니다. 기록 후 다른 경로를 계속 실행합니다.",
     "visitfriends.friend_missing": "해당 친구에게 %s가 없습니다",
     "visitfriends.clue_exchange": "단서 교환",
     "visitfriends.control_nexus_assist": "컨트롤 넥서스 지원",

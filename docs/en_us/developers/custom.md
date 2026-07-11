@@ -45,8 +45,8 @@ Example file: [`SubTask.json`](../../../assets/resource/pipeline/Interface/Examp
 `FailureCollector` is a generic failure collector shared across Pipeline nodes. Pipeline remains responsible for orchestration:
 
 - `FailureCollectorReset`: Clears one run's state using `key`.
-- `FailureCollectorRunTask`: Executes the single subtask specified by `task`. On failure, it records the localized `name_key` but returns success so Pipeline can continue; `item_key` enables an immediate message and `recovery_task` runs optional failure recovery.
-- `FailureCollectorFinish`: Summarizes failed items; `summary_key` optionally specifies a Go Service i18n key for the summary. The Action returns failure when any item was recorded.
+- `FailureCollectorRunTask`: Executes the single subtask specified by `task`. On failure, it records the state and calls the Pipeline notification node specified by `failure_task`, but returns success so Pipeline can continue; `recovery_task` runs optional failure recovery.
+- `FailureCollectorFinish`: Checks whether any item failed and returns failure when needed. User-facing messages come from each `failure_task` Pipeline; the Agent does not print a summary.
 
 Use it for Pipelines that should continue after an individual subtask fails and report overall failure only after all subtasks finish. Callers must run `Reset` at entry, orchestrate multiple `RunTask` wrapper nodes through Pipeline `next`, and use a consistent, unique `key` throughout the flow.
 

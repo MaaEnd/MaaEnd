@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "RainbowFinExecute",
             "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.RainbowFin.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "RainbowFinFailed"
         },
         "post_delay": 0
+    },
+    "RainbowFinFailed": {
+        "desc": "七彩鳞任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.RainbowFin.label"
+        }
     },
     "RainbowFinExecute": {
         "desc": "执行七彩鳞任务路线",

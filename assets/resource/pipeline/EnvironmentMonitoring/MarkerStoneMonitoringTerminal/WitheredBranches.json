@@ -15,10 +15,15 @@
             "key": "EnvironmentMonitoring",
             "task": "WitheredBranchesExecute",
             "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
-            "name_key": "task.EnvironmentMonitoring.route.WitheredBranches.label",
-            "item_key": "environmentmonitoring.route_failed"
+            "failure_task": "WitheredBranchesFailed"
         },
         "post_delay": 0
+    },
+    "WitheredBranchesFailed": {
+        "desc": "枯枝任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.WitheredBranches.label"
+        }
     },
     "WitheredBranchesExecute": {
         "desc": "执行枯枝任务路线",
