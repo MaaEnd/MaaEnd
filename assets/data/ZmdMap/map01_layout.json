@@ -1,9 +1,7 @@
 {
   "base_map": "map01",
-  "canvas_width": 9600,
   "canvas_height": 9000,
-  "tile_w": 600,
-  "tile_h": 600,
+  "canvas_width": 9600,
   "levels": {
     "map01_lv001": {
       "x": 600,
@@ -41,5 +39,7 @@
       "width": 4800,
       "height": 4800
     }
-  }
+  },
+  "tile_h": 600,
+  "tile_w": 600
 }

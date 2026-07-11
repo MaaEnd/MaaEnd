@@ -1,0 +1,15 @@
+{
+  "base_map": "dung01",
+  "canvas_height": 6000,
+  "canvas_width": 4800,
+  "levels": {
+    "dung01_wrdg001": {
+      "x": 0,
+      "y": 0,
+      "width": 4800,
+      "height": 6000
+    }
+  },
+  "tile_h": 600,
+  "tile_w": 600
+}
