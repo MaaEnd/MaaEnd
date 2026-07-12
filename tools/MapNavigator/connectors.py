@@ -8,7 +8,7 @@ import subprocess
 from abc import ABC, abstractmethod
 from typing import Any
 
-from connection_models import AdbConnectionConfig, AdbDeviceInfo, RecordingSessionConfig, Win32ConnectionConfig
+from connection_models import AdbConnectionConfig, AdbDeviceInfo, RecordingSessionConfig, Win32ConnectionConfig, PlayCoverConnectionConfig
 from runtime import AGENT_DIR, MaaRuntime, RESOURCE_ADB_DIR
 
 DEFAULT_ADB_INPUT_METHODS = 1 | 2 | 4
@@ -93,9 +93,42 @@ class AdbRecordingConnector(RecordingConnector):
                 raise RuntimeError(f"附加 ADB 资源失败: {exc}") from exc
 
 
+class PlayCoverRecordingConnector(RecordingConnector):
+    """基于 PlayCover (macOS) 建立录制连接。"""
+
+    def __init__(self, runtime: MaaRuntime, config: PlayCoverConnectionConfig) -> None:
+        super().__init__(runtime)
+        self._config = config
+
+    def connect(self) -> Any:
+        if self._runtime.PlayCoverController is None:
+            raise RuntimeError("当前 maafw Python 运行时不支持 PlayCoverController (仅 macOS 支持)。")
+
+        address = self._config.address.strip()
+        if not address:
+            raise RuntimeError("未指定 PlayCover 服务地址 (PlayTools 端口)。")
+        uuid = self._config.uuid.strip()
+        if not uuid:
+            raise RuntimeError("未指定 PlayCover 应用 UUID。")
+
+        controller = self._runtime.PlayCoverController(address=address, uuid=uuid)
+        controller.post_connection().wait()
+        return controller
+
+    def attach_resource(self, resource: Any) -> None:
+        attach_path = getattr(resource, "post_path", None)
+        if callable(attach_path) and RESOURCE_ADB_DIR.exists():
+            try:
+                attach_path(str(RESOURCE_ADB_DIR)).wait()
+            except Exception as exc:
+                raise RuntimeError(f"PlayCover 附加资源失败: {exc}") from exc
+
+
 def build_recording_connector(runtime: MaaRuntime, session: RecordingSessionConfig) -> RecordingConnector:
     if session.kind == "adb":
         return AdbRecordingConnector(runtime, session.adb)
+    elif session.kind == "playcover":
+        return PlayCoverRecordingConnector(runtime, session.playcover)
     return Win32RecordingConnector(runtime, session.win32)
 
 

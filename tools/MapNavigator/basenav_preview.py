@@ -293,8 +293,6 @@ class BaseNavField:
         self.natural_component_size: list[int] = []
         self.triangle_height: list[float] = []
         self.triangle_boundary_distance: list[float] = []
-        self.overlay_cache: dict[int, object] = {}
-        self.dots_cache: dict[int, object] = {}
         self._build_index(progress_callback=progress_callback)
         self._arrays = None  # 释放矢量化临时数组,只留下索引结果
 
@@ -389,139 +387,6 @@ class BaseNavField:
         if zone is None:
             return None
         return 0.0, 0.0, zone.width, zone.height
-
-    def walkable_preview_points(
-        self,
-        zone_id: int,
-        max_points: int = 60000,
-        display_zone_id: str = "",
-    ) -> list[tuple[float, float]]:
-        del display_zone_id
-        zone = self.zone_by_id.get(zone_id)
-        if zone is None or zone.triangle_count <= 0:
-            return []
-        stride = max(1, math.ceil(zone.triangle_count / max_points))
-        start = zone.first_triangle
-        end = start + zone.triangle_count
-        return [self.triangles[index].center for index in range(start, end, stride)]
-
-    def overlay_image(self, zone_id: int, progress_callback=None):
-        if zone_id in self.overlay_cache:
-            return self.overlay_cache[zone_id]
-        try:
-            from PIL import Image, ImageDraw
-        except ImportError:
-            return None
-
-        zone = self.zone_by_id.get(zone_id)
-        if zone is None or zone.width <= 0 or zone.height <= 0:
-            return None
-        if zone.flags & TIER_FLAG:
-            image = self._tier_overlay_image(zone, Image, ImageDraw)
-        else:
-            _scale = 0.5
-            _w = math.ceil(zone.width * _scale)
-            _h = math.ceil(zone.height * _scale)
-            image = Image.new("RGBA", (_w, _h), (0, 0, 0, 0))
-            draw = ImageDraw.Draw(image)
-            start = zone.first_triangle
-            end = start + zone.triangle_count
-            total = end - start
-            _step = max(1, total // 50) if total > 100 else 1
-            for _idx, triangle_index in enumerate(range(start, end)):
-                tv = self.triangles[triangle_index].vertices
-                pts = [
-                    (self.vertices[tv[0]].u * _scale, self.vertices[tv[0]].v * _scale),
-                    (self.vertices[tv[1]].u * _scale, self.vertices[tv[1]].v * _scale),
-                    (self.vertices[tv[2]].u * _scale, self.vertices[tv[2]].v * _scale),
-                ]
-                draw.polygon(pts, fill=(255, 0, 0, 46))
-                if total > 100 and _idx % _step == 0:
-                    _report_progress(progress_callback, _idx / total)
-            image = image.resize((math.ceil(zone.width), math.ceil(zone.height)), Image.Resampling.NEAREST)
-        self.overlay_cache[zone_id] = image
-        return image
-
-    def _tier_overlay_image(self, zone, Image, ImageDraw):
-        # A tier has no triangles of its own; its mesh lives in the PARENT geometry zone
-        # (base pixels). Render the walkable surface onto the tier's OWN template canvas
-        # (tier pixels, sized to this tier zone), mapping each parent triangle inside the
-        # tier footprint base_px -> tier_px via the inverse affine (tier = (base - t)/s).
-        # So a selected tier shows its real template底图 with the可行走面 aligned on top —
-        # the visual oracle for the baked affine — instead of boxing a region in the base.
-        parent = self.zone_by_id.get(zone.component_count)
-        if parent is None or parent.width <= 0 or parent.height <= 0:
-            return None
-        sx, tx, sy, ty = zone.transform
-        if sx == 0.0 or sy == 0.0:
-            return None
-        # footprint in base_px (this tier's extent) — cheap cull of parent triangles
-        fxs = (tx, sx * zone.width + tx)
-        fys = (ty, sy * zone.height + ty)
-        fx0, fx1 = min(fxs), max(fxs)
-        fy0, fy1 = min(fys), max(fys)
-        # Only paint THIS tier's floor. The parent base zone stacks every floor's mesh at
-        # each (u,v); without the band filter the overlay shows other floors / walls bleeding
-        # through the tier底图. Keep triangles within floor_y±FLOOR_BAND (height == world Y),
-        # so the可行走面 rendering matches the floor the tier actually depicts. floor_y unset
-        # (the "…_Base" overview tiers) falls back to painting all triangles, as before.
-        floor_y = zone.floor_y
-        has_floor = floor_y > FLOOR_Y_VALID_MIN
-        image = Image.new("RGBA", (math.ceil(zone.width), math.ceil(zone.height)), (0, 0, 0, 0))
-        draw = ImageDraw.Draw(image)
-        start = parent.first_triangle
-        end = start + parent.triangle_count
-        for triangle_index in range(start, end):
-            cx, cy = self.triangles[triangle_index].center
-            if cx < fx0 or cx > fx1 or cy < fy0 or cy > fy1:
-                continue
-            if has_floor and abs(self.triangle_height[triangle_index] - floor_y) > FLOOR_BAND:
-                continue
-            points = [
-                ((self.vertices[index].u - tx) / sx, (self.vertices[index].v - ty) / sy)
-                for index in self.triangles[triangle_index].vertices
-            ]
-            draw.polygon(points, fill=(255, 0, 0, 46))
-        return image
-
-    def walkable_dots_image(
-        self,
-        zone_id: int,
-        max_points: int = 60000,
-        display_zone_id: str = "",
-        progress_callback=None,
-    ):
-        cache_key = (zone_id, max_points)
-        if cache_key in self.dots_cache:
-            return self.dots_cache[cache_key]
-        try:
-            from PIL import Image, ImageDraw
-        except ImportError:
-            return None
-
-        zone = self.zone_by_id.get(zone_id)
-        if zone is None or zone.width <= 0 or zone.height <= 0:
-            return None
-        points = self.walkable_preview_points(zone_id, max_points, display_zone_id)
-        if not points:
-            return None
-        _scale = 0.5
-        _w = math.ceil(zone.width * _scale)
-        _h = math.ceil(zone.height * _scale)
-        image = Image.new("RGBA", (_w, _h), (0, 0, 0, 0))
-        draw = ImageDraw.Draw(image)
-        total = len(points)
-        _step = max(1, total // 50) if total > 100 else 1
-        for _idx, (x, y) in enumerate(points):
-            draw.ellipse(
-                ((x - 1.5) * _scale, (y - 1.5) * _scale, (x + 1.5) * _scale, (y + 1.5) * _scale),
-                fill=(100, 100, 100, 200),
-            )
-            if total > 100 and _idx % _step == 0:
-                _report_progress(progress_callback, _idx / total)
-        image = image.resize((math.ceil(zone.width), math.ceil(zone.height)), Image.Resampling.NEAREST)
-        self.dots_cache[cache_key] = image
-        return image
 
     def find_route(
         self,
@@ -1020,12 +885,20 @@ class BaseNavField:
         triangle = self.triangles[triangle_index]
         return tuple((self.vertices[index].u, self.vertices[index].v) for index in triangle.vertices)  # type: ignore[return-value]
 
-    def _point_on_mesh(self, zone_id: int, point: tuple[float, float]) -> bool:
+    def _point_on_mesh(self, zone_id: int, point: tuple[float, float], tri_cache: list[int] | None = None) -> bool:
         # 点是否落在该区任意三角形内。与 is_segment_walkable 的逐三角行进不同,本判定只看"点在不在网格上",
         # 不依赖共享边邻接,因此在重叠/碎片网格上不会像行进那样误判 -> 居中据此能看见真实走廊宽度。
+        # tri_cache: 可选的单元素缓存 [last_hit_triangle]。密集探测(余量扫 ray、地板各向 probe)中相邻采样点
+        # 多落在同一三角形内(实测命中 62-76%),先测缓存命中的三角形即可免去 _candidate_triangles bin 扫描。
+        if tri_cache is not None and tri_cache[0] >= 0:
+            v0, v1, v2 = self._triangle_points(tri_cache[0])
+            if _point_in_triangle(point, v0, v1, v2):
+                return True
         for triangle_index in self._candidate_triangles(zone_id, point, SEGMENT_WALK_SNAP_RADIUS):
             v0, v1, v2 = self._triangle_points(triangle_index)
             if _point_in_triangle(point, v0, v1, v2):
+                if tri_cache is not None:
+                    tri_cache[0] = triangle_index
                 return True
         return False
 
@@ -1191,8 +1064,9 @@ class BaseNavField:
         # The corridor is single-zone (A* never crosses zones), so the first triangle's zone drives
         # the walkability check that keeps simplification from cutting a corner through a wall.
         zone_id = self.triangle_zone[triangle_path[0]] if triangle_path else 0
+        tri_cache = [-1]  # 密集探测缓存:相邻采样点多落在同一三角形内,命中即免 bin 扫描
         height_walkable = lambda segment_a, segment_b: self._segment_height_walkable(zone_id, segment_a, segment_b)
-        on_mesh = lambda point: self._point_on_mesh(zone_id, point)
+        on_mesh = lambda point: self._point_on_mesh(zone_id, point, tri_cache)
         # SSF 漏斗:在三角形走廊内直接求最短折线,替代中点+thin 拉直.
         # 内部试双向握手、取在网格上且路径更短(更直)的那个;两向均离网格才回退到 thin.
         funnel_result = _funnel_route_points(self, triangle_path, start, goal, on_mesh)

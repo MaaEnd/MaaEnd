@@ -1,8 +1,13 @@
-# Runtime dependencies for standard Python usage:
+# Runtime dependencies for standard Python usage (mirrors the PEP 723 headers
+# in main.py / web/serve.py — keep the three in sync):
 #   python -m venv .venv
 #   .venv\Scripts\activate
 #   pip install -r requirements.txt
 
-Pillow>=10.0.0
+fastapi
+uvicorn
+websockets
 maafw
 pynput>=1.7.0
+pyperclip
+numpy

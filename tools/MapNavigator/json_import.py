@@ -603,6 +603,13 @@ def _parse_point_dict(node: dict[str, Any], zone_hint: str) -> PathPoint | None:
     x = _as_float(node.get("x"))
     y = _as_float(node.get("y"))
     if x is None or y is None:
+        # NAVMESH 路点写作 target: [x, y] (工具「复制 JSON 配置」的导出格式)。
+        # 长度必须是 2：断言的 target 是 [x, y, w, h] 矩形，不是路点。
+        target = node.get("target")
+        if isinstance(target, list) and len(target) == 2:
+            x = _as_float(target[0])
+            y = _as_float(target[1])
+    if x is None or y is None:
         return None
 
     zone = _resolve_zone_hint(node, zone_hint)
