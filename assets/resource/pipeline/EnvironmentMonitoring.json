@@ -1,21 +1,14 @@
 {
     "EnvironmentMonitoringMain": {
         "desc": "环境监测主流程",
-        "next": [
-            "EnvironmentMonitoringReset",
-            "EnvironmentMonitoringLoop",
-            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring"
-        ]
-    },
-    "EnvironmentMonitoringReset": {
-        "desc": "重置环境监测路线执行结果",
         "action": "Custom",
         "custom_action": "FailureCollectorReset",
         "custom_action_param": {
             "key": "EnvironmentMonitoring"
         },
         "next": [
-            "EnvironmentMonitoringLoop"
+            "EnvironmentMonitoringLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring"
         ]
     },
     "EnvironmentMonitoringLoop": {
