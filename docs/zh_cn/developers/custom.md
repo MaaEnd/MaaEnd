@@ -44,13 +44,26 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 ### FailureCollector
 
-`FailureCollector` 是跨 Pipeline 节点共享的通用失败收集器，流程仍由 Pipeline 编排：
+`FailureCollector` 实现位于 `agent/go-service/common/failurecollector`，用于在多个子任务中收集失败项，全部执行完毕后统一汇报失败。单个子任务失败不会中断后续子任务的执行。
 
-- `FailureCollectorReset`：使用 `key` 清空一次运行的状态。
-- `FailureCollectorRunTask`：执行 `task` 指定的单个子任务。失败时按发生顺序记录 `failure_task`，但 Action 本身返回成功以便 Pipeline 继续；可用 `recovery_task` 执行失败恢复。
-- `FailureCollectorFinish`：依次调用本轮记录的全部 `failure_task` Pipeline 提示节点，然后在存在失败项时返回失败。Agent 不直接输出用户提示。
+提供三个 Custom Action，通过相同的 `key` 关联同一次收集：
 
-它适用于“单个子任务失败后继续，全部结束后统一失败”的 Pipeline。调用方必须在入口执行 `Reset`，通过 Pipeline `next` 编排多个 `RunTask` 包装节点，并保证同一流程使用一致且唯一的 `key`。
+- `FailureCollectorReset`：重置指定 `key` 的收集状态，必须在所有 RunTask 之前调用。
+- `FailureCollectorRunTask`：执行 `task` 子任务。成功则继续；失败时按发生顺序记录 `failure_task` 并可选执行 `recovery_task`，Action 本身始终返回成功以保证 Pipeline 继续执行后续节点。
+- `FailureCollectorFinish`：按失败发生顺序依次执行本轮记录的全部 `failure_task` 节点，随后清空状态。存在失败记录时返回失败，否则返回成功。
+
+- 参数：
+    - `FailureCollectorReset`：
+        - `key: string`：收集标识，必填。同一流程中须保持一致且全局唯一。
+    - `FailureCollectorRunTask`：
+        - `key: string`：收集标识，必填。
+        - `task: string`：要执行的子任务 Pipeline 节点名，必填。该节点被禁用（`Enabled = false`）时直接跳过，不视为失败。
+        - `failure_task: string`：子任务失败时记录的 Pipeline 节点名，必填。该节点通常通过 `focus` 向 Agent 输出用户提示信息。
+        - `recovery_task?: string`：子任务失败后执行的恢复任务节点名，可选。
+    - `FailureCollectorFinish`：
+        - `key: string`：收集标识，必填。
+
+示例文件：[`AutoCollect.json`](../../../assets/resource/pipeline/AutoCollect.json)
 
 ### ClearHitCount
 

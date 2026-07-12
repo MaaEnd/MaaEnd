@@ -42,13 +42,26 @@ Example file: [`SubTask.json`](../../../assets/resource/pipeline/Interface/Examp
 
 ### FailureCollector
 
-`FailureCollector` is a generic failure collector shared across Pipeline nodes. Pipeline remains responsible for orchestration:
+`FailureCollector` is implemented in `agent/go-service/common/failurecollector`. It collects failures across multiple subtasks and reports overall failure only after all subtasks finish. An individual subtask failure does not interrupt subsequent subtasks.
 
-- `FailureCollectorReset`: Clears one run's state using `key`.
-- `FailureCollectorRunTask`: Executes the single subtask specified by `task`. On failure, it records `failure_task` in occurrence order but returns success so Pipeline can continue; `recovery_task` runs optional failure recovery.
-- `FailureCollectorFinish`: Calls every recorded `failure_task` Pipeline notification node in order, then returns failure when any item failed. The Agent does not directly print user-facing messages.
+Three Custom Actions are provided, linked into one collection by a shared `key`:
 
-Use it for Pipelines that should continue after an individual subtask fails and report overall failure only after all subtasks finish. Callers must run `Reset` at entry, orchestrate multiple `RunTask` wrapper nodes through Pipeline `next`, and use a consistent, unique `key` throughout the flow.
+- `FailureCollectorReset`: Resets the collection state for the given `key`. Must be called before all RunTask invocations.
+- `FailureCollectorRunTask`: Runs the subtask specified by `task`. On success, proceeds normally; on failure, records `failure_task` in occurrence order and optionally runs `recovery_task`. The Action itself always returns success so the Pipeline continues.
+- `FailureCollectorFinish`: Runs every recorded `failure_task` node in failure order, then clears the state. Returns failure when any failures were recorded, success otherwise.
+
+- Parameters:
+    - `FailureCollectorReset`:
+        - `key: string`: Collection identifier. Required. Must be consistent and globally unique within the same flow.
+    - `FailureCollectorRunTask`:
+        - `key: string`: Collection identifier. Required.
+        - `task: string`: The subtask Pipeline node to run. Required. When the target node is disabled (`Enabled = false`), it is skipped and not treated as a failure.
+        - `failure_task: string`: The Pipeline node recorded on failure. Required. This node typically uses `focus` to surface a user-visible message through the Agent.
+        - `recovery_task?: string`: A recovery task node to run after a failure. Optional.
+    - `FailureCollectorFinish`:
+        - `key: string`: Collection identifier. Required.
+
+Example file: [`AutoCollect.json`](../../../assets/resource/pipeline/AutoCollect.json)
 
 ### ClearHitCount
 
