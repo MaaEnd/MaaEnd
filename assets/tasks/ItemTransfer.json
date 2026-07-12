@@ -16,6 +16,7 @@
             ],
             "controller": [
                 "Win32-Front",
+                "GFN-App",
                 "Wlroots"
             ],
             "group": [
@@ -29,7 +30,8 @@
             "label": "$option.ItemTransferAutoTeleport.label",
             "description": "$option.ItemTransferAutoTeleport.description",
             "controller": [
-                "Win32-Front"
+                "Win32-Front",
+                "GFN-App"
             ],
             "cases": [
                 {

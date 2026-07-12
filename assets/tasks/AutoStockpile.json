@@ -7,6 +7,7 @@
             "description": "$task.AutoStockpile.description",
             "controller": [
                 "Win32-Front",
+                "GFN-App",
                 "Wlroots"
             ],
             "group": [

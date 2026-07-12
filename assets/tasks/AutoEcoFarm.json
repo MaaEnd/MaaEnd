@@ -7,6 +7,7 @@
             "description": "$task.AutoEcoFarm.description",
             "controller": [
                 "Win32-Front",
+                "GFN-App",
                 "Wlroots"
             ],
             "option": [

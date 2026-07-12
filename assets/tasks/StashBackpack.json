@@ -6,6 +6,7 @@
             "entry": "StashBackpackMain",
             "controller": [
                 "Win32-Front",
+                "GFN-App",
                 "Wlroots"
             ],
             "group": [

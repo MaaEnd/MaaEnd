@@ -9,7 +9,8 @@
                 "WebEvent202605MaxShot"
             ],
             "controller": [
-                "Win32-Front"
+                "Win32-Front",
+                "GFN-App"
             ],
             "group": [
                 "other_menu"

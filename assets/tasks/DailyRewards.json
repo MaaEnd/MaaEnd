@@ -14,6 +14,7 @@
             ],
             "controller": [
                 "Win32-Front",
+                "GFN-App",
                 "ADB",
                 "PlayCover",
                 "Wlroots"
@@ -47,6 +48,7 @@
             ],
             "controller": [
                 "Win32-Front",
+                "GFN-App",
                 "Wlroots"
             ]
         },
@@ -73,6 +75,7 @@
             ],
             "controller": [
                 "Win32-Front",
+                "GFN-App",
                 "Wlroots"
             ]
         },
@@ -105,6 +108,7 @@
             ],
             "controller": [
                 "Win32-Front",
+                "GFN-App",
                 "Wlroots"
             ]
         },
@@ -153,6 +157,7 @@
             ],
             "controller": [
                 "Win32-Front",
+                "GFN-App",
                 "Wlroots"
             ]
         },

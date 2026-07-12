@@ -14,6 +14,7 @@
             ],
             "controller": [
                 "Win32-Front",
+                "GFN-App",
                 "ADB",
                 "PlayCover",
                 "Wlroots"

@@ -9,6 +9,7 @@
                 "ADB",
                 "PlayCover",
                 "Win32-Front",
+                "GFN-App",
                 "Wlroots"
             ],
             "option": [
