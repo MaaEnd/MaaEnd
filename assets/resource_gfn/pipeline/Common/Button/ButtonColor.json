@@ -1,0 +1,116 @@
+// GFN 云游戏专用覆盖：按钮颜色基础节点。
+// GeForce NOW 串流帧经过 H.264/HEVC 编码（4:2:0 色度抽样 + 量化），
+// 颜色相对本地渲染会偏移数个单位，基础资源中 1~2 个单位宽的精确
+// ColorMatch 区间在串流帧上系统性失配（实测品牌黄 hue 由本地 28-29
+// 扩散为 26-31，见 docs/zh_cn/developers/gfn-app-support-prd.md 风险 R3）。
+// 本文件在保持节点结构不变的前提下放宽颜色容差，仅随 GFN-App 控制器加载。
+{
+    "YellowButtonBackground": {
+        "desc": "黄色按钮背景色（GFN 串流容差版），用作黄色按钮组合识别的背景框",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 40,
+                "lower": [
+                    24,
+                    90,
+                    90
+                ],
+                "upper": [
+                    33,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 3000
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "WhiteButtonBackground": {
+        "desc": "白色按钮背景色（GFN 串流容差版），用作白色按钮组合识别的背景框",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        246,
+                        244,
+                        244
+                    ],
+                    [
+                        230,
+                        228,
+                        228
+                    ],
+                    [
+                        145,
+                        144,
+                        144
+                    ]
+                ],
+                "upper": [
+                    [
+                        255,
+                        255,
+                        255
+                    ],
+                    [
+                        247,
+                        245,
+                        245
+                    ],
+                    [
+                        175,
+                        173,
+                        173
+                    ]
+                ],
+                "connected": true,
+                "count": 100
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GrayButtonBackground": {
+        "desc": "灰色按钮背景色（GFN 串流容差版），用作灰色按钮组合识别的背景框",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        63,
+                        62,
+                        62
+                    ],
+                    [
+                        77,
+                        76,
+                        76
+                    ]
+                ],
+                "upper": [
+                    [
+                        76,
+                        75,
+                        75
+                    ],
+                    [
+                        90,
+                        89,
+                        89
+                    ]
+                ],
+                "connected": true,
+                "count": 100
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

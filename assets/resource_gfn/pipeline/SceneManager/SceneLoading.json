@@ -1,0 +1,92 @@
+// GFN 云游戏专用覆盖：加载界面颜色准确性检查。
+// 基础资源要求校准色块 hue 精确单值且饱和度恒为 255，GeForce NOW 串流帧
+// 经视频编码后饱和度与色相均有数个单位的偏移，精确匹配必然失败并触发
+// "颜色识别失败" 误报（用户并未开启滤镜/HDR）。
+// 本文件仅放宽 Success 判定节点的颜色容差（hue ±4、饱和度下限 200），
+// 失败分支与流程结构由基础资源原样提供，仅随 GFN-App 控制器加载。
+{
+    "__SceneCheckYellowColorSuccess": {
+        "desc": "检查颜色准确性:黄色 成功（GFN 串流容差版）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    0,
+                    480,
+                    65,
+                    85
+                ],
+                "method": 40,
+                "lower": [
+                    26,
+                    200,
+                    1
+                ],
+                "upper": [
+                    34,
+                    255,
+                    255
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__SceneCheckTealColorSuccess": {
+        "desc": "检查颜色准确性:青色 成功（GFN 串流容差版）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    0,
+                    518,
+                    65,
+                    85
+                ],
+                "method": 40,
+                "lower": [
+                    86,
+                    200,
+                    1
+                ],
+                "upper": [
+                    94,
+                    255,
+                    255
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__SceneCheckPurpleColorSuccess": {
+        "desc": "检查颜色准确性:紫色 成功（GFN 串流容差版）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    0,
+                    553,
+                    65,
+                    85
+                ],
+                "method": 40,
+                "lower": [
+                    146,
+                    200,
+                    1
+                ],
+                "upper": [
+                    154,
+                    255,
+                    255
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

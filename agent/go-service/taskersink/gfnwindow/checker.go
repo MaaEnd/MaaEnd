@@ -130,6 +130,10 @@ func (c *GFNWindowChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatu
 			Int32("after_width", result.AfterWidth).
 			Int32("after_height", result.AfterHeight).
 			Msg("GFN window client area resized to the 720p baseline")
+		// The controller caches the resolution of its last screencap; without a
+		// fresh capture the aspect ratio check that runs after this sink would
+		// still read the pre-resize size and force-stop the task.
+		refreshControllerResolution(controller, detail)
 		// The GFN stream render resolution is fixed when the session starts:
 		// resizing the local window does not re-render the cloud output, so an
 		// already-streaming session keeps its original resolution and fixed-ROI
@@ -147,6 +151,29 @@ func (c *GFNWindowChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatu
 			Msg("GFN window resize did not take effect, task continues at current resolution")
 		c.printResizeFailed(formatResolution(result.AfterWidth, result.AfterHeight))
 	}
+}
+
+// refreshControllerResolution forces a screencap so the controller's cached
+// resolution reflects the freshly resized client area.
+func refreshControllerResolution(controller *maa.Controller, detail maa.TaskerTaskDetail) {
+	if job := controller.PostScreencap(); job != nil {
+		job.Wait()
+	}
+	width, height, err := controller.GetResolution()
+	if err != nil {
+		log.Warn().
+			Err(err).
+			Uint64("task_id", detail.TaskID).
+			Str("entry", detail.Entry).
+			Msg("Failed to read controller resolution after GFN window resize")
+		return
+	}
+	log.Debug().
+		Uint64("task_id", detail.TaskID).
+		Str("entry", detail.Entry).
+		Int32("width", width).
+		Int32("height", height).
+		Msg("Controller resolution refreshed after GFN window resize")
 }
 
 func (c *GFNWindowChecker) printStreamHint() {
