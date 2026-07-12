@@ -246,7 +246,14 @@
         },
         "action": {
             "type": "Click",
-            "param": {}
+            "param": {
+                "target_offset": [
+                    0,
+                    4,
+                    0,
+                    -4
+                ]
+            }
         },
         "next": [
             "DailyEmailNoEmailRewards",
