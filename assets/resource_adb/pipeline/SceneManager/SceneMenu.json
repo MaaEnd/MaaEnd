@@ -10,9 +10,9 @@
     "__ScenePrivateMenuFriendsEnterMenuFriendsList": {
         "roi": [
             0,
+            130,
             100,
-            150,
-            200
+            215
         ]
     }
 }
