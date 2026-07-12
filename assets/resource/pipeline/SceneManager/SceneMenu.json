@@ -1081,31 +1081,6 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "__ScenePrivateMenuTeamEnterWorld": {
-        "desc": "从编队菜单退出到大世界",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InTeam"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 27 // ESC
-            }
-        },
-        "post_delay": 0,
-        "next": [
-            "__ScenePrivateAnyEnterWorldSuccess",
-            "__ScenePrivateMenuListEnterWorld",
-            "[JumpBack]SceneWaitLoadingExit",
-            "[JumpBack]__ScenePrivateAnyExit"
-        ]
-    },
     "__ScenePrivateWorldEnterMenuProtocolPass": {
         "desc": "从大世界进入通行证菜单",
         "recognition": {

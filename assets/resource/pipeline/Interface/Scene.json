@@ -10,7 +10,6 @@
             "__ScenePrivateMenuListLoadingEnterWorld",
             "__ScenePrivateMenuListEnterWorld",
             "__ScenePrivateTrialOfSwordmancyEnterWorld",
-            "__ScenePrivateMenuTeamEnterWorld",
             "__ScenePrivateAnyEnterWorldSuccess",
             "[JumpBack]__ScenePrivateLogin",
             "[JumpBack]__ScenePrivateNoticeRewardsUpgrade",
