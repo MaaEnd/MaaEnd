@@ -148,7 +148,7 @@
     "resource.loading_failed_reinstall_hint": "请尝试删除 resource 文件夹并重新覆盖安装。",
     "tasker.task_failed_feedback_hint.before_link": "欢迎 ",
     "tasker.task_failed_feedback_hint.link_text": "点击这里",
-    "tasker.task_failed_feedback_hint.after_link": " 或在设置-关于-用户QQ群进行反馈。",
+    "tasker.task_failed_feedback_hint.after_link": " 或在设置-关于-用户群进行反馈。",
     "tasker.process_warning.title": "⚠️ 注意：检测到以下进程正在运行",
     "tasker.process_warning.recommend_1": "ℹ️ 这些程序会影响任务运行",
     "tasker.aspect_ratio_warning.title": "🚨 警告：分辨率不符合要求！🚨",

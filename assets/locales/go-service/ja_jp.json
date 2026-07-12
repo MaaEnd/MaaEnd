@@ -148,7 +148,7 @@
     "resource.loading_failed_reinstall_hint": "resource フォルダを削除し、上書き再インストールをお試しください。",
     "tasker.task_failed_feedback_hint.before_link": "フィードバックは ",
     "tasker.task_failed_feedback_hint.link_text": "こちらをクリック",
-    "tasker.task_failed_feedback_hint.after_link": " するか、設定 - このアプリについて - ユーザーQQグループからお願いします。",
+    "tasker.task_failed_feedback_hint.after_link": " するか、設定 - このアプリについて - ユーザーグループからお願いします。",
     "tasker.process_warning.title": "⚠️ 注意：次のプロセスが実行中です",
     "tasker.process_warning.recommend_1": "ℹ️ これらのプログラムはタスクの実行に影響します",
     "tasker.aspect_ratio_warning.title": "🚨 警告：解像度が要件を満たしていません！🚨",

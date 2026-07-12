@@ -148,7 +148,7 @@
     "resource.loading_failed_reinstall_hint": "請嘗試刪除 resource 資料夾並重新覆蓋安裝。",
     "tasker.task_failed_feedback_hint.before_link": "歡迎 ",
     "tasker.task_failed_feedback_hint.link_text": "點擊這裡",
-    "tasker.task_failed_feedback_hint.after_link": " 或在設定-關於-用戶QQ群進行回饋。",
+    "tasker.task_failed_feedback_hint.after_link": " 或在設定-關於-用戶群進行回饋。",
     "tasker.process_warning.title": "⚠️ 注意：偵測到以下程式正在執行",
     "tasker.process_warning.recommend_1": "ℹ️ 這些程式會影響任務執行",
     "tasker.aspect_ratio_warning.title": "🚨 警告：解析度不符合要求！🚨",
