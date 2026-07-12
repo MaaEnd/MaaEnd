@@ -5,8 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckRainbowText",
-            "CheckRainbowIcon",
-            "CheckRainbowReadyText"
+            "CheckRainbowWulingStockBill"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -61,6 +60,22 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "CheckRainbowWulingStockBill": {
+        "desc": "检查彩虹任务下方的武陵调度券图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckRainbowText",
+        "roi_offset": [
+            -15,
+            340,
+            320,
+            40
+        ],
+        "template": "EnvironmentMonitoring/WulingStockBill.png",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "CheckRainbowIcon": {
         "desc": "检查彩虹文本下方的图标",
         "recognition": "TemplateMatch",
@@ -73,32 +88,6 @@
         ],
         "template": "EnvironmentMonitoring/PhotoIcon.png",
         "threshold": 0.8,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "CheckRainbowReadyText": {
-        "desc": "检查彩虹委托是否准备好",
-        "recognition": "OCR",
-        "roi": "CheckRainbowIcon",
-        "roi_offset": [
-            -14,
-            332,
-            359,
-            76
-        ],
-        "expected": [
-            "接取委托",
-            "接取委託",
-            "(?i)Accept\\s*Job",
-            "引き受ける",
-            "前往任务",
-            "前往任務",
-            "(?i)Go\\s*to\\s*Mission",
-            "任務へ",
-            "의뢰 수령",
-            "임무로 이동하기"
-        ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
