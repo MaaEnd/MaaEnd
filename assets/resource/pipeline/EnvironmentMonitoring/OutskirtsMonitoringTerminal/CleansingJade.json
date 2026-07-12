@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckCleansingJadeText",
+            "CheckCleansingJadeIcon",
             "CheckCleansingJadeWulingStockBill"
         ],
         "pre_delay": 0,
@@ -63,12 +64,12 @@
     "CheckCleansingJadeWulingStockBill": {
         "desc": "检查漱玉任务下方的武陵调度券图标",
         "recognition": "TemplateMatch",
-        "roi": "CheckCleansingJadeText",
+        "roi": "CheckCleansingJadeIcon",
         "roi_offset": [
-            -15,
-            340,
-            320,
-            40
+            -14,
+            300,
+            359,
+            76
         ],
         "template": "EnvironmentMonitoring/WulingStockBill.png",
         "threshold": 0.8,

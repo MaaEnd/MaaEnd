@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "Check${Id}Text",
+            "Check${Id}Icon",
             "Check${Id}WulingStockBill"
         ],
         "pre_delay": 0,
@@ -60,12 +61,12 @@
         "post_delay": 0,
         "desc": "检查${Name}任务下方的武陵调度券图标",
         "recognition": "TemplateMatch",
-        "roi": "Check${Id}Text",
+        "roi": "Check${Id}Icon",
         "roi_offset": [
-            -15,
-            340,
-            320,
-            40
+            -14,
+            300,
+            359,
+            76
         ],
         "template": "EnvironmentMonitoring/WulingStockBill.png",
         "threshold": 0.8

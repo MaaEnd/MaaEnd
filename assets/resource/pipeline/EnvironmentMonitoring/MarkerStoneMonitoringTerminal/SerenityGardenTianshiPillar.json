@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckSerenityGardenTianshiPillarText",
+            "CheckSerenityGardenTianshiPillarIcon",
             "CheckSerenityGardenTianshiPillarWulingStockBill"
         ],
         "pre_delay": 0,
@@ -68,12 +69,12 @@
     "CheckSerenityGardenTianshiPillarWulingStockBill": {
         "desc": "检查安思园的天师桩任务下方的武陵调度券图标",
         "recognition": "TemplateMatch",
-        "roi": "CheckSerenityGardenTianshiPillarText",
+        "roi": "CheckSerenityGardenTianshiPillarIcon",
         "roi_offset": [
-            -15,
-            340,
-            320,
-            40
+            -14,
+            300,
+            359,
+            76
         ],
         "template": "EnvironmentMonitoring/WulingStockBill.png",
         "threshold": 0.8,

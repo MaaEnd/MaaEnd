@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckObservantSableChestedFowlbeastText",
+            "CheckObservantSableChestedFowlbeastIcon",
             "CheckObservantSableChestedFowlbeastWulingStockBill"
         ],
         "pre_delay": 0,
@@ -63,12 +64,12 @@
     "CheckObservantSableChestedFowlbeastWulingStockBill": {
         "desc": "检查东张西望的黑腹雉羽兽任务下方的武陵调度券图标",
         "recognition": "TemplateMatch",
-        "roi": "CheckObservantSableChestedFowlbeastText",
+        "roi": "CheckObservantSableChestedFowlbeastIcon",
         "roi_offset": [
-            -15,
-            340,
-            320,
-            40
+            -14,
+            300,
+            359,
+            76
         ],
         "template": "EnvironmentMonitoring/WulingStockBill.png",
         "threshold": 0.8,

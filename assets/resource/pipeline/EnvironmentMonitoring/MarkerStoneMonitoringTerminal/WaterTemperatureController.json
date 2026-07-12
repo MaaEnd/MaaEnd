@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckWaterTemperatureControllerText",
+            "CheckWaterTemperatureControllerIcon",
             "CheckWaterTemperatureControllerWulingStockBill"
         ],
         "pre_delay": 0,
@@ -63,12 +64,12 @@
     "CheckWaterTemperatureControllerWulingStockBill": {
         "desc": "检查净水温控装置任务下方的武陵调度券图标",
         "recognition": "TemplateMatch",
-        "roi": "CheckWaterTemperatureControllerText",
+        "roi": "CheckWaterTemperatureControllerIcon",
         "roi_offset": [
-            -15,
-            340,
-            320,
-            40
+            -14,
+            300,
+            359,
+            76
         ],
         "template": "EnvironmentMonitoring/WulingStockBill.png",
         "threshold": 0.8,

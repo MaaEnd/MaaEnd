@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckVigorousCisternOriginiumSlugText",
+            "CheckVigorousCisternOriginiumSlugIcon",
             "CheckVigorousCisternOriginiumSlugWulingStockBill"
         ],
         "pre_delay": 0,
@@ -63,12 +64,12 @@
     "CheckVigorousCisternOriginiumSlugWulingStockBill": {
         "desc": "检查充满活力的蓄水源石虫任务下方的武陵调度券图标",
         "recognition": "TemplateMatch",
-        "roi": "CheckVigorousCisternOriginiumSlugText",
+        "roi": "CheckVigorousCisternOriginiumSlugIcon",
         "roi_offset": [
-            -15,
-            340,
-            320,
-            40
+            -14,
+            300,
+            359,
+            76
         ],
         "template": "EnvironmentMonitoring/WulingStockBill.png",
         "threshold": 0.8,

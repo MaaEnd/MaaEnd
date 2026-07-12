@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckTreeOfTheOldCourtyardText",
+            "CheckTreeOfTheOldCourtyardIcon",
             "CheckTreeOfTheOldCourtyardWulingStockBill"
         ],
         "pre_delay": 0,
@@ -63,12 +64,12 @@
     "CheckTreeOfTheOldCourtyardWulingStockBill": {
         "desc": "检查旧庭树任务下方的武陵调度券图标",
         "recognition": "TemplateMatch",
-        "roi": "CheckTreeOfTheOldCourtyardText",
+        "roi": "CheckTreeOfTheOldCourtyardIcon",
         "roi_offset": [
-            -15,
-            340,
-            320,
-            40
+            -14,
+            300,
+            359,
+            76
         ],
         "template": "EnvironmentMonitoring/WulingStockBill.png",
         "threshold": 0.8,

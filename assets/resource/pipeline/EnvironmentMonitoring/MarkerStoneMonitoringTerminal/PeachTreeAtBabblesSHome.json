@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckPeachTreeAtBabblesSHomeText",
+            "CheckPeachTreeAtBabblesSHomeIcon",
             "CheckPeachTreeAtBabblesSHomeWulingStockBill"
         ],
         "pre_delay": 0,
@@ -63,12 +64,12 @@
     "CheckPeachTreeAtBabblesSHomeWulingStockBill": {
         "desc": "检查念念家的桃树任务下方的武陵调度券图标",
         "recognition": "TemplateMatch",
-        "roi": "CheckPeachTreeAtBabblesSHomeText",
+        "roi": "CheckPeachTreeAtBabblesSHomeIcon",
         "roi_offset": [
-            -15,
-            340,
-            320,
-            40
+            -14,
+            300,
+            359,
+            76
         ],
         "template": "EnvironmentMonitoring/WulingStockBill.png",
         "threshold": 0.8,

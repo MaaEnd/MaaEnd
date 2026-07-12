@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckXiraniteNexusText",
+            "CheckXiraniteNexusIcon",
             "CheckXiraniteNexusWulingStockBill"
         ],
         "pre_delay": 0,
@@ -63,12 +64,12 @@
     "CheckXiraniteNexusWulingStockBill": {
         "desc": "检查枢壤仪任务下方的武陵调度券图标",
         "recognition": "TemplateMatch",
-        "roi": "CheckXiraniteNexusText",
+        "roi": "CheckXiraniteNexusIcon",
         "roi_offset": [
-            -15,
-            340,
-            320,
-            40
+            -14,
+            300,
+            359,
+            76
         ],
         "template": "EnvironmentMonitoring/WulingStockBill.png",
         "threshold": 0.8,

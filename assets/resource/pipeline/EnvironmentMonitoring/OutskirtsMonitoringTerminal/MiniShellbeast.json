@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckMiniShellbeastText",
+            "CheckMiniShellbeastIcon",
             "CheckMiniShellbeastWulingStockBill"
         ],
         "pre_delay": 0,
@@ -68,12 +69,12 @@
     "CheckMiniShellbeastWulingStockBill": {
         "desc": "检查小壳兽任务下方的武陵调度券图标",
         "recognition": "TemplateMatch",
-        "roi": "CheckMiniShellbeastText",
+        "roi": "CheckMiniShellbeastIcon",
         "roi_offset": [
-            -15,
-            340,
-            320,
-            40
+            -14,
+            300,
+            359,
+            76
         ],
         "template": "EnvironmentMonitoring/WulingStockBill.png",
         "threshold": 0.8,

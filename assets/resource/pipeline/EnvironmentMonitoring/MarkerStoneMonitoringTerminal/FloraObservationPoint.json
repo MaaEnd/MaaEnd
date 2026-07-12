@@ -5,6 +5,7 @@
         "recognition": "And",
         "all_of": [
             "CheckFloraObservationPointText",
+            "CheckFloraObservationPointIcon",
             "CheckFloraObservationPointWulingStockBill"
         ],
         "pre_delay": 0,
@@ -63,12 +64,12 @@
     "CheckFloraObservationPointWulingStockBill": {
         "desc": "检查植物观察点任务下方的武陵调度券图标",
         "recognition": "TemplateMatch",
-        "roi": "CheckFloraObservationPointText",
+        "roi": "CheckFloraObservationPointIcon",
         "roi_offset": [
-            -15,
-            340,
-            320,
-            40
+            -14,
+            300,
+            359,
+            76
         ],
         "template": "EnvironmentMonitoring/WulingStockBill.png",
         "threshold": 0.8,
