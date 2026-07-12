@@ -896,6 +896,8 @@
     "controller.Win32-Front.description": "安定性が最も高い。ゲームウィンドウを最前面に表示し、遮られないようにする必要があります。マウスを完全に占有します。",
     "controller.Win32-Window-Background.label": "PC-バックグラウンド（非推奨 - 新バージョンに対応不可）",
     "controller.Win32-Window-Background.description": "ゲームの更新により適応を継続できなくなりました。バックグラウンドコントローラーは非推奨となり、今後のバージョンで削除される予定です。",
+    "controller.GFN-App.label": "クラウド-GeForce NOW",
+    "controller.GFN-App.description": "GeForce NOW ネイティブクライアントのストリーミングでプレイします。フォアグラウンドモードのみ対応で、マウスを完全に占有します。GFN の設定でストリーミング解像度を 1280x720 に固定することを推奨します。",
     "controller.ADB.label": "Android",
     "controller.ADB.description": "Androidエミュレーターおよび実機Androidデバイスに対応しています。",
     "controller.Wlroots.label": "Linux-Wlroots",

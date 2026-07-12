@@ -688,6 +688,8 @@
     "controller.Win32-Front.description": "穩定性最好，需要遊戲視窗保持在最前且不被遮擋，會完全搶占滑鼠",
     "controller.Win32-Window-Background.label": "電腦端-後台棄用(無法適配新版本)",
     "controller.Win32-Window-Background.description": "因遊戲更新導致無法繼續適配，後台控制器已棄用，並將在後續版本中移除。",
+    "controller.GFN-App.label": "雲遊戲-GeForce NOW",
+    "controller.GFN-App.description": "透過 GeForce NOW 原生客戶端串流遊玩，僅支援前台模式，會完全搶占滑鼠；建議在 GFN 設定中將串流解析度固定為 1280x720",
     "controller.ADB.label": "安卓端",
     "controller.ADB.description": "支援安卓模擬器及實體安卓裝置",
     "controller.Wlroots.label": "Linux端-Wlroots",

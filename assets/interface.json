@@ -47,6 +47,21 @@
         //     },
         //     "permission_required": true
         // },
+        // GFN-App: GeForce NOW 原生客户端（CEF 流窗口），仅前台模式，
+        // 窗口类与标题正则待实测回填，见 docs/zh_cn/developers/gfn-app-support-prd.md
+        {
+            "name": "GFN-App",
+            "label": "$controller.GFN-App.label",
+            "description": "$controller.GFN-App.description",
+            "type": "Win32",
+            "win32": {
+                "class_regex": "CEFCLIENT",
+                "window_regex": "Endfield.*on GeForce NOW",
+                "screencap": "PrintWindow",
+                "mouse": "Seize",
+                "keyboard": "Seize"
+            }
+        },
         {
             "name": "ADB",
             "label": "$controller.ADB.label",
