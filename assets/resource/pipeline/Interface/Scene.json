@@ -21,22 +21,6 @@
             "[JumpBack]__ScenePrivateAnyExit"
         ]
     },
-    "SceneMenuTeamEnterWorld": {
-        "desc": "从编队菜单进入大世界",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InTeam"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "__ScenePrivateMenuTeamEnterWorld"
-        ]
-    },
     "SceneEnterMapAny": {
         "desc": "从任意界面进入任意一个地图界面",
         "pre_delay": 0,
