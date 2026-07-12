@@ -108,7 +108,10 @@
         ],
         "pre_delay": 0,
         "post_wait_freezes": 200,
-        "post_delay": 0
+        "post_delay": 0,
+        "next": [
+            "SceneAnyEnterWorld"
+        ]
     },
     "SwitchTeamConfirm": {
         "desc": "确认切换编队",
@@ -134,6 +137,9 @@
         "pre_wait_freezes": 200,
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "SceneAnyEnterWorld"
+        ]
     }
 }

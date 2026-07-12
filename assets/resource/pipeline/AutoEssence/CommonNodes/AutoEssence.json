@@ -60,6 +60,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            // 如果从编队菜单直接启动基质刷取，先返回大世界，避免误点编队页右下角确认按钮
+            "[JumpBack]SceneMenuTeamEnterWorld",
             // 如果玩家已唤起了激发的界面
             "AutoEssenceClickEssenceStartButton",
             // 如果玩家当前已精准处于某个淤积点的交互位置

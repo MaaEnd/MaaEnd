@@ -10,6 +10,7 @@
             "__ScenePrivateMenuListLoadingEnterWorld",
             "__ScenePrivateMenuListEnterWorld",
             "__ScenePrivateTrialOfSwordmancyEnterWorld",
+            "__ScenePrivateMenuTeamEnterWorld",
             "__ScenePrivateAnyEnterWorldSuccess",
             "[JumpBack]__ScenePrivateLogin",
             "[JumpBack]__ScenePrivateNoticeRewardsUpgrade",
@@ -18,6 +19,22 @@
             "[JumpBack]__ScenePrivateLoggedOutConfirm",
             "[JumpBack]SceneWaitLoadingExit",
             "[JumpBack]__ScenePrivateAnyExit"
+        ]
+    },
+    "SceneMenuTeamEnterWorld": {
+        "desc": "从编队菜单进入大世界",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InTeam"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMenuTeamEnterWorld"
         ]
     },
     "SceneEnterMapAny": {
