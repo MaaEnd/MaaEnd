@@ -1,0 +1,98 @@
+#include "MotionTracker.h"
+#include <algorithm>
+#include <cmath>
+
+namespace maplocator
+{
+
+MotionTracker::MotionTracker(const TrackingConfig& cfg)
+    : trackingCfg(cfg)
+    , lostTrackingCount(MaxLostTrackingCount + 1)
+    , velocityX(0)
+    , velocityY(0)
+{
+}
+
+void MotionTracker::update(const MapPosition& newPos, std::chrono::steady_clock::time_point now)
+{
+    if (lastKnownPos.has_value() && lostTrackingCount == 0) {
+        std::chrono::duration<double> dt = now - lastTime;
+        double dtSec = dt.count();
+        const double dx = newPos.x - lastKnownPos->x;
+        const double dy = newPos.y - lastKnownPos->y;
+        if (std::hypot(dx, dy) < kVelocityDeadband) {
+            velocityX = 0.0;
+            velocityY = 0.0;
+        }
+        // 仅在帧间隔合理且匹配分数达标时更新速度，保证速度估计的可靠性
+        else if (dtSec > 0.016 && dtSec < trackingCfg.maxDtForPrediction && newPos.score >= kVelocityUpdateMinScore) {
+            double rawVx = dx / dtSec;
+            double rawVy = dy / dtSec;
+            double alpha = trackingCfg.velocitySmoothingAlpha;
+            velocityX = velocityX * (1.0 - alpha) + rawVx * alpha;
+            velocityY = velocityY * (1.0 - alpha) + rawVy * alpha;
+        }
+    }
+    lastKnownPos = newPos;
+    lastTime = now;
+    lostTrackingCount = 0;
+}
+
+void MotionTracker::hold(const MapPosition& oldPos, std::chrono::steady_clock::time_point now)
+{
+    lastKnownPos = oldPos;
+    lastTime = now;
+}
+
+void MotionTracker::markLost(int increment)
+{
+    lostTrackingCount += increment;
+}
+
+void MotionTracker::forceLost()
+{
+    lostTrackingCount = MaxLostTrackingCount + 100;
+    lastKnownPos = std::nullopt;
+}
+
+bool MotionTracker::isTracking(int maxAllowedLost) const
+{
+    return lastKnownPos.has_value() && lostTrackingCount <= maxAllowedLost;
+}
+
+double MotionTracker::getPredictedX(std::chrono::steady_clock::time_point now) const
+{
+    if (!lastKnownPos.has_value()) {
+        return 0;
+    }
+    std::chrono::duration<double> dt = now - lastTime;
+    double dtSec = dt.count();
+    if (dtSec > trackingCfg.maxDtForPrediction) {
+        return lastKnownPos->x;
+    }
+    return lastKnownPos->x + velocityX * dtSec;
+}
+
+double MotionTracker::getPredictedY(std::chrono::steady_clock::time_point now) const
+{
+    if (!lastKnownPos.has_value()) {
+        return 0;
+    }
+    std::chrono::duration<double> dt = now - lastTime;
+    double dtSec = dt.count();
+    if (dtSec > trackingCfg.maxDtForPrediction) {
+        return lastKnownPos->y;
+    }
+    return lastKnownPos->y + velocityY * dtSec;
+}
+
+cv::Rect
+    MotionTracker::predictNextSearchRect(double trackScale, int templCols, int templRows, std::chrono::steady_clock::time_point now) const
+{
+    double predX = getPredictedX(now);
+    double predY = getPredictedY(now);
+    int pad = static_cast<int>(MobileSearchRadius + std::max(templCols, templRows) * trackScale / 2.0);
+    return cv::Rect((int)predX - pad, (int)predY - pad, pad * 2, pad * 2);
+}
+
+} // namespace maplocator

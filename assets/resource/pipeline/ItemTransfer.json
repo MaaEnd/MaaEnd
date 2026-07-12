@@ -1,0 +1,1019 @@
+{
+    "ItemTransfer": {
+        "desc": "在 tasks 中对默认 false 的 前置(next) 任务进行 override",
+        "recognition": "DirectHit",
+        "next": [
+            "ItemTransferSkipSameRegionValleyIV",
+            "ItemTransferSkipSameRegionWuling",
+            "ItemTransferStart",
+            "ItemTransferInBackpack"
+        ]
+    },
+    "ItemTransferSkipSameRegionValleyIV": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ItemTransferSkipSameRegionStop"
+        ]
+    },
+    "ItemTransferSkipSameRegionWuling": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ItemTransferSkipSameRegionStop"
+        ]
+    },
+    "ItemTransferSkipSameRegionStop": {
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "$task.ItemTransfer.same_region_skipped"
+        }
+    },
+    "ItemTransferStart": {
+        "enabled": false,
+        "next": [
+            "ItemTransferStartAtReceptionRoom",
+            "[JumpBack]SceneEnterWorldDijiang2"
+        ]
+    },
+    "ItemTransferStartAtReceptionRoom": {
+        "desc": "识别“拜访好友”以确认在帝江号会客室开始",
+        "recognition": "OCR",
+        "roi": [
+            868,
+            470,
+            79,
+            27
+        ],
+        "expected": [
+            "好友",
+            "(?i)Friends",
+            "フレンド",
+            "Visit",
+            "拜访好友",
+            "拜訪好友"
+        ],
+        "next": [
+            "ItemTransferStartMoveCamera"
+        ]
+    },
+    "ItemTransferStartMoveCamera": {
+        "desc": "在开始任务前强制将视角抬至最高",
+        "action": "Custom",
+        "custom_action": "CharacterControllerPitchDeltaAction",
+        "custom_action_param": {
+            "delta": -180
+        },
+        "next": [
+            "ItemTransferStartMoveCamera2"
+        ]
+    },
+    "ItemTransferStartMoveCamera2": {
+        "action": "Custom",
+        "custom_action": "CharacterControllerPitchDeltaAction",
+        "custom_action_param": {
+            "delta": -180
+        },
+        "next": [
+            "ItemTransferStartOpenRepo"
+        ]
+    },
+    "ItemTransferStartOpenRepo": {
+        "desc": "直接打开背包而非通过快捷键",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -250,
+                                    0,
+                                    200,
+                                    200
+                                ],
+                                "template": [
+                                    "SceneManager/Backpack.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    400,
+                                    80
+                                ],
+                                "template": [
+                                    "SceneManager/WorldDijiangMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -200,
+                                    0,
+                                    200,
+                                    200
+                                ],
+                                "template": [
+                                    "SceneManager/WorldMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    }
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 400,
+            "target": [
+                900,
+                100,
+                250,
+                160
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferStartOpenRepoSuccess"
+        ]
+    },
+    "ItemTransferStartOpenRepoSuccess": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferInBackpack"
+        ]
+    },
+    "ItemTransferInBackpack": {
+        "desc": "当前在背包界面，开始转移任务",
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "ItemTransferStashBackpackSubTask"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferSwitchRepoToOrigin"
+        ]
+    },
+    "ItemTransferStashBackpackSubTask": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferStashBackpackMain",
+            "EmptyNode"
+        ]
+    },
+    "ItemTransferStashBackpackMain": {
+        "desc": "保留整理背包功能，不复用通用整理背包传送兜底",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackEnterSuccess"
+        ]
+    },
+    "ItemTransferSwitchRepoToOrigin": {
+        "recognition": "OCR",
+        "roi": [
+            607,
+            128,
+            65,
+            24
+        ],
+        "expected": [
+            "仓库切换",
+            "倉庫切換",
+            "(?i)Switch\\s*Depot",
+            "倉庫切替",
+            "Switch",
+            "Depot"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferClickOrigin",
+            "ItemTransferSwitchRepoToOrigin"
+        ]
+    },
+    "ItemTransferClickOrigin": {
+        "recognition": "OCR",
+        "roi": [
+            515,
+            158,
+            481,
+            393
+        ],
+        "expected": "ORIGIN_REGION",
+        "action": "Click",
+        "post_delay": 400,
+        "next": [
+            "ItemTransferClickOriginClicked"
+        ]
+    },
+    "ItemTransferClickOriginClicked": {
+        "recognition": "OCR",
+        "roi": [
+            596,
+            346,
+            213,
+            23
+        ],
+        "expected": "ORIGIN_REGION",
+        "next": [
+            "ItemTransferClickConfirmOrigin",
+            "ItemTransferAtOrigin"
+        ]
+    },
+    "ItemTransferClickConfirmOrigin": {
+        "recognition": "OCR",
+        "roi": [
+            991,
+            560,
+            117,
+            41
+        ],
+        "expected": [
+            "确认",
+            "確定",
+            "Confirm"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferAtOrigin"
+        ]
+    },
+    "ItemTransferAtOrigin": {
+        "recognition": "OCR",
+        "roi": [
+            991,
+            560,
+            117,
+            41
+        ],
+        "expected": [
+            "已连接",
+            "已連接",
+            "(?i)Connected",
+            "接続済み"
+        ],
+        "next": [
+            "ItemTransferClickEscOrigin"
+        ]
+    },
+    "ItemTransferClickEscOrigin": {
+        "action": "ClickKey",
+        "key": 27,
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferRepoToBag"
+        ]
+    },
+    "ItemTransferRepoToBag": {
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferClickSortAscending",
+            "ItemTransferClickItemCategory",
+            "ItemTransferFindItemInRepo",
+            "ItemTransferScrollDownwardRepo"
+        ]
+    },
+    "ItemTransferClickSortDescending": {
+        "recognition": "OCR",
+        "roi": [
+            371,
+            505,
+            48,
+            26
+        ],
+        "expected": [
+            "降序",
+            "(?i)DESC",
+            "降順"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferClickItemCategory",
+            "ItemTransferFindItemInRepo",
+            "ItemTransferScrollDownwardRepo"
+        ]
+    },
+    "ItemTransferClickSortAscending": {
+        "recognition": "OCR",
+        "roi": [
+            371,
+            505,
+            48,
+            26
+        ],
+        "expected": [
+            "升序",
+            "(?i)ASC",
+            "昇順"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferClickItemCategory",
+            "ItemTransferFindItemInRepo",
+            "ItemTransferScrollDownwardRepo"
+        ]
+    },
+    "ItemTransferClickItemCategory": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            168,
+            171,
+            531,
+            35
+        ],
+        "template": "ItemTransfer/All.png",
+        "threshold": 0.8,
+        "order_by": "Score",
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindItemInRepo",
+            "ItemTransferScrollDownwardRepo"
+        ]
+    },
+    "ItemTransferFindItemInRepo": {
+        "recognition": "NeuralNetworkDetect",
+        "roi": [
+            158,
+            203,
+            551,
+            292
+        ],
+        "expected": 0,
+        "model": "ItemTransfer/ItemTransfer.onnx",
+        "threshold": 0.8,
+        "order_by": "Score",
+        "next": [
+            "ItemTransferCtrlKeyDownRepo"
+        ]
+    },
+    "ItemTransferScrollDownwardRepo": {
+        "action": "Scroll",
+        "target": [
+            640,
+            350
+        ],
+        "dy": -180,
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindItemInRepo",
+            "ItemTransferScrollUpwardRepo"
+        ]
+    },
+    "ItemTransferScrollUpwardRepo": {
+        "desc": "触底后回顶",
+        "action": "Scroll",
+        "target": [
+            640,
+            350
+        ],
+        "dy": 180,
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindItemInRepo",
+            "ItemTransferFindItemFallback",
+            "ItemTransferItemNotFound"
+        ]
+    },
+    "ItemTransferItemNotFound": {
+        "focus": {
+            "Node.Action.Succeeded": "$task.ItemTransfer.item_not_found"
+        }
+    },
+    "ItemTransferCtrlKeyDownRepo": {
+        "action": "KeyDown",
+        "key": 17,
+        "next": [
+            "ItemTransferTransferToBag"
+        ]
+    },
+    "ItemTransferTransferToBag": {
+        "action": "Click",
+        "target": "ItemTransferFindItemInRepo",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "next": [
+            "ItemTransferCtrlKeyUpRepo"
+        ]
+    },
+    "ItemTransferCtrlKeyUpRepo": {
+        "action": "KeyUp",
+        "key": 17,
+        "next": [
+            "ItemTransferSwitchRepoToDestination"
+        ]
+    },
+    "ItemTransferSwitchRepoToDestination": {
+        "recognition": "OCR",
+        "roi": [
+            607,
+            128,
+            65,
+            24
+        ],
+        "expected": [
+            "仓库切换",
+            "倉庫切換",
+            "(?i)Switch\\s*Depot",
+            "倉庫切替",
+            "Switch",
+            "Depot"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferClickDestination",
+            "ItemTransferSwitchRepoToDestination"
+        ]
+    },
+    "ItemTransferClickDestination": {
+        "recognition": "OCR",
+        "roi": [
+            515,
+            158,
+            481,
+            393
+        ],
+        "expected": "DESTINATION_REGION",
+        "action": "Click",
+        "post_delay": 400,
+        "next": [
+            "ItemTransferClickDestinationClicked"
+        ]
+    },
+    "ItemTransferClickDestinationClicked": {
+        "recognition": "OCR",
+        "roi": [
+            596,
+            346,
+            213,
+            23
+        ],
+        "expected": "DESTINATION_REGION",
+        "next": [
+            "ItemTransferClickConfirmDestination",
+            "ItemTransferAtDestination"
+        ]
+    },
+    "ItemTransferClickConfirmDestination": {
+        "recognition": "OCR",
+        "roi": [
+            991,
+            560,
+            117,
+            41
+        ],
+        "expected": [
+            "确认",
+            "確定",
+            "Confirm"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferAtDestination"
+        ]
+    },
+    "ItemTransferAtDestination": {
+        "recognition": "OCR",
+        "roi": [
+            991,
+            560,
+            117,
+            41
+        ],
+        "expected": [
+            "已连接",
+            "已連接",
+            "(?i)Connected",
+            "接続済み"
+        ],
+        "next": [
+            "ItemTransferClickEscDestination"
+        ]
+    },
+    "ItemTransferClickEscDestination": {
+        "action": "ClickKey",
+        "key": 27,
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferBagToRepo"
+        ]
+    },
+    "ItemTransferBagToRepo": {
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindItemInBag",
+            "ItemTransferScrollDownwardBag"
+        ]
+    },
+    "ItemTransferFindItemInBag": {
+        "recognition": "NeuralNetworkDetect",
+        "roi": [
+            768,
+            209,
+            349,
+            285
+        ],
+        "expected": 0,
+        "model": "ItemTransfer/ItemTransfer.onnx",
+        "threshold": 0.8,
+        "order_by": "Score",
+        "next": [
+            "ItemTransferCtrlKeyDownBag"
+        ]
+    },
+    "ItemTransferScrollDownwardBag": {
+        "action": "Scroll",
+        "target": [
+            837,
+            350
+        ],
+        "dy": -180,
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindItemInBag",
+            "ItemTransferScrollUpwardBag"
+        ]
+    },
+    "ItemTransferScrollUpwardBag": {
+        "desc": "触底后回顶",
+        "action": "Scroll",
+        "target": [
+            837,
+            350
+        ],
+        "dy": 180,
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindItemInBag",
+            "ItemTransferFindItemFallbackBag"
+        ]
+    },
+    "ItemTransferCtrlKeyDownBag": {
+        "action": "KeyDown",
+        "key": 17,
+        "next": [
+            "ItemTransferTransferToRepo"
+        ]
+    },
+    "ItemTransferTransferToRepo": {
+        "action": "Click",
+        "target": "ItemTransferFindItemInBag",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "next": [
+            "ItemTransferCtrlKeyUpBag"
+        ]
+    },
+    "ItemTransferCtrlKeyUpBag": {
+        "action": "KeyUp",
+        "key": 17,
+        "next": [
+            "ItemTransferCheckIfFull",
+            "ItemTransferSwitchRepoToOrigin",
+            "ItemTransferStop"
+        ]
+    },
+    "ItemTransferCheckIfFull": {
+        "recognition": "OCR",
+        "roi": [
+            493,
+            112,
+            291,
+            20
+        ],
+        "expected": [
+            "已充满",
+            "已充滿",
+            "(?i)Full",
+            "FULL",
+            "已满",
+            "已滿"
+        ],
+        "next": [
+            "ItemTransferSwitchRepoToOriginReturn"
+        ]
+    },
+    "ItemTransferSwitchRepoToOriginReturn": {
+        "recognition": "OCR",
+        "roi": [
+            607,
+            128,
+            65,
+            24
+        ],
+        "expected": [
+            "仓库切换",
+            "倉庫切換",
+            "(?i)Switch\\s*Depot",
+            "倉庫切替",
+            "Switch",
+            "Depot"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferClickOriginReturn",
+            "ItemTransferSwitchRepoToOriginReturn"
+        ]
+    },
+    "ItemTransferClickOriginReturn": {
+        "recognition": "OCR",
+        "roi": [
+            515,
+            158,
+            481,
+            393
+        ],
+        "expected": "ORIGIN_REGION",
+        "action": "Click",
+        "post_delay": 400,
+        "next": [
+            "ItemTransferClickOriginReturnClicked"
+        ]
+    },
+    "ItemTransferClickOriginReturnClicked": {
+        "recognition": "OCR",
+        "roi": [
+            596,
+            346,
+            213,
+            23
+        ],
+        "expected": "ORIGIN_REGION",
+        "next": [
+            "ItemTransferClickConfirmOriginReturn",
+            "ItemTransferAtOriginReturn"
+        ]
+    },
+    "ItemTransferClickConfirmOriginReturn": {
+        "recognition": "OCR",
+        "roi": [
+            991,
+            560,
+            117,
+            41
+        ],
+        "expected": [
+            "确认",
+            "確定",
+            "Confirm"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferAtOriginReturn"
+        ]
+    },
+    "ItemTransferAtOriginReturn": {
+        "recognition": "OCR",
+        "roi": [
+            991,
+            560,
+            117,
+            41
+        ],
+        "expected": [
+            "已连接",
+            "已連接",
+            "(?i)Connected",
+            "接続済み"
+        ],
+        "next": [
+            "ItemTransferClickEscOriginReturn"
+        ]
+    },
+    "ItemTransferClickEscOriginReturn": {
+        "action": "ClickKey",
+        "key": 27,
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferBagToOriginRepo"
+        ]
+    },
+    "ItemTransferBagToOriginRepo": {
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindItemInBagReturn",
+            "ItemTransferScrollDownwardBagReturn"
+        ]
+    },
+    "ItemTransferFindItemInBagReturn": {
+        "recognition": "NeuralNetworkDetect",
+        "roi": [
+            768,
+            209,
+            349,
+            285
+        ],
+        "expected": 0,
+        "model": "ItemTransfer/ItemTransfer.onnx",
+        "threshold": 0.8,
+        "order_by": "Score",
+        "next": [
+            "ItemTransferCtrlKeyDownBagReturn"
+        ]
+    },
+    "ItemTransferScrollDownwardBagReturn": {
+        "action": "Scroll",
+        "target": [
+            837,
+            350
+        ],
+        "dy": -180,
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindItemInBagReturn",
+            "ItemTransferScrollUpwardBagReturn"
+        ]
+    },
+    "ItemTransferScrollUpwardBagReturn": {
+        "desc": "触底后回顶",
+        "action": "Scroll",
+        "target": [
+            837,
+            350
+        ],
+        "dy": 180,
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindItemInBagReturn",
+            "ItemTransferFindItemFallbackBagReturn"
+        ]
+    },
+    "ItemTransferCtrlKeyDownBagReturn": {
+        "action": "KeyDown",
+        "key": 17,
+        "next": [
+            "ItemTransferTransferToRepoReturn"
+        ]
+    },
+    "ItemTransferTransferToRepoReturn": {
+        "action": "Click",
+        "target": "ItemTransferFindItemInBagReturn",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "next": [
+            "ItemTransferCtrlKeyUpBagReturn"
+        ]
+    },
+    "ItemTransferCtrlKeyUpBagReturn": {
+        "action": "KeyUp",
+        "key": 17,
+        "next": [
+            "ItemTransferCheckIfFullReturn",
+            "ItemTransferBagReturnCompleted"
+        ]
+    },
+    "ItemTransferCheckIfFullReturn": {
+        "recognition": "OCR",
+        "roi": [
+            493,
+            112,
+            291,
+            20
+        ],
+        "expected": [
+            "已充满",
+            "已充滿",
+            "(?i)Full",
+            "FULL",
+            "已满",
+            "已満"
+        ],
+        "next": [
+            "ItemTransferClickQuickStashReturn",
+            "ItemTransferBagReturnManualCleanup"
+        ]
+    },
+    "ItemTransferClickQuickStashReturn": {
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            871,
+            472,
+            162,
+            125
+        ],
+        "template": [
+            "StashBackpack/QuickStash.png"
+        ],
+        "order_by": "Score",
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferBagReturnStashCompleted"
+        ]
+    },
+    "ItemTransferBagReturnCompleted": {
+        "action": "StopTask",
+        "focus": {
+            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_completed"
+        }
+    },
+    "ItemTransferBagReturnManualCleanup": {
+        "action": "StopTask",
+        "focus": {
+            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_manual_cleanup"
+        }
+    },
+    "ItemTransferBagReturnStashCompleted": {
+        "action": "StopTask",
+        "focus": {
+            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_stash_completed"
+        }
+    },
+    "ItemTransferStop": {
+        "action": "StopTask"
+    },
+    "ItemTransferDetectAllItems": {
+        "desc": "NND 识别仓库区域所有物品（无 class 过滤，低阈值）",
+        "recognition": "NeuralNetworkDetect",
+        "roi": [
+            158,
+            203,
+            551,
+            292
+        ],
+        "model": "ItemTransfer/ItemTransfer.onnx",
+        "threshold": 0.3,
+        "order_by": "Horizontal"
+    },
+    "ItemTransferDetectAllItemsBag": {
+        "desc": "NND 识别背包区域所有物品（无 class 过滤，低阈值）",
+        "recognition": "NeuralNetworkDetect",
+        "roi": [
+            768,
+            209,
+            349,
+            285
+        ],
+        "model": "ItemTransfer/ItemTransfer.onnx",
+        "threshold": 0.3,
+        "order_by": "Horizontal"
+    },
+    "ItemTransferTooltipOCR": {
+        "desc": "悬停后物品名称 OCR（ROI 由 Go 代码在运行时覆盖）",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            1280,
+            720
+        ],
+        "expected": [
+            ".*"
+        ]
+    },
+    "ItemTransferFindItemWithOCR": {
+        "desc": "无 NND expected 时通过 OCR 二分法查找物品并 Ctrl+Click（仓库侧）",
+        "action": "Custom",
+        "custom_action": "ItemTransferOCRAction",
+        "custom_action_param": {
+            "item_name": "",
+            "side": "repo",
+            "max_distance": 1
+        },
+        "next": [
+            "ItemTransferSwitchRepoToDestination"
+        ]
+    },
+    "ItemTransferFindItemWithOCRBag": {
+        "desc": "无 NND expected 时通过 OCR 二分法查找物品并 Ctrl+Click（背包侧）",
+        "action": "Custom",
+        "custom_action": "ItemTransferOCRAction",
+        "custom_action_param": {
+            "item_name": "",
+            "side": "bag",
+            "max_distance": 1
+        },
+        "next": [
+            "ItemTransferCheckIfFull",
+            "ItemTransferSwitchRepoToOrigin",
+            "ItemTransferStop"
+        ]
+    },
+    "ItemTransferFindItemWithOCRBagReturn": {
+        "desc": "无 NND expected 时通过 OCR 二分法查找物品并 Ctrl+Click（背包返还侧）",
+        "action": "Custom",
+        "custom_action": "ItemTransferOCRAction",
+        "custom_action_param": {
+            "item_name": "",
+            "side": "bag",
+            "max_distance": 1
+        },
+        "next": [
+            "ItemTransferCheckIfFullReturn",
+            "ItemTransferBagReturnCompleted"
+        ]
+    },
+    "ItemTransferFindItemFallback": {
+        "desc": "NND 兜底：hover + OCR + 二分法查找（仓库侧）",
+        "action": "Custom",
+        "custom_action": "ItemTransferFallbackAction",
+        "custom_action_param": {
+            "target_class": 0,
+            "side": "repo",
+            "max_distance": 1
+        },
+        "next": [
+            "ItemTransferSwitchRepoToDestination"
+        ]
+    },
+    "ItemTransferFindItemFallbackBag": {
+        "desc": "NND 兜底：hover + OCR + 二分法查找（背包侧）",
+        "action": "Custom",
+        "custom_action": "ItemTransferFallbackAction",
+        "custom_action_param": {
+            "target_class": 0,
+            "side": "bag",
+            "max_distance": 1
+        },
+        "next": [
+            "ItemTransferCheckIfFull",
+            "ItemTransferSwitchRepoToOrigin",
+            "ItemTransferStop"
+        ]
+    },
+    "ItemTransferFindItemFallbackBagReturn": {
+        "desc": "NND 兜底：hover + OCR + 二分法查找（背包返还侧）",
+        "action": "Custom",
+        "custom_action": "ItemTransferFallbackAction",
+        "custom_action_param": {
+            "target_class": 0,
+            "side": "bag",
+            "max_distance": 1
+        },
+        "next": [
+            "ItemTransferCheckIfFullReturn",
+            "ItemTransferBagReturnCompleted"
+        ]
+    }
+}

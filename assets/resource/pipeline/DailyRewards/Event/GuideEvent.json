@@ -1,0 +1,89 @@
+{
+    "DailyEventUnreadGuideEvent": {
+        "desc": "处理引入活动",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "color",
+                "recognition": "ColorMatch",
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "lower": [
+                    230,
+                    230,
+                    0
+                ],
+                "upper": [
+                    255,
+                    255,
+                    13
+                ],
+                "connected": true,
+                "count": 200
+            },
+            {
+                "recognition": "OCR",
+                "roi": "color",
+                "expected": [
+                    "引入活动",
+                    "引入活動",
+                    "Guide Event",
+                    "案内",
+                    "기념 이벤트"
+                ],
+                "only_rec": true
+            }
+        ],
+        "pre_wait_freezes": {
+            "target": [
+                -200,
+                0,
+                200,
+                200
+            ],
+            "time": 200
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyEventUnreadGuideEventClaim",
+            "DailyEventUnreadGuideEventFinish"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入引入活动"
+        }
+    },
+    "DailyEventUnreadGuideEventClaim": {
+        "desc": "领取奖励",
+        "recognition": "OCR",
+        "roi": [
+            -160,
+            -440,
+            160,
+            440
+        ],
+        "expected": [
+            "领取",
+            "領取",
+            "(?i)Claim",
+            "受取",
+            "획득"
+        ],
+        "action": "Click",
+        "next": [
+            "SceneNoticeRewardsConfirm"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "领取引入活动奖励"
+        }
+    },
+    "DailyEventUnreadGuideEventFinish": {
+        "desc": "领取完了",
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

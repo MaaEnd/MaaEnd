@@ -1,0 +1,84 @@
+{
+    "WaitLoadingColor": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "lower": [
+                                    255,
+                                    253,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    253,
+                                    0
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "lower": [
+                                    0,
+                                    253,
+                                    253
+                                ],
+                                "upper": [
+                                    0,
+                                    253,
+                                    253
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "lower": [
+                                    255,
+                                    0,
+                                    253
+                                ],
+                                "upper": [
+                                    255,
+                                    0,
+                                    253
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "__ADB__": {
+        "desc": "这个节点是为了检查当前的资源是否是ADB,不要覆盖",
+        "enabled": false
+    }
+}

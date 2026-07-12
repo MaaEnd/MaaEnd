@@ -1,0 +1,332 @@
+{
+    "AutoCollectRoute2Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCity2"
+            ]
+        },
+        "next": [
+            "AutoCollectRoute2AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute2.label"
+        }
+    },
+    "AutoCollectRoute2End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectRoute2AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            "map_name": "map02_lv002",
+                            "target": [
+                                632,
+                                535,
+                                20,
+                                20
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectRoute2GotoFind1"
+        ]
+    },
+    "AutoCollectRoute2GotoFind1": {
+        "desc": "前往采集点1",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
+                    "path": [
+                        [
+                            636.0,
+                            537.0
+                        ],
+                        [
+                            631.0,
+                            533.3
+                        ],
+                        [
+                            587.3,
+                            533.2
+                        ],
+                        [
+                            587.3,
+                            530.8
+                        ],
+                        [
+                            589.7,
+                            527.0
+                        ],
+                        [
+                            592.3,
+                            519.6
+                        ],
+                        [
+                            598.4,
+                            510.7
+                        ],
+                        [
+                            596.0,
+                            503.3
+                        ],
+                        [
+                            588.5,
+                            494.5
+                        ],
+                        [
+                            583.5,
+                            489.5
+                        ],
+                        [
+                            578.5,
+                            484.4
+                        ],
+                        [
+                            573.5,
+                            479.5
+                        ],
+                        [
+                            566.0,
+                            477.1
+                        ],
+                        [
+                            533.5,
+                            472.0
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute2GotoFind2"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute2GotoFind2": {
+        "desc": "前往采集点2",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
+                    "path": [
+                        [
+                            531.1,
+                            465.7
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute2GotoFind3"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute2GotoFind3": {
+        "desc": "前往采集点3",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
+                    "path": [
+                        [
+                            529.8,
+                            469.6
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute2GotoFind4"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute2GotoFind4": {
+        "desc": "前往采集点4",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
+                    "path": [
+                        [
+                            532.2,
+                            472.0
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute2GotoFind5"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute2GotoFind5": {
+        "desc": "前往采集点5",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
+                    "path": [
+                        [
+                            532.3,
+                            475.8
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute2GotoFind6"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute2GotoFind6": {
+        "desc": "前往采集点6",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
+                    "path": [
+                        [
+                            533.5,
+                            478.2
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute2GotoFind7"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute2GotoFind7": {
+        "desc": "前往采集点7",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
+                    "path": [
+                        [
+                            531.1,
+                            476.9
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute2GotoFind8"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute2GotoFind8": {
+        "desc": "前往采集点8",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
+                    "path": [
+                        [
+                            526.1,
+                            475.8
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute2GotoFind9"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute2GotoFind9": {
+        "desc": "前往采集点9",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "fine_approach": "AllTargets",
+                    "no_ensure_initial_movement_state": true,
+                    "path": [
+                        [
+                            524.8,
+                            473.1
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute2End"
+        },
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    }
+}

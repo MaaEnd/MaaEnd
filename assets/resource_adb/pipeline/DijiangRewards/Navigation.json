@@ -1,0 +1,15 @@
+{
+    "OpenMap": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    141,
+                    125,
+                    1,
+                    1
+                ]
+            }
+        }
+    }
+}

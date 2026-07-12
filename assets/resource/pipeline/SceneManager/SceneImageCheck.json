@@ -1,0 +1,129 @@
+{
+    "__SceneImageCheck": {
+        "desc": "场景图像检查，检查完毕后回到菜单列表",
+        "recognition": "And",
+        "all_of": [
+            "InMenuList",
+            {
+                "recognition": "Custom",
+                "custom_recognition": "ImageCheckNotPassedRecognition"
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            30,
+            -60,
+            10,
+            10
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneImageCheckDialogIn"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "正在检查画面，提示登出账号是正常现象，会自动取消"
+        }
+    },
+    "__SceneImageCheckDialogIn": {
+        "desc": "在菜单列表界面",
+        "recognition": "OCR",
+        "roi": [
+            400,
+            250,
+            470,
+            200
+        ],
+        "expected": [
+            "登录界面",
+            "登入介面",
+            "login screen",
+            "画面に戻りますか",
+            "나가시겠습니까"
+        ],
+        "pre_wait_freezes": 120,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__SceneCheckOSD",
+            "[JumpBack]__SceneImageCheckAICPlanColor",
+            "__SceneImageCheckFinishSave"
+        ]
+    },
+    "__SceneImageCheckFinishSave": {
+        "desc": "场景图像检查完成保存状态",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ImageCheckSetResultAction",
+        "custom_action_param": {
+            "result": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneImageCheckFinishExit"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "画面检查通过"
+        }
+    },
+    "__SceneImageCheckFinishExit": {
+        "desc": "场景图像检查完成退出到原界面",
+        "recognition": "And",
+        "all_of": [
+            "CancelButton"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "rate_limit": 0,
+        "next": [
+            "__SceneImageCheckFinishExitSuccess"
+        ]
+    },
+    "__SceneImageCheckFinishExitSuccess": {
+        "desc": "场景图像检查完成退出到原界面成功",
+        "recognition": "And",
+        "all_of": [
+            "CancelButton"
+        ],
+        "inverse": true,
+        "pre_wait_freezes": 120,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__SceneImageCheckAICPlanColor": {
+        "desc": "检查颜色",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneImageCheckAICPlanColorSuccess",
+            "__SceneImageCheckAICPlanColorFailedFinish"
+        ]
+    },
+    "__SceneImageCheckAICPlanColorSuccess": {
+        "desc": "检查颜色成功",
+        "recognition": "And",
+        "all_of": [
+            "CancelButton",
+            "YellowConfirmButtonType1"
+        ]
+    },
+    "__SceneImageCheckAICPlanColorFailedFinish": {
+        "desc": "检查颜色失败,截图保存到 debug 目录",
+        "pre_delay": 0,
+        "action": "Screencap",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneCheckAbortPipeline"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.SceneManager.focus.color_match_failed_prefix"
+        }
+    }
+}

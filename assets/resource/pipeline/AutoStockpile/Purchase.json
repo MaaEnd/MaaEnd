@@ -1,0 +1,269 @@
+{
+    "AutoStockpileRelayNodeDecisionReady": {
+        "desc": "[Go覆盖] 当前决策已校正，可进入购买链",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileCheckBuy",
+            "AutoStockpileCheckQuota"
+        ]
+    },
+    "AutoStockpileCheckBuy": {
+        "desc": "确认可以进行购买操作",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType2"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileDevSkipSwipe",
+            "AutoStockpileCheckSliding",
+            "AutoStockpileSwipeSpecificQuantity",
+            "AutoStockpileSwipeMax"
+        ]
+    },
+    "AutoStockpileCheckQuota": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    200,
+                    490,
+                    880,
+                    80
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        172,
+                        80,
+                        150
+                    ]
+                ],
+                "upper": [
+                    [
+                        179,
+                        180,
+                        240
+                    ]
+                ],
+                "connected": true,
+                "count": 1000
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileCancelBuy"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "可购买数量不足，取消购买"
+        }
+    },
+    "AutoStockpileSwipeSpecificQuantity": {
+        "desc": "[Go覆盖] 滑动到指定数值",
+        "enabled": false,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding",
+                "custom_action_param": {
+                    "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+                    "Direction": "right",
+                    "IncreaseButton": "AutoStockpile/IncreaseButton.png",
+                    "GreenMask": true,
+                    "Target": 1,
+                    "Quantity": {
+                        "Box": [
+                            360,
+                            480,
+                            100,
+                            45
+                        ],
+                        "Filter": {
+                            "lower": [
+                                20,
+                                150,
+                                150
+                            ],
+                            "upper": [
+                                35,
+                                255,
+                                255
+                            ],
+                            "method": 40
+                        }
+                    },
+                    "ClampTargetToMax": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileRelayNodeSwipe"
+        ],
+        "focus": {
+            "Node.Action.Failed": "定量滑动失败，取消购买"
+        }
+    },
+    "AutoStockpileSwipeMax": {
+        "desc": "[Go覆盖] 选择最大购买数量",
+        "enabled": false,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding",
+                "custom_action_param": {
+                    "Direction": "right"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileRelayNodeSwipe"
+        ]
+    },
+    "AutoStockpileDevSkipSwipe": {
+        "desc": "开发时启用，跳过选择数量",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileRelayNodeSwipe"
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "Dev: 跳过滑动"
+        }
+    },
+    "AutoStockpileRelayNodeSwipe": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileDevSkipBuy",
+            "AutoStockpileBuy"
+        ]
+    },
+    "AutoStockpileDevSkipBuy": {
+        "desc": "开发时启用，跳过购买",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileCancelBuy"
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "Dev: 跳过购买"
+        }
+    },
+    "AutoStockpileBuy": {
+        "desc": "进行购买操作",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType2"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileCheckBuyResult"
+        ]
+    },
+    "AutoStockpileCheckBuyResult": {
+        "desc": "确认购买是否成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": "购买成功"
+        }
+    },
+    "AutoStockpileCancelBuy": {
+        "desc": "退出购买页面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileCheckSliding": {
+        "desc": "检查滑条是否存在，当购买数量为1时滑条会隐藏",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    450,
+                    485,
+                    325,
+                    40
+                ],
+                "lower": [
+                    [
+                        80,
+                        80,
+                        80
+                    ]
+                ],
+                "upper": [
+                    [
+                        100,
+                        100,
+                        100
+                    ]
+                ],
+                "connected": true,
+                "count": 10086
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoStockpileRelayNodeSwipe"
+        ]
+    }
+}

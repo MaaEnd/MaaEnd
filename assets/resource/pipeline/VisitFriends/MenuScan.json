@@ -1,0 +1,245 @@
+{
+    "VisitFriendsMenuScan": {
+        "desc": "识别当前好友列表",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuScanFriendsFull",
+            "[JumpBack][Anchor]VisitFriendsMenuScanTargetFriendAnchorOpen",
+            "VisitFriendsMenuScanScrollFinish",
+            "VisitFriendsMenuScanScrollFinishSpecial",
+            "[JumpBack]VisitFriendsMenuScanScrollList"
+        ]
+    },
+    "VisitFriendsMenuScanTargetFriendRemarkOpen": {
+        "desc": "前往需要拜访的好友",
+        "recognition": "Custom",
+        "custom_recognition": "VisitFriendsMenuScanTargetFriendOpenRecognition",
+        "custom_recognition_param": {
+            "only_remark_friends": true
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuScanTargetFriendOpenAction",
+        "custom_action_param": {
+            "param_attach_node": "VisitFriendsMenuScanTargetFriendRemarkOpen"
+        },
+        "post_delay": 0,
+        "attach": {
+            "control_nexus_assist": false,
+            "mfg_cabin_assist": false,
+            "growth_chamber_assist": false
+        }
+    },
+    "VisitFriendsMenuScanTargetFriendNormalOpen": {
+        "desc": "前往需要拜访的好友",
+        "recognition": "Custom",
+        "custom_recognition": "VisitFriendsMenuScanTargetFriendOpenRecognition",
+        "custom_recognition_param": {
+            "only_remark_friends": false
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuScanTargetFriendOpenAction",
+        "custom_action_param": {
+            "param_attach_node": "VisitFriendsMenuScanTargetFriendNormalOpen"
+        },
+        "post_delay": 0,
+        "attach": {
+            "control_nexus_assist": false,
+            "mfg_cabin_assist": false,
+            "growth_chamber_assist": false
+        }
+    },
+    "VisitFriendsMenuScanScrollFinish": {
+        "desc": "判断是否滚动完成",
+        "recognition": "Custom",
+        "custom_recognition": "VisitFriendsMenuScanScrollFinishRecognition",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "好友列表已滚动到底部，拜访完成"
+        }
+    },
+    "VisitFriendsMenuScanScrollFinishSpecial": {
+        "desc": "判断是否只有一个好友",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "_CanVisitText",
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            0,
+                            0,
+                            307,
+                            203
+                        ],
+                        "expected": [
+                            "可拜访的好友",
+                            "可拜訪的好友",
+                            "Visitable Friends",
+                            "訪問できるフレンド",
+                            "可拜访"
+                        ]
+                    }
+                }
+            },
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": "_CanVisitText",
+                        "roi_offset": [
+                            0,
+                            0,
+                            15,
+                            0
+                        ],
+                        "expected": [
+                            // @i18n-skip
+                            "(^|[^\\d])1(?!\\d)"
+                        ],
+                        "only_rec": true
+                    }
+                }
+            }
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "当前只有一个好友"
+        }
+    },
+    "VisitFriendsMenuScanFriendsFull": {
+        "desc": "拜访好友已达到上限",
+        "recognition": "Custom",
+        "custom_recognition": "VisitFriendsMenuScanScrollFullRecognition",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "拜访好友次数已满，停止拜访"
+        }
+    },
+    "VisitFriendsMenuScanScrollList": {
+        "desc": "向下滚动好友列表",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    170
+                ],
+                "template": "VisitFriends/OnFriendList.png",
+                "threshold": 0.8
+            }
+        },
+        "action": "Swipe",
+        "begin": [
+            650,
+            470
+        ],
+        "end": [
+            650,
+            150
+        ],
+        "end_hold": 600, // 太短了松开会晃动
+        "focus": {
+            "Node.Action.Succeeded": "向下滑动好友列表"
+        }
+    },
+    "VisitFriendsMenuScanDetail": {
+        "desc": "识别进入好友船的按钮",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "VisitFriendsMenuScanDetailClueExchange"
+        ]
+    },
+    "VisitFriendsMenuScanDetailClueExchange": {
+        "desc": "识别是否可以线索交换",
+        "recognition": "Custom",
+        "custom_recognition": "VisitFriendsMenuScanDetailClueExchangeRecognition",
+        "custom_recognition_param": {
+            "friend_name": "aaa#123",
+            "enter_button_box": [
+                0,
+                0,
+                100,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "VisitFriendsMenuScanDetailOpen",
+            "VisitFriendsMenuScanDetailFinish"
+        ]
+    },
+    "VisitFriendsMenuScanDetailOpen": {
+        "desc": "识别进入好友船的按钮",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            -100,
+            0,
+            100,
+            100
+        ],
+        "target_offset": [
+            5,
+            5,
+            -10,
+            -10
+        ],
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuScanDetailOpenSuccess"
+        ]
+    },
+    "VisitFriendsMenuScanDetailOpenSuccess": {
+        "desc": "成功打开好友详情弹窗",
+        "recognition": "And",
+        "all_of": [
+            "GrayCancelButton"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuScanDetailSaveAssist"
+        ]
+    },
+    "VisitFriendsMenuScanDetailSaveAssist": {
+        "desc": "保存好友船助力详情",
+        "recognition": "Custom",
+        "custom_recognition": "VisitFriendsMenuScanDetailAssistRecognition",
+        "custom_recognition_param": {
+            "friend_name": "aaa#1234"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuScanDetailClose"
+        ]
+    },
+    "VisitFriendsMenuScanDetailClose": {
+        "desc": "关闭好友船详情",
+        "recognition": "And",
+        "all_of": [
+            "GrayCancelButton"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "post_delay": 0
+    },
+    "VisitFriendsMenuScanDetailFinish": {
+        "desc": "完成好友详情识别",
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

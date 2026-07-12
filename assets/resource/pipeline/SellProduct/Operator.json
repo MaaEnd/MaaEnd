@@ -1,0 +1,36 @@
+{
+    "SellProductInOperatorLiaison": {
+        "desc": "在据点联络干员列表界面",
+        "recognition": "OCR",
+        "roi": [
+            45,
+            55,
+            360,
+            115
+        ],
+        "expected": [
+            "联络干员",
+            "聯絡幹員",
+            "Operator Liaison",
+            "オペレーター",
+            "접선 오퍼레이터"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProductOpenOperatorLiaisonButton": {
+        "desc": "打开据点联络干员列表按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            223,
+            527,
+            162,
+            116
+        ],
+        "template": "SellProduct/SellProductOpenOperatorListButton.png",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

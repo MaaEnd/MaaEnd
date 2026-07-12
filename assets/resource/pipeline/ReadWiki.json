@@ -1,0 +1,248 @@
+{
+    "WikiReadAll": {
+        "next": [
+            "WikiOnHomePage",
+            "[JumpBack]SceneEnterMenuWiki"
+        ]
+    },
+    "WikiOnHomePage": {
+        "recognition": "OCR",
+        "roi": [
+            4,
+            1,
+            253,
+            100
+        ],
+        "expected": [
+            "终末地百科",
+            "終末地百科",
+            "(?i)Endfield\\s*Database",
+            "エンドフィールドWiki"
+        ],
+        "next": [
+            "WikiClickHomePageUnreadBadge",
+            "WikiClickChapterUnreadBadge",
+            "WikiBackButton",
+            "WikiExitButton"
+        ]
+    },
+    "WikiBackButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1164,
+                    0,
+                    116,
+                    99
+                ],
+                "template": "ReadWiki/WikiBackButton.png"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "WikiClickHomePageUnreadBadge",
+            "WikiClickChapterUnreadBadge",
+            "WikiExitButton"
+        ]
+    },
+    "WikiExitButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1164,
+                    0,
+                    116,
+                    99
+                ],
+                "template": "ReadWiki/WikiExitButton.png"
+            }
+        },
+        "action": "Click"
+        // 任务结束
+    },
+    "WikiClickHomePageUnreadBadge": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    184,
+                    243,
+                    1008,
+                    116
+                ],
+                "template": [
+                    "ReadWiki/WikiUnreadBadge.png",
+                    "ReadWiki/WikiUnreadBadgeWithDarkBG.png" // 因为鼠标焦点，可能会再次选中部分项目导致其红点背景变成黑色
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                31,
+                50,
+                229,
+                635
+            ]
+        },
+        "next": [
+            "WikiClickChapterUnreadBadge",
+            "WikiScrollListForNextUnread",
+            "WikiClickRealUnreadPage",
+            "WikiBackButton"
+        ]
+    },
+    "WikiClickChapterUnreadBadge": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    21,
+                    51,
+                    350,
+                    58
+                ],
+                "template": "ReadWiki/WikiUnreadBadge.png"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -5,
+                    5,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "WikiClickRealUnreadPage",
+            "WikiScrollListForNextUnread",
+            "WikiClickChapterUnreadBadge",
+            "WikiBackButton"
+        ]
+    },
+    "WikiClickRealUnreadPage": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    206,
+                    130,
+                    160,
+                    585
+                ],
+                "template": [
+                    "ReadWiki/WikiUnreadBadge.png",
+                    "ReadWiki/WikiNextPage.png" // 新版本出现了一种 'new' 的红点样式
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -100,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 50,
+            "target": [
+                756,
+                675,
+                30,
+                11
+            ]
+        },
+        "next": [
+            "[JumpBack]WikiNextPage",
+            "WikiClickRealUnreadPage",
+            "WikiScrollListForNextUnread",
+            "WikiClickChapterUnreadBadge",
+            "WikiBackButton"
+        ]
+    },
+    "WikiScrollListForNextUnread": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    136,
+                    640,
+                    65,
+                    58
+                ],
+                "template": [
+                    "ReadWiki/WikiUnreadBadge.png",
+                    "ReadWiki/WikiUnreadBadgeWithBlackBG.png",
+                    "ReadWiki/WikiNextPage.png" // 新版本出现了一种 'new' 的红点样式
+                ]
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    150,
+                    600
+                ],
+                "end": [
+                    150,
+                    200
+                ],
+                "end_hold": 200
+            }
+        },
+        "next": [
+            "WikiClickRealUnreadPage",
+            "WikiScrollListForNextUnread",
+            "WikiClickChapterUnreadBadge",
+            "WikiBackButton"
+        ]
+    },
+    "WikiNextPage": {
+        "desc": "在物品图鉴页面，才有多页，识别下一页按钮，点击滑动翻页",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    748,
+                    673,
+                    48,
+                    19
+                ],
+                "template": "ReadWiki/WikiNextPage.png"
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    700,
+                    400
+                ],
+                "end": [
+                    700,
+                    200
+                ],
+                "end_hold": 200
+            }
+        },
+        "timeout": 1000,
+        "next": [
+            "WikiNextPage"
+        ]
+    }
+}

@@ -1,0 +1,23 @@
+{
+    "InProtocolPass": {
+        "desc": "在通行证界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    100,
+                    100
+                ],
+                "template": [
+                    "SceneManager/MenuPassRewardsChoose.png",
+                    "SceneManager/MenuPassRewardsNotChoose.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

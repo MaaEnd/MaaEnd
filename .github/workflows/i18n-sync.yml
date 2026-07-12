@@ -1,0 +1,119 @@
+name: i18n-sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      reviewer:
+        description: "自动请求评审的 GitHub 用户名（可留空）"
+        required: false
+  schedule:
+    # 每天 UTC 03:00 自动运行（可按需调整）
+    - cron: "0 3 * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  I18N_SYNC_BRANCH: "chore/i18n-auto-sync"
+  PR_TITLE: "chore: auto sync OCR i18n expected"
+  DEFAULT_PR_REVIEWER: "overflow65537"
+
+jobs:
+  sync-ocr-expected:
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'MaaEnd/MaaEnd'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prepare fixed sync branch
+        env:
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          git checkout -B "$I18N_SYNC_BRANCH" "origin/$BASE_BRANCH"
+
+      - name: Clone translation repository
+        run: |
+          git clone --depth 1 https://github.com/SusieGlitter/EndFieldTranslationReferrer.git "$RUNNER_TEMP/EndFieldTranslationReferrer"
+
+      - name: Show translation repository commit
+        run: |
+          git -C "$RUNNER_TEMP/EndFieldTranslationReferrer" rev-parse HEAD
+
+      - name: Run OCR expected sync (write mode)
+        run: |
+          python tools/i18n/sync_ocr_expected.py --write --i18n-dir "$RUNNER_TEMP/EndFieldTranslationReferrer/i18n"
+
+      - name: Check changes
+        id: changes
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.has_changes == 'true'
+        uses: actions-js/push@master
+        with:
+          force: true
+          branch: ${{ env.I18N_SYNC_BRANCH }}
+          message: "chore: auto sync OCR i18n expected [skip changelog]"
+          github_token: ${{ secrets.MAAEND_BOT_TOKEN }}
+
+      - name: Create PR when missing
+        if: steps.changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.MAAEND_BOT_TOKEN }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+          PR_REVIEWER: ${{ github.event.inputs.reviewer || env.DEFAULT_PR_REVIEWER }}
+        run: |
+          pr_number="$(gh pr list --base "$BASE_BRANCH" --head "$I18N_SYNC_BRANCH" --state open --json number --jq '.[0].number')"
+          if [ -n "$pr_number" ]; then
+            echo "PR already exists: #$pr_number"
+            if [ -n "$PR_REVIEWER" ]; then
+              if ! output="$(gh pr edit "$pr_number" --add-reviewer "$PR_REVIEWER" 2>&1)"; then
+                if echo "$output" | grep -qi "already requested"; then
+                  echo "Skip add reviewer (already requested)"
+                else
+                  echo "$output" >&2
+                  exit 1
+                fi
+              fi
+            fi
+            exit 0
+          fi
+          pr_body="$(cat <<'EOF'
+          ## Summary
+          - Auto run i18n OCR expected sync.
+          - Update expected values based on latest translation repository.
+
+          ## Trigger
+          - workflow_dispatch
+          - schedule (daily UTC)
+          EOF
+          )"
+          reviewer_args=()
+          if [ -n "$PR_REVIEWER" ]; then
+            reviewer_args=(--reviewer "$PR_REVIEWER")
+          fi
+          gh pr create \
+            --base "$BASE_BRANCH" \
+            --head "$I18N_SYNC_BRANCH" \
+            --title "$PR_TITLE" \
+            --body "$pr_body" \
+            "${reviewer_args[@]}"
+
+      - name: Show changed files
+        run: |
+          git status --short

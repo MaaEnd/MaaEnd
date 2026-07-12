@@ -1,0 +1,421 @@
+{
+    "YellowButtonConfirmText": {
+        "desc": "识别确认按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -125,
+                    -31,
+                    95,
+                    67
+                ],
+                "expected": [
+                    "确认",
+                    "確定",
+                    "Confirm"
+                ]
+            }
+        }
+    },
+    "UseAssistText": {
+        "desc": "[需要助力] 识别使用助力按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -125,
+                    -31,
+                    130,
+                    67
+                ],
+                "expected": [
+                    "使用助力",
+                    "Use Assist"
+                ]
+            }
+        }
+    },
+    "ClaimAllText": {
+        "desc": "培养舱界面识别全部收取",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -106,
+                    -2,
+                    75,
+                    3
+                ],
+                "expected": [
+                    "全部收取",
+                    "(?i)Claim\\s*All",
+                    "一括受取"
+                ]
+            }
+        }
+    },
+    "MFGCabinNeedTakeText": {
+        "desc": "[制造舱·需要领取] 识别领取按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -125,
+                    -31,
+                    95,
+                    67
+                ],
+                "expected": [
+                    "收取",
+                    "(?i)Take",
+                    "受取"
+                ]
+            }
+        }
+    },
+    "ReceptionRoomCollectCluesText": {
+        "desc": "[会客室·线索] 识别需要收集线索的奖励颜色",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType2",
+                "roi_offset": [
+                    -45,
+                    2,
+                    14,
+                    -3
+                ],
+                "expected": [
+                    "领取",
+                    "領取",
+                    "(?i)Claim",
+                    "受取",
+                    "[Cc]laim"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "WhiteButtonConfirmText": {
+        "desc": "白色按钮上的确认文本识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "WhiteConfirmButtonType1",
+                "roi_offset": [
+                    -125,
+                    -31,
+                    95,
+                    67
+                ],
+                "expected": [
+                    "确认",
+                    "確定",
+                    "Confirm"
+                ]
+            }
+        }
+    },
+    "ReceiveAllText": {
+        "desc": "全部接收按钮文本识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "WhiteConfirmButtonType2",
+                "roi_offset": [
+                    -125,
+                    -31,
+                    95,
+                    67
+                ],
+                "expected": [
+                    "全部接收",
+                    "(?i)Receive\\s*All",
+                    "一括受取"
+                ]
+            }
+        }
+    },
+    "ReceptionRoomNeedReceiveCluesText": {
+        "desc": "[会客室·线索] 识别需要领取线索的奖励文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ReceptionRoomNeedReceiveCluesColor",
+                "roi_offset": [
+                    -63,
+                    31,
+                    81,
+                    36
+                ],
+                "expected": [
+                    "接收",
+                    "(?i)Receive",
+                    "受け取る"
+                ]
+            }
+        }
+    },
+    "ReceptionRoomNeedCollectCluesText": {
+        "desc": "[会客室·线索] 识别需要收集线索的奖励文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ReceptionRoomNeedCollectCluesColor",
+                "roi_offset": [
+                    -63,
+                    31,
+                    81,
+                    36
+                ],
+                "expected": [
+                    "收集",
+                    "Collect"
+                ]
+            }
+        }
+    },
+    "ClueItemCount": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueItemCountColor",
+                "roi_offset": [
+                    -1,
+                    -1,
+                    2,
+                    2
+                ],
+                "expected": [
+                    "^(20|[3-9]|1[0-9])$"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "ClueItemCountColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "ClueItem",
+                "roi_offset": [
+                    103,
+                    -24,
+                    46,
+                    36
+                ],
+                "lower": [
+                    158,
+                    159,
+                    157
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ]
+            }
+        }
+    },
+    "StartExchangeText": {
+        "desc": "[会客室·交流] 识别开始交流按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -125,
+                    -31,
+                    95,
+                    67
+                ],
+                "expected": [
+                    "开展交流",
+                    "開展交流",
+                    "(?i)Start\\s*Exchange",
+                    "情報共有"
+                ]
+            }
+        }
+    },
+    "ConfirmExtractText": {
+        "desc": "白色按钮上的确认文本识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "WhiteConfirmButtonType2",
+                "roi_offset": [
+                    -125,
+                    -31,
+                    95,
+                    67
+                ],
+                "expected": [
+                    "确认提取",
+                    "確定提取",
+                    "(?i)Extract",
+                    "抽出する"
+                ]
+            }
+        }
+    },
+    "GrayButtonCancelText": {
+        "desc": "灰色按钮上的取消文本识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GrayCancelButton",
+                "roi_offset": [
+                    -125,
+                    -31,
+                    95,
+                    67
+                ],
+                "expected": [
+                    "取消",
+                    "(?i)Cancel",
+                    "キャンセル"
+                ]
+            }
+        }
+    },
+    "ClaimAllGrowRewardCloseText": {
+        "desc": "培养舱界面收取全部奖励后关闭按钮文本识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    537,
+                    21,
+                    209,
+                    149
+                ],
+                "expected": [
+                    "培养获得",
+                    "培養獲得",
+                    "(?i)Materials\\s*Grown",
+                    "培養報酬"
+                ]
+            }
+        }
+    },
+    "ExtractSeedCloseText": {
+        "desc": "识别提取种子完成界面关闭按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    537,
+                    21,
+                    209,
+                    149
+                ],
+                "expected": [
+                    "提取获得",
+                    "提取獲得",
+                    "(?i)Seeds\\s*Extracted",
+                    "抽出物一覧"
+                ]
+            }
+        }
+    },
+    "MFGCabinNeedTakeCloseText": {
+        "desc": "制造舱领取产出完成界面关闭/确认文本识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    486,
+                    21,
+                    309,
+                    149
+                ],
+                "expected": [
+                    "制造舱收集产出",
+                    "製造艙收集產出",
+                    "(?i)Manufacturing\\s*Cabin\\s*Products\\s*Collected",
+                    "製造品一覧"
+                ]
+            }
+        }
+    },
+    "CloseRewardsButtonText": {
+        "desc": "识别奖励界面关闭按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    537,
+                    21,
+                    209,
+                    149
+                ],
+                "expected": [
+                    "获得奖励",
+                    "獲得獎勵",
+                    "(?i)Rewards\\s*Acquired",
+                    "報酬一覧"
+                ]
+            }
+        }
+    },
+    "AssistText": {
+        "desc": "识别生产助力标签文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    977,
+                    0,
+                    303,
+                    157
+                ],
+                "expected": [
+                    "生产助力"
+                ]
+            }
+        }
+    },
+    "MFGCabinText": {
+        "desc": "[制造舱·入口] 识别制造舱入口的文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "MFGCabinTips",
+                "roi_offset": [
+                    -193,
+                    -31,
+                    111,
+                    93
+                ],
+                "expected": [
+                    "制造舱"
+                ]
+            }
+        }
+    },
+    "GrowthChamberExtractSeedText": {
+        "desc": "[培养舱·入口] 识别培养舱提取基核的文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    747,
+                    481,
+                    350,
+                    205
+                ],
+                "expected": [
+                    "前往提取基核",
+                    "(?i)Extract\\s*Seed",
+                    "基核抽出へ"
+                ]
+            }
+        }
+    }
+}

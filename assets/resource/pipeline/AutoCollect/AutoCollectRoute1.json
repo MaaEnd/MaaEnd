@@ -1,0 +1,212 @@
+{
+    "AutoCollectRoute1Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCity5"
+            ]
+        },
+        "next": [
+            "AutoCollectRoute1AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute1.label"
+        }
+    },
+    "AutoCollectRoute1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectRoute1AssertLocation": {
+        "desc": "传送到收集地",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            "map_name": "map02_lv002",
+                            "target": [
+                                663,
+                                733,
+                                20,
+                                20
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectRoute1Goto"
+        ]
+    },
+    "AutoCollectRoute1Goto": {
+        "desc": "前往收集地",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            942,
+                            723
+                        ],
+                        [
+                            944,
+                            723
+                        ],
+                        [
+                            946,
+                            722
+                        ],
+                        [
+                            950,
+                            722
+                        ],
+                        [
+                            951,
+                            720
+                        ],
+                        [
+                            951,
+                            711
+                        ],
+                        [
+                            952,
+                            709
+                        ],
+                        [
+                            952,
+                            702
+                        ],
+                        [
+                            951,
+                            701
+                        ],
+                        [
+                            951,
+                            699
+                        ],
+                        [
+                            949,
+                            696
+                        ],
+                        [
+                            949,
+                            694
+                        ],
+                        [
+                            948,
+                            692
+                        ],
+                        [
+                            948,
+                            689
+                        ],
+                        [
+                            947,
+                            687
+                        ],
+                        [
+                            947,
+                            682
+                        ],
+                        [
+                            946,
+                            680
+                        ],
+                        [
+                            946,
+                            677
+                        ],
+                        [
+                            945,
+                            675
+                        ],
+                        [
+                            945,
+                            669
+                        ],
+                        [
+                            944,
+                            668
+                        ],
+                        [
+                            944,
+                            666
+                        ],
+                        [
+                            933,
+                            656
+                        ],
+                        [
+                            933,
+                            654
+                        ],
+                        [
+                            932,
+                            653
+                        ],
+                        [
+                            931,
+                            653
+                        ],
+                        [
+                            933,
+                            650,
+                            "COLLECT"
+                        ],
+                        [
+                            935,
+                            648,
+                            "COLLECT"
+                        ],
+                        [
+                            935,
+                            646,
+                            "COLLECT"
+                        ],
+                        [
+                            931,
+                            642,
+                            "COLLECT"
+                        ],
+                        [
+                            928,
+                            645,
+                            "COLLECT"
+                        ],
+                        [
+                            927,
+                            647,
+                            "COLLECT"
+                        ],
+                        [
+                            929,
+                            649,
+                            "COLLECT"
+                        ],
+                        [
+                            931,
+                            652,
+                            "COLLECT"
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectRoute1End"
+        ]
+    }
+}

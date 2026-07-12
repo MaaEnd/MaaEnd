@@ -1,0 +1,152 @@
+{
+    "DijiangRewardsFastCollectProduction": {
+        "desc": "快速收取产物",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1037,
+                    45,
+                    243,
+                    372
+                ],
+                "expected": [
+                    "产物",
+                    "產物",
+                    "(?i)Products",
+                    "製品"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DijiangRewardsFastCollectProductionSuccess"
+        ]
+    },
+    "DijiangRewardsFastCollectProductionSuccess": {
+        "desc": "快速收取产物奖励界面识别目标，包含产物奖励界面特征元素的组合",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    322,
+                    0,
+                    390,
+                    209
+                ],
+                "expected": [
+                    "制造舱",
+                    "製造艙",
+                    "(?i)Manufacturing\\s*Cabin",
+                    "製造室",
+                    "培养舱",
+                    "培養艙",
+                    "(?i)Growth\\s*Chamber",
+                    "培養室"
+                ]
+            }
+        },
+        "next": [
+            "CloseFastCollectProductionRewards",
+            "InDijiangControlNexus"
+        ]
+    },
+    "CloseFastCollectProductionRewards": {
+        "desc": "关闭快速收取产物奖励界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton",
+                    "CloseRewardsButtonText"
+                ]
+            }
+        },
+        "pre_wait_freezes": 150,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DijiangRewardsFastCollectClues": {
+        "desc": "快速收取线索",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1037,
+                    45,
+                    243,
+                    372
+                ],
+                "expected": [
+                    "线索",
+                    "線索",
+                    "(?i)Clues",
+                    "手がかり"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DijiangRewardsFastCollectCluesSuccess"
+        ]
+    },
+    "DijiangRewardsFastCollectCluesSuccess": {
+        "desc": "快速收取线索奖励界面识别目标，包含线索奖励界面特征元素的组合",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    181,
+                    12,
+                    440,
+                    221
+                ],
+                "expected": [
+                    "会客室",
+                    "會客室",
+                    "(?i)Reception\\s*Room",
+                    "応接室"
+                ]
+            }
+        },
+        "next": [
+            "CloseFastCollectCluesRewards",
+            "InDijiangControlNexus"
+        ]
+    },
+    "CloseFastCollectCluesRewards": {
+        "desc": "关闭快速收取线索奖励界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton",
+                    "CloseRewardsButtonText"
+                ]
+            }
+        },
+        "pre_wait_freezes": 150,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

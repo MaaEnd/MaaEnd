@@ -1,0 +1,5 @@
+<div style="color: #00bfff; font-weight: 900;">{{.Title}}</div>
+{{range .Slots}}{{if .Skills}}<div style="color: {{.Color}}; font-weight: 700;">{{.Label}}</div>
+<table style="width: 100%; color: {{.Color}}; border-collapse: collapse;">
+{{range .Rows}}<tr>{{range .}}<td style="padding: 2px 8px; font-size: 12px;">{{.}}</td>{{end}}</tr>
+{{end}}</table>{{end}}{{end}}

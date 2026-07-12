@@ -1,0 +1,173 @@
+{
+    "SellProductSchedule": {
+        "desc": "售卖产品计划任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SellProductScheduleEnabled",
+            "SellProductScheduleEnd"
+        ]
+    },
+    "SellProductScheduleEnabled": {
+        "desc": "售卖产品计划任务命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SellProductMain"
+        ],
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
+    "SellProductScheduleEnd": {
+        "desc": "售卖产品计划任务跳过",
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "SellProductMain": {
+        "desc": "脚本入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    },
+    "SellProductLoop": {
+        "desc": "主循环，仅支持从地区建设界面开始",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAuto",
+            "SellProductValleyIV",
+            "SellProductWuling",
+            "SellProductTaskEnd"
+        ]
+    },
+    "SellProductAuto": {
+        "desc": "自动选择起始地区售卖流程",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAutoValleyIV",
+            "SellProductAutoWuling",
+            "SellProductLoop"
+        ]
+    },
+    "SellProductAutoValleyIV": {
+        "desc": "自动选择四号谷地售卖流程",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopmentValleyIV"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductValleyIV",
+            "SellProductLoop"
+        ]
+    },
+    "SellProductAutoWuling": {
+        "desc": "自动选择武陵售卖流程",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopmentWuling"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductWuling",
+            "SellProductLoop"
+        ]
+    },
+    "SellProductValleyIV": {
+        "desc": "四号谷地售卖流程入口",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIV"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductOutpostLocked",
+            "SellProductValleyIVSell"
+        ]
+    },
+    "SellProductWuling": {
+        "desc": "武陵售卖流程入口",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentWuling"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductOutpostLocked",
+            "SellProductWulingSell"
+        ]
+    },
+    "SellProductOutpostLocked": {
+        "desc": "据点管理未解锁",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1178,
+            185,
+            35,
+            48
+        ],
+        "template": [
+            "SellProduct/SellProductDevelopmentLocked.png"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductLoop"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "据点管理未解锁"
+        }
+    },
+    "SellProductTaskEnd": {
+        "desc": "任务结束",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SellProduct.TaskEnd"
+        }
+    }
+}

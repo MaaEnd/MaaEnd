@@ -1,0 +1,213 @@
+{
+    "SceneEnterMenuList": {
+        "desc": "从任意界面进入菜单总列表",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuList",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuOperator": {
+        "desc": "从任意界面进入干员菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuOperator",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuRegionalDevelopment": {
+        "desc": "从任意界面进入地区建设菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "InRegionalDevelopment",
+            "__ScenePrivateWorldEnterMenuRegionalDevelopment",
+            "[JumpBack]__ScenePrivateMenuRegionalDevelopmentView2EnterMenuRegionalDevelopment",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuEvent": {
+        "desc": "从任意界面进入活动菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuEvent",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuValuables": {
+        "desc": "从任意界面进入贵重品库菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuValuables",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuValuablesValuableTab": {
+        "desc": "从任意界面进入贵重品库的珍贵物品页",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMenuValuablesEnterValuableTab",
+            "[JumpBack]SceneEnterMenuValuables"
+        ]
+    },
+    "SceneEnterMenuOperationalManual": {
+        "desc": "从任意界面进入行动手册菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuOperationalManual",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuTeam": {
+        "desc": "从任意界面进入编队菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuTeam",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuProtocolPass": {
+        "desc": "从任意界面进入通行证菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuProtocolPass",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuFriendsAdd": {
+        "desc": "从任意界面进入好友添加菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuFriendsAdd",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuFriendsList": {
+        "desc": "从任意界面进入好友列表菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuFriendsList",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuGearAssembly": {
+        "desc": "从任意界面进入装备加工界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuGearAssembly",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuBluePrint": {
+        "desc": "从任意界面进入蓝图菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldFactoryEnterMenuBluePrint",
+            "[JumpBack]SceneEnterWorldFactory"
+        ]
+    },
+    "SceneEnterMenuEmail": {
+        "desc": "从任意界面进入邮箱界面，无未读邮箱时会任务失败，不建议使用",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuEmail",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuBackpack": {
+        "desc": "从任意界面进入背包界面，左侧不一定有仓库",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuBackpack",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuBackpackWithDepot": {
+        "desc": "从任意界面进入背包界面，左侧包含所有仓库",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldDijiangEnterMenuBackpackWithDepot",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterMenuBaker": {
+        "desc": "从任意界面进入Baker界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuBaker",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuWiki": {
+        "desc": "从任意界面进入百科界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuWiki",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuShop": {
+        "desc": "从任意界面进入商店界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuShop",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuLogin": {
+        "desc": "从任意界面进入登录界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuLogin",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuDijiangControlNexus": {
+        "desc": "从任意界面进入帝江号控制中枢菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuControlNexus",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    }
+}

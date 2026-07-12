@@ -1,0 +1,87 @@
+{
+    "GiftOperatorBagFull": {
+        "desc": "背包已满，无法领取礼物",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    478,
+                    57,
+                    319,
+                    134
+                ],
+                "expected": [
+                    "礼物",
+                    "禮物",
+                    "(?i)Gift",
+                    "プレゼント"
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorBagFullLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.GiftOperator.focus.bag_full"
+        }
+    },
+    "GiftOperatorBagFullDialog": {
+        "desc": "背包满离开后跳过对话。",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    616,
+                    679,
+                    48,
+                    40
+                ],
+                "template": [
+                    "RealTimeTask/AutoSkipNext2.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "FailedNode"
+        ]
+    },
+    "GiftOperatorBagFullLeave": {
+        "desc": "背包满时点击离开",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    900,
+                    334,
+                    350,
+                    318
+                ],
+                "expected": [
+                    // @i18n-skip
+                    "暂时离开",
+                    "暫時離開",
+                    "(?i)Leave\\s*for\\s*now",
+                    "一旦離れる",
+                    "(?i)Exit",
+                    "退出",
+                    "离开",
+                    "離開",
+                    "(?i)Leave",
+                    "離れる"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "GiftOperatorBagFullDialog"
+        ]
+    }
+}

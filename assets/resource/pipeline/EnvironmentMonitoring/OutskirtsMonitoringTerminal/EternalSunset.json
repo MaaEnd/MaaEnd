@@ -1,0 +1,299 @@
+{
+    "EternalSunsetJob": {
+        "desc": "栖霞驻影任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckEternalSunsetText",
+            "CheckEternalSunsetIcon",
+            "CheckEternalSunsetReadyText"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "EternalSunsetExecute",
+            "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "failure_task": "EternalSunsetFailed"
+        },
+        "post_delay": 0
+    },
+    "EternalSunsetFailed": {
+        "desc": "栖霞驻影任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.EternalSunset.failed"
+        }
+    },
+    "EternalSunsetExecute": {
+        "desc": "执行栖霞驻影任务路线",
+        "next": [
+            "AcceptEternalSunset",
+            "GoToEternalSunsetMission"
+        ]
+    },
+    "CheckEternalSunsetText": {
+        "desc": "检查是否有栖霞驻影文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "“栖霞驻影”",
+            "「棲霞駐影」",
+            "(?i)\"Eternal\\s*Sunset\"",
+            "「棲霞留影」",
+            "'노을의 그림자'"
+        ],
+        "replace": [],
+        "order_by": "Vertical"
+    },
+    "CheckEternalSunsetIcon": {
+        "desc": "检查栖霞驻影文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckEternalSunsetText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
+    },
+    "CheckEternalSunsetReadyText": {
+        "desc": "检查栖霞驻影委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckEternalSunsetIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckEternalSunsetJob": {
+        "desc": "检查栖霞驻影委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckEternalSunsetIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckEternalSunsetGoToMissionText": {
+        "desc": "检查栖霞驻影委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckEternalSunsetIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "InEternalSunsetMission": {
+        "desc": "是否在栖霞驻影任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄生长在亭子中间的“栖霞驻影”",
+            "拍攝生長在亭子中間的「棲霞駐影」",
+            "(?i)Photo:\\s*\"Eternal\\s*Sunset\"",
+            "東屋中央の「棲霞留影」の写真を撮る",
+            "정자 한가운데에 자라는 '노을의 그림자'를 촬영하기"
+        ],
+        "replace": []
+    },
+    "AcceptEternalSunset": {
+        "desc": "接取栖霞驻影委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckEternalSunsetText",
+            "CheckEternalSunsetIcon",
+            "CheckEternalSunsetJob"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "GoToEternalSunsetMission"
+        ]
+    },
+    "GoToEternalSunsetMission": {
+        "desc": "前往栖霞驻影任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckEternalSunsetText",
+            "CheckEternalSunsetIcon",
+            "CheckEternalSunsetGoToMissionText"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "EternalSunsetTrackOrGoTo"
+        ]
+    },
+    "EternalSunsetTrackOrGoTo": {
+        "desc": "在栖霞驻影任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续",
+        "recognition": "And",
+        "all_of": [
+            "InEternalSunsetMission"
+        ],
+        "next": [
+            "TrackEternalSunset",
+            "AlreadyTrackedEternalSunset"
+        ]
+    },
+    "TrackEternalSunset": {
+        "desc": "追踪栖霞驻影任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InEternalSunsetMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToEternalSunset"
+        ]
+    },
+    "AlreadyTrackedEternalSunset": {
+        "desc": "栖霞驻影任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InEternalSunsetMission"
+        ],
+        "next": [
+            "GoToEternalSunset"
+        ]
+    },
+    "EternalSunsetNotAdapted": {
+        "desc": "栖霞驻影任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
+    "GoToEternalSunset": {
+        "desc": "前往栖霞驻影，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "GoToEternalSunsetStartPos",
+            "GoToEternalSunsetNotAtStartPos"
+        ]
+    },
+    "GoToEternalSunsetStartPos": {
+        "desc": "在栖霞驻影任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        315,
+                        305,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToEternalSunsetMove"
+        ]
+    },
+    "GoToEternalSunsetNotAtStartPos": {
+        "desc": "不在栖霞驻影任务开始位置附近，先传送再检查落点",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley2"
+            ]
+        },
+        "next": [
+            "GoToEternalSunsetStartPos"
+        ]
+    },
+    "GoToEternalSunsetMove": {
+        "desc": "自动寻路前往栖霞驻影",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    332,
+                    303
+                ],
+                [
+                    346,
+                    296
+                ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 60
+                }
+            }
+        },
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "EternalSunsetAdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "EternalSunsetAdjustCamera": {
+        "desc": "栖霞驻影任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
+        ]
+    }
+}

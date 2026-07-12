@@ -1,0 +1,404 @@
+{
+    "MFGCabinMain": {
+        "desc": "[制造舱·主界面] 在控制中枢中识别制造舱主界面特征，进入制造舱主界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "MFGCabinTips",
+                    "MFGCabinText"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 1000,
+            "target": [
+                0,
+                0,
+                375,
+                578
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "MFGCabinViewIn"
+        ]
+    },
+    "MFGCabinViewIn": {
+        "desc": "[制造舱·状态] 确认已进入制造舱界面，再决定领取/补货/助力/退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InMFGCabin",
+                    "FacilityDetails"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]MFGCabinClaimReward",
+            "[JumpBack]MFGCabinRestock",
+            "[JumpBack]MFGCabinAssist",
+            "MFGCabinExit"
+        ]
+    },
+    "MFGCabinRestock": {
+        "desc": "[制造舱·补货] 识别需要补货的订单并点击补货",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    892,
+                    437,
+                    154,
+                    118
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ItemMaxButton.png"
+                ],
+                "green_mask": true,
+                "method": 10001,
+                "threshold": [
+                    0.9
+                ],
+                "order_by": "Vertical",
+                "index": -1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 150,
+            "timeout": 1000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "MFGCabinRestockConfirm"
+        ]
+    },
+    "MFGCabinRestockConfirm": {
+        "desc": "[制造舱·补货] 补货完成界面点击确认返回制造舱",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1",
+                    "WhiteButtonConfirmText"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "timeout": 1000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "MFGCabinClaimReward": {
+        "desc": "[制造舱·领奖] 识别可领取奖励的黄按钮并点击",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "MFGCabinNeedTakeText"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 150,
+            "timeout": 2000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "MFGCabinClaimRewardClose"
+        ]
+    },
+    "MFGCabinClaimRewardClose": {
+        "desc": "[制造舱·领奖] 领奖完成界面点击关闭返回制造舱",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton",
+                    "MFGCabinNeedTakeCloseText"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                512,
+                387,
+                191,
+                42
+            ],
+            "timeout": 1000
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "MFGCabinAssist": {
+        "desc": "[制造舱·助力] 识别需要助力的制造单并点击进入助力界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InMFGCabin",
+                    "NeedAssistColor",
+                    "AssistText"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "MFGCabinAssistOpen"
+        ]
+    },
+    "MFGCabinAssistOpen": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    317,
+                    185
+                ],
+                "expected": [
+                    "生产助力"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "MFGCabinAssistUse"
+        ]
+    },
+    "MFGCabinAssistUse": {
+        "desc": "[制造舱·助力] 助力界面点击“使用助力”进入确认流程",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "UseAssistText"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "MFGCabinStartAssist"
+        ]
+    },
+    "MFGCabinStartAssist": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    602,
+                    120,
+                    404,
+                    189
+                ],
+                "roi_offset": [
+                    0,
+                    0,
+                    274,
+                    0
+                ],
+                "expected": [
+                    "使用助力加速当前生产",
+                    "使用助力加速目前的生產",
+                    "(?i)Use\\s*assist\\s*to\\s*speed\\s*up\\s*production",
+                    "サポートを使って生産を加速しましょう"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]MFGCabinAssistMax",
+            "MFGCabinAssistConfirm"
+        ]
+    },
+    "MFGCabinAssistMax": {
+        "desc": "[制造舱·助力] 在助力界面点击最大助力",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    783,
+                    385,
+                    274,
+                    181
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ItemMaxButton.png"
+                ],
+                "green_mask": true,
+                "method": 10001,
+                "threshold": [
+                    0.9
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "MFGCabinAssistConfirm": {
+        "desc": "[制造舱·助力] 点击确认使用助力",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "YellowButtonConfirmText"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "MFGCabinAssistClose"
+        ]
+    },
+    "MFGCabinAssistClose": {
+        "desc": "[制造舱·助力] 助力完成后点击关闭返回制造舱",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "timeout": 1000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "MFGCabinExit": {
+        "desc": "[制造舱·退出] 点击左上制造舱标题返回控制中枢",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InMFGCabin",
+                    "FacilityDetails",
+                    "CloseButtonType1"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "InDijiangControlNexus"
+        ]
+    }
+}

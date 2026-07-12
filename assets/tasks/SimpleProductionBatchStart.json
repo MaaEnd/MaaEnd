@@ -1,0 +1,20 @@
+{
+    "task": [
+        {
+            "name": "SimpleProductionBatchStart",
+            "label": "$task.SimpleProductionBatch.label",
+            "entry": "SimpleProductionBatchStart",
+            "description": "$task.SimpleProductionBatch.description",
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
+            "group": [
+                "backpack"
+            ]
+        }
+    ],
+    "option": {}
+}

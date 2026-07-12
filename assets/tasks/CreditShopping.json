@@ -1,0 +1,2276 @@
+{
+    "task": [
+        {
+            "name": "CreditShoppingN2",
+            "label": "$task.CreditShopping.label",
+            "entry": "CreditShoppingMain",
+            "description": "$task.CreditShopping.description",
+            "option": [
+                "CreditShoppingReserve",
+                "CreditShoppingClueSend",
+                "CreditShoppingClueStockLimit",
+                "CreditShoppingPriority1",
+                "CreditShoppingPriority2",
+                "CreditShoppingPriority3",
+                "CreditShoppingForce",
+                "CreditShoppingKeepShelfRecord"
+            ],
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
+            "group": [
+                "other_menu"
+            ],
+            "pipeline_override": {
+                "ReceptionRoomCollectClues": {
+                    "enabled": false
+                },
+                "ReceptionRoomReceiveClues": {
+                    "enabled": false
+                },
+                "ReceptionRoomSetClues": {
+                    "enabled": false
+                },
+                "ReceptionRoomStartExchange": {
+                    "enabled": true
+                }
+            }
+        }
+    ],
+    "option": {
+        "CreditShoppingClueSend": {
+            "type": "input",
+            "label": "$option.CreditShoppingClueSend.label",
+            "description": "$option.CreditShoppingClueSend.description",
+            "inputs": [
+                {
+                    "name": "MaxClueSendWhenInsufficient",
+                    "label": "$option.CreditShoppingClueSend.MaxClueSend.label",
+                    "description": "$option.CreditShoppingClueSend.MaxClueSend.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "1"
+                }
+            ],
+            "pipeline_override": {
+                "ReceptionRoomSendCluesDirect": {
+                    "enabled": true
+                },
+                "ReceptionRoomSendCluesSelectClues": {
+                    "max_hit": "{MaxClueSendWhenInsufficient}"
+                }
+            }
+        },
+        "CreditShoppingClueStockLimit": {
+            "type": "select",
+            "label": "$option.CreditShoppingClueStockLimit.label",
+            "description": "$option.CreditShoppingClueStockLimit.description",
+            "default_case": "2",
+            "cases": [
+                {
+                    "name": "1",
+                    "label": "$option.CreditShoppingClueStockLimit.cases.1.label",
+                    "pipeline_override": {
+                        "ClueItemCount": {
+                            "expected": "^(?:[2-9]|1[0-9]|20)$"
+                        }
+                    }
+                },
+                {
+                    "name": "2",
+                    "label": "$option.CreditShoppingClueStockLimit.cases.2.label",
+                    "pipeline_override": {
+                        "ClueItemCount": {
+                            "expected": "^(20|[3-9]|1[0-9])$"
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority1": {
+            "type": "switch",
+            "label": "$option.CreditShoppingPriority1.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "CreditShoppingPriority1AutoGetCredits",
+                        "CreditShoppingPriority1UnconditionalPurchase",
+                        "CreditShoppingPriority1Items",
+                        "CreditShoppingPriority1DiscountValue"
+                    ],
+                    "pipeline_override": {
+                        "CreditShoppingBuyPriority1": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingBuyPriority1": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoGetCreditsBuyPriority1": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority1AutoGetCredits": {
+            "type": "switch",
+            "label": "$option.AutoGetCredits.label",
+            "description": "$option.AutoGetCredits.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {}
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoGetCreditsBuyPriority1": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority1UnconditionalPurchase": {
+            "type": "switch",
+            "label": "$option.CreditShoppingUnconditionalPurchase.label",
+            "description": "$option.CreditShoppingUnconditionalPurchase.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CreditShoppingPriority1ReserveCreditGate": {
+                            "recognition": {
+                                "type": "DirectHit"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingPriority1ReserveCreditGate": {
+                            "recognition": {
+                                "type": "And",
+                                "param": {
+                                    "all_of": [
+                                        "CreditShoppingReserveCreditSatisfied"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority1Items": {
+            "type": "checkbox",
+            "label": "$option.CreditShoppingPriority1Items.label",
+            "default_case": [
+                "ArsenalTicket",
+                "Oroberyl"
+            ],
+            "cases": [
+                {
+                    "name": "ArsenalTicket",
+                    "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "arsenal_ticket": [
+                                    "武库配额",
+                                    "武庫配額",
+                                    "Arsenal Ticket",
+                                    "武庫配給"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "arsenal_ticket": [
+                                    "武库配额",
+                                    "武庫配額",
+                                    "Arsenal Ticket",
+                                    "武庫配給"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Oroberyl",
+                    "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "oroberyl": [
+                                    "嵌晶玉",
+                                    "嵌晶玉",
+                                    "Oroberyl",
+                                    "赤晶玉"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "oroberyl": [
+                                    "嵌晶玉",
+                                    "嵌晶玉",
+                                    "Oroberyl",
+                                    "赤晶玉"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "TCreds",
+                    "label": "$option.CreditShoppingItems.cases.TCreds.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "t_creds": [
+                                    "折金票",
+                                    "折金票",
+                                    "T-Creds",
+                                    "折金券"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "t_creds": [
+                                    "折金票",
+                                    "折金票",
+                                    "T-Creds",
+                                    "折金券"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ElementaryCognitiveCarrier",
+                    "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "elementary_cognitive_carrier": [
+                                    "初级认知载体",
+                                    "初級認知載體",
+                                    "Elementary Cognitive Carrier",
+                                    "初級認識媒体"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "elementary_cognitive_carrier": [
+                                    "初级认知载体",
+                                    "初級認知載體",
+                                    "Elementary Cognitive Carrier",
+                                    "初級認識媒体"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ElementaryCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "elementary_combat_record": [
+                                    "初级作战记录",
+                                    "初級作戰紀錄",
+                                    "Elementary Combat Record",
+                                    "初級作戦記録"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "elementary_combat_record": [
+                                    "初级作战记录",
+                                    "初級作戰紀錄",
+                                    "Elementary Combat Record",
+                                    "初級作戦記録"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "IntermediateCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "intermediate_combat_record": [
+                                    "中级作战记录",
+                                    "中級作戰紀錄",
+                                    "Intermediate Combat Record",
+                                    "中級作戦記録"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "intermediate_combat_record": [
+                                    "中级作战记录",
+                                    "中級作戰紀錄",
+                                    "Intermediate Combat Record",
+                                    "中級作戦記録"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ArmsInspector",
+                    "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "arms_inspector": [
+                                    "武器检查单元",
+                                    "武器檢查單元",
+                                    "Arms Inspector",
+                                    "武器検査ユニット"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "arms_inspector": [
+                                    "武器检查单元",
+                                    "武器檢查單元",
+                                    "Arms Inspector",
+                                    "武器検査ユニット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ArmsINSPKit",
+                    "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "arms_insp_kit": [
+                                    "武器检查装置",
+                                    "武器檢查裝置",
+                                    "Arms INSP Kit",
+                                    "武器検査セット"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "arms_insp_kit": [
+                                    "武器检查装置",
+                                    "武器檢查裝置",
+                                    "Arms INSP Kit",
+                                    "武器検査セット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "CastDie",
+                    "label": "$option.CreditShoppingItems.cases.CastDie.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "cast_die": [
+                                    "强固模具",
+                                    "強固模具",
+                                    "Cast Die",
+                                    "硬質金型"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "cast_die": [
+                                    "强固模具",
+                                    "強固模具",
+                                    "Cast Die",
+                                    "硬質金型"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "HeavyCastDie",
+                    "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "heavy_cast_die": [
+                                    "重型强固模具",
+                                    "重型強固模具",
+                                    "Heavy Cast Die",
+                                    "重硬質金型"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "heavy_cast_die": [
+                                    "重型强固模具",
+                                    "重型強固模具",
+                                    "Heavy Cast Die",
+                                    "重硬質金型"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protodisk",
+                    "label": "$option.CreditShoppingItems.cases.Protodisk.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "protodisk": [
+                                    "协议圆盘",
+                                    "協議圓盤",
+                                    "Protodisk",
+                                    "協約ディスク"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "protodisk": [
+                                    "协议圆盘",
+                                    "協議圓盤",
+                                    "Protodisk",
+                                    "協約ディスク"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protoset",
+                    "label": "$option.CreditShoppingItems.cases.Protoset.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "protoset": [
+                                    "协议圆盘组",
+                                    "協議圓盤組",
+                                    "Protoset",
+                                    "協約ディスクセット"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "protoset": [
+                                    "协议圆盘组",
+                                    "協議圓盤組",
+                                    "Protoset",
+                                    "協約ディスクセット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protoprism",
+                    "label": "$option.CreditShoppingItems.cases.Protoprism.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "protoprism": [
+                                    "协议棱柱",
+                                    "協議稜柱",
+                                    "Protoprism",
+                                    "協約角柱"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "protoprism": [
+                                    "协议棱柱",
+                                    "協議稜柱",
+                                    "Protoprism",
+                                    "協約角柱"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protohedron",
+                    "label": "$option.CreditShoppingItems.cases.Protohedron.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "protohedron": [
+                                    "协议棱柱组",
+                                    "協議稜柱組",
+                                    "Protohedron",
+                                    "協約角柱セット"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "protohedron": [
+                                    "协议棱柱组",
+                                    "協議稜柱組",
+                                    "Protohedron",
+                                    "協約角柱セット"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority1DiscountValue": {
+            "type": "select",
+            "label": "$option.DiscountValue.label",
+            "default_case": "Any",
+            "cases": [
+                {
+                    "name": "Any",
+                    "label": "$option.DiscountValue.cases.Any.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority1": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "BuyFirstOCR",
+                                    "roi_offset": [
+                                        62,
+                                        -172,
+                                        -34,
+                                        7
+                                    ],
+                                    "method": 6,
+                                    "lower": [
+                                        0
+                                    ],
+                                    "upper": [
+                                        255
+                                    ],
+                                    "count": 1
+                                }
+                            }
+                        },
+                        "IsDiscountPriority1_CanNotAfford": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "BuyFirstOCR_CanNotAfford",
+                                    "roi_offset": [
+                                        62,
+                                        -172,
+                                        -34,
+                                        7
+                                    ],
+                                    "method": 6,
+                                    "lower": [
+                                        0
+                                    ],
+                                    "upper": [
+                                        255
+                                    ],
+                                    "count": 1
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-25%",
+                    "label": "$option.DiscountValue.cases.-25%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority1": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75",
+                                "50",
+                                "25"
+                            ]
+                        },
+                        "IsDiscountPriority1_CanNotAfford": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75",
+                                "50",
+                                "25"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "-50%",
+                    "label": "$option.DiscountValue.cases.-50%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority1": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75",
+                                "50"
+                            ]
+                        },
+                        "IsDiscountPriority1_CanNotAfford": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75",
+                                "50"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "-75%",
+                    "label": "$option.DiscountValue.cases.-75%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority1": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75"
+                            ]
+                        },
+                        "IsDiscountPriority1_CanNotAfford": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "-95%",
+                    "label": "$option.DiscountValue.cases.-95%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority1": {
+                            "expected": [
+                                "99",
+                                "95"
+                            ]
+                        },
+                        "IsDiscountPriority1_CanNotAfford": {
+                            "expected": [
+                                "99",
+                                "95"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "-99%",
+                    "label": "$option.DiscountValue.cases.-99%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority1": {
+                            "expected": [
+                                "99"
+                            ]
+                        },
+                        "IsDiscountPriority1_CanNotAfford": {
+                            "expected": [
+                                "99"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority2": {
+            "type": "switch",
+            "label": "$option.CreditShoppingPriority2.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "CreditShoppingPriority2AutoGetCredits",
+                        "CreditShoppingPriority2UnconditionalPurchase",
+                        "CreditShoppingPriority2Items",
+                        "CreditShoppingPriority2DiscountValue"
+                    ],
+                    "pipeline_override": {
+                        "CreditShoppingBuyPriority2": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingBuyPriority2": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoGetCreditsBuyPriority2": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority2AutoGetCredits": {
+            "type": "switch",
+            "label": "$option.AutoGetCredits.label",
+            "description": "$option.AutoGetCredits.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {}
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoGetCreditsBuyPriority2": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority2UnconditionalPurchase": {
+            "type": "switch",
+            "label": "$option.CreditShoppingUnconditionalPurchase.label",
+            "description": "$option.CreditShoppingUnconditionalPurchase.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CreditShoppingPriority2ReserveCreditGate": {
+                            "recognition": {
+                                "type": "DirectHit"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingPriority2ReserveCreditGate": {
+                            "recognition": {
+                                "type": "And",
+                                "param": {
+                                    "all_of": [
+                                        "CreditShoppingReserveCreditSatisfied"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority2Items": {
+            "type": "checkbox",
+            "label": "$option.CreditShoppingPriority2Items.label",
+            "default_case": [
+                "ArmsInspector",
+                "ArmsINSPKit",
+                "ArsenalTicket",
+                "CastDie",
+                "ElementaryCognitiveCarrier",
+                "ElementaryCombatRecord",
+                "HeavyCastDie",
+                "IntermediateCombatRecord",
+                "Oroberyl",
+                "Protodisk",
+                "Protoprism",
+                "Protohedron",
+                "Protoset",
+                "TCreds"
+            ],
+            "cases": [
+                {
+                    "name": "ArsenalTicket",
+                    "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "arsenal_ticket": [
+                                    "武库配额",
+                                    "武庫配額",
+                                    "Arsenal Ticket",
+                                    "武庫配給"
+                                ]
+                            }
+                        },
+                        "Priority2OCR_CanNotAfford": {
+                            "attach": {
+                                "arsenal_ticket": [
+                                    "武库配额",
+                                    "武庫配額",
+                                    "Arsenal Ticket",
+                                    "武庫配給"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Oroberyl",
+                    "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "oroberyl": [
+                                    "嵌晶玉",
+                                    "嵌晶玉",
+                                    "Oroberyl",
+                                    "赤晶玉"
+                                ]
+                            }
+                        },
+                        "Priority2OCR_CanNotAfford": {
+                            "attach": {
+                                "oroberyl": [
+                                    "嵌晶玉",
+                                    "嵌晶玉",
+                                    "Oroberyl",
+                                    "赤晶玉"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "TCreds",
+                    "label": "$option.CreditShoppingItems.cases.TCreds.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "t_creds": [
+                                    "折金票",
+                                    "折金票",
+                                    "T-Creds",
+                                    "折金券"
+                                ]
+                            }
+                        },
+                        "Priority2OCR_CanNotAfford": {
+                            "attach": {
+                                "t_creds": [
+                                    "折金票",
+                                    "折金票",
+                                    "T-Creds",
+                                    "折金券"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ElementaryCognitiveCarrier",
+                    "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "elementary_cognitive_carrier": [
+                                    "初级认知载体",
+                                    "初級認知載體",
+                                    "Elementary Cognitive Carrier",
+                                    "初級認識媒体"
+                                ]
+                            }
+                        },
+                        "Priority2OCR_CanNotAfford": {
+                            "attach": {
+                                "elementary_cognitive_carrier": [
+                                    "初级认知载体",
+                                    "初級認知載體",
+                                    "Elementary Cognitive Carrier",
+                                    "初級認識媒体"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ElementaryCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "elementary_combat_record": [
+                                    "初级作战记录",
+                                    "初級作戰紀錄",
+                                    "Elementary Combat Record",
+                                    "初級作戦記録"
+                                ]
+                            }
+                        },
+                        "Priority2OCR_CanNotAfford": {
+                            "attach": {
+                                "elementary_combat_record": [
+                                    "初级作战记录",
+                                    "初級作戰紀錄",
+                                    "Elementary Combat Record",
+                                    "初級作戦記録"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "IntermediateCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "intermediate_combat_record": [
+                                    "中级作战记录",
+                                    "中級作戰紀錄",
+                                    "Intermediate Combat Record",
+                                    "中級作戦記録"
+                                ]
+                            }
+                        },
+                        "Priority2OCR_CanNotAfford": {
+                            "attach": {
+                                "intermediate_combat_record": [
+                                    "中级作战记录",
+                                    "中級作戰紀錄",
+                                    "Intermediate Combat Record",
+                                    "中級作戦記録"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ArmsInspector",
+                    "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "arms_inspector": [
+                                    "武器检查单元",
+                                    "武器檢查單元",
+                                    "Arms Inspector",
+                                    "武器検査ユニット"
+                                ]
+                            }
+                        },
+                        "Priority2OCR_CanNotAfford": {
+                            "attach": {
+                                "arms_inspector": [
+                                    "武器检查单元",
+                                    "武器檢查單元",
+                                    "Arms Inspector",
+                                    "武器検査ユニット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ArmsINSPKit",
+                    "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "arms_insp_kit": [
+                                    "武器检查装置",
+                                    "武器檢查裝置",
+                                    "Arms INSP Kit",
+                                    "武器検査セット"
+                                ]
+                            }
+                        },
+                        "Priority2OCR_CanNotAfford": {
+                            "attach": {
+                                "arms_insp_kit": [
+                                    "武器检查装置",
+                                    "武器檢查裝置",
+                                    "Arms INSP Kit",
+                                    "武器検査セット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "CastDie",
+                    "label": "$option.CreditShoppingItems.cases.CastDie.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "cast_die": [
+                                    "强固模具",
+                                    "強固模具",
+                                    "Cast Die",
+                                    "硬質金型"
+                                ]
+                            }
+                        },
+                        "Priority2OCR_CanNotAfford": {
+                            "attach": {
+                                "cast_die": [
+                                    "强固模具",
+                                    "強固模具",
+                                    "Cast Die",
+                                    "硬質金型"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "HeavyCastDie",
+                    "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "heavy_cast_die": [
+                                    "重型强固模具",
+                                    "重型強固模具",
+                                    "Heavy Cast Die",
+                                    "重硬質金型"
+                                ]
+                            }
+                        },
+                        "Priority2OCR_CanNotAfford": {
+                            "attach": {
+                                "heavy_cast_die": [
+                                    "重型强固模具",
+                                    "重型強固模具",
+                                    "Heavy Cast Die",
+                                    "重硬質金型"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protodisk",
+                    "label": "$option.CreditShoppingItems.cases.Protodisk.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "protodisk": [
+                                    "协议圆盘",
+                                    "協議圓盤",
+                                    "Protodisk",
+                                    "協約ディスク"
+                                ]
+                            }
+                        },
+                        "Priority2OCR_CanNotAfford": {
+                            "attach": {
+                                "protodisk": [
+                                    "协议圆盘",
+                                    "協議圓盤",
+                                    "Protodisk",
+                                    "協約ディスク"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protoset",
+                    "label": "$option.CreditShoppingItems.cases.Protoset.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "protoset": [
+                                    "协议圆盘组",
+                                    "協議圓盤組",
+                                    "Protoset",
+                                    "協約ディスクセット"
+                                ]
+                            }
+                        },
+                        "Priority2OCR_CanNotAfford": {
+                            "attach": {
+                                "protoset": [
+                                    "协议圆盘组",
+                                    "協議圓盤組",
+                                    "Protoset",
+                                    "協約ディスクセット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protoprism",
+                    "label": "$option.CreditShoppingItems.cases.Protoprism.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "protoprism": [
+                                    "协议棱柱",
+                                    "協議稜柱",
+                                    "Protoprism",
+                                    "協約角柱"
+                                ]
+                            }
+                        },
+                        "Priority2OCR_CanNotAfford": {
+                            "attach": {
+                                "protoprism": [
+                                    "协议棱柱",
+                                    "協議稜柱",
+                                    "Protoprism",
+                                    "協約角柱"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protohedron",
+                    "label": "$option.CreditShoppingItems.cases.Protohedron.label",
+                    "pipeline_override": {
+                        "Priority2OCR": {
+                            "attach": {
+                                "protohedron": [
+                                    "协议棱柱组",
+                                    "協議稜柱組",
+                                    "Protohedron",
+                                    "協約角柱セット"
+                                ]
+                            }
+                        },
+                        "Priority2OCR_CanNotAfford": {
+                            "attach": {
+                                "protohedron": [
+                                    "协议棱柱组",
+                                    "協議稜柱組",
+                                    "Protohedron",
+                                    "協約角柱セット"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority2DiscountValue": {
+            "type": "select",
+            "label": "$option.DiscountValue.label",
+            "default_case": "-75%",
+            "cases": [
+                {
+                    "name": "Any",
+                    "label": "$option.DiscountValue.cases.Any.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority2": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "Priority2OCR",
+                                    "roi_offset": [
+                                        62,
+                                        -172,
+                                        -34,
+                                        7
+                                    ],
+                                    "method": 6,
+                                    "lower": [
+                                        0
+                                    ],
+                                    "upper": [
+                                        255
+                                    ],
+                                    "count": 1
+                                }
+                            }
+                        },
+                        "IsDiscountPriority2_CanNotAfford": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "Priority2OCR_CanNotAfford",
+                                    "roi_offset": [
+                                        62,
+                                        -172,
+                                        -34,
+                                        7
+                                    ],
+                                    "method": 6,
+                                    "lower": [
+                                        0
+                                    ],
+                                    "upper": [
+                                        255
+                                    ],
+                                    "count": 1
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-25%",
+                    "label": "$option.DiscountValue.cases.-25%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority2": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75",
+                                "50",
+                                "25"
+                            ]
+                        },
+                        "IsDiscountPriority2_CanNotAfford": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75",
+                                "50",
+                                "25"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "-50%",
+                    "label": "$option.DiscountValue.cases.-50%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority2": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75",
+                                "50"
+                            ]
+                        },
+                        "IsDiscountPriority2_CanNotAfford": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75",
+                                "50"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "-75%",
+                    "label": "$option.DiscountValue.cases.-75%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority2": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75"
+                            ]
+                        },
+                        "IsDiscountPriority2_CanNotAfford": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "-95%",
+                    "label": "$option.DiscountValue.cases.-95%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority2": {
+                            "expected": [
+                                "99",
+                                "95"
+                            ]
+                        },
+                        "IsDiscountPriority2_CanNotAfford": {
+                            "expected": [
+                                "99",
+                                "95"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "-99%",
+                    "label": "$option.DiscountValue.cases.-99%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority2": {
+                            "expected": [
+                                "99"
+                            ]
+                        },
+                        "IsDiscountPriority2_CanNotAfford": {
+                            "expected": [
+                                "99"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority3": {
+            "type": "switch",
+            "label": "$option.CreditShoppingPriority3.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "CreditShoppingPriority3AutoGetCredits",
+                        "CreditShoppingPriority3UnconditionalPurchase",
+                        "CreditShoppingPriority3Items",
+                        "CreditShoppingPriority3DiscountValue"
+                    ],
+                    "pipeline_override": {
+                        "CreditShoppingBuyPriority3": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingBuyPriority3": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoGetCreditsBuyPriority3": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority3AutoGetCredits": {
+            "type": "switch",
+            "label": "$option.AutoGetCredits.label",
+            "description": "$option.AutoGetCredits.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {}
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoGetCreditsBuyPriority3": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        0,
+                                        0,
+                                        1,
+                                        1
+                                    ],
+                                    "expected": [
+                                        "a^"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority3UnconditionalPurchase": {
+            "type": "switch",
+            "label": "$option.CreditShoppingUnconditionalPurchase.label",
+            "description": "$option.CreditShoppingUnconditionalPurchase.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CreditShoppingPriority3ReserveCreditGate": {
+                            "recognition": {
+                                "type": "DirectHit"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingPriority3ReserveCreditGate": {
+                            "recognition": {
+                                "type": "And",
+                                "param": {
+                                    "all_of": [
+                                        "CreditShoppingReserveCreditSatisfied"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority3Items": {
+            "type": "checkbox",
+            "label": "$option.CreditShoppingPriority3Items.label",
+            "default_case": [
+                "ArsenalTicket",
+                "Oroberyl"
+            ],
+            "cases": [
+                {
+                    "name": "ArsenalTicket",
+                    "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "arsenal_ticket": [
+                                    "武库配额",
+                                    "武庫配額",
+                                    "Arsenal Ticket",
+                                    "武庫配給"
+                                ]
+                            }
+                        },
+                        "Priority3OCR_CanNotAfford": {
+                            "attach": {
+                                "arsenal_ticket": [
+                                    "武库配额",
+                                    "武庫配額",
+                                    "Arsenal Ticket",
+                                    "武庫配給"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Oroberyl",
+                    "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "oroberyl": [
+                                    "嵌晶玉",
+                                    "嵌晶玉",
+                                    "Oroberyl",
+                                    "赤晶玉"
+                                ]
+                            }
+                        },
+                        "Priority3OCR_CanNotAfford": {
+                            "attach": {
+                                "oroberyl": [
+                                    "嵌晶玉",
+                                    "嵌晶玉",
+                                    "Oroberyl",
+                                    "赤晶玉"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "TCreds",
+                    "label": "$option.CreditShoppingItems.cases.TCreds.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "t_creds": [
+                                    "折金票",
+                                    "折金票",
+                                    "T-Creds",
+                                    "折金券"
+                                ]
+                            }
+                        },
+                        "Priority3OCR_CanNotAfford": {
+                            "attach": {
+                                "t_creds": [
+                                    "折金票",
+                                    "折金票",
+                                    "T-Creds",
+                                    "折金券"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ElementaryCognitiveCarrier",
+                    "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "elementary_cognitive_carrier": [
+                                    "初级认知载体",
+                                    "初級認知載體",
+                                    "Elementary Cognitive Carrier",
+                                    "初級認識媒体"
+                                ]
+                            }
+                        },
+                        "Priority3OCR_CanNotAfford": {
+                            "attach": {
+                                "elementary_cognitive_carrier": [
+                                    "初级认知载体",
+                                    "初級認知載體",
+                                    "Elementary Cognitive Carrier",
+                                    "初級認識媒体"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ElementaryCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "elementary_combat_record": [
+                                    "初级作战记录",
+                                    "初級作戰紀錄",
+                                    "Elementary Combat Record",
+                                    "初級作戦記録"
+                                ]
+                            }
+                        },
+                        "Priority3OCR_CanNotAfford": {
+                            "attach": {
+                                "elementary_combat_record": [
+                                    "初级作战记录",
+                                    "初級作戰紀錄",
+                                    "Elementary Combat Record",
+                                    "初級作戦記録"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "IntermediateCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "intermediate_combat_record": [
+                                    "中级作战记录",
+                                    "中級作戰紀錄",
+                                    "Intermediate Combat Record",
+                                    "中級作戦記録"
+                                ]
+                            }
+                        },
+                        "Priority3OCR_CanNotAfford": {
+                            "attach": {
+                                "intermediate_combat_record": [
+                                    "中级作战记录",
+                                    "中級作戰紀錄",
+                                    "Intermediate Combat Record",
+                                    "中級作戦記録"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ArmsInspector",
+                    "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "arms_inspector": [
+                                    "武器检查单元",
+                                    "武器檢查單元",
+                                    "Arms Inspector",
+                                    "武器検査ユニット"
+                                ]
+                            }
+                        },
+                        "Priority3OCR_CanNotAfford": {
+                            "attach": {
+                                "arms_inspector": [
+                                    "武器检查单元",
+                                    "武器檢查單元",
+                                    "Arms Inspector",
+                                    "武器検査ユニット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ArmsINSPKit",
+                    "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "arms_insp_kit": [
+                                    "武器检查装置",
+                                    "武器檢查裝置",
+                                    "Arms INSP Kit",
+                                    "武器検査セット"
+                                ]
+                            }
+                        },
+                        "Priority3OCR_CanNotAfford": {
+                            "attach": {
+                                "arms_insp_kit": [
+                                    "武器检查装置",
+                                    "武器檢查裝置",
+                                    "Arms INSP Kit",
+                                    "武器検査セット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "CastDie",
+                    "label": "$option.CreditShoppingItems.cases.CastDie.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "cast_die": [
+                                    "强固模具",
+                                    "強固模具",
+                                    "Cast Die",
+                                    "硬質金型"
+                                ]
+                            }
+                        },
+                        "Priority3OCR_CanNotAfford": {
+                            "attach": {
+                                "cast_die": [
+                                    "强固模具",
+                                    "強固模具",
+                                    "Cast Die",
+                                    "硬質金型"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "HeavyCastDie",
+                    "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "heavy_cast_die": [
+                                    "重型强固模具",
+                                    "重型強固模具",
+                                    "Heavy Cast Die",
+                                    "重硬質金型"
+                                ]
+                            }
+                        },
+                        "Priority3OCR_CanNotAfford": {
+                            "attach": {
+                                "heavy_cast_die": [
+                                    "重型强固模具",
+                                    "重型強固模具",
+                                    "Heavy Cast Die",
+                                    "重硬質金型"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protodisk",
+                    "label": "$option.CreditShoppingItems.cases.Protodisk.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "protodisk": [
+                                    "协议圆盘",
+                                    "協議圓盤",
+                                    "Protodisk",
+                                    "協約ディスク"
+                                ]
+                            }
+                        },
+                        "Priority3OCR_CanNotAfford": {
+                            "attach": {
+                                "protodisk": [
+                                    "协议圆盘",
+                                    "協議圓盤",
+                                    "Protodisk",
+                                    "協約ディスク"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protoset",
+                    "label": "$option.CreditShoppingItems.cases.Protoset.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "protoset": [
+                                    "协议圆盘组",
+                                    "協議圓盤組",
+                                    "Protoset",
+                                    "協約ディスクセット"
+                                ]
+                            }
+                        },
+                        "Priority3OCR_CanNotAfford": {
+                            "attach": {
+                                "protoset": [
+                                    "协议圆盘组",
+                                    "協議圓盤組",
+                                    "Protoset",
+                                    "協約ディスクセット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protoprism",
+                    "label": "$option.CreditShoppingItems.cases.Protoprism.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "protoprism": [
+                                    "协议棱柱",
+                                    "協議稜柱",
+                                    "Protoprism",
+                                    "協約角柱"
+                                ]
+                            }
+                        },
+                        "Priority3OCR_CanNotAfford": {
+                            "attach": {
+                                "protoprism": [
+                                    "协议棱柱",
+                                    "協議稜柱",
+                                    "Protoprism",
+                                    "協約角柱"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protohedron",
+                    "label": "$option.CreditShoppingItems.cases.Protohedron.label",
+                    "pipeline_override": {
+                        "Priority3OCR": {
+                            "attach": {
+                                "protohedron": [
+                                    "协议棱柱组",
+                                    "協議稜柱組",
+                                    "Protohedron",
+                                    "協約角柱セット"
+                                ]
+                            }
+                        },
+                        "Priority3OCR_CanNotAfford": {
+                            "attach": {
+                                "protohedron": [
+                                    "协议棱柱组",
+                                    "協議稜柱組",
+                                    "Protohedron",
+                                    "協約角柱セット"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingPriority3DiscountValue": {
+            "type": "select",
+            "label": "$option.DiscountValue.label",
+            "default_case": "Any",
+            "cases": [
+                {
+                    "name": "Any",
+                    "label": "$option.DiscountValue.cases.Any.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority3": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "Priority3OCR",
+                                    "roi_offset": [
+                                        62,
+                                        -172,
+                                        -34,
+                                        7
+                                    ],
+                                    "method": 6,
+                                    "lower": [
+                                        0
+                                    ],
+                                    "upper": [
+                                        255
+                                    ],
+                                    "count": 1
+                                }
+                            }
+                        },
+                        "IsDiscountPriority3_CanNotAfford": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "Priority3OCR_CanNotAfford",
+                                    "roi_offset": [
+                                        62,
+                                        -172,
+                                        -34,
+                                        7
+                                    ],
+                                    "method": 6,
+                                    "lower": [
+                                        0
+                                    ],
+                                    "upper": [
+                                        255
+                                    ],
+                                    "count": 1
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-25%",
+                    "label": "$option.DiscountValue.cases.-25%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority3": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75",
+                                "50",
+                                "25"
+                            ]
+                        },
+                        "IsDiscountPriority3_CanNotAfford": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75",
+                                "50",
+                                "25"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "-50%",
+                    "label": "$option.DiscountValue.cases.-50%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority3": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75",
+                                "50"
+                            ]
+                        },
+                        "IsDiscountPriority3_CanNotAfford": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75",
+                                "50"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "-75%",
+                    "label": "$option.DiscountValue.cases.-75%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority3": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75"
+                            ]
+                        },
+                        "IsDiscountPriority3_CanNotAfford": {
+                            "expected": [
+                                "99",
+                                "95",
+                                "75"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "-95%",
+                    "label": "$option.DiscountValue.cases.-95%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority3": {
+                            "expected": [
+                                "99",
+                                "95"
+                            ]
+                        },
+                        "IsDiscountPriority3_CanNotAfford": {
+                            "expected": [
+                                "99",
+                                "95"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "-99%",
+                    "label": "$option.DiscountValue.cases.-99%.label",
+                    "pipeline_override": {
+                        "IsDiscountPriority3": {
+                            "expected": [
+                                "99"
+                            ]
+                        },
+                        "IsDiscountPriority3_CanNotAfford": {
+                            "expected": [
+                                "99"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingForce": {
+            "type": "select",
+            "label": "$option.CreditShoppingForce.label",
+            "default_case": "Refresh",
+            "cases": [
+                {
+                    "name": "Exit",
+                    "label": "$option.CreditShoppingForce.cases.Exit.label",
+                    "pipeline_override": {
+                        "CreditShoppingBuyBlacklist": {
+                            "enabled": false //不购买任意物品
+                        },
+                        "RefreshItem": {
+                            "enabled": false //不刷新
+                        },
+                        "CreditShippingCanNotToBuy": {
+                            "enabled": false //不进入刷新的无法购买流程
+                        },
+                        "CreditShoppingPrudentRefresh": {
+                            "enabled": false //不进入稳健刷新流程
+                        },
+                        "CreditShoppingRefreshCountReached": {
+                            "enabled": false //不进入刷新次数达到上限流程
+                        }
+                    }
+                },
+                {
+                    "name": "IgnoreBlackList",
+                    "label": "$option.CreditShoppingForce.cases.IgnoreBlackList.label",
+                    "pipeline_override": {
+                        "CreditShoppingBuyBlacklist": {
+                            "enabled": true //允许购买任意物品
+                        },
+                        "RefreshItem": {
+                            "enabled": false //不刷新
+                        },
+                        "CreditShippingCanNotToBuy": {
+                            "enabled": false //不进入刷新的无法购买流程
+                        },
+                        "CreditShoppingPrudentRefresh": {
+                            "enabled": false //不进入稳健刷新流程
+                        },
+                        "CreditShoppingRefreshCountReached": {
+                            "enabled": false //不进入刷新次数达到上限流程
+                        }
+                    }
+                },
+                {
+                    "name": "Refresh",
+                    "label": "$option.CreditShoppingForce.cases.Refresh.label",
+                    "pipeline_override": {
+                        "CreditShoppingBuyBlacklist": {
+                            "enabled": false //不购买任意物品
+                        },
+                        "RefreshItem": {
+                            "enabled": true //允许刷新
+                        },
+                        "CreditShippingCanNotToBuy": {
+                            "enabled": true //进入刷新的无法购买流程
+                        },
+                        "CreditShoppingPrudentRefresh": {
+                            "enabled": true //进入稳健刷新流程
+                        },
+                        "CreditShoppingRefreshCountReached": {
+                            "enabled": true //进入刷新次数达到上限流程
+                        }
+                    },
+                    "option": [
+                        "PrudentRefresh"
+                    ]
+                }
+            ]
+        },
+        "PrudentRefresh": {
+            "type": "switch",
+            "label": "$option.PrudentRefresh.label",
+            "description": "$option.PrudentRefresh.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "PrudentRefreshThreshold"
+                    ],
+                    "pipeline_override": {
+                        "CreditShoppingPrudentRefresh": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingPrudentRefresh": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "PrudentRefreshThreshold": {
+            "type": "input",
+            "label": "$option.PrudentRefresh.inputs.PrudentRefreshThreshold.label",
+            "description": "$option.PrudentRefresh.inputs.PrudentRefreshThreshold.description",
+            "inputs": [
+                {
+                    "name": "PrudentRefreshThreshold",
+                    "label": "$option.PrudentRefresh.inputs.PrudentRefreshThreshold.label",
+                    "description": "$option.PrudentRefresh.inputs.PrudentRefreshThreshold.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "400"
+                }
+            ],
+            "pipeline_override": {
+                "CreditShoppingPrudentRefresh": {
+                    "recognition": {
+                        "type": "And",
+                        "param": {
+                            "all_of": [
+                                {
+                                    "recognition": {
+                                        "type": "Custom",
+                                        "param": {
+                                            "custom_recognition": "ExpressionRecognition",
+                                            "custom_recognition_param": {
+                                                "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<{PrudentRefreshThreshold}"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "recognition": {
+                                        "type": "And",
+                                        "param": {
+                                            "all_of": [
+                                                "CreditIcon",
+                                                "NotSoldOut",
+                                                "CanAfford"
+                                            ],
+                                            "box_index": 2
+                                        }
+                                    }
+                                }
+                            ],
+                            "box_index": 1
+                        }
+                    }
+                }
+            }
+        },
+        "CreditShoppingKeepShelfRecord": {
+            "type": "switch",
+            "label": "$option.CreditShoppingKeepShelfRecord.label",
+            "description": "$option.CreditShoppingKeepShelfRecord.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes"
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingScanItemAction": {
+                            "action": "DoNothing"
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingReserve": {
+            "type": "input",
+            "label": "$option.CreditShoppingReserve.label",
+            "description": "$option.CreditShoppingReserve.description",
+            "inputs": [
+                {
+                    "name": "ReserveCreditThreshold",
+                    "label": "$option.CreditShoppingReserve.inputs.ReserveCreditThreshold.label",
+                    "description": "$option.CreditShoppingReserve.inputs.ReserveCreditThreshold.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "300"
+                }
+            ],
+            "pipeline_override": {
+                "CreditShoppingReserveCredit": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{CreditShoppingReserveCreditOCRInternal}<{ReserveCreditThreshold}"
+                            }
+                        }
+                    }
+                },
+                "CreditShoppingReserveCreditSatisfied": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{CreditShoppingReserveCreditOCRInternal}>={ReserveCreditThreshold}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,510 @@
+{
+    "DailyTaskStart": {
+        "desc": "日常任务入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DailyTaskInMenu",
+            "[JumpBack]SceneEnterMenuOperationalManual"
+        ]
+    },
+    "DailyTaskInMenu": {
+        "desc": "在行动手册界面",
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DailyTaskEnterTab"
+        ]
+    },
+    "DailyTaskEnterTab": {
+        "desc": "进入日常任务标签",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    150,
+                    100,
+                    1000,
+                    100
+                ],
+                "expected": [
+                    "日常",
+                    "Daily"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 100,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]DailyTaskClaimSingleReward",
+            "[JumpBack]DailyTaskClaimActivityRewards",
+            "DailyTaskCheckActivityStatus",
+            "DailyTaskComplete"
+        ]
+    },
+    "DailyTaskClaimSingleReward": {
+        "desc": "点击单个任务中领取按钮",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    825,
+                    200,
+                    300,
+                    400
+                ],
+                "expected": [
+                    "领取",
+                    "領取",
+                    "(?i)Claim",
+                    "受取",
+                    "[Cc]laim"
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    825,
+                    200,
+                    300,
+                    400
+                ],
+                "template": [
+                    "DailyRewards/TaskClaimSingleReward.png"
+                ],
+                "threshold": 0.9
+            }
+        ],
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 400, // 画面变化太小了，不适合wait_freeze
+        "rate_limit": 0,
+        "next": [
+            "DailyTaskClaimSingleRewardSuccess"
+        ]
+    },
+    "DailyTaskClaimSingleRewardSuccess": {
+        "desc": "单个任务领取成功",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    825,
+                    200,
+                    300,
+                    400
+                ],
+                "expected": [
+                    "领取",
+                    "領取",
+                    "(?i)Claim",
+                    "受取",
+                    "[Cc]laim"
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    825,
+                    200,
+                    300,
+                    400
+                ],
+                "template": [
+                    "DailyRewards/TaskClaimSingleReward.png"
+                ],
+                "threshold": 0.9
+            }
+        ],
+        "inverse": true
+    },
+    "DailyTaskClaimActivityRewards": {
+        "desc": "领取活跃度奖励",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    160,
+                    200,
+                    180,
+                    350
+                ],
+                "lower": [
+                    240,
+                    100,
+                    0
+                ],
+                "upper": [
+                    255,
+                    130,
+                    15
+                ],
+                "connected": true,
+                "count": 20
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -5,
+                    20,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SceneNoticeRewardsConfirm"
+        ]
+    },
+    "DailyTaskScrollDown": {
+        "desc": "日常任务界面向下滚动",
+        "max_hit": 50,
+        "action": "Swipe",
+        "begin": [
+            627,
+            528
+        ],
+        "end": [
+            627,
+            238
+        ],
+        "end_hold": 300,
+        "post_wait_freezes": 20
+    },
+    "DailyTaskScrollFinished": {
+        "desc": "日常任务滑到底了，结束",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    929,
+                    432,
+                    164,
+                    148
+                ],
+                "template": [
+                    "DailyRewards/FinishedTaskIcon.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "next": [
+            "DailyTaskComplete"
+        ]
+    },
+    "DailyTaskActivityLimitReached": {
+        "desc": "OCR,活跃度达到上限，结束任务",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    330,
+                    520,
+                    500,
+                    100
+                ],
+                "expected": [
+                    "今日活跃度已达上限",
+                    "今日活躍度已達上限",
+                    "(?i)Daily\\s*Activity\\s*Points\\s*Maxed",
+                    "上限到達"
+                ]
+            }
+        },
+        "next": [
+            "DailyTaskComplete"
+        ]
+    },
+    "DailyTaskCheckActivityStatus": {
+        "desc": "检查活跃度是否完成",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyTaskActivityLimitReached",
+            "DailyTaskActivityLimitNotReached"
+        ]
+    },
+    "DailyTaskActivityLimitNotReached": {
+        "desc": "活跃度未达上限，继续检测",
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "post_delay": 0,
+        "timeout": 10000,
+        "next": [
+            "DailyTaskUpgradeWeapon",
+            "DailyTaskCreation",
+            "DailyTaskAssemble",
+            "DailyTaskLevelUpOperator",
+            "DailyTaskScrollFinished",
+            "[JumpBack]DailyTaskScrollDown"
+        ]
+    },
+    "DailyTaskUpgradeWeapon": {
+        "desc": "检测是否有升级武器任务",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    343,
+                    191,
+                    469,
+                    409
+                ],
+                "expected": [
+                    "武器等级",
+                    "武器等級",
+                    "(?i)Weapon\\s*Level",
+                    "レベル",
+                    "Level up a weapon"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyTaskUpgradeWeaponIsValid",
+            "DailyTaskActivityLimitNotReached"
+        ]
+    },
+    "DailyTaskCreation": {
+        "desc": "检测是否有简易制作任务",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    343,
+                    191,
+                    469,
+                    409
+                ],
+                "expected": [
+                    "简易制作",
+                    "簡易製作",
+                    "(?i)Crafting",
+                    "道具製作"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyTaskCreationIsValid",
+            "DailyTaskActivityLimitNotReached"
+        ]
+    },
+    "DailyTaskAssemble": {
+        "desc": "检测是否有制造装备任务",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    343,
+                    191,
+                    469,
+                    409
+                ],
+                "expected": [
+                    "装备制造",
+                    "裝備製造",
+                    "(?i)Gear\\s*Assembly",
+                    "装備製造",
+                    "Assemble gear"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyTaskAssembleIsValid",
+            "DailyTaskActivityLimitNotReached"
+        ]
+    },
+    "DailyTaskLevelUpOperator": {
+        "desc": "检测是否有干员升级任务",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    343,
+                    191,
+                    469,
+                    409
+                ],
+                "expected": [
+                    "干员等级",
+                    "幹員等級",
+                    "(?i)Level",
+                    "レベル"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyTaskLevelUpOperatorIsValid",
+            "DailyTaskActivityLimitNotReached"
+        ]
+    },
+    "DailyTaskCreationIsValid": {
+        "desc": "检测简易制作任务是否可以执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "DailyTaskCreation",
+                "roi_offset": [
+                    429,
+                    -10,
+                    110,
+                    60
+                ],
+                "expected": [
+                    "前往",
+                    "Go"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "CraftingStart"
+            ]
+        },
+        "post_wait_freezes": 100,
+        "post_delay": 0,
+        "next": [
+            "DailyTaskStart"
+        ]
+    },
+    "DailyTaskAssembleIsValid": {
+        "desc": "检测制造装备任务是否可以执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "DailyTaskAssemble",
+                "roi_offset": [
+                    429,
+                    -10,
+                    110,
+                    60
+                ],
+                "expected": [
+                    "前往",
+                    "Go"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "GearAssemblyStart"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "DailyTaskStart"
+        ]
+    },
+    "DailyTaskUpgradeWeaponIsValid": {
+        "desc": "检测升级武器任务是否可以执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "DailyTaskUpgradeWeapon",
+                "roi_offset": [
+                    429,
+                    -10,
+                    110,
+                    60
+                ],
+                "expected": [
+                    "前往",
+                    "Go"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "WeaponUpgradeStart"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "DailyTaskStart"
+        ]
+    },
+    "DailyTaskLevelUpOperatorIsValid": {
+        "desc": "检测干员升级任务是否可以执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "DailyTaskLevelUpOperator",
+                "roi_offset": [
+                    429,
+                    -10,
+                    110,
+                    60
+                ],
+                "expected": [
+                    "前往",
+                    "Go"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "OperatorLevelUpStart"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "DailyTaskStart"
+        ]
+    },
+    "DailyTaskComplete": {
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        }
+    }
+}

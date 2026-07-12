@@ -1,0 +1,32 @@
+{
+    "configs": {
+        "name": "一键售卖产品，测试更换货品",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "四号谷地_地区建设_据点_难民暂居处.png",
+            "hits": [
+                "SellProductChangeGoods"
+            ]
+        },
+        {
+            "image": "四号谷地_地区建设_据点_选择交易货品.png",
+            "hits": [
+                "SellProductSelectNextGood",
+                "SellProductSelectNewGoodConfirm"
+            ]
+        },
+        {
+            "image": "武陵_地区建设_据点_选择交易货品.png",
+            "hits": [
+                "SellProductSelectNextGood",
+                "SellProductSelectNewGoodConfirm"
+            ]
+        }
+    ]
+}

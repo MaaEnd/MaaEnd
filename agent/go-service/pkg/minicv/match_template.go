@@ -1,0 +1,629 @@
+package minicv
+
+import (
+	"fmt"
+	"image"
+	_ "image/png"
+	"math"
+	"os"
+	"runtime"
+	"sync"
+)
+
+// Template represents a preloaded template image along with its integral array and statistics for matching.
+type Template struct {
+	Image    *image.RGBA
+	Integral IntegralArray
+	Stats    StatsResult
+}
+
+// TemplateLoader provides lazy-loading of template objects.
+type TemplateLoader struct {
+	filePathProvider func() string
+	templateOnce     sync.Once
+	template         *Template
+	templateErr      error
+}
+
+// NewTemplateLoaderOfPath creates a new TemplateLoader using the given image file path.
+func NewTemplateLoaderOfPath(filePath string) *TemplateLoader {
+	return &TemplateLoader{filePathProvider: func() string { return filePath }}
+}
+
+// NewTemplateLoaderOfDynamicPath creates a new TemplateLoader using a dynamic file path provider function.
+// Note that the file path provider function will be called only once during the first Get() call,
+// and the result will be cached permanently for subsequent calls.
+func NewTemplateLoaderOfDynamicPath(filePathProvider func() string) *TemplateLoader {
+	return &TemplateLoader{filePathProvider: filePathProvider}
+}
+
+// Get returns the loaded template or an error if loading failed.
+func (i *TemplateLoader) Get() (*Template, error) {
+	i.templateOnce.Do(func() {
+		// Check file path validity
+		filePath := i.filePathProvider()
+		if filePath == "" {
+			i.templateErr = fmt.Errorf("given image file path is empty")
+			return
+		}
+		if _, err := os.Stat(filePath); err != nil {
+			i.templateErr = fmt.Errorf("given image file path is unavailable: %w", err)
+			return
+		}
+
+		// Open image file
+		f, err := os.Open(filePath)
+		if err != nil {
+			i.templateErr = err
+			return
+		}
+		defer f.Close()
+
+		// Read image to memory
+		img, _, err := image.Decode(f)
+		if err != nil {
+			i.templateErr = err
+			return
+		}
+
+		// Compute results
+		imgRGBA := ImageConvertRGBA(img)
+		integral := GetIntegralArray(imgRGBA)
+		stats := GetImageStats(imgRGBA)
+
+		// Validate sanity
+		if stats.Std < 1e-6 {
+			i.templateErr = fmt.Errorf("template image cannot have near-zero standard deviation")
+			return
+		}
+
+		i.template = &Template{imgRGBA, integral, stats}
+	})
+
+	// Return cached results
+	return i.template, i.templateErr
+}
+
+var matchTemplateWorkerPool struct {
+	once  sync.Once
+	tasks chan func()
+}
+
+func runMatchWorkers(workerCount int, fn func(workerID int)) {
+	if workerCount <= 1 {
+		fn(0)
+		return
+	}
+
+	matchTemplateWorkerPool.once.Do(func() {
+		poolSize := max(1, runtime.GOMAXPROCS(0))
+		matchTemplateWorkerPool.tasks = make(chan func(), poolSize*2)
+		for range poolSize {
+			go func() {
+				for task := range matchTemplateWorkerPool.tasks {
+					task()
+				}
+			}()
+		}
+	})
+
+	var wg sync.WaitGroup
+	wg.Add(workerCount)
+	for workerID := range workerCount {
+		id := workerID
+		matchTemplateWorkerPool.tasks <- func() {
+			defer wg.Done()
+			fn(id)
+		}
+	}
+	wg.Wait()
+}
+
+func subpixelOffset(neg, pivot, pos float64) float64 {
+	if pivot <= 0 || neg <= 0 || pos <= 0 || neg > pivot || pos > pivot {
+		return 0.0
+	}
+
+	lnNeg := math.Log(neg)
+	lnCenter := math.Log(pivot)
+	lnPos := math.Log(pos)
+
+	// Gaussian interpolation
+	denom := 2.0 * (lnNeg + lnPos - 2.0*lnCenter)
+	if denom > -1e-12 {
+		return 0.0
+	}
+
+	return -(lnPos - lnNeg) / denom
+}
+
+// MatchTemplate performs template matching on the whole image,
+// returns (x, y, val) of the best match, where x and y are subpixel-accurate coordinates.
+func MatchTemplate(
+	img *image.RGBA,
+	imgIntArr IntegralArray,
+	tpl *image.RGBA,
+	tplStats StatsResult,
+) (x, y, val float64) {
+	if img == nil || tpl == nil {
+		return 0, 0, 0
+	}
+	iw, ih := img.Rect.Dx(), img.Rect.Dy()
+	return MatchTemplateInArea(img, imgIntArr, tpl, tplStats, [4]int{0, 0, iw, ih})
+}
+
+// MatchTemplateWithMask performs template matching on the whole image while ignoring template pixels of the mask color.
+// Returns (x, y, val) of the best match, where x and y are subpixel-accurate coordinates.
+func MatchTemplateWithMask(
+	img *image.RGBA,
+	imgIntArr IntegralArray,
+	tpl *image.RGBA,
+	tplStats StatsResult,
+	maskColorRGB888 int32,
+) (x, y, val float64) {
+	if img == nil || tpl == nil {
+		return 0, 0, 0
+	}
+	iw, ih := img.Rect.Dx(), img.Rect.Dy()
+	return MatchTemplateInAreaWithMask(img, imgIntArr, tpl, tplStats, maskColorRGB888, [4]int{0, 0, iw, ih})
+}
+
+// MatchTemplateInArea performs template matching such that the center of the template
+// remains within the specified area's rectangle (x, y, w, h).
+// Returns (x, y, val) of the best match, where (x, y) is the top-left corner with subpixel accuracy.
+func MatchTemplateInArea(
+	img *image.RGBA,
+	imgIntArr IntegralArray,
+	tpl *image.RGBA,
+	tplStats StatsResult,
+	rect [4]int,
+) (x, y, val float64) {
+	if img == nil || tpl == nil {
+		return 0, 0, 0
+	}
+
+	ax, ay, aw, ah := rect[0], rect[1], rect[2], rect[3]
+	iw, ih := img.Rect.Dx(), img.Rect.Dy()
+	tw, th := tpl.Rect.Dx(), tpl.Rect.Dy()
+
+	// Calculate search bounds for the top-left corner (x, y)
+	minX, minY := max(0, ax-tw/2), max(0, ay-th/2)
+	maxX, maxY := min(iw-tw, ax+aw-tw/2), min(ih-th, ay+ah-th/2)
+
+	if minX > maxX || minY > maxY {
+		return 0, 0, 0.0
+	}
+
+	type result struct {
+		x, y int
+		s    float64
+	}
+
+	numWorkers, stepLen := 8, 3
+	results := make([]result, numWorkers)
+	runMatchWorkers(numWorkers, func(id int) {
+		lx, ly, lm := 0, 0, -1.0
+		for y := minY + id*stepLen; y <= maxY; y += numWorkers * stepLen {
+			for x := minX; x <= maxX; x += stepLen {
+				s := ComputeNCC(img, imgIntArr, tpl, tplStats, x, y)
+				if s > lm {
+					lm, lx, ly = s, x, y
+				}
+			}
+		}
+		results[id] = result{lx, ly, lm}
+	})
+
+	bc := result{minX, minY, -1.0}
+	for _, r := range results {
+		if r.s > bc.s {
+			bc = r
+		}
+	}
+
+	fm, fx, fy := bc.s, bc.x, bc.y
+	// Fine-tuning pass around the best result
+	for y := max(minY, bc.y-stepLen+1); y <= min(maxY, bc.y+stepLen-1); y++ {
+		for x := max(minX, bc.x-stepLen+1); x <= min(maxX, bc.x+stepLen-1); x++ {
+			s := ComputeNCC(img, imgIntArr, tpl, tplStats, x, y)
+			if s > fm {
+				fm, fx, fy = s, x, y
+			}
+		}
+	}
+
+	upNCC, downNCC := fm, fm
+	leftNCC, rightNCC := fm, fm
+
+	if fy-1 >= minY {
+		upNCC = ComputeNCC(img, imgIntArr, tpl, tplStats, fx, fy-1)
+	}
+	if fy+1 <= maxY {
+		downNCC = ComputeNCC(img, imgIntArr, tpl, tplStats, fx, fy+1)
+	}
+	if fx-1 >= minX {
+		leftNCC = ComputeNCC(img, imgIntArr, tpl, tplStats, fx-1, fy)
+	}
+	if fx+1 <= maxX {
+		rightNCC = ComputeNCC(img, imgIntArr, tpl, tplStats, fx+1, fy)
+	}
+
+	return float64(fx) + subpixelOffset(leftNCC, fm, rightNCC), float64(fy) + subpixelOffset(upNCC, fm, downNCC), fm
+}
+
+// MatchTemplateInAreaWithMask performs template matching in a rectangular search area while ignoring template pixels of the mask color.
+// Returns (x, y, val) of the best match, where (x, y) is the top-left corner with subpixel accuracy.
+func MatchTemplateInAreaWithMask(
+	img *image.RGBA,
+	imgIntArr IntegralArray,
+	tpl *image.RGBA,
+	tplStats StatsResult,
+	maskColorRGB888 int32,
+	rect [4]int,
+) (x, y, val float64) {
+	if img == nil || tpl == nil {
+		return 0, 0, 0
+	}
+
+	iw, ih := img.Rect.Dx(), img.Rect.Dy()
+	tw, th := tpl.Rect.Dx(), tpl.Rect.Dy()
+	if tw <= 0 || th <= 0 || iw < tw || ih < th {
+		return 0, 0, 0
+	}
+
+	spans, pixelCount, tplMaskStats := buildMaskSpans(tpl, maskColorRGB888)
+	if pixelCount == 0 {
+		return 0, 0, 0
+	}
+	if pixelCount == tw*th {
+		tplMaskStats = tplStats
+	}
+	if tplMaskStats.Std < 1e-12 {
+		return 0, 0, 0
+	}
+
+	ax, ay, aw, ah := rect[0], rect[1], rect[2], rect[3]
+	minX := max(0, ax-tw/2)
+	maxX := min(iw-tw, ax+aw-tw/2)
+	minY := max(0, ay-th/2)
+	maxY := min(ih-th, ay+ah-th/2)
+	if minX > maxX || minY > maxY {
+		return 0, 0, 0
+	}
+
+	type result struct {
+		x int
+		y int
+		s float64
+	}
+
+	numWorkers, stepLen := 8, 3
+	results := make([]result, numWorkers)
+	runMatchWorkers(numWorkers, func(id int) {
+		lx, ly, lm := minX, minY, -1.0
+		for y := minY + id*stepLen; y <= maxY; y += numWorkers * stepLen {
+			for x := minX; x <= maxX; x += stepLen {
+				s := ComputeNCCWithMaskSpans(img, imgIntArr, tpl, tplMaskStats, spans, pixelCount, x, y)
+				if s > lm {
+					lm, lx, ly = s, x, y
+				}
+			}
+		}
+		results[id] = result{lx, ly, lm}
+	})
+
+	bc := result{minX, minY, -1.0}
+	for _, r := range results {
+		if r.s > bc.s {
+			bc = r
+		}
+	}
+	if bc.s < 0 {
+		return 0, 0, 0
+	}
+
+	fm, fx, fy := bc.s, bc.x, bc.y
+	for y := max(minY, bc.y-stepLen+1); y <= min(maxY, bc.y+stepLen-1); y++ {
+		for x := max(minX, bc.x-stepLen+1); x <= min(maxX, bc.x+stepLen-1); x++ {
+			s := ComputeNCCWithMaskSpans(img, imgIntArr, tpl, tplMaskStats, spans, pixelCount, x, y)
+			if s > fm {
+				fm, fx, fy = s, x, y
+			}
+		}
+	}
+
+	evalOr := func(tx, ty int, fallback float64) float64 {
+		if tx < minX || tx > maxX || ty < minY || ty > maxY {
+			return fallback
+		}
+		return ComputeNCCWithMaskSpans(img, imgIntArr, tpl, tplMaskStats, spans, pixelCount, tx, ty)
+	}
+
+	upNCC := evalOr(fx, fy-1, fm)
+	downNCC := evalOr(fx, fy+1, fm)
+	leftNCC := evalOr(fx-1, fy, fm)
+	rightNCC := evalOr(fx+1, fy, fm)
+
+	return float64(fx) + subpixelOffset(leftNCC, fm, rightNCC), float64(fy) + subpixelOffset(upNCC, fm, downNCC), fm
+}
+
+// BuildCircleMaskTemplate creates a template whose pixels outside the circle are filled with the mask color.
+// This is useful if you want to create a circular template from a rectangular image.
+func BuildCircleMaskTemplate(tpl *image.RGBA, circle Circle, maskColorRGB888 int32) *image.RGBA {
+	w, h := tpl.Rect.Dx(), tpl.Rect.Dy()
+	circleTpl := image.NewRGBA(image.Rect(0, 0, w, h))
+
+	maskR := uint8((uint32(maskColorRGB888) >> 16) & 0xFF)
+	maskG := uint8((uint32(maskColorRGB888) >> 8) & 0xFF)
+	maskB := uint8(uint32(maskColorRGB888) & 0xFF)
+	r2 := circle.Radius * circle.Radius
+
+	for y := range h {
+		srcOff := y * tpl.Stride
+		dstOff := y * circleTpl.Stride
+		for x := range w {
+			dx := x - circle.X
+			dy := y - circle.Y
+			if circle.Radius >= 0 && dx*dx+dy*dy <= r2 {
+				copy(circleTpl.Pix[dstOff:dstOff+4], tpl.Pix[srcOff:srcOff+4])
+			} else {
+				circleTpl.Pix[dstOff] = maskR
+				circleTpl.Pix[dstOff+1] = maskG
+				circleTpl.Pix[dstOff+2] = maskB
+				circleTpl.Pix[dstOff+3] = 255
+			}
+			srcOff += 4
+			dstOff += 4
+		}
+	}
+
+	return circleTpl
+}
+
+// MatchTemplateAnyScale performs iterative template matching over a scale range.
+// The number of iterations is defined by len(steps), and each element controls the
+// sampling count for that iteration.
+// Returns (x, y, val, bestScale) for the best match found across all iterations.
+func MatchTemplateAnyScale(
+	img *image.RGBA,
+	imgIntArr IntegralArray,
+	tpl *image.RGBA,
+	minScale, maxScale float64,
+	steps []int,
+) (x, y, val, bestScale float64) {
+	if minScale > maxScale {
+		minScale, maxScale = maxScale, minScale
+	}
+	if maxScale <= 0 {
+		return 0, 0, 0, 0
+	}
+	if minScale <= 0 {
+		minScale = 1e-6
+	}
+	minScale0, maxScale0 := minScale, maxScale
+	if len(steps) == 0 {
+		steps = []int{1}
+	}
+
+	bestX, bestY, bestScore, bestScale := 0.0, 0.0, -1.0, minScale
+
+	for _, stepCount := range steps {
+		if minScale > maxScale {
+			break
+		}
+		if stepCount < 1 {
+			stepCount = 1
+		}
+
+		stepLen := 0.0
+		if stepCount > 1 {
+			stepLen = (maxScale - minScale) / float64(stepCount-1)
+		}
+
+		iterBestIdx := 0
+		iterBestScale := minScale
+		iterBestX, iterBestY, iterBestScore := 0.0, 0.0, -1.0
+
+		type result struct {
+			idx   int
+			scale float64
+			x     float64
+			y     float64
+			score float64
+			valid bool
+		}
+
+		workerCount := min(stepCount, 8)
+		results := make([]result, stepCount)
+
+		var wg sync.WaitGroup
+		wg.Add(workerCount)
+		for workerID := range workerCount {
+			go func(id int) {
+				defer wg.Done()
+
+				for idx := id; idx < stepCount; idx += workerCount {
+					scale := minScale
+					if stepCount == 1 {
+						scale = (minScale + maxScale) * 0.5
+					} else {
+						scale = minScale + float64(idx)*stepLen
+					}
+
+					if scale <= 0 {
+						results[idx] = result{idx: idx, scale: scale, score: -1.0, valid: false}
+						continue
+					}
+
+					scaledTpl := ImageScale(tpl, scale)
+					scaledStats := GetImageStats(scaledTpl)
+					if scaledStats.Std < 1e-12 {
+						results[idx] = result{idx: idx, scale: scale, score: -1.0, valid: false}
+						continue
+					}
+
+					x, y, score := MatchTemplate(img, imgIntArr, scaledTpl, scaledStats)
+					results[idx] = result{
+						idx:   idx,
+						scale: scale,
+						x:     x,
+						y:     y,
+						score: score,
+						valid: true,
+					}
+				}
+			}(workerID)
+		}
+		wg.Wait()
+
+		for _, res := range results {
+			if res.valid && res.score > iterBestScore {
+				iterBestScore = res.score
+				iterBestX = res.x
+				iterBestY = res.y
+				iterBestScale = res.scale
+				iterBestIdx = res.idx
+			}
+		}
+
+		if iterBestScore > bestScore {
+			bestScore = iterBestScore
+			bestX = iterBestX
+			bestY = iterBestY
+			bestScale = iterBestScale
+		}
+
+		if stepLen <= 0 {
+			break
+		}
+
+		switch iterBestIdx {
+		case 0:
+			minScale = iterBestScale
+			maxScale = iterBestScale + stepLen
+		case stepCount - 1:
+			minScale = iterBestScale - stepLen
+			maxScale = iterBestScale
+		default:
+			minScale = iterBestScale - stepLen
+			maxScale = iterBestScale + stepLen
+		}
+
+		minScale = max(minScale0, minScale)
+		maxScale = min(maxScale0, maxScale)
+		if minScale > maxScale {
+			clamped := min(max(iterBestScale, minScale0), maxScale0)
+			minScale = clamped
+			maxScale = clamped
+		}
+	}
+
+	if bestScore < 0 {
+		return 0, 0, 0, 0
+	}
+
+	return bestX, bestY, bestScore, bestScale
+}
+
+// MatchTemplateHit represents a template match result.
+type MatchTemplateHit struct {
+	X   float64
+	Y   float64
+	Val float64
+}
+
+// MatchTemplateMultiHit returns repeated template matches by computing an NCC matrix and repeatedly suppressing previous hit regions.
+func MatchTemplateMultiHit(
+	img *image.RGBA,
+	imgIntArr IntegralArray,
+	tpl *image.RGBA,
+	tplStats StatsResult,
+	threshold float64,
+	maxHits int,
+) []MatchTemplateHit {
+	matrix := ComputeNCCMatrix(img, imgIntArr, tpl, tplStats)
+	if len(matrix) == 0 {
+		return nil
+	}
+	return collectMultiHitFromNCCMatrix(matrix, tpl.Rect.Dx(), tpl.Rect.Dy(), threshold, maxHits)
+}
+
+// MatchTemplateMultiHitWithMask returns repeated template matches while ignoring template pixels of the mask color.
+func MatchTemplateMultiHitWithMask(
+	img *image.RGBA,
+	imgIntArr IntegralArray,
+	tpl *image.RGBA,
+	tplStats StatsResult,
+	maskColorRGB888 int32,
+	threshold float64,
+	maxHits int,
+) []MatchTemplateHit {
+	matrix := ComputeNCCMatrixWithMask(img, imgIntArr, tpl, tplStats, maskColorRGB888)
+	if len(matrix) == 0 {
+		return nil
+	}
+	return collectMultiHitFromNCCMatrix(matrix, tpl.Rect.Dx(), tpl.Rect.Dy(), threshold, maxHits)
+}
+
+func collectMultiHitFromNCCMatrix(matrix [][]float64, tplW, tplH int, threshold float64, maxHits int) []MatchTemplateHit {
+	if maxHits <= 0 {
+		return nil
+	}
+
+	hits := make([]MatchTemplateHit, 0, maxHits)
+	for len(hits) < maxHits {
+		fx, fy, fm := findBestNCCInMatrix(matrix)
+		if fm < threshold {
+			break
+		}
+
+		x, y := subpixelNCCInMatrix(matrix, fx, fy, fm)
+		hits = append(hits, MatchTemplateHit{X: x, Y: y, Val: fm})
+		suppressNCCMatrix(matrix, fx, fy, tplW, tplH)
+	}
+	return hits
+}
+
+func findBestNCCInMatrix(matrix [][]float64) (x, y int, val float64) {
+	bestX, bestY, bestVal := 0, 0, -1.0
+	for y, row := range matrix {
+		for x, v := range row {
+			if v > bestVal {
+				bestX, bestY, bestVal = x, y, v
+			}
+		}
+	}
+	return bestX, bestY, bestVal
+}
+
+func subpixelNCCInMatrix(matrix [][]float64, x, y int, val float64) (float64, float64) {
+	leftNCC, rightNCC := val, val
+	upNCC, downNCC := val, val
+	if x > 0 {
+		leftNCC = matrix[y][x-1]
+	}
+	if x+1 < len(matrix[y]) {
+		rightNCC = matrix[y][x+1]
+	}
+	if y > 0 {
+		upNCC = matrix[y-1][x]
+	}
+	if y+1 < len(matrix) {
+		downNCC = matrix[y+1][x]
+	}
+	return float64(x) + subpixelOffset(leftNCC, val, rightNCC), float64(y) + subpixelOffset(upNCC, val, downNCC)
+}
+
+func suppressNCCMatrix(matrix [][]float64, x, y, w, h int) {
+	if len(matrix) == 0 {
+		return
+	}
+
+	y1 := min(len(matrix), y+h)
+	for row := max(0, y); row < y1; row++ {
+		x1 := min(len(matrix[row]), x+w)
+		for col := max(0, x); col < x1; col++ {
+			matrix[row][col] = -1.0
+		}
+	}
+}

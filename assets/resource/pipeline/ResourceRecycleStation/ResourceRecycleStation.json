@@ -1,0 +1,46 @@
+{
+    "ResourceRecycleStationStart": {
+        "next": [
+            "[JumpBack]ResourceRecycleStationWulingSub",
+            "[JumpBack]ResourceRecycleStationValleyIVSub",
+            "ResourceRecycleStationEnd"
+        ]
+    },
+    "ResourceRecycleStationWulingSub": {
+        "enabled": false,
+        "max_hit": 1,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "ResourceRecycleStationWulingStart"
+        ]
+    },
+    "ResourceRecycleStationValleyIVSub": {
+        "enabled": false,
+        "max_hit": 1,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "ResourceRecycleStationValleyIVStart"
+        ]
+    },
+    "ResourceRecycleStationEnd": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        }
+    }
+}

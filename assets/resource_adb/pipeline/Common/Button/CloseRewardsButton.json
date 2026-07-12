@@ -1,0 +1,11 @@
+{
+    "DectedCloseRewardsImage": {
+        "threshold": 0.7
+    },
+    "__CloseRewardsButtonStable": {
+        "threshold": 0.7
+    },
+    "__CloseRewardsButtonHover": {
+        "threshold": 0.7
+    }
+}

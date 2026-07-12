@@ -1,0 +1,90 @@
+name: check-submodule
+
+on:
+  push:
+    branches:
+      - "v2"
+    paths:
+      - "agent/cpp-algo/MaaUtils"
+      - "assets/resource/model"
+      - "tests/MaaEndTestset"
+
+  pull_request:
+    branches:
+      - "**"
+    paths:
+      - "agent/cpp-algo/MaaUtils"
+      - "assets/resource/model"
+      - "tests/MaaEndTestset"
+
+  workflow_dispatch:
+
+jobs:
+  check-submodule:
+    runs-on: ubuntu-latest
+    env:
+      EVENT_NAME: ${{ github.event_name }}
+      PR_TITLE: ${{ github.event.pull_request.title }}
+      PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      PUSH_BEFORE: ${{ github.event.before }}
+      PUSH_AFTER: ${{ github.event.after }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Validate submodule update naming
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "::notice::Manual trigger, skipping submodule check"
+            exit 0
+          fi
+
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            BASE="$PR_BASE_SHA"
+            HEAD_SHA="$PR_HEAD_SHA"
+            TITLE="$PR_TITLE"
+            SOURCE="PR title"
+          else
+            BASE="$PUSH_BEFORE"
+            HEAD_SHA="$PUSH_AFTER"
+            TITLE=$(git log --format="%s" "$BASE..$HEAD_SHA")
+            SOURCE="commit titles"
+          fi
+
+          # Skip if base is all zeros (e.g. new branch with no prior commits)
+          if [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            echo "::notice::New branch, skipping submodule check"
+            exit 0
+          fi
+
+          echo "Diff range: $BASE .. $HEAD_SHA"
+
+          SUBMODULE_PATHS=$(git config --file .gitmodules --get-regexp path | awk '{print $2}')
+          echo "Registered submodules:"
+          echo "$SUBMODULE_PATHS"
+
+          CHANGED_FILES=$(git diff --name-only "$BASE" "$HEAD_SHA")
+
+          HAS_CHANGE=0
+          for path in $SUBMODULE_PATHS; do
+            if echo "$CHANGED_FILES" | grep -Fxq "$path"; then
+              echo "Submodule updated: $path"
+              HAS_CHANGE=1
+            fi
+          done
+
+          if [ "$HAS_CHANGE" -eq 0 ]; then
+            echo "No submodule changes detected, check passed."
+            exit 0
+          fi
+
+          echo "Checking $SOURCE: $TITLE"
+
+          if echo "$TITLE" | grep -qiE "(submodule|子模块)"; then
+            echo "::notice::$SOURCE contains 'submodule' or '子模块', check passed."
+          else
+            echo "::error::Submodule updated but $SOURCE does not contain 'submodule' or '子模块'. Please include the keyword in the title."
+            exit 1
+          fi

@@ -1,0 +1,23 @@
+{
+    "${Id}": {
+        "desc": "${Name}",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringInMonitoringTerminal",
+            "EnvironmentMonitoringCheck${Id}Text"
+        ],
+        "next": [
+            "${Id}Loop",
+            "[JumpBack]EnvironmentMonitoringGoTo${Id}"
+        ]
+    },
+    "${Id}Loop": {
+        "desc": "${Name}循环",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringIn${Id}"
+        ],
+        "next": "${Next}"
+    }
+}

@@ -1,0 +1,290 @@
+{
+    "CisternOriginiumSlugsJob": {
+        "desc": "蓄水源石虫任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckCisternOriginiumSlugsText",
+            "CheckCisternOriginiumSlugsIcon",
+            "CheckCisternOriginiumSlugsReadyText"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "CisternOriginiumSlugsExecute",
+            "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "failure_task": "CisternOriginiumSlugsFailed"
+        },
+        "post_delay": 0
+    },
+    "CisternOriginiumSlugsFailed": {
+        "desc": "蓄水源石虫任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.CisternOriginiumSlugs.failed"
+        }
+    },
+    "CisternOriginiumSlugsExecute": {
+        "desc": "执行蓄水源石虫任务路线",
+        "next": [
+            "AcceptCisternOriginiumSlugs",
+            "GoToCisternOriginiumSlugsMission"
+        ]
+    },
+    "CheckCisternOriginiumSlugsText": {
+        "desc": "检查是否有蓄水源石虫文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "蓄水源石虫",
+            "蓄水源石蟲",
+            "(?i)Cistern\\s*Originium\\s*Slugs",
+            "貯水オリジムシ",
+            "저수 원석충"
+        ],
+        "replace": [],
+        "order_by": "Vertical"
+    },
+    "CheckCisternOriginiumSlugsIcon": {
+        "desc": "检查蓄水源石虫文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckCisternOriginiumSlugsText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
+    },
+    "CheckCisternOriginiumSlugsReadyText": {
+        "desc": "检查蓄水源石虫委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckCisternOriginiumSlugsIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckCisternOriginiumSlugsJob": {
+        "desc": "检查蓄水源石虫委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckCisternOriginiumSlugsIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckCisternOriginiumSlugsGoToMissionText": {
+        "desc": "检查蓄水源石虫委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckCisternOriginiumSlugsIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "InCisternOriginiumSlugsMission": {
+        "desc": "是否在蓄水源石虫任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄一群蓄水源石虫",
+            "拍攝一群蓄水源石蟲",
+            "(?i)Photograph\\s*a\\s*group\\s*of\\s*Cistern\\s*Originium\\s*Slugs",
+            "貯水オリジムシの群れの写真を撮る",
+            "저수 원석충 무리를 촬영하기"
+        ],
+        "replace": []
+    },
+    "AcceptCisternOriginiumSlugs": {
+        "desc": "接取蓄水源石虫委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckCisternOriginiumSlugsText",
+            "CheckCisternOriginiumSlugsIcon",
+            "CheckCisternOriginiumSlugsJob"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "GoToCisternOriginiumSlugsMission"
+        ]
+    },
+    "GoToCisternOriginiumSlugsMission": {
+        "desc": "前往蓄水源石虫任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckCisternOriginiumSlugsText",
+            "CheckCisternOriginiumSlugsIcon",
+            "CheckCisternOriginiumSlugsGoToMissionText"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "CisternOriginiumSlugsTrackOrGoTo"
+        ]
+    },
+    "CisternOriginiumSlugsTrackOrGoTo": {
+        "desc": "在蓄水源石虫任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续",
+        "recognition": "And",
+        "all_of": [
+            "InCisternOriginiumSlugsMission"
+        ],
+        "next": [
+            "TrackCisternOriginiumSlugs",
+            "AlreadyTrackedCisternOriginiumSlugs"
+        ]
+    },
+    "TrackCisternOriginiumSlugs": {
+        "desc": "追踪蓄水源石虫任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InCisternOriginiumSlugsMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToCisternOriginiumSlugs"
+        ]
+    },
+    "AlreadyTrackedCisternOriginiumSlugs": {
+        "desc": "蓄水源石虫任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InCisternOriginiumSlugsMission"
+        ],
+        "next": [
+            "GoToCisternOriginiumSlugs"
+        ]
+    },
+    "CisternOriginiumSlugsNotAdapted": {
+        "desc": "蓄水源石虫任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
+    "GoToCisternOriginiumSlugs": {
+        "desc": "前往蓄水源石虫，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "GoToCisternOriginiumSlugsStartPos",
+            "GoToCisternOriginiumSlugsNotAtStartPos"
+        ]
+    },
+    "GoToCisternOriginiumSlugsStartPos": {
+        "desc": "在蓄水源石虫任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                747.21,
+                1516.86,
+                36.4,
+                31.87
+            ]
+        },
+        "next": [
+            "GoToCisternOriginiumSlugsMove"
+        ]
+    },
+    "GoToCisternOriginiumSlugsNotAtStartPos": {
+        "desc": "不在蓄水源石虫任务开始位置附近，先传送再检查落点",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley7"
+            ]
+        },
+        "next": [
+            "GoToCisternOriginiumSlugsStartPos"
+        ]
+    },
+    "GoToCisternOriginiumSlugsMove": {
+        "desc": "自动寻路前往蓄水源石虫",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        794,
+                        1546.21
+                    ]
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 235
+                }
+            ]
+        },
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "CisternOriginiumSlugsAdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "CisternOriginiumSlugsAdjustCamera": {
+        "desc": "蓄水源石虫任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenDown"
+        ]
+    }
+}

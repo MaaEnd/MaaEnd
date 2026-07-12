@@ -1,0 +1,188 @@
+{
+    "AutoCollectRoute3Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCity7"
+            ]
+        },
+        "next": [
+            "AutoCollectRoute3AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute3.label"
+        }
+    },
+    "AutoCollectRoute3End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectRoute3AssertLocation": {
+        "desc": "传送到收集地",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            "map_name": "map02_lv002",
+                            "target": [
+                                424,
+                                850,
+                                20,
+                                20
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectRoute3Goto"
+        ]
+    },
+    "AutoCollectRoute3Goto": {
+        "desc": "前往收集地",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            707,
+                            838
+                        ],
+                        [
+                            706,
+                            838
+                        ],
+                        [
+                            707,
+                            838
+                        ],
+                        [
+                            712,
+                            833
+                        ],
+                        [
+                            714,
+                            833
+                        ],
+                        [
+                            716,
+                            832
+                        ],
+                        [
+                            720,
+                            832
+                        ],
+                        [
+                            721,
+                            831
+                        ],
+                        [
+                            725,
+                            831
+                        ],
+                        [
+                            727,
+                            830
+                        ],
+                        [
+                            730,
+                            830
+                        ],
+                        [
+                            732,
+                            829
+                        ],
+                        [
+                            733,
+                            829
+                        ],
+                        [
+                            734,
+                            827
+                        ],
+                        [
+                            734,
+                            816
+                        ],
+                        [
+                            737,
+                            813
+                        ],
+                        [
+                            737,
+                            811
+                        ],
+                        [
+                            739,
+                            808
+                        ],
+                        [
+                            739,
+                            806
+                        ],
+                        [
+                            741,
+                            803
+                        ],
+                        [
+                            741,
+                            802,
+                            "COLLECT"
+                        ],
+                        [
+                            744,
+                            800,
+                            "COLLECT"
+                        ],
+                        [
+                            744,
+                            799,
+                            "COLLECT"
+                        ],
+                        [
+                            745,
+                            795,
+                            "COLLECT"
+                        ],
+                        [
+                            747,
+                            795,
+                            "COLLECT"
+                        ],
+                        [
+                            748,
+                            793,
+                            "COLLECT"
+                        ],
+                        [
+                            745,
+                            791,
+                            "COLLECT"
+                        ],
+                        [
+                            739,
+                            792,
+                            "COLLECT"
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectRoute3End"
+        ]
+    }
+}

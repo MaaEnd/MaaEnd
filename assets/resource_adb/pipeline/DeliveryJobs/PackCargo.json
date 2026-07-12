@@ -1,0 +1,10 @@
+{
+    "DeliveryJobsFillCorrespondingGoods": {
+        "target_offset": [
+            -90,
+            0,
+            0,
+            0
+        ]
+    }
+}

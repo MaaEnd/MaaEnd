@@ -1,0 +1,311 @@
+{
+    "ResourceRecycleStationWulingStart": {
+        "next": [
+            "ResourceRecycleClickReminderWuling",
+            "[JumpBack]SceneEnterMapWulingQingboStockade"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.WulingStart"
+        }
+    },
+    "ResourceRecycleStationValleyIVStart": {
+        "next": [
+            "ResourceRecycleClickReminderValleyIV",
+            "[JumpBack]SceneEnterMapValleyIVValleyPass"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.ValleyIVStart"
+        }
+    },
+
+    "ResourceRecycleClickReminderWuling": {
+        "desc": "点击事务提醒（武陵）",
+        "recognition": "OCR",
+        "roi": [
+            14,
+            26,
+            131,
+            69
+        ],
+        "expected": [
+            "事务提醒",
+            "事務提醒",
+            "(?i)Mission\\s*Reminder",
+            "業務通知",
+            "업무 알림"
+        ],
+        "action": "Click",
+        "target": true,
+        "post_delay": 500,
+        "next": [
+            "ResourceRecycleClickCollectPromptWuling"
+        ]
+    },
+
+    "ResourceRecycleClickReminderValleyIV": {
+        "desc": "点击事务提醒（四号谷地）",
+        "recognition": "OCR",
+        "roi": [
+            14,
+            26,
+            131,
+            69
+        ],
+        "expected": [
+            "事务提醒",
+            "事務提醒",
+            "(?i)Mission\\s*Reminder",
+            "業務通知",
+            "업무 알림"
+        ],
+        "action": "Click",
+        "target": true,
+        "post_delay": 500,
+        "next": [
+            "ResourceRecycleClickCollectPromptValleyIV"
+        ]
+    },
+
+    "ResourceRecycleClickCollectPromptWuling": {
+        "desc": "点击采集提示（武陵）",
+        "recognition": "OCR",
+        "roi": [
+            168,
+            28,
+            124,
+            71
+        ],
+        "expected": [
+            "采集提示",
+            "採集提示",
+            "(?i)Gathering\\s*Tip",
+            "採集通知",
+            "채집 안내"
+        ],
+        "action": "Click",
+        "target": true,
+        "post_delay": 500,
+        "next": [
+            "ResourceRecycleCheckStation",
+            "ResourceRecycleCheckLimitWuling",
+            "ResourceRecycleCheckEmpty"
+        ]
+    },
+
+    "ResourceRecycleClickCollectPromptValleyIV": {
+        "desc": "点击采集提示（四号谷地）",
+        "recognition": "OCR",
+        "roi": [
+            168,
+            28,
+            124,
+            71
+        ],
+        "expected": [
+            "采集提示",
+            "採集提示",
+            "(?i)Gathering\\s*Tip",
+            "採集通知",
+            "채집 안내"
+        ],
+        "action": "Click",
+        "target": true,
+        "post_delay": 500,
+        "next": [
+            "ResourceRecycleCheckStation",
+            "ResourceRecycleCheckLimitValleyIV",
+            "ResourceRecycleCheckEmpty"
+        ]
+    },
+
+    "ResourceRecycleCheckStation": {
+        "desc": "检查是否有可收取的资源回收站",
+        "recognition": "OCR",
+        "roi": [
+            33,
+            74,
+            265,
+            198
+        ],
+        "expected": [
+            "回收站",
+            "(?i)Recycling\\s*Station",
+            "回収所",
+            "재활용센터"
+        ],
+        "action": "Click",
+        "target": true,
+        "post_delay": 500,
+        "next": [
+            "ResourceRecycleClickCollectBtn"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.Found"
+        }
+    },
+
+    "ResourceRecycleCheckLimitWuling": {
+        "desc": "武陵列表已达上限，滑动查看更多",
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            33,
+            74,
+            265,
+            198
+        ],
+        "expected": [
+            "上限",
+            "(?i)Full",
+            "최대"
+        ],
+        "action": "Swipe",
+        "begin": [
+            165,
+            222
+        ],
+        "end": [
+            165,
+            124
+        ],
+        "post_delay": 500,
+        "next": [
+            "ResourceRecycleCheckStation",
+            "ResourceRecycleCheckLimitWuling",
+            "ResourceRecycleRegionEnd"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.LimitReached"
+        }
+    },
+
+    "ResourceRecycleCheckLimitValleyIV": {
+        "desc": "四号谷地列表已达上限，滑动查看更多",
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            33,
+            74,
+            265,
+            198
+        ],
+        "expected": [
+            "上限",
+            "(?i)Full",
+            "최대"
+        ],
+        "action": "Swipe",
+        "begin": [
+            165,
+            222
+        ],
+        "end": [
+            165,
+            124
+        ],
+        "post_delay": 500,
+        "next": [
+            "ResourceRecycleCheckStation",
+            "ResourceRecycleCheckLimitValleyIV",
+            "ResourceRecycleRegionEnd"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.LimitReached"
+        }
+    },
+
+    "ResourceRecycleCheckEmpty": {
+        "desc": "暂无可收取资源",
+        "recognition": "OCR",
+        "roi": [
+            33,
+            74,
+            265,
+            198
+        ],
+        "expected": [
+            "暂无",
+            "暫無",
+            "(?i)N.?A",
+            "なし",
+            "없음"
+        ],
+        "next": [
+            "ResourceRecycleRegionEnd"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.ResourceRecycleStation.focus.Empty"
+        }
+    },
+
+    "ResourceRecycleClickCollectBtn": {
+        "desc": "点击远程收取资源按钮",
+        "recognition": "OCR",
+        "roi": [
+            944,
+            523,
+            310,
+            100
+        ],
+        "expected": [
+            "远程收取资源",
+            "遠端收取資源",
+            "(?i)Remote\\s*Resource\\s*Collection",
+            "遠隔受取",
+            "원거리로 자원 수령"
+        ],
+        "action": "Click",
+        "target": true,
+        "post_delay": 1000,
+        "next": [
+            "ResourceRecycleConfirmDialog"
+        ]
+    },
+
+    "ResourceRecycleConfirmDialog": {
+        "desc": "点击确认按钮",
+        "next": [
+            "ResourceRecycleConfirm",
+            "[JumpBack]SceneDialogConfirm"
+        ]
+    },
+
+    "ResourceRecycleConfirm": {
+        "desc": "点击奖励确认关闭弹窗",
+        "recognition": "And",
+        "all_of": [
+            "InNoticeRewards",
+            "CloseRewardsButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 400,
+            "timeout": 5000,
+            "target": [
+                230,
+                250,
+                800,
+                200
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 2000,
+            "target": [
+                500,
+                0,
+                280,
+                200
+            ]
+        },
+        "next": [
+            "ResourceRecycleRegionEnd"
+        ]
+    },
+
+    "ResourceRecycleRegionEnd": {
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

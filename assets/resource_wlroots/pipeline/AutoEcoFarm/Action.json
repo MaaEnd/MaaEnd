@@ -1,0 +1,115 @@
+// - Swipe 改为 CharacterControllerRelativeMoveAction
+// - 删除 Swipe 后的 alt 链条
+// - 鼠标中键前插入 AutoAltClickAction
+{
+    "_AutoEcoFarmSwipeToTarget": {
+        "desc": "转向到识别结果",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CharacterControllerRelativeMoveAction",
+                "custom_action_param": {
+                    "begin": [
+                        640,
+                        360
+                    ]
+                },
+                "target": "_AutoEcoFarmCalculateSwipeTarget"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmTargeInCenter",
+            "_AutoEcoFarmSwipeLoopCommon",
+            "_AutoEcoFarmMoveToTargetErr"
+        ]
+    },
+    "_AutoEcoFarmSwipeRandomWithErr": {
+        "desc": "识别不到标记时将标记随便拉一下，尝试解决问题",
+        "max_hit": 3,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CharacterControllerRelativeMoveAction",
+                "custom_action_param": {
+                    "dx": 0,
+                    "dy": -80
+                }
+            }
+        },
+        "next": [
+            "_AutoEcoFarmTargeInCenter",
+            "_AutoEcoFarmSwipeLoopCommon",
+            "_AutoEcoFarmMoveToTargetErr"
+        ],
+        "focus": {
+            "Node.Action.Starting": "识别不到标记，随便转转视角尝试解决问题"
+        }
+    },
+    "_AutoEcoFarmSwipeToGround": {
+        "desc": "移动视角到地面，配合jumpback使用",
+        "max_hit": 3,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CharacterControllerRelativeMoveAction",
+                "custom_action_param": {
+                    "dx": 0,
+                    "dy": 120
+                }
+            }
+        },
+        "next": [
+            "_AutoEcoFarmJumpBack"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "识别不到标记，拉低视角尝试解决问题"
+        }
+    },
+    "_AutoEcoFarmTurnAround1": {
+        "desc": "长按 S 0.1 秒，转身",
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "duration": 100,
+                "key": 83
+            }
+        },
+        "next": [
+            "_AutoEcoFarmTurnAroundAltClick"
+        ]
+    },
+    "_AutoEcoFarmTurnAroundAltClick": {
+        "desc": "alt+点击屏幕中心重置视角",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction",
+                "target": [
+                    640,
+                    360,
+                    1,
+                    1
+                ]
+            }
+        },
+        "next": [
+            "_AutoEcoFarmTurnAround2"
+        ]
+    },
+    "_AutoEcoFarmTurnAround2": {
+        "desc": "按一下鼠标中键",
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 2
+            }
+        },
+        "next": [
+            "_AutoEcoFarmTargeInCenter",
+            "_AutoEcoFarmSwipeLoopCommon",
+            "_AutoEcoFarmMoveToTargetErr"
+        ]
+    }
+}

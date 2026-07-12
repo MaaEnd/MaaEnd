@@ -1,0 +1,138 @@
+name: Issue Upload Check
+
+on:
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created, edited]
+
+jobs:
+  check-upload-status:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Check for upload keywords
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const isIssueEvent = context.eventName === 'issues';
+            const issue = context.payload.issue;
+
+            if (issue.pull_request) {
+              console.log('当前事件来自 PR，跳过处理');
+              return;
+            }
+
+            const currentLabels = (issue.labels || []).map(label =>
+              typeof label === 'string' ? label : label.name
+            );
+            const missingInfoLabel = 'status: 缺少信息';
+            const textToCheck = isIssueEvent
+              ? (issue.body || '')
+              : (context.payload.comment?.body || '');
+            const attachmentUrlPattern = /https:\/\/github\.com\/.+\/files\/\d+\/.+/i;
+            
+            // 检查是否包含上传相关的关键词
+            const uploadFailedPattern = /Failed to upload/i;
+            const uploadingPattern = /Uploading/i;
+            const uploadedLogsPattern = /(MaaEnd-logs-[^\s\])]+\.zip|(?:^|[\\/])maa(?:\.bak)?\.log)(?=$|[^A-Za-z0-9_.-])/i;
+            
+            const hasUploadFailed = uploadFailedPattern.test(textToCheck);
+            const hasUploading = uploadingPattern.test(textToCheck);
+            const hasAttachmentUrl = attachmentUrlPattern.test(textToCheck);
+            const hasMissingInfoLabel = currentLabels.includes(missingInfoLabel);
+            // 只有在同时有文件名和 GitHub URL 时，才认为真的上传了日志文件，避免误判 HTML 注释或文本中提到的文件名
+            const hasUploadedLogs = uploadedLogsPattern.test(textToCheck) && hasAttachmentUrl;
+            const shouldRemoveLabel = hasUploadedLogs;
+
+            if (shouldRemoveLabel) {
+              if (hasMissingInfoLabel) {
+                try {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.number,
+                    name: missingInfoLabel
+                  });
+
+                  console.log('已为 issue #' + issue.number + ' 移除标签: ' + missingInfoLabel);
+                } catch (error) {
+                  if (error.status === 404) {
+                    console.log('Issue #' + issue.number + ' 的标签已被移除，跳过');
+                  } else {
+                    throw error;
+                  }
+                }
+              } else {
+                console.log('Issue 已包含日志文件，且无需移除标签');
+              }
+
+              return;
+            }
+            
+            // 只有在没有真正上传日志的情况下，才检查上传失败并添加标签，确保只要有日志就不会被判断为缺少信息
+            if (isIssueEvent && (hasUploadFailed || hasUploading) && !hasUploadedLogs) {
+               if (!hasMissingInfoLabel) {
+                 await github.rest.issues.addLabels({
+                   owner: context.repo.owner,
+                   repo: context.repo.repo,
+                   issue_number: issue.number,
+                   labels: [missingInfoLabel]
+                 });
+
+                 console.log('已为 issue #' + issue.number + ' 添加标签: ' + missingInfoLabel);
+               } else {
+                 console.log('Issue 已存在标签: ' + missingInfoLabel);
+                }
+
+                // 检查是否已经回复过
+                const comments = await github.paginate(github.rest.issues.listComments, {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  per_page: 100
+                });
+               
+               const botAlreadyCommented = comments.some(comment => 
+                 comment.user.type === 'Bot' && 
+                 comment.body.includes('我们检测到你的 issue 中包含上传相关的信息')
+               );
+              
+              if (!botAlreadyCommented) {
+                let replyMessage = '👋 你好！我们检测到你的 issue 中包含上传相关的信息。\n\n';
+                
+                if (hasUploadFailed) {
+                  replyMessage += '⚠️ **检测到上传失败**\n';
+                  replyMessage += '如果你在提交 issue 时遇到了文件上传失败的问题，请：\n';
+                  replyMessage += '1. 确认网络连接正常\n';
+                  replyMessage += '2. 检查文件大小是否超过 GitHub 限制（单个文件 25MB，总共 100MB）\n';
+                  replyMessage += '3. 尝试重新上传文件\n';
+                  replyMessage += '4. 如果问题持续存在，可以将文件上传到其他平台（如 QQ 群文件）并在 issue 中提供备注具体文件名\n\n';
+                }
+                
+                if (hasUploading) {
+                  replyMessage += '⏳ **检测到上传进行中**\n';
+                  replyMessage += '看起来你可能在文件还在上传时就提交了 issue。为了确保我们能看到完整的信息，请：\n';
+                  replyMessage += '1. 等待文件上传完成后再提交\n';
+                  replyMessage += '2. 如果已经提交，可以编辑 issue 重新上传文件\n';
+                  replyMessage += '3. 或者将文件上传到其他平台（如 QQ 群文件）并在 issue 中提供备注具体文件名\n\n';
+                }
+                
+                replyMessage += '感谢你的反馈！🙏';
+                
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: replyMessage
+                });
+                
+                console.log('已自动回复 issue #' + issue.number);
+              } else {
+                console.log('Bot 已经回复过此 issue，跳过重复回复');
+              }
+            } else {
+              console.log('未检测到上传相关关键词');
+            }

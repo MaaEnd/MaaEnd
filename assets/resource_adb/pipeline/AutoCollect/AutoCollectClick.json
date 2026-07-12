@@ -1,0 +1,15 @@
+{
+    "AutoCollectClick": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    766,
+                    350,
+                    263,
+                    219
+                ]
+            }
+        }
+    }
+}

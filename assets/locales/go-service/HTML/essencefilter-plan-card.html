@@ -1,0 +1,6 @@
+<div style="margin-top:3px;border-left:3px solid {{.BorderColor}};padding-left:6px;">
+<span style="color:#98c379;">{{printf (t "title") .PlanIndex}}</span> {{printf (t "line1") (spanColor "#47b5ff" .Slot1Text) .FixedSlotLabel (spanColor "#e877fe" .FixedName)}}<br>
+{{printf (t "line2") .NeedsCount .MatchedCount}}<br>
+{{t "line3"}}{{if .Needs}}{{range $i, $w := .Needs}}{{if $i}}{{separator}}{{end}}{{spanColor $w.Color (escapeHTML $w.Name)}}{{end}}{{else}}{{t "no_weapons"}}{{end}}<br>
+{{t "line4"}}{{if .Matched}}{{range $i, $w := .Matched}}{{if $i}}{{separator}}{{end}}{{spanColor $w.Color (escapeHTML $w.Name)}}{{end}}{{else}}{{t "no_weapons"}}{{end}}
+</div>

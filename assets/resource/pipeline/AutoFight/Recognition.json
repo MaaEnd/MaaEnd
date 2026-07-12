@@ -1,0 +1,348 @@
+{
+    "__AutoFightRecognitionCharacterBar": {
+        "desc": "查找左下角角色图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            -140,
+            360,
+            60
+        ],
+        // 目前纯白背景匹配能力差，干员死亡切换时有1秒左右不显示
+        "template": "AutoFight/CharacterBar.png",
+        "green_mask": true
+    },
+    "__AutoFightRecognitionEnergyLevel0": {
+        "desc": "能量条空正在恢复，白色 [255, 255, 255]",
+        "recognition": "ColorMatch",
+        "roi": [
+            533,
+            645,
+            70,
+            15
+        ],
+        "lower": [
+            240,
+            240,
+            240
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "connected": true,
+        "count": 10
+    },
+    "__AutoFightRecognitionEnergyLevel1": {
+        "desc": "能量条1格，[255, 255, 0] - [255, 220, 0] 交替闪烁, 满了瞬间会闪一下[255, 255, 75]",
+        "recognition": "ColorMatch",
+        "roi": [
+            533,
+            645,
+            70,
+            15
+        ],
+        "lower": [
+            220,
+            190,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            100
+        ],
+        "connected": true,
+        "count": 100
+    },
+    "__AutoFightRecognitionEnergyLevel2": {
+        "desc": "能量条2格，[255, 255, 0] - [255, 220, 0] 交替闪烁",
+        "recognition": "ColorMatch",
+        "roi": [
+            600,
+            640,
+            80,
+            20
+        ],
+        "lower": [
+            220,
+            190,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            100
+        ],
+        "connected": true,
+        "count": 100
+    },
+    "__AutoFightRecognitionHasEnemy": {
+        "desc": "判断是否有敌人，找敌人血条 [255, 68, 101]",
+        "recognition": "ColorMatch",
+        "roi": [
+            280,
+            150,
+            750,
+            370
+        ],
+        "lower": [
+            240,
+            40,
+            80
+        ],
+        "upper": [
+            255,
+            80,
+            120
+        ],
+        "connected": true,
+        "count": 100
+    },
+    "__AutoFightRecognitionComboUsable": {
+        "desc": "识别连携技是否可用",
+        // 蓝血纯白、红血时受红色border影响 #FFC5C5 #FFE9E9 #FFFCFC
+        "recognition": "ColorMatch",
+        "roi": [
+            28,
+            657,
+            56,
+            4
+        ],
+        "lower": [
+            240,
+            180,
+            180
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "connected": true,
+        "count": 30 //自测50x1~50x3波动
+    },
+    "__AutoFightRecognitionCharactorLevelShow": {
+        "desc": "识别角色是否显示等级",
+        "recognition": "OCR",
+        "roi": [
+            20,
+            646,
+            300,
+            18
+        ],
+        "expected": [
+            "\\d.*\\d"
+        ],
+        "only_rec": true
+    },
+    "__AutoFightRecognitionComboCooldown1": {
+        "desc": "识别连携技冷却中，[166,166,166],",
+        // 蓝血#A6A6A6，红血#B69F9F #CF9494
+        "recognition": "ColorMatch",
+        "roi": [
+            28,
+            657,
+            56,
+            4
+        ],
+        "lower": [
+            150,
+            140,
+            140
+        ],
+        "upper": [
+            215,
+            180,
+            180
+        ],
+        "connected": true,
+        "count": 30
+    },
+    "__AutoFightRecognitionComboCooldown2": {
+        "desc": "识别连携技冷却中，背景[9-15, 9-15, 9-15]，此方法不准",
+        // 红血#321C1C #773D3D
+        "recognition": "ColorMatch",
+        "roi": [
+            28,
+            657,
+            56,
+            4
+        ],
+        "lower": [
+            0,
+            0,
+            0
+        ],
+        "upper": [
+            30,
+            30,
+            30
+        ],
+        "connected": true,
+        "count": 30
+    },
+    "__AutoFightRecognitionEndSkill": {
+        "desc": "通过按键判断终结技是否准备好",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1010,
+            535,
+            270,
+            65
+        ],
+        "template": "AutoFight/EndSkill.png",
+        "green_mask": true,
+        "threshold": 0.7
+    },
+    "__AutoFightRecognitionFightSkill": {
+        "desc": "识别战技图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1010,
+            615,
+            265,
+            20
+        ],
+        "template": "AutoFight/Skill.png",
+        "threshold": 0.4
+    },
+    "__AutoFightRecognitionLeftMenuHide": {
+        "desc": "在大世界中，进入战斗状态时左上角菜单会自动隐藏",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            350,
+            100
+        ],
+        "template": "AutoFight/LeftMenuHide.png"
+    },
+    "__AutoFightRecognitionFightSpace": {
+        "desc": "识别是否有干员菜单图标",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -330,
+                    0,
+                    330,
+                    70
+                ],
+                "template": "AutoFight/MenuOperators.png",
+                "green_mask": true
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        ]
+    },
+    "__AutoFightRecognitionComboNotice": {
+        "desc": "识别连携技提示，纯白颜色",
+        "recognition": "TemplateMatch",
+        "roi": [
+            750,
+            250,
+            100,
+            100
+        ],
+        "template": "AutoFight/Combo.png",
+        "threshold": 0.8
+    },
+    "__AutoFightRecognitionSwitchOperatorsTip": {
+        "desc": "识别干员栏",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            -170,
+            150,
+            55
+        ],
+        "expected": [
+            "切",
+            "换",
+            "干",
+            "员",
+            "切",
+            "換",
+            "幹",
+            "員"
+        ]
+    },
+    "__AutoFightRecognitionEnemyAttack": {
+        "desc": "识别敌人攻击",
+        "recognition": "NeuralNetworkDetect",
+        "expected": 0,
+        "model": "AutoFightDodge/fight.onnx"
+    },
+    "__AutoFightRecognitionScreen": {
+        "desc": "使用onnx模型整体识别",
+        "recognition": "NeuralNetworkDetect",
+        "model": "AutoFight/autofightv12.onnx"
+    },
+    "__AutoFightRecognitionEnemyInScreen": {
+        "desc": "识别敌人是否在屏幕内",
+        "recognition": "Or",
+        "any_of": [
+            {
+                // 小怪血条
+                "recognition": "ColorMatch",
+                "roi": [
+                    280,
+                    150,
+                    750,
+                    370
+                ],
+                "lower": [
+                    240,
+                    40,
+                    80
+                ],
+                "upper": [
+                    255,
+                    80,
+                    120
+                ],
+                "connected": true,
+                "count": 100
+            },
+            {
+                // boss血条 #E24B65 - #FE5F7C
+                "recognition": "ColorMatch",
+                "roi": [
+                    400,
+                    0,
+                    500,
+                    100
+                ],
+                "lower": [
+                    200,
+                    60,
+                    90
+                ],
+                "upper": [
+                    255,
+                    90,
+                    140
+                ],
+                "connected": true,
+                "count": 200
+            }
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "识别到敌人"
+        }
+    }
+}

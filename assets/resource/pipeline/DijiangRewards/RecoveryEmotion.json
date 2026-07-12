@@ -1,0 +1,359 @@
+{
+    "RecoveryEmotionMain": {
+        "desc": "[控制中枢·恢复心情] 在总控中枢点击恢复心情红点，进入选择干员或关闭",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangControlNexus",
+                    "NeedAssistColor"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -60,
+                    10,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                98,
+                135,
+                620,
+                291
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionAssistWindowOpen"
+        ]
+    },
+    "RecoveryEmotionAssistWindowTitle": {
+        "desc": "[恢复心情·助力] 助力界面标题",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    200
+                ],
+                "expected": [
+                    "生产助力",
+                    "生產助力",
+                    "(?i)Production\\s*Assist",
+                    "生産サポート",
+                    "생산 지원"
+                ]
+            }
+        }
+    },
+    "RecoveryEmotionAssistView1Label": {
+        "desc": "[恢复心情·助力] 第一层界面标签",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    464,
+                    138,
+                    370,
+                    154
+                ],
+                "expected": [
+                    "今日助力好友",
+                    "(?i)Assists\\s*Today",
+                    "本日のサポート記録",
+                    "干员心情已满，无法使用助力",
+                    "幹員心情已滿，無法使用助力",
+                    "(?i)Cannot\\s*assist\\s*as\\s*operator\\s*mood\\s*is\\s*maxed",
+                    "オペレーターは体力が十分なため、サポートできません",
+                    "오늘 지원한 친구"
+                ]
+            }
+        }
+    },
+    "RecoveryEmotionAssistView2Label": {
+        "desc": "[恢复心情·助力] 第二层界面标签",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    464,
+                    138,
+                    370,
+                    154
+                ],
+                "expected": [
+                    "选择待恢复心情的干员",
+                    "選擇待恢復心情的幹員",
+                    "(?i)Select\\s*operator\\s*awaiting\\s*mood\\s*recovery",
+                    "対象オペレーターを選んでください"
+                ]
+            }
+        }
+    },
+    "RecoveryEmotionAssistWindowOpen": {
+        "desc": "[恢复心情·助力] 打开助力界面",
+        "recognition": "And",
+        "all_of": [
+            "RecoveryEmotionAssistWindowTitle"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": "RecoveryEmotionAssistWindowTitle",
+            "target_offset": [
+                0,
+                0,
+                200,
+                250
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionAssistUseAssist"
+        ]
+    },
+    "RecoveryEmotionAssistUseAssist": {
+        "desc": "[恢复心情·需要助力] 点击使用助力",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "UseAssistText"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionView2In"
+        ]
+    },
+    "RecoveryEmotionFull": {
+        "desc": "[恢复心情·意外] 点击了满心情/无法助力干员时的提示",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    416,
+                    65,
+                    428,
+                    119
+                ],
+                "expected": [
+                    "干员心情已满，无法使用助力",
+                    "幹員心情已滿，無法使用助力",
+                    "(?i)Cannot\\s*assist\\s*as\\s*operator\\s*mood\\s*is\\s*maxed",
+                    "オペレーターは体力が十分なため、サポートできません",
+                    "Selected operator is at max mood",
+                    "No recovery required",
+                    "干员心情已满",
+                    "幹員心情已滿",
+                    "无法使用助力",
+                    "無法使用助力"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionExitView2ToView1"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.recovery_emotion_full_prompt_failed"
+        }
+    },
+    "RecoveryEmotionView2In": {
+        "desc": "[恢复心情·状态] 已打开「选择待恢复心情的干员」界面，开始选择待恢复心情的干员",
+        "recognition": "And",
+        "all_of": [
+            "RecoveryEmotionAssistView2Label"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target_offset": [
+                -300,
+                0,
+                0,
+                150
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionSelectLowEmotion"
+        ]
+    },
+    "RecoveryEmotionSelectLowEmotion": {
+        "desc": "[恢复心情·操作] 识别干员（信赖图标）并点击",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    467,
+                    236,
+                    620,
+                    282
+                ],
+                "template": [
+                    "GiftOperator/TrustIcon.png"
+                ],
+                "order_by": "Vertical"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 400, // 上方tips出现需要时间，可能显示也可能不显示，避免连续点击不同干员导致覆盖提示判断错误
+        "rate_limit": 0,
+        "next": [
+            // "RecoveryEmotionFull",
+            //"RecoveryEmotionCouldNotAssist",
+            "RecoveryEmotionSelectLowEmotion2"
+        ]
+    },
+    "RecoveryEmotionSelectLowEmotion2": {
+        "desc": "[恢复心情·操作] 识别第二位干员（信赖图标）并点击",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    467,
+                    236,
+                    620,
+                    282
+                ],
+                "template": [
+                    "GiftOperator/TrustIcon.png"
+                ],
+                "order_by": "Vertical",
+                "index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 400, // 上方tips出现需要时间，可能显示也可能不显示，避免连续点击不同干员导致覆盖提示判断错误
+        "rate_limit": 0,
+        "next": [
+            // "RecoveryEmotionFull",
+            "RecoveryEmotionCouldNotAssist",
+            "RecoveryEmotionExitView2ToView1"
+        ]
+    },
+    "RecoveryEmotionCouldNotAssist": {
+        "desc": "[恢复心情·收尾] 没有更多心情激励点数时的提示，点击确认",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1062,
+                    204,
+                    15,
+                    17
+                ],
+                "expected": [
+                    "1",
+                    "2"
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionConfirm"
+        ]
+    },
+    "RecoveryEmotionConfirm": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "YellowButtonConfirmText"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionExitView1ToControlNexus"
+        ]
+    },
+    "RecoveryEmotionExitView1ToControlNexus": {
+        "desc": "[恢复心情·收尾] 返回控制中枢后进行其他步骤",
+        "recognition": "And",
+        "all_of": [
+            "RecoveryEmotionAssistView1Label",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "InDijiangControlNexus"
+        ]
+    },
+    "RecoveryEmotionExitView2ToView1": {
+        "desc": "[恢复心情·离开] 在恢复心情/助力等子界面点击左上返回按钮回到控制中枢",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    980,
+                    102,
+                    187,
+                    82
+                ],
+                "template": [
+                    "ClaimDijiangRewards/back.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionExitView1ToControlNexus"
+        ]
+    }
+}

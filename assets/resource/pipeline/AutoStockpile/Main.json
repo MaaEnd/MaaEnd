@@ -1,0 +1,109 @@
+{
+    "AutoStockpileMain": {
+        "desc": "自动囤货入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileEnterRegionalDevelopment",
+            "AutoStockpileStart"
+        ]
+    },
+    "AutoStockpileEnterRegionalDevelopment": {
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMenuRegionalDevelopment"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoStockpileGetUid"
+        ]
+    },
+    "AutoStockpileElasticValleyIV": {
+        "desc": "[Config覆盖] 自动囤货弹性需求四号谷地节点",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoStockpileDecision": "AutoStockpileDecisionValleyIV"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileTask"
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "正在前往: 四号谷地"
+        }
+    },
+    "AutoStockpileElasticWuling": {
+        "desc": "[Config覆盖] 自动囤货弹性需求武陵节点",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoStockpileDecision": "AutoStockpileDecisionWuling"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileTask"
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "正在前往: 武陵"
+        }
+    },
+    "AutoStockpileDone": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileStart": {
+        "next": [
+            "[JumpBack]AutoStockpileElasticValleyIV",
+            "[JumpBack]AutoStockpileElasticWuling",
+            "AutoStockpileDone"
+        ]
+    },
+    "AutoStockpileGetUid": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CaptureUid",
+                "custom_action_param": {}
+            }
+        },
+        "next": [
+            "AutoStockpileStart"
+        ]
+    }
+}

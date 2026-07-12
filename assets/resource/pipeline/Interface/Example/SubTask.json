@@ -1,0 +1,31 @@
+{
+    "SubTaskExampleRun": {
+        "desc": "SubTask 使用示例：按顺序执行 custom_action_param.sub 中的任务名",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SubTaskExampleStepOne",
+                "SubTaskExampleStepTwo"
+            ],
+            // 任一 sub 失败，是否继续执行后续 sub。可选字段，默认 false
+            "continue": false,
+            // 任一 sub 失败，是否 action 视为失败。可选字段，默认 true
+            "strict": true
+        },
+        "next": []
+    },
+    "SubTaskExampleStepOne": {
+        "desc": "SubTask 子任务 1",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": []
+    },
+    "SubTaskExampleStepTwo": {
+        "desc": "SubTask 子任务 2",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": []
+    }
+}

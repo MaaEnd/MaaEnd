@@ -1,0 +1,299 @@
+{
+    "AutoStockInStapleItem": {
+        "desc": "识别商品基准点(剩余刷新时间框)，用于后续识别",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 40,
+                "lower": [
+                    [
+                        76,
+                        200,
+                        200
+                    ],
+                    [
+                        24,
+                        250,
+                        250
+                    ],
+                    [
+                        160,
+                        255,
+                        217
+                    ]
+                ],
+                "upper": [
+                    [
+                        76,
+                        255,
+                        215
+                    ],
+                    [
+                        24,
+                        255,
+                        255
+                    ],
+                    [
+                        160,
+                        255,
+                        217
+                    ]
+                ],
+                "connected": true,
+                "count": 300,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "AutoStockInStapleItemNameLabelColor": {
+        "desc": "稳定物资商品名称标签颜色（相对刷新时间锚点）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "AutoStockInStapleItem",
+                "roi_offset": [
+                    -4,
+                    163,
+                    88,
+                    22
+                ],
+                "lower": [
+                    50,
+                    50,
+                    50
+                ],
+                "upper": [
+                    130,
+                    130,
+                    130
+                ],
+                "connected": true,
+                "count": 1500
+            }
+        }
+    },
+    "AutoStockInStapleItemNameTextColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "AutoStockInStapleItemNameLabelColor",
+                "method": 6,
+                "lower": [
+                    180
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 10
+            }
+        }
+    },
+    "AutoStockInStapleItemName": {
+        "desc": "识别商品名称",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemNameTextColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [],
+                "only_rec": true,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "AutoStockInStapleItemName_Expected": {
+        "desc": "标签色 + 文字色 + 商品名 OCR 组合命中",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockInStapleItemNameLabelColor",
+                    "AutoStockInStapleItemNameTextColor",
+                    "AutoStockInStapleItemName"
+                ],
+                "box_index": 2
+            }
+        }
+    },
+    "AutoStockInStapleItemDiscountsWuling": {
+        "desc": "识别商品折扣信息框，武陵",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemName",
+                "roi_offset": [
+                    39,
+                    -212,
+                    25,
+                    63
+                ],
+                "expected": [
+                    "95",
+                    "90",
+                    "85",
+                    "80",
+                    "75",
+                    "50",
+                    "25"
+                ],
+                "order_by": "Expected"
+            }
+        }
+    },
+    "AutoStockInStapleItemDiscountsValleyIV": {
+        "desc": "识别商品折扣信息框，四号谷地",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoStockInStapleItemName",
+                "roi_offset": [
+                    39,
+                    -212,
+                    25,
+                    63
+                ],
+                "expected": [
+                    "95",
+                    "90",
+                    "85",
+                    "80",
+                    "75",
+                    "50",
+                    "25"
+                ],
+                "order_by": "Expected"
+            }
+        }
+    },
+    "AutoStockSwipeToMax": {
+        "desc": "识别滑动按钮，用于滑动到最大库存",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    55,
+                    53,
+                    333,
+                    167
+                ],
+                "expected": [
+                    "购买商品",
+                    "購買商品",
+                    "(?i)Purchase",
+                    "購入"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding",
+                "custom_action_param": {
+                    "Direction": "right"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockSwipeBuy"
+        ]
+    },
+    "AutoStockSwipeBuy": {
+        "desc": "识别确认购买按钮，用于确认购买",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "ConfirmBuyText"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "AutoStockpileCheckBuyResult"
+        ]
+    },
+    "AutoStockCurrentStockBill": {
+        "desc": "识别当前库存票据，用于获取当前库存",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CurrentStockBillColor",
+                    "CurrentStockBillText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "AutoStockStapleBetterSliding": {
+        "desc": "自动购买稳定物资 - BetterSliding 精确滑动到指定数量",
+        "enabled": false,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding",
+                "custom_action_param": {
+                    "ClampTargetToMax": true,
+                    "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+                    "Direction": "right",
+                    "IncreaseButton": "AutoStockpile/IncreaseButton.png",
+                    "GreenMask": true,
+                    "Quantity": {
+                        "Box": [
+                            375,
+                            508,
+                            36,
+                            24
+                        ],
+                        "OnlyRec": true
+                    }
+                    //"Quantity": {
+                    //    "Box": [
+                    //        375,
+                    //        508,
+                    //        36,
+                    //        24
+                    //    ],
+                    //    "Filter": {
+                    //        "lower": [
+                    //            28,
+                    //            100,
+                    //            100
+                    //        ],
+                    //        "upper": [
+                    //            28,
+                    //            255,
+                    //            255
+                    //        ],
+                    //        "method": 40
+                    //    },
+                    //    "OnlyRec": true
+                    //}
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlConfirmBuy"
+        ],
+        "focus": {
+            "Node.Action.Failed": "$task.AutoStockStaple.focus.quantity_control.better_sliding_failed"
+        },
+        "attach": {
+            "Target": 10 //这里会被custom程序覆盖后运行
+        }
+    }
+}

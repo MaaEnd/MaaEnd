@@ -1,0 +1,200 @@
+{
+    "EnvironmentMonitoringTakePhoto": {
+        "desc": "环境监测拍照",
+        "next": [
+            "EnvironmentMonitoringEnterCameraMode",
+            "EnvironmentMonitoringTakePhotoDirectly"
+        ]
+    },
+    "EnvironmentMonitoringTakePhotoDirectly": {
+        "desc": "直接进入拍照模式，如果朝向不对会失败",
+        "next": [
+            "EnterCameraModeClick",
+            "EnterCameraModeLongPress"
+        ]
+    },
+    "EnvironmentMonitoringEnterCameraMode": {
+        "desc": "进入拍照模式，会自动朝向任务目标",
+        "recognition": "And",
+        "all_of": [
+            "EnterCameraModeMenuButton",
+            "InWorld"
+        ],
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
+        "next": [
+            "EnvironmentMonitoringWaitShutterButton"
+        ]
+    },
+    "EnterCameraModeClick": {
+        "desc": "通过点击进入拍照模式",
+        "recognition": "And",
+        "all_of": [
+            "EnterCameraModeButton",
+            "InWorld"
+        ],
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
+        "next": [
+            "EnvironmentMonitoringWaitShutterButton"
+        ]
+    },
+    "EnterCameraModeLongPress": {
+        "desc": "通过长按进入拍照模式",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "KeyDown",
+        "key": 82, // R 0x52
+        "next": [
+            "EnterCameraModeChooseCamera"
+        ]
+    },
+    "EnterCameraModeChooseCamera": {
+        "desc": "进入拍照模式，选择拍照",
+        "recognition": "TemplateMatch",
+        "roi": [
+            404,
+            117,
+            463,
+            464
+        ],
+        "template": "Common/CameraMode.png",
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "EnterCameraModeKeyUp"
+        ]
+    },
+    "EnterCameraModeKeyUp": {
+        "desc": "进入拍照模式，退出按键",
+        "action": "KeyUp",
+        "key": 82, // R 0x52
+        "next": [
+            "EnvironmentMonitoringWaitShutterButton"
+        ]
+    },
+    "EnvironmentMonitoringWaitShutterButton": {
+        "desc": "拍照按钮出现后等待稳定",
+        "recognition": "And",
+        "all_of": [
+            "ShutterButton"
+        ],
+        "pre_wait_freezes": 200,
+        "next": [
+            "EnvironmentMonitoringShutterButtonHighlighted",
+            "EnvironmentMonitoringShutterButtonPhotographyTarget",
+            "[JumpBack][Anchor]EnvironmentMonitoringAdjustCamera"
+        ]
+    },
+    "EnvironmentMonitoringCheckPhotographyTarget": {
+        "desc": "检查是否达成拍照目标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            150,
+            200,
+            300
+        ],
+        "template": "EnvironmentMonitoring/TargetChecked.png"
+    },
+    "EnvironmentMonitoringShutterButtonPhotographyTarget": {
+        "desc": "拍照目标达成，拍照",
+        "recognition": "And",
+        "all_of": [
+            "ShutterButton",
+            "EnvironmentMonitoringCheckPhotographyTarget"
+        ],
+        "action": "Click",
+        "next": [
+            "[Anchor]EnvironmentMonitoringBackToTerminal"
+        ]
+    },
+    "EnvironmentMonitoringShutterButtonHighlighted": {
+        "desc": "拍照按钮高亮，拍照",
+        "recognition": "And",
+        "all_of": [
+            "ShutterButton",
+            {
+                "recognition": "ColorMatch",
+                "roi": "ShutterButton",
+                "roi_offset": [
+                    -34,
+                    -39,
+                    69,
+                    85
+                ],
+                "method": 40,
+                "lower": [
+                    20,
+                    100,
+                    160
+                ],
+                "upper": [
+                    38,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 140
+            }
+        ],
+        "action": "Click",
+        "next": [
+            "[Anchor]EnvironmentMonitoringBackToTerminal"
+        ]
+    },
+    "EnvironmentMonitoringSwipeScreenUp": {
+        "desc": "环境监测拍照，向上滑动屏幕调整朝向",
+        "action": "Swipe",
+        "begin": [
+            520,
+            360
+        ],
+        "end": [
+            520,
+            240
+        ],
+        "end_hold": 300
+    },
+    "EnvironmentMonitoringSwipeScreenDown": {
+        "desc": "环境监测拍照，向下滑动屏幕调整朝向",
+        "action": "Swipe",
+        "begin": [
+            520,
+            360
+        ],
+        "end": [
+            520,
+            480
+        ],
+        "end_hold": 300
+    },
+    "EnvironmentMonitoringSwipeScreenLeft": {
+        "desc": "环境监测拍照，向左滑动屏幕调整朝向",
+        "action": "Swipe",
+        "begin": [
+            520,
+            360
+        ],
+        "end": [
+            280,
+            360
+        ],
+        "end_hold": 300
+    },
+    "EnvironmentMonitoringSwipeScreenRight": {
+        "desc": "环境监测拍照，向右滑动屏幕调整朝向",
+        "action": "Swipe",
+        "begin": [
+            520,
+            360
+        ],
+        "end": [
+            760,
+            360
+        ],
+        "end_hold": 300
+    }
+}

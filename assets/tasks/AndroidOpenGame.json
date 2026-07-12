@@ -1,0 +1,97 @@
+{
+    "task": [
+        {
+            "name": "AndroidOpenGame",
+            "label": "$task.AndroidOpenGame.label",
+            "entry": "AndroidOpenGame",
+            "description": "$task.AndroidOpenGame.description",
+            "controller": [
+                "ADB",
+                "PlayCover"
+            ],
+            "group": [
+                "other_menu"
+            ],
+            "option": [
+                "ClientVersion"
+            ]
+        }
+    ],
+    "option": {
+        "ClientVersion": {
+            "type": "select",
+            "controller": [
+                "ADB",
+                "PlayCover"
+            ],
+            "label": "$option.ClientVersion.label",
+            "default_case": "CN",
+            "cases": [
+                {
+                    "name": "CN",
+                    "label": "$option.ClientVersion.cases.CN.label",
+                    "pipeline_override": {
+                        "AndroidOpenGame": {
+                            "next": [
+                                "AndroidOpenGame_CN"
+                            ]
+                        },
+                        "CloseGame": {
+                            "next": [
+                                "CloseGame_CN"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Bilibili",
+                    "label": "$option.ClientVersion.cases.Bilibili.label",
+                    "pipeline_override": {
+                        "AndroidOpenGame": {
+                            "next": [
+                                "AndroidOpenGame_Bilibili"
+                            ]
+                        },
+                        "CloseGame": {
+                            "next": [
+                                "CloseGame_Bilibili"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Global",
+                    "label": "$option.ClientVersion.cases.Global.label",
+                    "pipeline_override": {
+                        "AndroidOpenGame": {
+                            "next": [
+                                "AndroidOpenGame_Global"
+                            ]
+                        },
+                        "CloseGame": {
+                            "next": [
+                                "CloseGame_Global"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "VN",
+                    "label": "$option.ClientVersion.cases.VN.label",
+                    "pipeline_override": {
+                        "AndroidOpenGame": {
+                            "next": [
+                                "AndroidOpenGame_VN"
+                            ]
+                        },
+                        "CloseGame": {
+                            "next": [
+                                "CloseGame_VN"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,295 @@
+{
+    "WaterlampJob": {
+        "desc": "水灯虫任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckWaterlampText",
+            "CheckWaterlampIcon",
+            "CheckWaterlampReadyText"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "WaterlampExecute",
+            "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "failure_task": "WaterlampFailed"
+        },
+        "post_delay": 0
+    },
+    "WaterlampFailed": {
+        "desc": "水灯虫任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.Waterlamp.failed"
+        }
+    },
+    "WaterlampExecute": {
+        "desc": "执行水灯虫任务路线",
+        "next": [
+            "AcceptWaterlamp",
+            "GoToWaterlampMission"
+        ]
+    },
+    "CheckWaterlampText": {
+        "desc": "检查是否有水灯虫文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "水灯虫",
+            "水燈蟲",
+            "(?i)Waterlamp",
+            "水灯虫",
+            "수등충"
+        ],
+        "replace": [],
+        "order_by": "Vertical"
+    },
+    "CheckWaterlampIcon": {
+        "desc": "检查水灯虫文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckWaterlampText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
+    },
+    "CheckWaterlampReadyText": {
+        "desc": "检查水灯虫委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckWaterlampIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckWaterlampJob": {
+        "desc": "检查水灯虫委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckWaterlampIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckWaterlampGoToMissionText": {
+        "desc": "检查水灯虫委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckWaterlampIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "InWaterlampMission": {
+        "desc": "是否在水灯虫任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄水灯虫",
+            "拍攝水燈蟲",
+            "(?i)Photo:\\s*Waterlamps",
+            "水灯虫の写真を撮る",
+            "수등충을 촬영하기"
+        ],
+        "replace": []
+    },
+    "AcceptWaterlamp": {
+        "desc": "接取水灯虫委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckWaterlampText",
+            "CheckWaterlampIcon",
+            "CheckWaterlampJob"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "GoToWaterlampMission"
+        ]
+    },
+    "GoToWaterlampMission": {
+        "desc": "前往水灯虫任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckWaterlampText",
+            "CheckWaterlampIcon",
+            "CheckWaterlampGoToMissionText"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "WaterlampTrackOrGoTo"
+        ]
+    },
+    "WaterlampTrackOrGoTo": {
+        "desc": "在水灯虫任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续",
+        "recognition": "And",
+        "all_of": [
+            "InWaterlampMission"
+        ],
+        "next": [
+            "TrackWaterlamp",
+            "AlreadyTrackedWaterlamp"
+        ]
+    },
+    "TrackWaterlamp": {
+        "desc": "追踪水灯虫任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InWaterlampMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToWaterlamp"
+        ]
+    },
+    "AlreadyTrackedWaterlamp": {
+        "desc": "水灯虫任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InWaterlampMission"
+        ],
+        "next": [
+            "GoToWaterlamp"
+        ]
+    },
+    "WaterlampNotAdapted": {
+        "desc": "水灯虫任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
+    "GoToWaterlamp": {
+        "desc": "前往水灯虫，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "GoToWaterlampStartPos",
+            "GoToWaterlampNotAtStartPos"
+        ]
+    },
+    "GoToWaterlampStartPos": {
+        "desc": "在水灯虫任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        420.3,
+                        848,
+                        10.3,
+                        8.9
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToWaterlampMove"
+        ]
+    },
+    "GoToWaterlampNotAtStartPos": {
+        "desc": "不在水灯虫任务开始位置附近，先传送再检查落点",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCity7"
+            ]
+        },
+        "next": [
+            "GoToWaterlampStartPos"
+        ]
+    },
+    "GoToWaterlampMove": {
+        "desc": "自动寻路前往水灯虫",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    429.3,
+                    844
+                ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 30
+                }
+            }
+        },
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "WaterlampAdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "WaterlampAdjustCamera": {
+        "desc": "水灯虫任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
+        ]
+    }
+}

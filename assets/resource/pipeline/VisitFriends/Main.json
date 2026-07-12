@@ -1,0 +1,175 @@
+{
+    "VisitFriendsMain": {
+        "desc": "函数入口",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMainAction",
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]VisitFriendsRemark",
+            "[JumpBack]VisitFriendsNormal",
+            "VisitFriendsFakeTrue"
+        ]
+    },
+    "VisitFriendsRemark": {
+        "desc": "拜访带备注的好友",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld",
+                "SceneEnterMenuFriendsList"
+            ]
+        },
+        "anchor": {
+            "VisitFriendsMenuScanTargetFriendAnchorOpen": "VisitFriendsMenuScanTargetFriendRemarkOpen"
+        },
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenu"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "拜访带备注的好友"
+        }
+    },
+    "VisitFriendsNormal": {
+        "desc": "拜访普通好友",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld",
+                "SceneEnterMenuFriendsList"
+            ]
+        },
+        "anchor": {
+            "VisitFriendsMenuScanTargetFriendAnchorOpen": "VisitFriendsMenuScanTargetFriendNormalOpen"
+        },
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenu"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "拜访所有好友"
+        }
+    },
+    "VisitFriendsMenu": {
+        "desc": "识别是否位于好友列表界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    191,
+                    136
+                ],
+                "template": "VisitFriends/OnFriendList.png",
+                "threshold": 0.8
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                -100,
+                300,
+                300
+            ]
+        },
+        "next": [
+            "VisitFriendsFull",
+            "VisitFriendsMenuScan"
+        ]
+    },
+    "VisitFriendsFull": {
+        "desc": "好友助力次数已满",
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsAssistFull",
+            "VisitFriendsClueExchangeFull"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "好友助力和线索交换次数已满，停止拜访"
+        }
+    },
+    "VisitFriendsAssistFull": {
+        "desc": "好友助力交换次数已满",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -230,
+                    0,
+                    230,
+                    130
+                ],
+                "template": "VisitFriends/AssistCountIcon.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    25,
+                    0
+                ],
+                "expected": [
+                    "0"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "VisitFriendsClueExchangeFull": {
+        "desc": "好友线索交换次数已满",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -230,
+                    0,
+                    230,
+                    130
+                ],
+                "template": "VisitFriends/ClueExchangeCountIcon.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    25,
+                    0
+                ],
+                "expected": [
+                    "0"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "VisitFriendsExecuteVisit": {
+        "desc": "执行拜访",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "VisitFriendsExecuteVisitAction",
+        "post_delay": 0
+    }
+}

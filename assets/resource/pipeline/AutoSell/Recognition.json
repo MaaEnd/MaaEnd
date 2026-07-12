@@ -1,0 +1,263 @@
+{
+    "AutoSellStockRedistributionItemTicketRecognition": {
+        "desc": "识别物资调度界面中的item",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            200,
+            1280,
+            500
+        ],
+        "template": [
+            "AutoSell/SellTicketItemValleyIV.png",
+            "AutoSell/SellTicketItemWuling.png"
+        ],
+        "threshold": 0.8
+    },
+    "AutoSellStockRedistributionItemNameAreaRecognition": {
+        "desc": "识别物资调度界面中的item",
+        "recognition": "ColorMatch",
+        "roi": "AutoSellStockRedistributionItemGreenLineRecognition",
+        "roi_offset": [
+            0,
+            0,
+            0,
+            30
+        ],
+        "lower": [
+            61,
+            60,
+            60
+        ],
+        "upper": [
+            81,
+            80,
+            80
+        ],
+        "count": 100
+    },
+    "AutoSellStockRedistributionItemOwnedRecognition": {
+        "desc": "识别物资调度界面中的拥有所在黑色背景，区分是售卖还是购买物品",
+        "recognition": "ColorMatch",
+        "roi": "AutoSellStockRedistributionItemTicketRecognition",
+        "roi_offset": [
+            -60,
+            -30,
+            50,
+            10
+        ],
+        "lower": [
+            34,
+            34,
+            34
+        ],
+        "upper": [
+            54,
+            54,
+            54
+        ],
+        "connected": true,
+        "count": 300
+    },
+    "AutoSellStockRedistributionItemGreenLineRecognition": {
+        "desc": "识别物资调度界面中的绿线所在位置，用于定位item宽度",
+        "recognition": "ColorMatch",
+        "roi": "AutoSellStockRedistributionItemOwnedRecognition",
+        "roi_offset": [
+            -20,
+            40,
+            140,
+            10
+        ],
+        "lower": [
+            150,
+            180,
+            40
+        ],
+        "upper": [
+            190,
+            220,
+            80
+        ],
+        "connected": true,
+        "count": 400
+    },
+    "AutoSellStockRedistributionItemNameRecRecognition": {
+        "desc": "识别物资调度界面中文字所在roi，方便only_rec识别",
+        "recognition": "ColorMatch",
+        "roi": "AutoSellStockRedistributionItemNameAreaRecognition",
+        "lower": [
+            120,
+            120,
+            120
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 200
+    },
+    "AutoSellStockRedistributionItemText": {
+        "desc": "识别物资调度界面中所有的item",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellStockRedistributionItemTicketRecognition",
+            "AutoSellStockRedistributionItemOwnedRecognition",
+            "AutoSellStockRedistributionItemGreenLineRecognition",
+            "AutoSellStockRedistributionItemNameAreaRecognition",
+            "AutoSellStockRedistributionItemNameRecRecognition",
+            {
+                "recognition": "OCR",
+                "roi": "AutoSellStockRedistributionItemNameRecRecognition",
+                "only_rec": true, // 不加的话复杂字符可能导致ocr结果不在一句话里
+                "order_by": "Vertical"
+            }
+        ]
+    },
+    "AutoSellFriendsPriceFirstTicketRecognition": {
+        "desc": "识别好友列表里第一个最高价格",
+        "recognition": "TemplateMatch",
+        "roi": [
+            470,
+            250,
+            630,
+            100
+        ],
+        "template": [
+            "AutoSell/SellTicketFriendValleyIV.png",
+            "AutoSell/SellTicketFriendWuling.png"
+        ],
+        "threshold": 0.8
+    },
+    "AutoSellFriendsPriceRecognition": {
+        "desc": "识别好友列表里第一个最高价格",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellFriendsPriceFirstTicketRecognition",
+            {
+                "recognition": "OCR",
+                "roi": "AutoSellFriendsPriceFirstTicketRecognition",
+                "roi_offset": [
+                    30,
+                    0,
+                    32,
+                    0
+                ],
+                "expected": [
+                    "\\d"
+                ],
+                "only_rec": true
+            }
+        ],
+        "box_index": 1
+    },
+    "AutoSellFriendsPriceCurrentRecognition": {
+        "desc": "识别好友列表里当前价格是否符合预期",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "current_area",
+                "recognition": "ColorMatch",
+                "roi": [
+                    540,
+                    230,
+                    200,
+                    355
+                ],
+                "lower": [
+                    245,
+                    228,
+                    0
+                ],
+                "upper": [
+                    255,
+                    248,
+                    10
+                ],
+                "connected": true,
+                "count": 150
+            },
+            {
+                "sub_name": "ticket_icon",
+                "recognition": "TemplateMatch",
+                "roi": "current_area",
+                "roi_offset": [
+                    0,
+                    -15,
+                    200,
+                    30
+                ],
+                "template": [
+                    "AutoSell/SellTicketFriendValleyIV.png",
+                    "AutoSell/SellTicketFriendWuling.png"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": "ticket_icon",
+                "roi_offset": [
+                    32,
+                    0,
+                    32,
+                    0
+                ],
+                "expected": [
+                    "\\d"
+                ],
+                "only_rec": true
+            }
+        ],
+        "box_index": 2
+    },
+    "AutoSellOwnTicketCountRecognition": {
+        "desc": "识别调度券拥有数量",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "ticket_count",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -300,
+                    0,
+                    300,
+                    80
+                ],
+                "template": [
+                    "AutoSell/TicketOwnValleyIV.png",
+                    "AutoSell/TicketOwnWuling.png"
+                ]
+            },
+            {
+                "sub_name": "text_roi",
+                "recognition": "ColorMatch",
+                "roi": "ticket_count",
+                "roi_offset": [
+                    26,
+                    -5,
+                    100,
+                    10
+                ],
+                "lower": [
+                    200,
+                    200,
+                    200
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": "text_roi",
+                "expected": [
+                    "\\d"
+                ],
+                "only_rec": true
+            }
+        ],
+        "box_index": 2
+    }
+}

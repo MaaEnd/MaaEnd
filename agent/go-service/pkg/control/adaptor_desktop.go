@@ -1,0 +1,266 @@
+// Copyright (c) 2026 Harry Huang
+package control
+
+import (
+	"time"
+
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
+)
+
+type desktopKeyBindings struct {
+	W     int
+	A     int
+	S     int
+	D     int
+	Shift int
+	Ctrl  int
+	Alt   int
+	Space int
+}
+
+type desktopControlAdaptor struct {
+	ctx  *maa.Context
+	ctrl *maa.Controller
+	w    int
+	h    int
+
+	keys             desktopKeyBindings
+	pm               PlayerMovement
+	lastDirection    PlayerDirection
+	lastMotionIsWalk bool
+
+	// cursorDX, cursorDY track the cursor offset from the screen center accumulated
+	// by camera rotations since the last reset.
+	cursorDX int
+	cursorDY int
+	// lastResetTime records when the camera was last reset, used by the lazy policy.
+	lastResetTime time.Time
+}
+
+func newDesktopControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int, keys desktopKeyBindings) *desktopControlAdaptor {
+	return &desktopControlAdaptor{ctx: ctx, ctrl: ctrl, w: w, h: h, keys: keys, pm: MovementStop}
+}
+
+func (dca *desktopControlAdaptor) Ctx() *maa.Context {
+	return dca.ctx
+}
+
+func (dca *desktopControlAdaptor) TouchDown(contact, x, y int, delayMillis int) {
+	dca.ctrl.PostTouchDown(int32(contact), int32(x), int32(y), 1).Wait()
+	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
+}
+
+func (dca *desktopControlAdaptor) TouchUp(contact int, delayMillis int) {
+	dca.ctrl.PostTouchUp(int32(contact)).Wait()
+	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
+}
+
+func (dca *desktopControlAdaptor) TouchClick(contact, x, y int, durationMillis, delayMillis int) {
+	dca.ctrl.PostTouchDown(int32(contact), int32(x), int32(y), 1).Wait()
+	time.Sleep(time.Duration(durationMillis) * time.Millisecond)
+	dca.ctrl.PostTouchUp(int32(contact)).Wait()
+	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
+}
+
+func (dca *desktopControlAdaptor) TouchMove(contact, x, y int, delayMillis int) {
+	dca.ctrl.PostTouchMove(int32(contact), int32(x), int32(y), 1).Wait()
+	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
+}
+
+func (dca *desktopControlAdaptor) Swipe(contact, x, y, dx, dy int, durationMillis, delayMillis int) {
+	stepDurationMillis := durationMillis / 2
+	dca.ctrl.PostTouchDown(int32(contact), int32(x), int32(y), 1).Wait()
+	time.Sleep(time.Duration(stepDurationMillis) * time.Millisecond)
+	dca.ctrl.PostTouchMove(int32(contact), int32(x+dx), int32(y+dy), 1).Wait()
+	time.Sleep(time.Duration(stepDurationMillis) * time.Millisecond)
+	dca.ctrl.PostTouchUp(int32(contact)).Wait()
+	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
+}
+
+func (dca *desktopControlAdaptor) SwipeHover(contact, x, y, dx, dy int, durationMillis, delayMillis int) {
+	dca.ctrl.PostTouchMove(int32(contact), int32(x), int32(y), 0).Wait()
+	time.Sleep(time.Duration(durationMillis) * time.Millisecond)
+	dca.ctrl.PostTouchMove(int32(contact), int32(x+dx), int32(y+dy), 0).Wait()
+	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
+}
+
+func (dca *desktopControlAdaptor) KeyDown(keyCode int, delayMillis int) {
+	dca.ctrl.PostKeyDown(int32(keyCode)).Wait()
+	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
+}
+
+func (dca *desktopControlAdaptor) KeyUp(keyCode int, delayMillis int) {
+	dca.ctrl.PostKeyUp(int32(keyCode)).Wait()
+	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
+}
+
+func (dca *desktopControlAdaptor) KeyType(keyCode int, delayMillis int) {
+	dca.ctrl.PostClickKey(int32(keyCode)).Wait()
+	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
+}
+
+func (dca *desktopControlAdaptor) RotateCamera(dx, dy int) {
+	cx, cy := dca.w/2, dca.h/2
+	fromX, fromY := cx+dca.cursorDX, cy+dca.cursorDY
+	dca.SwipeHover(0, fromX, fromY, dx, dy, defaultDesktopKeyActionDelayMillis*3, defaultDesktopKeyActionDelayMillis)
+	dca.cursorDX += dx
+	dca.cursorDY += dy
+}
+
+func (dca *desktopControlAdaptor) GetPlayerMovement() PlayerMovement {
+	return dca.pm
+}
+
+func (dca *desktopControlAdaptor) SetPlayerMovement(movement PlayerMovement, policy PlayerMovementPolicy) {
+	dirKey := dca.directionKey(dca.lastDirection)
+	if movement.Equals(dca.pm) {
+		if policy >= PolicyActive {
+			// Actively ensure moving state
+			if movement.speed > MovementStop.speed {
+				dca.KeyDown(dirKey, defaultDesktopKeyActionDelayMillis/4)
+			} else {
+				dca.KeyUp(dirKey, defaultDesktopKeyActionDelayMillis/4)
+			}
+		}
+		return
+	}
+
+	if movement.speed <= MovementStop.speed {
+		// Stop moving toward the current direction
+		dca.KeyUp(dirKey, defaultDesktopKeyActionDelayMillis)
+	} else {
+		if dca.lastMotionIsWalk {
+			if movement.speed >= MovementSprint.speed {
+				// Set to "sprint"
+				dca.KeyType(dca.keys.Shift, defaultDesktopKeyActionDelayMillis)
+				dca.lastMotionIsWalk = false
+			} else if movement.speed >= MovementRun.speed {
+				// Set to "run"
+				dca.KeyType(dca.keys.Ctrl, defaultDesktopKeyActionDelayMillis)
+				dca.lastMotionIsWalk = false
+			} else {
+				// Already in "walk", do nothing
+			}
+		} else {
+			if movement.speed < MovementRun.speed {
+				// Set to "walk"
+				dca.KeyType(dca.keys.Ctrl, defaultDesktopKeyActionDelayMillis)
+				dca.lastMotionIsWalk = true
+			} else if movement.speed < MovementSprint.speed {
+				if dca.pm.speed >= MovementSprint.speed {
+					// Set to "walk" temporarily to terminate the "sprint" state, then set to "run"
+					dca.KeyType(dca.keys.Ctrl, defaultDesktopKeyActionDelayMillis)
+					dca.KeyType(dca.keys.Ctrl, defaultDesktopKeyActionDelayMillis)
+				} else {
+					// Already in "run", do nothing
+				}
+			} else {
+				// Set to "sprint"
+				dca.KeyType(dca.keys.Shift, defaultDesktopKeyActionDelayMillis)
+			}
+		}
+		if policy >= PolicyDefault {
+			// Ensure moving toward the current direction
+			dca.KeyDown(dirKey, defaultDesktopKeyActionDelayMillis/4)
+		}
+	}
+	dca.pm = movement
+}
+
+func (dca *desktopControlAdaptor) SetPlayerDirection(direction PlayerDirection) {
+	if direction == dca.lastDirection {
+		return
+	}
+	// If currently moving, switch the held key from the old direction to the new one,
+	// preserving the speed state. Press the new key down before releasing the old one
+	// so the movement is never interrupted during the switch.
+	if dca.pm.speed > MovementStop.speed {
+		dca.KeyDown(dca.directionKey(direction), defaultDesktopKeyActionDelayMillis/4)
+		dca.KeyUp(dca.directionKey(dca.lastDirection), defaultDesktopKeyActionDelayMillis/4)
+	}
+	dca.lastDirection = direction
+}
+
+func (dca *desktopControlAdaptor) PlayerJump() {
+	dca.KeyType(dca.keys.Space, defaultDesktopKeyActionDelayMillis*4)
+}
+
+func (dca *desktopControlAdaptor) ResetCursor(policy CursorResetPolicy) {
+	if !dca.shouldResetCursor(policy) {
+		return
+	}
+	// Policy: use ALT key to release mouse cursor and reset its position using a click, then release ALT key
+	cx, cy := dca.w/2, dca.h/2
+	stepDelayMillis := defaultDesktopKeyActionDelayMillis / 3
+	dca.KeyDown(dca.keys.Alt, stepDelayMillis)
+	dca.TouchClick(0, cx, cy, stepDelayMillis, 0)
+	dca.KeyUp(dca.keys.Alt, stepDelayMillis)
+	dca.cursorDX, dca.cursorDY = 0, 0
+	dca.lastResetTime = time.Now()
+}
+
+// shouldResetCursor reports whether the cursor should be reset under the given policy.
+func (dca *desktopControlAdaptor) shouldResetCursor(policy CursorResetPolicy) bool {
+	abs := func(v int) int {
+		if v < 0 {
+			return -v
+		}
+		return v
+	}
+	if policy >= CursorResetActive {
+		return true
+	}
+	if abs(dca.cursorDX) > dca.w/4 || abs(dca.cursorDY) > dca.h/4 {
+		return true
+	}
+	return time.Since(dca.lastResetTime) > cursorResetMaxInterval
+}
+
+func (dca *desktopControlAdaptor) AggressivelyResetPlayerMovement() {
+	// Policy: sprint backward and immediately move forward to ensure the initial motional state is not walk
+	dca.KeyDown(dca.keys.S, defaultDesktopKeyActionDelayMillis*2)
+	dca.KeyType(dca.keys.Shift, defaultDesktopKeyActionDelayMillis*2)
+	dca.KeyUp(dca.keys.S, defaultDesktopKeyActionDelayMillis*2)
+	dca.KeyType(dca.keys.W, defaultDesktopKeyActionDelayMillis*2)
+	dca.pm = MovementStop
+	dca.lastDirection = DirectionF
+	dca.lastMotionIsWalk = false
+}
+
+const defaultDesktopKeyActionDelayMillis = 30
+
+// cursorResetMaxInterval is the maximum time a lazy cursor reset may be deferred.
+const cursorResetMaxInterval = 2 * time.Second
+
+// directionKey returns the virtual-key code for the given movement direction.
+func (dca *desktopControlAdaptor) directionKey(direction PlayerDirection) int {
+	switch direction {
+	case DirectionB: // Backward (S)
+		return dca.keys.S
+	case DirectionL: // Left (A)
+		return dca.keys.A
+	case DirectionR: // Right (D)
+		return dca.keys.D
+	default: // Forward (W)
+		return dca.keys.W
+	}
+}
+
+// defaultDesktopKeyBindings returns the default key bindings for desktop controllers.
+// Values follow Win32 Virtual-Key conventions.
+func defaultDesktopKeyBindings() desktopKeyBindings {
+	return desktopKeyBindings{
+		W:     0x57,
+		A:     0x41,
+		S:     0x53,
+		D:     0x44,
+		Shift: 0x10,
+		Ctrl:  0x11,
+		Alt:   0x12,
+		Space: 0x20,
+	}
+}
+
+func newDefaultDesktopControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int) *desktopControlAdaptor {
+	return newDesktopControlAdaptor(ctx, ctrl, w, h, defaultDesktopKeyBindings())
+}

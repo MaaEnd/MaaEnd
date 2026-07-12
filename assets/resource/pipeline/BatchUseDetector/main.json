@@ -1,0 +1,118 @@
+{
+    "BatchUseDetectorMain": {
+        "desc": "批量使用探物器/罗盘入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "BatchUseDetectorInStashValuablesTab",
+            "[JumpBack]SceneEnterMenuValuablesValuableTab"
+        ],
+        "focus": {
+            "Node.Action.Starting": "主任务启动"
+        }
+    },
+    "BatchUseDetectorInStashValuablesTab": {
+        "desc": "在珍贵物品页",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "BatchUseDetectorMainProcessLoop",
+            "BatchUseDetectorFinished"
+        ]
+    },
+    "BatchUseDetectorMainProcessLoop": {
+        "desc": "批量使用探物器/罗盘主流程",
+        "max_hit": 1, //使用次数,由用户修改
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "BatchUseDetectorFindValleyIVItem",
+            "BatchUseDetectorFindWulingItem"
+        ]
+    },
+    "BatchUseDetectorFindNoItem": {
+        "desc": "没有找到选择的探物器/罗盘",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "没有找到选择的探物器/罗盘"
+        }
+    },
+    "BatchUseDetectorClickWhiteConfirmButton": {
+        "desc": "点击详情页白色确认按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1"
+                ]
+            }
+        },
+        "action": "Click",
+        "next": [
+            "BatchUseDetectorClickYellowConfirmButton"
+        ]
+    },
+    "BatchUseDetectorClickYellowConfirmButton": {
+        "desc": "点击详情页黄色确认按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1"
+                ]
+            }
+        },
+        "action": "Click",
+        "timeout": 5000,
+        "next": [
+            "BatchUseDetectorBacktoValuablesTab"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "当前无法使用探物器/罗盘"
+        }
+    },
+    "BatchUseDetectorBacktoValuablesTab": {
+        "desc": "返回珍贵物品页，返回上一级",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1",
+            "InMapAny"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
+            "timeout": 3000,
+            "threshold": 0.98
+        }, //这里识别到后得等画面稳定后才可以正常点击
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "BatchUseDetectorInStashValuablesTab"
+        ]
+    },
+    "BatchUseDetectorFinished": {
+        "desc": "批量使用探物器/罗盘流程结束",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "主任务结束"
+        }
+    }
+}

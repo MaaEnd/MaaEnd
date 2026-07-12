@@ -1,0 +1,20 @@
+<div
+    class="autoecofarm-interruptible-sleep"
+    style="
+        background: #ffffff;
+        color: #222222;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #e8f5e9;
+        max-width: 400px;
+    ">
+    <style>
+        div:has(.autoecofarm-interruptible-sleep):has(~ div .autoecofarm-interruptible-sleep) {
+            display: none !important;
+        }
+        div:has(.autoecofarm-interruptible-sleep):has(~ div .autoecofarm-interruptible-sleep-done) {
+            display: none !important;
+        }
+    </style>
+    <div style="font-size: 1.2em; font-weight: 600; color: #2b7d2b; font-family: monospace">{{.Formatted}}</div>
+</div>

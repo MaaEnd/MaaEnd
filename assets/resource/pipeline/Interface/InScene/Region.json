@@ -1,0 +1,685 @@
+{
+    "InMapAny": {
+        "desc": "在任意地图界面",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -350,
+                    0,
+                    350,
+                    60
+                ],
+                "template": [
+                    "SceneManager/MapMind.png"
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    220,
+                    100
+                ],
+                "template": [
+                    "SceneManager/MapMissionReminder.png"
+                ]
+            }
+        ]
+    },
+    "InMapWulingWulingCity": {
+        "desc": "在武陵-武陵城地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "武陵城",
+                    "Wuling City",
+                    "무릉성"
+                ]
+            }
+        ]
+    },
+    "InMapWulingJingyuValley": {
+        "desc": "在武陵-景玉谷地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "景玉谷",
+                    "Jingyu Valley",
+                    "경옥 골짜기"
+                ]
+            }
+        ]
+    },
+    "InMapWulingQingboStockade": {
+        "desc": "在武陵-清波寨地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "清波寨",
+                    "Qingbo Stockade",
+                    "청파채"
+                ]
+            }
+        ]
+    },
+    "InMapWulingMarkerStone": {
+        "desc": "在武陵-首墩地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "首墩",
+                    "Marker Stone",
+                    "首礎"
+                ]
+            }
+        ]
+    },
+    "InMapWulingTestArea": {
+        "desc": "在武陵-试验园区地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "试验园区",
+                    "Test Area",
+                    "實驗園區"
+                ]
+            }
+        ]
+    },
+    "InMapWulingSwordVaultDale": {
+        "desc": "在武陵-藏剑谷地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "藏剑谷",
+                    "Sword Vault Dale",
+                    "藏劍谷"
+                ]
+            }
+        ]
+    },
+    "InMapDijiang": {
+        "desc": "在帝江号地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    350,
+                    220
+                ],
+                "expected": [
+                    "[Oo].?[Mm].?[Vv]"
+                ]
+            }
+        ]
+    },
+    "InMapValleyIVTheHub": {
+        "desc": "在四号谷地-枢纽区地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "枢纽区",
+                    "樞紐區",
+                    "中枢エリア",
+                    "The Hub",
+                    "거점 지역"
+                ]
+            }
+        ]
+    },
+    "InMapValleyIVOriginiumSciencePark": {
+        "desc": "在四号谷地-源石研究园地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "源石|研究园",
+                    "源石|研究園",
+                    "Originium Science Park",
+                    "源石|研究パーク",
+                    "오리지늄 연구 구역"
+                ]
+            }
+        ]
+    },
+    "InMapValleyIVOriginLodespring": {
+        "desc": "在四号谷地-矿脉源区地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "矿脉源区",
+                    "Origin Lodespring",
+                    "鉱山エリア",
+                    "광맥 구역",
+                    "礦脈源區"
+                ]
+            }
+        ]
+    },
+    "InMapValleyIVPowerPlateau": {
+        "desc": "在四号谷地-供能高地地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "供能高地",
+                    "Power Plateau",
+                    "エネルギー高地",
+                    "에너지 공급 고지"
+                ]
+            }
+        ]
+    },
+    "InBackpack": {
+        "desc": "在背包界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    700,
+                    50,
+                    250,
+                    210
+                ],
+                "template": [
+                    "SceneManager/MenuBackpack.png"
+                ]
+            }
+        }
+    },
+    "InMenuList": {
+        "desc": "在菜单列表界面",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    420,
+                    -100,
+                    450,
+                    100
+                ],
+                "expected": [
+                    "FIELD",
+                    "ENDFIELD"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    0,
+                    -200,
+                    200,
+                    200
+                ],
+                "lower": [
+                    90,
+                    35,
+                    35
+                ],
+                "upper": [
+                    191,
+                    83,
+                    85
+                ],
+                "count": 100
+            }
+        ]
+    },
+    "InNoticeRewards": {
+        "desc": "在奖励领取界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    520,
+                    0,
+                    240,
+                    180
+                ],
+                "template": [
+                    "InScene/NoticeRewardsIcon.png",
+                    "InScene/NoticeRewardsIcon2.png",
+                    "InScene/NoticeRewardsIcon3.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "InWorldFactory": {
+        "desc": "在大世界工厂模式界面",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    999,
+                    372,
+                    130,
+                    42
+                ],
+                "expected": [
+                    "装备制造",
+                    "裝備製造",
+                    "Gear Assembly",
+                    "装備製造",
+                    "장비 제작"
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    60,
+                    60
+                ],
+                "template": [
+                    "SceneManager/WorldFactoryActive.png"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    500,
+                    0,
+                    300,
+                    100
+                ],
+                "expected": [
+                    "进入俯瞰",
+                    "進入俯瞰",
+                    "見下ろし視点ON",
+                    "탑뷰 모드로 전환",
+                    "Enter Top View",
+                    "退出俯瞰",
+                    "關閉俯瞰",
+                    "見下ろし視点OFF",
+                    "탑뷰 모드 나가기",
+                    "Exit Top View"
+                ]
+            }
+        ]
+    },
+    "InRegionalDevelopmentView2": {
+        "desc": "在地区建设二级界面",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    70
+                ],
+                "expected": [
+                    "据点",
+                    "據點",
+                    "(?i)Outpost",
+                    "拠点",
+                    "物资调度",
+                    "物資調度",
+                    "(?i)Stock\\s*Redistribution",
+                    "商品取引",
+                    "环境监测",
+                    "環境監測",
+                    "(?i)Environment\\s*Monitoring",
+                    "環境観測",
+                    "거점",
+                    "물자 관리",
+                    "저장고 노드",
+                    "환경 관측"
+                ]
+            },
+            "CheckLocalDepotNodeText"
+        ]
+    },
+    "InWorld": {
+        "desc": "在大世界界面",
+        "recognition": "Or",
+        "any_of": [
+            "ProtosyncMenuButton",
+            "RegionalDevelopmentButton"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangWorld": {
+        "desc": "在帝江号大世界中",
+        "recognition": "And",
+        "all_of": [
+            "ControlNexusButton"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InAICPlan": {
+        "desc": "在工业计划界面",
+        "recognition": "OCR",
+        "roi": [
+            -250,
+            0,
+            250,
+            60
+        ],
+        "expected": [
+            "工业点数",
+            "工業點",
+            "AIC Index",
+            "工業ポイント",
+            "공업 포인트"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InRegionalDevelopment": {
+        "desc": "在地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "CheckRegionalDevelopmentText",
+            "IncomeReportButton",
+            "RegionalDevelopmentLevelButton"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InRegionalDevelopmentValleyIV": {
+        "desc": "在四号谷地地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment",
+            "CheckRegionalDevelopmentValleyIVText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InRegionalDevelopmentWuling": {
+        "desc": "在武陵地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment",
+            "CheckRegionalDevelopmentWulingText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InLocalDepotNode": {
+        "desc": "在本地仓储节点界面",
+        "recognition": "And",
+        "all_of": [
+            "CheckLocalDepotNodeText"
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                66,
+                221,
+                166,
+                124
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InClaimDeliveryJobsNode": {
+        "desc": "在[我转交的委托]界面",
+        "recognition": "And",
+        "all_of": [
+            "CheckLocalDepotNodeText",
+            "CheckCourierInfoText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "EnvironmentMonitoringCheckMonitoringTerminalText": {
+        "desc": "检查环境监测终端文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            300,
+            62
+        ],
+        "expected": [
+            "环境监测终端",
+            "環境監測終端",
+            "(?i)Environment\\s*Monitoring\\s*Terminal",
+            "環境観測端末",
+            "환경 관측 단말기"
+        ]
+    },
+    "EnvironmentMonitoringInMonitoringTerminal": {
+        "desc": "检查是否在环境监测终端",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringCheckMonitoringTerminalText"
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                63,
+                208,
+                1158,
+                71
+            ]
+        }
+    },
+    "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText": {
+        "desc": "检查城郊监测终端文本",
+        "recognition": "OCR",
+        "roi": [
+            16,
+            57,
+            1034,
+            85
+        ],
+        "expected": [
+            "城郊监测终端",
+            "城郊監測終端",
+            "(?i)Outskirts\\s*Monitoring\\s*Terminal",
+            "郊外観測端末",
+            "교외 관측 단말기"
+        ]
+    },
+    "EnvironmentMonitoringCheckMarkerStoneMonitoringTerminalText": {
+        "desc": "检查首墩监测终端文本",
+        "recognition": "OCR",
+        "roi": [
+            16,
+            57,
+            1034,
+            85
+        ],
+        "expected": [
+            "首墩监测终端",
+            "首墩監測終端",
+            "(?i)Marker\\s*Stone\\s*Monitoring\\s*Terminal",
+            "マーカーストーン観測端末",
+            "마커 스톤 관측 단말기"
+        ]
+    },
+    "EnvironmentMonitoringOutskirtsMonitoringTerminalSelected": {
+        "desc": "城郊监测终端已选中",
+        "recognition": "ColorMatch",
+        "roi": "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText",
+        "roi_offset": [
+            0,
+            20,
+            0,
+            0
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            200
+        ],
+        "upper": [
+            0,
+            10,
+            255
+        ],
+        "count": 1000
+    },
+    "EnvironmentMonitoringMarkerStoneMonitoringTerminalSelected": {
+        "desc": "首墩监测终端已选中",
+        "recognition": "ColorMatch",
+        "roi": "EnvironmentMonitoringCheckMarkerStoneMonitoringTerminalText",
+        "roi_offset": [
+            0,
+            20,
+            0,
+            0
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            200
+        ],
+        "upper": [
+            0,
+            10,
+            255
+        ],
+        "count": 1000
+    },
+    "EnvironmentMonitoringInOutskirtsMonitoringTerminal": {
+        "desc": "检查是否在城郊监测终端",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText",
+            "EnvironmentMonitoringOutskirtsMonitoringTerminalSelected"
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                63,
+                208,
+                1158,
+                71
+            ]
+        }
+    },
+    "EnvironmentMonitoringInMarkerStoneMonitoringTerminal": {
+        "desc": "检查是否在首墩监测终端",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringCheckMarkerStoneMonitoringTerminalText",
+            "EnvironmentMonitoringMarkerStoneMonitoringTerminalSelected"
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                63,
+                208,
+                1158,
+                71
+            ]
+        }
+    }
+}

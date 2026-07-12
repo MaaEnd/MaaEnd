@@ -1,0 +1,689 @@
+{
+    "VisitFriendsEnterShip": {
+        "desc": "识别进入好友船的按钮",
+        "action": "Click",
+        "target": [
+            -100,
+            0,
+            100,
+            100
+        ],
+        "target_offset": [
+            5,
+            5,
+            -10,
+            -10
+        ],
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                400,
+                300,
+                500,
+                100
+            ]
+        },
+        "next": [
+            "VisitFriendsEnterShipConfirm"
+        ]
+    },
+    "VisitFriendsEnterShipConfirm": {
+        "desc": "识别进入好友船的确认",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]SceneWaitLoadingExit",
+            "VisitFriendsEnterShipSuccess"
+        ]
+    },
+    "VisitFriendsEnterShipSuccess": {
+        "desc": "进入好友船成功的标志",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    10,
+                    272,
+                    231,
+                    64
+                ],
+                "expected": [
+                    "打开访客终端",
+                    "打開訪客終端",
+                    "Guest Terminal",
+                    "訪問端末",
+                    "방문자 단말기"
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    100,
+                    100
+                ],
+                "template": [
+                    "VisitFriends/ShipEscButton.png"
+                ],
+                "threshold": 0.9
+            }
+        ],
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 89, // Y
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsEnterMenuTerminalSuccess"
+        ]
+    },
+    "VisitFriendsEnterMenuTerminalSuccess": {
+        "desc": "进入好友菜单成功的标志",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            200,
+            70
+        ],
+        "expected": [
+            "访客终端",
+            "訪客終端",
+            "(?i)Guest\\s*Terminal",
+            "訪問端末",
+            "방문자 단말기"
+        ],
+        "pre_wait_freezes": 400,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "VisitFriendsMenuClueExchangeEntry",
+                "VisitFriendsMenuAssistControlNexusEntry",
+                "VisitFriendsMenuAssistMFGCabin1Entry",
+                "VisitFriendsMenuAssistMFGCabin2Entry",
+                "VisitFriendsMenuAssistGrowthChamberSwipeEntry"
+            ],
+            "continue": true,
+            "strict": false
+        },
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuTerminalExitToWorldShip"
+        ]
+    },
+    "VisitFriendsFakeTrue": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "VisitFriendsMenuClueExchangeEntry": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuClueExchange",
+            "VisitFriendsMenuClueExchangeFull",
+            "VisitFriendsFakeTrue"
+        ]
+    },
+    "VisitFriendsMenuAssistControlNexusEntry": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuAssistControlNexus",
+            "VisitFriendsMenuAssistFull",
+            "VisitFriendsFakeTrue"
+        ]
+    },
+    "VisitFriendsMenuAssistMFGCabin1Entry": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuAssistMFGCabin1",
+            "VisitFriendsMenuAssistFull",
+            "VisitFriendsFakeTrue"
+        ]
+    },
+    "VisitFriendsMenuAssistMFGCabin2Entry": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuAssistMFGCabin2",
+            "VisitFriendsMenuAssistFull",
+            "VisitFriendsFakeTrue"
+        ]
+    },
+    "VisitFriendsMenuAssistGrowthChamberSwipeEntry": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuAssistGrowthChamberSwipe",
+            "VisitFriendsMenuAssistFull",
+            "VisitFriendsFakeTrue"
+        ]
+    },
+    "VisitFriendsMenuClueExchange": {
+        "desc": "执行线索交换",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    410,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalReceptionRoom.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/ClueExchange.png",
+                "threshold": 0.9
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuClueExchangeAction",
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuClueExchangeSuccess"
+        ]
+    },
+    "VisitFriendsMenuClueExchangeSuccess": {
+        "desc": "执行线索交换成功",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    410,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalReceptionRoom.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "expected": [
+                    "额外奖励",
+                    "額外獎勵",
+                    "Bonus Rewards",
+                    "追加報酬",
+                    "추가 보상"
+                ]
+            }
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "VisitFriendsMenuClueExchangeFull": {
+        "desc": "线索交换不可助力",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "text",
+                "recognition": "OCR",
+                "roi": [
+                    80,
+                    360,
+                    420,
+                    110
+                ],
+                "expected": [
+                    "情报交流",
+                    "情報交流",
+                    "Clue Exchange",
+                    "共有可能"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": "text",
+                "roi_offset": [
+                    -20,
+                    0,
+                    200,
+                    0
+                ],
+                "expected": [
+                    "0"
+                ]
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuClueExchangeFullAction",
+        "post_delay": 0
+    },
+    "VisitFriendsMenuAssistFull": {
+        "desc": "助力已满",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -300,
+                    300,
+                    300,
+                    250
+                ],
+                "template": "VisitFriends/TerminalNotice.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    -500,
+                    -10,
+                    500,
+                    20
+                ],
+                "expected": [
+                    "明日再来",
+                    "明天再來",
+                    "上限に達しました",
+                    "도해 주세요",
+                    "Come back tomorrow"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuClueAssistFullAction",
+        "post_delay": 0
+    },
+    "VisitFriendsMenuAssistControlNexus": {
+        "desc": "执行控制中枢协助",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    40,
+                    400,
+                    260,
+                    200
+                ],
+                "template": "VisitFriends/TerminalControlNexus.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    250,
+                    200
+                ],
+                "template": "VisitFriends/ProductionAssist.png",
+                "threshold": 0.9
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuClueAssistAction",
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuAssistControlNexusSuccess"
+        ]
+    },
+    "VisitFriendsMenuAssistControlNexusSuccess": {
+        "desc": "执行助力控制中枢成功",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    40,
+                    400,
+                    260,
+                    200
+                ],
+                "template": "VisitFriends/TerminalControlNexus.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    250,
+                    200
+                ],
+                "expected": [
+                    "心情恢复",
+                    "心情恢復",
+                    "Mood Regen",
+                    "体力回復",
+                    "컨디션 회복"
+                ]
+            }
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "VisitFriendsMenuAssistMFGCabin1": {
+        "desc": "执行制造舱1协助",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    610,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalMFGCabin.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/ProductionAssist.png",
+                "threshold": 0.9
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuClueAssistAction",
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuAssistMFGCabin1Success"
+        ]
+    },
+    "VisitFriendsMenuAssistMFGCabin1Success": {
+        "desc": "执行助力制造舱1成功",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    610,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalMFGCabin.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "expected": [
+                    "制造加速",
+                    "製造加速",
+                    "MFG Speed-up",
+                    "제작 가속"
+                ]
+            }
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "VisitFriendsMenuAssistMFGCabin2": {
+        "desc": "执行制造舱2协助",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    810,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalMFGCabin.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/ProductionAssist.png",
+                "threshold": 0.9
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuClueAssistAction",
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuAssistMFGCabin2Success"
+        ]
+    },
+    "VisitFriendsMenuAssistMFGCabin2Success": {
+        "desc": "执行助力制造舱2成功",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    810,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalMFGCabin.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "expected": [
+                    "制造加速",
+                    "製造加速",
+                    "MFG Speed-up",
+                    "제작 가속"
+                ]
+            }
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "VisitFriendsMenuAssistGrowthChamberSwipe": {
+        "desc": "执行生长舱协助",
+        "recognition": "TemplateMatch",
+        "roi": [
+            410,
+            400,
+            200,
+            200
+        ],
+        "template": "VisitFriends/TerminalReceptionRoom.png",
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            1000,
+            500
+        ],
+        "end": [
+            600,
+            500
+        ],
+        "end_hold": 200,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuAssistGrowthChamber",
+            "VisitFriendsFakeTrue"
+        ]
+    },
+    "VisitFriendsMenuAssistGrowthChamber": {
+        "desc": "执行生长舱协助",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    810,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalGrowthChamber.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/ProductionAssist.png",
+                "threshold": 0.9
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuClueAssistAction",
+        "post_delay": 0,
+        "next": [
+            "SceneNoticeRewardsConfirm"
+        ]
+    },
+    "VisitFriendsMenuTerminalExitToWorldShip": {
+        "desc": "从好友菜单返回世界界面",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    70
+                ],
+                "expected": [
+                    "访客终端",
+                    "訪客終端",
+                    "Guest Terminal",
+                    "GUEST TERMINAL",
+                    "訪問端末",
+                    "방문자 단말기"
+                ]
+            },
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 400,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsWorldShipExitToMenuFriends"
+        ]
+    },
+    "VisitFriendsWorldShipExitToMenuFriends": {
+        "desc": "从世界界面返回好友菜单",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ],
+        "template": "VisitFriends/ShipEscButton.png",
+        "pre_wait_freezes": 400,
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 27, // ESC
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsEnterFriendsListSuccess"
+        ]
+    },
+    "VisitFriendsEnterFriendsListSuccess": {
+        "desc": "进入好友列表成功的标志",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsList"
+        ]
+    },
+    "VisitFriendsMenuClickAction": {
+        "desc": "点击助力",
+        "pre_delay": 0,
+        "action": "Click",
+        // 调试用
+        // "target_offset": [
+        //     0,
+        //     -60,
+        //     0,
+        //     0
+        // ],
+        "post_delay": 0
+    }
+}

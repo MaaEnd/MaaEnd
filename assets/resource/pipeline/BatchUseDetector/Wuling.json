@@ -1,0 +1,106 @@
+{
+    "BatchUseDetectorFindWulingItem": {
+        "desc": "进入武陵物品选取流程",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "BatchUseDetectorFindWulingDetector",
+            "BatchUseDetectorFindWulingCompass",
+            "BatchUseDetectorFindNoItem"
+        ]
+    },
+    "BatchUseDetectorFindWulingDetector": {
+        "desc": "寻找武陵探物器",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            24,
+            75,
+            945,
+            569
+        ],
+        "template": "BatchUseDetector/WulingDetector.png",
+        "method": 5,
+        "threshold": 0.95,
+        "order_by": "Score",
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "BatchUseDetectorConfirmWulingDetectorName"
+        ],
+        "focus": {
+            "Node.Action.Starting": "寻找武陵探物器"
+        }
+    },
+    "BatchUseDetectorConfirmWulingDetectorName": {
+        "desc": "确认武陵探物器名称",
+        "enabled": true,
+        "recognition": "OCR",
+        "roi": [
+            981,
+            63,
+            144,
+            27
+        ],
+        "expected": [
+            "武陵探物器"
+        ],
+        "threshold": 0.7,
+        "next": [
+            "BatchUseDetectorClickWhiteConfirmButton",
+            "BatchUseDetectorFinished"
+        ],
+        "focus": {
+            "Node.Action.Starting": "确认武陵探物器名称"
+        }
+    },
+    "BatchUseDetectorFindWulingCompass": {
+        "desc": "寻找武陵武陵罗盘",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            24,
+            75,
+            945,
+            569
+        ],
+        "template": "BatchUseDetector/WulingCompass.png",
+        "method": 5,
+        "threshold": 0.95,
+        "order_by": "Score",
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "BatchUseDetectorConfirmWulingCompassName"
+        ],
+        "focus": {
+            "Node.Action.Starting": "寻找武陵武陵罗盘"
+        }
+    },
+    "BatchUseDetectorConfirmWulingCompassName": {
+        "desc": "确认武陵罗盘名称",
+        "enabled": true,
+        "recognition": "OCR",
+        "roi": [
+            981,
+            63,
+            144,
+            27
+        ],
+        "expected": [
+            "武陵罗盘"
+        ],
+        "threshold": 0.7,
+        "next": [
+            "BatchUseDetectorClickWhiteConfirmButton",
+            "BatchUseDetectorFinished"
+        ],
+        "focus": {
+            "Node.Action.Starting": "确认武陵罗盘名称"
+        }
+    }
+}

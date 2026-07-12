@@ -1,0 +1,20 @@
+{
+    "task": [
+        {
+            "name": "ReceiveProdManual",
+            "label": "$task.ReceiveProdManual.label",
+            "entry": "ProdManualStart",
+            "description": "$task.ReceiveProdManual.description",
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
+            "group": [
+                "backpack"
+            ]
+        }
+    ],
+    "option": {}
+}

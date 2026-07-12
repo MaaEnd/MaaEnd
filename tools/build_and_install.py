@@ -1,0 +1,657 @@
+import argparse
+import os
+import platform
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+from cli_support import Console, init_localization
+
+LOCALS_DIR = Path(__file__).parent / "locals" / "build_and_install"
+
+
+_local_t = lambda key, **kwargs: key.format(**kwargs) if kwargs else key
+
+
+def init_local() -> None:
+    global _local_t
+    t_func, load_error_path = init_localization(LOCALS_DIR)
+    _local_t = t_func
+    if load_error_path:
+        print(Console.err(t("error_load_locale", path=load_error_path)))
+
+
+def t(key: str, **kwargs) -> str:
+    return _local_t(key, **kwargs)
+
+
+def create_directory_link(src: Path, dst: Path) -> bool:
+    """
+    在指定位置创建一个指定目录的链接
+    - Windows：Junction
+    - Unix/macOS：symlink
+    """
+    if dst.exists() or dst.is_symlink():
+        if dst.is_dir() and not dst.is_symlink():
+            try:
+                dst.rmdir()
+            except OSError:
+                shutil.rmtree(dst)
+        else:
+            dst.unlink(missing_ok=True)
+
+    dst.parent.mkdir(parents=True, exist_ok=True)
+
+    if platform.system() == "Windows":
+        result = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(dst), str(src)],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            print(
+                f"  {Console.err(t('error'))} {t('create_junction_failed')}: {result.stderr}"
+            )
+            return False
+    else:
+        dst.symlink_to(src)
+
+    return True
+
+
+def create_file_link(src: Path, dst: Path) -> bool:
+    """创建文件链接（硬链接优先）"""
+    if dst.exists() or dst.is_symlink():
+        dst.unlink(missing_ok=True)
+
+    dst.parent.mkdir(parents=True, exist_ok=True)
+
+    if platform.system() == "Windows":
+        result = subprocess.run(
+            ["cmd", "/c", "mklink", "/H", str(dst), str(src)],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            result = subprocess.run(
+                ["cmd", "/c", "mklink", str(dst), str(src)],
+                capture_output=True,
+                text=True,
+            )
+            if result.returncode != 0:
+                print(
+                    f"  {Console.err(t('error'))} {t('create_file_link_failed')}: {result.stderr}"
+                )
+                return False
+    else:
+        try:
+            dst.hardlink_to(src)
+        except (OSError, NotImplementedError):
+            dst.symlink_to(src)
+
+    return True
+
+
+def copy_directory(src: Path, dst: Path) -> bool:
+    """复制目录（替换）"""
+    if dst.exists():
+        shutil.rmtree(dst)
+    shutil.copytree(src, dst)
+    return True
+
+
+def copy_file(src: Path, dst: Path) -> bool:
+    """复制文件"""
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dst)
+    return True
+
+
+def check_go_environment() -> bool:
+    """检查 Go 环境是否可用"""
+    try:
+        result = subprocess.run(
+            ["go", "version"],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0:
+            print(f"  {Console.info(t('go_version'))}: {result.stdout.strip()}")
+            return True
+    except FileNotFoundError:
+        pass
+
+    print(f"  {Console.err(t('error'))} {t('go_not_found')}")
+    print()
+    print(f"  {Console.info(t('go_install_prompt'))}")
+    print(f"    - {Console.info(t('go_install_official'))}")
+    print(f"    - {Console.info(t('go_install_windows'))}")
+    print(f"    - {Console.info(t('go_install_macos'))}")
+    print(f"    - {Console.info(t('go_install_linux'))}")
+    print()
+    print(f"  {Console.info(t('go_install_path'))}")
+    return False
+
+
+def build_go_agent(
+    root_dir: Path,
+    install_dir: Path,
+    target_os: str | None = None,
+    target_arch: str | None = None,
+    version: str | None = None,
+    ci_mode: bool = False,
+) -> bool:
+    """构建 Go Agent"""
+    if not check_go_environment():
+        return False
+
+    go_service_dir = root_dir / "agent" / "go-service"
+    if not go_service_dir.exists():
+        print(
+            f"  {Console.err(t('error'))} {t('go_source_not_found')}: {go_service_dir}"
+        )
+        return False
+
+    # 检测或使用指定的系统和架构
+    if target_os:
+        goos = {"win": "windows", "macos": "darwin", "linux": "linux"}.get(
+            target_os, target_os
+        )
+    else:
+        system = platform.system().lower()
+        goos = {"windows": "windows", "darwin": "darwin"}.get(system, "linux")
+
+    if target_arch:
+        goarch = {"x86_64": "amd64", "aarch64": "arm64"}.get(target_arch, target_arch)
+    else:
+        machine = platform.machine().lower()
+        goarch = (
+            "amd64"
+            if machine in ("x86_64", "amd64")
+            else "arm64"
+            if machine in ("aarch64", "arm64")
+            else machine
+        )
+
+    ext = ".exe" if goos == "windows" else ""
+
+    agent_dir = install_dir / "agent"
+    agent_dir.mkdir(parents=True, exist_ok=True)
+    output_path = agent_dir / f"go-service{ext}"
+
+    print(f"  {Console.info(t('target_platform'))}: {goos}/{goarch}")
+    print(f"  {Console.info(t('output_path'))}: {output_path}")
+
+    env = {**os.environ, "GOOS": goos, "GOARCH": goarch, "CGO_ENABLED": "0"}
+
+    # 开发模式下自动同步 go.mod / go.sum；CI 模式下只校验是否已同步，避免静默改动依赖文件。
+    tidy_cmd = ["go", "mod", "tidy"]
+    if ci_mode:
+        tidy_cmd.append("-diff")
+
+    tidy_result = subprocess.run(
+        tidy_cmd,
+        cwd=go_service_dir,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        env=env,
+    )
+    if tidy_result.stdout:
+        print(tidy_result.stdout)
+    if tidy_result.returncode != 0:
+        if ci_mode:
+            print(f"  {Console.err(t('error'))} {t('go_mod_files_out_of_sync')}")
+            if tidy_result.stderr:
+                max_stderr_chars = 8 * 1024
+                stderr_snippet = tidy_result.stderr.rstrip()
+                if len(stderr_snippet) > max_stderr_chars:
+                    stderr_snippet = stderr_snippet[-max_stderr_chars:]
+                print(
+                    f"  {Console.err(t('error'))} {t('go_mod_tidy_stderr')}:\n{stderr_snippet}"
+                )
+        else:
+            print(
+                f"  {Console.err(t('error'))} {t('go_mod_tidy_failed')}: {tidy_result.stderr}"
+            )
+        return False
+    if tidy_result.stderr:
+        print(tidy_result.stderr)
+
+    vendor_result = subprocess.run(
+        ["go", "mod", "vendor"],
+        cwd=go_service_dir,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        env=env,
+    )
+    if vendor_result.stdout:
+        print(vendor_result.stdout)
+    if vendor_result.returncode != 0:
+        print(
+            f"  {Console.err(t('error'))} {t('go_mod_vendor_failed')}: {vendor_result.stderr}"
+        )
+        return False
+    if vendor_result.stderr:
+        print(vendor_result.stderr)
+
+    # go build
+    # CI 模式：release with debug info（保留 DWARF 调试信息，不使用 -s -w）
+    # 开发模式：debug 构建（保留调试信息 + 禁用优化，便于断点调试）
+    if ci_mode:
+        # Release with debug info: 保留调试信息但启用优化
+        ldflags = ""
+        gcflags = ""
+    else:
+        # Debug 模式: 禁用优化和内联，便于断点调试
+        ldflags = ""
+        gcflags = "all=-N -l"
+
+    if version:
+        ldflags += f" -X main.Version={version}"
+
+    ldflags = ldflags.strip()
+
+    build_cmd = [
+        "go",
+        "build",
+    ]
+
+    if ci_mode:
+        build_cmd.append("-trimpath")
+
+    if gcflags:
+        build_cmd.append(f"-gcflags={gcflags}")
+
+    if ldflags:
+        build_cmd.append(f"-ldflags={ldflags}")
+
+    build_cmd.extend(["-o", str(output_path), "."])
+
+    build_mode_text = t("build_mode_ci") if ci_mode else t("build_mode_dev")
+    print(f"  {Console.warn(t('build_mode'))}: {build_mode_text}")
+    print(f"  {Console.info(t('build_command'))}: {' '.join(build_cmd)}")
+
+    result = subprocess.run(
+        build_cmd,
+        cwd=go_service_dir,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        env=env,
+    )
+    if result.stdout:
+        print(result.stdout)
+    if result.returncode != 0:
+        print(f"  {Console.err(t('error'))} {t('go_build_failed')}:")
+        if result.stderr:
+            print(result.stderr)
+        return False
+    if result.stderr:
+        print(result.stderr)
+
+    print(f"  {Console.ok('->')} {output_path}")
+    return True
+
+
+def check_cmake_environment() -> bool:
+    """检查 CMake 环境是否可用"""
+    try:
+        result = subprocess.run(
+            ["cmake", "--version"],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0:
+            version_line = result.stdout.strip().splitlines()[0]
+            print(f"  {t('cmake_version')}: {version_line}")
+            return True
+    except FileNotFoundError:
+        pass
+
+    print(f"  {t('error')} {t('cmake_not_found')}")
+    return False
+
+
+def cleanup_cmake_cache(build_dir: Path, interactive_retry: bool = False) -> bool:
+    """清理 CMake 缓存，避免不同 generator 之间切换冲突。"""
+    cache_paths = [build_dir / "CMakeCache.txt", build_dir / "CMakeFiles"]
+
+    while True:
+        cleanup_errors: list[tuple[Path, OSError]] = []
+
+        for cache_path in cache_paths:
+            if not cache_path.exists():
+                continue
+
+            try:
+                if cache_path.is_dir():
+                    shutil.rmtree(cache_path)
+                else:
+                    cache_path.unlink(missing_ok=True)
+            except (PermissionError, OSError) as exc:
+                cleanup_errors.append((cache_path, exc))
+
+        if not cleanup_errors:
+            return True
+
+        for cache_path, exc in cleanup_errors:
+            print(
+                f"  {Console.warn(t('warning'))} {t('cmake_cache_cleanup_item_failed', path=cache_path, error=exc)}"
+            )
+
+        if interactive_retry and sys.stdin.isatty() and sys.stdout.isatty():
+            choice = input(
+                f"  {Console.warn(t('warning'))} {t('cmake_cache_cleanup_prompt')}"
+            )
+            if choice.strip().lower() == "q":
+                return False
+            continue
+
+        return False
+
+
+def build_cpp_algo(
+    root_dir: Path,
+    install_dir: Path,
+    target_os: str | None = None,
+    target_arch: str | None = None,
+    ci_mode: bool = False,
+) -> bool:
+    """构建 C++ Algo Agent（使用 CMake Presets）"""
+    if not check_cmake_environment():
+        return False
+
+    cpp_algo_dir = root_dir / "agent" / "cpp-algo"
+    if not cpp_algo_dir.exists():
+        print(f"  {t('error')} {t('cpp_source_not_found')}: {cpp_algo_dir}")
+        return False
+
+    build_type = "RelWithDebInfo"
+
+    # 确定目标操作系统
+    if target_os:
+        resolved_os = target_os  # win, macos, linux
+    else:
+        system = platform.system().lower()
+        resolved_os = {"windows": "win", "darwin": "macos"}.get(system, "linux")
+
+    # 确定目标架构
+    if target_arch:
+        resolved_arch = target_arch  # x86_64, aarch64
+    else:
+        machine = platform.machine().lower()
+        if machine in ("x86_64", "amd64"):
+            resolved_arch = "x86_64"
+        elif machine in ("aarch64", "arm64"):
+            resolved_arch = "aarch64"
+        else:
+            resolved_arch = machine
+
+    # 根据平台选择 configure preset，参考 MaaFramework build.yml
+    configure_preset_candidates: list[str]
+    if resolved_os == "win":
+        if resolved_arch == "aarch64":
+            configure_preset_candidates = ["MSVC 2026 ARM", "MSVC 2022 ARM"]
+        else:
+            # 兼容仅安装 VS2022 的环境：优先尝试 2026，失败时自动回退 2022
+            configure_preset_candidates = ["MSVC 2026", "MSVC 2022"]
+    elif resolved_os == "linux":
+        if resolved_arch == "aarch64":
+            configure_preset_candidates = ["NinjaMulti Linux arm64"]
+        else:
+            configure_preset_candidates = ["NinjaMulti Linux x64"]
+    else:
+        # macOS
+        configure_preset_candidates = ["NinjaMulti"]
+
+    # 构建 MAADEPS_TRIPLET: maa-{x64|arm64}-{windows|linux|osx}
+    arch_part = "x64" if resolved_arch == "x86_64" else "arm64"
+    os_part = {"win": "windows", "macos": "osx", "linux": "linux"}.get(
+        resolved_os, resolved_os
+    )
+    maadeps_triplet = f"maa-{arch_part}-{os_part}"
+
+    print(f"  {t('build_mode')}: {build_type}")
+    print(f"  {t('target_platform')}: {resolved_os}/{resolved_arch}")
+    print(
+        f"  {t('cmake_configure_preset_candidates')}: {', '.join(configure_preset_candidates)}"
+    )
+    print(f"  {t('maadeps_triplet')}: {maadeps_triplet}")
+
+    # cmake --preset <configure_preset>（按候选列表依次尝试）
+    configure_preset = configure_preset_candidates[0]
+    build_dir = cpp_algo_dir / "build"
+    if len(configure_preset_candidates) > 1 and not cleanup_cmake_cache(build_dir):
+        print(
+            f"  {Console.warn(t('warning'))} {t('cmake_cache_cleanup_first_try_hint')}"
+        )
+
+    for idx, preset in enumerate(configure_preset_candidates):
+        if idx > 0 and not cleanup_cmake_cache(
+            build_dir, interactive_retry=not ci_mode
+        ):
+            print(
+                f"  {Console.err(t('error'))} {t('cmake_cache_cleanup_fallback_aborted')}"
+            )
+            return False
+
+        configure_cmd = [
+            "cmake",
+            "--preset",
+            preset,
+            f"-DMAADEPS_TRIPLET={maadeps_triplet}",
+            f"-DCMAKE_INSTALL_PREFIX={install_dir}",
+        ]
+
+        # macOS 需要额外的参数
+        if resolved_os == "macos":
+            osx_arch = "x86_64" if resolved_arch == "x86_64" else "arm64"
+            configure_cmd.extend(
+                [
+                    "-DCMAKE_OSX_SYSROOT=macosx",
+                    f"-DCMAKE_OSX_ARCHITECTURES={osx_arch}",
+                ]
+            )
+
+        print(f"  {t('build_command')}: {' '.join(configure_cmd)}")
+
+        result = subprocess.run(
+            configure_cmd,
+            cwd=cpp_algo_dir,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+
+        if result.stdout:
+            print(result.stdout)
+
+        if result.returncode == 0:
+            configure_preset = preset
+            if idx > 0:
+                print(
+                    f"  {Console.warn(t('warning'))} {t('cmake_fallback_preset_used', preset=preset)}"
+                )
+            break
+
+        # 失败时：如果还有下一个候选，继续尝试；否则报错退出
+        if result.stderr:
+            print(result.stderr)
+        if idx < len(configure_preset_candidates) - 1:
+            print(
+                f"  {Console.warn(t('warning'))} {t('cmake_preset_configure_retry', preset=preset)}"
+            )
+            continue
+
+        print(f"  {t('error')} {t('cmake_configure_failed')}:")
+        return False
+
+    # cmake --build build --preset <build_preset>
+    build_preset = f"{configure_preset} - {build_type}"
+    build_cmd = [
+        "cmake",
+        "--build",
+        "build",
+        "--preset",
+        build_preset,
+    ]
+    print(f"  {t('build_command')}: {' '.join(build_cmd)}")
+
+    result = subprocess.run(
+        build_cmd,
+        cwd=cpp_algo_dir,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.stdout:
+        print(result.stdout)
+    if result.returncode != 0:
+        print(f"  {t('error')} {t('cmake_build_failed')}:")
+        if result.stderr:
+            print(result.stderr)
+        return False
+    if result.stderr:
+        print(result.stderr)
+
+    # cmake --install build --prefix <install_dir> --config <build_type>
+    install_cmd = [
+        "cmake",
+        "--install",
+        "build",
+        "--prefix",
+        str(install_dir),
+        "--config",
+        build_type,
+    ]
+    print(f"  {t('build_command')}: {' '.join(install_cmd)}")
+
+    result = subprocess.run(
+        install_cmd,
+        cwd=cpp_algo_dir,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.stdout:
+        print(result.stdout)
+    if result.returncode != 0:
+        print(f"  {t('error')} {t('cmake_install_failed')}:")
+        if result.stderr:
+            print(result.stderr)
+        return False
+    if result.stderr:
+        print(result.stderr)
+
+    agent_dir = install_dir / "agent"
+    print(f"  -> {agent_dir}")
+    return True
+
+
+def main():
+    init_local()
+
+    parser = argparse.ArgumentParser(description=t("description"))
+    parser.add_argument("--ci", action="store_true", help=t("arg_ci"))
+    parser.add_argument("--os", dest="target_os", help=t("arg_os"))
+    parser.add_argument("--arch", dest="target_arch", help=t("arg_arch"))
+    parser.add_argument("--version", help=t("arg_version"))
+    parser.add_argument("--cpp-algo", action="store_true", help=t("arg_cpp_algo"))
+    args = parser.parse_args()
+
+    use_copy = args.ci
+
+    root_dir = Path(__file__).parent.parent.resolve()
+    assets_dir = root_dir / "assets"
+    install_dir = root_dir / "install"
+
+    mode_text = t("mode_ci") if use_copy else t("mode_dev")
+    print(f"{Console.info(t('root_dir'))}: {root_dir}")
+    print(f"{Console.info(t('install_dir'))}:   {install_dir}")
+    print(f"{Console.warn(t('mode'))}:       {mode_text}")
+    print()
+
+    install_dir.mkdir(parents=True, exist_ok=True)
+
+    # 用于链接或复制的函数
+    link_or_copy_dir = copy_directory if use_copy else create_directory_link
+    link_or_copy_file = copy_file if use_copy else create_file_link
+
+    # 1. 链接/复制 assets 目录内容 和 docs/img 目录
+    print(Console.step(t("step_process_assets")))
+    for item in assets_dir.iterdir():
+        dst = install_dir / item.name
+        if item.is_dir():
+            if link_or_copy_dir(item, dst):
+                print(f"  {Console.ok('->')} {dst}")
+        elif item.is_file():
+            if link_or_copy_file(item, dst):
+                print(f"  {Console.ok('->')} {dst}")
+
+    docs_img_dir = root_dir / "docs" / "img"
+    if docs_img_dir.is_dir():
+        docs_img_dst = install_dir / "docs" / "img"
+        if link_or_copy_dir(docs_img_dir, docs_img_dst):
+            print(f"  {Console.ok('->')} {docs_img_dst}")
+        else:
+            print(f"  {Console.warn(t('warning'))} {t('docs_copy_failed')}")
+
+    # 2. 构建 Go Agent
+    print(Console.step(t("step_build_go")))
+    if not build_go_agent(
+        root_dir, install_dir, args.target_os, args.target_arch, args.version, use_copy
+    ):
+        print(f"  {Console.err(t('error'))} {t('build_go_failed')}")
+        sys.exit(1)
+
+    # 3. 构建 C++ Algo Agent（仅在指定 --cpp-algo 时）
+    if args.cpp_algo:
+        print(Console.step(t("step_build_cpp")))
+        if not build_cpp_algo(
+            root_dir, install_dir, args.target_os, args.target_arch, use_copy
+        ):
+            print(f"  {t('error')} {t('build_cpp_failed')}")
+            sys.exit(1)
+    else:
+        print(Console.step(t("step_skip_cpp")))
+
+    # 4. 链接/复制项目根目录文件并创建 maafw 目录
+    print(Console.step(t("step_prepare_files")))
+    for filename in ["README.md", "LICENSE"]:
+        src = root_dir / filename
+        dst = install_dir / filename
+        if src.exists():
+            if link_or_copy_file(src, dst):
+                print(f"  {Console.ok('->')} {dst}")
+
+    maafw_dir = install_dir / "maafw"
+    maafw_dir.mkdir(parents=True, exist_ok=True)
+    print(f"  {Console.ok('->')} {maafw_dir}")
+
+    print()
+    print(t("separator"))
+    print(Console.ok(t("install_complete")))
+
+    if not use_copy:
+        if not any(maafw_dir.iterdir()):
+            print()
+            print(Console.warn(t("maafw_download_hint")))
+            print(f"  {t('maafw_download_step')}")
+            print(f"  {t('maafw_download_url')}")
+        if (
+            not (install_dir / "mxu").exists()
+            and not (install_dir / "mxu.exe").exists()
+        ):
+            print()
+            print(Console.warn(t("mxu_download_hint")))
+            print(f"  {t('mxu_download_step')}")
+            print(f"  {t('mxu_download_url')}")
+
+    print()
+
+
+if __name__ == "__main__":
+    main()

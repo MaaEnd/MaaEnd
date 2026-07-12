@@ -1,0 +1,122 @@
+{
+    // 终末地电路拼图游戏的自动化 Task
+    "task": [
+        {
+            "name": "PuzzleSolver",
+            "label": "$task.PuzzleSolver.label",
+            "entry": "PuzzleSolverMain",
+            "description": "$task.PuzzleSolver.description",
+            "option": [
+                "PuzzleSolverMode"
+            ],
+            "controller": [
+                "Win32-Front",
+                "Wlroots"
+            ],
+            "group": [
+                "open_world"
+            ]
+        }
+    ],
+    "option": {
+        "PuzzleSolverMode": {
+            "type": "select",
+            "label": "$option.PuzzleSolverMode.label",
+            "description": "$option.PuzzleSolverMode.description",
+            "cases": [
+                {
+                    "name": "Single",
+                    "label": "$option.PuzzleSolverMode.cases.Single.label",
+                    "pipeline_override": {
+                        "PuzzleSolverMaybeLoop": {
+                            "next": [] // 单次执行时，主入口不循环
+                        },
+                        "PuzzleSolverOnSuccess": {
+                            "next": [] // 单次执行时，成功一次之后不循环
+                        },
+                        "PuzzleSolverOnMiss": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        },
+                        "PuzzleSolverOnPass": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        },
+                        "PuzzleSolverOnFail": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Loop",
+                    "label": "$option.PuzzleSolverMode.cases.Loop.label",
+                    "pipeline_override": {
+                        "PuzzleSolverMaybeLoop": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ],
+                            "focus": {}
+                        },
+                        "PuzzleSolverOnSuccess": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        },
+                        "PuzzleSolverOnMiss": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        },
+                        "PuzzleSolverOnPass": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        },
+                        "PuzzleSolverOnFail": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "DryRun",
+                    "label": "$option.PuzzleSolverMode.cases.DryRun.label",
+                    "pipeline_override": {
+                        "PuzzleSolverMaybeLoop": {
+                            "next": [] // 仅演示时，主入口不循环
+                        },
+                        "PuzzleSolverOnSuccess": {
+                            "action": "DoNothing",
+                            "next": [] // 仅演示时，成功一次之后不循环
+                        },
+                        "PuzzleSolverOnMiss": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        },
+                        "PuzzleSolverOnPass": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        },
+                        "PuzzleSolverOnFail": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        },
+                        "PuzzleSolverSolvePuzzle": {
+                            "custom_action_param": {
+                                "dryRun": true
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,37 @@
+{
+    "GearAssemblySwipeToNextRow": {
+        "action": {
+            "param": {
+                "begin_offset": [
+                    0,
+                    120,
+                    0,
+                    0
+                ],
+                "end": [
+                    [
+                        370,
+                        100
+                    ],
+                    [
+                        // 急停
+                        470,
+                        100
+                    ]
+                ]
+            }
+        }
+    },
+    "GearAssemblyCheckIfReachedScrollEnd": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    430,
+                    590,
+                    15,
+                    15
+                ]
+            }
+        }
+    }
+}

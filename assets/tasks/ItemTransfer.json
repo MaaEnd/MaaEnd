@@ -1,0 +1,4150 @@
+{
+    "task": [
+        {
+            "name": "ItemTransfer",
+            "label": "$task.ItemTransfer.label",
+            "entry": "ItemTransfer",
+            "description": "$task.ItemTransfer.description",
+            "option": [
+                "AutoTeleport",
+                "WhatToTransfer",
+                "TransferAll",
+                "OriginRegion",
+                "DestinationRegion",
+                "ItemTransferStashBackpackWhenBothFull",
+                "ItemTransferStashBackpack"
+            ],
+            "controller": [
+                "Win32-Front",
+                "Wlroots"
+            ],
+            "group": [
+                "backpack"
+            ]
+        }
+    ],
+    "option": {
+        "AutoTeleport": {
+            "type": "switch",
+            "label": "$option.ItemTransferAutoTeleport.label",
+            "description": "$option.ItemTransferAutoTeleport.description",
+            "controller": [
+                "Win32-Front"
+            ],
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ItemTransferStart": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
+        },
+        "WhatToTransfer": {
+            "type": "select",
+            "label": "$option.ItemTransferWhatToTransfer.label",
+            "cases": [
+                {
+                    "name": "赤铜矿",
+                    "label": "$item.CupriumOre",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Ore.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "赤铜矿"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "赤铜矿"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "赤铜矿"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁矿",
+                    "label": "$item.FerriumOre",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Ore.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 141
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 141
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 141
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 141
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 141
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 141
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶矿",
+                    "label": "$item.AmethystOre",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Ore.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 103
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 103
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 103
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 103,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 103,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 103,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "源矿",
+                    "label": "$item.OriginiumOre",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Ore.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 74
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 74
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 74
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 74,
+                                "descending": true,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 74,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 74,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "原木",
+                    "label": "$item.Wood",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 14
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 14
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 14
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 14,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 14,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 14,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "金石稻种子",
+                    "label": "$item.AmberRiceSeed",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 166
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 166
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 166
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 166,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 166,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 166,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "琼叶参种子",
+                    "label": "$item.RedjadeGinsengSeed",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 86
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 86
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 86
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 86,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 86,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 86,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "苦叶椒种子",
+                    "label": "$item.TartpepperSeed",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 126
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 126
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 126
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 126,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 126,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 126,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灰芦麦种子",
+                    "label": "$item.ReedRyeSeed",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 76
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 76
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 76
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 76,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 76,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 76,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "金石稻",
+                    "label": "$item.AmberRice",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 165
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 165
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 165
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 165,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 165,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 165,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "琼叶参",
+                    "label": "$item.RedjadeGinseng",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 85
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 85
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 85
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 85,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 85,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 85,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "苦叶椒",
+                    "label": "$item.Tartpepper",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 125
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 125
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 125
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 125,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 125,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 125,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灰芦麦",
+                    "label": "$item.ReedRye",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 75
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 75
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 75
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 75,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 75,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 75,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "荆刺芽针",
+                    "label": "$item.ThornyYazhen",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 128
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 128
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 128
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 128,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 128,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 128,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓬茸锦草",
+                    "label": "$item.FluffedJincao",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 144
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 144
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 144
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 144,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 144,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 144,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "芽针种子",
+                    "label": "$item.YazhenSeed",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 122
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 122
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 122
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 122,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 122,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 122,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "芽针",
+                    "label": "$item.Yazhen",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 119
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 119
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 119
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 119,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 119,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 119,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "锦草种子",
+                    "label": "$item.JincaoSeed",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 175
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 175
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 175
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 175,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 175,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 175,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "锦草",
+                    "label": "$item.Jincao",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 172
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 172
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 172
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 172,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 172,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 172,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "酮化树种",
+                    "label": "$item.AketineSeed",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 160
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 160
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 160
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 160,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 160,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 160,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "酮化灌木",
+                    "label": "$item.Aketine",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 161
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 161
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 161
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 161,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 161,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 161,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "砂叶种子",
+                    "label": "$item.SandleafSeed",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 89
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 89
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 89
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 89,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 89,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 89,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "砂叶",
+                    "label": "$item.Sandleaf",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 88
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 88
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 88
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 88,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 88,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 88,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "黯银柑实",
+                    "label": "$item.Umbraline",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 191
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 191
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 191
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 191,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 191,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 191,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "柑实种子",
+                    "label": "$item.CitromeSeed",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 58
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 58
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 58
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 58,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 58,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 58,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "柑实",
+                    "label": "$item.Citrome",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 56
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 56
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 56
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 56,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 56,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 56,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "映火荞花",
+                    "label": "$item.Firebuckle",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 51
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 51
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 51
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 51,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 51,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 51,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "荞花种子",
+                    "label": "$item.BuckflowerSeed",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 134
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 134
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 134
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 134,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 134,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 134,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "荞花",
+                    "label": "$item.Buckflower",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Plant.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 133
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 133
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 133
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 133,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 133,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 133,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "壤晶",
+                    "label": "$item.Xircon",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferClickSortAscending": {
+                            "next": [
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "壤晶",
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "壤晶",
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "壤晶",
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "重息壤",
+                    "label": "$item.HeavyXiranite",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "重息壤"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "重息壤"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "重息壤"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "label": "$item.Xiranite",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 41
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 41
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 41
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 41
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 41
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 41
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜瓶",
+                    "label": "$item.HetoniteBottle",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "赫铜瓶"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "赫铜瓶"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "赫铜瓶"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜瓶",
+                    "label": "$item.CupriumBottle",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "赤铜瓶"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "赤铜瓶"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "赤铜瓶"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢质瓶",
+                    "label": "$item.SteelBottle",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 169
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 169
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 169
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 169,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 169,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 169,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁瓶",
+                    "label": "$item.FerriumBottle",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 138
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 138
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 138
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 138
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 138
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 138
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶质瓶",
+                    "label": "$item.CrystonBottle",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 187
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 187
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 187
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 187
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 187
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 187
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶",
+                    "label": "$item.AmethystBottle",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 107
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 107
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 107
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 107
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 107
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 107
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜块",
+                    "label": "$item.Hetonite",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "赫铜块"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "赫铜块"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "赫铜块"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢块",
+                    "label": "$item.Steel",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 168
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 168
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 168
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 168
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 168
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 168
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶纤维",
+                    "label": "$item.CrystonFiber",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 185
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 185
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 185
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 185
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 185
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 185
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "密制晶体",
+                    "label": "$item.PackedOrigocrust",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 28
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 28
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 28
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 28,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 28,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 28,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "稳定碳块",
+                    "label": "$item.StabilizedCarbon",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 96
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 96
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 96
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 96,
+                                "descending": true,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 96,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 96,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "细磨柑实粉末",
+                    "label": "$item.GroundCitromePowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 111
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 111
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 111
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 111,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 111,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 111,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "细磨荞花粉末",
+                    "label": "$item.GroundBuckflowerPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 112
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 112
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 112
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 112,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 112,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 112,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "致密蓝铁粉末",
+                    "label": "$item.DenseFerriumPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 118
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 118
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 118
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 118,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 118,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 118,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶粉末",
+                    "label": "$item.CrystonPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 184
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 184
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 184
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 184
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 184
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 184
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "致密晶体粉末",
+                    "label": "$item.DenseOrigocrustPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 115
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 115
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 115
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 115,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 115,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 115,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "致密碳粉末",
+                    "label": "$item.DenseCarbonPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 117
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 117
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 117
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 117,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 117,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 117,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "致密源石粉末",
+                    "label": "$item.DenseOriginiumPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 116
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 116
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 116
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 116,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 116,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 116,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "酮化灌木粉末",
+                    "label": "$item.AketinePowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 162
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 162
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 162
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 162,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 162,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 162,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "砂叶粉末",
+                    "label": "$item.SandleafPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 90
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 90
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 90
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 90,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 90,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 90,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜粉末",
+                    "label": "$item.CupriumPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "赤铜粉末",
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "赤铜粉末",
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "赤铜粉末",
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁粉末",
+                    "label": "$item.FerriumPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 142
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 142
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 142
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 142,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 142,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 142,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶粉末",
+                    "label": "$item.AmethystPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 104
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 104
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 104
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 104
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 104
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 104
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "晶体外壳粉末",
+                    "label": "$item.OrigocrustPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 53
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 53
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 53
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 53,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 53,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 53,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "碳粉末",
+                    "label": "$item.CarbonPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 93
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 93
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 93
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 93,
+                                "descending": true,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 93,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 93,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "源石粉末",
+                    "label": "$item.OriginiumPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 73
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 73
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 73
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 73,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 73,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 73,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜块",
+                    "label": "$item.Cuprium",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferClickSortDescending": {
+                            "next": [
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "赤铜块",
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "赤铜块"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "赤铜块"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁块",
+                    "label": "$item.Ferrium",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 137
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 137
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 137
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 137
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 137
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 137
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶纤维",
+                    "label": "$item.AmethystFiber",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 105
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 105
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 105
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 105
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 105
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 105
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "晶体外壳",
+                    "label": "$item.Origocrust",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 52
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 52
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 52
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 52,
+                                "descending": true,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 52,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 52,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "碳块",
+                    "label": "$item.Carbon",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 92
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 92
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 92
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 92,
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 92
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 92
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜装备原件",
+                    "label": "$item.HetoniteComponent",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferClickSortDescending": {
+                            "next": [
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "赫铜装备原件",
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "赫铜装备原件"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "赫铜装备原件"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜装备原件",
+                    "label": "$item.CupriumComponent",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferClickSortDescending": {
+                            "next": [
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "赤铜装备原件",
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "赤铜装备原件"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "赤铜装备原件"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤装备原件",
+                    "label": "$item.XiraniteComponent",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 42
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 42
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 42
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 42,
+                                "descending": true,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 42,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 42,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶装备原件",
+                    "label": "$item.CrystonComponent",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 186
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 186
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 186
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 186,
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 186
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 186
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁装备原件",
+                    "label": "$item.FerriumComponent",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 143
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 143
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 143
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 143,
+                                "descending": true,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 143,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 143,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶装备原件",
+                    "label": "$item.AmethystComponent",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 106
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 106
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 106
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 106,
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 106
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 106
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜零件",
+                    "label": "$item.HetonitePart",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferClickSortDescending": {
+                            "next": [
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "赫铜零件",
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "赫铜零件"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "赫铜零件"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜零件",
+                    "label": "$item.CupriumPart",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferClickSortDescending": {
+                            "next": [
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "赤铜零件",
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "赤铜零件"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "赤铜零件"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢制零件",
+                    "label": "$item.SteelPart",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 167
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 167
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 167
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 167,
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 167
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 167
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "铁制零件",
+                    "label": "$item.FerriumPart",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 170
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 170
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 170
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 170,
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 170
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 170
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶零件",
+                    "label": "$item.CrystonPart",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 188
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 188
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 188
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 188,
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 188
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 188
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶零件",
+                    "label": "$item.AmethystPart",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 108
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 108
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 108
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 108,
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 108
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 108
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "label": "$item.SCWulingBattery",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferClickSortDescending": {
+                            "next": [
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "中容武陵电池",
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "中容武陵电池"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "中容武陵电池"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "低容武陵电池",
+                    "label": "$item.LCWulingBattery",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 7
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 7
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 7
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 7,
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 7
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 7
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高容谷地电池",
+                    "label": "$item.HCValleyBattery",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 183
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 183
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 183
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 183,
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 183
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 183
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容谷地电池",
+                    "label": "$item.SCValleyBattery",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 0
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 0
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 0
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 0,
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 0
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 0
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "低容谷地电池",
+                    "label": "$item.LCValleyBattery",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 8
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 8
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 8
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 8,
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 8
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 8
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "荆刺芽针粉末",
+                    "label": "$item.ThornyYazhenPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 129
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 129
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 129
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 129,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 129,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 129,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓬茸锦草粉末",
+                    "label": "$item.FluffedJincaoPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 145
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 145
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 145
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 145,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 145,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 145,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "芽针粉末",
+                    "label": "$item.YazhenPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 123
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 123
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 123
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 123,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 123,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 123,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "锦草粉末",
+                    "label": "$item.JincaoPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 176
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 176
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 176
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 176,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 176,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 176,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "柑实粉末",
+                    "label": "$item.CitromePowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 59
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 59
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 59
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 59,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 59,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 59,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "荞花粉末",
+                    "label": "$item.BuckflowerPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 135
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 135
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 135
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 135,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 135,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 135,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "工业爆炸物",
+                    "label": "$item.IndustrialExplosive",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 36
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 36
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 36
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 36,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 36,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 36,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "回响秘剂",
+                    "label": "$item.EchoingRemedy",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "回响秘剂",
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "回响秘剂",
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "回响秘剂",
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "label": "$item.YazhenSyringeA",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferClickSortDescending": {
+                            "next": [
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "优质芽针针剂",
+                                "descending": true,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "优质芽针针剂",
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "优质芽针针剂",
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "芽针针剂",
+                    "label": "$item.YazhenSyringeC",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 124
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 124
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 124
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 124,
+                                "descending": true,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 124,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 124,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "精选荞愈胶囊",
+                    "label": "$item.BuckCapsuleA",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 102
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 102
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 102
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 102,
+                                "descending": true,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 102,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 102,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质荞愈胶囊",
+                    "label": "$item.BuckCapsuleB",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 6
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 6
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 6
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 6,
+                                "descending": true,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 6,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 6,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "荞愈胶囊",
+                    "label": "$item.BuckCapsuleC",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 131
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 131
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 131
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 131,
+                                "descending": true,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 131,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 131,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "label": "$item.JincaoTea",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferClickSortDescending": {
+                            "next": [
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "优质锦草软饮",
+                                "descending": true,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "优质锦草软饮",
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "优质锦草软饮",
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "锦草软饮",
+                    "label": "$item.JincaoDrink",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 177
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 177
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 177
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 177,
+                                "descending": true,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 177,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 177,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "精选柑实罐头",
+                    "label": "$item.CannedCitromeA",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 100
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 100
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 100
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 100,
+                                "descending": true,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 100,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 100,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质柑实罐头",
+                    "label": "$item.CannedCitromeB",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 5
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 5
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 5
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 5,
+                                "descending": true,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 5,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 5,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "柑实罐头",
+                    "label": "$item.CannedCitromeC",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Usable.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 60
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 60
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 60
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        },
+                        "ItemTransferFindItemFallback": {
+                            "custom_action_param": {
+                                "target_class": 60,
+                                "descending": true,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBag": {
+                            "custom_action_param": {
+                                "target_class": 60,
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemFallbackBagReturn": {
+                            "custom_action_param": {
+                                "target_class": 60,
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "蓝铁矿"
+        },
+        "TransferAll": {
+            "type": "switch",
+            "label": "$option.ItemTransferTransferAll.label",
+            "description": "$option.ItemTransferTransferAll.description",
+            "cases": [
+                {
+                    "name": "Yes"
+                },
+                {
+                    "name": "No",
+                    "option": [
+                        "TransferTimes"
+                    ]
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "TransferTimes": {
+            "type": "input",
+            "label": "$option.ItemTransferTransferTimes.label",
+            "inputs": [
+                {
+                    "name": "Times",
+                    "label": "$option.ItemTransferTransferTimes.input.label",
+                    "description": "$option.ItemTransferTransferTimes.input.description",
+                    "default": "1",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9]\\d*$",
+                    "pattern_msg": "$option.ItemTransferTransferTimes.input.error"
+                }
+            ],
+            "pipeline_override": {
+                "ItemTransferSwitchRepoToOrigin": {
+                    "max_hit": "{Times}"
+                }
+            }
+        },
+        "OriginRegion": {
+            "type": "select",
+            "label": "$option.ItemTransferOriginRegion.label",
+            "description": "$option.ItemTransferOriginRegion.description",
+            "cases": [
+                {
+                    "name": "ValleyIV",
+                    "label": "$global.region.ValleyIV",
+                    "pipeline_override": {
+                        "ItemTransferSkipSameRegionValleyIV": {
+                            "enabled": true
+                        },
+                        "ItemTransferClickOrigin": {
+                            "expected": [
+                                "四号谷地",
+                                "Valley IV"
+                            ]
+                        },
+                        "ItemTransferClickOriginClicked": {
+                            "expected": [
+                                "四号谷地",
+                                "Valley IV"
+                            ]
+                        },
+                        "ItemTransferClickOriginReturn": {
+                            "expected": [
+                                "四号谷地",
+                                "Valley IV"
+                            ]
+                        },
+                        "ItemTransferClickOriginReturnClicked": {
+                            "expected": [
+                                "四号谷地",
+                                "Valley IV"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Wuling",
+                    "label": "$global.region.Wuling",
+                    "pipeline_override": {
+                        "ItemTransferSkipSameRegionWuling": {
+                            "enabled": true
+                        },
+                        "ItemTransferClickOrigin": {
+                            "expected": [
+                                "武陵",
+                                "Wuling"
+                            ]
+                        },
+                        "ItemTransferClickOriginClicked": {
+                            "expected": [
+                                "武陵",
+                                "Wuling"
+                            ]
+                        },
+                        "ItemTransferClickOriginReturn": {
+                            "expected": [
+                                "武陵",
+                                "Wuling"
+                            ]
+                        },
+                        "ItemTransferClickOriginReturnClicked": {
+                            "expected": [
+                                "武陵",
+                                "Wuling"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": "ValleyIV"
+        },
+        "DestinationRegion": {
+            "type": "select",
+            "label": "$option.ItemTransferDestinationRegion.label",
+            "description": "$option.ItemTransferDestinationRegion.description",
+            "cases": [
+                {
+                    "name": "ValleyIV",
+                    "label": "$global.region.ValleyIV",
+                    "pipeline_override": {
+                        "ItemTransferSkipSameRegionWuling": {
+                            "enabled": false
+                        },
+                        "ItemTransferClickDestination": {
+                            "expected": [
+                                "四号谷地",
+                                "Valley IV"
+                            ]
+                        },
+                        "ItemTransferClickDestinationClicked": {
+                            "expected": [
+                                "四号谷地",
+                                "Valley IV"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Wuling",
+                    "label": "$global.region.Wuling",
+                    "pipeline_override": {
+                        "ItemTransferSkipSameRegionValleyIV": {
+                            "enabled": false
+                        },
+                        "ItemTransferClickDestination": {
+                            "expected": [
+                                "武陵",
+                                "Wuling"
+                            ]
+                        },
+                        "ItemTransferClickDestinationClicked": {
+                            "expected": [
+                                "武陵",
+                                "Wuling"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": "Wuling"
+        },
+        "ItemTransferStashBackpack": {
+            "type": "switch",
+            "label": "$task.ItemTransfer.option.ItemTransferStashBackpack.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ItemTransferStashBackpackMain": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "StashBackpackType"
+                    ]
+                }
+            ]
+        },
+        "ItemTransferStashBackpackWhenBothFull": {
+            "type": "switch",
+            "label": "$option.ItemTransferStashBackpackWhenBothFull.label",
+            "description": "$option.ItemTransferStashBackpackWhenBothFull.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ItemTransferClickQuickStashReturn": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

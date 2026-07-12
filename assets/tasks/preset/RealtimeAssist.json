@@ -1,0 +1,27 @@
+{
+    "preset": [
+        {
+            "name": "RealtimeAssist",
+            "label": "$preset.RealtimeAssist.label",
+            "description": "$preset.RealtimeAssist.description",
+            "task": [
+                {
+                    "name": "RealTimeTask",
+                    "option": {
+                        "AutoSkip": "Yes",
+                        "AutoCloseInteraction": "Yes",
+                        "EnableTutorialBook": "Yes",
+                        "EnableClickAnywhere": "Yes",
+                        "EnableCloseSpecialPanel": "Yes",
+                        "AutoFight": "Yes",
+                        "AutoPick": "Yes",
+                        "QuickTeleport": "Yes",
+                        "AutoPuzzleSolving": "Yes",
+                        "AutoZipline": "Yes",
+                        "AutoPat": "No"
+                    }
+                }
+            ]
+        }
+    ]
+}

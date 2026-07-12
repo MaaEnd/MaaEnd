@@ -1,0 +1,49 @@
+{
+    "AutoSellMain": {
+        "desc": "自动售卖主流程",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoSellScanValleyIVMain",
+            "[JumpBack]AutoSellExecuteValleyIVMain",
+            "[JumpBack]AutoSellScanWulingMain",
+            "[JumpBack]AutoSellExecuteWulingMain",
+            "AutoSellFinish"
+        ]
+    },
+    "AutoSellExecuteValleyIVMain": {
+        "desc": "执行四号谷地自动售卖流程",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoSellItemExecuteItemTaskAction",
+        "custom_action_param": {
+            "region": "ValleyIV",
+            "moderate_price": 4600,
+            "large_price": 5000,
+            "massive_price": 5300
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoSellExecuteWulingMain": {
+        "desc": "执行武陵自动售卖流程",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoSellItemExecuteItemTaskAction",
+        "custom_action_param": {
+            "region": "Wuling",
+            "moderate_price": 4600,
+            "large_price": 5000,
+            "massive_price": 5300
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoSellFinish": {
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

@@ -1,0 +1,295 @@
+{
+    "CleansingJadeJob": {
+        "desc": "漱玉任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckCleansingJadeText",
+            "CheckCleansingJadeIcon",
+            "CheckCleansingJadeReadyText"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "CleansingJadeExecute",
+            "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "failure_task": "CleansingJadeFailed"
+        },
+        "post_delay": 0
+    },
+    "CleansingJadeFailed": {
+        "desc": "漱玉任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.CleansingJade.failed"
+        }
+    },
+    "CleansingJadeExecute": {
+        "desc": "执行漱玉任务路线",
+        "next": [
+            "AcceptCleansingJade",
+            "GoToCleansingJadeMission"
+        ]
+    },
+    "CheckCleansingJadeText": {
+        "desc": "检查是否有漱玉文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "“漱玉”",
+            "「漱玉」",
+            "(?i)\"Cleansing\\s*Jade\"",
+            "「漱玉」",
+            "'수옥'"
+        ],
+        "replace": [],
+        "order_by": "Vertical"
+    },
+    "CheckCleansingJadeIcon": {
+        "desc": "检查漱玉文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckCleansingJadeText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
+    },
+    "CheckCleansingJadeReadyText": {
+        "desc": "检查漱玉委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckCleansingJadeIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckCleansingJadeJob": {
+        "desc": "检查漱玉委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckCleansingJadeIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckCleansingJadeGoToMissionText": {
+        "desc": "检查漱玉委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckCleansingJadeIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "InCleansingJadeMission": {
+        "desc": "是否在漱玉任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄在石柱上侧向生长的“漱玉”",
+            "拍攝在石柱上往側邊生長的「漱玉」",
+            "(?i)Photo:\\s*\"Cleansing\\s*Jade\"",
+            "石柱の横にある「漱玉」の写真を撮る",
+            "돌기둥 옆에서 자라는 '수옥'을 촬영하기"
+        ],
+        "replace": []
+    },
+    "AcceptCleansingJade": {
+        "desc": "接取漱玉委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckCleansingJadeText",
+            "CheckCleansingJadeIcon",
+            "CheckCleansingJadeJob"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "GoToCleansingJadeMission"
+        ]
+    },
+    "GoToCleansingJadeMission": {
+        "desc": "前往漱玉任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckCleansingJadeText",
+            "CheckCleansingJadeIcon",
+            "CheckCleansingJadeGoToMissionText"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "CleansingJadeTrackOrGoTo"
+        ]
+    },
+    "CleansingJadeTrackOrGoTo": {
+        "desc": "在漱玉任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续",
+        "recognition": "And",
+        "all_of": [
+            "InCleansingJadeMission"
+        ],
+        "next": [
+            "TrackCleansingJade",
+            "AlreadyTrackedCleansingJade"
+        ]
+    },
+    "TrackCleansingJade": {
+        "desc": "追踪漱玉任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InCleansingJadeMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToCleansingJade"
+        ]
+    },
+    "AlreadyTrackedCleansingJade": {
+        "desc": "漱玉任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InCleansingJadeMission"
+        ],
+        "next": [
+            "GoToCleansingJade"
+        ]
+    },
+    "CleansingJadeNotAdapted": {
+        "desc": "漱玉任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
+    "GoToCleansingJade": {
+        "desc": "前往漱玉，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "GoToCleansingJadeStartPos",
+            "GoToCleansingJadeNotAtStartPos"
+        ]
+    },
+    "GoToCleansingJadeStartPos": {
+        "desc": "在漱玉任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        255,
+                        395,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToCleansingJadeMove"
+        ]
+    },
+    "GoToCleansingJadeNotAtStartPos": {
+        "desc": "不在漱玉任务开始位置附近，先传送再检查落点",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley4"
+            ]
+        },
+        "next": [
+            "GoToCleansingJadeStartPos"
+        ]
+    },
+    "GoToCleansingJadeMove": {
+        "desc": "自动寻路前往漱玉",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    246,
+                    394
+                ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 300
+                }
+            }
+        },
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "CleansingJadeAdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "CleansingJadeAdjustCamera": {
+        "desc": "漱玉任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
+        ]
+    }
+}

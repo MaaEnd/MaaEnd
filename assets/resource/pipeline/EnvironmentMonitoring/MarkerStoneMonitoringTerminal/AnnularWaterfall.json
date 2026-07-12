@@ -1,0 +1,307 @@
+{
+    "AnnularWaterfallJob": {
+        "desc": "环形瀑布任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckAnnularWaterfallText",
+            "CheckAnnularWaterfallIcon",
+            "CheckAnnularWaterfallReadyText"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "AnnularWaterfallExecute",
+            "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "failure_task": "AnnularWaterfallFailed"
+        },
+        "post_delay": 0
+    },
+    "AnnularWaterfallFailed": {
+        "desc": "环形瀑布任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.AnnularWaterfall.failed"
+        }
+    },
+    "AnnularWaterfallExecute": {
+        "desc": "执行环形瀑布任务路线",
+        "next": [
+            "AcceptAnnularWaterfall",
+            "GoToAnnularWaterfallMission"
+        ]
+    },
+    "CheckAnnularWaterfallText": {
+        "desc": "检查是否有环形瀑布文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "环形瀑布",
+            "環形瀑布",
+            "(?i)Annular\\s*Waterfall",
+            "環状滝",
+            "원형 폭포"
+        ],
+        "replace": [],
+        "order_by": "Vertical"
+    },
+    "CheckAnnularWaterfallIcon": {
+        "desc": "检查环形瀑布文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckAnnularWaterfallText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
+    },
+    "CheckAnnularWaterfallReadyText": {
+        "desc": "检查环形瀑布委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckAnnularWaterfallIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckAnnularWaterfallJob": {
+        "desc": "检查环形瀑布委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckAnnularWaterfallIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckAnnularWaterfallGoToMissionText": {
+        "desc": "检查环形瀑布委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckAnnularWaterfallIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "InAnnularWaterfallMission": {
+        "desc": "是否在环形瀑布任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄祖泉周边的环形瀑布",
+            "拍攝祖泉周邊的環形瀑布",
+            "(?i)Photo:\\s*Annular\\s*Waterfall",
+            "祖泉周辺の環状滝の写真を撮る",
+            "선조의 샘 주변의 원형 폭포를 촬영하기"
+        ],
+        "replace": []
+    },
+    "AcceptAnnularWaterfall": {
+        "desc": "接取环形瀑布委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckAnnularWaterfallText",
+            "CheckAnnularWaterfallIcon",
+            "CheckAnnularWaterfallJob"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "GoToAnnularWaterfallMission"
+        ]
+    },
+    "GoToAnnularWaterfallMission": {
+        "desc": "前往环形瀑布任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckAnnularWaterfallText",
+            "CheckAnnularWaterfallIcon",
+            "CheckAnnularWaterfallGoToMissionText"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "AnnularWaterfallTrackOrGoTo"
+        ]
+    },
+    "AnnularWaterfallTrackOrGoTo": {
+        "desc": "在环形瀑布任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续",
+        "recognition": "And",
+        "all_of": [
+            "InAnnularWaterfallMission"
+        ],
+        "next": [
+            "TrackAnnularWaterfall",
+            "AlreadyTrackedAnnularWaterfall"
+        ]
+    },
+    "TrackAnnularWaterfall": {
+        "desc": "追踪环形瀑布任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InAnnularWaterfallMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToAnnularWaterfall"
+        ]
+    },
+    "AlreadyTrackedAnnularWaterfall": {
+        "desc": "环形瀑布任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InAnnularWaterfallMission"
+        ],
+        "next": [
+            "GoToAnnularWaterfall"
+        ]
+    },
+    "AnnularWaterfallNotAdapted": {
+        "desc": "环形瀑布任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
+    "GoToAnnularWaterfall": {
+        "desc": "前往环形瀑布，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "GoToAnnularWaterfallStartPos",
+            "GoToAnnularWaterfallNotAtStartPos"
+        ]
+    },
+    "GoToAnnularWaterfallStartPos": {
+        "desc": "在环形瀑布任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv003",
+                    "target": [
+                        496.1,
+                        360.1,
+                        19.3,
+                        14.3
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToAnnularWaterfallMove"
+        ]
+    },
+    "GoToAnnularWaterfallNotAtStartPos": {
+        "desc": "不在环形瀑布任务开始位置附近，先传送再检查落点",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingQingboStockade3"
+            ]
+        },
+        "next": [
+            "GoToAnnularWaterfallStartPos"
+        ]
+    },
+    "GoToAnnularWaterfallMove": {
+        "desc": "自动寻路前往环形瀑布",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv003",
+            "path": [
+                [
+                    498.8,
+                    360.5
+                ],
+                [
+                    501.1,
+                    347.9
+                ],
+                [
+                    506.4,
+                    334
+                ],
+                [
+                    507.4,
+                    330.5
+                ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 15
+                }
+            }
+        },
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "AnnularWaterfallAdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "AnnularWaterfallAdjustCamera": {
+        "desc": "环形瀑布任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
+        ]
+    }
+}

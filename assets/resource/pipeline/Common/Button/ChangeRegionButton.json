@@ -1,0 +1,71 @@
+{
+    "ChangeRegionButton": {
+        "desc": "地区建设中的更换地区按钮",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__ChangeRegionButton",
+                    "__ChangeRegionButtonHover"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ChangeRegionButton": {
+        "desc": "更换地区按钮常态模板，按短路优先顺序先于悬停态匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    24,
+                    190,
+                    88,
+                    101
+                ],
+                "template": [
+                    "Common/Button/ChangeRegionButton.png"
+                ],
+                "method": 10001,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ChangeRegionButtonHover": {
+        "desc": "更换地区按钮悬停态模板，仅在常态未命中时作为短路回退匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    24,
+                    190,
+                    88,
+                    101
+                ],
+                "template": [
+                    "Common/Button/ChangeRegionButtonHover.png"
+                ],
+                "method": 10001,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

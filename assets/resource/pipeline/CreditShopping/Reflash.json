@@ -1,0 +1,108 @@
+{
+    "RefreshText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1030,
+                    619,
+                    202,
+                    93
+                ],
+                "expected": [
+                    "立即刷新",
+                    "立即更新",
+                    "(?i)Refresh\\s*Now",
+                    "更新"
+                ]
+            }
+        }
+    },
+    "RefreshCost": {
+        "desc": "刷新花费",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1140,
+                    655,
+                    32,
+                    18
+                ],
+                "expected": [
+                    "^80$",
+                    "^120$",
+                    "^160$",
+                    "^200$"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "RefreshUsedUp": {
+        "desc": "刷新次数已用尽",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    885,
+                    535,
+                    395,
+                    185
+                ],
+                "expected": [
+                    "今日刷新次数已用尽",
+                    "今日更新次數已用盡",
+                    "(?i)Daily\\s*refreshes\\s*used\\s*up",
+                    "本日のリセット回数は上限到達",
+                    "刷新次数",
+                    "用尽"
+                ]
+            }
+        }
+    },
+    "RefreshButton": {
+        "desc": "刷新按钮",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "RefreshCost",
+                    "RefreshUsedUp"
+                ]
+            }
+        }
+    },
+    "RefreshColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "RefreshText",
+                "roi_offset": [
+                    0,
+                    0,
+                    60,
+                    0
+                ],
+                "lower": [
+                    243,
+                    0,
+                    0
+                ],
+                "upper": [
+                    255,
+                    168,
+                    168
+                ]
+            }
+        }
+    },
+    "CanNotFlash": {
+        "desc": "无法刷新（信用点不足）",
+        "recognition": "And",
+        "all_of": [
+            "RefreshText",
+            "RefreshColor"
+        ]
+    }
+}

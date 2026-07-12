@@ -1,0 +1,886 @@
+[
+    {
+        "MissionId": "m1m26",
+        "Name": "侵蚀潮中损坏的信标",
+        "Id": "BeaconDamagedInTheBlightTide",
+        "EnterMap": "SceneEnterWorldWulingWulingCity0",
+        "MapName": "map02_lv002",
+        "MapAssert": [
+            640,
+            255,
+            15,
+            15
+        ],
+        "MapPath": [
+            [
+                642,
+                272
+            ],
+            [
+                640,
+                299
+            ],
+            [
+                629,
+                301
+            ],
+            [
+                624,
+                302
+            ],
+            [
+                642,
+                317
+            ],
+            [
+                649,
+                317
+            ],
+            [
+                686,
+                318
+            ],
+            [
+                687,
+                329
+            ],
+            [
+                681,
+                333
+            ],
+            [
+                692,
+                344
+            ],
+            [
+                702,
+                345
+            ]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 90
+    },
+    {
+        "MissionId": "m1m27",
+        "Name": "蓄水源石虫",
+        "Id": "CisternOriginiumSlugs",
+        "EnterMap": "SceneEnterWorldWulingJingyuValley7",
+        "MapName": "Wuling_Base",
+        "MapAssert": [
+            747.21,
+            1516.86,
+            36.4,
+            31.87
+        ],
+        "MapTarget": [
+            794,
+            1546.21
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 235
+    },
+    {
+        "MissionId": "m1m28",
+        "Name": "七彩鳞",
+        "Id": "RainbowFin",
+        "EnterMap": "SceneEnterWorldWulingJingyuValley10",
+        "MapName": "map02_lv001",
+        "MapAssert": [
+            125,
+            815,
+            15,
+            15
+        ],
+        "MapPath": [
+            [
+                131,
+                820
+            ],
+            [
+                142,
+                818
+            ],
+            [
+                151,
+                813
+            ],
+            [
+                163,
+                808
+            ],
+            [
+                172,
+                799
+            ],
+            [
+                188,
+                789
+            ],
+            [
+                194,
+                765
+            ],
+            [
+                205,
+                755
+            ]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 45
+    },
+    {
+        "MissionId": "m1m29",
+        "Name": "室内作物",
+        "Id": "IndoorCrops",
+        "EnterMap": "SceneEnterWorldWulingWulingCity4",
+        "MapName": "Wuling_Base",
+        "MapAssert": [
+            517.16,
+            675.72,
+            31.13,
+            26.64
+        ],
+        "MapTarget": [
+            474.12,
+            716.18
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 180
+    },
+    {
+        "MissionId": "m1m30",
+        "Name": "古树",
+        "Id": "AncientTree",
+        "EnterMap": "SceneEnterWorldWulingJingyuValley7",
+        "MapName": "Wuling_Base",
+        "MapAssert": [
+            745.98,
+            1519.62,
+            54.24,
+            42.21
+        ],
+        "MapTarget": [
+            829.41,
+            1520.94
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 245
+    },
+    {
+        "MissionId": "m1m31",
+        "Name": "倒塌的天师桩",
+        "Id": "CollapsedTianshiPillar",
+        "EnterMap": "SceneEnterWorldWulingJingyuValley8",
+        "MapName": "Wuling_Base",
+        "MapAssert": [
+            671.75,
+            1564.08,
+            46.31,
+            54.57
+        ],
+        "MapTarget": [
+            644.99,
+            1561.89
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 290
+    },
+    {
+        "MissionId": "m1m32",
+        "Name": "“栖霞驻影”",
+        "Id": "EternalSunset",
+        "EnterMap": "SceneEnterWorldWulingJingyuValley2",
+        "MapName": "map02_lv001",
+        "MapAssert": [
+            315,
+            305,
+            15,
+            15
+        ],
+        "MapPath": [
+            [
+                332,
+                303
+            ],
+            [
+                346,
+                296
+            ]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 60
+    },
+    {
+        "MissionId": "m1m33",
+        "Name": "“漱玉”",
+        "Id": "CleansingJade",
+        "EnterMap": "SceneEnterWorldWulingJingyuValley4",
+        "MapName": "map02_lv001",
+        "MapAssert": [
+            255,
+            395,
+            15,
+            15
+        ],
+        "MapPath": [
+            [
+                246,
+                394
+            ]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 300
+    },
+    {
+        "MissionId": "m1m34",
+        "Name": "充满活力的蓄水源石虫",
+        "Id": "VigorousCisternOriginiumSlug",
+        "EnterMap": "SceneEnterWorldWulingJingyuValley8",
+        "MapName": "Wuling_Base",
+        "MapAssert": [
+            682.09,
+            1580.41,
+            44.2,
+            48.35
+        ],
+        "MapTarget": [
+            691.16,
+            1578.78
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 100
+    },
+    {
+        "MissionId": "m1m35",
+        "Name": "肚子鼓气后发光的吐虫长股兽",
+        "Id": "InflatedAndGlowingBugspittingLankybeast",
+        "EnterMap": "SceneEnterWorldWulingWulingCity7",
+        "MapName": "map02_lv002",
+        "MapAssert": [
+            416.7,
+            844.3,
+            11.4,
+            10.6
+        ],
+        "MapPath": [
+            [
+                426,
+                851.2
+            ],
+            [
+                437.3,
+                842.5
+            ]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 45
+    },
+    {
+        "MissionId": "m1m36",
+        "Name": "东张西望的黑腹雉羽兽",
+        "Id": "ObservantSableChestedFowlbeast",
+        "EnterMap": "SceneEnterWorldWulingJingyuValley0",
+        "MapName": "map02_lv001",
+        "MapAssert": [
+            342.2,
+            124.2,
+            4,
+            4
+        ],
+        "MapPath": [
+            [
+                349.9,
+                128
+            ],
+            [
+                373.3,
+                135.6
+            ]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 105
+    },
+    {
+        "MissionId": "m1m37",
+        "Name": "储备站周围的生态环境",
+        "Id": "EcologyNearTheFieldLogisticsDepot",
+        "EnterMap": "SceneEnterWorldWulingWulingCity8",
+        "MapName": "map02_lv002",
+        "MapAssert": [
+            684.3,
+            910.9,
+            20.5,
+            20.5
+        ],
+        "MapGoal": [
+            618.8,
+            901.6
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft",
+        "Heading": 270
+    },
+    {
+        "MissionId": "m1m38",
+        "Name": "水灯虫",
+        "Id": "Waterlamp",
+        "EnterMap": "SceneEnterWorldWulingWulingCity7",
+        "MapName": "map02_lv002",
+        "MapAssert": [
+            420.3,
+            848,
+            10.3,
+            8.9
+        ],
+        "MapPath": [
+            [
+                429.3,
+                844
+            ]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 30
+    },
+    {
+        "MissionId": "m1m39",
+        "Name": "枢壤仪",
+        "Id": "XiraniteNexus",
+        "EnterMap": "SceneEnterWorldWulingWulingCity4",
+        "MapName": "map02_lv002",
+        "MapAssert": [
+            240,
+            695,
+            15,
+            15
+        ],
+        "MapPath": [
+            [
+                242.3,
+                703.6
+            ],
+            [
+                216.2,
+                703.7
+            ],
+            [
+                214.6,
+                693.7
+            ],
+            [
+                196.1,
+                680.2
+            ],
+            [
+                184.7,
+                680.2
+            ],
+            [
+                178.6,
+                675.2
+            ],
+            [
+                171.8,
+                674.6
+            ]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 270
+    },
+    {
+        "MissionId": "m1m40",
+        "Name": "码头水车",
+        "Id": "PierWaterwheel",
+        "EnterMap": "SceneEnterWorldWulingJingyuValley1",
+        "MapName": "map02_lv001",
+        "MapAssert": [
+            492.5,
+            178,
+            13.2,
+            13
+        ],
+        "MapPath": [
+            [
+                504.6,
+                189
+            ],
+            [
+                512,
+                192
+            ]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 105
+    },
+    {
+        "MissionId": "m1m56",
+        "Name": "小壳兽",
+        "Id": "MiniShellbeast",
+        "EnterMap": "SceneEnterWorldWulingWulingCity4",
+        "MapName": "map02_lv002",
+        "MapAssert": [
+            238.6,
+            694.1,
+            15.2,
+            14.6
+        ],
+        "MapPath": [
+            [
+                240.8,
+                704.8
+            ],
+            [
+                215.7,
+                706.1
+            ],
+            [
+                217.1,
+                702.7
+            ]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Replace": [
+            [
+                "売",
+                "壳"
+            ]
+        ],
+        "Heading": 15
+    },
+    {
+        "MissionId": "m1m57",
+        "Name": "环形瀑布",
+        "Id": "AnnularWaterfall",
+        "EnterMap": "SceneEnterWorldWulingQingboStockade3",
+        "MapName": "map02_lv003",
+        "MapAssert": [
+            496.1,
+            360.1,
+            19.3,
+            14.3
+        ],
+        "MapPath": [
+            [
+                498.8,
+                360.5
+            ],
+            [
+                501.1,
+                347.9
+            ],
+            [
+                506.4,
+                334
+            ],
+            [
+                507.4,
+                330.5
+            ]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 15
+    },
+    {
+        "MissionId": "m1m58",
+        "Name": "水竹铃",
+        "Id": "BambooWaterChimes",
+        "EnterMap": "SceneEnterWorldWulingQingboStockade1",
+        "MapName": "map02_lv003",
+        "MapAssert": [
+            300,
+            460,
+            15,
+            15
+        ],
+        "MapPath": [
+            [
+                291.7,
+                473.5
+            ],
+            [
+                269.9,
+                474.2
+            ],
+            [
+                269.6,
+                464.1
+            ],
+            [
+                268.8,
+                458.1
+            ]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft",
+        "Heading": 345
+    },
+    {
+        "MissionId": "m1m59",
+        "Name": "枯枝",
+        "Id": "WitheredBranches",
+        "EnterMap": "SceneEnterWorldWulingQingboStockade3",
+        "MapName": "map02_lv003",
+        "MapAssert": [
+            496.1,
+            360.1,
+            19.3,
+            14.3
+        ],
+        "MapPath": [
+            [
+                506.3,
+                378
+            ],
+            [
+                507.5,
+                379.2
+            ]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 135
+    },
+    {
+        "MissionId": "m1m60",
+        "Name": "谜之生物的涂鸦",
+        "Id": "MysteriousCryptidGraffiti",
+        "EnterMap": "SceneEnterWorldWulingQingboStockade2",
+        "MapName": "map02_lv003",
+        "MapAssert": [
+            384.5,
+            542,
+            28,
+            28
+        ],
+        "MapPath": [
+            [
+                407.4,
+                548.1
+            ],
+            [
+                420.8,
+                537.6
+            ],
+            [
+                434.6,
+                527.3
+            ],
+            [
+                438.2,
+                523.6
+            ],
+            [
+                437.4,
+                519.3
+            ],
+            [
+                435.2,
+                515.8
+            ],
+            [
+                435,
+                505.6
+            ],
+            [
+                436.2,
+                503.6
+            ],
+            [
+                438.8,
+                503.1
+            ],
+            [
+                441.3,
+                503.1
+            ],
+            [
+                442.5,
+                508
+            ],
+            [
+                445,
+                513
+            ],
+            [
+                445.1,
+                519.3
+            ],
+            [
+                442.5,
+                525.4
+            ],
+            [
+                441.3,
+                528
+            ],
+            [
+                442.5,
+                531.7
+            ]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft",
+        "Heading": 165
+    },
+    {
+        "MissionId": "m1m61",
+        "Name": "“旧庭树”",
+        "Id": "TreeOfTheOldCourtyard",
+        "EnterMap": "SceneEnterWorldWulingMarkerStone1",
+        "MapName": "Wuling_Base",
+        "MapAssert": [
+            480.76,
+            1056.91,
+            21.99,
+            23.92
+        ],
+        "MapTarget": [
+            98.4,
+            111
+        ],
+        "MapTargetTier": "Wuling_L4_330",
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 180
+    },
+    {
+        "MissionId": "m1m62",
+        "Name": "垂藤",
+        "Id": "HangingVines",
+        "EnterMap": "SceneEnterWorldWulingMarkerStone3",
+        "MapName": "map02_lv004",
+        "MapAssert": [
+            602.8,
+            325,
+            9.7,
+            8.1
+        ],
+        "MapGoal": [
+            579.2,
+            253.7
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "CameraMaxHit": 3,
+        "Heading": 90
+    },
+    {
+        "MissionId": "m1m63",
+        "Name": "植物观察点",
+        "Id": "FloraObservationPoint",
+        "EnterMap": "SceneEnterWorldWulingMarkerStone3",
+        "MapName": "Wuling_Base",
+        "MapAssert": [
+            567.66,
+            1154.92,
+            65.56,
+            55.32
+        ],
+        "MapTarget": [
+            93.84,
+            185.41
+        ],
+        "MapTargetTier": "Wuling_L4_330",
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft",
+        "Heading": 0
+    },
+    {
+        "MissionId": "m1m64",
+        "Name": "栖云生态点",
+        "Id": "CloudrestEcoSite",
+        "EnterMap": "SceneEnterWorldWulingMarkerStone3",
+        "MapName": "map02_lv004",
+        "MapAssert": [
+            602.8,
+            325,
+            9.7,
+            8.1
+        ],
+        "MapGoal": [
+            438.1,
+            509.2
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "CameraMaxHit": 4,
+        "Heading": 180
+    },
+    {
+        "MissionId": "m1m65",
+        "Name": "彩虹",
+        "Id": "Rainbow",
+        "EnterMap": "SceneEnterWorldWulingMarkerStone4",
+        "MapName": "map02_lv004_tier_328",
+        "MapAssert": [
+            508.2,
+            663,
+            18.1,
+            15.6
+        ],
+        "MapPath": [
+            [
+                520.2,
+                672.8
+            ],
+            [
+                522.8,
+                664
+            ],
+            [
+                507.3,
+                648.5
+            ],
+            [
+                506,
+                623.9
+            ],
+            [
+                516.4,
+                603.9
+            ],
+            [
+                504,
+                591.6
+            ],
+            [
+                500.1,
+                591.6
+            ],
+            [
+                497.9,
+                592.8
+            ],
+            [
+                492.8,
+                603.9
+            ],
+            [
+                489,
+                606.4
+            ],
+            [
+                477.1,
+                603.3
+            ]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 260
+    },
+    {
+        "MissionId": "m1m66",
+        "Name": "念念家的桃树",
+        "Id": "PeachTreeAtBabblesSHome",
+        "EnterMap": "SceneEnterWorldWulingMarkerStone4",
+        "MapName": "map02_lv004_tier_328",
+        "MapAssert": [
+            514,
+            666,
+            15,
+            15
+        ],
+        "MapPath": [
+            [
+                520.3,
+                672.8
+            ],
+            [
+                524.7,
+                665.8
+            ]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 90
+    },
+    {
+        "MissionId": "m1m67",
+        "Name": "净水温控装置",
+        "Id": "WaterTemperatureController",
+        "EnterMap": "SceneEnterWorldWulingMarkerStone2",
+        "MapName": "map02_lv004",
+        "MapAssert": [
+            408.5,
+            312.7,
+            16.8,
+            18.2
+        ],
+        "MapPath": [
+            [
+                418.8,
+                321.3
+            ],
+            [
+                418.8,
+                327
+            ],
+            [
+                415.2,
+                327
+            ],
+            [
+                415,
+                321.4
+            ],
+            [
+                395,
+                321.4
+            ],
+            [
+                323.7,
+                321.3
+            ],
+            [
+                322.8,
+                278
+            ],
+            [
+                332.7,
+                271.1
+            ],
+            [
+                333.5,
+                264.2
+            ],
+            [
+                333.7,
+                254.5
+            ],
+            [
+                350,
+                255.1
+            ],
+            [
+                358.8,
+                255.1
+            ],
+            [
+                358.8,
+                238.8
+            ],
+            [
+                343.8,
+                238.8
+            ]
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "NoEnsureInitialMovementState": true,
+        "Heading": 270
+    },
+    {
+        "MissionId": "m1m68",
+        "Name": "安思园的天师桩",
+        "Id": "SerenityGardenTianshiPillar",
+        "EnterMap": "SceneEnterWorldWulingMarkerStone2",
+        "MapName": "map02_lv004",
+        "MapAssert": [
+            402.4,
+            313.4,
+            20.8,
+            17.4
+        ],
+        "MapGoal": [
+            295.1,
+            403.8
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "NoEnsureInitialMovementState": true,
+        "Heading": 270,
+        "Replace": [
+            [
+                "椿",
+                "樁"
+            ]
+        ]
+    }
+]

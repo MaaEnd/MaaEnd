@@ -1,0 +1,926 @@
+{
+    // ===== 售卖点顶层节点 =====
+    "SellProductCardiacRemediationStation": {
+        "desc": "心脏修缮站售卖",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckCardiacRemediationStationTabText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSell",
+            "[JumpBack]SellProductGoToCardiacRemediationStation"
+        ]
+    },
+    // ===== 售卖锚点节点 =====
+    "SellProductCardiacRemediationStationSell": {
+        "desc": "心脏修缮站售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInCardiacRemediationStation"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
+            "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
+            "SellProductSellAttempt1": "SellProductCardiacRemediationStationSellAttempt1",
+            "SellProductSellAttempt2": "SellProductCardiacRemediationStationSellAttempt2",
+            "SellProductSellAttempt3": "SellProductCardiacRemediationStationSellAttempt3",
+            "SellProductSellAttempt4": "SellProductCardiacRemediationStationSellAttempt4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSetBeforeSellOperatorAnchor"
+        ]
+    },
+    "SellProductCardiacRemediationStationSetBeforeSellOperatorAnchor": {
+        "desc": "心脏修缮站设置售卖前联络干员锚点",
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductBeforeSellOperator": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor"
+        ]
+    },
+    "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
+        "desc": "心脏修缮站设置售卖后恢复干员锚点",
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductAfterSellOperator": "SellProductAfterSellOperator"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]SellProductBeforeSellOperator",
+            "SellProductSellLoop"
+        ]
+    },
+    // ===== 售卖前联络干员切换 =====
+    "SellProductCardiacRemediationStationBeforeSellOperator": {
+        "desc": "心脏修缮站售卖前检查并切换联络干员",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationCurrentTargetOperator",
+            "SellProductCardiacRemediationStationOpenTargetOperatorList"
+        ]
+    },
+    "SellProductCardiacRemediationStationCurrentTargetOperator": {
+        "desc": "心脏修缮站当前联络干员已是售卖用干员",
+        "recognition": "OCR",
+        "roi": [
+            268,
+            568,
+            190,
+            35
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ]
+    },
+    "SellProductCardiacRemediationStationOpenTargetOperatorList": {
+        "desc": "心脏修缮站打开联络干员列表以切换售卖用干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOpenOperatorLiaisonButton",
+            "SellProductInCardiacRemediationStation"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationInTargetOperatorList"
+        ]
+    },
+    "SellProductCardiacRemediationStationInTargetOperatorList": {
+        "desc": "心脏修缮站已打开联络干员列表，选择售卖用干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSelectTargetOperator",
+            "SellProductCardiacRemediationStationSwipeTargetOperatorList",
+            "SellProductCardiacRemediationStationTargetOperatorNotFound"
+        ]
+    },
+    "SellProductCardiacRemediationStationSelectTargetOperator": {
+        "desc": "心脏修缮站在联络干员列表中选择售卖用干员",
+        "recognition": "OCR",
+        "roi": [
+            164,
+            121,
+            700,
+            430
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationConfirmTargetOperator"
+        ]
+    },
+    "SellProductCardiacRemediationStationConfirmTargetOperator": {
+        "desc": "心脏修缮站点击派驻确认售卖用干员",
+        "recognition": "OCR",
+        "roi": [
+            900,
+            540,
+            330,
+            135
+        ],
+        "expected": [
+            "派驻",
+            "派駐",
+            "Assign",
+            "派遣",
+            "배치"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                190,
+                160,
+                360,
+                150
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationCloseTargetOperatorLiaison"
+        ]
+    },
+    "SellProductCardiacRemediationStationCloseTargetOperatorLiaison": {
+        "desc": "心脏修缮站关闭售卖用联络干员列表",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationTargetOperatorDone"
+        ]
+    },
+    "SellProductCardiacRemediationStationTargetOperatorDone": {
+        "desc": "心脏修缮站售卖用干员派驻完成，回到售卖循环",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInCardiacRemediationStation"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ]
+    },
+    "SellProductCardiacRemediationStationSwipeTargetOperatorList": {
+        "desc": "心脏修缮站在联络干员列表中向下滑动查找售卖用干员",
+        "max_hit": 8,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison"
+        ],
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            620,
+            520
+        ],
+        "end": [
+            [
+                620,
+                285
+            ],
+            [
+                760,
+                285
+            ]
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationInTargetOperatorList"
+        ]
+    },
+    "SellProductCardiacRemediationStationTargetOperatorNotFound": {
+        "desc": "心脏修缮站未找到配置的售卖用干员，停止任务",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison"
+        ],
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "未在联络干员列表中找到配置的售卖用干员，请确认干员已持有或调整据点配置"
+        }
+    },
+    // ===== 售卖后联络干员恢复 =====
+    "SellProductCardiacRemediationStationAfterSellOperator": {
+        "desc": "心脏修缮站售卖后恢复联络干员",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationCurrentRestoreOperator",
+            "SellProductCardiacRemediationStationOpenRestoreOperatorList"
+        ]
+    },
+    "SellProductCardiacRemediationStationCurrentRestoreOperator": {
+        "desc": "心脏修缮站当前联络干员已是恢复目标",
+        "recognition": "OCR",
+        "roi": [
+            268,
+            568,
+            190,
+            35
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProductCardiacRemediationStationOpenRestoreOperatorList": {
+        "desc": "心脏修缮站打开联络干员列表以恢复干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOpenOperatorLiaisonButton",
+            "SellProductInCardiacRemediationStation"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationInRestoreOperatorList"
+        ]
+    },
+    "SellProductCardiacRemediationStationInRestoreOperatorList": {
+        "desc": "心脏修缮站已打开联络干员列表，选择恢复干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSelectRestoreOperator",
+            "SellProductCardiacRemediationStationSwipeRestoreOperatorList",
+            "SellProductCardiacRemediationStationRestoreOperatorNotFound"
+        ]
+    },
+    "SellProductCardiacRemediationStationSelectRestoreOperator": {
+        "desc": "心脏修缮站在联络干员列表中选择恢复干员",
+        "recognition": "OCR",
+        "roi": [
+            164,
+            121,
+            700,
+            430
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationConfirmRestoreOperator"
+        ]
+    },
+    "SellProductCardiacRemediationStationConfirmRestoreOperator": {
+        "desc": "心脏修缮站点击派驻确认恢复干员",
+        "recognition": "OCR",
+        "roi": [
+            900,
+            540,
+            330,
+            135
+        ],
+        "expected": [
+            "派驻",
+            "派駐",
+            "Assign",
+            "派遣",
+            "배치"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                190,
+                160,
+                360,
+                150
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationCloseRestoreOperatorLiaison"
+        ]
+    },
+    "SellProductCardiacRemediationStationCloseRestoreOperatorLiaison": {
+        "desc": "心脏修缮站关闭恢复干员联络干员列表",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationRestoreOperatorDone"
+        ]
+    },
+    "SellProductCardiacRemediationStationRestoreOperatorDone": {
+        "desc": "心脏修缮站恢复干员派驻完成",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInCardiacRemediationStation"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProductCardiacRemediationStationSwipeRestoreOperatorList": {
+        "desc": "心脏修缮站在联络干员列表中向下滑动查找恢复干员",
+        "max_hit": 8,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison"
+        ],
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            620,
+            520
+        ],
+        "end": [
+            [
+                620,
+                285
+            ],
+            [
+                760,
+                285
+            ]
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationInRestoreOperatorList"
+        ]
+    },
+    "SellProductCardiacRemediationStationRestoreOperatorNotFound": {
+        "desc": "心脏修缮站未找到配置的恢复干员，停止任务",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison"
+        ],
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "未在联络干员列表中找到配置的恢复干员，请确认干员已持有或调整据点配置"
+        }
+    },
+    // ===== 在指定据点的识别节点 =====
+    "SellProductInCardiacRemediationStation": {
+        "desc": "在心脏修缮站",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckCardiacRemediationStationText",
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // ===== 前往据点导航节点 =====
+    "SellProductGoToCardiacRemediationStation": {
+        "desc": "前往心脏修缮站据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInWulingOutpost",
+            "SellProductCheckCardiacRemediationStationTabText"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductInCardiacRemediationStation"
+        ]
+    },
+    // ===== 标签页文本检查（小文本） =====
+    "SellProductCheckCardiacRemediationStationTabText": {
+        "desc": "检查心脏修缮站文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            1280,
+            160
+        ],
+        "expected": [
+            "心脏修缮站",
+            "心臟修繕站",
+            "心臓修復施設",
+            "(?i)^Cardiac\\s*Remediation\\s*Station$"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // ===== 据点内大字文本检查 =====
+    "SellProductCheckCardiacRemediationStationText": {
+        "desc": "检查心脏修缮站大字文本",
+        "recognition": "OCR",
+        "roi": [
+            198,
+            167,
+            331,
+            127
+        ],
+        "expected": [
+            "心脏修缮站",
+            "心臟修繕站",
+            "心臓修復施設",
+            "(?i)^Cardiac\\s*Remediation\\s*Station$"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    // ===== 售卖尝试 1 =====
+    "SellProductCardiacRemediationStationSellAttempt1": {
+        "desc": "心脏修缮站第1次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem1",
+            "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSellAttempt1SetMissHandler"
+        ]
+    },
+    "SellProductCardiacRemediationStationSellAttempt1SetMissHandler": {
+        "desc": "心脏修缮站第1次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 售卖尝试 2 =====
+    "SellProductCardiacRemediationStationSellAttempt2": {
+        "desc": "心脏修缮站第2次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem2",
+            "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding2"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSellAttempt2SetMissHandler"
+        ]
+    },
+    "SellProductCardiacRemediationStationSellAttempt2SetMissHandler": {
+        "desc": "心脏修缮站第2次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 售卖尝试 3 =====
+    "SellProductCardiacRemediationStationSellAttempt3": {
+        "desc": "心脏修缮站第3次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem3",
+            "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding3"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSellAttempt3SetMissHandler"
+        ]
+    },
+    "SellProductCardiacRemediationStationSellAttempt3SetMissHandler": {
+        "desc": "心脏修缮站第3次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 售卖尝试 4 =====
+    "SellProductCardiacRemediationStationSellAttempt4": {
+        "desc": "心脏修缮站第4次尝试：先换货再售卖",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductCardiacRemediationStationSelectItem4",
+            "SellProductBetterSliding": "SellProductCardiacRemediationStationBetterSliding4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSellAttempt4SetMissHandler"
+        ]
+    },
+    "SellProductCardiacRemediationStationSellAttempt4SetMissHandler": {
+        "desc": "心脏修缮站第4次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+        "recognition": "DirectHit",
+        "anchor": {
+            "SellProductPriorityGoodMissHandler": ""
+        },
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    // ===== 优先物品 1 =====
+    "SellProductCardiacRemediationStationSelectItem1": {
+        "desc": "心脏修缮站售卖优先物品1",
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "SellProductNormalizedItemMatch",
+        "custom_recognition_param": {
+            "candidates": []
+        },
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    // ===== 优先物品 2 =====
+    "SellProductCardiacRemediationStationSelectItem2": {
+        "desc": "心脏修缮站售卖优先物品2",
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "SellProductNormalizedItemMatch",
+        "custom_recognition_param": {
+            "candidates": []
+        },
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    // ===== 优先物品 3 =====
+    "SellProductCardiacRemediationStationSelectItem3": {
+        "desc": "心脏修缮站售卖优先物品3",
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "SellProductNormalizedItemMatch",
+        "custom_recognition_param": {
+            "candidates": []
+        },
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    // ===== 优先物品 4 =====
+    "SellProductCardiacRemediationStationSelectItem4": {
+        "desc": "心脏修缮站售卖优先物品4",
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "SellProductNormalizedItemMatch",
+        "custom_recognition_param": {
+            "candidates": []
+        },
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "SellProductSelectGoodFirstTime": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductCardiacRemediationStationBetterSliding1": {
+        "desc": "心脏修缮站第1次尝试-使用 BetterSliding 设置售卖数量",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "MaxTarget": {
+                "Box": [
+                    1073,
+                    327,
+                    119,
+                    25
+                ],
+                "OnlyRec": true
+            },
+            "Quantity": {
+                "Box": [
+                    1107,
+                    535,
+                    74,
+                    29
+                ],
+                "OnlyRec": true
+            },
+            "Direction": "right",
+            "DecreaseButton": "SellProduct/DecreaseButton.png",
+            "IncreaseButton": "SellProduct/IncreaseButton.png",
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSell"
+        ]
+    },
+    "SellProductCardiacRemediationStationBetterSliding2": {
+        "desc": "心脏修缮站第2次尝试-使用 BetterSliding 设置售卖数量",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "MaxTarget": {
+                "Box": [
+                    1073,
+                    327,
+                    119,
+                    25
+                ],
+                "OnlyRec": true
+            },
+            "Quantity": {
+                "Box": [
+                    1107,
+                    535,
+                    74,
+                    29
+                ],
+                "OnlyRec": true
+            },
+            "Direction": "right",
+            "DecreaseButton": "SellProduct/DecreaseButton.png",
+            "IncreaseButton": "SellProduct/IncreaseButton.png",
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSell"
+        ]
+    },
+    "SellProductCardiacRemediationStationBetterSliding3": {
+        "desc": "心脏修缮站第3次尝试-使用 BetterSliding 设置售卖数量",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "MaxTarget": {
+                "Box": [
+                    1073,
+                    327,
+                    119,
+                    25
+                ],
+                "OnlyRec": true
+            },
+            "Quantity": {
+                "Box": [
+                    1107,
+                    535,
+                    74,
+                    29
+                ],
+                "OnlyRec": true
+            },
+            "Direction": "right",
+            "DecreaseButton": "SellProduct/DecreaseButton.png",
+            "IncreaseButton": "SellProduct/IncreaseButton.png",
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSell"
+        ]
+    },
+    "SellProductCardiacRemediationStationBetterSliding4": {
+        "desc": "心脏修缮站第4次尝试-使用 BetterSliding 设置售卖数量",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "MaxTarget": {
+                "Box": [
+                    1073,
+                    327,
+                    119,
+                    25
+                ],
+                "OnlyRec": true
+            },
+            "Quantity": {
+                "Box": [
+                    1107,
+                    535,
+                    74,
+                    29
+                ],
+                "OnlyRec": true
+            },
+            "Direction": "right",
+            "DecreaseButton": "SellProduct/DecreaseButton.png",
+            "IncreaseButton": "SellProduct/IncreaseButton.png",
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
+        },
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSell"
+        ]
+    }
+}

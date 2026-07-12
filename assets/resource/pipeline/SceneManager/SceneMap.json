@@ -1,0 +1,531 @@
+{
+    "__ScenePrivateMapEnterMapNotDijiangSuccess": {
+        "desc": "在地图界面，进入非帝江号地图成功",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -260,
+                    0,
+                    260,
+                    160
+                ],
+                "expected": [
+                    "[Oo].?[Mm].?[Vv]"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMapEnterTeleport": {
+        "desc": "在地图界面，随机选择一个传送点进入",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -350,
+                                    0,
+                                    350,
+                                    60
+                                ],
+                                "template": [
+                                    "SceneManager/MapMind.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    0,
+                                    0
+                                ],
+                                "template": [
+                                    "SceneManager/MapTeleport.png"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapTeleportChoose": {
+        "desc": "判断是否有多个图标重叠，导致出现候选条目",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -500,
+                    350,
+                    400,
+                    300
+                ],
+                "expected": [
+                    "协议传送点",
+                    "協議傳送點",
+                    "(?i)TP\\s*Point",
+                    "協約転送ポイント",
+                    "프로토콜 전송 지점"
+                ]
+            }
+        },
+        "pre_wait_freezes": 100,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        }
+    },
+    "__ScenePrivateMapTeleportConfirm": {
+        "desc": "点击确认传送",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -150,
+                    -150,
+                    150,
+                    150
+                ],
+                "template": [
+                    "Common/Button/TeleportButton.png",
+                    "Common/Button/TeleportButtonHover.png"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "[JumpBack]SceneWaitLoadingExit",
+            "__ScenePrivateMapTeleportSuccess"
+        ]
+    },
+    "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear": {
+        "desc": "点击确认传送，并且清除锚点",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -150,
+                    -150,
+                    150,
+                    150
+                ],
+                "template": [
+                    "Common/Button/TeleportButton.png",
+                    "Common/Button/TeleportButtonHover.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "anchor": {
+            "__ScenePrivateMapSwipeToStep0Anchor": "",
+            "__ScenePrivateMapSwipeToStep1Anchor": "",
+            "__ScenePrivateMapSwipeToStep2Anchor": "",
+            "__ScenePrivateMapSwipeToStep3Anchor": "",
+            "__ScenePrivateMapSwipeToStep4Anchor": ""
+        },
+        "next": [
+            "[JumpBack]SceneWaitLoadingExit",
+            "__ScenePrivateMapTeleportSuccess"
+        ]
+    },
+    "__ScenePrivateMapTeleportSuccess": {
+        "desc": "进入大世界，传送成功",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "pre_wait_freezes": {
+            "target": [
+                70,
+                80,
+                70,
+                60
+            ],
+            "time": 800,
+            "timeout": 2000
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMapAnyEnterMapOverview": {
+        "desc": "在任意地图界面，进入地区总览地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapDijiangEnterMapOverview",
+            "__ScenePrivateMapOtherAreaEnterMapOverview"
+        ]
+    },
+    "__ScenePrivateMapDijiangEnterMapOverview": {
+        "desc": "在帝江号地图，进入地区总览界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -250,
+                    0,
+                    250,
+                    160
+                ],
+                "template": [
+                    "SceneManager/MapExitDijiang.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 400,
+        "next": [
+            "__ScenePrivateMapAnyEnterMapOverviewSuccess"
+        ]
+    },
+    "__ScenePrivateMapOtherAreaEnterMapOverview": {
+        "desc": "在其他区域，进入地区总览界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -400,
+                    -200,
+                    400,
+                    200
+                ],
+                "template": [
+                    "SceneManager/MapOverviewEnter.png",
+                    "SceneManager/MapOverviewEnterHover.png"
+                ],
+                "green_mask": true,
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 400,
+        "next": [
+            "__ScenePrivateMapAnyEnterMapOverviewSuccess"
+        ]
+    },
+    "__ScenePrivateMapAnyEnterMapOverviewSuccess": {
+        "desc": "在任意地图界面，成功进入地区总览界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -450,
+                    -150,
+                    350,
+                    150
+                ],
+                "template": [
+                    "SceneManager/MapOverviewValleyIVChoose.png",
+                    "SceneManager/MapOverviewValleyIVNotChoose.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMapZoomOut": {
+        "desc": "在地图界面，缩小地图",
+        "recognition": "ColorMatch",
+        "roi": [
+            1225,
+            423,
+            26,
+            26
+        ],
+        "lower": [
+            200,
+            200,
+            200
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "connected": true,
+        "count": 150,
+        "action": "LongPress",
+        "duration": 2000,
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ],
+            "time": 400
+        }
+    },
+    "__ScenePrivateMapFilterClear": {
+        "desc": "在地图界面，清除筛选条件",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            -120,
+            220,
+            120
+        ],
+        "template": "SceneManager/MapFilterNotChoose.png",
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "next": [
+            "__ScenePrivateMapFilterClearAll"
+        ]
+    },
+    "__ScenePrivateMapLayerSwitchToMain": {
+        "desc": "在分层地图，切换到主地图",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "layers_other",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    -200,
+                    250,
+                    200
+                ],
+                "template": [
+                    "SceneManager/MapLayersOther.png"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": "layers_other",
+                "lower": [
+                    245,
+                    229,
+                    0
+                ],
+                "upper": [
+                    255,
+                    249,
+                    10
+                ],
+                "connected": true,
+                "count": 10
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    -400,
+                    250,
+                    400
+                ],
+                "template": [
+                    "SceneManager/MapLayersMain.png"
+                ]
+            }
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "target_offset": [
+            7,
+            7,
+            -14,
+            -14
+        ],
+        "post_wait_freezes": 200
+    },
+    "__ScenePrivateMapFilterClearAll": {
+        "desc": "在标记显示管理界面，点击清空选中",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            -120,
+            220,
+            120
+        ],
+        "expected": [
+            "清空选中",
+            "清除選取",
+            "(?i)Clear\\s*All",
+            "一括解除",
+            "クリア選択",
+            "Clear Selection",
+            "선택 해제"
+        ],
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "__ScenePrivateMapFilterClose"
+        ]
+    },
+    "__ScenePrivateMapFilterClose": {
+        "desc": "在标记显示管理界面，点击关闭",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            200,
+            80
+        ],
+        "expected": [
+            "标记显示管理",
+            "標記顯示管理",
+            "(?i)Marker\\s*Tags",
+            "ソート",
+            "표식 관리"
+        ],
+        "action": "Click",
+        "target_offset": [
+            500,
+            0,
+            0,
+            0
+        ],
+        "next": [
+            "__ScenePrivateAnyEnterMapSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMapSuccess": {
+        "desc": "成功进入地图，左上角和右上角都没有窗口遮挡",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -350,
+                    0,
+                    350,
+                    60
+                ],
+                "template": [
+                    "SceneManager/MapMind.png"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    100
+                ],
+                "expected": [
+                    "事务提醒",
+                    "事務提醒",
+                    "Mission Reminder",
+                    "Reminder",
+                    "業務通知",
+                    "업무 알림"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "post_wait_freezes": 100,
+        "post_delay": 0
+    },
+    "__ScenePrivateMapTeleportClose": {
+        "desc": "在地图界面，关闭传送弹窗",
+        "recognition": "OCR",
+        "roi": [
+            -360,
+            0,
+            200,
+            120
+        ],
+        "expected": [
+            "协议传送点",
+            "協議傳送點",
+            "(?i)TP\\s*Point",
+            "協約転送ポイント",
+            "프로토콜 전송 지점"
+        ],
+        "action": "Click",
+        "target_offset": [
+            -300,
+            0,
+            0,
+            0
+        ],
+        "next": [
+            "__ScenePrivateAnyEnterMapSuccess"
+        ]
+    },
+    "__ScenePrivateWorldEnterMapAny": {
+        "desc": "在大世界界面，进入地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction",
+                "target": [
+                    90,
+                    90,
+                    50,
+                    50
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateAnyEnterMapSuccess"
+        ]
+    }
+}

@@ -1,0 +1,80 @@
+{
+    "configs": {
+        "name": "转交委托，测试打包货物",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_选择装箱货物类型.png",
+            "hits": [
+                "DeliveryJobsInCargoPackGoods",
+                "DeliveryJobsSelectTypeOfGoodsToPackNextStep"
+            ]
+        },
+        {
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_填充货物.png",
+            "hits": [
+                "DeliveryJobsCargoFillToMax",
+                "DeliveryJobsSelectItemToFillValleyIV"
+            ]
+        },
+        {
+            "image": "武陵_地区建设_仓储节点_货物装箱_填充货物.png",
+            "hits": [
+                "DeliveryJobsCargoFillToMax",
+                "DeliveryJobsSelectItemToFillWuling"
+            ]
+        },
+        {
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_选择填充的货物.png",
+            "hits": [
+                "DeliveryJobsFillCorrespondingGoods",
+                "DeliveryJobsCargoFillToMax",
+                "DeliveryJobsSelectItemToFillValleyIV"
+            ]
+        },
+        {
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_填充至满.png",
+            "hits": [
+                "DeliveryJobsFillToMaxNextStep",
+                "DeliveryJobsCargoFillToMax",
+                "DeliveryJobsSelectItemToFillValleyIV"
+            ]
+        },
+        {
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_竞价中.png",
+            "hits": [
+                "DeliveryJobsCargoBid"
+            ]
+        },
+        {
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_调度申请.png",
+            "hits": [
+                "DeliveryJobsInCargoRedistributionBid"
+            ]
+        },
+        {
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_调度申请_有待运送的货物.png",
+            "hits": [
+                "DeliveryJobsOngoingDelivery",
+                "DeliveryJobsInCargoRedistributionBid"
+            ]
+        },
+        {
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_开始运送后动画.png",
+            "hits": [
+                "DeliveryJobsDeliverQuickly"
+            ]
+        },
+        {
+            "image": "帝江号_大世界.png",
+            "hits": [
+                "DeliveryJobsBackToDepot"
+            ]
+        }
+    ]
+}

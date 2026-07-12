@@ -1,0 +1,249 @@
+{
+    "${Id}Job": {
+        "desc": "${Name}任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "Check${Id}Text",
+            "Check${Id}Icon",
+            "Check${Id}ReadyText"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "${Id}Execute",
+            "recovery_task": "${GoToMonitoringTerminal}",
+            "failure_task": "${Id}Failed"
+        },
+        "post_delay": 0
+    },
+    "${Id}Failed": {
+        "desc": "${Name}任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$${NameKey}"
+        }
+    },
+    "${Id}Execute": {
+        "desc": "执行${Name}任务路线",
+        "next": [
+            "Accept${Id}",
+            "GoTo${Id}Mission"
+        ]
+    },
+    "Check${Id}Text": {
+        "desc": "检查是否有${Name}文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": "${ExpectedText}",
+        "replace": "${OcrReplace}",
+        "order_by": "Vertical"
+    },
+    "Check${Id}Icon": {
+        "desc": "检查${Name}文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "Check${Id}Text",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
+    },
+    "Check${Id}ReadyText": {
+        "desc": "检查${Name}委托是否准备好",
+        "recognition": "OCR",
+        "roi": "Check${Id}Icon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "Check${Id}Job": {
+        "desc": "检查${Name}委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "Check${Id}Icon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "Check${Id}GoToMissionText": {
+        "desc": "检查${Name}委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "Check${Id}Icon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "In${Id}Mission": {
+        "desc": "是否在${Name}任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": "${InExpectedText}",
+        "replace": "${OcrReplace}"
+    },
+    "Accept${Id}": {
+        "desc": "接取${Name}委托",
+        "recognition": "And",
+        "all_of": [
+            "Check${Id}Text",
+            "Check${Id}Icon",
+            "Check${Id}Job"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "GoTo${Id}Mission"
+        ]
+    },
+    "GoTo${Id}Mission": {
+        "desc": "前往${Name}任务",
+        "recognition": "And",
+        "all_of": [
+            "Check${Id}Text",
+            "Check${Id}Icon",
+            "Check${Id}GoToMissionText"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "${Id}TrackOrGoTo"
+        ]
+    },
+    "${Id}TrackOrGoTo": {
+        "desc": "在${Name}任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续",
+        "recognition": "And",
+        "all_of": [
+            "In${Id}Mission"
+        ],
+        "next": "${TrackOrGoToNext}"
+    },
+    "Track${Id}": {
+        "desc": "追踪${Name}任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "In${Id}Mission"
+        ],
+        "action": "Click",
+        "next": "${AfterTrackedNext}"
+    },
+    "AlreadyTracked${Id}": {
+        "desc": "${Name}任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "In${Id}Mission"
+        ],
+        "next": "${AfterTrackedNext}"
+    },
+    "${Id}NotAdapted": {
+        "desc": "${Name}任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
+    "GoTo${Id}": {
+        "desc": "前往${Name}，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "GoTo${Id}StartPos",
+            "GoTo${Id}NotAtStartPos"
+        ]
+    },
+    "GoTo${Id}StartPos": {
+        "desc": "在${Name}任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "${MapAssertRecognition}",
+        "custom_recognition_param": "${MapAssertParam}",
+        "next": [
+            "GoTo${Id}Move"
+        ]
+    },
+    "GoTo${Id}NotAtStartPos": {
+        "desc": "不在${Name}任务开始位置附近，先传送再检查落点",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "${EnterMap}"
+            ]
+        },
+        "next": [
+            "GoTo${Id}StartPos"
+        ]
+    },
+    "GoTo${Id}Move": {
+        "desc": "自动寻路前往${Name}",
+        "action": "Custom",
+        "custom_action": "${MapNavigationAction}",
+        "custom_action_param": "${MapNavigationParam}",
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "${GoToMonitoringTerminal}",
+            "EnvironmentMonitoringAdjustCamera": "${Id}AdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "${Id}AdjustCamera": {
+        "desc": "${Name}任务中调整朝向",
+        "max_hit": "${CameraMaxHit}",
+        "next": [
+            "${CameraSwipeDirection}"
+        ]
+    }
+}

@@ -1,0 +1,60 @@
+name: PNG Image Optimization
+
+on:
+  push:
+    branches:
+      - "v2"
+    paths:
+      - "**/*.png"
+  workflow_dispatch:
+    inputs:
+      commit_message:
+        description: "Commit Message"
+        type: string
+        required: false
+
+jobs:
+  optimize-png:
+    name: Optimize PNG Images
+    # Only run on main repo, skip bot commits to prevent infinite loops
+    if: >-
+      ${{ github.repository_owner == 'MaaEnd' &&
+          github.actor != 'github-actions[bot]' &&
+          github.triggering_actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          show-progress: false
+
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r tools/optimize_templates/requirements.txt
+
+      - name: Setup oxipng
+        uses: baptiste0928/cargo-install@v3
+        with:
+          crate: oxipng
+
+      - name: Optimize png images
+        run: |
+          python3 tools/optimize_templates/optimize_templates.py
+
+      - name: Commit and push changes
+        uses: actions-js/push@master
+        with:
+          rebase: true
+          branch: ${{ github.ref }}
+          message: "${{ github.event.inputs.commit_message || 'chore: Auto Templates Optimization' }}
+
+            Triggered by ${{ github.sha }}
+
+            [skip changelog]"
+          github_token: ${{ secrets.MAAEND_BOT_TOKEN }}

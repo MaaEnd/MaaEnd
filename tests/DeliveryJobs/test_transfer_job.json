@@ -1,0 +1,24 @@
+{
+    "configs": {
+        "name": "转交委托，测试转交任务",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "四号谷地_地区建设_仓储节点_未就绪_查看任务_货物装箱.png",
+            "hits": ["DeliveryJobsEnterOriginLodespringDeliveryJob"]
+        },
+        {
+            "image": "四号谷地_地区建设_仓储节点_送货任务_转交运送委托.png",
+            "hits": ["DeliveryJobsClickTransferJob"]
+        },
+        {
+            "image": "四号谷地_地区建设_仓储节点_送货任务_确认转交.png",
+            "hits": ["DeliveryJobsConfirmTaskTransfer"]
+        }
+    ]
+}

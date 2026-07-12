@@ -1,0 +1,81 @@
+{
+    "task": [
+        {
+            "name": "GearAssembly",
+            "label": "$task.GearAssembly.label",
+            "entry": "GearAssemblyStart",
+            "description": "$task.GearAssembly.description",
+            "option": [
+                "GearAssemblyType",
+                "GearAssemblySortOrder"
+            ],
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
+            "group": [
+                "valuables_vault"
+            ]
+        }
+    ],
+    "option": {
+        "GearAssemblySortOrder": {
+            "type": "select",
+            "label": "$task.GearAssembly.option.GearAssemblySortOrder.label",
+            "default_case": "Lower",
+            "cases": [
+                {
+                    "name": "Lower",
+                    "label": "$task.GearAssembly.option.GearAssemblySortOrder.cases.Lower.label",
+                    "pipeline_override": {
+                        "GearAssemblySwitchAscending": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Higher",
+                    "label": "$task.GearAssembly.option.GearAssemblySortOrder.cases.Higher.label",
+                    "pipeline_override": {
+                        "GearAssemblySwitchAscending": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "GearAssemblyType": {
+            "type": "select",
+            "label": "$task.GearAssembly.option.GearAssemblyType.label",
+            "default_case": "SetGear",
+            "cases": [
+                {
+                    "name": "SetGear",
+                    "label": "$task.GearAssembly.option.GearAssemblyType.cases.SetGear.label",
+                    "pipeline_override": {
+                        "GearAssemblySetGear": {
+                            "enabled": true
+                        },
+                        "GearAssemblyNonsetGear": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "NonsetGear",
+                    "label": "$task.GearAssembly.option.GearAssemblyType.cases.NonsetGear.label",
+                    "pipeline_override": {
+                        "GearAssemblySetGear": {
+                            "enabled": false
+                        },
+                        "GearAssemblyNonsetGear": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

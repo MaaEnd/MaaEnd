@@ -1,0 +1,115 @@
+{
+    "GotoTriggerPointSetAnchor_WLSwordVaultDale": {
+        "enabled": false,
+        "pre_delay": 0,
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_WLSwordVaultDale",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLSwordVaultDale"
+        },
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "📌目标地点：藏剑谷"
+        }
+    },
+    "GotoTriggerPointMaybeTeleport_WLSwordVaultDale": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 距离淤积点最近的锚点附近
+                            "map_name": "map02_lv006",
+                            "target": [
+                                352.0,
+                                290.4,
+                                12.0,
+                                12.6
+                            ]
+                        },
+                        {
+                            // 淤积点附近
+                            "map_name": "map02_lv006",
+                            "target": [
+                                386.7,
+                                294.8,
+                                21.4,
+                                20.7
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "inverse": true,
+        "next": [
+            "[JumpBack]__GotoTriggerPointTeleportOnce_WLSwordVaultDale",
+            "GotoTriggerPointMove_WLSwordVaultDale"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✈️准备传送到最近锚点"
+        }
+    },
+    "__GotoTriggerPointTeleportOnce_WLSwordVaultDale": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneEnterWorldWulingSwordVaultDale3"
+        ]
+    },
+    "GotoTriggerPointMove_WLSwordVaultDale": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv006",
+                    "path": [
+                        [
+                            365.6,
+                            298.1
+                        ],
+                        [
+                            394.9,
+                            305.1
+                        ]
+                    ],
+                    "path_trim": true
+                }
+            }
+        },
+        "next": [
+            "GotoTriggerPointMoveExact_WLSwordVaultDale"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近"
+        }
+    },
+    "GotoTriggerPointMoveExact_WLSwordVaultDale": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv006",
+                    "path": [
+                        [
+                            399.5,
+                            306.8
+                        ]
+                    ],
+                    "no_ensure_initial_movement_state": true
+                }
+            }
+        },
+        "post_delay": 1500, // 确保彻底停下，规避移动惯性
+        "next": [
+            "AutoEssenceDispatcher"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点"
+        }
+    }
+}

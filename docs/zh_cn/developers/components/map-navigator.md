@@ -1,0 +1,548 @@
+# 开发手册 - MapNavigator 路径导航系统
+
+## 简介
+
+此文档介绍了如何使用 **MapNavigator** 相关节点，以及如何借助仓库内置的 GUI 工具录制、编辑并导出可直接用于 Pipeline 的导航路径。
+
+**MapNavigator** 是 MaaEnd 当前的高精度自动导航 Action 模块。它依赖底层定位能力持续获取角色当前所处区域、全局坐标与朝向，然后按照开发者提供的 `path` 路径点序列，驱动角色逐点移动，并在关键点执行冲刺、跳跃、交互、过图等动作。
+
+除了传统的录制路径外，MapNavigator 现在还支持基于 BNAV v2 的 `NAVMESH` 语义寻路。GUI 可以直接加载 `base.nav.gz` 做三角面 A\* 预览，运行时会把 `NAVMESH` 节点展开成普通 `RUN` 路径点，从而让预览、复制和执行都走同一套 BaseNav 数据。
+
+### 边界说明
+
+MapNavigator 负责的是“**已知目标路径后，稳定把人带过去**”，属于 Action 层。
+
+- 它**不负责**业务流程编排。什么时候开始走、走到哪里算成功、途中遇到意外状况怎么办，仍然应当由外层 Pipeline 决定。
+- 它**不负责**自动生成业务逻辑。路径本身需要开发者事先录好、编辑好，再传给 `custom_action_param.path`。
+- 它**不负责**替你判断“这次该不该走这条路”。这类入口条件判断，建议先用识别节点或场景节点确认，再进入导航动作。
+
+### MapNavigator 与录制工具的关系
+
+仓库内提供了一个专门配套的 GUI 工具：`/tools/MapNavigator`。
+
+它的设计目标非常直接：
+
+1. 启动游戏后打开工具。
+2. 直接点击开始录制。
+3. 在游戏里实际走一遍。
+4. 停止录制后在 GUI 里微调、删点、补动作。
+5. 点击复制，把导出的 `path` 粘贴进 Pipeline 的 `custom_action_param.path`。
+
+也就是说，**绝大多数路径都不需要手写坐标**。对开发者来说，推荐工作流就是“先录，再编排，最后粘贴”。
+
+---
+
+## 节点说明
+
+下面详细介绍 MapNavigator 提供的节点用法。当前接口是基于 MAA `Custom` 的 Action：`MapNavigateAction`。
+
+### custom_action: MapNavigateAction
+
+操控角色按给定路径自动移动，并在路径点上执行附加动作。
+
+#### 节点参数
+
+**必填参数（推荐至少提供 `path`）**：
+
+- `path`: 路径点列表。MapNavigator 会按顺序消费这些节点，并持续导航直至路径结束或中途失败。
+
+**常用可选参数 (`custom_action_param`)**：
+
+- `map_name`: 字符串，默认空。作为初始区域上下文使用。若 `path` 中已经包含 `ZONE` 声明节点，通常不必额外填写。
+- `arrival_timeout`: 正整数，默认 `60000`。单个目标点最长允许多久未到达即判定失败，单位毫秒。
+- `sprint_threshold`: 正实数，默认 `25.0`。自动冲刺判断使用的“前方连续可跑段长度”阈值，而不是仅看当前点直线距离。
+- 其他顶层未知字段：当前会静默忽略，不会报错。
+
+#### `path` 数据结构
+
+`path` 本质上是一个数组，数组中每个元素都表示一个“路径节点”。通常不需要手动编写这些内容，更推荐直接使用配套的 GUI 工具 `/tools/MapNavigator` 进行编排。常用写法如下。
+
+##### **1. 最常见的坐标点**
+
+```json
+[
+    688,
+    350
+]
+```
+
+表示一个普通移动点，即到达该坐标即可继续前进。
+
+##### **2. 带动作的坐标点**
+
+```json
+[
+    720,
+    350,
+    "SPRINT"
+]
+```
+
+表示抵达该点时执行一次 `SPRINT` 动作。当前常用动作包括：
+
+- `RUN`: 普通移动点。
+- `SPRINT`: 到点后执行一次冲刺。
+- `JUMP`: 到点后跳跃。
+- `FIGHT`: 到点后攻击一次。
+- `INTERACT`: 到点后交互。
+- `TRANSFER`: 到点后停住，等待外力把角色移动到下一段路径，再从后续点继续导航。
+- `PORTAL`: 跨区过渡点，命中后进入盲走等待区域切换。
+- `HEADING`: 调整镜头到指定朝向，然后按一下 `W`。
+- `COLLECT`: 采集点，精确抵达后同步触发 AutoCollect OCR + 点击，不退出 NaviController。见[采集语义](#采集语义-collect--dig)。
+- `DIG`: 挖掘点，同 `COLLECT`，但触发挖掘子任务。见[采集语义](#采集语义-collect--dig)。
+
+##### **3. 严格到达点**
+
+```json
+[
+    700,
+    350,
+    "INTERACT",
+    true
+]
+```
+
+尾部的 `true` 表示该点启用严格到达。对于某些交互、跳跃、传送、过图这类确实需要严格到达的关键点，建议使用严格到达或直接使用对应动作点，因为底层本就会按更严格的到点语义（更慢的到点、更严格的确认到点半径阈值）处理这些关键动作。
+
+##### **4. 区域声明节点**
+
+```json
+{
+    "action": "ZONE",
+    "zone_id": "Wuling_Base"
+}
+```
+
+这是一个**无坐标控制节点**，用于声明“后续路径应处于哪个区域”。它本身不执行位移，仅为之后的路径点提供区域**校验**上下文。
+
+##### **5. 朝向控制节点 `HEADING`**
+
+```json
+{
+    "action": "HEADING",
+    "angle": 90
+}
+```
+
+或：
+
+```json
+{
+    "action": "HEADING",
+    "target": [
+        688,
+        350
+    ]
+}
+```
+
+无坐标节点。执行时调整镜头朝向后轻按一下 `W` 前进让朝向生效。`angle` 表示直接给定朝向角度；`target` 表示以“当前位置 -> 目标坐标”计算朝向，然后复用同一套 `HEADING` 动作流程。
+
+##### **6. BaseNav 语义节点 `NAVMESH`**
+
+```json
+{
+    "action": "NAVMESH",
+    "target": [
+        720,
+        630
+    ]
+}
+```
+
+这是一个 **BaseNav 语义寻路节点**。它本身不携带 `zone_id`、`navmesh_zone` 或 `path`，而是只提供目标点 `target`，其余信息由运行时根据当前定位自动推断。
+
+`NAVMESH` 的运行流程是：
+
+1. 运行时优先加载 `assets/resource/model/map/navmesh/base.nav.gz`，不存在时回退 `base.nav`。
+2. 根据当前定位区域推断 BaseNav zone。
+3. 在 `.nav` 三角图上执行 A\*，只走 BaseNav 自身的连边。
+4. 将规划结果展开成普通 `RUN` waypoints，再交给旧的移动执行链路。
+
+在 GUI 里点击 `加载 BaseNav` 后，工具会进入同一套 BaseNav 预览逻辑；点击 `复制 NAVMESH` 后复制到剪贴板的就是这种节点。
+`NAVMESH` 适合需要“从当前站位自动找一条三角图路径到目标点”的场景，不需要手工先录一整段路径。
+
+**只要原始路径在不发生交互、过图或特殊机关的情况下本来就可达，`NAVMESH` 只需要一个 `target` 就能直接把角色带到目标位置**。不需要预录制整段路线，也不需要为了这个目标点额外补中间点、调坐标或手动拼路径，GUI 里只要点出目标，运行时就会基于 BaseNav 三角图直接规划出可执行路径。
+
+###### 跨层目标：`target_tier`
+
+不写 `target_tier` 时，`target` 默认就是 **base（基础底图）坐标**——这是上面的默认写法，行为完全不变。
+
+当目标点在某个 **tier（分层底图）** 上时，每个 tier 都是一套**互相独立的坐标系**：同样的数字 `[123, 456]` 在 base 和在 tier 上是完全不同的物理位置。这时只要在节点上加一个 `target_tier` 字段，声明 `target` 是按**哪一层**的坐标系填的即可：
+
+```json
+{
+    "action": "NAVMESH",
+    "target": [
+        81.77,
+        108.72
+    ],
+    "target_tier": "ValleyIV_L1_171"
+}
+```
+
+- `target`：在 GUI 里**切到该 tier 底图后直接点出来的坐标**，不用手动换算成 base。
+- `target_tier`：那一层的**区域名**，即 GUI 里 tier 下拉框 `id:name` 中 `:` 后面的 name 部分。
+- 运行时会用该 tier 烤进 `.nav` 的仿射变换，把 `target` 自动投影回 base 坐标系（与起点定位自动归一化是同一套镜像逻辑），并按该层的楼层高度做落点吸附。
+- 这是去 tier 唯一需要做的事：**一个节点 `target` + `target_tier` 就够了**，不需要额外的 `ZONE` 节点、不需要补中间点、也不需要手动改坐标。
+- 字段也支持驼峰写法 `targetTier`；填了不存在的层名会被记录告警并退回当作 base 坐标处理。
+
+#### 返回行为
+
+`MapNavigateAction` 是一个 Action 节点，没有像 Recognition 那样稳定的结构化识别输出；其结果主要体现为：
+
+- 导航成功走完整条路径，则当前 Action 返回成功。
+- 途中触发快速失败条件（持续无进度超时 / 持续偏离超时），则当前 Action 返回失败。
+
+因此在 Pipeline 中，一般将它视作“**要么整条路径走完，要么整个节点失败**”的原子动作。
+
+#### 示例用法
+
+下面是一份最常见的写法，直接把录制工具复制出的 `path` 粘贴进来即可：
+
+```json
+{
+    "DebugNavi": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                [
+                    405,
+                    1592
+                ],
+                [
+                    400,
+                    1583
+                ],
+                [
+                    380,
+                    1567,
+                    "SPRINT"
+                ],
+                [
+                    331,
+                    1578,
+                    true
+                ]
+            ]
+        }
+    }
+}
+```
+
+```json
+{
+    "MyNavigateNode": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "arrival_timeout": 45000,
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                [
+                    405,
+                    1592
+                ],
+                [
+                    331,
+                    1578,
+                    "INTERACT",
+                    true
+                ]
+            ]
+        }
+    }
+}
+```
+
+> [!TIP]
+>
+> 实际开发时，推荐把 `MapNavigateAction` 放在一个已经确认入口状态的节点后面使用。先确认角色确实在预期场景、预期区域、预期朝向附近，再开始整段导航，成功率会明显更高。
+
+> [!WARNING]
+>
+> 路径点之间应当尽量满足“可以连贯走到下一个点”的要求。不要指望导航器穿模、绕特别复杂的障碍、自动理解业务机关。过图、跳板、下落、上升机关等特殊段，应该显式拆成 `PORTAL` / `TRANSFER` / 业务节点组合来处理。
+
+---
+
+## 工具说明
+
+我们提供了一个专门给 MapNavigator 使用的 GUI 工具，位于 `/tools/MapNavigator`，入口为 `main.py`。
+
+它支持：
+
+1. 直接连接当前游戏窗口录制真实移动轨迹。
+2. 自动根据区域切换补出 `ZONE` / `PORTAL` 语义。
+3. 在 GUI 中删点、拖点、改坐标点动作、改严格到达。
+4. 导入已有 JSON / JSONC，递归搜索可识别的 `path` 并继续编辑。
+5. 一键复制可直接粘贴到 `custom_action_param.path` 的 canonical `path`。
+6. 通过独立的 `Assert 模式` 手动选择底图并框出矩形区域，导出 `MapLocateAssertLocation` 节点。
+7. 进入 BaseNav A\* 模式，加载 `.nav.gz` / `.nav`，在红色三角面 overlay 上预览路径，并复制 `NAVMESH` 节点。
+
+需要额外说明的是，当前 GUI 编辑器主要 round-trip 带坐标的路径点，以及由区域信息派生出来的 `ZONE` 声明。  
+像 `HEADING` 这类无坐标控制节点，以及 `NAVMESH` 这类语义寻路节点，不属于 GUI 的常规点编辑对象，`HEADING` 建议在导出 `path` 后再手工补回或维护，`NAVMESH` 则可以直接用 `复制 NAVMESH` 生成。
+
+### 运行方式
+
+#### 1) 标准 Python
+
+```powershell
+cd tools\MapNavigator
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python main.py
+```
+
+#### 2) uv
+
+```powershell
+cd tools\MapNavigator
+uv run main.py
+```
+
+### 运行前准备
+
+开始录制前，请先确认：
+
+1. 本项目开发环境已经按开发手册配置完成，尤其是 `install/agent/cpp-algo.exe` 与 `install/maafw` 可正常使用。
+2. 已安装 `maafw`、`Pillow` 与 `pynput` Python 依赖。
+3. **Windows**：工具需要以**管理员身份运行**，否则在游戏（管理员进程）前台时 G/X 热键可能无法被系统捕获。`main.py` 启动时会自动检测并弹出 UAC 提权请求。
+4. **macOS**：首次运行时需要在 **系统设置 → 隐私与安全性 → 输入监控** 中授权当前终端或 Python 解释器，否则全局热键不生效。
+5. 如果使用 `Win32` 连接，游戏已经启动，并且窗口**没有最小化**。
+6. 如果使用 `ADB` 连接，`adb` 已可用，且目标模拟器 / 设备已经出现在设备列表中。
+7. 当前角色已经站在你想录制路线的起点附近。
+
+### 推荐工作流
+
+下面这套流程就是 MapNavigator 最推荐、也最省心的实际用法。
+
+#### 第一步：打开工具并开始录制
+
+运行 `tools/MapNavigator/main.py` 后，先在顶部 `连接` 区选择本次录制使用的控制器，再点击 GUI 左上角的 **`开始录制`**。
+
+- 录 PC 版时，选择 `Win32 窗口`，必要时修改窗口标题。
+- 录模拟器 / 真机时，选择 `ADB 设备`，配置 `adb` 路径并刷新设备列表后选定目标。
+
+工具会自动：
+
+1. 拉起本地 Agent。
+2. 根据所选连接方式建立 controller。
+3. 调用底层定位识别，持续读取当前坐标与区域。
+4. 把你实际走过的路线采样成原始轨迹。
+
+如果当前环境不完整、Win32 窗口未找到、ADB 设备未连接，工具都会直接报错，不会生成无效轨迹。
+
+#### 第二步：切回游戏，手动走一遍
+
+录制开始后，直接回到游戏里，**按你希望角色未来自动执行的方式走一遍**即可。
+
+在录制过程中，你可以使用以下快捷键：
+
+| 快捷键 | 功能                                                                      |
+| ------ | ------------------------------------------------------------------------- |
+| `G`    | 📋 把当前坐标以 `[x, y]` 格式**复制到剪贴板**（不影响录制数据，随时可按） |
+| `X`    | 📌 在当前精确位置**强制插入一个严格到达（strict）路径点**到录制数据中     |
+
+> [!TIP]
+>
+> `G` 键用于快速记录感兴趣的坐标，不会打断录制流程。`X` 键用于标记关键位置（交互点、过图点等），确保该坐标一定被录入并标记为严格到达点。
+
+需要额外注意的是，`FIGHT`、`TRANSFER`、`HEADING` 这类更强业务语义的点**不会在录制阶段自动判断**。通常做法是在停止录制后，再在 GUI 中把对应点手动改成目标动作。
+
+因此最朴素的使用方式就是：
+
+1. 点开始录制。
+2. 去游戏里正常跑图。
+3. 在关键位置按 `X` 强制打点（如交互触发点、跳台落点）。
+4. 走完后回来点停止。
+
+#### 第三步：停止录制并观察自动整理结果
+
+点击 **`停止录制`** 后，工具会对原始轨迹做一轮整理，包括：
+
+- 统一坐标、动作、`strict` 与 `zone` 的 canonical 格式。
+- 在跨区域边界自动补 `PORTAL` 语义。
+- 按当前区域切分浏览视图。
+
+你看到的是一条已经过规范化、可继续编辑和导出的导航路线。
+
+#### 第四步：在 GUI 中编排路径
+
+接下来直接在 GUI 里处理细节即可。
+
+**视图操作：**
+
+- 鼠标滚轮：缩放。
+- 鼠标右键拖拽：平移视图。
+- 鼠标左键点击空白处：插入一个新点。
+- 鼠标左键点击已有点：选中该点。
+- 鼠标左键拖拽已有点：微调坐标。
+
+**区域切换：**
+
+- 顶部 `◀ / ▶` 按钮用于在不同区域之间切换查看。
+- 若路线跨区，工具会把每个区域单独分段显示，便于检查过图前后是否合理。
+
+**点属性编辑：**
+
+- 顶部动作下拉框可以给当前点设置动作。
+- `设单`：把当前点动作改成下拉框所选动作。
+- `追加`：在当前点后追加一个动作语义。
+- `退一`：撤掉当前点动作链中的最后一个动作。
+- `严格`：把当前点标记为严格到达点。
+- `🗑`：删除当前选中点。
+
+当前动作下拉框面向的是坐标点动作，常规会编辑到 `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`。  
+`HEADING` 这类无坐标控制节点不在这一套 GUI 动作链里。
+
+**撤销重做：**
+
+- `Ctrl+Z`：撤销。
+- `Ctrl+Y`：重做。
+- `C`：复制当前选中点的坐标到剪贴板（格式为 `[x, y]`，支持多选逐行复制）。
+
+通常你真正需要做的微调只有这些：
+
+1. 把关键交互点改成 `INTERACT` 并勾上 `严格`（X 键录制的点默认已经是严格到达）。
+2. 把需要跳跃、冲刺、外力传送或过图的点改成对应动作（例如 `JUMP` / `SPRINT` / `TRANSFER` / `PORTAL`）。
+3. 检查跨区前后两个点是否落在合理位置。
+
+#### 第五步：复制 `path` 并粘贴到 Pipeline
+
+确认路线没有问题后，点击 **`复制 Path`**。
+
+工具复制到剪贴板的是**仅 `path` 本体**，不是完整节点 JSON。也就是说，你可以直接把它粘贴到：
+
+```json
+"custom_action_param": {
+    "path": [
+        ...
+    ]
+}
+```
+
+里边。
+
+这也是为什么推荐你在 GUI 里做完所有编排后再复制，因为导出的内容已经是 MapNavigator 可以直接消费的 canonical 格式。
+
+### 导入已有路径再编辑
+
+如果你已经在别的 Pipeline 里写过路径，或者同事给了你一段 JSON / JSONC，也可以点击 **`导入 JSON`**。
+
+工具会递归扫描文件里的可识别 `path` 数据，并自动载入点数最多的一条候选路线。若源数据缺少 zone 信息，GUI 会提示你为每段路线分配区域，再继续编辑与导出。
+
+这非常适合以下场景：
+
+- 旧路径迁移到新导航模块。
+- 多人协作时复用已有路线。
+- 修改之前的路线
+
+### Assert 模式
+
+当你需要的不是“录一条路径”，而是“判断人物当前是否落在某个矩形区域里”时，可以直接使用工具顶部的 `Assert 模式`。
+
+使用方式：
+
+1. 勾选 `Assert 模式`。
+2. 从下拉框选择目标 `zone`。
+3. 在底图上拖拽出一个矩形。
+4. 点击 `复制 Assert`，将完整的 `MapLocateAssertLocation` 节点复制到剪贴板。
+
+这套模式不会修改当前路径数据，它只是借用同一套地图渲染能力来快速生成区域判定节点。
+
+---
+
+## 实际开发建议
+
+1. 能录就录，尽量不要手搓整条路径。真实走一遍通常比凭感觉填坐标更准。感觉跑步冲刺打出点的精度不够可以慢慢走。
+2. 起点要稳定。录制前先把角色站位和视角整理好，能减少后续修点成本。
+3. 特殊动作点宁可少而准，也不要沿路乱塞。尤其是 `INTERACT`、`TRANSFER`、`PORTAL`、`HEADING` 这类点，应该只放在真正需要触发的位置。`HEADING` 还要注意它是控制节点，通常在 GUI 导出后再手工维护更稳。
+4. 跨区路线一定要检查过图点。自动补 `PORTAL` 只是帮助补充语义，不代表所有跨区边界都天然合理。
+5. Pipeline 外层仍要做好入口校验和失败兜底。导航不是业务流本身，不要把所有异常处理都压给一个 `MapNavigateAction`。
+
+---
+
+## 采集语义 COLLECT / DIG
+
+### 概念
+
+`COLLECT` 和 `DIG` 是 MapNavigator 的**原生采集/挖掘语义点**。路径作者只需要在 `path` 数组里把采集坐标写成 `[x, y, "COLLECT"]` 或 `[x, y, "DIG"]`，导航器精确抵达后会自动停车、同步触发对应 pipeline 子任务完成采集/挖掘，然后继续走下一段路径，**全程不退出 NaviController**。
+
+这与旧的 `anchor` 链写法相比的改进在于：
+
+- 不会每次采集都重新建连、重新 Bootstrap、重置疾跑起步宽限
+- 临近采集点的整段路程自动禁止疾跑，不会冲过目标
+- 多个采集点合并在同一个 Pipeline 节点里，不需要拆成多个 `GotoFindN` 节点
+
+### 写法
+
+在 `custom_action_param.path` 里，把需要采集/挖掘的目标坐标的第三位改为对应动作字符串：
+
+```json
+"path": [
+    { "action": "ZONE", "zone_id": "Wuling_Base" },
+    [707, 838],
+    [720, 832],
+    [741, 802, "COLLECT"],
+    [744, 800, "COLLECT"],
+    [739, 792, "COLLECT"]
+]
+```
+
+- `[x, y, "COLLECT"]`：到达该点后触发 OCR 识别 + 自动点击采集（`AutoCollectClickStart`）
+- `[x, y, "DIG"]`：到达该点后触发无条件点击挖掘（`AutoCollectDigStart`）
+- 同一个 `MapNavigateAction` 节点里可以混写任意数量的 `COLLECT` 和 `DIG` 点
+- **不需要**在节点上写 `anchor` 或把 `next` 指向 `AutoCollectClickStart`
+
+### 路径作者需要关心的文件
+
+| 文件                                                          | 职责                                                              | 何时需要改                      |
+| ------------------------------------------------------------- | ----------------------------------------------------------------- | ------------------------------- |
+| `assets/resource/pipeline/AutoCollect/AutoCollectRoute*.json` | 路径定义，包含 `MapNavigateAction` 节点和采集坐标                 | 新增路线、调整坐标、增减采集点  |
+| `assets/resource/pipeline/AutoCollect/AutoCollectClick.json`  | `COLLECT` 触发的 OCR 与点击子任务，入口为 `AutoCollectClickStart` | 新增或删除 OCR 识别的采集物名称 |
+| `assets/resource/pipeline/AutoCollect/AutoCollectDig.json`    | `DIG` 触发的挖掘子任务，入口为 `AutoCollectDigStart`              | 挖掘交互逻辑发生变更时          |
+| `assets/resource/pipeline/AutoCollect.json`                   | 路线遍历、失败收集及任务前后存放背包                              | 新增路线入口或调整总流程时      |
+
+**绝大多数情况下，路径作者只需要改 `AutoCollectRoute*.json`。**
+
+自动采集总流程由 `AutoCollectLoop` 依次调用路线包装节点。每个包装节点使用通用 `FailureCollectorRunTask` 执行已启用路线；路线内部任意节点失败时，包装 Action 会记录该路线的 `{Route}Failed` Pipeline 节点，并返回成功让 Pipeline 继续下一条路线。所有路线及后置背包整理结束后，`AutoCollectFinish` 按失败顺序依次调用这些节点，输出 `$option.*.label` 本地化文案，再让自动采集任务返回失败。
+
+### 路径作者不需要碰的部分
+
+以下文件由 cpp-algo 维护者负责，路径作者无需改动：
+
+- `agent/cpp-algo/source/MapNavigator/navi_domain_types.h`：`ActionType` 枚举，`COLLECT`/`DIG` 在此声明
+- `agent/cpp-algo/source/MapNavigator/navi_config.h`：子任务入口名、`pipeline_override`、采集后等待时间等常量
+- `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`：到达采集点后的执行逻辑
+
+### 边界说明
+
+**旧写法已废弃**
+
+旧的 `anchor: { "AutoCollectClickAfter": "..." }` + `next: ["AutoCollectClickStart"]` 拆链写法已废弃，不应再出现在新路线中。
+
+**`AutoCollectClickEnd` 的 next 不能改**
+
+`AutoCollectClick.json` 里的 `AutoCollectClickEnd` 的 `next` 指向 `[Anchor]AutoCollectClickAfter`，是为了保持对旧有 anchor 链调用的兼容性。当从 `MaaContextRunTask` 子任务调用时，cpp-algo 层通过 `pipeline_override` 将该 `next` 临时置空，使子任务干净退出。路径作者**不应改动**这个字段，否则会影响仍在使用旧写法的其他路线。
+
+**疾跑由运行时控制**
+
+所有 `COLLECT`、`DIG` 及 strict 到达点前的整段路程，自动疾跑由 cpp-algo 在 `NavigationStateMachine` 层面硬禁，路径作者无法也无需在 path JSON 里控制这一行为。
+
+### 新增一条采集路线的完整步骤
+
+1. 在 `assets/resource/pipeline/AutoCollect/` 下新建 `AutoCollectRouteN.json`，参考现有路线写 `Start` → `AssertLocation` → `Goto` → `End` 四个节点的基本骨架
+2. 用 MapNavigator 工具录制路径，在 GUI 里把采集目标点的动作改为 `Collect` 或 `Dig`，复制 `path` 粘贴到 `Goto` 节点的 `custom_action_param.path`
+3. 在 `interface.json` / 任务入口 JSON 里注册新路线入口
+4. 不需要改 `AutoCollectClick.json`、`AutoCollectDig.json`，不需要改任何 cpp-algo 源文件

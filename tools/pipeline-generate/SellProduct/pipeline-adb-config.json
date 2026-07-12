@@ -1,0 +1,8 @@
+{
+    "template": "pipeline-adb-template.jsonc",
+    "data": "data.mjs",
+    "outputDir": "../../../assets/resource_adb/pipeline/SellProduct/Outposts",
+    "outputPattern": "${LocationId}.json",
+    "format": true,
+    "merged": false
+}

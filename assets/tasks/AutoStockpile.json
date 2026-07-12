@@ -1,0 +1,153 @@
+{
+    "task": [
+        {
+            "name": "AutoStockpile",
+            "label": "$task.AutoStockpile.label",
+            "entry": "AutoStockpileMain",
+            "description": "$task.AutoStockpile.description",
+            "controller": [
+                "Win32-Front",
+                "Wlroots"
+            ],
+            "group": [
+                "regional_development"
+            ],
+            "option": [
+                "AutoStockpileServerTime",
+                "AutoStockpileAllowDataUpload",
+                "AutoStockpileElasticValleyIV",
+                "AutoStockpileElasticWuling"
+            ]
+        }
+    ],
+    "option": {
+        "AutoStockpileServerTime": {
+            "type": "select",
+            "label": "$task.AutoStockpile.option.AutoStockpileServerTime.label",
+            "description": "$task.AutoStockpile.option.AutoStockpileServerTime.description",
+            "default_case": "CN_UTC_PLUS_8",
+            "cases": [
+                {
+                    "name": "CN_UTC_PLUS_8",
+                    "label": "$task.AutoStockpile.option.AutoStockpileServerTime.cases.CN_GMT_PLUS_8.label",
+                    "pipeline_override": {
+                        "AutoStockpileAttach": {
+                            "attach": {
+                                "server_time": 8
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ASIA_UTC_PLUS_8",
+                    "label": "$task.AutoStockpile.option.AutoStockpileServerTime.cases.ASIA_GMT_PLUS_8.label",
+                    "pipeline_override": {
+                        "AutoStockpileAttach": {
+                            "attach": {
+                                "server_time": 8
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "US_UTC_MINUS_5",
+                    "label": "$task.AutoStockpile.option.AutoStockpileServerTime.cases.US_GMT_MINUS_5.label",
+                    "pipeline_override": {
+                        "AutoStockpileAttach": {
+                            "attach": {
+                                "server_time": -5
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "EU_UTC_MINUS_5",
+                    "label": "$task.AutoStockpile.option.AutoStockpileServerTime.cases.EU_GMT_MINUS_5.label",
+                    "pipeline_override": {
+                        "AutoStockpileAttach": {
+                            "attach": {
+                                "server_time": -5
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoStockpileElasticValleyIV": {
+            "type": "switch",
+            "label": "$task.AutoStockpile.option.AutoStockpileElasticValleyIV.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoStockpileElasticValleyIV": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoStockpileElasticWuling": {
+            "type": "switch",
+            "label": "$task.AutoStockpile.option.AutoStockpileElasticWuling.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoStockpileElasticWuling": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoStockpileAllowDataUpload": {
+            "type": "switch",
+            "label": "$task.AutoStockpile.option.AutoStockpileAllowDataUpload.label",
+            "description": "$task.AutoStockpile.option.AutoStockpileAllowDataUpload.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoStockpileAttach": {
+                            "attach": {
+                                "allow_data_upload": true
+                            }
+                        },
+                        "AutoStockpileEnterRegionalDevelopment": {
+                            "enabled": true
+                        },
+                        "AutoStockpileGetUid": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoStockpileAttach": {
+                            "attach": {
+                                "allow_data_upload": false
+                            }
+                        },
+                        "AutoStockpileEnterRegionalDevelopment": {
+                            "enabled": false
+                        },
+                        "AutoStockpileGetUid": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

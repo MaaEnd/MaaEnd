@@ -1,0 +1,78 @@
+{
+    "SellProduct${LocationId}BetterSliding1": {
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "MaxTarget": {
+                "Box": "${MaxTargetBoxAdb}",
+                "OnlyRec": true
+            },
+            "Quantity": {
+                "Box": "${QuantityBoxAdb}",
+                "OnlyRec": true
+            },
+            "Direction": "right",
+            "DecreaseButton": "SellProduct/DecreaseButton.png",
+            "IncreaseButton": "SellProduct/IncreaseButton.png",
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
+        }
+    },
+    "SellProduct${LocationId}BetterSliding2": {
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "MaxTarget": {
+                "Box": "${MaxTargetBoxAdb}",
+                "OnlyRec": true
+            },
+            "Quantity": {
+                "Box": "${QuantityBoxAdb}",
+                "OnlyRec": true
+            },
+            "Direction": "right",
+            "DecreaseButton": "SellProduct/DecreaseButton.png",
+            "IncreaseButton": "SellProduct/IncreaseButton.png",
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
+        }
+    },
+    "SellProduct${LocationId}BetterSliding3": {
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "MaxTarget": {
+                "Box": "${MaxTargetBoxAdb}",
+                "OnlyRec": true
+            },
+            "Quantity": {
+                "Box": "${QuantityBoxAdb}",
+                "OnlyRec": true
+            },
+            "Direction": "right",
+            "DecreaseButton": "SellProduct/DecreaseButton.png",
+            "IncreaseButton": "SellProduct/IncreaseButton.png",
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
+        }
+    },
+    "SellProduct${LocationId}BetterSliding4": {
+        "custom_action_param": {
+            "GreenMask": true,
+            "Target": 999999,
+            "ClampTargetToMax": true,
+            "MaxTarget": {
+                "Box": "${MaxTargetBoxAdb}",
+                "OnlyRec": true
+            },
+            "Quantity": {
+                "Box": "${QuantityBoxAdb}",
+                "OnlyRec": true
+            },
+            "Direction": "right",
+            "DecreaseButton": "SellProduct/DecreaseButton.png",
+            "IncreaseButton": "SellProduct/IncreaseButton.png",
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
+        }
+    }
+}

@@ -1,0 +1,118 @@
+{
+    "__ScenePrivateNextTrue": {
+        "desc": "识别结果永远为真，用于退出next循环"
+    },
+    "__ScenePrivateAnyExit": {
+        "desc": "退出当前场景，返回上一个场景",
+        "max_hit": 100,
+        "pre_delay": 0,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 // ESC
+            }
+        },
+        "post_delay": 1500
+    },
+    "__ScenePrivateLoggedOutConfirm": {
+        "desc": "确认自动登出弹窗",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    350,
+                    250,
+                    550,
+                    202
+                ],
+                "expected": [
+                    "自动登出",
+                    "自動登出",
+                    "Logged out",
+                    "自動的にロ",
+                    "장시간 활동"
+                ]
+            },
+            "YellowConfirmButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0
+    },
+    "__ScenePrivateNoticeRewardsUpgrade": {
+        "desc": "检测到升级",
+        "recognition": "OCR",
+        "roi": [
+            500,
+            0,
+            280,
+            200
+        ],
+        "expected": [
+            "权限等阶",
+            "權限等階",
+            "Authority Level",
+            "行動レベル",
+            "권한 등급"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateNoticeRewardsUpgradeConfirm"
+        ]
+    },
+    "__ScenePrivateNoticeRewardsUpgradeConfirm": {
+        "desc": "升级奖励界面，点击确认",
+        "recognition": "OCR",
+        "roi": [
+            500,
+            -280,
+            280,
+            260
+        ],
+        "expected": [
+            "点击空白处继续",
+            "按下空白處繼續",
+            "Click to continue",
+            "クリックして続ける",
+            "빈 곳을 눌러 계속하기"
+        ],
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "action": "Click"
+    },
+    "__ScenePrivateCloseADBExit": {
+        "desc": "关闭ADB控制器的退出游戏界面",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    329,
+                    243,
+                    710,
+                    220
+                ],
+                "expected": [
+                    // @i18n-skip
+                    "是否退出游戏",
+                    "是否退出遊戲",
+                    "(?i)Exit\\s*the\\s*game",
+                    "ゲームを終了しますか"
+                ]
+            },
+            "CancelButton"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0
+    }
+}

@@ -1,0 +1,299 @@
+{
+    "ObservantSableChestedFowlbeastJob": {
+        "desc": "东张西望的黑腹雉羽兽任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckObservantSableChestedFowlbeastText",
+            "CheckObservantSableChestedFowlbeastIcon",
+            "CheckObservantSableChestedFowlbeastReadyText"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "ObservantSableChestedFowlbeastExecute",
+            "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "failure_task": "ObservantSableChestedFowlbeastFailed"
+        },
+        "post_delay": 0
+    },
+    "ObservantSableChestedFowlbeastFailed": {
+        "desc": "东张西望的黑腹雉羽兽任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.ObservantSableChestedFowlbeast.failed"
+        }
+    },
+    "ObservantSableChestedFowlbeastExecute": {
+        "desc": "执行东张西望的黑腹雉羽兽任务路线",
+        "next": [
+            "AcceptObservantSableChestedFowlbeast",
+            "GoToObservantSableChestedFowlbeastMission"
+        ]
+    },
+    "CheckObservantSableChestedFowlbeastText": {
+        "desc": "检查是否有东张西望的黑腹雉羽兽文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "东张西望的黑腹雉羽兽",
+            "東張西望的黑腹雉羽獸",
+            "(?i)Observant\\s*Sable\\s*-\\s*chested\\s*Fowlbeast",
+            "キョロキョロする黒腹羽獣",
+            "두리번거리는 세이블체스티드 파울비스트"
+        ],
+        "replace": [],
+        "order_by": "Vertical"
+    },
+    "CheckObservantSableChestedFowlbeastIcon": {
+        "desc": "检查东张西望的黑腹雉羽兽文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckObservantSableChestedFowlbeastText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
+    },
+    "CheckObservantSableChestedFowlbeastReadyText": {
+        "desc": "检查东张西望的黑腹雉羽兽委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckObservantSableChestedFowlbeastIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckObservantSableChestedFowlbeastJob": {
+        "desc": "检查东张西望的黑腹雉羽兽委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckObservantSableChestedFowlbeastIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckObservantSableChestedFowlbeastGoToMissionText": {
+        "desc": "检查东张西望的黑腹雉羽兽委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckObservantSableChestedFowlbeastIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "InObservantSableChestedFowlbeastMission": {
+        "desc": "是否在东张西望的黑腹雉羽兽任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄农田中东张西望的黑腹雉羽兽",
+            "拍攝農田中東張西望的黑腹雉羽獸",
+            "(?i)Photo:\\s*Sable\\s*-\\s*chested\\s*Fowlbeast",
+            "農地でキョロキョロする黒腹羽獣の写真を撮る",
+            "논밭에서 두리번거리는 세이블체스티드 파울비스트를 촬영하기"
+        ],
+        "replace": []
+    },
+    "AcceptObservantSableChestedFowlbeast": {
+        "desc": "接取东张西望的黑腹雉羽兽委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckObservantSableChestedFowlbeastText",
+            "CheckObservantSableChestedFowlbeastIcon",
+            "CheckObservantSableChestedFowlbeastJob"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "GoToObservantSableChestedFowlbeastMission"
+        ]
+    },
+    "GoToObservantSableChestedFowlbeastMission": {
+        "desc": "前往东张西望的黑腹雉羽兽任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckObservantSableChestedFowlbeastText",
+            "CheckObservantSableChestedFowlbeastIcon",
+            "CheckObservantSableChestedFowlbeastGoToMissionText"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "ObservantSableChestedFowlbeastTrackOrGoTo"
+        ]
+    },
+    "ObservantSableChestedFowlbeastTrackOrGoTo": {
+        "desc": "在东张西望的黑腹雉羽兽任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续",
+        "recognition": "And",
+        "all_of": [
+            "InObservantSableChestedFowlbeastMission"
+        ],
+        "next": [
+            "TrackObservantSableChestedFowlbeast",
+            "AlreadyTrackedObservantSableChestedFowlbeast"
+        ]
+    },
+    "TrackObservantSableChestedFowlbeast": {
+        "desc": "追踪东张西望的黑腹雉羽兽任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InObservantSableChestedFowlbeastMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToObservantSableChestedFowlbeast"
+        ]
+    },
+    "AlreadyTrackedObservantSableChestedFowlbeast": {
+        "desc": "东张西望的黑腹雉羽兽任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InObservantSableChestedFowlbeastMission"
+        ],
+        "next": [
+            "GoToObservantSableChestedFowlbeast"
+        ]
+    },
+    "ObservantSableChestedFowlbeastNotAdapted": {
+        "desc": "东张西望的黑腹雉羽兽任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
+    "GoToObservantSableChestedFowlbeast": {
+        "desc": "前往东张西望的黑腹雉羽兽，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "GoToObservantSableChestedFowlbeastStartPos",
+            "GoToObservantSableChestedFowlbeastNotAtStartPos"
+        ]
+    },
+    "GoToObservantSableChestedFowlbeastStartPos": {
+        "desc": "在东张西望的黑腹雉羽兽任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        342.2,
+                        124.2,
+                        4,
+                        4
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToObservantSableChestedFowlbeastMove"
+        ]
+    },
+    "GoToObservantSableChestedFowlbeastNotAtStartPos": {
+        "desc": "不在东张西望的黑腹雉羽兽任务开始位置附近，先传送再检查落点",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley0"
+            ]
+        },
+        "next": [
+            "GoToObservantSableChestedFowlbeastStartPos"
+        ]
+    },
+    "GoToObservantSableChestedFowlbeastMove": {
+        "desc": "自动寻路前往东张西望的黑腹雉羽兽",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    349.9,
+                    128
+                ],
+                [
+                    373.3,
+                    135.6
+                ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 105
+                }
+            }
+        },
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "ObservantSableChestedFowlbeastAdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "ObservantSableChestedFowlbeastAdjustCamera": {
+        "desc": "东张西望的黑腹雉羽兽任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenDown"
+        ]
+    }
+}

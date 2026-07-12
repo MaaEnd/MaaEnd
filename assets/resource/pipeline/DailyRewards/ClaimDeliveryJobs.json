@@ -1,0 +1,116 @@
+{
+    "DailyTaskClaimDeliveryJobsMain": {
+        "desc": "开始自动领取委托",
+        "next": [
+            "ClaimDeliveryJobsClickMyTransferredTab",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+        ]
+    },
+    "ClaimDeliveryJobsMyTransferredTabText": {
+        "desc": "仓储节点内「我转送的委托」标签 OCR",
+        "recognition": "OCR",
+        "roi": [
+            59,
+            67,
+            696,
+            64
+        ],
+        "expected": [
+            "我转交的委托",
+            "我轉交的委託",
+            "(?i)Jobs\\s*I\\s*Transferred",
+            "外部委託",
+            "My Transferred Jobs",
+            "転送した依頼",
+            "내가 위탁한 의뢰"
+        ]
+    },
+    "ClaimDeliveryJobsClickMyTransferredTab": {
+        "desc": "在仓储节点内点击「我转交的委托」标签",
+        "recognition": "And",
+        "all_of": [
+            "ClaimDeliveryJobsMyTransferredTabText",
+            "InLocalDepotNode"
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "next": [
+            "ClaimDeliveryJobsInMyTransferredTab",
+            "ClaimDeliveryJobsClickMyTransferredTab"
+        ]
+    },
+    "ClaimDeliveryJobsInMyTransferredTab": {
+        "desc": "确认已经进入「我转交的委托」界面",
+        "recognition": "And",
+        "all_of": [
+            "InClaimDeliveryJobsNode"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]ClaimDeliveryJobsClaimButton",
+            "ClaimDeliveryJobsBackAfterClaim"
+        ]
+    },
+    "ClaimDeliveryJobsClaimButton": {
+        "desc": "在我转送的委托内点击领取按钮（模板匹配）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1030,
+            634,
+            215,
+            54
+        ],
+        "template": "DailyRewards/ClaimDeliveryJobsButton.png",
+        "threshold": 0.8,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "next": [
+            "SceneNoticeRewardsConfirm",
+            "ClaimDeliveryJobsClaimButton"
+        ]
+    },
+    "ClaimDeliveryJobsBackAfterClaim": {
+        "desc": "领取后关闭仓储节点，回到主界面",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1"
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "next": [
+            "ClaimDeliveryJobsBackAfterClaim",
+            "ClaimDeliveryJobsFinished"
+        ]
+    },
+    "ClaimDeliveryJobsFinished": {
+        "desc": "领取转送奖励完成",
+        "focus": {
+            "Node.Action.Starting": "$task.DailyRewards.ClaimDeliveryJobsFinished"
+        }
+    }
+}

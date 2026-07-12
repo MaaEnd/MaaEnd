@@ -1,0 +1,324 @@
+{
+    "TrialOfSwordmancyCoatingMain": {
+        "desc": "自动刷镀层主入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoating1"
+        ]
+    },
+    "TrialOfSwordmancyCoating1": {
+        "desc": "刷镀层第1次抽取铭牌",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoating1Success"
+        ]
+    },
+    "TrialOfSwordmancyCoating1Success": {
+        "desc": "刷镀层第1次抽取铭牌成功",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyEnemyCard1"
+        ],
+        "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                62,
+                146,
+                173,
+                289
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoatingCheck1",
+            "TrialOfSwordmancyCoatingGiveUp"
+        ]
+    },
+    "TrialOfSwordmancyCoatingCheck1": {
+        "desc": "刷镀层第1次检查战力点",
+        "recognition": "Or",
+        "any_of": [
+            "TrialOfSwordmancyBattlePts1",
+            "TrialOfSwordmancyBattlePts2",
+            "TrialOfSwordmancyBattlePts3",
+            "TrialOfSwordmancyBattlePts4",
+            "TrialOfSwordmancyBattlePts5"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoating2"
+        ]
+    },
+    "TrialOfSwordmancyCoating2": {
+        "desc": "刷镀层第2次抽取铭牌",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoating2Success"
+        ]
+    },
+    "TrialOfSwordmancyCoating2Success": {
+        "desc": "刷镀层第2次抽取铭牌成功",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyEnemyCard2"
+        ],
+        "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                261,
+                146,
+                173,
+                289
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoatingCheck2",
+            "TrialOfSwordmancyCoatingGiveUp"
+        ]
+    },
+    "TrialOfSwordmancyCoatingCheck2": {
+        "desc": "刷镀层第2次检查战力点",
+        "recognition": "Or",
+        "any_of": [
+            "TrialOfSwordmancyBattlePts6",
+            "TrialOfSwordmancyBattlePts7",
+            "TrialOfSwordmancyBattlePts8",
+            "TrialOfSwordmancyBattlePts9",
+            "TrialOfSwordmancyBattlePts10"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoating3"
+        ]
+    },
+    "TrialOfSwordmancyCoating3": {
+        "desc": "刷镀层第3次抽取铭牌",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoating3Success"
+        ]
+    },
+    "TrialOfSwordmancyCoating3Success": {
+        "desc": "刷镀层第3次抽取铭牌成功",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyEnemyCard3"
+        ],
+        "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                460,
+                146,
+                173,
+                289
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoatingCheck3",
+            "TrialOfSwordmancyCoatingGiveUp"
+        ]
+    },
+    "TrialOfSwordmancyCoatingCheck3": {
+        "desc": "刷镀层第3次检查战力点",
+        "recognition": "Or",
+        "any_of": [
+            "TrialOfSwordmancyBattlePts0",
+            "TrialOfSwordmancyBattlePts1",
+            "TrialOfSwordmancyBattlePts2",
+            "TrialOfSwordmancyBattlePts3",
+            "TrialOfSwordmancyBattlePts4"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoating4"
+        ]
+    },
+    "TrialOfSwordmancyCoating4": {
+        "desc": "刷镀层第4次抽取铭牌",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoating4Success"
+        ]
+    },
+    "TrialOfSwordmancyCoating4Success": {
+        "desc": "刷镀层第4次抽取铭牌成功",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyEnemyCard4"
+        ],
+        "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                659,
+                146,
+                173,
+                289
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoatingCheck4",
+            "TrialOfSwordmancyCoatingGiveUp"
+        ]
+    },
+    "TrialOfSwordmancyCoatingCheck4": {
+        "desc": "刷镀层第4次检查战力点",
+        "recognition": "Or",
+        "any_of": [
+            "TrialOfSwordmancyBattlePts5",
+            "TrialOfSwordmancyBattlePts6",
+            "TrialOfSwordmancyBattlePts7",
+            "TrialOfSwordmancyBattlePts8",
+            "TrialOfSwordmancyBattlePts9"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoating5"
+        ]
+    },
+    "TrialOfSwordmancyCoating5": {
+        "desc": "刷镀层第5次抽取铭牌",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoating5Success"
+        ]
+    },
+    "TrialOfSwordmancyCoating5Success": {
+        "desc": "刷镀层第5次抽取铭牌成功",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyEnemyCard5"
+        ],
+        "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                858,
+                146,
+                173,
+                289
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoatingCheck5",
+            "TrialOfSwordmancyCoatingGiveUp"
+        ]
+    },
+    "TrialOfSwordmancyCoatingCheck5": {
+        "desc": "刷镀层第5次检查战力点",
+        "recognition": "Or",
+        "any_of": [
+            "TrialOfSwordmancyBattlePts10"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": []
+    },
+    "TrialOfSwordmancyCoatingGiveUp": {
+        "desc": "刷镀层放弃当前抽取",
+        "recognition": "Or",
+        "any_of": [
+            "TrialOfSwordmancyGiveUp"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoatingGiveUpSuccess"
+        ]
+    },
+    "TrialOfSwordmancyCoatingGiveUpSuccess": {
+        "desc": "放弃演算成功",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoatingEnterFreeCalc"
+        ]
+    },
+    "TrialOfSwordmancyCoatingEnterFreeCalc": {
+        "desc": "点击进入演算",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyEnterTrialMenu"
+        ],
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoatingEnterTrialMenuSuccess"
+        ]
+    },
+    "TrialOfSwordmancyCoatingEnterTrialMenuSuccess": {
+        "desc": "成功进入演算菜单",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                // 等待抽牌按钮的骰子转动完毕
+                1081,
+                510,
+                68,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoatingMain"
+        ]
+    }
+}

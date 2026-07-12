@@ -1,0 +1,355 @@
+{
+    "MysteriousCryptidGraffitiJob": {
+        "desc": "谜之生物的涂鸦任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckMysteriousCryptidGraffitiText",
+            "CheckMysteriousCryptidGraffitiIcon",
+            "CheckMysteriousCryptidGraffitiReadyText"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "MysteriousCryptidGraffitiExecute",
+            "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "failure_task": "MysteriousCryptidGraffitiFailed"
+        },
+        "post_delay": 0
+    },
+    "MysteriousCryptidGraffitiFailed": {
+        "desc": "谜之生物的涂鸦任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.MysteriousCryptidGraffiti.failed"
+        }
+    },
+    "MysteriousCryptidGraffitiExecute": {
+        "desc": "执行谜之生物的涂鸦任务路线",
+        "next": [
+            "AcceptMysteriousCryptidGraffiti",
+            "GoToMysteriousCryptidGraffitiMission"
+        ]
+    },
+    "CheckMysteriousCryptidGraffitiText": {
+        "desc": "检查是否有谜之生物的涂鸦文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "谜之生物的涂鸦",
+            "謎之生物的塗鴉",
+            "(?i)Mysterious\\s*Cryptid\\s*Graffiti",
+            "謎の生物に関する落書き",
+            "미지의 생물이 남긴 낙서"
+        ],
+        "replace": [],
+        "order_by": "Vertical"
+    },
+    "CheckMysteriousCryptidGraffitiIcon": {
+        "desc": "检查谜之生物的涂鸦文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckMysteriousCryptidGraffitiText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
+    },
+    "CheckMysteriousCryptidGraffitiReadyText": {
+        "desc": "检查谜之生物的涂鸦委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckMysteriousCryptidGraffitiIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckMysteriousCryptidGraffitiJob": {
+        "desc": "检查谜之生物的涂鸦委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckMysteriousCryptidGraffitiIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckMysteriousCryptidGraffitiGoToMissionText": {
+        "desc": "检查谜之生物的涂鸦委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckMysteriousCryptidGraffitiIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "InMysteriousCryptidGraffitiMission": {
+        "desc": "是否在谜之生物的涂鸦任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄谜之生物的涂鸦",
+            "拍攝謎之生物的塗鴉",
+            "(?i)Photo:\\s*Mysterious\\s*Cryptid\\s*Graffiti",
+            "謎の生物に関する落書きの写真を撮る",
+            "미지의 생물이 남긴 낙서를 촬영하기"
+        ],
+        "replace": []
+    },
+    "AcceptMysteriousCryptidGraffiti": {
+        "desc": "接取谜之生物的涂鸦委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckMysteriousCryptidGraffitiText",
+            "CheckMysteriousCryptidGraffitiIcon",
+            "CheckMysteriousCryptidGraffitiJob"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "GoToMysteriousCryptidGraffitiMission"
+        ]
+    },
+    "GoToMysteriousCryptidGraffitiMission": {
+        "desc": "前往谜之生物的涂鸦任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckMysteriousCryptidGraffitiText",
+            "CheckMysteriousCryptidGraffitiIcon",
+            "CheckMysteriousCryptidGraffitiGoToMissionText"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "MysteriousCryptidGraffitiTrackOrGoTo"
+        ]
+    },
+    "MysteriousCryptidGraffitiTrackOrGoTo": {
+        "desc": "在谜之生物的涂鸦任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续",
+        "recognition": "And",
+        "all_of": [
+            "InMysteriousCryptidGraffitiMission"
+        ],
+        "next": [
+            "TrackMysteriousCryptidGraffiti",
+            "AlreadyTrackedMysteriousCryptidGraffiti"
+        ]
+    },
+    "TrackMysteriousCryptidGraffiti": {
+        "desc": "追踪谜之生物的涂鸦任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InMysteriousCryptidGraffitiMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToMysteriousCryptidGraffiti"
+        ]
+    },
+    "AlreadyTrackedMysteriousCryptidGraffiti": {
+        "desc": "谜之生物的涂鸦任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InMysteriousCryptidGraffitiMission"
+        ],
+        "next": [
+            "GoToMysteriousCryptidGraffiti"
+        ]
+    },
+    "MysteriousCryptidGraffitiNotAdapted": {
+        "desc": "谜之生物的涂鸦任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
+    "GoToMysteriousCryptidGraffiti": {
+        "desc": "前往谜之生物的涂鸦，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "GoToMysteriousCryptidGraffitiStartPos",
+            "GoToMysteriousCryptidGraffitiNotAtStartPos"
+        ]
+    },
+    "GoToMysteriousCryptidGraffitiStartPos": {
+        "desc": "在谜之生物的涂鸦任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv003",
+                    "target": [
+                        384.5,
+                        542,
+                        28,
+                        28
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToMysteriousCryptidGraffitiMove"
+        ]
+    },
+    "GoToMysteriousCryptidGraffitiNotAtStartPos": {
+        "desc": "不在谜之生物的涂鸦任务开始位置附近，先传送再检查落点",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingQingboStockade2"
+            ]
+        },
+        "next": [
+            "GoToMysteriousCryptidGraffitiStartPos"
+        ]
+    },
+    "GoToMysteriousCryptidGraffitiMove": {
+        "desc": "自动寻路前往谜之生物的涂鸦",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv003",
+            "path": [
+                [
+                    407.4,
+                    548.1
+                ],
+                [
+                    420.8,
+                    537.6
+                ],
+                [
+                    434.6,
+                    527.3
+                ],
+                [
+                    438.2,
+                    523.6
+                ],
+                [
+                    437.4,
+                    519.3
+                ],
+                [
+                    435.2,
+                    515.8
+                ],
+                [
+                    435,
+                    505.6
+                ],
+                [
+                    436.2,
+                    503.6
+                ],
+                [
+                    438.8,
+                    503.1
+                ],
+                [
+                    441.3,
+                    503.1
+                ],
+                [
+                    442.5,
+                    508
+                ],
+                [
+                    445,
+                    513
+                ],
+                [
+                    445.1,
+                    519.3
+                ],
+                [
+                    442.5,
+                    525.4
+                ],
+                [
+                    441.3,
+                    528
+                ],
+                [
+                    442.5,
+                    531.7
+                ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 165
+                }
+            }
+        },
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "MysteriousCryptidGraffitiAdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "MysteriousCryptidGraffitiAdjustCamera": {
+        "desc": "谜之生物的涂鸦任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenLeft"
+        ]
+    }
+}

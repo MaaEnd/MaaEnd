@@ -1,0 +1,62 @@
+{
+    "SceneExampleNormalTask": {
+        "desc": "普通接口使用示例",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneExampleNormalTaskContinue",
+            "[JumpBack]SceneEnterMenuDijiangControlNexus"
+        ]
+    },
+    "SceneExampleNormalTaskContinue": {
+        "desc": "判断成功进入目标菜单，继续业务流程",
+        "recognition": "And",
+        "all_of": [
+            "InDijiangControlNexus"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": []
+    },
+    "SceneExampleTeleportTask": {
+        "desc": "传送接口使用示例",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVOriginiumSciencePark0"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "SceneExampleTeleportTaskInContinue"
+        ]
+    },
+    "SceneExampleTeleportTaskInContinue": {
+        "desc": "判断进入大世界，传送成功，继续业务流程",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": []
+    },
+    "SceneExampleRewardAndNext": {
+        "desc": "奖励接口使用示例，完成后继续业务流程",
+        "pre_delay": 0,
+        "anchor": {
+            "SceneNoticeRewardsConfirmNextAnchor": "SceneExampleRewardNext"
+        },
+        "post_delay": 0,
+        "next": [
+            "SceneNoticeRewardsConfirmWithAnchor"
+        ]
+    },
+    "SceneExampleRewardNext": {
+        "desc": "后续业务流程",
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

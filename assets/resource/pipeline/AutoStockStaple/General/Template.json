@@ -1,0 +1,91 @@
+{
+    "SoldOut": {
+        "desc": "识别到已售罄区域,需要退出",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    274,
+                    720
+                ],
+                "expected": [
+                    "已售罄",
+                    "已售完",
+                    "(?i)Sold\\s*Out",
+                    "完売"
+                ],
+                "replace": [
+                    "馨",
+                    "罄"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ConfirmBuyText": {
+        "desc": "识别当前确认购买按钮文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -163,
+                    -25,
+                    176,
+                    43
+                ],
+                "expected": [
+                    "确认购买",
+                    "確定購買",
+                    "(?i)Purchase",
+                    "確定"
+                ]
+            }
+        }
+    },
+    "CurrentStockBillColor": {
+        "desc": "识别当前调度券颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1073,
+                    0,
+                    123,
+                    49
+                ],
+                "method": 6,
+                "lower": [
+                    170
+                ],
+                "upper": [
+                    255
+                ]
+            }
+        }
+    },
+    "CurrentStockBillText": {
+        "desc": "识别当前调度券数量",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "CurrentStockBillColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [
+                    "\\d+"
+                ],
+                "only_rec": true,
+                "color_filter": "CurrentStockBillColor"
+            }
+        }
+    }
+}

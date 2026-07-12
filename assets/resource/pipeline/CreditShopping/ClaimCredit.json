@@ -1,0 +1,121 @@
+{
+    "CreditShoppingClaimCredit": {
+        "desc": "领取信用点",
+        "recognition": "OCR",
+        "roi": [
+            26,
+            583,
+            254,
+            137
+        ],
+        "expected": [
+            "收取信用",
+            "(?i)Collect\\s*Credits",
+            "FP受取"
+        ],
+        "action": "Click",
+        "next": [
+            "CreditShoppingClaimConfirm"
+        ]
+    },
+    "CreditShoppingNoCreditClaim": {
+        "desc": "没有信用点可领取",
+        "recognition": "OCR",
+        "roi": [
+            26,
+            583,
+            254,
+            137
+        ],
+        "expected": [
+            "无待领取信用",
+            "無待領取信用",
+            "(?i)No\\s*credits\\s*to\\s*claim",
+            "FP未獲得"
+        ],
+        "replace": [
+            [
+                "無",
+                "无"
+            ],
+            [
+                "領",
+                "领"
+            ]
+        ],
+        "action": "DoNothing",
+        "next": [
+            "CreditShoppingShopping"
+        ]
+    },
+    "CreditShoppingClaimConfirm": {
+        "desc": "获取信用点或物品后的通用确认节点",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton",
+                    "CreditShoppingClaimConfirmText"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 250,
+            "target": [
+                512,
+                387,
+                191,
+                42
+            ],
+            "timeout": 1000
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "CreditShoppingShopping"
+        ]
+    },
+    "CreditShoppingClaimConfirmText": {
+        "desc": "获得奖励后的文字提示确认",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "CloseRewardsButtonText",
+                    "CreditShoppingBuySuccess"
+                ]
+            }
+        }
+    },
+    "CreditShoppingBuySuccess": {
+        "desc": "购买成功的文字提示",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    537,
+                    21,
+                    209,
+                    149
+                ],
+                "expected": [
+                    "购买成功",
+                    "購買成功",
+                    "(?i)Purchased",
+                    "購入完了"
+                ],
+                "replace": [
+                    [
+                        "購",
+                        "购"
+                    ],
+                    [
+                        "買",
+                        "买"
+                    ]
+                ]
+            }
+        }
+    }
+}

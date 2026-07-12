@@ -1,0 +1,513 @@
+{
+    "AutoCollectSchedule": {
+        "desc": "自动采集时间任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectScheduleEnabled",
+            "AutoCollectEnd"
+        ]
+    },
+    "AutoCollectScheduleEnabled": {
+        "desc": "自动采集时间任务命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectResetFailures"
+        ],
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
+    "AutoCollectResetFailures": {
+        "desc": "重置自动采集路线执行结果",
+        "action": "Custom",
+        "custom_action": "FailureCollectorReset",
+        "custom_action_param": {
+            "key": "AutoCollect"
+        },
+        "next": [
+            "AutoCollectBeforeStashBackpack"
+        ]
+    },
+    "AutoCollectBeforeStashBackpack": {
+        "desc": "自动采集前存放背包",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackSubTask"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "AutoCollectLoop"
+        ]
+    },
+    "AutoCollectLoop": {
+        "desc": "依次执行已启用的自动采集路线",
+        "next": [
+            "[JumpBack]AutoCollectRoute1Sub",
+            "[JumpBack]AutoCollectRoute2Sub",
+            "[JumpBack]AutoCollectRoute3Sub",
+            "[JumpBack]AutoCollectRoute4Sub",
+            "[JumpBack]AutoCollectRoute5Sub",
+            "[JumpBack]AutoCollectRoute6Sub",
+            "[JumpBack]AutoCollectRoute7Sub",
+            "[JumpBack]AutoCollectRoute8Sub",
+            "[JumpBack]AutoCollectRoute9Sub",
+            "[JumpBack]AutoCollectRoute10Sub",
+            "[JumpBack]AutoCollectRoute11Sub",
+            "[JumpBack]AutoCollectRoute12Sub",
+            "[JumpBack]AutoCollectRoute13Sub",
+            "[JumpBack]AutoCollectRoute14Sub",
+            "[JumpBack]AutoCollectCommonRoute1Sub",
+            "[JumpBack]AutoCollectCommonRoute2Sub",
+            "[JumpBack]AutoCollectCommonRoute3Sub",
+            "[JumpBack]AutoCollectCommonRoute4Sub",
+            "[JumpBack]AutoCollectCommonRoute5Sub",
+            "[JumpBack]AutoCollectCommonRoute6Sub",
+            "[JumpBack]AutoCollectCommonRoute7Sub",
+            "[JumpBack]AutoCollectCommonRoute8Sub",
+            "AutoCollectAfterStashBackpack"
+        ]
+    },
+    "AutoCollectAfterStashBackpack": {
+        "desc": "自动采集后存放背包",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackSubTask"
+            ]
+        },
+        "next": [
+            "AutoCollectFinish"
+        ]
+    },
+    "AutoCollectFinish": {
+        "desc": "汇总自动采集子任务执行结果",
+        "action": "Custom",
+        "custom_action": "FailureCollectorFinish",
+        "custom_action_param": {
+            "key": "AutoCollect"
+        },
+        "next": [
+            "AutoCollectEnd"
+        ]
+    },
+    "AutoCollectEnd": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectRoute1Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute1Start",
+            "failure_task": "AutoCollectRoute1Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectRoute2Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute2Start",
+            "failure_task": "AutoCollectRoute2Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectRoute3Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute3Start",
+            "failure_task": "AutoCollectRoute3Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectRoute4Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute4Start",
+            "failure_task": "AutoCollectRoute4Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectRoute5Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute5Start",
+            "failure_task": "AutoCollectRoute5Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectRoute6Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute6Start",
+            "failure_task": "AutoCollectRoute6Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectRoute7Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute7Start",
+            "failure_task": "AutoCollectRoute7Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectRoute8Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute8Start",
+            "failure_task": "AutoCollectRoute8Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectRoute9Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute9Start",
+            "failure_task": "AutoCollectRoute9Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectRoute10Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute10Start",
+            "failure_task": "AutoCollectRoute10Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectRoute11Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute11Start",
+            "failure_task": "AutoCollectRoute11Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectRoute12Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute12Start",
+            "failure_task": "AutoCollectRoute12Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectRoute13Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute13Start",
+            "failure_task": "AutoCollectRoute13Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectRoute14Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute14Start",
+            "failure_task": "AutoCollectRoute14Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectCommonRoute1Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectCommonRoute1Start",
+            "failure_task": "AutoCollectCommonRoute1Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectCommonRoute2Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectCommonRoute2Start",
+            "failure_task": "AutoCollectCommonRoute2Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectCommonRoute3Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectCommonRoute3Start",
+            "failure_task": "AutoCollectCommonRoute3Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectCommonRoute4Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectCommonRoute4Start",
+            "failure_task": "AutoCollectCommonRoute4Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectCommonRoute5Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectCommonRoute5Start",
+            "failure_task": "AutoCollectCommonRoute5Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectCommonRoute6Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectCommonRoute6Start",
+            "failure_task": "AutoCollectCommonRoute6Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectCommonRoute7Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectCommonRoute7Start",
+            "failure_task": "AutoCollectCommonRoute7Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectCommonRoute8Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectCommonRoute8Start",
+            "failure_task": "AutoCollectCommonRoute8Failed"
+        },
+        "post_delay": 0
+    },
+    "AutoCollectRoute1Failed": {
+        "desc": "AutoCollectRoute1执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute1.failed"
+        }
+    },
+    "AutoCollectRoute2Failed": {
+        "desc": "AutoCollectRoute2执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute2.failed"
+        }
+    },
+    "AutoCollectRoute3Failed": {
+        "desc": "AutoCollectRoute3执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute3.failed"
+        }
+    },
+    "AutoCollectRoute4Failed": {
+        "desc": "AutoCollectRoute4执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute4.failed"
+        }
+    },
+    "AutoCollectRoute5Failed": {
+        "desc": "AutoCollectRoute5执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute5.failed"
+        }
+    },
+    "AutoCollectRoute6Failed": {
+        "desc": "AutoCollectRoute6执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute6.failed"
+        }
+    },
+    "AutoCollectRoute7Failed": {
+        "desc": "AutoCollectRoute7执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute7.failed"
+        }
+    },
+    "AutoCollectRoute8Failed": {
+        "desc": "AutoCollectRoute8执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute8.failed"
+        }
+    },
+    "AutoCollectRoute9Failed": {
+        "desc": "AutoCollectRoute9执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute9.failed"
+        }
+    },
+    "AutoCollectRoute10Failed": {
+        "desc": "AutoCollectRoute10执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute10.failed"
+        }
+    },
+    "AutoCollectRoute11Failed": {
+        "desc": "AutoCollectRoute11执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute11.failed"
+        }
+    },
+    "AutoCollectRoute12Failed": {
+        "desc": "AutoCollectRoute12执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute12.failed"
+        }
+    },
+    "AutoCollectRoute13Failed": {
+        "desc": "AutoCollectRoute13执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute13.failed"
+        }
+    },
+    "AutoCollectRoute14Failed": {
+        "desc": "AutoCollectRoute14执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute14.failed"
+        }
+    },
+    "AutoCollectCommonRoute1Failed": {
+        "desc": "AutoCollectCommonRoute1执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute1.failed"
+        }
+    },
+    "AutoCollectCommonRoute2Failed": {
+        "desc": "AutoCollectCommonRoute2执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute2.failed"
+        }
+    },
+    "AutoCollectCommonRoute3Failed": {
+        "desc": "AutoCollectCommonRoute3执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute3.failed"
+        }
+    },
+    "AutoCollectCommonRoute4Failed": {
+        "desc": "AutoCollectCommonRoute4执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute4.failed"
+        }
+    },
+    "AutoCollectCommonRoute5Failed": {
+        "desc": "AutoCollectCommonRoute5执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute5.failed"
+        }
+    },
+    "AutoCollectCommonRoute6Failed": {
+        "desc": "AutoCollectCommonRoute6执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute6.failed"
+        }
+    },
+    "AutoCollectCommonRoute7Failed": {
+        "desc": "AutoCollectCommonRoute7执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute7.failed"
+        }
+    },
+    "AutoCollectCommonRoute8Failed": {
+        "desc": "AutoCollectCommonRoute8执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute8.failed"
+        }
+    }
+}

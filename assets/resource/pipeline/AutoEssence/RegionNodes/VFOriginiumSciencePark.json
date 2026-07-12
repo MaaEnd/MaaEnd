@@ -1,0 +1,125 @@
+{
+    "GotoTriggerPointSetAnchor_VFOriginiumSciencePark": {
+        "enabled": false,
+        "pre_delay": 0,
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_VFOriginiumSciencePark",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_VFOriginiumSciencePark"
+        },
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "📌目标地点：源石研究园"
+        }
+    },
+    "GotoTriggerPointMaybeTeleport_VFOriginiumSciencePark": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 淤积点附近（锚点也在这个区域里）
+                            "map_name": "map01_lv005",
+                            "target": [
+                                359.0,
+                                207.0,
+                                30.0,
+                                55.0
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "inverse": true,
+        "next": [
+            "[JumpBack]__GotoTriggerPointTeleportOnce_VFOriginiumSciencePark",
+            "GotoTriggerPointMove_VFOriginiumSciencePark"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✈️准备传送到最近锚点"
+        }
+    },
+    "__GotoTriggerPointTeleportOnce_VFOriginiumSciencePark": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneEnterWorldValleyIVOriginiumSciencePark1"
+        ]
+    },
+    "GotoTriggerPointMove_VFOriginiumSciencePark": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map01_lv005",
+                    "path": [
+                        [
+                            361.9,
+                            210.3
+                        ],
+                        [
+                            373.1,
+                            210.4
+                        ],
+                        [
+                            384.4,
+                            221.5
+                        ],
+                        [
+                            385.7,
+                            227.9
+                        ],
+                        [
+                            385.5,
+                            241.4
+                        ],
+                        [
+                            385.4,
+                            241.7
+                        ]
+                    ],
+                    "path_trim": true
+                }
+            }
+        },
+        "next": [
+            "GotoTriggerPointMoveExact_VFOriginiumSciencePark"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往预备位置"
+        }
+    },
+    "GotoTriggerPointMoveExact_VFOriginiumSciencePark": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map01_lv005",
+                    "path": [
+                        [
+                            384.9,
+                            239.9
+                        ],
+                        [
+                            376.9,
+                            241.9
+                        ]
+                    ],
+                    "no_ensure_initial_movement_state": true
+                }
+            }
+        },
+        "post_delay": 1500, // 确保彻底停下，规避移动惯性
+        "next": [
+            "AutoEssenceDispatcher"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点"
+        }
+    }
+}

@@ -1,0 +1,62 @@
+{
+    "GiftOperatorContacChooseSortOrder": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    846,
+                    423,
+                    110,
+                    128
+                ]
+            }
+        }
+    },
+    "GiftOperatorContacSortBy": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    1044,
+                    542,
+                    50,
+                    50
+                ]
+            }
+        }
+    },
+    "GiftOperatorContacSortOrder": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    842,
+                    530,
+                    104,
+                    67
+                ]
+            }
+        }
+    },
+    "GiftOperatorNotSelect": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    49,
+                    -106,
+                    6,
+                    5
+                ]
+            }
+        }
+    },
+    "GiftOperatorTrustValue": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -32,
+                    106,
+                    12,
+                    -6
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "task": [
+        {
+            "name": "BakerEntry",
+            "label": "$task.BakerEntry.label",
+            "entry": "BakerEntry",
+            "description": "$task.BakerEntry.description",
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
+            "group": [
+                "other_menu"
+            ]
+        }
+    ],
+    "option": {}
+}

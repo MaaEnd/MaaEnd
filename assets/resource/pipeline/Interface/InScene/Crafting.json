@@ -1,0 +1,23 @@
+{
+    "InCrafting": {
+        "desc": "在简易制作界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    240,
+                    100
+                ],
+                "expected": [
+                    "简易制作",
+                    "簡易製作",
+                    "(?i)Crafting",
+                    "道具製作",
+                    "간편 제작"
+                ]
+            }
+        }
+    }
+}

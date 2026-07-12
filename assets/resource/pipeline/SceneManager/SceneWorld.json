@@ -1,0 +1,300 @@
+{
+    "__ScenePrivateWorldSpaceExit": {
+        "desc": "从大世界协议空间、好友飞船退出",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ],
+        "template": [
+            "SceneManager/WorldSpaceExit.png",
+            "SceneManager/WorldSpaceExit1.png"
+        ],
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldSpaceExitConfirm",
+            "__ScenePrivateEndVisit"
+        ]
+    },
+    "__ScenePrivateWorldStorySkip": {
+        "desc": "大世界剧情跳过",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1140,
+            0,
+            120,
+            90
+        ],
+        "template": "RealTimeTask/AutoSkipEsc.png",
+        "threshold": 0.7,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldStorySkipConfirm"
+        ]
+    },
+    "__ScenePrivateWorldStorySkipConfirm": {
+        "desc": "大世界剧情跳过确认",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 1000 // 点击后弹窗渐变消失，可能会重新识别成剧情跳过入口
+    },
+    "__ScenePrivateEndVisit": {
+        "desc": "识别结束拜访",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -260,
+                    -100,
+                    260,
+                    100
+                ],
+                "expected": [
+                    "结束拜访",
+                    "結束拜訪",
+                    "(?i)End\\s*Visit",
+                    "訪問終了",
+                    "방문 종료"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "__ScenePrivateWorldSpaceExitConfirm"
+        ]
+    },
+    "__ScenePrivateWorldSpaceExitConfirm": {
+        "desc": "从大世界协议空间、好友飞船退出的确认界面",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0
+    },
+    "__ScenePrivateAnyEnterWorldSuccess": {
+        "desc": "从任意界面进入大世界成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "target": [
+                70,
+                80,
+                70,
+                60
+            ],
+            "time": 800,
+            "timeout": 2000
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateWorldFactoryDisableEnterFactoryActive": {
+        "desc": "在大世界工厂模式不可用，例如战斗状态，进入工厂模式",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    60,
+                                    60
+                                ],
+                                "template": [
+                                    "SceneManager/WorldFactoryDisable.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -200,
+                                    0,
+                                    200,
+                                    200
+                                ],
+                                "template": [
+                                    "SceneManager/WorldMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateAnyEnterWorldFactorySuccess",
+            "__ScenePrivateWorldFactoryNotActiveEnterFactoryActive",
+            "[JumpBack]__ScenePrivateWorldAnyEnterFactory"
+        ]
+    },
+    "__ScenePrivateWorldFactoryNotActiveEnterFactoryActive": {
+        "desc": "在大世界工厂模式未激活，进入工厂模式",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    60,
+                                    60
+                                ],
+                                "template": [
+                                    "SceneManager/WorldFactoryNotActive.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -200,
+                                    0,
+                                    200,
+                                    200
+                                ],
+                                "template": [
+                                    "SceneManager/WorldMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    }
+                ],
+                "box_index": 0
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "next": [
+            "__ScenePrivateAnyEnterWorldFactorySuccess"
+        ]
+    },
+    "__ScenePrivateWorldDijiangEnterFactoryActive": {
+        "desc": "在大世界帝江号，进入工厂模式",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    400,
+                                    80
+                                ],
+                                "template": [
+                                    "SceneManager/WorldDijiangMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -200,
+                                    0,
+                                    200,
+                                    200
+                                ],
+                                "template": [
+                                    "SceneManager/WorldMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateAnyEnterWorldFactorySuccess",
+            "__ScenePrivateWorldFactoryNotActiveEnterFactoryActive",
+            "[JumpBack]__ScenePrivateWorldAnyEnterFactory"
+        ]
+    },
+    "__ScenePrivateWorldAnyEnterFactory": {
+        "desc": "在任意大世界界面，进入工厂模式",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    60,
+                    60
+                ],
+                "template": [
+                    "SceneManager/WorldFactoryNotActive.png",
+                    "SceneManager/WorldFactoryActive.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "inverse": true,
+        "next": [
+            "__ScenePrivateMapValleyIVTheHubEnterTeleport",
+            "[JumpBack]SceneEnterMapValleyIVTheHub"
+        ]
+    },
+    "__ScenePrivateAnyEnterWorldFactorySuccess": {
+        "desc": "从任意界面进入大世界工厂模式成功",
+        "recognition": "And",
+        "all_of": [
+            "InWorldFactory"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

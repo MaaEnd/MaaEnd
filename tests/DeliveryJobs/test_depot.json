@@ -1,0 +1,57 @@
+{
+    "configs": {
+        "name": "转交委托，测试仓储节点识别",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "四号谷地_地区建设_仓储节点_未就绪_查看任务_货物装箱.png",
+            "hits": [
+                {
+                    "node": "DeliveryJobsEnterPowerPlateauCargo",
+                    "box": {
+                        "Win32": [
+                            764,
+                            562,
+                            321,
+                            58
+                        ],
+                        "ADB": [
+                            764,
+                            583,
+                            305,
+                            56
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "在武陵的仓储节点中",
+            "image": "武陵_地区建设_仓储节点_货物装箱.png",
+            "hits": [
+                {
+                    "node": "DeliveryJobsEnterWulingCityCargo",
+                    "box": {
+                        "Win32": [
+                            59,
+                            557,
+                            324,
+                            63
+                        ],
+                        "ADB": [
+                            76,
+                            582,
+                            309,
+                            60
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

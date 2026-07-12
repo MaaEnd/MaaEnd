@@ -1,0 +1,290 @@
+{
+    "CollapsedTianshiPillarJob": {
+        "desc": "倒塌的天师桩任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckCollapsedTianshiPillarText",
+            "CheckCollapsedTianshiPillarIcon",
+            "CheckCollapsedTianshiPillarReadyText"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "CollapsedTianshiPillarExecute",
+            "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "failure_task": "CollapsedTianshiPillarFailed"
+        },
+        "post_delay": 0
+    },
+    "CollapsedTianshiPillarFailed": {
+        "desc": "倒塌的天师桩任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.CollapsedTianshiPillar.failed"
+        }
+    },
+    "CollapsedTianshiPillarExecute": {
+        "desc": "执行倒塌的天师桩任务路线",
+        "next": [
+            "AcceptCollapsedTianshiPillar",
+            "GoToCollapsedTianshiPillarMission"
+        ]
+    },
+    "CheckCollapsedTianshiPillarText": {
+        "desc": "检查是否有倒塌的天师桩文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "倒塌的天师桩",
+            "倒塌的天師樁",
+            "(?i)Collapsed\\s*Tianshi\\s*Pillar",
+            "倒れた天師杭",
+            "무너진 천사장"
+        ],
+        "replace": [],
+        "order_by": "Vertical"
+    },
+    "CheckCollapsedTianshiPillarIcon": {
+        "desc": "检查倒塌的天师桩文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckCollapsedTianshiPillarText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
+    },
+    "CheckCollapsedTianshiPillarReadyText": {
+        "desc": "检查倒塌的天师桩委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckCollapsedTianshiPillarIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckCollapsedTianshiPillarJob": {
+        "desc": "检查倒塌的天师桩委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckCollapsedTianshiPillarIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckCollapsedTianshiPillarGoToMissionText": {
+        "desc": "检查倒塌的天师桩委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckCollapsedTianshiPillarIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "InCollapsedTianshiPillarMission": {
+        "desc": "是否在倒塌的天师桩任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄倒塌的天师桩",
+            "拍攝倒塌的天師樁",
+            "(?i)Photo:\\s*Collapsed\\s*Tianshi\\s*Pillar",
+            "倒れた天師杭の写真を撮る",
+            "무너진 천사장을 촬영하기"
+        ],
+        "replace": []
+    },
+    "AcceptCollapsedTianshiPillar": {
+        "desc": "接取倒塌的天师桩委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckCollapsedTianshiPillarText",
+            "CheckCollapsedTianshiPillarIcon",
+            "CheckCollapsedTianshiPillarJob"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "GoToCollapsedTianshiPillarMission"
+        ]
+    },
+    "GoToCollapsedTianshiPillarMission": {
+        "desc": "前往倒塌的天师桩任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckCollapsedTianshiPillarText",
+            "CheckCollapsedTianshiPillarIcon",
+            "CheckCollapsedTianshiPillarGoToMissionText"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "CollapsedTianshiPillarTrackOrGoTo"
+        ]
+    },
+    "CollapsedTianshiPillarTrackOrGoTo": {
+        "desc": "在倒塌的天师桩任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续",
+        "recognition": "And",
+        "all_of": [
+            "InCollapsedTianshiPillarMission"
+        ],
+        "next": [
+            "TrackCollapsedTianshiPillar",
+            "AlreadyTrackedCollapsedTianshiPillar"
+        ]
+    },
+    "TrackCollapsedTianshiPillar": {
+        "desc": "追踪倒塌的天师桩任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InCollapsedTianshiPillarMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToCollapsedTianshiPillar"
+        ]
+    },
+    "AlreadyTrackedCollapsedTianshiPillar": {
+        "desc": "倒塌的天师桩任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InCollapsedTianshiPillarMission"
+        ],
+        "next": [
+            "GoToCollapsedTianshiPillar"
+        ]
+    },
+    "CollapsedTianshiPillarNotAdapted": {
+        "desc": "倒塌的天师桩任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
+    "GoToCollapsedTianshiPillar": {
+        "desc": "前往倒塌的天师桩，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "GoToCollapsedTianshiPillarStartPos",
+            "GoToCollapsedTianshiPillarNotAtStartPos"
+        ]
+    },
+    "GoToCollapsedTianshiPillarStartPos": {
+        "desc": "在倒塌的天师桩任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                671.75,
+                1564.08,
+                46.31,
+                54.57
+            ]
+        },
+        "next": [
+            "GoToCollapsedTianshiPillarMove"
+        ]
+    },
+    "GoToCollapsedTianshiPillarNotAtStartPos": {
+        "desc": "不在倒塌的天师桩任务开始位置附近，先传送再检查落点",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley8"
+            ]
+        },
+        "next": [
+            "GoToCollapsedTianshiPillarStartPos"
+        ]
+    },
+    "GoToCollapsedTianshiPillarMove": {
+        "desc": "自动寻路前往倒塌的天师桩",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        644.99,
+                        1561.89
+                    ]
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 290
+                }
+            ]
+        },
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "CollapsedTianshiPillarAdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "CollapsedTianshiPillarAdjustCamera": {
+        "desc": "倒塌的天师桩任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
+        ]
+    }
+}

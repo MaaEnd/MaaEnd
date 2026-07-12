@@ -1,0 +1,31 @@
+{
+    "configs": {
+        "name": "环境监测",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "武陵_地区建设_环境监测终端_城郊监测终端_接取委托.png",
+            "hits": ["EternalSunsetJob"]
+        },
+        {
+            "image": "武陵_地区建设_环境监测终端_城郊监测终端_前往任务.png",
+            "hits": ["EternalSunsetJob"]
+        },
+        {
+            "image": "武陵_拍照模式_拍摄目标.png",
+            "hits": [
+                "EnvironmentMonitoringShutterButtonHighlighted",
+                "EnvironmentMonitoringShutterButtonPhotographyTarget"
+            ]
+        },
+        {
+            "image": "武陵_拍照模式_拍摄目标未达成.png",
+            "hits": []
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+{
+    "task": [
+        {
+            "name": "Crafting",
+            "label": "$task.Crafting.label",
+            "entry": "CraftingStart",
+            "description": "$task.Crafting.description",
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
+            "group": [
+                "backpack"
+            ]
+        }
+    ]
+}

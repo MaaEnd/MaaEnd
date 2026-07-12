@@ -1,0 +1,138 @@
+{
+    "AutoSellShipEnterStockRedistribution": {
+        "desc": "从飞船走向弹性需求物资界面",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ],
+        "template": "VisitFriends/ShipEscButton.png",
+        "threshold": 0.9,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "base01_lv003",
+            "path": [
+                [
+                    196.9,
+                    143.6
+                ],
+                [
+                    188.8,
+                    143.6
+                ],
+                [
+                    188.8,
+                    134.8
+                ]
+            ],
+            "no_ensure_initial_movement_state": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellEnterStockRedistribution"
+        ],
+        "focus": {
+            "Node.Action.Starting": "正在走向物资调度终端"
+        }
+    },
+    "AutoSellShipEnterStockRedistribution2": {
+        "desc": "测试时cpp容易卡到障碍物，go容易走不到头或走过头卡死",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ],
+        "template": "VisitFriends/ShipEscButton.png",
+        "threshold": 0.9,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "OMVBase01"
+                },
+                [
+                    187,
+                    141
+                ],
+                [
+                    187,
+                    131,
+                    true
+                ]
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellEnterStockRedistribution"
+        ]
+    },
+    "AutoSellEnterStockRedistribution": {
+        "desc": "进入物资调度页面",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -600,
+            -350,
+            600,
+            350
+        ],
+        "template": "AutoSell/StockRedistributionButton.png",
+        "threshold": 0.9,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellEnterStockRedistributionSuccess"
+        ]
+    },
+    "AutoSellEnterStockRedistributionSuccess": {
+        "desc": "成功进入物资调度页面",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistribution"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoSellTicketValleyIVOverflow": {
+        "desc": "识别四号谷地调度券是否溢出",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "30000000 < {AutoSellOwnTicketCountRecognition}",
+            "focus_matched_resolved_expression": true
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "四号谷地调度券已超过阈值"
+        }
+    },
+    "AutoSellTicketWulingOverflow": {
+        "desc": "识别武陵调度券是否溢出",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "30000000 < {AutoSellOwnTicketCountRecognition}",
+            "focus_matched_resolved_expression": true
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "武陵调度券已超过阈值"
+        }
+    }
+}

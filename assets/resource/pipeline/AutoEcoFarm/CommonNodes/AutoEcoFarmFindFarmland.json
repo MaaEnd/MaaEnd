@@ -1,0 +1,499 @@
+//这块代码的目的是通过追踪标记来识别农田，并点击追踪标记
+//节点从Start进入，开始前必须要在农田附近
+//要使用subtask调用入口"_AutoEcoFarmFindFarmlandStart""，
+// 或者next里写上["识别子任务完成的节点",[JumpBack]_AutoEcoFarmFindFarmlandStart"]
+{
+    //通用入口
+    "_AutoEcoFarmFindFarmlandStart": {
+        "desc": "在地图上查找农田标记并追踪标记",
+        "next": [
+            "_AutoEcoFarmFindFarmlandOpenMap"
+        ]
+    },
+    //内部节点
+    //识别农田的节点
+    "_AutoEcoFarmFindFamlandInWorld": {
+        "desc": "在大世界识别标记的节点",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    171,
+                    64,
+                    951,
+                    563
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
+                "green_mask": true,
+                "method": 5,
+                "threshold": 0.5,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmCalculateSwipeTarget"
+        ]
+    },
+    "_AutoEcoFarmFindFamlandInMap": {
+        "desc": "在小地图上识别标记的节点",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    43,
+                    42,
+                    138,
+                    134
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
+                "green_mask": true,
+                "method": 5,
+                "threshold": 0.5,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    //拉标记节点入口
+    "_AutoEcoFarmSwipeToTargetInitFarmLand": {
+        "desc": "设定并将视角拉向{农田}标记，如果标记已经在屏幕中央则跳过自身",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    620,
+                    100,
+                    40,
+                    300
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
+                "green_mask": true,
+                "threshold": 0.5,
+                "order_by": "Score"
+            }
+        },
+        "inverse": true,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "autoEcoFarmOverrideTargetTemplate",
+                "custom_action_param": {
+                    "template": "AutoEcoFarm/AutoEcoFarmFarmlandWithBack.png",
+                    "nodeNames": [
+                        "_AutoEcoFarmTargeRecognitionFullScreen",
+                        "_AutoEcoFarmTargeRecognitionSmallMap",
+                        "_AutoEcoFarmTargeInCenter",
+                        "_AutoEcoFarmTargeInBack"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "_AutoEcoFarmSwipeToTargetStart"
+        ]
+    },
+    "_AutoEcoFarmFindFarmlandOpenMap": {
+        "desc": "先打开大地图",
+        "next": [
+            "_AutoEcoFarmInMap",
+            "[JumpBack]SceneEnterMapAny"
+        ]
+    },
+    "_AutoEcoFarmInMap": {
+        "desc": "查找标记管理按钮来确认是否在地图界面，找到后点一下",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    25,
+                    635,
+                    156,
+                    48
+                ],
+                "expected": [
+                    "标记显示管理",
+                    "標記顯示管理",
+                    "(?i)Marker\\s*Tags",
+                    "ソート",
+                    "(?i)Marker Tags",
+                    "표식 관리"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "next": [
+            "_AutoEcoFarmClickTargetManager"
+        ]
+    },
+    //下面这段代码是在地图上清除标记，只留工业设备，方便找农田
+    "_AutoEcoFarmClickTargetManager": {
+        "desc": "点开标记显示管理",
+        "max_hit": 3,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    25,
+                    635,
+                    156,
+                    48
+                ],
+                "expected": [
+                    "标记显示管理",
+                    "標記顯示管理",
+                    "(?i)Marker\\s*Tags",
+                    "ソート",
+                    "(?i)Marker Tags",
+                    "표식 관리"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": "Click",
+        "next": [
+            "_AutoEcoFarmClickClear"
+        ]
+    },
+    "_AutoEcoFarmClickClear": {
+        "desc": "点击清空选中",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    49,
+                    637,
+                    142,
+                    50
+                ],
+                "expected": [
+                    "清空选中",
+                    "清除選取",
+                    "(?i)Clear\\s*All",
+                    "一括解除",
+                    "(?i)Clear All",
+                    "선택 초기화"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": "Click",
+        "next": [
+            "_AutoEcoFarmScrollToIndustrialFacilities"
+        ]
+    },
+    "_AutoEcoFarmScrollToIndustrialFacilities": {
+        "desc": "滚动一下",
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": [
+                    159,
+                    347,
+                    19,
+                    15
+                ],
+                "dy": -480
+            }
+        },
+        "post_wait_freezes": 500,
+        "next": [
+            "_AutoEcoFarmClickIndustrialFacilities"
+        ]
+    },
+    "_AutoEcoFarmClickIndustrialFacilities": {
+        "desc": "点击工业设备",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    18,
+                    44,
+                    337,
+                    593
+                ],
+                "expected": [
+                    "工业设备",
+                    "工業設備",
+                    "(?i)Factory",
+                    "공업 설비"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": "Click",
+        "next": [
+            "_AutoEcoFarmExitTargetManager"
+        ]
+    },
+    "_AutoEcoFarmExitTargetManager": {
+        "desc": "按一下esc",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 //esc键
+            }
+        },
+        "next": [
+            "[Anchor]_AutoEcoFarmFindEcoFarmAnchor"
+        ]
+    },
+    "_AutoEcoFarmScroll": {
+        "desc": "将鼠标移到目标位置并滚动放大视角",
+        "pre_delay": 0,
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": "[Anchor]_AutoEcoFarmFindEcoFarmAnchor",
+                "dy": 240
+            }
+        },
+        "post_wait_freezes": 10,
+        "post_delay": 0,
+        "next": [
+            //找到农田就下一步，没找到再拉缩放
+            "_AutoEcoFarmFindFarmlandCustom",
+            //如果已经到最大缩放还没找到农田，那可能是没有种田，直接跳过该地区任务回主菜单
+            "_AutoEcoFarmScaleMax",
+            //通过一个自循环来做到多次识别→拉近
+            "_AutoEcoFarmPullEcoFarmToCenter"
+        ]
+    },
+    "_AutoEcoFarmScaleMax": {
+        "desc": "缩放加号为灰色则代表已经拉到最大",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1225,
+                    242,
+                    24,
+                    24
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmPlusGrey.png",
+                "green_mask": true,
+                "method": 5,
+                "threshold": 0.9,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoEcoFarmMain"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "已经缩放到最大了，还没找到农田，默认当做没种田处理，换下个地区"
+        }
+    },
+    "_AutoEcoFarmPullEcoFarmToCenter": {
+        "desc": "将农田拉到屏幕中间",
+        "max_hit": 20,
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": "[Anchor]_AutoEcoFarmFindEcoFarmAnchor",
+                "end": [
+                    640,
+                    360,
+                    1,
+                    1
+                ]
+            }
+        },
+        "post_wait_freezes": 10,
+        "post_delay": 0,
+        "next": [
+            "[Anchor]_AutoEcoFarmFindEcoFarmAnchor"
+        ]
+    },
+    "_AutoEcoFarmFindFarmland": {
+        "desc": "给custom调用的识别节点，全屏识别农田",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
+                "green_mask": true,
+                "threshold": 0.7,
+                "order_by": "Horizontal"
+            }
+        }
+    },
+    "_AutoEcoFarmFindFarmlandCustom": {
+        "desc": "全屏寻找农田,并点击离特定点最近的农田",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "autoEcoFarmFindNearestRecognitionResult",
+                "custom_recognition_param": {
+                    "recognitionNodeName": "_AutoEcoFarmFindFarmland",
+                    "xRatio": 0.5,
+                    "yRatio": 0.5
+                }
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "target": [
+                945,
+                13,
+                332,
+                697
+            ],
+            "time": 200
+        },
+        "next": [
+            "_AutoEcoFarmIsMrarking",
+            "[JumpBack]_AutoEcoFarmMutiSelection",
+            "_AutoEcoFarmAlreadySetTarget",
+            "_AutoEcoFarmSetTarget",
+            "_AutoEcoFarmFarmlandStillVisibleRetry",
+            "[JumpBack]_AutoEcoFarmMoveMouse",
+            //识别不到农田的话不结束脚本，而是只结束该子任务，因为农田可能就在边上
+            "SceneAnyEnterWorld"
+        ]
+    },
+    "_AutoEcoFarmFarmlandStillVisibleRetry": {
+        "desc": "点击后仍未匹配到追踪条等分支，但全屏仍能识别农田标记，则回到就近点击重试",
+        "max_hit": 3,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmlandGAI.png",
+                "green_mask": true,
+                "threshold": 0.7,
+                "order_by": "Horizontal"
+            }
+        },
+        "next": [
+            "_AutoEcoFarmFindFarmlandCustom"
+        ]
+    },
+    "_AutoEcoFarmIsMrarking": {
+        "desc": "找到标记两个字说明点歪了，按一下esc",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    937,
+                    33,
+                    281,
+                    45
+                ],
+                "expected": [
+                    "标记",
+                    "標記",
+                    "Tag",
+                    "マーカー",
+                    "표식"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 //esc键
+            }
+        },
+        "next": [
+            "_AutoEcoFarmFindFarmlandCustom"
+        ]
+    },
+    "_AutoEcoFarmAlreadySetTarget": {
+        "desc": "找到取消两个字则直接下一步，不点击",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1123,
+                    644,
+                    113,
+                    35
+                ],
+                "expected": [
+                    "取消",
+                    "(?i)Cancel",
+                    "キャンセル",
+                    "취소"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "next": [
+            "SceneAnyEnterWorld"
+        ]
+    },
+    "_AutoEcoFarmSetTarget": {
+        "desc": "点击追踪按钮，设定追踪",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1123,
+                    644,
+                    113,
+                    35
+                ],
+                "expected": [
+                    "追踪",
+                    "追蹤",
+                    "(?i)Track",
+                    "追跡",
+                    "추적하기"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "SceneAnyEnterWorld"
+        ]
+    },
+    "_AutoEcoFarmMutiSelection": {
+        "desc": "识别是否有多选情况，识别初次点击点附近有无田块字样，有的话点一下含田块两字的选项",
+        "max_hit": 3, //超过3次没点掉就是出bug了直接跳过
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    873,
+                    361,
+                    273,
+                    262
+                ],
+                "expected": [
+                    "田块",
+                    "田塊",
+                    "(?i)Plot",
+                    "畑",
+                    "논배미"
+                ],
+                "threshold": 0.9,
+                "order_by": "Vertical"
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    }
+}

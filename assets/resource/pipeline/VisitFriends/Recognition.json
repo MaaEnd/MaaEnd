@@ -1,0 +1,114 @@
+{
+    "VisitFriendsRecognitionItemEnterButton": {
+        "desc": "识别进入好友船的按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -180,
+            135,
+            180,
+            460
+        ],
+        "template": "VisitFriends/EnterButton.png",
+        "threshold": 0.9
+    },
+    "VisitFriendsRecognitionItemName": {
+        "desc": "识别好友名称",
+        "recognition": "OCR",
+        "roi": [
+            130,
+            110,
+            300,
+            66
+        ],
+        "expected": [
+            ".*#.*"
+        ]
+    },
+    "VisitFriendsRecognitionItemWithName": {
+        "desc": "识别好友名称",
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsRecognitionItemEnterButton",
+            {
+                "recognition": "OCR",
+                "roi": "VisitFriendsRecognitionItemEnterButton",
+                "roi_offset": [
+                    -1050,
+                    -30,
+                    300,
+                    5
+                ],
+                "expected": [
+                    ".*#.*"
+                ],
+                "order_by": "Vertical"
+            }
+        ]
+    },
+    "VisitFriendsRecognitionItemClueExchange": {
+        "desc": "识别线索交换",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1159,
+            111,
+            85,
+            95
+        ],
+        "template": "VisitFriends/ClueExchangeAvailable.png",
+        "threshold": 0.9
+    },
+    "VisitFriendsRecognitionItemClueExchangeByEnterButton": {
+        "desc": "根据进入按钮偏移识别线索交换",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1159,
+            111,
+            85,
+            95
+        ],
+        "roi_offset": [
+            -20,
+            -30,
+            60,
+            60
+        ],
+        "template": "VisitFriends/ClueExchangeAvailable.png",
+        "threshold": 0.9
+    },
+    "VisitFriendsRecognitionItemDetailControlNexusAssist": {
+        "desc": "在详情界面识别总控中枢",
+        "recognition": "TemplateMatch",
+        "roi": [
+            700,
+            280,
+            300,
+            150
+        ],
+        "template": "VisitFriends/DetailControlNexusAssist.png",
+        "threshold": 0.9
+    },
+    "VisitFriendsRecognitionItemDetailMFGCabinAssist": {
+        "desc": "在详情界面识别制造仓",
+        "recognition": "TemplateMatch",
+        "roi": [
+            700,
+            280,
+            300,
+            150
+        ],
+        "template": "VisitFriends/DetailMFGCabinAssist.png",
+        "threshold": 0.9
+    },
+    "VisitFriendsRecognitionItemDetailGrowthChamberAssist": {
+        "desc": "在详情界面识别培养舱",
+        "recognition": "TemplateMatch",
+        "roi": [
+            700,
+            280,
+            300,
+            150
+        ],
+        "template": "VisitFriends/DetailGrowthChamberAssist.png",
+        "threshold": 0.9
+    }
+}

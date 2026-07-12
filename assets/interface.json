@@ -1,0 +1,203 @@
+{
+    "interface_version": 2,
+    "name": "MaaEnd",
+    "description": "$description.file",
+    "version": "v0.1.0",
+    "contact": "$contact.file",
+    "license": "locales/LICENSE_SHORT.md",
+    "welcome": "README.md",
+    "icon": "locales/MaaEnd-Tiny.png",
+    "github": "https://github.com/MaaEnd/MaaEnd",
+    "mirrorchyan_rid": "MaaEnd",
+    "mirrorchyan_multiplatform": true,
+    "languages": {
+        "zh_cn": "locales/interface/zh_cn.json",
+        "zh_tw": "locales/interface/zh_tw.json",
+        "en_us": "locales/interface/en_us.json",
+        "ja_jp": "locales/interface/ja_jp.json",
+        "ko_kr": "locales/interface/ko_kr.json"
+    },
+    "controller": [
+        {
+            "name": "Win32-Front",
+            "label": "$controller.Win32-Front.label",
+            "description": "$controller.Win32-Front.description",
+            "type": "Win32",
+            "win32": {
+                "class_regex": "UnityWndClass",
+                "window_regex": "Endfield",
+                "screencap": "ScreenDC",
+                "mouse": "Seize",
+                "keyboard": "Seize"
+            },
+            "permission_required": true
+        },
+        // Win32-Window-Background: 因游戏更新无法继续适配，已弃用
+        // {
+        //     "name": "Win32-Window-Background",
+        //     "label": "$controller.Win32-Window-Background.label",
+        //     "description": "$controller.Win32-Window-Background.description",
+        //     "type": "Win32",
+        //     "win32": {
+        //         "class_regex": "UnityWndClass",
+        //         "window_regex": "Endfield",
+        //         "screencap": "PrintWindow",
+        //         "mouse": "SendMessageWithWindowPos",
+        //         "keyboard": "PostMessage"
+        //     },
+        //     "permission_required": true
+        // },
+        {
+            "name": "ADB",
+            "label": "$controller.ADB.label",
+            "description": "$controller.ADB.description",
+            "type": "Adb",
+            "attach_resource_path": [
+                "./resource_adb"
+            ]
+        },
+        {
+            "name": "PlayCover",
+            "type": "PlayCover",
+            "playcover": {
+                "uuid": "maa.playcover"
+            },
+            "attach_resource_path": [
+                "./resource_adb",
+                "./resource_playcover"
+            ]
+        },
+        {
+            "name": "Wlroots",
+            "label": "$controller.Wlroots.label",
+            "description": "$controller.Wlroots.description",
+            "type": "WlRoots",
+            "attach_resource_path": [
+                "./resource_wlroots"
+            ],
+            "wlroots": {
+                "use_win32_vk_code": true
+            }
+        }
+    ],
+    "resource": [
+        {
+            "name": "官服",
+            "label": "$resource.CN.label",
+            "path": [
+                "./resource"
+            ]
+        }
+    ],
+    "agent": [
+        {
+            "child_exec": "agent/go-service"
+        },
+        {
+            "child_exec": "agent/cpp-algo",
+            "child_args": []
+        }
+    ],
+    "group": [
+        {
+            "name": "regional_development",
+            "label": "$group.regional_development.label",
+            "default_expand": true
+        },
+        {
+            "name": "valuables_vault",
+            "label": "$group.valuables_vault.label",
+            "default_expand": true
+        },
+        {
+            "name": "open_world",
+            "label": "$group.open_world.label",
+            "default_expand": true
+        },
+        {
+            "name": "sanity_sink",
+            "label": "$group.sanity_sink.label",
+            "default_expand": true
+        },
+        {
+            "name": "dijiang_ship",
+            "label": "$group.dijiang_ship.label",
+            "default_expand": true
+        },
+        {
+            "name": "backpack",
+            "label": "$group.backpack.label",
+            "default_expand": true
+        },
+        {
+            "name": "other_menu",
+            "label": "$group.other_menu.label",
+            "default_expand": true
+        },
+        {
+            "name": "realtime",
+            "label": "$group.realtime.label",
+            "default_expand": true
+        }
+    ],
+    "task": [],
+    "import": [
+        // pretask
+        "tasks/pretasks/GameSetting.json",
+        // group: regional_development
+        "tasks/SellProduct.json",
+        "tasks/SeizeDeliveryJobs.json",
+        "tasks/DeliveryJobs.json",
+        "tasks/AutoStockpile.json",
+        "tasks/AutoStockStaple.json",
+        "tasks/AutoSell.json",
+        "tasks/EnvironmentMonitoring.json",
+        // group: valuables_vault
+        "tasks/GearAssembly.json",
+        "tasks/Weapon.json",
+        "tasks/BatchUseDetector.json",
+        "tasks/EssenceFilter.json",
+        // group: open_world
+        "tasks/ResourceRecycleStation.json",
+        "tasks/AutoCollect.json",
+        "tasks/AutoEcoFarm.json",
+        "tasks/PuzzleSolver.json",
+        "tasks/SwitchTeam.json",
+        "tasks/ImportBluePrints.json",
+        // group: sanity_sink
+        "tasks/AutoUseSpMedication.json",
+        "tasks/AutoEssence.json",
+        "tasks/ProtocolSpace.json",
+        // group: dijiang_ship
+        "tasks/DijiangRewards.json",
+        "tasks/VisitFriends.json",
+        "tasks/GiftOperator.json",
+        "tasks/BatchAddFriends.json",
+        // group: other_menu
+        "tasks/PullCountCalculator.json",
+        "tasks/BakerEntry.json",
+        "tasks/ReadAllWiki.json",
+        "tasks/DailyRewards.json",
+        "tasks/ClaimSimulationRewards.json",
+        "tasks/TrialOfSwordmancy.json",
+        "tasks/CreditShopping.json",
+        "tasks/AccountSwitch.json",
+        "tasks/WebEvent202605.json",
+        "tasks/AndroidOpenGame.json",
+        "tasks/CloseGame.json",
+        // group: realtime
+        "tasks/RealTimeTask.json",
+        // group: backpack
+        "tasks/ItemTransfer.json",
+        "tasks/Crafting.json",
+        "tasks/SimpleProductionBatchStart.json",
+        "tasks/ReceiveProdManual.json",
+        "tasks/StashBackpack.json",
+        // preset
+        "tasks/preset/DailyFull.json",
+        "tasks/preset/QuickDaily.json",
+        "tasks/preset/RealtimeAssist.json",
+        // setting
+        "tasks/setting/Keymap.json"
+    ]
+}

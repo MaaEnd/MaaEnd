@@ -1,0 +1,297 @@
+{
+    "BetterSlidingFindStart": {
+        "desc": "识别滑动起点，存入go",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BetterSlidingSwipeButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BetterSlidingSwipeToMax"
+        ]
+    },
+    "BetterSlidingMain": {
+        "desc": "在这里清除状态，保证不被之前的任务影响",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BetterSlidingClearMaxHit"
+        ]
+    },
+    "BetterSlidingFindEnd": {
+        "desc": "识别滑动终点，交由go计算出精确点击位置",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BetterSlidingSwipeButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BetterSlidingPreciseClick"
+        ]
+    },
+    "BetterSlidingPreciseClick": {
+        "desc": "x, y精确点击",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BetterSlidingJumpBackNode"
+        ]
+    },
+    "BetterSlidingClearMaxHit": {
+        "desc": "清空节点MaxHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "BetterSlidingCheckQuantity",
+                        "BetterSlidingMoveMouse"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BetterSlidingFindStart"
+        ]
+    },
+    "BetterSlidingJumpBackNode": {
+        "desc": "返回节点",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BetterSlidingCheckQuantity",
+            "BetterSlidingFail"
+        ]
+    },
+    "BetterSlidingFail": {
+        "desc": "如果路由至此，则说明微调失败（超过次数）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "BetterSlidingDecreaseQuantity": {
+        "desc": "减少数量",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "repeat": 1,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BetterSlidingJumpBackNode"
+        ]
+    },
+    "BetterSlidingDone": {
+        "desc": "数量与Target一致，成功咯~",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "BetterSlidingSwipeToMax": {
+        "desc": "滑动到最大",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": "BetterSlidingFindStart",
+                "begin_offset": [
+                    5,
+                    5,
+                    -10,
+                    -10
+                ],
+                "end": [
+                    "BetterSlidingFindStart"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BetterSlidingGetMaxTarget",
+            "BetterSlidingGetMaxQuantity"
+        ]
+    },
+    "BetterSlidingCheckQuantity": {
+        "desc": "识别当前数量，交由go选择分支",
+        "max_hit": 4,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BetterSlidingGetQuantity"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BetterSlidingDone",
+            "BetterSlidingIncreaseQuantity",
+            "BetterSlidingDecreaseQuantity",
+            "[JumpBack]BetterSlidingMoveMouse"
+        ]
+    },
+    "BetterSlidingIncreaseQuantity": {
+        "desc": "增加数量",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "repeat": 1,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BetterSlidingJumpBackNode"
+        ]
+    },
+    "BetterSlidingMoveMouse": {
+        "desc": "避免遮挡",
+        "max_hit": 4,
+        "pre_delay": 0,
+        "action": {
+            "type": "TouchMove",
+            "param": {
+                "target": [
+                    1250,
+                    690,
+                    10,
+                    10
+                ]
+            }
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0
+    },
+    "BetterSlidingGetMaxQuantity": {
+        "desc": "识别最大可选数量，存入go，如果小于target，会在此处action返回false",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BetterSlidingGetQuantity"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BetterSlidingFindEnd"
+        ]
+    },
+    "BetterSlidingGetMaxTarget": {
+        "desc": "在滑动到最大值后识别最大目标数量并存入go，仅在显式指定MaxTarget时启用",
+        "enabled": false,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "expected": [
+                    "\\d+"
+                ],
+                "only_rec": false,
+                "order_by": "Length"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BetterSlidingGetMaxQuantity"
+        ]
+    }
+}

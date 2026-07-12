@@ -1,0 +1,58 @@
+{
+    "task": [
+        {
+            "name": "AccountSwitch",
+            "label": "$task.AccountSwitch.label",
+            "entry": "AccountSwitchStart",
+            "description": "$task.AccountSwitch.description",
+            "controller": [
+                "Win32-Front"
+            ],
+            "option": [
+                "AccountSwitchLastFourDigits"
+            ],
+            "group": [
+                "other_menu"
+            ]
+        }
+    ],
+    "option": {
+        "AccountSwitchLastFourDigits": {
+            "type": "input",
+            "label": "$option.AccountSwitchLastFourDigits.label",
+            "inputs": [
+                {
+                    "name": "LastFourDigits",
+                    "label": "$option.AccountSwitchLastFourDigits.LastFourDigits.label",
+                    "pipeline_type": "string",
+                    "verify": "^\\d{4}$",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "__AccountSwitchOCRSelectAccount": {
+                    "recognition": {
+                        "param": {
+                            "expected": [
+                                ".*[*\\d]\\s*{LastFourDigits}\\s*(?:最近)?.*",
+                                ".*{LastFourDigits}\\s*(?:最近)?.*",
+                                "{LastFourDigits}"
+                            ]
+                        }
+                    }
+                },
+                "__AccountSwitchVerifySelected": {
+                    "recognition": {
+                        "param": {
+                            "expected": [
+                                ".*[*\\d]\\s*{LastFourDigits}\\s*(?:最近)?.*",
+                                ".*{LastFourDigits}\\s*(?:最近)?.*",
+                                "{LastFourDigits}"
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

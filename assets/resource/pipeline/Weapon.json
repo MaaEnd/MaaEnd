@@ -1,0 +1,388 @@
+{
+    "WeaponUpgradeStart": {
+        "desc": "升级武器任务入口",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "WeaponUpgradeSwitchLowLevel",
+                        "WeaponUpgradeSwitchAscending"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WeaponUpgradeSetFilter",
+            "[JumpBack]SceneEnterMenuValuables"
+        ]
+    },
+    "WeaponUpgradeSetFilter": {
+        "desc": "设置武器库筛选条件",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    155,
+                    85
+                ],
+                "expected": [
+                    "武器"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                -400,
+                400,
+                400
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]WeaponUpgradeSwitchLowLevel",
+            "[JumpBack]WeaponUpgradeSwitchAscending",
+            "WeaponUpgradeSelectLowLevelWeapons"
+        ]
+    },
+    "WeaponUpgradeSelectLowLevelWeapons": {
+        "desc": "选择低等级武器详情",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    985,
+                    591,
+                    277,
+                    112
+                ],
+                "template": "Weapon/WeaponDetails.png",
+                "threshold": 0.8
+            }
+        },
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
+            "WeaponUpgradeClickLevelUpButton"
+        ]
+    },
+    "WeaponUpgradeClickLevelUpButton": {
+        "desc": "进入升级UI",
+        "max_hit": 5,
+        "recognition": "And",
+        "all_of": [
+            "LevelUpButton"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                200,
+                200
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "WeaponUpgradeClickAddUpgradeMaterial"
+        ],
+        "on_error": [
+            "WeaponUpgradeClickLevelUpButton" // 此动画过渡过程中会卡住时间较久，没办法了增加重试
+        ]
+    },
+    "WeaponUpgradeClickAddUpgradeMaterial": {
+        "desc": "点击添加升级材料按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1201,
+                    54,
+                    53,
+                    135
+                ],
+                "template": "Weapon/AddUpgradeMaterialButton.png",
+                "threshold": 0.8
+            }
+        },
+        "pre_wait_freezes": 500,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WeaponUpgradeConfirmUpgradeLevel"
+        ]
+    },
+    "WeaponUpgradeConfirmUpgradeLevel": {
+        "desc": "确认升级等级",
+        "recognition": "And",
+        "all_of": [
+            "LevelUpButton",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    -200,
+                    200,
+                    200
+                ],
+                "template": "Weapon/UpgradeMaterialsDelete.png"
+            }
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 1000,
+            "target": [
+                -280,
+                -140,
+                280,
+                140
+            ]
+        },
+        "post_delay": 3000, // 等待可能出现的材料返还弹窗
+        "next": [
+            "[JumpBack]SceneNoticeRewardsConfirm",
+            "WeaponUpgradeWeaponFinished",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "WeaponUpgradeWeaponFinished": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "WeaponUpgradeSwitchLowLevel": {
+        "desc": "识别品质，切换到等级分类",
+        "max_hit": 5,
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "order_text",
+                "recognition": "OCR",
+                "roi": [
+                    16,
+                    561,
+                    375,
+                    133
+                ],
+                "expected": [
+                    "降序",
+                    "(?i)DESC",
+                    "降順",
+                    "升序",
+                    "(?i)ASC",
+                    "昇順"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": "order_text",
+                "roi_offset": [
+                    -150,
+                    -10,
+                    50,
+                    20
+                ],
+                "expected": [
+                    "品质",
+                    "品質",
+                    "(?i)Quality"
+                ]
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                0,
+                -200,
+                400,
+                200
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WeaponUpgradeClickLevelSort"
+        ]
+    },
+    "WeaponUpgradeClickLevelSort": {
+        "desc": "在下拉菜单中识别武器等级并选择",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "order_text",
+                "recognition": "OCR",
+                "roi": [
+                    16,
+                    561,
+                    375,
+                    133
+                ],
+                "expected": [
+                    "降序",
+                    "(?i)DESC",
+                    "降順",
+                    "升序",
+                    "(?i)ASC",
+                    "昇順"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": "order_text",
+                "roi_offset": [
+                    -150,
+                    -100,
+                    50,
+                    70
+                ],
+                "expected": [
+                    "武器等级",
+                    "武器等級",
+                    "(?i)Weapon\\s*Level",
+                    "レベル"
+                ]
+            }
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                16,
+                561,
+                375,
+                133
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                -300,
+                400,
+                300
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "WeaponUpgradeSwitchAscending": {
+        "desc": "识别到降序，变成升序",
+        "max_hit": 5,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    16,
+                    561,
+                    375,
+                    133
+                ],
+                "expected": [
+                    "降序",
+                    "(?i)DESC",
+                    "降順"
+                ]
+            }
+        },
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
+            "WeaponUpgradeSwitchAscendingSuccess"
+        ]
+    },
+    "WeaponUpgradeSwitchAscendingSuccess": {
+        "desc": "成功切换到升序",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    16,
+                    561,
+                    375,
+                    133
+                ],
+                "expected": [
+                    "升序",
+                    "(?i)ASC",
+                    "昇順"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                0,
+                -300,
+                400,
+                300
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

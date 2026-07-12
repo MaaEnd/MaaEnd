@@ -1,0 +1,20 @@
+{
+    "InStashValuablesTab": {
+        "desc": "当前正在珍贵物品页界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    713,
+                    16,
+                    23,
+                    23
+                ],
+                "template": "SceneManager/ValuablesTabChoosed.png"
+            }
+        },
+        "focus": {
+            "Node.Action.Starting": "进入珍贵物品标签页界面"
+        }
+    }
+}

@@ -1,0 +1,118 @@
+{
+    "WebEvent202605_Entry": {
+        "next": [
+            "[JumpBack]WebEvent202605_Start",
+            "[JumpBack]WebEvent202605_BackToHome",
+            "[JumpBack]WebEvent202605_ClickToContinue",
+            "WebEvent202605_Action"
+        ]
+    },
+    "WebEvent202605_Start": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    765,
+                    480,
+                    485,
+                    195
+                ],
+                "template": [
+                    "WebEvent/202605/StartButton.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 2000, // Wait for countdown
+        "focus": {
+            "Node.Action.Starting": "👆点击开始按钮"
+        }
+    },
+    "WebEvent202605_BackToHome": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    360,
+                    200
+                ],
+                "template": [
+                    "WebEvent/202605/BackButton.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Action.Starting": "👆点击返回按钮"
+        }
+    },
+    "WebEvent202605_ClickToContinue": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "WebEvent/202605/ClickToContinue1.png",
+                    "WebEvent/202605/ClickToContinue2.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Action.Starting": "👆点击教程指引"
+        }
+    },
+    "WebEvent202605_Action": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    780,
+                    0,
+                    250,
+                    130
+                ],
+                "template": [
+                    "WebEvent/202605/Heart.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "WebEvent202605Action",
+                "custom_action_param": {
+                    "max_shot": 0
+                }
+            }
+        },
+        "on_error": [
+            "WebEvent202605_Failed"
+        ],
+        "focus": {
+            "Node.Action.Starting": "**🚀开始进行自动堆叠！**\n过程中可能会有长达十几秒的无操作，属正常现象，请等待任务完成~",
+            "Node.Action.Succeeded": "**✅已完成目标堆叠次数！**\n您可手动点击返回按钮结束游戏，或者重启此任务继续堆叠~"
+        }
+    },
+    "WebEvent202605_Failed": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "WebEvent/202605/BackButton.png"
+                ]
+            }
+        },
+        "focus": {
+            "Node.Action.Starting": "⚠️**检测到游戏提前结束！**\n如果对得分不满意可以多试几次~ 由于性能限制，是不能达到很高的分数的，预期达到100分就不错了哦~"
+        }
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "GiftOperatorBagItemCount": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    24,
+                    53,
+                    7,
+                    2
+                ]
+            }
+        }
+    }
+}

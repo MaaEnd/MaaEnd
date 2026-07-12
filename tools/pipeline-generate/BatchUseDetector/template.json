@@ -1,0 +1,106 @@
+{
+    "BatchUseDetectorFind${LocationId}Item": {
+        "desc": "进入${LocationName}物品选取流程",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "BatchUseDetectorFind${Detector}",
+            "BatchUseDetectorFind${Compass}",
+            "BatchUseDetectorFindNoItem"
+        ]
+    },
+    "BatchUseDetectorFind${Detector}": {
+        "desc": "寻找${LocationDetector}",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            24,
+            75,
+            945,
+            569
+        ],
+        "template": "BatchUseDetector/${Detector}.png",
+        "method": 5,
+        "threshold": 0.95,
+        "order_by": "Score",
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "BatchUseDetectorConfirm${Detector}Name"
+        ],
+        "focus": {
+            "Node.Action.Starting": "寻找${LocationDetector}"
+        }
+    },
+    "BatchUseDetectorConfirm${Detector}Name": {
+        "desc": "确认${LocationDetector}名称",
+        "enabled": true,
+        "recognition": "OCR",
+        "roi": [
+            981,
+            63,
+            144,
+            27
+        ],
+        "expected": [
+            "${LocationDetector}"
+        ],
+        "threshold": 0.7,
+        "next": [
+            "BatchUseDetectorClickWhiteConfirmButton",
+            "BatchUseDetectorFinished"
+        ],
+        "focus": {
+            "Node.Action.Starting": "确认${LocationDetector}名称"
+        }
+    },
+    "BatchUseDetectorFind${Compass}": {
+        "desc": "寻找${LocationName}${LocationCompass}",
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            24,
+            75,
+            945,
+            569
+        ],
+        "template": "BatchUseDetector/${Compass}.png",
+        "method": 5,
+        "threshold": 0.95,
+        "order_by": "Score",
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "BatchUseDetectorConfirm${Compass}Name"
+        ],
+        "focus": {
+            "Node.Action.Starting": "寻找${LocationName}${LocationCompass}"
+        }
+    },
+    "BatchUseDetectorConfirm${Compass}Name": {
+        "desc": "确认${LocationCompass}名称",
+        "enabled": true,
+        "recognition": "OCR",
+        "roi": [
+            981,
+            63,
+            144,
+            27
+        ],
+        "expected": [
+            "${LocationCompass}"
+        ],
+        "threshold": 0.7,
+        "next": [
+            "BatchUseDetectorClickWhiteConfirmButton",
+            "BatchUseDetectorFinished"
+        ],
+        "focus": {
+            "Node.Action.Starting": "确认${LocationCompass}名称"
+        }
+    }
+}

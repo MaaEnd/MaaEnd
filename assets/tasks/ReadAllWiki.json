@@ -1,0 +1,20 @@
+{
+    "task": [
+        {
+            "name": "ReadAllWiki",
+            "label": "$task.ReadAllWiki.label",
+            "entry": "WikiReadAll",
+            "description": "$task.ReadAllWiki.description",
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
+            "group": [
+                "other_menu"
+            ]
+        }
+    ],
+    "option": {}
+}

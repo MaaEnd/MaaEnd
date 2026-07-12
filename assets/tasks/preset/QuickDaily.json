@@ -1,0 +1,76 @@
+{
+    "preset": [
+        {
+            "name": "QuickDaily",
+            "label": "$preset.QuickDaily.label",
+            "description": "$preset.QuickDaily.description",
+            "task": [
+                {
+                    "name": "VisitFriends",
+                    "option": {
+                        "ProductionAssistControl": [
+                            "ProductionAssistControlNexus",
+                            "ProductionAssistMFGCabin",
+                            "ProductionAssistGrowthChamber"
+                        ]
+                    }
+                },
+                {
+                    "name": "DijiangRewards",
+                    "option": {
+                        "AutoStartExchange": "Yes",
+                        "StageTaskSetting": "No",
+                        "ClueStockLimit": "2"
+                    }
+                },
+                {
+                    "name": "CreditShoppingN2",
+                    "option": {
+                        "CreditShoppingForce": "Refresh",
+                        "CreditShoppingReserve": {
+                            "ReserveCreditThreshold": "300"
+                        },
+                        "CreditShoppingPriority1": "Yes",
+                        "CreditShoppingPriority1Items": [
+                            "ArsenalTicket",
+                            "Oroberyl"
+                        ],
+                        "CreditShoppingPriority1DiscountValue": "Any",
+                        "CreditShoppingPriority2": "Yes",
+                        "CreditShoppingPriority2Items": [
+                            "ArsenalTicket",
+                            "Oroberyl",
+                            "TCreds",
+                            "ElementaryCognitiveCarrier",
+                            "ElementaryCombatRecord",
+                            "IntermediateCombatRecord",
+                            "ArmsInspector",
+                            "ArmsINSPKit",
+                            "CastDie",
+                            "HeavyCastDie",
+                            "Protodisk",
+                            "Protoset",
+                            "Protoprism",
+                            "Protohedron"
+                        ],
+                        "CreditShoppingPriority2DiscountValue": "-75%",
+                        "CreditShoppingPriority3": "No"
+                    }
+                },
+                {
+                    "name": "SellProduct"
+                },
+                {
+                    "name": "DailyRewards",
+                    "option": {
+                        "DailyEmailRewards": "Yes",
+                        "DailyEventRewards": "Yes",
+                        "DailyTaskRewards": "Yes",
+                        "DailyClaimDeliveryJobsRewards": "Yes",
+                        "DailyProtocolPassRewards": "Yes"
+                    }
+                }
+            ]
+        }
+    ]
+}

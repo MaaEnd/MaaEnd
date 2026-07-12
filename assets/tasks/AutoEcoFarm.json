@@ -1,0 +1,188 @@
+{
+    "task": [
+        {
+            "name": "AutoEcoFarm",
+            "label": "$task.AutoEcoFarm.label",
+            "entry": "AutoEcoFarmTask",
+            "description": "$task.AutoEcoFarm.description",
+            "controller": [
+                "Win32-Front",
+                "Wlroots"
+            ],
+            "option": [
+                "SelectFarm",
+                "GotoEcoFarmNavCategory",
+                "StashBackpackSubTask"
+            ],
+            "group": [
+                "open_world"
+            ]
+        }
+    ],
+    "option": {
+        "SelectFarm": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.SelectFarm.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "GotoValleyIV",
+                        "GotoWulin"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "GotoValleyIV": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.GotoValleyIV.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "_AutoEcoFarmInitStartValleyIV": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "_AutoEcoFarmInitStartValleyIV": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "GotoWulin": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.GotoWulin.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "LeaveBaseWithCameraMode"
+                    ],
+                    "pipeline_override": {
+                        "_AutoEcoFarmInitStartWulin": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "_AutoEcoFarmInitStartWulin": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "GotoEcoFarmNavCategory": {
+            "type": "select",
+            "label": "$task.AutoEcoFarm.option.GotoEcoFarmNavCategory.label",
+            "default_case": "SmartNav",
+            "cases": [
+                {
+                    "name": "SmartNav",
+                    "label": "$task.AutoEcoFarm.option.GotoEcoFarmNavCategory.cases[1].label",
+                    "option": [
+                        "GotoEcoFarmSmartMethod"
+                    ]
+                },
+                {
+                    "name": "PresetPath",
+                    "label": "$task.AutoEcoFarm.option.GotoEcoFarmNavCategory.cases[2].label",
+                    "option": [
+                        "GotoEcoFarmPresetMethod"
+                    ]
+                }
+            ]
+        },
+
+        "GotoEcoFarmSmartMethod": {
+            "type": "select",
+            "label": "$task.AutoEcoFarm.option.GotoEcoFarmSmartMethod.label",
+            "default_case": "NAVMESH",
+            "cases": [
+                {
+                    "name": "NAVMESH",
+                    "label": "MapNavigator",
+                    "pipeline_override": {
+                        "_AutoEcoFarmGotoEcoFarmStart": {
+                            "next": [
+                                "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
+                                "[JumpBack][Anchor]_AutoEcoFarmGotoEcoFarmBaseNavAnchor",
+                                "_AutoEcoFarmGotoEcoFarmExit"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "GotoEcoFarmPresetMethod": {
+            "type": "select",
+            "label": "$task.AutoEcoFarm.option.GotoEcoFarmPresetMethod.label",
+            "default_case": "MapNavigator",
+            "cases": [
+                {
+                    "name": "MapNavigator",
+                    "label": "MapNavigator",
+                    "pipeline_override": {
+                        "_AutoEcoFarmGotoEcoFarmStart": {
+                            "next": [
+                                "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
+                                "[JumpBack][Anchor]_AutoEcoFarmGotoEcoFarmCppAnchor",
+                                "_AutoEcoFarmGotoEcoFarmExit"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MapTracker",
+                    "label": "MapTracker",
+                    "pipeline_override": {
+                        "_AutoEcoFarmGotoEcoFarmStart": {
+                            "next": [
+                                "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
+                                "[JumpBack][Anchor]_AutoEcoFarmGotoEcoFarmGoAnchor",
+                                "_AutoEcoFarmGotoEcoFarmExit"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "LeaveBaseWithCameraMode": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.LeaveBaseWithCameraMode.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "_AutoEcoFarmBlindWalkStartWulin": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "_AutoEcoFarmBlindWalkStartWulin": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

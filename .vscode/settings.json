@@ -1,0 +1,76 @@
+{
+    "files.insertFinalNewline": true,
+    "files.eol": "\n",
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "/assets/resource/pipeline/**/*.json",
+                "/assets/resource_*/pipeline/**/*.json",
+                "/install/resource/pipeline/**/*.json",
+                "/install/resource_*/pipeline/**/*.json",
+                "/assets/resource/pipeline/**/*.jsonc",
+                "/assets/resource_*/pipeline/**/*.jsonc",
+                "/install/resource/pipeline/**/*.jsonc",
+                "/install/resource_*/pipeline/**/*.jsonc"
+            ],
+            "url": "/tools/schema/pipeline.schema.json"
+        },
+        {
+            "fileMatch": [
+                "/assets/interface.json",
+                "/install/interface.json"
+            ],
+            "url": "/tools/schema/interface.schema.json"
+        },
+        {
+            "fileMatch": [
+                "/assets/tasks/**/*.json",
+                "/install/tasks/**/*.json"
+            ],
+            "url": "/tools/schema/interface_import.schema.json"
+        },
+        {
+            "fileMatch": [
+                "/install/config/maa_pi_config.json"
+            ],
+            "url": "/tools/schema/interface_config.schema.json"
+        },
+        {
+            "fileMatch": [
+                "/tests/**/*.json",
+                "/tests/**/*.jsonc"
+            ],
+            "url": "/tools/schema/test.schema.json"
+        },
+        {
+            "fileMatch": [
+                "/tools/pipeline-generate/EnvironmentMonitoring/routes.json"
+            ],
+            "url": "/tools/schema/environment_monitoring_routes.schema.json"
+        }
+    ],
+    "files.associations": {
+        "**/assets/**/*.json": "jsonc",
+        "**/tests/**/*.json": "jsonc",
+        "*.mtnm": "ini"
+    },
+    "[json][jsonc]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "[markdown]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
+    },
+    "[go]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "golang.go",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    }
+}

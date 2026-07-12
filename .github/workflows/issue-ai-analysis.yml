@@ -1,0 +1,64 @@
+name: AI Issue Analysis
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to analyze'
+        required: true
+        type: number
+
+jobs:
+  ai-analysis:
+    if: |
+      (github.event_name == 'issues' && github.event.action == 'opened') ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issue_comment' &&
+       github.event.action == 'created' &&
+       contains(github.event.comment.body, '@MaaEndBot') &&
+       github.event.comment.user.type != 'Bot')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Install DMP analysis tools
+        run: |
+          curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+          cargo binstall -y minidump-stackwalk dump_syms
+
+      # 分析质量仍依赖：.claude/skills/maaend-issue-log-analysis/SKILL.md
+      - name: Analyze issue with AI
+        id: analysis
+        continue-on-error: true
+        uses: MistEO/ai-issue-analysis@main
+        with:
+          agent: ${{ secrets.BOT_AI_AGENT }}
+          api-key: ${{ secrets.BOT_AI_API_KEY }}
+          api-base-url: ${{ secrets.BOT_AI_API_BASE_URL }}
+          model: ${{ secrets.BOT_AI_MODEL }}
+          github-token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          bot-name: '@MaaEndBot'
+          initial-comment-body: |
+            🤖 **MaaEndBot 正在分析该 Issue...**
+
+            感谢您的反馈！AI 正在自动分析该问题，预计耗时约 10 分钟。
+          prompt-template: |
+            严格按照 .claude/skills/maaend-issue-log-analysis/SKILL.md 中的规则，分析 GitHub Issue {{issue_number}}。把最终结论写到 {{answer_file}}。
+
+      - name: 查看完整输入输出
+        if: always()
+        env:
+          ISSUE_NUMBER: ${{ steps.analysis.outputs.issue-number }}
+          COMMENT_ID: ${{ steps.analysis.outputs.comment-id }}
+          COMMENT_URL: ${{ steps.analysis.outputs.comment-url }}
+        run: |
+          echo "issue_number=$ISSUE_NUMBER"
+          echo "comment_id=$COMMENT_ID"
+          echo "comment_url=$COMMENT_URL"
+          echo "(Full agent-output and final-conclusion are available in the uploaded artifacts)"

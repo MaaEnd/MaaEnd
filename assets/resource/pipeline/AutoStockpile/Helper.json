@@ -1,0 +1,181 @@
+{
+    "AutoStockpileGetGoods": {
+        "desc": "[Go覆盖] 对购买区域进行OCR",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    60,
+                    175,
+                    1170,
+                    500
+                ],
+                "expected": [
+                    ".*"
+                ],
+                "color_filter": "AutoStockpileGoodsFilter",
+                "threshold": 0.75
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileLocateGoods": {
+        "desc": "[Go覆盖] 定位商品，具体模板会在运行时被go覆写",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    60,
+                    175,
+                    1170,
+                    500
+                ],
+                "template": [
+                    "AutoStockpile/Goods/Wuling/WulingFrozenPears.Tier1.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileGoodsFilter": {
+        "desc": "过滤噪声，只保留价格和商品名",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        60,
+                        60,
+                        60
+                    ]
+                ],
+                "upper": [
+                    [
+                        150,
+                        150,
+                        150
+                    ]
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileGetQuotaAddition": {
+        "desc": "获取购买数量增加量",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    250,
+                    120,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "\\+\\d"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileGetQuota": {
+        "desc": "获取购买数量",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    50,
+                    120,
+                    270,
+                    60
+                ],
+                "expected": [
+                    "\\d/\\d"
+                ],
+                "color_filter": "AutoStockpileQuotaFilter"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileFindMarketMark": {
+        "desc": "寻找市场图标，用于精确roi",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    60,
+                    175,
+                    30,
+                    500
+                ],
+                "template": [
+                    "AutoStockpile/MarketMark.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileGetStockBill": {
+        "desc": "获取调度券数量",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1000,
+                    5,
+                    250,
+                    50
+                ],
+                "expected": [
+                    "\\d[^\\d]?/"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileQuotaFilter": {
+        "desc": "过滤购可买数量增加，只保留现有可购买数量",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        210,
+                        210,
+                        210
+                    ]
+                ],
+                "upper": [
+                    [
+                        230,
+                        230,
+                        230
+                    ]
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

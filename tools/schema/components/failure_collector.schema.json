@@ -1,0 +1,59 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Failure Collector Component Schemas",
+    "description": "Parameter definitions for generic FailureCollector custom actions.",
+    "$defs": {
+        "BaseParam": {
+            "type": "object",
+            "required": [
+                "key"
+            ],
+            "properties": {
+                "key": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        },
+		"RunTaskParam": {
+            "allOf": [
+                {
+                    "$ref": "#/$defs/BaseParam"
+                },
+                {
+                    "type": "object",
+					"required": [
+						"task",
+						"failure_task"
+					],
+					"properties": {
+						"task": {
+							"type": "string",
+							"minLength": 1
+						},
+						"failure_task": {
+							"type": "string",
+							"minLength": 1
+						},
+						"recovery_task": {
+							"type": "string",
+							"minLength": 1
+						}
+					}
+                }
+            ],
+            "unevaluatedProperties": false
+        },
+        "FinishParam": {
+            "allOf": [
+                {
+                    "$ref": "#/$defs/BaseParam"
+                },
+				{
+					"type": "object"
+				}
+            ],
+            "unevaluatedProperties": false
+        }
+    }
+}

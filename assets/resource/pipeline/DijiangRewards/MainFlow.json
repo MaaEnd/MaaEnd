@@ -1,0 +1,211 @@
+{
+    "ControlNexus": {
+        "desc": "[主流程·控制中枢] 识别处于帝江号总控中枢界面，按 next 分发至会客室/制造舱/培养舱/好友助力/滑动等子任务或意外处理",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "InControlNexus"
+        ],
+        "next": [
+            "[JumpBack]DijiangRewardsFastCollectProduction",
+            "[JumpBack]DijiangRewardsFastCollectClues",
+            "[JumpBack]RecoveryEmotionMain",
+            "[JumpBack]ReceptionRoomMain",
+            "[JumpBack]MFGCabinMain",
+            "[JumpBack]GrowthChamberMain",
+            "FinishDijiangRewards"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.control_nexus_target_unrecognized"
+        }
+    },
+    "FinishDijiangRewards": {
+        "recognition": "And",
+        "all_of": [
+            "InControlNexus"
+        ]
+    },
+    "InMainWindow": {
+        "desc": "[主流程·状态] 识别处于游戏主界面(非基建内)，用于流程结束或跳转判断",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    172,
+                                    0,
+                                    183,
+                                    119
+                                ],
+                                "template": "ClaimDijiangRewards/inGame1.png",
+                                "threshold": 0.8
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ],
+                                "template": "ClaimDijiangRewards/inGame2.png",
+                                "threshold": 0.8
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 2000
+        },
+        "next": [
+            "GrayCancelButtonWithStop",
+            "StopNode"
+        ]
+    },
+    "GrayCancelButtonWithStop": {
+        "desc": "特殊取消按钮，有文字，灰色底，X标志,最后会结束任务",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GrayButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "GrayButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    80,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/CancelButtonType2.png",
+                                    "Common/Button/CancelButtonType2Hover.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "next": [
+            "StopNode"
+        ]
+    },
+    "LasCarbinColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    911,
+                    417,
+                    52,
+                    218
+                ],
+                "method": 40,
+                "lower": [
+                    30,
+                    100,
+                    100
+                ],
+                "upper": [
+                    40,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 200
+            }
+        }
+    },
+    "LastCarbinText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "LasCarbinColor",
+                "roi_offset": [
+                    0,
+                    0,
+                    70,
+                    0
+                ],
+                "expected": [
+                    "生长",
+                    "生長",
+                    "(?i)Growth",
+                    "成長",
+                    "培养舱",
+                    "培養艙",
+                    "(?i)Growth\\s*Chamber",
+                    "培養室"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "InLastCarbin": {
+        "desc": "[主流程·控制中枢] 识别已滑到最后一个培养舱且无红点，进入完成分支",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "LasCarbinColor",
+                    "LastCarbinText"
+                ]
+            }
+        }
+    },
+    "CancelExit": {
+        "desc": "[主流程·意外] 出现退出确认弹窗时点击取消，避免误退",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    308,
+                    282,
+                    370,
+                    306
+                ],
+                "expected": [
+                    "取消",
+                    "(?i)Cancel",
+                    "キャンセル"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        }
+    }
+}

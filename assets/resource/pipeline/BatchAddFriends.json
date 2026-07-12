@@ -1,0 +1,674 @@
+{
+    "BatchAddFriendsMain": {
+        "desc": "批量添加好友主入口",
+        "next": [
+            "BatchAddFriendsOnAddPage",
+            "[JumpBack]SceneEnterMenuFriendsAdd"
+        ]
+    },
+    "BatchAddFriendsOnAddPage": {
+        "desc": "确认已进入添加好友页面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    63,
+                    106,
+                    50,
+                    24
+                ],
+                "expected": "陌生人",
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsStart"
+        ]
+    },
+    "BatchAddFriendsSearchFlow": {
+        "desc": "搜索流程入口",
+        "recognition": "DirectHit",
+        "next": [
+            "BatchAddFriendsTriggerSearch"
+        ]
+    },
+    "BatchAddFriendsTriggerSearch": {
+        "desc": "点击搜索按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1067,
+                    47,
+                    160,
+                    54
+                ],
+                "expected": [
+                    "搜索",
+                    "搜尋",
+                    "(?i)Search",
+                    "検索"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsWaitSearchLoadingExit",
+            "BatchAddFriendsSearchReady"
+        ]
+    },
+    "BatchAddFriendsWaitSearchLoadingExit": {
+        "desc": "等待搜索加载结束",
+        "max_hit": 30,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    529,
+                    353,
+                    253,
+                    65
+                ],
+                "expected": [
+                    "加载中",
+                    "載入中",
+                    "(?i)Loading",
+                    "読み込み中"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "post_wait_freezes": 1000,
+        "next": [
+            "BatchAddFriendsWaitSearchLoadingExit",
+            "BatchAddFriendsSearchReady"
+        ]
+    },
+    "BatchAddFriendsSearchReady": {
+        "desc": "搜索就绪",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsHandleSearchResult"
+        ]
+    },
+    "BatchAddFriendsClickAddButton": {
+        "desc": "点击添加好友",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddfriendsAddFriendButtonColor",
+                    "BatchAddfriendsAddFriendTextColor",
+                    "BatchAddfriendsAddFriendText"
+                ],
+                "box_index": 2
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "BatchAddFriendsFriendListFullToast",
+            "BatchAddFriendsAfterAddEnd"
+        ]
+    },
+    "BatchAddFriendsFriendListFullToast": {
+        "desc": "好友列表已满提示",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    481,
+                    108,
+                    304,
+                    29
+                ],
+                "expected": [
+                    "好友列表已满",
+                    "好友列表已滿",
+                    "你的好友列表已满",
+                    "你的好友列表已滿"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsFriendListFullAction"
+            }
+        },
+        "next": [
+            "BatchAddFriendsStrangersEnd",
+            "BatchAddFriendsUIDEnd"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "好友列表已满，结束任务"
+        }
+    },
+    "BatchAddFriendsAfterAddEnd": {
+        "desc": "点击添加好友后结束",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsUIDOnAddAction"
+            }
+        },
+        "next": [
+            "BatchAddFriendsUIDLoopTop"
+        ]
+    },
+    "BatchAddFriendsHasAddButtonStranger": {
+        "desc": "存在添加好友按钮（陌生人列表）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddfriendsAddFriendButtonColor",
+                    "BatchAddfriendsAddFriendTextColor",
+                    "BatchAddfriendsAddFriendText"
+                ],
+                "box_index": 2
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsAddStrangersLoop",
+            "BatchAddFriendsStrangersEnd"
+        ]
+    },
+    "BatchAddFriendsClickAddButtonStranger": {
+        "desc": "点击添加好友（陌生人列表）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddfriendsAddFriendButtonColor",
+                    "BatchAddfriendsAddFriendTextColor",
+                    "BatchAddfriendsAddFriendText"
+                ],
+                "box_index": 2
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "BatchAddFriendsFriendListFullToast",
+            "BatchAddFriendsStrangersOnAdd"
+        ]
+    },
+    "BatchAddfriendsAddFriendButtonColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1157,
+                    102,
+                    122,
+                    570
+                ],
+                "method": 6,
+                "lower": [
+                    230
+                ],
+                "upper": [
+                    255
+                ],
+                "connected": true,
+                "count": 100
+            }
+        }
+    },
+    "BatchAddfriendsAddFriendTextColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "BatchAddfriendsAddFriendButtonColor",
+                "method": 6,
+                "lower": [
+                    0
+                ],
+                "upper": [
+                    120
+                ],
+                "count": 10
+            }
+        }
+    },
+    "BatchAddfriendsAddFriendText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "BatchAddfriendsAddFriendTextColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [
+                    "添加好友",
+                    "新增好友",
+                    "(?i)Add\\s*Friend",
+                    "フレンド追加"
+                ],
+                "replace": [
+                    [
+                        "反",
+                        "友"
+                    ]
+                ],
+                "threshold": 0.7
+            }
+        }
+    },
+    "BatchAddFriendsStrangersOnAdd": {
+        "desc": "陌生人添加进度",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsStrangersOnAddAction"
+            }
+        },
+        "next": [
+            "BatchAddFriendsStrangersStart",
+            "BatchAddFriendsStrangersEnd"
+        ]
+    },
+    "BatchAddFriendsSwipeList": {
+        "desc": "陌生人列表向下滑",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    560
+                ],
+                "end": [
+                    640,
+                    220
+                ],
+                "end_hold": 200
+            }
+        },
+        "post_wait_freezes": 500,
+        "next": [
+            "BatchAddFriendsStrangersAfterSwipe"
+        ]
+    },
+    "BatchAddFriendsStrangersAfterSwipe": {
+        "desc": "下滑后再次尝试添加，否则换一批",
+        "recognition": "DirectHit",
+        "next": [
+            "BatchAddFriendsHasAddButtonStranger",
+            "BatchAddFriendsChangeBatch",
+            "BatchAddFriendsStrangersEnd"
+        ]
+    },
+    "BatchAddFriendsHandleSearchResult": {
+        "desc": "处理搜索结果",
+        "recognition": "DirectHit",
+        "next": [
+            "BatchAddFriendsSearchUidNotFound",
+            "BatchAddFriendsClickAddButton",
+            "BatchAddFriendsSearchEmptyResult"
+        ]
+    },
+    "BatchAddFriendsSearchUidNotFound": {
+        "desc": "UID 不存在",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    537,
+                    102,
+                    209,
+                    43
+                ],
+                "expected": [
+                    "搜索的UID不存在",
+                    "搜尋的UID不存在",
+                    "(?i)Search\\s*has\\s*not\\s*found\\s*UID",
+                    "該当のUIDがありません"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "next": [
+            "BatchAddFriendsUIDLoopTop"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "UID 不存在，尝试下一个"
+        }
+    },
+    "BatchAddFriendsSearchEmptyResult": {
+        "desc": "搜索结果为空",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    591,
+                    375,
+                    121,
+                    17
+                ],
+                "expected": [
+                    "未搜索到相关玩家",
+                    "未搜尋到相關玩家",
+                    "(?i)No\\s*matching\\s*players\\s*found",
+                    "当該プレイヤーが見つかりませんでした"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsUIDOnEmptyAction"
+            }
+        },
+        "next": [
+            "BatchAddFriendsUIDLoopTop"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "未搜索到相关玩家"
+        }
+    },
+    "BatchAddFriendsUIDLoopTop": {
+        "desc": "UID 列表循环入口",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsUIDLoopTopAction"
+            }
+        },
+        "next": [
+            "BatchAddFriendsUIDLoopCounter",
+            "BatchAddFriendsUIDEnd"
+        ]
+    },
+    "BatchAddFriendsUIDLoopCounter": {
+        "desc": "UID 列表循环计数",
+        "max_hit": 20,
+        "recognition": "DirectHit",
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsUIDClearSearchBoxTemplate",
+            "BatchAddFriendsUIDFocusSearchBoxDispatch"
+        ]
+    },
+    "BatchAddFriendsUIDClearSearchBoxTemplate": {
+        "desc": "清空搜索框",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    980,
+                    24,
+                    171,
+                    83
+                ],
+                "template": [
+                    "BatchAddFriends/UIDClearSearchBox.png"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsUIDFocusSearchBoxDispatch"
+        ]
+    },
+    "BatchAddFriendsUIDFocusSearchBoxDispatch": {
+        "desc": "聚焦搜索框（UID 模式）",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsUIDFocusSearchBoxTemplate",
+            "BatchAddFriendsUIDFocusSearchBox"
+        ]
+    },
+    "BatchAddFriendsUIDFocusSearchBoxTemplate": {
+        "desc": "聚焦搜索框（模板识别）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    62,
+                    57,
+                    154,
+                    40
+                ],
+                "expected": [
+                    "输入名称搜索好友",
+                    "輸入名稱搜尋好友",
+                    "(?i)Search\\s*friend\\s*by\\s*name",
+                    "名前を入力して検索"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsUIDEnterUID"
+        ]
+    },
+    "BatchAddFriendsUIDFocusSearchBox": {
+        "desc": "聚焦搜索框（UID 模式）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    36,
+                    66,
+                    191,
+                    26
+                ],
+                "expected": [
+                    "搜索玩家名称或UID添加好友",
+                    "搜尋玩家名稱或UID新增好友",
+                    "(?i)Search\\s*player\\s*name\\s*or\\s*UID\\s*to\\s*find\\s*friends",
+                    "プレイヤーの名前またはUIDを入力してください"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsUIDEnterUID"
+        ]
+    },
+    "BatchAddFriendsUIDEnterUID": {
+        "desc": "输入 UID",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsUIDEnterAction"
+            }
+        },
+        "next": [
+            "BatchAddFriendsSearchFlow"
+        ]
+    },
+    "BatchAddFriendsUIDEnd": {
+        "desc": "UID 列表模式结束",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsUIDFinishAction"
+            }
+        },
+        "focus": {
+            "Node.Action.Succeeded": "UID 添加结束"
+        }
+    },
+    "BatchAddFriendsStrangersStart": {
+        "desc": "陌生人批量添加入口",
+        "recognition": "DirectHit",
+        "next": [
+            "BatchAddFriendsHasAddButtonStranger",
+            "BatchAddFriendsSwipeList",
+            "BatchAddFriendsStrangersEnd"
+        ]
+    },
+    "BatchAddFriendsAddStrangersLoop": {
+        "desc": "陌生人批量添加计数",
+        "max_hit": 20,
+        "recognition": "DirectHit",
+        "next": [
+            "BatchAddFriendsClickAddButtonStranger"
+        ]
+    },
+    "BatchAddFriendsChangeBatch": {
+        "desc": "换一批",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1151,
+                    648,
+                    55,
+                    26
+                ],
+                "expected": [
+                    "换一批",
+                    "換一批",
+                    "(?i)Refresh\\s*List",
+                    "リスト更新"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsWaitChangeBatchLoadingExit"
+        ]
+    },
+    "BatchAddFriendsWaitChangeBatchLoadingExit": {
+        "desc": "等待换一批加载结束",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsAddButtonVisibleAfterChangeBatch",
+            "BatchAddFriendsWaitChangeBatchTick",
+            "BatchAddFriendsStrangersStart"
+        ]
+    },
+    "BatchAddFriendsAddButtonVisibleAfterChangeBatch": {
+        "desc": "换一批后检测到添加好友按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BatchAddfriendsAddFriendButtonColor",
+                    "BatchAddfriendsAddFriendTextColor",
+                    "BatchAddfriendsAddFriendText"
+                ],
+                "box_index": 2
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsStrangersStart"
+        ]
+    },
+    "BatchAddFriendsWaitChangeBatchTick": {
+        "desc": "换一批等待节拍",
+        "max_hit": 20,
+        "recognition": "DirectHit",
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "BatchAddFriendsWaitChangeBatchLoadingExit"
+        ]
+    },
+    "BatchAddFriendsStrangersEnd": {
+        "desc": "陌生人批量添加结束",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsStrangersFinishAction"
+            }
+        },
+        "focus": {
+            "Node.Action.Succeeded": "陌生人列表添加结束"
+        }
+    },
+    "BatchAddFriendsStart": {
+        "desc": "批量添加好友逻辑",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsAction"
+            }
+        },
+        "next": [
+            "BatchAddFriendsUIDLoopTop",
+            "BatchAddFriendsStrangersStart",
+            "BatchAddFriendsUIDEnd",
+            "BatchAddFriendsStrangersEnd"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "开始批量添加好友"
+        }
+    }
+}

@@ -1,0 +1,361 @@
+{
+    "task": [
+        {
+            "name": "SeizeDeliveryJobs",
+            "description": "$task.SeizeDeliveryJobs.description",
+            "label": "$task.SeizeDeliveryJobs.label",
+            "entry": "SeizeDeliveryJobsMain",
+            "option": [
+                "SeizeDeliveryJobsCommissionSource",
+                "SeizeDeliveryJobsPostProcessing"
+            ],
+            "controller": [
+                "Win32-Front",
+                "Wlroots"
+            ],
+            "group": [
+                "regional_development"
+            ]
+        }
+    ],
+    "option": {
+        "SeizeDeliveryJobsCommissionSource": {
+            "type": "select",
+            "default_case": "WulingCity",
+            "label": "$task.SeizeDeliveryJobsCommissionSource.label",
+            "cases": [
+                {
+                    "name": "WulingCity",
+                    "label": "$task.SeizeDeliveryJobsCommissionSource.cases.WulingCity.label",
+                    "option": [
+                        "SeizeDeliveryJobsRewardWulingCity",
+                        "SeizeDeliveryJobsSpecifyDeliveryPointWulingCity"
+                    ]
+                },
+                {
+                    "name": "TestArea",
+                    "label": "$task.SeizeDeliveryJobsCommissionSource.cases.TestArea.label",
+                    "option": [
+                        "SeizeDeliveryJobsRewardTestArea",
+                        "SeizeDeliveryJobsSpecifyDeliveryPointTestArea"
+                    ]
+                }
+            ]
+        },
+        "SeizeDeliveryJobsRewardWulingCity": {
+            "type": "select",
+            "default_case": "Sixteen3",
+            "label": "$task.SeizeDeliveryJobsRewardWulingCity.label",
+            "cases": [
+                {
+                    "name": "Sixteen3",
+                    "label": "$task.SeizeDeliveryJobsRewardWulingCity.cases.Sixteen3.label"
+                },
+                {
+                    "name": "Sixteen3OrEleven9",
+                    "label": "$task.SeizeDeliveryJobsRewardWulingCity.cases.Sixteen3OrEleven9.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsFindTarget": {
+                            "any_of": [
+                                "__SeizeDeliveryJobsFindTarget16_3",
+                                "__SeizeDeliveryJobsFindTarget11_9"
+                            ],
+                            "focus": {
+                                "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.wulingCityOrFound"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsRewardTestArea": {
+            "type": "select",
+            "default_case": "Ten6",
+            "label": "$task.SeizeDeliveryJobsRewardTestArea.label",
+            "cases": [
+                {
+                    "name": "Ten6",
+                    "label": "$task.SeizeDeliveryJobsRewardTestArea.cases.Ten6.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsFindTarget": {
+                            "any_of": [
+                                "__SeizeDeliveryJobsFindTarget10_6"
+                            ],
+                            "focus": {
+                                "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.testAreaFound"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsPostProcessing": {
+            "type": "select",
+            "default_case": "Disable",
+            "label": "$task.SeizeDeliveryJobsPostProcessing.label",
+            "description": "$task.SeizeDeliveryJobsPostProcessing.description",
+            "cases": [
+                {
+                    "name": "Disable",
+                    "label": "$task.SeizeDeliveryJobsPostProcessing.cases.Disable.label"
+                },
+                {
+                    "name": "Tele",
+                    "label": "$task.SeizeDeliveryJobsPostProcessing.cases.Tele.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsPostProcessingEntry": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsSuccessTeleportDone": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "TeleWalk",
+                    "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalk.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsPostProcessingEntry": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsSuccessWalkDone": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "TeleWalkFetchDeliver",
+                    "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalkFetchDeliver.label",
+                    "option": [
+                        "SeizeDeliveryJobsPostDepartureRiskAcknowledgement",
+                        "SeizeDeliveryJobsPostDeparturePreferZipline",
+                        "SeizeDeliveryJobsRepeatCount"
+                    ],
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsPostProcessingEntry": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsPostDepartureEntry": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsPostDepartureRiskAcknowledgement": {
+            "type": "switch",
+            "label": "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.label",
+            "description": "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsGuard": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Yes"
+                }
+            ]
+        },
+        "SeizeDeliveryJobsPostDeparturePreferZipline": {
+            "type": "switch",
+            "label": "$task.SeizeDeliveryJobsPostDeparturePreferZipline.label",
+            "description": "$task.SeizeDeliveryJobsPostDeparturePreferZipline.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsRunDeparture": {
+                            "custom_action_param": {
+                                "map_name_regex": "map02_lv002|map02_lv005", // 所有可用的送货地图名称（后续增加新地区需要更新此值）
+                                "zipline_policy": "Active",
+                                "is_retry": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsRepeatCount": {
+            "type": "select",
+            "default_case": "1",
+            "label": "$task.SeizeDeliveryJobsRepeatCount.label",
+            "description": "$task.SeizeDeliveryJobsRepeatCount.description",
+            "cases": [
+                {
+                    "name": "1",
+                    "label": "$task.SeizeDeliveryJobsRepeatCount.cases.1.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsMain": {
+                            "max_hit": 1
+                        }
+                    }
+                },
+                {
+                    "name": "2",
+                    "label": "$task.SeizeDeliveryJobsRepeatCount.cases.2.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsMain": {
+                            "max_hit": 2
+                        }
+                    }
+                },
+                {
+                    "name": "3",
+                    "label": "$task.SeizeDeliveryJobsRepeatCount.cases.3.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsMain": {
+                            "max_hit": 3
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsSpecifyDeliveryPointWulingCity": {
+            "type": "switch",
+            "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SeizeDeliveryJobsDeliveryPointWulingCity"
+                    ],
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsFindTarget": {
+                            "enabled": false
+                        },
+                        "SeizeDeliveryJobsScanTarget": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilterWulingCity": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsSpecifyDeliveryPointTestArea": {
+            "type": "switch",
+            "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SeizeDeliveryJobsDeliveryPointTestArea"
+                    ],
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsFindTarget": {
+                            "enabled": false
+                        },
+                        "SeizeDeliveryJobsScanTarget": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilterTestArea": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsDeliveryPointWulingCity": {
+            "type": "checkbox",
+            "label": "$task.SeizeDeliveryJobsDeliveryPoint.label",
+            "default_case": [
+                "Owl",
+                "MaterialResearchInstitute",
+                "Observatory",
+                "TechProductionOffice"
+            ],
+            "cases": [
+                {
+                    "name": "Owl",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.Owl.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterOwl": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "MaterialResearchInstitute",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.MaterialResearchInstitute.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Observatory",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.Observatory.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterObservatory": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "TechProductionOffice",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.TechProductionOffice.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterTechProductionOffice": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsDeliveryPointTestArea": {
+            "type": "checkbox",
+            "label": "$task.SeizeDeliveryJobsDeliveryPoint.label",
+            "default_case": [
+                "No1TypeCAnchorArea",
+                "No3TypeCAnchorArea",
+                "JingweiFieldArea"
+            ],
+            "cases": [
+                {
+                    "name": "No1TypeCAnchorArea",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.No1TypeCAnchorArea.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No3TypeCAnchorArea",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.No3TypeCAnchorArea.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "JingweiFieldArea",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.JingweiFieldArea.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterJingweiFieldArea": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

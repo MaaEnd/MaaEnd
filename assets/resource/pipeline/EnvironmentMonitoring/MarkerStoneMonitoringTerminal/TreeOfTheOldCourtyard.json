@@ -1,0 +1,291 @@
+{
+    "TreeOfTheOldCourtyardJob": {
+        "desc": "旧庭树任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckTreeOfTheOldCourtyardText",
+            "CheckTreeOfTheOldCourtyardIcon",
+            "CheckTreeOfTheOldCourtyardReadyText"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "TreeOfTheOldCourtyardExecute",
+            "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "failure_task": "TreeOfTheOldCourtyardFailed"
+        },
+        "post_delay": 0
+    },
+    "TreeOfTheOldCourtyardFailed": {
+        "desc": "旧庭树任务执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.TreeOfTheOldCourtyard.failed"
+        }
+    },
+    "TreeOfTheOldCourtyardExecute": {
+        "desc": "执行旧庭树任务路线",
+        "next": [
+            "AcceptTreeOfTheOldCourtyard",
+            "GoToTreeOfTheOldCourtyardMission"
+        ]
+    },
+    "CheckTreeOfTheOldCourtyardText": {
+        "desc": "检查是否有旧庭树文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "“旧庭树”",
+            "「舊庭樹」",
+            "(?i)\"Tree\\s*of\\s*the\\s*Old\\s*Courtyard\"",
+            "「旧庭の木」",
+            "옛 정원의 나무"
+        ],
+        "replace": [],
+        "order_by": "Vertical"
+    },
+    "CheckTreeOfTheOldCourtyardIcon": {
+        "desc": "检查旧庭树文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckTreeOfTheOldCourtyardText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8
+    },
+    "CheckTreeOfTheOldCourtyardReadyText": {
+        "desc": "检查旧庭树委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckTreeOfTheOldCourtyardIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckTreeOfTheOldCourtyardJob": {
+        "desc": "检查旧庭树委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckTreeOfTheOldCourtyardIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckTreeOfTheOldCourtyardGoToMissionText": {
+        "desc": "检查旧庭树委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckTreeOfTheOldCourtyardIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "InTreeOfTheOldCourtyardMission": {
+        "desc": "是否在旧庭树任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄“旧庭树”",
+            "拍攝「舊庭樹」",
+            "(?i)Photo:\\s*\"Tree\\s*of\\s*the\\s*Old\\s*Courtyard\"",
+            "「旧庭の木」の写真を撮る",
+            "'옛 정원의 나무'를 촬영하기"
+        ],
+        "replace": []
+    },
+    "AcceptTreeOfTheOldCourtyard": {
+        "desc": "接取旧庭树委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckTreeOfTheOldCourtyardText",
+            "CheckTreeOfTheOldCourtyardIcon",
+            "CheckTreeOfTheOldCourtyardJob"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "GoToTreeOfTheOldCourtyardMission"
+        ]
+    },
+    "GoToTreeOfTheOldCourtyardMission": {
+        "desc": "前往旧庭树任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckTreeOfTheOldCourtyardText",
+            "CheckTreeOfTheOldCourtyardIcon",
+            "CheckTreeOfTheOldCourtyardGoToMissionText"
+        ],
+        "box_index": 2,
+        "action": "Click",
+        "next": [
+            "TreeOfTheOldCourtyardTrackOrGoTo"
+        ]
+    },
+    "TreeOfTheOldCourtyardTrackOrGoTo": {
+        "desc": "在旧庭树任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续",
+        "recognition": "And",
+        "all_of": [
+            "InTreeOfTheOldCourtyardMission"
+        ],
+        "next": [
+            "TrackTreeOfTheOldCourtyard",
+            "AlreadyTrackedTreeOfTheOldCourtyard"
+        ]
+    },
+    "TrackTreeOfTheOldCourtyard": {
+        "desc": "追踪旧庭树任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InTreeOfTheOldCourtyardMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToTreeOfTheOldCourtyard"
+        ]
+    },
+    "AlreadyTrackedTreeOfTheOldCourtyard": {
+        "desc": "旧庭树任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InTreeOfTheOldCourtyardMission"
+        ],
+        "next": [
+            "GoToTreeOfTheOldCourtyard"
+        ]
+    },
+    "TreeOfTheOldCourtyardNotAdapted": {
+        "desc": "旧庭树任务尚未适配，仅接取并追踪",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
+    "GoToTreeOfTheOldCourtyard": {
+        "desc": "前往旧庭树，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "GoToTreeOfTheOldCourtyardStartPos",
+            "GoToTreeOfTheOldCourtyardNotAtStartPos"
+        ]
+    },
+    "GoToTreeOfTheOldCourtyardStartPos": {
+        "desc": "在旧庭树任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                480.76,
+                1056.91,
+                21.99,
+                23.92
+            ]
+        },
+        "next": [
+            "GoToTreeOfTheOldCourtyardMove"
+        ]
+    },
+    "GoToTreeOfTheOldCourtyardNotAtStartPos": {
+        "desc": "不在旧庭树任务开始位置附近，先传送再检查落点",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingMarkerStone1"
+            ]
+        },
+        "next": [
+            "GoToTreeOfTheOldCourtyardStartPos"
+        ]
+    },
+    "GoToTreeOfTheOldCourtyardMove": {
+        "desc": "自动寻路前往旧庭树",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        98.4,
+                        111
+                    ],
+                    "target_tier": "Wuling_L4_330"
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 180
+                }
+            ]
+        },
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "TreeOfTheOldCourtyardAdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "TreeOfTheOldCourtyardAdjustCamera": {
+        "desc": "旧庭树任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenDown"
+        ]
+    }
+}

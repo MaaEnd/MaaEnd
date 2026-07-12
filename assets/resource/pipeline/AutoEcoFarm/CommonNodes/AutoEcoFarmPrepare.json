@@ -1,0 +1,43 @@
+//这块代码用于执行任务开始前的准备工作，比如清空背包，带满4个人之类的
+//这段代码工作完了后会回主任务
+{
+    //这部分是带满队友的任务
+    "_AutoEcoFarmInTeam": {
+        "desc": "判断是否在队伍界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    28,
+                    11,
+                    41,
+                    34
+                ],
+                "template": [
+                    "AutoEcoFarm/autoecofarmTeamIcon.png"
+                ],
+                "order_by": "Score"
+            }
+        },
+        "next": []
+    },
+    "_AutoEcoFarmEditTeam": {
+        "desc": "点一下快速编辑队伍",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    28,
+                    11,
+                    41,
+                    34
+                ],
+                "template": [
+                    "AutoEcoFarm/autoecofarmTeamIcon.png"
+                ],
+                "order_by": "Score"
+            }
+        },
+        "next": []
+    }
+}

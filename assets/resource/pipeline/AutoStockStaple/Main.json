@@ -1,0 +1,100 @@
+{
+    "AutoStockStapleSchedule": {
+        "desc": "稳定需求物资执行周期",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoStockStapleScheduleEnabled",
+            "AutoStockStapleDone"
+        ]
+    },
+    "AutoStockStapleScheduleEnabled": {
+        "desc": "稳定需求物资执行周期命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoStockStapleMain"
+        ],
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
+    "AutoStockStapleMain": {
+        "desc": "自动购买稳定需求物资入口",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AttachToExpectedRegexAction", //初始化正则表达式
+                "custom_action_param": {
+                    "target": "AutoStockInStapleItemName"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleValleyIV",
+            "[JumpBack]AutoStockStapleWuling",
+            "AutoStockStapleDone"
+        ]
+    },
+    "AutoStockStapleValleyIV": {
+        "desc": "自动囤货稳定需求物资四号谷地节点",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "next": [
+            "AutoStockInStapleValleyIV",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
+        ]
+    },
+    "InStockStaple": {
+        "desc": "识别是否在稳定物资界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    300,
+                    122
+                ],
+                "expected": [
+                    "物资调度",
+                    "物資調度",
+                    "(?i)Stock\\s*Redistribution",
+                    "商品取引"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleWuling": {
+        "desc": "自动囤货稳定需求物资武陵节点",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "next": [
+            "AutoStockInStapleWuling",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
+        ]
+    },
+    "AutoStockStapleDone": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

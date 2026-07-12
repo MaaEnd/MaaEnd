@@ -1,0 +1,102 @@
+{
+    "GrowthChamberBackExtract": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    },
+    "GrowthChamberTargetNotFound": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    280,
+                    380
+                ],
+                "end": [
+                    [
+                        280,
+                        200
+                    ],
+                    [
+                        200,
+                        200
+                    ]
+                ],
+                "end_hold": 200,
+                "duration": 100
+            }
+        }
+    },
+    "GrowthChamberSortBySwipe": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    109,
+                    386,
+                    356,
+                    189
+                ]
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    238,
+                    508
+                ],
+                "end": [
+                    239,
+                    427
+                ]
+            }
+        }
+    },
+    "GrowthChamberSortBy": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    112,
+                    584,
+                    207,
+                    85
+                ]
+            }
+        }
+    },
+    "GrowthChamberSelectTarget": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    109,
+                    122,
+                    364,
+                    395
+                ]
+            }
+        }
+    },
+    "GrowthChamberSortOrder": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    343,
+                    547,
+                    151,
+                    110
+                ]
+            }
+        }
+    },
+    "GrowthChamberScrollEnd": {
+        "roi": [
+            470,
+            586,
+            37,
+            32
+        ]
+    }
+}

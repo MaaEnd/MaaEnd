@@ -1,0 +1,15 @@
+{
+  "base_map": "indie",
+  "canvas_height": 4800,
+  "canvas_width": 4800,
+  "levels": {
+    "indie_dg007": {
+      "x": 0,
+      "y": 0,
+      "width": 4800,
+      "height": 4800
+    }
+  },
+  "tile_h": 600,
+  "tile_w": 600
+}

@@ -1,0 +1,444 @@
+package matchapi
+
+import (
+	"errors"
+	"os"
+	"strings"
+	"sync"
+)
+
+// Engine is a pure matching engine: OCR -> skill-id -> exact/extension match.
+// It does not know anything about UI/actions.
+type Engine struct {
+	locale            string
+	cfg               MatcherConfig
+	data              EngineData
+	slotIdx           [3]slotIndex
+	matchTraceEnabled bool
+
+	slotIndicesOnce sync.Once
+
+	// Cache exact targets by rarity selection.
+	targetsCacheMu sync.Mutex
+	targetsCache   map[string][]SkillCombination
+}
+
+// Locale returns the input language used to load pool/weapon display strings (CN|TC|EN|JP|KR).
+func (e *Engine) Locale() string {
+	if e == nil {
+		return defaultLoadLocale
+	}
+	if e.locale != "" {
+		return e.locale
+	}
+	return defaultLoadLocale
+}
+
+// DataVersion returns matcher data version string.
+func (e *Engine) DataVersion() string {
+	return e.cfg.DataVersion
+}
+
+// SkillPools returns the skill pool tables currently loaded in this engine.
+// The returned struct aliases the engine's internal slices; callers must treat it as read-only.
+func (e *Engine) SkillPools() SkillPools {
+	return e.data.SkillPools
+}
+
+// Weapons returns the weapon rows currently loaded in this engine.
+// The returned slice aliases the engine's backing array; callers must treat it as read-only.
+func (e *Engine) Weapons() []WeaponData {
+	return e.data.Weapons
+}
+
+// Locations returns the location extra-pool rows currently loaded in this engine.
+// The returned slice aliases the engine's backing array; callers must treat it as read-only.
+func (e *Engine) Locations() []Location {
+	return e.data.Locations
+}
+
+// NewDefaultEngine loads built-in EssenceFilter data from data/EssenceFilter.
+// It may require the caller to run with a working directory where data can be resolved.
+func NewDefaultEngine() (*Engine, error) {
+	dataDir, err := findDefaultDataDir()
+	if err != nil {
+		return nil, err
+	}
+	return NewEngineFromDir(dataDir)
+}
+
+// NewEngineFromDir loads matcher_config.json + skill_pools.json + weapons_output.json + locations.json
+// from the given directory using default locale CN.
+func NewEngineFromDir(dataDir string) (*Engine, error) {
+	return NewEngineFromDirWithLocale(dataDir, defaultLoadLocale)
+}
+
+// NewEngineFromDirWithLocale loads EssenceFilter data using the given input language (CN|TC|EN|JP|KR).
+func NewEngineFromDirWithLocale(dataDir string, locale string) (*Engine, error) {
+	if dataDir == "" {
+		return nil, errors.New("dataDir is empty")
+	}
+	loc := NormalizeInputLocale(locale)
+
+	cfg, err := loadMatcherConfig(dataDir, loc)
+	if err != nil {
+		return nil, err
+	}
+	pools, err := loadSkillPools(dataDir, loc)
+	if err != nil {
+		return nil, err
+	}
+	weapons, err := loadWeaponsOutputAndConvert(dataDir, cfg, pools, loc)
+	if err != nil {
+		return nil, err
+	}
+	locations, err := loadLocations(dataDir)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Engine{
+		locale: loc,
+		cfg:    cfg,
+		data: EngineData{
+			SkillPools: pools,
+			Weapons:    weapons,
+			Locations:  locations,
+		},
+		matchTraceEnabled: isMatchTraceEnabled(),
+		targetsCache:      make(map[string][]SkillCombination),
+	}, nil
+}
+
+func isMatchTraceEnabled() bool {
+	v := strings.TrimSpace(strings.ToLower(os.Getenv("MAAEND_ESSENCEFILTER_MATCH_TRACE")))
+	return v == "1" || v == "true" || v == "on" || v == "yes"
+}
+
+// MatchOCR matches one OCR result and returns a unified MatchResult.
+func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult, error) {
+	targets, err := e.getTargetsByRarity(opts)
+	if err != nil {
+		return nil, err
+	}
+
+	// 1) Exact matching on (slot1,slot2,slot3) skill IDs.
+	ocrSkills := [3]string{ocr.Skills[0], ocr.Skills[1], ocr.Skills[2]}
+	ocrLevels := [3]int{ocr.Levels[0], ocr.Levels[1], ocr.Levels[2]}
+	ocrSkills, ocrLevels = e.reorderByPoolAssignmentIfPossible(ocrSkills, ocrLevels)
+
+	// If no rarity is selected, exact matching must be disabled.
+	var exact *SkillCombinationMatch
+	if len(targets) > 0 {
+		exactMatched, ok := e.matchEssenceSkills(ocrSkills, targets)
+		if ok {
+			exact = exactMatched
+		}
+	}
+	if exact != nil {
+		return &MatchResult{
+			Kind:          MatchExact,
+			SkillIDs:      exact.SkillIDs,
+			SkillsChinese: exact.SkillsChinese,
+			Weapons:       exact.Weapons,
+			ShouldLock:    true,
+			ShouldDiscard: false,
+		}, nil
+	}
+
+	// 2) Extension rules: evaluate both first, then OR lock decision.
+	futureMatched := false
+	futureMinTotal := 0
+	if opts.KeepFuturePromising && opts.FuturePromisingMinTotal > 0 {
+		if e.matchFuturePromising(ocrSkills, ocrLevels, opts.FuturePromisingMinTotal) {
+			futureMatched = true
+			futureMinTotal = opts.FuturePromisingMinTotal
+		}
+	}
+
+	practicalMatched := false
+	practicalMinLv := 0
+	practicalSlot3Lv := 0
+	var practicalMatch *SkillCombinationMatch
+	if opts.KeepSlot3Level3Practical {
+		minLv := opts.Slot3MinLevel
+		if minLv <= 0 {
+			minLv = 3
+		}
+		if match, slot3Lv, ok := e.matchSlot3Level3Practical(ocrSkills, ocrLevels, minLv); ok {
+			practicalMatched = true
+			practicalMinLv = minLv
+			practicalSlot3Lv = slot3Lv
+			practicalMatch = match
+		}
+	}
+
+	if futureMatched || practicalMatched {
+		futureLocks := futureMatched && opts.LockFuturePromising
+		practicalLocks := practicalMatched && opts.LockSlot3Practical
+		shouldLock := futureLocks || practicalLocks
+
+		// 未来可期命中时，利用 matchSkillIDEnhanced 将 OCR 文本解析为各槽 ID（未识别为 0），替代原先的硬编码 0,0,0。
+		var fpIDs [3]int
+		if futureMatched {
+			e.ensureSlotIndices()
+			for i, skill := range ocrSkills {
+				if id, ok := e.matchSkillIDEnhanced(i+1, skill); ok {
+					fpIDs[i] = id
+				}
+			}
+		}
+
+		// 当需要锁定时，优先返回实际触发锁定的规则 Kind，以保证锁定原因/统计与实际一致。
+		if futureLocks {
+			return &MatchResult{
+				Kind:          MatchFuturePromising,
+				SkillIDs:      []int{fpIDs[0], fpIDs[1], fpIDs[2]},
+				SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
+				Weapons:       []WeaponData{},
+				ExtLevelSum:   ocrLevels[0] + ocrLevels[1] + ocrLevels[2],
+				ExtMinTotal:   futureMinTotal,
+				ShouldLock:    shouldLock,
+				ShouldDiscard: false,
+			}, nil
+		}
+
+		if practicalLocks {
+			return &MatchResult{
+				Kind:          MatchSlot3Level3Practical,
+				SkillIDs:      practicalMatch.SkillIDs,
+				SkillsChinese: practicalMatch.SkillsChinese,
+				Weapons:       practicalMatch.Weapons,
+				ExtSlot3Lv:    practicalSlot3Lv,
+				ExtMinLevel:   practicalMinLv,
+				ShouldLock:    shouldLock,
+				ShouldDiscard: false,
+			}, nil
+		}
+
+		// 不锁定时保持现有优先级：FuturePromising 结果在两者都命中时优先用于展示字段。
+		if futureMatched {
+			return &MatchResult{
+				Kind:          MatchFuturePromising,
+				SkillIDs:      []int{fpIDs[0], fpIDs[1], fpIDs[2]},
+				SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
+				Weapons:       []WeaponData{},
+				ExtLevelSum:   ocrLevels[0] + ocrLevels[1] + ocrLevels[2],
+				ExtMinTotal:   futureMinTotal,
+				ShouldLock:    shouldLock,
+				ShouldDiscard: false,
+			}, nil
+		}
+
+		return &MatchResult{
+			Kind:          MatchSlot3Level3Practical,
+			SkillIDs:      practicalMatch.SkillIDs,
+			SkillsChinese: practicalMatch.SkillsChinese,
+			Weapons:       practicalMatch.Weapons,
+			ExtSlot3Lv:    practicalSlot3Lv,
+			ExtMinLevel:   practicalMinLv,
+			ShouldLock:    shouldLock,
+			ShouldDiscard: false,
+		}, nil
+	}
+
+	// 4) No match.
+	return &MatchResult{
+		Kind:          MatchNone,
+		SkillIDs:      []int{},
+		SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
+		Weapons:       []WeaponData{},
+		ShouldLock:    false,
+		ShouldDiscard: opts.DiscardUnmatched,
+	}, nil
+}
+
+// reorderByPoolAssignmentIfPossible reorders OCR skills/levels into slot1/2/3 order
+// by inferring which slot-pool each OCR skill belongs to.
+//
+// If the inference is not unique (e.g. ambiguous match or duplicate slot assignment),
+// it falls back to the original input order.
+func (e *Engine) reorderByPoolAssignmentIfPossible(inSkills [3]string, inLevels [3]int) ([3]string, [3]int) {
+	// Default: keep input order.
+	outSkills := inSkills
+	outLevels := inLevels
+
+	e.ensureSlotIndices()
+
+	assignedSlots := [3]int{}
+	used := [4]bool{}
+
+	for i := 0; i < 3; i++ {
+		slot, ok := e.assignSlotForOCRText(inSkills[i])
+		if !ok {
+			return outSkills, outLevels
+		}
+		if used[slot] {
+			// Duplicate pool assignment (e.g. 2x slot1 + 1x slot2) => keep default order.
+			return outSkills, outLevels
+		}
+		used[slot] = true
+		assignedSlots[i] = slot
+	}
+
+	if !used[1] || !used[2] || !used[3] {
+		return outSkills, outLevels
+	}
+
+	// Build ordered arrays: [slot1, slot2, slot3].
+	var skillsOrdered [3]string
+	var levelsOrdered [3]int
+	for i := 0; i < 3; i++ {
+		slot := assignedSlots[i] // 1..3
+		orderedIdx := slot - 1
+		skillsOrdered[orderedIdx] = inSkills[i]
+		levelsOrdered[orderedIdx] = inLevels[i]
+	}
+	return skillsOrdered, levelsOrdered
+}
+
+// assignSlotForOCRText returns which slot pool the given OCR skill text belongs to.
+// It prefers strict exact (full/core) matches; if those are not unique, it falls back to fuzzy matching.
+func (e *Engine) assignSlotForOCRText(text string) (int, bool) {
+	cleanedRaw := normalizeForMatch(text, e.locale)
+	if cleanedRaw == "" {
+		return 0, false
+	}
+
+	coreRaw := trimStopSuffix(e.cfg, cleanedRaw, e.locale)
+	cleanedNorm := normalizeSimilarIfLocale(e.cfg, cleanedRaw, e.locale)
+	coreNorm := trimStopSuffix(e.cfg, cleanedNorm, e.locale)
+
+	exactFullSlots := make([]int, 0, 3)
+	exactCoreSlots := make([]int, 0, 3)
+
+	for slot := 1; slot <= 3; slot++ {
+		idx := e.slotIdx[slot-1]
+		if ids, ok := idx.rawFullIndex[cleanedRaw]; ok && len(ids) > 0 {
+			exactFullSlots = append(exactFullSlots, slot)
+			continue
+		}
+		if ids, ok := idx.normFullIndex[cleanedNorm]; ok && len(ids) > 0 {
+			exactFullSlots = append(exactFullSlots, slot)
+			continue
+		}
+		if ids, ok := idx.rawCoreIndex[coreRaw]; ok && len(ids) > 0 {
+			exactCoreSlots = append(exactCoreSlots, slot)
+			continue
+		}
+		if ids, ok := idx.normCoreIndex[coreNorm]; ok && len(ids) > 0 {
+			exactCoreSlots = append(exactCoreSlots, slot)
+			continue
+		}
+	}
+
+	if len(exactFullSlots) == 1 {
+		return exactFullSlots[0], true
+	}
+	if len(exactFullSlots) > 1 {
+		return 0, false
+	}
+
+	if len(exactCoreSlots) == 1 {
+		return exactCoreSlots[0], true
+	}
+	if len(exactCoreSlots) > 1 {
+		return 0, false
+	}
+
+	// Fallback: fuzzy matching (may be ambiguous, so we still require uniqueness).
+	fuzzySlots := make([]int, 0, 3)
+	for slot := 1; slot <= 3; slot++ {
+		if _, ok := e.matchSkillIDEnhanced(slot, text); ok {
+			fuzzySlots = append(fuzzySlots, slot)
+		}
+	}
+
+	if len(fuzzySlots) == 1 {
+		return fuzzySlots[0], true
+	}
+	return 0, false
+}
+
+// BuildTargets builds exact-matching target combinations based on rarity toggles.
+func (e *Engine) BuildTargets(opts EssenceFilterOptions) []SkillCombination {
+	targets, _ := e.getTargetsByRarity(opts)
+	return targets
+}
+
+func (e *Engine) getTargetsByRarity(opts EssenceFilterOptions) ([]SkillCombination, error) {
+	key := rarityKey(opts)
+
+	e.targetsCacheMu.Lock()
+	defer e.targetsCacheMu.Unlock()
+
+	if v, ok := e.targetsCache[key]; ok {
+		return v, nil
+	}
+
+	var selected []int
+	if opts.Rarity6Weapon {
+		selected = append(selected, 6)
+	}
+	if opts.Rarity5Weapon {
+		selected = append(selected, 5)
+	}
+	if opts.Rarity4Weapon {
+		selected = append(selected, 4)
+	}
+
+	if len(selected) == 0 {
+		e.targetsCache[key] = []SkillCombination{}
+		return e.targetsCache[key], nil
+	}
+
+	weapons := make([]WeaponData, 0, len(e.data.Weapons))
+	for _, w := range e.data.Weapons {
+		for _, r := range selected {
+			if w.Rarity == r {
+				weapons = append(weapons, w)
+				break
+			}
+		}
+	}
+
+	targets := make([]SkillCombination, 0, len(weapons))
+	for _, w := range weapons {
+		targets = append(targets, SkillCombination{
+			Weapon:        w,
+			SkillsChinese: w.SkillsChinese,
+			SkillIDs:      w.SkillIDs,
+		})
+	}
+	e.targetsCache[key] = targets
+	return targets, nil
+}
+
+func rarityKey(opts EssenceFilterOptions) string {
+	var b [3]bool
+	b[0] = opts.Rarity6Weapon
+	b[1] = opts.Rarity5Weapon
+	b[2] = opts.Rarity4Weapon
+	// stable key to simplify caching.
+	if !b[0] && !b[1] && !b[2] {
+		return "none"
+	}
+	// e.g. "6-4" / "5" / "6-5-4"
+	key := ""
+	if b[0] {
+		key += "6"
+	}
+	if b[1] {
+		if key != "" {
+			key += "-"
+		}
+		key += "5"
+	}
+	if b[2] {
+		if key != "" {
+			key += "-"
+		}
+		key += "4"
+	}
+	return key
+}

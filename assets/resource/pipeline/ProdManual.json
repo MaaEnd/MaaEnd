@@ -1,0 +1,569 @@
+{
+    "ProdManualBackpackEnterCrafting": {
+        "desc": "进入简易制作界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    900,
+                    100,
+                    250,
+                    160
+                ],
+                "expected": [
+                    "简易制作",
+                    "簡易製作",
+                    "(?i)Crafting",
+                    "道具製作",
+                    "간편 제작"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "next": [
+            "ProdManualCraftingEnterManual"
+        ]
+    },
+    "ProdManualCraftingEnterManual": {
+        "desc": "在简易制作界面，点击进入简制手册",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    983,
+                    5,
+                    289,
+                    77
+                ],
+                "expected": [
+                    "简制手册",
+                    "簡製手冊",
+                    "(?i)Crafting\\s*Manual",
+                    "製作手帳",
+                    "簡制手冊"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 400,
+        "next": [
+            "ProdManualOpenItem"
+        ]
+    },
+    "ProdManualOpenItem": {
+        "desc": "硬编码打开第一个item",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    305,
+                    224,
+                    1,
+                    1
+                ]
+            }
+        },
+        "post_wait_freezes": 400,
+        "next": [
+            "ProdManualAlreadyIn"
+        ]
+    },
+    "ProdManualAlreadyIn": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    960,
+                    87,
+                    189,
+                    98
+                ],
+                "expected": [
+                    "返回",
+                    "(?i)Return",
+                    "戻る",
+                    "Back"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]ProdManualReceiveReward",
+            "[JumpBack]ProdManualConfirmUpdate",
+            "ProdManualDone"
+        ]
+    },
+    "ProdManualConfirmReward": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    475,
+                    9,
+                    332,
+                    182
+                ],
+                "expected": [
+                    "奖励",
+                    "獎勵",
+                    "(?i)Rewards",
+                    "報酬",
+                    "Reward"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 400,
+        "next": [
+            "ProdManualNext",
+            "ProdManualConfirmUpdate",
+            "ProdManualConfirmReward"
+        ]
+    },
+    "ProdManualConfirmUpdate": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "点击屏幕继续",
+                    "點按螢幕繼續",
+                    "Tap to continue",
+                    "Click to continue"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "ProdManualNext",
+            "ProdManualConfirmUpdate"
+        ]
+    },
+    "ProdManualNext": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    933,
+                    273,
+                    322,
+                    274
+                ],
+                "template": [
+                    "ProdManual/NextPM.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    10,
+                    14,
+                    -26,
+                    -28
+                ]
+            }
+        }
+    },
+    "ProdManualOpenInBackpack": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    884,
+                    118,
+                    280,
+                    136
+                ],
+                "expected": [
+                    "简易制作",
+                    "簡易製作",
+                    "(?i)Crafting",
+                    "道具製作",
+                    "Simple Craft",
+                    "Quick Craft"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "进入简易制作界面"
+        }
+    },
+    "ProdManualOpenInList": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    428,
+                    79,
+                    431,
+                    150
+                ],
+                "expected": [
+                    "每获取对应数量物品",
+                    "每獲取對應數量物品",
+                    "可解锁相应内容",
+                    "可解鎖對應內容",
+                    "Obtain",
+                    "Unlock"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    305,
+                    224,
+                    1,
+                    1
+                ]
+            }
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "进入收集进度界面"
+        }
+    },
+    "ProdManualOpenInMain": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    916,
+                    2,
+                    360,
+                    108
+                ],
+                "template": [
+                    "ProdManual/Backpack.png",
+                    "ProdManual/Backpack2.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 18
+            }
+        },
+        "next": [
+            "ProdManualOpenInMainClick"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入背包界面"
+        }
+    },
+    "ProdManualOpenInMainClick": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "ProdManualOpenInMain"
+            }
+        },
+        "next": [
+            "ProdManualOpenInMainDone"
+        ]
+    },
+    "ProdManualOpenInMainDone": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 18
+            }
+        }
+    },
+    "ProdManualOpenInMenu": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    195,
+                    390,
+                    400,
+                    203
+                ],
+                "expected": [
+                    "探索等级",
+                    "探索等級",
+                    "(?i)Exploration\\s*Level",
+                    "探索レベル",
+                    "Explore"
+                ]
+            }
+        },
+        "next": [
+            "ProdManualOpenInMenuSwipe"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入背包界面"
+        }
+    },
+    "ProdManualOpenInMenuOpen": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1000,
+                    282,
+                    194,
+                    160
+                ],
+                "expected": [
+                    "背包",
+                    "(?i)Backpack",
+                    "道具箱",
+                    "库存",
+                    "庫存",
+                    "(?i)Inventory",
+                    "在庫"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        }
+    },
+    "ProdManualOpenInMenuSwipe": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    1099,
+                    525,
+                    0,
+                    0
+                ],
+                "end": [
+                    [
+                        1112,
+                        244,
+                        0,
+                        0
+                    ]
+                ]
+            }
+        },
+        "post_delay": 500,
+        "next": [
+            "ProdManualOpenInMenuOpen"
+        ]
+    },
+    "ProdManualOpenInProd": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    10,
+                    5,
+                    276,
+                    136
+                ],
+                "expected": [
+                    "应急食药",
+                    "緊急食藥",
+                    "Emergency",
+                    "Ration"
+                ]
+            }
+        },
+        "next": [
+            "ProdManualOpenInProdClick"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入简易手册界面"
+        }
+    },
+    "ProdManualOpenInProdClick": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    983,
+                    5,
+                    289,
+                    77
+                ],
+                "expected": [
+                    "简制手册",
+                    "簡製手冊",
+                    "(?i)Crafting\\s*Manual",
+                    "製作手帳",
+                    "Manual"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        }
+    },
+    "ProdManualBackAtBackpack": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1010,
+                    62,
+                    194,
+                    144
+                ],
+                "template": [
+                    "ProdManual/CloseList.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "focus": {
+            "Node.Action.Succeeded": "已返回主界面"
+        }
+    },
+    "ProdManualBackAtList": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1010,
+                    62,
+                    194,
+                    144
+                ],
+                "template": [
+                    "ProdManual/CloseList.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "ProdManualBackAtProd"
+        ]
+    },
+    "ProdManualBackAtPM": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    960,
+                    87,
+                    189,
+                    98
+                ],
+                "expected": [
+                    "返回",
+                    "(?i)Return",
+                    "戻る",
+                    "Back"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "ProdManualBackAtList"
+        ]
+    },
+    "ProdManualBackAtProd": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1139,
+                    5,
+                    136,
+                    68
+                ],
+                "template": [
+                    "CloseInfo/CloseButton.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "ProdManualBackAtBackpack"
+        ]
+    },
+    "ProdManualDone": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProdManualBackAtPM"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "返回主界面",
+            "Node.Recognition.Succeeded": "奖励已全部领取"
+        }
+    },
+    "ProdManualStart": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProdManualBackpackEnterCrafting",
+            "[JumpBack]SceneEnterMenuBackpack"
+        ]
+    },
+    "ProdManualReceiveReward": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    830,
+                    505,
+                    352,
+                    150
+                ],
+                "expected": [
+                    "键领取",
+                    "快速領取",
+                    "(?i)Claim\\s*All",
+                    "一括受取",
+                    "键领取",
+                    "[Cc]laim"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 400,
+        "next": [
+            "ProdManualConfirmReward"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "领取收集奖励"
+        }
+    }
+}

@@ -1,0 +1,63 @@
+{
+    "CreditShoppingMain": {
+        "desc": "信用点购物主入口",
+        "next": [
+            "CreditShoppingShopping",
+            "CreditShoppingCheckShopPage",
+            "[JumpBack]SceneEnterMenuShop"
+        ]
+    },
+    "CreditShoppingCheckShopPage": {
+        "desc": "检测商店页面，点击信用交易所 Tab",
+        "recognition": "TemplateMatch",
+        "roi": [
+            796,
+            41,
+            296,
+            89
+        ],
+        "template": "CreditShopping/CreditShoppingTab.png",
+        "threshold": 0.8,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                412,
+                328,
+                127,
+                140
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "CreditShoppingInShop"
+        ]
+    },
+    "CreditShoppingInShop": {
+        "desc": "在商店里",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CreditShoppingScanItemTabSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                412,
+                328,
+                127,
+                140
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CreditShoppingClaimCredit",
+            "CreditShoppingNoCreditClaim"
+        ]
+    }
+}

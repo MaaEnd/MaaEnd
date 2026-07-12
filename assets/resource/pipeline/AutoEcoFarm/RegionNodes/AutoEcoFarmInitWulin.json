@@ -1,0 +1,401 @@
+//这里是初始化所有地区独立的节点，如果以后有新增农场，那么只需要按以下步骤进行
+// 1、复制这个文件
+// 2、直接CTRL+H将这个json中的所有"Wulin"（包括说明里的）替换为新的地区名，并确认节点名都改成了“共用节点名+新地区名”
+// 3、刚替换完会有一堆报错，不要紧张，先将Anchor节点的参数设置成新地区的，全部替换完成后一般就没有报错了
+// 4、将节点入口（如"_AutoEcoFarmInitStartWulin"）放到"AutoEcoFarmMain"的next里 "_AutoEcoFarmPrepareStart"和"_AutoEcoFarmEndStart"之间就行了
+// 5、在task里面新增地区入口的开关，在SelectFarm这一组设置里面，将子节点GotoXXX复制一个然后将参数、描述里的地区名改成新的地区节点就行了
+{
+    "_AutoEcoFarmInitStartWulin": {
+        "desc": "[Wulin版]子任务入口",
+        "max_hit": 1,
+        "next": [
+            "_AutoEcoFarmInitAnchorsWulin"
+        ]
+    },
+    "_AutoEcoFarmInitAnchorsWulin": {
+        "desc": "[Wulin版]设置地区独有的Anchor节点",
+        "anchor": {
+            //AutoEcoFarmGotoFarm.json 前往农场部分
+            "_AutoEcoFarmTeleportToFarmAnchor": "_AutoEcoFarmTeleportToFarmWulin",
+            //智能导航
+            "_AutoEcoFarmGotoEcoFarmBaseNavAnchor": "_AutoEcoFarmGotoEcoFarmBaseNavWulin",
+            "_AutoEcoFarmGotoEcoFarmMapTrackerGoalAnchor": "_AutoEcoFarmGotoEcoFarmMapTrackerGoalWulin",
+            //预设路径
+            "_AutoEcoFarmGotoEcoFarmCppAnchor": "_AutoEcoFarmGotoEcoFarmCppWulin",
+            "_AutoEcoFarmGotoEcoFarmGoAnchor": "_AutoEcoFarmGotoEcoFarmGoWulin",
+            //AutoEcoFarmFindFarmland.json 寻找标记部分
+            "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindEcoFarmWulin",
+            "_AutoEcoFarmBlindWalkStartAnchor": "_AutoEcoFarmBlindWalkStartWulin",
+            //AutoEcoFarmMoveAndWork.json 工作循环部分
+            "_AutoEcoFarmInFarmAnchor": "_AutoEcoFarmInFarmWulin"
+        },
+        "next": [
+            "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
+            "[Anchor]_AutoEcoFarmBlindWalkStartAnchor",
+            "_AutoEcoFarmGotoEcoFarmStart"
+        ]
+    },
+    //下面是所有Anchor节点
+    //传送到农场附近的节点，使用万能跳转的节点，将next里的替换成寻路节点起点附近的传送点，具体方法参考对应的文档
+    "_AutoEcoFarmTeleportToFarmWulin": {
+        "desc": "[Wulin版]万能跳转到农场附近",
+        "max_hit": 1,
+        "next": [
+            "SceneEnterWorldWulingWulingCityCore"
+        ]
+    },
+    //智能导航 - Cpp版（NAVMESH语义寻路，只需填终点坐标）
+    "_AutoEcoFarmGotoEcoFarmBaseNavWulin": {
+        "desc": "[Wulin版]前往生态农场NAVMESH版",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "arrival_timeout": 45000,
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        725.74,
+                        193.06
+                    ]
+                }
+            ]
+        },
+        "next": []
+    },
+    //智能导航 - Go版（MapTrackerGoal，只需填终点坐标）
+    "_AutoEcoFarmGotoEcoFarmMapTrackerGoalWulin": {
+        "desc": "[Wulin版]前往生态农场MapTrackerGoal版",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerGoal",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "target": [
+                444.7,
+                193.2
+            ]
+        },
+        "next": []
+    },
+    //预设路径 - Cpp版（MapNavigator手动录点）
+    "_AutoEcoFarmGotoEcoFarmCppWulin": {
+        "desc": "[Wulin版]前往生态农场cpp版",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "arrival_timeout": 45000,
+
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                [
+                    666,
+                    240
+                ],
+                [
+                    667,
+                    239
+                ],
+                [
+                    668,
+                    237
+                ],
+                [
+                    670,
+                    236
+                ],
+                [
+                    682,
+                    229
+                ],
+                [
+                    685,
+                    228
+                ],
+                [
+                    687,
+                    227
+                ],
+                [
+                    689,
+                    226
+                ],
+                [
+                    691,
+                    226
+                ],
+                [
+                    699,
+                    226
+                ],
+                [
+                    710,
+                    224
+                ],
+                [
+                    711,
+                    222
+                ],
+                [
+                    713,
+                    217
+                ],
+                [
+                    712,
+                    215
+                ],
+                [
+                    712,
+                    212
+                ],
+                [
+                    711,
+                    210
+                ],
+                [
+                    710,
+                    207
+                ],
+                [
+                    710,
+                    205
+                ],
+                [
+                    709,
+                    202
+                ],
+                [
+                    709,
+                    200
+                ],
+                [
+                    709,
+                    197
+                ],
+                [
+                    709,
+                    195
+                ],
+                [
+                    709,
+                    192
+                ],
+                [
+                    709,
+                    190
+                ],
+                [
+                    710,
+                    187
+                ],
+                [
+                    712,
+                    185
+                ],
+                [
+                    714,
+                    186
+                ],
+                [
+                    717,
+                    186
+                ],
+                [
+                    719,
+                    186
+                ],
+                [
+                    722,
+                    188
+                ],
+                [
+                    724,
+                    190
+                ]
+            ]
+        },
+        "next": [
+            //JumpBack
+        ]
+    },
+    //预设路径 - Go版（MapTrackerMove录点跟走）
+    "_AutoEcoFarmGotoEcoFarmGoWulin": {
+        "desc": "[Wulin版]前往生态农场Go版",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path_trim": true,
+            "fine_approach": "Never",
+            "path": [
+                [
+                    387.2,
+                    250.0
+                ],
+                [
+                    387.2,
+                    238.3
+                ],
+                [
+                    398.4,
+                    234.5
+                ],
+                [
+                    404.8,
+                    232.0
+                ],
+                [
+                    413.4,
+                    228.3
+                ],
+                [
+                    427.3,
+                    229.5
+                ],
+                [
+                    431.0,
+                    225.8
+                ],
+                [
+                    432.2,
+                    218.1
+                ],
+                [
+                    429.8,
+                    209.4
+                ],
+                [
+                    429.8,
+                    192.0
+                ],
+                [
+                    434.7,
+                    189.5
+                ],
+                [
+                    439.7,
+                    189.4
+                ],
+                [
+                    444.7,
+                    193.2
+                ]
+            ]
+        },
+        "next": [
+            //JumpBack
+        ]
+    },
+    //确认是否在武陵农场内，在则继续工作循环。如需更换目标农场，请修改下方 target 坐标，
+    //将矩形范围扩大至覆盖整块目标农场的地图区域
+    "_AutoEcoFarmInFarmWulin": {
+        "desc": "确认在武陵农场内, 在则继续工作循环",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        413,
+                        164,
+                        33,
+                        32
+                    ]
+                }
+            ],
+            "precision": 1
+        },
+        "next": [
+            "_AutoEcoFarmJump"
+        ]
+    },
+    //识别地图上农田标题的节点，改recognition内容
+    "_AutoEcoFarmFindEcoFarmWulin": {
+        "desc": "[Wulin版]寻找农场标题, 之后接入放大节点",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    222,
+                    17,
+                    812,
+                    620
+                ],
+                "expected": [
+                    "[实验作物试点区]{3,}",
+                    "[實驗作物測試區]{3,}",
+                    "(?i)Agricultural|Test|Site",
+                    "[実験栽培試行区]{3,}",
+                    "[실험작물시범구역]{3,}"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "next": [
+            "_AutoEcoFarmScroll",
+            //要是一直失败就先移动鼠标避免干扰再找
+            "[JumpBack]_AutoEcoFarmMoveMouse"
+        ]
+    },
+    //决定是否要进入拍照模式，如果是出发点在基地那就开启
+    "_AutoEcoFarmBlindWalkStartWulin": {
+        "desc": "[Wulin版]关闭工业设备朝标记盲走一段距离，默认关闭",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "_AutoEcoFarmBlindWalkStartNavigateWulin"
+            ],
+            "strict": false
+        },
+        "next": [
+            "_AutoEcoFarmAssertOutsideBaseWulin",
+            "_AutoEcoFarmBlindWalkPhotoMode"
+        ]
+    },
+    "_AutoEcoFarmAssertOutsideBaseWulin": {
+        "desc": "[Wulin版]已经在基地外，无需盲走",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                660.75,
+                220.38,
+                51.34,
+                60.38
+            ]
+        },
+        "action": "DoNothing",
+        "next": ["_AutoEcoFarmGotoEcoFarmStart"]
+    },
+    "_AutoEcoFarmBlindWalkStartNavigateWulin": {
+        "desc": "[Wulin版]尝试直接走出基地",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    673,
+                    230
+                ]
+            ]
+        }
+    }
+}

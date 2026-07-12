@@ -1,0 +1,115 @@
+{
+    "FindEmergencySanityBooster": {
+        "desc": "识别应急理智加强剂",
+        "recognition": "TemplateMatch",
+        "roi": [
+            30,
+            80,
+            940,
+            560
+        ],
+        "template": [
+            "Valuables/EmergencySpBooster.png",
+            "Valuables/EmergencySpBoosterInCombat.png"
+        ],
+        "green_mask": true,
+        "threshold": 0.84,
+        "order_by": "Vertical"
+    },
+    "ColorRecognitionEmergencySanityBoosterDeadline": {
+        "desc": "颜色识别,确认是时限应急理智加强剂(绿色或红色时限)",
+        "recognition": "ColorMatch",
+        "roi": "FindEmergencySanityBooster",
+        "method": 40,
+        "lower": [
+            [
+                50,
+                200,
+                150
+            ],
+            [
+                161,
+                0,
+                0
+            ]
+        ],
+        "upper": [
+            [
+                90,
+                255,
+                255
+            ],
+            [
+                191,
+                255,
+                255
+            ]
+        ],
+        "connected": true,
+        "count": 100
+    },
+    "OCRRecognitionEmergencySanityBoosterRemainingTime": {
+        "desc": "识别应急理智加强剂剩余时间,由选项覆盖expected",
+        "recognition": "OCR",
+        "roi": "ColorRecognitionEmergencySanityBoosterDeadline",
+        "roi_offset": [
+            15,
+            -1,
+            -14,
+            2
+        ],
+        "expected": [
+            // 剩余时间 OCR：行首锚定，避免匹配「剩余23小时」「剩余1天」等带前缀文本
+            // @i18n-skip
+            "^0小时",
+            "^1小时",
+            "^2小时",
+            "^3小时",
+            "^4小时",
+            "^5小时",
+            "^6小时",
+            "^7小时",
+            "^8小时",
+            "^9小时",
+            "^10小时",
+            "^11小时",
+            "^12小时",
+            "^13小时",
+            "^14小时",
+            "^15小时",
+            "^16小时",
+            "^17小时",
+            "^18小时",
+            "^19小时",
+            "^20小时",
+            "^21小时",
+            "^22小时",
+            "^23小时",
+            "^1天",
+            "^2天",
+            "^3天",
+            "^4天",
+            "^5天",
+            "^6天",
+            "^7天",
+            "^8天",
+            "^9天",
+            "^10天",
+            "^11天",
+            "^12天",
+            "^13天"
+        ],
+        "only_rec": true,
+        "order_by": "Expected"
+    },
+    "FindDeadlineEmergencySanityBooster": {
+        "desc": "识别带时限的应急理智加强剂",
+        "recognition": "And",
+        "all_of": [
+            "FindEmergencySanityBooster",
+            "ColorRecognitionEmergencySanityBoosterDeadline",
+            "OCRRecognitionEmergencySanityBoosterRemainingTime"
+        ],
+        "box_index": 2
+    }
+}

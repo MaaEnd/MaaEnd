@@ -1,0 +1,31 @@
+# 构建产物
+install/
+node_modules/
+
+# 子模块
+assets/resource/model/
+agent/cpp-algo/MaaUtils/
+tests/MaaEndTestset/
+
+# 跳过 schema 目录，避免与 sync_schema_files 冲突
+tools/schema/
+
+# 从 zmdmap 获取的数据不需要格式化
+assets/data/ZmdMap/
+tools/pipeline-generate/data/*.json
+
+# 锁文件
+pnpm-lock.yaml
+package-lock.json
+
+# Go
+agent/go-service/go.sum
+agent/go-service/vendor/
+
+# 其他
+*.min.js
+*.min.css
+
+# GitHub Workflows (avoid permission issues during auto-format)
+.github/workflows/*.yml
+.github/workflows/*.yaml

@@ -1,0 +1,23 @@
+{
+    "NeedCredit": {
+        "desc": "信用点商店联动入口",
+        "max_hit": 1,
+        "next": [
+            "ReceptionRoomMain",
+            "[JumpBack]SceneEnterMenuDijiangControlNexus"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.need_credit_entry_failed"
+        }
+    },
+    "DijiangRewards": {
+        "desc": "基建奖励领取",
+        "next": [
+            "ControlNexus",
+            "[JumpBack]SceneEnterMenuDijiangControlNexus"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.entry_unrecognized"
+        }
+    }
+}

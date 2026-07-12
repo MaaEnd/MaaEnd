@@ -1,0 +1,584 @@
+{
+    "AutoSellStockRedistributionItemOpenPrepare": {
+        "desc": "准备售卖物资",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentValleyIV",
+            "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentWuling",
+            "AutoSellStockRedistributionItemOpenPrepareFriends"
+        ]
+    },
+    "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentValleyIV": {
+        "desc": "在地区建设界面，尝试售卖物资",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            400,
+            60
+        ],
+        "expected": [
+            "四号谷地",
+            "四號谷地",
+            "Valley IV",
+            "4번 협곡"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTab",
+            "AutoSellTicketValleyIVOverflow",
+            "AutoSellStockRedistributionItemOpenInRegionalDevelopment"
+        ]
+    },
+    "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentWuling": {
+        "desc": "在地区建设界面，尝试售卖物资",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            400,
+            60
+        ],
+        "expected": [
+            "武陵",
+            "Wuling",
+            "무릉"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTab",
+            "AutoSellTicketWulingOverflow",
+            "AutoSellStockRedistributionItemOpenInRegionalDevelopment"
+        ]
+    },
+    "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTab": {
+        "desc": "切换到弹性需求物资",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            650,
+            180
+        ],
+        "template": "AutoSell/TabSwitchElasticGoods.png",
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTabSuccess"
+        ]
+    },
+    "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTabSuccess": {
+        "desc": "切换到弹性需求物资成功",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            650,
+            180
+        ],
+        "template": "AutoSell/TabSwitchElasticGoodsActive.png",
+        "threshold": 0.9,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoSellStockRedistributionItemOpenPrepareFriends": {
+        "desc": "当前在好友界面，尝试查找目标物资",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistribution"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchValleyIV",
+            "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchWuling",
+            "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToValleyIV",
+            "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToWuling"
+        ]
+    },
+    "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchValleyIV": {
+        "desc": "当前在好友界面，尝试切换到四号谷地",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            600,
+            150
+        ],
+        "template": [
+            "AutoSell/StockRedistributionValleyIVChoose.png",
+            "AutoSell/StockRedistributionValleyIVNotChoose.png"
+        ],
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellTicketValleyIVOverflow",
+            "AutoSellStockRedistributionItemOpenInFriends",
+            "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToValleyIV"
+        ]
+    },
+    "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchWuling": {
+        "desc": "当前在好友界面，尝试切换到武陵",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            600,
+            150
+        ],
+        "template": [
+            "AutoSell/StockRedistributionWulingChoose.png",
+            "AutoSell/StockRedistributionWulingNotChoose.png"
+        ],
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellTicketWulingOverflow",
+            "AutoSellStockRedistributionItemOpenInFriends",
+            "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToWuling"
+        ]
+    },
+    "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToValleyIV": {
+        "desc": "当前在好友界面，回到地区建设界面，切换地区到四号谷地",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTab",
+            "AutoSellStockRedistributionItemOpenInRegionalDevelopment"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "该好友没有目标物品，查找下一个好友"
+        }
+    },
+    "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToWuling": {
+        "desc": "当前在好友界面，回到地区建设界面，切换地区到武陵",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentSwitchTab",
+            "AutoSellStockRedistributionItemOpenInRegionalDevelopment"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "该好友没有目标物品，查找下一个好友"
+        }
+    },
+    "AutoSellStockRedistributionItemOpenInFriends": {
+        "desc": "在好友物资调度界面打开item",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellStockRedistributionItemTicketRecognition",
+            "AutoSellStockRedistributionItemOwnedRecognition",
+            "AutoSellStockRedistributionItemGreenLineRecognition",
+            "AutoSellStockRedistributionItemNameAreaRecognition",
+            "AutoSellStockRedistributionItemNameRecRecognition",
+            "AutoSellStockRedistributionItemFindTextRecognition"
+        ],
+        "box_index": 5,
+        "pre_delay": 0,
+        "action": "Click",
+        // item左右20个像素无法点击
+        "target_offset": [
+            30,
+            -50,
+            -60,
+            0
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellSellGoodsOpenSuccess"
+        ]
+    },
+    "AutoSellStockRedistributionItemOpenInRegionalDevelopment": {
+        "desc": "在地区建设物资调度界面打开item",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellStockRedistributionItemTicketRecognition",
+            "AutoSellStockRedistributionItemOwnedRecognition",
+            "AutoSellStockRedistributionItemGreenLineRecognition",
+            "AutoSellStockRedistributionItemNameAreaRecognition",
+            "AutoSellStockRedistributionItemNameRecRecognition",
+            "AutoSellStockRedistributionItemFindTextRecognition"
+        ],
+        "box_index": 5,
+        "pre_delay": 0,
+        "action": "Click",
+        // item左右20个像素无法点击
+        "target_offset": [
+            30,
+            -50,
+            -60,
+            0
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellSellGoodsOpenSuccess"
+        ]
+    },
+    "AutoSellSellGoodsOpenSuccess": {
+        "desc": "打开出售物资界面成功",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionSellGoods"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellSellGoodsEmpty",
+            "AutoSellFriendsPricesOpen"
+        ]
+    },
+    "AutoSellSellGoodsEmpty": {
+        "desc": "物资出售界面没有物资可以出售",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionSellGoods",
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    200,
+                    450,
+                    440,
+                    180
+                ],
+                "lower": [
+                    200,
+                    84,
+                    94
+                ],
+                "upper": [
+                    220,
+                    104,
+                    114
+                ],
+                "connected": true,
+                "count": 1000
+            }
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesBackToView0"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "没有可售卖的物资"
+        }
+    },
+    "AutoSellFriendsPricesOpen": {
+        "desc": "打开好友价格界面",
+        "recognition": "OCR",
+        "roi": [
+            850,
+            400,
+            300,
+            130
+        ],
+        "expected": [
+            "查看好友价格",
+            "查看好友價格",
+            "(?i)Friend\\s*'\\s*s\\s*Price",
+            "フレンドの価格を確認",
+            "친구의 가격 보기"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesOpenSuccess"
+        ]
+    },
+    "AutoSellFriendsPricesOpenSuccess": {
+        "desc": "打开好友价格界面成功",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionFriendsPrices",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    470,
+                    250,
+                    630,
+                    360
+                ],
+                "template": [
+                    "AutoSell/SellTicketFriendValleyIV.png",
+                    "AutoSell/SellTicketFriendWuling.png"
+                ]
+            }
+        ],
+        "pre_wait_freezes": {
+            "target": [
+                460,
+                260,
+                610,
+                310
+            ],
+            "time": 100
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpected",
+            "AutoSellFriendsPricesUnExpected"
+        ]
+    },
+    "AutoSellFriendsPricesExpected": {
+        "desc": "价格符合预期",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{AutoSellFriendsPriceRecognition} >= 5000 ",
+            "focus_matched_resolved_expression": true,
+            "focus_unmatched_resolved_expression": true
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuy",
+            "AutoSellFriendsPricesExpectedGoTo"
+        ]
+    },
+    "AutoSellFriendsPricesUnExpected": {
+        "desc": "价格不符合预期",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesBackToSellGoods"
+        ]
+    },
+    "AutoSellFriendsPricesBackToSellGoods": {
+        "desc": "从好友价格界面返回到物资调度界面",
+        "recognition": "TemplateMatch",
+        "template": "AutoSell/FriendsPricesBack.png",
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesBackToView0"
+        ]
+    },
+    "AutoSellFriendsPricesBackToView0": {
+        "desc": "从好友价格界面返回到主界面",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionSellGoods",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoSellFriendsPricesExpectedBuy": {
+        "desc": "当前价格符合预期，在当前好友飞船上，可以直接售卖",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{AutoSellFriendsPriceCurrentRecognition} >= 5000 "
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuyBackToSellGoods"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "当前拜访好友是最高价，可以售卖"
+        }
+    },
+    "AutoSellFriendsPricesExpectedBuyBackToSellGoods": {
+        "desc": "从好友价格界面返回到物资调度界面",
+        "recognition": "TemplateMatch",
+        "template": "AutoSell/FriendsPricesBack.png",
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuyBackToSellGoodsSuccess"
+        ]
+    },
+    "AutoSellFriendsPricesExpectedBuyBackToSellGoodsSuccess": {
+        "desc": "从好友价格界面返回到物资调度界面成功",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionSellGoods"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuySlide",
+            "AutoSellFriendsPricesExpectedBuyClick"
+        ]
+    },
+    "AutoSellFriendsPricesExpectedBuySlide": {
+        "desc": "从好友价格界面返回到物资调度界面调整滑块",
+        "recognition": "TemplateMatch",
+        "template": "AutoSell/ItemAddButton.png",
+        "threshold": 0.9,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "target_offset": [
+            -70,
+            5,
+            -10,
+            -10
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuyClick"
+        ]
+    },
+    "AutoSellFriendsPricesExpectedBuyClick": {
+        "desc": "点击售卖",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType2"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SceneNoticeRewardsConfirm"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "售卖成功"
+        }
+    },
+    "AutoSellFriendsPricesExpectedGoTo": {
+        "desc": "当前价格符合预期，需要前往好友飞船",
+        "recognition": "And",
+        "all_of": [
+            "AutoSellFriendsPriceFirstTicketRecognition",
+            {
+                "recognition": "ColorMatch",
+                "roi": "AutoSellFriendsPriceFirstTicketRecognition",
+                "roi_offset": [
+                    -260,
+                    -20,
+                    20,
+                    30
+                ],
+                "lower": [
+                    245,
+                    228,
+                    0
+                ],
+                "upper": [
+                    255,
+                    248,
+                    10
+                ],
+                "connected": true,
+                "count": 15
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target_offset": [
+            -30,
+            0,
+            0,
+            0
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedGoToConfirm"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "当前拜访好友不是最高价，前往拜访"
+        }
+    },
+    "AutoSellFriendsPricesExpectedGoToConfirm": {
+        "desc": "前往好友飞船确认",
+        "recognition": "OCR",
+        "roi": [
+            450,
+            250,
+            350,
+            240
+        ],
+        "expected": [
+            "前往",
+            "Visit",
+            "フレン",
+            "친구"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellStockRedistributionItemOpenPrepareFriends",
+            "[JumpBack]SceneWaitLoadingExit",
+            "[JumpBack]AutoSellShipEnterStockRedistribution"
+        ]
+    },
+    "AutoSellStockRedistributionItemFindTextRecognition": {
+        "desc": "识别目标item的文本区域",
+        "recognition": "OCR",
+        "roi": "AutoSellStockRedistributionItemNameRecRecognition",
+        "expected": "锚点",
+        "only_rec": true
+    }
+}

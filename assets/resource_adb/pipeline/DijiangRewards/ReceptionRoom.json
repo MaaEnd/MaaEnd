@@ -1,0 +1,17 @@
+{
+    "ReceptionRoomSendCluesSwipe": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    225,
+                    572
+                ],
+                "end": [
+                    236,
+                    231
+                ]
+            }
+        }
+    }
+}

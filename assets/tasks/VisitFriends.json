@@ -1,0 +1,107 @@
+{
+    "task": [
+        {
+            "name": "VisitFriends",
+            "label": "$task.VisitFriends.label",
+            "entry": "VisitFriendsMain",
+            "description": "$task.VisitFriends.description",
+            "option": [
+                "VisitFriendsRemark",
+                "ProductionAssistControl"
+            ],
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
+            "group": [
+                "dijiang_ship"
+            ]
+        }
+    ],
+    "option": {
+        "VisitFriendsRemark": {
+            "type": "switch",
+            "label": "$option.VisitFriendsRemark.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "VisitFriendsRemark": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "VisitFriendsRemark": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ProductionAssistControl": {
+            "type": "checkbox",
+            "label": "$option.ProductionAssistControl.label",
+            "default_case": [
+                "ProductionAssistControlNexus",
+                "ProductionAssistMFGCabin",
+                "ProductionAssistGrowthChamber"
+            ],
+            "cases": [
+                {
+                    "name": "ProductionAssistControlNexus",
+                    "label": "$option.ProductionAssistControl.ProductionAssistControlNexus.label",
+                    "pipeline_override": {
+                        "VisitFriendsMenuScanTargetFriendNormalOpen": {
+                            "attach": {
+                                "control_nexus_assist": true
+                            }
+                        },
+                        "VisitFriendsMenuScanTargetFriendRemarkOpen": {
+                            "attach": {
+                                "control_nexus_assist": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProductionAssistMFGCabin",
+                    "label": "$option.ProductionAssistControl.ProductionAssistMFGCabin.label",
+                    "pipeline_override": {
+                        "VisitFriendsMenuScanTargetFriendNormalOpen": {
+                            "attach": {
+                                "mfg_cabin_assist": true
+                            }
+                        },
+                        "VisitFriendsMenuScanTargetFriendRemarkOpen": {
+                            "attach": {
+                                "mfg_cabin_assist": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProductionAssistGrowthChamber",
+                    "label": "$option.ProductionAssistControl.ProductionAssistGrowthChamber.label",
+                    "pipeline_override": {
+                        "VisitFriendsMenuScanTargetFriendNormalOpen": {
+                            "attach": {
+                                "growth_chamber_assist": true
+                            }
+                        },
+                        "VisitFriendsMenuScanTargetFriendRemarkOpen": {
+                            "attach": {
+                                "growth_chamber_assist": true
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

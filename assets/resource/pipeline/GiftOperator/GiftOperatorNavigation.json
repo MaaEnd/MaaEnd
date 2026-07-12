@@ -1,0 +1,294 @@
+{
+    "GiftOperatorMoveAhead": {
+        "desc": "移动尝试接触到干员",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            "map_name": "base01_lv003",
+                            "target": [
+                                180.4,
+                                171.4,
+                                19.6,
+                                11.8
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorMoveLocation3",
+            //"GiftOperatorMoveLocation3Move",
+            "GiftOperatorMoveLocation2",
+            //"GiftOperatorMoveLocation2Move",
+            "GiftOperatorMoveLocation1",
+            //"GiftOperatorMoveLocation1Move",
+            "GiftOperatorMoveFail"
+        ]
+    },
+    "GiftOperatorMoveFail": {
+        "desc": "移动未能接触到干员，炸掉程序",
+        "action": "Custom",
+        "custom_action": "ERROR", //引发一个错误来结束当前任务并留下截图
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.GiftOperator.focus.move_fail"
+        }
+    },
+    "GiftOperatorMoveLocation1": {
+        "desc": "转向270度(正西)尝试接触到干员(预设位置1)",
+        "max_hit": 2,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "HEADING",
+                            "angle": 270,
+                            "zone_id": "OMVBase01"
+                        }
+                    ]
+                }
+            }
+        },
+        "post_delay": 1000 //需要等待角色彻底停下
+    },
+    "GiftOperatorMoveLocation1Move": {
+        "desc": "移动尝试接触到干员(预设位置1)",
+        "max_hit": 1,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "base01_lv003",
+                    "no_ensure_initial_movement_state": true,
+                    "path": [
+                        [
+                            186.6,
+                            175.0
+                        ]
+                    ]
+                }
+            }
+        },
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                807,
+                420,
+                70,
+                121
+            ],
+            "timeout": 2000
+        },
+        "post_delay": 1000 //需要等待角色彻底停下
+    },
+    "GiftOperatorMoveLocation2": {
+        "desc": "转向0度(正北)尝试接触到干员(预设位置2)",
+        "max_hit": 2,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "HEADING",
+                            "angle": 0,
+                            "zone_id": "OMVBase01"
+                        }
+                    ]
+                }
+            }
+        },
+        "post_delay": 1000 //需要等待角色彻底停下
+    },
+    "GiftOperatorMoveLocation2Move": {
+        "desc": "移动尝试接触到干员(预设位置2)",
+        "max_hit": 1,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "base01_lv003",
+                    "no_ensure_initial_movement_state": true,
+                    "path": [
+                        [
+                            188.0,
+                            175.3
+                        ]
+                    ]
+                }
+            }
+        },
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                807,
+                420,
+                70,
+                121
+            ],
+            "timeout": 2000
+        },
+        "post_delay": 1000 //需要等待角色彻底停下
+    },
+    "GiftOperatorMoveLocation3": {
+        "desc": "转向90度(正东)尝试接触到干员(预设位置3)",
+        "max_hit": 2,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "HEADING",
+                            "angle": 90,
+                            "zone_id": "OMVBase01"
+                        }
+                    ]
+                }
+            }
+        },
+        "post_delay": 1000 //需要等待角色彻底停下
+    },
+    "GiftOperatorMoveLocation3Move": {
+        "desc": "移动尝试接触到干员(预设位置3)",
+        "max_hit": 1,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "base01_lv003",
+                    "no_ensure_initial_movement_state": true,
+                    "path": [
+                        [
+                            188.6,
+                            176.2
+                        ]
+                    ]
+                }
+            }
+        },
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                807,
+                420,
+                70,
+                121
+            ],
+            "timeout": 2000
+        },
+        "post_delay": 1000 //需要等待角色彻底停下
+    },
+    "GiftOperatorMoveMapTracker": {
+        "desc": "使用 MapTracker 识别寻路走到干员联络台",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "base01_lv003",
+                    "path": [
+                        [
+                            184.1,
+                            195.4
+                        ],
+                        [
+                            189.8,
+                            183.2
+                        ],
+                        [
+                            186.0,
+                            177.3
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorClickContact",
+            "[JumpBack]GiftOperatorGoAheadContact"
+        ]
+    },
+    "GiftOperatorGoAheadContact": {
+        "desc": "继续向前走尝试接触联络台",
+        "max_hit": 6,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "HEADING",
+                            "target": [
+                                183,
+                                174
+                            ],
+                            "zone_id": "OMVBase01"
+                        }
+                    ]
+                }
+            }
+        },
+        "post_delay": 1000 //需要等待角色彻底停下
+    },
+    "GiftOperatorMoveMapTrackerSC": {
+        "desc": "使用 MapTracker 识别寻路走到干员联络台",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "base01_lv003",
+                    "path": [
+                        [
+                            186.0,
+                            176.6
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorClickContact"
+        ]
+    },
+    "GiftOperatorShiftToRunMapTracker": {
+        "desc": "按 Shift 恢复跑步模式，等待后再用 MapTracker 寻路",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 16
+            }
+        },
+        "post_delay": 500,
+        "next": [
+            "GiftOperatorMoveMapTracker"
+        ]
+    },
+    "GiftOperatorShiftToRunMapTrackerSC": {
+        "desc": "短路优化版本寻路,从干员联络站开始",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 16
+            }
+        },
+        "post_delay": 500,
+        "next": [
+            "GiftOperatorMoveMapTrackerSC"
+        ]
+    }
+}

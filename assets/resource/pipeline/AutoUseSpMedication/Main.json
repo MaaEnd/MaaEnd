@@ -1,0 +1,67 @@
+{
+    "AutoUseSpMedicationEntry": {
+        "desc": "自动使用应急理智加强剂任务入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoUseSpMedicationInStashValuablesTab",
+            "[JumpBack]SceneEnterMenuValuablesValuableTab"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoUseSpMedication.focus.entry_enter_valuables_tab"
+        }
+    },
+    "AutoUseSpMedicationInStashValuablesTab": {
+        "desc": "识别是否在珍贵物品页界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]AutoUseSpMedicationLoop",
+            "InWorld",
+            "[JumpBack]CloseButtonType1"
+        ]
+    },
+    "AutoUseSpMedicationLoop": {
+        "desc": "主任务循环",
+        "max_hit": 1, //由选项覆盖
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoUseSpMedicationSelectEmergencySanityBooster",
+            "AutoUseSpMedicationUseNoEmergencySanityBooster"
+        ]
+    },
+    "AutoUseSpMedicationUseNoEmergencySanityBooster": {
+        "desc": "提示没有符合条件的应急理智加强剂，结束任务",
+        "enabled": true,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab"
+                ]
+            }
+        },
+        "action": "StopTask",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoUseSpMedication.focus.no_booster_available"
+        },
+        "next": [
+            "AutoUseSpMedicationStopTask",
+            "[JumpBack]CloseButtonType1"
+        ]
+    },
+    "AutoUseSpMedicationStopTask": {
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "StopTask"
+    }
+}

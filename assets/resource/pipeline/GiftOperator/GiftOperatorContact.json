@@ -1,0 +1,744 @@
+{
+    "GiftOperatorCheckContact": {
+        "desc": "确认已进入干员联络界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    33,
+                    46,
+                    273,
+                    133
+                ],
+                "expected": [
+                    "干员联络",
+                    "幹員聯絡",
+                    "(?i)Operator\\s*Contact",
+                    "オペレーターの呼び出し"
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                911,
+                312,
+                89,
+                121
+            ]
+        },
+        "next": [
+            "[JumpBack]GiftOperatorContacSortOrder",
+            "[JumpBack]GiftOperatorContacSortBy",
+            "GiftOperatorSelectOp1",
+            "GiftOperatorSelectSpecifiedOp",
+            "GiftOperatorSelectGiftOp",
+            "[JumpBack]GiftOperatorSwipe", //滑动两次后会关闭
+            "GiftOperatorNoOperatorCanSelect" //落入无可选干员界面
+        ]
+    },
+    "GiftOperatorNoOperatorCanSelect": {
+        "desc": "没有可选择的干员",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    130,
+                    92,
+                    180,
+                    94
+                ],
+                "expected": [
+                    "干员联络",
+                    "幹員聯絡",
+                    "Operator Contact",
+                    "オペレーターの呼び出し"
+                ]
+            }
+        }
+    },
+    "GiftOperatorSwipe": {
+        "desc": "滑动尝试找到干员",
+        "max_hit": 2,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    130,
+                    92,
+                    180,
+                    94
+                ],
+                "expected": [
+                    "干员联络",
+                    "幹員聯絡",
+                    "Operator Contact",
+                    "オペレーターの呼び出し"
+                ]
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    600,
+                    400
+                ],
+                "end": [
+                    [
+                        600,
+                        300
+                    ],
+                    [
+                        300,
+                        300
+                    ]
+                ]
+            }
+        }
+    },
+    "GiftOperatorSelectGiftOp": {
+        "desc": "选择有礼物的干员",
+        "enabled": false,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    546,
+                    181,
+                    550,
+                    309
+                ],
+                "template": [
+                    "GiftOperator/Gift.png",
+                    "GiftOperator/Gift_2.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    40,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            //每一个节点命中后,将GiftOperatorName覆盖为对应干员名字
+            "GiftOperatorSelect_Akekuri",
+            "GiftOperatorSelect_Alesh",
+            "GiftOperatorSelect_Antal",
+            "GiftOperatorSelect_Arclight",
+            "GiftOperatorSelect_Ardelia",
+            "GiftOperatorSelect_Avywenna",
+            "GiftOperatorSelect_Camille",
+            "GiftOperatorSelect_Catcher",
+            "GiftOperatorSelect_ChenQianyu",
+            "GiftOperatorSelect_DaPan",
+            "GiftOperatorSelect_Ember",
+            "GiftOperatorSelect_Estella",
+            "GiftOperatorSelect_Fluorite",
+            "GiftOperatorSelect_Gilberta",
+            "GiftOperatorSelect_Laevatain",
+            "GiftOperatorSelect_LastRite",
+            "GiftOperatorSelect_Lifeng",
+            "GiftOperatorSelect_MiFu",
+            "GiftOperatorSelect_Perlica",
+            "GiftOperatorSelect_Pogranichnik",
+            "GiftOperatorSelect_Rossi",
+            "GiftOperatorSelect_Snowshine",
+            "GiftOperatorSelect_Tangtang",
+            "GiftOperatorSelect_Wulfgard",
+            "GiftOperatorSelect_Xaihi",
+            "GiftOperatorSelect_Yvonne",
+            "GiftOperatorSelect_ZhuangFangyi"
+        ]
+    },
+    "GiftOperatorSelectSpecifiedOp": {
+        "desc": "选择指定干员",
+        "enabled": false,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    546,
+                    181,
+                    550,
+                    309
+                ],
+                "template": [
+                    "GiftOperator/Operators/Perlica.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    20,
+                    20,
+                    -40,
+                    -40
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSelectSpecifiedOpSuccess": {
+        "desc": "选择指定干员成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckSelectedLabelColor",
+                    "GiftOperatorCheckSelectedTextColor",
+                    "GiftOperatorCheckSelectedText1"
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorConfirmSelect"
+        ]
+    },
+    "GiftOperatorContacSortOrder": {
+        "desc": "选择排序方式",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    798,
+                    481,
+                    107,
+                    78
+                ],
+                "expected": [
+                    "默认"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GiftOperatorContacChooseSortOrder"
+        ]
+    },
+    "GiftOperatorContacChooseSortOrder": {
+        "desc": "选择信赖度排序",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    802,
+                    427,
+                    131,
+                    88
+                ],
+                "expected": [
+                    "信赖度"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "GiftOperatorContacSortBy": {
+        "desc": "选择升序",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    955,
+                    486,
+                    82,
+                    72
+                ],
+                "expected": [
+                    "降序"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                908,
+                309,
+                180,
+                173
+            ]
+        }
+    },
+    "GiftOperatorCheckSelectedLabelColor": {
+        "desc": "选中角色标签颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 40,
+                "lower": [
+                    27,
+                    240,
+                    240
+                ],
+                "upper": [
+                    30,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10,
+                "order_by": "Area"
+            }
+        }
+    },
+    "GiftOperatorCheckSelectedTextColor": {
+        "desc": "选中角色文字颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "GiftOperatorCheckSelectedLabelColor",
+                "lower": [
+                    0,
+                    0,
+                    45
+                ],
+                "upper": [
+                    80,
+                    78,
+                    55
+                ],
+                "count": 15
+            }
+        }
+    },
+    "GiftOperatorCheckSelectedText1": {
+        "desc": "选中角色文字",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorCheckSelectedTextColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [
+                    "1"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "GiftOperatorCheckSelectedText2": {
+        "desc": "选中角色文字",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorCheckSelectedTextColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [
+                    "2"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "GiftOperatorCheckSelectedText3": {
+        "desc": "选中角色文字",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorCheckSelectedTextColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [
+                    "3"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "GiftOperatorCheckSelected1": {
+        "desc": "确认第一个干员已选中",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckSelectedLabelColor",
+                    "GiftOperatorCheckSelectedTextColor",
+                    "GiftOperatorCheckSelectedText1"
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorSelectOp2",
+            "GiftOperatorSelectTrustFull"
+        ]
+    },
+    "GiftOperatorCheckSelected2": {
+        "desc": "确认第二个干员已选中",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckSelectedLabelColor",
+                    "GiftOperatorCheckSelectedTextColor",
+                    "GiftOperatorCheckSelectedText2"
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorSelectOp3",
+            "GiftOperatorSelectTrustFull"
+        ]
+    },
+    "GiftOperatorCheckSelected3": {
+        "desc": "确认第三个干员已选中",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckSelectedLabelColor",
+                    "GiftOperatorCheckSelectedTextColor",
+                    "GiftOperatorCheckSelectedText3"
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorConfirmSelect"
+        ]
+    },
+    "GiftOperatorClickContact": {
+        "desc": "点击干员联络台",
+        "max_hit": 5,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    722,
+                    312,
+                    550,
+                    362
+                ],
+                "expected": [
+                    "干员联络台",
+                    "幹員聯絡台",
+                    "(?i)Operator\\s*Contact\\s*Panel",
+                    "連絡カウンター"
+                ]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                911,
+                312,
+                89,
+                121
+            ]
+        },
+        "next": [
+            "GiftOperatorCheckContact"
+        ]
+    },
+    "GiftOperatorConfirmSelect": {
+        "desc": "点击确认按钮呼唤干员",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "Common/Button/YellowConfirmButtonType2.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorWaitChat",
+            "[JumpBack]GiftOperatorMoveAhead"
+        ]
+    },
+    "GiftOperatorSelectTrustFull": {
+        "desc": "选择干员阶段信赖已满",
+        "next": [
+            "GiftOperatorConfirmSelect"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.GiftOperator.focus.select_trust_full"
+        }
+    },
+    "GiftOperatorTrustIcon": {
+        "desc": "干员信赖度图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    548,
+                    178,
+                    638,
+                    318
+                ],
+                "template": [
+                    "GiftOperator/TrustIcon.png"
+                ],
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "GiftOperatorNotSelect": {
+        "desc": "干员未被选择",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "GiftOperatorTrustIcon",
+                "roi_offset": [
+                    40,
+                    -85,
+                    5,
+                    5
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        29,
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        179,
+                        255,
+                        255
+                    ],
+                    [
+                        27,
+                        255,
+                        255
+                    ]
+                ],
+                "connected": true,
+                "count": 150,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "GiftOperatorTrustValue": {
+        "desc": "干员信赖度数值",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorNotSelect",
+                "roi_offset": [
+                    -25,
+                    87,
+                    7,
+                    -8
+                ],
+                "expected": [
+                    "^((?!200).)*$"
+                ],
+                "only_rec": true,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "GiftOperatorTrustValueFull": {
+        "desc": "干员信赖已满",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorTrustIcon",
+                "roi_offset": [
+                    14,
+                    1,
+                    19,
+                    -2
+                ],
+                "expected": [
+                    "^200"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "GiftOperatorTrustFull": {
+        "desc": "干员信赖已满",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustIcon",
+                    "GiftOperatorTrustValueFull"
+                ]
+            }
+        },
+        "focus": {
+            "focus.Node.Recognition.Succeeded": "$task.GiftOperator.focus.all_full"
+        }
+    },
+    "GiftOperatorSelectOp1": {
+        "desc": "选择第一个干员",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustIcon",
+                    "GiftOperatorNotSelect",
+                    "GiftOperatorTrustValue"
+                ],
+                "box_index": 2
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "timeout": 7000,
+        "next": [
+            "GiftOperatorCheckSelected1"
+        ],
+        "focus": {
+            "Tasker.Task.Failed": "$task.GiftOperator.focus.select_op1"
+        }
+    },
+    "GiftOperatorSelectOp2": {
+        "desc": "选择第二个干员",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustIcon",
+                    "GiftOperatorNotSelect",
+                    "GiftOperatorTrustValue"
+                ],
+                "box_index": 2
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GiftOperatorCheckSelected2"
+        ]
+    },
+    "GiftOperatorSelectOp3": {
+        "desc": "选择第三个干员",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorTrustIcon",
+                    "GiftOperatorNotSelect",
+                    "GiftOperatorTrustValue"
+                ],
+                "box_index": 2
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GiftOperatorCheckSelected3"
+        ]
+    },
+    "GiftOperatorChat": {
+        "desc": "干员对话图标",
+        "max_hit": 1,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    641,
+                    274,
+                    538,
+                    415
+                ],
+                "template": [
+                    "GiftOperator/OperatorChat.png"
+                ]
+            }
+        }
+    },
+    "GiftOperatorName": {
+        "desc": "干员名字",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorChat",
+                "roi_offset": [
+                    30,
+                    0,
+                    65,
+                    0
+                ],
+                "expected": [
+                    // @i18n-skip
+                    ".*"
+                ]
+            }
+        }
+    },
+    "GiftOperatorWaitChat": {
+        "desc": "等待干员出现并点击对话",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorChat",
+                    "GiftOperatorName"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000
+        },
+        "next": [
+            "GiftOperatorSkipDialog",
+            "GiftOperatorWaitChat" //防止干员突然走过来导致选项位置变化点击丢失
+        ]
+    }
+}
