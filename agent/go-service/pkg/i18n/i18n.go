@@ -31,6 +31,8 @@ var htmlTemplates = map[string]string{
 	"tasker.process_warning":                  "HTML/process-warning.html",
 	"tasker.hdr_warning":                      "HTML/hdr-warning.html",
 	"tasker.aspect_ratio_warning":             "HTML/aspect-ratio-warning.html",
+	"tasker.gfn_stream_hint":                  "HTML/gfn-stream-hint.html",
+	"tasker.gfn_resize_failed":                "HTML/gfn-resize-failed.html",
 	"maptracker.emergency_stop":               "HTML/emergency-stop.html",
 	"maptracker.navigation_moving":            "HTML/navigation-moving.html",
 	"maptracker.navigation_finished":          "HTML/navigation-finished.html",

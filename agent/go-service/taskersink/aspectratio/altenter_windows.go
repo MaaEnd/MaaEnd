@@ -3,9 +3,7 @@
 package aspectratio
 
 import (
-	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 	"unsafe"
 
@@ -47,11 +45,6 @@ var (
 	win32ProcGetCurrentThreadID       = win32Kernel32.NewProc("GetCurrentThreadId")
 )
 
-type win32ControllerInfo struct {
-	Type string `json:"type"`
-	HWnd uint64 `json:"hwnd"`
-}
-
 type win32Rect struct {
 	Left   int32
 	Top    int32
@@ -64,7 +57,7 @@ func init() {
 }
 
 func sendAltEnterWin32(controller *maa.Controller) (resolutionReader, error) {
-	hwnd, err := controllerHwndWin32(controller)
+	hwnd, err := control.GetWin32Hwnd(controller)
 	if err != nil {
 		return nil, err
 	}
@@ -259,30 +252,4 @@ func setDPIAwareWin32() func() {
 			win32ProcSetThreadDpiAwarenessCtx.Call(oldCtx)
 		}
 	}
-}
-
-func controllerHwndWin32(controller *maa.Controller) (uintptr, error) {
-	if controller == nil {
-		return 0, fmt.Errorf("nil controller")
-	}
-
-	infoStr, err := controller.GetInfo()
-	if err != nil {
-		return 0, fmt.Errorf("failed to get controller info: %w", err)
-	}
-	if strings.TrimSpace(infoStr) == "" {
-		return 0, fmt.Errorf("empty controller info")
-	}
-
-	var info win32ControllerInfo
-	if err := json.Unmarshal([]byte(infoStr), &info); err != nil {
-		return 0, fmt.Errorf("failed to parse controller info: %w", err)
-	}
-	if info.Type != "" && !strings.EqualFold(info.Type, control.CONTROL_TYPE_WIN32) {
-		return 0, fmt.Errorf("controller type is %q, not win32", info.Type)
-	}
-	if info.HWnd == 0 {
-		return 0, fmt.Errorf("controller info has no hwnd")
-	}
-	return uintptr(info.HWnd), nil
 }
