@@ -211,15 +211,13 @@
     "AutoEssenceClickEssenceStartButton": {
         "desc": "识别并点击开始界面中的开始挑战按钮",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    1155,
-                    590,
-                    125,
-                    130
+                "all_of": [
+                    "WhiteConfirmButtonType1",
+                    "AutoEssenceClickEssenceStartButtonText"
                 ],
-                "template": "Common/Button/WhiteConfirmButtonType1.png"
+                "box_index": 1
             }
         },
         "pre_wait_freezes": 1000,
@@ -233,6 +231,26 @@
         ],
         "focus": {
             "Node.Action.Starting": "👆点击开启挑战按钮"
+        }
+    },
+    "AutoEssenceClickEssenceStartButtonText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "WhiteConfirmButtonType1",
+                "roi_offset": [
+                    -50,
+                    0,
+                    25,
+                    0
+                ],
+                "expected": [
+                    "开启挑战",
+                    "開啟挑戰",
+                    "Start",
+                    "挑戦"
+                ]
+            }
         }
     },
     "AutoEssenceDismissWarning1": {
