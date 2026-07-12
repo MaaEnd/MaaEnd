@@ -73,10 +73,20 @@
                     110
                 ],
                 "expected": [
+                    "导入",
+                    "匯入",
+                    "(?i)Import",
+                    "インポート",
                     "导入蓝图",
                     "匯入藍圖",
-                    "Import Blueprint",
-                    "Import"
+                    "Import Blueprint"
+                ]
+            ,
+                "roi_offset": [
+                    0,
+                    0,
+                    167,
+                    0
                 ]
             }
         },
@@ -170,7 +180,8 @@
                 "expected": [
                     "存至共享蓝图",
                     "存至共享藍圖",
-                    "(?i)Save\\s*to\\s*Shared\\s*Blueprints"
+                    "(?i)Save\\s*to\\s*Shared\\s*Blueprints",
+                    "保存"
                 ]
             }
         },

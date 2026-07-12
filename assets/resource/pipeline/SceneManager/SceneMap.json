@@ -402,8 +402,10 @@
             "清除選取",
             "(?i)Clear\\s*All",
             "一括解除",
+            "清空重置",
+            "(?i)Clear\\s*Selection",
+            "リセット",
             "クリア選択",
-            "Clear Selection",
             "선택 해제"
         ],
         "action": {

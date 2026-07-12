@@ -113,8 +113,9 @@
         "expected": [
             "目标空间已满，部分物品未能完全移动",
             "目標空間已滿，部分物品未能完全移動",
-            "(?i)Target\\s*space\\s*is\\s*full\\. Not every item could be moved\\.",
-            "空きがないため、一部のアイテムは移動できません"
+            "(?i)Target\\s*space\\s*is\\s*full\\s*\\.\\s*Not\\s*every\\s*item\\s*could\\s*be\\s*moved\\s*\\.",
+            "空きがないため、一部のアイテムは移動できません",
+            "(?i)Target\\s*space\\s*is\\s*full\\. Not every item could be moved\\."
         ],
         "pre_delay": 0,
         "post_delay": 0,
