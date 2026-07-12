@@ -53,6 +53,7 @@ flowchart TD
 | [节点测试](./node-testing.md)                                 | 如何编写和运行节点测试，验证识别是否稳定命中 |
 | [Pipeline 协议](https://maafw.com/docs/3.1-PipelineProtocol/) | MaaFramework 官方 Pipeline 协议全文          |
 | [发版流程](./release-process.md)                              | 发版周期、分支模型、PR 往哪提、自动化说明    |
+| [GFN-App 支持 PRD](./gfn-app-support-prd.md)                  | GeForce NOW 原生客户端支持的需求与设计约束   |
 
 ### Tier 3 — 规范与约束
 
