@@ -17,15 +17,22 @@
             "recovery_task": "${GoToMonitoringTerminal}",
             "failure_task": "${Id}Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "${Id}Failed": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "${Name}任务执行失败提示",
         "focus": {
-            "Node.Recognition.Succeeded": "$${NameKey}"
+            "Node.Recognition.Succeeded": "$${FailureKey}"
         }
     },
     "${Id}Execute": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "执行${Name}任务路线",
         "next": [
             "Accept${Id}",
@@ -33,6 +40,9 @@
         ]
     },
     "Check${Id}Text": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "检查是否有${Name}文本",
         "recognition": "OCR",
         "roi": [
@@ -46,6 +56,9 @@
         "order_by": "Vertical"
     },
     "Check${Id}Icon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "检查${Name}文本下方的图标",
         "recognition": "TemplateMatch",
         "roi": "Check${Id}Text",
@@ -59,6 +72,9 @@
         "threshold": 0.8
     },
     "Check${Id}ReadyText": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "检查${Name}委托是否准备好",
         "recognition": "OCR",
         "roi": "Check${Id}Icon",
@@ -82,6 +98,9 @@
         ]
     },
     "Check${Id}Job": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "检查${Name}委托是否可以接取",
         "recognition": "OCR",
         "roi": "Check${Id}Icon",
@@ -100,6 +119,9 @@
         ]
     },
     "Check${Id}GoToMissionText": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "检查${Name}委托是否可以前往",
         "recognition": "OCR",
         "roi": "Check${Id}Icon",
@@ -118,6 +140,9 @@
         ]
     },
     "In${Id}Mission": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "是否在${Name}任务界面",
         "recognition": "OCR",
         "roi": [
@@ -138,7 +163,10 @@
             "Check${Id}Job"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoTo${Id}Mission"
         ]
@@ -152,12 +180,18 @@
             "Check${Id}GoToMissionText"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "${Id}TrackOrGoTo"
         ]
     },
     "${Id}TrackOrGoTo": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "在${Name}任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续",
         "recognition": "And",
         "all_of": [
@@ -172,10 +206,16 @@
             "TrackMissionButton",
             "In${Id}Mission"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": "${AfterTrackedNext}"
     },
     "AlreadyTracked${Id}": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "${Name}任务已经在追踪中",
         "recognition": "And",
         "all_of": [
@@ -185,6 +225,9 @@
         "next": "${AfterTrackedNext}"
     },
     "${Id}NotAdapted": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "${Name}任务尚未适配，仅接取并追踪",
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
@@ -192,6 +235,7 @@
     },
     "GoTo${Id}": {
         "desc": "前往${Name}，先回到大世界再进行判断",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -199,12 +243,17 @@
                 "SceneAnyEnterWorld"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoTo${Id}StartPos",
             "GoTo${Id}NotAtStartPos"
         ]
     },
     "GoTo${Id}StartPos": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "在${Name}任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "${MapAssertRecognition}",
@@ -215,6 +264,7 @@
     },
     "GoTo${Id}NotAtStartPos": {
         "desc": "不在${Name}任务开始位置附近，先传送再检查落点",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -222,12 +272,15 @@
                 "${EnterMap}"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoTo${Id}StartPos"
         ]
     },
     "GoTo${Id}Move": {
         "desc": "自动寻路前往${Name}",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "${MapNavigationAction}",
         "custom_action_param": "${MapNavigationParam}",
@@ -235,11 +288,16 @@
             "EnvironmentMonitoringBackToTerminal": "${GoToMonitoringTerminal}",
             "EnvironmentMonitoringAdjustCamera": "${Id}AdjustCamera"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
     },
     "${Id}AdjustCamera": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "${Name}任务中调整朝向",
         "max_hit": "${CameraMaxHit}",
         "next": [

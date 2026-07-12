@@ -17,16 +17,23 @@
             "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "failure_task": "TreeOfTheOldCourtyardFailed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "TreeOfTheOldCourtyardFailed": {
         "desc": "旧庭树任务执行失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.TreeOfTheOldCourtyard.failed"
         }
     },
     "TreeOfTheOldCourtyardExecute": {
         "desc": "执行旧庭树任务路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AcceptTreeOfTheOldCourtyard",
             "GoToTreeOfTheOldCourtyardMission"
@@ -49,7 +56,10 @@
             "옛 정원의 나무"
         ],
         "replace": [],
-        "order_by": "Vertical"
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckTreeOfTheOldCourtyardIcon": {
         "desc": "检查旧庭树文本下方的图标",
@@ -62,7 +72,10 @@
             28
         ],
         "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckTreeOfTheOldCourtyardReadyText": {
         "desc": "检查旧庭树委托是否准备好",
@@ -85,7 +98,10 @@
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckTreeOfTheOldCourtyardJob": {
         "desc": "检查旧庭树委托是否可以接取",
@@ -103,7 +119,10 @@
             "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckTreeOfTheOldCourtyardGoToMissionText": {
         "desc": "检查旧庭树委托是否可以前往",
@@ -121,7 +140,10 @@
             "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "InTreeOfTheOldCourtyardMission": {
         "desc": "是否在旧庭树任务界面",
@@ -139,7 +161,10 @@
             "「旧庭の木」の写真を撮る",
             "'옛 정원의 나무'를 촬영하기"
         ],
-        "replace": []
+        "replace": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AcceptTreeOfTheOldCourtyard": {
         "desc": "接取旧庭树委托",
@@ -150,7 +175,10 @@
             "CheckTreeOfTheOldCourtyardJob"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToTreeOfTheOldCourtyardMission"
         ]
@@ -164,7 +192,10 @@
             "CheckTreeOfTheOldCourtyardGoToMissionText"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TreeOfTheOldCourtyardTrackOrGoTo"
         ]
@@ -175,6 +206,9 @@
         "all_of": [
             "InTreeOfTheOldCourtyardMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrackTreeOfTheOldCourtyard",
             "AlreadyTrackedTreeOfTheOldCourtyard"
@@ -187,7 +221,10 @@
             "TrackMissionButton",
             "InTreeOfTheOldCourtyardMission"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToTreeOfTheOldCourtyard"
         ]
@@ -199,18 +236,25 @@
             "AlreadyTrackedMissionButton",
             "InTreeOfTheOldCourtyardMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToTreeOfTheOldCourtyard"
         ]
     },
     "TreeOfTheOldCourtyardNotAdapted": {
         "desc": "旧庭树任务尚未适配，仅接取并追踪",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
         }
     },
     "GoToTreeOfTheOldCourtyard": {
         "desc": "前往旧庭树，先回到大世界再进行判断",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -218,6 +262,8 @@
                 "SceneAnyEnterWorld"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToTreeOfTheOldCourtyardStartPos",
             "GoToTreeOfTheOldCourtyardNotAtStartPos"
@@ -236,12 +282,16 @@
                 23.92
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToTreeOfTheOldCourtyardMove"
         ]
     },
     "GoToTreeOfTheOldCourtyardNotAtStartPos": {
         "desc": "不在旧庭树任务开始位置附近，先传送再检查落点",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -249,12 +299,15 @@
                 "SceneEnterWorldWulingMarkerStone1"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToTreeOfTheOldCourtyardStartPos"
         ]
     },
     "GoToTreeOfTheOldCourtyardMove": {
         "desc": "自动寻路前往旧庭树",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
@@ -277,6 +330,8 @@
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "TreeOfTheOldCourtyardAdjustCamera"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
@@ -284,6 +339,9 @@
     "TreeOfTheOldCourtyardAdjustCamera": {
         "desc": "旧庭树任务中调整朝向",
         "max_hit": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringSwipeScreenDown"
         ]

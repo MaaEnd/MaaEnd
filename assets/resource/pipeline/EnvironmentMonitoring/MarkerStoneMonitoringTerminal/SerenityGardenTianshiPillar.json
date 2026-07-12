@@ -17,16 +17,23 @@
             "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "failure_task": "SerenityGardenTianshiPillarFailed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SerenityGardenTianshiPillarFailed": {
         "desc": "安思园的天师桩任务执行失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.SerenityGardenTianshiPillar.failed"
         }
     },
     "SerenityGardenTianshiPillarExecute": {
         "desc": "执行安思园的天师桩任务路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AcceptSerenityGardenTianshiPillar",
             "GoToSerenityGardenTianshiPillarMission"
@@ -54,7 +61,10 @@
                 "樁"
             ]
         ],
-        "order_by": "Vertical"
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckSerenityGardenTianshiPillarIcon": {
         "desc": "检查安思园的天师桩文本下方的图标",
@@ -67,7 +77,10 @@
             28
         ],
         "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckSerenityGardenTianshiPillarReadyText": {
         "desc": "检查安思园的天师桩委托是否准备好",
@@ -90,7 +103,10 @@
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckSerenityGardenTianshiPillarJob": {
         "desc": "检查安思园的天师桩委托是否可以接取",
@@ -108,7 +124,10 @@
             "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckSerenityGardenTianshiPillarGoToMissionText": {
         "desc": "检查安思园的天师桩委托是否可以前往",
@@ -126,7 +145,10 @@
             "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "InSerenityGardenTianshiPillarMission": {
         "desc": "是否在安思园的天师桩任务界面",
@@ -149,7 +171,10 @@
                 "椿",
                 "樁"
             ]
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AcceptSerenityGardenTianshiPillar": {
         "desc": "接取安思园的天师桩委托",
@@ -160,7 +185,10 @@
             "CheckSerenityGardenTianshiPillarJob"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToSerenityGardenTianshiPillarMission"
         ]
@@ -174,7 +202,10 @@
             "CheckSerenityGardenTianshiPillarGoToMissionText"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SerenityGardenTianshiPillarTrackOrGoTo"
         ]
@@ -185,6 +216,9 @@
         "all_of": [
             "InSerenityGardenTianshiPillarMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrackSerenityGardenTianshiPillar",
             "AlreadyTrackedSerenityGardenTianshiPillar"
@@ -197,7 +231,10 @@
             "TrackMissionButton",
             "InSerenityGardenTianshiPillarMission"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToSerenityGardenTianshiPillar"
         ]
@@ -209,18 +246,25 @@
             "AlreadyTrackedMissionButton",
             "InSerenityGardenTianshiPillarMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToSerenityGardenTianshiPillar"
         ]
     },
     "SerenityGardenTianshiPillarNotAdapted": {
         "desc": "安思园的天师桩任务尚未适配，仅接取并追踪",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
         }
     },
     "GoToSerenityGardenTianshiPillar": {
         "desc": "前往安思园的天师桩，先回到大世界再进行判断",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -228,6 +272,8 @@
                 "SceneAnyEnterWorld"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToSerenityGardenTianshiPillarStartPos",
             "GoToSerenityGardenTianshiPillarNotAtStartPos"
@@ -250,12 +296,16 @@
                 }
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToSerenityGardenTianshiPillarMove"
         ]
     },
     "GoToSerenityGardenTianshiPillarNotAtStartPos": {
         "desc": "不在安思园的天师桩任务开始位置附近，先传送再检查落点",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -263,12 +313,15 @@
                 "SceneEnterWorldWulingMarkerStone2"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToSerenityGardenTianshiPillarStartPos"
         ]
     },
     "GoToSerenityGardenTianshiPillarMove": {
         "desc": "自动寻路前往安思园的天师桩",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapTrackerGoal",
         "custom_action_param": {
@@ -290,6 +343,8 @@
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "SerenityGardenTianshiPillarAdjustCamera"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
@@ -297,6 +352,9 @@
     "SerenityGardenTianshiPillarAdjustCamera": {
         "desc": "安思园的天师桩任务中调整朝向",
         "max_hit": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringSwipeScreenUp"
         ]

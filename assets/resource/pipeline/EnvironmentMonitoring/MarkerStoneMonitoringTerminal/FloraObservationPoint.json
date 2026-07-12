@@ -17,16 +17,23 @@
             "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "failure_task": "FloraObservationPointFailed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "FloraObservationPointFailed": {
         "desc": "植物观察点任务执行失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.FloraObservationPoint.failed"
         }
     },
     "FloraObservationPointExecute": {
         "desc": "执行植物观察点任务路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AcceptFloraObservationPoint",
             "GoToFloraObservationPointMission"
@@ -49,7 +56,10 @@
             "식물 관찰 지점"
         ],
         "replace": [],
-        "order_by": "Vertical"
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckFloraObservationPointIcon": {
         "desc": "检查植物观察点文本下方的图标",
@@ -62,7 +72,10 @@
             28
         ],
         "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckFloraObservationPointReadyText": {
         "desc": "检查植物观察点委托是否准备好",
@@ -85,7 +98,10 @@
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckFloraObservationPointJob": {
         "desc": "检查植物观察点委托是否可以接取",
@@ -103,7 +119,10 @@
             "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckFloraObservationPointGoToMissionText": {
         "desc": "检查植物观察点委托是否可以前往",
@@ -121,7 +140,10 @@
             "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "InFloraObservationPointMission": {
         "desc": "是否在植物观察点任务界面",
@@ -139,7 +161,10 @@
             "植物観察スポットの写真を撮る",
             "식물 관찰 지점을 촬영하기"
         ],
-        "replace": []
+        "replace": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AcceptFloraObservationPoint": {
         "desc": "接取植物观察点委托",
@@ -150,7 +175,10 @@
             "CheckFloraObservationPointJob"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToFloraObservationPointMission"
         ]
@@ -164,7 +192,10 @@
             "CheckFloraObservationPointGoToMissionText"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "FloraObservationPointTrackOrGoTo"
         ]
@@ -175,6 +206,9 @@
         "all_of": [
             "InFloraObservationPointMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrackFloraObservationPoint",
             "AlreadyTrackedFloraObservationPoint"
@@ -187,7 +221,10 @@
             "TrackMissionButton",
             "InFloraObservationPointMission"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToFloraObservationPoint"
         ]
@@ -199,18 +236,25 @@
             "AlreadyTrackedMissionButton",
             "InFloraObservationPointMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToFloraObservationPoint"
         ]
     },
     "FloraObservationPointNotAdapted": {
         "desc": "植物观察点任务尚未适配，仅接取并追踪",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
         }
     },
     "GoToFloraObservationPoint": {
         "desc": "前往植物观察点，先回到大世界再进行判断",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -218,6 +262,8 @@
                 "SceneAnyEnterWorld"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToFloraObservationPointStartPos",
             "GoToFloraObservationPointNotAtStartPos"
@@ -236,12 +282,16 @@
                 55.32
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToFloraObservationPointMove"
         ]
     },
     "GoToFloraObservationPointNotAtStartPos": {
         "desc": "不在植物观察点任务开始位置附近，先传送再检查落点",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -249,12 +299,15 @@
                 "SceneEnterWorldWulingMarkerStone3"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToFloraObservationPointStartPos"
         ]
     },
     "GoToFloraObservationPointMove": {
         "desc": "自动寻路前往植物观察点",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
@@ -277,6 +330,8 @@
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "FloraObservationPointAdjustCamera"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
@@ -284,6 +339,9 @@
     "FloraObservationPointAdjustCamera": {
         "desc": "植物观察点任务中调整朝向",
         "max_hit": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringSwipeScreenLeft"
         ]

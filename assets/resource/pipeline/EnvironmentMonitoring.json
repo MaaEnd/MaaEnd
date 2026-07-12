@@ -1,11 +1,14 @@
 {
     "EnvironmentMonitoringMain": {
         "desc": "环境监测主流程",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorReset",
         "custom_action_param": {
             "key": "EnvironmentMonitoring"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringLoop",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring"
@@ -17,6 +20,9 @@
         "all_of": [
             "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]OutskirtsMonitoringTerminal",
             "[JumpBack]MarkerStoneMonitoringTerminal",
@@ -25,13 +31,19 @@
     },
     "EnvironmentMonitoringFinish": {
         "desc": "汇总环境监测路线执行结果",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorFinish",
         "custom_action_param": {
             "key": "EnvironmentMonitoring"
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "EnvironmentMonitoringTerminalFinish": {
-        "desc": "当前环境监测终端完成"
+        "desc": "当前环境监测终端完成",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

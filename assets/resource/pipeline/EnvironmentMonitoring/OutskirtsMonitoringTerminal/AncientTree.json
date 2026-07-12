@@ -17,16 +17,23 @@
             "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "failure_task": "AncientTreeFailed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AncientTreeFailed": {
         "desc": "古树任务执行失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.AncientTree.failed"
         }
     },
     "AncientTreeExecute": {
         "desc": "执行古树任务路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AcceptAncientTree",
             "GoToAncientTreeMission"
@@ -49,7 +56,10 @@
             "고목"
         ],
         "replace": [],
-        "order_by": "Vertical"
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckAncientTreeIcon": {
         "desc": "检查古树文本下方的图标",
@@ -62,7 +72,10 @@
             28
         ],
         "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckAncientTreeReadyText": {
         "desc": "检查古树委托是否准备好",
@@ -85,7 +98,10 @@
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckAncientTreeJob": {
         "desc": "检查古树委托是否可以接取",
@@ -103,7 +119,10 @@
             "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckAncientTreeGoToMissionText": {
         "desc": "检查古树委托是否可以前往",
@@ -121,7 +140,10 @@
             "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "InAncientTreeMission": {
         "desc": "是否在古树任务界面",
@@ -139,7 +161,10 @@
             "水中から生えた古木の写真を撮る",
             "작은 웅덩이에서 자라는 고목을 촬영하기"
         ],
-        "replace": []
+        "replace": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AcceptAncientTree": {
         "desc": "接取古树委托",
@@ -150,7 +175,10 @@
             "CheckAncientTreeJob"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToAncientTreeMission"
         ]
@@ -164,7 +192,10 @@
             "CheckAncientTreeGoToMissionText"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AncientTreeTrackOrGoTo"
         ]
@@ -175,6 +206,9 @@
         "all_of": [
             "InAncientTreeMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrackAncientTree",
             "AlreadyTrackedAncientTree"
@@ -187,7 +221,10 @@
             "TrackMissionButton",
             "InAncientTreeMission"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToAncientTree"
         ]
@@ -199,18 +236,25 @@
             "AlreadyTrackedMissionButton",
             "InAncientTreeMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToAncientTree"
         ]
     },
     "AncientTreeNotAdapted": {
         "desc": "古树任务尚未适配，仅接取并追踪",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
         }
     },
     "GoToAncientTree": {
         "desc": "前往古树，先回到大世界再进行判断",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -218,6 +262,8 @@
                 "SceneAnyEnterWorld"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToAncientTreeStartPos",
             "GoToAncientTreeNotAtStartPos"
@@ -236,12 +282,16 @@
                 42.21
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToAncientTreeMove"
         ]
     },
     "GoToAncientTreeNotAtStartPos": {
         "desc": "不在古树任务开始位置附近，先传送再检查落点",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -249,12 +299,15 @@
                 "SceneEnterWorldWulingJingyuValley7"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToAncientTreeStartPos"
         ]
     },
     "GoToAncientTreeMove": {
         "desc": "自动寻路前往古树",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
@@ -276,6 +329,8 @@
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "AncientTreeAdjustCamera"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
@@ -283,6 +338,9 @@
     "AncientTreeAdjustCamera": {
         "desc": "古树任务中调整朝向",
         "max_hit": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringSwipeScreenUp"
         ]

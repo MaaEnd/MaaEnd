@@ -17,16 +17,23 @@
             "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "failure_task": "MiniShellbeastFailed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "MiniShellbeastFailed": {
         "desc": "小壳兽任务执行失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.MiniShellbeast.failed"
         }
     },
     "MiniShellbeastExecute": {
         "desc": "执行小壳兽任务路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AcceptMiniShellbeast",
             "GoToMiniShellbeastMission"
@@ -54,7 +61,10 @@
                 "壳"
             ]
         ],
-        "order_by": "Vertical"
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckMiniShellbeastIcon": {
         "desc": "检查小壳兽文本下方的图标",
@@ -67,7 +77,10 @@
             28
         ],
         "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckMiniShellbeastReadyText": {
         "desc": "检查小壳兽委托是否准备好",
@@ -90,7 +103,10 @@
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckMiniShellbeastJob": {
         "desc": "检查小壳兽委托是否可以接取",
@@ -108,7 +124,10 @@
             "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckMiniShellbeastGoToMissionText": {
         "desc": "检查小壳兽委托是否可以前往",
@@ -126,7 +145,10 @@
             "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "InMiniShellbeastMission": {
         "desc": "是否在小壳兽任务界面",
@@ -149,7 +171,10 @@
                 "売",
                 "壳"
             ]
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AcceptMiniShellbeast": {
         "desc": "接取小壳兽委托",
@@ -160,7 +185,10 @@
             "CheckMiniShellbeastJob"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToMiniShellbeastMission"
         ]
@@ -174,7 +202,10 @@
             "CheckMiniShellbeastGoToMissionText"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "MiniShellbeastTrackOrGoTo"
         ]
@@ -185,6 +216,9 @@
         "all_of": [
             "InMiniShellbeastMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrackMiniShellbeast",
             "AlreadyTrackedMiniShellbeast"
@@ -197,7 +231,10 @@
             "TrackMissionButton",
             "InMiniShellbeastMission"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToMiniShellbeast"
         ]
@@ -209,18 +246,25 @@
             "AlreadyTrackedMissionButton",
             "InMiniShellbeastMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToMiniShellbeast"
         ]
     },
     "MiniShellbeastNotAdapted": {
         "desc": "小壳兽任务尚未适配，仅接取并追踪",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
         }
     },
     "GoToMiniShellbeast": {
         "desc": "前往小壳兽，先回到大世界再进行判断",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -228,6 +272,8 @@
                 "SceneAnyEnterWorld"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToMiniShellbeastStartPos",
             "GoToMiniShellbeastNotAtStartPos"
@@ -250,12 +296,16 @@
                 }
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToMiniShellbeastMove"
         ]
     },
     "GoToMiniShellbeastNotAtStartPos": {
         "desc": "不在小壳兽任务开始位置附近，先传送再检查落点",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -263,12 +313,15 @@
                 "SceneEnterWorldWulingWulingCity4"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToMiniShellbeastStartPos"
         ]
     },
     "GoToMiniShellbeastMove": {
         "desc": "自动寻路前往小壳兽",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -299,6 +352,8 @@
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "MiniShellbeastAdjustCamera"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
@@ -306,6 +361,9 @@
     "MiniShellbeastAdjustCamera": {
         "desc": "小壳兽任务中调整朝向",
         "max_hit": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringSwipeScreenDown"
         ]

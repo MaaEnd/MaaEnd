@@ -17,16 +17,23 @@
             "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "failure_task": "VigorousCisternOriginiumSlugFailed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "VigorousCisternOriginiumSlugFailed": {
         "desc": "充满活力的蓄水源石虫任务执行失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.VigorousCisternOriginiumSlug.failed"
         }
     },
     "VigorousCisternOriginiumSlugExecute": {
         "desc": "执行充满活力的蓄水源石虫任务路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AcceptVigorousCisternOriginiumSlug",
             "GoToVigorousCisternOriginiumSlugMission"
@@ -49,7 +56,10 @@
             "활기찬 저수 원석충"
         ],
         "replace": [],
-        "order_by": "Vertical"
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckVigorousCisternOriginiumSlugIcon": {
         "desc": "检查充满活力的蓄水源石虫文本下方的图标",
@@ -62,7 +72,10 @@
             28
         ],
         "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckVigorousCisternOriginiumSlugReadyText": {
         "desc": "检查充满活力的蓄水源石虫委托是否准备好",
@@ -85,7 +98,10 @@
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckVigorousCisternOriginiumSlugJob": {
         "desc": "检查充满活力的蓄水源石虫委托是否可以接取",
@@ -103,7 +119,10 @@
             "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckVigorousCisternOriginiumSlugGoToMissionText": {
         "desc": "检查充满活力的蓄水源石虫委托是否可以前往",
@@ -121,7 +140,10 @@
             "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "InVigorousCisternOriginiumSlugMission": {
         "desc": "是否在充满活力的蓄水源石虫任务界面",
@@ -139,7 +161,10 @@
             "活発になっている貯水オリジムシの写真を撮る",
             "활기찬 저수 원석충 촬영하기"
         ],
-        "replace": []
+        "replace": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AcceptVigorousCisternOriginiumSlug": {
         "desc": "接取充满活力的蓄水源石虫委托",
@@ -150,7 +175,10 @@
             "CheckVigorousCisternOriginiumSlugJob"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToVigorousCisternOriginiumSlugMission"
         ]
@@ -164,7 +192,10 @@
             "CheckVigorousCisternOriginiumSlugGoToMissionText"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "VigorousCisternOriginiumSlugTrackOrGoTo"
         ]
@@ -175,6 +206,9 @@
         "all_of": [
             "InVigorousCisternOriginiumSlugMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrackVigorousCisternOriginiumSlug",
             "AlreadyTrackedVigorousCisternOriginiumSlug"
@@ -187,7 +221,10 @@
             "TrackMissionButton",
             "InVigorousCisternOriginiumSlugMission"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToVigorousCisternOriginiumSlug"
         ]
@@ -199,18 +236,25 @@
             "AlreadyTrackedMissionButton",
             "InVigorousCisternOriginiumSlugMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToVigorousCisternOriginiumSlug"
         ]
     },
     "VigorousCisternOriginiumSlugNotAdapted": {
         "desc": "充满活力的蓄水源石虫任务尚未适配，仅接取并追踪",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
         }
     },
     "GoToVigorousCisternOriginiumSlug": {
         "desc": "前往充满活力的蓄水源石虫，先回到大世界再进行判断",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -218,6 +262,8 @@
                 "SceneAnyEnterWorld"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToVigorousCisternOriginiumSlugStartPos",
             "GoToVigorousCisternOriginiumSlugNotAtStartPos"
@@ -236,12 +282,16 @@
                 48.35
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToVigorousCisternOriginiumSlugMove"
         ]
     },
     "GoToVigorousCisternOriginiumSlugNotAtStartPos": {
         "desc": "不在充满活力的蓄水源石虫任务开始位置附近，先传送再检查落点",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -249,12 +299,15 @@
                 "SceneEnterWorldWulingJingyuValley8"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToVigorousCisternOriginiumSlugStartPos"
         ]
     },
     "GoToVigorousCisternOriginiumSlugMove": {
         "desc": "自动寻路前往充满活力的蓄水源石虫",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
@@ -276,6 +329,8 @@
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "VigorousCisternOriginiumSlugAdjustCamera"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
@@ -283,6 +338,9 @@
     "VigorousCisternOriginiumSlugAdjustCamera": {
         "desc": "充满活力的蓄水源石虫任务中调整朝向",
         "max_hit": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringSwipeScreenDown"
         ]

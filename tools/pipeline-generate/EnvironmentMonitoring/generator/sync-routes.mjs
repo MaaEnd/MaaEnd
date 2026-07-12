@@ -44,23 +44,21 @@ function syncRouteLocaleCatalogs(missions, idByMissionId) {
             Object.entries(routeMessages).sort(([left], [right]) => left.localeCompare(right)),
         );
         const syncedMessages = {};
-        let routesInserted = false;
+        const pendingRouteMessages = new Map(Object.entries(sortedRouteMessages));
         for (const [
             key,
             value,
         ] of Object.entries(messages)) {
-            if (key.startsWith(routeKeyPrefix)) {
+            if (key.startsWith(routeKeyPrefix) && key.endsWith(".label")) {
+                if (pendingRouteMessages.has(key)) {
+                    syncedMessages[key] = pendingRouteMessages.get(key);
+                    pendingRouteMessages.delete(key);
+                }
                 continue;
             }
             syncedMessages[key] = value;
-            if (key === "task.EnvironmentMonitoring.label") {
-                Object.assign(syncedMessages, sortedRouteMessages);
-                routesInserted = true;
-            }
         }
-        if (!routesInserted) {
-            Object.assign(syncedMessages, sortedRouteMessages);
-        }
+        Object.assign(syncedMessages, Object.fromEntries(pendingRouteMessages));
         const syncedText = `${JSON.stringify(syncedMessages, null, 4)}\n`;
         if (syncedText !== originalText.replace(/\r\n/g, "\n")) {
             writeFileSync(localePath, syncedText, "utf8");

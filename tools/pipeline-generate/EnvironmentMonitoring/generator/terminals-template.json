@@ -1,5 +1,8 @@
 {
     "${Id}": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "${Name}",
         "max_hit": 1,
         "recognition": "And",
@@ -13,6 +16,9 @@
         ]
     },
     "${Id}Loop": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "${Name}循环",
         "recognition": "And",
         "all_of": [

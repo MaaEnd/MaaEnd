@@ -101,7 +101,7 @@ function buildRow(mission, usedIds) {
         Id,
         MissionId: mission?.missionId,
         Name: sanitizeDisplayName(missionName),
-		NameKey: `task.EnvironmentMonitoring.route.${Id}.label`,
+        FailureKey: `task.EnvironmentMonitoring.route.${Id}.failed`,
         GoToMonitoringTerminal,
         EnterMap: route.EnterMap,
         MapName: route.MapName,

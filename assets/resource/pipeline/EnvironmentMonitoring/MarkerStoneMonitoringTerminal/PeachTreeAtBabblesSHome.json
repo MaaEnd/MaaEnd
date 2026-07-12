@@ -17,16 +17,23 @@
             "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "failure_task": "PeachTreeAtBabblesSHomeFailed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "PeachTreeAtBabblesSHomeFailed": {
         "desc": "念念家的桃树任务执行失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.PeachTreeAtBabblesSHome.failed"
         }
     },
     "PeachTreeAtBabblesSHomeExecute": {
         "desc": "执行念念家的桃树任务路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AcceptPeachTreeAtBabblesSHome",
             "GoToPeachTreeAtBabblesSHomeMission"
@@ -49,7 +56,10 @@
             "염념이네 복숭아나무"
         ],
         "replace": [],
-        "order_by": "Vertical"
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckPeachTreeAtBabblesSHomeIcon": {
         "desc": "检查念念家的桃树文本下方的图标",
@@ -62,7 +72,10 @@
             28
         ],
         "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckPeachTreeAtBabblesSHomeReadyText": {
         "desc": "检查念念家的桃树委托是否准备好",
@@ -85,7 +98,10 @@
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckPeachTreeAtBabblesSHomeJob": {
         "desc": "检查念念家的桃树委托是否可以接取",
@@ -103,7 +119,10 @@
             "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckPeachTreeAtBabblesSHomeGoToMissionText": {
         "desc": "检查念念家的桃树委托是否可以前往",
@@ -121,7 +140,10 @@
             "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "InPeachTreeAtBabblesSHomeMission": {
         "desc": "是否在念念家的桃树任务界面",
@@ -139,7 +161,10 @@
             "ネンネンの家にある桃の木の写真を撮る",
             "염념이네 복숭아나무를 촬영하기"
         ],
-        "replace": []
+        "replace": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AcceptPeachTreeAtBabblesSHome": {
         "desc": "接取念念家的桃树委托",
@@ -150,7 +175,10 @@
             "CheckPeachTreeAtBabblesSHomeJob"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToPeachTreeAtBabblesSHomeMission"
         ]
@@ -164,7 +192,10 @@
             "CheckPeachTreeAtBabblesSHomeGoToMissionText"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "PeachTreeAtBabblesSHomeTrackOrGoTo"
         ]
@@ -175,6 +206,9 @@
         "all_of": [
             "InPeachTreeAtBabblesSHomeMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrackPeachTreeAtBabblesSHome",
             "AlreadyTrackedPeachTreeAtBabblesSHome"
@@ -187,7 +221,10 @@
             "TrackMissionButton",
             "InPeachTreeAtBabblesSHomeMission"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToPeachTreeAtBabblesSHome"
         ]
@@ -199,18 +236,25 @@
             "AlreadyTrackedMissionButton",
             "InPeachTreeAtBabblesSHomeMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToPeachTreeAtBabblesSHome"
         ]
     },
     "PeachTreeAtBabblesSHomeNotAdapted": {
         "desc": "念念家的桃树任务尚未适配，仅接取并追踪",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
         }
     },
     "GoToPeachTreeAtBabblesSHome": {
         "desc": "前往念念家的桃树，先回到大世界再进行判断",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -218,6 +262,8 @@
                 "SceneAnyEnterWorld"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToPeachTreeAtBabblesSHomeStartPos",
             "GoToPeachTreeAtBabblesSHomeNotAtStartPos"
@@ -240,12 +286,16 @@
                 }
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToPeachTreeAtBabblesSHomeMove"
         ]
     },
     "GoToPeachTreeAtBabblesSHomeNotAtStartPos": {
         "desc": "不在念念家的桃树任务开始位置附近，先传送再检查落点",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -253,12 +303,15 @@
                 "SceneEnterWorldWulingMarkerStone4"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToPeachTreeAtBabblesSHomeStartPos"
         ]
     },
     "GoToPeachTreeAtBabblesSHomeMove": {
         "desc": "自动寻路前往念念家的桃树",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -285,6 +338,8 @@
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "PeachTreeAtBabblesSHomeAdjustCamera"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
@@ -292,6 +347,9 @@
     "PeachTreeAtBabblesSHomeAdjustCamera": {
         "desc": "念念家的桃树任务中调整朝向",
         "max_hit": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringSwipeScreenUp"
         ]

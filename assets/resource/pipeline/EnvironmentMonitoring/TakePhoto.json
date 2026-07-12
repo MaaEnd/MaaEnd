@@ -1,6 +1,9 @@
 {
     "EnvironmentMonitoringTakePhoto": {
         "desc": "环境监测拍照",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringEnterCameraMode",
             "EnvironmentMonitoringTakePhotoDirectly"
@@ -8,6 +11,9 @@
     },
     "EnvironmentMonitoringTakePhotoDirectly": {
         "desc": "直接进入拍照模式，如果朝向不对会失败",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnterCameraModeClick",
             "EnterCameraModeLongPress"
@@ -20,8 +26,11 @@
             "EnterCameraModeMenuButton",
             "InWorld"
         ],
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "AutoAltClickAction",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringWaitShutterButton"
         ]
@@ -33,8 +42,11 @@
             "EnterCameraModeButton",
             "InWorld"
         ],
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "AutoAltClickAction",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringWaitShutterButton"
         ]
@@ -45,8 +57,11 @@
         "all_of": [
             "InWorld"
         ],
+        "pre_delay": 0,
         "action": "KeyDown",
         "key": 82, // R 0x52
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnterCameraModeChooseCamera"
         ]
@@ -62,15 +77,21 @@
         ],
         "template": "Common/CameraMode.png",
         "threshold": 0.8,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnterCameraModeKeyUp"
         ]
     },
     "EnterCameraModeKeyUp": {
         "desc": "进入拍照模式，退出按键",
+        "pre_delay": 0,
         "action": "KeyUp",
         "key": 82, // R 0x52
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringWaitShutterButton"
         ]
@@ -82,6 +103,9 @@
             "ShutterButton"
         ],
         "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringShutterButtonHighlighted",
             "EnvironmentMonitoringShutterButtonPhotographyTarget",
@@ -97,7 +121,10 @@
             200,
             300
         ],
-        "template": "EnvironmentMonitoring/TargetChecked.png"
+        "template": "EnvironmentMonitoring/TargetChecked.png",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "EnvironmentMonitoringShutterButtonPhotographyTarget": {
         "desc": "拍照目标达成，拍照",
@@ -106,7 +133,10 @@
             "ShutterButton",
             "EnvironmentMonitoringCheckPhotographyTarget"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[Anchor]EnvironmentMonitoringBackToTerminal"
         ]
@@ -140,13 +170,17 @@
                 "count": 140
             }
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[Anchor]EnvironmentMonitoringBackToTerminal"
         ]
     },
     "EnvironmentMonitoringSwipeScreenUp": {
         "desc": "环境监测拍照，向上滑动屏幕调整朝向",
+        "pre_delay": 0,
         "action": "Swipe",
         "begin": [
             520,
@@ -156,10 +190,13 @@
             520,
             240
         ],
-        "end_hold": 300
+        "end_hold": 300,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "EnvironmentMonitoringSwipeScreenDown": {
         "desc": "环境监测拍照，向下滑动屏幕调整朝向",
+        "pre_delay": 0,
         "action": "Swipe",
         "begin": [
             520,
@@ -169,10 +206,13 @@
             520,
             480
         ],
-        "end_hold": 300
+        "end_hold": 300,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "EnvironmentMonitoringSwipeScreenLeft": {
         "desc": "环境监测拍照，向左滑动屏幕调整朝向",
+        "pre_delay": 0,
         "action": "Swipe",
         "begin": [
             520,
@@ -182,10 +222,13 @@
             280,
             360
         ],
-        "end_hold": 300
+        "end_hold": 300,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "EnvironmentMonitoringSwipeScreenRight": {
         "desc": "环境监测拍照，向右滑动屏幕调整朝向",
+        "pre_delay": 0,
         "action": "Swipe",
         "begin": [
             520,
@@ -195,6 +238,8 @@
             760,
             360
         ],
-        "end_hold": 300
+        "end_hold": 300,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

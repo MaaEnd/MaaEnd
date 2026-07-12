@@ -15,7 +15,10 @@
             "追跡開始",
             "추적 시작"
         ],
-        "action": "Click"
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AlreadyTrackedMissionButton": {
         "desc": "已在追踪按钮",
@@ -32,6 +35,9 @@
             "(?i)Stop\\s*Tracking",
             "追跡停止",
             "추적 중지"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

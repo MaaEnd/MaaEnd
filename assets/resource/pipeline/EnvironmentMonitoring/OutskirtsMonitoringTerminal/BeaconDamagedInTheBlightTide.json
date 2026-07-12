@@ -17,16 +17,23 @@
             "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "failure_task": "BeaconDamagedInTheBlightTideFailed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "BeaconDamagedInTheBlightTideFailed": {
         "desc": "侵蚀潮中损坏的信标任务执行失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.BeaconDamagedInTheBlightTide.failed"
         }
     },
     "BeaconDamagedInTheBlightTideExecute": {
         "desc": "执行侵蚀潮中损坏的信标任务路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AcceptBeaconDamagedInTheBlightTide",
             "GoToBeaconDamagedInTheBlightTideMission"
@@ -49,7 +56,10 @@
             "침식 조류로 인해 훼손된 신호기"
         ],
         "replace": [],
-        "order_by": "Vertical"
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckBeaconDamagedInTheBlightTideIcon": {
         "desc": "检查侵蚀潮中损坏的信标文本下方的图标",
@@ -62,7 +72,10 @@
             28
         ],
         "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckBeaconDamagedInTheBlightTideReadyText": {
         "desc": "检查侵蚀潮中损坏的信标委托是否准备好",
@@ -85,7 +98,10 @@
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckBeaconDamagedInTheBlightTideJob": {
         "desc": "检查侵蚀潮中损坏的信标委托是否可以接取",
@@ -103,7 +119,10 @@
             "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckBeaconDamagedInTheBlightTideGoToMissionText": {
         "desc": "检查侵蚀潮中损坏的信标委托是否可以前往",
@@ -121,7 +140,10 @@
             "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "InBeaconDamagedInTheBlightTideMission": {
         "desc": "是否在侵蚀潮中损坏的信标任务界面",
@@ -139,7 +161,10 @@
             "侵蝕潮で破損したビーコンの写真を撮る",
             "침식 조류로 인해 훼손된 신호기를 촬영하기"
         ],
-        "replace": []
+        "replace": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AcceptBeaconDamagedInTheBlightTide": {
         "desc": "接取侵蚀潮中损坏的信标委托",
@@ -150,7 +175,10 @@
             "CheckBeaconDamagedInTheBlightTideJob"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToBeaconDamagedInTheBlightTideMission"
         ]
@@ -164,7 +192,10 @@
             "CheckBeaconDamagedInTheBlightTideGoToMissionText"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "BeaconDamagedInTheBlightTideTrackOrGoTo"
         ]
@@ -175,6 +206,9 @@
         "all_of": [
             "InBeaconDamagedInTheBlightTideMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrackBeaconDamagedInTheBlightTide",
             "AlreadyTrackedBeaconDamagedInTheBlightTide"
@@ -187,7 +221,10 @@
             "TrackMissionButton",
             "InBeaconDamagedInTheBlightTideMission"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToBeaconDamagedInTheBlightTide"
         ]
@@ -199,18 +236,25 @@
             "AlreadyTrackedMissionButton",
             "InBeaconDamagedInTheBlightTideMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToBeaconDamagedInTheBlightTide"
         ]
     },
     "BeaconDamagedInTheBlightTideNotAdapted": {
         "desc": "侵蚀潮中损坏的信标任务尚未适配，仅接取并追踪",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
         }
     },
     "GoToBeaconDamagedInTheBlightTide": {
         "desc": "前往侵蚀潮中损坏的信标，先回到大世界再进行判断",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -218,6 +262,8 @@
                 "SceneAnyEnterWorld"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToBeaconDamagedInTheBlightTideStartPos",
             "GoToBeaconDamagedInTheBlightTideNotAtStartPos"
@@ -240,12 +286,16 @@
                 }
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToBeaconDamagedInTheBlightTideMove"
         ]
     },
     "GoToBeaconDamagedInTheBlightTideNotAtStartPos": {
         "desc": "不在侵蚀潮中损坏的信标任务开始位置附近，先传送再检查落点",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -253,12 +303,15 @@
                 "SceneEnterWorldWulingWulingCity0"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToBeaconDamagedInTheBlightTideStartPos"
         ]
     },
     "GoToBeaconDamagedInTheBlightTideMove": {
         "desc": "自动寻路前往侵蚀潮中损坏的信标",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -321,6 +374,8 @@
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "BeaconDamagedInTheBlightTideAdjustCamera"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
@@ -328,6 +383,9 @@
     "BeaconDamagedInTheBlightTideAdjustCamera": {
         "desc": "侵蚀潮中损坏的信标任务中调整朝向",
         "max_hit": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringSwipeScreenDown"
         ]

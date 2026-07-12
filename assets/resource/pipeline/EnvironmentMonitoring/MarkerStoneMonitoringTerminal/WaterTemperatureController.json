@@ -17,16 +17,23 @@
             "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "failure_task": "WaterTemperatureControllerFailed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "WaterTemperatureControllerFailed": {
         "desc": "净水温控装置任务执行失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.WaterTemperatureController.failed"
         }
     },
     "WaterTemperatureControllerExecute": {
         "desc": "执行净水温控装置任务路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AcceptWaterTemperatureController",
             "GoToWaterTemperatureControllerMission"
@@ -49,7 +56,10 @@
             "정수 온도 조절 장치"
         ],
         "replace": [],
-        "order_by": "Vertical"
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckWaterTemperatureControllerIcon": {
         "desc": "检查净水温控装置文本下方的图标",
@@ -62,7 +72,10 @@
             28
         ],
         "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckWaterTemperatureControllerReadyText": {
         "desc": "检查净水温控装置委托是否准备好",
@@ -85,7 +98,10 @@
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckWaterTemperatureControllerJob": {
         "desc": "检查净水温控装置委托是否可以接取",
@@ -103,7 +119,10 @@
             "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckWaterTemperatureControllerGoToMissionText": {
         "desc": "检查净水温控装置委托是否可以前往",
@@ -121,7 +140,10 @@
             "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "InWaterTemperatureControllerMission": {
         "desc": "是否在净水温控装置任务界面",
@@ -139,7 +161,10 @@
             "浄水温度調整装置の写真を撮る",
             "정수 온도 조절 장치를 촬영하기"
         ],
-        "replace": []
+        "replace": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AcceptWaterTemperatureController": {
         "desc": "接取净水温控装置委托",
@@ -150,7 +175,10 @@
             "CheckWaterTemperatureControllerJob"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToWaterTemperatureControllerMission"
         ]
@@ -164,7 +192,10 @@
             "CheckWaterTemperatureControllerGoToMissionText"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "WaterTemperatureControllerTrackOrGoTo"
         ]
@@ -175,6 +206,9 @@
         "all_of": [
             "InWaterTemperatureControllerMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrackWaterTemperatureController",
             "AlreadyTrackedWaterTemperatureController"
@@ -187,7 +221,10 @@
             "TrackMissionButton",
             "InWaterTemperatureControllerMission"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToWaterTemperatureController"
         ]
@@ -199,18 +236,25 @@
             "AlreadyTrackedMissionButton",
             "InWaterTemperatureControllerMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToWaterTemperatureController"
         ]
     },
     "WaterTemperatureControllerNotAdapted": {
         "desc": "净水温控装置任务尚未适配，仅接取并追踪",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
         }
     },
     "GoToWaterTemperatureController": {
         "desc": "前往净水温控装置，先回到大世界再进行判断",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -218,6 +262,8 @@
                 "SceneAnyEnterWorld"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToWaterTemperatureControllerStartPos",
             "GoToWaterTemperatureControllerNotAtStartPos"
@@ -240,12 +286,16 @@
                 }
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToWaterTemperatureControllerMove"
         ]
     },
     "GoToWaterTemperatureControllerNotAtStartPos": {
         "desc": "不在净水温控装置任务开始位置附近，先传送再检查落点",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -253,12 +303,15 @@
                 "SceneEnterWorldWulingMarkerStone2"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToWaterTemperatureControllerStartPos"
         ]
     },
     "GoToWaterTemperatureControllerMove": {
         "desc": "自动寻路前往净水温控装置",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -334,6 +387,8 @@
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "WaterTemperatureControllerAdjustCamera"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
         ]
@@ -341,6 +396,9 @@
     "WaterTemperatureControllerAdjustCamera": {
         "desc": "净水温控装置任务中调整朝向",
         "max_hit": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringSwipeScreenUp"
         ]
