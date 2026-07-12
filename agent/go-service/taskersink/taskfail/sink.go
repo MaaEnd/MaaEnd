@@ -10,6 +10,7 @@ import (
 const issuesURL = "https://github.com/MaaEnd/MaaEnd/issues"
 
 // 较稳定的任务一般不会失败，如果遇到失败可能是环境问题、游戏更新等，引导用户及时反馈。
+// 添加entry节点名称即可
 var feedbackHintEntries = map[string]struct{}{
 	"AutoSellMain":                {},
 	"AutoStockpileMain":           {},
