@@ -239,10 +239,10 @@
             "param": {
                 "roi": "WhiteConfirmButtonType1",
                 "roi_offset": [
-                    -50,
-                    0,
-                    25,
-                    0
+                    -100,
+                    -25,
+                    100,
+                    50
                 ],
                 "expected": [
                     "开启挑战",
