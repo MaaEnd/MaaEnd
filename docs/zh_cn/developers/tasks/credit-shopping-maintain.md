@@ -9,7 +9,7 @@
 ```
 CreditShopping/
 ├── Flow/                  # 主购物流程
-│   ├── Entry.json         # 入口检测 + 白名单初始化（6 个 Init 节点）
+│   ├── Entry.json         # 入口检测 + 白名单初始化
 │   ├── Scan.json          # 货架扫描门控 + 快照（触发购买决策循环）
 │   ├── BuyAction.json     # 三档购买 / 黑名单 / 稳健刷新 / 无物可买
 │   ├── BuyItem.json       # 购买弹窗确认 / 失败 / 关闭

@@ -9,7 +9,7 @@ This document was updated on July 13, 2026.
 ```
 CreditShopping/
 ├── Flow/                  # Main shopping flow
-│   ├── Entry.json         # Entry detection + whitelist init (6 Init nodes)
+│   ├── Entry.json         # Entry detection + whitelist init
 │   ├── Scan.json          # Shelf scan gate + snapshot (triggers buy decision loop)
 │   ├── BuyAction.json     # 3-tier purchase / blacklist / stable refresh / nothing to buy
 │   ├── BuyItem.json       # Purchase popup confirm / failure / close

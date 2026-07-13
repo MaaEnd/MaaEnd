@@ -25,80 +25,20 @@
         ]
     },
     "CreditShoppingInit": {
-        "desc": "白名单初始化:优先购买1(仅执行一次)",
+        "desc": "白名单初始化：合并所有档位 attach 生成 expected 正则（仅执行一次）",
         "max_hit": 1,
+        "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "AttachToExpectedRegexAction",
         "custom_action_param": {
-            "target": "BuyFirstOCR"
-        },
-        "post_delay": 0,
-        "pre_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]CreditShoppingInitCanNotAffordPriority1",
-            "[JumpBack]CreditShoppingInitPriority2",
-            "[JumpBack]CreditShoppingInitCanNotAffordPriority2",
-            "[JumpBack]CreditShoppingInitPriority3",
-            "[JumpBack]CreditShoppingInitCanNotAffordPriority3",
-            "EmptyNode"
-        ]
-    },
-    "CreditShoppingInitCanNotAffordPriority1": {
-        "desc": "白名单初始化:优先购买1买不起侧(仅执行一次)",
-        "max_hit": 1,
-        "action": "Custom",
-        "custom_action": "AttachToExpectedRegexAction",
-        "custom_action_param": {
-            "target": "BuyFirstOCR_CanNotAfford"
-        },
-        "post_delay": 0,
-        "pre_delay": 0,
-        "rate_limit": 0
-    },
-    "CreditShoppingInitPriority2": {
-        "desc": "白名单初始化:优先购买2(仅执行一次)",
-        "max_hit": 1,
-        "action": "Custom",
-        "custom_action": "AttachToExpectedRegexAction",
-        "custom_action_param": {
-            "target": "Priority2OCR"
-        },
-        "post_delay": 0,
-        "pre_delay": 0,
-        "rate_limit": 0
-    },
-    "CreditShoppingInitCanNotAffordPriority2": {
-        "desc": "白名单初始化:优先购买2买不起侧(仅执行一次)",
-        "max_hit": 1,
-        "action": "Custom",
-        "custom_action": "AttachToExpectedRegexAction",
-        "custom_action_param": {
-            "target": "Priority2OCR_CanNotAfford"
-        },
-        "post_delay": 0,
-        "pre_delay": 0,
-        "rate_limit": 0
-    },
-    "CreditShoppingInitPriority3": {
-        "desc": "白名单初始化:优先购买3(仅执行一次)",
-        "max_hit": 1,
-        "action": "Custom",
-        "custom_action": "AttachToExpectedRegexAction",
-        "custom_action_param": {
-            "target": "Priority3OCR"
-        },
-        "post_delay": 0,
-        "pre_delay": 0,
-        "rate_limit": 0
-    },
-    "CreditShoppingInitCanNotAffordPriority3": {
-        "desc": "白名单初始化:优先购买3买不起侧(仅执行一次)",
-        "max_hit": 1,
-        "action": "Custom",
-        "custom_action": "AttachToExpectedRegexAction",
-        "custom_action_param": {
-            "target": "Priority3OCR_CanNotAfford"
+            "targets": [
+                "BuyFirstOCR",
+                "BuyFirstOCR_CanNotAfford",
+                "Priority2OCR",
+                "Priority2OCR_CanNotAfford",
+                "Priority3OCR",
+                "Priority3OCR_CanNotAfford"
+            ]
         },
         "post_delay": 0,
         "pre_delay": 0,
