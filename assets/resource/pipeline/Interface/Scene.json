@@ -178,5 +178,36 @@
             "SceneWaitLoadingExit",
             "__ScenePrivateNextTrue"
         ]
+    },
+    "SceneWaitBlackScreenLoadingExit": {
+        "desc": "判断当前场景在加载界面（黑屏），什么都不做，用于等待加载界面消失",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            200,
+            200
+        ],
+        "lower": [
+            0,
+            0,
+            0
+        ],
+        "upper": [
+            10,
+            10,
+            10
+        ],
+        "count": 40000,
+        "pre_delay": 0,
+        "post_delay": 500,
+        "next": [
+            // "[JumpBack]__SceneCheckOSD",
+            // "[JumpBack]__SceneCheckYellowColor",
+            // "[JumpBack]__SceneCheckTealColor",
+            // "[JumpBack]__SceneCheckPurpleColor",
+            "SceneWaitBlackScreenLoadingExit",
+            "__ScenePrivateNextTrue"
+        ]
     }
 }

@@ -53,7 +53,7 @@
         "action": "Click",
         "post_delay": 0,
         "next": [
-            "[JumpBack]SceneWaitLoadingExit",
+            "[JumpBack]SceneWaitBlackScreenLoadingExit",
             "TrialOfSwordmancyEnterTrialTarget"
         ]
     },
