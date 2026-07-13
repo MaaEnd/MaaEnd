@@ -1,37 +1,70 @@
 # 开发手册 - 信用点商店维护文档
 
 本文说明 `CreditShopping` 的文件分布与执行流程。  
-购买条件不是几个独立开关，而是从 `Item.json` 串到 `Shopping.json` 的整条筛选链，维护时需按链路理解。  
-该文档更新于 2026 年 6 月 6 日。
+购买条件不是几个独立开关，而是从 `Item/` 串到 `Flow/` 的整条筛选链，维护时需按链路理解。  
+该文档更新于 2026 年 7 月 13 日。
 
 ## 文件路径
 
-| 路径                                                        | 作用                                           |
-| ----------------------------------------------------------- | ---------------------------------------------- |
-| `assets/interface.json`                                     | 任务挂载（`other_menu` / `daily` 组）          |
-| `assets/tasks/CreditShopping.json`                          | 任务入口、三档购买、保留阈值、刷新与补信用选项 |
-| `assets/resource/pipeline/CreditShopping/GoToShop.json`     | 进入商店并切到信用交易所页签                   |
-| `assets/resource/pipeline/CreditShopping/ClaimCredit.json`  | 领取待收取信用                                 |
-| `assets/resource/pipeline/CreditShopping/Shopping.json`     | 初始化、扫描决策、购买/刷新/结束               |
-| `assets/resource/pipeline/CreditShopping/Item.json`         | 商品锚点、售罄、价格、名称、折扣识别链         |
-| `assets/resource/pipeline/CreditShopping/BuyItem.json`      | 购买弹窗确认与失败处理                         |
-| `assets/resource/pipeline/CreditShopping/BuyItemFocus.json` | 弹窗内商品 OCR 与购买 focus 记录               |
-| `assets/resource/pipeline/CreditShopping/Reflash.json`      | 刷新按钮、花费、无法刷新状态                   |
-| `assets/resource/pipeline/DijiangRewards/NeedCredit.json`   | 信用不足时回基建补信用（线索交流/赠予）        |
-| `agent/go-service/common/attachregex/action.go`             | attach 关键词合并为 OCR 白名单正则             |
-| `assets/locales/interface/*.json`                           | 任务、选项与 focus 文案                        |
+```
+CreditShopping/
+├── Flow/                  # 主购物流程
+│   ├── Entry.json         # 入口检测 + 白名单初始化（6 个 Init 节点）
+│   ├── Scan.json          # 货架扫描门控 + 快照（触发购买决策循环）
+│   ├── BuyAction.json     # 三档购买 / 黑名单 / 稳健刷新 / 无物可买
+│   ├── BuyItem.json       # 购买弹窗确认 / 失败 / 关闭
+│   └── Special.json       # ADB 滑动 / 刷新时无法购买 / 刷新商品
+├── Credit/                # 信用点管理
+│   ├── Reserve.json       # 保留阈值检测 + 当前信用点 OCR
+│   ├── AutoGetCredits.json# 自动补信用（买不起时跳基建）
+│   └── ClaimCredit.json   # 领取待收取信用
+├── Item/                  # 货架商品识别（识别链）
+│   ├── ShelfBase.json     # 锚点 CreditIcon + 售罄 + 价格判断
+│   ├── Priority1.json     # 优先购买 1 白名单 + 折扣
+│   ├── Priority2.json     # 优先购买 2 白名单 + 折扣
+│   ├── Priority3.json     # 优先购买 3 白名单 + 折扣
+│   └── Blacklist.json     # 黑名单过滤 + 折扣
+├── BuyItem/               # 购买弹窗（每商品一文件）
+│   ├── ArsenalTicket.json # 各商品弹窗 OCR
+│   ├── Oroberyl.json
+│   ├── TCreds.json
+│   ├── ElementaryCombatRecord.json
+│   ├── IntermediateCombatRecord.json
+│   ├── ElementaryCognitiveCarrier.json
+│   ├── ArmsInspector.json
+│   ├── ArmsINSPKit.json
+│   ├── CastDie.json
+│   ├── HeavyCastDie.json
+│   ├── Protodisk.json
+│   ├── Protoset.json
+│   ├── Protoprism.json
+│   └── Protohedron.json
+├── GoToShop.json           # 导航到商店并切到信用交易所页签
+├── record.json             # 货架快照时记录商品名与折扣
+└── Reflash.json            # 刷新按钮 / 花费 / 次数用尽 / 无法刷新
+```
+
+其他关联文件：
+
+| 路径                                              | 作用                                   |
+| ------------------------------------------------- | -------------------------------------- |
+| `assets/interface.json`                           | 任务挂载（`other_menu` / `daily` 组）  |
+| `assets/tasks/CreditShopping.json`                | 任务入口、三档购买、保留阈值、刷新选项 |
+| `assets/resource/pipeline/DijiangRewards/NeedCredit.json` | 信用不足时回基建补信用           |
+| `agent/go-service/common/attachregex/action.go`   | attach 关键词合并为 OCR 白名单正则     |
+| `assets/locales/interface/*.json`                 | 任务、选项与 focus 文案                |
 
 ## 执行流程
 
-1. 进入信用交易所页签；若不在商店则先导航，再[领取待收取信用](#领取信用)（`ClaimCredit.json`）。
-2. 进入扫描循环前，[一次性初始化各档商品名白名单](#attach-与白名单初始化)（`Shopping.json` + `attachregex/action.go`）。
-3. 每轮对当前货架快照，按固定优先级依次判断（`Shopping.json`）：
+1. 进入信用交易所页签；若不在商店则先导航（`GoToShop.json`），再[领取待收取信用](#领取信用)（`Credit/ClaimCredit.json`）。
+2. 进入扫描循环前，[一次性初始化各档商品名白名单](#attach-与白名单初始化)（`Flow/Entry.json` + `attachregex/action.go`）。
+3. 每轮对当前货架快照，按固定优先级依次判断（`Flow/Scan.json` → `Flow/BuyAction.json`）：
     - 某档目标商品[买得起但信用不够](#自动补信用) → 跳基建补信用后回来。
     - 是否命中[优先购买 1 / 2 / 3](#三档购买优先级) → 进入购买弹窗。
     - 当前信用是否[低于保留阈值](#保留信用点阈值) → 结束任务。
     - 刷新次数是否已用尽、是否触发[稳健刷新改直购](#强制策略与刷新)。
     - 按[强制策略](#强制策略与刷新)购买任意可买品 / 刷新货架 / 直接结束。
-4. 购买弹窗内确认商品、记录 focus（`BuyItem.json` + `BuyItemFocus.json`），回到列表继续扫描。
+4. 购买弹窗内确认商品、记录 focus（`Flow/BuyItem.json` + `BuyItem/*.json`），回到列表继续扫描。
 
 > 扫描循环的 `next` 顺序即业务优先级；改行为时要看整条链，不要只改单个识别器。
 
@@ -39,7 +72,7 @@
 
 ### 领取信用
 
-实现位于 `ClaimCredit.json`。进入信用交易所后先尝试领取待收取信用；没有可领项则直接进入扫描，不阻塞主流程。
+实现位于 `Credit/ClaimCredit.json`。进入信用交易所后先尝试领取待收取信用；没有可领项则直接进入扫描，不阻塞主流程。
 
 ### attach 与白名单初始化
 
@@ -51,22 +84,22 @@ Go 只负责参数装配；何时买、怎么买由 Pipeline 决定。
 
 ### 商品识别链
 
-实现位于 `Item.json`。读图顺序：**先锚点，再一路偏移**；前后层依赖，前层未命中则后续全部失效。
+实现位于 `Item/` 目录。读图顺序：**先锚点，再一路偏移**；前后层依赖，前层未命中则后续全部失效。
 
 颜色约定（维护文档与截图对照用）：
 
-- 黑：信用点商品卡片锚点
-- 蓝：是否未售罄
-- 红：买得起 / 买不起（两条链在此分叉）
-- 绿：商品名 OCR（白名单）
-- 粉：折扣 OCR
+- 黑：信用点商品卡片锚点（`Item/ShelfBase.json` — `CreditIcon`）
+- 蓝：是否未售罄（`Item/ShelfBase.json` — `NotSoldOut`）
+- 红：买得起 / 买不起（`Item/ShelfBase.json` — `CanAfford` / `CanNotAfford`，两条链在此分叉）
+- 绿：商品名 OCR（白名单，各档 `Item/Priority{N}.json` / `Item/Blacklist.json`）
+- 粉：折扣 OCR（各档 `Item/Priority{N}.json` / `Item/Blacklist.json`）
 
 #### 购买链
 
 ![购买识别链](https://github.com/user-attachments/assets/0e9f7e50-9b08-451f-abd4-2cb49b01986f)
 
 ```text
-锚点 → 未售罄 → 买得起 → 白名单商品名 → 满足折扣 → 进入购买判断
+ShelfBase → 白名单 → 折扣 → 进入购买判断
 ```
 
 #### 补信用链
@@ -74,7 +107,7 @@ Go 只负责参数装配；何时买、怎么买由 Pipeline 决定。
 ![补信用识别链](https://github.com/user-attachments/assets/37235adf-9f1c-40ed-aaaa-9f713a80d5a7)
 
 ```text
-锚点 → 未售罄 → 买不起 → 白名单商品名 → 满足折扣 → 进入补信用判断
+ShelfBase → 白名单 → 折扣 → 进入补信用判断
 ```
 
 两链的商品名与折扣语义必须保持一致，否则会出现「买得起时是目标、买不起时不是」的矛盾。  
@@ -95,13 +128,13 @@ Go 只负责参数装配；何时买、怎么买由 Pipeline 决定。
 
 ### 保留信用点阈值
 
-`CreditShoppingReserve` 改写保留阈值表达式。  
+`CreditShoppingReserve` 改写保留阈值表达式（`Credit/Reserve.json`）。  
 各档是否受阈值限制，由该档的「无条件购买」开关控制，而非扫描 `next` 顺序。  
 想某档无视阈值时，改对应档位的「无条件购买」，不要把阈值判断插回购买链中间。
 
 ### 自动补信用
 
-某档开启了「自动补信用」，且[补信用识别链](#商品识别链)命中时，跳转到 `NeedCredit.json`：
+某档开启了「自动补信用」，且[补信用识别链](#商品识别链)命中时，跳转到 `NeedCredit.json`（`Credit/AutoGetCredits.json`）：
 
 1. 回基建会客室，按配置赠送线索或开启线索交流。
 2. 赠送次数由 `CreditShoppingClueSend` 控制（`0` = 不送）。
@@ -117,7 +150,7 @@ Go 只负责参数装配；何时买、怎么买由 Pipeline 决定。
 
 ### 强制策略与刷新
 
-三档均未命中后的兜底，由 `CreditShoppingForce` 决定：
+三档均未命中后的兜底，由 `CreditShoppingForce` 决定（`Flow/BuyAction.json` + `Flow/Special.json`）：
 
 | 策略       | 行为                             |
 | ---------- | -------------------------------- |
@@ -131,8 +164,8 @@ Go 只负责参数装配；何时买、怎么买由 Pipeline 决定。
 ## 新增商品时需改的路径
 
 1. `assets/tasks/CreditShopping.json` — 在对应档位 checkbox 增加 case，同时写「买得起」与「买不起」两侧的 `attach`
-2. `assets/resource/pipeline/CreditShopping/BuyItem.json` — `next` 列表加入该商品弹窗分支
-3. `assets/resource/pipeline/CreditShopping/BuyItemFocus.json` — 新增弹窗 OCR 与 focus 文案
+2. `assets/resource/pipeline/CreditShopping/Flow/BuyItem.json` — `next` 列表加入该商品弹窗分支
+3. `assets/resource/pipeline/CreditShopping/BuyItem/` — 新建对应商品文件（弹窗 OCR + focus 文案），参考已有文件结构
 4. `assets/locales/interface/*.json` — `option.CreditShoppingItems.cases.*.label`
 
 只改列表白名单、不改弹窗确认时，会出现能点开但 focus 缺失的问题。  
@@ -148,4 +181,4 @@ Go 只负责参数装配；何时买、怎么买由 Pipeline 决定。
 | 刷新行为异常     | `CreditShoppingForce`；稳健刷新阈值                             |
 | 选项间行为不一致 | `CreditShopping.json` 的 `pipeline_override` 与扫描 `next` 顺序 |
 
-维护时分四层定位：入口（进商店领信用）→ 扫描决策（买/停/补/刷新）→ 识别链（`Item.json`）→ 参数装配（任务选项 + Go）。
+维护时分四层定位：入口（`GoToShop.json`）→ 扫描决策（`Flow/`）→ 识别链（`Item/`）→ 参数装配（任务选项 + Go）。
