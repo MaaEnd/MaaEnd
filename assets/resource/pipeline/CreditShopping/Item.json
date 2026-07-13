@@ -75,6 +75,7 @@
             108
         ],
         "count": 10,
+        "connected": true,
         "order_by": "Vertical"
     },
     "BuyFirstOCRLabelColor": {
