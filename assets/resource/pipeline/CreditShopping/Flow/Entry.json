@@ -1,0 +1,105 @@
+{
+    "CreditShoppingShopping": {
+        "desc": "信用购物",
+        "recognition": "TemplateMatch",
+        "roi": [
+            813,
+            44,
+            293,
+            82
+        ],
+        "template": "CreditShopping/CreditShoppingTabSelected.png",
+        "threshold": 0.7,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                52,
+                98,
+                1186,
+                548
+            ]
+        },
+        "next": [
+            "CreditShoppingInit",
+            "CreditShoppingScanItem"
+        ]
+    },
+    "CreditShoppingInit": {
+        "desc": "初始化信用购物参数：优先购买（仅执行一次）",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AttachToExpectedRegexAction",
+        "custom_action_param": {
+            "target": "BuyFirstOCR"
+        },
+        "next": [
+            "CreditShoppingInitCanNotAffordPriority1"
+        ]
+    },
+    "CreditShoppingInitCanNotAffordPriority1": {
+        "desc": "初始化信用购物参数：优先购买买不起分支（仅执行一次）",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AttachToExpectedRegexAction",
+        "custom_action_param": {
+            "target": "BuyFirstOCR_CanNotAfford"
+        },
+        "next": [
+            "CreditShoppingInitPriority2"
+        ]
+    },
+    "CreditShoppingInitPriority2": {
+        "desc": "初始化信用购物参数：普通购买1（仅执行一次）",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AttachToExpectedRegexAction",
+        "custom_action_param": {
+            "target": "Priority2OCR"
+        },
+        "next": [
+            "CreditShoppingInitCanNotAffordPriority2"
+        ]
+    },
+    "CreditShoppingInitCanNotAffordPriority2": {
+        "desc": "初始化信用购物参数：普通购买1买不起分支（仅执行一次）",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AttachToExpectedRegexAction",
+        "custom_action_param": {
+            "target": "Priority2OCR_CanNotAfford"
+        },
+        "next": [
+            "CreditShoppingInitPriority3"
+        ]
+    },
+    "CreditShoppingInitPriority3": {
+        "desc": "初始化信用购物参数：普通购买2（仅执行一次）",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AttachToExpectedRegexAction",
+        "custom_action_param": {
+            "target": "Priority3OCR"
+        },
+        "next": [
+            "CreditShoppingInitCanNotAffordPriority3"
+        ]
+    },
+    "CreditShoppingInitCanNotAffordPriority3": {
+        "desc": "初始化信用购物参数：普通购买2买不起分支（仅执行一次）",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AttachToExpectedRegexAction",
+        "custom_action_param": {
+            "target": "Priority3OCR_CanNotAfford"
+        },
+        "next": [
+            "CreditShoppingScanItem"
+        ]
+    }
+}

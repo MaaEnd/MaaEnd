@@ -1,0 +1,176 @@
+{
+    "CreditShoppingBuyPriority1": {
+        "desc": "优先购买1（选项：优先购买物品、折扣设置、是否检测信用点阈值）",
+        "recognition": "And",
+        "all_of": [
+            "CreditIcon",
+            "NotSoldOut",
+            "CanAfford",
+            "BuyFirstOCR_Expected",
+            "IsDiscountPriority1",
+            "CreditShoppingPriority1ReserveCreditGate"
+        ],
+        "box_index": 4,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "target_offset": [
+            -30,
+            70,
+            0,
+            0
+        ],
+        "next": [
+            "CreditShoppingBuyItem"
+        ]
+    },
+    "CreditShoppingBuyPriority2": {
+        "desc": "优先购买2（选项：普通购买3物品、折扣设置、是否检测信用点阈值）",
+        "recognition": "And",
+        "all_of": [
+            "CreditIcon",
+            "NotSoldOut",
+            "CanAfford",
+            "Priority2OCR_Expected",
+            "IsDiscountPriority2",
+            "CreditShoppingPriority2ReserveCreditGate"
+        ],
+        "box_index": 4,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "target_offset": [
+            -30,
+            70,
+            0,
+            0
+        ],
+        "next": [
+            "CreditShoppingBuyItem"
+        ]
+    },
+    "CreditShoppingBuyPriority3": {
+        "desc": "优先购买3（选项：优先购买3物品、折扣设置、是否检测信用点阈值）",
+        "recognition": "And",
+        "all_of": [
+            "CreditIcon",
+            "NotSoldOut",
+            "CanAfford",
+            "Priority3OCR_Expected",
+            "IsDiscountPriority3",
+            "CreditShoppingPriority3ReserveCreditGate"
+        ],
+        "box_index": 4,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "target_offset": [
+            -30,
+            70,
+            0,
+            0
+        ],
+        "next": [
+            "CreditShoppingBuyItem"
+        ]
+    },
+    "CreditShoppingBuyBlacklist": {
+        "desc": "强制购买剩余可购物品（选项：购买选项均未命中时操作=购买任意物品）",
+        "recognition": "And",
+        "all_of": [
+            "CreditIcon",
+            "NotSoldOut",
+            "CanAfford"
+        ],
+        "box_index": 2,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "CreditShoppingBuyItem"
+        ]
+    },
+    "CreditShoppingPrudentRefresh": {
+        "desc": "稳健模式下改为购买任意物品含无折扣（选项：稳健模式刷新、稳健刷新阈值）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "Custom",
+                            "param": {
+                                "custom_recognition": "ExpressionRecognition",
+                                "custom_recognition_param": {
+                                    "expression": "{CreditShoppingReserveCreditOCRInternal}-{RefreshCost}<400"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "And",
+                            "param": {
+                                "all_of": [
+                                    "CreditIcon",
+                                    "NotSoldOut",
+                                    "CanAfford"
+                                ],
+                                "box_index": 2
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_wait_freezes": 100,
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "CreditShoppingBuyItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.prudent_refresh_triggered"
+        }
+    },
+    "CreditShoppingRefreshCountReached": {
+        "desc": "刷新次数已用尽时直接购买（选项：没有可购买物品时=执行刷新）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "RefreshUsedUp",
+                    {
+                        "recognition": {
+                            "type": "And",
+                            "param": {
+                                "all_of": [
+                                    "CreditIcon",
+                                    "NotSoldOut",
+                                    "CanAfford"
+                                ],
+                                "box_index": 2
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_wait_freezes": 100,
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "CreditShoppingBuyItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.refresh_count_reached_triggered"
+        }
+    },
+    "CreditShoppingNothingToBuy": {
+        "desc": "没有合适的东西可以买了",
+        "recognition": "DirectHit",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.nothing_to_buy"
+        }
+    }
+}
