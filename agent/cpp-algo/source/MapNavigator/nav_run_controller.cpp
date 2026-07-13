@@ -447,8 +447,15 @@ NavRunTickResult NavRunController::tick(
     result.remaining_to_anchor = remaining;
     result.upcoming_turn_deg = upcoming_turn;
     const double character_arc = CorridorArcLengthTo(plan_.path, plan_.corridor_arc_prefix, *projection);
-    result.passed_run_waypoints =
+    const size_t corridor_passed =
         CountCorridorPassedRunWaypoints(*session, plan_.path, plan_.corridor_arc_prefix, anchor_index, character_arc);
+    if (route.startup_motion_confirmed) {
+        result.passed_run_waypoints = corridor_passed;
+    }
+    else if (corridor_passed > 0) {
+        LogDebug << "Corridor passed advance blocked before startup movement confirmed." << VAR(corridor_passed)
+                 << VAR(session->current_node_idx()) << VAR(character_arc);
+    }
     return result;
 }
 
