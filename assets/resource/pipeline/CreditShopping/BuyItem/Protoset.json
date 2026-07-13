@@ -1,0 +1,27 @@
+{
+    "CreditShoppingBuyItemOCR_Protoset": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            135,
+            422,
+            146
+        ],
+        "expected": [
+            "协议圆盘组",
+            "協議圓盤組",
+            "(?i)Protoset",
+            "協約ディスクセット"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.Protoset"
+        }
+    }
+}

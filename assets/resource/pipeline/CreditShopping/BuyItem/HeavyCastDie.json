@@ -1,0 +1,27 @@
+{
+    "CreditShoppingBuyItemOCR_HeavyCastDie": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            135,
+            422,
+            146
+        ],
+        "expected": [
+            "重型强固模具",
+            "重型強固模具",
+            "(?i)Heavy\\s*Cast\\s*Die",
+            "重硬質金型"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.HeavyCastDie"
+        }
+    }
+}

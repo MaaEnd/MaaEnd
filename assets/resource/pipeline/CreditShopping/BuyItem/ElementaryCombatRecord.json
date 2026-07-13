@@ -1,0 +1,27 @@
+{
+    "CreditShoppingBuyItemOCR_ElementaryCombatRecord": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            135,
+            422,
+            146
+        ],
+        "expected": [
+            "初级作战记录",
+            "初級作戰紀錄",
+            "(?i)Elementary\\s*Combat\\s*Record",
+            "初級作戦記録"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ElementaryCombatRecord"
+        }
+    }
+}

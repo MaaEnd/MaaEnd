@@ -1,0 +1,27 @@
+{
+    "CreditShoppingBuyItemOCR_IntermediateCombatRecord": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            135,
+            422,
+            146
+        ],
+        "expected": [
+            "中级作战记录",
+            "中級作戰紀錄",
+            "(?i)Intermediate\\s*Combat\\s*Record",
+            "中級作戦記録"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.IntermediateCombatRecord"
+        }
+    }
+}

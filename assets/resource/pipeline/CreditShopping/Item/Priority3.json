@@ -1,0 +1,182 @@
+{
+    "Priority3OCRLabelColor": {
+        "desc": "优先购买3折扣匹配标签颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "CanAfford",
+                "roi_offset": [
+                    -100,
+                    31,
+                    118,
+                    25
+                ],
+                "lower": [
+                    60,
+                    60,
+                    60
+                ],
+                "upper": [
+                    70,
+                    70,
+                    70
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "Priority3OCRTextColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "Priority3OCRLabelColor",
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    0,
+                    1,
+                    255
+                ],
+                "count": 10
+            }
+        }
+    },
+    "Priority3OCR": {
+        "desc": "优先购买3白名单物品",
+        "recognition": "OCR",
+        "roi": "Priority3OCRTextColor",
+        "roi_offset": [
+            -2,
+            -2,
+            4,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "Priority3OCR_Expected": {
+        "recognition": "And",
+        "all_of": [
+            "Priority3OCRLabelColor",
+            "Priority3OCRTextColor",
+            "Priority3OCR"
+        ],
+        "box_index": 2
+    },
+    "Priority3OCR_CanNotAfford_LabelColor": {
+        "desc": "优先购买3（买不起）折扣匹配标签颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "CanNotAfford",
+                "roi_offset": [
+                    -100,
+                    31,
+                    118,
+                    25
+                ],
+                "lower": [
+                    60,
+                    60,
+                    60
+                ],
+                "upper": [
+                    70,
+                    70,
+                    70
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "Priority3OCR_CanNotAfford_TextColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "Priority3OCR_CanNotAfford_LabelColor",
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    0,
+                    1,
+                    255
+                ],
+                "count": 10
+            }
+        }
+    },
+    "Priority3OCR_CanNotAfford": {
+        "desc": "优先购买3白名单物品（买不起）",
+        "recognition": "OCR",
+        "roi": "Priority3OCR_CanNotAfford_TextColor",
+        "roi_offset": [
+            -2,
+            -2,
+            4,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "Priority3OCR_CanNotAfford_Expected": {
+        "recognition": "And",
+        "all_of": [
+            "Priority3OCR_CanNotAfford_LabelColor",
+            "Priority3OCR_CanNotAfford_TextColor",
+            "Priority3OCR_CanNotAfford"
+        ],
+        "box_index": 2
+    },
+    "IsDiscountPriority3": {
+        "desc": "优先购买3折扣匹配",
+        "recognition": "OCR",
+        "roi": "Priority3OCR",
+        "roi_offset": [
+            44,
+            -170,
+            4,
+            4
+        ],
+        "expected": [
+            "95",
+            "99",
+            "75",
+            "50",
+            "25"
+        ],
+        "only_rec": true,
+        "order_by": "Expected"
+    },
+    "IsDiscountPriority3_CanNotAfford": {
+        "desc": "优先购买3买不起时折扣匹配",
+        "recognition": "OCR",
+        "roi": "Priority3OCR_CanNotAfford",
+        "roi_offset": [
+            44,
+            -170,
+            4,
+            4
+        ],
+        "expected": [
+            "95",
+            "99",
+            "75",
+            "50",
+            "25"
+        ],
+        "only_rec": true,
+        "order_by": "Expected"
+    }
+}
