@@ -14,7 +14,7 @@ import re
 import json
 import numpy as np
 from collections import defaultdict
-from _internal.core_utils import _R, _G, _Y, _C, _0, Drawer, cv2
+from _internal.core_utils import _R, _G, _Y, _C, _0, cv2
 from _internal.zmdmap_schemas import RegionLayoutTable, LevelLayoutMetaData
 
 SCALE_MAP_FACTOR = 0.1625
@@ -77,18 +77,13 @@ def ensure_output_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
 
 
-class DistinMapPage:
+class LevelMapDistinguisher:
     """Distinguishes level maps into separate maps using layout data for positioning."""
 
-    def __init__(
-        self, input_dir: str, output_dir: str, layout_dir: str, ui: bool = False
-    ):
+    def __init__(self, input_dir: str, output_dir: str, layout_dir: str):
         self.input_dir = input_dir
         self.output_dir = output_dir
         self.layout_dir = layout_dir
-        self.ui = ui
-        self.window_name = "MapTracker Level Distinguisher"
-        self.window_w, self.window_h = 1280, 720
 
     def _load_layouts(self) -> dict[str, RegionLayoutTable]:
         """Load all *_layout.json files from layout_dir."""
@@ -143,29 +138,6 @@ class DistinMapPage:
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         return gray >= DISCARD_THRESHOLD
 
-    def _make_land_alpha(self, img: np.ndarray) -> np.ndarray:
-        """Return a copy of img with non-land pixels set to alpha=0.
-        Prevents black backgrounds from erasing other maps during compositing."""
-        out = cv2.cvtColor(img, cv2.COLOR_RGB2RGBA)
-        out[~self._content_mask(img), 3] = 0
-        return out
-
-    def _composite_canvas(
-        self,
-        maps: dict[str, np.ndarray],
-        positions: dict[str, tuple],
-        canvas_h: int,
-        canvas_w: int,
-    ) -> np.ndarray:
-        """Composite all maps onto a blank RGBA canvas and return it."""
-        canvas = np.zeros((canvas_h, canvas_w, 4), dtype=np.uint8)
-        canvas[:, :, 3] = 255
-        drawer = Drawer(canvas)
-        for nm in sorted(positions, key=lambda n: positions[n]):
-            x, y = positions[nm]
-            drawer.paste(self._make_land_alpha(maps[nm]), (x, y), with_alpha=True)
-        return canvas
-
     def _distinguish_group(
         self,
         group_key: str,
@@ -187,15 +159,13 @@ class DistinMapPage:
         canvas_w = layout.canvas_width
         canvas_h = layout.canvas_height
 
-        print(f"  Compositing onto {canvas_w} x {canvas_h} canvas...")
+        print(f"  Canvas size: {canvas_w} x {canvas_h}")
         for nm in sorted(positions, key=lambda n: positions[n]):
             x, y = positions[nm]
             print(f"    {_C}{nm}{_0} -> ({x}, {y})")
 
         maps = self._remove_islands(maps)
-        canvas = self._composite_canvas(maps, positions, canvas_h, canvas_w)
-
-        self._auto_split(maps, positions, names_list, canvas)
+        self._split_overlaps(maps, positions, names_list, canvas_h, canvas_w)
 
     @staticmethod
     def _brightness_weight(gray: np.ndarray) -> np.ndarray:
@@ -326,27 +296,27 @@ class DistinMapPage:
         second_side[y1:y2, x1:x2] = comp & (segments == sv)
         return first_side, second_side
 
-    def _auto_split(
+    def _split_overlaps(
         self,
         maps: dict[str, np.ndarray],
         positions: dict[str, tuple[int, int]],
         names_list: list[str],
-        canvas: np.ndarray,
+        canvas_h: int,
+        canvas_w: int,
     ) -> None:
-        print(f"\n  {_G}Automatic split mode{_0}")
-        canvas_h, canvas_w = canvas.shape[:2]
+        print(f"\n  {_G}Splitting overlaps...{_0}")
         n_maps = len(names_list)
         land_masks: list[np.ndarray] = []
-        canvas_maps: list[np.ndarray] = []
+        aligned_maps: list[np.ndarray] = []
 
         for nm in names_list:
             img = maps[nm]
             px, py = positions[nm]
             h, w = img.shape[:2]
             ey, ex = min(py + h, canvas_h), min(px + w, canvas_w)
-            cimg = np.zeros((canvas_h, canvas_w, 3), dtype=np.uint8)
-            cimg[py:ey, px:ex] = img[: ey - py, : ex - px]
-            canvas_maps.append(cimg)
+            aligned_image = np.zeros((canvas_h, canvas_w, 3), dtype=np.uint8)
+            aligned_image[py:ey, px:ex] = img[: ey - py, : ex - px]
+            aligned_maps.append(aligned_image)
             mask = np.zeros((canvas_h, canvas_w), dtype=bool)
             mask[py:ey, px:ex] = self._content_mask(img)[: ey - py, : ex - px]
             land_masks.append(mask)
@@ -379,7 +349,6 @@ class DistinMapPage:
                 positions,
                 names_list,
                 [m.astype(np.uint8) for m in exclusive_masks],
-                canvas,
             )
             return
 
@@ -388,8 +357,8 @@ class DistinMapPage:
         c_sum = np.zeros((canvas_h, canvas_w), dtype=np.float32)
         c_cnt = np.zeros((canvas_h, canvas_w), dtype=np.uint8)
         yy, xx = np.indices((canvas_h, canvas_w), dtype=np.float32)
-        for nm, cimg, mask in zip(names_list, canvas_maps, land_masks):
-            gray = cv2.cvtColor(cimg, cv2.COLOR_RGB2GRAY)
+        for nm, aligned_image, mask in zip(names_list, aligned_maps, land_masks):
+            gray = cv2.cvtColor(aligned_image, cv2.COLOR_RGB2GRAY)
             combined_gray[mask] = np.maximum(combined_gray[mask], gray[mask])
             px, py = positions[nm]
             mh, mw = maps[nm].shape[:2]
@@ -446,8 +415,8 @@ class DistinMapPage:
         ownership_masks = self._enforce_seed_connectivity(
             owner, exclusive_masks, land_masks, names_list
         )
-        print(f"    {_G}Auto split complete.{_0}")
-        self._export_split_maps(maps, positions, names_list, ownership_masks, canvas)
+        print(f"    {_G}Overlap split complete.{_0}")
+        self._export_split_maps(maps, positions, names_list, ownership_masks)
 
     def _enforce_seed_connectivity(
         self,
@@ -546,10 +515,9 @@ class DistinMapPage:
         positions: dict[str, tuple[int, int]],
         names_list: list[str],
         ownership_masks: list[np.ndarray],
-        canvas: np.ndarray,
     ) -> None:
         """Export each map with feathered ownership edges."""
-        canvas_h, canvas_w = canvas.shape[:2]
+        canvas_h, canvas_w = ownership_masks[0].shape
         for i, nm in enumerate(names_list):
             mask = ownership_masks[i]
             ys, xs = np.nonzero(mask)
@@ -576,65 +544,6 @@ class DistinMapPage:
             )
 
         print(f"  {_G}Split maps saved to {self.output_dir}{_0}")
-        if not self.ui:
-            return
-
-        canvas_rgb = canvas[:, :, :3]
-        overview = (canvas_rgb.astype(np.float32) * 0.25).astype(np.uint8)
-        owner_all = np.full((canvas_h, canvas_w), -1, dtype=np.int16)
-        for i, mask in enumerate(ownership_masks):
-            owner_all[mask > 0] = i
-        hsv = np.zeros((len(names_list), 1, 3), dtype=np.uint8)
-        hsv[:, 0, 0] = np.linspace(
-            0, 180, len(names_list), endpoint=False, dtype=np.uint8
-        )
-        hsv[:, 0, 1], hsv[:, 0, 2] = 220, 255
-        colors = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)[:, 0, :]
-        box = np.ones((3, 3), dtype=np.uint8)
-        for i, mask in enumerate(ownership_masks):
-            owned = mask.astype(bool)
-            overview[owned] = (
-                canvas_rgb[owned].astype(np.float32) * 0.35
-                + colors[i].astype(np.float32) * 0.65
-            ).astype(np.uint8)
-        for i, nm in enumerate(names_list):
-            region = (owner_all == i).astype(np.uint8)
-            dilated = cv2.dilate(region, box, iterations=1)
-            overview[(dilated > 0) & (owner_all != i) & (owner_all >= 0)] = 255
-            ys, xs = np.nonzero(ownership_masks[i])
-            if len(ys):
-                cv2.putText(
-                    overview,
-                    nm,
-                    (int(xs.mean()), int(ys.mean())),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    1.0,
-                    (255, 255, 255),
-                    1,
-                    cv2.LINE_AA,
-                )
-
-        ch_v, cw_v = overview.shape[:2]
-        s = min(self.window_w / cw_v, self.window_h / ch_v, 1.0)
-        disp = cv2.resize(
-            overview, (int(cw_v * s), int(ch_v * s)), interpolation=cv2.INTER_LINEAR
-        )
-        frame = np.zeros((self.window_h, self.window_w, 3), dtype=np.uint8)
-        ox = (self.window_w - disp.shape[1]) // 2
-        oy = (self.window_h - disp.shape[0]) // 2
-        frame[oy : oy + disp.shape[0], ox : ox + disp.shape[1]] = disp
-        for text, org, color in (
-            (f"Overview: {len(names_list)} level maps", (8, 18), (225, 225, 225)),
-            ("Press any key to continue...", (8, self.window_h - 12), (255, 255, 0)),
-        ):
-            cv2.putText(
-                frame, text, org, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1, cv2.LINE_AA
-            )
-        cv2.namedWindow(self.window_name)
-        cv2.imshow(self.window_name, cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
-        cv2.waitKey(0)
-        if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) >= 1:
-            cv2.destroyWindow(self.window_name)
 
     def run(self) -> None:
         """Main flow - groups maps by region and distinguishes each separately."""
@@ -723,10 +632,8 @@ def generate_map_bbox_json(input_dir: str, output_dir: str) -> str:
     return output_path
 
 
-def cmd_distinguish_levels(
-    input_dir: str, output_dir: str, layout_dir: str, ui: bool = False
-) -> None:
-    """Distinguish level images into separate maps with island removal and automatic split."""
+def cmd_distinguish_levels(input_dir: str, output_dir: str, layout_dir: str) -> None:
+    """Distinguish level images with island removal and overlap splitting."""
     if not os.path.isdir(input_dir):
         print(f"{_R}Input directory not found: {input_dir}{_0}")
         return
@@ -734,7 +641,7 @@ def cmd_distinguish_levels(
         print(f"{_R}Layout directory not found: {layout_dir}{_0}")
         return
 
-    distinguisher = DistinMapPage(input_dir, output_dir, layout_dir, ui)
+    distinguisher = LevelMapDistinguisher(input_dir, output_dir, layout_dir)
     distinguisher.run()
 
 
@@ -908,9 +815,6 @@ def main():
     p_distin.add_argument(
         "--layout-dir", required=True, help="Directory containing *_layout.json files"
     )
-    p_distin.add_argument(
-        "--ui", action="store_true", help="Show visual preview windows while exporting"
-    )
 
     # tidy_tiers subcommand
     p_tiers = sub.add_parser(
@@ -941,9 +845,7 @@ def main():
     args = parser.parse_args()
 
     if args.command == "distinguish_levels":
-        cmd_distinguish_levels(
-            args.input_dir, args.output_dir, args.layout_dir, args.ui
-        )
+        cmd_distinguish_levels(args.input_dir, args.output_dir, args.layout_dir)
     elif args.command == "tidy_tiers":
         cmd_tidy_tiers(args.input_dir, args.output_dir)
     elif args.command == "bbox":
