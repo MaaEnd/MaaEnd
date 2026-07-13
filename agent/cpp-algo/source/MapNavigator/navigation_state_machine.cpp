@@ -134,6 +134,8 @@ bool IsZoneCompatible(const Waypoint& waypoint, const std::string& current_zone_
     return current_zone_id.empty() || waypoint.zone_id.empty() || waypoint.zone_id == current_zone_id;
 }
 
+constexpr size_t kUnaddressableAnchorIndex = std::numeric_limits<size_t>::max();
+
 bool IsRequiredSemanticAnchor(const Waypoint& waypoint)
 {
     if (!waypoint.HasPosition()) {
@@ -656,7 +658,9 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
         generated_prefix.emplace_back(detour_vertex.x, detour_vertex.y, ActionType::RUN);
         generated_prefix.back().strict_arrival = true;
     }
-    else if (!AppendGeneratedNavmeshWaypoints(route->path, generated_prefix, false, emit_interior_corners)) {
+    else if (!AppendGeneratedNavmeshWaypoints(param_, position_->zone_id, *route, generated_prefix,
+                                              /*include_goal=*/false, emit_interior_corners,
+                                              /*strict_segment_breaks=*/false)) {
         LogWarn << "Dynamic navmesh overlay skipped: generated path is unusable." << VAR(reason) << VAR(continue_index)
                 << VAR(route->path.points.size());
         return false;
@@ -944,7 +948,8 @@ bool NavigationStateMachine::TickNavigate()
             // continuous RUN can lookahead through to the next semantic anchor.
             std::optional<DynamicAnchor> nav_run_anchor;
             if (current_waypoint.RequiresStrictArrival()) {
-                nav_run_anchor = DynamicAnchor { session_->current_node_idx(), current_waypoint };
+                nav_run_anchor = DynamicAnchor { session_->CanonicalIndexAtCurrent().value_or(kUnaddressableAnchorIndex),
+                                                 current_waypoint };
             }
             else {
                 nav_run_anchor = ResolveCurrentAnchor(session_, *position_);

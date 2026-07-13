@@ -80,6 +80,9 @@ std::optional<navmesh::WorldPoint> PlanUnstickTarget(
 bool AppendGeneratedNavmeshWaypoints(
     const navmesh::WorldPath& world_path, std::vector<Waypoint>& out_path, bool include_goal,
     bool emit_interior_corners = false, const navmesh::BaseNavPlanner* drivability_planner = nullptr,
-    uint16_t drivable_zone_id = 0);
+    uint16_t drivable_zone_id = 0, bool strict_segment_breaks = true);
+bool AppendGeneratedNavmeshWaypoints(
+    const NaviParam& param, const std::string& locator_zone, const navmesh::BaseNavRouteResult& route,
+    std::vector<Waypoint>& out_path, bool include_goal, bool emit_interior_corners, bool strict_segment_breaks);
 
 } // namespace mapnavigator

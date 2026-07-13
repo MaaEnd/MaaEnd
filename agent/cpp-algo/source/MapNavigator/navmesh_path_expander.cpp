@@ -946,7 +946,8 @@ std::optional<navmesh::WorldPoint> PlanUnstickTarget(
 
 bool AppendGeneratedNavmeshWaypoints(
     const navmesh::WorldPath& world_path, std::vector<Waypoint>& out_path, bool include_goal,
-    bool emit_interior_corners, const navmesh::BaseNavPlanner* drivability_planner, uint16_t drivable_zone_id)
+    bool emit_interior_corners, const navmesh::BaseNavPlanner* drivability_planner, uint16_t drivable_zone_id,
+    bool strict_segment_breaks)
 {
     if (world_path.points.empty()) {
         return false;
@@ -971,15 +972,19 @@ bool AppendGeneratedNavmeshWaypoints(
     }
 
     size_t prev = 0; // the driven line starts at points[0] — the route origin / character's current position
-    const auto flush_leg_to = [&](size_t anchor, bool strict_arrival) {
-        if (drivability_planner != nullptr && anchor > prev + 1
-            && !drivability_planner->isRouteSegmentDrivable(
+    const auto restore_corners_to = [&](size_t anchor) {
+        if (drivability_planner == nullptr || anchor <= prev + 1
+            || drivability_planner->isRouteSegmentDrivable(
                 drivable_zone_id, world_path.points[prev], world_path.points[anchor])) {
-            for (size_t corner = prev + 1; corner < anchor; ++corner) {
-                out_path.emplace_back(world_path.points[corner].x, world_path.points[corner].y, ActionType::RUN);
-                out_path.back().strict_arrival = false;
-            }
+            return;
         }
+        for (size_t corner = prev + 1; corner < anchor; ++corner) {
+            out_path.emplace_back(world_path.points[corner].x, world_path.points[corner].y, ActionType::RUN);
+            out_path.back().strict_arrival = false;
+        }
+    };
+    const auto flush_leg_to = [&](size_t anchor, bool strict_arrival) {
+        restore_corners_to(anchor);
         out_path.emplace_back(world_path.points[anchor].x, world_path.points[anchor].y, ActionType::RUN);
         out_path.back().strict_arrival = strict_arrival;
         prev = anchor;
@@ -993,14 +998,38 @@ bool AppendGeneratedNavmeshWaypoints(
         if (emit_idx == 0) {
             continue;
         }
-        flush_leg_to(emit_idx, true);
+        flush_leg_to(emit_idx, strict_segment_breaks);
     }
 
-    if (include_goal && total >= 2) {
-        flush_leg_to(total - 1, true);
+    if (total >= 2) {
+        if (include_goal) {
+            flush_leg_to(total - 1, true);
+        }
+        else {
+            restore_corners_to(total - 1);
+        }
     }
 
     return true;
+}
+
+bool AppendGeneratedNavmeshWaypoints(
+    const NaviParam& param, const std::string& locator_zone, const navmesh::BaseNavRouteResult& route,
+    std::vector<Waypoint>& out_path, bool include_goal, bool emit_interior_corners, bool strict_segment_breaks)
+{
+    const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
+    const std::shared_ptr<CachedNavmesh> navmesh =
+        navmesh_zone.empty() ? nullptr : LoadCachedNavmesh(ResolveNavmeshFile(param.navmesh_file), navmesh_zone);
+    if (!navmesh) {
+        LogWarn << "Generated navmesh waypoints emitted without a drivability check." << VAR(locator_zone)
+                << VAR(navmesh_zone);
+        return AppendGeneratedNavmeshWaypoints(route.path, out_path, include_goal, emit_interior_corners, nullptr, 0,
+                                               strict_segment_breaks);
+    }
+    const uint16_t drivable_zone =
+        route.triangles.empty() ? route.path.zone_id : navmesh->planner.triangleZone(route.triangles.front());
+    return AppendGeneratedNavmeshWaypoints(route.path, out_path, include_goal, emit_interior_corners, &navmesh->planner,
+                                           drivable_zone, strict_segment_breaks);
 }
 
 } // namespace mapnavigator
