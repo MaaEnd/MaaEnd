@@ -54,6 +54,43 @@
         "post_delay": 0,
         "next": [
             "[JumpBack]SceneWaitBlackScreenLoadingExit",
+            "TrialOfSwordmancyLoadingExit"
+        ]
+    },
+    "TrialOfSwordmancyLoadingExit": {
+        "desc": "加载完毕",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyEnterTrialTarget",
+            "TrialOfSwordmancyOutOfBounds"
+        ]
+    },
+    "TrialOfSwordmancyOutOfBounds": {
+        "desc": "加载完但未出现挑战目标界面，说明开始演算时角色在演算区域外",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "arrival_timeout": 10000,
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1863,
+                        1789
+                    ]
+                }
+            ]
+        },
+        "post_delay": 0,
+        "on_error": [
+            // 本次寻路必定失败
             "TrialOfSwordmancyEnterTrialTarget"
         ]
     },
