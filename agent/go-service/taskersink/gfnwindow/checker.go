@@ -1,12 +1,14 @@
 // Package gfnwindow adjusts the GeForce NOW (GFN) native client window to the
-// 1280x720 baseline client area before task execution.
+// 1280x720 baseline client area before task execution, and docks it to the
+// bottom-right corner of the monitor work area.
 //
 // The GFN native client streams the game inside a borderless CEF window
 // (see docs/zh_cn/developers/gfn-app-support-prd.md). When the local window is
 // not at the 720p baseline, fixed-ROI recognition fails systematically, so this
 // sink resizes the window on task start. Resize failures degrade gracefully:
 // the task keeps running and the user is guided to lock the streaming
-// resolution to 1280x720 in the GFN client settings.
+// resolution to 1280x720 in the GFN client settings. The bottom-right docking
+// is cosmetic and never blocks the task even if it fails.
 package gfnwindow
 
 import (
@@ -39,6 +41,7 @@ const (
 	reasonResizeFailed          = "resize_failed"
 	reasonWorkAreaTooSmall      = "work_area_too_small"
 	reasonClientSizeUnavailable = "client_size_unavailable"
+	reasonRepositionFailed      = "reposition_failed"
 )
 
 // errUnsupportedPlatform is returned by the non-Windows resize stub.
@@ -121,6 +124,15 @@ func (c *GFNWindowChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatu
 			Int32("width", result.BeforeWidth).
 			Int32("height", result.BeforeHeight).
 			Msg("GFN window client area already matches the 720p baseline")
+	case reasonRepositionFailed:
+		// The client area already matches the baseline, so recognition is
+		// unaffected; only the cosmetic bottom-right docking failed.
+		log.Debug().
+			Uint64("task_id", detail.TaskID).
+			Str("entry", detail.Entry).
+			Int32("width", result.BeforeWidth).
+			Int32("height", result.BeforeHeight).
+			Msg("GFN window client area already matches the 720p baseline, but repositioning to bottom-right failed")
 	case reasonResized:
 		log.Info().
 			Uint64("task_id", detail.TaskID).

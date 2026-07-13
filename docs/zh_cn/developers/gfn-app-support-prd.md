@@ -105,7 +105,8 @@ GFN 窗口（类 `CEFCLIENT`，标题含 `on GeForce NOW`）两个正则均不�
 新增 taskersink 包 `gfnwindow`，在任务启动事件上执行：
 
 - **检测**：`pienv.ControllerName() == "GFN-App"` 即 GFN 模式，无需进程/窗口枚举 —— 控制器连接时 MaaFramework 已完成选窗，HWND 从 controller info（`hwnd` 字段）直接获取。检测与缩放结果输出 INFO 级结构化日志（hwnd、窗口类、before/after 尺寸）。
-- **缩放**：客户区非 1280x720（±2px 容差）时，按实测窗口/客户区矩形差值计算边框尺寸（无边框窗口差值为 0，等价于 `AdjustWindowRectEx` 且无需读取样式位），经 `SetWindowPos` 把客户区调整为 1280x720 并在工作区内居中。**不强制 `WS_CAPTION`**，保持 GFN 流窗口无边框形态（MaaNTE 实测 GFN 窗口接受标准缩放）。
+- **缩放**：客户区非 1280x720（±2px 容差）时，按实测窗口/客户区矩形差值计算边框尺寸（无边框窗口差值为 0，等价于 `AdjustWindowRectEx` 且无需读取样式位），经 `SetWindowPos` 把客户区调整为 1280x720 并贴到工作区（`rcWork`，排除任务栏）右下角。**不强制 `WS_CAPTION`**，保持 GFN 流窗口无边框形态（MaaNTE 实测 GFN 窗口接受标准缩放）。
+- **贴靠右下角**：即使客户区已是 1280x720（本次未触发缩放），也会单独执行一次仅移动（`SWP_NOSIZE`）的贴靠，确保窗口停留在右下角，与 MaaNTE `97cc62e` 的 `bottom_right` 锚点行为一致；贴靠失败仅记录 DEBUG 日志，不影响任务继续执行。
 - **降级**：缩放失败时任务**不中断**，输出 WARNING 日志与用户可见提示（maafocus），引导用户在 GFN 客户端设置中将串流分辨率固定为 1280x720。
 - **串流分辨率锁定提示**：缩放成功后仍提示 —— 若游戏会话在调整前已开始串流，云端仍按原分辨率渲染，识别可能失败；需在 GFN 设置固定 720p 串流后重启会话，或保持窗口 1280x720 时再启动游戏。
 - **注册顺序**：在 `registerAll()` 中先于 `aspectratio.Register()` 注册，保证缩放先于分辨率强校验执行。

@@ -16,6 +16,7 @@ import (
 
 const (
 	win32SwRestore               = 9
+	win32SwpNoSize               = 0x0001
 	win32SwpNoZOrder             = 0x0004
 	win32SwpNoActivate           = 0x0010
 	win32MonitorDefaultToNearest = 0x00000002
@@ -62,6 +63,12 @@ type win32MonitorInfo struct {
 // manage_title_bar disabled: the GFN CEF window is borderless, so WS_CAPTION
 // is never forced and the frame extent is taken from the measured
 // window/client rect delta instead of AdjustWindowRectEx.
+//
+// The window is anchored to the bottom-right corner of the monitor work area
+// (rcWork, which excludes the taskbar), mirroring MaaNTE's bottom_right
+// position: repositioning is attempted even when the client area already
+// matches the baseline, since the window may have been moved since the last
+// check.
 func ensureGFNWindowResolution(controller *maa.Controller) (*resizeResult, error) {
 	hwnd, err := control.GetWin32Hwnd(controller)
 	if err != nil {
@@ -105,6 +112,13 @@ func ensureGFNWindowResolution(controller *maa.Controller) (*resizeResult, error
 
 	if withinTolerance(clientWidth, clientHeight) {
 		result.Reason = reasonAlreadyMatched
+		if err := repositionToBottomRightWin32(hwnd); err != nil {
+			log.Debug().
+				Err(err).
+				Uint64("hwnd", uint64(hwnd)).
+				Msg("Failed to reposition already-sized GFN window to bottom-right")
+			result.Reason = reasonRepositionFailed
+		}
 		return result, nil
 	}
 
@@ -138,10 +152,10 @@ func ensureGFNWindowResolution(controller *maa.Controller) (*resizeResult, error
 		return result, nil
 	}
 
-	// Center within the work area so the resized window never ends up
-	// partially off-screen.
-	posX := workArea.Left + (workWidth-outerWidth)/2
-	posY := workArea.Top + (workHeight-outerHeight)/2
+	// Flush to the work area's bottom-right corner so the taskbar never
+	// covers the window, mirroring MaaNTE's bottom_right anchor.
+	posX := workArea.Right - outerWidth
+	posY := workArea.Bottom - outerHeight
 	if ret, _, callErr := win32ProcSetWindowPos.Call(
 		hwnd,
 		0,
@@ -174,6 +188,63 @@ func ensureGFNWindowResolution(controller *maa.Controller) (*resizeResult, error
 
 	result.Reason = reasonResizeFailed
 	return result, nil
+}
+
+// repositionToBottomRightWin32 moves hwnd within its monitor work area to the
+// bottom-right corner without resizing it, mirroring MaaNTE's move_window
+// bottom_right anchor. It is a no-op if the window already sits there.
+func repositionToBottomRightWin32(hwnd uintptr) error {
+	var windowRect win32Rect
+	if ret, _, _ := win32ProcGetWindowRect.Call(hwnd, uintptr(unsafe.Pointer(&windowRect))); ret == 0 {
+		return fmt.Errorf("GetWindowRect failed for HWND: %d", hwnd)
+	}
+	outerWidth := windowRect.Right - windowRect.Left
+	outerHeight := windowRect.Bottom - windowRect.Top
+
+	workArea, err := monitorWorkAreaWin32(hwnd)
+	if err != nil {
+		return err
+	}
+	workWidth := workArea.Right - workArea.Left
+	workHeight := workArea.Bottom - workArea.Top
+	if workWidth < outerWidth || workHeight < outerHeight {
+		return fmt.Errorf(
+			"monitor work area (%dx%d) smaller than window (%dx%d)",
+			workWidth, workHeight, outerWidth, outerHeight,
+		)
+	}
+
+	expectedLeft := workArea.Right - outerWidth
+	expectedTop := workArea.Bottom - outerHeight
+	if windowRect.Left == expectedLeft && windowRect.Top == expectedTop {
+		return nil
+	}
+
+	if ret, _, callErr := win32ProcSetWindowPos.Call(
+		hwnd,
+		0,
+		uintptr(expectedLeft),
+		uintptr(expectedTop),
+		0,
+		0,
+		win32SwpNoSize|win32SwpNoZOrder|win32SwpNoActivate,
+	); ret == 0 {
+		if callErr != nil && callErr != windows.ERROR_SUCCESS {
+			return fmt.Errorf("SetWindowPos failed for HWND %d: %w", hwnd, callErr)
+		}
+		return fmt.Errorf("SetWindowPos failed for HWND %d with ret=0", hwnd)
+	}
+
+	for range resizePollAttempts {
+		var rect win32Rect
+		if ret, _, _ := win32ProcGetWindowRect.Call(hwnd, uintptr(unsafe.Pointer(&rect))); ret != 0 {
+			if rect.Left == expectedLeft && rect.Top == expectedTop {
+				return nil
+			}
+		}
+		time.Sleep(resizePollInterval)
+	}
+	return fmt.Errorf("window did not settle at bottom-right position for HWND %d", hwnd)
 }
 
 func ensureResizeWin32APIs() error {
