@@ -5,6 +5,10 @@ import (
 )
 
 func Register() {
+	maa.AgentServerRegisterCustomRecognition(
+		"ItemTransferCacheLowConfidenceRecognition",
+		&ItemTransferCacheLowConfidenceRecognition{},
+	)
 	maa.AgentServerRegisterCustomAction(
 		"ItemTransferFallbackAction",
 		&ItemTransferFallbackAction{},
@@ -12,5 +16,9 @@ func Register() {
 	maa.AgentServerRegisterCustomAction(
 		"ItemTransferOCRAction",
 		&ItemTransferOCRAction{},
+	)
+	maa.AgentServerRegisterCustomAction(
+		"ItemTransferCacheVerifiedAction",
+		&ItemTransferCacheVerifiedAction{},
 	)
 }

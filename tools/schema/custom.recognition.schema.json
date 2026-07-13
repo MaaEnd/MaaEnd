@@ -15,6 +15,7 @@
                 "EssenceGridPendingRecognition",
                 "ExpressionRecognition",
                 "ImageCheckNotPassedRecognition",
+                "ItemTransferCacheLowConfidenceRecognition",
                 "MapLocateAssertLocation",
                 "MapTrackerAssertLocation",
                 "MapTrackerAssertLocationCompatible",

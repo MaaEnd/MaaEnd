@@ -99,6 +99,71 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 示例文件：[`PipelineOverride.json`](../../../assets/resource/pipeline/Interface/Example/PipelineOverride.json)
 
+### RuntimeImageCacheStore
+
+`RuntimeImageCacheStore` 实现位于 `agent/go-service/common/runtimeimagecache`，用于从运行时截图中裁剪图片，并通过 MaaFramework 的 `MaaContextOverrideImage` 或 `MaaResourceOverrideImage` 写入内存图片表。两种作用域由 `scope` 参数选择，适合在一次运行中把 OCR 或其它识别得到的目标转为后续 `TemplateMatch` 可复用的临时模板。
+
+- 参数：
+    - `module: string`：必填。调用方模块名，用于隔离不同功能的 key；不能为空，且不能包含 `/` 或 `\`。
+    - `key: string`：必填。模块内图片 key，可使用 `/` 分层，例如 `Items/Example.png`；不能使用绝对路径、反斜杠、空路径段或 `.`、`..` 路径段。
+    - `scope?: "context" | "resource"`：缓存作用范围，默认 `context`。
+        - `context`：调用 `MaaContextOverrideImage`，仅覆盖当前 Context，适合任务内临时模板。
+        - `resource`：调用 `MaaResourceOverrideImage`，覆盖当前 Tasker 使用的 Resource；影响范围更大，只有明确需要跨 Context 复用时才使用。
+    - `source?: "recognition_box" | "roi"`：裁剪区域来源，默认 `recognition_box`。
+        - `recognition_box`：使用当前节点识别结果的 `box`；调用节点必须产生有效识别框。
+        - `roi`：使用参数中的固定 `roi`。
+    - `roi?: [x, y, width, height]`：当 `source` 为 `roi` 时必填，宽高必须为正数。坐标遵循项目统一的 1280×720 基准。
+    - `roi_offset?: [dx, dy, dwidth, dheight]`：在来源区域上应用的增量，默认 `[0, 0, 0, 0]`。例如 `[0, 0, 0, -10]` 表示裁掉底部 10 px，而不是把高度设置为 `-10`。
+
+写入的内存图片名固定为：
+
+```text
+__MaaEndRuntimeImageCacheV1__/<module>/<key>
+```
+
+例如，以下节点会截取固定 ROI，并将模板写入当前 Context：
+
+```json
+{
+    "StoreExampleTemplate": {
+        "action": "Custom",
+        "custom_action": "RuntimeImageCacheStore",
+        "custom_action_param": {
+            "scope": "context",
+            "module": "ExampleModule",
+            "key": "Items/Example.png",
+            "source": "roi",
+            "roi": [
+                100,
+                200,
+                52,
+                50
+            ],
+            "roi_offset": [
+                0,
+                0,
+                0,
+                -10
+            ]
+        }
+    },
+    "FindExampleTemplate": {
+        "recognition": "TemplateMatch",
+        "template": "__MaaEndRuntimeImageCacheV1__/ExampleModule/Items/Example.png",
+        "method": 5,
+        "threshold": 0.9
+    }
+}
+```
+
+使用约束：
+
+- 缓存只存在于内存中，不会生成实际图片文件；程序重启、相关 Context 或 Resource 生命周期结束后不能依赖其继续存在。
+- Action 会在执行时主动获取一张新截图，但**不会**自动移开鼠标、关闭 tooltip 或等待动画稳定。需要无污染模板时，应在 Pipeline 中先完成 `TouchMove`，并通过界面识别或 `pre_wait_freezes` / `post_wait_freezes` 确认画面稳定，再调用本 Action。
+- 裁剪区域及 `roi_offset` 调整后的矩形必须完整位于截图范围内，且宽高必须为正数，否则 Action 返回失败。
+- 多个调用方不得复用含义不同的 `module/key`。动态 key 片段应在 Go 中通过 `runtimeimagecache.EscapeKeyComponent` 转义后再组合，避免 `/`、`\`、`%` 造成层级冲突。
+- Action 只负责写入内存图片，不会自动启用或覆盖后续 Pipeline 节点。若模板是否存在取决于运行时条件，应由调用方使用 `PipelineOverride` 或业务侧 Go 逻辑控制对应识别节点。
+
 ### AttachToExpectedRegexAction
 
 `AttachToExpectedRegexAction` 实现位于 `agent/go-service/common/attachregex`，用于通用地读取目标节点自身 `attach` 中的关键词，并把合并后的白名单正则写回该目标 OCR 节点的 `expected`。
@@ -271,6 +336,7 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 | 强制让 Action 失败            | `FalseAction`                 |
 | 主动停止当前任务              | `PostStop`                    |
 | 运行时改节点参数              | `PipelineOverride`            |
+| 把运行时截图存为内存模板      | `RuntimeImageCacheStore`      |
 | 把关键词拼成正则写回 OCR 节点 | `AttachToExpectedRegexAction` |
 | 计算 OCR 数值表达式           | `ExpressionRecognition`       |
 | 按星期几门控后续节点          | `ScheduleRecognition`         |

@@ -321,8 +321,7 @@
         "next": [
             "ItemTransferClickSortAscending",
             "ItemTransferClickItemCategory",
-            "ItemTransferFindItemInRepo",
-            "ItemTransferScrollDownwardRepo"
+            "ItemTransferMoveMouseBeforeCacheRepoTop"
         ]
     },
     "ItemTransferClickSortDescending": {
@@ -342,8 +341,7 @@
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferClickItemCategory",
-            "ItemTransferFindItemInRepo",
-            "ItemTransferScrollDownwardRepo"
+            "ItemTransferMoveMouseBeforeCacheRepoTop"
         ]
     },
     "ItemTransferClickSortAscending": {
@@ -363,8 +361,7 @@
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferClickItemCategory",
-            "ItemTransferFindItemInRepo",
-            "ItemTransferScrollDownwardRepo"
+            "ItemTransferMoveMouseBeforeCacheRepoTop"
         ]
     },
     "ItemTransferClickItemCategory": {
@@ -381,8 +378,120 @@
         "action": "Click",
         "post_wait_freezes": 400,
         "next": [
+            "ItemTransferMoveMouseBeforeCacheRepoTop"
+        ]
+    },
+    "ItemTransferMoveMouseBeforeCacheRepoTop": {
+        "desc": "移开鼠标后按缓存、YOLO 顺序识别仓库当前页",
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindCachedItemInRepo",
+            "ItemTransferFindCachedItemInRepoLowConfidence",
             "ItemTransferFindItemInRepo",
             "ItemTransferScrollDownwardRepo"
+        ]
+    },
+    "ItemTransferMoveMouseBeforeCacheRepoBottom": {
+        "desc": "下滚后移开鼠标，再按缓存、YOLO 顺序识别仓库当前页",
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindCachedItemInRepo",
+            "ItemTransferFindCachedItemInRepoLowConfidence",
+            "ItemTransferFindItemInRepo",
+            "ItemTransferScrollUpwardRepo"
+        ]
+    },
+    "ItemTransferMoveMouseBeforeCacheRepoReturn": {
+        "desc": "回滚后移开鼠标，再按缓存、YOLO、OCR 顺序识别仓库当前页",
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindCachedItemInRepo",
+            "ItemTransferFindCachedItemInRepoLowConfidence",
+            "ItemTransferFindItemInRepo",
+            "ItemTransferFindItemFallback",
+            "ItemTransferItemNotFound"
+        ]
+    },
+    "ItemTransferFindCachedItemInRepo": {
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            158,
+            203,
+            551,
+            292
+        ],
+        "template": "ItemTransfer/All.png",
+        "method": 5,
+        "threshold": 0.97,
+        "order_by": "Score",
+        "action": "KeyDown",
+        "key": 17,
+        "next": [
+            "ItemTransferTransferCachedToBag"
+        ]
+    },
+    "ItemTransferTransferCachedToBag": {
+        "action": "Click",
+        "target": "ItemTransferFindCachedItemInRepo",
+        "next": [
+            "ItemTransferCtrlKeyUpRepo"
+        ]
+    },
+    "ItemTransferFindCachedItemInRepoLowConfidence": {
+        "desc": "仓库缓存匹配 0.9～0.97 时通过 tooltip OCR 校验",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemTransferCacheLowConfidenceRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ItemTransferCacheVerifiedAction",
+                "custom_action_param": {}
+            }
+        },
+        "next": [
+            "ItemTransferCtrlKeyDownCachedLowConfidenceRepo"
+        ]
+    },
+    "ItemTransferCtrlKeyDownCachedLowConfidenceRepo": {
+        "action": "KeyDown",
+        "key": 17,
+        "next": [
+            "ItemTransferTransferCachedLowConfidenceToBag"
+        ]
+    },
+    "ItemTransferTransferCachedLowConfidenceToBag": {
+        "action": "Click",
+        "target": "ItemTransferFindCachedItemInRepoLowConfidence",
+        "next": [
+            "ItemTransferCtrlKeyUpRepo"
         ]
     },
     "ItemTransferFindItemInRepo": {
@@ -410,8 +519,7 @@
         "dy": -180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInRepo",
-            "ItemTransferScrollUpwardRepo"
+            "ItemTransferMoveMouseBeforeCacheRepoBottom"
         ]
     },
     "ItemTransferScrollUpwardRepo": {
@@ -424,9 +532,7 @@
         "dy": 180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInRepo",
-            "ItemTransferFindItemFallback",
-            "ItemTransferItemNotFound"
+            "ItemTransferMoveMouseBeforeCacheRepoReturn"
         ]
     },
     "ItemTransferItemNotFound": {
@@ -561,8 +667,119 @@
     "ItemTransferBagToRepo": {
         "post_wait_freezes": 400,
         "next": [
+            "ItemTransferMoveMouseBeforeCacheBagTop"
+        ]
+    },
+    "ItemTransferMoveMouseBeforeCacheBagTop": {
+        "desc": "移开鼠标后按缓存、YOLO 顺序识别背包当前页",
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindCachedItemInBag",
+            "ItemTransferFindCachedItemInBagLowConfidence",
             "ItemTransferFindItemInBag",
             "ItemTransferScrollDownwardBag"
+        ]
+    },
+    "ItemTransferMoveMouseBeforeCacheBagBottom": {
+        "desc": "下滚后移开鼠标，再按缓存、YOLO 顺序识别背包当前页",
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindCachedItemInBag",
+            "ItemTransferFindCachedItemInBagLowConfidence",
+            "ItemTransferFindItemInBag",
+            "ItemTransferScrollUpwardBag"
+        ]
+    },
+    "ItemTransferMoveMouseBeforeCacheBagReturn": {
+        "desc": "回滚后移开鼠标，再按缓存、YOLO、OCR 顺序识别背包当前页",
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindCachedItemInBag",
+            "ItemTransferFindCachedItemInBagLowConfidence",
+            "ItemTransferFindItemInBag",
+            "ItemTransferFindItemFallbackBag"
+        ]
+    },
+    "ItemTransferFindCachedItemInBag": {
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            768,
+            209,
+            349,
+            285
+        ],
+        "template": "ItemTransfer/All.png",
+        "method": 5,
+        "threshold": 0.97,
+        "order_by": "Score",
+        "action": "KeyDown",
+        "key": 17,
+        "next": [
+            "ItemTransferTransferCachedToRepo"
+        ]
+    },
+    "ItemTransferTransferCachedToRepo": {
+        "action": "Click",
+        "target": "ItemTransferFindCachedItemInBag",
+        "next": [
+            "ItemTransferCtrlKeyUpBag"
+        ]
+    },
+    "ItemTransferFindCachedItemInBagLowConfidence": {
+        "desc": "背包缓存匹配 0.9～0.97 时通过 tooltip OCR 校验",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemTransferCacheLowConfidenceRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ItemTransferCacheVerifiedAction",
+                "custom_action_param": {}
+            }
+        },
+        "next": [
+            "ItemTransferCtrlKeyDownCachedLowConfidenceBag"
+        ]
+    },
+    "ItemTransferCtrlKeyDownCachedLowConfidenceBag": {
+        "action": "KeyDown",
+        "key": 17,
+        "next": [
+            "ItemTransferTransferCachedLowConfidenceToRepo"
+        ]
+    },
+    "ItemTransferTransferCachedLowConfidenceToRepo": {
+        "action": "Click",
+        "target": "ItemTransferFindCachedItemInBagLowConfidence",
+        "next": [
+            "ItemTransferCtrlKeyUpBag"
         ]
     },
     "ItemTransferFindItemInBag": {
@@ -590,8 +807,7 @@
         "dy": -180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBag",
-            "ItemTransferScrollUpwardBag"
+            "ItemTransferMoveMouseBeforeCacheBagBottom"
         ]
     },
     "ItemTransferScrollUpwardBag": {
@@ -604,8 +820,7 @@
         "dy": 180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBag",
-            "ItemTransferFindItemFallbackBag"
+            "ItemTransferMoveMouseBeforeCacheBagReturn"
         ]
     },
     "ItemTransferCtrlKeyDownBag": {
@@ -757,8 +972,119 @@
     "ItemTransferBagToOriginRepo": {
         "post_wait_freezes": 400,
         "next": [
+            "ItemTransferMoveMouseBeforeCacheBagReturnTop"
+        ]
+    },
+    "ItemTransferMoveMouseBeforeCacheBagReturnTop": {
+        "desc": "移开鼠标后按缓存、YOLO 顺序识别返还背包当前页",
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindCachedItemInBagReturn",
+            "ItemTransferFindCachedItemInBagReturnLowConfidence",
             "ItemTransferFindItemInBagReturn",
             "ItemTransferScrollDownwardBagReturn"
+        ]
+    },
+    "ItemTransferMoveMouseBeforeCacheBagReturnBottom": {
+        "desc": "下滚后移开鼠标，再按缓存、YOLO 顺序识别返还背包当前页",
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindCachedItemInBagReturn",
+            "ItemTransferFindCachedItemInBagReturnLowConfidence",
+            "ItemTransferFindItemInBagReturn",
+            "ItemTransferScrollUpwardBagReturn"
+        ]
+    },
+    "ItemTransferMoveMouseBeforeCacheBagReturnReturn": {
+        "desc": "回滚后移开鼠标，再按缓存、YOLO、OCR 顺序识别返还背包当前页",
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindCachedItemInBagReturn",
+            "ItemTransferFindCachedItemInBagReturnLowConfidence",
+            "ItemTransferFindItemInBagReturn",
+            "ItemTransferFindItemFallbackBagReturn"
+        ]
+    },
+    "ItemTransferFindCachedItemInBagReturn": {
+        "enabled": false,
+        "recognition": "TemplateMatch",
+        "roi": [
+            768,
+            209,
+            349,
+            285
+        ],
+        "template": "ItemTransfer/All.png",
+        "method": 5,
+        "threshold": 0.97,
+        "order_by": "Score",
+        "action": "KeyDown",
+        "key": 17,
+        "next": [
+            "ItemTransferTransferCachedToRepoReturn"
+        ]
+    },
+    "ItemTransferTransferCachedToRepoReturn": {
+        "action": "Click",
+        "target": "ItemTransferFindCachedItemInBagReturn",
+        "next": [
+            "ItemTransferCtrlKeyUpBagReturn"
+        ]
+    },
+    "ItemTransferFindCachedItemInBagReturnLowConfidence": {
+        "desc": "返还背包缓存匹配 0.9～0.97 时通过 tooltip OCR 校验",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemTransferCacheLowConfidenceRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ItemTransferCacheVerifiedAction",
+                "custom_action_param": {}
+            }
+        },
+        "next": [
+            "ItemTransferCtrlKeyDownCachedLowConfidenceBagReturn"
+        ]
+    },
+    "ItemTransferCtrlKeyDownCachedLowConfidenceBagReturn": {
+        "action": "KeyDown",
+        "key": 17,
+        "next": [
+            "ItemTransferTransferCachedLowConfidenceToRepoReturn"
+        ]
+    },
+    "ItemTransferTransferCachedLowConfidenceToRepoReturn": {
+        "action": "Click",
+        "target": "ItemTransferFindCachedItemInBagReturnLowConfidence",
+        "next": [
+            "ItemTransferCtrlKeyUpBagReturn"
         ]
     },
     "ItemTransferFindItemInBagReturn": {
@@ -786,8 +1112,7 @@
         "dy": -180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBagReturn",
-            "ItemTransferScrollUpwardBagReturn"
+            "ItemTransferMoveMouseBeforeCacheBagReturnBottom"
         ]
     },
     "ItemTransferScrollUpwardBagReturn": {
@@ -800,8 +1125,7 @@
         "dy": 180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBagReturn",
-            "ItemTransferFindItemFallbackBagReturn"
+            "ItemTransferMoveMouseBeforeCacheBagReturnReturn"
         ]
     },
     "ItemTransferCtrlKeyDownBagReturn": {
@@ -930,6 +1254,54 @@
         ],
         "expected": [
             ".*"
+        ]
+    },
+    "ItemTransferMoveMouseBeforeCacheOCRRepo": {
+        "desc": "OCR-only 仓库识别前先移开鼠标并尝试缓存",
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindCachedItemInRepo",
+            "ItemTransferFindCachedItemInRepoLowConfidence",
+            "ItemTransferFindItemWithOCR"
+        ]
+    },
+    "ItemTransferMoveMouseBeforeCacheOCRBag": {
+        "desc": "OCR-only 背包识别前先移开鼠标并尝试缓存",
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindCachedItemInBag",
+            "ItemTransferFindCachedItemInBagLowConfidence",
+            "ItemTransferFindItemWithOCRBag"
+        ]
+    },
+    "ItemTransferMoveMouseBeforeCacheOCRBagReturn": {
+        "desc": "OCR-only 返还背包识别前先移开鼠标并尝试缓存",
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferFindCachedItemInBagReturn",
+            "ItemTransferFindCachedItemInBagReturnLowConfidence",
+            "ItemTransferFindItemWithOCRBagReturn"
         ]
     },
     "ItemTransferFindItemWithOCR": {

@@ -88,7 +88,7 @@ func (a *ItemTransferFallbackAction) Run(ctx *maa.Context, arg *maa.CustomAction
 	}
 
 	rawItems := detectAllItems(ctx, img, nndNode)
-	if len(rawItems) == 0 {
+	if len(rawItems) == 0 && side != "bag" {
 		log.Warn().Str("component", componentName).Msg("no items detected on current page")
 		return false
 	}
@@ -97,7 +97,21 @@ func (a *ItemTransferFallbackAction) Run(ctx *maa.Context, arg *maa.CustomAction
 	if side == "bag" {
 		cols = bagCols
 	}
-	items := buildFullGrid(rawItems, cols, side)
+	items := buildOCRSearchGrid(rawItems, cols, side)
+
+	// 背包物品允许手动排列，不能沿用仓库依赖顺序的二分查找。
+	// YOLO 未命中后固定检查 5×4 网格，并用缓存模板分数决定 OCR 顺序。
+	if side == "bag" {
+		items = rankBagGridItemsByCache(ctx, img, items, itemInfo.Name)
+		result := linearScanOnPage(ctx, tasker, ctrl, items, itemInfo.Name)
+		if result != nil {
+			return cacheAndCtrlClick(ctx, ctrl, itemInfo.Name, side, result.CenterX, result.CenterY)
+		}
+
+		log.Info().Str("component", componentName).Msg("ranked bag grid scan found nothing, item not found")
+		moveMouseSafe(ctrl)
+		return false
+	}
 
 	// Case 2.1: target class detected with low score → snap to grid and verify
 	if found := findByLowScoreTarget(rawItems, params.TargetClass); found != nil {
@@ -111,7 +125,7 @@ func (a *ItemTransferFallbackAction) Run(ctx *maa.Context, arg *maa.CustomAction
 		names := hoverAndOCR(ctx, tasker, ctrl, gx, gy)
 		if matchesAnyTarget(names, itemInfo.Name) {
 			log.Info().Str("component", componentName).Strs("ocr_names", names).Msg("OCR verified target")
-			return ctrlClick(ctrl, gx, gy)
+			return cacheAndCtrlClick(ctx, ctrl, itemInfo.Name, side, gx, gy)
 		}
 		log.Info().
 			Str("component", componentName).
@@ -124,7 +138,7 @@ func (a *ItemTransferFallbackAction) Run(ctx *maa.Context, arg *maa.CustomAction
 	if targetIdx >= 0 && len(categoryOrder) > 0 {
 		result := binarySearchOnPage(ctx, tasker, ctrl, items, categoryOrder, targetIdx, itemInfo.Name, params.MaxDistance)
 		if result != nil {
-			return ctrlClick(ctrl, result.CenterX, result.CenterY)
+			return cacheAndCtrlClick(ctx, ctrl, itemInfo.Name, side, result.CenterX, result.CenterY)
 		}
 		log.Info().Str("component", componentName).Msg("binary search exhausted all grid cells, item not found")
 		moveMouseSafe(ctrl)
@@ -134,7 +148,7 @@ func (a *ItemTransferFallbackAction) Run(ctx *maa.Context, arg *maa.CustomAction
 	// No category_order data: linear scan
 	result := linearScanOnPage(ctx, tasker, ctrl, items, itemInfo.Name)
 	if result != nil {
-		return ctrlClick(ctrl, result.CenterX, result.CenterY)
+		return cacheAndCtrlClick(ctx, ctrl, itemInfo.Name, side, result.CenterX, result.CenterY)
 	}
 
 	log.Info().Str("component", componentName).Msg("linear scan found nothing, item not found")

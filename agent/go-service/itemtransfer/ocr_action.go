@@ -104,36 +104,45 @@ func (a *ItemTransferOCRAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 	}
 
 	items := detectAllItems(ctx, img, nndNode)
-
 	cols := repoCols
 	if side == "bag" {
 		cols = bagCols
 	}
 
-	if len(items) > 0 {
-		items = buildFullGrid(items, cols, side)
-		log.Info().
-			Str("component", componentName).
-			Int("grid_count", len(items)).
-			Int("cols", cols).
-			Msg("full grid built from NND detections")
+	items = buildOCRSearchGrid(items, cols, side)
+	if side == "bag" {
+		items = rankBagGridItemsByCache(ctx, img, items, params.ItemName)
+		result := linearScanOnPage(ctx, tasker, ctrl, items, params.ItemName)
+		if result != nil {
+			return cacheAndCtrlClick(ctx, ctrl, params.ItemName, side, result.CenterX, result.CenterY)
+		}
 	} else {
-		items = buildSyntheticGrid(side, cols)
-	}
+		result := binarySearchOnPage(ctx, tasker, ctrl, items, categoryOrder, targetIdx, params.ItemName, params.MaxDistance)
+		if result != nil {
+			return cacheAndCtrlClick(ctx, ctrl, params.ItemName, side, result.CenterX, result.CenterY)
+		}
 
-	result := binarySearchOnPage(ctx, tasker, ctrl, items, categoryOrder, targetIdx, params.ItemName, params.MaxDistance)
-	if result != nil {
-		return ctrlClick(ctrl, result.CenterX, result.CenterY)
-	}
-
-	result = linearScanOnPage(ctx, tasker, ctrl, items, params.ItemName)
-	if result != nil {
-		return ctrlClick(ctrl, result.CenterX, result.CenterY)
+		result = linearScanOnPage(ctx, tasker, ctrl, items, params.ItemName)
+		if result != nil {
+			return cacheAndCtrlClick(ctx, ctrl, params.ItemName, side, result.CenterX, result.CenterY)
+		}
 	}
 
 	log.Info().Str("component", componentName).Str("item_name", params.ItemName).Msg("OCR search found nothing")
 	moveMouseSafe(ctrl)
 	return false
+}
+
+// buildOCRSearchGrid 为固定布局的背包始终生成完整 5×4 网格，避免 NND
+// 只检出部分行时漏掉其余格子；仓库仍使用检测结果重建可见行。
+func buildOCRSearchGrid(items []gridItem, cols int, side string) []gridItem {
+	if side == "bag" {
+		return buildSyntheticGrid(side, cols)
+	}
+	if len(items) > 0 {
+		return buildFullGrid(items, cols, side)
+	}
+	return buildSyntheticGrid(side, cols)
 }
 
 const (
@@ -150,7 +159,7 @@ const (
 	repoGridStartX = 191
 	repoGridStartY = 246
 	repoMaxRows    = 4
-	bagGridStartX  = 871
+	bagGridStartX  = 802
 	bagGridStartY  = 247
 	bagMaxRows     = 4
 )

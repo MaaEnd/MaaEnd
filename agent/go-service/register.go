@@ -20,6 +20,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/falseaction"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/pipelineoverride"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/poststop"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/runtimeimagecache"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/schedule"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
@@ -66,6 +67,7 @@ func registerAll() {
 	charactercontroller.Register()
 	falseaction.Register()
 	poststop.Register()
+	runtimeimagecache.Register()
 	schedule.Register()
 
 	// Business Custom
