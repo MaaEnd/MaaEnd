@@ -314,7 +314,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						// Check if rotation difference is sufficient to consider adjusting rotation speed
 						actualDeltaRot := calcDeltaRotation(rotAdjState.fromRot, rot)
 						if math.Abs(float64(actualDeltaRot))+math.Abs(rotAdjState.deltaRot) > param.RotationLowerThreshold {
-							idealRotSpeed := rotAdjState.deltaRot / (float64(actualDeltaRot) + 1e-6)
+							idealRotSpeed := rotationSpeed * rotAdjState.deltaRot / (float64(actualDeltaRot) + 1e-6)
 							if idealRotSpeed >= ROTATION_MIN_SPEED && idealRotSpeed <= ROTATION_MAX_SPEED {
 								rotationSpeed = rotationSpeed*0.618 + idealRotSpeed*0.382
 								rotAdjStateCache = rotAdjState
