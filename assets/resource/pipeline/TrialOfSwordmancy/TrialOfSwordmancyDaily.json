@@ -25,6 +25,10 @@
     // 奖励耗尽 → 结束（CheckRewardMode 见非奖励模式 / Fight.json 战后 RewardExhausted 汇入）
     "TrialOfSwordmancyDailyFinish": {
         "desc": "演算结束",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
+        ],
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
