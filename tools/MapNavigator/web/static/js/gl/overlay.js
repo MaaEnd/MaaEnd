@@ -28,6 +28,10 @@ const ASSERT_LABEL_FILL = '#fff1f2';
 
 const SELECTION_RECT_STROKE = '#38bdf8';
 
+// Off-mesh warnings share the amber of the hint marker — "look here", never "blocked".
+const OFFMESH_COLOR = '#ffaa00';
+const OFFMESH_DIM = 'rgba(255, 170, 0, 0.55)';
+
 export class Overlay {
   /**
    * @param {HTMLCanvasElement} canvas the transparent 2D overlay canvas
@@ -71,6 +75,8 @@ export class Overlay {
    *   @param {?number[]} [vm.assertLocateHint] `[x,y]` 游戏当前位置 marker (assert mode)
    *   @param {?Array<{x:number,y:number,label:string}>} [vm.astarLocateHints] preview markers (astar mode)
    *   @param {Object} [vm.astar] see {@link Overlay#_drawAstarPreview}
+   *   @param {Array<Object>} [vm.offMeshMarks] points off the walkable mesh — see
+   *     {@link Overlay#_drawOffMeshMarks} (drawn in every mode)
    *   @param {?Object} [vm.selectionRect] `{x0,y0,x1,y1}` canvas-px drag box, or null
    * @returns {void}
    */
@@ -99,9 +105,183 @@ export class Overlay {
         this._drawAstarPreview(camera, vm.astar);
       }
     }
+    // Topmost: a point sitting off the walkable mesh is the one thing that must never be
+    // hidden under a route line.
+    this._drawOffMeshMarks(camera, vm.offMeshMarks || []);
     if (vm.selectionRect) {
       this._drawSelectionRect(vm.selectionRect);
     }
+  }
+
+  /**
+   * Straight lines the runtime walks with no navmesh under it (amber, dashed, hollow ring
+   * where the mesh takes over). Drawn over the neon route, which otherwise renders these
+   * exactly like a normal planned leg and hides the fact that nothing was planned at all.
+   * @param {Camera} camera
+   * @param {Array<{off:number[], mesh:number[]}>} walks display-frame world coords
+   * @returns {void}
+   */
+  _drawBlindWalks(camera, walks) {
+    if (!walks.length) return;
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.lineCap = 'round';
+
+    for (const walk of walks) {
+      const [ox, oy] = camera.worldToCanvas(walk.off[0], walk.off[1]);
+      const [mx, my] = camera.worldToCanvas(walk.mesh[0], walk.mesh[1]);
+
+      ctx.beginPath();
+      ctx.moveTo(ox, oy);
+      ctx.lineTo(mx, my);
+      ctx.setLineDash([]);
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.45)';
+      ctx.lineWidth = 6.0;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(ox, oy);
+      ctx.lineTo(mx, my);
+      ctx.setLineDash([7, 5]);
+      ctx.strokeStyle = OFFMESH_COLOR;
+      ctx.lineWidth = 3.0;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(mx, my, 4.5, 0, Math.PI * 2);
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#0b1220';
+      ctx.fill();
+      ctx.strokeStyle = OFFMESH_COLOR;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  /**
+   * Off-mesh badge: a dashed amber ring around the point plus a one-line caption. Purely
+   * informational — the developer decides whether the straight line is walkable.
+   *
+   * `exact` marks a distance the backend measured on a real route (the blind walk the
+   * runtime performs). Otherwise it is the straight-line distance to the nearest mesh,
+   * which is *not* the same number, and the caption says so rather than implying it is.
+   *
+   * @param {Camera} camera
+   * @param {Array<{point:number[], nearest:?number[], distance:?number, budget:?number,
+   *   exact:boolean, label:string}>} marks display-frame world coords
+   * @returns {void}
+   */
+  _drawOffMeshMarks(camera, marks) {
+    if (!marks.length) return;
+    const ctx = this.ctx;
+
+    for (const mark of marks) {
+      const [cx, cy] = camera.worldToCanvas(mark.point[0], mark.point[1]);
+      if (!Number.isFinite(cx) || !Number.isFinite(cy)) continue;
+      ctx.save();
+
+      // A probe has no blind-walk line of its own — show where the mesh actually starts.
+      if (!mark.exact && mark.nearest) {
+        const [nx, ny] = camera.worldToCanvas(mark.nearest[0], mark.nearest[1]);
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(nx, ny);
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = OFFMESH_DIM;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(nx, ny, 4, 0, Math.PI * 2);
+        ctx.setLineDash([]);
+        ctx.strokeStyle = OFFMESH_DIM;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = OFFMESH_COLOR;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Glyph rides the ring's upper-right; the caption clears it (the plate is opaque and
+      // would otherwise paint straight over it).
+      this._drawWarningGlyph(cx + 20, cy - 20);
+      this._drawCaption(cx, cy - 40, this._offMeshCaption(mark));
+      ctx.restore();
+    }
+  }
+
+  /**
+   * Caption for an off-mesh badge.
+   *
+   * A blind walk has two very different causes and the caption must not conflate them: the
+   * point is off the mesh, or it stands *on* mesh that simply can't reach the destination
+   * (a small disconnected island). Saying "不在网格上" about an on-mesh point would be a lie.
+   * @param {Object} mark @returns {string}
+   */
+  _offMeshCaption(mark) {
+    const where = mark.reason === 'disconnected' ? '网格不连通' : '不在网格上';
+    if (mark.distance === null || mark.distance === undefined) {
+      return `${where} · 附近无网格`;
+    }
+    const d = mark.distance.toFixed(1);
+    if (mark.exact) return `${where} · 盲走 ${d} 格`;
+    const over = mark.budget && mark.distance > mark.budget ? `（超上限 ${mark.budget}）` : '';
+    return `${where} · 最近网格 ${d} 格${over}`;
+  }
+
+  /** Small filled warning triangle. @param {number} cx @param {number} cy @returns {void} */
+  _drawWarningGlyph(cx, cy) {
+    const ctx = this.ctx;
+    const r = 8;
+    ctx.save();
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - r);
+    ctx.lineTo(cx + r * 0.9, cy + r * 0.65);
+    ctx.lineTo(cx - r * 0.9, cy + r * 0.65);
+    ctx.closePath();
+    ctx.fillStyle = OFFMESH_COLOR;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.55)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.fillStyle = '#1a1200';
+    ctx.font = `bold 9px ${MONO}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('!', cx, cy + r * 0.1);
+    ctx.restore();
+  }
+
+  /** Amber caption on a dark plate, centered at (cx, cy). @returns {void} */
+  _drawCaption(cx, cy, text) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.setLineDash([]);
+    ctx.font = `bold 10px ${MONO}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const padX = 5;
+    const w = ctx.measureText(text).width + padX * 2;
+    const h = 15;
+    ctx.fillStyle = 'rgba(11, 18, 32, 0.85)';
+    ctx.strokeStyle = OFFMESH_COLOR;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.rect(cx - w / 2, cy - h / 2, w, h);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = OFFMESH_COLOR;
+    ctx.fillText(text, cx, cy);
+    ctx.restore();
   }
 
   /**
@@ -281,6 +461,8 @@ export class Overlay {
    *   @param {boolean} astar.hasRoute false → previewPoints is a straight placeholder
    *   @param {?number[]} [astar.goalOnly] `[x,y]` goal marker while no route yet
    *   @param {number[][]} [astar.waypoints] multi-leg click points (S, 2..n-1, G badges)
+   *   @param {Array<Object>} [astar.blindWalks] straight lines the runtime walks off-mesh —
+   *     see {@link Overlay#_drawBlindWalks}
    * @returns {void}
    */
   _drawAstarPreview(camera, astar) {
@@ -313,6 +495,8 @@ export class Overlay {
       this._drawFlowingParticle(camera, segments);
       ctx.restore();
     }
+
+    this._drawBlindWalks(camera, astar.blindWalks || []);
 
     if (astar.segmentBreaks && astar.segmentBreaks.length) {
       const breakRadius = Math.max(1.5, Math.min(4, 2 * camera.viewScale));

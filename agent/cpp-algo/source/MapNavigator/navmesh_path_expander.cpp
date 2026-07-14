@@ -80,6 +80,10 @@ constexpr double kBlindTargetFallbackSnapRadius = 12.0;
 constexpr double kBlindTargetMaxExtension = 30.0;
 constexpr double kBlindTargetProbeStep = 2.0;
 
+// Start recovery: how far we are willing to walk unguided to get back onto the mesh. Covers the whole
+// off-mesh band measured along the base-exit corridor, where the blind walk out of the base drops us.
+constexpr double kStartRecoveryMaxBlindWalk = 32.0;
+
 bool IsNavmeshWaypoint(const Waypoint& waypoint)
 {
     return waypoint.action == ActionType::NAVMESH && waypoint.HasPosition();
@@ -505,6 +509,39 @@ bool AppendBlindTargetFallback(
     return true;
 }
 
+bool AppendStartRecovery(
+    const NaviParam& param,
+    const CachedNavmesh& navmesh,
+    const navmesh::BaseNavRouteRequest& request,
+    NavmeshExpansionState& state,
+    std::vector<Waypoint>& out_path)
+{
+    const navmesh::BaseNavZone* zone = navmesh.pack.findZoneByName(state.navmesh_zone);
+    if (zone == nullptr) {
+        return false;
+    }
+    const double radius = std::max(param.navmesh_snap_radius, kStartRecoveryMaxBlindWalk);
+    const auto entry = navmesh.planner.snap(zone->zone_id, request.start, radius, request.start_floor_y);
+    if (!entry) {
+        LogWarn << "NAVMESH start recovery rejected: no mesh point within the blind-walk budget."
+                << VAR(state.navmesh_zone) << VAR(state.current_zone) << VAR(request.start.x) << VAR(request.start.y)
+                << VAR(radius);
+        return false;
+    }
+
+    if (entry->distance <= kWaypointArrivalSlack) {
+        return false;
+    }
+
+    out_path.emplace_back(entry->point.x, entry->point.y, ActionType::RUN);
+    out_path.back().strict_arrival = false;
+    state.route_start = entry->point;
+    LogInfo << "NAVMESH start off mesh; walking onto the nearest mesh point first." << VAR(state.navmesh_zone)
+            << VAR(state.current_zone) << VAR(request.start.x) << VAR(request.start.y) << VAR(entry->point.x)
+            << VAR(entry->point.y) << VAR(entry->distance);
+    return true;
+}
+
 bool AppendNavmeshWaypoint(
     const NaviParam& param,
     const CachedNavmesh& navmesh,
@@ -513,9 +550,13 @@ bool AppendNavmeshWaypoint(
     std::vector<Waypoint>& out_path)
 {
     const ProjectedTarget target = ResolveProjectedTarget(navmesh.pack, waypoint);
-    const navmesh::BaseNavRouteRequest request = BuildRouteRequest(
+    navmesh::BaseNavRouteRequest request = BuildRouteRequest(
         param, navmesh.pack, state.current_zone, state.navmesh_zone, state.route_start, target.point, {}, target.floor_y);
-    const auto route_result = navmesh.planner.findPath(request);
+    auto route_result = navmesh.planner.findPath(request);
+    if (!route_result.ok() && AppendStartRecovery(param, navmesh, request, state, out_path)) {
+        request.start = state.route_start;
+        route_result = navmesh.planner.findPath(request);
+    }
     if (!route_result.ok()) {
         LogWarn << "NAVMESH waypoint not directly reachable; attempting blind-target fallback." << VAR(state.navmesh_zone)
                 << VAR(state.current_zone) << VAR(target.point.x) << VAR(target.point.y)

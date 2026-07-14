@@ -37,6 +37,7 @@ import {
   getZoneIds,
   basemapByZoneUrl,
   postRoute,
+  postOffMeshProbe,
   exportPath,
   exportAssert,
   locateOnce,
@@ -103,6 +104,33 @@ class MapNavigatorApp {
     this.astarPoints = [];
     /** @type {?{points:number[][], segment_breaks:number[], cost:number}} */
     this.astarRoute = null;
+    /**
+     * Straight lines the runtime walks with no navmesh under it, base px: `off` is the
+     * point outside the mesh, `mesh` where the mesh takes over. Taken from the backend's
+     * actual ladder result, so this is what the character does — not an estimate.
+     * @type {Array<{off:number[], mesh:number[], distance:number, kind:string}>}
+     */
+    this.astarBlindWalks = [];
+    /**
+     * Off-mesh points to badge, base px. `exact` marks the ones whose distance came from a
+     * real route (a blind walk); the rest are geometric nearest-mesh probes — a *goal*'s
+     * blind walk depends on the start, so those two numbers are not interchangeable.
+     * @type {Array<{point:number[], distance:?number, nearest:?number[], exact:boolean, label:string}>}
+     */
+    this.offMeshMarks = [];
+    /**
+     * EDIT-mode off-mesh badges, in the points' own zone frame. Same shape as
+     * {@link offMeshMarks} but always `exact:false` — a waypoint is a *goal*, and the
+     * runtime's blind walk to a goal depends on where it starts from.
+     * @type {Array<Object>}
+     */
+    this.editOffMeshMarks = [];
+    /** Guards against a stale probe response overwriting a newer one. @type {number} */
+    this._probeToken = 0;
+    /** @type {?string} NAVMESH-waypoint signature the edit-mode badges were probed for. */
+    this._offMeshSig = null;
+    /** @type {?number} debounce handle for the edit-mode probe. */
+    this._offMeshTimer = null;
 
     // --- basemap texture bookkeeping (async <img> load) ---
     /** @type {?string} zone name currently uploaded to the renderer basemap. */
@@ -733,6 +761,8 @@ class MapNavigatorApp {
     if (mode === Mode.EDIT) overlayPoints = this._currentSegmentPoints();
     else if (mode === Mode.ASSERT) overlayPoints = this._displayRealPoints();
 
+    if (mode === Mode.EDIT) this._scheduleEditOffMeshProbe();
+
     let displayAssertLocateHint = null;
     if (mode === Mode.ASSERT && this.assertLocateHint) {
       displayAssertLocateHint = this._baseToDisplay(this.assertLocateHint[0], this.assertLocateHint[1]);
@@ -754,11 +784,13 @@ class MapNavigatorApp {
               hasRoute: !!this.astarRoute,
               goalOnly: this.astarGoal && !this.astarRoute ? this.astarGoal : null,
               waypoints: this.astarPoints,
+              blindWalks: this._blindWalksForDisplay(),
             }
           : null,
       selectionRect: this.selectionRect,
       assertLocateHint: displayAssertLocateHint,
       astarLocateHints: displayAstarLocateHints,
+      offMeshMarks: this._offMeshForMode(mode),
     };
     this.renderer.requestRender(this.camera);
     this.overlay.render(this.camera, vm);
@@ -874,6 +906,130 @@ class MapNavigatorApp {
     if (this.astarRoute) return this._routeDisplayPoints();
     if (this.astarStart) return [this.astarStart];
     return [];
+  }
+
+  /** The runtime's blind-walk lines, base px → display frame. @returns {Array<Object>} */
+  _blindWalksForDisplay() {
+    return this.astarBlindWalks.map((w) => ({
+      ...w,
+      off: this._baseToDisplay(w.off[0], w.off[1]),
+      mesh: this._baseToDisplay(w.mesh[0], w.mesh[1]),
+    }));
+  }
+
+  /** Off-mesh badges, base px → display frame. @returns {Array<Object>} */
+  _offMeshMarksForDisplay() {
+    return this.offMeshMarks.map((m) => ({
+      ...m,
+      point: this._baseToDisplay(m.point[0], m.point[1]),
+      nearest: m.nearest ? this._baseToDisplay(m.nearest[0], m.nearest[1]) : null,
+    }));
+  }
+
+  /**
+   * Off-mesh badges for the active mode. EDIT badges its NAVMESH waypoints (already in the
+   * edit zone's own frame — no projection); A* badges its clicked points. ASSERT shows the
+   * real route read-only and owns no badges of its own.
+   * @param {string} mode @returns {Array<Object>}
+   */
+  _offMeshForMode(mode) {
+    if (mode === Mode.EDIT) return this.editOffMeshMarks;
+    if (mode === Mode.ASTAR) return this._offMeshMarksForDisplay();
+    return [];
+  }
+
+  /**
+   * The NAVMESH waypoints of the current edit segment, with their base-px coords.
+   *
+   * Only NAVMESH: those are the ones the runtime pathfinds to, so landing off the mesh
+   * changes what it does. A RUN waypoint off the mesh is not a defect — the runtime walks
+   * the recorded line as authored, mesh or no mesh — so badging those would be pure noise.
+   * @returns {Array<{idx:number, base:number[], own:number[]}>}
+   */
+  _editNavmeshPoints() {
+    if (!this.field) return [];
+    const out = [];
+    const points = this._currentSegmentPoints();
+    for (let i = 0; i < points.length; i += 1) {
+      const point = points[i];
+      if (!getPointActions(point).includes(ActionType.NAVMESH)) continue;
+      const zoneId = this._resolveZoneId(point.zone);
+      if (Number.isNaN(zoneId)) continue;
+      out.push({ idx: i, base: this._pointToBase(zoneId, point.x, point.y), own: [point.x, point.y], zoneId });
+    }
+    return out;
+  }
+
+  /**
+   * Re-probe the edit segment's NAVMESH waypoints when they change. Called from every
+   * paint, so it short-circuits on an unchanged signature (a pan or zoom must not hit the
+   * backend) and debounces the ones that do change (dragging a node fires per mousemove).
+   * @returns {void}
+   */
+  _scheduleEditOffMeshProbe() {
+    const targets = this._editNavmeshPoints();
+    const sig = targets.map((t) => `${t.zoneId}:${t.own[0]},${t.own[1]}`).join('|');
+    if (sig === this._offMeshSig) return;
+    this._offMeshSig = sig;
+
+    if (!targets.length) {
+      this.editOffMeshMarks = [];
+      return;
+    }
+    clearTimeout(this._offMeshTimer);
+    this._offMeshTimer = setTimeout(() => this._probeEditNavmeshPoints(targets), 150);
+  }
+
+  /**
+   * Badge whichever NAVMESH waypoints sit off the walkable mesh.
+   *
+   * The distance shown is the straight line to the nearest mesh — *not* the blind walk the
+   * runtime performs, which depends on where the character comes from (it probes back along
+   * the goal→start line). The badge says "最近网格", never "盲走"; A* mode is where the
+   * runtime's real number lives.
+   * @param {Array<Object>} targets from {@link _editNavmeshPoints}
+   * @returns {Promise<void>}
+   */
+  async _probeEditNavmeshPoints(targets) {
+    const token = ++this._probeToken;
+    const zoneId = this._resolveZoneId(this.state.currentZone());
+    if (!this.field || Number.isNaN(zoneId) || !targets.length) return;
+
+    let res;
+    try {
+      res = await postOffMeshProbe({
+        zone_id: this.field.geometryZoneId(zoneId),
+        points: targets.map((t) => t.base),
+        snap_radius: ASTAR_PREVIEW_SNAP_RADIUS,
+        floor_y: this.field.floorYFor(zoneId),
+      });
+    } catch {
+      return; // 探针只是提示, 失败就静默放过, 别打断编辑
+    }
+    if (token !== this._probeToken || !res || !res.ok) return;
+
+    const marks = [];
+    (res.results || []).forEach((probe, i) => {
+      if (!probe || !targets[i]) return;
+      const target = targets[i];
+      marks.push({
+        point: target.own,
+        // nearest 是基准图坐标, 点在自己的分层坐标系里 —— 换算回来才画得到一起。
+        nearest: probe.nearest ? this._baseToOwn(target.zoneId, probe.nearest) : null,
+        distance: probe.distance,
+        budget: null, // 路点是终点, 真实盲走距离跟起点有关, 这里不下上限判断
+        exact: false,
+        label: `#${target.idx}`, // 跟节点圆圈上的编号一致 (0 基)
+      });
+    });
+    this.editOffMeshMarks = marks;
+    this._paint();
+  }
+
+  /** base px → a point's own zone frame (inverse of {@link _pointToBase}). */
+  _baseToOwn(zoneId, base) {
+    if (!this.field || Number.isNaN(zoneId) || !this.field.isTier(zoneId)) return base;
+    return this.field.baseToTier(zoneId, base[0], base[1]);
   }
 
   /** Sorted-rect `[x,y,w,h]` in display-frame world for the assert overlay (unrounded). */
@@ -1390,24 +1546,67 @@ class MapNavigatorApp {
         this.astarPoints = [[wx, wy]];
         this.astarRoute = null;
         setStatus(`A* 起点: [${wx.toFixed(1)}, ${wy.toFixed(1)}]，再点击终点。`, '#3b82f6');
+        // 探针/路线的同步开头会清掉上一轮的离网徽标, 所以先调它们、再 _paint(),
+        // 免得这一帧还画着上一条路线的警示环。
+        this._probeLoneAstarPoint();
         this._paint();
         return;
       }
       this.astarPoints.push([wx, wy]);
       setStatus('正在计算 A* 路径...', '#eab308');
-      this._paint();
       this._calculateAstarPreview();
+      this._paint();
     } else {
       this.astarPoints.push([wx, wy]);
       if (this.astarPoints.length < 2) {
         setStatus('已设置 A* 起点，请继续点击后续路点以串联多段路径。', '#3b82f6');
+        this._probeLoneAstarPoint();
         this._paint();
       } else {
         setStatus(`正在计算第 ${this.astarPoints.length - 1} 段 A* 路径...`, '#eab308');
-        this._paint();
         this._calculateAstarPreview();
+        this._paint();
       }
     }
+  }
+
+  /**
+   * Badge the lone A* point when it sits off the walkable mesh. With ≥2 points the route
+   * owns the badges (it carries the runtime's real blind-walk numbers); this covers the
+   * moment before any route exists, when a point clicked off the mesh looks no different
+   * from one on it. Geometry only — see {@link postOffMeshProbe}.
+   * @returns {Promise<void>}
+   */
+  async _probeLoneAstarPoint() {
+    this._resetOffMeshOverlays();
+    const token = this._probeToken;
+    if (!this.field || this.astarPoints.length !== 1) return;
+
+    const displayZoneId = this._astarZoneId();
+    if (Number.isNaN(displayZoneId)) return;
+    const tierId = this._activeDisplayTierId();
+    const [px, py] = this.astarPoints[0];
+    const base = tierId !== null ? this.field.tierToBase(tierId, px, py) : [px, py];
+
+    let res;
+    try {
+      res = await postOffMeshProbe({
+        zone_id: this.field.geometryZoneId(displayZoneId),
+        points: [base],
+        snap_radius: ASTAR_PREVIEW_SNAP_RADIUS,
+        floor_y: this.field.floorYFor(displayZoneId),
+      });
+    } catch {
+      return; // 探针只是提示, 失败就静默放过, 别打断编辑
+    }
+    if (token !== this._probeToken) return; // 期间点变了, 丢弃这次结果
+
+    const probe = res && res.ok && res.results ? res.results[0] : null;
+    if (!probe) return;
+    this._addOffMeshMark(base, 'S', { ...probe, exact: false });
+    const d = probe.distance === null ? '附近无网格' : `最近网格 ${probe.distance.toFixed(1)} 格`;
+    setStatus(`⚠ 该点不在可走网格上（${d}）——运行时会直线盲走过去，请自行确认这条直线走得通。`, '#f59e0b');
+    this._paint();
   }
 
   /**
@@ -1419,6 +1618,9 @@ class MapNavigatorApp {
    * @returns {Promise<void>}
    */
   async _calculateAstarPreview() {
+    // 先同步清干净(并作废在途探针) —— 调用方随后 _paint() 时就不会再画着上一次的残留徽标,
+    // 而点起点时发出的孤点探针也不会在路线算完之后才回来、盖掉路线自己的那行提示。
+    this._resetOffMeshOverlays();
     if (!this.field || this.astarPoints.length < 2) return;
     const displayZoneId = this._astarZoneId();
     const geomId = this.field.geometryZoneId(displayZoneId);
@@ -1435,16 +1637,42 @@ class MapNavigatorApp {
       let totalCost = 0;
 
       for (let i = 0; i < basePoints.length - 1; i++) {
+        const legStart = basePoints[i];
+        const legGoal = basePoints[i + 1];
         const res = await postRoute({
           zone_id: geomId,
-          start: basePoints[i],
-          goal: basePoints[i + 1],
+          start: legStart,
+          goal: legGoal,
           snap_radius: ASTAR_PREVIEW_SNAP_RADIUS,
           floor_y: floorY,
         });
 
         if (!res || !res.ok) {
+          this._markFailedLeg(res && res.off_mesh, legStart, legGoal, i, basePoints.length);
           throw new Error(res?.error || `第 ${i + 1} 段 A* 寻路失败`);
+        }
+
+        // The runtime blind-walks a straight line onto the mesh (off-mesh start) or off it
+        // (off-mesh goal). These are its real numbers, so draw the actual lines it walks.
+        if (res.blind_start) {
+          const { entry, distance, reason } = res.blind_start;
+          this.astarBlindWalks.push({ off: legStart, mesh: entry, distance, kind: '起点' });
+          this._addOffMeshMark(legStart, this._astarBadgeLabel(i, basePoints.length), {
+            nearest: entry,
+            distance,
+            reason,
+            exact: true,
+          });
+        }
+        if (res.blind_target) {
+          const { reached, gap, reason } = res.blind_target;
+          this.astarBlindWalks.push({ off: legGoal, mesh: reached, distance: gap, kind: '终点' });
+          this._addOffMeshMark(legGoal, this._astarBadgeLabel(i + 1, basePoints.length), {
+            nearest: reached,
+            distance: gap,
+            reason,
+            exact: true,
+          });
         }
 
         const segmentPts = res.points || [];
@@ -1463,14 +1691,100 @@ class MapNavigatorApp {
         segment_breaks: combinedBreaks,
         cost: totalCost,
       };
-      setStatus(`A* 路线已生成：共 ${this.astarPoints.length} 个关键点，包含 ${this.astarRoute.points.length} 个坐标。`, '#10b981');
+      const summary = `A* 路线已生成：共 ${this.astarPoints.length} 个关键点，包含 ${this.astarRoute.points.length} 个坐标。`;
+      if (this.astarBlindWalks.length > 0) {
+        const worst = Math.max(...this.astarBlindWalks.map((b) => b.distance)).toFixed(1);
+        const kinds = [...new Set(this.astarBlindWalks.map((b) => b.kind))].join('/');
+        // "接不上网格" 两种成因都覆盖(点离网 / 脚下网格不连通); 具体是哪种, 徽标上写着。
+        setStatus(
+          `${summary} ⚠ ${this.astarBlindWalks.length} 处盲走：${kinds}接不上网格，运行时会沿橙色虚线直着走过去（最长 ${worst} 格）——请自行确认这条直线走得通。`,
+          '#f59e0b',
+        );
+      } else {
+        setStatus(summary, '#10b981');
+      }
       this._paint();
     } catch (err) {
       this.astarRoute = null;
+      this.astarBlindWalks = [];
       const msg = err && err.message ? err.message : err;
-      setStatus(`A* 寻路失败: ${msg}`, '#ef4444');
+      setStatus(`A* 寻路失败: ${msg}${this._offMeshHint()}`, '#ef4444');
       this._paint();
     }
+  }
+
+  /** Badge letter for A* waypoint `i` of `n` (matches the overlay's S / 2..n-1 / G). */
+  _astarBadgeLabel(i, n) {
+    if (i === 0) return 'S';
+    if (i === n - 1) return 'G';
+    return String(i + 1);
+  }
+
+  /**
+   * Record an off-mesh point to badge. A waypoint shared by two legs is reported by both
+   * (once as a goal, once as a start), so keep only the first badge per point — the two
+   * blind-walk *lines* are both real and stay.
+   * @param {number[]} point base px
+   * @param {string} label badge letter the point already wears (S / 2..n-1 / G)
+   * @param {{nearest:?number[], distance:?number, budget:?number, reason:?string,
+   *   exact:boolean}} info `reason` is 'off_mesh' (the point is outside the mesh) or
+   *   'disconnected' (it stands on mesh the destination can't be reached from)
+   * @returns {void}
+   */
+  _addOffMeshMark(point, label, info) {
+    const key = (p) => `${p[0].toFixed(2)},${p[1].toFixed(2)}`;
+    if (this.offMeshMarks.some((m) => key(m.point) === key(point))) return;
+    this.offMeshMarks.push({
+      point,
+      label,
+      nearest: info.nearest || null,
+      distance: info.distance === undefined ? null : info.distance,
+      budget: info.budget || null,
+      reason: info.reason || 'off_mesh',
+      exact: !!info.exact,
+    });
+  }
+
+  /**
+   * Badge whichever endpoints of a failed leg are off the mesh, using the backend's probe.
+   * Nothing badged means both endpoints sit on the mesh and the leg failed for another
+   * reason (the two are on disconnected pieces of it) — a different problem, said plainly
+   * rather than mislabeled "off-mesh".
+   * @param {?{start:?Object, goal:?Object}} offMesh @param {number[]} legStart
+   * @param {number[]} legGoal @param {number} i leg index @param {number} n waypoint count
+   * @returns {void}
+   */
+  _markFailedLeg(offMesh, legStart, legGoal, i, n) {
+    if (!offMesh) return;
+    if (offMesh.start) this._addOffMeshMark(legStart, this._astarBadgeLabel(i, n), { ...offMesh.start, exact: false });
+    if (offMesh.goal) this._addOffMeshMark(legGoal, this._astarBadgeLabel(i + 1, n), { ...offMesh.goal, exact: false });
+  }
+
+  /** Trailing clause for a failed-route status line, naming the off-mesh endpoints. @returns {string} */
+  _offMeshHint() {
+    if (!this.offMeshMarks.length) {
+      return '（起终点都在网格上——多半是两点分属互不连通的网格块）';
+    }
+    const parts = this.offMeshMarks.map((m) => {
+      if (m.distance === null || m.distance === undefined) return `${m.label} 附近没有可走网格`;
+      // budget = 这个位置上运行时肯盲走的上限, 由后端按起点/终点的角色给。
+      const over = m.budget && m.distance > m.budget ? `，超出盲走上限 ${m.budget} 格` : '';
+      return `${m.label} 离网格 ${m.distance.toFixed(1)} 格${over}`;
+    });
+    return `（${parts.join('；')}）`;
+  }
+
+  /**
+   * Drop the off-mesh overlays and void any probe still in flight, so a response that
+   * arrives late can no longer re-add a badge for a point that has since changed.
+   *
+   * Synchronous on purpose: callers paint right after, and must paint the cleared state.
+   * @returns {void}
+   */
+  _resetOffMeshOverlays() {
+    this.astarBlindWalks = [];
+    this.offMeshMarks = [];
+    this._probeToken += 1;
   }
 
   /** Drop all A* click points, the computed route, and the preview markers. @returns {void} */
@@ -1478,6 +1792,7 @@ class MapNavigatorApp {
     this.astarPoints = [];
     this.astarRoute = null;
     this.astarLocateHints = [];
+    this._resetOffMeshOverlays();
   }
 
   /** Reset A* view state on a zone change. @returns {void} */
@@ -1997,6 +2312,7 @@ class MapNavigatorApp {
             } else {
               setStatus('A* 点已清空。', '#3b82f6');
             }
+            this._probeLoneAstarPoint();
             this._paint();
           }
           e.preventDefault();

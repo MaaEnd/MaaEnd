@@ -24,7 +24,7 @@
   GET  /basemap-by-zone       -> 任意 zone 字符串 -> 解析后的底图 PNG (resolve_zone_image)
   GET  /api/zone-ids          -> assert 模式 zone 下拉可选值 (list_available_zone_ids)
   GET  /mesh/{zone_id}        -> 某几何区的 NMSH 二进制网格缓冲 (application/octet-stream)
-  POST /api/route             -> A* 预览路线 (basenav_preview.find_route)
+  POST /api/route             -> A* 预览路线 (basenav_preview.find_route); 起点/终点离网时镜像运行时的盲走补全
   GET  /api/settings          -> 读取 ~/.maaend/mapnavigator.json
   PUT  /api/settings          -> 写入 ~/.maaend/mapnavigator.json
   GET  /api/adb/devices       -> adb devices -l 枚举 (容错)
@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import math
 import os
 import socket
 import struct
@@ -106,6 +107,13 @@ NAVMESH_DIR = RESOURCE_DIR / "model" / "map" / "navmesh"
 NAVMESH_GZ = NAVMESH_DIR / "base.nav.gz"
 NAVMESH_RAW = NAVMESH_DIR / "base.nav"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+
+# 起点/终点不在可走网格上时,运行时会盲走一段直线补上 (cpp-algo navmesh_path_expander.cpp 的同名常量)。
+START_RECOVERY_MAX_BLIND_WALK = 32.0
+WAYPOINT_ARRIVAL_SLACK = 0.5
+BLIND_TARGET_FALLBACK_SNAP = 12.0
+BLIND_TARGET_MAX_EXTENSION = 30.0
+BLIND_TARGET_PROBE_STEP = 2.0
 
 # NMSH 二进制网格缓冲 (小端), 见 DESIGN §2.4
 NMSH_MAGIC = b"NMSH"
@@ -416,6 +424,113 @@ async def api_mesh(zone_id: int) -> Response:
     return Response(content=data, media_type="application/octet-stream")
 
 
+def _blind_target_fallback(
+    field: Any,
+    geom_zone_id: int,
+    start: tuple[float, float],
+    goal: tuple[float, float],
+    floor_y: float | None,
+) -> tuple[Any, dict[str, Any]] | None:
+    """终点不在可走网格上时,运行时怎么走 (cpp-algo AppendBlindTargetFallback,即 #3505)。
+
+    从终点沿直线往起点方向逐点回探,第一个能规划到的点就是最近的连通网格点:规划到那里,剩下
+    的一小段直线盲走过去。残差超上限就放弃。
+    """
+    total = math.hypot(goal[0] - start[0], goal[1] - start[1])
+    if total < 1e-6:
+        return None
+
+    probe_limit = min(total, BLIND_TARGET_MAX_EXTENSION + BLIND_TARGET_FALLBACK_SNAP)
+    offset = 0.0
+    while offset <= probe_limit + 1e-6:
+        t = min(offset / total, 1.0)
+        probe = (goal[0] + (start[0] - goal[0]) * t, goal[1] + (start[1] - goal[1]) * t)
+        offset += BLIND_TARGET_PROBE_STEP
+        try:
+            route = field.find_route(geom_zone_id, start, probe, BLIND_TARGET_FALLBACK_SNAP, floor_y)
+        except ValueError:
+            continue
+        if not len(route.points):
+            continue
+        reached = route.points[-1]
+        gap = math.hypot(goal[0] - reached[0], goal[1] - reached[1])
+        if gap > BLIND_TARGET_MAX_EXTENSION:
+            return None
+        return route, {"gap": float(gap), "reached": [float(reached[0]), float(reached[1])]}
+    return None
+
+
+def _offmesh_probe(
+    field: Any,
+    geom_zone_id: int,
+    point: tuple[float, float],
+    snap_radius: float,
+    floor_y: float | None,
+    budget: float | None = None,
+) -> dict[str, Any] | None:
+    """点不在可走网格上吗? 不在的话,最近的网格点在哪、有多远。在网格上则返回 None。
+
+    判据直接用运行时的第一步:以 navmesh_snap_radius 吸附。吸得上,运行时会悄悄吸过去,什么
+    都不会发生(实测 404 个 case:半径内的点无一触发盲走),所以不该报;吸不上,梯子才出手。
+
+    budget 是这个位置上运行时肯盲走的上限(起点 32 / 终点 30),由调用方按角色给——探针本身不
+    知道点是起点还是终点,不填就不下"超不超上限"的判断。
+    """
+    if field.snap(geom_zone_id, point, snap_radius, floor_y) is not None:
+        return None
+    nearest = field.snap(geom_zone_id, point, START_RECOVERY_MAX_BLIND_WALK, floor_y)
+    if nearest is None:
+        return {"distance": None, "nearest": None, "budget": budget}
+    return {
+        "distance": float(nearest.distance),
+        "nearest": [float(nearest.point[0]), float(nearest.point[1])],
+        "budget": budget,
+    }
+
+
+def _blind_walk_reason(field: Any, geom_zone_id: int, point: tuple[float, float]) -> str:
+    """运行时为什么非盲走不可:点压根不在网格上,还是点脚下有网格、但那一块跟目的地连不过去?
+
+    两种毛病差得很远(一个是点标错地方,一个是网格本身碎成了互不连通的块),提示里不能混为一谈。
+    这里判"脚下有没有三角面"用纯几何的 _point_on_mesh:不带半径、不做小岛降权,问的就是这一件事。
+    """
+    return "off_mesh" if not field._point_on_mesh(geom_zone_id, point) else "disconnected"
+
+
+class OffMeshProbeRequest(BaseModel):
+    zone_id: int
+    points: list[list[float]]
+    snap_radius: float = 5.0
+    floor_y: float | None = None
+
+
+@app.post("/api/offmesh-probe")
+async def api_offmesh_probe(req: OffMeshProbeRequest) -> dict[str, Any]:
+    """批量问:这些点在可走网格上吗? 给没有起终点上下文的点用(编辑模式的路径点、刚点下的孤点)。
+
+    只答几何事实(在/不在、最近网格多远)。盲走究竟走多远是跟起点有关的(终点盲走要朝起点回探),
+    那个数只有 /api/route 给得出,别拿这里的距离冒充。
+    """
+
+    def _compute() -> dict[str, Any]:
+        try:
+            field = field_manager.get()
+        except RuntimeError as exc:
+            return {"ok": False, "error": f"navmesh 尚未就绪: {exc}"}
+
+        geom_zone_id = int(field.geometry_zone_id(req.zone_id))
+        results: list[dict[str, Any] | None] = []
+        for raw in req.points:
+            if len(raw) < 2:
+                results.append(None)
+                continue
+            point = (float(raw[0]), float(raw[1]))
+            results.append(_offmesh_probe(field, geom_zone_id, point, req.snap_radius, req.floor_y))
+        return {"ok": True, "results": results}
+
+    return await run_in_threadpool(_compute)
+
+
 @app.post("/api/route")
 async def api_route(req: RouteRequest) -> dict[str, Any]:
     def _compute() -> dict[str, Any]:
@@ -430,15 +545,67 @@ async def api_route(req: RouteRequest) -> dict[str, Any]:
         geom_zone_id = int(field.geometry_zone_id(req.zone_id))
         start = (float(req.start[0]), float(req.start[1]))
         goal = (float(req.goal[0]), float(req.goal[1]))
+
+        blind_start: dict[str, Any] | None = None
+        blind_target: dict[str, Any] | None = None
+        route: Any = None
+        plan_start = start
         try:
             route = field.find_route(geom_zone_id, start, goal, req.snap_radius, req.floor_y)
         except ValueError as exc:
-            return {"ok": False, "error": str(exc)}
+            error = str(exc)
+            entry = field.snap(geom_zone_id, start, START_RECOVERY_MAX_BLIND_WALK, req.floor_y)
+            if entry is not None and entry.distance > WAYPOINT_ARRIVAL_SLACK:
+                plan_start = (float(entry.point[0]), float(entry.point[1]))
+                blind_start = {"entry": [plan_start[0], plan_start[1]], "distance": float(entry.distance)}
+                try:
+                    route = field.find_route(geom_zone_id, plan_start, goal, req.snap_radius, req.floor_y)
+                except ValueError as exc2:
+                    error = str(exc2)
+            if route is None:
+                fallback = _blind_target_fallback(field, geom_zone_id, plan_start, goal, req.floor_y)
+                if fallback is None:
+                    # 规划失败时把起终点的离网情况一并带回去 —— 不然前端只有一句"寻路失败",
+                    # 看不出到底是点掉在网格外, 还是两点根本不连通。
+                    return {
+                        "ok": False,
+                        "error": error,
+                        "off_mesh": {
+                            "start": _offmesh_probe(
+                                field, geom_zone_id, start, req.snap_radius, req.floor_y,
+                                budget=START_RECOVERY_MAX_BLIND_WALK,
+                            ),
+                            "goal": _offmesh_probe(
+                                field, geom_zone_id, goal, req.snap_radius, req.floor_y,
+                                budget=BLIND_TARGET_MAX_EXTENSION,
+                            ),
+                        },
+                    }
+                route, blind_target = fallback
+
+        # 盲走确实会发生, 但成因有两种(点离网 / 网格不连通)。前端要照实说, 所以这里分清楚。
+        if blind_start is not None:
+            blind_start["reason"] = _blind_walk_reason(field, geom_zone_id, start)
+        if blind_target is not None:
+            blind_target["reason"] = _blind_walk_reason(field, geom_zone_id, goal)
+
+        points = [[float(p[0]), float(p[1])] for p in route.points]
+        breaks = [int(b) for b in (route.segment_breaks or [])]
+        if blind_start is not None:
+            # 盲走段插在最前面,故所有 break 下标 +1。points[0] 仍是本段请求的起点,前端的
+            # 多段合并(丢掉后续段的首点)因此照常成立。
+            points.insert(0, [float(req.start[0]), float(req.start[1])])
+            breaks = [b + 1 for b in breaks]
+        if blind_target is not None and blind_target["gap"] > WAYPOINT_ARRIVAL_SLACK:
+            points.append([goal[0], goal[1]])
+
         return {
             "ok": True,
-            "points": [[float(p[0]), float(p[1])] for p in route.points],
-            "segment_breaks": [int(b) for b in (route.segment_breaks or [])],
+            "points": points,
+            "segment_breaks": breaks,
             "cost": float(route.cost),
+            "blind_start": blind_start,
+            "blind_target": blind_target,
         }
 
     return await run_in_threadpool(_compute)
