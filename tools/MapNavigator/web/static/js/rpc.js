@@ -197,9 +197,11 @@ export function postRoute(req) {
 }
 
 /**
- * @typedef {{distance:?number, nearest:?number[]}} OffMeshProbe a point off the walkable
- *   mesh: how far the nearest mesh point is and where it lies (both null when there is no
- *   mesh at all within the runtime's blind-walk budget).
+ * @typedef {{distance:?number, nearest:?number[], budget:?number}} OffMeshProbe a point off the
+ *   walkable mesh: how far the nearest mesh point is and where it lies (both null when there is
+ *   no mesh at all within the runtime's blind-walk budget). `budget` is how far the runtime will
+ *   blind-walk at that endpoint's role, so only {@link postRoute} fills it in — a bare point does
+ *   not say whether it is a start or a goal, and the batch probe below leaves it null.
  */
 
 /**
