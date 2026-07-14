@@ -159,6 +159,7 @@
     "tasker.aspect_ratio_warning.requirement_label": "요구 사항:",
     "tasker.aspect_ratio_warning.requirement_exact": "%dx%d",
     "tasker.aspect_ratio_warning.requirement_ratio": "16:9 비율이고 최소 1280x720 이상이어야 합니다; 예: 3840x2160, 2560x1440, 1920x1080, 1280x720",
+    "tasker.aspect_ratio_warning.requirement_ratio_window_mismatch": "16:9 비율이며 창이 모니터 가장자리를 넘지 않아야 합니다. 더 작은 16:9 해상도로 전환해 보세요",
     "tasker.aspect_ratio_warning.full_screen_illegal": "창 모드; 전체 화면 모드는 물리적으로 16:9 해상도 모니터가 필요하며 현재 디스플레이는 조건에 맞지 않습니다.",
     "maptracker.emergency_stop.title": "🚨 긴급 정지",
     "maptracker.emergency_stop.desc": "길찾기가 중단되었습니다.",

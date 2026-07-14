@@ -159,6 +159,7 @@
     "tasker.aspect_ratio_warning.requirement_label": "必要条件：",
     "tasker.aspect_ratio_warning.requirement_exact": "%dx%d",
     "tasker.aspect_ratio_warning.requirement_ratio": "16:9 比率かつ 1280x720 以上。例: 3840x2160、2560x1440、1920x1080、1280x720",
+    "tasker.aspect_ratio_warning.requirement_ratio_window_mismatch": "16:9 比率で、ウィンドウがモニター端を超えないこと。より小さい 16:9 解像度への切り替えをお試しください",
     "tasker.aspect_ratio_warning.full_screen_illegal": "ウィンドウモード；全画面モードでは物理的に 16:9 のディスプレイが必要ですが、現在のディスプレイは条件を満たしません。",
     "maptracker.emergency_stop.title": "🚨 緊急停止",
     "maptracker.emergency_stop.desc": "ナビゲーションを中止しました。",

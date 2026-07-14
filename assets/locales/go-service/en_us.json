@@ -159,6 +159,7 @@
     "tasker.aspect_ratio_warning.requirement_label": "Required:",
     "tasker.aspect_ratio_warning.requirement_exact": "%dx%d",
     "tasker.aspect_ratio_warning.requirement_ratio": "16:9 aspect ratio and at least 1280x720; for example 3840x2160, 2560x1440, 1920x1080, 1280x720",
+    "tasker.aspect_ratio_warning.requirement_ratio_window_mismatch": "16:9 aspect ratio with the window not exceeding monitor edges; try switching the game to a smaller 16:9 resolution",
     "tasker.aspect_ratio_warning.full_screen_illegal": "Windowed mode; fullscreen requires a physical 16:9 monitor, which your current display does not meet.",
     "maptracker.emergency_stop.title": "🚨 EMERGENCY STOP",
     "maptracker.emergency_stop.desc": "Navigation aborted.",

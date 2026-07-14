@@ -192,6 +192,15 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		fullScreen, _ := gamesetting.GetVideoFullScreen()
 		if fullScreen == 1 {
 			c.stopWithWarning(tasker, controllerDisplay, int(width), int(height), i18n.T("tasker.aspect_ratio_warning.full_screen_illegal"))
+		} else if runtime.GOOS == "windows" {
+			registryWidth, wErr := gamesetting.GetVideoResolutionWidth()
+			registryHeight, hErr := gamesetting.GetVideoResolutionHeight()
+			if wErr == nil && hErr == nil && registryWidth > 0 && registryHeight > 0 &&
+				(int(width) != int(registryWidth) || int(height) != int(registryHeight)) {
+				c.stopWithWarning(tasker, controllerDisplay, int(width), int(height), i18n.T("tasker.aspect_ratio_warning.requirement_ratio_window_mismatch"))
+			} else {
+				c.stopWithWarning(tasker, controllerDisplay, int(width), int(height), i18n.T("tasker.aspect_ratio_warning.requirement_ratio"))
+			}
 		} else {
 			c.stopWithWarning(tasker, controllerDisplay, int(width), int(height), i18n.T("tasker.aspect_ratio_warning.requirement_ratio"))
 		}

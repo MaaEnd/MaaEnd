@@ -159,6 +159,7 @@
     "tasker.aspect_ratio_warning.requirement_label": "目标要求：",
     "tasker.aspect_ratio_warning.requirement_exact": "%dx%d",
     "tasker.aspect_ratio_warning.requirement_ratio": "16:9 比例且不低于 1280x720；例如 3840x2160、2560x1440、1920x1080、1280x720",
+    "tasker.aspect_ratio_warning.requirement_ratio_window_mismatch": "16:9 比例且窗口不超过显示器边缘，可尝试将游戏切换至更小的 16:9 比例",
     "tasker.aspect_ratio_warning.full_screen_illegal": "窗口模式；全屏模式需使用物理分辨率16:9的显示器，当前显示器不符合",
     "maptracker.emergency_stop.title": "🚨 EMERGENCY STOP",
     "maptracker.emergency_stop.desc": "寻路已中止。",
