@@ -31,6 +31,9 @@
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "WaitExchangeBeforeStart"
+                    ],
                     "pipeline_override": {
                         "ReceptionRoomStartExchange": {
                             "enabled": true
@@ -42,10 +45,86 @@
                     "pipeline_override": {
                         "ReceptionRoomStartExchange": {
                             "enabled": false
+                        },
+                        "ReceptionRoomWaitExchangeBeforeStart": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomWaitExchangeUntilReady": {
+                            "enabled": false
                         }
                     }
                 }
             ]
+        },
+        "WaitExchangeBeforeStart": {
+            "type": "switch",
+            "label": "$option.WaitExchangeBeforeStart.label",
+            "description": "$option.WaitExchangeBeforeStart.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "WaitExchangeBeforeStartThreshold"
+                    ],
+                    "pipeline_override": {
+                        "ReceptionRoomWaitExchangeBeforeStart": {
+                            "enabled": true
+                        },
+                        "ReceptionRoomWaitExchangeUntilReady": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ReceptionRoomWaitExchangeBeforeStart": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomWaitExchangeUntilReady": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WaitExchangeBeforeStartThreshold": {
+            "type": "input",
+            "label": "$option.WaitExchangeBeforeStartThreshold.label",
+            "description": "$option.WaitExchangeBeforeStartThreshold.description",
+            "inputs": [
+                {
+                    "name": "WaitExchangeBeforeStartMinutes",
+                    "label": "$option.WaitExchangeBeforeStartThreshold.label",
+                    "description": "$option.WaitExchangeBeforeStartThreshold.description",
+                    "pipeline_type": "int",
+                    "verify": "^(?:[1-9]|[1-9]\\d|[1-9]\\d{2}|1[0-3]\\d{2}|14[0-3]\\d|1440)$",
+                    "pattern_msg": "$option.WaitExchangeBeforeStartThreshold.inputs.WaitExchangeBeforeStartMinutes.pattern_msg",
+                    "default": "5"
+                }
+            ],
+            "pipeline_override": {
+                "ReceptionRoomExchangeCountdownWithinThreshold": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "threshold_minutes": "{WaitExchangeBeforeStartMinutes}"
+                            }
+                        }
+                    }
+                },
+                "ReceptionRoomWaitExchangeCountdownNotice": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "threshold_minutes": "{WaitExchangeBeforeStartMinutes}",
+                                "report_waiting": true
+                            }
+                        }
+                    }
+                }
+            }
         },
         "StageTaskSetting": {
             "type": "switch",

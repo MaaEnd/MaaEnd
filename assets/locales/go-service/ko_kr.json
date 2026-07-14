@@ -84,6 +84,7 @@
     "autoecofarm.crossed_center": "오버슈트 감지, 이동 비율을 줄입니다",
     "autoecofarm.interruptible_sleep_done.completed": "대기 완료",
     "autoecofarm.interruptible_sleep_stopped.message": "사용자가 수동 중단",
+    "dijiangrewards.wait_exchange_countdown.message": "정보 교류 종료를 기다리는 중",
     "essencefilter.no_locked": "이번에 잠근 대상 기질이 없습니다.",
     "essencefilter.loot_summary.title": "전리품 요약:",
     "essencefilter.loot_summary.weapon_col": "무기",

@@ -24,6 +24,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/dijiangrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker"
@@ -75,6 +76,7 @@ func registerAll() {
 	bettersliding.Register()
 	essencefilter.Register()
 	dailyrewards.Register()
+	dijiangrewards.Register()
 	maptracker.Register()
 	batchaddfriends.Register()
 	autoecofarm.Register()

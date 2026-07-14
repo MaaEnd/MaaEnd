@@ -84,6 +84,7 @@
     "autoecofarm.crossed_center": "检测到拉过头，自动降低拉近比例",
     "autoecofarm.interruptible_sleep_done.completed": "等待完成",
     "autoecofarm.interruptible_sleep_stopped.message": "用户手动终止",
+    "dijiangrewards.wait_exchange_countdown.message": "正在等待情报交流结束",
     "essencefilter.no_locked": "本次未锁定任何目标基质。",
     "essencefilter.loot_summary.title": "战利品摘要：",
     "essencefilter.loot_summary.weapon_col": "武器",
