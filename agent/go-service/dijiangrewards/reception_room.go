@@ -126,7 +126,7 @@ func (r *ExchangeKeepAliveDueRecognition) Run(ctx *maa.Context, arg *maa.CustomR
 	}
 
 	now := time.Now()
-	matched := r.shouldKeepAlive(now, seconds)
+	matched := r.shouldKeepAlive(now)
 	detailJSON, _ := json.Marshal(map[string]any{
 		"ocr_text":         text,
 		"seconds":          seconds,
@@ -152,7 +152,7 @@ func (r *ExchangeKeepAliveDueRecognition) Run(ctx *maa.Context, arg *maa.CustomR
 	}, true
 }
 
-func (r *ExchangeKeepAliveDueRecognition) shouldKeepAlive(now time.Time, remainingSeconds int) bool {
+func (r *ExchangeKeepAliveDueRecognition) shouldKeepAlive(now time.Time) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -258,6 +258,8 @@ func findCountdownMatch(text string) []string {
 			continue
 		}
 
+		// loc 每两个元素是一组 start/end：loc[0:2] 是完整匹配，
+		// loc[2:4]、loc[4:6]、loc[6:8] 分别是三个捕获组。
 		match := make([]string, len(loc)/2)
 		for i := range match {
 			start := loc[i*2]
