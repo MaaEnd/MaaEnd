@@ -152,7 +152,11 @@ jobs:
 
       - name: Generate level maps
         run: |
-          python3 -u tools/map_tracker/map_generator.py distinguish_levels -i .cache/images -o .cache/final --layout-dir .cache/data
+          python3 -u tools/map_tracker/map_generator.py distinguish_levels -i .cache/images -o .cache/final --data-dir .cache/data
+
+      - name: Attach map icons
+        run: |
+          python3 -u tools/map_tracker/map_generator.py attach_icons -i .cache/final -o .cache/final --data-dir .cache/data
 
       - name: Generate tier maps
         run: |
