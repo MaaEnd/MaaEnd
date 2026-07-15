@@ -18,6 +18,7 @@
                 ]
             }
         },
+        "pre_wait_freezes": 200,
         "pre_delay": 0,
         "action": {
             "type": "Click"
@@ -209,6 +210,7 @@
                 "box_index": 2
             }
         },
+        "pre_wait_freezes": 200,
         "pre_delay": 0,
         "action": {
             "type": "Click"
@@ -269,6 +271,7 @@
                 "box_index": 1
             }
         },
+        "pre_wait_freezes": 200,
         "pre_delay": 0,
         "action": {
             "type": "Click"
@@ -519,12 +522,12 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 100,
+            "time": 500,
             "target": [
-                860,
-                205,
-                380,
-                180
+                746,
+                170,
+                499,
+                500
             ],
             "timeout": 1000
         },
@@ -574,12 +577,12 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 100,
+            "time": 500,
             "target": [
-                860,
-                205,
-                380,
-                180
+                746,
+                170,
+                499,
+                500
             ],
             "timeout": 1000
         },
@@ -629,12 +632,12 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 100,
+            "time": 500,
             "target": [
-                860,
-                205,
-                380,
-                180
+                746,
+                170,
+                499,
+                500
             ],
             "timeout": 1000
         },
@@ -684,12 +687,12 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 100,
+            "time": 500,
             "target": [
-                860,
-                205,
-                380,
-                180
+                746,
+                170,
+                499,
+                500
             ],
             "timeout": 1000
         },
@@ -739,12 +742,12 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 100,
+            "time": 500,
             "target": [
-                860,
-                205,
-                380,
-                180
+                746,
+                170,
+                499,
+                500
             ],
             "timeout": 1000
         },
@@ -794,12 +797,12 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 100,
+            "time": 500,
             "target": [
-                860,
-                205,
-                380,
-                180
+                746,
+                170,
+                499,
+                500
             ],
             "timeout": 1000
         },
@@ -849,12 +852,12 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 100,
+            "time": 500,
             "target": [
-                860,
-                205,
-                380,
-                180
+                746,
+                170,
+                499,
+                500
             ],
             "timeout": 1000
         },
@@ -1029,7 +1032,138 @@
         "next": [
             "ReceptionRoomClueExchangeWait",
             "[JumpBack]ReceptionRoomStartExchange",
+            "ReceptionRoomWaitExchangeKeepAliveDue",
             "ReceptionRoomWaitExchangeCountdownNotice",
+            "ReceptionRoomWaitExchangeUntilReady",
+            "ReceptionRoomExit"
+        ]
+    },
+    "ReceptionRoomWaitExchangeKeepAliveDue": {
+        "desc": "[会客室·交流] 长时间等待期间判断是否需要退出并重新进入会客室保活",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ReceptionRoomWaitExchangeKeepAliveDueRecognition",
+                "roi": [
+                    740,
+                    592,
+                    116,
+                    28
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomWaitExchangeKeepAliveExit"
+        ]
+    },
+    "ReceptionRoomWaitExchangeKeepAliveExit": {
+        "desc": "[会客室·交流] 长时间等待保活：退出会客室到总控中枢",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InReceptionRoom",
+                    "CloseButtonType1"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                300,
+                100
+            ],
+            "timeout": 1000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomWaitExchangeKeepAliveBackToControlNexus"
+        ]
+    },
+    "ReceptionRoomWaitExchangeKeepAliveBackToControlNexus": {
+        "desc": "[会客室·交流] 长时间等待保活：确认已回到总控中枢",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangControlNexus"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomWaitExchangeKeepAliveReenter"
+        ]
+    },
+    "ReceptionRoomWaitExchangeKeepAliveReenter": {
+        "desc": "[会客室·交流] 长时间等待保活：从总控中枢重新进入会客室",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    485,
+                    0,
+                    336,
+                    260
+                ],
+                "expected": [
+                    "^会客室$",
+                    "^會客室$",
+                    "Reception"
+                ]
+            }
+        },
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                300,
+                100
+            ],
+            "timeout": 1000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomWaitExchangeKeepAliveReentered"
+        ]
+    },
+    "ReceptionRoomWaitExchangeKeepAliveReentered": {
+        "desc": "[会客室·交流] 长时间等待保活：确认已重新进入会客室",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InReceptionRoom"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomClueExchangeWait",
+            "[JumpBack]ReceptionRoomStartExchange",
             "ReceptionRoomWaitExchangeUntilReady",
             "ReceptionRoomExit"
         ]
@@ -1376,6 +1510,7 @@
                 ]
             }
         },
+        "pre_wait_freezes": 200,
         "pre_delay": 0,
         "action": {
             "type": "Click"

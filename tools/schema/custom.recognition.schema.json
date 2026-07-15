@@ -23,6 +23,7 @@
                 "MapTrackerInfer",
                 "PuzzleRecognition",
                 "ReceptionRoomExchangeCountdownWithinThresholdRecognition",
+                "ReceptionRoomWaitExchangeKeepAliveDueRecognition",
                 "ScheduleRecognition",
                 "SellProductNormalizedItemMatch",
                 "TrialOfSwordmancy.Recognize",

@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 	"unicode"
 	"unicode/utf8"
 
@@ -17,13 +19,28 @@ import (
 
 const (
 	countdownComponent = "ReceptionRoomExchangeCountdownWithinThresholdRecognition"
+	keepAliveComponent = "ReceptionRoomWaitExchangeKeepAliveDueRecognition"
 
 	defaultThresholdMinutes = 5
+
+	waitingReportInterval = 10 * time.Second
+
+	keepAliveInterval   = 20 * time.Minute
+	keepAliveSessionGap = 2 * time.Minute
 )
 
 var countdownPattern = regexp.MustCompile(`\b(\d{1,2})\s*[:：]\s*(\d{2})(?:\s*[:：]\s*(\d{2}))?\b`)
 
-type ExchangeCountdownWithinThresholdRecognition struct{}
+type ExchangeCountdownWithinThresholdRecognition struct {
+	mu                  sync.Mutex
+	lastWaitingReportAt time.Time
+}
+
+type ExchangeKeepAliveDueRecognition struct {
+	mu              sync.Mutex
+	lastCheckAt     time.Time
+	lastKeepAliveAt time.Time
+}
 
 type countdownParams struct {
 	ThresholdMinutes int  `json:"threshold_minutes"`
@@ -46,30 +63,8 @@ func (r *ExchangeCountdownWithinThresholdRecognition) Run(ctx *maa.Context, arg 
 		return nil, false
 	}
 
-	ocrParam := maa.OCRParam{
-		ROI:      maa.NewTargetRect(arg.Roi),
-		Expected: []string{".*"},
-		OnlyRec:  true,
-		OrderBy:  maa.OCROrderByLength,
-	}
-	detail, err := ctx.RunRecognitionDirect(maa.RecognitionTypeOCR, &ocrParam, arg.Img)
-	if err != nil || detail == nil {
-		log.Debug().
-			Err(err).
-			Str("component", countdownComponent).
-			Interface("roi", arg.Roi).
-			Msg("countdown OCR miss")
-		return nil, false
-	}
-
-	text := bestOCRText(detail)
-	seconds, err := parseCountdownSeconds(text)
-	if err != nil {
-		log.Debug().
-			Err(err).
-			Str("component", countdownComponent).
-			Str("ocr_text", text).
-			Msg("failed to parse countdown")
+	text, seconds, ok := recognizeCountdownSeconds(ctx, arg, countdownComponent)
+	if !ok {
 		return nil, false
 	}
 
@@ -94,7 +89,7 @@ func (r *ExchangeCountdownWithinThresholdRecognition) Run(ctx *maa.Context, arg 
 		return nil, false
 	}
 
-	if params.ReportWaiting {
+	if params.ReportWaiting && r.shouldReportWaiting(time.Now()) {
 		maafocus.PrintLargeContentTrimNewline(
 			i18n.RenderHTML("dijiangrewards.wait_exchange_countdown", map[string]any{
 				"Formatted": formatCountdown(seconds),
@@ -106,6 +101,103 @@ func (r *ExchangeCountdownWithinThresholdRecognition) Run(ctx *maa.Context, arg 
 		Box:    arg.Roi,
 		Detail: string(detailJSON),
 	}, true
+}
+
+func (r *ExchangeCountdownWithinThresholdRecognition) shouldReportWaiting(now time.Time) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	if r.lastWaitingReportAt.IsZero() || now.Sub(r.lastWaitingReportAt) >= waitingReportInterval {
+		r.lastWaitingReportAt = now
+		return true
+	}
+	return false
+}
+
+func (r *ExchangeKeepAliveDueRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if ctx == nil || arg == nil || arg.Img == nil {
+		log.Warn().Str("component", keepAliveComponent).Msg("context, arg, or image is nil")
+		return nil, false
+	}
+
+	text, seconds, ok := recognizeCountdownSeconds(ctx, arg, keepAliveComponent)
+	if !ok {
+		return nil, false
+	}
+
+	now := time.Now()
+	matched := r.shouldKeepAlive(now, seconds)
+	detailJSON, _ := json.Marshal(map[string]any{
+		"ocr_text":         text,
+		"seconds":          seconds,
+		"interval_seconds": int(keepAliveInterval / time.Second),
+		"matched":          matched,
+	})
+
+	log.Debug().
+		Str("component", keepAliveComponent).
+		Str("ocr_text", text).
+		Int("seconds", seconds).
+		Dur("interval", keepAliveInterval).
+		Bool("matched", matched).
+		Msg("keep alive evaluated")
+
+	if !matched {
+		return nil, false
+	}
+
+	return &maa.CustomRecognitionResult{
+		Box:    arg.Roi,
+		Detail: string(detailJSON),
+	}, true
+}
+
+func (r *ExchangeKeepAliveDueRecognition) shouldKeepAlive(now time.Time, remainingSeconds int) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	if r.lastCheckAt.IsZero() || now.Sub(r.lastCheckAt) > keepAliveSessionGap {
+		r.lastKeepAliveAt = now
+	}
+	r.lastCheckAt = now
+
+	if now.Sub(r.lastKeepAliveAt) < keepAliveInterval {
+		return false
+	}
+
+	r.lastKeepAliveAt = now
+	return true
+}
+
+func recognizeCountdownSeconds(ctx *maa.Context, arg *maa.CustomRecognitionArg, component string) (string, int, bool) {
+	ocrParam := maa.OCRParam{
+		ROI:      maa.NewTargetRect(arg.Roi),
+		Expected: []string{".*"},
+		OnlyRec:  true,
+		OrderBy:  maa.OCROrderByLength,
+	}
+	detail, err := ctx.RunRecognitionDirect(maa.RecognitionTypeOCR, &ocrParam, arg.Img)
+	if err != nil || detail == nil {
+		log.Debug().
+			Err(err).
+			Str("component", component).
+			Interface("roi", arg.Roi).
+			Msg("countdown OCR miss")
+		return "", 0, false
+	}
+
+	text := bestOCRText(detail)
+	seconds, err := parseCountdownSeconds(text)
+	if err != nil {
+		log.Debug().
+			Err(err).
+			Str("component", component).
+			Str("ocr_text", text).
+			Msg("failed to parse countdown")
+		return "", 0, false
+	}
+
+	return text, seconds, true
 }
 
 func parseCountdownParams(raw string) (*countdownParams, error) {
@@ -236,3 +328,4 @@ func bestOCRText(detail *maa.RecognitionDetail) string {
 }
 
 var _ maa.CustomRecognitionRunner = &ExchangeCountdownWithinThresholdRecognition{}
+var _ maa.CustomRecognitionRunner = &ExchangeKeepAliveDueRecognition{}
