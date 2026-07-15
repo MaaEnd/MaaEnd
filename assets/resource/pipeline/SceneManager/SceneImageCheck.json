@@ -49,6 +49,7 @@
         "next": [
             "[JumpBack]__SceneCheckOSD",
             "[JumpBack]__SceneImageCheckAICPlanColor",
+            "[JumpBack]__SceneImageCheckMod",
             "__SceneImageCheckFinishSave"
         ]
     },
@@ -123,7 +124,54 @@
             "__SceneCheckAbortPipeline"
         ],
         "focus": {
-            "Node.Action.Starting": "$task.SceneManager.focus.color_match_failed_prefix"
+            "Node.Action.Starting": {
+                "content": "$task.SceneManager.focus.color_match_failed_prefix",
+                "display": "modal"
+            }
+        }
+    },
+    "__SceneImageCheckMod": {
+        "desc": "检查是否启用隐藏uid的mod，会挡住左上角文字影响ocr",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneImageCheckModSuccess",
+            "__SceneImageCheckModFailedFinish"
+        ]
+    },
+    "__SceneImageCheckModSuccess": {
+        "desc": "检查mod成功",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            -30,
+            200,
+            30
+        ],
+        "expected": [
+            // UID，怕I正确率低，只识别D
+            // @i18n-skip
+            "D"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__SceneImageCheckModFailedFinish": {
+        "desc": "检查mod失败,截图保存到 debug 目录",
+        "pre_delay": 0,
+        "action": "Screencap",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneCheckAbortPipeline"
+        ],
+        "focus": {
+            "Node.Action.Starting": {
+                "content": "$task.SceneManager.focus.mod_check_failed_prefix",
+                "display": "modal"
+            }
         }
     }
 }

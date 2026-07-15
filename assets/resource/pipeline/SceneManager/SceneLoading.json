@@ -250,7 +250,10 @@
             "__SceneCheckAbortPipeline"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">屏幕存在遮挡，请尝试关闭帧率显示</span>"
+            "Node.Recognition.Succeeded": {
+                "content": "<span style=\"color: red; font-weight: bold;\">屏幕存在遮挡，请尝试关闭帧率显示</span>",
+                "display": "modal"
+            }
         }
     },
     "__SceneCheckAbortPipeline": {

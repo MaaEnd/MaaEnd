@@ -901,6 +901,7 @@
     "controller.Wlroots.label": "Linux-Wlroots",
     "controller.Wlroots.description": "wlroots ベースの Wayland コンポジター（例: Sway）向けです。",
     "task.SceneManager.focus.color_match_failed_prefix": "<span style=\"color: red; font-weight: bold;\">色の認識に失敗しました。フィルター（例：RTX Dynamic Vibrance、GamePP フィルター、Mechrevo 色彩補正など）または HDR をオフにしてください<br/>注意：RTX Dynamic Vibrance をオフにした後は、PC の再起動が必要です。</span>",
+    "task.SceneManager.focus.mod_check_failed_prefix": "<span style=\"color: red; font-weight: bold;\">画面が正しく表示されていません。MODを無効にしてから再試行してください。</span>",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.ja_jp.md",
     "contact.file": "https://end.maafw.com/CONTACT/CONTACT.ja_jp.md",
     "operator.Perlica": "ペリカ",

@@ -901,6 +901,7 @@
     "option.DailyTaskCreation.label": "簡易製作",
     "option.DailyTaskCreation.desc": "自動進行一次簡易製作以獲取活躍度",
     "task.SceneManager.focus.color_match_failed_prefix": "<span style=\"color: red; font-weight: bold;\">識別顏色失敗，請嘗試關閉濾鏡（例如 RTX 動態亮麗、遊戲加加濾鏡、機械革命色彩校正等）或 HDR<br/>注意：關閉 RTX 動態亮麗後需重新啟動電腦才會生效</span>",
+    "task.SceneManager.focus.mod_check_failed_prefix": "<span style=\"color: red; font-weight: bold;\">畫面顯示不完整，請關閉MOD後再試</span>",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.zh_tw.md",
     "contact.file": "https://end.maafw.com/CONTACT/CONTACT.zh_tw.md",
     "operator.Perlica": "佩麗卡",
