@@ -282,7 +282,9 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "next": [],
+        "next": [
+            "SceneAnyEnterWorld"
+        ],
         "focus": {
             "Node.Action.Succeeded": "成功刷出目标点数"
         }

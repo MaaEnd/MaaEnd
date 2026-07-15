@@ -126,7 +126,9 @@
                     "pipeline_override": {
                         "TrialOfSwordmancyStartTrial": {
                             "action": "DoNothing",
-                            "next": []
+                            "next": [
+                                "SceneAnyEnterWorld"
+                            ]
                         }
                     }
                 },
