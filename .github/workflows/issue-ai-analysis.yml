@@ -25,24 +25,30 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
-      issues: write
     steps:
       - name: Install DMP analysis tools
         run: |
           curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
           cargo binstall -y minidump-stackwalk dump_syms
 
+      - name: Generate MaaEndBot GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
+          permission-issues: write
+
       # 分析质量仍依赖：.claude/skills/maaend-issue-log-analysis/SKILL.md
       - name: Analyze issue with AI
         id: analysis
-        continue-on-error: true
         uses: MistEO/ai-issue-analysis@main
         with:
           agent: ${{ secrets.BOT_AI_AGENT }}
           api-key: ${{ secrets.BOT_AI_API_KEY }}
           api-base-url: ${{ secrets.BOT_AI_API_BASE_URL }}
           model: ${{ secrets.BOT_AI_MODEL }}
-          github-token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          github-token: ${{ steps.app-token.outputs.token }}
           bot-name: '@MaaEndBot'
           initial-comment-body: |
             🤖 **MaaEndBot 正在分析该 Issue...**
