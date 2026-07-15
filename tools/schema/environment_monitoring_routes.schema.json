@@ -147,7 +147,7 @@
             },
             "MapAssert": {
                 "type": "array",
-                "description": "目标矩形 [x, y, w, h]。使用 MapPath / MapGoal 时由 MapTrackerAssertLocation 判断；使用 MapTarget 时由 MapLocateAssertLocation 判断。",
+                "description": "初始位置判断矩形 [x, y, w, h]。使用 MapPath / MapGoal 时由 MapTrackerAssertLocation 判断；使用 MapTarget 时由 MapLocateAssertLocation 判断。仅 MapPath 在传送后再次复核，MapTarget / MapGoal 直接开始 NavMesh 寻路。",
                 "items": {
                     "type": "number"
                 },

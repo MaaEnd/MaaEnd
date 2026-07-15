@@ -294,7 +294,7 @@
         ]
     },
     "GoToSerenityGardenTianshiPillarNotAtStartPos": {
-        "desc": "不在安思园的天师桩任务开始位置附近，先传送再检查落点",
+        "desc": "不在安思园的天师桩任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -306,7 +306,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToSerenityGardenTianshiPillarStartPos"
+            "GoToSerenityGardenTianshiPillarMove"
         ]
     },
     "GoToSerenityGardenTianshiPillarMove": {

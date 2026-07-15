@@ -280,7 +280,7 @@
         ]
     },
     "GoToAncientTreeNotAtStartPos": {
-        "desc": "不在古树任务开始位置附近，先传送再检查落点",
+        "desc": "不在古树任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -292,7 +292,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToAncientTreeStartPos"
+            "GoToAncientTreeMove"
         ]
     },
     "GoToAncientTreeMove": {

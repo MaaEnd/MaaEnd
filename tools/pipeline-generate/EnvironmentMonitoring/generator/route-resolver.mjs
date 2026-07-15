@@ -269,6 +269,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                 CameraMaxHit,
                 Replace,
                 NoEnsureInitialMovementState,
+                ShouldAssertAfterTeleport: navigationConfigCount !== 1 || hasMapPath,
                 ...heading,
                 ...buildNavigationParams({
                     MapName,

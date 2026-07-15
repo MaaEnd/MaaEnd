@@ -95,6 +95,9 @@ function buildRow(mission, usedIds) {
         `AlreadyTracked${Id}`,
     ];
     const AfterTrackedNext = route.isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
+    // NavMesh 可自行处理传送点附近的落点；手录路径仍需确认固定起点。
+    const AfterTeleportDescription = route.ShouldAssertAfterTeleport ? "先传送再检查落点" : "先传送再继续寻路";
+    const AfterTeleportNext = route.ShouldAssertAfterTeleport ? [`GoTo${Id}StartPos`] : [`GoTo${Id}Move`];
 
     return {
         Station,
@@ -119,6 +122,8 @@ function buildRow(mission, usedIds) {
         OcrReplace: rawJson(route.Replace),
         TrackOrGoToNext: rawJson(TrackOrGoToNext),
         AfterTrackedNext: rawJson(AfterTrackedNext),
+        AfterTeleportDescription,
+        AfterTeleportNext: rawJson(AfterTeleportNext),
         MapNavigationAction: route.MapNavigationAction,
         MapNavigationParam: rawJson(route.MapNavigationParam),
     };
