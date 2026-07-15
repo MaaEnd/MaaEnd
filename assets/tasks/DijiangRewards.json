@@ -99,7 +99,7 @@
                     "label": "$option.WaitExchangeBeforeStartThreshold.label",
                     "description": "$option.WaitExchangeBeforeStartThreshold.description",
                     "pipeline_type": "int",
-                    "verify": "^(?:[1-9]|[1-9]\\d|[1-9]\\d{2}|1[0-3]\\d{2}|14[0-3]\\d|1440)$",
+                    "verify": "^(?:[1-9]|[1-9]\\d|[1-9]\\d{2}|1[01]\\d{2}|1200)$",
                     "pattern_msg": "$option.WaitExchangeBeforeStartThreshold.inputs.WaitExchangeBeforeStartMinutes.pattern_msg",
                     "default": "5"
                 }
