@@ -84,22 +84,22 @@ def ensure_output_dir(path: str) -> None:
 class LevelMapDistinguisher:
     """Distinguishes level maps into separate maps using layout data for positioning."""
 
-    def __init__(self, input_dir: str, output_dir: str, layout_dir: str):
+    def __init__(self, input_dir: str, output_dir: str, data_dir: str):
         self.input_dir = input_dir
         self.output_dir = output_dir
-        self.layout_dir = layout_dir
+        self.data_dir = data_dir
 
     def _load_layouts(self) -> dict[str, RegionLayoutTable]:
-        """Load all *_layout.json files from layout_dir."""
+        """Load all *_layout.json files from data_dir."""
         layouts: dict[str, RegionLayoutTable] = {}
-        for fname in os.listdir(self.layout_dir):
+        for fname in os.listdir(self.data_dir):
             m = _RE_LAYOUT_FILE.match(fname)
             if not m:
                 continue
             region_name = m.group(1)
             try:
                 layouts[region_name] = RegionLayoutTable.load(
-                    os.path.join(self.layout_dir, fname)
+                    os.path.join(self.data_dir, fname)
                 )
             except Exception as e:
                 print(f"  {_Y}Warning: failed to load {fname}: {e}{_0}")
@@ -554,7 +554,7 @@ class LevelMapDistinguisher:
         print(f"\n{_G}MapTracker Level Distinguisher{_0}")
         print(f"  Source dir  : {_C}{self.input_dir}{_0}")
         print(f"  Output dir  : {_C}{self.output_dir}{_0}")
-        print(f"  Layout dir  : {_C}{self.layout_dir}{_0}")
+        print(f"  Data dir    : {_C}{self.data_dir}{_0}")
         print(f"  Scale       : {_C}{SCALE_MAP_FACTOR}{_0}")
 
         ensure_output_dir(self.output_dir)
@@ -563,7 +563,7 @@ class LevelMapDistinguisher:
         print(f"\nLoading layouts...")
         layouts = self._load_layouts()
         if not layouts:
-            print(f"{_Y}No layout files found in {self.layout_dir}{_0}")
+            print(f"{_Y}No layout files found in {self.data_dir}{_0}")
             return
         print(f"  {len(layouts)} layout(s) loaded.")
 
@@ -636,16 +636,16 @@ def generate_map_bbox_json(input_dir: str, output_dir: str) -> str:
     return output_path
 
 
-def cmd_distinguish_levels(input_dir: str, output_dir: str, layout_dir: str) -> None:
+def cmd_distinguish_levels(input_dir: str, output_dir: str, data_dir: str) -> None:
     """Distinguish level images with island removal and overlap splitting."""
     if not os.path.isdir(input_dir):
         print(f"{_R}Input directory not found: {input_dir}{_0}")
         return
-    if not os.path.isdir(layout_dir):
-        print(f"{_R}Layout directory not found: {layout_dir}{_0}")
+    if not os.path.isdir(data_dir):
+        print(f"{_R}Data directory not found: {data_dir}{_0}")
         return
 
-    distinguisher = LevelMapDistinguisher(input_dir, output_dir, layout_dir)
+    distinguisher = LevelMapDistinguisher(input_dir, output_dir, data_dir)
     distinguisher.run()
 
 
@@ -703,12 +703,16 @@ CAMPFIRE_KEY_NAME = "int_campfire_v2"
 def cmd_attach_icons(
     input_dir: str,
     output_dir: str,
-    entities_file: str,
+    data_dir: str,
 ) -> None:
     """Attach campfire icons to non-tier map images."""
     if not os.path.isdir(input_dir):
         print(f"{_R}Input directory not found: {input_dir}{_0}")
         return
+    if not os.path.isdir(data_dir):
+        print(f"{_R}Data directory not found: {data_dir}{_0}")
+        return
+    entities_file = os.path.join(data_dir, "maaend_entities.json")
     if not os.path.isfile(entities_file):
         print(f"{_R}Entities file not found: {entities_file}{_0}")
         return
@@ -894,7 +898,7 @@ def main():
         help="Output directory for distinguished maps",
     )
     p_distin.add_argument(
-        "--layout-dir", required=True, help="Directory containing *_layout.json files"
+        "--data-dir", required=True, help="Directory containing map data files"
     )
 
     # attach_icons subcommand
@@ -908,7 +912,7 @@ def main():
         "-o", "--output-dir", required=True, help="Output directory for map images"
     )
     p_icons.add_argument(
-        "--entities-file", required=True, help="Path to maaend_entities.json"
+        "--data-dir", required=True, help="Directory containing map data files"
     )
     # tidy_tiers subcommand
     p_tiers = sub.add_parser(
@@ -939,12 +943,12 @@ def main():
     args = parser.parse_args()
 
     if args.command == "distinguish_levels":
-        cmd_distinguish_levels(args.input_dir, args.output_dir, args.layout_dir)
+        cmd_distinguish_levels(args.input_dir, args.output_dir, args.data_dir)
     elif args.command == "attach_icons":
         cmd_attach_icons(
             args.input_dir,
             args.output_dir,
-            args.entities_file,
+            args.data_dir,
         )
     elif args.command == "tidy_tiers":
         cmd_tidy_tiers(args.input_dir, args.output_dir)
