@@ -57,7 +57,7 @@
             54
         ],
         "connected": true,
-        "count": 300
+        "count": 280
     },
     "AutoSellStockRedistributionItemGreenLineRecognition": {
         "desc": "识别物资调度界面中的绿线所在位置，用于定位item宽度",
@@ -80,7 +80,7 @@
             80
         ],
         "connected": true,
-        "count": 400
+        "count": 370
     },
     "AutoSellStockRedistributionItemNameRecRecognition": {
         "desc": "识别物资调度界面中文字所在roi，方便only_rec识别",
