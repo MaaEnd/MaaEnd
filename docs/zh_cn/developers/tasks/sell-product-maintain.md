@@ -1,6 +1,6 @@
 # 开发手册 - SellProduct 维护文档
 
-本文说明 `SellProduct`（售卖产品）任务的生成链路、Pipeline 组织、任务选项、优先物品匹配、保留份数与新增据点/物品时的维护方式。
+本文说明 `SellProduct`（售卖产品）任务的生成链路、Pipeline 组织、全局物品优先级、自动干员选择与新增据点/物品时的维护方式。
 
 `SellProduct` 的核心特点是 **zmdmap 数据驱动 + Pipeline 模板生成**：据点、可售卖物品、任务选项和各据点重复节点不是逐个手写出来的，而是由 `tools/pipeline-generate/SellProduct/` 读取 `tools/pipeline-generate/data/settlement_trade.json` 后批量渲染。`settlement_trade.json` 由 `pnpm fetch:zmdmap` 从 zmdmap API 下载并缓存。
 
@@ -18,16 +18,17 @@ SellProduct 的核心维护点如下：
 | 共享据点模型       | `tools/pipeline-generate/SellProduct/model.mjs`                   | 读取 zmdmap，统一派生 `RegionPrefix` / `LocationId` / 多语言 OCR 与 locale 键                   |
 | Win 模板数据       | `tools/pipeline-generate/SellProduct/pipeline-data.mjs`           | 只输出 Win Pipeline 模板需要的据点字段和数量识别框                                              |
 | ADB 模板数据       | `tools/pipeline-generate/SellProduct/pipeline-adb-data.mjs`       | 只输出 ADB Pipeline 模板需要的据点 ID 和数量识别框                                              |
-| Task 模板数据      | `tools/pipeline-generate/SellProduct/task-data.mjs`               | 生成物品、保留数量和干员选项                                                                    |
+| 会话模板数据       | `tools/pipeline-generate/SellProduct/session-data.mjs`            | 只输出自动干员据点注册节点需要的字段                                                    |
+| Task 模板数据      | `tools/pipeline-generate/SellProduct/task-data.mjs`               | 生成全局物品优先级、缓存刷新和地区/据点开关                                                    |
 | 据点 Pipeline 模板 | `tools/pipeline-generate/SellProduct/pipeline-template.jsonc`     | 生成 Win 资源包的每个据点售卖节点                                                               |
 | 会话 Pipeline 模板 | `tools/pipeline-generate/SellProduct/session-template.jsonc`      | 生成自动模式据点注册节点                                                                        |
 | ADB 据点模板       | `tools/pipeline-generate/SellProduct/pipeline-adb-template.jsonc` | 生成 ADB 资源包的据点数量 OCR 覆盖节点                                                          |
-| 任务选项模板       | `tools/pipeline-generate/SellProduct/task-template.jsonc`         | 生成 `assets/tasks/SellProduct.json` 中的地区、据点、干员切换、售卖尝试、优先物品和保留份数选项 |
+| 任务选项模板       | `tools/pipeline-generate/SellProduct/task-template.jsonc`         | 生成 `assets/tasks/SellProduct.json` 中的全局优先级、缓存刷新和地区/据点开关                         |
 | Win 据点生成配置   | `tools/pipeline-generate/SellProduct/pipeline-config.json`        | 输出到 `assets/resource/pipeline/SellProduct/Outposts/${LocationId}.json`                       |
 | ADB 据点生成配置   | `tools/pipeline-generate/SellProduct/pipeline-adb-config.json`    | 输出到 `assets/resource_adb/pipeline/SellProduct/Outposts/${LocationId}.json`                   |
 | 任务选项生成配置   | `tools/pipeline-generate/SellProduct/task-config.json`            | 输出到 `assets/tasks/SellProduct.json`                                                          |
 | 会话生成配置       | `tools/pipeline-generate/SellProduct/session-config.json`         | 输出到 `assets/resource/pipeline/SellProduct/OperatorSession.json`                              |
-| 任务入口           | `assets/resource/pipeline/SellProduct.json`                       | `ScheduleRecognition`、主循环、地区入口；手写维护                                               |
+| 任务入口           | `assets/resource/pipeline/SellProduct.json`                       | 主循环、地区入口；手写维护                                                                     |
 | 地区售卖入口       | `assets/resource/pipeline/SellProduct/Sell.json`                  | 地区到据点的 `next` 列表；手写维护                                                              |
 | 通用售卖核心       | `assets/resource/pipeline/SellProduct/SellCore.json`              | 售卖循环、缺货/调度券不足/超出兑换上限处理、最终交易流程                                        |
 | 通用换货流程       | `assets/resource/pipeline/SellProduct/ChangeGoods.json`           | 进入选择货品界面、选择优先物品或默认物品                                                        |
@@ -184,11 +185,11 @@ ADB 据点模板不是完整复制 Win 据点流程，而是只生成各据点 4
 }
 ```
 
-该配置生成用户界面中的地区开关、据点开关、联络干员切换、4 次售卖尝试、优先物品和保留份数配置。
+该配置生成用户界面中的全局物品优先级、强制刷新干员缓存，以及地区和据点售卖开关。
 
 ### 共享模型与模板投影
 
-`tools/pipeline-generate/SellProduct/model.mjs` 是据点命名、OCR 和 locale 的共享维护入口；`pipeline-data.mjs`、`pipeline-adb-data.mjs` 和 `task-data.mjs` 分别维护模板专属数据。
+`tools/pipeline-generate/SellProduct/model.mjs` 是据点命名、OCR 和 locale 的共享维护入口；`pipeline-data.mjs`、`pipeline-adb-data.mjs`、`session-data.mjs` 和 `task-data.mjs` 分别维护模板专属数据。
 
 它当前负责：
 
@@ -198,7 +199,7 @@ ADB 据点模板不是完整复制 Win 据点流程，而是只生成各据点 4
 4. 按据点统计可售卖物品，并按 `rarity`、`unitPrice` 降序排列。
 5. 将 `domainId` 映射成任务使用的 `RegionPrefix`。
 6. `model.mjs` 从英文据点名自动派生 `LocationId`，并从五语言 `settlementName` 生成 OCR `TextExpected`。
-7. 三个投影分别注入 Win / ADB 数量 OCR 区域和 Task 选项。
+7. 四个投影分别注入 Win / ADB 数量 OCR 区域、会话注册链和 Task 选项。
 
 ### OCR 兼容值
 
@@ -248,8 +249,7 @@ SellProduct{LocationId}SelectItem{N}
 整体流程可以按以下链路理解：
 
 ```text
-SellProductSchedule
--> SellProductMain
+SellProductMain
 -> SellProductCaptureUid
 -> SellProductInitializeOperatorSession / SellProductRegisterAuto{LocationId}
 -> SellProductLoop
@@ -259,7 +259,7 @@ SellProductSchedule
 -> SellProduct{LocationId}Sell
 -> SellProduct{LocationId}SetBeforeSellOperatorAnchor
 -> SellProduct{LocationId}SetAfterSellOperatorAnchor
--> SellProduct{LocationId}BeforeSellOperator（可选）
+-> SellProduct{LocationId}BeforeSellOperator
 -> SellProductSellLoop
 -> SellProduct{LocationId}SellAttempt{1..4}
 -> SellProductChangeGoods
@@ -268,72 +268,37 @@ SellProductSchedule
 -> SellProductSell
 -> SellProductSellCheck / SellProductSellCheckThenLoop
 -> SellProductSellLoop 或 SellProductSellLoopEnd
--> SellProduct{LocationId}AfterSellOperator（可选）
+-> SellProduct{LocationId}AfterSellOperator
 ```
 
 关键点：
 
-- `SellProductScheduleEnabled` 通过 `ScheduleRecognition` 判断用户选择的星期，命中后由 Pipeline 进入 `SellProductMain`。
-- `SellProductCaptureUid` 先捕获哈希 UID，随后初始化任务级自动干员会话并注册启用自动模式的据点。
+- 任务直接从 `SellProductMain` 开始，不再暴露执行周期配置。
+- `SellProductCaptureUid` 先捕获哈希 UID，随后初始化任务级自动干员会话并注册已启用的据点。
 - `SellProductLoop` 只在地区建设界面继续执行；不在目标界面时交给 `SceneEnterMenuRegionalDevelopment`。
 - `SellProductAuto` 会根据当前地区建设页面自动选择四号谷地或武陵。
 - `SellProduct{Region}Sell` 进入对应地区的据点管理页，然后按 `next` 遍历该地区所有据点。
-- 每个据点节点由模板生成，负责识别当前据点、点击据点标签、设置售卖锚点和联络干员切换锚点。
-- 若启用联络干员切换，售卖前会通过 `SellProduct{LocationId}BeforeSellOperator` 检查当前干员，不一致时打开联络干员列表、选择目标干员，并在按钮变为「派驻」后确认派驻。
+- 每个据点节点由模板生成，负责识别当前据点、点击据点标签、设置售卖锚点并自动切换最优联络干员。
+- 售卖前会通过 `SellProduct{LocationId}BeforeSellOperator` 检查当前干员，不一致时打开联络干员列表、选择目标干员，并在按钮变为「派驻」后确认派驻；售卖结束后自动恢复原岗位。
 - `SellProductSellLoop` 通过 anchor 串起最多 4 次售卖尝试。
 - 每次尝试先换货，再用 BetterSliding 把数量调到目标值，最后点击交易。
-- 若配置售卖后恢复干员，`SellProductSellLoopEnd` 会通过 `SellProductAfterSellOperator` anchor 进入 `SellProduct{LocationId}AfterSellOperator`，否则命中通用空节点结束该据点流程。
+- `SellProductSellLoopEnd` 会通过 `SellProductAfterSellOperator` anchor 进入 `SellProduct{LocationId}AfterSellOperator`，恢复完成后结束该据点流程。
 
 ## 任务选项如何改 Pipeline
 
 `assets/tasks/SellProduct.json` 由 `task-template.jsonc` 生成。用户在界面中选择的配置会通过 `pipeline_override` 修改 Pipeline。
 
-### 顶层选项
+### 保留的选项
 
-| 选项                  | 行为                                                           |
-| --------------------- | -------------------------------------------------------------- |
-| `SellProductSchedule` | 写入 `SellProductSchedule.attach` 的星期布尔值                 |
-| `SellBeyondAidQuota`  | 控制超出据点可兑换调度券上限时，是停止任务还是自动确认继续交易 |
-| `{RegionPrefix}Sell`  | 控制地区入口节点 `SellProduct{RegionPrefix}` 是否启用          |
+| 选项                                   | 行为                                                                                      |
+| -------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `SellProductGlobalItemPriority`        | 控制是否启用全局优先物品；关闭时按默认货品执行前两次售卖                                  |
+| `SellProductPriorityItem{1..4}`        | 总开关下同级显示的四档售卖物品优先级，统一应用于全部据点                                  |
+| `SellProductForceRefreshOperatorCache` | 控制本次任务是否在售卖前完整刷新干员缓存                                                  |
+| `{RegionPrefix}Sell`                   | 控制整个地区是否参与售卖，并展开该地区的据点开关                                          |
+| `{RegionPrefix}{LocationId}`           | 控制单个据点是否参与售卖，同时启用或禁用对应的 `SellProductRegisterAuto{LocationId}` 节点 |
 
-### 据点与售卖尝试
-
-每个据点都会生成一组开关：
-
-```text
-{RegionPrefix}{LocationId}
-{RegionPrefix}{LocationId}Operator
-{RegionPrefix}{LocationId}Attempt1
-{RegionPrefix}{LocationId}Attempt2
-{RegionPrefix}{LocationId}Attempt3
-{RegionPrefix}{LocationId}Attempt4
-```
-
-默认行为：
-
-- 据点开关默认开启。
-- 联络干员切换默认关闭；开启后需要选择售卖用干员，并可选择售卖后恢复干员。
-- 第 1、2 次售卖尝试默认开启。
-- 第 3、4 次售卖尝试默认关闭。
-
-### 联络干员切换
-
-每个据点都有一个可选的联络干员切换配置：
-
-```text
-{RegionPrefix}{LocationId}Operator
-{RegionPrefix}{LocationId}OperatorSelectionMode
-{RegionPrefix}{LocationId}TargetOperator
-{RegionPrefix}{LocationId}RestoreOperator
-```
-
-默认值是关闭。开启后可选择自动或手动模式：
-
-- 将 `SellProduct{LocationId}SetBeforeSellOperatorAnchor` 的 `SellProductBeforeSellOperator` anchor 指向 `SellProduct{LocationId}BeforeSellOperator`。
-- 自动模式启用 `SellProductRegisterAuto{LocationId}`，把本次真正参与自动恢复的据点注册进任务级会话，并由 Go 根据拥有干员和据点加成计算目标。
-- 手动模式根据 `TargetOperator` 写入当前干员识别和列表选择节点的多语言 OCR 候选；`RestoreOperator` 决定售卖后是否切回指定干员。
-
-手动模式找不到配置干员时会 `StopTask`。自动模式会把一次完整的列表到底转换成缓存刷新和重新规划，不会在当前页面降级选择次优干员。
+已移除执行周期、超出兑换上限自动确认、手动干员、售卖次数和保留份数等选项。固定行为为：超出兑换上限时停止并提示、具体货品全部售出、启用据点始终自动选择最优干员并在售卖后恢复。
 
 ### 自动选择干员状态机
 
@@ -348,7 +313,7 @@ SellProductInitializeOperatorSession
 -> SellProductLoop
 ```
 
-会话初始化会清空上次任务的扫描完成状态、计划和恢复锁定。`session-template.jsonc` 为每个据点生成一个默认禁用的注册节点，自动模式通过 `pipeline_override` 启用对应节点。新增据点后必须重新生成 `OperatorSession.json`，并把新注册节点补入手写的 `SellProductInitializeOperatorSession.next`。
+会话初始化会清空上次任务的扫描完成状态、计划和恢复锁定。`session-template.jsonc` 为每个据点生成一个默认禁用的注册节点，据点售卖开关通过 `pipeline_override` 启用对应节点。新增据点后必须重新生成 `OperatorSession.json`，并把新注册节点补入手写的 `SellProductInitializeOperatorSession.next`。
 
 #### 缓存完整性
 
@@ -404,38 +369,15 @@ SellProductInitializeOperatorSession
 
 “本次运行前强制刷新”把任务入口会话模式设为 `refresh`。地区售卖前的 `SellProductScanOperatorList` 只有在本次任务尚未完成全列表扫描时才执行；完成标记属于任务会话，不跨任务复用。第一次完整扫描可供同一任务中的所有地区和据点共享。
 
-### 优先物品
+### 全局物品优先级
 
-每次售卖尝试都有一个优先物品选择：
+`SellProductGlobalItemPriority` 默认关闭，此时不会进行优先货品识别，而是在每个启用据点按默认货品执行前两次售卖。开启后，四个 `SellProductPriorityItem{1..4}` 顺位统一应用于所有启用据点：
 
-```text
-{RegionPrefix}{LocationId}Item{1..4}
-```
-
-默认值是 `无`。选择具体物品后，任务选项会：
-
-- 启用 `SellProduct{LocationId}SelectItem{N}`。
-- 写入该物品的多语言候选名。
-- 将未命中处理设置为 `SellProductPriorityGoodMissWarning`。
-
-如果优先物品未命中，流程会提示“已配置优先货品但当前未识别到任何匹配项”，然后选择默认货品继续售卖，避免整次任务停在选择货品界面。
-
-### 保留份数
-
-每次售卖尝试都有一个保留份数配置：
-
-```text
-{RegionPrefix}{LocationId}Reserve{1..4}
-{RegionPrefix}{LocationId}ReserveValue{1..4}
-```
-
-默认是 `全部售出`。选择 `保留指定份数` 后，会覆盖对应 BetterSliding 节点：
-
-- `next` 改为先尝试 `SellProductSkipToNextSellLoop`，再尝试 `SellProductSellThenLoop`。
-- `attach.Target` 写入用户输入的保留数量。
-- `attach.TargetReverse` 设为 `true`。
-
-这表示 BetterSliding 会按“当前最大可售数量 - 保留数量”计算目标。若保留数量大于或等于当前库存，则走 `SellProductSkipToNextSellLoop`，跳过本次售卖尝试并进入下一次。
+- 第 1、2 档默认使用 `Auto`，分别按每个据点自身的稀有度、单价排序选择第一和第二件货品。
+- 第 3、4 档默认使用 `None`，不会执行对应售卖尝试。
+- 选择具体货品时，只启用实际出售该货品的据点；其他据点会跳过该顺位，不会因列表中不存在该货品而产生误售。
+- 命中具体货品后使用默认 BetterSliding 配置全部售出，不再支持保留指定份数。
+- 若已启用的优先货品在界面中未识别到，流程仍通过 `SellProductPriorityGoodMissWarning` 提示并回退选择默认货品。
 
 ## 优先物品识别
 
@@ -547,17 +489,6 @@ pnpm generate:SellProduct
 4. 查看 Go 日志中 `SellProductNormalizedItemMatch` 的 `ocr_texts` 与 `candidates`。
 5. 固定噪声优先补候选；只有算法确实无法表达时才改 Go 匹配逻辑。
 
-### 保留份数不符合预期
-
-优先检查：
-
-- 对应 `ReserveValue{N}` 是否覆盖到了正确的 `SellProduct{LocationId}BetterSliding{N}`。
-- `attach.Target` 是否为用户输入值。
-- `attach.TargetReverse` 是否为 `true`。
-- `MaxTarget.Box` 是否能读到最大可售数量。
-- `Quantity.Box` 是否能读到当前交易份数。
-- Win 与 ADB 资源包是否使用了各自正确的 OCR 区域。
-
 ## 自检清单
 
 修改生成器或数据后建议执行：
@@ -579,7 +510,7 @@ go test ./sellproduct
 1. `assets/tasks/SellProduct.json` 是否符合 interface V2。
 2. 生成的据点文件是否没有残留旧据点。
 3. `SellProduct/Sell.json` 中地区 `next` 是否包含对应据点。
-4. 任务选项里的地区、据点、尝试、优先物品和保留份数层级是否完整。
+4. 任务选项里的全局优先级、缓存刷新、地区和据点开关层级是否完整。
 5. Win 与 ADB 两套 `Outposts/*.json` 是否都已重新生成。
 6. JSON/Markdown 是否符合 `.prettierrc`。
 

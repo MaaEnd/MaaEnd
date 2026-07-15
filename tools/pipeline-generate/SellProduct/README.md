@@ -30,6 +30,10 @@ npx @joebao/maa-pipeline-generate --config pipeline-adb-config.json
 
 `pnpm generate:SellProduct` 会在渲染前根据 `settlement_trade.json` 按游戏据点顺序重排五语言 locale 的据点键，据点名始终覆盖为 zmdmap 当前官方译文，并补齐缺失的据点和干员键。
 
+`task-template.jsonc` 只保留全局物品优先级、强制刷新干员缓存，以及地区/据点售卖开关。全局优先级默认关闭，此时每个启用据点按默认货品执行前两次售卖；开启后，具体货品只启用实际出售该货品的据点，`Auto` 则按每个据点自己的稀有度和单价顺序生成对应货品。
+
+据点开关同时控制 `SellProductRegisterAuto{LocationId}`，确保自动恢复分配不会为已关闭据点预留干员。自动干员选择和售卖后恢复属于 Pipeline 固定流程，不再由任务选项覆盖。
+
 ## 致谢
 
 - 感谢 `zmdmap` 提供的数据

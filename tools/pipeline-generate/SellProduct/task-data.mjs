@@ -2,27 +2,13 @@
 
 import {createRequire} from "node:module";
 import {
-    escapeRegex,
-    getOperatorCaseName,
-    isAdminOperator,
     sellProductLocations,
     settlementData,
     toPascalCase,
-    uniqueArray,
 } from "./model.mjs";
 
 const require = createRequire(import.meta.url);
 const zhCNLocale = require("../../../assets/locales/interface/zh_cn.json");
-
-function buildOperatorExpected(operator) {
-    return uniqueArray([
-        operator.name?.CN,
-        operator.name?.TC,
-        operator.name?.EN,
-        operator.name?.JP,
-        operator.name?.KR,
-    ]).map(escapeRegex);
-}
 
 // 建立中文物品名到 interface locale key 的反查表。
 function buildItemLocaleKeyByCNName() {
@@ -41,71 +27,6 @@ function buildItemLocaleKeyByCNName() {
 // 中文物品名 → locales/interface/zh_cn.json 中 `item.*` 的后缀 key。
 // 用于反查物品的 i18n key，进而生成 `$item.xxx` 形式的可翻译 label。
 const ITEM_LOCALE_KEY_BY_CN_NAME = buildItemLocaleKeyByCNName();
-const OPERATOR_LOCALE_ORDER = new Map(
-    Object.keys(zhCNLocale)
-        .filter((key) => key.startsWith("operator."))
-        .map((key, index) => [
-            key.slice("operator.".length),
-            index,
-        ]),
-);
-const TARGET_OPERATOR_BONUS_TYPES = new Set([
-    "expProfit",
-    "moneyProfit",
-]);
-const RESTORE_OPERATOR_BONUS_TYPES = new Set([
-    "moneyProduceSpeed",
-]);
-
-export function buildOperatorCaseEntry(operator) {
-    const name = getOperatorCaseName(operator);
-    if (!OPERATOR_LOCALE_ORDER.has(name)) {
-        console.warn(`[SellProduct] 缺少干员本地化条目 operator.${name}，将按名称排序回退处理`);
-    }
-
-    return {
-        name,
-        label: `$operator.${name}`,
-        expected: buildOperatorExpected(operator),
-    };
-}
-
-// 从 settlement_trade.operators 生成全局干员 case 基表，并保持现有 i18n 顺序。
-function buildOperatorCaseEntries() {
-    return Object.values(settlementData.operators || {})
-        .filter((operator) => !isAdminOperator(operator))
-        .map(buildOperatorCaseEntry)
-        .sort((a, b) => {
-            return (
-                (OPERATOR_LOCALE_ORDER.get(a.name) ?? Number.MAX_SAFE_INTEGER) -
-                    (OPERATOR_LOCALE_ORDER.get(b.name) ?? Number.MAX_SAFE_INTEGER) || a.name.localeCompare(b.name)
-            );
-        })
-        .filter((entry) => entry.expected.length > 0);
-}
-
-const OPERATOR_CASE_ENTRIES = buildOperatorCaseEntries();
-
-// 按据点特性 bonus 类型收集该据点可用于对应用途的干员名。
-function buildOperatorNameSetByBonusTypes(settlement, bonusTypes) {
-    const names = new Set();
-    for (const feature of settlement.settlementFeatures || []) {
-        const hasMatchingBonus = (feature.bonuses || []).some((bonus) => bonusTypes.has(bonus.type));
-        if (!hasMatchingBonus) continue;
-
-        for (const operator of feature.matchingOperators || []) {
-            if (isAdminOperator(operator)) continue;
-            names.add(getOperatorCaseName(operator));
-        }
-    }
-    return names;
-}
-
-// 用据点级干员名集合筛选全局干员 case，同时保留全局排序。
-function filterOperatorCaseEntries(operatorNames) {
-    return OPERATOR_CASE_ENTRIES.filter((entry) => operatorNames.has(entry.name));
-}
-
 // 构造自动干员 CustomRecognition 的完整参数，供默认节点和强制刷新覆盖复用。
 function buildOperatorRecognitionParam(usage, location, mode = "cache", result = undefined) {
     return {
@@ -188,116 +109,90 @@ const SETTLEMENT_REGION_MAP = sellProductLocations.reduce((acc, location) => {
 
 // Task 模板最终消费形态，items 按 rarity → unitPrice 降序排列。
 const LOCATIONS = sellProductLocations.map((location) => {
-    const settlement = settlementData.settlements[location.SettlementId];
     const items = [...SETTLEMENT_ITEM_STATS.get(location.SettlementId).entries()]
         .sort((a, b) => b[1].rarity - a[1].rarity || b[1].unitPrice - a[1].unitPrice)
         .map(([key]) => key);
-    const targetOperatorNames = buildOperatorNameSetByBonusTypes(settlement, TARGET_OPERATOR_BONUS_TYPES);
-    const restoreOperatorNames = buildOperatorNameSetByBonusTypes(settlement, RESTORE_OPERATOR_BONUS_TYPES);
     return {
         ...location,
-        TargetOperatorNames: targetOperatorNames,
-        RestoreOperatorNames: restoreOperatorNames,
         items,
     };
 });
 
-// 同一 location 的 4 个 itemNum 的物品列表完全一致，仅 selectKey/missHandlerKey 后缀编号不同。
-// 先抽出与 itemNum 无关的基础数据（buildItemCaseEntries），再由 buildItemCases 拼上 itemNum 相关的 key。
-// 将据点可售物品转换成四个售卖尝试共用的选项基表。
-function buildItemCaseEntries(itemIds) {
-    const entries = [{name: "无", enabled: false}];
-    for (const id of itemIds) {
-        const item = ITEMS[id];
-        const entry = {
-            name: item.name,
+// 为一个全局优先级顺位生成全部据点的覆盖。
+// 指定货品只会启用实际出售该货品的据点；Auto 则按各据点自己的价值顺序取同一顺位。
+function buildGlobalItemPriorityOverride(locations, itemNum, selectedItemKey) {
+    const pipelineOverride = {};
+    for (const loc of locations) {
+        const itemKey = selectedItemKey === "Auto" ? loc.items[itemNum - 1] : selectedItemKey;
+        const enabled = Boolean(itemKey && loc.items.includes(itemKey));
+        if (!enabled) {
+            continue;
+        }
+        const item = ITEMS[itemKey];
+        pipelineOverride[`SellProduct${loc.LocationId}SellAttempt${itemNum}`] = {enabled: true};
+        pipelineOverride[`SellProduct${loc.LocationId}SelectItem${itemNum}`] = {
             enabled: true,
-            candidates: item.candidates,
+            custom_recognition_param: {candidates: item.candidates},
         };
-        if (item.label) entry.label = item.label;
-        entries.push(entry);
+        pipelineOverride[`SellProduct${loc.LocationId}SellAttempt${itemNum}SetMissHandler`] = {
+            anchor: {
+                SellProductPriorityGoodMissHandler: "SellProductPriorityGoodMissWarning",
+            },
+        };
     }
-    return entries;
+    return pipelineOverride;
 }
 
-// 为指定售卖尝试编号生成物品选择 case，并绑定对应 miss handler。
-function buildItemCases(nodePrefix, itemNum, entries) {
-    const selectKey = `SellProduct${nodePrefix}SelectItem${itemNum}`;
-    const missHandlerKey = `SellProduct${nodePrefix}SellAttempt${itemNum}SetMissHandler`;
-    return entries.map((entry) => {
-        const newCase = {
-            name: entry.name,
-            pipeline_override: {
-                [selectKey]: entry.enabled
-                    ? {enabled: true, custom_recognition_param: {candidates: entry.candidates}}
-                    : {enabled: false},
-                [missHandlerKey]: {
-                    anchor: {
-                        SellProductPriorityGoodMissHandler: entry.enabled ? "SellProductPriorityGoodMissWarning" : "",
-                    },
-                },
-            },
+// 全局优先级使用所有据点货品的并集。四个顺位由总开关作为同级子选项展开。
+function buildGlobalItemPriorityCases(locations, itemNum) {
+    const makeCase = (name, label, selectedItemKey) => {
+        const itemCase = {
+            name,
+            pipeline_override: buildGlobalItemPriorityOverride(locations, itemNum, selectedItemKey),
         };
-        if (entry.label) newCase.label = entry.label;
-        return newCase;
-    });
-}
-
-// 生成售卖前切换干员选项，只包含建设效率和调度券收益相关干员。
-function buildTargetOperatorCases(nodePrefix, operatorNames) {
-    const currentKey = `SellProduct${nodePrefix}CurrentTargetOperator`;
-    const selectKey = `SellProduct${nodePrefix}SelectTargetOperator`;
-    return filterOperatorCaseEntries(operatorNames).map((entry) => ({
-        name: entry.name,
-        label: entry.label,
-        pipeline_override: {
-            [currentKey]: {
-                expected: entry.expected,
-            },
-            [selectKey]: {
-                expected: entry.expected,
-            },
-        },
-    }));
-}
-
-// 生成售卖后恢复干员选项，只包含调度券生产速度相关干员。
-function buildRestoreOperatorCases(nodePrefix, operatorNames) {
-    const currentKey = `SellProduct${nodePrefix}CurrentRestoreOperator`;
-    const selectKey = `SellProduct${nodePrefix}SelectRestoreOperator`;
+        if (label) {
+            itemCase.label = label;
+        }
+        return itemCase;
+    };
     return [
-        {
-            name: "DoNotRestore",
-            label: "$task.SellProduct.OperatorRestoreDoNotRestore",
-            pipeline_override: {
-                [`SellProduct${nodePrefix}SetAfterSellOperatorAnchor`]: {
-                    anchor: {
-                        SellProductAfterSellOperator: "SellProductAfterSellOperator",
-                    },
-                },
-            },
-        },
-        ...filterOperatorCaseEntries(operatorNames).map((entry) => ({
-            name: entry.name,
-            label: entry.label,
-            pipeline_override: {
-                [`SellProduct${nodePrefix}SetAfterSellOperatorAnchor`]: {
-                    anchor: {
-                        SellProductAfterSellOperator: `SellProduct${nodePrefix}AfterSellOperator`,
-                    },
-                },
-                [currentKey]: {
-                    expected: entry.expected,
-                },
-                [selectKey]: {
-                    expected: entry.expected,
-                },
-            },
-        })),
+        makeCase("Auto", "$task.SellProduct.GlobalPriorityAuto", "Auto"),
+        makeCase("None", "$task.SellProduct.GlobalPriorityNone", null),
+        ...Object.entries(ITEMS).map(
+            ([
+                itemKey,
+                item,
+            ]) => makeCase(item.name, item.label, itemKey),
+        ),
     ];
 }
 
-// 生成全局「拥有干员刷新方式」选项；强制刷新 case 覆盖完整参数，避免浅合并丢失候选列表。
+// 未启用优先物品时仍执行前两次默认售卖，只跳过自定义货品识别。
+// 启用后才展开四档全局优先级，由各顺位分别决定哪些据点执行。
+function buildGlobalItemPrioritySwitchCases(locations) {
+    const defaultSellOverride = {};
+    for (const loc of locations) {
+        defaultSellOverride[`SellProduct${loc.LocationId}SellAttempt1`] = {enabled: true};
+        defaultSellOverride[`SellProduct${loc.LocationId}SellAttempt2`] = {enabled: true};
+    }
+    return [
+        {
+            name: "Yes",
+            option: [
+                "SellProductPriorityItem1",
+                "SellProductPriorityItem2",
+                "SellProductPriorityItem3",
+                "SellProductPriorityItem4",
+            ],
+        },
+        {
+            name: "No",
+            pipeline_override: defaultSellOverride,
+        },
+    ];
+}
+
+// 生成全局“强制刷新干员缓存”开关；Yes 覆盖完整参数，避免浅合并丢失候选列表。
 function buildOperatorRefreshModeCases(locations) {
     const refreshOverride = {
         SellProductInitializeOperatorSession: {
@@ -366,35 +261,29 @@ function buildOperatorRefreshModeCases(locations) {
     }
     return [
         {
-            name: "Cache",
-            label: "$task.SellProduct.OperatorDataSourceCache",
+            name: "No",
         },
         {
-            name: "Refresh",
-            label: "$task.SellProduct.OperatorDataSourceRefresh",
+            name: "Yes",
             pipeline_override: refreshOverride,
         },
     ];
 }
 
 const OPERATOR_REFRESH_MODE_CASES = buildOperatorRefreshModeCases(LOCATIONS);
+const GLOBAL_ITEM_PRIORITY_SWITCH_CASES = buildGlobalItemPrioritySwitchCases(LOCATIONS);
 
 export const sellProductTaskRows = LOCATIONS.map((loc, index) => {
-    const entries = buildItemCaseEntries(loc.items);
-    const targetOperatorCases = buildTargetOperatorCases(loc.LocationId, loc.TargetOperatorNames);
-    const restoreOperatorCases = buildRestoreOperatorCases(loc.LocationId, loc.RestoreOperatorNames);
     return {
         RegionPrefix: loc.RegionPrefix,
         SellOptions: SETTLEMENT_REGION_MAP[loc.RegionPrefix],
         LocationId: loc.LocationId,
         OperatorRefreshModeCases: index === 0 ? OPERATOR_REFRESH_MODE_CASES : [],
-        ItemCases1: buildItemCases(loc.LocationId, 1, entries),
-        ItemCases2: buildItemCases(loc.LocationId, 2, entries),
-        ItemCases3: buildItemCases(loc.LocationId, 3, entries),
-        ItemCases4: buildItemCases(loc.LocationId, 4, entries),
-        TargetOperatorDefaultCase: targetOperatorCases[0]?.name,
-        TargetOperatorCases: targetOperatorCases,
-        RestoreOperatorCases: restoreOperatorCases,
+        GlobalItemPrioritySwitchCases: index === 0 ? GLOBAL_ITEM_PRIORITY_SWITCH_CASES : [],
+        GlobalItemPriorityCases1: index === 0 ? buildGlobalItemPriorityCases(LOCATIONS, 1) : [],
+        GlobalItemPriorityCases2: index === 0 ? buildGlobalItemPriorityCases(LOCATIONS, 2) : [],
+        GlobalItemPriorityCases3: index === 0 ? buildGlobalItemPriorityCases(LOCATIONS, 3) : [],
+        GlobalItemPriorityCases4: index === 0 ? buildGlobalItemPriorityCases(LOCATIONS, 4) : [],
     };
 });
 

@@ -41,7 +41,7 @@
         "desc": "${LocationDesc}设置售卖前联络干员锚点",
         "pre_delay": 0,
         "anchor": {
-            "SellProductBeforeSellOperator": ""
+            "SellProductBeforeSellOperator": "SellProduct${LocationId}BeforeSellOperator"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -53,7 +53,7 @@
         "desc": "${LocationDesc}设置售卖后恢复干员锚点",
         "pre_delay": 0,
         "anchor": {
-            "SellProductAfterSellOperator": "SellProductAfterSellOperator"
+            "SellProductAfterSellOperator": "SellProduct${LocationId}AfterSellOperator"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -69,19 +69,25 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "SellProduct${LocationId}CurrentTargetOperator",
             "SellProduct${LocationId}OpenTargetOperatorList"
         ]
     },
     "SellProduct${LocationId}CurrentTargetOperator": {
         "desc": "${LocationDesc}当前联络干员已是售卖用干员",
-        "recognition": "OCR",
-        "roi": [
-            268,
-            568,
-            190,
-            35
-        ],
-        "expected": [],
+        "recognition": "Custom",
+        "custom_recognition": "SellProductCurrentBestOperator",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "target",
+            "location": "${LocationId}",
+            "roi": [
+                268,
+                568,
+                190,
+                35
+            ]
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -124,6 +130,7 @@
         "rate_limit": 0,
         "next": [
             "SellProduct${LocationId}SelectTargetOperator",
+            "SellProduct${LocationId}RetryTargetOperatorAfterScan",
             "SellProduct${LocationId}TargetOperatorNotFound",
             "SellProduct${LocationId}TargetOperatorScanFailed",
             "SellProduct${LocationId}SwipeTargetOperatorList"
@@ -131,14 +138,19 @@
     },
     "SellProduct${LocationId}SelectTargetOperator": {
         "desc": "${LocationDesc}在联络干员列表中选择售卖用干员",
-        "recognition": "OCR",
-        "roi": [
-            164,
-            121,
-            700,
-            430
-        ],
-        "expected": [],
+        "recognition": "Custom",
+        "custom_recognition": "SellProductSelectBestOperator",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "target",
+            "location": "${LocationId}",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -331,11 +343,12 @@
     "SellProduct${LocationId}TargetOperatorNotFound": {
         "desc": "${LocationDesc}联络干员列表已到底，未找到配置的售卖用干员",
         "recognition": "Custom",
-        "custom_recognition": "SellProductOperatorListBottom",
+        "custom_recognition": "SellProductOperatorScanOutcome",
         "custom_recognition_param": {
             "mode": "cache",
             "usage": "target",
             "location": "${LocationId}",
+            "result": "not_found",
             "roi": [
                 164,
                 121,
@@ -358,20 +371,32 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "SellProduct${LocationId}CurrentRestoreOperator",
             "SellProduct${LocationId}OpenRestoreOperatorList"
         ]
     },
     "SellProduct${LocationId}CurrentRestoreOperator": {
         "desc": "${LocationDesc}当前联络干员已是恢复目标",
-        "recognition": "OCR",
-        "roi": [
-            268,
-            568,
-            190,
-            35
-        ],
-        "expected": [],
+        "recognition": "Custom",
+        "custom_recognition": "SellProductCurrentBestOperator",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "${LocationId}",
+            "roi": [
+                268,
+                568,
+                190,
+                35
+            ]
+        },
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "complete_restore",
+            "location": "${LocationId}"
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
@@ -410,6 +435,7 @@
         "rate_limit": 0,
         "next": [
             "SellProduct${LocationId}SelectRestoreOperator",
+            "SellProduct${LocationId}RetryRestoreOperatorAfterScan",
             "SellProduct${LocationId}RestoreOperatorNotFoundAtBottom",
             "SellProduct${LocationId}RestoreOperatorScanFailed",
             "SellProduct${LocationId}SwipeRestoreOperatorList"
@@ -440,14 +466,19 @@
     },
     "SellProduct${LocationId}SelectRestoreOperator": {
         "desc": "${LocationDesc}在联络干员列表中选择恢复干员",
-        "recognition": "OCR",
-        "roi": [
-            164,
-            121,
-            700,
-            430
-        ],
-        "expected": [],
+        "recognition": "Custom",
+        "custom_recognition": "SellProductSelectBestOperator",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "${LocationId}",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -521,6 +552,12 @@
             "SellProductIn${LocationId}"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "complete_restore",
+            "location": "${LocationId}"
+        },
         "post_delay": 0,
         "rate_limit": 0
     },

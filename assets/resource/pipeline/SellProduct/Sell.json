@@ -11,7 +11,7 @@
             ]
         },
         "anchor": {
-            "SellProductValleyIVPrepareOperatorCache": ""
+            "SellProductValleyIVPrepareOperatorCache": "SellProductValleyIVPrepareOperatorCache"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -58,7 +58,7 @@
             ]
         },
         "anchor": {
-            "SellProductWulingPrepareOperatorCache": ""
+            "SellProductWulingPrepareOperatorCache": "SellProductWulingPrepareOperatorCache"
         },
         "post_delay": 0,
         "rate_limit": 0,
