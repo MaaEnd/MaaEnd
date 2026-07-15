@@ -7,15 +7,19 @@
 # ///
 
 # MapGenerator - Generate map assets from map_fetcher output.
-# Subcommands: distinguish_levels, tidy_tiers, bbox.
+# Subcommands: distinguish_levels, attach_icons, tidy_tiers, bbox.
 
 import os
 import re
 import json
 import numpy as np
 from collections import defaultdict
-from _internal.core_utils import _R, _G, _Y, _C, _0, cv2
-from _internal.zmdmap_schemas import RegionLayoutTable, LevelLayoutMetaData
+from _internal.core_utils import _R, _G, _Y, _C, _0, Drawer, MapName, cv2
+from _internal.zmdmap_schemas import (
+    EntitiesTable,
+    LevelLayoutMetaData,
+    RegionLayoutTable,
+)
 
 SCALE_MAP_FACTOR = 0.1625
 """Scale factor to convert *unscaled coordinates* to *converted coordinates*."""
@@ -692,6 +696,80 @@ def _load_image_rgba(path: str) -> np.ndarray | None:
     return None
 
 
+CAMPFIRE_ICON_PATH = "assets/resource/image/MapTracker/MiniMapIcons/IconCampfire.png"
+CAMPFIRE_KEY_NAME = "int_campfire_v2"
+
+
+def cmd_attach_icons(
+    input_dir: str,
+    output_dir: str,
+    entities_file: str,
+) -> None:
+    """Attach campfire icons to non-tier map images."""
+    if not os.path.isdir(input_dir):
+        print(f"{_R}Input directory not found: {input_dir}{_0}")
+        return
+    if not os.path.isfile(entities_file):
+        print(f"{_R}Entities file not found: {entities_file}{_0}")
+        return
+
+    icon = cv2.imread(CAMPFIRE_ICON_PATH, cv2.IMREAD_UNCHANGED)
+    if icon is None:
+        print(f"{_R}Campfire icon not found: {CAMPFIRE_ICON_PATH}{_0}")
+        return
+    if icon.ndim == 2 or icon.shape[2] == 3:
+        icon = cv2.cvtColor(icon, cv2.COLOR_BGR2BGRA)
+
+    entities = EntitiesTable.load(entities_file)
+    ensure_output_dir(output_dir)
+    ih, iw = icon.shape[:2]
+    processed = 0
+    placed = 0
+
+    for fname in sorted(os.listdir(input_dir)):
+        if not fname.endswith(".png") or fname.startswith("_"):
+            continue
+        try:
+            map_name = MapName.parse(fname)
+        except ValueError:
+            continue
+        if map_name.map_type == "tier":
+            continue
+
+        region = entities.regions.get(map_name.map_id)
+        level = region.levels.get(map_name.map_level_id) if region else None
+        if level is None:
+            print(f"  {_Y}{fname}: entity data not found, skipped{_0}")
+            continue
+
+        path = os.path.join(input_dir, fname)
+        img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+        if img is None:
+            print(f"  {_Y}Failed to load {fname}{_0}")
+            continue
+        if img.ndim == 2 or img.shape[2] == 3:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2BGRA)
+
+        drawer = Drawer(img)
+        map_placed = 0
+        for entity in level.categories.get("special", []):
+            if entity.key_name != CAMPFIRE_KEY_NAME:
+                continue
+            px, py = (int(round(value)) for value in entity.map_location)
+            drawer.paste(icon, (px - iw // 2, py - ih // 2), with_alpha=True)
+            map_placed += 1
+
+        cv2.imwrite(os.path.join(output_dir, fname), img)
+        processed += 1
+        placed += map_placed
+        print(f"  {_C}{fname}{_0}: {map_placed} campfire icon(s) placed")
+
+    print(
+        f"\n  {_G}Done. Processed {processed} non-tier map(s), "
+        f"placed {placed} campfire icon(s).{_0}"
+    )
+
+
 def cmd_tidy_tiers(input_dir: str, output_dir: str) -> None:
     """Blend tier images with their parent region-level images."""
     if not os.path.isdir(input_dir):
@@ -795,7 +873,10 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="MapTracker merger - distinguish levels, tidy tiers, generate bounding boxes"
+        description=(
+            "MapTracker merger - distinguish levels, attach icons, tidy tiers, "
+            "generate bounding boxes"
+        )
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -816,6 +897,19 @@ def main():
         "--layout-dir", required=True, help="Directory containing *_layout.json files"
     )
 
+    # attach_icons subcommand
+    p_icons = sub.add_parser(
+        "attach_icons", help="Attach campfire icons to non-tier map images"
+    )
+    p_icons.add_argument(
+        "-i", "--input-dir", required=True, help="Directory containing map images"
+    )
+    p_icons.add_argument(
+        "-o", "--output-dir", required=True, help="Output directory for map images"
+    )
+    p_icons.add_argument(
+        "--entities-file", required=True, help="Path to maaend_entities.json"
+    )
     # tidy_tiers subcommand
     p_tiers = sub.add_parser(
         "tidy_tiers", help="Blend tier images with parent region-level images"
@@ -846,6 +940,12 @@ def main():
 
     if args.command == "distinguish_levels":
         cmd_distinguish_levels(args.input_dir, args.output_dir, args.layout_dir)
+    elif args.command == "attach_icons":
+        cmd_attach_icons(
+            args.input_dir,
+            args.output_dir,
+            args.entities_file,
+        )
     elif args.command == "tidy_tiers":
         cmd_tidy_tiers(args.input_dir, args.output_dir)
     elif args.command == "bbox":
