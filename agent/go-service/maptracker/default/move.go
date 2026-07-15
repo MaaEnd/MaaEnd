@@ -157,9 +157,6 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	// Adaptive rotation sensitivity local state
 	rotationSpeed := ROTATION_DEFAULT_SPEED
-	if ctrlType == control.CONTROL_TYPE_WLROOTS {
-		rotationSpeed = ROTATION_DEFAULT_SPEED_WLROOTS
-	}
 	var rotAdjState, rotAdjStateCache *PlayerRotationAdjustmentState
 
 	// For each target point
@@ -317,10 +314,10 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					if distTravel > control.MovementWalk.DistanceDuring(rotAdjState.expectedElapsed) {
 						// Check if rotation difference is sufficient to consider adjusting rotation speed
 						actualDeltaRot := calcDeltaRotation(rotAdjState.fromRot, rot)
-						if math.Abs(float64(actualDeltaRot))+math.Abs(rotAdjState.deltaRot) > param.RotationLowerThreshold {
+						if math.Abs(float64(actualDeltaRot)) > param.RotationLowerThreshold && math.Abs(rotAdjState.deltaRot) > param.RotationLowerThreshold {
 							idealRotSpeed := rotationSpeed * rotAdjState.deltaRot / (float64(actualDeltaRot) + 1e-6)
 							if idealRotSpeed >= ROTATION_MIN_SPEED && idealRotSpeed <= ROTATION_MAX_SPEED {
-								rotationSpeed = rotationSpeed*0.618 + idealRotSpeed*0.382
+								rotationSpeed = rotationSpeed*0.865 + idealRotSpeed*0.135 // 1/e^2
 								rotAdjStateCache = rotAdjState
 								log.Debug().
 									Float64("idealRotSpeed", idealRotSpeed).
