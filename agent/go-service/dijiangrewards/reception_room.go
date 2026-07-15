@@ -20,6 +20,7 @@ import (
 const (
 	countdownComponent = "ReceptionRoomExchangeCountdownWithinThresholdRecognition"
 	keepAliveComponent = "ReceptionRoomWaitExchangeKeepAliveDueRecognition"
+	countdownTextNode  = "ReceptionRoomExchangeCountdownText"
 
 	defaultThresholdMinutes = 5
 
@@ -63,7 +64,7 @@ func (r *ExchangeCountdownWithinThresholdRecognition) Run(ctx *maa.Context, arg 
 		return nil, false
 	}
 
-	text, seconds, ok := recognizeCountdownSeconds(ctx, arg, countdownComponent)
+	text, seconds, box, ok := recognizeCountdownSeconds(ctx, arg, countdownComponent)
 	if !ok {
 		return nil, false
 	}
@@ -98,7 +99,7 @@ func (r *ExchangeCountdownWithinThresholdRecognition) Run(ctx *maa.Context, arg 
 	}
 
 	return &maa.CustomRecognitionResult{
-		Box:    arg.Roi,
+		Box:    box,
 		Detail: string(detailJSON),
 	}, true
 }
@@ -120,7 +121,7 @@ func (r *ExchangeKeepAliveDueRecognition) Run(ctx *maa.Context, arg *maa.CustomR
 		return nil, false
 	}
 
-	text, seconds, ok := recognizeCountdownSeconds(ctx, arg, keepAliveComponent)
+	text, seconds, box, ok := recognizeCountdownSeconds(ctx, arg, keepAliveComponent)
 	if !ok {
 		return nil, false
 	}
@@ -147,7 +148,7 @@ func (r *ExchangeKeepAliveDueRecognition) Run(ctx *maa.Context, arg *maa.CustomR
 	}
 
 	return &maa.CustomRecognitionResult{
-		Box:    arg.Roi,
+		Box:    box,
 		Detail: string(detailJSON),
 	}, true
 }
@@ -169,21 +170,15 @@ func (r *ExchangeKeepAliveDueRecognition) shouldKeepAlive(now time.Time) bool {
 	return true
 }
 
-func recognizeCountdownSeconds(ctx *maa.Context, arg *maa.CustomRecognitionArg, component string) (string, int, bool) {
-	ocrParam := maa.OCRParam{
-		ROI:      maa.NewTargetRect(arg.Roi),
-		Expected: []string{".*"},
-		OnlyRec:  true,
-		OrderBy:  maa.OCROrderByLength,
-	}
-	detail, err := ctx.RunRecognitionDirect(maa.RecognitionTypeOCR, &ocrParam, arg.Img)
+func recognizeCountdownSeconds(ctx *maa.Context, arg *maa.CustomRecognitionArg, component string) (string, int, maa.Rect, bool) {
+	detail, err := ctx.RunRecognition(countdownTextNode, arg.Img)
 	if err != nil || detail == nil {
 		log.Debug().
 			Err(err).
 			Str("component", component).
-			Interface("roi", arg.Roi).
+			Str("node", countdownTextNode).
 			Msg("countdown OCR miss")
-		return "", 0, false
+		return "", 0, maa.Rect{}, false
 	}
 
 	text := bestOCRText(detail)
@@ -194,10 +189,10 @@ func recognizeCountdownSeconds(ctx *maa.Context, arg *maa.CustomRecognitionArg, 
 			Str("component", component).
 			Str("ocr_text", text).
 			Msg("failed to parse countdown")
-		return "", 0, false
+		return "", 0, maa.Rect{}, false
 	}
 
-	return text, seconds, true
+	return text, seconds, detail.Box, true
 }
 
 func parseCountdownParams(raw string) (*countdownParams, error) {

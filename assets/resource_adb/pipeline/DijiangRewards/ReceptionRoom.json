@@ -134,31 +134,7 @@
             }
         }
     },
-    "ReceptionRoomExchangeCountdownWithinThreshold": {
-        "recognition": {
-            "param": {
-                "roi": [
-                    760,
-                    646,
-                    130,
-                    30
-                ]
-            }
-        }
-    },
-    "ReceptionRoomWaitExchangeCountdownNotice": {
-        "recognition": {
-            "param": {
-                "roi": [
-                    760,
-                    646,
-                    130,
-                    30
-                ]
-            }
-        }
-    },
-    "ReceptionRoomWaitExchangeKeepAliveDue": {
+    "ReceptionRoomExchangeCountdownText": {
         "recognition": {
             "param": {
                 "roi": [

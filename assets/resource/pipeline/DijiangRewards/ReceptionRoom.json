@@ -959,13 +959,26 @@
                 "custom_recognition": "ReceptionRoomExchangeCountdownWithinThresholdRecognition",
                 "custom_recognition_param": {
                     "threshold_minutes": 5
-                },
+                }
+            }
+        }
+    },
+    "ReceptionRoomExchangeCountdownText": {
+        "desc": "[会客室·交流] OCR 识别当前情报交流剩余时间文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
                 "roi": [
                     740,
                     592,
                     116,
                     28
-                ]
+                ],
+                "expected": [
+                    "\\b\\d{1,2}\\s*[:：]\\s*\\d{2}(?:\\s*[:：]\\s*\\d{2})?\\b"
+                ],
+                "only_rec": true,
+                "order_by": "Length"
             }
         }
     },
@@ -978,13 +991,7 @@
                 "custom_recognition_param": {
                     "threshold_minutes": 5,
                     "report_waiting": true
-                },
-                "roi": [
-                    740,
-                    592,
-                    116,
-                    28
-                ]
+                }
             }
         },
         "pre_delay": 0,
@@ -1045,13 +1052,7 @@
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ReceptionRoomWaitExchangeKeepAliveDueRecognition",
-                "roi": [
-                    740,
-                    592,
-                    116,
-                    28
-                ]
+                "custom_recognition": "ReceptionRoomWaitExchangeKeepAliveDueRecognition"
             }
         },
         "pre_delay": 0,
