@@ -6,7 +6,6 @@
             "entry": "ItemTransfer",
             "description": "$task.ItemTransfer.description",
             "option": [
-                "AutoTeleport",
                 "WhatToTransfer",
                 "TransferAll",
                 "OriginRegion",
@@ -24,28 +23,6 @@
         }
     ],
     "option": {
-        "AutoTeleport": {
-            "type": "switch",
-            "label": "$option.ItemTransferAutoTeleport.label",
-            "description": "$option.ItemTransferAutoTeleport.description",
-            "controller": [
-                "Win32-Front"
-            ],
-            "cases": [
-                {
-                    "name": "No"
-                },
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "ItemTransferStart": {
-                            "enabled": true
-                        }
-                    }
-                }
-            ],
-            "default_case": "No"
-        },
         "WhatToTransfer": {
             "type": "select",
             "label": "$option.ItemTransferWhatToTransfer.label",
@@ -4109,18 +4086,18 @@
         "ItemTransferStashBackpack": {
             "type": "switch",
             "label": "$task.ItemTransfer.option.ItemTransferStashBackpack.label",
-            "default_case": "No",
+            "default_case": "Yes",
             "cases": [
                 {
-                    "name": "No"
+                    "name": "No",
+                    "pipeline_override": {
+                        "ItemTransferStashBackpackMain": {
+                            "enabled": false
+                        }
+                    }
                 },
                 {
                     "name": "Yes",
-                    "pipeline_override": {
-                        "ItemTransferStashBackpackMain": {
-                            "enabled": true
-                        }
-                    },
                     "option": [
                         "StashBackpackType"
                     ]
@@ -4131,18 +4108,18 @@
             "type": "switch",
             "label": "$option.ItemTransferStashBackpackWhenBothFull.label",
             "description": "$option.ItemTransferStashBackpackWhenBothFull.description",
-            "default_case": "No",
+            "default_case": "Yes",
             "cases": [
                 {
-                    "name": "No"
-                },
-                {
-                    "name": "Yes",
+                    "name": "No",
                     "pipeline_override": {
                         "ItemTransferClickQuickStashReturn": {
-                            "enabled": true
+                            "enabled": false
                         }
                     }
+                },
+                {
+                    "name": "Yes"
                 }
             ]
         }

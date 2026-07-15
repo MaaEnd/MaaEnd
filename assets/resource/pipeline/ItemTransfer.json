@@ -1,12 +1,10 @@
 {
     "ItemTransfer": {
-        "desc": "在 tasks 中对默认 false 的 前置(next) 任务进行 override",
         "recognition": "DirectHit",
         "next": [
             "ItemTransferSkipSameRegionValleyIV",
             "ItemTransferSkipSameRegionWuling",
-            "ItemTransferStart",
-            "ItemTransferInBackpack"
+            "ItemTransferStart"
         ]
     },
     "ItemTransferSkipSameRegionValleyIV": {
@@ -36,7 +34,6 @@
         }
     },
     "ItemTransferStart": {
-        "enabled": false,
         "next": [
             "ItemTransferStartAtReceptionRoom",
             "[JumpBack]SceneEnterWorldDijiang2"
@@ -211,7 +208,6 @@
     },
     "ItemTransferStashBackpackMain": {
         "desc": "保留整理背包功能，不复用通用整理背包传送兜底",
-        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -854,7 +850,6 @@
         ]
     },
     "ItemTransferClickQuickStashReturn": {
-        "enabled": false,
         "recognition": "TemplateMatch",
         "roi": [
             871,
