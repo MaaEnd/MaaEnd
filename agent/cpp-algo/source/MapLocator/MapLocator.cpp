@@ -877,6 +877,26 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
                 .debugMessage = "Dual-Mode Tracking Success",
             };
         }
+        if (motionTracker->getLastPos().has_value()) {
+            const double predX = motionTracker->getPredictedX(now);
+            const double predY = motionTracker->getPredictedY(now);
+            const double distPrimaryToPred = std::hypot(rawPrimaryPos.x - predX, rawPrimaryPos.y - predY);
+            const double distFallbackToPred = std::hypot(rawFallbackPos.x - predX, rawFallbackPos.y - predY);
+            const bool primaryCloser = distPrimaryToPred <= distFallbackToPred;
+            MapPosition arbitrated = primaryCloser ? rawPrimaryPos : rawFallbackPos;
+            const double arbitratedDistToPred = primaryCloser ? distPrimaryToPred : distFallbackToPred;
+            if (arbitratedDistToPred <= kTrackingOutlierDistance) {
+                arbitrated.isHeld = false;
+                LogInfo << "Dual-Mode arbitrated by motion continuity" << VAR(distPrimaryToPred) << VAR(distFallbackToPred)
+                        << VAR(arbitrated.x) << VAR(arbitrated.y) << VAR(arbitrated.score) << VAR(dist);
+                MapPosition accepted = acceptPosition(arbitrated, now);
+                return LocateResult {
+                    .status = LocateStatus::Success,
+                    .position = accepted,
+                    .debugMessage = "Dual-Mode Motion Arbitrated",
+                };
+            }
+        }
         LogInfo << "Dual-Mode Tracking rejected" << VAR(rawPrimaryPos.score) << VAR(rawPrimaryPos.x) << VAR(rawPrimaryPos.y)
                 << VAR(rawFallbackPos.score) << VAR(rawFallbackPos.x) << VAR(rawFallbackPos.y) << VAR(dist);
     }
