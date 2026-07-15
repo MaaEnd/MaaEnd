@@ -5,8 +5,7 @@
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyDaily",
-            "TrialOfSwordmancyCoating",
-            "TrialOfSwordmancyFarm25"
+            "TrialOfSwordmancyCoating"
         ]
     },
     "TrialOfSwordmancyDaily": {
@@ -17,38 +16,16 @@
         "action": "DoNothing",
         "post_delay": 0,
         "next": [
-            "TrialOfSwordmancyDisabledError",
             "TrialOfSwordmancyDailyMain"
         ]
     },
     "TrialOfSwordmancyCoating": {
-        "desc": "自动刷镀层",
+        "desc": "自动刷镀层/刷25点",
         "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyCoatingMain"
         ]
-    },
-    "TrialOfSwordmancyFarm25": {
-        "desc": "自动刷25点",
-        "enabled": false,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "TrialOfSwordmancyCoatingMain"
-        ]
-    },
-    "TrialOfSwordmancyDisabledError": {
-        "desc": "未确认运行：直接报错结束，避免自动战斗打不过时浪费整次演算次数（默认位于 TrialOfSwordmancyDaily 的 next 首位；勾选 TrialOfSwordmancyConfirmRisk 后禁用本节点放行）",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FalseAction",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.TrialOfSwordmancy.error.not_confirmed"
-        }
     }
 }
