@@ -147,6 +147,8 @@
     "option.AutoFightAxisData.description": "- www.end-axis.com を開いて排軸を作成するか、www.end-axis.com/shares の排軸共有広場で他人が共有した排軸を使用してください。\n- 排軸にオペレーター、戦技、終結技の発動タイミングを追加すれば十分です。余分な要素は読み取られません。\n- サイト左上の + から終結技なしの方案を少なくとも1つ追加し、ループできるようにすることを推奨します。\n- 内部で終結技の状態に応じて、排軸方案のいずれかを自動選択します。",
     "option.AutoFightAxisCodeString.label": "データコード",
     "option.AutoFightAxisCodeString.description": "サイトで排軸方案を選び、右上のエクスポート→データコードをコピーして、ここに貼り付けてください。",
+    "option.AutoFightAxisSkipComboCooldown.label": "連携技クールダウン待機をスキップ",
+    "option.AutoFightAxisSkipComboCooldown.description": "有効時、1セットの排軸終了後すぐに次のラウンドを試行します。無効時は全員の連携技が準備できてから次のラウンドを試行します。",
     "option.AutoPick.label": "自動拾取",
     "option.QuickTeleport.label": "クイックテレポート",
     "option.QuickTeleport.description": "ワールドマップ（または一覧）で転送地点を選択した時に、転送を自動でクリックします。",

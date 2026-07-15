@@ -149,6 +149,8 @@
     "option.AutoFightAxisData.description": "- 打开 www.end-axis.com 创建排轴，或在 www.end-axis.com/shares 排轴分享广场使用他人分享的排轴。\n- 在排轴中添加干员、添加战技、终结技释放时机即可，多余元素不会读取。\n- 建议在网站中点击左上角 + 至少添加一个无终结技方案以保证可循环。\n- 内部将根据终结技状态自动选择其中一个排轴方案。",
     "option.AutoFightAxisCodeString.label": "数据码",
     "option.AutoFightAxisCodeString.description": "在网站中选择一个排轴方案，点击右上角导出-复制数据码，然后粘贴到这里",
+    "option.AutoFightAxisSkipComboCooldown.label": "不等待连携技冷却",
+    "option.AutoFightAxisSkipComboCooldown.description": "开启后，一套排轴打完立即尝试下一轮。关闭后，全员连携就绪后再尝试下一轮。",
     "option.AutoPick.label": "自动拾取",
     "option.QuickTeleport.label": "快速传送",
     "option.QuickTeleport.description": "在大地图上点击传送点（或列表中有传送点）时，自动点击传送",

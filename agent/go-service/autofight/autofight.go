@@ -31,6 +31,7 @@ type autoFightAttach struct {
 	EnableLockTarget             bool   `json:"enable_lock_target"`
 	ReserveSkillLevel            int    `json:"reserve_skill_level"`
 	EndAxisTimelineCode          string `json:"end_axis_timeline_code"`
+	SkipComboCooldown            bool   `json:"skip_combo_cooldown"`
 }
 
 var screenAnalyzer = NewScreenAnalyzer()
@@ -573,7 +574,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		} else {
 			if hasEnemyTarget && timeline.ActionFinish() {
 				maafocus.PrintThrottle(ctx, 3*time.Second, i18n.T("autofight.endaxis.retry_timeline"))
-				timeline.SelectScenario(ctx, characterCount, comboFull, endSkillFull, energyLevel)
+				timeline.SelectScenario(ctx, characterCount, comboFull, endSkillFull, energyLevel, params.SkipComboCooldown)
 			}
 
 			if screenAnalyzer.GetCharacterComboActive() && !timeline.ActionFinish() {

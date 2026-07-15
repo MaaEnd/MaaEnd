@@ -75,7 +75,7 @@ type timelineRootRaw struct {
 //
 //	t := NewEndAxisTimeline()
 //	t.SetTimelineCode(code)
-//	if t.SelectScenario(comboFull, endSkillFull, energy) {
+//	if t.SelectScenario(ctx, characterCount, comboFull, endSkillFull, energy, skipComboCooldown) {
 //	    for !t.ActionFinish() {
 //	        if a, ok := t.FrontAction(); ok {
 //	            // ... 在外部执行该动作 ...
@@ -181,11 +181,13 @@ func decodeEndAxisShareCode(code string) ([]byte, error) {
 //   - characterComboFull：连携已就绪的角色编号列表（1..characterCount 中的子集），
 //     例如 [1, 3] 表示 1 号、3 号角色连携满；
 //   - endSkillFull：终结技已充能完毕的角色编号列表（1..characterCount 中的子集）；
-//   - energyLevel：当前能量条等级，目前仅作为状态保留，未参与匹配。
+//   - energyLevel：当前能量条等级，目前仅作为状态保留，未参与匹配；
+//   - skipComboCooldown：为 true 时跳过全员连携就绪检测，轴完立刻尝试匹配下一 scenario。
 //
 // 匹配规则：
-//  1. 1..characterCount 任一角色不在 characterComboFull 中（即有人连携没满），直接返回
-//     false，不进入 scenario 匹配，并通过 maafocus.PrintThrottle（3s）输出"等待连携技冷却完成"的提示；
+//  1. 若 skipComboCooldown 为 false，且 1..characterCount 任一角色不在 characterComboFull 中
+//     （即有人连携没满），直接返回 false，不进入 scenario 匹配，并通过 maafocus.PrintThrottle（3s）
+//     输出"等待连携技冷却完成"的提示；
 //  2. 对每个 scenario，逐个 track i ∈ [0, characterCount) 检查：若该 track 含 type==ultimate
 //     的 action，则对应角色编号 i+1 必须在 endSkillFull 列表中；任一项不满足则跳过该
 //     scenario，并通过 maafocus.PrintThrottle（3s）输出"终结技未充能完毕"的提示；
@@ -194,22 +196,24 @@ func decodeEndAxisShareCode(code string) ([]byte, error) {
 //  4. 所有 scenario 都不满足时返回 false。
 //
 // 选中 scenario 时通过 maafocus.Print 输出多语言提示；跳过提示限频，ctx 为 nil 时仅记录日志。
-func (t *EndAxisTimeline) SelectScenario(ctx *maa.Context, characterCount int, characterComboFull, endSkillFull []int, energyLevel int) bool {
+func (t *EndAxisTimeline) SelectScenario(ctx *maa.Context, characterCount int, characterComboFull, endSkillFull []int, energyLevel int, skipComboCooldown bool) bool {
 	t.reset()
 
 	if t.root == nil {
 		return false
 	}
 
-	for op := 1; op <= characterCount; op++ {
-		if !slices.Contains(characterComboFull, op) {
-			log.Debug().
-				Str("component", "EndAxisTimeline").
-				Str("step", "SelectScenario").
-				Int("waitingOperator", op).
-				Msg("combo not ready for all operators")
-			maafocus.PrintThrottle(ctx, 3*time.Second, i18n.T("autofight.endaxis.waiting_combo_cooldown"))
-			return false
+	if !skipComboCooldown {
+		for op := 1; op <= characterCount; op++ {
+			if !slices.Contains(characterComboFull, op) {
+				log.Debug().
+					Str("component", "EndAxisTimeline").
+					Str("step", "SelectScenario").
+					Int("waitingOperator", op).
+					Msg("combo not ready for all operators")
+				maafocus.PrintThrottle(ctx, 3*time.Second, i18n.T("autofight.endaxis.waiting_combo_cooldown"))
+				return false
+			}
 		}
 	}
 

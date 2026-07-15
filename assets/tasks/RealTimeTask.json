@@ -611,7 +611,8 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "AutoFightAxisData"
+                        "AutoFightAxisData",
+                        "AutoFightAxisSkipComboCooldown"
                     ]
                 },
                 {
@@ -630,7 +631,8 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "AutoFightAxisData"
+                        "AutoFightAxisData",
+                        "AutoFightAxisSkipComboCooldown"
                     ]
                 },
                 {
@@ -663,6 +665,34 @@
                     }
                 }
             }
+        },
+        "AutoFightAxisSkipComboCooldown": {
+            "label": "$option.AutoFightAxisSkipComboCooldown.label",
+            "description": "$option.AutoFightAxisSkipComboCooldown.description",
+            "type": "switch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "skip_combo_cooldown": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "skip_combo_cooldown": false
+                            }
+                        }
+                    }
+                }
+            ]
         },
         "AutoFightSkill": {
             "label": "$option.AutoFightSkill.label",

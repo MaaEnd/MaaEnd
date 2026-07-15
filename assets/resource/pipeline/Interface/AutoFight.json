@@ -21,7 +21,8 @@
             "reserve_skill_level": 1,
             "enable_end_skill": true,
             "enable_lock_target": true,
-            "end_axis_timeline_code": ""
+            "end_axis_timeline_code": "",
+            "skip_combo_cooldown": false
         }
     }
 }
