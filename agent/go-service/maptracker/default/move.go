@@ -117,7 +117,6 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	ctrl := ctx.GetTasker().GetController()
-	ctrlType, _ := control.GetControlType(ctrl)
 	ca, err := control.NewControlAdaptor(ctx, ctrl, WORK_W, WORK_H)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create control adaptor")
