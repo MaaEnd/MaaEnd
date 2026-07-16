@@ -27,7 +27,7 @@ npx @joebao/maa-pipeline-generate --config task-config.json
 npx @joebao/maa-pipeline-generate --config pipeline-adb-config.json
 ```
 
-`pnpm generate:SellProduct` 会在渲染前根据 `settlement_trade.json` 自动补齐五语言 locale 中缺失的据点和干员键；已有文案保持不变。
+`pnpm generate:SellProduct` 会在渲染前根据 `settlement_trade.json` 按游戏据点顺序重排五语言 locale 的据点键，据点名始终覆盖为 zmdmap 当前官方译文，并补齐缺失的据点和干员键。
 
 ## 致谢
 

@@ -6,9 +6,9 @@ import {sellProductLocaleEntries, sellProductLocations} from "./model.mjs";
 
 // 根据 zmdmap 的 settlement_trade.json 自动维护 SellProduct 使用的国际化键。
 //
-// 这个脚本只负责补齐「数据源已存在、locale 尚未登记」的据点和干员：
+// 这个脚本负责按数据源顺序同步据点，并补齐 locale 尚未登记的干员：
 // 1. 稳定 key 由 model.mjs 统一生成，避免同步脚本和 Pipeline 生成器采用不同命名规则；
-// 2. 已有 locale 文案始终保留，避免覆盖维护者手工润色或修正过的译文；
+// 2. 据点名始终以 zmdmap 当前五语言文本为准，已有 locale 值也会同步覆盖；
 // 3. 新键插入对应的业务分组，不追加到整个 JSON 的末尾；
 // 4. 写入前检查五语言完整性，重复执行时不产生新的文件变更。
 
@@ -30,25 +30,51 @@ const SETTLEMENT_KEY_PREFIXES = [
     ...new Set(sellProductLocations.map(({RegionPrefix}) => `task.SellProduct.${RegionPrefix}`)),
 ];
 
-// 据点 key 完全由当前数据源的 RegionPrefix + LocationId 派生。英文名变化导致 ID 更新时，
-// 先删除旧 key，避免 locale 同时保留两套据点选项。
-function removeStaleSettlementMessages(messages) {
+// 据点 key 完全由当前数据源的 RegionPrefix + LocationId 派生。每次同步都先移除整个据点分组，
+// 再按 sellProductLocations 的游戏据点顺序重建；已有 key 覆盖为 zmdmap 官方名称，旧 ID key 则自动清理。
+export function rebuildSettlementMessages(messages, sourceLocale, insertBeforeKey) {
     const syncedMessages = {};
+    let inserted = 0;
     let removed = 0;
+    let updated = 0;
+    let groupInserted = false;
+
     for (const [
         key,
         value,
     ] of Object.entries(messages)) {
         const isSettlementKey = SETTLEMENT_KEY_PREFIXES.some((prefix) => key.startsWith(prefix));
-        if (isSettlementKey && !CURRENT_SETTLEMENT_KEYS.has(key)) {
-            removed += 1;
+        if (isSettlementKey) {
+            if (!CURRENT_SETTLEMENT_KEYS.has(key)) {
+                removed += 1;
+            }
             continue;
+        }
+
+        if (key === insertBeforeKey) {
+            for (const entry of sellProductLocaleEntries.settlements) {
+                const officialName = entry.names[sourceLocale] || entry.names.CN || entry.names.EN || entry.key;
+                if (!Object.hasOwn(messages, entry.key)) {
+                    inserted += 1;
+                } else if (messages[entry.key] !== officialName) {
+                    updated += 1;
+                }
+                syncedMessages[entry.key] = officialName;
+            }
+            groupInserted = true;
         }
         syncedMessages[key] = value;
     }
+
+    if (!groupInserted) {
+        throw new Error(`[SellProduct] 未找到国际化插入锚点 ${insertBeforeKey}`);
+    }
+
     return {
         messages: syncedMessages,
+        inserted,
         removed,
+        updated,
     };
 }
 
@@ -119,12 +145,9 @@ export function syncSellProductLocaleCatalogs() {
         const localePath = resolve(LOCALE_DIR, `${fileLocale}.json`);
         const originalText = readFileSync(localePath, "utf8");
         const originalMessages = JSON.parse(originalText);
-        const cleanupResult = removeStaleSettlementMessages(originalMessages);
-
         // 据点开关位于 SellProduct 固定设置之后、SellAttempt1 之前，因此以 SellAttempt1 为插入锚点。
-        const stationResult = insertMissingMessages(
-            cleanupResult.messages,
-            sellProductLocaleEntries.settlements,
+        const stationResult = rebuildSettlementMessages(
+            originalMessages,
             sourceLocale,
             "task.SellProduct.SellAttempt1",
         );
@@ -144,7 +167,7 @@ export function syncSellProductLocaleCatalogs() {
         if (syncedText !== originalText.replace(/\r\n/g, "\n")) {
             writeFileSync(localePath, syncedText, "utf8");
             console.log(
-                `[SellProduct] 已为 ${fileLocale}.json 清理 ${cleanupResult.removed} 个旧据点键，补齐 ${stationResult.inserted} 个据点键和 ${operatorResult.inserted} 个干员键。`,
+                `[SellProduct] 已为 ${fileLocale}.json 按据点顺序重排，更新 ${stationResult.updated} 个据点名，清理 ${stationResult.removed} 个旧据点键，补齐 ${stationResult.inserted} 个据点键和 ${operatorResult.inserted} 个干员键。`,
             );
         }
     }
