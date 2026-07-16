@@ -13,12 +13,16 @@ import (
 const (
 	dailyEventGoToRecognitionName = "DailyEventGoToRecognition"
 	dailyEventGoToCandidateNode   = "DailyEventGoToCandidate"
-	dailyEventGoToEntryNameNode   = "DailyEventRecognitionItemText"
 	dailyEventGoToAttachVisited   = "visited"
 )
 
+var dailyEventGoToEntryNameNodes = []string{
+	"DailyEventRecognitionItemTextByRedDot",
+	"DailyEventRecognitionItemTextByNew",
+}
+
 // DailyEventGoToRecognition 读取 attach.visited，排除已点入口后调用外部节点
-// DailyEventGoToCandidate（未读标记 ∧ 入口名）完成识别，并回写 visited。
+// DailyEventGoToCandidate（红点入口 ∨ NEW入口）完成识别，并从 Or 命中结果提取点击框与文案。
 type DailyEventGoToRecognition struct{}
 
 var _ maa.CustomRecognitionRunner = &DailyEventGoToRecognition{}
@@ -50,11 +54,13 @@ func (r *DailyEventGoToRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 	}
 
 	expected := buildDailyEventGoToEntryExpected(visited)
-	if err := ctx.OverridePipeline(map[string]any{
-		dailyEventGoToEntryNameNode: map[string]any{
+	override := make(map[string]any, len(dailyEventGoToEntryNameNodes))
+	for _, entryNode := range dailyEventGoToEntryNameNodes {
+		override[entryNode] = map[string]any{
 			"expected": []string{expected},
-		},
-	}); err != nil {
+		}
+	}
+	if err := ctx.OverridePipeline(override); err != nil {
 		log.Error().Err(err).Str("component", dailyEventGoToRecognitionName).Msg("override entry expected failed")
 		return nil, false
 	}
@@ -69,9 +75,9 @@ func (r *DailyEventGoToRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 		return nil, false
 	}
 
-	text, textBox, ok := extractDailyEventGoToEntryText(ctx, arg)
+	text, ok := extractDailyEventGoToEntryText(detail)
 	if !ok {
-		log.Warn().Str("component", dailyEventGoToRecognitionName).Msg("candidate hit but entry text missing")
+		log.Warn().Str("component", dailyEventGoToRecognitionName).Msg("or hit but entry text missing in results")
 		return nil, false
 	}
 
@@ -85,35 +91,78 @@ func (r *DailyEventGoToRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 	log.Info().
 		Str("component", dailyEventGoToRecognitionName).
 		Str("text", text).
-		Interface("box", textBox).
+		Interface("box", detail.Box).
 		Strs("visited", newVisited).
 		Msg("selected unread event entry")
 
 	return &maa.CustomRecognitionResult{
-		Box:    textBox,
+		Box:    detail.Box,
 		Detail: string(detailJSON),
 	}, true
 }
 
-func extractDailyEventGoToEntryText(ctx *maa.Context, arg *maa.CustomRecognitionArg) (string, maa.Rect, bool) {
-	// ItemText.roi 已相对 EntryUnread；Candidate 命中后直接再跑一次取文案与点击框
-	ocrDetail, err := ctx.RunRecognition(dailyEventGoToEntryNameNode, arg.Img, map[string]any{
-		dailyEventGoToEntryNameNode: map[string]any{
-			"expected": []string{".{3,}"},
-		},
-	})
-	if err != nil || ocrDetail == nil || !ocrDetail.Hit || ocrDetail.Results == nil || len(ocrDetail.Results.Filtered) == 0 {
-		return "", maa.Rect{}, false
+// extractDailyEventGoToEntryText 从 Or(And) 命中结果中提取入口名。
+// And/Or 的 Results 为空，文案在 CombinedResult 里对应 ItemText 子节点。
+func extractDailyEventGoToEntryText(detail *maa.RecognitionDetail) (string, bool) {
+	if detail == nil {
+		return "", false
 	}
-	ocrResult, ok := ocrDetail.Results.Filtered[0].AsOCR()
-	if !ok {
-		return "", maa.Rect{}, false
+	for _, name := range dailyEventGoToEntryNameNodes {
+		child := findDailyEventRecognitionDetailByName(detail, name)
+		if child == nil {
+			continue
+		}
+		if text, ok := ocrTextFromRecognitionResults(child.Results); ok {
+			return text, true
+		}
 	}
-	text := strings.TrimSpace(ocrResult.Text)
-	if text == "" {
-		return "", maa.Rect{}, false
+	return "", false
+}
+
+func findDailyEventRecognitionDetailByName(detail *maa.RecognitionDetail, targetName string) *maa.RecognitionDetail {
+	if detail == nil {
+		return nil
 	}
-	return text, ocrDetail.Box, true
+	if detail.Name == targetName {
+		return detail
+	}
+	for _, child := range detail.CombinedResult {
+		if found := findDailyEventRecognitionDetailByName(child, targetName); found != nil {
+			return found
+		}
+	}
+	return nil
+}
+
+func ocrTextFromRecognitionResults(results *maa.RecognitionResults) (string, bool) {
+	if results == nil {
+		return "", false
+	}
+	tryOCR := func(result *maa.RecognitionResult) (string, bool) {
+		if result == nil {
+			return "", false
+		}
+		ocrResult, ok := result.AsOCR()
+		if !ok {
+			return "", false
+		}
+		text := strings.TrimSpace(ocrResult.Text)
+		return text, text != ""
+	}
+	if text, ok := tryOCR(results.Best); ok {
+		return text, true
+	}
+	for _, result := range results.Filtered {
+		if text, ok := tryOCR(result); ok {
+			return text, true
+		}
+	}
+	for _, result := range results.All {
+		if text, ok := tryOCR(result); ok {
+			return text, true
+		}
+	}
+	return "", false
 }
 
 func loadDailyEventGoToVisited(ctx *maa.Context, nodeName string) ([]string, error) {

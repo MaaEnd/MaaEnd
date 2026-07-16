@@ -94,7 +94,7 @@
     "DailyEventRecognitionRedDot": {
         "desc": "识别活动界面的红点",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "ColorMatch",
             "param": {
                 "roi": [
                     0,
@@ -102,10 +102,19 @@
                     300,
                     666
                 ],
-                "template": [
-                    "DailyRewards/EventRedDot.png"
+                "lower": [
+                    14,
+                    245,
+                    245
                 ],
-                "green_mask": true
+                "upper": [
+                    14,
+                    255,
+                    255
+                ],
+                "method": 40,
+                "count": 40,
+                "connected": true
             }
         }
     },
@@ -122,40 +131,66 @@
             "NEW"
         ]
     },
-    "DailyEventRecognitionUnread": {
-        "desc": "识别活动列表未读标记（红点或NEW）",
-        "recognition": "Or",
-        "any_of": [
-            "DailyEventRecognitionRedDot",
-            "DailyEventRecognitionNew"
-        ]
-    },
-    "DailyEventRecognitionItemText": {
-        "desc": "识别活动列表入口名（至少3字，可由 Go 覆盖 expected 排除已访问）",
+    "DailyEventRecognitionItemTextByRedDot": {
+        "desc": "红点左侧入口名（至少3字，可由 Go 覆盖 expected）",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "DailyEventRecognitionUnread",
+                "roi": "DailyEventRecognitionRedDot",
                 "roi_offset": [
-                    -161,
-                    5,
-                    160,
-                    38
+                    -175,
+                    0,
+                    175,
+                    44
                 ],
                 "expected": [
                     ".{3,}" // 匹配三个及以上字符
-                ],
-                "threshold": 0.7
+                ]
             }
         }
     },
-    "DailyEventGoToCandidate": {
-        "desc": "未读活动入口候选：未读标记 ∧ 左侧入口名",
+    "DailyEventRecognitionItemTextByNew": {
+        "desc": "NEW左侧入口名（至少3字，可由 Go 覆盖 expected）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "DailyEventRecognitionNew",
+                "roi_offset": [
+                    -175,
+                    0,
+                    175,
+                    44
+                ],
+                "expected": [
+                    ".{3,}" // 匹配三个及以上字符
+                ]
+            }
+        }
+    },
+    "DailyEventGoToCandidateByRedDot": {
+        "desc": "红点 ∧ 左侧入口名",
         "recognition": "And",
         "all_of": [
-            "DailyEventRecognitionUnread",
-            "DailyEventRecognitionItemText"
+            "DailyEventRecognitionRedDot",
+            "DailyEventRecognitionItemTextByRedDot"
         ],
         "box_index": 1
+    },
+    "DailyEventGoToCandidateByNew": {
+        "desc": "NEW ∧ 左侧入口名",
+        "recognition": "And",
+        "all_of": [
+            "DailyEventRecognitionNew",
+            "DailyEventRecognitionItemTextByNew"
+        ],
+        "box_index": 1
+    },
+    "DailyEventGoToCandidate": {
+        "desc": "未读活动入口候选：红点入口或NEW入口",
+        "recognition": "Or",
+        "any_of": [
+            "DailyEventGoToCandidateByRedDot",
+            "DailyEventGoToCandidateByNew"
+        ]
     }
 }
