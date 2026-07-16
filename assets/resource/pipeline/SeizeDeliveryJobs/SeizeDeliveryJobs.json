@@ -40,6 +40,8 @@
         "all_of": [
             "__SeizeDeliveryJobsRecoViewCurrentJob"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             // 已接过单，且开启了后处理，就会跳转后续处理
             "SeizeDeliveryJobsPostProcessingEntry",
@@ -72,6 +74,8 @@
         ],
         "template": "SeizeDeliveryJobs/DepotNodePage/JobExhausted.png",
         "order_by": "Score",
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             // 视作任务结束
         ],
@@ -173,16 +177,8 @@
             "__SeizeDeliveryJobsFindTarget16_3"
         ],
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 2000,
-            "target": [
-                2,
-                164,
-                264,
-                103
-            ]
-        },
-        "timeout": 5000, // 断言能在短时间内弹出接取成功动画
+        "post_wait_freezes": 500,
+        "timeout": 10000, // 断言能在短时间内弹出接取成功动画
         "next": [
             "SeizeDeliveryJobsIsSeizeSuccess"
         ],
@@ -205,7 +201,7 @@
         ],
         "template": "SeizeDeliveryJobs/DepotNodePage/JobSeized.png",
         "order_by": "Score",
-        "pre_wait_freezes": 1000, // 等待接取动画结束
+        "pre_wait_freezes": 250,
         "action": "Click",
         "post_delay": 500, // 点击后，等待界面回到大世界
         "next": [
