@@ -17,7 +17,7 @@ export function escapeRegex(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-// 将数据源里的 id 或英文名称转换成稳定的选项/节点后缀。
+// 将数据源里的 id 或英文名称转换成统一格式的选项/节点后缀。
 export function toPascalCase(str) {
     return str
         .split(/[^a-zA-Z0-9]+/)
@@ -45,12 +45,13 @@ function toFlexibleEnglishRegex(text) {
     return `(?i)^${escaped.replace(/\s+/g, "\\s*").replace(/-/g, "\\s*-\\s*")}$`;
 }
 
-// 仅保留有实际识别证据的 OCR 兼容值。官方多语言全文统一从 settlementName 提取，
-// LocationId 也统一由英文名称派生，不再维护手写 ID 覆盖。
+// 官方多语言全文统一从 settlementName 提取，LocationId 也统一由英文名称派生，
+// 不再维护手写 ID 覆盖。以下别名沿用旧 Pipeline 已使用的 OCR 兼容候选；
+// 没有新的实际识别证据时，不再增加片段或误识文本。
 const SETTLEMENT_OCR_ALIASES = {
-    // OCR 会将 Reconstruction HQ 末尾误识为 Hc。
+    // 保留旧 Pipeline 中用于兼容 Reconstruction HQ 末尾误识为 Hc 的候选。
     stm_tundra_3: ["Reconstruction Hc"],
-    // 天王坪页签在不同语言/显示宽度下会出现截断或简称。
+    // 保留旧 Pipeline 中天王坪援建点的多语言片段候选。
     stm_hongs_1: [
         "天王坪",
         "天王坪援助",
@@ -67,7 +68,7 @@ const DOMAIN_REGION_PREFIX = {
     domain_2: "Wuling",
 };
 
-// 生成据点入口 OCR 候选；有手动覆盖时优先使用覆盖值。
+// 生成据点入口 OCR 候选：先加入数据源多语言全文，再追加历史兼容候选。
 function buildSettlementTextExpected(settlementId, settlement) {
     return uniqueArray([
         settlement.settlementName.CN,

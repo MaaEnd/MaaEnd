@@ -7,7 +7,7 @@ import {sellProductLocaleEntries, sellProductLocations} from "./model.mjs";
 // 根据 zmdmap 的 settlement_trade.json 自动维护 SellProduct 使用的国际化键。
 //
 // 这个脚本负责按数据源顺序同步据点，并补齐 locale 尚未登记的干员：
-// 1. 稳定 key 由 model.mjs 统一生成，避免同步脚本和 Pipeline 生成器采用不同命名规则；
+// 1. key 由 model.mjs 统一生成，避免同步脚本和 Pipeline 生成器采用不同命名规则；
 // 2. 据点名始终以 zmdmap 当前五语言文本为准，已有 locale 值也会同步覆盖；
 // 3. 新键插入对应的业务分组，不追加到整个 JSON 的末尾；
 // 4. 写入前检查五语言完整性，重复执行时不产生新的文件变更。
@@ -81,7 +81,7 @@ export function rebuildSettlementMessages(messages, sourceLocale, insertBeforeKe
 /**
  * 把缺失的国际化条目插入指定锚点之前。
  *
- * messages 保持原 JSON 的插入顺序；entries 来自 model.mjs，包含稳定 key 和数据源五语言名称。
+ * messages 保持原 JSON 的插入顺序；entries 来自 model.mjs，包含统一生成的 key 和数据源五语言名称。
  * 只重建内存对象，不在此函数中写文件，方便据点与干员两组数据串联处理。
  */
 function insertMissingMessages(messages, entries, sourceLocale, insertBeforeKey) {

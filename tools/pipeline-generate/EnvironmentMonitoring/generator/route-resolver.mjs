@@ -110,17 +110,17 @@ function buildNavigationParams({
     hasMapGoal,
     heading,
 }) {
-    // 1. Build location assertion node
+    // 1. 构建位置断言识别节点
     const MapAssertRecognition = hasMapTarget ? "MapLocateAssertLocation" : "MapTrackerAssertLocation";
     const MapAssertParam =
         MapAssertRecognition === "MapLocateAssertLocation"
             ? {
-                  // Using MapLocateAssertLocation
+                  // 使用 MapLocateAssertLocation
                   zone_id: MapName,
                   target: MapAssert,
               }
             : {
-                  // Using MapTrackerAssertLocation
+                  // 使用 MapTrackerAssertLocation
                   expected: [
                       {
                           map_name: MapName,
@@ -129,7 +129,7 @@ function buildNavigationParams({
                   ],
               };
 
-    // 2. Build navigation node
+    // 2. 构建导航动作节点
     const MapNavigationAction = hasMapTarget ? "MapNavigateAction" : hasMapGoal ? "MapTrackerGoal" : "MapTrackerMove";
     const mapTrackerExtraParams = {
         ...(heading.HasHeading
@@ -148,7 +148,7 @@ function buildNavigationParams({
     const MapNavigationParam =
         MapNavigationAction === "MapNavigateAction"
             ? {
-                  // Using MapNavigateAction
+                  // 使用 MapNavigateAction
                   path: [
                       {
                           action: "NAVMESH",
@@ -167,13 +167,13 @@ function buildNavigationParams({
               }
             : MapNavigationAction === "MapTrackerGoal"
               ? {
-                    // Using MapTrackerGoal
+                    // 使用 MapTrackerGoal
                     map_name: MapName,
                     target: MapGoal,
                     ...mapTrackerExtraParams,
                 }
               : {
-                    // Using MapTrackerMove
+                    // 使用 MapTrackerMove
                     map_name: MapName,
                     path: MapPath,
                     ...mapTrackerExtraParams,

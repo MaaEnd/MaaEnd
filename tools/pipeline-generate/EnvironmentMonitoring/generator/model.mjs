@@ -24,7 +24,7 @@ function loadKiteStationData() {
 
 export const kiteStationData = loadKiteStationData();
 
-// 监测终端 ID 列表直接从 zmdmap 缓存数据派生：凡是带有 entrustTasks 的条目都算。
+// 监测终端 ID 列表直接从 zmdmap 缓存数据派生：entrustTasks.list 非空的条目都算。
 // 上游游戏数据若新增监测终端会自动包含；新终端要真正可用还需手动补 Pipeline 侧的联动节点
 // （Locations.json / EnvironmentMonitoringLoop.next 等），详见 docs 维护手册。
 export const MONITORING_TERMINAL_IDS = buildMonitoringTerminalIds(kiteStationData);
