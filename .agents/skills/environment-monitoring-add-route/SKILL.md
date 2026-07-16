@@ -27,10 +27,9 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、MapAsse
 2. 按 `MissionId` 刷新 `Name` 和 `Id`；
 3. 为数据源中新增的任务创建仅含 `MissionId` / `Name` / `Id` 的 metadata-only 条目；
 4. 按 `MissionId` 排序 `routes.json`；
-5. 自动补齐五语言 `task.EnvironmentMonitoring.route.{Id}.failed`，保留已有人工文案；
-6. 删除不再使用的路线 `.label` 键。
+5. 自动补齐五语言 `task.EnvironmentMonitoring.route.{Id}.failed`，保留已有人工文案。
 
-因此不要手写路线 `.label`，不要重复追加同一 `MissionId`，也不要依赖手工排列条目顺序。
+因此不要重复追加同一 `MissionId`，也不要依赖手工排列条目顺序。
 
 ## 字段说明
 
@@ -139,7 +138,7 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 - `MapTargetTier` 只能与 `MapTarget` 同时存在；
 - 默认值不写：`CameraMaxHit: 2`、`NoEnsureInitialMovementState: false`；
 - 不确定的可选值直接省略，不写占位值或 TODO 注释；
-- 不手改 `Name` / `Id` 排序，也不手写 locale `.label` / `.failed`。
+- 不手改 `Name` / `Id` 排序或 locale 失败提示，这些内容由同步器维护。
 
 ### 5. 生成并检查产物
 
@@ -172,7 +171,7 @@ pnpm test
 - `routes.json` 中没有重复 `MissionId`，且寻路字段恰好一个；
 - `EnterMap`、`MapName`、坐标和方向仍与用户提供的数据一致；
 - 生成目录包含对应 `{Station}/{Id}.json`，终端列表已接线；
-- 五语言存在对应 `.failed`，不存在路线 `.label`；
+- 五语言存在对应 `.failed`，且已有人工文案未被覆盖；
 - `git diff` 只包含预期的 routes、生成 Pipeline、locale 和文档变更；格式化命令产生的无关改动应排除。
 
 ## 交付说明
