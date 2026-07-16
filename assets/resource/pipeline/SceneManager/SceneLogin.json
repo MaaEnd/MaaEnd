@@ -232,7 +232,8 @@
                 100,
                 100
             ],
-            "time": 600
+            "time": 600,
+            "timeout": 2000
         }
     },
     "__ScenePrivateLoginSuccess": {
