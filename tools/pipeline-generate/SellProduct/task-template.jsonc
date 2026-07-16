@@ -7,6 +7,7 @@
             "description": "$task.SellProduct.description",
             "option": [
                 "SellProductGlobalItemPriority",
+                "SellProductItemReserveRules",
                 "SellProductForceRefreshOperatorCache",
                 "${RegionPrefix}Sell"
             ],
@@ -54,6 +55,95 @@
             "label": "$task.SellProduct.GlobalPriorityItem4",
             "default_case": "None",
             "cases": "${GlobalItemPriorityCases4}"
+        },
+        "SellProductItemReserveRules": {
+            "type": "switch",
+            "label": "$task.SellProduct.ReserveSwitch",
+            "description": "$task.SellProduct.ReserveSwitchDescription",
+            "default_case": "No",
+            "cases": "${ReserveRuleSwitchCases}"
+        },
+        // 保留规则与售卖优先级完全独立；选中具体货品后才展开对应数量输入。
+        "SellProductReserveItem1": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveItem1",
+            "description": "$task.SellProduct.ReserveDescription",
+            "default_case": "None",
+            "cases": "${ReserveItemCases1}"
+        },
+        "SellProductReserveItem1Value": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem1Value",
+                    "label": "$task.SellProduct.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.SellProduct.ReserveQuantityPattern"
+                }
+            ]
+        },
+        "SellProductReserveItem2": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveItem2",
+            "default_case": "None",
+            "cases": "${ReserveItemCases2}"
+        },
+        "SellProductReserveItem2Value": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem2Value",
+                    "label": "$task.SellProduct.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.SellProduct.ReserveQuantityPattern"
+                }
+            ]
+        },
+        "SellProductReserveItem3": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveItem3",
+            "default_case": "None",
+            "cases": "${ReserveItemCases3}"
+        },
+        "SellProductReserveItem3Value": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem3Value",
+                    "label": "$task.SellProduct.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.SellProduct.ReserveQuantityPattern"
+                }
+            ]
+        },
+        "SellProductReserveItem4": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveItem4",
+            "default_case": "None",
+            "cases": "${ReserveItemCases4}"
+        },
+        "SellProductReserveItem4Value": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem4Value",
+                    "label": "$task.SellProduct.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.SellProduct.ReserveQuantityPattern"
+                }
+            ]
         },
         "SellProductForceRefreshOperatorCache": {
             "type": "switch",

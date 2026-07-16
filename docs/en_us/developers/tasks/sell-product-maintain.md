@@ -1,6 +1,6 @@
 # Developer Manual - SellProduct Maintenance Documentation
 
-This document explains the generation pipeline, Pipeline organization, global item priorities, automatic operator selection, and maintenance procedures for adding new outposts or items to the `SellProduct` task.
+This document explains the generation pipeline, Pipeline organization, global item priorities, independent item reserve rules, automatic operator selection, and maintenance procedures for adding new outposts or items to the `SellProduct` task.
 
 The core feature of `SellProduct` is **zmdmap data-driven + Pipeline template generation**: outposts, sellable items, task options, and outpost repeat nodes are not manually written one by one, but are batch-rendered by `tools/pipeline-generate/SellProduct/` after reading `tools/pipeline-generate/data/settlement_trade.json`. The `settlement_trade.json` is downloaded and cached from the zmdmap API via `pnpm fetch:zmdmap`.
 
@@ -12,33 +12,35 @@ The core feature of `SellProduct` is **zmdmap data-driven + Pipeline template ge
 
 The core maintenance points for SellProduct are as follows:
 
-| Module                           | Path                                                              | Purpose                                                                                                                                    |
-| -------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| zmdmap Cached Data               | `tools/pipeline-generate/data/settlement_trade.json`              | Raw data for outposts, prosperity, tradeable items, multilingual names, rarity, unit price, etc.                                           |
-| Shared Outpost Model             | `tools/pipeline-generate/SellProduct/model.mjs`                   | Reads zmdmap and derives `RegionPrefix`, `LocationId`, multilingual OCR candidates, and locale keys.                                       |
-| Win Template Data                | `tools/pipeline-generate/SellProduct/pipeline-data.mjs`           | Exposes only the outpost fields and quantity boxes required by the Win Pipeline template.                                                  |
-| ADB Template Data                | `tools/pipeline-generate/SellProduct/pipeline-adb-data.mjs`       | Exposes only the outpost IDs and quantity boxes required by the ADB Pipeline template.                                                     |
-| Session Template Data            | `tools/pipeline-generate/SellProduct/session-data.mjs`            | Exposes only the fields required by automatic-operator outpost registration nodes.                                                        |
-| Task Template Data               | `tools/pipeline-generate/SellProduct/task-data.mjs`               | Generates global item priorities, cache refresh, and region/outpost switches.                                                             |
-| Outpost Pipeline Template        | `tools/pipeline-generate/SellProduct/pipeline-template.jsonc`     | Generates each outpost selling node for the Win resource pack.                                                                             |
-| Session Pipeline Template        | `tools/pipeline-generate/SellProduct/session-template.jsonc`      | Generates automatic-mode outpost registration nodes.                                                                                       |
-| ADB Outpost Template             | `tools/pipeline-generate/SellProduct/pipeline-adb-template.jsonc` | Generates outpost quantity OCR override nodes for the ADB resource pack.                                                                   |
-| Task Option Template             | `tools/pipeline-generate/SellProduct/task-template.jsonc`         | Generates global priorities, cache refresh, and region/outpost switches in `assets/tasks/SellProduct.json`.                               |
-| Win Outpost Generation Config    | `tools/pipeline-generate/SellProduct/pipeline-config.json`        | Outputs to `assets/resource/pipeline/SellProduct/Outposts/${LocationId}.json`.                                                             |
-| ADB Outpost Generation Config    | `tools/pipeline-generate/SellProduct/pipeline-adb-config.json`    | Outputs to `assets/resource_adb/pipeline/SellProduct/Outposts/${LocationId}.json`.                                                         |
-| Task Option Generation Config    | `tools/pipeline-generate/SellProduct/task-config.json`            | Outputs to `assets/tasks/SellProduct.json`.                                                                                                |
-| Session Generation Config        | `tools/pipeline-generate/SellProduct/session-config.json`         | Outputs to `assets/resource/pipeline/SellProduct/OperatorSession.json`.                                                                    |
-| Task Entry                       | `assets/resource/pipeline/SellProduct.json`                       | Main loop and region entry; manually maintained.                                                                                           |
-| Region Sell Entry                | `assets/resource/pipeline/SellProduct/Sell.json`                  | `next` list for region to outpost mapping; manually maintained.                                                                            |
-| Generic Sell Core                | `assets/resource/pipeline/SellProduct/SellCore.json`              | Sell loop, out-of-stock/dispatch ticket insufficient/exchange limit exceeded handling, final trade flow.                                   |
-| Generic Change Goods Flow        | `assets/resource/pipeline/SellProduct/ChangeGoods.json`           | Enter goods selection interface, select priority item or default item.                                                                     |
-| Generic Outpost Recognition      | `assets/resource/pipeline/SellProduct/EnterOutpost.json`          | Outpost interface, region outpost page, and outpost management text recognition.                                                           |
-| Contact Operator Recognition     | `assets/resource/pipeline/SellProduct/Operator.json`              | Contact operator list interface and open button recognition.                                                                               |
-| Automatic Operator Session/Logic | `agent/go-service/sellproduct/operator_*.go`                      | Theoretical/exact candidates, cache completeness, task sessions, and unique restoration assignment.                                        |
-| ADB Generic Sell Core            | `assets/resource_adb/pipeline/SellProduct/SellCore.json`          | Generic sell core under the ADB resource pack.                                                                                             |
-| Priority Item Custom Recognition | `agent/go-service/sellproduct/normalized_match.go`                | `SellProductNormalizedItemMatch`, performs noise-resistant exact matching on OCR results and candidate names.                              |
-| Multilingual Text                | `assets/locales/interface/*.json`                                 | `SellProduct` task text, outpost names, item labels.                                                                                       |
-| Generation Entry                 | `package.json`'s `generate:SellProduct` / `fetch:zmdmap`          | Updates zmdmap cache and re-renders generated artifacts.                                                                                   |
+| Module                           | Path                                                              | Purpose                                                                                                       |
+| -------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| zmdmap Cached Data               | `tools/pipeline-generate/data/settlement_trade.json`              | Raw data for outposts, prosperity, tradeable items, multilingual names, rarity, unit price, etc.              |
+| Shared Outpost Model             | `tools/pipeline-generate/SellProduct/model.mjs`                   | Derives shared outpost names, multilingual OCR candidates, and locale keys.                                   |
+| Win Template Data                | `tools/pipeline-generate/SellProduct/pipeline-data.mjs`           | Exposes data specific to the Win Pipeline template.                                                           |
+| ADB Template Data                | `tools/pipeline-generate/SellProduct/pipeline-adb-data.mjs`       | Exposes data specific to the ADB Pipeline template.                                                           |
+| Session Template Data            | `tools/pipeline-generate/SellProduct/session-data.mjs`            | Exposes data specific to automatic-operator outpost registration nodes.                                       |
+| Task Template Data               | `tools/pipeline-generate/SellProduct/task-data.mjs`               | Exposes global priorities, independent reserve rules, cache refresh, and region/outpost switches.             |
+| Outpost Pipeline Template        | `tools/pipeline-generate/SellProduct/pipeline-template.jsonc`     | Generates each outpost selling node for the Win resource pack.                                                |
+| Session Pipeline Template        | `tools/pipeline-generate/SellProduct/session-template.jsonc`      | Generates automatic-operator outpost registration nodes.                                                      |
+| ADB Outpost Template             | `tools/pipeline-generate/SellProduct/pipeline-adb-template.jsonc` | Generates outpost quantity OCR override nodes for the ADB resource pack.                                      |
+| Task Option Template             | `tools/pipeline-generate/SellProduct/task-template.jsonc`         | Generates global priorities, independent reserve rules, cache refresh, and region/outpost switches.           |
+| Win Outpost Generation Config    | `tools/pipeline-generate/SellProduct/pipeline-config.json`        | Outputs to `assets/resource/pipeline/SellProduct/Outposts/${LocationId}.json`.                                |
+| ADB Outpost Generation Config    | `tools/pipeline-generate/SellProduct/pipeline-adb-config.json`    | Outputs to `assets/resource_adb/pipeline/SellProduct/Outposts/${LocationId}.json`.                            |
+| Task Option Generation Config    | `tools/pipeline-generate/SellProduct/task-config.json`            | Outputs to `assets/tasks/SellProduct.json`.                                                                   |
+| Session Generation Config        | `tools/pipeline-generate/SellProduct/session-config.json`         | Outputs to `assets/resource/pipeline/SellProduct/OperatorSession.json`.                                       |
+| Task Entry                       | `assets/resource/pipeline/SellProduct.json`                       | Main loop and region entry; manually maintained.                                                              |
+| Region Sell Entry                | `assets/resource/pipeline/SellProduct/Sell.json`                  | `next` list for region to outpost mapping; manually maintained.                                               |
+| Generic Sell Core                | `assets/resource/pipeline/SellProduct/SellCore.json`              | Sell loop, out-of-stock/dispatch ticket insufficient/exchange limit exceeded handling, final trade flow.      |
+| Generic Change Goods Flow        | `assets/resource/pipeline/SellProduct/ChangeGoods.json`           | Enter goods selection interface, select priority item or default item.                                        |
+| Reserve Rule Session             | `assets/resource/pipeline/SellProduct/ReserveSession.json`        | Initializes and registers task-level independent item reserve rules.                                          |
+| Generic Outpost Recognition      | `assets/resource/pipeline/SellProduct/EnterOutpost.json`          | Outpost interface, region outpost page, and outpost management text recognition.                              |
+| Contact Operator Recognition     | `assets/resource/pipeline/SellProduct/Operator.json`              | Contact operator list interface and open button recognition.                                                  |
+| Automatic Operator Session/Logic | `agent/go-service/sellproduct/operator_*.go`                      | Theoretical/exact candidates, cache completeness, task sessions, and unique restoration assignment.           |
+| ADB Generic Sell Core            | `assets/resource_adb/pipeline/SellProduct/SellCore.json`          | Generic sell core under the ADB resource pack.                                                                |
+| Priority Item Custom Recognition | `agent/go-service/sellproduct/normalized_match.go`                | `SellProductNormalizedItemMatch`, performs noise-resistant exact matching on OCR results and candidate names. |
+| Reserve Rule Runtime             | `agent/go-service/sellproduct/reserve_session.go`                 | Dynamically overrides BetterSliding reserve quantities by the selected item's stable itemId.                  |
+| Multilingual Text                | `assets/locales/interface/*.json`                                 | `SellProduct` task text, outpost names, item labels.                                                          |
+| Generation Entry                 | `package.json`'s `generate:SellProduct` / `fetch:zmdmap`          | Updates zmdmap cache and re-renders generated artifacts.                                                      |
 
 ## Generated Artifacts vs. Handwritten File Boundary
 
@@ -185,7 +187,7 @@ The ADB outpost template does not fully copy the Win outpost flow; instead, it o
 }
 ```
 
-This configuration generates global item priorities, forced operator-cache refresh, and region/outpost sell switches in the user interface.
+This configuration generates global item priorities, independent item reserve rules, forced operator-cache refresh, and region/outpost sell switches in the user interface.
 
 ### Shared Model and Template Projections
 
@@ -199,7 +201,7 @@ It currently handles:
 4. Aggregating sellable items per outpost and sorting them by `rarity` and `unitPrice` in descending order.
 5. Mapping `domainId` to the `RegionPrefix` used by the task.
 6. `model.mjs` derives `LocationId` from the English outpost name and builds OCR `TextExpected` from the five-language `settlementName` data.
-7. The four projections inject Win / ADB quantity OCR boxes, the session registration chain, and Task options separately.
+7. The four projections inject Win / ADB quantity OCR boxes, the session registration chain, and Task options such as global priorities and independent reserve rules.
 
 ### OCR Compatibility Aliases
 
@@ -294,20 +296,24 @@ Key points:
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `SellProductGlobalItemPriority`        | Enables global priority items; when disabled, the first two sales use default items                          |
 | `SellProductPriorityItem{1..4}`        | Four sibling priority options under the global switch, shared by every outpost                               |
+| `SellProductItemReserveRules`          | Enables independent item reserve rules, applied by the actual selected itemId                                |
+| `SellProductReserveItem{1..4}`         | Four sibling rules that each select a concrete item and a minimum quantity to keep                           |
 | `SellProductForceRefreshOperatorCache` | Controls whether this run performs a complete operator-cache refresh before selling                          |
 | `{RegionPrefix}Sell`                   | Enables or disables a whole region and expands that region's outpost switches                                |
 | `{RegionPrefix}{LocationId}`           | Enables or disables one outpost together with its `SellProductRegisterAuto{LocationId}` session registration |
 
-Scheduling, automatic quota confirmation, manual operator selection, per-outpost attempt counts, and reserve quantities have been removed. Fixed behavior is now: stop with a prompt when the exchange quota is exceeded, sell the full selected quantity, and always use and restore automatically selected optimal operators at enabled outposts.
+Scheduling, automatic quota confirmation, manual operator selection, and per-outpost attempt counts have been removed. Fixed behavior is now: stop with a prompt when the exchange quota is exceeded and always use and restore automatically selected optimal operators at enabled outposts. Whether an item is fully sold is controlled by the independent reserve rules.
 
 ### Automatic Operator Selection State Machine
 
 Pipeline and Go cooperate on automatic selection. Pipeline owns list navigation, scrolling, closing, and assignment confirmation. Go owns candidate data, cache state, and restoration assignment.
 
-After UID capture, the task entry executes:
+After UID capture, the task entry initializes reserve rules before the automatic-operator session:
 
 ```text
-SellProductInitializeOperatorSession
+SellProductInitializeReserveSession
+-> SellProductRegisterReserveRule{1..4} (only enabled rules with a concrete item)
+-> SellProductInitializeOperatorSession
 -> SellProductRegisterAuto{LocationId} (enabled automatic outposts only)
 -> SellProductOperatorSessionReady
 -> SellProductLoop
@@ -376,12 +382,25 @@ Restoration must prevent one operator from occupying multiple outposts. Go solve
 - Priorities 1 and 2 default to `Auto`, selecting the first and second items from each outpost's rarity-then-unit-price ordering.
 - Priorities 3 and 4 default to `None`, so their sell attempts do not run.
 - Selecting a concrete item enables that slot only at outposts that actually sell the item. Other outposts skip the slot instead of accidentally selling a fallback item.
-- Matching items use the default BetterSliding configuration and sell the full available quantity; reserve quantities are no longer configurable.
+- Priorities only decide what to sell first. Independent reserve rules determine the actual sell quantity.
 - If an enabled priority item is not recognized, `SellProductPriorityGoodMissWarning` still reports the miss and falls back to the default item.
 
-## Priority Item Recognition
+### Independent Item Reserve Rules
 
-The priority item node uses Go custom recognition:
+`SellProductItemReserveRules` is disabled by default. When enabled, it exposes four sibling rule slots. Each slot selects a concrete item and a minimum quantity to keep:
+
+- Reserve rules are fully independent from `SellProductPriorityItem{1..4}`. An item does not need to appear in a priority slot, and no reserve rule is tied to a priority position.
+- Both priority recognition and default selection record the stable `itemId` that was actually selected. Before quantity adjustment, `SellProductReserveSession` looks up the rule by that `itemId`.
+- When a rule matches, BetterSliding uses `TargetReverse: true` and sells only stock above the reserve. If current stock is less than or equal to the reserve, the sell attempt is skipped.
+- When no rule matches, the default sell-all configuration is restored so an override from an earlier use of the same sliding node cannot leak into the current item.
+- Quantity `0` means no reserve, so all stock may be sold.
+- If the same item is configured more than once, the later slot overrides the earlier slot and the replacement is logged.
+
+The reserve runtime only computes and overrides quantity parameters. Pipeline still owns item switching, confirmation, trading, and post-sale looping, preserving the project's “Pipeline owns flow, Go owns hard logic” boundary.
+
+## Item Recognition and Actual itemId Recording
+
+Priority-item nodes and default-selection recording nodes used when reserve rules are enabled share the same Go custom recognition:
 
 ```text
 SellProductNormalizedItemMatch
@@ -392,6 +411,8 @@ Implementation file:
 ```text
 agent/go-service/sellproduct/normalized_match.go
 ```
+
+Priority options inject `item_id` directly. Default selection resolves the actual item from every multilingual item name in `settlement_trade.json`. Native OCR nodes still perform the default click, and the recording node runs afterward so candidate recognitions in one `next` list cannot overwrite each other's state.
 
 This recognizer runs OCR within the ROI of the goods selection interface, then performs two layers of strict matching on the OCR text and `candidates`:
 
@@ -510,7 +531,7 @@ Before committing, at least check:
 1. Whether `assets/tasks/SellProduct.json` conforms to interface V2.
 2. Whether the generated outpost files have no residual old outposts.
 3. Whether the region `next` in `SellProduct/Sell.json` includes the corresponding outposts.
-4. Whether the global priorities, cache refresh, region, and outpost switch hierarchy is complete.
+4. Whether the global priorities, independent reserve rules, cache refresh, region, and outpost switch hierarchy is complete.
 5. Whether both Win and ADB `Outposts/*.json` have been regenerated.
 6. Whether JSON/Markdown conforms to `.prettierrc`.
 

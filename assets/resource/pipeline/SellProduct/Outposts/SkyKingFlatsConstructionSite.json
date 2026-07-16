@@ -959,6 +959,19 @@
             "SellProductSelectNewGoodConfirm"
         ]
     },
+    "SellProductSkyKingFlatsConstructionSiteRecordItem1": {
+        "desc": "天王坪援建点记录售卖优先物品1",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "select",
+            "item_id": ""
+        },
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
     // ===== 优先物品 2 =====
     "SellProductSkyKingFlatsConstructionSiteSelectItem2": {
         "desc": "天王坪援建点售卖优先物品2",
@@ -981,6 +994,19 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductSkyKingFlatsConstructionSiteRecordItem2": {
+        "desc": "天王坪援建点记录售卖优先物品2",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "select",
+            "item_id": ""
+        },
         "next": [
             "SellProductSelectNewGoodConfirm"
         ]
@@ -1011,6 +1037,19 @@
             "SellProductSelectNewGoodConfirm"
         ]
     },
+    "SellProductSkyKingFlatsConstructionSiteRecordItem3": {
+        "desc": "天王坪援建点记录售卖优先物品3",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "select",
+            "item_id": ""
+        },
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
     // ===== 优先物品 4 =====
     "SellProductSkyKingFlatsConstructionSiteSelectItem4": {
         "desc": "天王坪援建点售卖优先物品4",
@@ -1033,6 +1072,19 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductSkyKingFlatsConstructionSiteRecordItem4": {
+        "desc": "天王坪援建点记录售卖优先物品4",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "select",
+            "item_id": ""
+        },
         "next": [
             "SellProductSelectNewGoodConfirm"
         ]
@@ -1076,6 +1128,22 @@
             "SellProductSell"
         ]
     },
+    "SellProductSkyKingFlatsConstructionSiteApplyReserve1": {
+        "desc": "天王坪援建点第1次尝试-应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "apply",
+            "sliding_node": "SellProductSkyKingFlatsConstructionSiteBetterSliding1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSkyKingFlatsConstructionSiteBetterSliding1"
+        ]
+    },
     "SellProductSkyKingFlatsConstructionSiteBetterSliding2": {
         "desc": "天王坪援建点第2次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
@@ -1113,6 +1181,22 @@
         "rate_limit": 0,
         "next": [
             "SellProductSell"
+        ]
+    },
+    "SellProductSkyKingFlatsConstructionSiteApplyReserve2": {
+        "desc": "天王坪援建点第2次尝试-应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "apply",
+            "sliding_node": "SellProductSkyKingFlatsConstructionSiteBetterSliding2"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSkyKingFlatsConstructionSiteBetterSliding2"
         ]
     },
     "SellProductSkyKingFlatsConstructionSiteBetterSliding3": {
@@ -1154,6 +1238,22 @@
             "SellProductSell"
         ]
     },
+    "SellProductSkyKingFlatsConstructionSiteApplyReserve3": {
+        "desc": "天王坪援建点第3次尝试-应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "apply",
+            "sliding_node": "SellProductSkyKingFlatsConstructionSiteBetterSliding3"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSkyKingFlatsConstructionSiteBetterSliding3"
+        ]
+    },
     "SellProductSkyKingFlatsConstructionSiteBetterSliding4": {
         "desc": "天王坪援建点第4次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
@@ -1191,6 +1291,22 @@
         "rate_limit": 0,
         "next": [
             "SellProductSell"
+        ]
+    },
+    "SellProductSkyKingFlatsConstructionSiteApplyReserve4": {
+        "desc": "天王坪援建点第4次尝试-应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "apply",
+            "sliding_node": "SellProductSkyKingFlatsConstructionSiteBetterSliding4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSkyKingFlatsConstructionSiteBetterSliding4"
         ]
     }
 }

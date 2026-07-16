@@ -949,6 +949,19 @@
             "SellProductSelectNewGoodConfirm"
         ]
     },
+    "SellProductCardiacRemediationStationRecordItem1": {
+        "desc": "心脏修缮站记录售卖优先物品1",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "select",
+            "item_id": ""
+        },
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
     // ===== 优先物品 2 =====
     "SellProductCardiacRemediationStationSelectItem2": {
         "desc": "心脏修缮站售卖优先物品2",
@@ -971,6 +984,19 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductCardiacRemediationStationRecordItem2": {
+        "desc": "心脏修缮站记录售卖优先物品2",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "select",
+            "item_id": ""
+        },
         "next": [
             "SellProductSelectNewGoodConfirm"
         ]
@@ -1001,6 +1027,19 @@
             "SellProductSelectNewGoodConfirm"
         ]
     },
+    "SellProductCardiacRemediationStationRecordItem3": {
+        "desc": "心脏修缮站记录售卖优先物品3",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "select",
+            "item_id": ""
+        },
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
     // ===== 优先物品 4 =====
     "SellProductCardiacRemediationStationSelectItem4": {
         "desc": "心脏修缮站售卖优先物品4",
@@ -1023,6 +1062,19 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductCardiacRemediationStationRecordItem4": {
+        "desc": "心脏修缮站记录售卖优先物品4",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "select",
+            "item_id": ""
+        },
         "next": [
             "SellProductSelectNewGoodConfirm"
         ]
@@ -1066,6 +1118,22 @@
             "SellProductSell"
         ]
     },
+    "SellProductCardiacRemediationStationApplyReserve1": {
+        "desc": "心脏修缮站第1次尝试-应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "apply",
+            "sliding_node": "SellProductCardiacRemediationStationBetterSliding1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationBetterSliding1"
+        ]
+    },
     "SellProductCardiacRemediationStationBetterSliding2": {
         "desc": "心脏修缮站第2次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
@@ -1103,6 +1171,22 @@
         "rate_limit": 0,
         "next": [
             "SellProductSell"
+        ]
+    },
+    "SellProductCardiacRemediationStationApplyReserve2": {
+        "desc": "心脏修缮站第2次尝试-应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "apply",
+            "sliding_node": "SellProductCardiacRemediationStationBetterSliding2"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationBetterSliding2"
         ]
     },
     "SellProductCardiacRemediationStationBetterSliding3": {
@@ -1144,6 +1228,22 @@
             "SellProductSell"
         ]
     },
+    "SellProductCardiacRemediationStationApplyReserve3": {
+        "desc": "心脏修缮站第3次尝试-应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "apply",
+            "sliding_node": "SellProductCardiacRemediationStationBetterSliding3"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationBetterSliding3"
+        ]
+    },
     "SellProductCardiacRemediationStationBetterSliding4": {
         "desc": "心脏修缮站第4次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
@@ -1181,6 +1281,22 @@
         "rate_limit": 0,
         "next": [
             "SellProductSell"
+        ]
+    },
+    "SellProductCardiacRemediationStationApplyReserve4": {
+        "desc": "心脏修缮站第4次尝试-应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "apply",
+            "sliding_node": "SellProductCardiacRemediationStationBetterSliding4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationBetterSliding4"
         ]
     }
 }

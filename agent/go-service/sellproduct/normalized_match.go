@@ -33,8 +33,11 @@ import (
 
 const componentName = "SellProductNormalizedItemMatch"
 
-type params struct {
-	Candidates []string `json:"candidates"`
+type normalizedMatchParams struct {
+	Candidates      []string `json:"candidates"`
+	ItemID          string   `json:"item_id,omitempty"`
+	SelectDefault   bool     `json:"select_default,omitempty"`
+	RecordSelection bool     `json:"record_selection,omitempty"`
 }
 
 type NormalizedMatchRecognition struct{}
@@ -57,7 +60,7 @@ func (r *NormalizedMatchRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		return nil, false
 	}
 
-	if len(p.Candidates) == 0 {
+	if len(p.Candidates) == 0 && !p.SelectDefault {
 		log.Warn().Str("component", componentName).Msg("candidates is empty, nothing to match")
 		return nil, false
 	}
@@ -84,24 +87,41 @@ func (r *NormalizedMatchRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		return nil, false
 	}
 
-	best := findBestMatch(ocrItems, p.Candidates)
+	var best *matchResult
+	selectedItemID := p.ItemID
+	if p.SelectDefault {
+		groups, err := loadItemSelectionGroupsFunc()
+		if err != nil {
+			log.Error().Err(err).Str("component", componentName).Msg("failed to load item candidates")
+			return nil, false
+		}
+		best, selectedItemID = findBestItemMatch(ocrItems, groups)
+	} else {
+		best = findBestMatch(ocrItems, p.Candidates)
+	}
 	if best == nil {
 		ocrTexts := make([]string, 0, len(ocrItems))
 		for _, it := range ocrItems {
 			ocrTexts = append(ocrTexts, it.text)
 		}
-		log.Debug().
+		event := log.Debug().
 			Str("component", componentName).
-			Strs("ocr_texts", ocrTexts).
-			Strs("candidates", p.Candidates).
-			Msg("no candidate matched")
+			Strs("ocr_texts", ocrTexts)
+		if p.SelectDefault {
+			event.Bool("select_default", true).Msg("no item candidate matched")
+		} else {
+			event.Strs("candidates", p.Candidates).Msg("no candidate matched")
+		}
 		return nil, false
 	}
-
+	if p.RecordSelection && selectedItemID != "" {
+		setSelectedReserveItem(selectedItemID)
+	}
 	log.Debug().
 		Str("component", componentName).
 		Str("ocr_text", best.ocrText).
 		Str("matched_candidate", best.candidate).
+		Str("item_id", selectedItemID).
 		Str("match_tier", best.tier).
 		Interface("box", best.box).
 		Msg("normalized match hit")
@@ -109,6 +129,7 @@ func (r *NormalizedMatchRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 	detailJSON, _ := json.Marshal(map[string]any{
 		"ocr_text":          best.ocrText,
 		"matched_candidate": best.candidate,
+		"item_id":           selectedItemID,
 		"match_tier":        best.tier,
 	})
 
@@ -118,15 +139,16 @@ func (r *NormalizedMatchRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 	}, true
 }
 
-func parseParams(raw string) (*params, error) {
+func parseParams(raw string) (*normalizedMatchParams, error) {
 	raw = strings.TrimSpace(raw)
 	if raw == "" {
 		return nil, fmt.Errorf("custom_recognition_param is empty")
 	}
-	var p params
+	var p normalizedMatchParams
 	if err := json.Unmarshal([]byte(raw), &p); err != nil {
 		return nil, fmt.Errorf("unmarshal custom_recognition_param: %w", err)
 	}
+	p.ItemID = strings.TrimSpace(p.ItemID)
 	return &p, nil
 }
 

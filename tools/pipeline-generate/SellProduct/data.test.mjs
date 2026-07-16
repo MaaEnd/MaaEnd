@@ -54,6 +54,11 @@ test("SellProduct templates consume separate minimal projections of the shared l
         "LocationId",
         "OperatorRefreshModeCases",
         "RegionPrefix",
+        "ReserveItemCases1",
+        "ReserveItemCases2",
+        "ReserveItemCases3",
+        "ReserveItemCases4",
+        "ReserveRuleSwitchCases",
         "SellOptions",
     ]);
 });
@@ -94,8 +99,46 @@ test("SellProduct automatic global priority enables every outpost with a concret
         const select = autoCase.pipeline_override[`SellProduct${row.LocationId}SelectItem1`];
         assert.equal(attempt.enabled, true, `${row.LocationId} should enable its first automatic priority`);
         assert.equal(select.enabled, true, `${row.LocationId} should configure its first automatic priority`);
+        assert.ok(select.custom_recognition_param.item_id);
         assert.ok(select.custom_recognition_param.candidates.length > 0);
+        const record = autoCase.pipeline_override[`SellProduct${row.LocationId}RecordItem1`];
+        assert.equal(record.custom_action_param.item_id, select.custom_recognition_param.item_id);
     }
+});
+
+test("SellProduct reserve rules are sibling options independent from priorities", () => {
+    const enabledCase = root.ReserveRuleSwitchCases.find((itemCase) => itemCase.name === "Yes");
+    assert.deepEqual(enabledCase.option, [
+        "SellProductReserveItem1",
+        "SellProductReserveItem2",
+        "SellProductReserveItem3",
+        "SellProductReserveItem4",
+    ]);
+    assert.deepEqual(enabledCase.pipeline_override.SellProductSelectNextGood.next, [
+        "SellProductRecordNextGood",
+    ]);
+    for (const row of sellProductTaskRows) {
+        assert.equal(
+            enabledCase.pipeline_override[`SellProduct${row.LocationId}SellAttempt1`].anchor.SellProductBetterSliding,
+            `SellProduct${row.LocationId}ApplyReserve1`,
+        );
+    }
+});
+
+test("SellProduct concrete reserve rule registers itemId and quantity input", () => {
+    const itemCase = root.ReserveItemCases1.find((entry) => entry.name === "精选荞愈胶囊");
+    assert.ok(itemCase);
+    assert.deepEqual(itemCase.option, ["SellProductReserveItem1Value"]);
+    const registration = itemCase.pipeline_override.SellProductRegisterReserveRule1;
+    assert.equal(registration.enabled, true);
+    assert.ok(registration.custom_action_param.item_id.startsWith("item_"));
+    assert.equal(registration.custom_action_param.quantity, "{SellProductReserveItem1Value}");
+});
+
+test("SellProduct reserve None case does not register a rule", () => {
+    const noneCase = root.ReserveItemCases1.find((entry) => entry.name === "None");
+    assert.ok(noneCase);
+    assert.equal(noneCase.pipeline_override, undefined);
 });
 
 test("SellProduct concrete global priority only enables outposts that sell the item", () => {

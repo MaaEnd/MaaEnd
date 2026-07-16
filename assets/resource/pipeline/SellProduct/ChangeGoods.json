@@ -72,6 +72,27 @@
             "Node.Action.Starting": "已配置优先货品，但当前未识别到任何匹配项，直接售卖当前货品"
         }
     },
+    "SellProductRecordFirstGood": {
+        "desc": "识别第一个货品并记录实际货品供保留规则使用",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductNormalizedItemMatch",
+        "custom_recognition_param": {
+            "select_default": true,
+            "record_selection": true
+        },
+        "roi": [
+            179,
+            171,
+            299,
+            102
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
     "SellProductSelectFirstGood": {
         "desc": "在更换界面中点击第一个货品，作为默认选择",
         "recognition": "OCR",
@@ -89,6 +110,27 @@
         "anchor": {
             "SellProductSelectGoodFirstTime": ""
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductRecordNextGood": {
+        "desc": "识别下一个货品并记录实际货品供保留规则使用",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductNormalizedItemMatch",
+        "custom_recognition_param": {
+            "select_default": true,
+            "record_selection": true
+        },
+        "roi": [
+            511,
+            180,
+            274,
+            83
+        ],
+        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

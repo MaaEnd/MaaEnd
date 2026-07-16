@@ -39,16 +39,26 @@ type operatorSelectionData struct {
 	RestoreGroups    []operatorCandidateGroup
 }
 
-// 以下结构只映射 settlement_trade.json 中与干员选择相关的字段。
+// 以下结构只映射 settlement_trade.json 中与干员和货品选择相关的字段。
 // 保持窄结构可避免上游资源增加无关字段时影响本模块解析。
 type settlementTradeFile struct {
 	Settlements map[string]settlementTradeSettlement `json:"settlements"`
 }
 
 type settlementTradeSettlement struct {
-	SettlementName     map[string]string        `json:"settlementName"`
-	DomainID           string                   `json:"domainId"`
-	SettlementFeatures []settlementTradeFeature `json:"settlementFeatures"`
+	SettlementName     map[string]string                         `json:"settlementName"`
+	DomainID           string                                    `json:"domainId"`
+	SettlementFeatures []settlementTradeFeature                  `json:"settlementFeatures"`
+	ByProsperityLevel  map[string]settlementTradeProsperityLevel `json:"byProsperityLevel"`
+}
+
+type settlementTradeProsperityLevel struct {
+	TradeItems []settlementTradeItem `json:"tradeItems"`
+}
+
+type settlementTradeItem struct {
+	ItemID string            `json:"itemId"`
+	Name   map[string]string `json:"name"`
 }
 
 type settlementTradeFeature struct {

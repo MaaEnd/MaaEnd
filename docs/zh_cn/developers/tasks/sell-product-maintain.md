@@ -1,6 +1,6 @@
 # 开发手册 - SellProduct 维护文档
 
-本文说明 `SellProduct`（售卖产品）任务的生成链路、Pipeline 组织、全局物品优先级、自动干员选择与新增据点/物品时的维护方式。
+本文说明 `SellProduct`（售卖产品）任务的生成链路、Pipeline 组织、全局物品优先级、独立物品保留规则、自动干员选择与新增据点/物品时的维护方式。
 
 `SellProduct` 的核心特点是 **zmdmap 数据驱动 + Pipeline 模板生成**：据点、可售卖物品、任务选项和各据点重复节点不是逐个手写出来的，而是由 `tools/pipeline-generate/SellProduct/` 读取 `tools/pipeline-generate/data/settlement_trade.json` 后批量渲染。`settlement_trade.json` 由 `pnpm fetch:zmdmap` 从 zmdmap API 下载并缓存。
 
@@ -12,33 +12,35 @@
 
 SellProduct 的核心维护点如下：
 
-| 模块               | 路径                                                              | 作用                                                                                            |
-| ------------------ | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| zmdmap 缓存数据    | `tools/pipeline-generate/data/settlement_trade.json`              | 据点、繁荣度、可交易物品、多语言名称、稀有度、单价等原始数据                                    |
-| 共享据点模型       | `tools/pipeline-generate/SellProduct/model.mjs`                   | 读取 zmdmap，统一派生 `RegionPrefix` / `LocationId` / 多语言 OCR 与 locale 键                   |
-| Win 模板数据       | `tools/pipeline-generate/SellProduct/pipeline-data.mjs`           | 只输出 Win Pipeline 模板需要的据点字段和数量识别框                                              |
-| ADB 模板数据       | `tools/pipeline-generate/SellProduct/pipeline-adb-data.mjs`       | 只输出 ADB Pipeline 模板需要的据点 ID 和数量识别框                                              |
-| 会话模板数据       | `tools/pipeline-generate/SellProduct/session-data.mjs`            | 只输出自动干员据点注册节点需要的字段                                                    |
-| Task 模板数据      | `tools/pipeline-generate/SellProduct/task-data.mjs`               | 生成全局物品优先级、缓存刷新和地区/据点开关                                                    |
-| 据点 Pipeline 模板 | `tools/pipeline-generate/SellProduct/pipeline-template.jsonc`     | 生成 Win 资源包的每个据点售卖节点                                                               |
-| 会话 Pipeline 模板 | `tools/pipeline-generate/SellProduct/session-template.jsonc`      | 生成自动模式据点注册节点                                                                        |
-| ADB 据点模板       | `tools/pipeline-generate/SellProduct/pipeline-adb-template.jsonc` | 生成 ADB 资源包的据点数量 OCR 覆盖节点                                                          |
-| 任务选项模板       | `tools/pipeline-generate/SellProduct/task-template.jsonc`         | 生成 `assets/tasks/SellProduct.json` 中的全局优先级、缓存刷新和地区/据点开关                         |
-| Win 据点生成配置   | `tools/pipeline-generate/SellProduct/pipeline-config.json`        | 输出到 `assets/resource/pipeline/SellProduct/Outposts/${LocationId}.json`                       |
-| ADB 据点生成配置   | `tools/pipeline-generate/SellProduct/pipeline-adb-config.json`    | 输出到 `assets/resource_adb/pipeline/SellProduct/Outposts/${LocationId}.json`                   |
-| 任务选项生成配置   | `tools/pipeline-generate/SellProduct/task-config.json`            | 输出到 `assets/tasks/SellProduct.json`                                                          |
-| 会话生成配置       | `tools/pipeline-generate/SellProduct/session-config.json`         | 输出到 `assets/resource/pipeline/SellProduct/OperatorSession.json`                              |
-| 任务入口           | `assets/resource/pipeline/SellProduct.json`                       | 主循环、地区入口；手写维护                                                                     |
-| 地区售卖入口       | `assets/resource/pipeline/SellProduct/Sell.json`                  | 地区到据点的 `next` 列表；手写维护                                                              |
-| 通用售卖核心       | `assets/resource/pipeline/SellProduct/SellCore.json`              | 售卖循环、缺货/调度券不足/超出兑换上限处理、最终交易流程                                        |
-| 通用换货流程       | `assets/resource/pipeline/SellProduct/ChangeGoods.json`           | 进入选择货品界面、选择优先物品或默认物品                                                        |
-| 据点通用识别       | `assets/resource/pipeline/SellProduct/EnterOutpost.json`          | 据点界面、地区据点页和据点管理文本识别                                                          |
-| 联络干员通用识别   | `assets/resource/pipeline/SellProduct/Operator.json`              | 联络干员列表界面和打开按钮识别                                                                  |
-| 自动干员会话/算法  | `agent/go-service/sellproduct/operator_*.go`                      | 理论/精确候选、缓存完整性、任务会话和恢复唯一分配                                               |
-| ADB 通用售卖核心   | `assets/resource_adb/pipeline/SellProduct/SellCore.json`          | ADB 资源包下的通用售卖核心                                                                      |
-| 优先物品自定义识别 | `agent/go-service/sellproduct/normalized_match.go`                | `SellProductNormalizedItemMatch`，对 OCR 结果和候选名做抗噪声精确匹配                           |
-| 多语言文案         | `assets/locales/interface/*.json`                                 | `SellProduct` 任务文案、据点名、物品 label                                                      |
-| 生成入口           | `package.json` 的 `generate:SellProduct` / `fetch:zmdmap`         | 更新 zmdmap 缓存并重新渲染生成产物                                                              |
+| 模块               | 路径                                                              | 作用                                                                          |
+| ------------------ | ----------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| zmdmap 缓存数据    | `tools/pipeline-generate/data/settlement_trade.json`              | 据点、繁荣度、可交易物品、多语言名称、稀有度、单价等原始数据                  |
+| 共享据点模型       | `tools/pipeline-generate/SellProduct/model.mjs`                   | 统一派生据点命名、多语言 OCR 与 locale 键                                     |
+| Win 模板数据       | `tools/pipeline-generate/SellProduct/pipeline-data.mjs`           | 输出 Win Pipeline 模板专属数据                                                |
+| ADB 模板数据       | `tools/pipeline-generate/SellProduct/pipeline-adb-data.mjs`       | 输出 ADB Pipeline 模板专属数据                                                |
+| 会话模板数据       | `tools/pipeline-generate/SellProduct/session-data.mjs`            | 输出自动干员据点注册节点专属数据                                              |
+| Task 模板数据      | `tools/pipeline-generate/SellProduct/task-data.mjs`               | 输出全局优先级、独立保留规则、缓存刷新和地区/据点开关                         |
+| 据点 Pipeline 模板 | `tools/pipeline-generate/SellProduct/pipeline-template.jsonc`     | 生成 Win 资源包的每个据点售卖节点                                             |
+| 会话 Pipeline 模板 | `tools/pipeline-generate/SellProduct/session-template.jsonc`      | 生成自动干员据点注册节点                                                      |
+| ADB 据点模板       | `tools/pipeline-generate/SellProduct/pipeline-adb-template.jsonc` | 生成 ADB 资源包的据点数量 OCR 覆盖节点                                        |
+| 任务选项模板       | `tools/pipeline-generate/SellProduct/task-template.jsonc`         | 生成全局优先级、独立保留规则、缓存刷新和地区/据点开关                         |
+| Win 据点生成配置   | `tools/pipeline-generate/SellProduct/pipeline-config.json`        | 输出到 `assets/resource/pipeline/SellProduct/Outposts/${LocationId}.json`     |
+| ADB 据点生成配置   | `tools/pipeline-generate/SellProduct/pipeline-adb-config.json`    | 输出到 `assets/resource_adb/pipeline/SellProduct/Outposts/${LocationId}.json` |
+| 任务选项生成配置   | `tools/pipeline-generate/SellProduct/task-config.json`            | 输出到 `assets/tasks/SellProduct.json`                                        |
+| 会话生成配置       | `tools/pipeline-generate/SellProduct/session-config.json`         | 输出到 `assets/resource/pipeline/SellProduct/OperatorSession.json`            |
+| 任务入口           | `assets/resource/pipeline/SellProduct.json`                       | 主循环、地区入口；手写维护                                                    |
+| 地区售卖入口       | `assets/resource/pipeline/SellProduct/Sell.json`                  | 地区到据点的 `next` 列表；手写维护                                            |
+| 通用售卖核心       | `assets/resource/pipeline/SellProduct/SellCore.json`              | 售卖循环、缺货/调度券不足/超出兑换上限处理、最终交易流程                      |
+| 通用换货流程       | `assets/resource/pipeline/SellProduct/ChangeGoods.json`           | 进入选择货品界面、选择优先物品或默认物品                                      |
+| 保留规则会话       | `assets/resource/pipeline/SellProduct/ReserveSession.json`        | 初始化并注册任务级独立物品保留规则                                            |
+| 据点通用识别       | `assets/resource/pipeline/SellProduct/EnterOutpost.json`          | 据点界面、地区据点页和据点管理文本识别                                        |
+| 联络干员通用识别   | `assets/resource/pipeline/SellProduct/Operator.json`              | 联络干员列表界面和打开按钮识别                                                |
+| 自动干员会话/算法  | `agent/go-service/sellproduct/operator_*.go`                      | 理论/精确候选、缓存完整性、任务会话和恢复唯一分配                             |
+| ADB 通用售卖核心   | `assets/resource_adb/pipeline/SellProduct/SellCore.json`          | ADB 资源包下的通用售卖核心                                                    |
+| 优先物品自定义识别 | `agent/go-service/sellproduct/normalized_match.go`                | `SellProductNormalizedItemMatch`，对 OCR 结果和候选名做抗噪声精确匹配         |
+| 保留规则运行时     | `agent/go-service/sellproduct/reserve_session.go`                 | 按实际选中的 itemId 动态覆盖 BetterSliding 保留数量                           |
+| 多语言文案         | `assets/locales/interface/*.json`                                 | `SellProduct` 任务文案、据点名、物品 label                                    |
+| 生成入口           | `package.json` 的 `generate:SellProduct` / `fetch:zmdmap`         | 更新 zmdmap 缓存并重新渲染生成产物                                            |
 
 ## 生成产物与手写文件边界
 
@@ -185,7 +187,7 @@ ADB 据点模板不是完整复制 Win 据点流程，而是只生成各据点 4
 }
 ```
 
-该配置生成用户界面中的全局物品优先级、强制刷新干员缓存，以及地区和据点售卖开关。
+该配置生成用户界面中的全局物品优先级、独立物品保留规则、强制刷新干员缓存，以及地区和据点售卖开关。
 
 ### 共享模型与模板投影
 
@@ -199,7 +201,7 @@ ADB 据点模板不是完整复制 Win 据点流程，而是只生成各据点 4
 4. 按据点统计可售卖物品，并按 `rarity`、`unitPrice` 降序排列。
 5. 将 `domainId` 映射成任务使用的 `RegionPrefix`。
 6. `model.mjs` 从英文据点名自动派生 `LocationId`，并从五语言 `settlementName` 生成 OCR `TextExpected`。
-7. 四个投影分别注入 Win / ADB 数量 OCR 区域、会话注册链和 Task 选项。
+7. 四个投影分别注入 Win / ADB 数量 OCR 区域、会话注册链，以及全局优先级、独立保留规则等 Task 选项。
 
 ### OCR 兼容值
 
@@ -239,6 +241,7 @@ SellProduct{LocationId}SelectItem{N}
 覆盖内容包括：
 
 - `enabled: true`
+- `custom_recognition_param.item_id`
 - `custom_recognition_param.candidates`
 - 未命中处理 anchor
 
@@ -294,20 +297,24 @@ SellProductMain
 | -------------------------------------- | ----------------------------------------------------------------------------------------- |
 | `SellProductGlobalItemPriority`        | 控制是否启用全局优先物品；关闭时按默认货品执行前两次售卖                                  |
 | `SellProductPriorityItem{1..4}`        | 总开关下同级显示的四档售卖物品优先级，统一应用于全部据点                                  |
+| `SellProductItemReserveRules`          | 控制是否启用独立物品保留规则；规则按实际选中的 itemId 生效                                |
+| `SellProductReserveItem{1..4}`         | 四条同级保留规则，每条分别选择具体物品和最低保留数量                                      |
 | `SellProductForceRefreshOperatorCache` | 控制本次任务是否在售卖前完整刷新干员缓存                                                  |
 | `{RegionPrefix}Sell`                   | 控制整个地区是否参与售卖，并展开该地区的据点开关                                          |
 | `{RegionPrefix}{LocationId}`           | 控制单个据点是否参与售卖，同时启用或禁用对应的 `SellProductRegisterAuto{LocationId}` 节点 |
 
-已移除执行周期、超出兑换上限自动确认、手动干员、售卖次数和保留份数等选项。固定行为为：超出兑换上限时停止并提示、具体货品全部售出、启用据点始终自动选择最优干员并在售卖后恢复。
+已移除执行周期、超出兑换上限自动确认、手动干员和售卖次数等选项。固定行为为：超出兑换上限时停止并提示、启用据点始终自动选择最优干员并在售卖后恢复；物品是否全部售出则由独立保留规则决定。
 
 ### 自动选择干员状态机
 
 自动选择由 Pipeline 和 Go 协作完成：Pipeline 负责打开、滚动、关闭列表及派驻确认，Go 只负责候选数据、缓存状态和恢复分配算法。
 
-任务入口在捕获 UID 后执行：
+任务入口在捕获 UID 后先初始化保留规则，再初始化自动干员会话：
 
 ```text
-SellProductInitializeOperatorSession
+SellProductInitializeReserveSession
+-> SellProductRegisterReserveRule{1..4}（仅启用且已选择具体物品的规则）
+-> SellProductInitializeOperatorSession
 -> SellProductRegisterAuto{LocationId}（仅启用自动模式的据点）
 -> SellProductOperatorSessionReady
 -> SellProductLoop
@@ -376,12 +383,25 @@ SellProductInitializeOperatorSession
 - 第 1、2 档默认使用 `Auto`，分别按每个据点自身的稀有度、单价排序选择第一和第二件货品。
 - 第 3、4 档默认使用 `None`，不会执行对应售卖尝试。
 - 选择具体货品时，只启用实际出售该货品的据点；其他据点会跳过该顺位，不会因列表中不存在该货品而产生误售。
-- 命中具体货品后使用默认 BetterSliding 配置全部售出，不再支持保留指定份数。
+- 优先级只决定先卖什么，不携带保留数量；实际售卖数量由独立保留规则统一决定。
 - 若已启用的优先货品在界面中未识别到，流程仍通过 `SellProductPriorityGoodMissWarning` 提示并回退选择默认货品。
 
-## 优先物品识别
+### 独立物品保留规则
 
-优先物品节点使用 Go 自定义识别：
+`SellProductItemReserveRules` 默认关闭。开启后提供四个同级规则槽位，每个槽位选择一个具体物品并填写最低保留数量：
+
+- 保留规则与 `SellProductPriorityItem{1..4}` 完全独立，不要求物品同时出现在优先级列表中，也不绑定任何顺位。
+- 优先物品识别和默认选品都会记录实际命中的稳定 `itemId`；进入数量滑块前，`SellProductReserveSession` 根据该 `itemId` 查询规则。
+- 命中规则时，BetterSliding 使用 `TargetReverse: true`，只售卖超出保留数量的部分；当前库存小于等于保留数量时跳过本次交易。
+- 未命中规则时恢复默认配置并全部售出，防止同一滑块节点上次应用过的规则残留。
+- 数量 `0` 等价于不保留，即全部可售。
+- 同一物品重复配置时，后面的规则槽位覆盖前面的槽位，并在日志中记录覆盖。
+
+保留规则只负责计算和覆盖数量参数；换货、确认、交易和售后循环仍由 Pipeline 驱动，符合“Pipeline 管流程，Go 管难点”的职责边界。
+
+## 物品识别与实际 itemId 记录
+
+优先物品节点和启用保留规则后的默认选品记录节点都使用 Go 自定义识别：
 
 ```text
 SellProductNormalizedItemMatch
@@ -392,6 +412,8 @@ SellProductNormalizedItemMatch
 ```text
 agent/go-service/sellproduct/normalized_match.go
 ```
+
+优先物品由任务选项直接注入 `item_id`；默认选品则从 `settlement_trade.json` 的全部多语言物品名中识别实际货品。默认点击仍由原生 OCR 节点完成，点击后才执行记录节点，避免同一 `next` 列表中的候选识别互相覆盖状态。
 
 这个识别器会在选择货品界面的 ROI 内运行 OCR，然后对 OCR 文本和 `candidates` 做两层严格匹配：
 
@@ -510,7 +532,7 @@ go test ./sellproduct
 1. `assets/tasks/SellProduct.json` 是否符合 interface V2。
 2. 生成的据点文件是否没有残留旧据点。
 3. `SellProduct/Sell.json` 中地区 `next` 是否包含对应据点。
-4. 任务选项里的全局优先级、缓存刷新、地区和据点开关层级是否完整。
+4. 任务选项里的全局优先级、独立保留规则、缓存刷新、地区和据点开关层级是否完整。
 5. Win 与 ADB 两套 `Outposts/*.json` 是否都已重新生成。
 6. JSON/Markdown 是否符合 `.prettierrc`。
 

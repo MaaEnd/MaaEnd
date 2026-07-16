@@ -951,6 +951,19 @@
             "SellProductSelectNewGoodConfirm"
         ]
     },
+    "SellProductReconstructionHQRecordItem1": {
+        "desc": "重建指挥部记录售卖优先物品1",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "select",
+            "item_id": ""
+        },
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
     // ===== 优先物品 2 =====
     "SellProductReconstructionHQSelectItem2": {
         "desc": "重建指挥部售卖优先物品2",
@@ -973,6 +986,19 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductReconstructionHQRecordItem2": {
+        "desc": "重建指挥部记录售卖优先物品2",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "select",
+            "item_id": ""
+        },
         "next": [
             "SellProductSelectNewGoodConfirm"
         ]
@@ -1003,6 +1029,19 @@
             "SellProductSelectNewGoodConfirm"
         ]
     },
+    "SellProductReconstructionHQRecordItem3": {
+        "desc": "重建指挥部记录售卖优先物品3",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "select",
+            "item_id": ""
+        },
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
     // ===== 优先物品 4 =====
     "SellProductReconstructionHQSelectItem4": {
         "desc": "重建指挥部售卖优先物品4",
@@ -1025,6 +1064,19 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductReconstructionHQRecordItem4": {
+        "desc": "重建指挥部记录售卖优先物品4",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "select",
+            "item_id": ""
+        },
         "next": [
             "SellProductSelectNewGoodConfirm"
         ]
@@ -1068,6 +1120,22 @@
             "SellProductSell"
         ]
     },
+    "SellProductReconstructionHQApplyReserve1": {
+        "desc": "重建指挥部第1次尝试-应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "apply",
+            "sliding_node": "SellProductReconstructionHQBetterSliding1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionHQBetterSliding1"
+        ]
+    },
     "SellProductReconstructionHQBetterSliding2": {
         "desc": "重建指挥部第2次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
@@ -1105,6 +1173,22 @@
         "rate_limit": 0,
         "next": [
             "SellProductSell"
+        ]
+    },
+    "SellProductReconstructionHQApplyReserve2": {
+        "desc": "重建指挥部第2次尝试-应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "apply",
+            "sliding_node": "SellProductReconstructionHQBetterSliding2"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionHQBetterSliding2"
         ]
     },
     "SellProductReconstructionHQBetterSliding3": {
@@ -1146,6 +1230,22 @@
             "SellProductSell"
         ]
     },
+    "SellProductReconstructionHQApplyReserve3": {
+        "desc": "重建指挥部第3次尝试-应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "apply",
+            "sliding_node": "SellProductReconstructionHQBetterSliding3"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionHQBetterSliding3"
+        ]
+    },
     "SellProductReconstructionHQBetterSliding4": {
         "desc": "重建指挥部第4次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
@@ -1183,6 +1283,22 @@
         "rate_limit": 0,
         "next": [
             "SellProductSell"
+        ]
+    },
+    "SellProductReconstructionHQApplyReserve4": {
+        "desc": "重建指挥部第4次尝试-应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "apply",
+            "sliding_node": "SellProductReconstructionHQBetterSliding4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionHQBetterSliding4"
         ]
     }
 }

@@ -51,7 +51,7 @@ const TEMP_EXCLUDED_ITEM_CN_NAMES = new Set([
 ]);
 
 // 单次遍历 settlements，同时构建：
-//   - ITEMS：物品字典（key → {name, label, candidates}）。candidates 是 CN/TC/JP/EN 候选名，
+//   - ITEMS：物品字典（key → {id, name, label, candidates}）。candidates 是 CN/TC/EN/JP/KR 候选名，
 //     由 Go 侧 SellProductNormalizedItemMatch 做抗噪声匹配（不含 `^...$` 锚定符）。
 //   - ITEM_KEY_BY_ID：itemId → ITEMS key 反查表，去重。
 //   - SETTLEMENT_ITEM_STATS：settlementId → (key → {rarity, unitPrice})，
@@ -77,13 +77,15 @@ for (const [
                 if (!ITEMS[key]) {
                     const enName = item.name.EN?.replace(/[\[\]|]+/g, "").trim() || "";
                     ITEMS[key] = {
+                        id: item.itemId,
                         name: item.name.CN,
                         label: localeKey ? `$item.${localeKey}` : null,
                         candidates: [
                             item.name.CN,
                             item.name.TC,
-                            item.name.JP,
                             enName || null,
+                            item.name.JP,
+                            item.name.KR,
                         ]
                             .map((s) => (typeof s === "string" ? s.trim() : s))
                             .filter(Boolean),
@@ -132,7 +134,16 @@ function buildGlobalItemPriorityOverride(locations, itemNum, selectedItemKey) {
         pipelineOverride[`SellProduct${loc.LocationId}SellAttempt${itemNum}`] = {enabled: true};
         pipelineOverride[`SellProduct${loc.LocationId}SelectItem${itemNum}`] = {
             enabled: true,
-            custom_recognition_param: {candidates: item.candidates},
+            custom_recognition_param: {
+                item_id: item.id,
+                candidates: item.candidates,
+            },
+        };
+        pipelineOverride[`SellProduct${loc.LocationId}RecordItem${itemNum}`] = {
+            custom_action_param: {
+                operation: "select",
+                item_id: item.id,
+            },
         };
         pipelineOverride[`SellProduct${loc.LocationId}SellAttempt${itemNum}SetMissHandler`] = {
             anchor: {
@@ -141,6 +152,68 @@ function buildGlobalItemPriorityOverride(locations, itemNum, selectedItemKey) {
         };
     }
     return pipelineOverride;
+}
+
+// 独立保留规则使用所有据点货品的并集，不提供 Auto，且不依赖任何优先级顺位。
+// 每个具体货品 case 只负责启用并注册 itemId；数量由其子 input 注入同一注册节点。
+function buildReserveItemCases(slot) {
+    return [
+        {
+            name: "None",
+            label: "$task.SellProduct.ReserveNone",
+        },
+        ...Object.values(ITEMS).map((item) => ({
+            name: item.name,
+            ...(item.label ? {label: item.label} : {}),
+            option: [`SellProductReserveItem${slot}Value`],
+            pipeline_override: {
+                [`SellProductRegisterReserveRule${slot}`]: {
+                    enabled: true,
+                    custom_action_param: {
+                        operation: "register",
+                        item_id: item.id,
+                        quantity: `{SellProductReserveItem${slot}Value}`,
+                    },
+                },
+            },
+        })),
+    ];
+}
+
+function buildReserveRuleSwitchCases(locations) {
+    const pipelineOverride = {
+        SellProductSelectFirstGood: {
+            next: ["SellProductRecordFirstGood"],
+        },
+        SellProductSelectNextGood: {
+            next: ["SellProductRecordNextGood"],
+        },
+    };
+    for (const loc of locations) {
+        for (let slot = 1; slot <= 4; slot += 1) {
+            pipelineOverride[`SellProduct${loc.LocationId}SellAttempt${slot}`] = {
+                anchor: {
+                    SellProductBetterSliding: `SellProduct${loc.LocationId}ApplyReserve${slot}`,
+                },
+            };
+            pipelineOverride[`SellProduct${loc.LocationId}SelectItem${slot}`] = {
+                next: [`SellProduct${loc.LocationId}RecordItem${slot}`],
+            };
+        }
+    }
+    return [
+        {
+            name: "Yes",
+            option: [
+                "SellProductReserveItem1",
+                "SellProductReserveItem2",
+                "SellProductReserveItem3",
+                "SellProductReserveItem4",
+            ],
+            pipeline_override: pipelineOverride,
+        },
+        {name: "No"},
+    ];
 }
 
 // 全局优先级使用所有据点货品的并集。四个顺位由总开关作为同级子选项展开。
@@ -272,6 +345,7 @@ function buildOperatorRefreshModeCases(locations) {
 
 const OPERATOR_REFRESH_MODE_CASES = buildOperatorRefreshModeCases(LOCATIONS);
 const GLOBAL_ITEM_PRIORITY_SWITCH_CASES = buildGlobalItemPrioritySwitchCases(LOCATIONS);
+const RESERVE_RULE_SWITCH_CASES = buildReserveRuleSwitchCases(LOCATIONS);
 
 export const sellProductTaskRows = LOCATIONS.map((loc, index) => {
     return {
@@ -280,6 +354,11 @@ export const sellProductTaskRows = LOCATIONS.map((loc, index) => {
         LocationId: loc.LocationId,
         OperatorRefreshModeCases: index === 0 ? OPERATOR_REFRESH_MODE_CASES : [],
         GlobalItemPrioritySwitchCases: index === 0 ? GLOBAL_ITEM_PRIORITY_SWITCH_CASES : [],
+        ReserveRuleSwitchCases: index === 0 ? RESERVE_RULE_SWITCH_CASES : [],
+        ReserveItemCases1: index === 0 ? buildReserveItemCases(1) : [],
+        ReserveItemCases2: index === 0 ? buildReserveItemCases(2) : [],
+        ReserveItemCases3: index === 0 ? buildReserveItemCases(3) : [],
+        ReserveItemCases4: index === 0 ? buildReserveItemCases(4) : [],
         GlobalItemPriorityCases1: index === 0 ? buildGlobalItemPriorityCases(LOCATIONS, 1) : [],
         GlobalItemPriorityCases2: index === 0 ? buildGlobalItemPriorityCases(LOCATIONS, 2) : [],
         GlobalItemPriorityCases3: index === 0 ? buildGlobalItemPriorityCases(LOCATIONS, 3) : [],

@@ -13,10 +13,11 @@
         "rate_limit": 0,
         "next": [
             "SellProductRegisterAutoRefugeeCamp",
-            "SellProductRegisterAutoInfrastructureOutpost",
-            "SellProductRegisterAutoReconstructionCommand",
-            "SellProductRegisterAutoSkyKingFlats",
+            "SellProductRegisterAutoInfraStation",
+            "SellProductRegisterAutoReconstructionHQ",
+            "SellProductRegisterAutoSkyKingFlatsConstructionSite",
             "SellProductRegisterAutoCardiacRemediationStation",
+            "SellProductRegisterAutoXiranflowCloudseederStation",
             "SellProductOperatorSessionReady"
         ]
     },

@@ -214,12 +214,15 @@ func TestFindBestMatch_PrefersTopLeftOCR(t *testing.T) {
 }
 
 func TestParseParams(t *testing.T) {
-	p, err := parseParams(`{"candidates":["紫晶质瓶","紫晶質瓶"]}`)
+	p, err := parseParams(`{"candidates":["紫晶质瓶","紫晶質瓶"],"item_id":"item_amethyst"}`)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if len(p.Candidates) != 2 {
 		t.Errorf("expected 2 candidates, got %d", len(p.Candidates))
+	}
+	if p.ItemID != "item_amethyst" {
+		t.Errorf("unexpected item id %q", p.ItemID)
 	}
 
 	if _, err := parseParams(""); err == nil {

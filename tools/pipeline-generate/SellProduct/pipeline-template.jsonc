@@ -937,6 +937,19 @@
             "SellProductSelectNewGoodConfirm"
         ]
     },
+    "SellProduct${LocationId}RecordItem1": {
+        "desc": "${LocationDesc}记录售卖优先物品1",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "select",
+            "item_id": ""
+        },
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
     // ===== 优先物品 2 =====
     "SellProduct${LocationId}SelectItem2": {
         "desc": "${LocationDesc}售卖优先物品2",
@@ -959,6 +972,19 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProduct${LocationId}RecordItem2": {
+        "desc": "${LocationDesc}记录售卖优先物品2",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "select",
+            "item_id": ""
+        },
         "next": [
             "SellProductSelectNewGoodConfirm"
         ]
@@ -989,6 +1015,19 @@
             "SellProductSelectNewGoodConfirm"
         ]
     },
+    "SellProduct${LocationId}RecordItem3": {
+        "desc": "${LocationDesc}记录售卖优先物品3",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "select",
+            "item_id": ""
+        },
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
     // ===== 优先物品 4 =====
     "SellProduct${LocationId}SelectItem4": {
         "desc": "${LocationDesc}售卖优先物品4",
@@ -1011,6 +1050,19 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProduct${LocationId}RecordItem4": {
+        "desc": "${LocationDesc}记录售卖优先物品4",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "select",
+            "item_id": ""
+        },
         "next": [
             "SellProductSelectNewGoodConfirm"
         ]
@@ -1044,6 +1096,22 @@
             "SellProductSell"
         ]
     },
+    "SellProduct${LocationId}ApplyReserve1": {
+        "desc": "${LocationDesc}第1次尝试-应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "apply",
+            "sliding_node": "SellProduct${LocationId}BetterSliding1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}BetterSliding1"
+        ]
+    },
     "SellProduct${LocationId}BetterSliding2": {
         "desc": "${LocationDesc}第2次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
@@ -1071,6 +1139,22 @@
         "rate_limit": 0,
         "next": [
             "SellProductSell"
+        ]
+    },
+    "SellProduct${LocationId}ApplyReserve2": {
+        "desc": "${LocationDesc}第2次尝试-应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "apply",
+            "sliding_node": "SellProduct${LocationId}BetterSliding2"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}BetterSliding2"
         ]
     },
     "SellProduct${LocationId}BetterSliding3": {
@@ -1102,6 +1186,22 @@
             "SellProductSell"
         ]
     },
+    "SellProduct${LocationId}ApplyReserve3": {
+        "desc": "${LocationDesc}第3次尝试-应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "apply",
+            "sliding_node": "SellProduct${LocationId}BetterSliding3"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}BetterSliding3"
+        ]
+    },
     "SellProduct${LocationId}BetterSliding4": {
         "desc": "${LocationDesc}第4次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
@@ -1129,6 +1229,22 @@
         "rate_limit": 0,
         "next": [
             "SellProductSell"
+        ]
+    },
+    "SellProduct${LocationId}ApplyReserve4": {
+        "desc": "${LocationDesc}第4次尝试-应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "apply",
+            "sliding_node": "SellProduct${LocationId}BetterSliding4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}BetterSliding4"
         ]
     }
 }

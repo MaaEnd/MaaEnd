@@ -11,4 +11,5 @@ func Register() {
 	maa.AgentServerRegisterCustomRecognition(operatorListBottomRecognitionName, &OperatorListBottomRecognition{})
 	maa.AgentServerRegisterCustomRecognition(operatorScanOutcomeRecognitionName, &OperatorScanOutcomeRecognition{})
 	maa.AgentServerRegisterCustomAction(operatorSessionActionName, &OperatorSessionAction{})
+	maa.AgentServerRegisterCustomAction(reserveSessionActionName, &ReserveSessionAction{})
 }
