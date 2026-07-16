@@ -364,6 +364,9 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				// Start a new rotation adjustment
 				if absRawDeltaRot > 1.0 && (!fineApproachOngoing || absRawDeltaRot > param.RotationLowerThreshold) {
 					finalDeltaRot := float64(rawDeltaRot)
+					if math.Abs(finalDeltaRot) < 30.0 {
+						finalDeltaRot = finalDeltaRot / math.Sqrt(rotationSpeed)
+					}
 					ca.RotateCamera(int(finalDeltaRot*rotationSpeed), 0)
 
 					// Update adaptive rotation state
