@@ -521,6 +521,101 @@
         ],
         "box_index": 3
     },
+    "__SeizeDeliveryJobsFindTarget15_9": {
+        "desc": "识别模板：试验园区 15.9 万委托（TestArea 高价档，Fifteen9 选项引用）",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "WulingToken",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    840,
+                    190,
+                    50,
+                    430
+                ],
+                "template": [
+                    "SeizeDeliveryJobs/DepotNodePage/WulingToken.png"
+                ],
+                "order_by": "Score"
+            },
+            {
+                "sub_name": "RewardOcr",
+                "recognition": "OCR",
+                "roi": "WulingToken",
+                "roi_offset": [
+                    0,
+                    30,
+                    0,
+                    -20
+                ],
+                "expected": [
+                    "15.9"
+                ],
+                "only_rec": true,
+                "order_by": "Vertical"
+            },
+            {
+                "sub_name": "OriginOcr",
+                "recognition": "OCR",
+                "roi": "RewardOcr",
+                "roi_offset": [
+                    -229,
+                    -38,
+                    50,
+                    14
+                ],
+                "expected": [
+                    "试验园区",
+                    "實驗園區",
+                    "(?i)Test\\s*Area",
+                    "実験区域",
+                    "실험 구역"
+                ],
+                "order_by": "Vertical"
+            },
+            {
+                "sub_name": "AcceptOcr",
+                "recognition": "OCR",
+                "roi": "RewardOcr",
+                "roi_offset": [
+                    226,
+                    -4,
+                    70,
+                    12
+                ],
+                "expected": [
+                    "接取运送委托",
+                    "接取運送委託",
+                    "(?i)Accept\\s*Delivery\\s*Job",
+                    "配達依頼を受ける",
+                    "輸送依頼を受注",
+                    "輸送依頼を受ける"
+                ],
+                "order_by": "Vertical"
+            },
+            {
+                "sub_name": "ViewLocationOcr",
+                "recognition": "OCR",
+                "roi": "RewardOcr",
+                "roi_offset": [
+                    -215,
+                    -8,
+                    34,
+                    10
+                ],
+                "expected": [
+                    "查看位置",
+                    "查看地點",
+                    "(?i)View\\s*Location",
+                    "位置を確認",
+                    "위치 확인"
+                ],
+                "order_by": "Vertical"
+            }
+        ],
+        "box_index": 3
+    },
     "SeizeDeliveryJobsTaskEnd": {
         "desc": "任务结束节点：当重复次数用完时结束任务",
         "enabled": true,
