@@ -859,6 +859,36 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "Jue",
+                    "label": "$operator.Arcane",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Arcane.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        }
+                    }
                 }
             ]
         },
