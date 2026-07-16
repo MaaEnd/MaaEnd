@@ -1166,6 +1166,40 @@
                             }
                         }
                     }
+                },
+                {
+                    "name": "StoneholdRemedy",
+                    "label": "$option.CreditShoppingItems.cases.StoneholdRemedy.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "stonehold_remedy": [
+                                    "蓄石秘剂",
+                                    "蓄石秘劑",
+                                    "Stonehold Remedy",
+                                    "蓄石の秘薬",
+                                    "축석의 비약"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "RuinPurgerRemedy",
+                    "label": "$option.CreditShoppingItems.cases.RuinPurgerRemedy.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "ruin_purger_remedy": [
+                                    "洗灾秘剂",
+                                    "洗災秘劑",
+                                    "Ruin-Purger Remedy",
+                                    "厄除の秘薬",
+                                    "재앙 정화의 비약"
+                                ]
+                            }
+                        }
+                    }
                 }
             ]
         },
@@ -1310,6 +1344,42 @@
                             }
                         }
                     }
+                },
+                "AutoStockStapleGoodsStoneholdRemedyValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsStoneholdRemedyExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsRuinPurgerRemedyValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsRuinPurgerRemedyExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -1369,6 +1439,23 @@
                                     "Keen Wuling Compass",
                                     "新型武陵専用コンパス",
                                     "첨단 무릉 나침반"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "WulingTalositeProbe",
+                    "label": "$option.CreditShoppingItems.cases.WulingTalositeProbe.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "wuling_talosite_probe": [
+                                    "武陵塔晶探针",
+                                    "武陵塔晶探針",
+                                    "Wuling Talosite Probe",
+                                    "武陵タロサイト探査機",
+                                    "무릉 유령수정 탐침기"
                                 ]
                             }
                         }
@@ -1456,6 +1543,24 @@
                     }
                 },
                 "AutoStockStapleGoodsKeenWulingCompassExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingDetectorCompassLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsWulingTalositeProbeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingDetectorCompassLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsWulingTalositeProbeExcludeValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
@@ -1587,6 +1692,40 @@
                                     "龙泡泡·方兴纪念",
                                     "龍泡泡·方興紀念",
                                     "龍泡泡・方興記念"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "FowlbeastPaperKite",
+                    "label": "$option.CreditShoppingItems.cases.FowlbeastPaperKite.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "fowlbeast_paper_kite": [
+                                    "羽兽剪纸风筝",
+                                    "羽獸剪紙風箏",
+                                    "Fowlbeast Paper Kite",
+                                    "羽獣の切り紙凧",
+                                    "파울비스트 종이 연"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SwingingGentlemanClassicalAlbum",
+                    "label": "$option.CreditShoppingItems.cases.SwingingGentlemanClassicalAlbum.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "swinging_gentleman_classical_album": [
+                                    "《摇摆绅士古典特辑》",
+                                    "《搖擺紳士古典特輯》",
+                                    "Der Schwingende Gentleman Classical Album",
+                                    "『スウィングジェントルのクラシックアルバム』",
+                                    "<스윙 젠틀맨 고전 특집>"
                                 ]
                             }
                         }
@@ -1728,6 +1867,42 @@
                     }
                 },
                 "AutoStockStapleGoodsChubbyLungFangxingMemorabiliaExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsFowlbeastPaperKiteValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsFowlbeastPaperKiteExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsSwingingGentlemanClassicalAlbumValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsSwingingGentlemanClassicalAlbumExcludeValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
