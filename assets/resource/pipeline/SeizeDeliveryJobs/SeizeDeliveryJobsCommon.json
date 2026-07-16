@@ -189,8 +189,7 @@
         }
     },
     "__SeizeDeliveryJobsStartTrackingTask": {
-        "desc": "在任务详情页面，若没找到定位按钮，此时需要先点击开始追踪任务按钮",
-        "max_hit": 5, // 此为回环节点，防死循环
+        "desc": "在任务详情页面，若没找到定位按钮，则点击开始追踪任务按钮",
         "recognition": "TemplateMatch",
         "roi": [
             1070,
@@ -201,9 +200,10 @@
         "template": "Common/Button/WhiteConfirmButtonType1.png",
         "order_by": "Score",
         "action": "Click",
+        "rate_limit": 500, // 加速等待大地图弹出
         "next": [
-            // 追踪任务后，界面会切换到大世界，此时需要回环执行前述流程
-            "SeizeDeliveryJobsEnterWulingJobList"
+            // 自游戏 1.4 版本开始，追踪任务按钮会直接打开大地图查看目的地，而非返回大世界
+            "__SeizeDeliveryJobsInDestinationMap"
         ],
         "focus": {
             "Node.Action.Starting": "点击开始追踪任务"
