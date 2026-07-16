@@ -222,26 +222,10 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "__SeizeDeliveryJobsPurifyDestinationMap"
+            "[Anchor]SeizeDeliveryJobsAfterEnterDestinationMap" // 外部调用者需要覆写此锚点的所指
         ],
         "focus": {
             "Node.Recognition.Succeeded": "正在查看任务位置"
         }
-    },
-    "__SeizeDeliveryJobsPurifyDestinationMap": {
-        "desc": "在目的地地图界面，清理地图图标遮挡",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "MapTrackerBigMap_FilterNone"
-            ]
-        },
-        "anchor": {
-            "SeizeDeliveryAfterEnterWulingJobList": "" // 任务结束，置空锚点以防止误用
-        },
-        "next": [
-            "[Anchor]SeizeDeliveryJobsAfterEnterDestinationMap" // 外部调用者需要覆写此锚点的所指
-        ]
     }
 }

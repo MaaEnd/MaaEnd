@@ -4,7 +4,7 @@
         "enabled": false,
         "pre_delay": 0,
         "anchor": {
-            "SeizeDeliveryJobsAfterEnterDestinationMap": "SeizeDeliveryJobsWhereIsTheDestination"
+            "SeizeDeliveryJobsAfterEnterDestinationMap": "SeizeDeliveryJobsQuickTeleportSelect"
         },
         "post_delay": 0,
         "next": [
@@ -14,102 +14,136 @@
             "Node.Recognition.Succeeded": "**进入抢单后处理流程**"
         }
     },
-    "SeizeDeliveryJobsWhereIsTheDestination": {
-        "desc": "在目的地地图界面，开始判断任务所在的地区",
+    "SeizeDeliveryJobsQuickTeleportSelect": {
+        "desc": "在目的地地图界面，使用游戏自带的前往传送功能选中仓储节点附近的传送点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            950,
+            540,
+            210,
+            160
+        ],
+        "template": [
+            "Common/Button/WhiteConfirmButtonType1.png",
+            "Common/Button/WhiteConfirmButtonType1Hover.png"
+        ],
+        "order_by": "Score",
+        "action": "Click",
+        "post_wait_freezes": 500, // 等待地图视窗移动到传送点
+        "next": [
+            "SeizeDeliveryJobsQuickTeleport"
+        ],
+        "focus": {
+            "Node.Action.Starting": "点击前往传送按钮"
+        }
+    },
+    "SeizeDeliveryJobsQuickTeleport": {
+        "desc": "在目的地地图界面，且已选中了传送点，直接点击传送",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1110,
+            540,
+            150,
+            160
+        ],
+        "template": [
+            "Common/Button/WhiteConfirmButtonType1.png",
+            "Common/Button/WhiteConfirmButtonType1Hover.png"
+        ],
+        "order_by": "Score",
+        "action": "Click",
+        "next": [
+            "SeizeDeliveryJobsQuickTeleportDone",
+            "[JumpBack]SceneAnyEnterWorld"
+        ],
+        "focus": {
+            "Node.Action.Starting": "点击传送按钮"
+        }
+    },
+    "SeizeDeliveryJobsQuickTeleportDone": {
+        "desc": "已在大世界中，表明传送结束，准备根据当前位置以选择前往何处的仓储节点",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
         "pre_delay": 0,
         "post_delay": 0,
         "timeout": 5000, // 断言在短时间内可以命中任一 next
         "next": [
-            "SeizeDeliveryJobsWillGoToWulingCity",
-            "SeizeDeliveryJobsWillGoToTestArea"
+            "SeizeDeliveryJobsSuccessTeleportDone",
+            "SeizeDeliveryJobsTargetDepotNodeIsWulingCity",
+            "SeizeDeliveryJobsTargetDepotNodeIsTestArea"
         ],
         "on_error": [
             "SeizeDeliveryJobsFatalCannotDetermineDestination"
         ]
     },
-    "SeizeDeliveryJobsWillGoToWulingCity": {
-        "desc": "判断任务位于武陵城",
+    "SeizeDeliveryJobsTargetDepotNodeIsWulingCity": {
+        "desc": "判断当前是武陵城的送货任务",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerBigMapFindImage",
+        "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
-            "template": "image/SeizeDeliveryJobs/BlueTaskLocation.png",
-            "expected": {
-                "map_name": "map02_lv002",
-                "target": [
-                    0,
-                    0,
-                    9999,
-                    9999
-                ]
-            },
-            "threshold": 0.325, // 主要是看地图匹配，故任务标点阈值无需过高
-            "green_mask": true,
-            "zoom_value": 0.325
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        642.0,
+                        715.0,
+                        54.0,
+                        91.0
+                    ]
+                }
+            ]
         },
         "pre_delay": 0,
         "anchor": {
-            "SeizeDeliveryJobsTeleportPre": "SeizeDeliveryJobsTeleportWulingCity"
+            "SeizeDeliveryJobsWalkToDepotNode": "SeizeDeliveryJobsWalkToDepotNodeWulingCity"
         },
         "post_delay": 0,
         "next": [
-            "SeizeDeliveryJobsCheckCarryingGoodsPre"
+            "SeizeDeliveryJobsCheckCarryingGoods"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "判断任务地点是武陵城"
         }
     },
-    "SeizeDeliveryJobsWillGoToTestArea": {
-        "desc": "判断任务位于试验园区",
+    "SeizeDeliveryJobsTargetDepotNodeIsTestArea": {
+        "desc": "判断当前是试验园区的送货任务",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerBigMapFindImage",
+        "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
-            "template": "image/SeizeDeliveryJobs/BlueTaskLocation2.png",
-            "expected": {
-                "map_name": "map02_lv005",
-                "target": [
-                    0,
-                    0,
-                    9999,
-                    9999
-                ]
-            },
-            "threshold": 0.325,
-            "green_mask": true,
-            "zoom_value": 0.325
+            "expected": [
+                {
+                    "map_name": "map02_lv005",
+                    "target": [
+                        280.0,
+                        387.0,
+                        65.0,
+                        45.0
+                    ]
+                }
+            ]
         },
         "pre_delay": 0,
         "anchor": {
-            "SeizeDeliveryJobsTeleportPre": "SeizeDeliveryJobsTeleportTestArea"
+            "SeizeDeliveryJobsWalkToDepotNode": "SeizeDeliveryJobsWalkToDepotNodeTestArea"
         },
         "post_delay": 0,
         "next": [
-            "SeizeDeliveryJobsCheckCarryingGoodsPre"
+            "SeizeDeliveryJobsCheckCarryingGoods"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "判断任务地点是试验园区"
         }
     },
-    "SeizeDeliveryJobsCheckCarryingGoodsPre": {
+    "SeizeDeliveryJobsCheckCarryingGoods": {
         "desc": "返回大世界，检查是否已携带了货物",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[JumpBack]__SeizeDeliveryJobsEnsureInWorld",
             "SeizeDeliveryJobsIsCarryingGoods",
-            "SeizeDeliveryJobsNotCarryingGoods"
-        ]
-    },
-    "__SeizeDeliveryJobsEnsureInWorld": {
-        "desc": "确保返回大世界（需 jumpback 调用）",
-        "recognition": "And",
-        "all_of": [
-            "InWorld"
-        ],
-        "inverse": true, // 如果不在大世界界面则命中
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "SceneAnyEnterWorld"
+            "[Anchor]SeizeDeliveryJobsWalkToDepotNode", // 没有携带货物，则正常去走到仓储节点
+            "SeizeDeliveryJobsFatalCannotDetermineDestination" // 兜底报错回显，以防 Anchor 未被赋值
         ]
     },
     "SeizeDeliveryJobsIsCarryingGoods": {
@@ -132,58 +166,7 @@
             "Node.Recognition.Succeeded": "已经携带货物"
         }
     },
-    "SeizeDeliveryJobsNotCarryingGoods": {
-        "desc": "未发现携带货物，走正常传送流程（传送点由 anchor 控制）",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "[Anchor]SeizeDeliveryJobsTeleportPre"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "正在传送到建议位置"
-        }
-    },
     // ===== 武陵城部分 =====
-    "SeizeDeliveryJobsTeleportWulingCity": {
-        "desc": "传送到武陵城仓储节点锚点（北侧锚点）",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingWulingCity5"
-            ]
-        },
-        "post_delay": 0,
-        "timeout": 10000,
-        "next": [
-            "SeizeDeliveryJobsSuccessTeleportDone",
-            "SeizeDeliveryJobsCanWalkToDepotNodeWulingCity"
-        ]
-    },
-    "SeizeDeliveryJobsCanWalkToDepotNodeWulingCity": {
-        "desc": "确认当前位于武陵城仓储节点附近区域",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        574.2,
-                        721.3,
-                        133.1,
-                        125.5
-                    ]
-                }
-            ]
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "SeizeDeliveryJobsWalkToDepotNodeWulingCity"
-        ]
-    },
     "SeizeDeliveryJobsWalkToDepotNodeWulingCity": {
         "desc": "走到武陵城仓储节点",
         "pre_delay": 0,
@@ -233,46 +216,6 @@
         }
     },
     // ===== 试验园区部分 =====
-    "SeizeDeliveryJobsTeleportTestArea": {
-        "desc": "传送到试验园区仓储节点附近锚点",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingTestArea1"
-            ]
-        },
-        "post_delay": 0,
-        "timeout": 10000,
-        "next": [
-            "SeizeDeliveryJobsSuccessTeleportDone",
-            "SeizeDeliveryJobsCanWalkToDepotNodeTestArea"
-        ]
-    },
-    "SeizeDeliveryJobsCanWalkToDepotNodeTestArea": {
-        "desc": "确认当前位于试验园区",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv005",
-                    "target": [
-                        286.3,
-                        377.0,
-                        59.4,
-                        45.3
-                    ]
-                }
-            ]
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "SeizeDeliveryJobsWalkToDepotNodeTestArea"
-        ]
-    },
     "SeizeDeliveryJobsWalkToDepotNodeTestArea": {
         "desc": "走到试验园区仓储节点",
         "pre_delay": 0,
