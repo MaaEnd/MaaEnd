@@ -35,6 +35,12 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "DailyEventGoToFinish"
+        ]
+    },
+    "DailyEventGoToFinish": {
+        "desc": "进入未读活动完成",
         "post_wait_freezes": {
             "time": 200,
             "target": [
@@ -44,6 +50,25 @@
                 192
             ]
         },
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "DailyEventGoTo",
+                "roi_offset": [
+                    -40,
+                    -15,
+                    0,
+                    30
+                ],
+                "template": [
+                    "DailyRewards/Event/EventSwitchSuccess.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DailyEventUnreadLimitedTimeSignin",
             "DailyEventUnreadWeeklyRoutine",
@@ -52,10 +77,7 @@
             "DailyEventUnreadSpaceExplorationEvent",
             "DailyEventUnreadLimitedTimeEvent",
             "DailyEventUnreadUnknown"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "进入未读活动"
-        }
+        ]
     },
     "DailyEventSwipe": {
         "desc": "滑动一次",
