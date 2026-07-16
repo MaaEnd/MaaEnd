@@ -2,7 +2,7 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://github.com/MaaEnd/MaaEnd/blob/v2/tools/schema/environment_monitoring_routes.schema.json",
     "title": "EnvironmentMonitoring routes.json",
-    "description": "MaaEnd 环境监测观察点路线配置。每个数组元素对应一个观察点的路线/朝向覆盖项，由 tools/pipeline-generate/EnvironmentMonitoring/generator/data.mjs 读取并装配为生成器输入。字段语义详见 docs/zh_cn/developers/tasks/environment-monitoring-maintain.md。",
+    "description": "MaaEnd 环境监测观察点路线配置。每个数组元素对应一个观察点的路线/朝向覆盖项，由 tools/pipeline-generate/EnvironmentMonitoring/generator/model.mjs 读取并规范化为生成器输入。字段语义详见 docs/zh_cn/developers/tasks/environment-monitoring-maintain.md。",
     "type": "array",
     "items": {
         "type": "object",
@@ -110,7 +110,7 @@
             "MissionId": {
                 "type": "string",
                 "minLength": 1,
-                "description": "观察点任务 ID，用于在 data.mjs 中匹配 zmdmap 缓存数据 kite_station_i18n.json 的 missionId。该字段是 routes.json 的主键。"
+                "description": "观察点任务 ID，用于在 model.mjs 中匹配 zmdmap 缓存数据 kite_station_i18n.json 的 missionId。该字段是 routes.json 的主键。"
             },
             "Name": {
                 "type": "string",

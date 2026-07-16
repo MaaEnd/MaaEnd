@@ -15,7 +15,10 @@ The core maintenance points for SellProduct are as follows:
 | Module                           | Path                                                              | Purpose                                                                                                                                    |
 | -------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | zmdmap Cached Data               | `tools/pipeline-generate/data/settlement_trade.json`              | Raw data for outposts, prosperity, tradeable items, multilingual names, rarity, unit price, etc.                                           |
-| Data Assembly                    | `tools/pipeline-generate/SellProduct/data.mjs`                    | Converts zmdmap data into `settlementFlatRows` consumable by templates.                                                                    |
+| Shared Outpost Model             | `tools/pipeline-generate/SellProduct/model.mjs`                   | Reads zmdmap and derives `RegionPrefix`, `LocationId`, multilingual OCR candidates, and locale keys.                                       |
+| Win Template Data                | `tools/pipeline-generate/SellProduct/pipeline-data.mjs`           | Exposes only the outpost fields and quantity boxes required by the Win Pipeline template.                                                  |
+| ADB Template Data                | `tools/pipeline-generate/SellProduct/pipeline-adb-data.mjs`       | Exposes only the outpost IDs and quantity boxes required by the ADB Pipeline template.                                                     |
+| Task Template Data               | `tools/pipeline-generate/SellProduct/task-data.mjs`               | Generates item, reserve quantity, and operator options.                                                                                    |
 | Outpost Pipeline Template        | `tools/pipeline-generate/SellProduct/pipeline-template.jsonc`     | Generates each outpost selling node for the Win resource pack.                                                                             |
 | ADB Outpost Template             | `tools/pipeline-generate/SellProduct/pipeline-adb-template.jsonc` | Generates outpost quantity OCR override nodes for the ADB resource pack.                                                                   |
 | Task Option Template             | `tools/pipeline-generate/SellProduct/task-template.jsonc`         | Generates region, outpost, operator switch, sell attempts, priority item, and reserve quantity options in `assets/tasks/SellProduct.json`. |
@@ -45,11 +48,11 @@ The following files are rendered by `@joebao/maa-pipeline-generate` and will be 
 
 The sources for these files are:
 
-| Artifact                          | Template                      | Data Source               |
-| --------------------------------- | ----------------------------- | ------------------------- |
-| `assets/tasks/SellProduct.json`   | `task-template.jsonc`         | `data.mjs` + zmdmap cache |
-| Win Outpost Pipeline              | `pipeline-template.jsonc`     | `data.mjs` + zmdmap cache |
-| ADB Outpost Quantity OCR Override | `pipeline-adb-template.jsonc` | `data.mjs` + zmdmap cache |
+| Artifact                          | Template                      | Data Source                           |
+| --------------------------------- | ----------------------------- | ------------------------------------- |
+| `assets/tasks/SellProduct.json`   | `task-template.jsonc`         | `task-data.mjs` + `model.mjs`         |
+| Win Outpost Pipeline              | `pipeline-template.jsonc`     | `pipeline-data.mjs` + `model.mjs`     |
+| ADB Outpost Quantity OCR Override | `pipeline-adb-template.jsonc` | `pipeline-adb-data.mjs` + `model.mjs` |
 
 ### Handwritten Maintenance Files
 
@@ -78,7 +81,7 @@ assets/resource/pipeline/SellProduct/Outposts/${LocationId}.json
 assets/resource_adb/pipeline/SellProduct/Outposts/${LocationId}.json
 ```
 
-By default, `LocationId` is derived from the zmdmap English outpost name converted to PascalCase. In actual maintenance, check `SETTLEMENT_OVERRIDE` in `data.mjs` first: if an outpost has a `LocationId` configured here, the generator will use the overridden value.
+`LocationId` is always derived from the current zmdmap English outpost name converted to PascalCase; handwritten ID overrides are not used. If the English name changes, regeneration updates node names, filenames, Task options, and locale keys together.
 
 `LocationId` is only used for node names and filenames, not for display text. The outpost name displayed in the user interface is provided by `task.SellProduct.{RegionPrefix}{LocationId}` in `assets/locales/interface/*.json`.
 
@@ -100,17 +103,18 @@ When adding a new region, do not rely directly on default fallback names like `d
 - `tradeItems[*].name`: Multilingual item name.
 - `tradeItems[*].rarity` / `unitPrice`: Used for sorting to generate priority item options.
 
-`data.mjs` assembles this raw data into `settlementFlatRows` with one row per outpost, which is then consumed by the three generation configs.
+`model.mjs` normalizes this raw data into `sellProductLocations`; the Win, ADB, and Task data projections then build their own minimal template rows.
 
 The currently generated outposts are:
 
-| zmdmap settlementId | Region   | LocationId                  | Outpost Name                |
-| ------------------- | -------- | --------------------------- | --------------------------- |
-| `stm_tundra_1`      | ValleyIV | `RefugeeCamp`               | Refugee Camp                |
-| `stm_tundra_2`      | ValleyIV | `InfrastructureOutpost`     | Infrastructure Outpost      |
-| `stm_tundra_3`      | ValleyIV | `ReconstructionCommand`     | Reconstruction Command      |
-| `stm_hongs_1`       | Wuling   | `SkyKingFlats`              | Sky King Flats              |
-| `stm_hongs_2`       | Wuling   | `CardiacRemediationStation` | Cardiac Remediation Station |
+| zmdmap settlementId | Region   | LocationId                     | Outpost Name                     |
+| ------------------- | -------- | ------------------------------ | -------------------------------- |
+| `stm_tundra_1`      | ValleyIV | `RefugeeCamp`                  | Refugee Camp                     |
+| `stm_tundra_2`      | ValleyIV | `InfraStation`                 | Infra-Station                    |
+| `stm_tundra_3`      | ValleyIV | `ReconstructionHQ`             | Reconstruction HQ                |
+| `stm_hongs_1`       | Wuling   | `SkyKingFlatsConstructionSite` | Sky King Flats Construction Site |
+| `stm_hongs_2`       | Wuling   | `CardiacRemediationStation`    | Cardiac Remediation Station      |
+| `stm_hongs_3`       | Wuling   | `XiranflowCloudseederStation`  | Xiranflow Cloudseeder Station    |
 
 ## Auto-Generation Mechanism
 
@@ -135,7 +139,7 @@ npx @joebao/maa-pipeline-generate --config pipeline-adb-config.json
 ```json
 {
     "template": "pipeline-template.jsonc",
-    "data": "data.mjs",
+    "data": "pipeline-data.mjs",
     "outputDir": "../../../assets/resource/pipeline/SellProduct/Outposts",
     "outputPattern": "${LocationId}.json",
     "format": true,
@@ -150,7 +154,7 @@ Each row of data generates one Win resource pack outpost file.
 ```json
 {
     "template": "pipeline-adb-template.jsonc",
-    "data": "data.mjs",
+    "data": "pipeline-adb-data.mjs",
     "outputDir": "../../../assets/resource_adb/pipeline/SellProduct/Outposts",
     "outputPattern": "${LocationId}.json",
     "format": true,
@@ -166,7 +170,7 @@ The ADB outpost template does not fully copy the Win outpost flow; instead, it o
 {
     "task": true,
     "template": "task-template.jsonc",
-    "data": "data.mjs",
+    "data": "task-data.mjs",
     "outputDir": "../../../assets/tasks/",
     "outputFile": "SellProduct.json",
     "format": true
@@ -175,9 +179,9 @@ The ADB outpost template does not fully copy the Win outpost flow; instead, it o
 
 This configuration generates the region switches, outpost switches, contact operator switch, 4 sell attempts, priority item, and reserve quantity configurations in the user interface.
 
-### Data Assembly: `data.mjs`
+### Shared Model and Template Projections
 
-`tools/pipeline-generate/SellProduct/data.mjs` is the main maintenance entry point for the SellProduct generator.
+`tools/pipeline-generate/SellProduct/model.mjs` is the shared maintenance entry point for outpost naming, OCR, and locale data. `pipeline-data.mjs`, `pipeline-adb-data.mjs`, and `task-data.mjs` contain template-specific data.
 
 It currently handles:
 
@@ -186,23 +190,12 @@ It currently handles:
 3. Building a global item dictionary from zmdmap's `tradeItems`.
 4. Aggregating sellable items per outpost and sorting them by `rarity` and `unitPrice` in descending order.
 5. Mapping `domainId` to the `RegionPrefix` used by the task.
-6. Generating `LocationId`, outpost OCR `TextExpected`, task options, and priority item candidate names for outposts.
-7. Injecting Win / ADB sets of BetterSliding quantity OCR regions.
+6. `model.mjs` derives `LocationId` from the English outpost name and builds OCR `TextExpected` from the five-language `settlementName` data.
+7. The three projections inject Win / ADB quantity OCR boxes and Task options separately.
 
-### Outpost Naming Override
+### OCR Compatibility Aliases
 
-`SETTLEMENT_OVERRIDE` is used to handle cases where the zmdmap raw name is unsuitable for directly generating a node ID, or OCR requires special candidate text.
-
-Current overrides include:
-
-- `LocationId`: Overrides the default `toPascalCase(EN)`, determining the generated node prefix and filename.
-- `TextExpected`: Overrides the outpost OCR candidate. Once filled, it completely replaces the default CN / TC / JP / EN candidates; necessary languages and common OCR noise must be overridden individually.
-
-Typical scenarios:
-
-- The English name is too long or doesn't match project naming conventions.
-- The actual display in the game UI differs from the zmdmap name.
-- OCR consistently misrecognizes a certain outpost as fixed incorrect text, e.g., reading `HQ` incorrectly.
+`TextExpected` is generated directly from the full CN / TC / JP / KR / EN strings in zmdmap. Add a candidate to `SETTLEMENT_OCR_ALIASES` only when there is actual evidence of a stable OCR error or UI truncation. Aliases are appended and never replace the official full strings.
 
 ### Region Mapping Override
 
@@ -387,7 +380,7 @@ When maintaining, note:
 
 - Do not change it to loose edit distance matching, as it could easily mis-match "Citrus Can" to "Premium Citrus Can" or "Select Citrus Can".
 - When adding candidate names, prioritize generating them from zmdmap multilingual names.
-- If OCR has fixed noise, prioritize adding accurate candidates to the data assembly logic in `data.mjs` rather than expanding the matching algorithm.
+- If OCR has fixed noise, add evidence-backed candidates to `SETTLEMENT_OCR_ALIASES` in `model.mjs` rather than expanding the matching algorithm.
 - After modifying the matching algorithm, run the regression test covered by `agent/go-service/sellproduct/normalized_match_test.go`.
 
 ## BetterSliding & Quantity Regions
@@ -410,7 +403,7 @@ Default parameters:
 - `Quantity.Box`: Reads the current trade quantity.
 - `ExceedingOverrideEnable: "SellProductSkipToNextSellLoop"`
 
-Quantity regions are uniformly maintained in `data.mjs`:
+Quantity regions are maintained separately in `pipeline-data.mjs` and `pipeline-adb-data.mjs`:
 
 | Constant               | Purpose                                         |
 | ---------------------- | ----------------------------------------------- |
@@ -436,14 +429,14 @@ This command first executes logic equivalent to `pnpm fetch:zmdmap`, updating `t
 1. Run `pnpm generate:SellProduct`.
 2. Check if the new item appears in the priority item options for the corresponding outpost in `assets/tasks/SellProduct.json`.
 3. If the new item label did not generate as `$item.xxx`, add the corresponding `item.*` multilingual text in `assets/locales/interface/*.json`.
-4. If OCR names have fixed misrecognitions, evaluate whether to adjust the candidate name assembly logic in `data.mjs`.
+4. If OCR names have fixed misrecognitions, add evidence-backed candidates to `SETTLEMENT_OCR_ALIASES` in `model.mjs`.
 
 Normal item additions usually do not require changes to the outpost Pipeline template.
 
 ### zmdmap Adds New Outpost
 
 1. Run `pnpm fetch:zmdmap` to update the cache.
-2. In `data.mjs`, check if `SETTLEMENT_OVERRIDE` needs to be added to ensure stable `LocationId` and `TextExpected`.
+2. Verify the `LocationId` derived from the English name and the five-language `TextExpected` in `model.mjs`; add `SETTLEMENT_OCR_ALIASES` only for observed OCR exceptions.
 3. If it's a new region, add `DOMAIN_REGION_PREFIX`.
 4. Run `pnpm generate:SellProduct`.
 5. Add the new outpost to the `next` list of the corresponding region in `assets/resource/pipeline/SellProduct/Sell.json`.
@@ -460,7 +453,7 @@ Prioritize checking:
 
 - `SellProductCheck{LocationId}TabText`
 - `SellProductCheck{LocationId}Text`
-- `SETTLEMENT_OVERRIDE[settlementId].TextExpected`
+- `SETTLEMENT_OCR_ALIASES[settlementId]`
 
 If it's a fixed misrecognized text, directly add the candidate to `TextExpected`. If it's just an unsuitable ROI, modify the `roi` of the corresponding OCR node in `pipeline-template.jsonc` and `pipeline-adb-template.jsonc`, then regenerate.
 
@@ -512,9 +505,9 @@ Before committing, at least check:
 
 ## Common Pitfalls
 
-- **Directly editing generated artifacts**: The next run of `pnpm generate:SellProduct` will overwrite the changes. Modify `data.mjs`, templates, or handwritten linked files instead.
+- **Directly editing generated artifacts**: The next run of `pnpm generate:SellProduct` will overwrite the changes. Modify `model.mjs`, the relevant template data, templates, or handwritten linked files instead.
 - **Generating only Win but not ADB**: `pipeline-adb-config.json` is responsible for ADB outpost nodes. When involving quantity regions, outpost OCR, or sell attempt templates, confirm the ADB artifacts as well.
-- **New item has no translatable label**: `data.mjs` reverse-looks up `item.*` keys from `zh_cn.json`. If not found, options can still be generated, but the label falls back to the normal name; multilingual text needs to be added.
+- **New item has no translatable label**: `task-data.mjs` reverse-looks up `item.*` keys from `zh_cn.json`. If not found, options can still be generated, but the label falls back to the normal name; multilingual text needs to be added.
 - **New region has task options but flow cannot enter**: Task option generation does not equal the entry pipeline being complete. `SellProduct.json`, `Sell.json`, and SceneManager jumps still need to be added.
 - **Expanding priority item matching causes item mix-up**: Do not replace the current strict matching with loose similarity. Similar item names are common, and matching strategies must avoid substring false positives.
 

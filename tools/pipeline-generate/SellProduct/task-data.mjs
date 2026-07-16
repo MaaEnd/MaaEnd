@@ -1,47 +1,18 @@
-// SellProduct 数据源
+// SellProduct Task 模板数据
 
-import {readFileSync} from "node:fs";
-import {resolve} from "node:path";
 import {createRequire} from "node:module";
-import {repoRoot, dataDir} from "../utils/paths.mjs";
-
-let settlementData;
-try {
-    settlementData = JSON.parse(readFileSync(resolve(dataDir, "settlement_trade.json"), "utf8"));
-} catch {
-    console.error("[SellProduct] 数据文件缺失，请先运行 pnpm fetch:zmdmap 或 pnpm generate:SellProduct");
-    process.exit(1);
-}
+import {
+    escapeRegex,
+    getOperatorCaseName,
+    isAdminOperator,
+    sellProductLocations,
+    settlementData,
+    toPascalCase,
+    uniqueArray,
+} from "./model.mjs";
 
 const require = createRequire(import.meta.url);
 const zhCNLocale = require("../../../assets/locales/interface/zh_cn.json");
-
-// 转义文本中的正则元字符，用于把数据源名称安全地放进 OCR expected。
-function escapeRegex(str) {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-// 将数据源里的 id 或英文名称转换成稳定的选项/节点后缀。
-function toPascalCase(str) {
-    return str
-        .split(/[^a-zA-Z0-9]+/)
-        .filter(Boolean)
-        .map((part) => part[0].toUpperCase() + part.slice(1))
-        .join("");
-}
-
-// 在保留原始顺序的前提下去掉空值和重复候选。
-function uniqueArray(items) {
-    return [...new Set(items.filter(Boolean))];
-}
-
-function isAdminOperator(operator) {
-    return operator.name?.EN === "Endministrator" || operator.name?.CN === "管理员";
-}
-
-function getOperatorCaseName(operator) {
-    return toPascalCase(operator.name?.EN || operator.charId);
-}
 
 function buildOperatorExpected(operator) {
     return uniqueArray([
@@ -51,12 +22,6 @@ function buildOperatorExpected(operator) {
         operator.name?.JP,
         operator.name?.KR,
     ]).map(escapeRegex);
-}
-
-// 英文地名匹配允许空格和连字符有轻微 OCR 差异。
-function toFlexibleEnglishRegex(text) {
-    const escaped = escapeRegex(text.trim());
-    return `(?i)^${escaped.replace(/\s+/g, "\\s*").replace(/-/g, "\\s*-\\s*")}$`;
 }
 
 // 建立中文物品名到 interface locale key 的反查表。
@@ -197,177 +162,29 @@ for (const [
     SETTLEMENT_ITEM_STATS.set(settlementId, stats);
 }
 
-// ===== settlementId 覆盖（命名 + TextExpected 特殊处理） =====
-// 当原始数据里的 EN 名称生成的 LocationId 不符合习惯（如音译/缩写），或者 OCR
-// 经常误识为某些固定文本（如 "Reconstruction Hc"），需要在这里手动指定。
-// LocationId    覆盖 toPascalCase(EN) 默认值，决定生成出的 pipeline 节点前缀。
-// TextExpected  完全替换默认的 CN/TC/JP/EN 候选，需要自行覆盖所有语言变体 + OCR 噪声。
-const SETTLEMENT_OVERRIDE = {
-    stm_tundra_1: {
-        LocationId: "RefugeeCamp",
-        TextExpected: [
-            "难民暂居处",
-            "難民暫居處",
-            "(?i)Refugee\\s*Camp",
-            "仮設居住地",
-        ],
-    },
-    stm_tundra_2: {
-        LocationId: "InfrastructureOutpost",
-        TextExpected: [
-            "基建前站",
-            "(?i)Infra\\s*-\\s*Station",
-            "建設基地",
-        ],
-    },
-    stm_tundra_3: {
-        LocationId: "ReconstructionCommand",
-        TextExpected: [
-            "重建指挥部",
-            "重建指揮部",
-            "(?i)Reconstruction\\s*HQ",
-            "再建管理本部",
-            "Reconstruction Hc",
-        ],
-    },
-    stm_hongs_1: {
-        LocationId: "SkyKingFlats",
-        TextExpected: [
-            "天王坪",
-            "天王坪援助",
-            "天王坪援建",
-            "Sky King",
-            "天王原",
-        ],
-    },
-};
-
-// domainId → RegionPrefix 默认映射。新 domain 接入时若沿用「英文区域名」命名约定，加一行即可；
-// 不在表中的 domain 会回退到 toPascalCase(domainId)。
-const DOMAIN_REGION_PREFIX = {
-    domain_1: "ValleyIV",
-    domain_2: "Wuling",
-};
-
-// 生成据点入口 OCR 候选；有手动覆盖时优先使用覆盖值。
-function buildSettlementTextExpected(settlementId, settlement) {
-    const override = SETTLEMENT_OVERRIDE[settlementId]?.TextExpected;
-    if (override) {
-        return override;
-    }
-    return uniqueArray([
-        settlement.settlementName.CN,
-        settlement.settlementName.TC,
-        settlement.settlementName.JP,
-        settlement.settlementName.EN ? toFlexibleEnglishRegex(settlement.settlementName.EN) : null,
-    ]);
-}
-
-// settlementId → {RegionPrefix, LocationId, TextExpected}
-// 排序：先按 domainId（与游戏内解锁顺序一致：domain_1=ValleyIV 在前，domain_2=Wuling 在后），
-// 同 domain 内再按 settlementId 字典序。
-const SETTLEMENT_MAP = Object.entries(settlementData.settlements)
-    .sort(
-        (
-            [
-                aId,
-                aData,
-            ],
-            [
-                bId,
-                bData,
-            ],
-        ) => {
-            const aDomain = aData.domainId || "";
-            const bDomain = bData.domainId || "";
-            if (aDomain !== bDomain) return aDomain.localeCompare(bDomain);
-            return aId.localeCompare(bId);
-        },
-    )
-    .reduce(
-        (
-            acc,
-            [
-                settlementId,
-                settlement,
-            ],
-        ) => {
-            const override = SETTLEMENT_OVERRIDE[settlementId] || {};
-            const regionPrefix =
-                override.RegionPrefix || DOMAIN_REGION_PREFIX[settlement.domainId] || toPascalCase(settlement.domainId);
-            const locationId = override.LocationId || toPascalCase(settlement.settlementName.EN || settlementId);
-            acc[settlementId] = {
-                RegionPrefix: regionPrefix,
-                LocationId: locationId,
-                TextExpected: buildSettlementTextExpected(settlementId, settlement),
-            };
-            return acc;
-        },
-        {},
-    );
-
-// 国际化同步器消费的最小数据视图。
-//
-// key 必须复用本文件生成 Task/Pipeline 时采用的 RegionPrefix、LocationId 和干员 CaseName，
-// 这样 `$task.SellProduct.*` / `$operator.*` 引用与 locale 永远来自同一套命名规则。
-// names 保留 settlement_trade.json 的原始多语言对象，由 sync-locales.mjs 按目标语言取值。
-// 管理员是恢复干员选项的内置固定项，已有独立 locale，因此不参与数据驱动同步。
-export const sellProductLocaleEntries = {
-    operators: Object.values(settlementData.operators || {})
-        .filter((operator) => !isAdminOperator(operator))
-        .map((operator) => ({
-            key: `operator.${getOperatorCaseName(operator)}`,
-            names: operator.name || {},
-        })),
-    settlements: Object.entries(SETTLEMENT_MAP).map(
-        ([
-            settlementId,
-            config,
-        ]) => ({
-            key: `task.SellProduct.${config.RegionPrefix}${config.LocationId}`,
-            names: settlementData.settlements[settlementId].settlementName || {},
-        }),
-    ),
-};
-
 // RegionPrefix → 该区域下所有 `${RegionPrefix}${LocationId}` 的列表，
 // 模板里 SellOptions 字段直接消费，让任意一个售卖点能枚举出同区域的全部目标。
-const SETTLEMENT_REGION_MAP = Object.entries(SETTLEMENT_MAP).reduce(
-    (
-        acc,
-        [
-            ,
-            config,
-        ],
-    ) => {
-        acc[config.RegionPrefix] = acc[config.RegionPrefix] || [];
-        acc[config.RegionPrefix].push(`${config.RegionPrefix}${config.LocationId}`);
-        return acc;
-    },
-    {},
-);
+const SETTLEMENT_REGION_MAP = sellProductLocations.reduce((acc, location) => {
+    acc[location.RegionPrefix] = acc[location.RegionPrefix] || [];
+    acc[location.RegionPrefix].push(`${location.RegionPrefix}${location.LocationId}`);
+    return acc;
+}, {});
 
-// LOCATIONS：模板最终消费形态，items 按 rarity → unitPrice 降序排列。顺序继承 SETTLEMENT_MAP。
-const LOCATIONS = Object.entries(SETTLEMENT_MAP).map(
-    ([
-        settlementId,
-        config,
-    ]) => {
-        const settlement = settlementData.settlements[settlementId];
-        const items = [...SETTLEMENT_ITEM_STATS.get(settlementId).entries()]
-            .sort((a, b) => b[1].rarity - a[1].rarity || b[1].unitPrice - a[1].unitPrice)
-            .map(([key]) => key);
-        const targetOperatorNames = buildOperatorNameSetByBonusTypes(settlement, TARGET_OPERATOR_BONUS_TYPES);
-        const restoreOperatorNames = buildOperatorNameSetByBonusTypes(settlement, RESTORE_OPERATOR_BONUS_TYPES);
-        return {
-            ...config,
-            LocationDesc: settlement.settlementName.CN,
-            TargetOperatorNames: targetOperatorNames,
-            RestoreOperatorNames: restoreOperatorNames,
-            items,
-        };
-    },
-);
+// Task 模板最终消费形态，items 按 rarity → unitPrice 降序排列。
+const LOCATIONS = sellProductLocations.map((location) => {
+    const settlement = settlementData.settlements[location.SettlementId];
+    const items = [...SETTLEMENT_ITEM_STATS.get(location.SettlementId).entries()]
+        .sort((a, b) => b[1].rarity - a[1].rarity || b[1].unitPrice - a[1].unitPrice)
+        .map(([key]) => key);
+    const targetOperatorNames = buildOperatorNameSetByBonusTypes(settlement, TARGET_OPERATOR_BONUS_TYPES);
+    const restoreOperatorNames = buildOperatorNameSetByBonusTypes(settlement, RESTORE_OPERATOR_BONUS_TYPES);
+    return {
+        ...location,
+        TargetOperatorNames: targetOperatorNames,
+        RestoreOperatorNames: restoreOperatorNames,
+        items,
+    };
+});
 
 // 同一 location 的 4 个 itemNum 的物品列表完全一致，仅 selectKey/missHandlerKey 后缀编号不同。
 // 先抽出与 itemNum 无关的基础数据（buildItemCaseEntries），再由 buildItemCases 拼上 itemNum 相关的 key。
@@ -464,34 +281,7 @@ function buildRestoreOperatorCases(nodePrefix, operatorNames) {
     ];
 }
 
-// ===== BetterSliding Quantity.Box（Win 端 / ADB 端） =====
-// 改这里就够了，模板里 4 个 BetterSliding 节点会自动同步
-const QUANTITY_BOX = [
-    1107,
-    535,
-    74,
-    29,
-];
-const QUANTITY_BOX_ADB = [
-    1065,
-    499,
-    78,
-    36,
-];
-const MAX_QUANTITY_BOX = [
-    1073,
-    327,
-    119,
-    25,
-];
-const MAX_QUANTITY_BOX_ADB = [
-    1041,
-    239,
-    131,
-    32,
-];
-
-export const settlementFlatRows = LOCATIONS.map((loc) => {
+export const sellProductTaskRows = LOCATIONS.map((loc) => {
     const entries = buildItemCaseEntries(loc.items);
     const targetOperatorCases = buildTargetOperatorCases(loc.LocationId, loc.TargetOperatorNames);
     const restoreOperatorCases = buildRestoreOperatorCases(loc.LocationId, loc.RestoreOperatorNames);
@@ -499,12 +289,6 @@ export const settlementFlatRows = LOCATIONS.map((loc) => {
         RegionPrefix: loc.RegionPrefix,
         SellOptions: SETTLEMENT_REGION_MAP[loc.RegionPrefix],
         LocationId: loc.LocationId,
-        LocationDesc: loc.LocationDesc,
-        TextExpected: loc.TextExpected,
-        QuantityBox: QUANTITY_BOX,
-        QuantityBoxAdb: QUANTITY_BOX_ADB,
-        MaxTargetBox: MAX_QUANTITY_BOX,
-        MaxTargetBoxAdb: MAX_QUANTITY_BOX_ADB,
         ItemCases1: buildItemCases(loc.LocationId, 1, entries),
         ItemCases2: buildItemCases(loc.LocationId, 2, entries),
         ItemCases3: buildItemCases(loc.LocationId, 3, entries),
@@ -515,4 +299,4 @@ export const settlementFlatRows = LOCATIONS.map((loc) => {
     };
 });
 
-export default settlementFlatRows;
+export default sellProductTaskRows;

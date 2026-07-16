@@ -28,7 +28,7 @@
         "recognition": "And",
         "all_of": [
             "SellProductInOutpost",
-            "SellProductCheckSkyKingFlatsTabText"
+            "SellProductCheckSkyKingFlatsConstructionSiteTabText"
         ],
         "pre_wait_freezes": 80,
         "pre_delay": 0,

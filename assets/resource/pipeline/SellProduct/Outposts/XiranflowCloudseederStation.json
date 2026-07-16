@@ -517,6 +517,7 @@
             "盈天台建设站",
             "盈天台建設站",
             "満天台建設基地",
+            "영천대 건설 기지",
             "(?i)^Xiranflow\\s*Cloudseeder\\s*Station$"
         ],
         "pre_delay": 0,
@@ -537,6 +538,7 @@
             "盈天台建设站",
             "盈天台建設站",
             "満天台建設基地",
+            "영천대 건설 기지",
             "(?i)^Xiranflow\\s*Cloudseeder\\s*Station$"
         ],
         "pre_delay": 0,

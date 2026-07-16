@@ -1,5 +1,5 @@
-import rows, {kiteStationData, MONITORING_TERMINAL_IDS} from "./data.mjs";
 import {buildStationDisplayName, buildStationId} from "./common.mjs";
+import {kiteStationData, monitoringMissions, MONITORING_TERMINAL_IDS} from "./model.mjs";
 
 function buildTerminalId(terminalId) {
     return buildStationId(kiteStationData, terminalId);
@@ -32,10 +32,10 @@ function reorderBySpecificity(items) {
 }
 
 function buildTerminalNext(station) {
-    const stationRows = rows.filter((row) => row.Station === station);
+    const stationRows = monitoringMissions.filter((mission) => mission.Station === station);
     return reorderBySpecificity(stationRows)
-		.map((row) => `[JumpBack]${row.Id}Job`)
-		.concat("EnvironmentMonitoringTerminalFinish");
+        .map((row) => `[JumpBack]${row.Id}Job`)
+        .concat("EnvironmentMonitoringTerminalFinish");
 }
 
 export default MONITORING_TERMINAL_IDS.map((terminalId) => {
@@ -43,7 +43,7 @@ export default MONITORING_TERMINAL_IDS.map((terminalId) => {
     return {
         Id,
         Name: buildTerminalName(terminalId),
-		GoToMonitoringTerminal: `EnvironmentMonitoringGoTo${Id}`,
+        GoToMonitoringTerminal: `EnvironmentMonitoringGoTo${Id}`,
         Next: buildTerminalNext(Id),
     };
 });

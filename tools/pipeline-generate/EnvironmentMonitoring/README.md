@@ -2,6 +2,9 @@
 
 使用 `MAA-pipeline-generate` 工具批量生成对应的 Pipeline 文件。
 
+`generator/model.mjs` 统一读取 zmdmap 任务与 `routes.json`，并规范化为观察点任务模型；`data.mjs` 与
+`terminals-data.mjs` 再分别投影为观察点路线模板和终端分组模板所需的最小数据。
+
 ## 运行方式
 
 ```bash
