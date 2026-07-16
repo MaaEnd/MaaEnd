@@ -23,6 +23,37 @@ const INTERFACE_LOCALES = {
     "ko-KR": "ko_kr",
 };
 
+const FAILURE_MESSAGE_SUFFIXES = {
+    "zh-CN": "任务失败",
+    "zh-TW": "任務失敗",
+    "en-US": " task failed",
+    "ja-JP": "：タスク失敗",
+    "ko-KR": " 작업 실패",
+};
+
+function buildFailureMessage(name, locale) {
+    return `<span style="color: red; font-weight: bold;">${name}${FAILURE_MESSAGE_SUFFIXES[locale]}</span>`;
+}
+
+function validateRouteLocaleCatalog(messages, failureMessages, missionCount, routeKeyPrefix, fileLocale) {
+    const messageKeys = Object.keys(messages);
+    const expectedFailureKeys = Object.keys(failureMessages);
+    const actualRouteKeys = messageKeys.filter(
+        (key) => key.startsWith(routeKeyPrefix) && (key.endsWith(".label") || key.endsWith(".failed")),
+    );
+    const routeStart = messageKeys.indexOf("task.EnvironmentMonitoring.label") + 1;
+    const groupedFailureKeys = messageKeys.slice(routeStart, routeStart + expectedFailureKeys.length);
+
+    if (
+        routeStart === 0 ||
+        expectedFailureKeys.length !== missionCount ||
+        actualRouteKeys.join("\n") !== expectedFailureKeys.join("\n") ||
+        groupedFailureKeys.join("\n") !== expectedFailureKeys.join("\n")
+    ) {
+        throw new Error(`[EnvironmentMonitoring] ${fileLocale}.json 的路线失败提示不完整或未集中排列。`);
+    }
+}
+
 function syncRouteLocaleCatalogs(missions, idByMissionId) {
     const localeDir = resolve(dirname(ROUTES_PATH), "../../../assets/locales/interface");
     const routeKeyPrefix = "task.EnvironmentMonitoring.route.";
@@ -33,36 +64,42 @@ function syncRouteLocaleCatalogs(missions, idByMissionId) {
         const localePath = resolve(localeDir, `${fileLocale}.json`);
         const originalText = readFileSync(localePath, "utf8");
         const messages = JSON.parse(originalText);
-        const routeMessages = {};
-        for (const mission of missions) {
+        const failureMessages = {};
+        const sortedMissions = [...missions].sort((left, right) => {
+            const leftId = idByMissionId.get(left.missionId);
+            const rightId = idByMissionId.get(right.missionId);
+            return leftId.localeCompare(rightId);
+        });
+        for (const mission of sortedMissions) {
             const id = idByMissionId.get(mission.missionId);
             const value = mission.name?.[sourceLocale] || mission.name?.["zh-CN"] || mission.missionId;
-            routeMessages[`${routeKeyPrefix}${id}.label`] = value;
+            const failureKey = `${routeKeyPrefix}${id}.failed`;
+            failureMessages[failureKey] = messages[failureKey] ?? buildFailureMessage(value, sourceLocale);
         }
 
-        const sortedRouteMessages = Object.fromEntries(
-            Object.entries(routeMessages).sort(([left], [right]) => left.localeCompare(right)),
-        );
         const syncedMessages = {};
-        const pendingRouteMessages = new Map(Object.entries(sortedRouteMessages));
+        let routesInserted = false;
         for (const [
             key,
             value,
         ] of Object.entries(messages)) {
-            if (key.startsWith(routeKeyPrefix) && key.endsWith(".label")) {
-                if (pendingRouteMessages.has(key)) {
-                    syncedMessages[key] = pendingRouteMessages.get(key);
-                    pendingRouteMessages.delete(key);
-                }
+            if (key.startsWith(routeKeyPrefix) && (key.endsWith(".label") || key.endsWith(".failed"))) {
                 continue;
             }
             syncedMessages[key] = value;
+            if (key === "task.EnvironmentMonitoring.label") {
+                Object.assign(syncedMessages, failureMessages);
+                routesInserted = true;
+            }
         }
-        Object.assign(syncedMessages, Object.fromEntries(pendingRouteMessages));
+        if (!routesInserted) {
+            Object.assign(syncedMessages, failureMessages);
+        }
+        validateRouteLocaleCatalog(syncedMessages, failureMessages, missions.length, routeKeyPrefix, fileLocale);
         const syncedText = `${JSON.stringify(syncedMessages, null, 4)}\n`;
         if (syncedText !== originalText.replace(/\r\n/g, "\n")) {
             writeFileSync(localePath, syncedText, "utf8");
-            console.log(`[EnvironmentMonitoring] 已同步 ${fileLocale}.json 的路线名称。`);
+            console.log(`[EnvironmentMonitoring] 已同步 ${fileLocale}.json 的路线失败提示。`);
         }
     }
 }

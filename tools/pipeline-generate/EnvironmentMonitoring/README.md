@@ -25,7 +25,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 3. **重新生成 Pipeline**：运行上方两条命令，分别生成观察点节点文件与终端分组文件。
 4. **提交**：将 `routes.json` 与 `assets/resource/pipeline/EnvironmentMonitoring/` 下重新生成的文件一并提交。
 
-> `pnpm generate:EnvironmentMonitoring` 会在渲染前显式运行 `generator/sync-routes.mjs`：按 zmdmap 数据补齐/刷新 `MissionId`、`Name`、`Id`，并按 `MissionId` 排序。单独渲染时也请先运行 `node sync-routes.mjs`。
+> `pnpm generate:EnvironmentMonitoring` 会在渲染前显式运行 `generator/sync-routes.mjs`：按 zmdmap 数据补齐/刷新 `MissionId`、`Name`、`Id`，按 `MissionId` 排序，并同步五语言路线失败提示。单独渲染时也请先运行 `node sync-routes.mjs`。
 
 ### `routes.json` 条目字段说明
 

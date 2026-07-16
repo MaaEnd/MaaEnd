@@ -12,7 +12,7 @@
         "fetch:zmdmap": "node tools/pipeline-generate/fetch-data.mjs",
         "generate:BatchUseDetector": "node tools/pipeline-generate/run-all.mjs BatchUseDetector",
         "generate:EnvironmentMonitoring": "node tools/pipeline-generate/fetch-data.mjs && node tools/pipeline-generate/EnvironmentMonitoring/generator/sync-routes.mjs && node tools/pipeline-generate/run-all.mjs EnvironmentMonitoring",
-        "generate:SellProduct": "node tools/pipeline-generate/fetch-data.mjs && node tools/pipeline-generate/run-all.mjs SellProduct"
+        "generate:SellProduct": "node tools/pipeline-generate/fetch-data.mjs && node tools/pipeline-generate/SellProduct/sync-locales.mjs && node tools/pipeline-generate/run-all.mjs SellProduct"
     },
     "devDependencies": {
         "@joebao/maa-pipeline-generate": "^1.2.1",

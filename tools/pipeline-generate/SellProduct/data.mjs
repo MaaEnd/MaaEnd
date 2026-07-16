@@ -306,6 +306,30 @@ const SETTLEMENT_MAP = Object.entries(settlementData.settlements)
         {},
     );
 
+// 国际化同步器消费的最小数据视图。
+//
+// key 必须复用本文件生成 Task/Pipeline 时采用的 RegionPrefix、LocationId 和干员 CaseName，
+// 这样 `$task.SellProduct.*` / `$operator.*` 引用与 locale 永远来自同一套命名规则。
+// names 保留 settlement_trade.json 的原始多语言对象，由 sync-locales.mjs 按目标语言取值。
+// 管理员是恢复干员选项的内置固定项，已有独立 locale，因此不参与数据驱动同步。
+export const sellProductLocaleEntries = {
+    operators: Object.values(settlementData.operators || {})
+        .filter((operator) => !isAdminOperator(operator))
+        .map((operator) => ({
+            key: `operator.${getOperatorCaseName(operator)}`,
+            names: operator.name || {},
+        })),
+    settlements: Object.entries(SETTLEMENT_MAP).map(
+        ([
+            settlementId,
+            config,
+        ]) => ({
+            key: `task.SellProduct.${config.RegionPrefix}${config.LocationId}`,
+            names: settlementData.settlements[settlementId].settlementName || {},
+        }),
+    ),
+};
+
 // RegionPrefix → 该区域下所有 `${RegionPrefix}${LocationId}` 的列表，
 // 模板里 SellOptions 字段直接消费，让任意一个售卖点能枚举出同区域的全部目标。
 const SETTLEMENT_REGION_MAP = Object.entries(SETTLEMENT_MAP).reduce(
