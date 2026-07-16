@@ -177,8 +177,8 @@
             "__SeizeDeliveryJobsFindTarget16_3"
         ],
         "action": "Click",
-        "post_wait_freezes": 500,
         "timeout": 10000, // 断言能在短时间内弹出接取成功动画
+        "rate_limit": 250, // 加速等待
         "next": [
             "SeizeDeliveryJobsIsSeizeSuccess"
         ],
