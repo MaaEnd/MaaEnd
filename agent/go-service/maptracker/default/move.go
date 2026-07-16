@@ -117,6 +117,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	ctrl := ctx.GetTasker().GetController()
+	ctrlType, _ := control.GetControlType(ctrl)
 	ca, err := control.NewControlAdaptor(ctx, ctrl, WORK_W, WORK_H)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create control adaptor")
@@ -156,6 +157,9 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	// Adaptive rotation sensitivity local state
 	rotationSpeed := ROTATION_DEFAULT_SPEED
+	if ctrlType == control.CONTROL_TYPE_WLROOTS {
+		rotationSpeed = ROTATION_DEFAULT_SPEED_WLROOTS
+	}
 	var rotAdjState, rotAdjStateCache *PlayerRotationAdjustmentState
 
 	// For each target point
