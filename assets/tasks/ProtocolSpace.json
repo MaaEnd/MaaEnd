@@ -702,7 +702,7 @@
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
-                                "A"
+                                "B"
                             ]
                         }
                     }
@@ -713,7 +713,7 @@
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
-                                "B"
+                                "A"
                             ]
                         }
                     }
@@ -730,7 +730,7 @@
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
-                                "A"
+                                "B"
                             ]
                         }
                     }
@@ -741,7 +741,7 @@
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
-                                "B"
+                                "A"
                             ]
                         }
                     }
@@ -758,7 +758,7 @@
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
-                                "A"
+                                "B"
                             ]
                         }
                     }
@@ -769,7 +769,7 @@
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
-                                "B"
+                                "A"
                             ]
                         }
                     }
@@ -786,7 +786,7 @@
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
-                                "A"
+                                "B"
                             ]
                         }
                     }
@@ -797,7 +797,7 @@
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
-                                "B"
+                                "A"
                             ]
                         }
                     }

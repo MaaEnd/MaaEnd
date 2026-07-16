@@ -294,6 +294,7 @@
     "__ScenePrivateMapOverviewWulingEnterMapWulingJingyuValley": {
         "desc": "在武陵总览界面，进入武陵-景玉谷地图",
         "action": "Click",
+        // 黄色任务圆圈会挡住字,因此硬编码
         "target": [
             405,
             490
@@ -305,6 +306,7 @@
     "__ScenePrivateMapOverviewWulingEnterMapWulingWulingCity": {
         "desc": "在武陵总览界面，进入武陵-武陵城地图",
         "action": "Click",
+        // 黄色任务圆圈会挡住字,因此硬编码
         "target": [
             498,
             262
@@ -316,6 +318,7 @@
     "__ScenePrivateMapOverviewWulingEnterMapWulingQingboStockade": {
         "desc": "在武陵总览界面，进入武陵-清波寨地图",
         "action": "Click",
+        // 黄色任务圆圈会挡住字,因此硬编码
         "target": [
             589,
             448
@@ -327,6 +330,7 @@
     "__ScenePrivateMapOverviewWulingEnterMapWulingMarkerStone": {
         "desc": "在武陵总览界面，进入武陵-首墩地图",
         "action": "Click",
+        // 黄色任务圆圈会挡住字,因此硬编码
         "target": [
             349,
             378
@@ -338,6 +342,7 @@
     "__ScenePrivateMapOverviewWulingEnterMapWulingTestArea": {
         "desc": "在武陵总览界面，进入武陵-试验园区地图",
         "action": "Click",
+        // 黄色任务圆圈会挡住字,因此硬编码
         "target": [
             665,
             306
@@ -349,6 +354,7 @@
     "__ScenePrivateMapOverviewWulingEnterMapWulingSwordVaultDale": {
         "desc": "在武陵总览界面，进入武陵-藏剑谷地图",
         "action": "Click",
+        // 黄色任务圆圈会挡住字,因此硬编码
         "target": [
             612,
             632
