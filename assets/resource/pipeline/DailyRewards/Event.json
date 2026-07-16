@@ -54,71 +54,6 @@
             "Node.Recognition.Succeeded": "领取活动奖励结束"
         }
     },
-    "DailyEventRecognitionRedDot": {
-        "desc": "识别活动界面的红点",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    300,
-                    666
-                ],
-                "template": [
-                    "DailyRewards/EventRedDot.png"
-                ],
-                "green_mask": true
-            }
-        }
-    },
-    "DailyEventRecognitionNew": {
-        "desc": "识别活动界面的新提示",
-        "recognition": "OCR",
-        "roi": [
-            0,
-            0,
-            300,
-            666
-        ],
-        "expected": [
-            "NEW"
-        ]
-    },
-    "DailyEventRecognitionUnread": {
-        "desc": "识别活动列表未读标记（红点或NEW）",
-        "recognition": "Or",
-        "any_of": [
-            "DailyEventRecognitionRedDot",
-            "DailyEventRecognitionNew"
-        ]
-    },
-    "DailyEventRecognitionGotoButton": {
-        "desc": "识别活动界面是前往按钮",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": [
-                    "前往",
-                    "Go",
-                    "移動",
-                    "바로가기"
-                ]
-            }
-        }
-    },
-    "DailyEventRecognitionItemText": {
-        "desc": "识别活动列表条目文本",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": [
-                    ".{3,}" // 匹配三个及以上字符
-                ],
-                "threshold": 0.7
-            }
-        }
-    },
     "DailyEventGoToUnreadItem": {
         "desc": "进入常规未读活动",
         "recognition": "Or",
@@ -221,6 +156,71 @@
         "post_delay": 0,
         "focus": {
             "Node.Recognition.Succeeded": "跳过未支持的活动"
+        }
+    },
+    "DailyEventRecognitionRedDot": {
+        "desc": "识别活动界面的红点",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    300,
+                    666
+                ],
+                "template": [
+                    "DailyRewards/EventRedDot.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "DailyEventRecognitionNew": {
+        "desc": "识别活动界面的新提示",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            300,
+            666
+        ],
+        "expected": [
+            "NEW"
+        ]
+    },
+    "DailyEventRecognitionUnread": {
+        "desc": "识别活动列表未读标记（红点或NEW）",
+        "recognition": "Or",
+        "any_of": [
+            "DailyEventRecognitionRedDot",
+            "DailyEventRecognitionNew"
+        ]
+    },
+    "DailyEventRecognitionGotoButton": {
+        "desc": "识别活动界面是前往按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "前往",
+                    "Go",
+                    "移動",
+                    "바로가기"
+                ]
+            }
+        }
+    },
+    "DailyEventRecognitionItemText": {
+        "desc": "识别活动列表条目文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    ".{3,}" // 匹配三个及以上字符
+                ],
+                "threshold": 0.7
+            }
         }
     }
 }

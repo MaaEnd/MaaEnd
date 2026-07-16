@@ -1,21 +1,4 @@
 {
-    "DailyEventRecognitionGuideEvent": {
-        "desc": "识别引入活动名称",
-        "recognition": "OCR",
-        "roi": [
-            0,
-            0,
-            300,
-            666
-        ],
-        "expected": [
-            "引入活动",
-            "引入活動",
-            "Guide Event",
-            "案内",
-            "기념 이벤트"
-        ]
-    },
     "DailyEventGoToGuideEvent": {
         "desc": "进入引入活动",
         "max_hit": 1,
@@ -34,41 +17,6 @@
         "focus": {
             "Node.Recognition.Succeeded": "进入引入活动"
         }
-    },
-    "DailyEventUnreadGuideEventColor": {
-        "desc": "引入活动详情标题黄字区域",
-        "recognition": "ColorMatch",
-        "roi": [
-            -200,
-            0,
-            200,
-            200
-        ],
-        "lower": [
-            230,
-            230,
-            0
-        ],
-        "upper": [
-            255,
-            255,
-            13
-        ],
-        "connected": true,
-        "count": 200
-    },
-    "DailyEventUnreadGuideEventTitle": {
-        "desc": "引入活动详情标题",
-        "recognition": "OCR",
-        "roi": "DailyEventUnreadGuideEventColor",
-        "expected": [
-            "引入活动",
-            "引入活動",
-            "Guide Event",
-            "案内",
-            "기념 이벤트"
-        ],
-        "only_rec": true
     },
     "DailyEventUnreadGuideEvent": {
         "desc": "处理引入活动",
@@ -124,5 +72,57 @@
         "desc": "领取完了",
         "pre_delay": 0,
         "post_delay": 0
+    },
+    "DailyEventRecognitionGuideEvent": {
+        "desc": "识别引入活动名称",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            300,
+            666
+        ],
+        "expected": [
+            "引入活动",
+            "引入活動",
+            "Guide Event",
+            "案内",
+            "기념 이벤트"
+        ]
+    },
+    "DailyEventUnreadGuideEventColor": {
+        "desc": "引入活动详情标题黄字区域",
+        "recognition": "ColorMatch",
+        "roi": [
+            -200,
+            0,
+            200,
+            200
+        ],
+        "lower": [
+            230,
+            230,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            13
+        ],
+        "connected": true,
+        "count": 200
+    },
+    "DailyEventUnreadGuideEventTitle": {
+        "desc": "引入活动详情标题",
+        "recognition": "OCR",
+        "roi": "DailyEventUnreadGuideEventColor",
+        "expected": [
+            "引入活动",
+            "引入活動",
+            "Guide Event",
+            "案内",
+            "기념 이벤트"
+        ],
+        "only_rec": true
     }
 }
