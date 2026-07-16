@@ -45,13 +45,12 @@ function toFlexibleEnglishRegex(text) {
     return `(?i)^${escaped.replace(/\s+/g, "\\s*").replace(/-/g, "\\s*-\\s*")}$`;
 }
 
-// 官方多语言全文统一从 settlementName 提取，LocationId 也统一由英文名称派生，
-// 不再维护手写 ID 覆盖。以下别名沿用旧 Pipeline 已使用的 OCR 兼容候选；
-// 没有新的实际识别证据时，不再增加片段或误识文本。
+// 官方多语言全文统一从 settlementName 提取，LocationId 统一由英文名称派生。
+// 以下别名只补充无法从数据源直接生成的 OCR 候选；新增片段或误识文本必须有实际识别证据。
 const SETTLEMENT_OCR_ALIASES = {
-    // 保留旧 Pipeline 中用于兼容 Reconstruction HQ 末尾误识为 Hc 的候选。
+    // Reconstruction HQ 末尾误识为 Hc 时的 OCR 候选。
     stm_tundra_3: ["Reconstruction Hc"],
-    // 保留旧 Pipeline 中天王坪援建点的多语言片段候选。
+    // 天王坪援建点的多语言短文本 OCR 候选。
     stm_hongs_1: [
         "天王坪",
         "天王坪援助",
@@ -68,7 +67,7 @@ const DOMAIN_REGION_PREFIX = {
     domain_2: "Wuling",
 };
 
-// 生成据点入口 OCR 候选：先加入数据源多语言全文，再追加历史兼容候选。
+// 生成据点入口 OCR 候选：先加入数据源多语言全文，再追加额外 OCR 候选。
 function buildSettlementTextExpected(settlementId, settlement) {
     return uniqueArray([
         settlement.settlementName.CN,

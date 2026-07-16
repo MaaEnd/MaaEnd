@@ -31,7 +31,8 @@ const SETTLEMENT_KEY_PREFIXES = [
 ];
 
 // 据点 key 完全由当前数据源的 RegionPrefix + LocationId 派生。每次同步都先移除整个据点分组，
-// 再按 sellProductLocations 的游戏据点顺序重建；已有 key 覆盖为 zmdmap 官方名称，旧 ID key 则自动清理。
+// 再按 sellProductLocations 的游戏据点顺序重建；已有 key 覆盖为 zmdmap 官方名称，
+// 不属于当前据点集合的 key 自动清理。
 export function rebuildSettlementMessages(messages, sourceLocale, insertBeforeKey) {
     const syncedMessages = {};
     let inserted = 0;
