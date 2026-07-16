@@ -4,8 +4,36 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "TrialOfSwordmancyCoatingCheckRewardMode",
+            "[JumpBack]TrialOfSwordmancyEnterTrialMenu",
+            "[JumpBack]TrialOfSwordmancyGotoTrialArenaStart"
+        ]
+    },
+    "TrialOfSwordmancyCoatingCheckRewardMode": {
+        "desc": "检查是否处于奖励演算模式",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCoatingRewardMode",
             "TrialOfSwordmancyCoating1"
         ]
+    },
+    "TrialOfSwordmancyCoatingRewardMode": {
+        "desc": "处于奖励演算模式",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyRewardMode"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [],
+        "focus": {
+            "Node.Action.Succeeded": "今日还有奖励次数未用尽，请先完成奖励演算"
+        }
     },
     "TrialOfSwordmancyCoating1": {
         "desc": "刷镀层第1次抽取铭牌",
@@ -254,68 +282,41 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "next": []
+        "next": [
+            "SceneAnyEnterWorld"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "成功刷出目标点数"
+        }
     },
     "TrialOfSwordmancyCoatingGiveUp": {
         "desc": "刷镀层放弃当前抽取",
-        "recognition": "Or",
-        "any_of": [
+        "recognition": "And",
+        "all_of": [
             "TrialOfSwordmancyGiveUp"
         ],
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
         "next": [
-            "TrialOfSwordmancyCoatingGiveUpSuccess"
+            "TrialOfSwordmancyCoatingResetNavigator"
         ]
     },
-    "TrialOfSwordmancyCoatingGiveUpSuccess": {
-        "desc": "放弃演算成功",
+    "TrialOfSwordmancyCoatingResetNavigator": {
+        "desc": "重置寻路maxhit",
         "recognition": "And",
         "all_of": [
             "InWorld"
         ],
         "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "TrialOfSwordmancyCoatingEnterFreeCalc"
-        ]
-    },
-    "TrialOfSwordmancyCoatingEnterFreeCalc": {
-        "desc": "点击进入演算",
-        "recognition": "And",
-        "all_of": [
-            "TrialOfSwordmancyEnterTrialMenu"
-        ],
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoAltClickAction"
-            }
-        },
-        "post_delay": 0,
-        "next": [
-            "TrialOfSwordmancyCoatingEnterTrialMenuSuccess"
-        ]
-    },
-    "TrialOfSwordmancyCoatingEnterTrialMenuSuccess": {
-        "desc": "成功进入演算菜单",
-        "recognition": "And",
-        "all_of": [
-            "TrialOfSwordmancyDrawCard"
-        ],
-        "pre_wait_freezes": {
-            "time": 100,
-            "target": [
-                // 等待抽牌按钮的骰子转动完毕
-                1081,
-                510,
-                68,
-                60
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "TrialOfSwordmancyGotoTrialArenaCpp"
             ]
         },
-        "pre_delay": 0,
+        "post_wait_freezes": 200,
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyCoatingMain"

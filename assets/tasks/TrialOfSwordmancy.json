@@ -70,7 +70,7 @@
                     "name": "Farm25",
                     "label": "$option.TrialOfSwordmancyMode.cases.Farm25.label",
                     "pipeline_override": {
-                        "TrialOfSwordmancyFarm25": {
+                        "TrialOfSwordmancyCoating": {
                             "enabled": true
                         },
                         "TrialOfSwordmancyCoatingCheck1": {

@@ -5,8 +5,7 @@
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyDaily",
-            "TrialOfSwordmancyCoating",
-            "TrialOfSwordmancyFarm25"
+            "TrialOfSwordmancyCoating"
         ]
     },
     "TrialOfSwordmancyDaily": {
@@ -22,16 +21,7 @@
         ]
     },
     "TrialOfSwordmancyCoating": {
-        "desc": "自动刷镀层",
-        "enabled": false,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "TrialOfSwordmancyCoatingMain"
-        ]
-    },
-    "TrialOfSwordmancyFarm25": {
-        "desc": "自动刷25点",
+        "desc": "自动刷镀层/刷25点",
         "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
