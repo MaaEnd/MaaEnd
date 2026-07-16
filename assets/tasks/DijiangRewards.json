@@ -376,7 +376,22 @@
                                 "晶華多齒葉",
                                 "重紅柱狀菌",
                                 "中紅柱狀菌",
-                                "輕紅柱狀菌"
+                                "輕紅柱狀菌",
+                                "塔罗斯菌",
+                                "塔羅斯菌",
+                                "Talos Cap",
+                                "タロス茸",
+                                "탈로스 버섯",
+                                "红矛叶",
+                                "紅矛葉",
+                                "Crimson Spearleaf",
+                                "赤槍葉",
+                                "붉은 창 잎",
+                                "协议纹石",
+                                "協議紋石",
+                                "Protocolith",
+                                "協約紋石",
+                                "프로토콜 문양석"
                             ]
                         }
                     },
@@ -893,6 +908,117 @@
                                 "Pink Bolete",
                                 "薄紅茸",
                                 "輕紅柱狀菌"
+                            ]
+                        },
+                        "GrowthChamberCheckSeedNotEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoExtractSeed"
+                    ]
+                },
+                {
+                    "name": "TalosCap",
+                    "label": "$item.TalosCap",
+                    "pipeline_override": {
+                        "GrowthChamberSelectTarget": {
+                            "expected": [
+                                "塔罗斯菌",
+                                "Talos Cap",
+                                "タロス茸",
+                                "塔羅斯菌",
+                                "탈로스 버섯"
+                            ]
+                        },
+                        "GrowthChamberCheckSeedNotEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoExtractSeed"
+                    ]
+                },
+                {
+                    "name": "CrimsonSpearleaf",
+                    "label": "$item.CrimsonSpearleaf",
+                    "pipeline_override": {
+                        "GrowthChamberSelectTarget": {
+                            "expected": [
+                                "红矛叶",
+                                "Crimson Spearleaf",
+                                "赤槍葉",
+                                "紅矛葉",
+                                "붉은 창 잎"
+                            ]
+                        },
+                        "GrowthChamberCheckSeedNotEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoExtractSeed"
+                    ]
+                },
+                {
+                    "name": "Protocolith",
+                    "label": "$item.Protocolith",
+                    "pipeline_override": {
+                        "GrowthChamberSelectTarget": {
+                            "expected": [
+                                "协议纹石",
+                                "Protocolith",
+                                "協約紋石",
+                                "協議紋石",
+                                "프로토콜 문양석"
                             ]
                         },
                         "GrowthChamberCheckSeedNotEmpty": {
