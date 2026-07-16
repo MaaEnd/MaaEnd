@@ -10,9 +10,35 @@
                 "SceneEnterMenuRegionalDevelopmentValleyIVOutpostManagement"
             ]
         },
+        "anchor": {
+            "SellProductValleyIVPrepareOperatorCache": ""
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[Anchor]SellProductValleyIVPrepareOperatorCache",
+            "[JumpBack]SellProductRefugeeCamp",
+            "[JumpBack]SellProductInfraStation",
+            "[JumpBack]SellProductReconstructionHQ",
+            "SellProductLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    },
+    "SellProductValleyIVPrepareOperatorCache": {
+        "desc": "四号谷地售卖前准备联络干员缓存",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SellProductScanOperatorList"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductOutpostLocked",
             "[JumpBack]SellProductRefugeeCamp",
             "[JumpBack]SellProductInfraStation",
             "[JumpBack]SellProductReconstructionHQ",
@@ -31,9 +57,34 @@
                 "SceneEnterMenuRegionalDevelopmentWulingOutpostManagement"
             ]
         },
+        "anchor": {
+            "SellProductWulingPrepareOperatorCache": ""
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[Anchor]SellProductWulingPrepareOperatorCache",
+            "[JumpBack]SellProductSkyKingFlatsConstructionSite",
+            "[JumpBack]SellProductCardiacRemediationStation",
+            "SellProductLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    },
+    "SellProductWulingPrepareOperatorCache": {
+        "desc": "武陵售卖前准备联络干员缓存",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SellProductScanOperatorList"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductOutpostLocked",
             "[JumpBack]SellProductSkyKingFlatsConstructionSite",
             "[JumpBack]SellProductCardiacRemediationStation",
             "SellProductLoop",

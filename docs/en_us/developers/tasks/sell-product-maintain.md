@@ -6,7 +6,7 @@ The core feature of `SellProduct` is **zmdmap data-driven + Pipeline template ge
 
 > [!IMPORTANT]
 >
-> `assets/tasks/SellProduct.json`, `assets/resource/pipeline/SellProduct/Outposts/*.json`, and `assets/resource_adb/pipeline/SellProduct/Outposts/*.json` are all **generated artifacts**. Do not edit these files directly; to modify outposts, item lists, priority item candidates, sell attempt templates, or Win/ADB coordinates, modify the data assembly or templates under `tools/pipeline-generate/SellProduct/`, then regenerate.
+> `assets/tasks/SellProduct.json`, `assets/resource/pipeline/SellProduct/OperatorSession.json`, `assets/resource/pipeline/SellProduct/Outposts/*.json`, and `assets/resource_adb/pipeline/SellProduct/Outposts/*.json` are all **generated artifacts**. Do not edit these files directly; to modify outposts, item lists, automatic operator registrations, priority item candidates, sell attempt templates, or Win/ADB coordinates, modify the data assembly or templates under `tools/pipeline-generate/SellProduct/`, then regenerate.
 
 ## Overview
 
@@ -20,17 +20,20 @@ The core maintenance points for SellProduct are as follows:
 | ADB Template Data                | `tools/pipeline-generate/SellProduct/pipeline-adb-data.mjs`       | Exposes only the outpost IDs and quantity boxes required by the ADB Pipeline template.                                                     |
 | Task Template Data               | `tools/pipeline-generate/SellProduct/task-data.mjs`               | Generates item, reserve quantity, and operator options.                                                                                    |
 | Outpost Pipeline Template        | `tools/pipeline-generate/SellProduct/pipeline-template.jsonc`     | Generates each outpost selling node for the Win resource pack.                                                                             |
+| Session Pipeline Template        | `tools/pipeline-generate/SellProduct/session-template.jsonc`      | Generates automatic-mode outpost registration nodes.                                                                                       |
 | ADB Outpost Template             | `tools/pipeline-generate/SellProduct/pipeline-adb-template.jsonc` | Generates outpost quantity OCR override nodes for the ADB resource pack.                                                                   |
 | Task Option Template             | `tools/pipeline-generate/SellProduct/task-template.jsonc`         | Generates region, outpost, operator switch, sell attempts, priority item, and reserve quantity options in `assets/tasks/SellProduct.json`. |
 | Win Outpost Generation Config    | `tools/pipeline-generate/SellProduct/pipeline-config.json`        | Outputs to `assets/resource/pipeline/SellProduct/Outposts/${LocationId}.json`.                                                             |
 | ADB Outpost Generation Config    | `tools/pipeline-generate/SellProduct/pipeline-adb-config.json`    | Outputs to `assets/resource_adb/pipeline/SellProduct/Outposts/${LocationId}.json`.                                                         |
 | Task Option Generation Config    | `tools/pipeline-generate/SellProduct/task-config.json`            | Outputs to `assets/tasks/SellProduct.json`.                                                                                                |
+| Session Generation Config        | `tools/pipeline-generate/SellProduct/session-config.json`         | Outputs to `assets/resource/pipeline/SellProduct/OperatorSession.json`.                                                                    |
 | Task Entry                       | `assets/resource/pipeline/SellProduct.json`                       | `ScheduleRecognition`, main loop, region entry; manually maintained.                                                                       |
 | Region Sell Entry                | `assets/resource/pipeline/SellProduct/Sell.json`                  | `next` list for region to outpost mapping; manually maintained.                                                                            |
 | Generic Sell Core                | `assets/resource/pipeline/SellProduct/SellCore.json`              | Sell loop, out-of-stock/dispatch ticket insufficient/exchange limit exceeded handling, final trade flow.                                   |
 | Generic Change Goods Flow        | `assets/resource/pipeline/SellProduct/ChangeGoods.json`           | Enter goods selection interface, select priority item or default item.                                                                     |
 | Generic Outpost Recognition      | `assets/resource/pipeline/SellProduct/EnterOutpost.json`          | Outpost interface, region outpost page, and outpost management text recognition.                                                           |
 | Contact Operator Recognition     | `assets/resource/pipeline/SellProduct/Operator.json`              | Contact operator list interface and open button recognition.                                                                               |
+| Automatic Operator Session/Logic | `agent/go-service/sellproduct/operator_*.go`                      | Theoretical/exact candidates, cache completeness, task sessions, and unique restoration assignment.                                        |
 | ADB Generic Sell Core            | `assets/resource_adb/pipeline/SellProduct/SellCore.json`          | Generic sell core under the ADB resource pack.                                                                                             |
 | Priority Item Custom Recognition | `agent/go-service/sellproduct/normalized_match.go`                | `SellProductNormalizedItemMatch`, performs noise-resistant exact matching on OCR results and candidate names.                              |
 | Multilingual Text                | `assets/locales/interface/*.json`                                 | `SellProduct` task text, outpost names, item labels.                                                                                       |
@@ -44,6 +47,7 @@ The following files are rendered by `@joebao/maa-pipeline-generate` and will be 
 
 - `assets/tasks/SellProduct.json`
 - `assets/resource/pipeline/SellProduct/Outposts/*.json`
+- `assets/resource/pipeline/SellProduct/OperatorSession.json`
 - `assets/resource_adb/pipeline/SellProduct/Outposts/*.json`
 
 The sources for these files are:
@@ -52,6 +56,7 @@ The sources for these files are:
 | --------------------------------- | ----------------------------- | ------------------------------------- |
 | `assets/tasks/SellProduct.json`   | `task-template.jsonc`         | `task-data.mjs` + `model.mjs`         |
 | Win Outpost Pipeline              | `pipeline-template.jsonc`     | `pipeline-data.mjs` + `model.mjs`     |
+| Automatic operator registrations  | `session-template.jsonc`      | `session-data.mjs` + `model.mjs`      |
 | ADB Outpost Quantity OCR Override | `pipeline-adb-template.jsonc` | `pipeline-adb-data.mjs` + `model.mjs` |
 
 ### Handwritten Maintenance Files
@@ -64,6 +69,7 @@ The following files are not overwritten by the SellProduct generator and must be
 - `assets/resource/pipeline/SellProduct/ChangeGoods.json`
 - `assets/resource/pipeline/SellProduct/EnterOutpost.json`
 - `assets/resource/pipeline/SellProduct/Operator.json`
+- `assets/resource/pipeline/SellProduct/OperatorScan.json`
 - `assets/resource_adb/pipeline/SellProduct/SellCore.json`
 - `agent/go-service/sellproduct/*.go`
 - `assets/locales/interface/*.json`
@@ -103,7 +109,7 @@ When adding a new region, do not rely directly on default fallback names like `d
 - `tradeItems[*].name`: Multilingual item name.
 - `tradeItems[*].rarity` / `unitPrice`: Used for sorting to generate priority item options.
 
-`model.mjs` normalizes this raw data into `sellProductLocations`; the Win, ADB, and Task data projections then build their own minimal template rows.
+`model.mjs` normalizes this raw data into `sellProductLocations`; the Win, ADB, session, and Task data projections then build their own minimal template rows.
 
 The currently generated outposts are:
 
@@ -130,6 +136,7 @@ pnpm fetch:zmdmap
 # If cache is already updated, you can also render individually in the generator directory
 cd tools/pipeline-generate/SellProduct
 npx @joebao/maa-pipeline-generate --config pipeline-config.json
+npx @joebao/maa-pipeline-generate --config session-config.json
 npx @joebao/maa-pipeline-generate --config task-config.json
 npx @joebao/maa-pipeline-generate --config pipeline-adb-config.json
 ```
@@ -243,6 +250,8 @@ The overall flow can be understood via the following pipeline:
 ```text
 SellProductSchedule
 -> SellProductMain
+-> SellProductCaptureUid
+-> SellProductInitializeOperatorSession / SellProductRegisterAuto{LocationId}
 -> SellProductLoop
 -> SellProductAuto / SellProductValleyIV / SellProductWuling
 -> SellProduct{Region}Sell
@@ -265,6 +274,7 @@ SellProductSchedule
 Key points:
 
 - `SellProductScheduleEnabled` determines the day of the week selected by the user via `ScheduleRecognition`. Upon match, the Pipeline enters `SellProductMain`.
+- `SellProductCaptureUid` captures the hashed UID, then initializes the task-scoped automatic operator session and registers enabled automatic outposts.
 - `SellProductLoop` continues execution only in the region construction interface; when not in the target interface, it hands off to `SceneEnterMenuRegionalDevelopment`.
 - `SellProductAuto` automatically selects Valley IV or Wuling based on the current region construction page.
 - `SellProduct{Region}Sell` enters the outpost management page of the corresponding region, then traverses all outposts in that region via `next`.
@@ -312,17 +322,87 @@ Each outpost has an optional contact operator switch configuration:
 
 ```text
 {RegionPrefix}{LocationId}Operator
+{RegionPrefix}{LocationId}OperatorSelectionMode
 {RegionPrefix}{LocationId}TargetOperator
 {RegionPrefix}{LocationId}RestoreOperator
 ```
 
-The default value is disabled. When enabled, the task options will:
+The default value is disabled. Once enabled, the user can choose automatic or manual mode:
 
 - Point the `SellProductBeforeSellOperator` anchor of `SellProduct{LocationId}SetBeforeSellOperatorAnchor` to `SellProduct{LocationId}BeforeSellOperator`.
-- Based on `TargetOperator`, write multilingual OCR candidates for the current operator recognition and list selection nodes; after clicking a list item, only the "Assign" button is recognized, without re-checking the selected operator name.
-- Based on `RestoreOperator`, decide whether the `SellProductAfterSellOperator` anchor remains a generic empty node or points to `SellProduct{LocationId}AfterSellOperator` and writes OCR candidates for the restoration target's current operator recognition and list selection; the restoration flow similarly only recognizes the "Assign" button after clicking a list item.
+- Automatic mode enables `SellProductRegisterAuto{LocationId}`, registers the outpost in the task-scoped restoration session, and lets Go calculate targets from owned operators and outpost bonuses.
+- Manual mode writes multilingual OCR candidates from `TargetOperator`; `RestoreOperator` controls whether the task restores a specified operator after selling.
 
-If the current contact operator is already the target operator before selling, it will directly enter `SellProductSellLoop`. If the target operator or restoration operator cannot be found in the list, the corresponding node will `StopTask` and prompt the user to confirm if the operator is already held or to adjust the configuration.
+Manual mode stops the task when the configured operator is absent. Automatic mode converts a complete traversal to the end of the list into a cache refresh and replanning transition; it never downgrades to a lower-priority operator merely because that operator is visible on the current page.
+
+### Automatic Operator Selection State Machine
+
+Pipeline and Go cooperate on automatic selection. Pipeline owns list navigation, scrolling, closing, and assignment confirmation. Go owns candidate data, cache state, and restoration assignment.
+
+After UID capture, the task entry executes:
+
+```text
+SellProductInitializeOperatorSession
+-> SellProductRegisterAuto{LocationId} (enabled automatic outposts only)
+-> SellProductOperatorSessionReady
+-> SellProductLoop
+```
+
+Initialization clears the previous task's scan completion, plans, and restoration locks. `session-template.jsonc` generates one disabled registration node per outpost, and automatic mode enables it through `pipeline_override`. After adding an outpost, regenerate `OperatorSession.json` and append its registration node to the handwritten `SellProductInitializeOperatorSession.next` list.
+
+#### Cache Completeness
+
+The owned-operator cache is stored at `debug/record/SellProductOwnedOperators.json` and partitioned by hashed UID. Each account contains:
+
+```json
+{
+    "updated_at": "2026-07-15T00:00:00Z",
+    "operators": [
+        "Perlica",
+        "Laevatain"
+    ],
+    "complete": true
+}
+```
+
+- `complete: false` means the operators were only observed on part of the list; absent candidates remain unknown.
+- `complete: true` means the list was traversed from top to bottom and can drive an exact plan.
+- v1 caches migrate in memory to complete v2 snapshots and are persisted in the new structure on the next write.
+- Partial matches only add operators. Only reaching the end of a full traversal may replace the candidate domain and set `complete: true`.
+
+#### Theoretical and Exact Plans
+
+With an incomplete cache, Go assumes every relevant candidate may be owned and computes a theoretical optimum. Each search targets only the first planned candidate:
+
+```text
+Compute theoretical optimum
+-> Current operator already matches: continue
+-> Open list and search only for the planned candidate
+   -> Found: select and record a partial observation
+   -> Reached bottom without a match: write a complete cache and replan
+      -> New plan exists: close and reopen the list, then select once
+      -> No selling candidate: stop with an actionable message
+      -> No restoration candidate: close the list and continue
+```
+
+The second selection is not a blind retry: the first traversal produced a new authoritative ownership set and therefore a different plan. If a candidate derived from the just-completed scan still cannot be recognized, treat it as an OCR or UI-state error instead of looping.
+
+Selling priority is: both EXP and credit bonuses, credit only, then EXP only. Ties follow the stable in-game operator order. Search must not choose a lower-priority candidate visible on the current page.
+
+#### Restoration Assignment and Locks
+
+Restoration must prevent one operator from occupying multiple outposts. Go solves only for automatic outposts registered in the current session:
+
+1. Maximize the number of restored outposts.
+2. Minimize total candidate priority among plans with equal coverage.
+3. Lock each confirmed `location -> operator` result.
+4. After a cache refresh, replan only unfinished outposts and exclude locked operators. An outpost confirmed to have no restoration candidate after a full scan is also marked complete, so it cannot keep reserving a shared operator.
+
+`SellProduct{LocationId}CurrentRestoreOperator` locks immediately when the current operator is already correct. The normal selection path locks at `SellProduct{LocationId}RestoreOperatorDone`, after the Pipeline has confirmed the return to the outpost screen.
+
+#### Forced Refresh
+
+"Force refresh before this run" sets the task session to `refresh`. `SellProductScanOperatorList` runs before regional selling only while the current task has not completed a full scan. The completion marker is task-scoped and is not reused by later runs; one successful scan is shared by all regions and outposts in the same task.
 
 ### Priority Items
 

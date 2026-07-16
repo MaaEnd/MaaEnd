@@ -8,6 +8,7 @@
             "option": [
                 "SellProductSchedule",
                 "SellBeyondAidQuota",
+                "SellProductOperatorDataSource",
                 "${RegionPrefix}Sell"
             ],
             "controller": [
@@ -112,6 +113,14 @@
                     }
                 }
             ]
+        },
+        // ==== 自动干员数据来源 =====
+        "SellProductOperatorDataSource": {
+            "type": "select",
+            "label": "$task.SellProduct.OperatorDataSource",
+            "description": "$task.SellProduct.OperatorDataSourceDescription",
+            "default_case": "Cache",
+            "cases": "${OperatorRefreshModeCases}"
         },
         // ==== 超出调度券上限时是否仍确认交易 =====
         "SellBeyondAidQuota": {
@@ -221,11 +230,15 @@
                             "anchor": {
                                 "SellProductBeforeSellOperator": "SellProduct${LocationId}BeforeSellOperator"
                             }
+                        },
+                        "SellProduct${LocationId}SetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProduct${LocationId}AfterSellOperator"
+                            }
                         }
                     },
                     "option": [
-                        "${RegionPrefix}${LocationId}TargetOperator",
-                        "${RegionPrefix}${LocationId}RestoreOperator"
+                        "${RegionPrefix}${LocationId}OperatorSelectionMode"
                     ]
                 },
                 {
@@ -237,6 +250,244 @@
                             }
                         }
                     }
+                }
+            ]
+        },
+        "${RegionPrefix}${LocationId}OperatorSelectionMode": {
+            "type": "select",
+            "label": "$task.SellProduct.OperatorSelectionMode",
+            "description": "$task.SellProduct.OperatorSelectionModeDescription",
+            "default_case": "Auto",
+            "cases": [
+                {
+                    "name": "Auto",
+                    "label": "$task.SellProduct.OperatorSelectionModeAuto",
+                    "pipeline_override": {
+                        "SellProductRegisterAuto${LocationId}": {
+                            "enabled": true
+                        },
+                        "SellProduct${RegionPrefix}Sell": {
+                            "anchor": {
+                                "SellProduct${RegionPrefix}PrepareOperatorCache": "SellProduct${RegionPrefix}PrepareOperatorCache"
+                            }
+                        },
+                        "SellProduct${LocationId}SetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProduct${LocationId}AfterSellOperator"
+                            }
+                        },
+                        "SellProduct${LocationId}BeforeSellOperator": {
+                            "next": [
+                                "SellProduct${LocationId}CurrentTargetOperator",
+                                "SellProduct${LocationId}OpenTargetOperatorList"
+                            ]
+                        },
+                        "SellProduct${LocationId}CurrentTargetOperator": {
+                            "recognition": "Custom",
+                            "custom_recognition": "SellProductCurrentBestOperator",
+                            "custom_recognition_param": {
+                                "mode": "cache",
+                                "usage": "target",
+                                "location": "${LocationId}",
+                                "roi": [
+                                    268,
+                                    568,
+                                    190,
+                                    35
+                                ]
+                            }
+                        },
+                        "SellProduct${LocationId}OpenTargetOperatorList": {
+                            "next": [
+                                "SellProduct${LocationId}InTargetOperatorList"
+                            ]
+                        },
+                        "SellProduct${LocationId}InTargetOperatorList": {
+                            "next": [
+                                "SellProduct${LocationId}SelectTargetOperator",
+                                "SellProduct${LocationId}RetryTargetOperatorAfterScan",
+                                "SellProduct${LocationId}TargetOperatorScanFailed",
+                                "SellProduct${LocationId}TargetOperatorNotFound",
+                                "SellProduct${LocationId}SwipeTargetOperatorList"
+                            ]
+                        },
+                        "SellProduct${LocationId}SelectTargetOperator": {
+                            "recognition": "Custom",
+                            "custom_recognition": "SellProductSelectBestOperator",
+                            "custom_recognition_param": {
+                                "mode": "cache",
+                                "usage": "target",
+                                "location": "${LocationId}",
+                                "roi": [
+                                    164,
+                                    121,
+                                    700,
+                                    430
+                                ]
+                            }
+                        },
+                        "SellProduct${LocationId}RetryTargetOperatorAfterScan": {
+                            "custom_recognition_param": {
+                                "mode": "cache",
+                                "usage": "target",
+                                "location": "${LocationId}",
+                                "result": "retry",
+                                "roi": [
+                                    164,
+                                    121,
+                                    700,
+                                    430
+                                ]
+                            }
+                        },
+                        "SellProduct${LocationId}TargetOperatorNotFound": {
+                            "recognition": "Custom",
+                            "custom_recognition": "SellProductOperatorScanOutcome",
+                            "custom_recognition_param": {
+                                "mode": "cache",
+                                "usage": "target",
+                                "location": "${LocationId}",
+                                "result": "not_found",
+                                "roi": [
+                                    164,
+                                    121,
+                                    700,
+                                    430
+                                ]
+                            }
+                        },
+                        "SellProduct${LocationId}AfterSellOperator": {
+                            "next": [
+                                "SellProduct${LocationId}CurrentRestoreOperator",
+                                "SellProduct${LocationId}OpenRestoreOperatorList"
+                            ]
+                        },
+                        "SellProduct${LocationId}CurrentRestoreOperator": {
+                            "recognition": "Custom",
+                            "custom_recognition": "SellProductCurrentBestOperator",
+                            "custom_recognition_param": {
+                                "mode": "cache",
+                                "usage": "restore",
+                                "location": "${LocationId}",
+                                "roi": [
+                                    268,
+                                    568,
+                                    190,
+                                    35
+                                ]
+                            },
+                            "action": "Custom",
+                            "custom_action": "SellProductOperatorSession",
+                            "custom_action_param": {
+                                "operation": "complete_restore",
+                                "location": "${LocationId}"
+                            }
+                        },
+                        "SellProduct${LocationId}OpenRestoreOperatorList": {
+                            "next": [
+                                "SellProduct${LocationId}InRestoreOperatorList"
+                            ]
+                        },
+                        "SellProduct${LocationId}InRestoreOperatorList": {
+                            "next": [
+                                "SellProduct${LocationId}SelectRestoreOperator",
+                                "SellProduct${LocationId}RetryRestoreOperatorAfterScan",
+                                "SellProduct${LocationId}RestoreOperatorScanFailed",
+                                "SellProduct${LocationId}RestoreOperatorNotFoundAtBottom",
+                                "SellProduct${LocationId}SwipeRestoreOperatorList"
+                            ]
+                        },
+                        "SellProduct${LocationId}SelectRestoreOperator": {
+                            "recognition": "Custom",
+                            "custom_recognition": "SellProductSelectBestOperator",
+                            "custom_recognition_param": {
+                                "mode": "cache",
+                                "usage": "restore",
+                                "location": "${LocationId}",
+                                "roi": [
+                                    164,
+                                    121,
+                                    700,
+                                    430
+                                ]
+                            }
+                        },
+                        "SellProduct${LocationId}RetryRestoreOperatorAfterScan": {
+                            "custom_recognition_param": {
+                                "mode": "cache",
+                                "usage": "restore",
+                                "location": "${LocationId}",
+                                "result": "retry",
+                                "roi": [
+                                    164,
+                                    121,
+                                    700,
+                                    430
+                                ]
+                            }
+                        },
+                        "SellProduct${LocationId}RestoreOperatorDone": {
+                            "action": "Custom",
+                            "custom_action": "SellProductOperatorSession",
+                            "custom_action_param": {
+                                "operation": "complete_restore",
+                                "location": "${LocationId}"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Manual",
+                    "label": "$task.SellProduct.OperatorSelectionModeManual",
+                    "pipeline_override": {
+                        "SellProduct${LocationId}SetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": ""
+                            }
+                        },
+                        "SellProduct${LocationId}BeforeSellOperator": {
+                            "next": [
+                                "SellProduct${LocationId}CurrentTargetOperator",
+                                "SellProduct${LocationId}OpenTargetOperatorList"
+                            ]
+                        },
+                        "SellProduct${LocationId}OpenTargetOperatorList": {
+                            "next": [
+                                "SellProduct${LocationId}InTargetOperatorList"
+                            ]
+                        },
+                        "SellProduct${LocationId}InTargetOperatorList": {
+                            "next": [
+                                "SellProduct${LocationId}SelectTargetOperator",
+                                "SellProduct${LocationId}TargetOperatorNotFound",
+                                "SellProduct${LocationId}TargetOperatorScanFailed",
+                                "SellProduct${LocationId}SwipeTargetOperatorList"
+                            ]
+                        },
+                        "SellProduct${LocationId}AfterSellOperator": {
+                            "next": [
+                                "SellProduct${LocationId}CurrentRestoreOperator",
+                                "SellProduct${LocationId}OpenRestoreOperatorList"
+                            ]
+                        },
+                        "SellProduct${LocationId}OpenRestoreOperatorList": {
+                            "next": [
+                                "SellProduct${LocationId}InRestoreOperatorList"
+                            ]
+                        },
+                        "SellProduct${LocationId}InRestoreOperatorList": {
+                            "next": [
+                                "SellProduct${LocationId}SelectRestoreOperator",
+                                "SellProduct${LocationId}RestoreOperatorNotFound",
+                                "SellProduct${LocationId}RestoreOperatorScanFailed",
+                                "SellProduct${LocationId}SwipeRestoreOperatorList"
+                            ]
+                        }
+                    },
+                    "option": [
+                        "${RegionPrefix}${LocationId}TargetOperator",
+                        "${RegionPrefix}${LocationId}RestoreOperator"
+                    ]
                 }
             ]
         },

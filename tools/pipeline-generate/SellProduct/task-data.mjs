@@ -106,6 +106,22 @@ function filterOperatorCaseEntries(operatorNames) {
     return OPERATOR_CASE_ENTRIES.filter((entry) => operatorNames.has(entry.name));
 }
 
+// 构造自动干员 CustomRecognition 的完整参数，供默认节点和强制刷新覆盖复用。
+function buildOperatorRecognitionParam(usage, location, mode = "cache", result = undefined) {
+    return {
+        mode,
+        usage,
+        location,
+        ...(result ? {result} : {}),
+        roi: [
+            164,
+            121,
+            700,
+            430,
+        ],
+    };
+}
+
 // TODO(SellProduct): 活动结束后，临时排除以下活动物品，避免继续生成到可售卖列表。
 // 当 settlement_trade.json 数据更新并确认活动物品已移除后，删除该常量与下方过滤判断。
 const TEMP_EXCLUDED_ITEM_CN_NAMES = new Set([
@@ -281,7 +297,89 @@ function buildRestoreOperatorCases(nodePrefix, operatorNames) {
     ];
 }
 
-export const sellProductTaskRows = LOCATIONS.map((loc) => {
+// 生成全局「拥有干员刷新方式」选项；强制刷新 case 覆盖完整参数，避免浅合并丢失候选列表。
+function buildOperatorRefreshModeCases(locations) {
+    const refreshOverride = {
+        SellProductInitializeOperatorSession: {
+            custom_action_param: {
+                operation: "reset",
+                mode: "refresh",
+            },
+        },
+        SellProductOperatorCacheReady: {
+            custom_recognition_param: buildOperatorRecognitionParam("all", "global", "refresh"),
+        },
+        SellProductOperatorListScanDone: {
+            custom_recognition_param: buildOperatorRecognitionParam("all", "global", "refresh", "scan_done"),
+        },
+        SellProductOperatorListScanFailed: {
+            custom_recognition_param: buildOperatorRecognitionParam("all", "global", "refresh", "error"),
+        },
+    };
+    for (const loc of locations) {
+        refreshOverride[`SellProduct${loc.LocationId}CurrentTargetOperator`] = {
+            custom_recognition_param: {
+                ...buildOperatorRecognitionParam("target", loc.LocationId, "refresh"),
+                roi: [
+                    268,
+                    568,
+                    190,
+                    35,
+                ],
+            },
+        };
+        refreshOverride[`SellProduct${loc.LocationId}SelectTargetOperator`] = {
+            custom_recognition_param: buildOperatorRecognitionParam("target", loc.LocationId, "refresh"),
+        };
+        refreshOverride[`SellProduct${loc.LocationId}RetryTargetOperatorAfterScan`] = {
+            custom_recognition_param: buildOperatorRecognitionParam("target", loc.LocationId, "refresh", "retry"),
+        };
+        refreshOverride[`SellProduct${loc.LocationId}TargetOperatorNotFound`] = {
+            custom_recognition_param: buildOperatorRecognitionParam("target", loc.LocationId, "refresh", "not_found"),
+        };
+        refreshOverride[`SellProduct${loc.LocationId}TargetOperatorScanFailed`] = {
+            custom_recognition_param: buildOperatorRecognitionParam("target", loc.LocationId, "refresh", "error"),
+        };
+        refreshOverride[`SellProduct${loc.LocationId}CurrentRestoreOperator`] = {
+            custom_recognition_param: {
+                ...buildOperatorRecognitionParam("restore", loc.LocationId, "refresh"),
+                roi: [
+                    268,
+                    568,
+                    190,
+                    35,
+                ],
+            },
+        };
+        refreshOverride[`SellProduct${loc.LocationId}SelectRestoreOperator`] = {
+            custom_recognition_param: buildOperatorRecognitionParam("restore", loc.LocationId, "refresh"),
+        };
+        refreshOverride[`SellProduct${loc.LocationId}RetryRestoreOperatorAfterScan`] = {
+            custom_recognition_param: buildOperatorRecognitionParam("restore", loc.LocationId, "refresh", "retry"),
+        };
+        refreshOverride[`SellProduct${loc.LocationId}RestoreOperatorNotFoundAtBottom`] = {
+            custom_recognition_param: buildOperatorRecognitionParam("restore", loc.LocationId, "refresh", "not_found"),
+        };
+        refreshOverride[`SellProduct${loc.LocationId}RestoreOperatorScanFailed`] = {
+            custom_recognition_param: buildOperatorRecognitionParam("restore", loc.LocationId, "refresh", "error"),
+        };
+    }
+    return [
+        {
+            name: "Cache",
+            label: "$task.SellProduct.OperatorDataSourceCache",
+        },
+        {
+            name: "Refresh",
+            label: "$task.SellProduct.OperatorDataSourceRefresh",
+            pipeline_override: refreshOverride,
+        },
+    ];
+}
+
+const OPERATOR_REFRESH_MODE_CASES = buildOperatorRefreshModeCases(LOCATIONS);
+
+export const sellProductTaskRows = LOCATIONS.map((loc, index) => {
     const entries = buildItemCaseEntries(loc.items);
     const targetOperatorCases = buildTargetOperatorCases(loc.LocationId, loc.TargetOperatorNames);
     const restoreOperatorCases = buildRestoreOperatorCases(loc.LocationId, loc.RestoreOperatorNames);
@@ -289,6 +387,7 @@ export const sellProductTaskRows = LOCATIONS.map((loc) => {
         RegionPrefix: loc.RegionPrefix,
         SellOptions: SETTLEMENT_REGION_MAP[loc.RegionPrefix],
         LocationId: loc.LocationId,
+        OperatorRefreshModeCases: index === 0 ? OPERATOR_REFRESH_MODE_CASES : [],
         ItemCases1: buildItemCases(loc.LocationId, 1, entries),
         ItemCases2: buildItemCases(loc.LocationId, 2, entries),
         ItemCases3: buildItemCases(loc.LocationId, 3, entries),

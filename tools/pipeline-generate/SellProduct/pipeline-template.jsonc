@@ -69,7 +69,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProduct${LocationId}CurrentTargetOperator",
             "SellProduct${LocationId}OpenTargetOperatorList"
         ]
     },
@@ -125,8 +124,9 @@
         "rate_limit": 0,
         "next": [
             "SellProduct${LocationId}SelectTargetOperator",
-            "SellProduct${LocationId}SwipeTargetOperatorList",
-            "SellProduct${LocationId}TargetOperatorNotFound"
+            "SellProduct${LocationId}TargetOperatorNotFound",
+            "SellProduct${LocationId}TargetOperatorScanFailed",
+            "SellProduct${LocationId}SwipeTargetOperatorList"
         ]
     },
     "SellProduct${LocationId}SelectTargetOperator": {
@@ -220,7 +220,6 @@
     },
     "SellProduct${LocationId}SwipeTargetOperatorList": {
         "desc": "${LocationDesc}在联络干员列表中向下滑动查找售卖用干员",
-        "max_hit": 8,
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison"
@@ -257,12 +256,93 @@
             "SellProduct${LocationId}InTargetOperatorList"
         ]
     },
-    "SellProduct${LocationId}TargetOperatorNotFound": {
-        "desc": "${LocationDesc}未找到配置的售卖用干员，停止任务",
+    "SellProduct${LocationId}RetryTargetOperatorAfterScan": {
+        "desc": "${LocationDesc}完整扫描后存在新的售卖用干员方案",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorListBottom",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "target",
+            "location": "${LocationId}",
+            "result": "retry",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}CloseTargetOperatorLiaisonAfterScan"
+        ]
+    },
+    "SellProduct${LocationId}CloseTargetOperatorLiaisonAfterScan": {
+        "desc": "${LocationDesc}刷新缓存后关闭售卖用干员列表",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorLiaison"
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
         ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}OpenTargetOperatorList"
+        ]
+    },
+    "SellProduct${LocationId}TargetOperatorScanFailed": {
+        "desc": "${LocationDesc}售卖用干员列表扫描失败",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorScanOutcome",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "target",
+            "location": "${LocationId}",
+            "result": "error",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "联络干员缓存更新失败，请检查日志和缓存文件写入权限"
+        }
+    },
+    "SellProduct${LocationId}TargetOperatorNotFound": {
+        "desc": "${LocationDesc}联络干员列表已到底，未找到配置的售卖用干员",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorListBottom",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "target",
+            "location": "${LocationId}",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
         "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
@@ -278,7 +358,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProduct${LocationId}CurrentRestoreOperator",
             "SellProduct${LocationId}OpenRestoreOperatorList"
         ]
     },
@@ -331,8 +410,32 @@
         "rate_limit": 0,
         "next": [
             "SellProduct${LocationId}SelectRestoreOperator",
-            "SellProduct${LocationId}SwipeRestoreOperatorList",
-            "SellProduct${LocationId}RestoreOperatorNotFound"
+            "SellProduct${LocationId}RestoreOperatorNotFoundAtBottom",
+            "SellProduct${LocationId}RestoreOperatorScanFailed",
+            "SellProduct${LocationId}SwipeRestoreOperatorList"
+        ]
+    },
+    "SellProduct${LocationId}RestoreOperatorNotFoundAtBottom": {
+        "desc": "${LocationDesc}联络干员列表已到底，未找到可用的恢复干员",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorScanOutcome",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "${LocationId}",
+            "result": "not_found",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}CloseRestoreOperatorLiaisonAfterNotFound"
         ]
     },
     "SellProduct${LocationId}SelectRestoreOperator": {
@@ -423,7 +526,6 @@
     },
     "SellProduct${LocationId}SwipeRestoreOperatorList": {
         "desc": "${LocationDesc}在联络干员列表中向下滑动查找恢复干员",
-        "max_hit": 8,
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison"
@@ -460,12 +562,93 @@
             "SellProduct${LocationId}InRestoreOperatorList"
         ]
     },
-    "SellProduct${LocationId}RestoreOperatorNotFound": {
-        "desc": "${LocationDesc}未找到配置的恢复干员，停止任务",
+    "SellProduct${LocationId}RetryRestoreOperatorAfterScan": {
+        "desc": "${LocationDesc}完整扫描后存在新的恢复干员方案",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorListBottom",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "${LocationId}",
+            "result": "retry",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}CloseRestoreOperatorLiaisonAfterScan"
+        ]
+    },
+    "SellProduct${LocationId}CloseRestoreOperatorLiaisonAfterScan": {
+        "desc": "${LocationDesc}刷新缓存后关闭恢复干员列表",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorLiaison"
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
         ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}OpenRestoreOperatorList"
+        ]
+    },
+    "SellProduct${LocationId}RestoreOperatorScanFailed": {
+        "desc": "${LocationDesc}恢复干员列表扫描失败",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorScanOutcome",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "${LocationId}",
+            "result": "error",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "联络干员缓存更新失败，请检查日志和缓存文件写入权限"
+        }
+    },
+    "SellProduct${LocationId}RestoreOperatorNotFound": {
+        "desc": "${LocationDesc}联络干员列表已到底，未找到配置的恢复干员",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorListBottom",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "${LocationId}",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
         "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
@@ -473,6 +656,44 @@
         "focus": {
             "Node.Recognition.Succeeded": "未在联络干员列表中找到配置的恢复干员，请确认干员已持有或调整据点配置"
         }
+    },
+    "SellProduct${LocationId}CloseRestoreOperatorLiaisonAfterNotFound": {
+        "desc": "${LocationDesc}未找到可用的恢复干员，关闭派驻列表并继续",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}SkipRestoreOperatorDone"
+        ]
+    },
+    "SellProduct${LocationId}SkipRestoreOperatorDone": {
+        "desc": "${LocationDesc}记录本次任务不再恢复原干员",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "skip_restore",
+            "location": "${LocationId}"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     // ===== 在指定据点的识别节点 =====
     "SellProductIn${LocationId}": {
