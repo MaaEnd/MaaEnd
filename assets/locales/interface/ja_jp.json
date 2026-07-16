@@ -1179,5 +1179,9 @@
     "option.ClientVersion.cases.Bilibili.label": "中国サーバー（ビリビリ）",
     "option.ClientVersion.cases.Global.label": "グローバルサーバー（グリフライン）",
     "option.ClientVersion.cases.VN.label": "ベトナムサーバー（グリフライン）",
-    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "各戦闘前にテレポートしてHP回復"
+    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "各戦闘前にテレポートしてHP回復",
+    "task.EnvironmentMonitoring.route.AutumnGold.label": "「錦秋時」",
+    "task.EnvironmentMonitoring.route.FeranmutHeart.label": "巨獣の心臓",
+    "task.EnvironmentMonitoring.route.PoolLotus.label": "「池の蓮」",
+    "task.EnvironmentMonitoring.route.Thillu.label": "「イーサルー」"
 }

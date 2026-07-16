@@ -5044,7 +5044,8 @@
                     },
                     "option": [
                         "WulingSkyKingFlats",
-                        "WulingCardiacRemediationStation"
+                        "WulingCardiacRemediationStation",
+                        "WulingXiranflowCloudseederStation"
                     ]
                 },
                 {
@@ -5338,6 +5339,30 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "Arcane",
+                    "label": "$operator.Arcane",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsCurrentTargetOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectTargetOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        }
+                    }
                 }
             ]
         },
@@ -5497,6 +5522,35 @@
                                 "Mi Fu",
                                 "ミ・フ",
                                 "미브"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Arcane",
+                    "label": "$operator.Arcane",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
+                            }
+                        },
+                        "SellProductSkyKingFlatsCurrentRestoreOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectRestoreOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
                             ]
                         }
                     }
@@ -7015,6 +7069,30 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "Arcane",
+                    "label": "$operator.Arcane",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationCurrentTargetOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectTargetOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        }
+                    }
                 }
             ]
         },
@@ -7308,6 +7386,27 @@
                     }
                 },
                 {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "灼铜零件",
+                                    "灼銅零件",
+                                    "焔銅部品",
+                                    "Pyrrolite Part"
+                                ]
+                            }
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "中容武陵电池",
                     "pipeline_override": {
                         "SellProductCardiacRemediationStationSelectItem1": {
@@ -7477,6 +7576,27 @@
                         "SellProductCardiacRemediationStationSellAttempt2SetMissHandler": {
                             "anchor": {
                                 "SellProductPriorityGoodMissHandler": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "灼铜零件",
+                                    "灼銅零件",
+                                    "焔銅部品",
+                                    "Pyrrolite Part"
+                                ]
+                            }
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     }
@@ -7656,6 +7776,27 @@
                     }
                 },
                 {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "灼铜零件",
+                                    "灼銅零件",
+                                    "焔銅部品",
+                                    "Pyrrolite Part"
+                                ]
+                            }
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "中容武陵电池",
                     "pipeline_override": {
                         "SellProductCardiacRemediationStationSelectItem3": {
@@ -7825,6 +7966,27 @@
                         "SellProductCardiacRemediationStationSellAttempt4SetMissHandler": {
                             "anchor": {
                                 "SellProductPriorityGoodMissHandler": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "灼铜零件",
+                                    "灼銅零件",
+                                    "焔銅部品",
+                                    "Pyrrolite Part"
+                                ]
+                            }
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     }
@@ -8148,6 +8310,1514 @@
                     ],
                     "attach": {
                         "Target": "{WulingCardiacRemediationStationReserveValue4}",
+                        "TargetReverse": true
+                    }
+                }
+            }
+        },
+        "WulingXiranflowCloudseederStation": {
+            "type": "switch",
+            "label": "$task.SellProduct.WulingXiranflowCloudseederStation",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStation": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingXiranflowCloudseederStationOperator",
+                        "WulingXiranflowCloudseederStationAttempt1",
+                        "WulingXiranflowCloudseederStationAttempt2",
+                        "WulingXiranflowCloudseederStationAttempt3",
+                        "WulingXiranflowCloudseederStationAttempt4"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStation": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationOperator": {
+            "type": "switch",
+            "label": "$task.SellProduct.OperatorSwitch",
+            "description": "$task.SellProduct.OperatorSwitchDescription",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetBeforeSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": "SellProductXiranflowCloudseederStationBeforeSellOperator"
+                            }
+                        }
+                    },
+                    "option": [
+                        "WulingXiranflowCloudseederStationTargetOperator",
+                        "WulingXiranflowCloudseederStationRestoreOperator"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetBeforeSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": ""
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationTargetOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.TargetOperator",
+            "description": "$task.SellProduct.TargetOperatorDescription",
+            "default_case": "Ardelia",
+            "cases": [
+                {
+                    "name": "Ardelia",
+                    "label": "$operator.Ardelia",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "艾尔黛拉",
+                                "艾爾黛拉",
+                                "Ardelia",
+                                "アルデリア",
+                                "아델리아"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "艾尔黛拉",
+                                "艾爾黛拉",
+                                "Ardelia",
+                                "アルデリア",
+                                "아델리아"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Wulfgard",
+                    "label": "$operator.Wulfgard",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "狼卫",
+                                "狼衛",
+                                "Wulfgard",
+                                "ウルフガード",
+                                "울프가드"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "狼卫",
+                                "狼衛",
+                                "Wulfgard",
+                                "ウルフガード",
+                                "울프가드"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Xaihi",
+                    "label": "$operator.Xaihi",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "赛希",
+                                "賽希",
+                                "Xaihi",
+                                "ザイヒ",
+                                "자이히"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "赛希",
+                                "賽希",
+                                "Xaihi",
+                                "ザイヒ",
+                                "자이히"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Lifeng",
+                    "label": "$operator.Lifeng",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "黎风",
+                                "黎風",
+                                "Lifeng",
+                                "リーフォン",
+                                "여풍"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "黎风",
+                                "黎風",
+                                "Lifeng",
+                                "リーフォン",
+                                "여풍"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Arclight",
+                    "label": "$operator.Arclight",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "弧光",
+                                "Arclight",
+                                "アークライト",
+                                "아크라이트"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "弧光",
+                                "Arclight",
+                                "アークライト",
+                                "아크라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "DaPan",
+                    "label": "$operator.DaPan",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "大潘",
+                                "Da Pan",
+                                "ダパン",
+                                "판"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "大潘",
+                                "Da Pan",
+                                "ダパン",
+                                "판"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Fluorite",
+                    "label": "$operator.Fluorite",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "萤石",
+                                "螢石",
+                                "Fluorite",
+                                "フローライト",
+                                "플루라이트"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "萤石",
+                                "螢石",
+                                "Fluorite",
+                                "フローライト",
+                                "플루라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Rossi",
+                    "label": "$operator.Rossi",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "洛茜",
+                                "洛西",
+                                "Rossi",
+                                "ロッシ",
+                                "로시"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "洛茜",
+                                "洛西",
+                                "Rossi",
+                                "ロッシ",
+                                "로시"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Tangtang",
+                    "label": "$operator.Tangtang",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ZhuangFangyi",
+                    "label": "$operator.ZhuangFangyi",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "庄方宜",
+                                "莊方宜",
+                                "Zhuang Fangyi",
+                                "ゾアン・ファンイ",
+                                "장방이"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "庄方宜",
+                                "莊方宜",
+                                "Zhuang Fangyi",
+                                "ゾアン・ファンイ",
+                                "장방이"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미브"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미브"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Arcane",
+                    "label": "$operator.Arcane",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationRestoreOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.RestoreOperator",
+            "description": "$task.SellProduct.RestoreOperatorDescription",
+            "default_case": "DoNotRestore",
+            "cases": [
+                {
+                    "name": "DoNotRestore",
+                    "label": "$task.SellProduct.OperatorRestoreDoNotRestore",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductAfterSellOperator"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Yvonne",
+                    "label": "$operator.Yvonne",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductXiranflowCloudseederStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationCurrentRestoreOperator": {
+                            "expected": [
+                                "伊冯",
+                                "伊馮",
+                                "Yvonne",
+                                "イヴォンヌ",
+                                "이본"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectRestoreOperator": {
+                            "expected": [
+                                "伊冯",
+                                "伊馮",
+                                "Yvonne",
+                                "イヴォンヌ",
+                                "이본"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ChenQianyu",
+                    "label": "$operator.ChenQianyu",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductXiranflowCloudseederStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationCurrentRestoreOperator": {
+                            "expected": [
+                                "陈千语",
+                                "陳千語",
+                                "Chen Qianyu",
+                                "チェン・センユー",
+                                "진천우"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectRestoreOperator": {
+                            "expected": [
+                                "陈千语",
+                                "陳千語",
+                                "Chen Qianyu",
+                                "チェン・センユー",
+                                "진천우"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "LastRite",
+                    "label": "$operator.LastRite",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductXiranflowCloudseederStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationCurrentRestoreOperator": {
+                            "expected": [
+                                "别礼",
+                                "別禮",
+                                "Last Rite",
+                                "ラストライト",
+                                "라스트 라이트"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectRestoreOperator": {
+                            "expected": [
+                                "别礼",
+                                "別禮",
+                                "Last Rite",
+                                "ラストライト",
+                                "라스트 라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Ember",
+                    "label": "$operator.Ember",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductXiranflowCloudseederStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationCurrentRestoreOperator": {
+                            "expected": [
+                                "余烬",
+                                "餘燼",
+                                "Ember",
+                                "エンバー",
+                                "엠버"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectRestoreOperator": {
+                            "expected": [
+                                "余烬",
+                                "餘燼",
+                                "Ember",
+                                "エンバー",
+                                "엠버"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductXiranflowCloudseederStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationCurrentRestoreOperator": {
+                            "expected": [
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미브"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectRestoreOperator": {
+                            "expected": [
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미브"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Arcane",
+                    "label": "$operator.Arcane",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductXiranflowCloudseederStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationCurrentRestoreOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectRestoreOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationAttempt1": {
+            "type": "switch",
+            "label": "$task.SellProduct.SellAttempt1",
+            "description": "$task.SellProduct.SellAttemptDescription",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSellAttempt1": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingXiranflowCloudseederStationItem1",
+                        "WulingXiranflowCloudseederStationReserve1"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSellAttempt1": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationAttempt2": {
+            "type": "switch",
+            "label": "$task.SellProduct.SellAttempt2",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSellAttempt2": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingXiranflowCloudseederStationItem2",
+                        "WulingXiranflowCloudseederStationReserve2"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSellAttempt2": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationAttempt3": {
+            "type": "switch",
+            "label": "$task.SellProduct.SellAttempt3",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSellAttempt3": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingXiranflowCloudseederStationItem3",
+                        "WulingXiranflowCloudseederStationReserve3"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSellAttempt3": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationAttempt4": {
+            "type": "switch",
+            "label": "$task.SellProduct.SellAttempt4",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSellAttempt4": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingXiranflowCloudseederStationItem4",
+                        "WulingXiranflowCloudseederStationReserve4"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSellAttempt4": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationItem1": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem1",
+            "default_case": "无",
+            "cases": [
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem1": {
+                            "enabled": false
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "灼铜零件",
+                                    "灼銅零件",
+                                    "焔銅部品",
+                                    "Pyrrolite Part"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "中容武陵电池",
+                                    "中容量武陵電池",
+                                    "中容量武陵バッテリー",
+                                    "SC Wuling Battery"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.SCWulingBattery"
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质锦草软饮",
+                                    "優質錦草飲料",
+                                    "錦草ソーダⅡ",
+                                    "Jincao Tea"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质芽针针剂",
+                                    "優質芽針針劑",
+                                    "芽針注射剤Ⅱ",
+                                    "Yazhen Syringe A"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.YazhenSyringeA"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "重息壤",
+                                    "重息壤",
+                                    "重息壌",
+                                    "Heavy Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
+                },
+                {
+                    "name": "分离芯",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "分离芯",
+                                    "分離芯",
+                                    "分離コア",
+                                    "Separator Core"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "息壤",
+                                    "息壤",
+                                    "息壌",
+                                    "Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.Xiranite"
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationItem2": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem2",
+            "default_case": "无",
+            "cases": [
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem2": {
+                            "enabled": false
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "灼铜零件",
+                                    "灼銅零件",
+                                    "焔銅部品",
+                                    "Pyrrolite Part"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "中容武陵电池",
+                                    "中容量武陵電池",
+                                    "中容量武陵バッテリー",
+                                    "SC Wuling Battery"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.SCWulingBattery"
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质锦草软饮",
+                                    "優質錦草飲料",
+                                    "錦草ソーダⅡ",
+                                    "Jincao Tea"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质芽针针剂",
+                                    "優質芽針針劑",
+                                    "芽針注射剤Ⅱ",
+                                    "Yazhen Syringe A"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.YazhenSyringeA"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "重息壤",
+                                    "重息壤",
+                                    "重息壌",
+                                    "Heavy Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
+                },
+                {
+                    "name": "分离芯",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "分离芯",
+                                    "分離芯",
+                                    "分離コア",
+                                    "Separator Core"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "息壤",
+                                    "息壤",
+                                    "息壌",
+                                    "Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.Xiranite"
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationItem3": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem3",
+            "default_case": "无",
+            "cases": [
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem3": {
+                            "enabled": false
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "灼铜零件",
+                                    "灼銅零件",
+                                    "焔銅部品",
+                                    "Pyrrolite Part"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "中容武陵电池",
+                                    "中容量武陵電池",
+                                    "中容量武陵バッテリー",
+                                    "SC Wuling Battery"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.SCWulingBattery"
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质锦草软饮",
+                                    "優質錦草飲料",
+                                    "錦草ソーダⅡ",
+                                    "Jincao Tea"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质芽针针剂",
+                                    "優質芽針針劑",
+                                    "芽針注射剤Ⅱ",
+                                    "Yazhen Syringe A"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.YazhenSyringeA"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "重息壤",
+                                    "重息壤",
+                                    "重息壌",
+                                    "Heavy Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
+                },
+                {
+                    "name": "分离芯",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "分离芯",
+                                    "分離芯",
+                                    "分離コア",
+                                    "Separator Core"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "息壤",
+                                    "息壤",
+                                    "息壌",
+                                    "Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.Xiranite"
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationItem4": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem4",
+            "default_case": "无",
+            "cases": [
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem4": {
+                            "enabled": false
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "灼铜零件",
+                                    "灼銅零件",
+                                    "焔銅部品",
+                                    "Pyrrolite Part"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "中容武陵电池",
+                                    "中容量武陵電池",
+                                    "中容量武陵バッテリー",
+                                    "SC Wuling Battery"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.SCWulingBattery"
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质锦草软饮",
+                                    "優質錦草飲料",
+                                    "錦草ソーダⅡ",
+                                    "Jincao Tea"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质芽针针剂",
+                                    "優質芽針針劑",
+                                    "芽針注射剤Ⅱ",
+                                    "Yazhen Syringe A"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.YazhenSyringeA"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "重息壤",
+                                    "重息壤",
+                                    "重息壌",
+                                    "Heavy Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
+                },
+                {
+                    "name": "分离芯",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "分离芯",
+                                    "分離芯",
+                                    "分離コア",
+                                    "Separator Core"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "息壤",
+                                    "息壤",
+                                    "息壌",
+                                    "Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.Xiranite"
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationReserve1": {
+            "type": "select",
+            "label": "$task.SellProduct.Reserve1",
+            "description": "$task.SellProduct.ReserveDescription",
+            "default_case": "全部售出",
+            "cases": [
+                {
+                    "name": "全部售出"
+                },
+                {
+                    "name": "保留指定份数",
+                    "option": [
+                        "WulingXiranflowCloudseederStationReserveValue1"
+                    ]
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationReserveValue1": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveValueInput",
+            "inputs": [
+                {
+                    "name": "WulingXiranflowCloudseederStationReserveValue1",
+                    "label": "$task.SellProduct.ReserveValue",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9][0-9]*$",
+                    "default": "100"
+                }
+            ],
+            "pipeline_override": {
+                "SellProductXiranflowCloudseederStationBetterSliding1": {
+                    "next": [
+                        "SellProductSkipToNextSellLoop",
+                        "SellProductSellThenLoop"
+                    ],
+                    "attach": {
+                        "Target": "{WulingXiranflowCloudseederStationReserveValue1}",
+                        "TargetReverse": true
+                    }
+                }
+            }
+        },
+        "WulingXiranflowCloudseederStationReserve2": {
+            "type": "select",
+            "label": "$task.SellProduct.Reserve2",
+            "description": "$task.SellProduct.ReserveDescription",
+            "default_case": "全部售出",
+            "cases": [
+                {
+                    "name": "全部售出"
+                },
+                {
+                    "name": "保留指定份数",
+                    "option": [
+                        "WulingXiranflowCloudseederStationReserveValue2"
+                    ]
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationReserveValue2": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveValueInput",
+            "inputs": [
+                {
+                    "name": "WulingXiranflowCloudseederStationReserveValue2",
+                    "label": "$task.SellProduct.ReserveValue",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9][0-9]*$",
+                    "default": "100"
+                }
+            ],
+            "pipeline_override": {
+                "SellProductXiranflowCloudseederStationBetterSliding2": {
+                    "next": [
+                        "SellProductSkipToNextSellLoop",
+                        "SellProductSellThenLoop"
+                    ],
+                    "attach": {
+                        "Target": "{WulingXiranflowCloudseederStationReserveValue2}",
+                        "TargetReverse": true
+                    }
+                }
+            }
+        },
+        "WulingXiranflowCloudseederStationReserve3": {
+            "type": "select",
+            "label": "$task.SellProduct.Reserve3",
+            "description": "$task.SellProduct.ReserveDescription",
+            "default_case": "全部售出",
+            "cases": [
+                {
+                    "name": "全部售出"
+                },
+                {
+                    "name": "保留指定份数",
+                    "option": [
+                        "WulingXiranflowCloudseederStationReserveValue3"
+                    ]
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationReserveValue3": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveValueInput",
+            "inputs": [
+                {
+                    "name": "WulingXiranflowCloudseederStationReserveValue3",
+                    "label": "$task.SellProduct.ReserveValue",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9][0-9]*$",
+                    "default": "100"
+                }
+            ],
+            "pipeline_override": {
+                "SellProductXiranflowCloudseederStationBetterSliding3": {
+                    "next": [
+                        "SellProductSkipToNextSellLoop",
+                        "SellProductSellThenLoop"
+                    ],
+                    "attach": {
+                        "Target": "{WulingXiranflowCloudseederStationReserveValue3}",
+                        "TargetReverse": true
+                    }
+                }
+            }
+        },
+        "WulingXiranflowCloudseederStationReserve4": {
+            "type": "select",
+            "label": "$task.SellProduct.Reserve4",
+            "description": "$task.SellProduct.ReserveDescription",
+            "default_case": "全部售出",
+            "cases": [
+                {
+                    "name": "全部售出"
+                },
+                {
+                    "name": "保留指定份数",
+                    "option": [
+                        "WulingXiranflowCloudseederStationReserveValue4"
+                    ]
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationReserveValue4": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveValueInput",
+            "inputs": [
+                {
+                    "name": "WulingXiranflowCloudseederStationReserveValue4",
+                    "label": "$task.SellProduct.ReserveValue",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9][0-9]*$",
+                    "default": "100"
+                }
+            ],
+            "pipeline_override": {
+                "SellProductXiranflowCloudseederStationBetterSliding4": {
+                    "next": [
+                        "SellProductSkipToNextSellLoop",
+                        "SellProductSellThenLoop"
+                    ],
+                    "attach": {
+                        "Target": "{WulingXiranflowCloudseederStationReserveValue4}",
                         "TargetReverse": true
                     }
                 }

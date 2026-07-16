@@ -1179,5 +1179,9 @@
     "option.ClientVersion.cases.Bilibili.label": "B服",
     "option.ClientVersion.cases.Global.label": "國際服",
     "option.ClientVersion.cases.VN.label": "越南服",
-    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "每次戰鬥前傳送回復血量"
+    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "每次戰鬥前傳送回復血量",
+    "task.EnvironmentMonitoring.route.AutumnGold.label": "「金秋時」",
+    "task.EnvironmentMonitoring.route.FeranmutHeart.label": "巨獸心臟",
+    "task.EnvironmentMonitoring.route.PoolLotus.label": "「小池荷」",
+    "task.EnvironmentMonitoring.route.Thillu.label": "「表象」"
 }

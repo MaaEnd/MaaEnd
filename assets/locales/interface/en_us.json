@@ -1179,5 +1179,9 @@
     "option.ClientVersion.cases.Bilibili.label": "CN (Bilibili)",
     "option.ClientVersion.cases.Global.label": "Global (Gryphline)",
     "option.ClientVersion.cases.VN.label": "Vietnam (Gryphline)",
-    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "Teleport to heal before each battle"
+    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "Teleport to heal before each battle",
+    "task.EnvironmentMonitoring.route.AutumnGold.label": "\"Autumn Gold\"",
+    "task.EnvironmentMonitoring.route.FeranmutHeart.label": "Feranmut Heart",
+    "task.EnvironmentMonitoring.route.PoolLotus.label": "\"Pool Lotus\"",
+    "task.EnvironmentMonitoring.route.Thillu.label": "\"Æthillu\""
 }

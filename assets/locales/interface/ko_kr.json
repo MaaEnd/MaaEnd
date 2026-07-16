@@ -1179,5 +1179,9 @@
     "option.ClientVersion.cases.Bilibili.label": "Bilibili",
     "option.ClientVersion.cases.Global.label": "글로벌 서버",
     "option.ClientVersion.cases.VN.label": "베트남 서버",
-    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "전투 전마다 순간이동해 체력 회복"
+    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "전투 전마다 순간이동해 체력 회복",
+    "task.EnvironmentMonitoring.route.AutumnGold.label": "'황금빛 가을이 찾아올 때'",
+    "task.EnvironmentMonitoring.route.FeranmutHeart.label": "베헤모스의 심장",
+    "task.EnvironmentMonitoring.route.PoolLotus.label": "'작은 연못의 연꽃'",
+    "task.EnvironmentMonitoring.route.Thillu.label": "'잔영'"
 }

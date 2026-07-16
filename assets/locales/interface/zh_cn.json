@@ -1179,5 +1179,9 @@
     "option.ClientVersion.cases.CN.label": "官服",
     "option.ClientVersion.cases.Bilibili.label": "B服",
     "option.ClientVersion.cases.Global.label": "国际服",
-    "option.ClientVersion.cases.VN.label": "越南服"
+    "option.ClientVersion.cases.VN.label": "越南服",
+    "task.EnvironmentMonitoring.route.AutumnGold.label": "“金秋时”",
+    "task.EnvironmentMonitoring.route.FeranmutHeart.label": "巨兽心脏",
+    "task.EnvironmentMonitoring.route.PoolLotus.label": "“小池荷”",
+    "task.EnvironmentMonitoring.route.Thillu.label": "“表象”"
 }

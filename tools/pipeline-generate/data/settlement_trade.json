@@ -473,6 +473,28 @@
               "matchedTags": [
                 "tag_hobby_nature"
               ]
+            },
+            {
+              "charId": "chr_0032_lizhiyan",
+              "name": {
+                "BR": "Arcane",
+                "CN": "诀",
+                "DE": "Arkan",
+                "EN": "Arcane",
+                "FR": "Arcane",
+                "ID": "Arcane",
+                "IT": "Arcana",
+                "JP": "オクギ",
+                "KR": "결",
+                "MX": "Arcane",
+                "RU": "Премудрость",
+                "TC": "訣",
+                "TH": "ปริศนา",
+                "VN": "Arcane"
+              },
+              "matchedTags": [
+                "tag_hobby_nature"
+              ]
             }
           ]
         },
@@ -660,6 +682,28 @@
                 "TC": "弭弗",
                 "TH": "หมี่​ฟู่",
                 "VN": "Mi Fu"
+              },
+              "matchedTags": [
+                "tag_expert_combat"
+              ]
+            },
+            {
+              "charId": "chr_0032_lizhiyan",
+              "name": {
+                "BR": "Arcane",
+                "CN": "诀",
+                "DE": "Arkan",
+                "EN": "Arcane",
+                "FR": "Arcane",
+                "ID": "Arcane",
+                "IT": "Arcana",
+                "JP": "オクギ",
+                "KR": "결",
+                "MX": "Arcane",
+                "RU": "Премудрость",
+                "TC": "訣",
+                "TH": "ปริศนา",
+                "VN": "Arcane"
               },
               "matchedTags": [
                 "tag_expert_combat"
@@ -1593,7 +1637,7 @@
             "ID": "Pos depan ini butuh fasilitas sains dan penelitian untuk remediasi Jantung Feranmut. Operator yang punya kemampuan berikut ini bisa membantu meningkatkan efisiensi pembangunan pos depan ini: pemahaman tentang proses pembangunan yang berlaku di Hongshan Academy of Sciences atau UWST, pemahaman yang baik tentang kualitas dan keamanan konstruksi skala besar, serta pengendalian dan verifikasi biaya dan progres.",
             "IT": "Questo avamposto necessita di strutture scientifiche e di ricerca per il risanamento del cuore di Feranmut. Gli operatori che possiedono le seguenti abilità contribuiranno a migliorare l'efficienza costruttiva di questo avamposto: familiarità con i processi costruttivi dell'Accademia scientifica di Hongshan o dell'USLT; buona comprensione della qualità e della sicurezza delle costruzioni su larga scala, nonché del controllo e della verifica dei costi e dei progressi.",
             "JP": "巨獣の心臓を修復するための関連研究施設を建設する必要がある。オペレーターが宏山科学院や工業団連盟の建設プロセスを熟知し、大規模プロジェクトにおける品質・安全、コストや進捗管理について理解していれば、拠点の建設効率を高められるだろう。",
-            "KR": "베헤모스의 심장 복구 관련 연구 시설 구축 필요, 홍산 과학원 또는 연맹 공단의 건설 프로세스에 익숙하고, 대규모 공사의 품질·안전 및 비용,·일정, 점검 등의 부분을 이해하는 오퍼레이터가 거점의 건설 효율을 높일 수 있습니다.",
+            "KR": "베헤모스의 심장 복구 관련 연구 시설 구축 필요, 홍산 과학원 또는 연맹 공단의 건설 프로세스에 익숙하고, 대규모 공사의 품질·안전 및 비용, 일정, 점검 등의 부분을 이해하는 오퍼레이터가 거점의 건설 효율을 높일 수 있습니다.",
             "MX": "Este puesto de avanzada requiere instalaciones científicas y de investigación para la rehabilitación del Corazón de Feranmut. Los operadores que cuenten con las siguientes habilidades ayudarán a mejorar la eficiencia de construcción de este puesto de avanzada: familiaridad con los procesos de construcción de la Academia Científica Hongshan o del S.T.U.T.; y buen entendimiento de la calidad y seguridad en construcciones a gran escala, así como de los controles y la verificación de costos y avances.",
             "RU": "Для восстановления сердца феранмута на этом аванпосте нужны научно-исследовательские сооружения. Повысить эффективность строительства могут оперативники, знакомые со строительными методиками Академии наук Хуншаня или СОРТ, а также хорошо разбирающиеся в крупномасштабном строительстве, безопасности, контроле расходов и проверке результатов.",
             "TC": "該據點需要為修繕巨獸心臟建立相關研究設施。當幹員熟悉宏山科學院或聯盟工團的建設流程，瞭解大型工程品質安全、成本進度的控制檢測時，才能提升該據點的建設效率。",
@@ -1786,6 +1830,28 @@
                 "TC": "弭弗",
                 "TH": "หมี่​ฟู่",
                 "VN": "Mi Fu"
+              },
+              "matchedTags": [
+                "tag_power_hongacademy"
+              ]
+            },
+            {
+              "charId": "chr_0032_lizhiyan",
+              "name": {
+                "BR": "Arcane",
+                "CN": "诀",
+                "DE": "Arkan",
+                "EN": "Arcane",
+                "FR": "Arcane",
+                "ID": "Arcane",
+                "IT": "Arcana",
+                "JP": "オクギ",
+                "KR": "결",
+                "MX": "Arcane",
+                "RU": "Премудрость",
+                "TC": "訣",
+                "TH": "ปริศนา",
+                "VN": "Arcane"
               },
               "matchedTags": [
                 "tag_power_hongacademy"
@@ -1999,6 +2065,28 @@
                 "TC": "莊方宜",
                 "TH": "จวง​ฟาง​อี้",
                 "VN": "Zhuang Fangyi"
+              },
+              "matchedTags": [
+                "tag_hobby_charity"
+              ]
+            },
+            {
+              "charId": "chr_0032_lizhiyan",
+              "name": {
+                "BR": "Arcane",
+                "CN": "诀",
+                "DE": "Arkan",
+                "EN": "Arcane",
+                "FR": "Arcane",
+                "ID": "Arcane",
+                "IT": "Arcana",
+                "JP": "オクギ",
+                "KR": "결",
+                "MX": "Arcane",
+                "RU": "Премудрость",
+                "TC": "訣",
+                "TH": "ปริศนา",
+                "VN": "Arcane"
               },
               "matchedTags": [
                 "tag_hobby_charity"
@@ -2789,6 +2877,1588 @@
               "unitPrice": 1,
               "stmExp": 1,
               "versionStart": "v1d2d1",
+              "isRecommended": false
+            }
+          ]
+        },
+        "4": {
+          "prosperityLevel": 4,
+          "recoItemId": "item_copper_enr2_cmpt",
+          "tradeItems": [
+            {
+              "itemId": "item_activity_xiranite_enr_hulu",
+              "rarity": 5,
+              "name": {
+                "BR": "Cabaça de Jade de Xiranita",
+                "CN": "息壤玉葫芦",
+                "DE": "Xiranit-Jadekalebasse",
+                "EN": "Xiranite Jade Gourd",
+                "FR": "Gourde de jade en xiranite",
+                "ID": "Botol Cembung Giok Xiranite",
+                "IT": "Fiasco di giada e xiranite",
+                "JP": "息壌玉ひょうたん",
+                "KR": "식양 옥 호리병",
+                "MX": "Calabaza de jade de Xiranita",
+                "RU": "Нефритовая фляга с ксиранитом",
+                "TC": "息壤玉葫蘆",
+                "TH": "ฝัก​หยก​ซี​เรน​ไนต์",
+                "VN": "Quả Bầu Ngọc Xiranite"
+              },
+              "unitPrice": 120,
+              "stmExp": 120,
+              "versionStart": "v1d2d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_copper_enr2_cmpt",
+              "rarity": 4,
+              "name": {
+                "BR": "Peça de Pirrolita",
+                "CN": "灼铜零件",
+                "DE": "Pyrrolit-Teil",
+                "EN": "Pyrrolite Part",
+                "FR": "Pièce en pyrrolite",
+                "ID": "Bagian Pyrrolite",
+                "IT": "Parte di pirrolite",
+                "JP": "焔銅部品",
+                "KR": "작동 부품",
+                "MX": "Pieza de pirrolita",
+                "RU": "Пирролитовая деталь",
+                "TC": "灼銅零件",
+                "TH": "ชิ้นส่วน​ไพร์​โร​ไลท์",
+                "VN": "Mảnh Nham Đồng"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v1d4d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_proc_battery_5",
+              "rarity": 4,
+              "name": {
+                "BR": "Bateria CP de Wuling",
+                "CN": "中容武陵电池",
+                "DE": "Wuling-SC-Batterie",
+                "EN": "SC Wuling Battery",
+                "FR": "Batterie de Wuling CS",
+                "ID": "Baterai KS Wuling",
+                "IT": "Batteria CS di Wuling",
+                "JP": "中容量武陵バッテリー",
+                "KR": "중용량 무릉 배터리",
+                "MX": "Batería de CS de Wuling",
+                "RU": "Батарея СЕ Улина",
+                "TC": "中容量武陵電池",
+                "TH": "แบตเตอรี่​อู่​หลิง​มาตรฐาน",
+                "VN": "Pin Võ Lăng Dung Lượng Tiêu Chuẩn"
+              },
+              "unitPrice": 54,
+              "stmExp": 54,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_copper_enr_cmpt",
+              "rarity": 4,
+              "name": {
+                "BR": "Peça de Hetonita",
+                "CN": "赫铜零件",
+                "DE": "Hetonit-Teil",
+                "EN": "Hetonite Part",
+                "FR": "Pièce en hétonite",
+                "ID": "Bagian Hetonite",
+                "IT": "Parte di etonite",
+                "JP": "緋銅部品",
+                "KR": "혁동 부품",
+                "MX": "Pieza de hetonita",
+                "RU": "Гетонитовая деталь",
+                "TC": "赫銅零件",
+                "TH": "ชิ้นส่วน​เฮ​โท​ไนต์",
+                "VN": "Mảnh Huyết Đồng"
+              },
+              "unitPrice": 48,
+              "stmExp": 48,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_activity_xiranite_hulu",
+              "rarity": 4,
+              "name": {
+                "BR": "Cabaça de Xiranita",
+                "CN": "息壤葫芦",
+                "DE": "Xiranit-Kalebasse",
+                "EN": "Xiranite Gourd",
+                "FR": "Gourde en xiranite",
+                "ID": "Botol Cembung Xiranite",
+                "IT": "Fiasco di xiranite",
+                "JP": "息壌ひょうたん",
+                "KR": "식양 호리병",
+                "MX": "Calabaza de Xiranita",
+                "RU": "Тыквенная фляга с ксиранитом",
+                "TC": "息壤葫蘆",
+                "TH": "ฝัก​ซี​เรน​ไนต์",
+                "VN": "Quả Bầu Xiranite"
+              },
+              "unitPrice": 40,
+              "stmExp": 40,
+              "versionStart": "v1d2d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_xiranite_enr_powder",
+              "rarity": 3,
+              "name": {
+                "BR": "Xiranita Pesada",
+                "CN": "重息壤",
+                "DE": "Schweres Xiranit",
+                "EN": "Heavy Xiranite",
+                "FR": "Xiranite lourde",
+                "ID": "Xiranite Berat",
+                "IT": "Xiranite pesante",
+                "JP": "重息壌",
+                "KR": "중식양",
+                "MX": "Xiranita pesada",
+                "RU": "Тяжелый ксиранит",
+                "TC": "重息壤",
+                "TH": "ซี​เรน​ไนต์​หนัก",
+                "VN": "Xiranite Nặng"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_proc_battery_4",
+              "rarity": 4,
+              "name": {
+                "BR": "Bateria CB de Wuling",
+                "CN": "低容武陵电池",
+                "DE": "Wuling-LC-Batterie",
+                "EN": "LC Wuling Battery",
+                "FR": "Batterie de Wuling FC",
+                "ID": "Baterai KR Wuling",
+                "IT": "Batteria BC di Wuling",
+                "JP": "小容量武陵バッテリー",
+                "KR": "저용량 무릉 배터리",
+                "MX": "Batería de CB de Wuling",
+                "RU": "Батарея МЕ Улина",
+                "TC": "低容量武陵電池",
+                "TH": "แบตเตอรี่​อู่​หลิง​ขนาดเล็ก",
+                "VN": "Pin Võ Lăng Dung Lượng Thấp"
+              },
+              "unitPrice": 25,
+              "stmExp": 25,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_food_5",
+              "rarity": 4,
+              "name": {
+                "BR": "Chá de Capim-Seda",
+                "CN": "优质锦草软饮",
+                "DE": "Jincao-Tee",
+                "EN": "Jincao Tea",
+                "FR": "Thé à l'astéracée",
+                "ID": "Teh Jincao",
+                "IT": "Tè di jincao",
+                "JP": "錦草ソーダⅡ",
+                "KR": "고급 금초 청량음료",
+                "MX": "Té de Jincao",
+                "RU": "Чай с цзиньцао",
+                "TC": "優質錦草飲料",
+                "TH": "ชา​หญ้า​ไหม",
+                "VN": "Trà Cỏ Sao Lụa"
+              },
+              "unitPrice": 22,
+              "stmExp": 22,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_5",
+              "rarity": 4,
+              "name": {
+                "BR": "Seringa de Broto-Agulha [A]",
+                "CN": "优质芽针针剂",
+                "DE": "Yazhen-Spritze [A]",
+                "EN": "Yazhen Syringe [A]",
+                "FR": "Seringue de chardille [A]",
+                "ID": "Alat Suntik Yazhen [A]",
+                "IT": "Siringa di yazhen (A)",
+                "JP": "芽針注射剤Ⅱ",
+                "KR": "고급 야침 주사약",
+                "MX": "Jeringa de Yazhen [A]",
+                "RU": "Инъектор ячжэня [A]",
+                "TC": "優質芽針針劑",
+                "TH": "เข็ม​ฉีด​หน่อ​เข็ม​ [A]",
+                "VN": "Ống Tiêm Mầm Lá Kim [A]"
+              },
+              "unitPrice": 22,
+              "stmExp": 22,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_xiranite_powder",
+              "rarity": 2,
+              "name": {
+                "BR": "Xiranita",
+                "CN": "息壤",
+                "DE": "Xiranit",
+                "EN": "Xiranite",
+                "FR": "Xiranite",
+                "ID": "Xiranite",
+                "IT": "Xiranite",
+                "JP": "息壌",
+                "KR": "식양",
+                "MX": "Xiranita",
+                "RU": "Ксиранит",
+                "TC": "息壤",
+                "TH": "ซี​เรน​ไนต์",
+                "VN": "Xiranite"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            }
+          ]
+        }
+      }
+    },
+    "stm_hongs_3": {
+      "settlementId": "stm_hongs_3",
+      "settlementName": {
+        "BR": "Estação Semeadora de Nuvens de Fluxo de Xiranita",
+        "CN": "盈天台建设站",
+        "DE": "Xiranfluss-Wolkensäer-Station",
+        "EN": "Xiranflow Cloudseeder Station",
+        "FR": "Station du séminimbus à Xiranflux",
+        "ID": "Stasiun Pengisi Awan Xiranflow",
+        "IT": "Stazione di semina delle nuvole di Xiranflow",
+        "JP": "満天台建設基地",
+        "KR": "영천대 건설 기지",
+        "MX": "Estación del Siembranubes de Flujo Xiran",
+        "RU": "Станция засева облаков",
+        "TC": "盈天台建設站",
+        "TH": "สถานี​โปรย​เมฆ​ซี​เรน​โฟลว์",
+        "VN": "Trạm Gieo Mây Xiranflow"
+      },
+      "domainId": "domain_2",
+      "domainLevelId": "map02_lv007",
+      "domainLevelShowName": {
+        "BR": "Passagem de Yinglung",
+        "CN": "应龙关",
+        "DE": "Yinglung-Pass",
+        "EN": "Yinglung Pass",
+        "FR": "Col de Yinglung",
+        "ID": "Terusan Yinglung",
+        "IT": "Valico di Yinglung",
+        "JP": "応龍関",
+        "KR": "응룡 관문",
+        "MX": "Paso de Yinglung",
+        "RU": "Застава «Инлуна»",
+        "TC": "應龍關",
+        "TH": "ทางผ่าน​ห​ยิง​หลง",
+        "VN": "Đèo Yinglung"
+      },
+      "levelIdAlsoThisSettlement": "map02_lv007",
+      "paymentItemId": "item_domain_jinlong_coupon",
+      "paymentItemName": {
+        "BR": "Letra de Câmbio de Wuling",
+        "CN": "武陵调度券",
+        "DE": "Wuling-Aktiennote",
+        "EN": "Wuling Stock Bill",
+        "FR": "Billet de réserves de Wuling",
+        "ID": "Surat Saham Wuling",
+        "IT": "Buono acquisto di Wuling",
+        "JP": "武陵取引券",
+        "KR": "무릉 관리권",
+        "MX": "Vale de crédito de Wuling",
+        "RU": "Облигация Улина",
+        "TC": "武陵調度券",
+        "TH": "ธนบัตร​คลัง​อู่​หลิง",
+        "VN": "Phiếu Hàng Võ Lăng"
+      },
+      "settlementFeatures": [
+        {
+          "tagId": "stm_tag_hongs_3_1",
+          "name": {
+            "BR": "Escritos de Xiranita",
+            "CN": "息壤编译",
+            "DE": "Xiranit-Skript",
+            "EN": "Xiranite Scripting",
+            "FR": "Scripts de xiranite",
+            "ID": "Penyusunan Naskah Xiranite",
+            "IT": "Procedure per la xiranite",
+            "JP": "息壌コンパイル",
+            "KR": "식양 컴파일",
+            "MX": "Programación de Xiranita",
+            "RU": "Ксиранитовый сценарий",
+            "TC": "息壤編譯",
+            "TH": "การเขียน​สคริปต์​ซี​เรน​ไนต์",
+            "VN": "Lập Trình Xiranite"
+          },
+          "desc": {
+            "BR": "Diversos aplicativos de software de controle disponibilizados pela Academia de Ciências de Hongshan (ACH) utilizam tecnologia de código aberto desenvolvida pela Cabala da Tranquilidade há muitos anos. Operadores que dedicaram tempo à leitura dos manuais técnicos da ACH e da Cabala terão um desempenho admirável como representantes locais.",
+            "CN": "宏山科学院配发的部分控制软件使用了寂语修会多年前开源的核心技术，阅读过两方技术手册的干员能在此地游刃有余。",
+            "DE": "Eine Reihe von Kontrollprogrammanwendungen der Hongshan-Akademie der Wissenschaften (HAW) basieren auf zentraler Open-Source-Technologie, die vor Jahren vom Orden der Stille entwickelt wurde. Operatoren, die mit den Handbüchern der HAW und des Ordens vertraut sind, eignen sich hervorragend als lokale Verbindungspersonen.",
+            "EN": "A number of control software applications issued by the Hongshan Academy of Sciences (HAS) uses core open source technology developed by the Cabal of Tranquility many years ago. Operators who spent time reading both HAS and Cabal tech manuals will perform admirably as the local liaison.",
+            "FR": "De nombreuses applications de contrôle publiées par l'Académie des sciences de Hongshan (ASH) utilisent une technologie open source développée par la Cabale de la Tranquillité, il y a de nombreuses années. Les opérateurs qui ont lu attentivement les manuels techniques de l'ASH et de la Cabale seront de parfaits agents de liaison locaux.",
+            "ID": "Sejumlah aplikasi perangkat lunak kontrol yang diluncurkan oleh Hongshan Academy of Sciences (HAS) menggunakan teknologi inti sumber terbuka yang dikembangkan oleh Cabal of Tranquility bertahun-tahun lalu. Operator yang pernah meluangkan waktu mempelajari panduan teknis milik HAS dan Cabal akan mampu menjalankan peran sebagai naradamping lokal dengan sangat baik.",
+            "IT": "Una parte delle applicazioni del software di controllo rilasciate dall'Accademia scientifica di Hongshan (ASH) usa tecnologia open source sviluppata molti anni fa dalla Cabala della Tranquillità. Gli operatori che dedicano del tempo a leggere i manuali della ASH e della Cabala svolgeranno benissimo il compito di referente locale.",
+            "JP": "宏山科学院が支給した一部の制御ソフトウェアには、静語伝道会が何年も前にオープンソース化したコア技術が使用されている。双方の技術マニュアルを読んだことのあるオペレーターであれば、ここでは余裕を持って対応できるだろう。",
+            "KR": "홍산 과학원이 배포한 일부 제어 소프트웨어에는 고요한 수도회가 오래전에 오픈 소스로 공개한 핵심 기술이 사용되었습니다. 양측의 기술 매뉴얼을 모두 읽어 둔 오퍼레이터라면 이곳에서 능숙하게 대응할 수 있습니다.",
+            "MX": "Varias aplicaciones de software de control desarrolladas por la Academia Científica Hongshan (A.C.H) utilizan tecnología central de código abierto desarrollada hace muchos años por la Cábala de la Tranquilidad. Los operadores que hayan dedicado tiempo a leer manuales técnicos tanto de la A.C.H. como de la Cábala se desempeñarán admirablemente como representantes locales.",
+            "RU": "Некоторые программы управления, выпущенные Академией наук Хуншаня (АНХ), используют базовую технологию с открытым исходным кодом, разработанную сектой умиротворения много лет назад. На роль координатора отлично подойдут оперативники, изучившие технические руководства АНХ и секты.",
+            "TC": "宏山科學院配發的部分控制軟體使用了寂語修會多年前開源的核心技術，閱讀過兩方技術手冊的幹員能在此地游刃有餘。",
+            "TH": "แอปพลิเคชัน​ซอฟต์แวร์​ควบคุม​จำนวน​หนึ่ง​ที่​ออก​โดย​สถาบัน​วิทยาศาสตร์​หง​ซาน​ (HAS) ใช้​เทคโนโลยี​โอเพนซอร์ส​แกน​หลัก​ที่​พัฒนา​โดย​ภาคี​วัจ​น​สันโดษ​เมื่อ​หลาย​ปีก่อน​ โอเปอเรเตอร์​ที่​เคย​อ่าน​คู่มือ​เทคโนโลยี​ของ​ทั้ง​ HAS และ​ภาคี​จะ​ทำหน้าที่​ผู้ประสานงาน​ท้องถิ่น​ได้​อย่าง​ยอดเยี่ยม",
+            "VN": "Một số ứng dụng phần mềm điều khiển do Học viện Khoa học Hongshan ban hành sử dụng công nghệ mã nguồn mở cốt lõi do Tu Hội Tĩnh Lặng phát triển từ nhiều năm trước. Những cán viên từng dành thời gian nghiên cứu cả sổ tay kỹ thuật của Học Viện lẫn Tu Hội sẽ thể hiện xuất sắc trong vai trò người liên lạc địa phương."
+          },
+          "bonuses": [
+            {
+              "type": "expProfit",
+              "rate": 20
+            }
+          ],
+          "requiredCharTags": [
+            {
+              "tagId": "tag_power_hongacademy",
+              "group": "power",
+              "groupName": {
+                "BR": "Facção",
+                "CN": "阵营",
+                "DE": "Fraktion",
+                "EN": "Faction",
+                "FR": "Faction",
+                "ID": "Faksi",
+                "IT": "Fazione",
+                "JP": "陣営",
+                "KR": "진영",
+                "MX": "Facción",
+                "RU": "Фракция",
+                "TC": "陣營",
+                "TH": "ฝ่าย",
+                "VN": "Phe"
+              },
+              "name": {
+                "BR": "Academia de Ciências de Hongshan (ACH)",
+                "CN": "宏山科学院",
+                "DE": "Hongshan-Akademie der Wissenschaften (HAW)",
+                "EN": "Hongshan Academy of Sciences (HAS)",
+                "FR": "Académie des sciences de Hongshan (ASH)",
+                "ID": "Hongshan Academy of Sciences (HAS)",
+                "IT": "Accademia scientifica di Hongshan (ASH)",
+                "JP": "宏山科学院",
+                "KR": "홍산 과학원",
+                "MX": "Academia Científica Hongshan (A.C.H.)",
+                "RU": "Академия наук Хуншаня (АНХ)",
+                "TC": "宏山科學院",
+                "TH": "สถาบัน​วิทยาศาสตร์​หง​ซาน​ (HAS)",
+                "VN": "Học viện Khoa học Hongshan (HAS)"
+              }
+            },
+            {
+              "tagId": "tag_power_monastery",
+              "group": "power",
+              "groupName": {
+                "BR": "Facção",
+                "CN": "阵营",
+                "DE": "Fraktion",
+                "EN": "Faction",
+                "FR": "Faction",
+                "ID": "Faksi",
+                "IT": "Fazione",
+                "JP": "陣営",
+                "KR": "진영",
+                "MX": "Facción",
+                "RU": "Фракция",
+                "TC": "陣營",
+                "TH": "ฝ่าย",
+                "VN": "Phe"
+              },
+              "name": {
+                "BR": "Cabala da Tranquilidade",
+                "CN": "寂语修会",
+                "DE": "Orden der Stille",
+                "EN": "Cabal of Tranquility",
+                "FR": "Cabale de la Tranquillité",
+                "ID": "Cabal of Tranquility",
+                "IT": "Cabala della Tranquillità",
+                "JP": "静語伝道会",
+                "KR": "고요한 수도회",
+                "MX": "Cábala de la Tranquilidad",
+                "RU": "Секта умиротворения",
+                "TC": "寂語修會",
+                "TH": "ภาคี​วัจ​น​สันโดษ",
+                "VN": "Tu Hội Tĩnh Lặng"
+              }
+            }
+          ],
+          "matchingOperators": [
+            {
+              "charId": "chr_0011_seraph",
+              "name": {
+                "BR": "Xaihi",
+                "CN": "赛希",
+                "DE": "Xaihi",
+                "EN": "Xaihi",
+                "FR": "Xaihi",
+                "ID": "Xaihi",
+                "IT": "Xaihi",
+                "JP": "ザイヒ",
+                "KR": "자이히",
+                "MX": "Xaihi",
+                "RU": "Сайхи",
+                "TC": "賽希",
+                "TH": "ไซ​ฮี",
+                "VN": "Xaihi"
+              },
+              "matchedTags": [
+                "tag_power_monastery"
+              ]
+            },
+            {
+              "charId": "chr_0015_lifeng",
+              "name": {
+                "BR": "Lifeng",
+                "CN": "黎风",
+                "DE": "Lifeng",
+                "EN": "Lifeng",
+                "FR": "Lifeng",
+                "ID": "Lifeng",
+                "IT": "Lifeng",
+                "JP": "リーフォン",
+                "KR": "여풍",
+                "MX": "Lifeng",
+                "RU": "Лифэн",
+                "TC": "黎風",
+                "TH": "หลี​เ​ฟิง",
+                "VN": "Lifeng"
+              },
+              "matchedTags": [
+                "tag_power_hongacademy"
+              ]
+            },
+            {
+              "charId": "chr_0018_dapan",
+              "name": {
+                "BR": "Da Pan",
+                "CN": "大潘",
+                "DE": "Da Pan",
+                "EN": "Da Pan",
+                "FR": "Da Pan",
+                "ID": "Da Pan",
+                "IT": "Da Pan",
+                "JP": "ダパン",
+                "KR": "판",
+                "MX": "Da pan",
+                "RU": "Да Пан",
+                "TC": "大潘",
+                "TH": "ต้า​ปัน",
+                "VN": "Da Pan"
+              },
+              "matchedTags": [
+                "tag_power_hongacademy"
+              ]
+            },
+            {
+              "charId": "chr_0030_zhuangfy",
+              "name": {
+                "BR": "Zhuang Fangyi",
+                "CN": "庄方宜",
+                "DE": "Zhuang Fangyi",
+                "EN": "Zhuang Fangyi",
+                "FR": "Zhuang Fangyi",
+                "ID": "Zhuang Fangyi",
+                "IT": "Zhuang Fangyi",
+                "JP": "ゾアン・ファンイ",
+                "KR": "장방이",
+                "MX": "Zhuang Fangyi",
+                "RU": "Чжуан Фанъи",
+                "TC": "莊方宜",
+                "TH": "จวง​ฟาง​อี้",
+                "VN": "Zhuang Fangyi"
+              },
+              "matchedTags": [
+                "tag_power_hongacademy"
+              ]
+            },
+            {
+              "charId": "chr_0031_mifu",
+              "name": {
+                "BR": "Mi Fu",
+                "CN": "弭弗",
+                "DE": "Mi Fu",
+                "EN": "Mi Fu",
+                "FR": "Mi Fu",
+                "ID": "Mi Fu",
+                "IT": "Mi Fu",
+                "JP": "ミ・フ",
+                "KR": "미브",
+                "MX": "Mi Fu",
+                "RU": "Ми Фу",
+                "TC": "弭弗",
+                "TH": "หมี่​ฟู่",
+                "VN": "Mi Fu"
+              },
+              "matchedTags": [
+                "tag_power_hongacademy"
+              ]
+            },
+            {
+              "charId": "chr_0032_lizhiyan",
+              "name": {
+                "BR": "Arcane",
+                "CN": "诀",
+                "DE": "Arkan",
+                "EN": "Arcane",
+                "FR": "Arcane",
+                "ID": "Arcane",
+                "IT": "Arcana",
+                "JP": "オクギ",
+                "KR": "결",
+                "MX": "Arcane",
+                "RU": "Премудрость",
+                "TC": "訣",
+                "TH": "ปริศนา",
+                "VN": "Arcane"
+              },
+              "matchedTags": [
+                "tag_power_hongacademy"
+              ]
+            }
+          ]
+        },
+        {
+          "tagId": "stm_tag_hongs_3_2",
+          "name": {
+            "BR": "Vigilância da Natureza",
+            "CN": "俯观山河",
+            "DE": "Fürsorge der Natur",
+            "EN": "Nature's Overwatch",
+            "FR": "Surveillance de la nature",
+            "ID": "Mengawasi Alam",
+            "IT": "Veglia della natura",
+            "JP": "自然俯瞰",
+            "KR": "관측한 자연",
+            "MX": "Vigilancia de la naturaleza",
+            "RU": "Природный дозор",
+            "TC": "俯觀山河",
+            "TH": "การเฝ้า​ระวัง​แห่งธรรม​ชาติ",
+            "VN": "Canh Giữ Tự Nhiên"
+          },
+          "desc": {
+            "BR": "Aqueles que defendem a passagem devem conhecer os ritmos dos céus e da terra, bem como a paisagem natural. Operadores com profundo conhecimento da natureza podem consolidar os recursos locais de forma mais eficaz e serão representantes melhores junto a este posto avançado.",
+            "CN": "守关之人，须知天地自然，山势水流。亲近自然的干员能更好地统筹资源，更适合驻守于此。",
+            "DE": "Jene, die den Pass verteidigen, sollten die Rhythmen des Himmels und der Erde so gut kennen wie die Landschaft. Operatoren, die sich mit der Natur auskennen, können lokale Ressourcen effektiver bündeln und eignen sich besser als Verbindungspersonen für diesen Außenposten.",
+            "EN": "Those who defend the pass should know the rhythms of the heavens and earth as well as the natural landscape. Operators well-versed in nature can consolidate local resources more effectively and will make better liaisons for this outpost.",
+            "FR": "Les personnes qui défendent le col doivent connaître les rythmes du ciel et de la terre, ainsi que l'environnement naturel. Les opérateurs qui connaissent bien la nature peuvent collecter les ressources locales plus efficacement et seront d'excellents agents de liaison pour cet avant-poste.",
+            "ID": "Orang-orang yang menjaga terusan pasti tahu irama langit dan bumi serta lanskap alam. Operator yang sangat memahami alam akan mampu menghimpun sumber daya lokal secara lebih efektif dan menjadi naradamping yang lebih baik untuk pos depan ini.",
+            "IT": "Chi difende il valico deve conoscere i ritmi del cielo e della terra, oltre al paesaggio naturale. Gli operatori esperti delle scienze naturali possono consolidare le risorse locali in modo più efficace e saranno i migliori referenti per questo avamposto.",
+            "JP": "関所を守る者は、その地の自然、山の険しさや川の流れを知る必要がある。自然を身近に感じるオペレーターは、より適切に資源を管理できるため、ここへの駐留により適している。",
+            "KR": "관문을 지키는 이는 천지와 자연, 산세와 물길을 알아야 합니다. 자연과 가까운 오퍼레이터일수록 자원을 더 잘 운용할 수 있어, 이곳을 지키는 데 더 적합합니다.",
+            "MX": "Quienes defienden el Paso deben conocer tanto los ritmos del cielo y la tierra como el paisaje natural. Los operadores versados en la naturaleza pueden consolidar los recursos locales con mayor eficacia y serán mejores representantes para este puesto de avanzada.",
+            "RU": "Защитники заставы должны понимать ритмы неба и земли, а также разбираться в природном ландшафте. Оперативники-натуралисты смогут эффективнее управлять местными ресурсами и отлично подойдут на роль координатора на этом аванпосте.",
+            "TC": "守關之人，須知天地自然，山勢水流。親近自然的幹員能更好地統籌資源，更適合駐守於此。",
+            "TH": "ผู้​ที่​ปกป้อง​ช่องเขา​ควร​รู้​จังหวะ​แห่ง​ฟ้า​ดิน​และ​ภูมิประเทศ​ตามธรรม​ชาติ​เป็น​อย่างดี​ โอเปอเรเตอร์​ที่​เชี่ยวชาญ​ด้าน​ธรรมชาติ​จะ​สามารถ​รวบรวม​ทรัพยากร​ท้องถิ่น​ได้​อย่างมีประสิทธิภาพ​ยิ่งขึ้น​ และ​จะ​เป็น​ผู้ประสานงาน​ที่​ดีกว่า​สำหรับ​ด่าน​หน้า​แห่ง​นี้",
+            "VN": "Người trấn giữ cửa đèo phải am hiểu nhịp vận hành của trời đất cũng như cảnh quan tự nhiên nơi đây. Những cán viên tinh thông tự nhiên có thể điều phối tài nguyên địa phương hiệu quả hơn, và sẽ đảm nhiệm tốt hơn vai trò người liên lạc cho tiền đồn này."
+          },
+          "bonuses": [
+            {
+              "type": "moneyProfit",
+              "rate": 20
+            }
+          ],
+          "requiredCharTags": [
+            {
+              "tagId": "tag_hobby_nature",
+              "group": "hobby",
+              "groupName": {
+                "BR": "Hobbies",
+                "CN": "爱好",
+                "DE": "Hobbys",
+                "EN": "Hobbies",
+                "FR": "Loisirs",
+                "ID": "Hobi",
+                "IT": "Interessi",
+                "JP": "趣味",
+                "KR": "취미",
+                "MX": "Pasatiempo",
+                "RU": "Хобби",
+                "TC": "愛好",
+                "TH": "งานอดิเรก",
+                "VN": "Sở thích"
+              },
+              "name": {
+                "BR": "Natureza",
+                "CN": "自然",
+                "DE": "Natur",
+                "EN": "Nature",
+                "FR": "Nature",
+                "ID": "Alam",
+                "IT": "Natura",
+                "JP": "自然",
+                "KR": "자연",
+                "MX": "Naturaleza",
+                "RU": "Природа",
+                "TC": "自然",
+                "TH": "ธรรมชาติ",
+                "VN": "Tự Nhiên"
+              }
+            }
+          ],
+          "matchingOperators": [
+            {
+              "charId": "chr_0006_wolfgd",
+              "name": {
+                "BR": "Wulfgard",
+                "CN": "狼卫",
+                "DE": "Wulfgard",
+                "EN": "Wulfgard",
+                "FR": "Wulfgard",
+                "ID": "Wulfgard",
+                "IT": "Wulfgard",
+                "JP": "ウルフガード",
+                "KR": "울프가드",
+                "MX": "Wulfgard",
+                "RU": "Вулфгард",
+                "TC": "狼衛",
+                "TH": "วู​ล์​ฟ​การ์ด",
+                "VN": "Wulfgard"
+              },
+              "matchedTags": [
+                "tag_hobby_nature"
+              ]
+            },
+            {
+              "charId": "chr_0007_ikut",
+              "name": {
+                "BR": "Arclight",
+                "CN": "弧光",
+                "DE": "Arclight",
+                "EN": "Arclight",
+                "FR": "Arclight",
+                "ID": "Arclight",
+                "IT": "Arclight",
+                "JP": "アークライト",
+                "KR": "아크라이트",
+                "MX": "Arclight",
+                "RU": "Арклайт",
+                "TC": "弧光",
+                "TH": "อาร์ค​ไลท์",
+                "VN": "Arclight"
+              },
+              "matchedTags": [
+                "tag_hobby_nature"
+              ]
+            },
+            {
+              "charId": "chr_0015_lifeng",
+              "name": {
+                "BR": "Lifeng",
+                "CN": "黎风",
+                "DE": "Lifeng",
+                "EN": "Lifeng",
+                "FR": "Lifeng",
+                "ID": "Lifeng",
+                "IT": "Lifeng",
+                "JP": "リーフォン",
+                "KR": "여풍",
+                "MX": "Lifeng",
+                "RU": "Лифэн",
+                "TC": "黎風",
+                "TH": "หลี​เ​ฟิง",
+                "VN": "Lifeng"
+              },
+              "matchedTags": [
+                "tag_hobby_nature"
+              ]
+            },
+            {
+              "charId": "chr_0022_bounda",
+              "name": {
+                "BR": "Fluorite",
+                "CN": "萤石",
+                "DE": "Fluorite",
+                "EN": "Fluorite",
+                "FR": "Fluorite",
+                "ID": "Fluorite",
+                "IT": "Fluorite",
+                "JP": "フローライト",
+                "KR": "플루라이트",
+                "MX": "Fluorite",
+                "RU": "Флюорит",
+                "TC": "螢石",
+                "TH": "ฟลู​โอ​ไรต์",
+                "VN": "Fluorite"
+              },
+              "matchedTags": [
+                "tag_hobby_nature"
+              ]
+            },
+            {
+              "charId": "chr_0025_ardelia",
+              "name": {
+                "BR": "Ardelia",
+                "CN": "艾尔黛拉",
+                "DE": "Ardelia",
+                "EN": "Ardelia",
+                "FR": "Ardelia",
+                "ID": "Ardelia",
+                "IT": "Ardelia",
+                "JP": "アルデリア",
+                "KR": "아델리아",
+                "MX": "Ardelia",
+                "RU": "Арделия",
+                "TC": "艾爾黛拉",
+                "TH": "อาร์​เด​เลีย",
+                "VN": "Ardelia"
+              },
+              "matchedTags": [
+                "tag_hobby_nature"
+              ]
+            },
+            {
+              "charId": "chr_0027_tangtang",
+              "name": {
+                "BR": "Tangtang",
+                "CN": "汤汤",
+                "DE": "Tangtang",
+                "EN": "Tangtang",
+                "FR": "Tangtang",
+                "ID": "Tangtang",
+                "IT": "Tangtang",
+                "JP": "タンタン",
+                "KR": "탕탕",
+                "MX": "Tangtang",
+                "RU": "Тантан",
+                "TC": "湯湯",
+                "TH": "ถัง​ถัง",
+                "VN": "Tangtang"
+              },
+              "matchedTags": [
+                "tag_hobby_nature"
+              ]
+            },
+            {
+              "charId": "chr_0028_wulfa",
+              "name": {
+                "BR": "Rossi",
+                "CN": "洛茜",
+                "DE": "Rossi",
+                "EN": "Rossi",
+                "FR": "Rossi",
+                "ID": "Rossi",
+                "IT": "Rossi",
+                "JP": "ロッシ",
+                "KR": "로시",
+                "MX": "Rossi",
+                "RU": "Росси",
+                "TC": "洛西",
+                "TH": "รอส​ซี",
+                "VN": "Rossi"
+              },
+              "matchedTags": [
+                "tag_hobby_nature"
+              ]
+            },
+            {
+              "charId": "chr_0032_lizhiyan",
+              "name": {
+                "BR": "Arcane",
+                "CN": "诀",
+                "DE": "Arkan",
+                "EN": "Arcane",
+                "FR": "Arcane",
+                "ID": "Arcane",
+                "IT": "Arcana",
+                "JP": "オクギ",
+                "KR": "결",
+                "MX": "Arcane",
+                "RU": "Премудрость",
+                "TC": "訣",
+                "TH": "ปริศนา",
+                "VN": "Arcane"
+              },
+              "matchedTags": [
+                "tag_hobby_nature"
+              ]
+            }
+          ]
+        },
+        {
+          "tagId": "stm_tag_hongs_3_3",
+          "name": {
+            "BR": "Domínio da Caneta e da Lâmina",
+            "CN": "文武皆全",
+            "DE": "Beherrschen von Stift und Schwert",
+            "EN": "Mastery of Pen and Blade",
+            "FR": "Maîtrise de la plume et de l'épée",
+            "ID": "Penguasaan Pena dan Pedang",
+            "IT": "Maestria di penna e spada",
+            "JP": "文武両道",
+            "KR": "문무겸비",
+            "MX": "Maestría de la pluma y la espada",
+            "RU": "Мастерство пера и клинка",
+            "TC": "文武皆全",
+            "TH": "ความชำนาญ​แห่ง​ปากกา​และ​คม​ดาบ",
+            "VN": "Tinh Thông Bút Kiếm"
+          },
+          "desc": {
+            "BR": "Tornar-se um Yinglung é extremamente difícil. A força física é apenas o requisito mínimo. Um candidato com boa inteligência, versado tanto na caneta quanto na espadomancia, e que ocasionalmente tenha epifanias de grandes ideias, será uma boa escolha para este cargo.",
+            "CN": "应龙的选拔标准极高，身强力壮仅是基础，拥有聪颖智慧，偶尔能够灵光一闪，想出好点子的文武双全者，才能更好地在此工作。",
+            "DE": "Der Weg zum Yinglung ist überaus herausfordernd. Körperliche Stärke ist nur die absolute Mindestanforderung. Ein intelligenter Kandidat, der im Umgang mit Schwert und Stift gleichermaßen bewandert ist und gelegentlich mit Geistesblitzen gesegnet wird, würde sich für diesen Posten hervorragend eignen.",
+            "EN": "It is extremely difficult to become an Yinglung. Physical strength is just the bare minimum requirement. A candidate who has good intellect, is well-versed in both the ways of the pen and swordmancy, and gets occasional epiphanies of great ideas will be a good fit for this post.",
+            "FR": "Devenir un Yinglung n'a rien d'une partie de plaisir. La force physique est un minimum. Un candidat intelligent, qui manie aussi bien la plume que l'épée et a de temps en temps des éclairs de génie, sera idéal pour ce poste.",
+            "ID": "Menjadi anggota Yinglung adalah hal yang sangat sulit. Kekuatan fisik hanyalah syarat minimum semata. Kandidat yang punya kecerdasan tinggi, menguasai ilmu kepenulisan ataupun ilmu pedang, serta sesekali punya ide-ide besar akan sangat cocok untuk posisi ini.",
+            "IT": "È estremamente difficile diventare uno Yinglung. La forza fisica è solo il requisito minimo indispensabile. Un candidato dotato di buon intelletto, esperto sia nell'arte della scrittura che in quella della spadamanzia, e che abbia occasionali intuizioni geniali, sarà perfetto per questo ruolo.",
+            "JP": "応龍の選抜基準は極めて高く、体が屈強であることは基礎に過ぎない。聡明な頭脳を持ち、時にひらめきによって良いアイディアを思いつくような文武両道の者でなければ、ここでいい仕事はできないのだ。",
+            "KR": "응룡의 선발 기준은 매우 높습니다. 강인한 체력은 기본일 뿐, 총명한 지혜와 번뜩이는 발상까지 갖춘 문무겸비의 인재라야 이곳에서 더 훌륭히 임무를 수행할 수 있습니다.",
+            "MX": "Convertirse en un Yinglung es extremadamente difícil. La fuerza física es apenas el requisito mínimo. Un candidato con buen intelecto, versado tanto en los caminos de la pluma como en el arte de la espada, y que tenga epifanías ocasionales de grandes ideas, será una buena opción para este puesto.",
+            "RU": "Стать бойцом «Инлуна» невероятно трудно. Обладать физической силой — это лишь базовое требование. Эта должность отлично подойдет кандидату с выдающимся интеллектом — мастеру слова и меча, которого время от времени посещают блестящие идеи.",
+            "TC": "應龍的選拔標準極高，身強力壯僅是基礎，擁有聰穎智慧，偶爾能夠靈光一閃，想出好點子的文武雙全者，才能更好地在此工作。",
+            "TH": "การ​จะ​เป็น​หน่วย​ห​ยิง​หลง​นั้น​ยาก​อย่างยิ่ง​ ความแข็ง​แกร่ง​เป็น​เพียง​คุณสมบัติ​ขั้นต่ำ​ที่สุด​เท่านั้น​ ผู้สมัคร​ที่​มีสติปัญญา​ดี​ เชี่ยวชาญ​ทั้ง​วิชาการ​และ​วิชาดา​บ​ และ​มี​ประกาย​ความคิด​ยอดเยี่ยม​เป็นครั้งคราว​ จะ​เหมาะสม​กับ​ตำแหน่ง​นี้​อย่างยิ่ง",
+            "VN": "Trở thành Đặc Nhiệm là điều vô cùng khó khăn. Thể lực chỉ là yêu cầu tối thiểu. Một ứng viên có trí tuệ tốt, thông thạo cả văn đạo lẫn kiếm pháp, lại thỉnh thoảng lóe lên những ý tưởng xuất chúng, sẽ là lựa chọn phù hợp cho vị trí này."
+          },
+          "bonuses": [
+            {
+              "type": "moneyProduceSpeed",
+              "rate": 20
+            }
+          ],
+          "requiredCharTags": [
+            {
+              "tagId": "tag_expert_strong",
+              "group": "expert",
+              "groupName": {
+                "BR": "Especialização",
+                "CN": "专长",
+                "DE": "Expertise",
+                "EN": "Expertise",
+                "FR": "Expertise",
+                "ID": "Keahlian",
+                "IT": "Specialità",
+                "JP": "特長",
+                "KR": "특기",
+                "MX": "Especialidad",
+                "RU": "Профиль",
+                "TC": "專長",
+                "TH": "ความชำนาญ",
+                "VN": "Chuyên Môn"
+              },
+              "name": {
+                "BR": "Constituição",
+                "CN": "身强力壮",
+                "DE": "Verfassung",
+                "EN": "Constitution",
+                "FR": "Constitution",
+                "ID": "Kondisi Tubuh",
+                "IT": "Costituzione",
+                "JP": "屈強",
+                "KR": "체력 단련",
+                "MX": "Constitución",
+                "RU": "Телосложение",
+                "TC": "身強力壯",
+                "TH": "ฝึก​ร่างกาย​ทนทาน",
+                "VN": "Hiến pháp"
+              }
+            },
+            {
+              "tagId": "tag_expert_flash",
+              "group": "expert",
+              "groupName": {
+                "BR": "Especialização",
+                "CN": "专长",
+                "DE": "Expertise",
+                "EN": "Expertise",
+                "FR": "Expertise",
+                "ID": "Keahlian",
+                "IT": "Specialità",
+                "JP": "特長",
+                "KR": "특기",
+                "MX": "Especialidad",
+                "RU": "Профиль",
+                "TC": "專長",
+                "TH": "ความชำนาญ",
+                "VN": "Chuyên Môn"
+              },
+              "name": {
+                "BR": "Epifania",
+                "CN": "灵光一闪",
+                "DE": "Offenbarung",
+                "EN": "Epiphany",
+                "FR": "Éclairs de génie",
+                "ID": "Daya Paham",
+                "IT": "Illuminazione",
+                "JP": "ひらめき",
+                "KR": "창의적인 생각",
+                "MX": "Epifanía",
+                "RU": "Озарение",
+                "TC": "靈光一閃",
+                "TH": "ความกระจ่าง​รู้",
+                "VN": "Khai Sáng"
+              }
+            }
+          ],
+          "matchingOperators": [
+            {
+              "charId": "chr_0005_chen",
+              "name": {
+                "BR": "Chen Qianyu",
+                "CN": "陈千语",
+                "DE": "Chen Qianyu",
+                "EN": "Chen Qianyu",
+                "FR": "Chen Qianyu",
+                "ID": "Chen Qianyu",
+                "IT": "Chen Qianyu",
+                "JP": "チェン・センユー",
+                "KR": "진천우",
+                "MX": "Chen Qianyu",
+                "RU": "Чэнь Цяньюй",
+                "TC": "陳千語",
+                "TH": "เฉิน​ เชียน​ยู",
+                "VN": "Chen Qianyu"
+              },
+              "matchedTags": [
+                "tag_expert_flash"
+              ]
+            },
+            {
+              "charId": "chr_0009_azrila",
+              "name": {
+                "BR": "Ember",
+                "CN": "余烬",
+                "DE": "Ember",
+                "EN": "Ember",
+                "FR": "Ember",
+                "ID": "Ember",
+                "IT": "Ember",
+                "JP": "エンバー",
+                "KR": "엠버",
+                "MX": "Ember",
+                "RU": "Эмбер",
+                "TC": "餘燼",
+                "TH": "เอ็ม​เบอร์",
+                "VN": "Ember"
+              },
+              "matchedTags": [
+                "tag_expert_strong"
+              ]
+            },
+            {
+              "charId": "chr_0017_yvonne",
+              "name": {
+                "BR": "Yvonne",
+                "CN": "伊冯",
+                "DE": "Yvonne",
+                "EN": "Yvonne",
+                "FR": "Yvonne",
+                "ID": "Yvonne",
+                "IT": "Yvonne",
+                "JP": "イヴォンヌ",
+                "KR": "이본",
+                "MX": "Yvonne",
+                "RU": "Ивонна",
+                "TC": "伊馮",
+                "TH": "อี​วอน",
+                "VN": "Yvonne"
+              },
+              "matchedTags": [
+                "tag_expert_flash"
+              ]
+            },
+            {
+              "charId": "chr_0026_lastrite",
+              "name": {
+                "BR": "Last Rite",
+                "CN": "别礼",
+                "DE": "Last Rite",
+                "EN": "Last Rite",
+                "FR": "Last Rite",
+                "ID": "Last Rite",
+                "IT": "Last Rite",
+                "JP": "ラストライト",
+                "KR": "라스트 라이트",
+                "MX": "Last Rite",
+                "RU": "Панихида",
+                "TC": "別禮",
+                "TH": "ลาส​ท์​ไรท์",
+                "VN": "Last Rite"
+              },
+              "matchedTags": [
+                "tag_expert_strong"
+              ]
+            },
+            {
+              "charId": "chr_0031_mifu",
+              "name": {
+                "BR": "Mi Fu",
+                "CN": "弭弗",
+                "DE": "Mi Fu",
+                "EN": "Mi Fu",
+                "FR": "Mi Fu",
+                "ID": "Mi Fu",
+                "IT": "Mi Fu",
+                "JP": "ミ・フ",
+                "KR": "미브",
+                "MX": "Mi Fu",
+                "RU": "Ми Фу",
+                "TC": "弭弗",
+                "TH": "หมี่​ฟู่",
+                "VN": "Mi Fu"
+              },
+              "matchedTags": [
+                "tag_expert_strong"
+              ]
+            },
+            {
+              "charId": "chr_0032_lizhiyan",
+              "name": {
+                "BR": "Arcane",
+                "CN": "诀",
+                "DE": "Arkan",
+                "EN": "Arcane",
+                "FR": "Arcane",
+                "ID": "Arcane",
+                "IT": "Arcana",
+                "JP": "オクギ",
+                "KR": "결",
+                "MX": "Arcane",
+                "RU": "Премудрость",
+                "TC": "訣",
+                "TH": "ปริศนา",
+                "VN": "Arcane"
+              },
+              "matchedTags": [
+                "tag_expert_strong"
+              ]
+            }
+          ]
+        }
+      ],
+      "byProsperityLevel": {
+        "1": {
+          "prosperityLevel": 1,
+          "recoItemId": "item_copper_enr2_cmpt",
+          "tradeItems": [
+            {
+              "itemId": "item_copper_enr2_cmpt",
+              "rarity": 4,
+              "name": {
+                "BR": "Peça de Pirrolita",
+                "CN": "灼铜零件",
+                "DE": "Pyrrolit-Teil",
+                "EN": "Pyrrolite Part",
+                "FR": "Pièce en pyrrolite",
+                "ID": "Bagian Pyrrolite",
+                "IT": "Parte di pirrolite",
+                "JP": "焔銅部品",
+                "KR": "작동 부품",
+                "MX": "Pieza de pirrolita",
+                "RU": "Пирролитовая деталь",
+                "TC": "灼銅零件",
+                "TH": "ชิ้นส่วน​ไพร์​โร​ไลท์",
+                "VN": "Mảnh Nham Đồng"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v1d4d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_proc_battery_5",
+              "rarity": 4,
+              "name": {
+                "BR": "Bateria CP de Wuling",
+                "CN": "中容武陵电池",
+                "DE": "Wuling-SC-Batterie",
+                "EN": "SC Wuling Battery",
+                "FR": "Batterie de Wuling CS",
+                "ID": "Baterai KS Wuling",
+                "IT": "Batteria CS di Wuling",
+                "JP": "中容量武陵バッテリー",
+                "KR": "중용량 무릉 배터리",
+                "MX": "Batería de CS de Wuling",
+                "RU": "Батарея СЕ Улина",
+                "TC": "中容量武陵電池",
+                "TH": "แบตเตอรี่​อู่​หลิง​มาตรฐาน",
+                "VN": "Pin Võ Lăng Dung Lượng Tiêu Chuẩn"
+              },
+              "unitPrice": 54,
+              "stmExp": 54,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_xiranite_enr_powder",
+              "rarity": 3,
+              "name": {
+                "BR": "Xiranita Pesada",
+                "CN": "重息壤",
+                "DE": "Schweres Xiranit",
+                "EN": "Heavy Xiranite",
+                "FR": "Xiranite lourde",
+                "ID": "Xiranite Berat",
+                "IT": "Xiranite pesante",
+                "JP": "重息壌",
+                "KR": "중식양",
+                "MX": "Xiranita pesada",
+                "RU": "Тяжелый ксиранит",
+                "TC": "重息壤",
+                "TH": "ซี​เรน​ไนต์​หนัก",
+                "VN": "Xiranite Nặng"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_food_5",
+              "rarity": 4,
+              "name": {
+                "BR": "Chá de Capim-Seda",
+                "CN": "优质锦草软饮",
+                "DE": "Jincao-Tee",
+                "EN": "Jincao Tea",
+                "FR": "Thé à l'astéracée",
+                "ID": "Teh Jincao",
+                "IT": "Tè di jincao",
+                "JP": "錦草ソーダⅡ",
+                "KR": "고급 금초 청량음료",
+                "MX": "Té de Jincao",
+                "RU": "Чай с цзиньцао",
+                "TC": "優質錦草飲料",
+                "TH": "ชา​หญ้า​ไหม",
+                "VN": "Trà Cỏ Sao Lụa"
+              },
+              "unitPrice": 22,
+              "stmExp": 22,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_5",
+              "rarity": 4,
+              "name": {
+                "BR": "Seringa de Broto-Agulha [A]",
+                "CN": "优质芽针针剂",
+                "DE": "Yazhen-Spritze [A]",
+                "EN": "Yazhen Syringe [A]",
+                "FR": "Seringue de chardille [A]",
+                "ID": "Alat Suntik Yazhen [A]",
+                "IT": "Siringa di yazhen (A)",
+                "JP": "芽針注射剤Ⅱ",
+                "KR": "고급 야침 주사약",
+                "MX": "Jeringa de Yazhen [A]",
+                "RU": "Инъектор ячжэня [A]",
+                "TC": "優質芽針針劑",
+                "TH": "เข็ม​ฉีด​หน่อ​เข็ม​ [A]",
+                "VN": "Ống Tiêm Mầm Lá Kim [A]"
+              },
+              "unitPrice": 22,
+              "stmExp": 22,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_filter_core",
+              "rarity": 3,
+              "name": {
+                "BR": "Núcleo Separador",
+                "CN": "分离芯",
+                "DE": "Separatorkern",
+                "EN": "Separator Core",
+                "FR": "Noyau séparateur",
+                "ID": "Inti Pemisah",
+                "IT": "Nucleo separatore",
+                "JP": "分離コア",
+                "KR": "분리 필터",
+                "MX": "Núcleo separador",
+                "RU": "Ядро сепаратора",
+                "TC": "分離芯",
+                "TH": "แกน​ตัว​แยก",
+                "VN": "Lõi Phân Tách"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_xiranite_powder",
+              "rarity": 2,
+              "name": {
+                "BR": "Xiranita",
+                "CN": "息壤",
+                "DE": "Xiranit",
+                "EN": "Xiranite",
+                "FR": "Xiranite",
+                "ID": "Xiranite",
+                "IT": "Xiranite",
+                "JP": "息壌",
+                "KR": "식양",
+                "MX": "Xiranita",
+                "RU": "Ксиранит",
+                "TC": "息壤",
+                "TH": "ซี​เรน​ไนต์",
+                "VN": "Xiranite"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            }
+          ]
+        },
+        "2": {
+          "prosperityLevel": 2,
+          "recoItemId": "item_copper_enr2_cmpt",
+          "tradeItems": [
+            {
+              "itemId": "item_copper_enr2_cmpt",
+              "rarity": 4,
+              "name": {
+                "BR": "Peça de Pirrolita",
+                "CN": "灼铜零件",
+                "DE": "Pyrrolit-Teil",
+                "EN": "Pyrrolite Part",
+                "FR": "Pièce en pyrrolite",
+                "ID": "Bagian Pyrrolite",
+                "IT": "Parte di pirrolite",
+                "JP": "焔銅部品",
+                "KR": "작동 부품",
+                "MX": "Pieza de pirrolita",
+                "RU": "Пирролитовая деталь",
+                "TC": "灼銅零件",
+                "TH": "ชิ้นส่วน​ไพร์​โร​ไลท์",
+                "VN": "Mảnh Nham Đồng"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v1d4d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_proc_battery_5",
+              "rarity": 4,
+              "name": {
+                "BR": "Bateria CP de Wuling",
+                "CN": "中容武陵电池",
+                "DE": "Wuling-SC-Batterie",
+                "EN": "SC Wuling Battery",
+                "FR": "Batterie de Wuling CS",
+                "ID": "Baterai KS Wuling",
+                "IT": "Batteria CS di Wuling",
+                "JP": "中容量武陵バッテリー",
+                "KR": "중용량 무릉 배터리",
+                "MX": "Batería de CS de Wuling",
+                "RU": "Батарея СЕ Улина",
+                "TC": "中容量武陵電池",
+                "TH": "แบตเตอรี่​อู่​หลิง​มาตรฐาน",
+                "VN": "Pin Võ Lăng Dung Lượng Tiêu Chuẩn"
+              },
+              "unitPrice": 54,
+              "stmExp": 54,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_xiranite_enr_powder",
+              "rarity": 3,
+              "name": {
+                "BR": "Xiranita Pesada",
+                "CN": "重息壤",
+                "DE": "Schweres Xiranit",
+                "EN": "Heavy Xiranite",
+                "FR": "Xiranite lourde",
+                "ID": "Xiranite Berat",
+                "IT": "Xiranite pesante",
+                "JP": "重息壌",
+                "KR": "중식양",
+                "MX": "Xiranita pesada",
+                "RU": "Тяжелый ксиранит",
+                "TC": "重息壤",
+                "TH": "ซี​เรน​ไนต์​หนัก",
+                "VN": "Xiranite Nặng"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_food_5",
+              "rarity": 4,
+              "name": {
+                "BR": "Chá de Capim-Seda",
+                "CN": "优质锦草软饮",
+                "DE": "Jincao-Tee",
+                "EN": "Jincao Tea",
+                "FR": "Thé à l'astéracée",
+                "ID": "Teh Jincao",
+                "IT": "Tè di jincao",
+                "JP": "錦草ソーダⅡ",
+                "KR": "고급 금초 청량음료",
+                "MX": "Té de Jincao",
+                "RU": "Чай с цзиньцао",
+                "TC": "優質錦草飲料",
+                "TH": "ชา​หญ้า​ไหม",
+                "VN": "Trà Cỏ Sao Lụa"
+              },
+              "unitPrice": 22,
+              "stmExp": 22,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_5",
+              "rarity": 4,
+              "name": {
+                "BR": "Seringa de Broto-Agulha [A]",
+                "CN": "优质芽针针剂",
+                "DE": "Yazhen-Spritze [A]",
+                "EN": "Yazhen Syringe [A]",
+                "FR": "Seringue de chardille [A]",
+                "ID": "Alat Suntik Yazhen [A]",
+                "IT": "Siringa di yazhen (A)",
+                "JP": "芽針注射剤Ⅱ",
+                "KR": "고급 야침 주사약",
+                "MX": "Jeringa de Yazhen [A]",
+                "RU": "Инъектор ячжэня [A]",
+                "TC": "優質芽針針劑",
+                "TH": "เข็ม​ฉีด​หน่อ​เข็ม​ [A]",
+                "VN": "Ống Tiêm Mầm Lá Kim [A]"
+              },
+              "unitPrice": 22,
+              "stmExp": 22,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_filter_core",
+              "rarity": 3,
+              "name": {
+                "BR": "Núcleo Separador",
+                "CN": "分离芯",
+                "DE": "Separatorkern",
+                "EN": "Separator Core",
+                "FR": "Noyau séparateur",
+                "ID": "Inti Pemisah",
+                "IT": "Nucleo separatore",
+                "JP": "分離コア",
+                "KR": "분리 필터",
+                "MX": "Núcleo separador",
+                "RU": "Ядро сепаратора",
+                "TC": "分離芯",
+                "TH": "แกน​ตัว​แยก",
+                "VN": "Lõi Phân Tách"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_xiranite_powder",
+              "rarity": 2,
+              "name": {
+                "BR": "Xiranita",
+                "CN": "息壤",
+                "DE": "Xiranit",
+                "EN": "Xiranite",
+                "FR": "Xiranite",
+                "ID": "Xiranite",
+                "IT": "Xiranite",
+                "JP": "息壌",
+                "KR": "식양",
+                "MX": "Xiranita",
+                "RU": "Ксиранит",
+                "TC": "息壤",
+                "TH": "ซี​เรน​ไนต์",
+                "VN": "Xiranite"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            }
+          ]
+        },
+        "3": {
+          "prosperityLevel": 3,
+          "recoItemId": "item_copper_enr2_cmpt",
+          "tradeItems": [
+            {
+              "itemId": "item_copper_enr2_cmpt",
+              "rarity": 4,
+              "name": {
+                "BR": "Peça de Pirrolita",
+                "CN": "灼铜零件",
+                "DE": "Pyrrolit-Teil",
+                "EN": "Pyrrolite Part",
+                "FR": "Pièce en pyrrolite",
+                "ID": "Bagian Pyrrolite",
+                "IT": "Parte di pirrolite",
+                "JP": "焔銅部品",
+                "KR": "작동 부품",
+                "MX": "Pieza de pirrolita",
+                "RU": "Пирролитовая деталь",
+                "TC": "灼銅零件",
+                "TH": "ชิ้นส่วน​ไพร์​โร​ไลท์",
+                "VN": "Mảnh Nham Đồng"
+              },
+              "unitPrice": 70,
+              "stmExp": 70,
+              "versionStart": "v1d4d0",
+              "isRecommended": true
+            },
+            {
+              "itemId": "item_proc_battery_5",
+              "rarity": 4,
+              "name": {
+                "BR": "Bateria CP de Wuling",
+                "CN": "中容武陵电池",
+                "DE": "Wuling-SC-Batterie",
+                "EN": "SC Wuling Battery",
+                "FR": "Batterie de Wuling CS",
+                "ID": "Baterai KS Wuling",
+                "IT": "Batteria CS di Wuling",
+                "JP": "中容量武陵バッテリー",
+                "KR": "중용량 무릉 배터리",
+                "MX": "Batería de CS de Wuling",
+                "RU": "Батарея СЕ Улина",
+                "TC": "中容量武陵電池",
+                "TH": "แบตเตอรี่​อู่​หลิง​มาตรฐาน",
+                "VN": "Pin Võ Lăng Dung Lượng Tiêu Chuẩn"
+              },
+              "unitPrice": 54,
+              "stmExp": 54,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_xiranite_enr_powder",
+              "rarity": 3,
+              "name": {
+                "BR": "Xiranita Pesada",
+                "CN": "重息壤",
+                "DE": "Schweres Xiranit",
+                "EN": "Heavy Xiranite",
+                "FR": "Xiranite lourde",
+                "ID": "Xiranite Berat",
+                "IT": "Xiranite pesante",
+                "JP": "重息壌",
+                "KR": "중식양",
+                "MX": "Xiranita pesada",
+                "RU": "Тяжелый ксиранит",
+                "TC": "重息壤",
+                "TH": "ซี​เรน​ไนต์​หนัก",
+                "VN": "Xiranite Nặng"
+              },
+              "unitPrice": 27,
+              "stmExp": 27,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_food_5",
+              "rarity": 4,
+              "name": {
+                "BR": "Chá de Capim-Seda",
+                "CN": "优质锦草软饮",
+                "DE": "Jincao-Tee",
+                "EN": "Jincao Tea",
+                "FR": "Thé à l'astéracée",
+                "ID": "Teh Jincao",
+                "IT": "Tè di jincao",
+                "JP": "錦草ソーダⅡ",
+                "KR": "고급 금초 청량음료",
+                "MX": "Té de Jincao",
+                "RU": "Чай с цзиньцао",
+                "TC": "優質錦草飲料",
+                "TH": "ชา​หญ้า​ไหม",
+                "VN": "Trà Cỏ Sao Lụa"
+              },
+              "unitPrice": 22,
+              "stmExp": 22,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_bottled_rec_hp_5",
+              "rarity": 4,
+              "name": {
+                "BR": "Seringa de Broto-Agulha [A]",
+                "CN": "优质芽针针剂",
+                "DE": "Yazhen-Spritze [A]",
+                "EN": "Yazhen Syringe [A]",
+                "FR": "Seringue de chardille [A]",
+                "ID": "Alat Suntik Yazhen [A]",
+                "IT": "Siringa di yazhen (A)",
+                "JP": "芽針注射剤Ⅱ",
+                "KR": "고급 야침 주사약",
+                "MX": "Jeringa de Yazhen [A]",
+                "RU": "Инъектор ячжэня [A]",
+                "TC": "優質芽針針劑",
+                "TH": "เข็ม​ฉีด​หน่อ​เข็ม​ [A]",
+                "VN": "Ống Tiêm Mầm Lá Kim [A]"
+              },
+              "unitPrice": 22,
+              "stmExp": 22,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_filter_core",
+              "rarity": 3,
+              "name": {
+                "BR": "Núcleo Separador",
+                "CN": "分离芯",
+                "DE": "Separatorkern",
+                "EN": "Separator Core",
+                "FR": "Noyau séparateur",
+                "ID": "Inti Pemisah",
+                "IT": "Nucleo separatore",
+                "JP": "分離コア",
+                "KR": "분리 필터",
+                "MX": "Núcleo separador",
+                "RU": "Ядро сепаратора",
+                "TC": "分離芯",
+                "TH": "แกน​ตัว​แยก",
+                "VN": "Lõi Phân Tách"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v1d4d0",
+              "isRecommended": false
+            },
+            {
+              "itemId": "item_xiranite_powder",
+              "rarity": 2,
+              "name": {
+                "BR": "Xiranita",
+                "CN": "息壤",
+                "DE": "Xiranit",
+                "EN": "Xiranite",
+                "FR": "Xiranite",
+                "ID": "Xiranite",
+                "IT": "Xiranite",
+                "JP": "息壌",
+                "KR": "식양",
+                "MX": "Xiranita",
+                "RU": "Ксиранит",
+                "TC": "息壤",
+                "TH": "ซี​เรน​ไนต์",
+                "VN": "Xiranite"
+              },
+              "unitPrice": 1,
+              "stmExp": 1,
+              "versionStart": "v1d4d0",
               "isRecommended": false
             }
           ]
@@ -12174,6 +13844,42 @@
       ],
       "hobbyTags": [
         {
+          "tagId": "tag_hobby_life",
+          "group": "hobby",
+          "groupName": {
+            "BR": "Hobbies",
+            "CN": "爱好",
+            "DE": "Hobbys",
+            "EN": "Hobbies",
+            "FR": "Loisirs",
+            "ID": "Hobi",
+            "IT": "Interessi",
+            "JP": "趣味",
+            "KR": "취미",
+            "MX": "Pasatiempo",
+            "RU": "Хобби",
+            "TC": "愛好",
+            "TH": "งานอดิเรก",
+            "VN": "Sở thích"
+          },
+          "name": {
+            "BR": "Estilo de Vida",
+            "CN": "生活",
+            "DE": "Lifestyle",
+            "EN": "Lifestyle",
+            "FR": "Mode de vie",
+            "ID": "Gaya Hidup",
+            "IT": "Stile di vita",
+            "JP": "生活",
+            "KR": "생활",
+            "MX": "Estilo de vida",
+            "RU": "Стиль жизни",
+            "TC": "生活",
+            "TH": "วิถีชีวิต",
+            "VN": "Phong Cách Sống"
+          }
+        },
+        {
           "tagId": "tag_hobby_exercise",
           "group": "hobby",
           "groupName": {
@@ -12208,9 +13914,141 @@
             "TH": "กีฬา",
             "VN": "Thể Thao"
           }
+        }
+      ]
+    },
+    "chr_0032_lizhiyan": {
+      "charId": "chr_0032_lizhiyan",
+      "name": {
+        "BR": "Arcane",
+        "CN": "诀",
+        "DE": "Arkan",
+        "EN": "Arcane",
+        "FR": "Arcane",
+        "ID": "Arcane",
+        "IT": "Arcana",
+        "JP": "オクギ",
+        "KR": "결",
+        "MX": "Arcane",
+        "RU": "Премудрость",
+        "TC": "訣",
+        "TH": "ปริศนา",
+        "VN": "Arcane"
+      },
+      "rarity": 6,
+      "blocTag": {
+        "tagId": "tag_power_hongacademy",
+        "group": "power",
+        "groupName": {
+          "BR": "Facção",
+          "CN": "阵营",
+          "DE": "Fraktion",
+          "EN": "Faction",
+          "FR": "Faction",
+          "ID": "Faksi",
+          "IT": "Fazione",
+          "JP": "陣営",
+          "KR": "진영",
+          "MX": "Facción",
+          "RU": "Фракция",
+          "TC": "陣營",
+          "TH": "ฝ่าย",
+          "VN": "Phe"
+        },
+        "name": {
+          "BR": "Academia de Ciências de Hongshan (ACH)",
+          "CN": "宏山科学院",
+          "DE": "Hongshan-Akademie der Wissenschaften (HAW)",
+          "EN": "Hongshan Academy of Sciences (HAS)",
+          "FR": "Académie des sciences de Hongshan (ASH)",
+          "ID": "Hongshan Academy of Sciences (HAS)",
+          "IT": "Accademia scientifica di Hongshan (ASH)",
+          "JP": "宏山科学院",
+          "KR": "홍산 과학원",
+          "MX": "Academia Científica Hongshan (A.C.H.)",
+          "RU": "Академия наук Хуншаня (АНХ)",
+          "TC": "宏山科學院",
+          "TH": "สถาบัน​วิทยาศาสตร์​หง​ซาน​ (HAS)",
+          "VN": "Học viện Khoa học Hongshan (HAS)"
+        }
+      },
+      "expertTags": [
+        {
+          "tagId": "tag_expert_combat",
+          "group": "expert",
+          "groupName": {
+            "BR": "Especialização",
+            "CN": "专长",
+            "DE": "Expertise",
+            "EN": "Expertise",
+            "FR": "Expertise",
+            "ID": "Keahlian",
+            "IT": "Specialità",
+            "JP": "特長",
+            "KR": "특기",
+            "MX": "Especialidad",
+            "RU": "Профиль",
+            "TC": "專長",
+            "TH": "ความชำนาญ",
+            "VN": "Chuyên Môn"
+          },
+          "name": {
+            "BR": "Técnica de Combate",
+            "CN": "作战技巧",
+            "DE": "Kampftechnik",
+            "EN": "Combat Technique",
+            "FR": "Techniques de combat",
+            "ID": "Teknik Tempur",
+            "IT": "Tecnica di combattimento",
+            "JP": "戦闘技術",
+            "KR": "작전 기술",
+            "MX": "Técnica de combate",
+            "RU": "Боевая техника",
+            "TC": "作戰技巧",
+            "TH": "เทคนิค​การต่อสู้",
+            "VN": "Kỹ Thuật Chiến Đấu"
+          }
         },
         {
-          "tagId": "tag_hobby_life",
+          "tagId": "tag_expert_strong",
+          "group": "expert",
+          "groupName": {
+            "BR": "Especialização",
+            "CN": "专长",
+            "DE": "Expertise",
+            "EN": "Expertise",
+            "FR": "Expertise",
+            "ID": "Keahlian",
+            "IT": "Specialità",
+            "JP": "特長",
+            "KR": "특기",
+            "MX": "Especialidad",
+            "RU": "Профиль",
+            "TC": "專長",
+            "TH": "ความชำนาญ",
+            "VN": "Chuyên Môn"
+          },
+          "name": {
+            "BR": "Constituição",
+            "CN": "身强力壮",
+            "DE": "Verfassung",
+            "EN": "Constitution",
+            "FR": "Constitution",
+            "ID": "Kondisi Tubuh",
+            "IT": "Costituzione",
+            "JP": "屈強",
+            "KR": "체력 단련",
+            "MX": "Constitución",
+            "RU": "Телосложение",
+            "TC": "身強力壯",
+            "TH": "ฝึก​ร่างกาย​ทนทาน",
+            "VN": "Hiến pháp"
+          }
+        }
+      ],
+      "hobbyTags": [
+        {
+          "tagId": "tag_hobby_nature",
           "group": "hobby",
           "groupName": {
             "BR": "Hobbies",
@@ -12229,20 +14067,56 @@
             "VN": "Sở thích"
           },
           "name": {
-            "BR": "Estilo de Vida",
-            "CN": "生活",
-            "DE": "Lifestyle",
-            "EN": "Lifestyle",
-            "FR": "Mode de vie",
-            "ID": "Gaya Hidup",
-            "IT": "Stile di vita",
-            "JP": "生活",
-            "KR": "생활",
-            "MX": "Estilo de vida",
-            "RU": "Стиль жизни",
-            "TC": "生活",
-            "TH": "วิถีชีวิต",
-            "VN": "Phong Cách Sống"
+            "BR": "Natureza",
+            "CN": "自然",
+            "DE": "Natur",
+            "EN": "Nature",
+            "FR": "Nature",
+            "ID": "Alam",
+            "IT": "Natura",
+            "JP": "自然",
+            "KR": "자연",
+            "MX": "Naturaleza",
+            "RU": "Природа",
+            "TC": "自然",
+            "TH": "ธรรมชาติ",
+            "VN": "Tự Nhiên"
+          }
+        },
+        {
+          "tagId": "tag_hobby_charity",
+          "group": "hobby",
+          "groupName": {
+            "BR": "Hobbies",
+            "CN": "爱好",
+            "DE": "Hobbys",
+            "EN": "Hobbies",
+            "FR": "Loisirs",
+            "ID": "Hobi",
+            "IT": "Interessi",
+            "JP": "趣味",
+            "KR": "취미",
+            "MX": "Pasatiempo",
+            "RU": "Хобби",
+            "TC": "愛好",
+            "TH": "งานอดิเรก",
+            "VN": "Sở thích"
+          },
+          "name": {
+            "BR": "Caridade",
+            "CN": "公益",
+            "DE": "Wohltätigkeit",
+            "EN": "Charity",
+            "FR": "Charité",
+            "ID": "Amal",
+            "IT": "Beneficenza",
+            "JP": "社会貢献",
+            "KR": "공익",
+            "MX": "Caridad",
+            "RU": "Филантропия",
+            "TC": "公益",
+            "TH": "การกุศล",
+            "VN": "Lòng Nhân Ái"
           }
         }
       ]

@@ -1,0 +1,336 @@
+{
+    "AutumnGoldJob": {
+        "desc": "金秋时任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckAutumnGoldText",
+            "CheckAutumnGoldIcon",
+            "CheckAutumnGoldWulingStockBill"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "AutumnGoldExecute",
+            "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "failure_task": "AutumnGoldFailed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutumnGoldFailed": {
+        "desc": "金秋时任务执行失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.AutumnGold.failed"
+        }
+    },
+    "AutumnGoldExecute": {
+        "desc": "执行金秋时任务路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AcceptAutumnGold",
+            "GoToAutumnGoldMission"
+        ]
+    },
+    "CheckAutumnGoldText": {
+        "desc": "检查是否有金秋时文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "“金秋时”",
+            "「金秋時」",
+            "(?i)\"Autumn\\s*Gold\"",
+            "「錦秋時」",
+            "'황금빛 가을이 찾아올 때'"
+        ],
+        "replace": [],
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckAutumnGoldWulingStockBill": {
+        "desc": "检查金秋时任务下方的武陵调度券图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckAutumnGoldIcon",
+        "roi_offset": [
+            -14,
+            300,
+            359,
+            76
+        ],
+        "template": "EnvironmentMonitoring/WulingStockBill.png",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckAutumnGoldIcon": {
+        "desc": "检查金秋时文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckAutumnGoldText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckAutumnGoldJob": {
+        "desc": "检查金秋时委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckAutumnGoldIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckAutumnGoldGoToMissionText": {
+        "desc": "检查金秋时委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckAutumnGoldIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InAutumnGoldMission": {
+        "desc": "是否在金秋时任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄安思园的“金秋时”",
+            "拍攝安思園的「金秋時」",
+            "(?i)Photo:\\s*\"Autumn\\s*Gold\"\\s*at\\s*Serenity\\s*Garden",
+            "安思園で「錦秋時」の写真を撮る",
+            "안사원의 '황금빛 가을이 찾아올 때'를 촬영하기"
+        ],
+        "replace": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AcceptAutumnGold": {
+        "desc": "接取金秋时委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckAutumnGoldText",
+            "CheckAutumnGoldIcon",
+            "CheckAutumnGoldJob"
+        ],
+        "box_index": 2,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GoToAutumnGoldMission"
+        ]
+    },
+    "GoToAutumnGoldMission": {
+        "desc": "前往金秋时任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckAutumnGoldText",
+            "CheckAutumnGoldIcon",
+            "CheckAutumnGoldGoToMissionText"
+        ],
+        "box_index": 2,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutumnGoldTrackOrGoTo"
+        ]
+    },
+    "AutumnGoldTrackOrGoTo": {
+        "desc": "在金秋时任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续",
+        "recognition": "And",
+        "all_of": [
+            "InAutumnGoldMission"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "TrackAutumnGold",
+            "AlreadyTrackedAutumnGold"
+        ]
+    },
+    "TrackAutumnGold": {
+        "desc": "追踪金秋时任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InAutumnGoldMission"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutumnGoldNotAdapted"
+        ]
+    },
+    "AlreadyTrackedAutumnGold": {
+        "desc": "金秋时任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InAutumnGoldMission"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutumnGoldNotAdapted"
+        ]
+    },
+    "AutumnGoldNotAdapted": {
+        "desc": "金秋时任务尚未适配，仅接取并追踪",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
+    "GoToAutumnGold": {
+        "desc": "前往金秋时，先回到大世界再进行判断",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GoToAutumnGoldStartPos",
+            "GoToAutumnGoldNotAtStartPos"
+        ]
+    },
+    "GoToAutumnGoldStartPos": {
+        "desc": "在金秋时任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "^map\\d+_lv\\d+$",
+                    "target": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GoToAutumnGoldMove"
+        ]
+    },
+    "GoToAutumnGoldNotAtStartPos": {
+        "desc": "不在金秋时任务开始位置附近，先传送再检查落点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GoToAutumnGoldStartPos"
+        ]
+    },
+    "GoToAutumnGoldMove": {
+        "desc": "自动寻路前往金秋时",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "^map\\d+_lv\\d+$",
+            "path": [
+                [
+                    0,
+                    0
+                ]
+            ]
+        },
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "AutumnGoldAdjustCamera"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "AutumnGoldAdjustCamera": {
+        "desc": "金秋时任务中调整朝向",
+        "max_hit": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
+        ]
+    }
+}

@@ -1,0 +1,336 @@
+{
+    "ThilluJob": {
+        "desc": "表象任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckThilluText",
+            "CheckThilluIcon",
+            "CheckThilluWulingStockBill"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "ThilluExecute",
+            "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "failure_task": "ThilluFailed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ThilluFailed": {
+        "desc": "表象任务执行失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.Thillu.failed"
+        }
+    },
+    "ThilluExecute": {
+        "desc": "执行表象任务路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AcceptThillu",
+            "GoToThilluMission"
+        ]
+    },
+    "CheckThilluText": {
+        "desc": "检查是否有表象文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "“表象”",
+            "「表象」",
+            "(?i)\"Æthillu\"",
+            "「イーサルー」",
+            "'잔영'"
+        ],
+        "replace": [],
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckThilluWulingStockBill": {
+        "desc": "检查表象任务下方的武陵调度券图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckThilluIcon",
+        "roi_offset": [
+            -14,
+            300,
+            359,
+            76
+        ],
+        "template": "EnvironmentMonitoring/WulingStockBill.png",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckThilluIcon": {
+        "desc": "检查表象文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckThilluText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckThilluJob": {
+        "desc": "检查表象委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckThilluIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckThilluGoToMissionText": {
+        "desc": "检查表象委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckThilluIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InThilluMission": {
+        "desc": "是否在表象任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄悬浮的“表象”",
+            "拍攝懸浮的「表象」",
+            "(?i)Photo:\\s*The\\s*Floating\\s*\"Æthillu\"",
+            "浮いている「イーサルー」の写真を撮る",
+            "떠 있는 '잔영'을 촬영하기"
+        ],
+        "replace": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AcceptThillu": {
+        "desc": "接取表象委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckThilluText",
+            "CheckThilluIcon",
+            "CheckThilluJob"
+        ],
+        "box_index": 2,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GoToThilluMission"
+        ]
+    },
+    "GoToThilluMission": {
+        "desc": "前往表象任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckThilluText",
+            "CheckThilluIcon",
+            "CheckThilluGoToMissionText"
+        ],
+        "box_index": 2,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ThilluTrackOrGoTo"
+        ]
+    },
+    "ThilluTrackOrGoTo": {
+        "desc": "在表象任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续",
+        "recognition": "And",
+        "all_of": [
+            "InThilluMission"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "TrackThillu",
+            "AlreadyTrackedThillu"
+        ]
+    },
+    "TrackThillu": {
+        "desc": "追踪表象任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InThilluMission"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ThilluNotAdapted"
+        ]
+    },
+    "AlreadyTrackedThillu": {
+        "desc": "表象任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InThilluMission"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ThilluNotAdapted"
+        ]
+    },
+    "ThilluNotAdapted": {
+        "desc": "表象任务尚未适配，仅接取并追踪",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
+    "GoToThillu": {
+        "desc": "前往表象，先回到大世界再进行判断",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GoToThilluStartPos",
+            "GoToThilluNotAtStartPos"
+        ]
+    },
+    "GoToThilluStartPos": {
+        "desc": "在表象任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "^map\\d+_lv\\d+$",
+                    "target": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GoToThilluMove"
+        ]
+    },
+    "GoToThilluNotAtStartPos": {
+        "desc": "不在表象任务开始位置附近，先传送再检查落点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GoToThilluStartPos"
+        ]
+    },
+    "GoToThilluMove": {
+        "desc": "自动寻路前往表象",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "^map\\d+_lv\\d+$",
+            "path": [
+                [
+                    0,
+                    0
+                ]
+            ]
+        },
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "ThilluAdjustCamera"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "ThilluAdjustCamera": {
+        "desc": "表象任务中调整朝向",
+        "max_hit": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
+        ]
+    }
+}

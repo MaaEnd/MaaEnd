@@ -882,5 +882,25 @@
                 "樁"
             ]
         ]
+    },
+    {
+        "MissionId": "m1m69",
+        "Name": "“小池荷”",
+        "Id": "PoolLotus"
+    },
+    {
+        "MissionId": "m1m70",
+        "Name": "“金秋时”",
+        "Id": "AutumnGold"
+    },
+    {
+        "MissionId": "m1m71",
+        "Name": "巨兽心脏",
+        "Id": "FeranmutHeart"
+    },
+    {
+        "MissionId": "m1m72",
+        "Name": "“表象”",
+        "Id": "Thillu"
     }
 ]
