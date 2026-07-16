@@ -21,7 +21,9 @@ const routeByMissionId = new Map();
 
 for (const route of routes) {
     if (!route.MissionId) {
-        console.warn(`[EnvironmentMonitoring] routes.json 条目 ${route.Name || route.Id || "<unknown>"} 缺少 MissionId。`);
+        console.warn(
+            `[EnvironmentMonitoring] routes.json 条目 ${route.Name || route.Id || "<unknown>"} 缺少 MissionId。`,
+        );
         continue;
     }
     if (routeByMissionId.has(route.MissionId)) {
@@ -38,11 +40,21 @@ function collectMissingFields(route) {
     const fields = REQUIRED_ROUTE_FIELDS.filter((field) => isFieldMissing(route[field]));
     const hasMapPath = !isFieldMissing(route.MapPath);
     const hasMapTarget = !isFieldMissing(route.MapTarget);
+    const hasMapGoal = !isFieldMissing(route.MapGoal);
+    const navigationConfigCount = [
+        hasMapPath,
+        hasMapTarget,
+        hasMapGoal,
+    ].filter(Boolean).length;
 
-    if (!hasMapPath && !hasMapTarget) {
-        fields.push("MapPath/MapTarget");
-    } else if (hasMapPath && hasMapTarget) {
-        fields.push("MapPath/MapTarget 二选一");
+    if (navigationConfigCount === 0) {
+        fields.push("MapPath/MapTarget/MapGoal");
+    } else if (navigationConfigCount > 1) {
+        fields.push("MapPath/MapTarget/MapGoal 三选一");
+    }
+
+    if (!isFieldMissing(route.MapTargetTier) && !hasMapTarget) {
+        fields.push("MapTargetTier 仅可与 MapTarget 同时使用");
     }
 
     return fields;
