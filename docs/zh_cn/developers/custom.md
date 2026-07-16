@@ -39,6 +39,9 @@ Action 节点用于执行自定义动作。常见写法如下：
     - `sub: string[]`：子任务名列表，必填。
     - `continue?: bool`：某个子任务失败后是否继续执行后续子任务，默认 `false`。
     - `strict?: bool`：某个子任务失败时当前 Action 是否返回失败，默认 `true`。
+    - `random_choice?: int`：若指定且大于 `0`，则先将 `sub` 列表随机打乱，再从中挑选不超过该数量的子任务执行；超过列表长度时按列表长度处理。默认不随机，按原顺序执行全部子任务。
+
+    执行前会先剔除 `sub` 中无法解析或 `enabled` 为 `false` 的子任务节点（未显式声明 `enabled` 的节点视为启用），随后才进行随机挑选与执行。若过滤（及随机挑选）后没有可执行的子任务，当前 Action 不视为失败，仅记录一条 warn 日志并返回成功。
 
 示例文件：[`SubTask.json`](../../../assets/resource/pipeline/Interface/Example/SubTask.json)
 

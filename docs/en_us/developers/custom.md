@@ -34,9 +34,12 @@ Action nodes are used to execute custom actions. A common format is as follows:
 The `SubTask` implementation is located in `agent/go-service/subtask` and is used to execute a series of subtasks sequentially.
 
 - Parameters:
-    - `sub: string[]`: A list of subtask names. Required.
-    - `continue?: bool`: Whether to continue executing subsequent subtasks if one fails. Default is `false`.
-    - `strict?: bool`: Whether the current Action returns a failure if any subtask fails. Default is `true`.
+    - `sub: string[]`: required list of subtask names.
+    - `continue?: bool`: whether to continue after a subtask fails. Default is `false`.
+    - `strict?: bool`: whether the current action should fail when a subtask fails. Default is `true`.
+    - `random_choice?: int`: if set and greater than `0`, the `sub` list is shuffled and at most this many subtasks are picked to run; values exceeding the list length are clamped to it. Defaults to running every subtask in order.
+
+    Before the random pick, subtask nodes in `sub` that cannot be resolved or whose `enabled` is `false` are filtered out (a node without an explicit `enabled` counts as enabled). If no runnable subtask remains after filtering (and the random pick), the action is not treated as a failure: it logs a single warning and returns success.
 
 Example file: [`SubTask.json`](../../../assets/resource/pipeline/Interface/Example/SubTask.json)
 
