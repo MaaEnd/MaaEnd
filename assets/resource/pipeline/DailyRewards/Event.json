@@ -56,9 +56,9 @@
                 "roi": "DailyEventGoTo",
                 "roi_offset": [
                     -40,
-                    -40,
+                    -50,
                     0,
-                    80
+                    100
                 ],
                 "template": [
                     "DailyRewards/Event/EventSwitchSuccess.png"
