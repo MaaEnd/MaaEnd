@@ -18,16 +18,35 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]DailyEventGoToHongYun",
-            "[JumpBack]DailyEventGoToLimitedTimeSignin",
-            "[JumpBack]DailyEventGoToWeeklyRoutine",
-            "[JumpBack]DailyEventGoToGuideEvent",
-            "[JumpBack]DailyEventGoToChallengeEvent",
-            "[JumpBack]DailyEventGoToSpaceExplorationEvent",
-            "[JumpBack]DailyEventGoToLimitedTimeEvent",
+            "[JumpBack]DailyEventGoToHongYun", //宏运连连乐不依赖红点,所以不会进入通用识别中
+            "[JumpBack]DailyEventGoTo",
             "[JumpBack]DailyEventSwipe",
             "DailyEventFinish"
         ]
+    },
+    "DailyEventGoTo": {
+        "desc": "进入未读活动（动态识别入口名）",
+        "recognition": "Custom",
+        "custom_recognition": "DailyEventGoToRecognition",
+        "action": "Click",
+        "attach": {
+            "visited": []
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DailyEventUnreadLimitedTimeSignin",
+            "DailyEventUnreadWeeklyRoutine",
+            "DailyEventUnreadGuideEvent",
+            "DailyEventUnreadChallengeEvent",
+            "DailyEventUnreadSpaceExplorationEvent",
+            "DailyEventUnreadLimitedTimeEvent",
+            "DailyEventUnreadUnknown"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入未读活动"
+        }
     },
     "DailyEventSwipe": {
         "desc": "滑动一次",
@@ -206,6 +225,70 @@
             "DailyEventRecognitionNew"
         ]
     },
+    "DailyEventRecognitionItemText": {
+        "desc": "识别活动列表入口名（至少3字，可由 Go 覆盖 expected 排除已访问）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    300,
+                    666
+                ],
+                "expected": [
+                    ".{3,}" // 匹配三个及以上字符
+                ],
+                "threshold": 0.7
+            }
+        }
+    },
+    "DailyEventRecognitionEntryRedDot": {
+        "desc": "入口名附近的红点",
+        "recognition": "TemplateMatch",
+        "roi": "DailyEventRecognitionItemText",
+        "roi_offset": [
+            0,
+            -20,
+            120,
+            55
+        ],
+        "template": [
+            "DailyRewards/EventRedDot.png"
+        ],
+        "green_mask": true
+    },
+    "DailyEventRecognitionEntryNew": {
+        "desc": "入口名附近的NEW",
+        "recognition": "OCR",
+        "roi": "DailyEventRecognitionItemText",
+        "roi_offset": [
+            0,
+            -20,
+            120,
+            55
+        ],
+        "expected": [
+            "NEW"
+        ]
+    },
+    "DailyEventRecognitionEntryUnread": {
+        "desc": "入口名附近未读标记（红点或NEW）",
+        "recognition": "Or",
+        "any_of": [
+            "DailyEventRecognitionEntryRedDot",
+            "DailyEventRecognitionEntryNew"
+        ]
+    },
+    "DailyEventGoToCandidate": {
+        "desc": "未读活动入口候选：入口名 ∧ 附近未读标记",
+        "recognition": "And",
+        "all_of": [
+            "DailyEventRecognitionItemText",
+            "DailyEventRecognitionEntryUnread"
+        ],
+        "box_index": 0
+    },
     "DailyEventRecognitionGotoButton": {
         "desc": "识别活动界面是前往按钮",
         "recognition": {
@@ -217,18 +300,6 @@
                     "移動",
                     "바로가기"
                 ]
-            }
-        }
-    },
-    "DailyEventRecognitionItemText": {
-        "desc": "识别活动列表条目文本",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": [
-                    ".{3,}" // 匹配三个及以上字符
-                ],
-                "threshold": 0.7
             }
         }
     }

@@ -1,23 +1,4 @@
 {
-    "DailyEventGoToWeeklyRoutine": {
-        "desc": "进入每周事务活动",
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "DailyEventRecognitionWeeklyRoutine",
-            "DailyEventRecognitionUnread"
-        ],
-        "action": "Click",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "DailyEventUnreadWeeklyRoutine"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "进入每周事务活动"
-        }
-    },
     "DailyEventUnreadWeeklyRoutine": {
         "desc": "处理每周事务活动",
         "recognition": "And",
@@ -102,25 +83,6 @@
         "desc": "领取完了",
         "pre_delay": 0,
         "post_delay": 0
-    },
-    "DailyEventRecognitionWeeklyRoutine": {
-        "desc": "识别每周事务活动名称",
-        "recognition": "OCR",
-        "roi": [
-            0,
-            0,
-            300,
-            666
-        ],
-        "expected": [
-            // 每周事务
-            // @i18n-skip
-            "周事务",
-            "週事務",
-            "Routine",
-            "リークエスト",
-            "업무"
-        ]
     },
     "DailyEventUnreadWeeklyRoutineColor": {
         "desc": "每周事务详情标题黄字区域",

@@ -1,11 +1,10 @@
 {
     "DailyEventGoToHongYun": {
-        "desc": "进入宏运连连乐活动",
+        "desc": "进入宏运连连乐（仅认名字，不依赖红点/NEW）",
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "DailyEventRecognitionHongYun",
-            "DailyEventRecognitionUnread"
+            "DailyEventRecognitionHongYun"
         ],
         "action": "Click",
         "pre_delay": 0,
@@ -205,24 +204,6 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "DailyEventRecognitionHongYun": {
-        "desc": "识别宏运连连乐活动名称",
-        "recognition": "OCR",
-        "roi": [
-            0,
-            0,
-            300,
-            666
-        ],
-        "expected": [
-            "宏运连连乐",
-            "Fortune Connect-and-Win",
-            "幸運スクラッチ",
-            "대박 행운권",
-            "宏運連連樂"
-        ],
-        "threshold": 0.7
-    },
     "DailyEventUnreadHongYunTitle": {
         "desc": "宏运连连乐详情标题",
         "recognition": "OCR",
@@ -239,5 +220,23 @@
             "대박 행운권",
             "宏運連連樂"
         ]
+    },
+    "DailyEventRecognitionHongYun": {
+        "desc": "识别宏运连连乐列表入口名（不依赖红点）",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            300,
+            666
+        ],
+        "expected": [
+            "宏运连连乐",
+            "Fortune Connect-and-Win",
+            "幸運スクラッチ",
+            "대박 행운권",
+            "宏運連連樂"
+        ],
+        "threshold": 0.7
     }
 }
