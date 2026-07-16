@@ -295,10 +295,8 @@
         "desc": "在武陵总览界面，进入武陵-景玉谷地图",
         "action": "Click",
         "target": [
-            416,
-            369,
-            99,
-            72
+            405,
+            490
         ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess"
@@ -308,10 +306,8 @@
         "desc": "在武陵总览界面，进入武陵-武陵城地图",
         "action": "Click",
         "target": [
-            470,
-            140,
-            100,
-            80
+            498,
+            262
         ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingWulingCitySuccess"
@@ -321,10 +317,8 @@
         "desc": "在武陵总览界面，进入武陵-清波寨地图",
         "action": "Click",
         "target": [
-            663,
-            293,
-            96,
-            94
+            589,
+            448
         ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingQingboStockadeSuccess"
@@ -334,10 +328,8 @@
         "desc": "在武陵总览界面，进入武陵-首墩地图",
         "action": "Click",
         "target": [
-            277,
-            290,
-            69,
-            89
+            349,
+            378
         ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingMarkerStoneSuccess"
@@ -347,10 +339,8 @@
         "desc": "在武陵总览界面，进入武陵-试验园区地图",
         "action": "Click",
         "target": [
-            699,
-            133,
-            84,
-            71
+            665,
+            306
         ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingTestAreaSuccess"
@@ -360,10 +350,8 @@
         "desc": "在武陵总览界面，进入武陵-藏剑谷地图",
         "action": "Click",
         "target": [
-            825,
-            537,
-            88,
-            78
+            612,
+            632
         ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingSwordVaultDaleSuccess"
