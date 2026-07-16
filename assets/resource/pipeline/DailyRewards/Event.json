@@ -54,10 +54,11 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": "DailyEventGoTo",
+                // 注意避免x轴<0越界
                 "roi_offset": [
-                    -40,
+                    -20,
                     -50,
-                    0,
+                    20,
                     100
                 ],
                 "template": [
@@ -167,10 +168,11 @@
             "type": "OCR",
             "param": {
                 "roi": "DailyEventRecognitionRedDot",
+                // 避免截取到背景文本
                 "roi_offset": [
                     -175,
                     0,
-                    175,
+                    130,
                     44
                 ],
                 "expected": [
@@ -185,10 +187,11 @@
             "type": "OCR",
             "param": {
                 "roi": "DailyEventRecognitionNew",
+                // 避免截取到背景文本
                 "roi_offset": [
                     -175,
                     0,
-                    175,
+                    130,
                     44
                 ],
                 "expected": [
