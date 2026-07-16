@@ -1,0 +1,257 @@
+{
+    "DailyEventRecognitionHongYun": {
+        "desc": "识别宏运连连乐活动名称",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            300,
+            666
+        ],
+        "expected": [
+            "宏运连连乐",
+            "Fortune Connect-and-Win",
+            "幸運スクラッチ",
+            "대박 행운권",
+            "宏運連連樂"
+        ],
+        "threshold": 0.7
+    },
+    "DailyEventGoToHongYun": {
+        "desc": "进入宏运连连乐活动",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "DailyEventRecognitionHongYun",
+            "DailyEventRecognitionUnread"
+        ],
+        "action": "Click",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DailyEventUnreadHongYun"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入宏运连连乐活动"
+        }
+    },
+    "DailyEventUnreadHongYunTitle": {
+        "desc": "宏运连连乐详情标题",
+        "recognition": "OCR",
+        "roi": [
+            306,
+            75,
+            455,
+            256
+        ],
+        "expected": [
+            "宏运连连乐",
+            "Fortune Connect-and-Win",
+            "幸運スクラッチ",
+            "대박 행운권",
+            "宏運連連樂"
+        ]
+    },
+    "DailyEventUnreadHongYun": {
+        "desc": "处理宏运连连乐活动",
+        "recognition": "And",
+        "all_of": [
+            "DailyEventUnreadHongYunTitle"
+        ],
+        "pre_wait_freezes": {
+            "target": [
+                -200,
+                0,
+                200,
+                200
+            ],
+            "time": 200
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyEventUnreadHongYunClaim",
+            "DailyEventUnreadHongYunFinish"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入宏运连连乐活动"
+        }
+    },
+    "DailyEventUnreadHongYunClaim": {
+        "desc": "宏运连连乐领取",
+        "recognition": "OCR",
+        "roi": [
+            917,
+            574,
+            363,
+            146
+        ],
+        "expected": [
+            "开始刮奖",
+            "Scratch",
+            "スクラッチ",
+            "추첨 시작하기",
+            "開始刮獎"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "action": "Click",
+        "next": [
+            "DailyEventUnreadInHongYun"
+        ]
+    },
+    "DailyEventUnreadInHongYun": {
+        "desc": "进入宏运连连乐领取",
+        "recognition": "OCR",
+        "inverse": true,
+        "roi": [
+            917,
+            574,
+            363,
+            146
+        ],
+        "expected": [
+            "开始刮奖",
+            "Scratch",
+            "スクラッチ",
+            "추첨 시작하기",
+            "開始刮獎"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DailyEventUnreadHongYunScratch"
+        ]
+    },
+    "DailyEventUnreadHongYunScratch": {
+        "desc": "刮奖",
+        "recognition": "OCR",
+        "roi": [
+            306,
+            75,
+            455,
+            256
+        ],
+        "expected": [
+            "宏运连连乐",
+            "Fortune Connect-and-Win",
+            "幸運スクラッチ",
+            "대박 행운권",
+            "宏運連連樂"
+        ],
+        "action": "Swipe",
+        // 刮奖区 [258, 253, 762, 263]，线宽 25，蛇形折线画满
+        "begin": [
+            270,
+            265
+        ],
+        "end": [
+            [
+                1007,
+                265
+            ],
+            [
+                1007,
+                290
+            ],
+            [
+                270,
+                290
+            ],
+            [
+                270,
+                315
+            ],
+            [
+                1007,
+                315
+            ],
+            [
+                1007,
+                340
+            ],
+            [
+                270,
+                340
+            ],
+            [
+                270,
+                365
+            ],
+            [
+                1007,
+                365
+            ],
+            [
+                1007,
+                390
+            ],
+            [
+                270,
+                390
+            ],
+            [
+                270,
+                415
+            ],
+            [
+                1007,
+                415
+            ],
+            [
+                1007,
+                440
+            ],
+            [
+                270,
+                440
+            ],
+            [
+                270,
+                465
+            ],
+            [
+                1007,
+                465
+            ],
+            [
+                1007,
+                490
+            ],
+            [
+                270,
+                490
+            ],
+            [
+                270,
+                503
+            ],
+            [
+                1007,
+                503
+            ]
+        ],
+        "next": [
+            "DailyEventUnreadHongYunScratchCloseReward"
+        ]
+    },
+    "DailyEventUnreadHongYunScratchCloseReward": {
+        "desc": "关闭奖励",
+        "recognition": "And",
+        "all_of": [
+            "CloseRewardsButton"
+        ],
+        "action": "Click",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DailyEventUnreadHongYunFinish": {
+        "desc": "领取完了",
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}
