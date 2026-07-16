@@ -69,7 +69,7 @@ func (r *DailyEventGoToRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 		return nil, false
 	}
 
-	text, ok := extractDailyEventGoToEntryText(ctx, arg, detail.Box)
+	text, textBox, ok := extractDailyEventGoToEntryText(ctx, arg)
 	if !ok {
 		log.Warn().Str("component", dailyEventGoToRecognitionName).Msg("candidate hit but entry text missing")
 		return nil, false
@@ -85,32 +85,35 @@ func (r *DailyEventGoToRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 	log.Info().
 		Str("component", dailyEventGoToRecognitionName).
 		Str("text", text).
-		Interface("box", detail.Box).
+		Interface("box", textBox).
 		Strs("visited", newVisited).
 		Msg("selected unread event entry")
 
 	return &maa.CustomRecognitionResult{
-		Box:    detail.Box,
+		Box:    textBox,
 		Detail: string(detailJSON),
 	}, true
 }
 
-func extractDailyEventGoToEntryText(ctx *maa.Context, arg *maa.CustomRecognitionArg, box maa.Rect) (string, bool) {
+func extractDailyEventGoToEntryText(ctx *maa.Context, arg *maa.CustomRecognitionArg) (string, maa.Rect, bool) {
+	// ItemText.roi 已相对 EntryUnread；Candidate 命中后直接再跑一次取文案与点击框
 	ocrDetail, err := ctx.RunRecognition(dailyEventGoToEntryNameNode, arg.Img, map[string]any{
 		dailyEventGoToEntryNameNode: map[string]any{
-			"roi":      box,
 			"expected": []string{".{3,}"},
 		},
 	})
 	if err != nil || ocrDetail == nil || !ocrDetail.Hit || ocrDetail.Results == nil || len(ocrDetail.Results.Filtered) == 0 {
-		return "", false
+		return "", maa.Rect{}, false
 	}
 	ocrResult, ok := ocrDetail.Results.Filtered[0].AsOCR()
 	if !ok {
-		return "", false
+		return "", maa.Rect{}, false
 	}
 	text := strings.TrimSpace(ocrResult.Text)
-	return text, text != ""
+	if text == "" {
+		return "", maa.Rect{}, false
+	}
+	return text, ocrDetail.Box, true
 }
 
 func loadDailyEventGoToVisited(ctx *maa.Context, nodeName string) ([]string, error) {

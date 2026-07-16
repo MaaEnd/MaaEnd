@@ -10,7 +10,6 @@
                 "AutoSellScanItemRecognition",
                 "AutoStockpile.Recognition",
                 "DailyEventGoToRecognition",
-                "DailyEventUnreadItemInitRecognition",
                 "EssenceFilterAfterBattleNthRecognition",
                 "EssenceGridAdvanceRecognition",
                 "EssenceGridPendingRecognition",
