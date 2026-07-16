@@ -621,6 +621,7 @@
         "rate_limit": 0
     },
     "GrowthChamberTargetNotFound": {
+        "max_hit": 30,
         "desc": "[培养舱·培养] 在选择对象界面滑动查找目标",
         "recognition": {
             "type": "And",
@@ -637,7 +638,7 @@
                     231,
                     381
                 ],
-                "dx": 120
+                "dx": -120
             }
         }
     },
