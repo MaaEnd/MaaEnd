@@ -18,6 +18,25 @@
         }
     ],
     "option": {
+        "TrialOfSwordmancyConfirmRisk": {
+            "type": "switch",
+            "label": "$option.TrialOfSwordmancyConfirmRisk.label",
+            "description": "$option.TrialOfSwordmancyConfirmRisk.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyDisabledError": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
         "TrialOfSwordmancyMode": {
             "type": "select",
             "label": "$option.TrialOfSwordmancyMode.label",
@@ -28,6 +47,7 @@
                     "name": "Daily",
                     "label": "$option.TrialOfSwordmancyMode.cases.Daily.label",
                     "option": [
+                        "TrialOfSwordmancyConfirmRisk",
                         "TrialOfSwordmancyOverflow",
                         "TrialOfSwordmancyAutoFight"
                     ],
@@ -50,7 +70,7 @@
                     "name": "Farm25",
                     "label": "$option.TrialOfSwordmancyMode.cases.Farm25.label",
                     "pipeline_override": {
-                        "TrialOfSwordmancyCoating": {
+                        "TrialOfSwordmancyFarm25": {
                             "enabled": true
                         },
                         "TrialOfSwordmancyCoatingCheck1": {
@@ -86,7 +106,7 @@
             "type": "select",
             "label": "$option.TrialOfSwordmancyOverflow.label",
             "description": "$option.TrialOfSwordmancyOverflow.description",
-            "default_case": "None",
+            "default_case": "Twice",
             "cases": [
                 {
                     "name": "None",
@@ -126,9 +146,7 @@
                     "pipeline_override": {
                         "TrialOfSwordmancyStartTrial": {
                             "action": "DoNothing",
-                            "next": [
-                                "SceneAnyEnterWorld"
-                            ]
+                            "next": []
                         }
                     }
                 },
