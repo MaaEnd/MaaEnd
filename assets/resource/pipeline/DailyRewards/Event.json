@@ -31,6 +31,7 @@
     },
     "DailyEventSwipe": {
         "desc": "滑动一次",
+        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "InEventCenter"
@@ -39,14 +40,22 @@
         "post_delay": 0,
         "rate_limit": 0,
         "action": "Swipe",
+        "post_wait_freezes": 350,
         "begin": [
             100,
-            200
+            600
         ],
         "end": [
-            100,
-            200
-        ]
+            [
+                100,
+                200
+            ],
+            [
+                400,
+                200
+            ]
+        ],
+        "end_hold": 100
     },
     "DailyEventFinish": {
         "desc": "结束任务",

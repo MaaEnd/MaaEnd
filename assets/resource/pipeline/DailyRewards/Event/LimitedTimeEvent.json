@@ -57,10 +57,7 @@
         "action": "Click",
         "next": [
             "SceneNoticeRewardsConfirm"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "领取限时活动奖励"
-        }
+        ]
     },
     "DailyEventUnreadLimitedTimeEventFinish": {
         "desc": "领取完了",

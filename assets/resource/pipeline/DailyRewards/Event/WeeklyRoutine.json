@@ -40,10 +40,7 @@
             "DailyEventUnreadWeeklyRoutinePickOne",
             "DailyEventUnreadWeeklyRoutinePickAll",
             "DailyEventUnreadWeeklyRoutineFinish"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "进入每周事务活动"
-        }
+        ]
     },
     "DailyEventUnreadWeeklyRoutinePickOne": {
         "desc": "领取积分",

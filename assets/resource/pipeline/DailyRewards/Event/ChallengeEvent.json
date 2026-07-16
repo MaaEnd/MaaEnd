@@ -39,10 +39,7 @@
         "next": [
             "DailyEventUnreadChallengeEventClaim",
             "DailyEventUnreadChallengeEventFinish"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "进入挑战活动"
-        }
+        ]
     },
     "DailyEventUnreadChallengeEventClaim": {
         "desc": "领取奖励",

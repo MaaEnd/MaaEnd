@@ -38,10 +38,7 @@
         "next": [
             "DailyEventUnreadHongYunClaim",
             "DailyEventUnreadHongYunFinish"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "进入宏运连连乐活动"
-        }
+        ]
     },
     "DailyEventUnreadHongYunClaim": {
         "desc": "宏运连连乐领取",
@@ -200,19 +197,8 @@
             ]
         ],
         "next": [
-            "DailyEventUnreadHongYunScratchCloseReward"
+            "SceneNoticeRewardsConfirm"
         ]
-    },
-    "DailyEventUnreadHongYunScratchCloseReward": {
-        "desc": "关闭奖励",
-        "recognition": "And",
-        "all_of": [
-            "CloseRewardsButton"
-        ],
-        "action": "Click",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
     },
     "DailyEventUnreadHongYunFinish": {
         "desc": "领取完了",

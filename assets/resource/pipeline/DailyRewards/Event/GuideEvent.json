@@ -63,10 +63,7 @@
         "action": "Click",
         "next": [
             "SceneNoticeRewardsConfirm"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "领取引入活动奖励"
-        }
+        ]
     },
     "DailyEventUnreadGuideEventFinish": {
         "desc": "领取完了",

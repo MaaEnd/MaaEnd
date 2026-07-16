@@ -39,10 +39,7 @@
         "next": [
             "DailyEventUnreadSpaceExplorationEventPickAll",
             "DailyEventUnreadSpaceExplorationEventFinish"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "进入联动活动"
-        }
+        ]
     },
     "DailyEventUnreadSpaceExplorationEventPickAll": {
         "desc": "联动活动内一键领取",
