@@ -51,7 +51,7 @@ func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScre
 	}
 
 	param := maa.OCRParam{
-		ROI:      targetRect(maa.Rect{60, 690, 120, 25}),
+		ROI:      targetRect(maa.Rect{60, 690, 155, 25}),
 		Expected: []string{".*"},
 		OnlyRec:  true,
 		OrderBy:  maa.OCROrderByLength,
