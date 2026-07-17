@@ -28,28 +28,19 @@
         "desc": "进入未读活动（动态识别入口名）",
         "recognition": "Custom",
         "custom_recognition": "DailyEventGoToRecognition",
-        "action": "Click",
-        "attach": {
-            "visited": []
-        },
         "pre_delay": 0,
+        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "DailyEventGoToFinish"
-        ]
+        ],
+        "attach": {
+            "visited": []
+        }
     },
     "DailyEventGoToFinish": {
         "desc": "进入未读活动完成",
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                1129,
-                77,
-                151,
-                192
-            ]
-        },
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -68,6 +59,15 @@
             }
         },
         "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                1129,
+                77,
+                151,
+                192
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -88,10 +88,7 @@
             "InEventCenter"
         ],
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "action": "Swipe",
-        "post_wait_freezes": 350,
         "begin": [
             100,
             600
@@ -106,7 +103,10 @@
                 200
             ]
         ],
-        "end_hold": 100
+        "end_hold": 100,
+        "post_wait_freezes": 350,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "DailyEventFinish": {
         "desc": "结束任务",
@@ -133,6 +133,7 @@
                     211,
                     530
                 ],
+                "method": 40,
                 "lower": [
                     14,
                     245,
@@ -143,9 +144,8 @@
                     255,
                     255
                 ],
-                "method": 40,
-                "count": 40,
-                "connected": true
+                "connected": true,
+                "count": 40
             }
         }
     },

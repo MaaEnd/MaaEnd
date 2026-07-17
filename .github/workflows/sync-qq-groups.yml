@@ -27,6 +27,8 @@ jobs:
       - name: Commit and push
         uses: actions-js/push@master
         with:
+          author_name: "maaendbotapp[bot]"
+          author_email: "305547419+maaendbotapp[bot]@users.noreply.github.com"
           rebase: true
           branch: ${{ github.ref }}
           message: "chore: sync QQ group info

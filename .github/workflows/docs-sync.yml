@@ -197,8 +197,8 @@ jobs:
           BRANCH_NAME: ${{ needs.prepare.outputs.branch_name }}
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "maaendbotapp[bot]"
+          git config user.email "305547419+maaendbotapp[bot]@users.noreply.github.com"
           git add docs/en_us
           git commit \
             -m "docs: sync en_us mirror from zh_cn" \

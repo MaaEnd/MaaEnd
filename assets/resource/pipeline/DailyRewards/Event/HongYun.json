@@ -6,8 +6,8 @@
         "all_of": [
             "DailyEventRecognitionHongYun"
         ],
-        "action": "Click",
         "pre_delay": 0,
+        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -56,9 +56,9 @@
             "開始刮獎"
         ],
         "pre_delay": 0,
+        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
-        "action": "Click",
         "next": [
             "DailyEventUnreadInHongYun"
         ]
@@ -66,7 +66,6 @@
     "DailyEventUnreadInHongYun": {
         "desc": "进入宏运连连乐领取",
         "recognition": "OCR",
-        "inverse": true,
         "roi": [
             917,
             574,
@@ -80,6 +79,7 @@
             "추첨 시작하기",
             "開始刮獎"
         ],
+        "inverse": true,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

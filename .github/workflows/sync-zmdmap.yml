@@ -52,6 +52,8 @@ jobs:
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ steps.app-token.outputs.token }}
+          committer: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
+          author: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
           add-paths: assets/data/ZmdMap
           commit-message: "chore: sync zmdmap data ${{ steps.version.outputs.version }}"
           branch: chore/sync-zmdmap-data
@@ -112,6 +114,8 @@ jobs:
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ steps.app-token.outputs.token }}
+          committer: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
+          author: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
           add-paths: |
             tools/pipeline-generate
             assets
@@ -210,6 +214,8 @@ jobs:
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ steps.app-token.outputs.token }}
+          committer: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
+          author: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
           add-paths: |
             assets/resource/image/MapTracker/map/
             assets/data/MapTracker/

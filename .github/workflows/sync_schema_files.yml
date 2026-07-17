@@ -126,6 +126,8 @@ jobs:
         if: steps.check_status.outputs.changes_detected == 'true'
         uses: actions-js/push@master
         with:
+          author_name: "maaendbotapp[bot]"
+          author_email: "305547419+maaendbotapp[bot]@users.noreply.github.com"
           rebase: true
           branch: ${{ github.ref }}
           message: "${{ steps.build_msg.outputs.msg }}
