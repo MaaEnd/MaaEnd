@@ -52,9 +52,27 @@
             "default_case": "SetGear",
             "cases": [
                 {
+                    "name": "BasicGear",
+                    "label": "$task.GearAssembly.option.GearAssemblyType.cases.BasicGear.label",
+                    "pipeline_override": {
+                        "GearAssemblyBasicGear": {
+                            "enabled": true
+                        },
+                        "GearAssemblySetGear": {
+                            "enabled": false
+                        },
+                        "GearAssemblyNonsetGear": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
                     "name": "SetGear",
                     "label": "$task.GearAssembly.option.GearAssemblyType.cases.SetGear.label",
                     "pipeline_override": {
+                        "GearAssemblyBasicGear": {
+                            "enabled": false
+                        },
                         "GearAssemblySetGear": {
                             "enabled": true
                         },
@@ -67,6 +85,9 @@
                     "name": "NonsetGear",
                     "label": "$task.GearAssembly.option.GearAssemblyType.cases.NonsetGear.label",
                     "pipeline_override": {
+                        "GearAssemblyBasicGear": {
+                            "enabled": false
+                        },
                         "GearAssemblySetGear": {
                             "enabled": false
                         },
