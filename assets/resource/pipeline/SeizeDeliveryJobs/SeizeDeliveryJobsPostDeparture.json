@@ -91,7 +91,7 @@
         }
     },
     "SeizeDeliveryJobsSubmit": {
-        "desc": "在 NPC 附近，识别交互按钮并提交货物",
+        "desc": "在货物交付地点附近，识别交互按钮并提交货物",
         "recognition": "TemplateMatch",
         "roi": [
             760,
@@ -99,7 +99,11 @@
             200,
             270
         ],
-        "template": "SeizeDeliveryJobs/SubmitGood.png",
+        "template": [
+            "SeizeDeliveryJobs/SubmitGoods.png", // NPC 交货按钮
+            "SeizeDeliveryJobs/SubmitGoods2.png" // 非 NPC 交货按钮
+        ],
+        "threshold": 0.8,
         "order_by": "Score",
         "action": "Custom",
         "custom_action": "AutoAltClickAction",

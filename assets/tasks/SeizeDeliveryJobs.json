@@ -70,19 +70,34 @@
         },
         "SeizeDeliveryJobsRewardTestArea": {
             "type": "select",
-            "default_case": "Ten6",
+            "default_case": "Fifteen9",
             "label": "$task.SeizeDeliveryJobsRewardTestArea.label",
             "cases": [
                 {
-                    "name": "Ten6",
-                    "label": "$task.SeizeDeliveryJobsRewardTestArea.cases.Ten6.label",
+                    "name": "Fifteen9",
+                    "label": "$task.SeizeDeliveryJobsRewardTestArea.cases.Fifteen9.label",
                     "pipeline_override": {
                         "SeizeDeliveryJobsFindTarget": {
                             "any_of": [
-                                "__SeizeDeliveryJobsFindTarget10_6"
+                                "__SeizeDeliveryJobsFindTarget15_9"
                             ],
                             "focus": {
                                 "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.testAreaFound"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Fifteen9OrTen6",
+                    "label": "$task.SeizeDeliveryJobsRewardTestArea.cases.Fifteen9OrTen6.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsFindTarget": {
+                            "any_of": [
+                                "__SeizeDeliveryJobsFindTarget15_9",
+                                "__SeizeDeliveryJobsFindTarget10_6"
+                            ],
+                            "focus": {
+                                "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.testAreaOrFound"
                             }
                         }
                     }

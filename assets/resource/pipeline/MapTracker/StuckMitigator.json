@@ -168,6 +168,7 @@
                     "MapTracker/StuckMitigator/ChatDialog.png"
                 ],
                 "green_mask": true,
+                "threshold": 0.6,
                 "order_by": "Score"
             }
         }
@@ -186,6 +187,7 @@
                     "MapTracker/StuckMitigator/SkipChatButton.png"
                 ],
                 "green_mask": true,
+                "threshold": 0.6,
                 "order_by": "Score"
             }
         }
