@@ -367,6 +367,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 				// Start a new rotation adjustment
 				if absRawDeltaRot > 1.0 && (!fineApproachOngoing || absRawDeltaRot > param.RotationLowerThreshold) {
+					// https://github.com/MaaEnd/MaaEnd/pull/4250
 					finalDeltaRot := float64(rawDeltaRot)
 					finalRotSpeed := rotationSpeed
 					if math.Abs(finalDeltaRot) < 30.0 {
