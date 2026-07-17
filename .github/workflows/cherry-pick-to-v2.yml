@@ -97,7 +97,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          PR_JSON="$(gh pr view "$PR_NUMBER" --json title,body)"
+          # checkout 之前没有 git remote，必须显式指定 --repo
+          PR_JSON="$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json title,body)"
           PR_TITLE="$(printf '%s' "$PR_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["title"])')"
           PR_BODY="$(printf '%s' "$PR_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("body") or "")')"
 
@@ -174,7 +175,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          EXISTING_PR="$(gh pr list --base v2 --head "$FIX_BRANCH" --state open --json number --jq '.[0].number // empty')"
+          EXISTING_PR="$(gh pr list --repo "${{ github.repository }}" --base v2 --head "$FIX_BRANCH" --state open --json number --jq '.[0].number // empty')"
 
           if [ -n "$EXISTING_PR" ]; then
             echo "PR already exists: #${EXISTING_PR}. No new PR created."
@@ -196,6 +197,7 @@ jobs:
           ")"
 
           gh pr create \
+            --repo "${{ github.repository }}" \
             --base v2 \
             --head "$FIX_BRANCH" \
             --title "${PR_TITLE} (cherry-pick of #${PR_NUMBER})" \
