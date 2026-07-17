@@ -248,7 +248,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 > [!IMPORTANT]
 >
-> 不打算适配某个观察点时，直接不要在 `routes.json` 加该条目；不要写 `"SceneAnyEnterWorld"` / `[0,0,1,1]` 这类占位值。
+> 不打算适配某个观察点时，不要在 `routes.json` 加该条目；不用写 `"SceneAnyEnterWorld"` / `[0,0,1,1]` 这类占位值。
 
 ### 3. 在 `routes.json` 中新增/补全条目
 
