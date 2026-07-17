@@ -1,5 +1,5 @@
 {
-    "SellProductSkyKingFlatsConstructionSiteBetterSliding1": {
+    "SellProductSkyKingFlatsBetterSliding1": {
         "custom_action_param": {
             "GreenMask": true,
             "Target": 999999,
@@ -28,7 +28,7 @@
             "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
         }
     },
-    "SellProductSkyKingFlatsConstructionSiteBetterSliding2": {
+    "SellProductSkyKingFlatsBetterSliding2": {
         "custom_action_param": {
             "GreenMask": true,
             "Target": 999999,
@@ -57,7 +57,7 @@
             "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
         }
     },
-    "SellProductSkyKingFlatsConstructionSiteBetterSliding3": {
+    "SellProductSkyKingFlatsBetterSliding3": {
         "custom_action_param": {
             "GreenMask": true,
             "Target": 999999,
@@ -86,7 +86,7 @@
             "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
         }
     },
-    "SellProductSkyKingFlatsConstructionSiteBetterSliding4": {
+    "SellProductSkyKingFlatsBetterSliding4": {
         "custom_action_param": {
             "GreenMask": true,
             "Target": 999999,

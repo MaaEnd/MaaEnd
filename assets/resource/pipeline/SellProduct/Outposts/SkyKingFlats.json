@@ -1,44 +1,44 @@
 {
     // ===== 售卖点顶层节点 =====
-    "SellProductReconstructionHQ": {
-        "desc": "重建指挥部售卖",
+    "SellProductSkyKingFlats": {
+        "desc": "天王坪援建点售卖",
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "SellProductCheckReconstructionHQTabText"
+            "SellProductCheckSkyKingFlatsTabText"
         ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQSell",
-            "[JumpBack]SellProductGoToReconstructionHQ"
+            "SellProductSkyKingFlatsSell",
+            "[JumpBack]SellProductGoToSkyKingFlats"
         ]
     },
     // ===== 售卖锚点节点 =====
-    "SellProductReconstructionHQSell": {
-        "desc": "重建指挥部售卖",
+    "SellProductSkyKingFlatsSell": {
+        "desc": "天王坪援建点售卖",
         "recognition": "And",
         "all_of": [
-            "SellProductInReconstructionHQ"
+            "SellProductInSkyKingFlats"
         ],
         "pre_delay": 0,
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
-            "SellProductSellAttempt1": "SellProductReconstructionHQSellAttempt1",
-            "SellProductSellAttempt2": "SellProductReconstructionHQSellAttempt2",
-            "SellProductSellAttempt3": "SellProductReconstructionHQSellAttempt3",
-            "SellProductSellAttempt4": "SellProductReconstructionHQSellAttempt4"
+            "SellProductSellAttempt1": "SellProductSkyKingFlatsSellAttempt1",
+            "SellProductSellAttempt2": "SellProductSkyKingFlatsSellAttempt2",
+            "SellProductSellAttempt3": "SellProductSkyKingFlatsSellAttempt3",
+            "SellProductSellAttempt4": "SellProductSkyKingFlatsSellAttempt4"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQSetBeforeSellOperatorAnchor"
+            "SellProductSkyKingFlatsSetBeforeSellOperatorAnchor"
         ]
     },
-    "SellProductReconstructionHQSetBeforeSellOperatorAnchor": {
-        "desc": "重建指挥部设置售卖前联络干员锚点",
+    "SellProductSkyKingFlatsSetBeforeSellOperatorAnchor": {
+        "desc": "天王坪援建点设置售卖前联络干员锚点",
         "pre_delay": 0,
         "anchor": {
             "SellProductBeforeSellOperator": ""
@@ -46,11 +46,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQSetAfterSellOperatorAnchor"
+            "SellProductSkyKingFlatsSetAfterSellOperatorAnchor"
         ]
     },
-    "SellProductReconstructionHQSetAfterSellOperatorAnchor": {
-        "desc": "重建指挥部设置售卖后恢复干员锚点",
+    "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
+        "desc": "天王坪援建点设置售卖后恢复干员锚点",
         "pre_delay": 0,
         "anchor": {
             "SellProductAfterSellOperator": "SellProductAfterSellOperator"
@@ -63,18 +63,18 @@
         ]
     },
     // ===== 售卖前联络干员切换 =====
-    "SellProductReconstructionHQBeforeSellOperator": {
-        "desc": "重建指挥部售卖前检查并切换联络干员",
+    "SellProductSkyKingFlatsBeforeSellOperator": {
+        "desc": "天王坪援建点售卖前检查并切换联络干员",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQCurrentTargetOperator",
-            "SellProductReconstructionHQOpenTargetOperatorList"
+            "SellProductSkyKingFlatsCurrentTargetOperator",
+            "SellProductSkyKingFlatsOpenTargetOperatorList"
         ]
     },
-    "SellProductReconstructionHQCurrentTargetOperator": {
-        "desc": "重建指挥部当前联络干员已是售卖用干员",
+    "SellProductSkyKingFlatsCurrentTargetOperator": {
+        "desc": "天王坪援建点当前联络干员已是售卖用干员",
         "recognition": "OCR",
         "roi": [
             268,
@@ -90,23 +90,23 @@
             "SellProductSellLoop"
         ]
     },
-    "SellProductReconstructionHQOpenTargetOperatorList": {
-        "desc": "重建指挥部打开联络干员列表以切换售卖用干员",
+    "SellProductSkyKingFlatsOpenTargetOperatorList": {
+        "desc": "天王坪援建点打开联络干员列表以切换售卖用干员",
         "recognition": "And",
         "all_of": [
             "SellProductOpenOperatorLiaisonButton",
-            "SellProductInReconstructionHQ"
+            "SellProductInSkyKingFlats"
         ],
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQInTargetOperatorList"
+            "SellProductSkyKingFlatsInTargetOperatorList"
         ]
     },
-    "SellProductReconstructionHQInTargetOperatorList": {
-        "desc": "重建指挥部已打开联络干员列表，选择售卖用干员",
+    "SellProductSkyKingFlatsInTargetOperatorList": {
+        "desc": "天王坪援建点已打开联络干员列表，选择售卖用干员",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison"
@@ -124,13 +124,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQSelectTargetOperator",
-            "SellProductReconstructionHQSwipeTargetOperatorList",
-            "SellProductReconstructionHQTargetOperatorNotFound"
+            "SellProductSkyKingFlatsSelectTargetOperator",
+            "SellProductSkyKingFlatsSwipeTargetOperatorList",
+            "SellProductSkyKingFlatsTargetOperatorNotFound"
         ]
     },
-    "SellProductReconstructionHQSelectTargetOperator": {
-        "desc": "重建指挥部在联络干员列表中选择售卖用干员",
+    "SellProductSkyKingFlatsSelectTargetOperator": {
+        "desc": "天王坪援建点在联络干员列表中选择售卖用干员",
         "recognition": "OCR",
         "roi": [
             164,
@@ -144,11 +144,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQConfirmTargetOperator"
+            "SellProductSkyKingFlatsConfirmTargetOperator"
         ]
     },
-    "SellProductReconstructionHQConfirmTargetOperator": {
-        "desc": "重建指挥部点击派驻确认售卖用干员",
+    "SellProductSkyKingFlatsConfirmTargetOperator": {
+        "desc": "天王坪援建点点击派驻确认售卖用干员",
         "recognition": "OCR",
         "roi": [
             900,
@@ -177,11 +177,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQCloseTargetOperatorLiaison"
+            "SellProductSkyKingFlatsCloseTargetOperatorLiaison"
         ]
     },
-    "SellProductReconstructionHQCloseTargetOperatorLiaison": {
-        "desc": "重建指挥部关闭售卖用联络干员列表",
+    "SellProductSkyKingFlatsCloseTargetOperatorLiaison": {
+        "desc": "天王坪援建点关闭售卖用联络干员列表",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison",
@@ -202,14 +202,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQTargetOperatorDone"
+            "SellProductSkyKingFlatsTargetOperatorDone"
         ]
     },
-    "SellProductReconstructionHQTargetOperatorDone": {
-        "desc": "重建指挥部售卖用干员派驻完成，回到售卖循环",
+    "SellProductSkyKingFlatsTargetOperatorDone": {
+        "desc": "天王坪援建点售卖用干员派驻完成，回到售卖循环",
         "recognition": "And",
         "all_of": [
-            "SellProductInReconstructionHQ"
+            "SellProductInSkyKingFlats"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -218,8 +218,8 @@
             "SellProductSellLoop"
         ]
     },
-    "SellProductReconstructionHQSwipeTargetOperatorList": {
-        "desc": "重建指挥部在联络干员列表中向下滑动查找售卖用干员",
+    "SellProductSkyKingFlatsSwipeTargetOperatorList": {
+        "desc": "天王坪援建点在联络干员列表中向下滑动查找售卖用干员",
         "max_hit": 8,
         "recognition": "And",
         "all_of": [
@@ -254,11 +254,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQInTargetOperatorList"
+            "SellProductSkyKingFlatsInTargetOperatorList"
         ]
     },
-    "SellProductReconstructionHQTargetOperatorNotFound": {
-        "desc": "重建指挥部未找到配置的售卖用干员，停止任务",
+    "SellProductSkyKingFlatsTargetOperatorNotFound": {
+        "desc": "天王坪援建点未找到配置的售卖用干员，停止任务",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison"
@@ -272,18 +272,18 @@
         }
     },
     // ===== 售卖后联络干员恢复 =====
-    "SellProductReconstructionHQAfterSellOperator": {
-        "desc": "重建指挥部售卖后恢复联络干员",
+    "SellProductSkyKingFlatsAfterSellOperator": {
+        "desc": "天王坪援建点售卖后恢复联络干员",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQCurrentRestoreOperator",
-            "SellProductReconstructionHQOpenRestoreOperatorList"
+            "SellProductSkyKingFlatsCurrentRestoreOperator",
+            "SellProductSkyKingFlatsOpenRestoreOperatorList"
         ]
     },
-    "SellProductReconstructionHQCurrentRestoreOperator": {
-        "desc": "重建指挥部当前联络干员已是恢复目标",
+    "SellProductSkyKingFlatsCurrentRestoreOperator": {
+        "desc": "天王坪援建点当前联络干员已是恢复目标",
         "recognition": "OCR",
         "roi": [
             268,
@@ -296,23 +296,23 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "SellProductReconstructionHQOpenRestoreOperatorList": {
-        "desc": "重建指挥部打开联络干员列表以恢复干员",
+    "SellProductSkyKingFlatsOpenRestoreOperatorList": {
+        "desc": "天王坪援建点打开联络干员列表以恢复干员",
         "recognition": "And",
         "all_of": [
             "SellProductOpenOperatorLiaisonButton",
-            "SellProductInReconstructionHQ"
+            "SellProductInSkyKingFlats"
         ],
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQInRestoreOperatorList"
+            "SellProductSkyKingFlatsInRestoreOperatorList"
         ]
     },
-    "SellProductReconstructionHQInRestoreOperatorList": {
-        "desc": "重建指挥部已打开联络干员列表，选择恢复干员",
+    "SellProductSkyKingFlatsInRestoreOperatorList": {
+        "desc": "天王坪援建点已打开联络干员列表，选择恢复干员",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison"
@@ -330,13 +330,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQSelectRestoreOperator",
-            "SellProductReconstructionHQSwipeRestoreOperatorList",
-            "SellProductReconstructionHQRestoreOperatorNotFound"
+            "SellProductSkyKingFlatsSelectRestoreOperator",
+            "SellProductSkyKingFlatsSwipeRestoreOperatorList",
+            "SellProductSkyKingFlatsRestoreOperatorNotFound"
         ]
     },
-    "SellProductReconstructionHQSelectRestoreOperator": {
-        "desc": "重建指挥部在联络干员列表中选择恢复干员",
+    "SellProductSkyKingFlatsSelectRestoreOperator": {
+        "desc": "天王坪援建点在联络干员列表中选择恢复干员",
         "recognition": "OCR",
         "roi": [
             164,
@@ -350,11 +350,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQConfirmRestoreOperator"
+            "SellProductSkyKingFlatsConfirmRestoreOperator"
         ]
     },
-    "SellProductReconstructionHQConfirmRestoreOperator": {
-        "desc": "重建指挥部点击派驻确认恢复干员",
+    "SellProductSkyKingFlatsConfirmRestoreOperator": {
+        "desc": "天王坪援建点点击派驻确认恢复干员",
         "recognition": "OCR",
         "roi": [
             900,
@@ -383,11 +383,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQCloseRestoreOperatorLiaison"
+            "SellProductSkyKingFlatsCloseRestoreOperatorLiaison"
         ]
     },
-    "SellProductReconstructionHQCloseRestoreOperatorLiaison": {
-        "desc": "重建指挥部关闭恢复干员联络干员列表",
+    "SellProductSkyKingFlatsCloseRestoreOperatorLiaison": {
+        "desc": "天王坪援建点关闭恢复干员联络干员列表",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison",
@@ -408,21 +408,21 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQRestoreOperatorDone"
+            "SellProductSkyKingFlatsRestoreOperatorDone"
         ]
     },
-    "SellProductReconstructionHQRestoreOperatorDone": {
-        "desc": "重建指挥部恢复干员派驻完成",
+    "SellProductSkyKingFlatsRestoreOperatorDone": {
+        "desc": "天王坪援建点恢复干员派驻完成",
         "recognition": "And",
         "all_of": [
-            "SellProductInReconstructionHQ"
+            "SellProductInSkyKingFlats"
         ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     },
-    "SellProductReconstructionHQSwipeRestoreOperatorList": {
-        "desc": "重建指挥部在联络干员列表中向下滑动查找恢复干员",
+    "SellProductSkyKingFlatsSwipeRestoreOperatorList": {
+        "desc": "天王坪援建点在联络干员列表中向下滑动查找恢复干员",
         "max_hit": 8,
         "recognition": "And",
         "all_of": [
@@ -457,11 +457,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQInRestoreOperatorList"
+            "SellProductSkyKingFlatsInRestoreOperatorList"
         ]
     },
-    "SellProductReconstructionHQRestoreOperatorNotFound": {
-        "desc": "重建指挥部未找到配置的恢复干员，停止任务",
+    "SellProductSkyKingFlatsRestoreOperatorNotFound": {
+        "desc": "天王坪援建点未找到配置的恢复干员，停止任务",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison"
@@ -475,11 +475,11 @@
         }
     },
     // ===== 在指定据点的识别节点 =====
-    "SellProductInReconstructionHQ": {
-        "desc": "在重建指挥部",
+    "SellProductInSkyKingFlats": {
+        "desc": "在天王坪援建点",
         "recognition": "And",
         "all_of": [
-            "SellProductCheckReconstructionHQText",
+            "SellProductCheckSkyKingFlatsText",
             "SellProductInOutpost"
         ],
         "pre_delay": 0,
@@ -487,12 +487,12 @@
         "rate_limit": 0
     },
     // ===== 前往据点导航节点 =====
-    "SellProductGoToReconstructionHQ": {
-        "desc": "前往重建指挥部据点",
+    "SellProductGoToSkyKingFlats": {
+        "desc": "前往天王坪援建点据点",
         "recognition": "And",
         "all_of": [
-            "SellProductInValleyIVOutpost",
-            "SellProductCheckReconstructionHQTabText"
+            "SellProductInWulingOutpost",
+            "SellProductCheckSkyKingFlatsTabText"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -500,12 +500,12 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductInReconstructionHQ"
+            "SellProductInSkyKingFlats"
         ]
     },
     // ===== 标签页文本检查（小文本） =====
-    "SellProductCheckReconstructionHQTabText": {
-        "desc": "检查重建指挥部文本",
+    "SellProductCheckSkyKingFlatsTabText": {
+        "desc": "检查天王坪援建点文本",
         "recognition": "OCR",
         "roi": [
             0,
@@ -514,20 +514,19 @@
             160
         ],
         "expected": [
-            "重建指挥部",
-            "重建指揮部",
-            "再建管理本部",
-            "재건 지휘부",
-            "(?i)^Reconstruction\\s*HQ$",
-            "Reconstruction Hc"
+            "天王坪",
+            "天王坪援助",
+            "天王坪援建",
+            "Sky King",
+            "天王原"
         ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     },
     // ===== 据点内大字文本检查 =====
-    "SellProductCheckReconstructionHQText": {
-        "desc": "检查重建指挥部大字文本",
+    "SellProductCheckSkyKingFlatsText": {
+        "desc": "检查天王坪援建点大字文本",
         "recognition": "OCR",
         "roi": [
             198,
@@ -536,20 +535,19 @@
             127
         ],
         "expected": [
-            "重建指挥部",
-            "重建指揮部",
-            "再建管理本部",
-            "재건 지휘부",
-            "(?i)^Reconstruction\\s*HQ$",
-            "Reconstruction Hc"
+            "天王坪",
+            "天王坪援助",
+            "天王坪援建",
+            "Sky King",
+            "天王原"
         ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     },
     // ===== 售卖尝试 1 =====
-    "SellProductReconstructionHQSellAttempt1": {
-        "desc": "重建指挥部第1次尝试：先换货再售卖",
+    "SellProductSkyKingFlatsSellAttempt1": {
+        "desc": "天王坪援建点第1次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -558,17 +556,17 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "SellProductSelectNewGood": "SellProductReconstructionHQSelectItem1",
-            "SellProductBetterSliding": "SellProductReconstructionHQBetterSliding1"
+            "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem1",
+            "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding1"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQSellAttempt1SetMissHandler"
+            "SellProductSkyKingFlatsSellAttempt1SetMissHandler"
         ]
     },
-    "SellProductReconstructionHQSellAttempt1SetMissHandler": {
-        "desc": "重建指挥部第1次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+    "SellProductSkyKingFlatsSellAttempt1SetMissHandler": {
+        "desc": "天王坪援建点第1次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
         "recognition": "DirectHit",
         "anchor": {
             "SellProductPriorityGoodMissHandler": ""
@@ -578,8 +576,8 @@
         ]
     },
     // ===== 售卖尝试 2 =====
-    "SellProductReconstructionHQSellAttempt2": {
-        "desc": "重建指挥部第2次尝试：先换货再售卖",
+    "SellProductSkyKingFlatsSellAttempt2": {
+        "desc": "天王坪援建点第2次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -588,17 +586,17 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "SellProductSelectNewGood": "SellProductReconstructionHQSelectItem2",
-            "SellProductBetterSliding": "SellProductReconstructionHQBetterSliding2"
+            "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2",
+            "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding2"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQSellAttempt2SetMissHandler"
+            "SellProductSkyKingFlatsSellAttempt2SetMissHandler"
         ]
     },
-    "SellProductReconstructionHQSellAttempt2SetMissHandler": {
-        "desc": "重建指挥部第2次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+    "SellProductSkyKingFlatsSellAttempt2SetMissHandler": {
+        "desc": "天王坪援建点第2次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
         "recognition": "DirectHit",
         "anchor": {
             "SellProductPriorityGoodMissHandler": ""
@@ -608,8 +606,8 @@
         ]
     },
     // ===== 售卖尝试 3 =====
-    "SellProductReconstructionHQSellAttempt3": {
-        "desc": "重建指挥部第3次尝试：先换货再售卖",
+    "SellProductSkyKingFlatsSellAttempt3": {
+        "desc": "天王坪援建点第3次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -618,17 +616,17 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "SellProductSelectNewGood": "SellProductReconstructionHQSelectItem3",
-            "SellProductBetterSliding": "SellProductReconstructionHQBetterSliding3"
+            "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3",
+            "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding3"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQSellAttempt3SetMissHandler"
+            "SellProductSkyKingFlatsSellAttempt3SetMissHandler"
         ]
     },
-    "SellProductReconstructionHQSellAttempt3SetMissHandler": {
-        "desc": "重建指挥部第3次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+    "SellProductSkyKingFlatsSellAttempt3SetMissHandler": {
+        "desc": "天王坪援建点第3次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
         "recognition": "DirectHit",
         "anchor": {
             "SellProductPriorityGoodMissHandler": ""
@@ -638,8 +636,8 @@
         ]
     },
     // ===== 售卖尝试 4 =====
-    "SellProductReconstructionHQSellAttempt4": {
-        "desc": "重建指挥部第4次尝试：先换货再售卖",
+    "SellProductSkyKingFlatsSellAttempt4": {
+        "desc": "天王坪援建点第4次尝试：先换货再售卖",
         "enabled": false,
         "max_hit": 1,
         "recognition": "And",
@@ -648,17 +646,17 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "SellProductSelectNewGood": "SellProductReconstructionHQSelectItem4",
-            "SellProductBetterSliding": "SellProductReconstructionHQBetterSliding4"
+            "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem4",
+            "SellProductBetterSliding": "SellProductSkyKingFlatsBetterSliding4"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQSellAttempt4SetMissHandler"
+            "SellProductSkyKingFlatsSellAttempt4SetMissHandler"
         ]
     },
-    "SellProductReconstructionHQSellAttempt4SetMissHandler": {
-        "desc": "重建指挥部第4次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
+    "SellProductSkyKingFlatsSellAttempt4SetMissHandler": {
+        "desc": "天王坪援建点第4次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
         "recognition": "DirectHit",
         "anchor": {
             "SellProductPriorityGoodMissHandler": ""
@@ -668,8 +666,8 @@
         ]
     },
     // ===== 优先物品 1 =====
-    "SellProductReconstructionHQSelectItem1": {
-        "desc": "重建指挥部售卖优先物品1",
+    "SellProductSkyKingFlatsSelectItem1": {
+        "desc": "天王坪援建点售卖优先物品1",
         "enabled": false,
         "recognition": "Custom",
         "custom_recognition": "SellProductNormalizedItemMatch",
@@ -694,8 +692,8 @@
         ]
     },
     // ===== 优先物品 2 =====
-    "SellProductReconstructionHQSelectItem2": {
-        "desc": "重建指挥部售卖优先物品2",
+    "SellProductSkyKingFlatsSelectItem2": {
+        "desc": "天王坪援建点售卖优先物品2",
         "enabled": false,
         "recognition": "Custom",
         "custom_recognition": "SellProductNormalizedItemMatch",
@@ -720,8 +718,8 @@
         ]
     },
     // ===== 优先物品 3 =====
-    "SellProductReconstructionHQSelectItem3": {
-        "desc": "重建指挥部售卖优先物品3",
+    "SellProductSkyKingFlatsSelectItem3": {
+        "desc": "天王坪援建点售卖优先物品3",
         "enabled": false,
         "recognition": "Custom",
         "custom_recognition": "SellProductNormalizedItemMatch",
@@ -746,8 +744,8 @@
         ]
     },
     // ===== 优先物品 4 =====
-    "SellProductReconstructionHQSelectItem4": {
-        "desc": "重建指挥部售卖优先物品4",
+    "SellProductSkyKingFlatsSelectItem4": {
+        "desc": "天王坪援建点售卖优先物品4",
         "enabled": false,
         "recognition": "Custom",
         "custom_recognition": "SellProductNormalizedItemMatch",
@@ -771,8 +769,8 @@
             "SellProductSelectNewGoodConfirm"
         ]
     },
-    "SellProductReconstructionHQBetterSliding1": {
-        "desc": "重建指挥部第1次尝试-使用 BetterSliding 设置售卖数量",
+    "SellProductSkyKingFlatsBetterSliding1": {
+        "desc": "天王坪援建点第1次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -810,8 +808,8 @@
             "SellProductSell"
         ]
     },
-    "SellProductReconstructionHQBetterSliding2": {
-        "desc": "重建指挥部第2次尝试-使用 BetterSliding 设置售卖数量",
+    "SellProductSkyKingFlatsBetterSliding2": {
+        "desc": "天王坪援建点第2次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -849,8 +847,8 @@
             "SellProductSell"
         ]
     },
-    "SellProductReconstructionHQBetterSliding3": {
-        "desc": "重建指挥部第3次尝试-使用 BetterSliding 设置售卖数量",
+    "SellProductSkyKingFlatsBetterSliding3": {
+        "desc": "天王坪援建点第3次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -888,8 +886,8 @@
             "SellProductSell"
         ]
     },
-    "SellProductReconstructionHQBetterSliding4": {
-        "desc": "重建指挥部第4次尝试-使用 BetterSliding 设置售卖数量",
+    "SellProductSkyKingFlatsBetterSliding4": {
+        "desc": "天王坪援建点第4次尝试-使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
