@@ -42,20 +42,20 @@
             -147
         ],
         "lower": [
-            255,
-            131,
-            131
+            200,
+            0,
+            0
         ],
         "upper": [
             255,
-            192,
-            192
+            150,
+            150
         ],
         "count": 20,
         "order_by": "Vertical"
     },
     "CanAfford": {
-        "desc": "买得起（价格不是红色）",
+        "desc": "买得起（价格是黑色）",
         "recognition": "ColorMatch",
         "roi": "NotSoldOut",
         "roi_offset": [
@@ -64,18 +64,14 @@
             -94,
             -147
         ],
+        "method": 6,
         "lower": [
-            76,
-            76,
-            76
+            0
         ],
         "upper": [
-            108,
-            108,
-            108
+            90
         ],
-        "connected": true,
-        "count": 10,
+        "count": 25,
         "order_by": "Vertical"
     }
 }

@@ -11,18 +11,16 @@
                     118,
                     25
                 ],
+                "method": 6,
                 "lower": [
-                    60,
-                    60,
-                    60
+                    0
                 ],
                 "upper": [
-                    70,
-                    70,
-                    70
+                    180
                 ],
                 "connected": true,
-                "count": 10
+                "count": 1500,
+                "order_by": "Area"
             }
         }
     },
@@ -31,15 +29,11 @@
             "type": "ColorMatch",
             "param": {
                 "roi": "BlacklistOCRLabelColor",
-                "method": 40,
+                "method": 6,
                 "lower": [
-                    0,
-                    0,
-                    0
+                    200
                 ],
                 "upper": [
-                    0,
-                    1,
                     255
                 ],
                 "count": 10
