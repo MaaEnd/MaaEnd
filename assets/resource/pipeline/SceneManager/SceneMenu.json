@@ -1638,8 +1638,8 @@
                     100
                 ],
                 "template": [
-                    "SceneManager/MenuGearAssemblySetChoose.png",
-                    "SceneManager/MenuGearAssemblySetNotChoose.png"
+                    "SceneManager/MenuGearAssemblyBasicChoose.png",
+                    "SceneManager/MenuGearAssemblyBasicNotChoose.png"
                 ],
                 "threshold": 0.9
             }

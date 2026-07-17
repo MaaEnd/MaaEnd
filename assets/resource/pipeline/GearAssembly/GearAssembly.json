@@ -13,13 +13,13 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]GearAssemblySwitchAscending",
-            "[JumpBack]GearAssemblyCheckSortType",
+            "GearAssemblyBasicGear",
             "GearAssemblySetGear",
             "GearAssemblyNonsetGear"
         ]
     },
-    "GearAssemblySetGear": {
-        "desc": "套组装备",
+    "GearAssemblyBasicGear": {
+        "desc": "基础装备",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -30,10 +30,46 @@
                     100
                 ],
                 "expected": [
-                    "套组装备",
-                    "套裝裝備",
-                    "(?i)Set\\s*Gear",
-                    "セット装備"
+                    "基础装备",
+                    "基礎裝備",
+                    "(?i)Basic\\s*Gear",
+                    "基礎装備"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                0,
+                644,
+                135,
+                32
+            ],
+            "time": 300
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GearAssemblySelectFirstGear"
+        ]
+    },
+    "GearAssemblySetGear": {
+        "desc": "高阶套组装备",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    500,
+                    100
+                ],
+                "expected": [
+                    "高阶套组装备",
+                    "高階套組裝備",
+                    "(?i)Advanced\\s*Set\\s*Gear",
+                    "高階セット装備"
                 ]
             }
         },
@@ -55,7 +91,7 @@
         ]
     },
     "GearAssemblyNonsetGear": {
-        "desc": "非套组装备",
+        "desc": "高阶独立装备",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -66,10 +102,10 @@
                     100
                 ],
                 "expected": [
-                    "独立装备",
-                    "獨立裝備",
-                    "(?i)Non\\s*-\\s*set\\s*Gear",
-                    "単品装備"
+                    "高阶独立装备",
+                    "高階獨立裝備",
+                    "(?i)Advanced\\s*Non\\s*-\\s*set\\s*Gear",
+                    "高階単品装備"
                 ]
             }
         },
@@ -420,55 +456,5 @@
         "focus": {
             "Node.Action.Succeeded": "无法制作，查找下一个装备"
         }
-    },
-    "GearAssemblyCheckSortType": {
-        "desc": "检测排序类型是否正确",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    25,
-                    630,
-                    260,
-                    65
-                ],
-                "expected": [
-                    "装备原件类型"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "GearAssemblyChangeSortType"
-        ]
-    },
-    "GearAssemblyChangeSortType": {
-        "desc": "将排序类型切换为品质",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    20,
-                    530,
-                    300,
-                    160
-                ],
-                "expected": [
-                    "品质"
-                ]
-            }
-        },
-        "pre_wait_freezes": 80,
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": 80,
-        "post_delay": 0
     }
 }
