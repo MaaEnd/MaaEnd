@@ -516,9 +516,8 @@
         "expected": [
             "难民暂居处",
             "難民暫居處",
-            "仮設居住地",
-            "유랑자 임시 거주지",
-            "(?i)^Refugee\\s*Camp$"
+            "(?i)Refugee\\s*Camp",
+            "仮設居住地"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -537,9 +536,8 @@
         "expected": [
             "难民暂居处",
             "難民暫居處",
-            "仮設居住地",
-            "유랑자 임시 거주지",
-            "(?i)^Refugee\\s*Camp$"
+            "(?i)Refugee\\s*Camp",
+            "仮設居住地"
         ],
         "pre_delay": 0,
         "post_delay": 0,
