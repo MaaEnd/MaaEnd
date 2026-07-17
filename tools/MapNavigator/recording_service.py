@@ -11,7 +11,7 @@ from connection_models import RecordingSessionConfig
 from connectors import build_recording_connector
 import key_listener
 from model import ActionType, PathPoint, PathRecorder, normalize_zone_id
-from runtime import AGENT_DIR, CPP_AGENT_EXE, MAAFW_BIN_DIR, MaaRuntime, get_agent_env
+from runtime import AGENT_DIR, CPP_AGENT_EXE, MAAFW_BIN_DIR, MaaRuntime, get_agent_env, new_agent_id
 
 
 StatusCallback = Callable[[str, str], None]
@@ -114,7 +114,7 @@ class RecordingService:
             if self._session_config is None:
                 raise RuntimeError("录制会话配置缺失。")
 
-            agent_id = f"MapLocatorAgent_{int(time.time())}"
+            agent_id = new_agent_id("MapLocatorAgent")
             if not CPP_AGENT_EXE.exists():
                 raise FileNotFoundError(f"找不到 Agent 可执行文件: {CPP_AGENT_EXE}")
 

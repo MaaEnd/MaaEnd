@@ -125,13 +125,24 @@ export function getLoadStatus() {
 export async function getMesh(zoneId) {
   let res;
   try {
-    res = await fetch(`/mesh/${encodeURIComponent(String(zoneId))}`);
+    res = await fetch(`/mesh/${encodeURIComponent(String(zoneId))}`, { cache: 'no-store' });
   } catch (err) {
     throw new RpcError(`网络请求失败: /mesh/${zoneId} (${err && err.message ? err.message : err})`, 0);
   }
   if (res.status === 404) return null;
   if (!res.ok) throw new RpcError(await errorMessage(res), res.status);
   return res.arrayBuffer();
+}
+
+/**
+ * 追加一次性 query 参数。底图走 `new Image().src`，浏览器对这类脚本发起的请求在硬刷新时
+ * 也常直接命中旧缓存条目、根本不回源，于是更新了模板图仍显示旧图。变一下 URL 就没有可命中
+ * 的条目，必然回源；配合服务端 no-store，之后每次都是最新。
+ * @param {string} url
+ * @returns {string}
+ */
+function withCacheBust(url) {
+  return `${url}${url.includes('?') ? '&' : '?'}_=${Date.now()}`;
 }
 
 /**
@@ -144,7 +155,7 @@ export function basemapUrl(imagePath) {
   const parts = String(imagePath)
     .split('/')
     .map((seg) => encodeURIComponent(seg));
-  return `/basemap/${parts.join('/')}`;
+  return withCacheBust(`/basemap/${parts.join('/')}`);
 }
 
 /**
@@ -156,7 +167,7 @@ export function basemapUrl(imagePath) {
  * @returns {string}
  */
 export function basemapByZoneUrl(zoneId) {
-  return `/basemap-by-zone?zone_id=${encodeURIComponent(String(zoneId))}`;
+  return withCacheBust(`/basemap-by-zone?zone_id=${encodeURIComponent(String(zoneId))}`);
 }
 
 /**
