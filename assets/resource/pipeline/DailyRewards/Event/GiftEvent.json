@@ -1,0 +1,93 @@
+{
+    "DailyEventUnreadGiftEvent": {
+        "desc": "处理赠礼活动",
+        "recognition": "And",
+        "all_of": [
+            "DailyEventUnreadGiftEventColor",
+            "DailyEventUnreadGiftEventTitle"
+        ],
+        "pre_wait_freezes": {
+            "target": [
+                -200,
+                0,
+                200,
+                200
+            ],
+            "time": 200
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyEventUnreadGiftEventPickAll",
+            "DailyEventUnreadGiftEventFinish"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入赠礼活动"
+        }
+    },
+    "DailyEventUnreadGiftEventPickAll": {
+        "desc": "赠礼活动内一键领取",
+        "recognition": "OCR",
+        "roi": [
+            -160,
+            -440,
+            160,
+            200
+        ],
+        "expected": [
+            // 一键领取
+            // @i18n-skip
+            "键领取",
+            "快速領取",
+            "(?i)Claim\\s*All",
+            "一括受取",
+            "일괄 획득"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "SceneNoticeRewardsConfirm"
+        ]
+    },
+    "DailyEventUnreadGiftEventFinish": {
+        "desc": "领取完了",
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "DailyEventUnreadGiftEventColor": {
+        "desc": "赠礼活动详情标题黄字区域",
+        "recognition": "ColorMatch",
+        "roi": [
+            -200,
+            0,
+            200,
+            200
+        ],
+        "lower": [
+            230,
+            230,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            13
+        ],
+        "connected": true,
+        "count": 200
+    },
+    "DailyEventUnreadGiftEventTitle": {
+        "desc": "赠礼活动详情标题",
+        "recognition": "OCR",
+        "roi": "DailyEventUnreadGiftEventColor",
+        "expected": [
+            "赠礼活动",
+            "贈禮活動",
+            "Gift Event",
+            "ギフトイベント",
+            "선물 이벤트"
+        ],
+        "only_rec": true
+    }
+}
