@@ -98,7 +98,7 @@ captureuid.ClearCache()
 1. **缓存检查** — 若 `use_cache` 为 `true` 且缓存已有 UID，直接返回。
 2. **导航**（可选）— 若 `stay_on_current_screen` 为 `false`，先执行 `SceneEnterMenuOperationalManual` 导航到可读取 UID 的界面。
 3. **截屏** — 通过 `ctrl.PostScreencap()` 获取当前画面。
-4. **OCR** — 在 ROI 区域 `{60, 690, 120, 25}` 内识别文字，提取所有数字字符。
+4. **OCR** — 在 ROI 区域 `{60, 690, 155, 25}` 内识别文字，提取所有数字字符。
 5. **数字校验** — 验证提取的数字位数为 8–12 位。不在此范围则按 `allow_unknown` 决定返回 `"unknown"` 或报错。
 6. **哈希** — 读取（或首次生成）随机盐 `debug/record/random_salt.txt`，计算 `SHA-256(数字UID + 盐)` 取前 16 位十六进制作为伪匿名标识符。
 7. **缓存** — 将哈希结果存入内存缓存，供后续调用直接使用。
