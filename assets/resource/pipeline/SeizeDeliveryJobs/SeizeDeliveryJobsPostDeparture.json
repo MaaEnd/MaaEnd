@@ -103,6 +103,7 @@
             "SeizeDeliveryJobs/SubmitGoods.png", // NPC 交货按钮
             "SeizeDeliveryJobs/SubmitGoods2.png" // 非 NPC 交货按钮
         ],
+        "threshold": 0.8,
         "order_by": "Score",
         "action": "Custom",
         "custom_action": "AutoAltClickAction",
