@@ -98,7 +98,7 @@ The action executes in the following order:
 1. **Cache Check** — If `use_cache` is `true` and the cache already contains a UID, return it directly.
 2. **Navigation (optional)** — If `stay_on_current_screen` is `false`, first execute `SceneEnterMenuOperationalManual` to navigate to an interface where the UID can be read.
 3. **Screenshot** — Obtain the current screen via `ctrl.PostScreencap()`.
-4. **OCR** — Recognize text within the ROI region `{60, 690, 120, 25}` and extract all numeric characters.
+4. **OCR** — Recognize text within the ROI region `{60, 690, 155, 25}` and extract all numeric characters.
 5. **Digit Validation** — Verify the extracted number has 8–12 digits. If not, based on `allow_unknown`, either return `"unknown"` or throw an error.
 6. **Hashing** — Read (or generate for the first time) the random salt `debug/record/random_salt.txt`, compute `SHA-256(numeric UID + salt)`, and take the first 16 hexadecimal characters as the pseudonymous identifier.
 7. **Caching** — Store the hash result in an in-memory cache for direct use in subsequent calls.
