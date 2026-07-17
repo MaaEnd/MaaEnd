@@ -60,11 +60,17 @@ const SETTLEMENT_OCR_ALIASES = {
     ],
 };
 
-// domainId → RegionPrefix 默认映射。新 domain 接入时若沿用「英文区域名」命名约定，加一行即可；
+// domainId → 区域信息。新 domain 接入时若沿用「英文区域名」命名约定，只需在此补充展示名；
 // 不在表中的 domain 会回退到 toPascalCase(domainId)。
-const DOMAIN_REGION_PREFIX = {
-    domain_1: "ValleyIV",
-    domain_2: "Wuling",
+const DOMAIN_REGION = {
+    domain_1: {
+        RegionPrefix: "ValleyIV",
+        RegionDesc: "四号谷地",
+    },
+    domain_2: {
+        RegionPrefix: "Wuling",
+        RegionDesc: "武陵",
+    },
 };
 
 // 生成据点入口 OCR 候选：先加入数据源多语言全文，再追加额外 OCR 候选。
@@ -103,7 +109,7 @@ export const sellProductLocations = Object.entries(settlementData.settlements)
             SettlementId,
             settlement,
         ]) => {
-            const RegionPrefix = DOMAIN_REGION_PREFIX[settlement.domainId] || toPascalCase(settlement.domainId);
+            const RegionPrefix = DOMAIN_REGION[settlement.domainId]?.RegionPrefix || toPascalCase(settlement.domainId);
             const LocationId = toPascalCase(settlement.settlementName.EN || SettlementId);
 
             return {
@@ -115,6 +121,22 @@ export const sellProductLocations = Object.entries(settlementData.settlements)
             };
         },
     );
+
+// 区域级售卖入口消费的最小模型，区域和据点顺序与 sellProductLocations 保持一致。
+export const sellProductRegions = Object.values(
+    sellProductLocations.reduce((regions, location) => {
+        if (!regions[location.RegionPrefix]) {
+            const region = DOMAIN_REGION[settlementData.settlements[location.SettlementId].domainId];
+            regions[location.RegionPrefix] = {
+                RegionPrefix: location.RegionPrefix,
+                RegionDesc: region?.RegionDesc || location.RegionPrefix,
+                LocationIds: [],
+            };
+        }
+        regions[location.RegionPrefix].LocationIds.push(location.LocationId);
+        return regions;
+    }, {}),
+);
 
 // 国际化同步器消费的最小数据视图。命名规则与所有模板共享同一模型。
 export const sellProductLocaleEntries = {

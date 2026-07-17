@@ -2,10 +2,11 @@
 
 据点数据通过 zmdmap API 获取，存储在 `tools/pipeline-generate/data/` 目录。
 
-`model.mjs` 统一维护据点命名、排序和国际化键；三个模板各自消费最小数据投影：
+`model.mjs` 统一维护据点命名、排序和国际化键；四类模板各自消费最小数据投影：
 
 - `pipeline-data.mjs`：Win32 Pipeline 据点与识别框；
 - `pipeline-adb-data.mjs`：ADB Pipeline 据点与识别框；
+- `sell-data.mjs`：区域售卖入口与区域内据点列表；
 - `task-data.mjs`：Task 中的物品、保留数量和干员选项。
 
 据点 `LocationId` 由 zmdmap 英文名称自动派生；只有存在实际 OCR 误识证据时才在 `model.mjs` 追加兼容候选。某个模板独有的参数留在对应投影文件中。
@@ -22,6 +23,7 @@ node tools/pipeline-generate/SellProduct/sync-locales.mjs
 
 # 等价于在当前目录运行
 npx @joebao/maa-pipeline-generate --config pipeline-config.json
+npx @joebao/maa-pipeline-generate --config sell-config.json
 npx @joebao/maa-pipeline-generate --config task-config.json
 # 需要生成安卓端（ADB）专用流水线时使用
 npx @joebao/maa-pipeline-generate --config pipeline-adb-config.json

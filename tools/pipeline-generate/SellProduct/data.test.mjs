@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import {sellProductLocations, settlementData, toPascalCase} from "./model.mjs";
+import {sellProductLocations, sellProductRegions, settlementData, toPascalCase} from "./model.mjs";
 import sellProductAdbRows from "./pipeline-adb-data.mjs";
 import sellProductPipelineRows from "./pipeline-data.mjs";
+import sellProductSellRows from "./sell-data.mjs";
 import {buildOperatorCaseEntry, sellProductTaskRows} from "./task-data.mjs";
 
 function sortedKeys(value) {
@@ -50,6 +51,24 @@ test("SellProduct templates consume separate minimal projections of the shared l
         "TargetOperatorCases",
         "TargetOperatorDefaultCase",
     ]);
+});
+
+test("SellProduct region entry rows contain every generated location", () => {
+    assert.deepEqual(
+        sellProductSellRows.map((row) => row.RegionPrefix),
+        sellProductRegions.map((region) => region.RegionPrefix),
+    );
+
+    for (const row of sellProductSellRows) {
+        const region = sellProductRegions.find((entry) => entry.RegionPrefix === row.RegionPrefix);
+        assert.deepEqual(
+            row.Next,
+            region.LocationIds.map((locationId) => `[JumpBack]SellProduct${locationId}`).concat(
+                "SellProductLoop",
+                "[JumpBack]SceneEnterMenuRegionalDevelopment",
+            ),
+        );
+    }
 });
 
 test("SellProduct location IDs are derived from the current upstream English names", () => {
