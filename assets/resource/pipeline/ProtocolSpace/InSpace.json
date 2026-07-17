@@ -451,8 +451,7 @@
             "InProtocolSpace"
         ],
         "next": [
-            "ProtocolSpaceFightStartSuccess",
-            "ProtocolSpaceFightStartWait"
+            "ProtocolSpaceFightStartSuccess"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "等待战斗开始"
