@@ -1,6 +1,6 @@
 {
     "template": "pipeline-template.jsonc",
-    "data": "pipeline-data.mjs",
+    "data": "data.mjs",
     "outputDir": "../../../assets/resource/pipeline/SellProduct/Outposts",
     "outputPattern": "${LocationId}.json",
     "format": true,

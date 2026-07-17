@@ -15,10 +15,7 @@ SellProduct 的核心维护点如下：
 | 模块               | 路径                                                              | 作用                                                                                            |
 | ------------------ | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | zmdmap 缓存数据    | `tools/pipeline-generate/data/settlement_trade.json`              | 据点、繁荣度、可交易物品、多语言名称、稀有度、单价等原始数据                                    |
-| 共享据点模型       | `tools/pipeline-generate/SellProduct/model.mjs`                   | 读取 zmdmap，统一派生 `RegionPrefix` / `LocationId` / 多语言 OCR 与 locale 键                   |
-| Win 模板数据       | `tools/pipeline-generate/SellProduct/pipeline-data.mjs`           | 只输出 Win Pipeline 模板需要的据点字段和数量识别框                                              |
-| ADB 模板数据       | `tools/pipeline-generate/SellProduct/pipeline-adb-data.mjs`       | 只输出 ADB Pipeline 模板需要的据点 ID 和数量识别框                                              |
-| Task 模板数据      | `tools/pipeline-generate/SellProduct/task-data.mjs`               | 生成物品、保留数量和干员选项                                                                    |
+| 数据装配           | `tools/pipeline-generate/SellProduct/data.mjs`                    | 将 zmdmap 数据转换成模板可消费的 `settlementFlatRows`                                           |
 | 据点 Pipeline 模板 | `tools/pipeline-generate/SellProduct/pipeline-template.jsonc`     | 生成 Win 资源包的每个据点售卖节点                                                               |
 | ADB 据点模板       | `tools/pipeline-generate/SellProduct/pipeline-adb-template.jsonc` | 生成 ADB 资源包的据点数量 OCR 覆盖节点                                                          |
 | 任务选项模板       | `tools/pipeline-generate/SellProduct/task-template.jsonc`         | 生成 `assets/tasks/SellProduct.json` 中的地区、据点、干员切换、售卖尝试、优先物品和保留份数选项 |
@@ -48,11 +45,11 @@ SellProduct 的核心维护点如下：
 
 这些文件的来源分别是：
 
-| 产物                            | 模板                          | 数据源                                |
-| ------------------------------- | ----------------------------- | ------------------------------------- |
-| `assets/tasks/SellProduct.json` | `task-template.jsonc`         | `task-data.mjs` + `model.mjs`         |
-| Win 据点 Pipeline               | `pipeline-template.jsonc`     | `pipeline-data.mjs` + `model.mjs`     |
-| ADB 据点数量 OCR 覆盖           | `pipeline-adb-template.jsonc` | `pipeline-adb-data.mjs` + `model.mjs` |
+| 产物                            | 模板                          | 数据源                   |
+| ------------------------------- | ----------------------------- | ------------------------ |
+| `assets/tasks/SellProduct.json` | `task-template.jsonc`         | `data.mjs` + zmdmap 缓存 |
+| Win 据点 Pipeline               | `pipeline-template.jsonc`     | `data.mjs` + zmdmap 缓存 |
+| ADB 据点数量 OCR 覆盖           | `pipeline-adb-template.jsonc` | `data.mjs` + zmdmap 缓存 |
 
 ### 手写维护文件
 
@@ -81,7 +78,7 @@ assets/resource/pipeline/SellProduct/Outposts/${LocationId}.json
 assets/resource_adb/pipeline/SellProduct/Outposts/${LocationId}.json
 ```
 
-`LocationId` 始终由 zmdmap 当前英文据点名转 PascalCase 得到，不再维护手写 ID 覆盖。英文名称变化时，重新生成会同步更新节点名、文件名、Task 选项与 locale 键。
+默认情况下，`LocationId` 由 zmdmap 英文据点名转 PascalCase 得到。实际维护中优先看 `data.mjs` 的 `SETTLEMENT_OVERRIDE`：如果某个据点在这里配置了 `LocationId`，生成器会使用覆盖值。
 
 `LocationId` 只用于节点名和文件名，不是展示文案。用户界面上的据点名由 `assets/locales/interface/*.json` 中的 `task.SellProduct.{RegionPrefix}{LocationId}` 提供。
 
@@ -103,18 +100,17 @@ assets/resource_adb/pipeline/SellProduct/Outposts/${LocationId}.json
 - `tradeItems[*].name`：物品多语言名称。
 - `tradeItems[*].rarity` / `unitPrice`：用于生成优先物品选项的排序。
 
-`model.mjs` 会把这些原始数据规范化为 `sellProductLocations`，再由 Win、ADB 和 Task 三个数据投影各自生成最小模板行。
+`data.mjs` 会把这些原始数据装配成每个据点一行的 `settlementFlatRows`，再交给三个生成配置消费。
 
 当前已生成的据点为：
 
-| zmdmap settlementId | 地区     | LocationId                     | 据点名       |
-| ------------------- | -------- | ------------------------------ | ------------ |
-| `stm_tundra_1`      | ValleyIV | `RefugeeCamp`                  | 难民暂居处   |
-| `stm_tundra_2`      | ValleyIV | `InfraStation`                 | 基建前站     |
-| `stm_tundra_3`      | ValleyIV | `ReconstructionHQ`             | 重建指挥部   |
-| `stm_hongs_1`       | Wuling   | `SkyKingFlatsConstructionSite` | 天王坪援建点 |
-| `stm_hongs_2`       | Wuling   | `CardiacRemediationStation`    | 心脏修缮站   |
-| `stm_hongs_3`       | Wuling   | `XiranflowCloudseederStation`  | 盈天台建设站 |
+| zmdmap settlementId | 地区     | LocationId                  | 据点名       |
+| ------------------- | -------- | --------------------------- | ------------ |
+| `stm_tundra_1`      | ValleyIV | `RefugeeCamp`               | 难民暂居处   |
+| `stm_tundra_2`      | ValleyIV | `InfrastructureOutpost`     | 基建前站     |
+| `stm_tundra_3`      | ValleyIV | `ReconstructionCommand`     | 重建指挥部   |
+| `stm_hongs_1`       | Wuling   | `SkyKingFlats`              | 天王坪援建点 |
+| `stm_hongs_2`       | Wuling   | `CardiacRemediationStation` | 心脏修缮站   |
 
 ## 自动生成机制
 
@@ -139,7 +135,7 @@ npx @joebao/maa-pipeline-generate --config pipeline-adb-config.json
 ```json
 {
     "template": "pipeline-template.jsonc",
-    "data": "pipeline-data.mjs",
+    "data": "data.mjs",
     "outputDir": "../../../assets/resource/pipeline/SellProduct/Outposts",
     "outputPattern": "${LocationId}.json",
     "format": true,
@@ -154,7 +150,7 @@ npx @joebao/maa-pipeline-generate --config pipeline-adb-config.json
 ```json
 {
     "template": "pipeline-adb-template.jsonc",
-    "data": "pipeline-adb-data.mjs",
+    "data": "data.mjs",
     "outputDir": "../../../assets/resource_adb/pipeline/SellProduct/Outposts",
     "outputPattern": "${LocationId}.json",
     "format": true,
@@ -170,7 +166,7 @@ ADB 据点模板不是完整复制 Win 据点流程，而是只生成各据点 4
 {
     "task": true,
     "template": "task-template.jsonc",
-    "data": "task-data.mjs",
+    "data": "data.mjs",
     "outputDir": "../../../assets/tasks/",
     "outputFile": "SellProduct.json",
     "format": true
@@ -179,9 +175,9 @@ ADB 据点模板不是完整复制 Win 据点流程，而是只生成各据点 4
 
 该配置生成用户界面中的地区开关、据点开关、联络干员切换、4 次售卖尝试、优先物品和保留份数配置。
 
-### 共享模型与模板投影
+### 数据装配：`data.mjs`
 
-`tools/pipeline-generate/SellProduct/model.mjs` 是据点命名、OCR 和 locale 的共享维护入口；`pipeline-data.mjs`、`pipeline-adb-data.mjs` 和 `task-data.mjs` 分别维护模板专属数据。
+`tools/pipeline-generate/SellProduct/data.mjs` 是 SellProduct 生成器的主要维护入口。
 
 它当前负责：
 
@@ -190,12 +186,23 @@ ADB 据点模板不是完整复制 Win 据点流程，而是只生成各据点 4
 3. 从 zmdmap 的 `tradeItems` 构建全局物品字典。
 4. 按据点统计可售卖物品，并按 `rarity`、`unitPrice` 降序排列。
 5. 将 `domainId` 映射成任务使用的 `RegionPrefix`。
-6. `model.mjs` 从英文据点名自动派生 `LocationId`，并从五语言 `settlementName` 生成 OCR `TextExpected`。
-7. 三个投影分别注入 Win / ADB 数量 OCR 区域和 Task 选项。
+6. 为据点生成 `LocationId`、据点 OCR `TextExpected`、任务选项、优先物品候选名。
+7. 注入 Win / ADB 两套 BetterSliding 数量 OCR 区域。
 
-### OCR 兼容值
+### 据点命名覆盖
 
-`TextExpected` 默认直接从 zmdmap 的 CN / TC / JP / KR / EN 全文生成。只有存在实际识别证据的固定误识或 UI 截断时，才在 `SETTLEMENT_OCR_ALIASES` 中追加候选；该列表不会替换官方全文。
+`SETTLEMENT_OVERRIDE` 用于处理 zmdmap 原始名称不适合直接生成节点 ID，或 OCR 需要特殊候选文本的情况。
+
+当前覆盖项包括：
+
+- `LocationId`：覆盖默认的 `toPascalCase(EN)`，决定生成出的节点前缀和文件名。
+- `TextExpected`：覆盖据点 OCR 候选。填写后会完全替代默认 CN / TC / JP / EN 候选，需要自行覆盖必要语言和常见 OCR 噪声。
+
+典型场景：
+
+- 英文名太长或不符合项目命名习惯。
+- 游戏 UI 中实际显示与 zmdmap 名称有差异。
+- OCR 常把某个据点识别成固定错误文本，例如把 `HQ` 读偏。
 
 ### 地区映射覆盖
 
@@ -380,7 +387,7 @@ agent/go-service/sellproduct/normalized_match.go
 
 - 不要把它改成宽松编辑距离匹配，否则容易把“柑实罐头”误匹配成“优质柑实罐头”或“精选柑实罐头”。
 - 新增候选名时应优先从 zmdmap 多语言名称生成。
-- 如果 OCR 有固定噪声，优先把有证据的候选补进 `model.mjs` 的 `SETTLEMENT_OCR_ALIASES`，而不是扩大匹配算法。
+- 如果 OCR 有固定噪声，优先把准确候选补进 `data.mjs` 的数据装配逻辑，而不是扩大匹配算法。
 - 修改匹配算法后应运行 `agent/go-service/sellproduct/normalized_match_test.go` 覆盖的回归测试。
 
 ## BetterSliding 与数量区域
@@ -403,7 +410,7 @@ SellProduct{LocationId}BetterSliding4
 - `Quantity.Box`：读取当前交易份数。
 - `ExceedingOverrideEnable: "SellProductSkipToNextSellLoop"`
 
-数量区域分别在 `pipeline-data.mjs` 和 `pipeline-adb-data.mjs` 维护：
+数量区域在 `data.mjs` 统一维护：
 
 | 常量                   | 用途                       |
 | ---------------------- | -------------------------- |
@@ -429,14 +436,14 @@ pnpm generate:SellProduct
 1. 运行 `pnpm generate:SellProduct`。
 2. 检查 `assets/tasks/SellProduct.json` 中对应据点的优先物品选项是否出现新物品。
 3. 若新物品 label 没有生成 `$item.xxx`，在 `assets/locales/interface/*.json` 中补齐对应 `item.*` 多语言文案。
-4. 若 OCR 名称有固定误识别，根据实际证据补充 `model.mjs` 的 `SETTLEMENT_OCR_ALIASES`。
+4. 若 OCR 名称有固定误识别，再评估是否需要调整 `data.mjs` 候选名装配逻辑。
 
 普通新增物品通常不需要改据点 Pipeline 模板。
 
 ### zmdmap 新增据点
 
 1. 运行 `pnpm fetch:zmdmap` 更新缓存。
-2. 确认 `model.mjs` 从英文名派生的 `LocationId` 和五语言 `TextExpected`正确；有实际 OCR 异常时再补 `SETTLEMENT_OCR_ALIASES`。
+2. 在 `data.mjs` 检查是否需要补 `SETTLEMENT_OVERRIDE`，确保 `LocationId`、`TextExpected` 稳定。
 3. 如果是新地区，补 `DOMAIN_REGION_PREFIX`。
 4. 运行 `pnpm generate:SellProduct`。
 5. 在 `assets/resource/pipeline/SellProduct/Sell.json` 中把新据点加入对应地区的 `next` 列表。
@@ -453,7 +460,7 @@ pnpm generate:SellProduct
 
 - `SellProductCheck{LocationId}TabText`
 - `SellProductCheck{LocationId}Text`
-- `SETTLEMENT_OCR_ALIASES[settlementId]`
+- `SETTLEMENT_OVERRIDE[settlementId].TextExpected`
 
 如果是固定误识别文本，直接把候选补到 `TextExpected`。如果只是 ROI 不合适，需要改 `pipeline-template.jsonc` 和 `pipeline-adb-template.jsonc` 中对应 OCR 节点的 `roi`，然后重新生成。
 
@@ -505,9 +512,9 @@ go test ./sellproduct
 
 ## 常见坑
 
-- **直接手改生成产物**：下次运行 `pnpm generate:SellProduct` 会覆盖改动。应改 `model.mjs`、对应模板数据、模板或手写联动文件。
+- **直接手改生成产物**：下次运行 `pnpm generate:SellProduct` 会覆盖改动。应改 `data.mjs`、模板或手写联动文件。
 - **只生成 Win 没生成 ADB**：`pipeline-adb-config.json` 负责 ADB 据点节点。涉及数量区域、据点 OCR、售卖尝试模板时要同时确认 ADB 产物。
-- **新增物品没有可翻译 label**：`task-data.mjs` 会从 `zh_cn.json` 反查 `item.*` key。找不到时仍能生成选项，但 label 会退回普通名称；需要补齐多语言。
+- **新增物品没有可翻译 label**：`data.mjs` 会从 `zh_cn.json` 反查 `item.*` key。找不到时仍能生成选项，但 label 会退回普通名称；需要补齐多语言。
 - **新增地区后任务选项有了，但流程进不去**：任务选项生成不等于入口链路完成。还需要补 `SellProduct.json`、`Sell.json` 和 SceneManager 跳转。
 - **扩大优先物品匹配导致串货**：不要用宽松相似度替代当前严格匹配。相近商品名很多，匹配策略必须避免子串误命中。
 

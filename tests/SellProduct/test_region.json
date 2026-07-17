@@ -19,21 +19,21 @@
             "image": "四号谷地_地区建设_据点_基建前站.png",
             "hits": [
                 "SellProductInOutpost",
-                "SellProductInInfraStation"
+                "SellProductInInfrastructureOutpost"
             ]
         },
         {
             "image": "四号谷地_地区建设_据点_重建指挥部.png",
             "hits": [
                 "SellProductInOutpost",
-                "SellProductInReconstructionHQ"
+                "SellProductInReconstructionCommand"
             ]
         },
         {
             "image": "武陵_地区建设_据点_天王坪援建点.png",
             "hits": [
                 "SellProductInOutpost",
-                "SellProductInSkyKingFlatsConstructionSite"
+                "SellProductInSkyKingFlats"
             ]
         }
     ]
