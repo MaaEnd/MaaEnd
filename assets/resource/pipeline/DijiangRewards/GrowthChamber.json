@@ -219,6 +219,10 @@
             "time": 150,
             "timeout": 2000
         },
+        "pre_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
