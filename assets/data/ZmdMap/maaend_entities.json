@@ -13846,7 +13846,7 @@
               {
                 "id": 26200000062,
                 "template_name": "int_campfire_v2",
-                "key_name": "int_campfire_v2_smaller",
+                "key_name": "int_campfire_v2",
                 "raw_location": [
                   -25.55,
                   163.891,
@@ -13900,7 +13900,7 @@
               {
                 "id": 26200000204,
                 "template_name": "int_campfire_v2",
-                "key_name": "int_campfire_v2_smaller",
+                "key_name": "int_campfire_v2",
                 "raw_location": [
                   -40.3,
                   148.582,
@@ -73223,7 +73223,7 @@
               {
                 "id": 10100360062,
                 "template_name": "eny_0108_slbomb2",
-                "key_name": "eny_0108_slbomb2",
+                "key_name": "eny_0108_slbomb2_hs005",
                 "raw_location": [
                   -816.643,
                   225.917,
@@ -73403,7 +73403,7 @@
               {
                 "id": 10100360094,
                 "template_name": "eny_0108_slbomb2",
-                "key_name": "eny_0108_slbomb2",
+                "key_name": "eny_0108_slbomb2_hs005",
                 "raw_location": [
                   -886.329,
                   229.197,
@@ -73480,7 +73480,7 @@
               {
                 "id": 10100014003,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -795.5,
                   232.0,
@@ -73516,7 +73516,7 @@
               {
                 "id": 10100014006,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -806.5,
                   232.0,
@@ -73552,7 +73552,7 @@
               {
                 "id": 10100014009,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -802.5,
                   232.0,
@@ -73588,7 +73588,7 @@
               {
                 "id": 10100014034,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -799.5,
                   232.0,
@@ -93492,7 +93492,7 @@
               {
                 "id": 22800530312,
                 "template_name": "eny_0108_slbomb2",
-                "key_name": "eny_0108_slbomb2",
+                "key_name": "eny_0108_slbomb2_hs005",
                 "raw_location": [
                   -982.321,
                   257.169,
@@ -93564,7 +93564,7 @@
               {
                 "id": 22800530316,
                 "template_name": "eny_0108_slbomb2",
-                "key_name": "eny_0108_slbomb2",
+                "key_name": "eny_0108_slbomb2_hs005",
                 "raw_location": [
                   -985.03,
                   257.169,
@@ -94878,7 +94878,7 @@
               {
                 "id": 22800540315,
                 "template_name": "eny_0108_slbomb2",
-                "key_name": "eny_0108_slbomb2",
+                "key_name": "eny_0108_slbomb2_hs005",
                 "raw_location": [
                   -985.38,
                   277.537,
@@ -94896,7 +94896,7 @@
               {
                 "id": 22800540316,
                 "template_name": "eny_0108_slbomb2",
-                "key_name": "eny_0108_slbomb2",
+                "key_name": "eny_0108_slbomb2_hs005",
                 "raw_location": [
                   -989.086,
                   278.281,
@@ -94914,7 +94914,7 @@
               {
                 "id": 22800540317,
                 "template_name": "eny_0108_slbomb2",
-                "key_name": "eny_0108_slbomb2",
+                "key_name": "eny_0108_slbomb2_hs005",
                 "raw_location": [
                   -989.136,
                   277.577,
@@ -96228,7 +96228,7 @@
               {
                 "id": 22801140008,
                 "template_name": "eny_0091_wgshoal_nearspecial",
-                "key_name": "eny_0091_wgshoal_nearspecial",
+                "key_name": "eny_0091_wgshoal",
                 "raw_location": [
                   -593.753,
                   242.943,
@@ -96413,7 +96413,7 @@
               {
                 "id": 22800177006,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -1259.5,
                   268.0,
@@ -96449,7 +96449,7 @@
               {
                 "id": 22800177009,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -1253.5,
                   268.0,
@@ -96485,7 +96485,7 @@
               {
                 "id": 22800177012,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -1251.5,
                   268.0,
@@ -96521,7 +96521,7 @@
               {
                 "id": 22800177015,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -1258.5,
                   268.0,
@@ -118748,7 +118748,7 @@
               {
                 "id": 23400072001,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -1208.5,
                   269.0,
@@ -118802,7 +118802,7 @@
               {
                 "id": 23400072006,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -1208.5,
                   269.0,
@@ -118820,7 +118820,7 @@
               {
                 "id": 23400072007,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -1213.5,
                   269.0,
@@ -118874,7 +118874,7 @@
               {
                 "id": 23400072012,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -1214.5,
                   269.0,
@@ -119933,7 +119933,7 @@
               {
                 "id": 23400083106,
                 "template_name": "int_campfire_v2",
-                "key_name": "int_campfire_v2_smaller",
+                "key_name": "int_campfire_v2",
                 "raw_location": [
                   -1259.518,
                   280.73,
@@ -138357,7 +138357,7 @@
               {
                 "id": 25000070344,
                 "template_name": "int_system_dungeon_entry",
-                "key_name": "int_system_dungeon_entry_red04",
+                "key_name": "int_system_dungeon_entry",
                 "raw_location": [
                   173.15,
                   126.635,
@@ -143414,7 +143414,7 @@
               {
                 "id": 10200080035,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -524.5,
                   230.0,
@@ -143450,7 +143450,7 @@
               {
                 "id": 10200080038,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -528.5,
                   230.0,
@@ -143486,7 +143486,7 @@
               {
                 "id": 10200080041,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -534.5,
                   230.0,
@@ -143522,7 +143522,7 @@
               {
                 "id": 10200080044,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -534.5,
                   230.0,
@@ -143558,7 +143558,7 @@
               {
                 "id": 10200080047,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -518.5,
                   230.0,
@@ -143594,7 +143594,7 @@
               {
                 "id": 10200080050,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -525.5,
                   230.0,
@@ -143630,7 +143630,7 @@
               {
                 "id": 10200080053,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -739.5,
                   228.24,
@@ -143666,7 +143666,7 @@
               {
                 "id": 10200080056,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -739.5,
                   228.24,
@@ -143702,7 +143702,7 @@
               {
                 "id": 10200080059,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -744.617,
                   228.24,
@@ -145405,83 +145405,6 @@
       {
         "map_level_id": "lv008",
         "categories": [
-          {
-            "category": "common_gather",
-            "data": [
-              {
-                "id": 23100150167,
-                "template_name": "int_doodad_core_plant",
-                "key_name": "int_doodad_core_spcstone_2",
-                "raw_location": [
-                  -53.76,
-                  145.79,
-                  1075.45
-                ],
-                "pixel_location": [
-                  9348.0,
-                  8041.17187
-                ],
-                "map_location": [
-                  641.55,
-                  545.80957
-                ]
-              },
-              {
-                "id": 23100150188,
-                "template_name": "int_doodad_core_plant",
-                "key_name": "int_doodad_core_spcstone_2",
-                "raw_location": [
-                  -163.489,
-                  199.03,
-                  1273.228
-                ],
-                "pixel_location": [
-                  8833.64531,
-                  8968.25625
-                ],
-                "map_location": [
-                  557.96736,
-                  395.15836
-                ]
-              },
-              {
-                "id": 23100150211,
-                "template_name": "int_doodad_core_plant",
-                "key_name": "int_doodad_core_plant_rabbithole_2",
-                "raw_location": [
-                  25.86,
-                  153.06,
-                  1355.01
-                ],
-                "pixel_location": [
-                  9721.21875,
-                  9351.60938
-                ],
-                "map_location": [
-                  702.19805,
-                  332.86348
-                ]
-              },
-              {
-                "id": 23100150234,
-                "template_name": "int_doodad_core_plant",
-                "key_name": "int_doodad_core_plant_rabbithole_2",
-                "raw_location": [
-                  -596.89,
-                  230.396,
-                  1028.26
-                ],
-                "pixel_location": [
-                  6802.07813,
-                  7819.96875
-                ],
-                "map_location": [
-                  227.8377,
-                  581.75508
-                ]
-              }
-            ]
-          },
           {
             "category": "disposable",
             "data": [
@@ -152181,7 +152104,7 @@
               {
                 "id": 23100150018,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -456.5,
                   206.0,
@@ -152199,7 +152122,7 @@
               {
                 "id": 23100150046,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_inert_4",
+                "key_name": "int_factory_gas_inert_3",
                 "raw_location": [
                   -452.5,
                   206.0,
@@ -152253,7 +152176,7 @@
               {
                 "id": 23100150105,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_xiranite_4",
+                "key_name": "int_factory_gas_xiranite_3",
                 "raw_location": [
                   -433.5,
                   213.0,
@@ -152289,7 +152212,7 @@
               {
                 "id": 23100150108,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_xiranite_4",
+                "key_name": "int_factory_gas_xiranite_3",
                 "raw_location": [
                   -439.5,
                   213.0,
@@ -152325,7 +152248,7 @@
               {
                 "id": 23100150123,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_xiranite_4",
+                "key_name": "int_factory_gas_xiranite_3",
                 "raw_location": [
                   -633.5,
                   235.0,
@@ -152361,7 +152284,7 @@
               {
                 "id": 23100150129,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_xiranite_4",
+                "key_name": "int_factory_gas_xiranite_3",
                 "raw_location": [
                   -630.5,
                   235.0,
@@ -152379,7 +152302,7 @@
               {
                 "id": 23100150142,
                 "template_name": "int_factory_gas",
-                "key_name": "int_factory_gas_xiranite_4",
+                "key_name": "int_factory_gas_xiranite_3",
                 "raw_location": [
                   27.5,
                   153.0,
@@ -153551,7 +153474,7 @@
               {
                 "id": 23100300001,
                 "template_name": "int_system_minigame_balloon",
-                "key_name": "int_system_minigame_balloon",
+                "key_name": "int_system_balloon_big_1",
                 "raw_location": [
                   51.76,
                   213.588,
@@ -153569,7 +153492,7 @@
               {
                 "id": 23100300002,
                 "template_name": "int_system_minigame_balloon",
-                "key_name": "int_system_minigame_balloon",
+                "key_name": "int_system_balloon_big_1",
                 "raw_location": [
                   -327.66,
                   178.415,
@@ -153587,7 +153510,7 @@
               {
                 "id": 23100300003,
                 "template_name": "int_system_minigame_balloon",
-                "key_name": "int_system_minigame_balloon",
+                "key_name": "int_system_balloon_big_1",
                 "raw_location": [
                   -321.49,
                   227.675,
@@ -153623,7 +153546,7 @@
               {
                 "id": 23100300005,
                 "template_name": "int_system_minigame_balloon",
-                "key_name": "int_system_minigame_balloon",
+                "key_name": "int_system_balloon_big_1",
                 "raw_location": [
                   49.64,
                   139.655,
