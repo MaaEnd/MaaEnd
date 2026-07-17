@@ -517,7 +517,6 @@
             "心脏修缮站",
             "心臟修繕站",
             "心臓修復施設",
-            "심장 수복실",
             "(?i)^Cardiac\\s*Remediation\\s*Station$"
         ],
         "pre_delay": 0,
@@ -538,7 +537,6 @@
             "心脏修缮站",
             "心臟修繕站",
             "心臓修復施設",
-            "심장 수복실",
             "(?i)^Cardiac\\s*Remediation\\s*Station$"
         ],
         "pre_delay": 0,

@@ -1,5 +1,5 @@
 {
-    "SellProductInfraStationBetterSliding1": {
+    "SellProductReconstructionCommandBetterSliding1": {
         "custom_action_param": {
             "GreenMask": true,
             "Target": 999999,
@@ -28,7 +28,7 @@
             "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
         }
     },
-    "SellProductInfraStationBetterSliding2": {
+    "SellProductReconstructionCommandBetterSliding2": {
         "custom_action_param": {
             "GreenMask": true,
             "Target": 999999,
@@ -57,7 +57,7 @@
             "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
         }
     },
-    "SellProductInfraStationBetterSliding3": {
+    "SellProductReconstructionCommandBetterSliding3": {
         "custom_action_param": {
             "GreenMask": true,
             "Target": 999999,
@@ -86,7 +86,7 @@
             "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
         }
     },
-    "SellProductInfraStationBetterSliding4": {
+    "SellProductReconstructionCommandBetterSliding4": {
         "custom_action_param": {
             "GreenMask": true,
             "Target": 999999,
