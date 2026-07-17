@@ -1,8 +1,13 @@
 # 修复 PR 自动反向移植到 v2
 #
-# 当针对 release/v* 分支的 PR 被合并时：
-#   → cherry-pick 该合并提交到基于 v2 的 fix/pr-<N> 分支
+# 当 release/v* 分支被推送（通常是 hotfix PR 合并）时：
+#   → 从 commit 标题解析 PR 号（要求形如 `... (#1234)`）
+#   → cherry-pick 该提交到基于 v2 的 fix/pr-<N> 分支
 #   → 自动创建从 fix/pr-<N> 到 v2 的 PR
+#
+# 使用 push 而非 pull_request closed：
+#   fork PR 合并时 pull_request 事件拿不到仓库 secrets/vars，
+#   而 push 始终发生在本仓库，App token 可正常生成。
 #
 # cherry-pick 的 commit 会自动追加 [skip changelog]，
 # 防止反向移植的修复在后续版本的 changelog 中重复出现。
@@ -10,8 +15,9 @@
 name: cherry-pick-to-v2
 
 on:
-  pull_request:
-    types: [closed]
+  push:
+    branches:
+      - 'release/v*'
 
 permissions:
   contents: write
@@ -19,50 +25,46 @@ permissions:
 
 jobs:
   cherry-pick:
-    if: |
-      github.repository_owner == 'MaaEnd' &&
-      github.event.pull_request.merged == true &&
-      startsWith(github.event.pull_request.base.ref, 'release/v')
+    if: github.repository_owner == 'MaaEnd'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Extract PR metadata
+      - name: Parse push commit for PR number
         id: pr
         env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_BODY: ${{ github.event.pull_request.body }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          MERGE_SHA: ${{ github.sha }}
+          RELEASE_BRANCH: ${{ github.ref_name }}
         run: |
           set -euo pipefail
 
-          PR_NUMBER="${{ github.event.pull_request.number }}"
-          MERGE_SHA="${{ github.event.pull_request.merge_commit_sha }}"
-          RELEASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+          # head_commit.message 为完整 message，取第一行作为 subject
+          SUBJECT="$(printf '%s' "$COMMIT_MESSAGE" | head -n1)"
+
+          if [[ ! "$SUBJECT" =~ \(#([0-9]+)\)$ ]]; then
+            echo "Commit subject has no trailing (#N) PR reference: '$SUBJECT'"
+            echo "Skipping (likely a direct push, not a merged PR)."
+            echo "proceed=false" | tee -a "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          PR_NUMBER="${BASH_REMATCH[1]}"
           FIX_BRANCH="fix/pr-${PR_NUMBER}"
 
           echo "pr_number=${PR_NUMBER}" | tee -a "$GITHUB_OUTPUT"
           echo "merge_sha=${MERGE_SHA}" | tee -a "$GITHUB_OUTPUT"
           echo "release_branch=${RELEASE_BRANCH}" | tee -a "$GITHUB_OUTPUT"
           echo "fix_branch=${FIX_BRANCH}" | tee -a "$GITHUB_OUTPUT"
+          echo "proceed=true" | tee -a "$GITHUB_OUTPUT"
 
-          # PR_TITLE / PR_BODY 通过 env 传递避免 shell 注入；多行安全写入 GITHUB_OUTPUT
-          {
-            echo "pr_title<<PRTITLE_EOF"
-            echo "$PR_TITLE"
-            echo "PRTITLE_EOF"
-          } >> "$GITHUB_OUTPUT"
-
-          {
-            echo "pr_body<<PRBODY_EOF"
-            echo "$PR_BODY"
-            echo "PRBODY_EOF"
-          } >> "$GITHUB_OUTPUT"
-
-          echo "Processing PR #${PR_NUMBER}: '${PR_TITLE}'"
-          echo "  Merged into: ${RELEASE_BRANCH}"
-          echo "  Merge commit: ${MERGE_SHA}"
+          echo "Processing push on ${RELEASE_BRANCH}"
+          echo "  Commit: ${MERGE_SHA}"
+          echo "  Subject: ${SUBJECT}"
+          echo "  PR: #${PR_NUMBER}"
 
       # 分支存在检查放在 checkout 之前，避免全量 clone 后发现分支已存在
       - name: Check if fix branch already exists
+        if: steps.pr.outputs.proceed == 'true'
         id: precheck
         env:
           FIX_BRANCH: ${{ steps.pr.outputs.fix_branch }}
@@ -77,7 +79,7 @@ jobs:
           fi
 
       - name: Generate MaaEndBot GitHub App token
-        if: steps.precheck.outputs.exists != 'true'
+        if: steps.pr.outputs.proceed == 'true' && steps.precheck.outputs.exists != 'true'
         id: app-token
         uses: actions/create-github-app-token@v3
         with:
@@ -86,8 +88,35 @@ jobs:
           permission-contents: write
           permission-pull-requests: write
 
+      - name: Fetch PR title and body
+        if: steps.pr.outputs.proceed == 'true' && steps.precheck.outputs.exists != 'true'
+        id: pr-details
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_NUMBER: ${{ steps.pr.outputs.pr_number }}
+        run: |
+          set -euo pipefail
+
+          PR_JSON="$(gh pr view "$PR_NUMBER" --json title,body)"
+          PR_TITLE="$(printf '%s' "$PR_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["title"])')"
+          PR_BODY="$(printf '%s' "$PR_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("body") or "")')"
+
+          {
+            echo "pr_title<<PRTITLE_EOF"
+            echo "$PR_TITLE"
+            echo "PRTITLE_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "pr_body<<PRBODY_EOF"
+            echo "$PR_BODY"
+            echo "PRBODY_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "PR #${PR_NUMBER} title: ${PR_TITLE}"
+
       - name: Checkout repository
-        if: steps.precheck.outputs.exists != 'true'
+        if: steps.pr.outputs.proceed == 'true' && steps.precheck.outputs.exists != 'true'
         uses: actions/checkout@v6
         with:
           token: ${{ steps.app-token.outputs.token }}
@@ -96,7 +125,7 @@ jobs:
           fetch-depth: 0
 
       - name: Cherry-pick merge commit and push fix branch
-        if: steps.precheck.outputs.exists != 'true'
+        if: steps.pr.outputs.proceed == 'true' && steps.precheck.outputs.exists != 'true'
         id: cherry
         env:
           FIX_BRANCH: ${{ steps.pr.outputs.fix_branch }}
@@ -134,13 +163,13 @@ jobs:
           git push origin "$FIX_BRANCH"
 
       - name: Create pull request to v2
-        if: steps.precheck.outputs.exists != 'true'
+        if: steps.pr.outputs.proceed == 'true' && steps.precheck.outputs.exists != 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           FIX_BRANCH: ${{ steps.pr.outputs.fix_branch }}
           PR_NUMBER: ${{ steps.pr.outputs.pr_number }}
-          PR_TITLE: ${{ steps.pr.outputs.pr_title }}
-          PR_BODY: ${{ steps.pr.outputs.pr_body }}
+          PR_TITLE: ${{ steps.pr-details.outputs.pr_title }}
+          PR_BODY: ${{ steps.pr-details.outputs.pr_body }}
           RELEASE_BRANCH: ${{ steps.pr.outputs.release_branch }}
         run: |
           set -euo pipefail

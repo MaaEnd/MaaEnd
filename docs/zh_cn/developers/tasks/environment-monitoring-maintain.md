@@ -246,10 +246,6 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 - **未适配**：`routes.json` 没有该观察点，或条目存在但缺失任一必填字段（含 `null` / 空字符串 / 空数组） → 生成后只会接取并追踪。
 - **准备适配**：需要让该观察点自动前往并拍照 → 走步骤 3，补齐真实路线。
 
-> [!IMPORTANT]
->
-> 不打算适配某个观察点时，直接不要在 `routes.json` 加该条目；不要写 `"SceneAnyEnterWorld"` / `[0,0,1,1]` 这类占位值。
-
 ### 3. 在 `routes.json` 中新增/补全条目
 
 `tools/pipeline-generate/EnvironmentMonitoring/routes.json`：
