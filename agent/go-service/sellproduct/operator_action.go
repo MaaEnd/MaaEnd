@@ -198,7 +198,7 @@ func (r *OperatorListBottomRecognition) Run(
 	}
 	observed := observedOperatorCacheNames(items, scanCandidates)
 	state.Observed = append(state.Observed, observed...)
-	signature := operatorListSignature(items)
+	signature := operatorListSignature(observed)
 	// Pipeline 在每次识别失败后继续向下滚动；相邻两帧内容一致说明已经到达底部。
 	reachedBottom := operatorListReachedBottom(state.PreviousSignature, signature)
 	if !reachedBottom {
@@ -447,39 +447,15 @@ func observedOperatorCacheNames(items []ocrItem, candidates []operatorCandidate)
 	return sortedSetValues(observedSet)
 }
 
-// operatorListSignature 为当前 OCR 列表生成与引擎返回顺序无关的稳定签名。
-// 先按坐标和文本排序，再只拼接文本；这样 OCR 并发返回顺序变化不会误判列表仍在滚动。
-func operatorListSignature(items []ocrItem) string {
-	if len(items) == 0 {
+// operatorListSignature 使用当前画面识别到的规范化干员名称生成稳定签名。
+// 非干员 OCR 文本不参与签名，避免头像和界面噪声波动干扰到底判定。
+func operatorListSignature(operatorNames []string) string {
+	if len(operatorNames) == 0 {
 		return ""
 	}
-	sortedItems := make([]ocrItem, 0, len(items))
-	for _, item := range items {
-		text := strings.TrimSpace(item.text)
-		if text == "" {
-			continue
-		}
-		item.text = text
-		sortedItems = append(sortedItems, item)
-	}
-	sort.SliceStable(sortedItems, func(i, j int) bool {
-		if sortedItems[i].box.Y() != sortedItems[j].box.Y() {
-			return sortedItems[i].box.Y() < sortedItems[j].box.Y()
-		}
-		if sortedItems[i].box.X() != sortedItems[j].box.X() {
-			return sortedItems[i].box.X() < sortedItems[j].box.X()
-		}
-		return sortedItems[i].text < sortedItems[j].text
-	})
-
-	var b strings.Builder
-	for _, item := range sortedItems {
-		if b.Len() > 0 {
-			b.WriteByte('\n')
-		}
-		b.WriteString(item.text)
-	}
-	return b.String()
+	normalizedNames := uniqueNonEmptyStrings(operatorNames)
+	sort.Strings(normalizedNames)
+	return strings.Join(normalizedNames, "\n")
 }
 
 // operatorListReachedBottom 通过连续两帧非空签名相同判断列表已经无法继续滚动。

@@ -7,15 +7,9 @@ import (
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
-func TestOperatorListSignatureIgnoresOCRResultOrder(t *testing.T) {
-	a := []ocrItem{
-		{text: "陈千语", box: maa.Rect{300, 200, 80, 20}},
-		{text: "佩丽卡", box: maa.Rect{100, 100, 80, 20}},
-	}
-	b := []ocrItem{
-		{text: "佩丽卡", box: maa.Rect{100, 100, 80, 20}},
-		{text: "陈千语", box: maa.Rect{300, 200, 80, 20}},
-	}
+func TestOperatorListSignatureIgnoresOperatorOrder(t *testing.T) {
+	a := []string{"陈千语", "佩丽卡"}
+	b := []string{"佩丽卡", "陈千语"}
 
 	if got, want := operatorListSignature(a), operatorListSignature(b); got != want {
 		t.Fatalf("signature mismatch: got %q, want %q", got, want)
@@ -23,15 +17,9 @@ func TestOperatorListSignatureIgnoresOCRResultOrder(t *testing.T) {
 }
 
 func TestOperatorListReachedBottomWhenSignatureUnchanged(t *testing.T) {
-	previous := operatorListSignature([]ocrItem{
-		{text: "佩丽卡", box: maa.Rect{100, 100, 80, 20}},
-	})
-	same := operatorListSignature([]ocrItem{
-		{text: "佩丽卡", box: maa.Rect{100, 100, 80, 20}},
-	})
-	changed := operatorListSignature([]ocrItem{
-		{text: "陈千语", box: maa.Rect{100, 100, 80, 20}},
-	})
+	previous := operatorListSignature([]string{"佩丽卡"})
+	same := operatorListSignature([]string{"佩丽卡"})
+	changed := operatorListSignature([]string{"陈千语"})
 
 	if !operatorListReachedBottom(previous, same) {
 		t.Fatal("unchanged operator list signature should mean bottom reached")
@@ -41,6 +29,29 @@ func TestOperatorListReachedBottomWhenSignatureUnchanged(t *testing.T) {
 	}
 	if operatorListReachedBottom("", same) {
 		t.Fatal("empty previous signature should not mean bottom reached")
+	}
+}
+
+func TestOperatorListSignatureIgnoresNonOperatorOCRNoise(t *testing.T) {
+	candidates := []operatorCandidate{
+		{Name: "ChenQianyu", CacheName: "陈千语", Expected: []string{"陈千语"}},
+		{Name: "Xaihi", CacheName: "赛希", Expected: []string{"赛希"}},
+	}
+	firstItems := []ocrItem{
+		{text: "赛希", box: maa.Rect{100, 100, 80, 20}},
+		{text: "陈千语", box: maa.Rect{300, 200, 80, 20}},
+		{text: "NN", box: maa.Rect{200, 100, 30, 20}},
+	}
+	secondItems := []ocrItem{
+		{text: "赛希", box: maa.Rect{100, 100, 80, 20}},
+		{text: "陈千语", box: maa.Rect{300, 200, 80, 20}},
+		{text: "N", box: maa.Rect{200, 100, 30, 20}},
+	}
+
+	first := operatorListSignature(observedOperatorCacheNames(firstItems, candidates))
+	second := operatorListSignature(observedOperatorCacheNames(secondItems, candidates))
+	if first != second {
+		t.Fatalf("non-operator OCR noise changed signature: first %q, second %q", first, second)
 	}
 }
 
