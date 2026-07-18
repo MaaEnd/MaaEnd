@@ -195,4 +195,7 @@ var regionBases = map[string]int{
 - 若商品 ID 在 `Page1OnlyIDs` 中（例如最后一排只在次屏可见），点击前会再执行一次 `AutoStockpileSwipeShelfDown`，再交给 `AutoStockpileSelectedGoodsClick` 做模板点击。
 - 若首屏已有该商品，则不额外滑动。
 
-滑动节点定义在 `assets/resource/pipeline/AutoStockpile/Helper.json`。坐标基于 720p，实机若漏扫或过量重复，优先微调 `begin` / `end` 与 `post_wait_freezes.target`。
+滑动节点：
+
+- Win32 默认：`assets/resource/pipeline/AutoStockpile/Helper.json` 中为 `DoNothing`（一屏可看全）。
+- ADB / PlayCover：`assets/resource_adb/pipeline/AutoStockpile/Helper.json` 覆盖为真实 `Swipe`（含横向收尾与 `end_hold`）。坐标基于 720p，实机若漏扫或过量重复，优先微调 ADB 侧 `begin` / `end` 与 `post_wait_freezes.target`。

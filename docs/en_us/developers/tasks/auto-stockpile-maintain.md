@@ -195,4 +195,7 @@ After selection:
 - If the chosen ID is in `Page1OnlyIDs`, swipe down once more before `AutoStockpileSelectedGoodsClick`.
 - If the item was already on page 1, click without an extra swipe.
 
-Swipe nodes live in `assets/resource/pipeline/AutoStockpile/Helper.json` (720p). Tune `begin` / `end` and `post_wait_freezes.target` if real devices miss or over-scroll.
+Swipe nodes:
+
+- Win32 default: `DoNothing` in `assets/resource/pipeline/AutoStockpile/Helper.json` (full list fits one screen).
+- ADB / PlayCover: real `Swipe` override in `assets/resource_adb/pipeline/AutoStockpile/Helper.json` (with horizontal end segment and `end_hold`). Coordinates are 720p; tune ADB `begin` / `end` and `post_wait_freezes.target` if devices miss or over-scroll.
