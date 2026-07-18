@@ -3,6 +3,7 @@ package visitfriends
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"regexp"
 	"strings"
 
@@ -81,7 +82,7 @@ func (r *VisitFriendsSelectFriendRecognition) Run(ctx *maa.Context, arg *maa.Cus
 	}
 
 	// 与 DailyEventGoTo 一样覆盖 OCR expected，减少已访问命中；
-	// And 子结果按按钮/名 zip，负向预测若导致两侧数量不一致会 miss，届时 Go 侧仍按 normalize(visited) 再过滤。
+	// 覆盖 OCR expected 排除已访问；按钮与名字按纵向最近邻配对，不要求数量一致。
 	expected := buildSelectFriendExpected(visited)
 	if err := ctx.OverridePipeline(map[string]any{
 		selectFriendNameOCRNode: map[string]any{
@@ -106,38 +107,13 @@ func (r *VisitFriendsSelectFriendRecognition) Run(ctx *maa.Context, arg *maa.Cus
 	if !ok {
 		return nil, false
 	}
-	if len(buttonHits) != len(nameHits) {
-		log.Warn().
+	if len(buttonHits) == 0 || len(nameHits) == 0 {
+		log.Info().
 			Str("component", selectFriendRecognitionName).
 			Int("buttons", len(buttonHits)).
 			Int("names", len(nameHits)).
-			Msg("button/name count mismatch after expected override, retry with base expected")
-		if err := ctx.OverridePipeline(map[string]any{
-			selectFriendNameOCRNode: map[string]any{
-				"expected": []string{".*#.*"},
-			},
-		}); err != nil {
-			log.Error().Err(err).Str("component", selectFriendRecognitionName).Msg("reset name OCR expected failed")
-			return nil, false
-		}
-		detail, err = ctx.RunRecognition(selectFriendCandidateNode, arg.Img)
-		if err != nil {
-			log.Error().Err(err).Str("component", selectFriendRecognitionName).Msg("retry RunRecognition failed")
-			return nil, false
-		}
-		if detail == nil || !detail.Hit || detail.CombinedResult == nil || len(detail.CombinedResult) < 3 {
-			log.Info().Str("component", selectFriendRecognitionName).Strs("visited", visited).Msg("no friend candidate on retry")
-			return nil, false
-		}
-		buttonHits, nameHits, ok = parseSelectFriendCombinedHits(detail)
-		if !ok || len(buttonHits) != len(nameHits) {
-			log.Warn().
-				Str("component", selectFriendRecognitionName).
-				Int("buttons", len(buttonHits)).
-				Int("names", len(nameHits)).
-				Msg("button/name count still mismatch")
-			return nil, false
-		}
+			Msg("empty button or name hits")
+		return nil, false
 	}
 
 	var selected *selectFriendDetail
@@ -156,14 +132,16 @@ func (r *VisitFriendsSelectFriendRecognition) Run(ctx *maa.Context, arg *maa.Cus
 			log.Debug().Str("component", selectFriendRecognitionName).Str("name", name).Msg("already visited, skip")
 			continue
 		}
-		if len(buttonHits[i].Box) < 4 {
-			log.Warn().Str("component", selectFriendRecognitionName).Int("index", i).Msg("invalid button box")
+
+		buttonBox, paired := nearestButtonBoxByVertical(buttonHits, nameHits[i].Box)
+		if !paired {
+			log.Warn().Str("component", selectFriendRecognitionName).Str("name", name).Msg("no enter button near name")
 			continue
 		}
 
 		selected = &selectFriendDetail{
 			NameText:  name,
-			ButtonBox: append([]int(nil), buttonHits[i].Box...),
+			ButtonBox: buttonBox,
 		}
 		break
 	}
@@ -216,6 +194,43 @@ func parseSelectFriendCombinedHits(detail *maa.RecognitionDetail) (buttons, name
 
 func friendNameHasRemark(name string) bool {
 	return strings.Contains(name, "(") || strings.Contains(name, "（")
+}
+
+func hitBoxCenterY(box []int) float64 {
+	if len(box) < 4 {
+		return math.NaN()
+	}
+	return float64(box[1]) + float64(box[3])/2
+}
+
+// nearestButtonBoxByVertical 按纵向中心距离，为名字框找最近的进船按钮。
+func nearestButtonBoxByVertical(buttons []selectFriendOCRHit, nameBox []int) ([]int, bool) {
+	nameY := hitBoxCenterY(nameBox)
+	if math.IsNaN(nameY) || len(buttons) == 0 {
+		return nil, false
+	}
+
+	bestIdx := -1
+	bestDist := math.MaxFloat64
+	for i := range buttons {
+		if len(buttons[i].Box) < 4 {
+			continue
+		}
+		dist := math.Abs(hitBoxCenterY(buttons[i].Box) - nameY)
+		if dist < bestDist {
+			bestDist = dist
+			bestIdx = i
+		}
+	}
+	if bestIdx < 0 {
+		return nil, false
+	}
+	// 同行一般在几十像素内；过大说明名字与按钮不在同一行，放弃配对。
+	const maxRowDist = 80.0
+	if bestDist > maxRowDist {
+		return nil, false
+	}
+	return append([]int(nil), buttons[bestIdx].Box...), true
 }
 
 func loadSelectFriendVisited(ctx *maa.Context, nodeName string) ([]string, error) {
