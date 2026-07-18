@@ -2,8 +2,6 @@
     "VisitFriendsMain": {
         "desc": "函数入口",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMainAction",
         "post_delay": 0,
         "next": [
             "[JumpBack]VisitFriendsEnter",
@@ -181,12 +179,5 @@
         "focus": {
             "Node.Action.Succeeded": "线索交换次数已满，已关闭线索交换检查"
         }
-    },
-    "VisitFriendsExecuteVisit": {
-        "desc": "执行拜访",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsExecuteVisitAction",
-        "post_delay": 0
     }
 }

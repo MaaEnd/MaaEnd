@@ -11,19 +11,6 @@
         "template": "VisitFriends/EnterButton.png",
         "threshold": 0.9
     },
-    "VisitFriendsRecognitionItemName": {
-        "desc": "识别好友名称",
-        "recognition": "OCR",
-        "roi": [
-            130,
-            110,
-            300,
-            66
-        ],
-        "expected": [
-            ".*#.*"
-        ]
-    },
     "VisitFriendsRecognitionItemNameByEnterButton": {
         "desc": "按进船按钮偏移识别好友名（可由 SelectFriend 覆盖 expected 排除已访问）",
         "recognition": {
@@ -50,7 +37,7 @@
             "VisitFriendsRecognitionItemEnterButton",
             "VisitFriendsRecognitionItemNameByEnterButton"
         ],
-        "box_index": 1
+        "box_index": 0
     },
     "VisitFriendsRecognitionItemClueExchange": {
         "desc": "识别线索交换",
@@ -60,24 +47,6 @@
             111,
             85,
             95
-        ],
-        "template": "VisitFriends/ClueExchangeAvailable.png",
-        "threshold": 0.9
-    },
-    "VisitFriendsRecognitionItemClueExchangeByEnterButton": {
-        "desc": "根据进入按钮偏移识别线索交换",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1159,
-            111,
-            85,
-            95
-        ],
-        "roi_offset": [
-            -20,
-            -30,
-            60,
-            60
         ],
         "template": "VisitFriends/ClueExchangeAvailable.png",
         "threshold": 0.9

@@ -17,6 +17,28 @@ const (
 	selectFriendAttachVisited   = "visited"
 )
 
+// normalizeFriendName 清洗 OCR 识别到的好友名，去除尾部噪声：
+// 若包含右括号（) 或 ）），保留到右括号为止；
+// 否则若包含 #，保留到 # 后的 4 个字符为止。
+func normalizeFriendName(name string) string {
+	runes := []rune(name)
+	for i, r := range runes {
+		if r == ')' || r == '）' {
+			return string(runes[:i+1])
+		}
+	}
+	for i, r := range runes {
+		if r == '#' {
+			end := i + 1 + 4
+			if end > len(runes) {
+				end = len(runes)
+			}
+			return string(runes[:end])
+		}
+	}
+	return name
+}
+
 // VisitFriendsSelectFriendRecognition 参考 DailyEventGoToRecognition：
 // 读取 attach.visited，排除已点好友后识别列表项，返回进船按钮框供 Pipeline Click。
 type VisitFriendsSelectFriendRecognition struct{}

@@ -194,8 +194,7 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMenuClueExchangeAction",
+        "action": "Click",
         "post_delay": 0,
         "next": [
             "VisitFriendsMenuClueExchangeSuccess"
@@ -275,8 +274,6 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMenuClueExchangeFullAction",
         "post_delay": 0
     },
     "VisitFriendsMenuAssistFull": {
@@ -314,8 +311,6 @@
             }
         ],
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMenuClueAssistFullAction",
         "post_delay": 0
     },
     "VisitFriendsMenuAssistControlNexus": {
@@ -349,8 +344,7 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMenuClueAssistAction",
+        "action": "Click",
         "post_delay": 0,
         "next": [
             "VisitFriendsMenuAssistControlNexusSuccess"
@@ -425,8 +419,7 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMenuClueAssistAction",
+        "action": "Click",
         "post_delay": 0,
         "next": [
             "VisitFriendsMenuAssistMFGCabin1Success"
@@ -500,8 +493,7 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMenuClueAssistAction",
+        "action": "Click",
         "post_delay": 0,
         "next": [
             "VisitFriendsMenuAssistMFGCabin2Success"
@@ -603,8 +595,7 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMenuClueAssistAction",
+        "action": "Click",
         "post_delay": 0,
         "next": [
             "SceneNoticeRewardsConfirm"
@@ -667,18 +658,5 @@
         "all_of": [
             "InFriendsList"
         ]
-    },
-    "VisitFriendsMenuClickAction": {
-        "desc": "点击助力",
-        "pre_delay": 0,
-        "action": "Click",
-        // 调试用
-        // "target_offset": [
-        //     0,
-        //     -60,
-        //     0,
-        //     0
-        // ],
-        "post_delay": 0
     }
 }
