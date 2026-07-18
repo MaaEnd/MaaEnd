@@ -14,7 +14,7 @@
         ]
     },
     "VisitFriendsAssistFullInit": {
-        "desc": "三舱助力均未勾选时，将 AssistFull 识别改为 DirectHit（默认开；任一舱室选项勾选后关闭本节点）",
+        "desc": "三舱助力均未勾选时：关闭三舱检查/领取，并将 AssistCountZero 改为 DirectHit（结束条件不再等待助力归零）",
         "enabled": true,
         "max_hit": 1,
         "recognition": "DirectHit",
@@ -23,14 +23,44 @@
         "custom_action": "PipelineOverrideAction",
         "custom_action_param": {
             "patch": {
-                "VisitFriendsAssistFull": {
+                "VisitFriendsCheckAssistControlNexus": {
+                    "recognition": "OCR",
+                    "expected": [
+                        "a^"
+                    ]
+                },
+                "VisitFriendsCheckAssistMFGCabin": {
+                    "recognition": "OCR",
+                    "expected": [
+                        "a^"
+                    ]
+                },
+                "VisitFriendsCheckAssistGrowthChamber": {
+                    "recognition": "OCR",
+                    "expected": [
+                        "a^"
+                    ]
+                },
+                "VisitFriendsMenuAssistControlNexusEntry": {
+                    "enabled": false
+                },
+                "VisitFriendsMenuAssistMFGCabin1Entry": {
+                    "enabled": false
+                },
+                "VisitFriendsMenuAssistMFGCabin2Entry": {
+                    "enabled": false
+                },
+                "VisitFriendsMenuAssistGrowthChamberSwipeEntry": {
+                    "enabled": false
+                },
+                "VisitFriendsAssistCountZero": {
                     "recognition": "DirectHit"
                 }
             }
         },
         "post_delay": 0,
         "focus": {
-            "Node.Action.Succeeded": "未开启设施助力，AssistFull 改为直接命中"
+            "Node.Action.Succeeded": "未开启设施助力，已关闭三舱；结束条件仅看线索次数"
         }
     },
     "VisitFriendsMenuScanTargetFriendOpen": {
