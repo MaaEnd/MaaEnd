@@ -320,7 +320,13 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						if math.Abs(float64(actualDeltaRot)) > param.RotationLowerThreshold && math.Abs(rotAdjState.deltaRot) > param.RotationLowerThreshold {
 							idealRotSpeed := rotationSpeed * rotAdjState.deltaRot / (float64(actualDeltaRot) + 1e-6)
 							if idealRotSpeed >= ROTATION_MIN_SPEED && idealRotSpeed <= ROTATION_MAX_SPEED {
-								rotationSpeed = rotationSpeed*0.865 + idealRotSpeed*0.135 // 1/e^2
+								learningRate := 0.382
+								if math.Abs(float64(actualDeltaRot)) < 30.0 {
+									learningRate = 0.135
+								} else if math.Abs(float64(actualDeltaRot)) < 90.0 {
+									learningRate = 0.135 + (math.Abs(float64(actualDeltaRot))-30.0)/60.0*(0.382-0.135)
+								}
+								rotationSpeed = rotationSpeed*(1-learningRate) + idealRotSpeed*learningRate
 								rotAdjStateCache = rotAdjState
 								log.Debug().
 									Float64("idealRotSpeed", idealRotSpeed).
@@ -371,7 +377,8 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					finalDeltaRot := float64(rawDeltaRot)
 					finalRotSpeed := rotationSpeed
 					if math.Abs(finalDeltaRot) < 30.0 {
-						finalDeltaRot = finalDeltaRot / math.Sqrt(rotationSpeed)
+						// finalDeltaRot = finalDeltaRot / math.Sqrt(rotationSpeed)
+						finalRotSpeed = math.Sqrt(rotationSpeed)
 					} else if math.Abs(finalDeltaRot) < 60.0 {
 						finalRotSpeed = math.Sqrt(rotationSpeed) + (math.Abs(finalDeltaRot)-30.0)/30.0*(rotationSpeed-math.Sqrt(rotationSpeed))
 					}
