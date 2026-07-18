@@ -15,19 +15,19 @@
     },
     "__AutoAltClickMouseClickAction": {
         "desc": "鼠标点击",
-        "pre_delay": 300, // delay = 0 有极小概率SeizeInput点不上，特别是性能较差的电脑
+        "pre_delay": 800, // delay = 0 有极小概率SeizeInput点不上，特别是性能较差的电脑
         "action": "Click",
         "post_delay": 100
     },
     "__AutoAltLongPressMouseLongPressAction": {
         "desc": "鼠标长按",
-        "pre_delay": 300, // delay = 0 有极小概率SeizeInput点不上，特别是性能较差的电脑
+        "pre_delay": 800, // delay = 0 有极小概率SeizeInput点不上，特别是性能较差的电脑
         "action": "LongPress",
         "post_delay": 100
     },
     "__AutoAltSwipeMouseSwipeAction": {
         "desc": "鼠标滑动",
-        "pre_delay": 300, // delay = 0 有极小概率SeizeInput点不上，特别是性能较差的电脑
+        "pre_delay": 800, // delay = 0 有极小概率SeizeInput点不上，特别是性能较差的电脑
         "action": "Swipe",
         "post_delay": 100
     }
