@@ -167,6 +167,23 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 
+	if isPage1OnlyID(*data, selection.ProductID) {
+		log.Info().
+			Str("component", "autostockpile").
+			Str("product_id", selection.ProductID).
+			Str("product_name", selection.ProductName).
+			Msg("selected goods only on second page, swipe shelf down before click")
+		if swipeErr := swipeShelfDown(ctx); swipeErr != nil {
+			log.Error().
+				Err(swipeErr).
+				Str("component", "autostockpile").
+				Str("product_id", selection.ProductID).
+				Str("step", "shelf_swipe_down_before_click").
+				Msg("failed to reveal page1-only goods before click")
+			return false
+		}
+	}
+
 	override, err := buildSelectionPipelineOverride(ctx, selection, quantityDecision)
 	if err != nil {
 		log.Error().

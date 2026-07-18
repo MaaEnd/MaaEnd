@@ -177,3 +177,22 @@ Language files to update: `zh_cn.json`, `en_us.json`, `ja_jp.json`, `ko_kr.json`
 File: `docs/zh_cn/protocol/autostockpile-daily-storage/daily_storage.schema.json` (and the corresponding `en_us` version)
 
 Add the new region identifier (e.g., `"NewRegion"`) to the `enum` list of the `region` field to ensure third-party tools can validate data for the new region via the Schema.
+
+## Dual-page Shelf Scan
+
+Recognition scans the elastic goods shelf for **at most two pages** so items below the fold are not missed:
+
+1. OCR + template match on the first-page screenshot.
+2. Run `AutoStockpileSwipeShelfDown` once (`post_wait_freezes` waits for list settle).
+3. Screencap and scan the second page.
+4. Merge by goods **ID** (keep first-page entry on duplicates; IDs only on page 2 go into `Page1OnlyIDs`).
+5. Run `AutoStockpileSwipeShelfUp` to restore the first page.
+
+If swipe/second-page scan fails, fall back to first-page results without aborting.
+
+After selection:
+
+- If the chosen ID is in `Page1OnlyIDs`, swipe down once more before `AutoStockpileSelectedGoodsClick`.
+- If the item was already on page 1, click without an extra swipe.
+
+Swipe nodes live in `assets/resource/pipeline/AutoStockpile/Helper.json` (720p). Tune `begin` / `end` and `post_wait_freezes.target` if real devices miss or over-scroll.

@@ -24,7 +24,17 @@ var (
 func copyRecognitionData(src RecognitionData) RecognitionData {
 	dst := src
 	dst.Goods = append([]GoodsItem(nil), src.Goods...)
+	dst.Page1OnlyIDs = append([]string(nil), src.Page1OnlyIDs...)
 	return dst
+}
+
+func isPage1OnlyID(data RecognitionData, productID string) bool {
+	for _, id := range data.Page1OnlyIDs {
+		if id == productID {
+			return true
+		}
+	}
+	return false
 }
 
 // getDecisionState returns nil if no state has been set; otherwise returns a deep copy.
