@@ -2,7 +2,7 @@
     "CreditShoppingMain": {
         "desc": "信用点购物主入口",
         "next": [
-            "CreditShoppingShopping",
+            "CreditShoppingInShop",
             "CreditShoppingCheckShopPage",
             "[JumpBack]SceneEnterMenuShop"
         ]

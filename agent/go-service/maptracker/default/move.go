@@ -53,6 +53,10 @@ type MapTrackerMoveParam struct {
 	RotationLowerThreshold float64 `json:"rotation_lower_threshold,omitempty"`
 	// RotationUpperThreshold is the angular difference in degrees above which a more aggressive correction is applied.
 	RotationUpperThreshold float64 `json:"rotation_upper_threshold,omitempty"`
+	// RotationSlowerThreshold is the angular difference below which rotation uses the slower speed.
+	RotationSlowerThreshold float64 `json:"rotation_slower_threshold,omitempty"`
+	// RotationFasterThreshold is the angular difference above which rotation uses the adaptive full speed.
+	RotationFasterThreshold float64 `json:"rotation_faster_threshold,omitempty"`
 	// SprintThreshold is the minimum distance beyond which sprinting is used.
 	SprintThreshold float64 `json:"sprint_threshold,omitempty"`
 	// StuckThreshold is the duration in milliseconds after which lack of movement is considered a stuck condition.
@@ -73,16 +77,18 @@ const (
 )
 
 var mapTrackerMoveDefaultParam = MapTrackerMoveParam{
-	FineApproach:           FINE_APPROACH_FINAL_TARGET,
-	MapNameMatchRule:       "^%s(_tier_\\w+)?$",
-	ArrivalThreshold:       2.5,
-	ArrivalTimeout:         60000,
-	RotationLowerThreshold: 7.5,
-	RotationUpperThreshold: 60.0,
-	SprintThreshold:        10.0,
-	StuckThreshold:         2000,
-	StuckTimeout:           10000,
-	StuckMitigators:        []string{"MoveOrDeleteDevice", "Jump"},
+	FineApproach:            FINE_APPROACH_FINAL_TARGET,
+	MapNameMatchRule:        "^%s(_tier_\\w+)?$",
+	ArrivalThreshold:        2.5,
+	ArrivalTimeout:          60000,
+	RotationLowerThreshold:  7.5,
+	RotationUpperThreshold:  60.0,
+	RotationSlowerThreshold: 30.0,
+	RotationFasterThreshold: 60.0,
+	SprintThreshold:         10.0,
+	StuckThreshold:          2000,
+	StuckTimeout:            10000,
+	StuckMitigators:         []string{"MoveOrDeleteDevice", "Jump"},
 }
 
 var mapTrackerInferParamForMove = MapTrackerInferParam{
@@ -117,6 +123,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	ctrl := ctx.GetTasker().GetController()
+	ctrlType, _ := control.GetControlType(ctrl)
 	ca, err := control.NewControlAdaptor(ctx, ctrl, WORK_W, WORK_H)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create control adaptor")
@@ -156,6 +163,9 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	// Adaptive rotation sensitivity local state
 	rotationSpeed := ROTATION_DEFAULT_SPEED
+	if ctrlType == control.CONTROL_TYPE_WLROOTS {
+		rotationSpeed = ROTATION_DEFAULT_SPEED_WLROOTS
+	}
 	var rotAdjState, rotAdjStateCache *PlayerRotationAdjustmentState
 
 	// For each target point
@@ -316,7 +326,13 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						if math.Abs(float64(actualDeltaRot)) > param.RotationLowerThreshold && math.Abs(rotAdjState.deltaRot) > param.RotationLowerThreshold {
 							idealRotSpeed := rotationSpeed * rotAdjState.deltaRot / (float64(actualDeltaRot) + 1e-6)
 							if idealRotSpeed >= ROTATION_MIN_SPEED && idealRotSpeed <= ROTATION_MAX_SPEED {
-								rotationSpeed = rotationSpeed*0.865 + idealRotSpeed*0.135 // 1/e^2
+								learningRate := 0.382
+								if math.Abs(float64(actualDeltaRot)) < param.RotationSlowerThreshold {
+									learningRate = 0.135
+								} else if math.Abs(float64(actualDeltaRot)) < param.RotationFasterThreshold {
+									learningRate = 0.135 + (math.Abs(float64(actualDeltaRot))-param.RotationSlowerThreshold)/(param.RotationFasterThreshold-param.RotationSlowerThreshold)*(0.382-0.135)
+								}
+								rotationSpeed = rotationSpeed*(1-learningRate) + idealRotSpeed*learningRate
 								rotAdjStateCache = rotAdjState
 								log.Debug().
 									Float64("idealRotSpeed", idealRotSpeed).
@@ -363,8 +379,15 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 				// Start a new rotation adjustment
 				if absRawDeltaRot > 1.0 && (!fineApproachOngoing || absRawDeltaRot > param.RotationLowerThreshold) {
+					// https://github.com/MaaEnd/MaaEnd/pull/4250
 					finalDeltaRot := float64(rawDeltaRot)
-					ca.RotateCamera(int(finalDeltaRot*rotationSpeed), 0)
+					finalRotSpeed := rotationSpeed
+					if math.Abs(finalDeltaRot) < param.RotationSlowerThreshold {
+						finalRotSpeed = math.Sqrt(rotationSpeed)
+					} else if math.Abs(finalDeltaRot) < param.RotationFasterThreshold {
+						finalRotSpeed = math.Sqrt(rotationSpeed) + (math.Abs(finalDeltaRot)-param.RotationSlowerThreshold)/(param.RotationFasterThreshold-param.RotationSlowerThreshold)*(rotationSpeed-math.Sqrt(rotationSpeed))
+					}
+					ca.RotateCamera(int(finalDeltaRot*finalRotSpeed), 0)
 
 					// Update adaptive rotation state
 					rotAdjState = &PlayerRotationAdjustmentState{
@@ -467,6 +490,21 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 		return nil, fmt.Errorf("rotation_upper_threshold must be between 0 and 180 degrees")
 	} else if param.RotationUpperThreshold == 0 {
 		param.RotationUpperThreshold = mapTrackerMoveDefaultParam.RotationUpperThreshold
+	}
+
+	if param.RotationSlowerThreshold < 0 || param.RotationSlowerThreshold > 180 {
+		return nil, fmt.Errorf("rotation_slower_threshold must be between 0 and 180 degrees")
+	} else if param.RotationSlowerThreshold == 0 {
+		param.RotationSlowerThreshold = mapTrackerMoveDefaultParam.RotationSlowerThreshold
+	}
+
+	if param.RotationFasterThreshold < 0 || param.RotationFasterThreshold > 180 {
+		return nil, fmt.Errorf("rotation_faster_threshold must be between 0 and 180 degrees")
+	} else if param.RotationFasterThreshold == 0 {
+		param.RotationFasterThreshold = mapTrackerMoveDefaultParam.RotationFasterThreshold
+	}
+	if param.RotationFasterThreshold <= param.RotationSlowerThreshold {
+		return nil, fmt.Errorf("rotation_faster_threshold must be greater than rotation_slower_threshold")
 	}
 
 	if param.SprintThreshold < 0 {

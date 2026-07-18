@@ -57,18 +57,16 @@
                     88,
                     22
                 ],
+                "method": 6,
                 "lower": [
-                    50,
-                    50,
-                    50
+                    0
                 ],
                 "upper": [
-                    130,
-                    130,
-                    130
+                    180
                 ],
                 "connected": true,
-                "count": 1500
+                "count": 1500,
+                "order_by": "Area"
             }
         }
     },

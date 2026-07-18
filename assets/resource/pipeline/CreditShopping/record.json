@@ -11,19 +11,16 @@
                     130,
                     28
                 ],
+                "method": 6,
                 "lower": [
-                    50,
-                    50,
-                    50
+                    0
                 ],
                 "upper": [
-                    130,
-                    130,
-                    130
+                    180
                 ],
                 "connected": true,
                 "count": 1500,
-                "order_by": "Vertical"
+                "order_by": "Area"
             }
         }
     },
@@ -33,15 +30,11 @@
             "type": "ColorMatch",
             "param": {
                 "roi": "ItemNameOCRLabelColor",
-                "method": 40,
+                "method": 6,
                 "lower": [
-                    0,
-                    0,
-                    0
+                    200
                 ],
                 "upper": [
-                    0,
-                    1,
                     255
                 ],
                 "count": 10,

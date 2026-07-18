@@ -27,6 +27,8 @@ type mapNavigateCompatibleParam struct {
 	ArrivalTimeout               int64             `json:"arrival_timeout,omitempty"`
 	RotationLowerThreshold       float64           `json:"rotation_lower_threshold,omitempty"`
 	RotationUpperThreshold       float64           `json:"rotation_upper_threshold,omitempty"`
+	RotationSlowerThreshold      float64           `json:"rotation_slower_threshold,omitempty"`
+	RotationFasterThreshold      float64           `json:"rotation_faster_threshold,omitempty"`
 	SprintThreshold              float64           `json:"sprint_threshold,omitempty"`
 	StuckThreshold               int64             `json:"stuck_threshold,omitempty"`
 	StuckTimeout                 int64             `json:"stuck_timeout,omitempty"`
@@ -164,6 +166,8 @@ func (a *MapTrackerMoveCompatible) convertParam(param *mapNavigateCompatiblePara
 		ArrivalTimeout:               param.ArrivalTimeout,
 		RotationLowerThreshold:       param.RotationLowerThreshold,
 		RotationUpperThreshold:       param.RotationUpperThreshold,
+		RotationSlowerThreshold:      param.RotationSlowerThreshold,
+		RotationFasterThreshold:      param.RotationFasterThreshold,
 		SprintThreshold:              param.SprintThreshold,
 		StuckThreshold:               param.StuckThreshold,
 		StuckTimeout:                 param.StuckTimeout,

@@ -199,7 +199,7 @@ func firstContainedKeyword(s string, subs []string) string {
 
 var (
 	moderatePriceKeywords = []string{"锚点", "悬空", "巫术", "天使", "岳研", "冬虫", "武陵", "武侠"}
-	largePriceKeywords    = []string{"谷地水", "团结", "塞什", "星体", "天师", "息壤净", "息壤色", "清波", "飞天"}
+	largePriceKeywords    = []string{"谷地水", "团结", "塞什", "星体", "天师", "息壤净", "息壤色", "息壤桥", "清波", "飞天", "选剑"}
 	massivePriceKeywords  = []string{"源石", "警戒", "硬脑", "边角"}
 )
 

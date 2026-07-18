@@ -27,18 +27,18 @@
         }
     },
     "CreditShoppingPriority1ReserveCreditGate": {
-        "desc": "优先购买的保留信用点准入判断",
+        "desc": "优先购买1的保留信用点准入判断",
         "recognition": "DirectHit"
     },
     "CreditShoppingPriority2ReserveCreditGate": {
-        "desc": "普通购买1的保留信用点准入判断",
+        "desc": "优先购买2的保留信用点准入判断",
         "recognition": "And",
         "all_of": [
             "CreditShoppingReserveCreditSatisfied"
         ]
     },
     "CreditShoppingPriority3ReserveCreditGate": {
-        "desc": "普通购买2的保留信用点准入判断",
+        "desc": "优先购买3的保留信用点准入判断",
         "recognition": "And",
         "all_of": [
             "CreditShoppingReserveCreditSatisfied"
