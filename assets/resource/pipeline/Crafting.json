@@ -108,7 +108,7 @@
                     100,
                     117
                 ], //扩大识图区域，避免界面微调导致识别失败
-                "template": "DailyRewards/CloseReward.png",
+                "template": "Common/Button/CloseRewardButton.png",
                 "threshold": 0.9
             }
         },
