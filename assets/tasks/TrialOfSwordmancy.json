@@ -139,6 +139,7 @@
         "TrialOfSwordmancyAutoFight": {
             "type": "switch",
             "label": "$option.TrialOfSwordmancyAutoFight.label",
+            "description": "$option.TrialOfSwordmancyAutoFight.description",
             "default_case": "Yes",
             "cases": [
                 {
