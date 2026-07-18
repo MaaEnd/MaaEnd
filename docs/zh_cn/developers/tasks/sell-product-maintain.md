@@ -10,18 +10,19 @@
 
 ## 主流程
 
-任务从 `SellProductMain` 开始。初始化阶段先进入地区建设界面、捕获哈希 UID，再注册本次任务启用的保留规则和据点：
+任务从 `SellProductSchedule` 开始，命中用户配置的执行周期后进入 `SellProductMain`。初始化阶段先进入地区建设界面、捕获哈希 UID，再注册本次任务启用的保留规则和据点：
 
 ```text
-SellProductMain                                      （Task 入口）
-  └─ SellProductEnterRegionalDevelopment            （SceneManager：进入地区建设）
-       └─ SellProductCaptureUid                      （捕获哈希 UID，隔离账号缓存）
-            └─ SellProductInitializeReserveSession  （清空上次任务的保留/选品状态）
-                 ├─ SellProductRegisterReserveRule{1..4} （注册启用的保留规则）
-                 └─ SellProductInitializeOperatorSession （初始化干员规划与恢复锁）
-                      ├─ SellProductRegisterAuto{LocationId} × N （注册启用据点）
-                      └─ SellProductOperatorSessionReady
-                           └─ SellProductLoop              （进入地区遍历）
+SellProductSchedule                                  （Task 入口，按星期门控）
+  └─ SellProductMain                                 （售卖流程入口）
+       └─ SellProductEnterRegionalDevelopment        （SceneManager：进入地区建设）
+            └─ SellProductCaptureUid                 （捕获哈希 UID，隔离账号缓存）
+                 └─ SellProductInitializeReserveSession （清空上次任务的保留/选品状态）
+                      ├─ SellProductRegisterReserveRule{1..4} （注册启用的保留规则）
+                      └─ SellProductInitializeOperatorSession （初始化干员规划与恢复锁）
+                           ├─ SellProductRegisterAuto{LocationId} × N （注册启用据点）
+                           └─ SellProductOperatorSessionReady
+                                └─ SellProductLoop         （进入地区遍历）
 ```
 
 `SellProductLoop` 根据配置执行四号谷地、武陵或自动选择地区。地区入口通过 SceneManager 进入据点管理页，准备干员缓存，再用 `[JumpBack]` 依次执行该地区的据点：
@@ -115,9 +116,11 @@ SellProduct{LocationId}                              （识别/进入目标据�
 
 干员缓存保存在 `debug/record/SellProductOwnedOperators.json`，按哈希 UID 隔离：
 
-- 缓存不完整时，Go 先按“相关候选都可能拥有”计算理论最优方案，只搜索计划中的第一候选。
-- 列表扫描到底后，Go 用完整拥有集合重新规划；若目标变化，Pipeline 关闭并重新打开列表，执行一次新方案。
-- “本次运行前强制刷新”会忽略缓存完整状态，在本次任务首次进入地区时完整扫描列表；同一任务的后续地区复用结果。
+- 缓存只保存完整列表扫描结果；账号分区存在即视为可消费的完整快照，即使拥有列表为空。
+- 当前账号没有快照时，Pipeline 会先完整扫描干员列表并写入缓存，再开始规划与售卖。
+- 已有快照时直接复用；“本次运行前强制刷新”会忽略现有快照，在本次任务首次进入地区时完整扫描一次，同一任务的后续地区复用结果。
+- 规划与选人只基于完整快照中的真实拥有集合，不会用不完整观察做理论最优猜测。
+- 列表扫描到底后，若刷新或重新规划导致目标变化，Pipeline 可关闭并重新打开列表执行一次新方案。
 - Pipeline 必须识别列表、点击候选、识别“派驻”按钮并确认返回据点后，才认为切换成功。
 - 若“派驻”后弹出候选已在其他据点派驻的确认框，Pipeline 会取消抢占；Go 将该候选加入本次任务的全局临时排除集合，清理未确认分配并重新规划。排除集合会在下次任务初始化时重置。
 

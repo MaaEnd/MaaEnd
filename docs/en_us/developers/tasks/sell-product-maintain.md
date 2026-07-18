@@ -10,18 +10,19 @@ The task follows “Pipeline owns flow, Go owns algorithms.” Pipeline enters s
 
 ## Main Flow
 
-The task starts at `SellProductMain`. Initialization enters Regional Development, captures the hashed UID, and registers reserve rules and enabled outposts for this run:
+The task starts at `SellProductSchedule` and enters `SellProductMain` when the configured weekday is enabled. Initialization then enters Regional Development, captures the hashed UID, and registers reserve rules and enabled outposts for this run:
 
 ```text
-SellProductMain                                      (Task entry)
-  └─ SellProductEnterRegionalDevelopment            (SceneManager: enter Regional Development)
-       └─ SellProductCaptureUid                      (capture hashed UID for account-scoped cache)
-            └─ SellProductInitializeReserveSession  (clear previous reserve/selection state)
-                 ├─ SellProductRegisterReserveRule{1..4} (register enabled rules)
-                 └─ SellProductInitializeOperatorSession (initialize plans and locks)
-                      ├─ SellProductRegisterAuto{LocationId} × N (register enabled outposts)
-                      └─ SellProductOperatorSessionReady
-                           └─ SellProductLoop              (begin region traversal)
+SellProductSchedule                                  (Task entry, weekday gate)
+  └─ SellProductMain                                 (selling flow entry)
+       └─ SellProductEnterRegionalDevelopment        (SceneManager: enter Regional Development)
+            └─ SellProductCaptureUid                 (capture hashed UID for account-scoped cache)
+                 └─ SellProductInitializeReserveSession (clear previous reserve/selection state)
+                      ├─ SellProductRegisterReserveRule{1..4} (register enabled rules)
+                      └─ SellProductInitializeOperatorSession (initialize plans and locks)
+                           ├─ SellProductRegisterAuto{LocationId} × N (register enabled outposts)
+                           └─ SellProductOperatorSessionReady
+                                └─ SellProductLoop         (begin region traversal)
 ```
 
 `SellProductLoop` executes Valley IV, Wuling, or automatic region selection according to task configuration. A region entry uses SceneManager to open outpost management, prepares the operator cache, then executes each outpost through `[JumpBack]`:
@@ -115,9 +116,11 @@ Selling-operator priority is fixed:
 
 The owned-operator cache is stored in `debug/record/SellProductOwnedOperators.json` and partitioned by hashed UID:
 
-- With an incomplete cache, Go computes a theoretical optimum assuming relevant candidates may be owned, then searches only for the first planned candidate.
-- Reaching the bottom produces a complete owned set and a new plan. If the target changes, Pipeline closes and reopens the list once to execute that new plan.
-- “Force refresh before this run” ignores cache completeness and performs a full scan when the task first enters a region. Later regions in the same task reuse the result.
+- The cache stores only complete list-scan snapshots. An account partition is treated as a consumable complete snapshot even when the owned list is empty.
+- If the current account has no snapshot, Pipeline performs a full operator-list scan and writes the cache before planning or selling.
+- Existing snapshots are reused directly. “Force refresh before this run” ignores the existing snapshot and performs one full scan when the task first enters a region; later regions in the same task reuse the result.
+- Planning and selection use only the real owned set from a complete snapshot. Incomplete observations are never treated as a theoretical optimum.
+- After a full scan, if a refresh or replan changes the target, Pipeline may close and reopen the list once to execute the new plan.
 - Pipeline must recognize the list, click the candidate, recognize Assign, and confirm the return to the outpost before committing the switch.
 - If assigning opens a confirmation that the candidate is already assigned to another outpost, Pipeline cancels the takeover. Go adds that candidate to a task-scoped global exclusion set, clears the unconfirmed assignment, and replans. The exclusion set resets when the next task initializes.
 

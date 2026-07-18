@@ -19,6 +19,28 @@ function readPipeline(url) {
     return JSON.parse(readFileSync(url, "utf8").replace(/^\s*\/\/.*$/gm, ""));
 }
 
+test("SellProduct 保留按星期执行入口与任务选项", () => {
+    const task = readPipeline(new URL("../../../assets/tasks/SellProduct.json", import.meta.url));
+    const pipeline = readPipeline(new URL("../../../assets/resource/pipeline/SellProduct.json", import.meta.url));
+    const taskTemplate = readFileSync(new URL("./task-template.jsonc", import.meta.url), "utf8");
+
+    assert.equal(task.task[0].entry, "SellProductSchedule");
+    assert.ok(task.task[0].option.includes("SellProductSchedule"));
+    assert.equal(task.option.SellProductSchedule.type, "checkbox");
+    assert.equal(task.option.SellProductSchedule.cases.length, 7);
+    assert.match(taskTemplate, /"entry": "SellProductSchedule"/);
+    assert.equal(pipeline.SellProductScheduleEnabled.recognition.param.custom_recognition, "ScheduleRecognition");
+    assert.deepEqual(Object.keys(pipeline.SellProductScheduleEnabled.attach), [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+    ]);
+});
+
 test("SellProduct templates consume separate minimal projections of the shared location model", () => {
     const locationIds = sellProductLocations.map((location) => location.LocationId);
     for (const rows of [

@@ -3,9 +3,10 @@
         {
             "name": "SellProduct",
             "label": "$task.SellProduct.label",
-            "entry": "SellProductMain",
+            "entry": "SellProductSchedule",
             "description": "$task.SellProduct.description",
             "option": [
+                "SellProductSchedule",
                 "SellProductForceRefreshOperatorCache",
                 "SellProductPriorityRules",
                 "SellProductItemReserveRules",
@@ -4087,6 +4088,98 @@
                         },
                         "SellProductRegisterAutoXiranflowCloudseederStation": {
                             "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "SellProductSchedule": {
+            "type": "checkbox",
+            "label": "$option.TaskSchedule.label",
+            "default_case": [
+                "SellProductScheduleMonday",
+                "SellProductScheduleTuesday",
+                "SellProductScheduleWednesday",
+                "SellProductScheduleThursday",
+                "SellProductScheduleFriday",
+                "SellProductScheduleSaturday",
+                "SellProductScheduleSunday"
+            ],
+            "cases": [
+                {
+                    "name": "SellProductScheduleMonday",
+                    "label": "$option.TaskScheduleMonday.label",
+                    "pipeline_override": {
+                        "SellProductScheduleEnabled": {
+                            "attach": {
+                                "monday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleTuesday",
+                    "label": "$option.TaskScheduleTuesday.label",
+                    "pipeline_override": {
+                        "SellProductScheduleEnabled": {
+                            "attach": {
+                                "tuesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleWednesday",
+                    "label": "$option.TaskScheduleWednesday.label",
+                    "pipeline_override": {
+                        "SellProductScheduleEnabled": {
+                            "attach": {
+                                "wednesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleThursday",
+                    "label": "$option.TaskScheduleThursday.label",
+                    "pipeline_override": {
+                        "SellProductScheduleEnabled": {
+                            "attach": {
+                                "thursday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleFriday",
+                    "label": "$option.TaskScheduleFriday.label",
+                    "pipeline_override": {
+                        "SellProductScheduleEnabled": {
+                            "attach": {
+                                "friday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleSaturday",
+                    "label": "$option.TaskScheduleSaturday.label",
+                    "pipeline_override": {
+                        "SellProductScheduleEnabled": {
+                            "attach": {
+                                "saturday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleSunday",
+                    "label": "$option.TaskScheduleSunday.label",
+                    "pipeline_override": {
+                        "SellProductScheduleEnabled": {
+                            "attach": {
+                                "sunday": true
+                            }
                         }
                     }
                 }
