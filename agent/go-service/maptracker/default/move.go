@@ -377,7 +377,6 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					finalDeltaRot := float64(rawDeltaRot)
 					finalRotSpeed := rotationSpeed
 					if math.Abs(finalDeltaRot) < 30.0 {
-						// finalDeltaRot = finalDeltaRot / math.Sqrt(rotationSpeed)
 						finalRotSpeed = math.Sqrt(rotationSpeed)
 					} else if math.Abs(finalDeltaRot) < 60.0 {
 						finalRotSpeed = math.Sqrt(rotationSpeed) + (math.Abs(finalDeltaRot)-30.0)/30.0*(rotationSpeed-math.Sqrt(rotationSpeed))
