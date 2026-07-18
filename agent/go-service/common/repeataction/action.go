@@ -16,22 +16,20 @@ const (
 )
 
 type repeatUntilFoundParam struct {
-	Action       string   `json:"action,omitempty"`
-	CustomAction string   `json:"custom_action,omitempty"`
-	WaitNodes    []string `json:"wait_nodes"`
-	RepeatCount  int      `json:"repeat_count,omitempty"`
-	IntervalMs   int64    `json:"interval_ms,omitempty"`
+	Action      string   `json:"action"`
+	WaitNodes   []string `json:"wait_nodes"`
+	RepeatCount int      `json:"repeat_count,omitempty"`
+	IntervalMs  int64    `json:"interval_ms,omitempty"`
 }
 
 type repeatUntilNotFoundParam struct {
-	Action       string `json:"action,omitempty"`
-	CustomAction string `json:"custom_action,omitempty"`
-	WaitNode     string `json:"wait_node"`
-	RepeatCount  int    `json:"repeat_count,omitempty"`
-	IntervalMs   int64  `json:"interval_ms,omitempty"`
+	Action      string `json:"action"`
+	WaitNode    string `json:"wait_node"`
+	RepeatCount int    `json:"repeat_count,omitempty"`
+	IntervalMs  int64  `json:"interval_ms,omitempty"`
 }
 
-// RepeatUntilFoundAction runs a built-in or custom action until any wait node hits.
+// RepeatUntilFoundAction runs a built-in action until any wait node hits.
 type RepeatUntilFoundAction struct{}
 
 var _ maa.CustomActionRunner = &RepeatUntilFoundAction{}
@@ -42,10 +40,10 @@ func (a *RepeatUntilFoundAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		log.Error().Err(err).Str("component", "RepeatUntilFoundAction").Msg("failed to parse params")
 		return false
 	}
-	return runRepeatUntil(ctx, arg, "RepeatUntilFoundAction", p.Action, p.CustomAction, p.WaitNodes, p.RepeatCount, p.IntervalMs, true)
+	return runRepeatUntil(ctx, arg, "RepeatUntilFoundAction", p.Action, p.WaitNodes, p.RepeatCount, p.IntervalMs, true)
 }
 
-// RepeatUntilNotFoundAction runs a built-in or custom action until the wait node misses.
+// RepeatUntilNotFoundAction runs a built-in action until the wait node misses.
 type RepeatUntilNotFoundAction struct{}
 
 var _ maa.CustomActionRunner = &RepeatUntilNotFoundAction{}
@@ -60,25 +58,22 @@ func (a *RepeatUntilNotFoundAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 	if p.WaitNode != "" {
 		waitNodes = []string{p.WaitNode}
 	}
-	return runRepeatUntil(ctx, arg, "RepeatUntilNotFoundAction", p.Action, p.CustomAction, waitNodes, p.RepeatCount, p.IntervalMs, false)
+	return runRepeatUntil(ctx, arg, "RepeatUntilNotFoundAction", p.Action, waitNodes, p.RepeatCount, p.IntervalMs, false)
 }
 
 func runRepeatUntil(
 	ctx *maa.Context,
 	arg *maa.CustomActionArg,
-	component, action, customAction string,
+	component, action string,
 	waitNodes []string,
 	repeatCount int,
 	intervalMs int64,
 	untilFound bool,
 ) bool {
-	hasAction := action != ""
-	hasCustom := customAction != ""
-	if hasAction == hasCustom || len(waitNodes) == 0 || intervalMs < 0 {
+	if action == "" || len(waitNodes) == 0 || intervalMs < 0 {
 		log.Error().
 			Str("component", component).
 			Str("action", action).
-			Str("custom_action", customAction).
 			Int("wait_nodes", len(waitNodes)).
 			Int64("interval_ms", intervalMs).
 			Msg("invalid params")
@@ -100,14 +95,9 @@ func runRepeatUntil(
 			return false
 		}
 
-		actionType, actionParam := action, map[string]any{}
-		if hasCustom {
-			actionType = "Custom"
-			actionParam = map[string]any{"custom_action": customAction}
-		}
 		if _, err := ctx.RunAction(innerActionEntry, arg.Box, "", map[string]any{
 			innerActionEntry: map[string]any{
-				"action": map[string]any{"type": actionType, "param": actionParam},
+				"action": map[string]any{"type": action, "param": map[string]any{}},
 			},
 		}); err != nil {
 			log.Warn().Err(err).Str("component", component).Int("attempt", i+1).Msg("inner action failed")

@@ -84,14 +84,13 @@ The `FalseAction` implementation is located in `agent/go-service/common/falseact
 
 ### RepeatUntilFoundAction / RepeatUntilNotFoundAction
 
-Both are implemented in `agent/go-service/common/repeataction`. They repeatedly run a built-in or custom action, then check wait node(s) after each run. They succeed when the wait condition is met, and fail after `repeat_count` attempts without success.
+Both are implemented in `agent/go-service/common/repeataction`. They repeatedly run a built-in action, then check wait node(s) after each run. They succeed when the wait condition is met, and fail after `repeat_count` attempts without success.
 
 - `RepeatUntilFoundAction`: succeeds when **any** `wait_nodes` entry hits.
 - `RepeatUntilNotFoundAction`: succeeds when `wait_node` misses.
 
 - Shared parameters:
-    - `action?: string`: Built-in action type (e.g. `Click`); mutually exclusive with `custom_action`.
-    - `custom_action?: string`: Registered custom action name (e.g. `AutoAltClickAction`); mutually exclusive with `action`.
+    - `action: string`: Built-in action type (e.g. `Click`). Required.
     - `repeat_count?: int`: Maximum attempts. Defaults to `3` when omitted or `<= 0`.
     - `interval_ms?: int`: Delay between attempts in milliseconds. Defaults to `200` when omitted or `0`. Negative values are invalid.
 - `RepeatUntilFoundAction` extra:
