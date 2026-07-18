@@ -891,7 +891,23 @@
     {
         "MissionId": "m1m70",
         "Name": "“金秋时”",
-        "Id": "AutumnGold"
+        "Id": "AutumnGold",
+        "EnterMap": "SceneEnterWorldWulingMarkerStone2",
+        "MapName": "map02_lv004",
+        "MapAssert": [
+            402.4,
+            313.4,
+            20.8,
+            17.4
+        ],
+        "MapGoal": [
+            299.5,
+            386.5
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "CameraMaxHit": 1,
+        "NoEnsureInitialMovementState": true,
+        "Heading": 270
     },
     {
         "MissionId": "m1m71",

@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutumnGoldNotAdapted"
+            "GoToAutumnGold"
         ]
     },
     "AlreadyTrackedAutumnGold": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutumnGoldNotAdapted"
+            "GoToAutumnGold"
         ]
     },
     "AutumnGoldNotAdapted": {
@@ -266,12 +266,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv004",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        402.4,
+                        313.4,
+                        20.8,
+                        17.4
                     ]
                 }
             ]
@@ -284,34 +284,40 @@
         ]
     },
     "GoToAutumnGoldNotAtStartPos": {
-        "desc": "不在金秋时任务开始位置附近，先传送再检查落点",
+        "desc": "不在金秋时任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingMarkerStone2"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToAutumnGoldStartPos"
+            "GoToAutumnGoldMove"
         ]
     },
     "GoToAutumnGoldMove": {
         "desc": "自动寻路前往金秋时",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
-            "map_name": "^map\\d+_lv\\d+$",
-            "path": [
-                [
-                    0,
-                    0
-                ]
-            ]
+            "map_name": "map02_lv004",
+            "target": [
+                299.5,
+                386.5
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 270
+                }
+            },
+            "no_ensure_initial_movement_state": true
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
@@ -325,12 +331,12 @@
     },
     "AutumnGoldAdjustCamera": {
         "desc": "金秋时任务中调整朝向",
-        "max_hit": 2,
+        "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringSwipeScreenUp"
+            "EnvironmentMonitoringSwipeScreenDown"
         ]
     }
 }
