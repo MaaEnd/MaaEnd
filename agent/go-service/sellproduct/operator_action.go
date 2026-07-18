@@ -311,6 +311,7 @@ func resolveOperatorSelectionParam(p *operatorActionParam) (*operatorSelectionPa
 		Usage:                      p.Usage,
 		Location:                   p.Location,
 		TargetCandidatesByLocation: data.TargetCandidates,
+		RestoreGroups:              normalizeOperatorCandidateGroups(data.RestoreGroups),
 		ScanCandidates:             scanCandidates,
 		KnownOperators:             data.KnownOperators,
 		ActiveLocations:            session.ActiveLocations,
@@ -322,9 +323,7 @@ func resolveOperatorSelectionParam(p *operatorActionParam) (*operatorSelectionPa
 	switch p.Usage {
 	case operatorActionUsageTarget:
 		result.Candidates = normalizeOperatorCandidates(data.TargetCandidates[p.Location])
-	case operatorActionUsageRestore:
-		result.RestoreGroups = normalizeOperatorCandidateGroups(data.RestoreGroups)
-	case operatorActionUsageAll:
+	case operatorActionUsageRestore, operatorActionUsageAll:
 	default:
 		return nil, fmt.Errorf("invalid usage %q", p.Usage)
 	}

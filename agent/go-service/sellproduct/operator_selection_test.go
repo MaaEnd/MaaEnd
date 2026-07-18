@@ -305,31 +305,33 @@ func TestTargetSelectionMinimizesGlobalOperatorChangesWithinBestBonusTier(t *tes
 }
 
 func TestGeneratedXiranflowPlanKeepsArcaneForSellingAndRestore(t *testing.T) {
-	data, err := loadOperatorSelectionData()
+	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	location := "XiranflowCloudseederStation"
+	operatorSessionRegisterLocation(location)
+
+	targetSelection, err := resolveOperatorSelectionParam(&operatorActionParam{
+		Usage:    operatorActionUsageTarget,
+		Location: location,
+	})
 	if err != nil {
-		t.Fatalf("加载 SellProduct 干员数据失败：%v", err)
-	}
-	p := &operatorSelectionParam{
-		Usage:                      operatorActionUsageTarget,
-		Location:                   "XiranflowCloudseederStation",
-		Candidates:                 data.TargetCandidates["XiranflowCloudseederStation"],
-		TargetCandidatesByLocation: data.TargetCandidates,
-		RestoreGroups:              data.RestoreGroups,
-		ActiveLocations: map[string]struct{}{
-			"XiranflowCloudseederStation": {},
-		},
+		t.Fatalf("解析盈天台售卖参数失败：%v", err)
 	}
 	owned := operatorNameSet([]string{"黎风", "诀", "陈千语"})
 
-	target := candidatesForCurrentSelection(p, owned)
+	target := candidatesForCurrentSelection(targetSelection, owned)
 	if len(target) != 1 || target[0].Name != "Arcane" {
 		t.Fatalf("盈天台售卖干员 = %#v，期望 Arcane", target)
 	}
-	p.Usage = operatorActionUsageRestore
-	p.TargetAssignments = map[string]operatorCandidate{
-		p.Location: target[0],
+
+	restoreSelection, err := resolveOperatorSelectionParam(&operatorActionParam{
+		Usage:    operatorActionUsageRestore,
+		Location: location,
+	})
+	if err != nil {
+		t.Fatalf("解析盈天台恢复参数失败：%v", err)
 	}
-	restore := candidatesForCurrentSelection(p, owned)
+	restoreSelection.TargetAssignments[location] = target[0]
+	restore := candidatesForCurrentSelection(restoreSelection, owned)
 	if len(restore) != 1 || restore[0].Name != "Arcane" {
 		t.Fatalf("盈天台恢复干员 = %#v，期望继续沿用 Arcane", restore)
 	}
