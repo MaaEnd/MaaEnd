@@ -169,13 +169,6 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 默认目标位置由 Pipeline 节点的 `box` 决定。
 
-### AutoAltLongPressAction
-
-`AutoAltLongPressAction` 实现位于 `agent/go-service/common/autoalt`，用于在指定位置执行 Alt + 长按操作。
-
-- 参数：
-    - `duration: int`：长按持续时间（毫秒），必填。
-
 ### AutoAltSwipeAction
 
 `AutoAltSwipeAction` 实现位于 `agent/go-service/common/autoalt`，用于执行 Alt + 滑动操作。先按下 Alt 键，再执行滑动，最后松开 Alt 键。
@@ -300,7 +293,6 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 | 计算 OCR 数值表达式           | `ExpressionRecognition`       |
 | 按星期几门控后续节点          | `ScheduleRecognition`         |
 | 在指定位置 Alt + 点击         | `AutoAltClickAction`          |
-| 在指定位置 Alt + 长按         | `AutoAltLongPressAction`      |
 | Alt + 滑动                    | `AutoAltSwipeAction`          |
 
 所有 Custom 的 Go 代码实现在 `agent/go-service/` 下，Pipeline 作者不需要关心，照文档参数写 JSON 就行。

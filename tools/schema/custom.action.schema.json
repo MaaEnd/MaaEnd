@@ -9,7 +9,6 @@
                 "AccountSwitchWindowAction",
                 "AttachToExpectedRegexAction",
                 "AutoAltClickAction",
-                "AutoAltLongPressAction",
                 "AutoAltSwipeAction",
                 "AutoFightMainAction",
                 "AutoSellItemExecuteItemTaskAction",
@@ -218,43 +217,29 @@
                             "if": {
                                 "type": "object",
                                 "required": [ "custom_action" ],
-                                "properties": { "custom_action": { "const": "AutoAltLongPressAction" } }
+                                "properties": { "custom_action": { "const": "AutoAltSwipeAction" } }
                             },
                             "then": {
                                 "type": "object",
                                 "required": [ "custom_action_param" ],
                                 "properties": {
-                                    "custom_action_param": { "$ref": "./components/auto_alt.schema.json#/$defs/AutoAltLongPressParam" }
+                                    "custom_action_param": { "$ref": "./components/auto_alt.schema.json#/$defs/AutoAltSwipeParam" }
                                 }
                             },
                             "else": {
                                 "if": {
                                     "type": "object",
                                     "required": [ "custom_action" ],
-                                    "properties": { "custom_action": { "const": "AutoAltSwipeAction" } }
+                                    "properties": {
+                                        "custom_action": { "const": "FailureCollectorRunTask" }
+                                    }
                                 },
                                 "then": {
                                     "type": "object",
                                     "required": [ "custom_action_param" ],
                                     "properties": {
-                                        "custom_action_param": { "$ref": "./components/auto_alt.schema.json#/$defs/AutoAltSwipeParam" }
+                                        "custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/RunTaskParam" }
                                     }
-								},
-								"else": {
-									"if": {
-										"type": "object",
-										"required": [ "custom_action" ],
-                                    "properties": {
-										"custom_action": { "const": "FailureCollectorRunTask" }
-                                    }
-									},
-									"then": {
-										"type": "object",
-										"required": [ "custom_action_param" ],
-										"properties": {
-										"custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/RunTaskParam" }
-										}
-									}
                                 }
                             }
                         }

@@ -167,13 +167,6 @@ The `AutoAltClickAction` implementation is located in `agent/go-service/common/a
 
 The default target position is determined by the `box` of the Pipeline node.
 
-### AutoAltLongPressAction
-
-The `AutoAltLongPressAction` implementation is located in `agent/go-service/common/autoalt`. It performs an Alt + Long Press operation at a specified position.
-
-- Parameters:
-    - `duration: int`: Long press duration in milliseconds. Required.
-
 ### AutoAltSwipeAction
 
 The `AutoAltSwipeAction` implementation is located in `agent/go-service/common/autoalt`. It performs an Alt + Swipe operation. It first presses the Alt key, executes the swipe, and then releases the Alt key.
@@ -298,7 +291,6 @@ When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe
 | Evaluate OCR numerical expressions       | `ExpressionRecognition`       |
 | Gate subsequent nodes by day of week     | `ScheduleRecognition`         |
 | Alt + Click at specified position        | `AutoAltClickAction`          |
-| Alt + Long Press at specified position   | `AutoAltLongPressAction`      |
 | Alt + Swipe                              | `AutoAltSwipeAction`          |
 
 All Custom Go code implementations are located under `agent/go-service/`. Pipeline authors do not need to concern themselves with this; just write the JSON according to the documentation parameters.

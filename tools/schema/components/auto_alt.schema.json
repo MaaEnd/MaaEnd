@@ -46,20 +46,6 @@
                 }
             }
         },
-        "AutoAltLongPressParam": {
-            "type": "object",
-            "description": "Alt + long press parameters.",
-            "additionalProperties": false,
-            "required": [ "duration" ],
-            "properties": {
-                "duration": {
-                    "title": "Duration",
-                    "description": "Long press duration in milliseconds.",
-                    "type": "integer",
-                    "exclusiveMinimum": 0
-                }
-            }
-        },
         "AutoAltSwipeParam": {
             "type": "object",
             "description": "Alt + swipe parameters forwarded to the sub-node Swipe action. begin/end default to arg.Box when omitted.",
