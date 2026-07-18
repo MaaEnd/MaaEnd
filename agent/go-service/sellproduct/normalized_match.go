@@ -1,7 +1,7 @@
-// Package sellproduct 为「🛒售卖产品」任务提供 Go 自定义识别。
+// Package sellproduct 为「🛒售卖产品」任务提供 Go 自定义识别和状态算法。
 //
-// 核心识别：SellProductNormalizedItemMatch —— 在指定 ROI 内跑一次 OCR，对每条 OCR 文本
-// 与 candidates 做抗噪声匹配，命中后返回该文本的 box。
+// SellProductNormalizedItemMatch 是指定候选的兼容识别组件；其严格匹配函数也由
+// SellProductPriorityItem 复用，用于动态选择当前据点的最高优先级货品。
 //
 // 引入原因：见 MaaEnd issue #2344。原实现用锚定正则 `^紫晶质瓶$` 去匹配 OCR 结果，遇到噪声
 // 前缀（如 "I紫晶质瓶"）就直接 miss，回退卖默认货品。
@@ -33,10 +33,14 @@ import (
 
 const componentName = "SellProductNormalizedItemMatch"
 
-type params struct {
-	Candidates []string `json:"candidates"`
+type normalizedMatchParams struct {
+	Candidates      []string `json:"candidates"`
+	ItemID          string   `json:"item_id,omitempty"`
+	SelectDefault   bool     `json:"select_default,omitempty"`
+	RecordSelection bool     `json:"record_selection,omitempty"`
 }
 
+// NormalizedMatchRecognition 对指定候选名称执行抗噪声严格 OCR 匹配。
 type NormalizedMatchRecognition struct{}
 
 var _ maa.CustomRecognitionRunner = (*NormalizedMatchRecognition)(nil)
@@ -57,7 +61,7 @@ func (r *NormalizedMatchRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		return nil, false
 	}
 
-	if len(p.Candidates) == 0 {
+	if len(p.Candidates) == 0 && !p.SelectDefault {
 		log.Warn().Str("component", componentName).Msg("candidates is empty, nothing to match")
 		return nil, false
 	}
@@ -84,24 +88,41 @@ func (r *NormalizedMatchRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		return nil, false
 	}
 
-	best := findBestMatch(ocrItems, p.Candidates)
+	var best *matchResult
+	selectedItemID := p.ItemID
+	if p.SelectDefault {
+		groups, err := loadItemSelectionGroupsFunc()
+		if err != nil {
+			log.Error().Err(err).Str("component", componentName).Msg("failed to load item candidates")
+			return nil, false
+		}
+		best, selectedItemID = findBestItemMatch(ocrItems, groups)
+	} else {
+		best = findBestMatch(ocrItems, p.Candidates)
+	}
 	if best == nil {
 		ocrTexts := make([]string, 0, len(ocrItems))
 		for _, it := range ocrItems {
 			ocrTexts = append(ocrTexts, it.text)
 		}
-		log.Debug().
+		event := log.Debug().
 			Str("component", componentName).
-			Strs("ocr_texts", ocrTexts).
-			Strs("candidates", p.Candidates).
-			Msg("no candidate matched")
+			Strs("ocr_texts", ocrTexts)
+		if p.SelectDefault {
+			event.Bool("select_default", true).Msg("no item candidate matched")
+		} else {
+			event.Strs("candidates", p.Candidates).Msg("no candidate matched")
+		}
 		return nil, false
 	}
-
+	if p.RecordSelection && selectedItemID != "" {
+		setSelectedReserveItem(selectedItemID)
+	}
 	log.Debug().
 		Str("component", componentName).
 		Str("ocr_text", best.ocrText).
 		Str("matched_candidate", best.candidate).
+		Str("item_id", selectedItemID).
 		Str("match_tier", best.tier).
 		Interface("box", best.box).
 		Msg("normalized match hit")
@@ -109,6 +130,7 @@ func (r *NormalizedMatchRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 	detailJSON, _ := json.Marshal(map[string]any{
 		"ocr_text":          best.ocrText,
 		"matched_candidate": best.candidate,
+		"item_id":           selectedItemID,
 		"match_tier":        best.tier,
 	})
 
@@ -118,15 +140,16 @@ func (r *NormalizedMatchRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 	}, true
 }
 
-func parseParams(raw string) (*params, error) {
+func parseParams(raw string) (*normalizedMatchParams, error) {
 	raw = strings.TrimSpace(raw)
 	if raw == "" {
 		return nil, fmt.Errorf("custom_recognition_param is empty")
 	}
-	var p params
+	var p normalizedMatchParams
 	if err := json.Unmarshal([]byte(raw), &p); err != nil {
 		return nil, fmt.Errorf("unmarshal custom_recognition_param: %w", err)
 	}
+	p.ItemID = strings.TrimSpace(p.ItemID)
 	return &p, nil
 }
 
@@ -183,14 +206,7 @@ func findBestMatch(ocrItems []ocrItem, candidates []string) *matchResult {
 		tierBCandidates[i] = stripASCIIAlnum(tierACandidates[i])
 	}
 
-	sortedItems := make([]ocrItem, len(ocrItems))
-	copy(sortedItems, ocrItems)
-	sort.SliceStable(sortedItems, func(i, j int) bool {
-		if sortedItems[i].box.Y() != sortedItems[j].box.Y() {
-			return sortedItems[i].box.Y() < sortedItems[j].box.Y()
-		}
-		return sortedItems[i].box.X() < sortedItems[j].box.X()
-	})
+	sortedItems := sortOCRItemsByPosition(ocrItems)
 
 	for _, item := range sortedItems {
 		ocrA := stripSeparators(item.text)
@@ -230,6 +246,19 @@ func findBestMatch(ocrItems []ocrItem, candidates []string) *matchResult {
 	}
 
 	return nil
+}
+
+// sortOCRItemsByPosition 复制 OCR 结果并按画面从上到下、从左到右稳定排序。
+func sortOCRItemsByPosition(items []ocrItem) []ocrItem {
+	sortedItems := make([]ocrItem, len(items))
+	copy(sortedItems, items)
+	sort.SliceStable(sortedItems, func(i, j int) bool {
+		if sortedItems[i].box.Y() != sortedItems[j].box.Y() {
+			return sortedItems[i].box.Y() < sortedItems[j].box.Y()
+		}
+		return sortedItems[i].box.X() < sortedItems[j].box.X()
+	})
+	return sortedItems
 }
 
 // stripSeparators 剥除允许差异的分隔字符并统一 ASCII 大小写，保留字母 / 数字 / CJK。

@@ -43,8 +43,39 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductLoop",
-            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+            "SellProductEnterRegionalDevelopment"
+        ]
+    },
+    "SellProductEnterRegionalDevelopment": {
+        "desc": "进入地区建设界面并准备捕获 UID",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopment"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCaptureUid"
+        ]
+    },
+    "SellProductCaptureUid": {
+        "desc": "捕获当前账号 UID，用于隔离自动干员缓存",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CaptureUid",
+        "custom_action_param": {
+            "use_cache": true,
+            "stay_on_current_screen": true,
+            "allow_unknown": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductInitializeReserveSession"
         ]
     },
     "SellProductLoop": {

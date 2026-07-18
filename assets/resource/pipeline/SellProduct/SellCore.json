@@ -1,6 +1,6 @@
 {
     "SellProductSellLoop": {
-        "desc": "售卖循环，按优先级依次换货并尝试售卖",
+        "desc": "售卖循环，按价值优先级选择下一个可售物品",
         "recognition": "And",
         "all_of": [
             "SellProductInOutpost"
@@ -9,11 +9,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]SellProductSellAttempt1",
-            "[Anchor]SellProductSellAttempt2",
-            "[Anchor]SellProductSellAttempt3",
-            "[Anchor]SellProductSellAttempt4",
-            "SellProductSellLoopEnd"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductAtSell": {
@@ -107,7 +103,7 @@
         "rate_limit": 0
     },
     "SellProductZeroProductAfterChangeStillEmpty": {
-        "desc": "换货后货物仍不足，尝试下一次售卖配置",
+        "desc": "换货后货物仍不足，继续选择下一个优先物品",
         "recognition": "And",
         "all_of": [
             "SellProductZeroProduct"
@@ -360,7 +356,7 @@
         }
     },
     "SellProductSellThenLoop": {
-        "desc": "交易，完成后直接进入下一次售卖尝试",
+        "desc": "交易，完成后直接选择下一个优先物品",
         "recognition": "OCR",
         "roi": [
             975,
@@ -385,7 +381,7 @@
         ]
     },
     "SellProductSellCheckThenLoop": {
-        "desc": "交易后确认，直接进入下一次售卖尝试",
+        "desc": "交易后确认，直接选择下一个优先物品",
         "recognition": "And",
         "all_of": [
             "CloseRewardsButton",
@@ -418,7 +414,7 @@
         }
     },
     "SellProductSkipToNextSellLoop": {
-        "desc": "保留数量大于等于当前库存，跳过本次交易尝试",
+        "desc": "保留数量大于等于当前库存，继续选择下一个优先物品",
         "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
@@ -431,7 +427,7 @@
         }
     },
     "SellProductSellLoopEnd": {
-        "desc": "售卖循环结束，所有售卖尝试完成",
+        "desc": "售卖循环结束，据点券耗尽或没有剩余可售物品",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

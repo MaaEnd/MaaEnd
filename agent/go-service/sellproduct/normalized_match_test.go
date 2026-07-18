@@ -197,6 +197,14 @@ func TestFindBestMatch_NoOCR(t *testing.T) {
 	}
 }
 
+// TestFindBestMatchKeepsOperatorPrefixNoiseStrict 验证通用货品/列表匹配不会接受当前干员专用的前缀容错。
+func TestFindBestMatchKeepsOperatorPrefixNoiseStrict(t *testing.T) {
+	ocr := []ocrItem{{text: "大潘派", box: maa.Rect{0, 0, 10, 10}}}
+	if got := findBestMatch(ocr, []string{"大潘"}); got != nil {
+		t.Fatalf("通用严格匹配不应接受尾字噪声，实际结果 = %+v", got)
+	}
+}
+
 // Tier A 稳定性：上方的 OCR 优先命中。
 func TestFindBestMatch_PrefersTopLeftOCR(t *testing.T) {
 	ocr := []ocrItem{
@@ -214,12 +222,15 @@ func TestFindBestMatch_PrefersTopLeftOCR(t *testing.T) {
 }
 
 func TestParseParams(t *testing.T) {
-	p, err := parseParams(`{"candidates":["紫晶质瓶","紫晶質瓶"]}`)
+	p, err := parseParams(`{"candidates":["紫晶质瓶","紫晶質瓶"],"item_id":"item_amethyst"}`)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if len(p.Candidates) != 2 {
 		t.Errorf("expected 2 candidates, got %d", len(p.Candidates))
+	}
+	if p.ItemID != "item_amethyst" {
+		t.Errorf("unexpected item id %q", p.ItemID)
 	}
 
 	if _, err := parseParams(""); err == nil {

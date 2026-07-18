@@ -1,0 +1,181 @@
+{
+    "SellProductInitializeReserveSession": {
+        "desc": "初始化独立物品保留规则会话",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "reset"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRegisterReserveRule1",
+            "SellProductRegisterReserveRule2",
+            "SellProductRegisterReserveRule3",
+            "SellProductRegisterReserveRule4",
+            "SellProductRegisterPriorityItem1",
+            "SellProductRegisterPriorityItem2",
+            "SellProductRegisterPriorityItem3",
+            "SellProductRegisterPriorityItem4",
+            "SellProductInitializeOperatorSession"
+        ]
+    },
+    "SellProductRegisterReserveRule1": {
+        "desc": "注册第1条独立物品保留规则",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": "",
+            "quantity": 0
+        },
+        "next": [
+            "SellProductRegisterReserveRule2",
+            "SellProductRegisterReserveRule3",
+            "SellProductRegisterReserveRule4",
+            "SellProductRegisterPriorityItem1",
+            "SellProductRegisterPriorityItem2",
+            "SellProductRegisterPriorityItem3",
+            "SellProductRegisterPriorityItem4",
+            "SellProductInitializeOperatorSession"
+        ]
+    },
+    "SellProductRegisterReserveRule2": {
+        "desc": "注册第2条独立物品保留规则",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": "",
+            "quantity": 0
+        },
+        "next": [
+            "SellProductRegisterReserveRule3",
+            "SellProductRegisterReserveRule4",
+            "SellProductRegisterPriorityItem1",
+            "SellProductRegisterPriorityItem2",
+            "SellProductRegisterPriorityItem3",
+            "SellProductRegisterPriorityItem4",
+            "SellProductInitializeOperatorSession"
+        ]
+    },
+    "SellProductRegisterReserveRule3": {
+        "desc": "注册第3条独立物品保留规则",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": "",
+            "quantity": 0
+        },
+        "next": [
+            "SellProductRegisterReserveRule4",
+            "SellProductRegisterPriorityItem1",
+            "SellProductRegisterPriorityItem2",
+            "SellProductRegisterPriorityItem3",
+            "SellProductRegisterPriorityItem4",
+            "SellProductInitializeOperatorSession"
+        ]
+    },
+    "SellProductRegisterReserveRule4": {
+        "desc": "注册第4条独立物品保留规则",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": "",
+            "quantity": 0
+        },
+        "next": [
+            "SellProductRegisterPriorityItem1",
+            "SellProductRegisterPriorityItem2",
+            "SellProductRegisterPriorityItem3",
+            "SellProductRegisterPriorityItem4",
+            "SellProductInitializeOperatorSession"
+        ]
+    },
+    "SellProductRegisterPriorityItem1": {
+        "desc": "注册第1个优先售卖物品",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRegisterPriorityItem2",
+            "SellProductRegisterPriorityItem3",
+            "SellProductRegisterPriorityItem4",
+            "SellProductInitializeOperatorSession"
+        ]
+    },
+    "SellProductRegisterPriorityItem2": {
+        "desc": "注册第2个优先售卖物品",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRegisterPriorityItem3",
+            "SellProductRegisterPriorityItem4",
+            "SellProductInitializeOperatorSession"
+        ]
+    },
+    "SellProductRegisterPriorityItem3": {
+        "desc": "注册第3个优先售卖物品",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRegisterPriorityItem4",
+            "SellProductInitializeOperatorSession"
+        ]
+    },
+    "SellProductRegisterPriorityItem4": {
+        "desc": "注册第4个优先售卖物品",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductInitializeOperatorSession"
+        ]
+    }
+}

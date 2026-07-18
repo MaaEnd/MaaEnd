@@ -25,11 +25,10 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
-            "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
-            "SellProductSellAttempt1": "SellProductRefugeeCampSellAttempt1",
-            "SellProductSellAttempt2": "SellProductRefugeeCampSellAttempt2",
-            "SellProductSellAttempt3": "SellProductRefugeeCampSellAttempt3",
-            "SellProductSellAttempt4": "SellProductRefugeeCampSellAttempt4"
+            "SellProductSelectPriorityItem": "SellProductRefugeeCampSelectPriorityItem",
+            "SellProductPriorityItemsExhausted": "SellProductRefugeeCampPriorityItemsExhausted",
+            "SellProductCommitPriorityItem": "SellProductRefugeeCampCommitPriorityItem",
+            "SellProductBetterSliding": "SellProductRefugeeCampApplyReserve"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -41,7 +40,7 @@
         "desc": "难民暂居处设置售卖前联络干员锚点",
         "pre_delay": 0,
         "anchor": {
-            "SellProductBeforeSellOperator": ""
+            "SellProductBeforeSellOperator": "SellProductRefugeeCampBeforeSellOperator"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -53,7 +52,7 @@
         "desc": "难民暂居处设置售卖后恢复干员锚点",
         "pre_delay": 0,
         "anchor": {
-            "SellProductAfterSellOperator": "SellProductAfterSellOperator"
+            "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -75,14 +74,19 @@
     },
     "SellProductRefugeeCampCurrentTargetOperator": {
         "desc": "难民暂居处当前联络干员已是售卖用干员",
-        "recognition": "OCR",
-        "roi": [
-            268,
-            568,
-            190,
-            35
-        ],
-        "expected": [],
+        "recognition": "Custom",
+        "custom_recognition": "SellProductCurrentBestOperator",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "target",
+            "location": "RefugeeCamp",
+            "roi": [
+                260,
+                568,
+                280,
+                35
+            ]
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -125,20 +129,27 @@
         "rate_limit": 0,
         "next": [
             "SellProductRefugeeCampSelectTargetOperator",
-            "SellProductRefugeeCampSwipeTargetOperatorList",
-            "SellProductRefugeeCampTargetOperatorNotFound"
+            "SellProductRefugeeCampRetryTargetOperatorAfterScan",
+            "SellProductRefugeeCampTargetOperatorNotFound",
+            "SellProductRefugeeCampTargetOperatorScanFailed",
+            "SellProductRefugeeCampSwipeTargetOperatorList"
         ]
     },
     "SellProductRefugeeCampSelectTargetOperator": {
         "desc": "难民暂居处在联络干员列表中选择售卖用干员",
-        "recognition": "OCR",
-        "roi": [
-            164,
-            121,
-            700,
-            430
-        ],
-        "expected": [],
+        "recognition": "Custom",
+        "custom_recognition": "SellProductSelectBestOperator",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "target",
+            "location": "RefugeeCamp",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -177,7 +188,79 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "SellProductRefugeeCampTargetOperatorAlreadyAssigned",
             "SellProductRefugeeCampCloseTargetOperatorLiaison"
+        ]
+    },
+    "SellProductRefugeeCampTargetOperatorAlreadyAssigned": {
+        "desc": "难民暂居处售卖用干员已派驻到其他据点，临时排除并重新规划",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1",
+            "GrayCancelButton"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "exclude_selected",
+            "usage": "target",
+            "location": "RefugeeCamp"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampCancelTargetOperatorAlreadyAssigned"
+        ]
+    },
+    "SellProductRefugeeCampCancelTargetOperatorAlreadyAssigned": {
+        "desc": "难民暂居处取消抢占其他据点的售卖用干员",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1",
+            "GrayCancelButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampCloseTargetOperatorLiaisonAfterAlreadyAssigned"
+        ]
+    },
+    "SellProductRefugeeCampCloseTargetOperatorLiaisonAfterAlreadyAssigned": {
+        "desc": "难民暂居处关闭联络干员列表并从顶部重新选择售卖用干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampOpenTargetOperatorList"
         ]
     },
     "SellProductRefugeeCampCloseTargetOperatorLiaison": {
@@ -220,7 +303,6 @@
     },
     "SellProductRefugeeCampSwipeTargetOperatorList": {
         "desc": "难民暂居处在联络干员列表中向下滑动查找售卖用干员",
-        "max_hit": 8,
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison"
@@ -257,12 +339,94 @@
             "SellProductRefugeeCampInTargetOperatorList"
         ]
     },
-    "SellProductRefugeeCampTargetOperatorNotFound": {
-        "desc": "难民暂居处未找到配置的售卖用干员，停止任务",
+    "SellProductRefugeeCampRetryTargetOperatorAfterScan": {
+        "desc": "难民暂居处完整扫描后存在新的售卖用干员方案",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorListBottom",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "target",
+            "location": "RefugeeCamp",
+            "result": "retry",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampCloseTargetOperatorLiaisonAfterScan"
+        ]
+    },
+    "SellProductRefugeeCampCloseTargetOperatorLiaisonAfterScan": {
+        "desc": "难民暂居处刷新缓存后关闭售卖用干员列表",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorLiaison"
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
         ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampOpenTargetOperatorList"
+        ]
+    },
+    "SellProductRefugeeCampTargetOperatorScanFailed": {
+        "desc": "难民暂居处售卖用干员列表扫描失败",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorScanOutcome",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "target",
+            "location": "RefugeeCamp",
+            "result": "error",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "联络干员缓存更新失败，请检查日志和缓存文件写入权限"
+        }
+    },
+    "SellProductRefugeeCampTargetOperatorNotFound": {
+        "desc": "难民暂居处联络干员列表已到底，未找到配置的售卖用干员",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorScanOutcome",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "target",
+            "location": "RefugeeCamp",
+            "result": "not_found",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
         "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
@@ -284,15 +448,26 @@
     },
     "SellProductRefugeeCampCurrentRestoreOperator": {
         "desc": "难民暂居处当前联络干员已是恢复目标",
-        "recognition": "OCR",
-        "roi": [
-            268,
-            568,
-            190,
-            35
-        ],
-        "expected": [],
+        "recognition": "Custom",
+        "custom_recognition": "SellProductCurrentBestOperator",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "RefugeeCamp",
+            "roi": [
+                260,
+                568,
+                280,
+                35
+            ]
+        },
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "complete_restore",
+            "location": "RefugeeCamp"
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
@@ -331,20 +506,50 @@
         "rate_limit": 0,
         "next": [
             "SellProductRefugeeCampSelectRestoreOperator",
-            "SellProductRefugeeCampSwipeRestoreOperatorList",
-            "SellProductRefugeeCampRestoreOperatorNotFound"
+            "SellProductRefugeeCampRetryRestoreOperatorAfterScan",
+            "SellProductRefugeeCampRestoreOperatorNotFoundAtBottom",
+            "SellProductRefugeeCampRestoreOperatorScanFailed",
+            "SellProductRefugeeCampSwipeRestoreOperatorList"
+        ]
+    },
+    "SellProductRefugeeCampRestoreOperatorNotFoundAtBottom": {
+        "desc": "难民暂居处联络干员列表已到底，未找到可用的恢复干员",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorScanOutcome",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "RefugeeCamp",
+            "result": "not_found",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampCloseRestoreOperatorLiaisonAfterNotFound"
         ]
     },
     "SellProductRefugeeCampSelectRestoreOperator": {
         "desc": "难民暂居处在联络干员列表中选择恢复干员",
-        "recognition": "OCR",
-        "roi": [
-            164,
-            121,
-            700,
-            430
-        ],
-        "expected": [],
+        "recognition": "Custom",
+        "custom_recognition": "SellProductSelectBestOperator",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "RefugeeCamp",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -383,7 +588,79 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "SellProductRefugeeCampRestoreOperatorAlreadyAssigned",
             "SellProductRefugeeCampCloseRestoreOperatorLiaison"
+        ]
+    },
+    "SellProductRefugeeCampRestoreOperatorAlreadyAssigned": {
+        "desc": "难民暂居处恢复干员已派驻到其他据点，临时排除并重新规划",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1",
+            "GrayCancelButton"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "exclude_selected",
+            "usage": "restore",
+            "location": "RefugeeCamp"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampCancelRestoreOperatorAlreadyAssigned"
+        ]
+    },
+    "SellProductRefugeeCampCancelRestoreOperatorAlreadyAssigned": {
+        "desc": "难民暂居处取消抢占其他据点的恢复干员",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1",
+            "GrayCancelButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampCloseRestoreOperatorLiaisonAfterAlreadyAssigned"
+        ]
+    },
+    "SellProductRefugeeCampCloseRestoreOperatorLiaisonAfterAlreadyAssigned": {
+        "desc": "难民暂居处关闭联络干员列表并从顶部重新选择恢复干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampOpenRestoreOperatorList"
         ]
     },
     "SellProductRefugeeCampCloseRestoreOperatorLiaison": {
@@ -418,12 +695,17 @@
             "SellProductInRefugeeCamp"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "complete_restore",
+            "location": "RefugeeCamp"
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
     "SellProductRefugeeCampSwipeRestoreOperatorList": {
         "desc": "难民暂居处在联络干员列表中向下滑动查找恢复干员",
-        "max_hit": 8,
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison"
@@ -460,12 +742,93 @@
             "SellProductRefugeeCampInRestoreOperatorList"
         ]
     },
-    "SellProductRefugeeCampRestoreOperatorNotFound": {
-        "desc": "难民暂居处未找到配置的恢复干员，停止任务",
+    "SellProductRefugeeCampRetryRestoreOperatorAfterScan": {
+        "desc": "难民暂居处完整扫描后存在新的恢复干员方案",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorListBottom",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "RefugeeCamp",
+            "result": "retry",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampCloseRestoreOperatorLiaisonAfterScan"
+        ]
+    },
+    "SellProductRefugeeCampCloseRestoreOperatorLiaisonAfterScan": {
+        "desc": "难民暂居处刷新缓存后关闭恢复干员列表",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorLiaison"
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
         ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampOpenRestoreOperatorList"
+        ]
+    },
+    "SellProductRefugeeCampRestoreOperatorScanFailed": {
+        "desc": "难民暂居处恢复干员列表扫描失败",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorScanOutcome",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "RefugeeCamp",
+            "result": "error",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "联络干员缓存更新失败，请检查日志和缓存文件写入权限"
+        }
+    },
+    "SellProductRefugeeCampRestoreOperatorNotFound": {
+        "desc": "难民暂居处联络干员列表已到底，未找到配置的恢复干员",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorListBottom",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "RefugeeCamp",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
         "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
@@ -473,6 +836,44 @@
         "focus": {
             "Node.Recognition.Succeeded": "未在联络干员列表中找到配置的恢复干员，请确认干员已持有或调整据点配置"
         }
+    },
+    "SellProductRefugeeCampCloseRestoreOperatorLiaisonAfterNotFound": {
+        "desc": "难民暂居处未找到可用的恢复干员，关闭派驻列表并继续",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampSkipRestoreOperatorDone"
+        ]
+    },
+    "SellProductRefugeeCampSkipRestoreOperatorDone": {
+        "desc": "难民暂居处记录本次任务不再恢复原干员",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "skip_restore",
+            "location": "RefugeeCamp"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     // ===== 在指定据点的识别节点 =====
     "SellProductInRefugeeCamp": {
@@ -516,8 +917,9 @@
         "expected": [
             "难民暂居处",
             "難民暫居處",
-            "(?i)Refugee\\s*Camp",
-            "仮設居住地"
+            "仮設居住地",
+            "유랑자 임시 거주지",
+            "(?i)^Refugee\\s*Camp$"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -536,141 +938,22 @@
         "expected": [
             "难民暂居处",
             "難民暫居處",
-            "(?i)Refugee\\s*Camp",
-            "仮設居住地"
+            "仮設居住地",
+            "유랑자 임시 거주지",
+            "(?i)^Refugee\\s*Camp$"
         ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     },
-    // ===== 售卖尝试 1 =====
-    "SellProductRefugeeCampSellAttempt1": {
-        "desc": "难民暂居处第1次尝试：先换货再售卖",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInOutpost"
-        ],
-        "pre_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem1",
-            "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding1"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductRefugeeCampSellAttempt1SetMissHandler"
-        ]
-    },
-    "SellProductRefugeeCampSellAttempt1SetMissHandler": {
-        "desc": "难民暂居处第1次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
-        "recognition": "DirectHit",
-        "anchor": {
-            "SellProductPriorityGoodMissHandler": ""
-        },
-        "next": [
-            "SellProductChangeGoods"
-        ]
-    },
-    // ===== 售卖尝试 2 =====
-    "SellProductRefugeeCampSellAttempt2": {
-        "desc": "难民暂居处第2次尝试：先换货再售卖",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInOutpost"
-        ],
-        "pre_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2",
-            "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding2"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductRefugeeCampSellAttempt2SetMissHandler"
-        ]
-    },
-    "SellProductRefugeeCampSellAttempt2SetMissHandler": {
-        "desc": "难民暂居处第2次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
-        "recognition": "DirectHit",
-        "anchor": {
-            "SellProductPriorityGoodMissHandler": ""
-        },
-        "next": [
-            "SellProductChangeGoods"
-        ]
-    },
-    // ===== 售卖尝试 3 =====
-    "SellProductRefugeeCampSellAttempt3": {
-        "desc": "难民暂居处第3次尝试：先换货再售卖",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInOutpost"
-        ],
-        "pre_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3",
-            "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding3"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductRefugeeCampSellAttempt3SetMissHandler"
-        ]
-    },
-    "SellProductRefugeeCampSellAttempt3SetMissHandler": {
-        "desc": "难民暂居处第3次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
-        "recognition": "DirectHit",
-        "anchor": {
-            "SellProductPriorityGoodMissHandler": ""
-        },
-        "next": [
-            "SellProductChangeGoods"
-        ]
-    },
-    // ===== 售卖尝试 4 =====
-    "SellProductRefugeeCampSellAttempt4": {
-        "desc": "难民暂居处第4次尝试：先换货再售卖",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInOutpost"
-        ],
-        "pre_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem4",
-            "SellProductBetterSliding": "SellProductRefugeeCampBetterSliding4"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductRefugeeCampSellAttempt4SetMissHandler"
-        ]
-    },
-    "SellProductRefugeeCampSellAttempt4SetMissHandler": {
-        "desc": "难民暂居处第4次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
-        "recognition": "DirectHit",
-        "anchor": {
-            "SellProductPriorityGoodMissHandler": ""
-        },
-        "next": [
-            "SellProductChangeGoods"
-        ]
-    },
-    // ===== 优先物品 1 =====
-    "SellProductRefugeeCampSelectItem1": {
-        "desc": "难民暂居处售卖优先物品1",
-        "enabled": false,
+    // ===== 动态优先级售卖循环 =====
+    "SellProductRefugeeCampSelectPriorityItem": {
+        "desc": "难民暂居处按价值优先级选择下一个未尝试货品",
         "recognition": "Custom",
-        "custom_recognition": "SellProductNormalizedItemMatch",
+        "custom_recognition": "SellProductPriorityItem",
         "custom_recognition_param": {
-            "candidates": []
+            "location": "RefugeeCamp",
+            "result": "select"
         },
         "roi": [
             145,
@@ -680,23 +963,19 @@
         ],
         "pre_delay": 0,
         "action": "Click",
-        "anchor": {
-            "SellProductSelectGoodFirstTime": ""
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "SellProductSelectNewGoodConfirm"
         ]
     },
-    // ===== 优先物品 2 =====
-    "SellProductRefugeeCampSelectItem2": {
-        "desc": "难民暂居处售卖优先物品2",
-        "enabled": false,
+    "SellProductRefugeeCampPriorityItemsExhausted": {
+        "desc": "难民暂居处稳定确认没有剩余可售物品",
         "recognition": "Custom",
-        "custom_recognition": "SellProductNormalizedItemMatch",
+        "custom_recognition": "SellProductPriorityItem",
         "custom_recognition_param": {
-            "candidates": []
+            "location": "RefugeeCamp",
+            "result": "exhausted"
         },
         "roi": [
             145,
@@ -705,70 +984,33 @@
             518
         ],
         "pre_delay": 0,
-        "action": "Click",
-        "anchor": {
-            "SellProductSelectGoodFirstTime": ""
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSelectNewGoodConfirm"
+            "SellProductCloseGoodsAfterExhausted"
         ]
     },
-    // ===== 优先物品 3 =====
-    "SellProductRefugeeCampSelectItem3": {
-        "desc": "难民暂居处售卖优先物品3",
-        "enabled": false,
-        "recognition": "Custom",
-        "custom_recognition": "SellProductNormalizedItemMatch",
-        "custom_recognition_param": {
-            "candidates": []
-        },
-        "roi": [
-            145,
-            103,
-            998,
-            518
+    "SellProductRefugeeCampCommitPriorityItem": {
+        "desc": "难民暂居处确认已返回售卖界面，再提交已选择的优先物品",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
         ],
         "pre_delay": 0,
-        "action": "Click",
-        "anchor": {
-            "SellProductSelectGoodFirstTime": ""
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "commit",
+            "location": "RefugeeCamp"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSelectNewGoodConfirm"
+            "SellProductAtSell"
         ]
     },
-    // ===== 优先物品 4 =====
-    "SellProductRefugeeCampSelectItem4": {
-        "desc": "难民暂居处售卖优先物品4",
-        "enabled": false,
-        "recognition": "Custom",
-        "custom_recognition": "SellProductNormalizedItemMatch",
-        "custom_recognition_param": {
-            "candidates": []
-        },
-        "roi": [
-            145,
-            103,
-            998,
-            518
-        ],
-        "pre_delay": 0,
-        "action": "Click",
-        "anchor": {
-            "SellProductSelectGoodFirstTime": ""
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductSelectNewGoodConfirm"
-        ]
-    },
-    "SellProductRefugeeCampBetterSliding1": {
-        "desc": "难民暂居处第1次尝试-使用 BetterSliding 设置售卖数量",
+    "SellProductRefugeeCampBetterSliding": {
+        "desc": "难民暂居处使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -806,121 +1048,20 @@
             "SellProductSell"
         ]
     },
-    "SellProductRefugeeCampBetterSliding2": {
-        "desc": "难民暂居处第2次尝试-使用 BetterSliding 设置售卖数量",
+    "SellProductRefugeeCampApplyReserve": {
+        "desc": "难民暂居处应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "BetterSliding",
+        "custom_action": "SellProductReserveSession",
         "custom_action_param": {
-            "GreenMask": true,
-            "Target": 999999,
-            "ClampTargetToMax": true,
-            "MaxTarget": {
-                "Box": [
-                    1073,
-                    327,
-                    119,
-                    25
-                ],
-                "OnlyRec": true
-            },
-            "Quantity": {
-                "Box": [
-                    1107,
-                    535,
-                    74,
-                    29
-                ],
-                "OnlyRec": true
-            },
-            "Direction": "right",
-            "DecreaseButton": "SellProduct/DecreaseButton.png",
-            "IncreaseButton": "SellProduct/IncreaseButton.png",
-            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
+            "operation": "apply",
+            "sliding_node": "SellProductRefugeeCampBetterSliding"
         },
-        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSell"
-        ]
-    },
-    "SellProductRefugeeCampBetterSliding3": {
-        "desc": "难民暂居处第3次尝试-使用 BetterSliding 设置售卖数量",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "BetterSliding",
-        "custom_action_param": {
-            "GreenMask": true,
-            "Target": 999999,
-            "ClampTargetToMax": true,
-            "MaxTarget": {
-                "Box": [
-                    1073,
-                    327,
-                    119,
-                    25
-                ],
-                "OnlyRec": true
-            },
-            "Quantity": {
-                "Box": [
-                    1107,
-                    535,
-                    74,
-                    29
-                ],
-                "OnlyRec": true
-            },
-            "Direction": "right",
-            "DecreaseButton": "SellProduct/DecreaseButton.png",
-            "IncreaseButton": "SellProduct/IncreaseButton.png",
-            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
-        },
-        "post_wait_freezes": 80,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductSell"
-        ]
-    },
-    "SellProductRefugeeCampBetterSliding4": {
-        "desc": "难民暂居处第4次尝试-使用 BetterSliding 设置售卖数量",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "BetterSliding",
-        "custom_action_param": {
-            "GreenMask": true,
-            "Target": 999999,
-            "ClampTargetToMax": true,
-            "MaxTarget": {
-                "Box": [
-                    1073,
-                    327,
-                    119,
-                    25
-                ],
-                "OnlyRec": true
-            },
-            "Quantity": {
-                "Box": [
-                    1107,
-                    535,
-                    74,
-                    29
-                ],
-                "OnlyRec": true
-            },
-            "Direction": "right",
-            "DecreaseButton": "SellProduct/DecreaseButton.png",
-            "IncreaseButton": "SellProduct/IncreaseButton.png",
-            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
-        },
-        "post_wait_freezes": 80,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductSell"
+            "SellProductRefugeeCampBetterSliding"
         ]
     }
 }

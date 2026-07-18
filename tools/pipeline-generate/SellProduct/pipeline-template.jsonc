@@ -25,11 +25,10 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
-            "SellProductSelectGoodFirstTime": "SellProductSelectFirstGood",
-            "SellProductSellAttempt1": "SellProduct${LocationId}SellAttempt1",
-            "SellProductSellAttempt2": "SellProduct${LocationId}SellAttempt2",
-            "SellProductSellAttempt3": "SellProduct${LocationId}SellAttempt3",
-            "SellProductSellAttempt4": "SellProduct${LocationId}SellAttempt4"
+            "SellProductSelectPriorityItem": "SellProduct${LocationId}SelectPriorityItem",
+            "SellProductPriorityItemsExhausted": "SellProduct${LocationId}PriorityItemsExhausted",
+            "SellProductCommitPriorityItem": "SellProduct${LocationId}CommitPriorityItem",
+            "SellProductBetterSliding": "SellProduct${LocationId}ApplyReserve"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -41,7 +40,7 @@
         "desc": "${LocationDesc}设置售卖前联络干员锚点",
         "pre_delay": 0,
         "anchor": {
-            "SellProductBeforeSellOperator": ""
+            "SellProductBeforeSellOperator": "SellProduct${LocationId}BeforeSellOperator"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -53,7 +52,7 @@
         "desc": "${LocationDesc}设置售卖后恢复干员锚点",
         "pre_delay": 0,
         "anchor": {
-            "SellProductAfterSellOperator": "SellProductAfterSellOperator"
+            "SellProductAfterSellOperator": "SellProduct${LocationId}AfterSellOperator"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -75,14 +74,14 @@
     },
     "SellProduct${LocationId}CurrentTargetOperator": {
         "desc": "${LocationDesc}当前联络干员已是售卖用干员",
-        "recognition": "OCR",
-        "roi": [
-            268,
-            568,
-            190,
-            35
-        ],
-        "expected": [],
+        "recognition": "Custom",
+        "custom_recognition": "SellProductCurrentBestOperator",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "target",
+            "location": "${LocationId}",
+            "roi": "${CurrentOperatorROI}"
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -125,20 +124,27 @@
         "rate_limit": 0,
         "next": [
             "SellProduct${LocationId}SelectTargetOperator",
-            "SellProduct${LocationId}SwipeTargetOperatorList",
-            "SellProduct${LocationId}TargetOperatorNotFound"
+            "SellProduct${LocationId}RetryTargetOperatorAfterScan",
+            "SellProduct${LocationId}TargetOperatorNotFound",
+            "SellProduct${LocationId}TargetOperatorScanFailed",
+            "SellProduct${LocationId}SwipeTargetOperatorList"
         ]
     },
     "SellProduct${LocationId}SelectTargetOperator": {
         "desc": "${LocationDesc}在联络干员列表中选择售卖用干员",
-        "recognition": "OCR",
-        "roi": [
-            164,
-            121,
-            700,
-            430
-        ],
-        "expected": [],
+        "recognition": "Custom",
+        "custom_recognition": "SellProductSelectBestOperator",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "target",
+            "location": "${LocationId}",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -177,7 +183,79 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "SellProduct${LocationId}TargetOperatorAlreadyAssigned",
             "SellProduct${LocationId}CloseTargetOperatorLiaison"
+        ]
+    },
+    "SellProduct${LocationId}TargetOperatorAlreadyAssigned": {
+        "desc": "${LocationDesc}售卖用干员已派驻到其他据点，临时排除并重新规划",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1",
+            "GrayCancelButton"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "exclude_selected",
+            "usage": "target",
+            "location": "${LocationId}"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}CancelTargetOperatorAlreadyAssigned"
+        ]
+    },
+    "SellProduct${LocationId}CancelTargetOperatorAlreadyAssigned": {
+        "desc": "${LocationDesc}取消抢占其他据点的售卖用干员",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1",
+            "GrayCancelButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}CloseTargetOperatorLiaisonAfterAlreadyAssigned"
+        ]
+    },
+    "SellProduct${LocationId}CloseTargetOperatorLiaisonAfterAlreadyAssigned": {
+        "desc": "${LocationDesc}关闭联络干员列表并从顶部重新选择售卖用干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}OpenTargetOperatorList"
         ]
     },
     "SellProduct${LocationId}CloseTargetOperatorLiaison": {
@@ -220,7 +298,6 @@
     },
     "SellProduct${LocationId}SwipeTargetOperatorList": {
         "desc": "${LocationDesc}在联络干员列表中向下滑动查找售卖用干员",
-        "max_hit": 8,
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison"
@@ -257,12 +334,94 @@
             "SellProduct${LocationId}InTargetOperatorList"
         ]
     },
-    "SellProduct${LocationId}TargetOperatorNotFound": {
-        "desc": "${LocationDesc}未找到配置的售卖用干员，停止任务",
+    "SellProduct${LocationId}RetryTargetOperatorAfterScan": {
+        "desc": "${LocationDesc}完整扫描后存在新的售卖用干员方案",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorListBottom",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "target",
+            "location": "${LocationId}",
+            "result": "retry",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}CloseTargetOperatorLiaisonAfterScan"
+        ]
+    },
+    "SellProduct${LocationId}CloseTargetOperatorLiaisonAfterScan": {
+        "desc": "${LocationDesc}刷新缓存后关闭售卖用干员列表",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorLiaison"
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
         ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}OpenTargetOperatorList"
+        ]
+    },
+    "SellProduct${LocationId}TargetOperatorScanFailed": {
+        "desc": "${LocationDesc}售卖用干员列表扫描失败",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorScanOutcome",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "target",
+            "location": "${LocationId}",
+            "result": "error",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "联络干员缓存更新失败，请检查日志和缓存文件写入权限"
+        }
+    },
+    "SellProduct${LocationId}TargetOperatorNotFound": {
+        "desc": "${LocationDesc}联络干员列表已到底，未找到配置的售卖用干员",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorScanOutcome",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "target",
+            "location": "${LocationId}",
+            "result": "not_found",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
         "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
@@ -284,15 +443,21 @@
     },
     "SellProduct${LocationId}CurrentRestoreOperator": {
         "desc": "${LocationDesc}当前联络干员已是恢复目标",
-        "recognition": "OCR",
-        "roi": [
-            268,
-            568,
-            190,
-            35
-        ],
-        "expected": [],
+        "recognition": "Custom",
+        "custom_recognition": "SellProductCurrentBestOperator",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "${LocationId}",
+            "roi": "${CurrentOperatorROI}"
+        },
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "complete_restore",
+            "location": "${LocationId}"
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
@@ -331,20 +496,50 @@
         "rate_limit": 0,
         "next": [
             "SellProduct${LocationId}SelectRestoreOperator",
-            "SellProduct${LocationId}SwipeRestoreOperatorList",
-            "SellProduct${LocationId}RestoreOperatorNotFound"
+            "SellProduct${LocationId}RetryRestoreOperatorAfterScan",
+            "SellProduct${LocationId}RestoreOperatorNotFoundAtBottom",
+            "SellProduct${LocationId}RestoreOperatorScanFailed",
+            "SellProduct${LocationId}SwipeRestoreOperatorList"
+        ]
+    },
+    "SellProduct${LocationId}RestoreOperatorNotFoundAtBottom": {
+        "desc": "${LocationDesc}联络干员列表已到底，未找到可用的恢复干员",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorScanOutcome",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "${LocationId}",
+            "result": "not_found",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}CloseRestoreOperatorLiaisonAfterNotFound"
         ]
     },
     "SellProduct${LocationId}SelectRestoreOperator": {
         "desc": "${LocationDesc}在联络干员列表中选择恢复干员",
-        "recognition": "OCR",
-        "roi": [
-            164,
-            121,
-            700,
-            430
-        ],
-        "expected": [],
+        "recognition": "Custom",
+        "custom_recognition": "SellProductSelectBestOperator",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "${LocationId}",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -383,7 +578,79 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "SellProduct${LocationId}RestoreOperatorAlreadyAssigned",
             "SellProduct${LocationId}CloseRestoreOperatorLiaison"
+        ]
+    },
+    "SellProduct${LocationId}RestoreOperatorAlreadyAssigned": {
+        "desc": "${LocationDesc}恢复干员已派驻到其他据点，临时排除并重新规划",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1",
+            "GrayCancelButton"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "exclude_selected",
+            "usage": "restore",
+            "location": "${LocationId}"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}CancelRestoreOperatorAlreadyAssigned"
+        ]
+    },
+    "SellProduct${LocationId}CancelRestoreOperatorAlreadyAssigned": {
+        "desc": "${LocationDesc}取消抢占其他据点的恢复干员",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1",
+            "GrayCancelButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}CloseRestoreOperatorLiaisonAfterAlreadyAssigned"
+        ]
+    },
+    "SellProduct${LocationId}CloseRestoreOperatorLiaisonAfterAlreadyAssigned": {
+        "desc": "${LocationDesc}关闭联络干员列表并从顶部重新选择恢复干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}OpenRestoreOperatorList"
         ]
     },
     "SellProduct${LocationId}CloseRestoreOperatorLiaison": {
@@ -418,12 +685,17 @@
             "SellProductIn${LocationId}"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "complete_restore",
+            "location": "${LocationId}"
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
     "SellProduct${LocationId}SwipeRestoreOperatorList": {
         "desc": "${LocationDesc}在联络干员列表中向下滑动查找恢复干员",
-        "max_hit": 8,
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison"
@@ -460,12 +732,93 @@
             "SellProduct${LocationId}InRestoreOperatorList"
         ]
     },
-    "SellProduct${LocationId}RestoreOperatorNotFound": {
-        "desc": "${LocationDesc}未找到配置的恢复干员，停止任务",
+    "SellProduct${LocationId}RetryRestoreOperatorAfterScan": {
+        "desc": "${LocationDesc}完整扫描后存在新的恢复干员方案",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorListBottom",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "${LocationId}",
+            "result": "retry",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}CloseRestoreOperatorLiaisonAfterScan"
+        ]
+    },
+    "SellProduct${LocationId}CloseRestoreOperatorLiaisonAfterScan": {
+        "desc": "${LocationDesc}刷新缓存后关闭恢复干员列表",
         "recognition": "And",
         "all_of": [
-            "SellProductInOperatorLiaison"
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
         ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}OpenRestoreOperatorList"
+        ]
+    },
+    "SellProduct${LocationId}RestoreOperatorScanFailed": {
+        "desc": "${LocationDesc}恢复干员列表扫描失败",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorScanOutcome",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "${LocationId}",
+            "result": "error",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "联络干员缓存更新失败，请检查日志和缓存文件写入权限"
+        }
+    },
+    "SellProduct${LocationId}RestoreOperatorNotFound": {
+        "desc": "${LocationDesc}联络干员列表已到底，未找到配置的恢复干员",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorListBottom",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "restore",
+            "location": "${LocationId}",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
         "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
@@ -473,6 +826,44 @@
         "focus": {
             "Node.Recognition.Succeeded": "未在联络干员列表中找到配置的恢复干员，请确认干员已持有或调整据点配置"
         }
+    },
+    "SellProduct${LocationId}CloseRestoreOperatorLiaisonAfterNotFound": {
+        "desc": "${LocationDesc}未找到可用的恢复干员，关闭派驻列表并继续",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}SkipRestoreOperatorDone"
+        ]
+    },
+    "SellProduct${LocationId}SkipRestoreOperatorDone": {
+        "desc": "${LocationDesc}记录本次任务不再恢复原干员",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "skip_restore",
+            "location": "${LocationId}"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     // ===== 在指定据点的识别节点 =====
     "SellProductIn${LocationId}": {
@@ -533,134 +924,14 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    // ===== 售卖尝试 1 =====
-    "SellProduct${LocationId}SellAttempt1": {
-        "desc": "${LocationDesc}第1次尝试：先换货再售卖",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInOutpost"
-        ],
-        "pre_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGood": "SellProduct${LocationId}SelectItem1",
-            "SellProductBetterSliding": "SellProduct${LocationId}BetterSliding1"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProduct${LocationId}SellAttempt1SetMissHandler"
-        ]
-    },
-    "SellProduct${LocationId}SellAttempt1SetMissHandler": {
-        "desc": "${LocationDesc}第1次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
-        "recognition": "DirectHit",
-        "anchor": {
-            "SellProductPriorityGoodMissHandler": ""
-        },
-        "next": [
-            "SellProductChangeGoods"
-        ]
-    },
-    // ===== 售卖尝试 2 =====
-    "SellProduct${LocationId}SellAttempt2": {
-        "desc": "${LocationDesc}第2次尝试：先换货再售卖",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInOutpost"
-        ],
-        "pre_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGood": "SellProduct${LocationId}SelectItem2",
-            "SellProductBetterSliding": "SellProduct${LocationId}BetterSliding2"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProduct${LocationId}SellAttempt2SetMissHandler"
-        ]
-    },
-    "SellProduct${LocationId}SellAttempt2SetMissHandler": {
-        "desc": "${LocationDesc}第2次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
-        "recognition": "DirectHit",
-        "anchor": {
-            "SellProductPriorityGoodMissHandler": ""
-        },
-        "next": [
-            "SellProductChangeGoods"
-        ]
-    },
-    // ===== 售卖尝试 3 =====
-    "SellProduct${LocationId}SellAttempt3": {
-        "desc": "${LocationDesc}第3次尝试：先换货再售卖",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInOutpost"
-        ],
-        "pre_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGood": "SellProduct${LocationId}SelectItem3",
-            "SellProductBetterSliding": "SellProduct${LocationId}BetterSliding3"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProduct${LocationId}SellAttempt3SetMissHandler"
-        ]
-    },
-    "SellProduct${LocationId}SellAttempt3SetMissHandler": {
-        "desc": "${LocationDesc}第3次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
-        "recognition": "DirectHit",
-        "anchor": {
-            "SellProductPriorityGoodMissHandler": ""
-        },
-        "next": [
-            "SellProductChangeGoods"
-        ]
-    },
-    // ===== 售卖尝试 4 =====
-    "SellProduct${LocationId}SellAttempt4": {
-        "desc": "${LocationDesc}第4次尝试：先换货再售卖",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInOutpost"
-        ],
-        "pre_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGood": "SellProduct${LocationId}SelectItem4",
-            "SellProductBetterSliding": "SellProduct${LocationId}BetterSliding4"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProduct${LocationId}SellAttempt4SetMissHandler"
-        ]
-    },
-    "SellProduct${LocationId}SellAttempt4SetMissHandler": {
-        "desc": "${LocationDesc}第4次尝试：设置优先物品未命中处理，此处 anchor 会被 task 选项覆盖",
-        "recognition": "DirectHit",
-        "anchor": {
-            "SellProductPriorityGoodMissHandler": ""
-        },
-        "next": [
-            "SellProductChangeGoods"
-        ]
-    },
-    // ===== 优先物品 1 =====
-    "SellProduct${LocationId}SelectItem1": {
-        "desc": "${LocationDesc}售卖优先物品1",
-        "enabled": false,
+    // ===== 动态优先级售卖循环 =====
+    "SellProduct${LocationId}SelectPriorityItem": {
+        "desc": "${LocationDesc}按价值优先级选择下一个未尝试货品",
         "recognition": "Custom",
-        "custom_recognition": "SellProductNormalizedItemMatch",
+        "custom_recognition": "SellProductPriorityItem",
         "custom_recognition_param": {
-            "candidates": []
+            "location": "${LocationId}",
+            "result": "select"
         },
         "roi": [
             145,
@@ -670,23 +941,19 @@
         ],
         "pre_delay": 0,
         "action": "Click",
-        "anchor": {
-            "SellProductSelectGoodFirstTime": ""
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "SellProductSelectNewGoodConfirm"
         ]
     },
-    // ===== 优先物品 2 =====
-    "SellProduct${LocationId}SelectItem2": {
-        "desc": "${LocationDesc}售卖优先物品2",
-        "enabled": false,
+    "SellProduct${LocationId}PriorityItemsExhausted": {
+        "desc": "${LocationDesc}稳定确认没有剩余可售物品",
         "recognition": "Custom",
-        "custom_recognition": "SellProductNormalizedItemMatch",
+        "custom_recognition": "SellProductPriorityItem",
         "custom_recognition_param": {
-            "candidates": []
+            "location": "${LocationId}",
+            "result": "exhausted"
         },
         "roi": [
             145,
@@ -695,70 +962,33 @@
             518
         ],
         "pre_delay": 0,
-        "action": "Click",
-        "anchor": {
-            "SellProductSelectGoodFirstTime": ""
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSelectNewGoodConfirm"
+            "SellProductCloseGoodsAfterExhausted"
         ]
     },
-    // ===== 优先物品 3 =====
-    "SellProduct${LocationId}SelectItem3": {
-        "desc": "${LocationDesc}售卖优先物品3",
-        "enabled": false,
-        "recognition": "Custom",
-        "custom_recognition": "SellProductNormalizedItemMatch",
-        "custom_recognition_param": {
-            "candidates": []
-        },
-        "roi": [
-            145,
-            103,
-            998,
-            518
+    "SellProduct${LocationId}CommitPriorityItem": {
+        "desc": "${LocationDesc}确认已返回售卖界面，再提交已选择的优先物品",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
         ],
         "pre_delay": 0,
-        "action": "Click",
-        "anchor": {
-            "SellProductSelectGoodFirstTime": ""
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "commit",
+            "location": "${LocationId}"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSelectNewGoodConfirm"
+            "SellProductAtSell"
         ]
     },
-    // ===== 优先物品 4 =====
-    "SellProduct${LocationId}SelectItem4": {
-        "desc": "${LocationDesc}售卖优先物品4",
-        "enabled": false,
-        "recognition": "Custom",
-        "custom_recognition": "SellProductNormalizedItemMatch",
-        "custom_recognition_param": {
-            "candidates": []
-        },
-        "roi": [
-            145,
-            103,
-            998,
-            518
-        ],
-        "pre_delay": 0,
-        "action": "Click",
-        "anchor": {
-            "SellProductSelectGoodFirstTime": ""
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductSelectNewGoodConfirm"
-        ]
-    },
-    "SellProduct${LocationId}BetterSliding1": {
-        "desc": "${LocationDesc}第1次尝试-使用 BetterSliding 设置售卖数量",
+    "SellProduct${LocationId}BetterSliding": {
+        "desc": "${LocationDesc}使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -786,91 +1016,20 @@
             "SellProductSell"
         ]
     },
-    "SellProduct${LocationId}BetterSliding2": {
-        "desc": "${LocationDesc}第2次尝试-使用 BetterSliding 设置售卖数量",
+    "SellProduct${LocationId}ApplyReserve": {
+        "desc": "${LocationDesc}应用当前货品的独立保留规则",
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "BetterSliding",
+        "custom_action": "SellProductReserveSession",
         "custom_action_param": {
-            "GreenMask": true,
-            "Target": 999999,
-            "ClampTargetToMax": true,
-            "MaxTarget": {
-                "Box": "${MaxTargetBox}",
-                "OnlyRec": true
-            },
-            "Quantity": {
-                "Box": "${QuantityBox}",
-                "OnlyRec": true
-            },
-            "Direction": "right",
-            "DecreaseButton": "SellProduct/DecreaseButton.png",
-            "IncreaseButton": "SellProduct/IncreaseButton.png",
-            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
+            "operation": "apply",
+            "sliding_node": "SellProduct${LocationId}BetterSliding"
         },
-        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSell"
-        ]
-    },
-    "SellProduct${LocationId}BetterSliding3": {
-        "desc": "${LocationDesc}第3次尝试-使用 BetterSliding 设置售卖数量",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "BetterSliding",
-        "custom_action_param": {
-            "GreenMask": true,
-            "Target": 999999,
-            "ClampTargetToMax": true,
-            "MaxTarget": {
-                "Box": "${MaxTargetBox}",
-                "OnlyRec": true
-            },
-            "Quantity": {
-                "Box": "${QuantityBox}",
-                "OnlyRec": true
-            },
-            "Direction": "right",
-            "DecreaseButton": "SellProduct/DecreaseButton.png",
-            "IncreaseButton": "SellProduct/IncreaseButton.png",
-            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
-        },
-        "post_wait_freezes": 80,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductSell"
-        ]
-    },
-    "SellProduct${LocationId}BetterSliding4": {
-        "desc": "${LocationDesc}第4次尝试-使用 BetterSliding 设置售卖数量",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "BetterSliding",
-        "custom_action_param": {
-            "GreenMask": true,
-            "Target": 999999,
-            "ClampTargetToMax": true,
-            "MaxTarget": {
-                "Box": "${MaxTargetBox}",
-                "OnlyRec": true
-            },
-            "Quantity": {
-                "Box": "${QuantityBox}",
-                "OnlyRec": true
-            },
-            "Direction": "right",
-            "DecreaseButton": "SellProduct/DecreaseButton.png",
-            "IncreaseButton": "SellProduct/IncreaseButton.png",
-            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
-        },
-        "post_wait_freezes": 80,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductSell"
+            "SellProduct${LocationId}BetterSliding"
         ]
     }
 }

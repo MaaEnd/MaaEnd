@@ -18,26 +18,26 @@
             "image": "四号谷地_地区建设_据点_联络干员_派驻.png",
             "hits": [
                 "SellProductInOperatorLiaison",
-                "SellProductInfrastructureOutpostConfirmTargetOperator",
-                "SellProductInfrastructureOutpostConfirmRestoreOperator",
-                "SellProductInfrastructureOutpostCloseTargetOperatorLiaison",
-                "SellProductInfrastructureOutpostCloseRestoreOperatorLiaison"
+                "SellProductInfraStationConfirmTargetOperator",
+                "SellProductInfraStationConfirmRestoreOperator",
+                "SellProductInfraStationCloseTargetOperatorLiaison",
+                "SellProductInfraStationCloseRestoreOperatorLiaison"
             ]
         },
         {
             "image": "四号谷地_地区建设_据点_联络干员_撤下.png",
             "hits": [
                 "SellProductInOperatorLiaison",
-                "SellProductInfrastructureOutpostCloseTargetOperatorLiaison",
-                "SellProductInfrastructureOutpostCloseRestoreOperatorLiaison"
+                "SellProductInfraStationCloseTargetOperatorLiaison",
+                "SellProductInfraStationCloseRestoreOperatorLiaison"
             ]
         },
         {
             "image": "武陵_地区建设_据点_联络干员_撤下.png",
             "hits": [
                 "SellProductInOperatorLiaison",
-                "SellProductInfrastructureOutpostCloseTargetOperatorLiaison",
-                "SellProductInfrastructureOutpostCloseRestoreOperatorLiaison"
+                "SellProductInfraStationCloseTargetOperatorLiaison",
+                "SellProductInfraStationCloseRestoreOperatorLiaison"
             ]
         }
     ]

@@ -1,8 +1,17 @@
-# 售卖物品
+# 售卖产品
 
 据点数据通过 zmdmap API 获取，存储在 `tools/pipeline-generate/data/` 目录。
 
-`data.mjs` 统一维护据点数据和生成参数，`sell-data.mjs` 从中投影区域售卖入口与区域内据点列表。
+`model.mjs` 统一维护据点命名和国际化键；生成器各自消费最小数据投影：
+
+- `pipeline-data.mjs`：Win32 Pipeline 据点与识别框；
+- `pipeline-adb-data.mjs`：ADB Pipeline 据点与识别框；
+- `sell-data.mjs`：区域售卖入口与区域内据点列表；
+- `session-data.mjs`：自动干员会话的据点注册；
+- `task-data.mjs`：Task 中按缓存强制刷新、售卖优先级、保留规则、地区/据点排列的选项；
+- `selection-data.mjs`：把上游贸易数据预计算为 `assets/data/SellProduct/selection_data.json`，供 Go Service 运行时使用。
+
+据点 `LocationId` 由 zmdmap 英文名称自动派生；只有存在实际 OCR 误识证据时才在 `model.mjs` 追加兼容候选。某个模板独有的参数留在对应投影文件中。
 
 ```shell
 # 在仓库根目录运行（自动拉取最新数据并生成）
@@ -14,15 +23,27 @@ pnpm fetch:zmdmap
 # 使用已缓存的数据补齐五语言据点和干员键
 node tools/pipeline-generate/SellProduct/sync-locales.mjs
 
+# 使用已缓存的数据生成部署所需的最小选品数据
+node tools/pipeline-generate/SellProduct/selection-data.mjs
+
 # 等价于在当前目录运行
 npx @joebao/maa-pipeline-generate --config pipeline-config.json
 npx @joebao/maa-pipeline-generate --config sell-config.json
+npx @joebao/maa-pipeline-generate --config session-config.json
 npx @joebao/maa-pipeline-generate --config task-config.json
 # 需要生成安卓端（ADB）专用流水线时使用
 npx @joebao/maa-pipeline-generate --config pipeline-adb-config.json
 ```
 
-`pnpm generate:SellProduct` 会在渲染前根据 `settlement_trade.json` 自动补齐五语言 locale 中缺失的据点和干员键；已有文案保持不变。
+`pnpm generate:SellProduct` 会在渲染前根据 `settlement_trade.json` 按游戏据点顺序重排五语言 locale 的据点键，据点名始终覆盖为 zmdmap 当前官方译文，并补齐缺失的据点和干员键；随后生成随应用发布的 `selection_data.json`。
+
+`task-template.jsonc` 的任务选项依次为强制刷新干员缓存、优先售卖配置、物品保留规则和地区/据点售卖开关。优先售卖配置包含 4 个槽位，用户指定的物品按槽位 1 至 4 排在默认顺序之前；不属于当前据点的配置会跳过，重复配置采用最靠前的槽位。`selection_data.json` 按每个据点的稀有度、单价降序记录默认顺序。Pipeline 持续回环，直到据点券耗尽或没有剩余候选。
+
+物品保留规则提供 4 个独立槽位，每个槽位选择具体货品和最低保留数量。物品 case 通过 `attach` 提供 `item_id`，数量 input 通过 `custom_action_param.quantity` 提供整数。动态选品确认成功后记录实际 `itemId`，保留规则据此生效；数量 `0` 表示全部可售，同一物品重复配置时后面的槽位覆盖前面的槽位。
+
+`SellProductLogPlan` 在正式售卖前输出结构化日志和 UI 节点通知。结构化日志包含启用据点的售卖/恢复干员、货品优先级和保留数量；UI 运行日志包含总计划和各据点的本地化安排。`selection_data.json` 的 `names` 映射提供五语言 OCR 候选和 UI 展示名，Go 按固定语言顺序展开并去重 OCR 候选。
+
+据点开关同时控制 `SellProductRegisterAuto{LocationId}`，启用据点构成自动恢复分配的规划范围。自动干员选择和售卖后恢复是 Pipeline 固定流程，不提供任务开关。
 
 ## 致谢
 

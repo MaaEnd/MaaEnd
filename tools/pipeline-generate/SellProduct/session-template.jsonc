@@ -1,0 +1,17 @@
+{
+    "SellProductRegisterAuto${LocationId}": {
+        "desc": "注册${LocationDesc}自动干员恢复范围",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "register",
+            "location": "${LocationId}"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": "${OperatorRegistrationNext}"
+    }
+}
