@@ -103,6 +103,15 @@ function registerOperator(operators, operator) {
     return name;
 }
 
+function targetBonusTier(entry) {
+    const hasExp = entry.bonusTypes.has("expProfit");
+    const hasMoney = entry.bonusTypes.has("moneyProfit");
+    if (hasExp && hasMoney) return 0;
+    if (hasMoney) return 1;
+    if (hasExp) return 2;
+    return 3;
+}
+
 export function buildLocationOperatorOrder(settlement, acceptedBonusTypes, localeOrder, operators, targetUsage) {
     const accepted = new Set(acceptedBonusTypes);
     const entries = new Map();
@@ -131,15 +140,11 @@ export function buildLocationOperatorOrder(settlement, acceptedBonusTypes, local
             left.name.localeCompare(right.name),
     );
     if (targetUsage) {
-        const targetPriority = (entry) => {
-            const hasExp = entry.bonusTypes.has("expProfit");
-            const hasMoney = entry.bonusTypes.has("moneyProfit");
-            if (hasExp && hasMoney) return 0;
-            if (hasMoney) return 1;
-            if (hasExp) return 2;
-            return 3;
-        };
-        sorted.sort((left, right) => targetPriority(left) - targetPriority(right));
+        sorted.sort((left, right) => targetBonusTier(left) - targetBonusTier(right));
+        return sorted.map((entry) => ({
+            name: entry.name,
+            bonus_tier: targetBonusTier(entry),
+        }));
     }
     return sorted.map((entry) => entry.name);
 }

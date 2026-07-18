@@ -51,7 +51,7 @@ func buildOperatorSelectionData(data *sellProductSelectionDataFile) (*operatorSe
 	}
 
 	for priority, name := range data.KnownOperatorOrder {
-		candidate, err := selectionOperatorCandidate(data, name, priority)
+		candidate, err := selectionOperatorCandidate(data, name, priority, 0)
 		if err != nil {
 			return nil, fmt.Errorf("known operator: %w", err)
 		}
@@ -63,7 +63,7 @@ func buildOperatorSelectionData(data *sellProductSelectionDataFile) (*operatorSe
 			return nil, fmt.Errorf("location %q not found", locationName)
 		}
 		result.LocationNames[locationName] = localizedSelectionName(location.Names, locationName)
-		targetCandidates, err := buildSelectionOperatorCandidates(data, location.TargetOperators)
+		targetCandidates, err := buildTargetSelectionOperatorCandidates(data, location.TargetOperators)
 		if err != nil {
 			return nil, fmt.Errorf("location %q target operators: %w", locationName, err)
 		}
@@ -90,7 +90,22 @@ func buildSelectionOperatorCandidates(
 ) ([]operatorCandidate, error) {
 	candidates := make([]operatorCandidate, 0, len(names))
 	for priority, name := range names {
-		candidate, err := selectionOperatorCandidate(data, name, priority)
+		candidate, err := selectionOperatorCandidate(data, name, priority, 0)
+		if err != nil {
+			return nil, err
+		}
+		candidates = append(candidates, candidate)
+	}
+	return normalizeOperatorCandidates(candidates), nil
+}
+
+func buildTargetSelectionOperatorCandidates(
+	data *sellProductSelectionDataFile,
+	entries []selectionDataTargetOperator,
+) ([]operatorCandidate, error) {
+	candidates := make([]operatorCandidate, 0, len(entries))
+	for priority, entry := range entries {
+		candidate, err := selectionOperatorCandidate(data, entry.Name, priority, entry.BonusTier)
 		if err != nil {
 			return nil, err
 		}

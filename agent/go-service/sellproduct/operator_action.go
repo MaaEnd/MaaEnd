@@ -16,8 +16,8 @@ import (
 // 命中框交给 Pipeline 点击；若当前页没有目标，则由 Pipeline 继续滚动列表。
 type SelectBestOperatorRecognition struct{}
 
-// CurrentBestOperatorRecognition 只检查全局最优候选当前是否已经处于选中位置。
-// 它用于避免重复点击已选中的干员，而不是在当前页面降级选择次优候选。
+// CurrentBestOperatorRecognition 检查最高售卖加成档候选是否已经处于选中位置。
+// 同档候选收益相同，沿用当前干员可以减少售卖和恢复过程中的无意义更换。
 type CurrentBestOperatorRecognition struct{}
 
 // OperatorCacheReadyRecognition 判断当前账号是否已有可用于选择的拥有干员快照。
@@ -88,8 +88,7 @@ func (r *SelectBestOperatorRecognition) Run(
 	}, true
 }
 
-// Run 检查排序第一的全局最优候选是否出现在当前画面。
-// 与 SelectBestOperatorRecognition 的区别是：本方法不会在最优候选不可见时返回次优项。
+// Run 检查当前派驻是否属于最高售卖加成档，恢复阶段仍只检查全局规划候选。
 func (r *CurrentBestOperatorRecognition) Run(
 	ctx *maa.Context,
 	arg *maa.CustomRecognitionArg,
@@ -113,7 +112,12 @@ func (r *CurrentBestOperatorRecognition) Run(
 		log.Error().Err(err).Str("component", currentBestOperatorRecognitionName).Msg("owned operators unavailable")
 		return nil, false
 	}
-	candidates := candidatesForOwnership(selectionParam, ownership)
+	var candidates []operatorCandidate
+	if selectionParam.Usage == operatorActionUsageTarget {
+		candidates = equivalentTargetCandidatesForOwnership(selectionParam, ownership)
+	} else {
+		candidates = candidatesForOwnership(selectionParam, ownership)
+	}
 	if len(candidates) == 0 {
 		return nil, false
 	}
@@ -478,7 +482,7 @@ func findBestVisibleOperator(candidates []operatorCandidate, items []ocrItem) (o
 	return operatorCandidate{}, nil, false
 }
 
-// findCurrentBestOperator 只匹配候选列表中的全局第一名，用于判断是否已经选中最优干员。
+// findCurrentBestOperator 按稳定顺序匹配最高售卖加成档中的任一当前干员。
 func findCurrentBestOperator(
 	candidates []operatorCandidate,
 	knownOperators []operatorCandidate,
@@ -487,15 +491,16 @@ func findCurrentBestOperator(
 	if len(candidates) == 0 {
 		return operatorCandidate{}, nil, false
 	}
-	candidate := candidates[0]
-	match := findBestMatch(items, candidate.Expected)
-	if match == nil {
-		match = findCurrentOperatorPrefixMatch(items, candidate, knownOperators)
+	for _, candidate := range candidates {
+		match := findBestMatch(items, candidate.Expected)
+		if match == nil {
+			match = findCurrentOperatorPrefixMatch(items, candidate, knownOperators)
+		}
+		if match != nil {
+			return candidate, match, true
+		}
 	}
-	if match == nil {
-		return operatorCandidate{}, nil, false
-	}
-	return candidate, match, true
+	return operatorCandidate{}, nil, false
 }
 
 // findCurrentOperatorPrefixMatch 兼容当前干员名称与右侧界面文本被 OCR 合并的情况。

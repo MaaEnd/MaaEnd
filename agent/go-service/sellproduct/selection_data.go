@@ -42,11 +42,16 @@ type selectionDataOperator struct {
 	Names     map[string]string `json:"names"`
 }
 
+type selectionDataTargetOperator struct {
+	Name      string `json:"name"`
+	BonusTier int    `json:"bonus_tier"`
+}
+
 type selectionDataLocation struct {
-	Names            map[string]string `json:"names"`
-	ItemOrder        []string          `json:"item_order"`
-	TargetOperators  []string          `json:"target_operators"`
-	RestoreOperators []string          `json:"restore_operators"`
+	Names            map[string]string             `json:"names"`
+	ItemOrder        []string                      `json:"item_order"`
+	TargetOperators  []selectionDataTargetOperator `json:"target_operators"`
+	RestoreOperators []string                      `json:"restore_operators"`
 }
 
 func loadSellProductSelectionData() (*sellProductSelectionDataFile, error) {
@@ -130,6 +135,7 @@ func selectionOperatorCandidate(
 	data *sellProductSelectionDataFile,
 	name string,
 	priority int,
+	bonusTier int,
 ) (operatorCandidate, error) {
 	name = strings.TrimSpace(name)
 	operator, ok := data.Operators[name]
@@ -142,6 +148,7 @@ func selectionOperatorCandidate(
 		DisplayName: localizedSelectionName(operator.Names, name),
 		Expected:    selectionExpectedNames(operator.Names),
 		Priority:    priority,
+		BonusTier:   bonusTier,
 	}
 	normalized := normalizeOperatorCandidates([]operatorCandidate{candidate})
 	if len(normalized) == 0 {

@@ -41,7 +41,7 @@ npx @joebao/maa-pipeline-generate --config pipeline-adb-config.json
 
 物品保留规则提供 4 个独立槽位，每个槽位选择具体货品和最低保留数量。物品 case 通过 `attach` 提供 `item_id`，数量 input 通过 `custom_action_param.quantity` 提供整数。动态选品确认成功后记录实际 `itemId`，保留规则据此生效；数量 `0` 表示全部可售，同一物品重复配置时后面的槽位覆盖前面的槽位。
 
-`SellProductLogPlan` 在正式售卖前输出结构化日志和 UI 节点通知。结构化日志包含启用据点的售卖/恢复干员、货品优先级和保留数量；UI 运行日志包含总计划和各据点的本地化安排。`selection_data.json` 的 `names` 映射提供五语言 OCR 候选和 UI 展示名，Go 按固定语言顺序展开并去重 OCR 候选。
+`SellProductLogPlan` 在正式售卖前输出结构化日志和 UI 节点通知。结构化日志包含启用据点的售卖/恢复干员、货品优先级和保留数量；UI 运行日志包含总计划和各据点的本地化安排。`selection_data.json` 的 `names` 映射提供五语言 OCR 候选和 UI 展示名，Go 按固定语言顺序展开并去重 OCR 候选。售卖候选同时保留 `bonus_tier`；同档候选优先沿用当前派驻，需要更换时由全局恢复方案决定，以减少无收益的干员切换。
 
 运行期 UI 日志在状态确认节点输出进入据点、干员沿用或切换、货品切换、交易完成、派驻冲突后的重新规划、完整扫描后的新干员方案、恢复跳过和关键扫描失败。Pipeline 的固定提示引用 interface i18n，Go Service 根据 `selection_data.json` 和 go-service i18n 输出当前语言的据点、干员、货品及动态状态。
 

@@ -11,13 +11,13 @@ func TestBuildOperatorSelectionDataUsesGeneratedOrder(t *testing.T) {
 	if len(target) != 3 {
 		t.Fatalf("target candidates = %#v", target)
 	}
-	if target[0].Name != "Both" || target[0].Priority != 0 || target[0].CacheName != "双加成" {
+	if target[0].Name != "Both" || target[0].Priority != 0 || target[0].BonusTier != 0 || target[0].CacheName != "双加成" {
 		t.Fatalf("first target candidate = %#v", target[0])
 	}
-	if target[1].Name != "Money" || target[1].Priority != 1 {
+	if target[1].Name != "Money" || target[1].Priority != 1 || target[1].BonusTier != 1 {
 		t.Fatalf("second target candidate = %#v", target[1])
 	}
-	if target[2].Name != "Build" || target[2].Priority != 2 {
+	if target[2].Name != "Build" || target[2].Priority != 2 || target[2].BonusTier != 2 {
 		t.Fatalf("third target candidate = %#v", target[2])
 	}
 	if len(got.RestoreGroups) != 1 || got.RestoreGroups[0].Candidates[0].Name != "Restore" {
@@ -31,7 +31,7 @@ func TestBuildOperatorSelectionDataUsesGeneratedOrder(t *testing.T) {
 func TestBuildOperatorSelectionDataRejectsUnknownOperator(t *testing.T) {
 	data := testSellProductSelectionData()
 	location := data.Locations["TestOutpost"]
-	location.TargetOperators = append(location.TargetOperators, "Missing")
+	location.TargetOperators = append(location.TargetOperators, selectionDataTargetOperator{Name: "Missing"})
 	data.Locations["TestOutpost"] = location
 	if _, err := buildOperatorSelectionData(data); err == nil {
 		t.Fatal("unknown operator reference should fail")

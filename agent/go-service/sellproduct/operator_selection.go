@@ -16,6 +16,28 @@ func candidatesForOwnership(p *operatorSelectionParam, ownership operatorOwnersh
 	return candidatesForCurrentSelection(p, owned)
 }
 
+// equivalentTargetCandidatesForOwnership 返回当前账号可用的最高售卖加成档候选。
+// 当前派驻识别使用完整同档集合，避免把稳定顺序误当成收益差异而产生无意义更换。
+func equivalentTargetCandidatesForOwnership(
+	p *operatorSelectionParam,
+	ownership operatorOwnership,
+) []operatorCandidate {
+	owned := ownership.Operators
+	if !ownership.Complete {
+		owned = operatorCandidateCacheNameSet(collectScanCandidates(p))
+	}
+	available := cloneStringSet(owned)
+	for excluded := range p.ExcludedOperators {
+		delete(available, excluded)
+	}
+	return bestBonusTierCandidates(availableTargetCandidates(
+		p.Candidates,
+		available,
+		p.Location,
+		p.LockedRestoreAssignments,
+	))
+}
+
 // candidatesForCurrentSelection 根据 usage 生成本轮真正允许选择的候选。
 // target 直接按收益优先级过滤已拥有干员；restore 必须先做全据点唯一分配，
 // 当前据点只能使用全局方案分给它的那一名干员。
@@ -25,12 +47,16 @@ func candidatesForCurrentSelection(p *operatorSelectionParam, owned map[string]s
 		delete(availableOwned, excluded)
 	}
 	if p.Usage == operatorActionUsageTarget {
-		candidates := availableTargetCandidates(p.Candidates, availableOwned, p.Location, p.LockedRestoreAssignments)
+		candidates := bestBonusTierCandidates(availableTargetCandidates(
+			p.Candidates,
+			availableOwned,
+			p.Location,
+			p.LockedRestoreAssignments,
+		))
 		if len(candidates) == 0 {
 			return nil
 		}
-		// 缓存已经给出全局优先级，只搜索第一名，禁止在当前页降级选择次优干员。
-		return candidates[:1]
+		return []operatorCandidate{selectTargetCandidateForRestorePlan(p, availableOwned, candidates)}
 	}
 	if p.Usage != operatorActionUsageRestore {
 		return nil
@@ -50,6 +76,57 @@ func candidatesForCurrentSelection(p *operatorSelectionParam, owned map[string]s
 		return nil
 	}
 	return []operatorCandidate{candidate}
+}
+
+func bestBonusTierCandidates(candidates []operatorCandidate) []operatorCandidate {
+	if len(candidates) == 0 {
+		return nil
+	}
+	bestTier := candidates[0].BonusTier
+	count := 1
+	for count < len(candidates) && candidates[count].BonusTier == bestTier {
+		count++
+	}
+	return candidates[:count]
+}
+
+// selectTargetCandidateForRestorePlan 在同档售卖候选中选择最有利于全局恢复的干员。
+// 比较顺序复用恢复规划的“覆盖数、沿用人数、稳定成本”，最后按售卖候选顺序决胜。
+func selectTargetCandidateForRestorePlan(
+	p *operatorSelectionParam,
+	owned map[string]struct{},
+	candidates []operatorCandidate,
+) operatorCandidate {
+	bestCandidate := candidates[0]
+	bestPlan := restorePlanForTargetCandidate(p, owned, bestCandidate)
+	for _, candidate := range candidates[1:] {
+		plan := restorePlanForTargetCandidate(p, owned, candidate)
+		if isBetterRestorePlan(plan.Assigned, plan.KeptTargets, plan.TotalCost, bestPlan) {
+			bestCandidate = candidate
+			bestPlan = plan
+		}
+	}
+	return bestCandidate
+}
+
+func restorePlanForTargetCandidate(
+	p *operatorSelectionParam,
+	owned map[string]struct{},
+	candidate operatorCandidate,
+) restoreAssignmentPlan {
+	selection := *p
+	selection.TargetAssignments = cloneRestoreAssignments(p.TargetAssignments)
+	selection.TargetAssignments[p.Location] = candidate
+
+	available := cloneStringSet(owned)
+	for _, lockedCandidate := range p.LockedRestoreAssignments {
+		delete(available, operatorCandidateCacheName(lockedCandidate))
+	}
+	return buildRestoreAssignmentPlanWithPreferences(
+		restoreGroupsForSelection(&selection),
+		available,
+		preferredRestoreAssignments(&selection, owned),
+	)
 }
 
 // availableTargetCandidates 筛出已拥有且未被其他据点恢复岗位锁定的候选。

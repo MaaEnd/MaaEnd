@@ -627,17 +627,50 @@
                 "item_glass_cmpt"
             ],
             "target_operators": [
-                "Laevatain",
-                "Perlica",
-                "Wulfgard",
-                "Antal",
-                "Fluorite",
-                "Tangtang",
-                "Camille",
-                "Ardelia",
-                "Gilberta",
-                "Pogranichnik",
-                "Snowshine"
+                {
+                    "name": "Laevatain",
+                    "bonus_tier": 0
+                },
+                {
+                    "name": "Perlica",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Wulfgard",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Antal",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Fluorite",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Tangtang",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Camille",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Ardelia",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Gilberta",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Pogranichnik",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Snowshine",
+                    "bonus_tier": 2
+                }
             ],
             "restore_operators": [
                 "Antal",
@@ -666,20 +699,62 @@
                 "item_iron_cmpt"
             ],
             "target_operators": [
-                "Yvonne",
-                "Xaihi",
-                "Ember",
-                "Camille",
-                "Perlica",
-                "ChenQianyu",
-                "Wulfgard",
-                "Antal",
-                "Catcher",
-                "Fluorite",
-                "Akekuri",
-                "Estella",
-                "Rossi",
-                "Tangtang"
+                {
+                    "name": "Yvonne",
+                    "bonus_tier": 0
+                },
+                {
+                    "name": "Xaihi",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Ember",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Camille",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Perlica",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "ChenQianyu",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Wulfgard",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Antal",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Catcher",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Fluorite",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Akekuri",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Estella",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Rossi",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Tangtang",
+                    "bonus_tier": 2
+                }
             ],
             "restore_operators": [
                 "Yvonne",
@@ -705,14 +780,38 @@
                 "item_iron_enr_cmpt"
             ],
             "target_operators": [
-                "Gilberta",
-                "Pogranichnik",
-                "ChenQianyu",
-                "Alesh",
-                "ZhuangFangyi",
-                "Ardelia",
-                "Laevatain",
-                "Snowshine"
+                {
+                    "name": "Gilberta",
+                    "bonus_tier": 0
+                },
+                {
+                    "name": "Pogranichnik",
+                    "bonus_tier": 0
+                },
+                {
+                    "name": "ChenQianyu",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Alesh",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "ZhuangFangyi",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Ardelia",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Laevatain",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Snowshine",
+                    "bonus_tier": 2
+                }
             ],
             "restore_operators": [
                 "Perlica",
@@ -741,16 +840,46 @@
                 "item_xiranite_powder"
             ],
             "target_operators": [
-                "Lifeng",
-                "Tangtang",
-                "Ardelia",
-                "Wulfgard",
-                "Arclight",
-                "Fluorite",
-                "Rossi",
-                "Arcane",
-                "Avywenna",
-                "Camille"
+                {
+                    "name": "Lifeng",
+                    "bonus_tier": 0
+                },
+                {
+                    "name": "Tangtang",
+                    "bonus_tier": 0
+                },
+                {
+                    "name": "Ardelia",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Wulfgard",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Arclight",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Fluorite",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Rossi",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Arcane",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Avywenna",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Camille",
+                    "bonus_tier": 2
+                }
             ],
             "restore_operators": [
                 "Wulfgard",
@@ -780,16 +909,46 @@
                 "item_xiranite_powder"
             ],
             "target_operators": [
-                "DaPan",
-                "ZhuangFangyi",
-                "Arcane",
-                "ChenQianyu",
-                "LastRite",
-                "Snowshine",
-                "Akekuri",
-                "Lifeng",
-                "Alesh",
-                "MiFu"
+                {
+                    "name": "DaPan",
+                    "bonus_tier": 0
+                },
+                {
+                    "name": "ZhuangFangyi",
+                    "bonus_tier": 0
+                },
+                {
+                    "name": "Arcane",
+                    "bonus_tier": 0
+                },
+                {
+                    "name": "ChenQianyu",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "LastRite",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Snowshine",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Akekuri",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Lifeng",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Alesh",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "MiFu",
+                    "bonus_tier": 2
+                }
             ],
             "restore_operators": [
                 "Perlica",
@@ -817,18 +976,54 @@
                 "item_xiranite_powder"
             ],
             "target_operators": [
-                "Lifeng",
-                "Arcane",
-                "Ardelia",
-                "Wulfgard",
-                "Arclight",
-                "Fluorite",
-                "Rossi",
-                "Tangtang",
-                "Xaihi",
-                "DaPan",
-                "ZhuangFangyi",
-                "MiFu"
+                {
+                    "name": "Lifeng",
+                    "bonus_tier": 0
+                },
+                {
+                    "name": "Arcane",
+                    "bonus_tier": 0
+                },
+                {
+                    "name": "Ardelia",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Wulfgard",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Arclight",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Fluorite",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Rossi",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Tangtang",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Xaihi",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "DaPan",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "ZhuangFangyi",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "MiFu",
+                    "bonus_tier": 2
+                }
             ],
             "restore_operators": [
                 "Yvonne",

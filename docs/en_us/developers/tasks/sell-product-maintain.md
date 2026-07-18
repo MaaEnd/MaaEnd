@@ -108,7 +108,10 @@ Selling-operator priority is fixed:
 1. Both EXP and credit bonuses;
 2. Credit bonus only;
 3. EXP bonus only;
-4. Stable in-game operator order for ties.
+4. Within the same bonus tier, keep the currently assigned operator first; when a switch is required, prefer the candidate that lets the global restoration plan keep more selling operators;
+5. Use the stable in-game operator order when the global restoration result is still tied.
+
+`selection_data.json` retains a `bonus_tier` for every selling candidate so stable ordering is not mistaken for a benefit difference. If the current assignment belongs to the best available tier, Pipeline keeps it without opening the operator list. Otherwise, Go evaluates the global restoration plan for each candidate in that tier.
 
 The owned-operator cache is stored in `debug/record/SellProductOwnedOperators.json` and partitioned by hashed UID:
 

@@ -60,7 +60,7 @@ test("SellProduct selection data contains only valid stable references", () => {
             assert.ok(data.items[itemID], `${locationName} references missing item ${itemID}`);
         }
         for (const operatorName of [
-            ...location.target_operators,
+            ...location.target_operators.map((operator) => operator.name),
             ...location.restore_operators,
         ]) {
             assert.ok(data.operators[operatorName], `${locationName} references missing operator ${operatorName}`);
@@ -168,8 +168,28 @@ test("SellProduct generated target operators prioritize combined profit bonuses"
         true,
     );
     assert.deepEqual(order, [
-        "Both",
-        "Money",
-        "Exp",
+        {
+            name: "Both",
+            bonus_tier: 0,
+        },
+        {
+            name: "Money",
+            bonus_tier: 1,
+        },
+        {
+            name: "Exp",
+            bonus_tier: 2,
+        },
     ]);
+});
+
+test("SellProduct generated target operators preserve equal bonus tiers", () => {
+    const data = sellProductSelectionData.locations.XiranflowCloudseederStation.target_operators;
+    const lifeng = data.find((operator) => operator.name === "Lifeng");
+    const arcane = data.find((operator) => operator.name === "Arcane");
+
+    assert.ok(lifeng);
+    assert.ok(arcane);
+    assert.equal(lifeng.bonus_tier, 0);
+    assert.equal(arcane.bonus_tier, lifeng.bonus_tier);
 });

@@ -34,10 +34,10 @@ func testSellProductSelectionData() *sellProductSelectionDataFile {
 					"item_b",
 					"item_a",
 				},
-				TargetOperators: []string{
-					"Both",
-					"Money",
-					"Build",
+				TargetOperators: []selectionDataTargetOperator{
+					{Name: "Both", BonusTier: 0},
+					{Name: "Money", BonusTier: 1},
+					{Name: "Build", BonusTier: 2},
 				},
 				RestoreOperators: []string{"Restore"},
 			},

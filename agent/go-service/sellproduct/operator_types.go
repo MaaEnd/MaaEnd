@@ -45,6 +45,8 @@ type operatorCandidate struct {
 	Expected []string `json:"expected"`
 	// Priority 表示候选顺序，值越小越优先。
 	Priority int `json:"priority"`
+	// BonusTier 表示售卖加成档位，值越小收益越高；同档候选可参与最少更换规划。
+	BonusTier int `json:"bonus_tier"`
 }
 
 // operatorCandidateGroup 表示某个据点及其可恢复到该岗位的干员集合。
@@ -163,10 +165,12 @@ func uniqueNonEmptyStrings(values []string) []string {
 	return result
 }
 
-// sortOperatorCandidates 按数值从小到大排列优先级。
-// 使用稳定排序可确保同优先级候选仍遵循上游资源数据给出的顺序。
+// sortOperatorCandidates 先按售卖加成档位、再按稳定优先级排序。
 func sortOperatorCandidates(candidates []operatorCandidate) {
 	sort.SliceStable(candidates, func(i, j int) bool {
+		if candidates[i].BonusTier != candidates[j].BonusTier {
+			return candidates[i].BonusTier < candidates[j].BonusTier
+		}
 		return candidates[i].Priority < candidates[j].Priority
 	})
 }

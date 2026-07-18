@@ -220,13 +220,112 @@ func TestCandidatesForCurrentSelectionReturnsOnlyGlobalBestTarget(t *testing.T) 
 	p := &operatorSelectionParam{
 		Usage: operatorActionUsageTarget,
 		Candidates: []operatorCandidate{
-			{Name: "Best", CacheName: "最优", Priority: 0},
-			{Name: "Fallback", CacheName: "备选", Priority: 1},
+			{Name: "Best", CacheName: "最优", Priority: 0, BonusTier: 0},
+			{Name: "Fallback", CacheName: "备选", Priority: 1, BonusTier: 1},
 		},
 	}
 	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"最优", "备选"}))
 	if len(candidates) != 1 || candidates[0].Name != "Best" {
 		t.Fatalf("候选 = %#v，期望仅包含 Best", candidates)
+	}
+}
+
+func TestEquivalentTargetCandidatesIncludeAllBestBonusOperators(t *testing.T) {
+	p := &operatorSelectionParam{
+		Usage:    operatorActionUsageTarget,
+		Location: "XiranflowCloudseederStation",
+		Candidates: []operatorCandidate{
+			{Name: "Lifeng", CacheName: "黎风", Priority: 0, BonusTier: 0},
+			{Name: "Arcane", CacheName: "诀", Priority: 1, BonusTier: 0},
+			{Name: "Ardelia", CacheName: "艾尔黛拉", Priority: 2, BonusTier: 1},
+		},
+	}
+
+	candidates := equivalentTargetCandidatesForOwnership(p, operatorOwnership{
+		Operators: operatorNameSet([]string{"黎风", "诀", "艾尔黛拉"}),
+		Complete:  true,
+	})
+	if len(candidates) != 2 || candidates[0].Name != "Lifeng" || candidates[1].Name != "Arcane" {
+		t.Fatalf("同档候选 = %#v，期望 Lifeng、Arcane", candidates)
+	}
+}
+
+func TestTargetSelectionMinimizesGlobalOperatorChangesWithinBestBonusTier(t *testing.T) {
+	p := &operatorSelectionParam{
+		Usage:    operatorActionUsageTarget,
+		Location: "XiranflowCloudseederStation",
+		ActiveLocations: map[string]struct{}{
+			"Other":                       {},
+			"XiranflowCloudseederStation": {},
+		},
+		Candidates: []operatorCandidate{
+			{Name: "Lifeng", CacheName: "黎风", Priority: 0, BonusTier: 0},
+			{Name: "Arcane", CacheName: "诀", Priority: 1, BonusTier: 0},
+		},
+		TargetAssignments: map[string]operatorCandidate{
+			"Other": {Name: "OtherKeeper", CacheName: "其他驻员"},
+		},
+		RestoreGroups: []operatorCandidateGroup{
+			{
+				Location: "Other",
+				Candidates: []operatorCandidate{
+					{Name: "OtherKeeper", CacheName: "其他驻员", Priority: 0},
+				},
+			},
+			{
+				Location: "XiranflowCloudseederStation",
+				Candidates: []operatorCandidate{
+					{Name: "ChenQianyu", CacheName: "陈千语", Priority: 0},
+					{Name: "Arcane", CacheName: "诀", Priority: 5},
+				},
+			},
+		},
+	}
+	owned := operatorNameSet([]string{"黎风", "诀", "陈千语", "其他驻员"})
+
+	candidates := candidatesForCurrentSelection(p, owned)
+	if len(candidates) != 1 || candidates[0].Name != "Arcane" {
+		t.Fatalf("售卖候选 = %#v，期望选择可被全局恢复方案沿用的 Arcane", candidates)
+	}
+
+	selection := *p
+	selection.Usage = operatorActionUsageRestore
+	selection.TargetAssignments = cloneRestoreAssignments(p.TargetAssignments)
+	selection.TargetAssignments[p.Location] = candidates[0]
+	restore := candidatesForCurrentSelection(&selection, owned)
+	if len(restore) != 1 || restore[0].Name != "Arcane" {
+		t.Fatalf("恢复候选 = %#v，期望继续沿用 Arcane", restore)
+	}
+}
+
+func TestGeneratedXiranflowPlanKeepsArcaneForSellingAndRestore(t *testing.T) {
+	data, err := loadOperatorSelectionData()
+	if err != nil {
+		t.Fatalf("加载 SellProduct 干员数据失败：%v", err)
+	}
+	p := &operatorSelectionParam{
+		Usage:                      operatorActionUsageTarget,
+		Location:                   "XiranflowCloudseederStation",
+		Candidates:                 data.TargetCandidates["XiranflowCloudseederStation"],
+		TargetCandidatesByLocation: data.TargetCandidates,
+		RestoreGroups:              data.RestoreGroups,
+		ActiveLocations: map[string]struct{}{
+			"XiranflowCloudseederStation": {},
+		},
+	}
+	owned := operatorNameSet([]string{"黎风", "诀", "陈千语"})
+
+	target := candidatesForCurrentSelection(p, owned)
+	if len(target) != 1 || target[0].Name != "Arcane" {
+		t.Fatalf("盈天台售卖干员 = %#v，期望 Arcane", target)
+	}
+	p.Usage = operatorActionUsageRestore
+	p.TargetAssignments = map[string]operatorCandidate{
+		p.Location: target[0],
+	}
+	restore := candidatesForCurrentSelection(p, owned)
+	if len(restore) != 1 || restore[0].Name != "Arcane" {
+		t.Fatalf("盈天台恢复干员 = %#v，期望继续沿用 Arcane", restore)
 	}
 }
 

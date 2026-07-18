@@ -89,22 +89,23 @@ func TestFindBestVisibleOperatorDoesNotFallBackOnCurrentPage(t *testing.T) {
 	}
 }
 
-func TestFindCurrentBestOperatorRequiresTopPriorityCandidate(t *testing.T) {
-	candidates := []operatorCandidate{
-		{Name: "Best", CacheName: "最优", Expected: []string{"最优"}, Priority: 0},
-		{Name: "Fallback", CacheName: "备选", Expected: []string{"备选"}, Priority: 1},
+func TestFindCurrentBestOperatorRequiresTopBonusTier(t *testing.T) {
+	allCandidates := []operatorCandidate{
+		{Name: "Best", CacheName: "最优", Expected: []string{"最优"}, Priority: 0, BonusTier: 0},
+		{Name: "Fallback", CacheName: "备选", Expected: []string{"备选"}, Priority: 1, BonusTier: 1},
 	}
+	candidates := bestBonusTierCandidates(allCandidates)
 	fallbackItems := []ocrItem{
 		{text: "备选", box: maa.Rect{100, 100, 80, 20}},
 	}
-	if _, _, ok := findCurrentBestOperator(candidates, candidates, fallbackItems); ok {
-		t.Fatal("fallback candidate should not be treated as the current best operator")
+	if _, _, ok := findCurrentBestOperator(candidates, allCandidates, fallbackItems); ok {
+		t.Fatal("lower bonus tier candidate should not be treated as the current best operator")
 	}
 
 	bestItems := []ocrItem{
 		{text: "最优", box: maa.Rect{100, 100, 80, 20}},
 	}
-	candidate, match, ok := findCurrentBestOperator(candidates, candidates, bestItems)
+	candidate, match, ok := findCurrentBestOperator(candidates, allCandidates, bestItems)
 	if !ok {
 		t.Fatal("expected current best operator match")
 	}
@@ -113,6 +114,22 @@ func TestFindCurrentBestOperatorRequiresTopPriorityCandidate(t *testing.T) {
 	}
 	if match.ocrText != "最优" {
 		t.Fatalf("ocr text = %q, want 最优", match.ocrText)
+	}
+}
+
+func TestFindCurrentBestOperatorAcceptsEquivalentBonusTier(t *testing.T) {
+	candidates := []operatorCandidate{
+		{Name: "Lifeng", CacheName: "黎风", Expected: []string{"黎风"}, Priority: 0, BonusTier: 0},
+		{Name: "Arcane", CacheName: "诀", Expected: []string{"诀"}, Priority: 1, BonusTier: 0},
+	}
+	items := []ocrItem{{text: "诀", box: maa.Rect{260, 569, 29, 23}}}
+
+	candidate, match, ok := findCurrentBestOperator(candidates, candidates, items)
+	if !ok || match == nil {
+		t.Fatal("同档当前干员诀应直接命中")
+	}
+	if candidate.Name != "Arcane" {
+		t.Fatalf("当前干员 = %q，期望 Arcane", candidate.Name)
 	}
 }
 
