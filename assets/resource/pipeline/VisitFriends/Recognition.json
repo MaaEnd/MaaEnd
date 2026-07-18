@@ -11,17 +11,41 @@
         "template": "VisitFriends/EnterButton.png",
         "threshold": 0.9
     },
+    "VisitFriendsRecognitionItemClueExchange": {
+        "desc": "进船按钮旁锚点：默认 ColorMatch 匹配全部好友（助力未满时不筛线索）；助力满/未开时由 AssistFull 覆盖为线索可用 TemplateMatch",
+        "recognition": "ColorMatch",
+        "roi": "VisitFriendsRecognitionItemEnterButton",
+        "roi_offset": [
+            24,
+            -15,
+            4,
+            5
+        ],
+        "lower": [
+            0,
+            0,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 1,
+        "connected": false,
+        "order_by": "Vertical"
+    },
     "VisitFriendsRecognitionItemNameByEnterButton": {
         "desc": "按进船按钮偏移识别好友名（可由 SelectFriend 覆盖 expected 排除已访问）",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "VisitFriendsRecognitionItemEnterButton",
+                "roi": "VisitFriendsRecognitionItemClueExchange",
                 "roi_offset": [
-                    -1050,
-                    -30,
-                    300,
-                    5
+                    -1093,
+                    -14,
+                    214,
+                    0
                 ],
                 "expected": [
                     ".*#.*"
@@ -35,21 +59,10 @@
         "recognition": "And",
         "all_of": [
             "VisitFriendsRecognitionItemEnterButton",
+            "VisitFriendsRecognitionItemClueExchange",
             "VisitFriendsRecognitionItemNameByEnterButton"
         ],
-        "box_index": 0
-    },
-    "VisitFriendsRecognitionItemClueExchange": {
-        "desc": "识别线索交换",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1159,
-            111,
-            85,
-            95
-        ],
-        "template": "VisitFriends/ClueExchangeAvailable.png",
-        "threshold": 0.9
+        "box_index": 2
     },
     "VisitFriendsRecognitionItemDetailControlNexusAssist": {
         "desc": "在详情界面识别总控中枢",

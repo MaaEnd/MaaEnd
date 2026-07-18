@@ -97,7 +97,7 @@ func (r *VisitFriendsSelectFriendRecognition) Run(ctx *maa.Context, arg *maa.Cus
 		log.Error().Err(err).Str("component", selectFriendRecognitionName).Str("node", selectFriendCandidateNode).Msg("RunRecognition failed")
 		return nil, false
 	}
-	if detail == nil || !detail.Hit || detail.CombinedResult == nil || len(detail.CombinedResult) < 2 {
+	if detail == nil || !detail.Hit || detail.CombinedResult == nil || len(detail.CombinedResult) < 3 {
 		log.Info().Str("component", selectFriendRecognitionName).Strs("visited", visited).Msg("no friend candidate")
 		return nil, false
 	}
@@ -125,7 +125,7 @@ func (r *VisitFriendsSelectFriendRecognition) Run(ctx *maa.Context, arg *maa.Cus
 			log.Error().Err(err).Str("component", selectFriendRecognitionName).Msg("retry RunRecognition failed")
 			return nil, false
 		}
-		if detail == nil || !detail.Hit || detail.CombinedResult == nil || len(detail.CombinedResult) < 2 {
+		if detail == nil || !detail.Hit || detail.CombinedResult == nil || len(detail.CombinedResult) < 3 {
 			log.Info().Str("component", selectFriendRecognitionName).Strs("visited", visited).Msg("no friend candidate on retry")
 			return nil, false
 		}
@@ -201,12 +201,13 @@ func parseSelectFriendCombinedHits(detail *maa.RecognitionDetail) (buttons, name
 	var buttonJSON, nameJSON struct {
 		Filtered []selectFriendOCRHit `json:"filtered"`
 	}
-	// CombinedResult[0]=进船按钮 TemplateMatch，[1]=名称 OCR；Results.Best 为空时只能走 DetailJson。
+	// CombinedResult 与 WithName.all_of 对齐：
+	// [0]=进船按钮，[1]=线索交换，[2]=名称 OCR；Results.Best 为空时只能走 DetailJson。
 	if err := json.Unmarshal([]byte(detail.CombinedResult[0].DetailJson), &buttonJSON); err != nil {
 		log.Error().Err(err).Str("component", selectFriendRecognitionName).Msg("parse button detail json")
 		return nil, nil, false
 	}
-	if err := json.Unmarshal([]byte(detail.CombinedResult[1].DetailJson), &nameJSON); err != nil {
+	if err := json.Unmarshal([]byte(detail.CombinedResult[2].DetailJson), &nameJSON); err != nil {
 		log.Error().Err(err).Str("component", selectFriendRecognitionName).Msg("parse name detail json")
 		return nil, nil, false
 	}
