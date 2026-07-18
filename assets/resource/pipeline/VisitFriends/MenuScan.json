@@ -4,10 +4,10 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "VisitFriendsMenuScanFriendsFull",
             "[JumpBack]VisitFriendsAssistFullInit",
             "[JumpBack]VisitFriendsAssistFull",
             "[JumpBack]VisitFriendsClueExchangeFull",
-            "VisitFriendsMenuScanFriendsFull",
             "[JumpBack]VisitFriendsMenuScanTargetFriendOpen",
             "[JumpBack]VisitFriendsMenuScanScrollList",
             "VisitFriendsMenuScanScrollFinish"
@@ -172,9 +172,19 @@
     },
     "VisitFriendsCheckAssistClueExchange": {
         "desc": "检查是否可线索交换（固定开启，不可关闭）",
-        "recognition": "And",
-        "all_of": [
-            "VisitFriendsRecognitionItemClueExchange"
+        "recognition": "OCR",
+        "roi": [
+            312,
+            316,
+            658,
+            172
+        ],
+        "expected": [
+            "情报交流进行中",
+            "情報交流進行中",
+            "Clue Exchange in Progress",
+            "情報共有中",
+            "정보 교류 중"
         ]
     },
     "VisitFriendsCheckAssistControlNexus": {
