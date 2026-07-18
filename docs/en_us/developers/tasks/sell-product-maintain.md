@@ -122,6 +122,7 @@ The owned-operator cache is stored in `debug/record/SellProductOwnedOperators.js
 - The cache stores only complete list-scan snapshots. An account partition is treated as a consumable complete snapshot even when the owned list is empty.
 - If the current account has no snapshot, Pipeline performs a full operator-list scan and writes the cache before planning or selling.
 - Existing snapshots are reused directly. “Force refresh before this run” ignores the existing snapshot and performs one full scan when the task first enters a region; later regions in the same task reuse the result.
+- Only the global scan that creates the first snapshot or performs an explicit forced refresh may write the cache. Local scrolling while selecting an operator never overwrites an existing snapshot.
 - Planning and selection use only the real owned set from a complete snapshot. Incomplete observations are never treated as a theoretical optimum.
 - After a full scan, if a refresh or replan changes the target, Pipeline may close and reopen the list once to execute the new plan.
 - Pipeline must recognize the list, click the candidate, recognize Assign, and confirm the return to the outpost before committing the switch.

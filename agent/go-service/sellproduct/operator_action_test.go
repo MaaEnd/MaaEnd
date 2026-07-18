@@ -319,6 +319,108 @@ func TestOperatorCacheReadyForSelectionRefreshModeUsesGlobalScanCompletion(t *te
 	}
 }
 
+func TestShouldWriteOperatorCacheSnapshotOnlyForGlobalInitializationOrRefresh(t *testing.T) {
+	uid := "test_uid"
+	existing := operatorCacheFile{
+		Accounts: map[string]operatorCacheAccount{
+			uid: {Operators: []string{"狼卫"}},
+		},
+	}
+
+	tests := []struct {
+		name  string
+		param *operatorActionParam
+		cache operatorCacheFile
+		want  bool
+	}{
+		{
+			name: "首次全局扫描允许建立缓存",
+			param: &operatorActionParam{
+				Mode:     operatorCacheModeCache,
+				Usage:    operatorActionUsageAll,
+				Location: "global",
+			},
+			cache: operatorCacheFile{},
+			want:  true,
+		},
+		{
+			name: "已有缓存时普通全局扫描不得覆盖",
+			param: &operatorActionParam{
+				Mode:     operatorCacheModeCache,
+				Usage:    operatorActionUsageAll,
+				Location: "global",
+			},
+			cache: existing,
+			want:  false,
+		},
+		{
+			name: "主动刷新允许覆盖已有缓存",
+			param: &operatorActionParam{
+				Mode:     operatorCacheModeRefresh,
+				Usage:    operatorActionUsageAll,
+				Location: "global",
+			},
+			cache: existing,
+			want:  true,
+		},
+		{
+			name: "据点内局部扫描不得覆盖缓存",
+			param: &operatorActionParam{
+				Mode:     operatorCacheModeRefresh,
+				Usage:    operatorActionUsageRestore,
+				Location: "SkyKingFlatsConstructionSite",
+			},
+			cache: existing,
+			want:  false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := shouldWriteOperatorCacheSnapshot(tt.param, tt.cache, uid); got != tt.want {
+				t.Fatalf("缓存写入判定 = %v，期望 %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestReplaceObservedOperatorsKeepsExistingCacheDuringLocalScan(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "SellProductOwnedOperators.json")
+	setOperatorCachePathForTest(t, path)
+	uid := currentOperatorCacheUID()
+	updatedAt := time.Now().UTC().Format(time.RFC3339)
+	if err := writeOperatorCacheFile(path, operatorCacheFile{
+		UpdatedAt: updatedAt,
+		Accounts: map[string]operatorCacheAccount{
+			uid: {UpdatedAt: updatedAt, Operators: []string{"狼卫"}},
+		},
+	}); err != nil {
+		t.Fatalf("写入初始干员缓存失败：%v", err)
+	}
+
+	// 据点内找人即使完成到底部，也不能用局部观察覆盖已有完整快照。
+	if err := replaceObservedOperators(
+		&operatorActionParam{
+			Mode:     operatorCacheModeCache,
+			Usage:    operatorActionUsageRestore,
+			Location: "SkyKingFlatsConstructionSite",
+		},
+		[]operatorCandidate{{Name: "Wulfgard", CacheName: "狼卫"}},
+		nil,
+	); err != nil {
+		t.Fatalf("处理据点局部扫描失败：%v", err)
+	}
+
+	cache, err := readOperatorCache(path)
+	if err != nil {
+		t.Fatalf("读取干员缓存失败：%v", err)
+	}
+	operators := operatorCacheOperatorsForUID(cache, uid)
+	if len(operators) != 1 || operators[0] != "狼卫" {
+		t.Fatalf("据点局部扫描后缓存 = %#v，期望仍保留狼卫", operators)
+	}
+}
+
 func TestParseOperatorActionParamAllowsGlobalScanUsage(t *testing.T) {
 	got, err := parseOperatorActionParam(`{"mode":"cache","usage":"all","location":"global","roi":[164,121,700,430]}`)
 	if err != nil {

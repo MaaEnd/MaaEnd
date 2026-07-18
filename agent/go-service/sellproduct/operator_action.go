@@ -162,8 +162,8 @@ func (r *OperatorCacheReadyRecognition) Run(
 }
 
 // Run 维护一次跨多帧、跨多次滚动的列表扫描状态。
-// 每帧都会累积识别到的相关干员；当连续两帧 OCR 签名相同，视为滚动已无法推进，
-// 此时写入完整快照并根据新的拥有集合重新规划。
+// 每帧都会累积识别到的相关干员；当连续两帧 OCR 签名相同，视为滚动已无法推进。
+// 只有全局首次扫描或用户主动刷新时才写入完整快照；据点内找人只复用既有缓存重新规划。
 func (r *OperatorListBottomRecognition) Run(
 	ctx *maa.Context,
 	arg *maa.CustomRecognitionArg,
@@ -208,8 +208,7 @@ func (r *OperatorListBottomRecognition) Run(
 		operatorListStateSet(state)
 		return nil, false
 	}
-	// 搜索从列表顶部开始并到达底部，因此本轮观察结果可以升级为权威快照。
-	if err := replaceObservedOperators(scanCandidates, state.Observed); err != nil {
+	if err := replaceObservedOperators(p, scanCandidates, state.Observed); err != nil {
 		log.Error().Err(err).Str("component", operatorListBottomRecognitionName).Msg("cache refresh failed")
 		state.Completed = true
 		state.Error = err.Error()
@@ -410,13 +409,29 @@ func operatorCacheReadyForSelection(p *operatorActionParam) (bool, error) {
 	return operatorCacheHasSnapshot(cache, uid), nil
 }
 
-// replaceObservedOperators 用完整扫描结果替换当前账号快照，并标记本次会话已刷新。
-func replaceObservedOperators(scanCandidates []operatorCandidate, observed []string) error {
+// replaceObservedOperators 仅在全局首次扫描或主动刷新时写入当前账号的完整快照。
+func replaceObservedOperators(
+	p *operatorActionParam,
+	scanCandidates []operatorCandidate,
+	observed []string,
+) error {
+	if p == nil {
+		return fmt.Errorf("operator action param is nil")
+	}
 	uid := currentOperatorCacheUID()
 	path := resolveOperatorCachePathFunc(uid)
 	cache, err := readOperatorCache(path)
 	if err != nil {
 		return err
+	}
+	if !shouldWriteOperatorCacheSnapshot(p, cache, uid) {
+		log.Debug().
+			Str("component", operatorListBottomRecognitionName).
+			Str("mode", p.Mode).
+			Str("usage", p.Usage).
+			Str("location", p.Location).
+			Msg("operator cache write skipped")
+		return nil
 	}
 	cache = mergeOperatorCache(cache, uid, scanCandidates, observed, time.Now())
 	if err := writeOperatorCacheFile(path, cache); err != nil {
@@ -424,6 +439,21 @@ func replaceObservedOperators(scanCandidates []operatorCandidate, observed []str
 	}
 	operatorSessionMarkRefreshed()
 	return nil
+}
+
+// shouldWriteOperatorCacheSnapshot 限制缓存只能由全局完整扫描创建或主动刷新。
+func shouldWriteOperatorCacheSnapshot(
+	p *operatorActionParam,
+	cache operatorCacheFile,
+	uid string,
+) bool {
+	if p == nil || p.Usage != operatorActionUsageAll || p.Location != "global" {
+		return false
+	}
+	if p.Mode == operatorCacheModeRefresh {
+		return true
+	}
+	return p.Mode == operatorCacheModeCache && !operatorCacheHasSnapshot(cache, uid)
 }
 
 // observedOperatorCacheNames 将一帧 OCR 结果映射成去重、排序后的缓存键集合。
