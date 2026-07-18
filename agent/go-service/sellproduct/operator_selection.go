@@ -67,7 +67,12 @@ func candidatesForCurrentSelection(p *operatorSelectionParam, owned map[string]s
 		delete(available, operatorCandidateCacheName(candidate))
 	}
 	preferred := preferredRestoreAssignments(p, availableOwned)
-	plan := buildRestoreAssignmentPlanWithPreferences(groups, available, preferred)
+	plan := buildRestoreAssignmentPlanWithPreferencesAndTargets(
+		groups,
+		available,
+		preferred,
+		reusableTargetCandidatesByLocation(p, availableOwned),
+	)
 	for location, candidate := range p.LockedRestoreAssignments {
 		plan.Assignments[location] = candidate
 	}
@@ -101,7 +106,13 @@ func selectTargetCandidateForRestorePlan(
 	bestPlan := restorePlanForTargetCandidate(p, owned, bestCandidate)
 	for _, candidate := range candidates[1:] {
 		plan := restorePlanForTargetCandidate(p, owned, candidate)
-		if isBetterRestorePlan(plan.Assigned, plan.KeptTargets, plan.TotalCost, bestPlan) {
+		if isBetterRestorePlan(
+			plan.Assigned,
+			plan.KeptTargets,
+			plan.ReusableTargets,
+			plan.TotalCost,
+			bestPlan,
+		) {
 			bestCandidate = candidate
 			bestPlan = plan
 		}
@@ -122,10 +133,11 @@ func restorePlanForTargetCandidate(
 	for _, lockedCandidate := range p.LockedRestoreAssignments {
 		delete(available, operatorCandidateCacheName(lockedCandidate))
 	}
-	return buildRestoreAssignmentPlanWithPreferences(
+	return buildRestoreAssignmentPlanWithPreferencesAndTargets(
 		restoreGroupsForSelection(&selection),
 		available,
 		preferredRestoreAssignments(&selection, owned),
+		reusableTargetCandidatesByLocation(&selection, owned),
 	)
 }
 
@@ -178,6 +190,39 @@ func preferredRestoreAssignments(p *operatorSelectionParam, owned map[string]str
 	return preferred
 }
 
+// reusableTargetCandidatesByLocation 返回各据点下次运行时可直接沿用的最高售卖加成档干员。
+func reusableTargetCandidatesByLocation(
+	p *operatorSelectionParam,
+	owned map[string]struct{},
+) map[string]map[string]struct{} {
+	active := p.ActiveLocations
+	if len(active) == 0 {
+		active = map[string]struct{}{p.Location: {}}
+	}
+	reusable := make(map[string]map[string]struct{}, len(active))
+	for location := range active {
+		candidates := p.TargetCandidatesByLocation[location]
+		if len(candidates) == 0 && location == p.Location {
+			candidates = p.Candidates
+		}
+		available := bestBonusTierCandidates(availableTargetCandidates(
+			candidates,
+			owned,
+			location,
+			p.LockedRestoreAssignments,
+		))
+		if len(available) == 0 {
+			continue
+		}
+		names := make(map[string]struct{}, len(available))
+		for _, candidate := range available {
+			names[operatorCandidateCacheName(candidate)] = struct{}{}
+		}
+		reusable[location] = names
+	}
+	return reusable
+}
+
 // sameOperator 使用内部名称比较干员，缺少内部名称时回退到缓存键。
 func sameOperator(a, b operatorCandidate) bool {
 	if a.Name != "" && b.Name != "" {
@@ -207,12 +252,13 @@ func restoreGroupsForSelection(p *operatorSelectionParam) []operatorCandidateGro
 }
 
 // restoreAssignmentPlan 是所有据点恢复岗位的全局分配结果。
-// Assignments 以据点为键；Assigned 和 KeptTargets 越大越好，TotalCost 越小越好。
+// Assignments 以据点为键；Assigned、KeptTargets、ReusableTargets 越大越好，TotalCost 越小越好。
 type restoreAssignmentPlan struct {
-	Assignments map[string]operatorCandidate
-	Assigned    int
-	KeptTargets int
-	TotalCost   int
+	Assignments     map[string]operatorCandidate
+	Assigned        int
+	KeptTargets     int
+	ReusableTargets int
+	TotalCost       int
 }
 
 // buildRestoreAssignmentPlan 在“同一干员不能分配到多个据点”的约束下寻找最优恢复方案。
@@ -230,19 +276,31 @@ func buildRestoreAssignmentPlanWithPreferences(
 	owned map[string]struct{},
 	preferred map[string]operatorCandidate,
 ) restoreAssignmentPlan {
+	return buildRestoreAssignmentPlanWithPreferencesAndTargets(groups, owned, preferred, nil)
+}
+
+// buildRestoreAssignmentPlanWithPreferencesAndTargets 在当前运行更换次数相同时，
+// 优先让最终派驻可以直接用于下次最高档售卖，避免任务间反复切换。
+func buildRestoreAssignmentPlanWithPreferencesAndTargets(
+	groups []operatorCandidateGroup,
+	owned map[string]struct{},
+	preferred map[string]operatorCandidate,
+	reusableTargets map[string]map[string]struct{},
+) restoreAssignmentPlan {
 	best := restoreAssignmentPlan{
 		Assignments: map[string]operatorCandidate{},
 	}
 	current := map[string]operatorCandidate{}
 	used := map[string]struct{}{}
 
-	var walk func(index int, assigned int, keptTargets int, totalCost int)
-	walk = func(index int, assigned int, keptTargets int, totalCost int) {
+	var walk func(index int, assigned int, keptTargets int, reusableCount int, totalCost int)
+	walk = func(index int, assigned int, keptTargets int, reusableCount int, totalCost int) {
 		// 所有据点都已做出“跳过或分配”决策，检查当前叶子方案是否更优。
 		if index >= len(groups) {
-			if isBetterRestorePlan(assigned, keptTargets, totalCost, best) {
+			if isBetterRestorePlan(assigned, keptTargets, reusableCount, totalCost, best) {
 				best.Assigned = assigned
 				best.KeptTargets = keptTargets
+				best.ReusableTargets = reusableCount
 				best.TotalCost = totalCost
 				best.Assignments = cloneRestoreAssignments(current)
 			}
@@ -251,7 +309,7 @@ func buildRestoreAssignmentPlanWithPreferences(
 
 		group := groups[index]
 		// 先探索不为当前据点分配干员的分支，保证资源不足时也能得到部分解。
-		walk(index+1, assigned, keptTargets, totalCost)
+		walk(index+1, assigned, keptTargets, reusableCount, totalCost)
 
 		for _, candidate := range filterOwnedCandidates(group.Candidates, owned) {
 			// Name 是本轮分配的唯一身份；已占用的干员不能同时恢复到另一个据点。
@@ -264,22 +322,37 @@ func buildRestoreAssignmentPlanWithPreferences(
 			if preferredCandidate, ok := preferred[group.Location]; ok && sameOperator(candidate, preferredCandidate) {
 				kept++
 			}
-			walk(index+1, assigned+1, kept, totalCost+candidate.Priority)
+			reusable := reusableCount
+			if names := reusableTargets[group.Location]; names != nil {
+				if _, ok := names[operatorCandidateCacheName(candidate)]; ok {
+					reusable++
+				}
+			}
+			walk(index+1, assigned+1, kept, reusable, totalCost+candidate.Priority)
 			delete(current, group.Location)
 			delete(used, candidate.Name)
 		}
 	}
-	walk(0, 0, 0, 0)
+	walk(0, 0, 0, 0, 0)
 	return best
 }
 
-// isBetterRestorePlan 按“覆盖数、保持人数、候选成本”的字典序比较两个方案。
-func isBetterRestorePlan(assigned, keptTargets, totalCost int, best restoreAssignmentPlan) bool {
+// isBetterRestorePlan 按“覆盖数、本次保持人数、下次可沿用人数、候选成本”的字典序比较方案。
+func isBetterRestorePlan(
+	assigned int,
+	keptTargets int,
+	reusableTargets int,
+	totalCost int,
+	best restoreAssignmentPlan,
+) bool {
 	if assigned != best.Assigned {
 		return assigned > best.Assigned
 	}
 	if keptTargets != best.KeptTargets {
 		return keptTargets > best.KeptTargets
+	}
+	if reusableTargets != best.ReusableTargets {
+		return reusableTargets > best.ReusableTargets
 	}
 	return totalCost < best.TotalCost
 }

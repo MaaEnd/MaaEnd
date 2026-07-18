@@ -329,6 +329,62 @@ func TestGeneratedXiranflowPlanKeepsArcaneForSellingAndRestore(t *testing.T) {
 	}
 }
 
+func TestGeneratedXiranflowRestorePreparesArcaneForNextRunAfterKeepingLifeng(t *testing.T) {
+	data, err := loadOperatorSelectionData()
+	if err != nil {
+		t.Fatalf("加载 SellProduct 干员数据失败：%v", err)
+	}
+	location := "XiranflowCloudseederStation"
+	targetCandidates := data.TargetCandidates[location]
+	var lifeng operatorCandidate
+	for _, candidate := range targetCandidates {
+		if candidate.Name == "Lifeng" {
+			lifeng = candidate
+			break
+		}
+	}
+	if lifeng.Name == "" {
+		t.Fatal("盈天台售卖候选中缺少 Lifeng")
+	}
+	p := &operatorSelectionParam{
+		Usage:                      operatorActionUsageRestore,
+		Location:                   location,
+		Candidates:                 targetCandidates,
+		TargetCandidatesByLocation: data.TargetCandidates,
+		RestoreGroups:              data.RestoreGroups,
+		ActiveLocations: map[string]struct{}{
+			location: {},
+		},
+		TargetAssignments: map[string]operatorCandidate{
+			location: lifeng,
+		},
+	}
+	ownedNames := []string{"黎风", "诀", "陈千语"}
+	owned := operatorNameSet(ownedNames)
+
+	restore := candidatesForCurrentSelection(p, owned)
+	if len(restore) != 1 || restore[0].Name != "Arcane" {
+		t.Fatalf("黎风售卖后的盈天台恢复干员 = %#v，期望 Arcane", restore)
+	}
+
+	p.Usage = operatorActionUsageTarget
+	p.TargetAssignments = nil
+	nextRunCandidates := equivalentTargetCandidatesForOwnership(p, operatorOwnership{
+		Operators: operatorNameSet(ownedNames),
+		Complete:  true,
+	})
+	stable := false
+	for _, candidate := range nextRunCandidates {
+		if sameOperator(candidate, restore[0]) {
+			stable = true
+			break
+		}
+	}
+	if !stable {
+		t.Fatalf("恢复干员 %q 不能在下次任务直接用于最高档售卖", restore[0].Name)
+	}
+}
+
 // TestCandidatesForCurrentSelectionIgnoresInactiveRestoreLocations 验证未启用据点不会占用恢复干员。
 func TestCandidatesForCurrentSelectionIgnoresInactiveRestoreLocations(t *testing.T) {
 	p := &operatorSelectionParam{

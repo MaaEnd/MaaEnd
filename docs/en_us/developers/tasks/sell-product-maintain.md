@@ -108,7 +108,7 @@ Selling-operator priority is fixed:
 1. Both EXP and credit bonuses;
 2. Credit bonus only;
 3. EXP bonus only;
-4. Within the same bonus tier, keep the currently assigned operator first; when a switch is required, prefer the candidate that lets the global restoration plan keep more selling operators;
+4. Within the same bonus tier, keep the currently assigned operator first; when a switch is required, prefer the candidate that lets the global restoration plan keep more selling operators and leaves assignments reusable by later runs;
 5. Use the stable in-game operator order when the global restoration result is still tied.
 
 `selection_data.json` retains a `bonus_tier` for every selling candidate so stable ordering is not mistaken for a benefit difference. If the current assignment belongs to the best available tier, Pipeline keeps it without opening the operator list. Otherwise, Go evaluates the global restoration plan for each candidate in that tier.
@@ -125,8 +125,9 @@ Restoration must prevent one operator from occupying multiple outposts. Go assig
 
 1. Maximize the number of outposts that can be restored;
 2. With equal coverage, keep the selling operator already assigned before selling whenever possible to avoid unnecessary switches;
-3. With the same number of kept operators, choose the plan with the smaller total candidate `Priority`;
-4. Lock each confirmed `location -> operator` assignment so later outposts cannot reuse it.
+3. With the same number of operators kept in this run, maximize final assignments that remain in the outpost's best selling-bonus tier so later runs need no switch;
+4. With the same number of reusable assignments, choose the plan with the smaller total candidate `Priority`;
+5. Lock each confirmed `location -> operator` assignment so later outposts cannot reuse it.
 
 A missing selling target or failed scan stops the task to avoid selling under the wrong operator. An unavailable restoration target can be recorded as skipped so the current outpost can finish.
 
