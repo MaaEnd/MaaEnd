@@ -1,6 +1,7 @@
 package sellproduct
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -17,8 +18,7 @@ const (
 	operatorCacheFilePrefix = "SellProductOwnedOperators"
 	operatorCacheFileExt    = ".json"
 	// 尚未捕获 UID 时仍允许使用临时分区，避免把空字符串作为 map 键写入文件。
-	operatorCacheUnknownUID    = "unknown"
-	operatorCacheSchemaVersion = 1
+	operatorCacheUnknownUID = "unknown"
 )
 
 // resolveOperatorCachePathFunc 是单元测试替换缓存目录的注入点。
@@ -27,17 +27,15 @@ var resolveOperatorCachePathFunc = defaultOperatorCachePath
 // operatorCacheFile 是拥有干员缓存的顶层格式。
 // UpdatedAt 记录最后一次任意账号更新，Accounts 中则保存各账号独立快照。
 type operatorCacheFile struct {
-	SchemaVersion int                             `json:"schema_version"`
-	UpdatedAt     string                          `json:"updated_at"`
-	Accounts      map[string]operatorCacheAccount `json:"accounts,omitempty"`
+	UpdatedAt string                          `json:"updated_at"`
+	Accounts  map[string]operatorCacheAccount `json:"accounts,omitempty"`
 }
 
-// operatorCacheAccount 保存一个账号已经确认拥有的相关干员。
+// operatorCacheAccount 保存一个账号经完整扫描确认拥有的相关干员。
 // Operators 使用稳定 CacheName，并在写盘前排序，避免产生无意义的文件 diff。
 type operatorCacheAccount struct {
 	UpdatedAt string   `json:"updated_at"`
 	Operators []string `json:"operators"`
-	Complete  bool     `json:"complete"`
 }
 
 // currentOperatorCacheUID 获取 CaptureUID 模块最近识别到的账号并规范化为安全键名。
@@ -65,30 +63,12 @@ func readOperatorCache(path string) (operatorCacheFile, error) {
 	}
 
 	var cache operatorCacheFile
-	if err := json.Unmarshal(raw, &cache); err != nil {
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&cache); err != nil {
 		return operatorCacheFile{}, fmt.Errorf("parse operator cache: %w", err)
 	}
 	return normalizeOperatorCacheFile(cache), nil
-}
-
-// writeOperatorCache 用单账号数据创建全新的缓存文件。
-// 该函数主要用于初始化和测试；运行时增量更新应通过 merge* 后写入，避免覆盖其他账号。
-func writeOperatorCache(path string, uid string, operators []string, now time.Time) error {
-	uid = normalizeOperatorCacheUID(uid)
-	updatedAt := now.UTC().Format(time.RFC3339)
-
-	cache := operatorCacheFile{
-		SchemaVersion: operatorCacheSchemaVersion,
-		UpdatedAt:     updatedAt,
-		Accounts: map[string]operatorCacheAccount{
-			uid: {
-				UpdatedAt: updatedAt,
-				Operators: sortedSetValues(operatorNameSet(operators)),
-				Complete:  true,
-			},
-		},
-	}
-	return writeOperatorCacheFile(path, cache)
 }
 
 // writeOperatorCacheFile 规范化并格式化缓存，然后使用原子替换方式写盘。
@@ -108,9 +88,7 @@ func writeOperatorCacheFile(path string, cache operatorCacheFile) error {
 	return nil
 }
 
-// mergeOperatorCache 用一次完整列表扫描结果替换“本次可扫描候选域”内的缓存。
-// 算法先从旧快照删除 scanCandidates，再仅写回本轮实际识别到的 owned；候选域之外
-// 的记录保持不变。这样既能移除已不再拥有的干员，也不会误删本轮资源未覆盖的记录。
+// mergeOperatorCache 用一次完整列表扫描结果替换当前账号的缓存。
 func mergeOperatorCache(
 	cache operatorCacheFile,
 	uid string,
@@ -119,43 +97,24 @@ func mergeOperatorCache(
 	now time.Time,
 ) operatorCacheFile {
 	uid = normalizeOperatorCacheUID(uid)
-	operatorSet := operatorNameSet(operatorCacheOperatorsForUID(cache, uid))
+	operatorSet := make(map[string]struct{}, len(owned))
 	scanSet := operatorCandidateCacheNameSet(scanCandidates)
 
-	for name := range scanSet {
-		delete(operatorSet, name)
-	}
 	for _, name := range owned {
 		if _, ok := scanSet[name]; ok {
 			operatorSet[name] = struct{}{}
 		}
 	}
 
-	return withOperatorCacheAccount(cache, uid, operatorSet, true, now)
-}
-
-// mergeObservedOperatorCache 合并一次局部观察结果。
-// 局部识别只能证明“拥有”，不能证明未出现的干员“不拥有”，因此这里只做集合加法。
-func mergeObservedOperatorCache(cache operatorCacheFile, uid string, observed []string, now time.Time) operatorCacheFile {
-	uid = normalizeOperatorCacheUID(uid)
-	operatorSet := operatorNameSet(operatorCacheOperatorsForUID(cache, uid))
-	complete := operatorCacheHasSnapshot(cache, uid)
-	for _, name := range observed {
-		if name == "" {
-			continue
-		}
-		operatorSet[name] = struct{}{}
-	}
-
-	return withOperatorCacheAccount(cache, uid, operatorSet, complete, now)
+	return withOperatorCacheAccount(cache, uid, operatorSet, now)
 }
 
 // operatorCacheHasSnapshot 判断指定账号是否建立过快照。
-// 即使 Operators 为空，只要有更新时间也代表已经完成过一次有效的空列表扫描。
+// 缓存只保存完整扫描结果，因此账号分区存在即代表完整快照；Operators 允许为空。
 func operatorCacheHasSnapshot(cache operatorCacheFile, uid string) bool {
 	uid = normalizeOperatorCacheUID(uid)
-	account, ok := normalizeOperatorCacheFile(cache).Accounts[uid]
-	return ok && account.Complete
+	_, ok := normalizeOperatorCacheFile(cache).Accounts[uid]
+	return ok
 }
 
 // operatorCacheOperatorsForUID 返回指定账号的规范化干员列表。
@@ -173,13 +132,11 @@ func withOperatorCacheAccount(
 	cache operatorCacheFile,
 	uid string,
 	operatorSet map[string]struct{},
-	complete bool,
 	now time.Time,
 ) operatorCacheFile {
 	cache = normalizeOperatorCacheFile(cache)
 	uid = normalizeOperatorCacheUID(uid)
 	updatedAt := now.UTC().Format(time.RFC3339)
-	cache.SchemaVersion = operatorCacheSchemaVersion
 	cache.UpdatedAt = updatedAt
 	if cache.Accounts == nil {
 		cache.Accounts = map[string]operatorCacheAccount{}
@@ -187,18 +144,16 @@ func withOperatorCacheAccount(
 	cache.Accounts[uid] = operatorCacheAccount{
 		UpdatedAt: updatedAt,
 		Operators: sortedSetValues(operatorSet),
-		Complete:  complete,
 	}
 	return cache
 }
 
-// normalizeOperatorCacheFile 修复可兼容的旧数据并消除不稳定表示：
-// 规范 UID、合并碰撞账号、去重并排序干员，同时补齐已有 Accounts 的 schema 版本。
+// normalizeOperatorCacheFile 消除缓存中的不稳定表示：
+// 规范 UID、合并碰撞账号，并对干员去重和排序。
 func normalizeOperatorCacheFile(cache operatorCacheFile) operatorCacheFile {
 	normalized := operatorCacheFile{
-		SchemaVersion: operatorCacheSchemaVersion,
-		UpdatedAt:     strings.TrimSpace(cache.UpdatedAt),
-		Accounts:      map[string]operatorCacheAccount{},
+		UpdatedAt: strings.TrimSpace(cache.UpdatedAt),
+		Accounts:  map[string]operatorCacheAccount{},
 	}
 	for uid, account := range cache.Accounts {
 		uid = normalizeOperatorCacheUID(uid)
@@ -214,7 +169,6 @@ func normalizeOperatorCacheFile(cache operatorCacheFile) operatorCacheFile {
 		normalized.Accounts[uid] = operatorCacheAccount{
 			UpdatedAt: updatedAt,
 			Operators: sortedSetValues(operatorSet),
-			Complete:  account.Complete || existing.Complete,
 		}
 	}
 	if len(normalized.Accounts) == 0 {

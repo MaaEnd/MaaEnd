@@ -13,20 +13,21 @@ func TestOperatorCacheReadWrite(t *testing.T) {
 	now := time.Date(2026, 6, 14, 1, 2, 3, 0, time.UTC)
 	uid := "abc123"
 
-	if err := writeOperatorCache(
-		path,
-		uid,
-		[]string{"佩丽卡", "陈千语", "佩丽卡", ""},
-		now,
-	); err != nil {
-		t.Fatalf("writeOperatorCache: %v", err)
+	updatedAt := now.Format(time.RFC3339)
+	if err := writeOperatorCacheFile(path, operatorCacheFile{
+		UpdatedAt: updatedAt,
+		Accounts: map[string]operatorCacheAccount{
+			uid: {
+				UpdatedAt: updatedAt,
+				Operators: []string{"佩丽卡", "陈千语", "佩丽卡", ""},
+			},
+		},
+	}); err != nil {
+		t.Fatalf("writeOperatorCacheFile: %v", err)
 	}
 	cache, err := readOperatorCache(path)
 	if err != nil {
 		t.Fatalf("readOperatorCache: %v", err)
-	}
-	if cache.SchemaVersion != operatorCacheSchemaVersion {
-		t.Fatalf("schema version = %d, want %d", cache.SchemaVersion, operatorCacheSchemaVersion)
 	}
 	if cache.UpdatedAt != "2026-06-14T01:02:03Z" {
 		t.Fatalf("updated_at = %q", cache.UpdatedAt)
@@ -34,9 +35,6 @@ func TestOperatorCacheReadWrite(t *testing.T) {
 	account := cache.Accounts[uid]
 	if account.UpdatedAt != "2026-06-14T01:02:03Z" {
 		t.Fatalf("account updated_at = %q", account.UpdatedAt)
-	}
-	if !account.Complete {
-		t.Fatal("writeOperatorCache should create a complete snapshot")
 	}
 	want := []string{"佩丽卡", "陈千语"}
 	if !reflect.DeepEqual(account.Operators, want) {
@@ -100,6 +98,16 @@ func TestOperatorCacheMissingAndEmpty(t *testing.T) {
 	}
 }
 
+func TestOperatorCacheRejectsUnknownFields(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "SellProductOwnedOperators.json")
+	if err := os.WriteFile(path, []byte(`{"updated_at":"","accounts":{},"unexpected":true}`), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := readOperatorCache(path); err == nil {
+		t.Fatal("cache with unknown fields should be rejected")
+	}
+}
+
 func TestNormalizeOperatorCandidates(t *testing.T) {
 	got := normalizeOperatorCandidates([]operatorCandidate{
 		{Name: "Beta", CacheName: "贝塔", Expected: []string{"贝塔"}, Priority: 2},
@@ -139,103 +147,49 @@ func TestOperatorCacheHasSnapshot(t *testing.T) {
 		t.Fatal("empty cache should not be treated as a snapshot")
 	}
 	if !operatorCacheHasSnapshot(operatorCacheFile{
-		SchemaVersion: operatorCacheSchemaVersion,
 		Accounts: map[string]operatorCacheAccount{
-			uid: {Operators: []string{"佩丽卡"}, Complete: true},
+			uid: {Operators: []string{"佩丽卡"}},
 		},
 	}, uid) {
-		t.Fatal("versioned cache should be treated as a snapshot")
+		t.Fatal("account cache should be treated as a snapshot")
 	}
 	if operatorCacheHasSnapshot(operatorCacheFile{
-		SchemaVersion: operatorCacheSchemaVersion,
 		Accounts: map[string]operatorCacheAccount{
 			"other": {Operators: []string{"佩丽卡"}},
 		},
 	}, uid) {
 		t.Fatal("cache without this uid should not be treated as a snapshot")
 	}
-	if operatorCacheHasSnapshot(operatorCacheFile{
-		SchemaVersion: operatorCacheSchemaVersion,
+	if !operatorCacheHasSnapshot(operatorCacheFile{
 		Accounts: map[string]operatorCacheAccount{
-			uid: {Operators: []string{"佩丽卡"}},
+			uid: {Operators: nil},
 		},
 	}, uid) {
-		t.Fatal("partial observations must not be treated as a complete snapshot")
+		t.Fatal("an empty account snapshot should still be treated as complete")
 	}
 }
 
-func TestNormalizeOperatorCachePreservesV1Completeness(t *testing.T) {
-	uid := "abc123"
-	cache := normalizeOperatorCacheFile(operatorCacheFile{
-		SchemaVersion: 1,
-		Accounts: map[string]operatorCacheAccount{
-			uid: {UpdatedAt: "2026-06-14T01:02:03Z", Operators: []string{"佩丽卡"}},
-		},
-	})
-	if cache.SchemaVersion != 1 {
-		t.Fatalf("schema version = %d, want 1", cache.SchemaVersion)
-	}
-	if cache.Accounts[uid].Complete {
-		t.Fatal("normalization must not promote a partial v1 observation to a complete snapshot")
-	}
-}
-
-func TestMergeOperatorCacheUpdatesOnlyCurrentAccount(t *testing.T) {
+func TestMergeOperatorCacheReplacesCurrentAccount(t *testing.T) {
 	now := time.Date(2026, 6, 14, 1, 2, 3, 0, time.UTC)
 	uid := "abc123"
 	cache := operatorCacheFile{
-		SchemaVersion: operatorCacheSchemaVersion,
 		Accounts: map[string]operatorCacheAccount{
-			uid:     {Operators: []string{"旧干员", "保留干员"}},
+			uid:     {Operators: []string{"缓存甲", "缓存乙"}},
 			"other": {Operators: []string{"其他账号干员"}},
 		},
 	}
 	got := mergeOperatorCache(
 		cache,
 		uid,
-		[]operatorCandidate{{Name: "Old", CacheName: "旧干员"}, {Name: "New", CacheName: "新干员"}},
-		[]string{"新干员"},
+		[]operatorCandidate{{Name: "CandidateA", CacheName: "候选甲"}, {Name: "CandidateB", CacheName: "候选乙"}},
+		[]string{"候选乙"},
 		now,
 	)
-	if got.SchemaVersion != operatorCacheSchemaVersion {
-		t.Fatalf("schema version = %d, want %d", got.SchemaVersion, operatorCacheSchemaVersion)
-	}
 	if got.UpdatedAt != "2026-06-14T01:02:03Z" {
 		t.Fatalf("updated_at = %q", got.UpdatedAt)
 	}
-	if want := []string{"保留干员", "新干员"}; !reflect.DeepEqual(got.Accounts[uid].Operators, want) {
+	if want := []string{"候选乙"}; !reflect.DeepEqual(got.Accounts[uid].Operators, want) {
 		t.Fatalf("operators = %#v, want %#v", got.Accounts[uid].Operators, want)
-	}
-	if !got.Accounts[uid].Complete {
-		t.Fatal("full scan merge should mark the account complete")
-	}
-	if want := []string{"其他账号干员"}; !reflect.DeepEqual(got.Accounts["other"].Operators, want) {
-		t.Fatalf("other account operators = %#v, want %#v", got.Accounts["other"].Operators, want)
-	}
-}
-
-func TestMergeObservedOperatorCacheOnlyAddsObservedOperators(t *testing.T) {
-	now := time.Date(2026, 6, 14, 1, 2, 3, 0, time.UTC)
-	uid := "abc123"
-	cache := operatorCacheFile{
-		SchemaVersion: operatorCacheSchemaVersion,
-		Accounts: map[string]operatorCacheAccount{
-			uid:     {Operators: []string{"保留干员"}},
-			"other": {Operators: []string{"其他账号干员"}},
-		},
-	}
-	got := mergeObservedOperatorCache(cache, uid, []string{"新干员", "保留干员", ""}, now)
-	if got.SchemaVersion != operatorCacheSchemaVersion {
-		t.Fatalf("schema version = %d, want %d", got.SchemaVersion, operatorCacheSchemaVersion)
-	}
-	if got.UpdatedAt != "2026-06-14T01:02:03Z" {
-		t.Fatalf("updated_at = %q", got.UpdatedAt)
-	}
-	if want := []string{"保留干员", "新干员"}; !reflect.DeepEqual(got.Accounts[uid].Operators, want) {
-		t.Fatalf("operators = %#v, want %#v", got.Accounts[uid].Operators, want)
-	}
-	if got.Accounts[uid].Complete {
-		t.Fatal("partial observation must not create a complete snapshot")
 	}
 	if want := []string{"其他账号干员"}; !reflect.DeepEqual(got.Accounts["other"].Operators, want) {
 		t.Fatalf("other account operators = %#v, want %#v", got.Accounts["other"].Operators, want)

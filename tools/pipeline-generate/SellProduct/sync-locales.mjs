@@ -124,7 +124,7 @@ function insertMissingMessages(messages, entries, sourceLocale, insertBeforeKey)
 }
 
 // 写入前验证所有当前据点和可选干员均有 key。
-// 此检查同时覆盖「插入算法遗漏」和「未来新增数据结构未接入同步器」两类回归。
+// 此检查覆盖插入遗漏和数据结构未接入同步器两类问题。
 function validateLocaleCatalog(messages, fileLocale) {
     const missingKeys = [
         ...sellProductLocaleEntries.settlements,
@@ -149,7 +149,7 @@ export function syncSellProductLocaleCatalogs() {
         // 据点开关位于 SellProduct 固定设置之后、下一个任务之前。
         const stationResult = rebuildSettlementMessages(originalMessages, sourceLocale, "task.VisitFriends.label");
 
-        // Endministrator 是干员列表的固定末项；新干员插在它之前，保持选项和 locale 的既有分组顺序。
+        // Endministrator 是干员列表的固定末项；新干员插在它之前，保持选项和 locale 的固定分组顺序。
         const operatorResult = insertMissingMessages(
             stationResult.messages,
             sellProductLocaleEntries.operators,

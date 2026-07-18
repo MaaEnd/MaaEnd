@@ -114,13 +114,7 @@ func runtimeUsageName(usage string) string {
 }
 
 func runtimeOperatorName(candidate operatorCandidate) string {
-	if candidate.DisplayName != "" {
-		return candidate.DisplayName
-	}
-	if candidate.CacheName != "" {
-		return candidate.CacheName
-	}
-	return candidate.Name
+	return candidate.DisplayName
 }
 
 func runtimeLocationName(location string) string {

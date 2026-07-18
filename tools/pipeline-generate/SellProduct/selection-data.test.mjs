@@ -17,7 +17,6 @@ test("SellProduct selection data artifact matches the current source model", () 
     const generated = JSON.parse(readFileSync(generatedPath, "utf8"));
     assert.deepEqual(generated, buildSellProductSelectionData());
     assert.deepEqual(generated, sellProductSelectionData);
-    assert.equal(Object.hasOwn(generated, "schema_version"), false);
 });
 
 test("SellProduct selection data contains only valid stable references", () => {
@@ -26,9 +25,8 @@ test("SellProduct selection data contains only valid stable references", () => {
         data.location_order,
         sellProductLocations.map((location) => location.LocationId),
     );
-    for (const itemID of data.item_order) {
-        assert.equal(Object.hasOwn(data.items[itemID], "expected"), false);
-        assert.deepEqual(Object.keys(data.items[itemID].names), [
+    for (const item of Object.values(data.items)) {
+        assert.deepEqual(Object.keys(item.names), [
             "zh_cn",
             "zh_tw",
             "en_us",
@@ -36,9 +34,8 @@ test("SellProduct selection data contains only valid stable references", () => {
             "ko_kr",
         ]);
     }
-    for (const operatorName of data.known_operator_order) {
-        assert.equal(Object.hasOwn(data.operators[operatorName], "expected"), false);
-        assert.deepEqual(Object.keys(data.operators[operatorName].names), [
+    for (const operator of Object.values(data.operators)) {
+        assert.deepEqual(Object.keys(operator.names), [
             "zh_cn",
             "zh_tw",
             "en_us",

@@ -79,7 +79,7 @@ test("SellProduct templates consume separate minimal projections of the shared l
     );
 });
 
-test("SellProduct 强制刷新选项保留 PC 与 ADB 共用的当前干员 ROI", () => {
+test("SellProduct 强制刷新选项为 PC 与 ADB 使用相同的当前干员 ROI", () => {
     const enabledCase = root.OperatorRefreshModeCases.find((itemCase) => itemCase.name === "Yes");
     assert.ok(enabledCase);
     for (const location of sellProductLocations) {

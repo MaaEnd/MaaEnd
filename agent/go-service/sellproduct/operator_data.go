@@ -2,11 +2,12 @@ package sellproduct
 
 import (
 	"fmt"
+	"sort"
 	"sync"
 )
 
 var (
-	// loadOperatorSelectionDataFunc 是为单元测试保留的替换点。
+	// loadOperatorSelectionDataFunc 是单元测试使用的数据加载注入点。
 	loadOperatorSelectionDataFunc = loadOperatorSelectionDataCached
 	operatorSelectionDataOnce     sync.Once
 	operatorSelectionDataCache    *operatorSelectionData
@@ -45,12 +46,17 @@ func buildOperatorSelectionData(data *sellProductSelectionDataFile) (*operatorSe
 	result := &operatorSelectionData{
 		TargetCandidates: make(map[string][]operatorCandidate, len(data.LocationOrder)),
 		RestoreGroups:    make([]operatorCandidateGroup, 0, len(data.LocationOrder)),
-		KnownOperators:   make([]operatorCandidate, 0, len(data.KnownOperatorOrder)),
+		KnownOperators:   make([]operatorCandidate, 0, len(data.Operators)),
 		LocationOrder:    append([]string(nil), data.LocationOrder...),
 		LocationNames:    make(map[string]string, len(data.LocationOrder)),
 	}
 
-	for priority, name := range data.KnownOperatorOrder {
+	operatorNames := make([]string, 0, len(data.Operators))
+	for name := range data.Operators {
+		operatorNames = append(operatorNames, name)
+	}
+	sort.Strings(operatorNames)
+	for priority, name := range operatorNames {
 		candidate, err := selectionOperatorCandidate(data, name, priority, 0)
 		if err != nil {
 			return nil, fmt.Errorf("known operator: %w", err)

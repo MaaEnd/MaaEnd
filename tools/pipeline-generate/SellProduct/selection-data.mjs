@@ -3,12 +3,10 @@ import {dirname, resolve} from "node:path";
 import {fileURLToPath, pathToFileURL} from "node:url";
 
 import {getOperatorCaseName, isAdminOperator, sellProductLocations, settlementData} from "./model.mjs";
-import {dataDir} from "../utils/paths.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT_PATH = resolve(__dirname, "../../../assets/data/SellProduct/selection_data.json");
 const ZH_CN_LOCALE_PATH = resolve(__dirname, "../../../assets/locales/interface/zh_cn.json");
-const SOURCE_VERSION_PATH = resolve(dataDir, "version.txt");
 const SUPPORTED_LANGUAGES = [
     "CN",
     "TC",
@@ -151,7 +149,6 @@ export function buildLocationOperatorOrder(settlement, acceptedBonusTypes, local
 
 export function buildSelectionItems(data = settlementData, sourceLocations = sellProductLocations) {
     const items = {};
-    const itemOrder = [];
     const locations = {};
 
     for (const location of sourceLocations) {
@@ -166,7 +163,6 @@ export function buildSelectionItems(data = settlementData, sourceLocations = sel
 
                 if (!items[itemID]) {
                     items[itemID] = {names: {}};
-                    itemOrder.push(itemID);
                 }
                 items[itemID].names = {
                     ...items[itemID].names,
@@ -202,7 +198,6 @@ export function buildSelectionItems(data = settlementData, sourceLocations = sel
 
     return {
         items,
-        itemOrder,
         locationItemOrder: locations,
     };
 }
@@ -210,24 +205,12 @@ export function buildSelectionItems(data = settlementData, sourceLocations = sel
 export function buildSellProductSelectionData() {
     const localeOrder = buildOperatorLocaleOrder();
     const operators = {};
-    const knownOperatorOrder = Object.entries(settlementData.operators || {})
-        .sort(([left], [right]) => left.localeCompare(right))
-        .map(
-            ([
-                ,
-                operator,
-            ]) => ({
-                name: registerOperator(operators, operator),
-                operator,
-            }),
-        )
-        .filter((entry) => entry.name)
-        .sort(
-            (left, right) =>
-                operatorOrder(left.operator, localeOrder) - operatorOrder(right.operator, localeOrder) ||
-                left.name.localeCompare(right.name),
-        )
-        .map((entry) => entry.name);
+    for (const [
+        ,
+        operator,
+    ] of Object.entries(settlementData.operators || {}).sort(([left], [right]) => left.localeCompare(right))) {
+        registerOperator(operators, operator);
+    }
 
     const itemData = buildSelectionItems();
     const locations = {};
@@ -257,10 +240,7 @@ export function buildSellProductSelectionData() {
     }
 
     return {
-        source_version: readFileSync(SOURCE_VERSION_PATH, "utf8").trim(),
-        item_order: itemData.itemOrder,
         items: itemData.items,
-        known_operator_order: knownOperatorOrder,
         operators,
         location_order: sellProductLocations.map((location) => location.LocationId),
         locations,
@@ -269,7 +249,7 @@ export function buildSellProductSelectionData() {
 
 export const sellProductSelectionData = buildSellProductSelectionData();
 
-// Task 选项保持上游文件的既有展示顺序；运行时 item_order 则使用稳定的据点排序。
+// Task 选项使用上游展示顺序；运行时 item_order 使用稳定的据点排序。
 // 两者共享同一物品字典和临时过滤规则，但不把 UI 顺序耦合到运行时识别顺序。
 function buildSelectableItems() {
     const items = [];

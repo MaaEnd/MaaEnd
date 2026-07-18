@@ -10,20 +10,20 @@ import (
 func TestComposePlanningLogSnapshot(t *testing.T) {
 	operatorData := &operatorSelectionData{
 		TargetCandidates: map[string][]operatorCandidate{
-			"A": {{Name: "TargetA", CacheName: "售卖甲", Priority: 0}},
-			"B": {{Name: "TargetB", CacheName: "售卖乙", Priority: 0}},
+			"A": {{Name: "TargetA", CacheName: "售卖甲", DisplayName: "售卖甲", Priority: 0}},
+			"B": {{Name: "TargetB", CacheName: "售卖乙", DisplayName: "售卖乙", Priority: 0}},
 		},
+		LocationNames: map[string]string{"A": "据点甲", "B": "据点乙"},
 		RestoreGroups: []operatorCandidateGroup{
 			{Location: "A", Candidates: []operatorCandidate{
-				{Name: "RestoreA", CacheName: "恢复甲", Priority: 0},
-				{Name: "TargetA", CacheName: "售卖甲", Priority: 1},
+				{Name: "RestoreA", CacheName: "恢复甲", DisplayName: "恢复甲", Priority: 0},
+				{Name: "TargetA", CacheName: "售卖甲", DisplayName: "售卖甲", Priority: 1},
 			}},
-			{Location: "B", Candidates: []operatorCandidate{{Name: "RestoreB", CacheName: "恢复乙", Priority: 0}}},
+			{Location: "B", Candidates: []operatorCandidate{{Name: "RestoreB", CacheName: "恢复乙", DisplayName: "恢复乙", Priority: 0}}},
 		},
 	}
 	ownership := operatorOwnership{
 		Operators: operatorNameSet([]string{"售卖甲", "售卖乙", "恢复甲", "恢复乙"}),
-		Complete:  true,
 	}
 	session := operatorSessionState{
 		UID:             "123456789",
@@ -32,10 +32,10 @@ func TestComposePlanningLogSnapshot(t *testing.T) {
 	}
 	itemPriorities := map[string][]itemPriorityGroup{
 		"A": {
-			{ItemID: "item_high", Candidates: []string{"高级货品"}},
-			{ItemID: "item_low", Candidates: []string{"低级货品"}},
+			{ItemID: "item_high", DisplayName: "高级货品", Candidates: []string{"高级货品"}},
+			{ItemID: "item_low", DisplayName: "低级货品", Candidates: []string{"低级货品"}},
 		},
-		"B": {{ItemID: "item_b", Candidates: []string{"乙货品"}}},
+		"B": {{ItemID: "item_b", DisplayName: "乙货品", Candidates: []string{"乙货品"}}},
 	}
 
 	got := composePlanningLogSnapshot(operatorData, ownership, session, itemPriorities, []string{

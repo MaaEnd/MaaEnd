@@ -1,14 +1,6 @@
 // Package sellproduct 为「🛒售卖产品」任务提供 Go 自定义识别和状态算法。
 //
-// SellProductNormalizedItemMatch 是指定候选的兼容识别组件；其严格匹配函数也由
-// SellProductPriorityItem 复用，用于动态选择当前据点的最高优先级货品。
-//
-// 引入原因：见 MaaEnd issue #2344。原实现用锚定正则 `^紫晶质瓶$` 去匹配 OCR 结果，遇到噪声
-// 前缀（如 "I紫晶质瓶"）就直接 miss，回退卖默认货品。
-//
-// 关键约束：不得回退 PR #1790（issue #1793）修复的子串混淆问题——设置「柑实罐头」为优先货
-// 品时不应误匹配「优质柑实罐头」「精选柑实罐头」「精选优质柑实罐头」。为此匹配采用精确层级
-// 策略，完全不使用通用编辑距离：
+// 货品和干员名称使用分层严格匹配，不使用通用编辑距离：
 //
 //  1. 分隔符归一化（Tier A）：剥除空白、方括号、竖线、连字符、点号、顿号等常见分隔符并统
 //     一大小写后要求严格相等。用于 EN 名在 OCR 里多出 `[` `]` `|` 的情况。
@@ -21,145 +13,20 @@
 package sellproduct
 
 import (
-	"encoding/json"
-	"fmt"
 	"sort"
 	"strings"
 	"unicode"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
-	"github.com/rs/zerolog/log"
 )
-
-const componentName = "SellProductNormalizedItemMatch"
-
-type normalizedMatchParams struct {
-	Candidates      []string `json:"candidates"`
-	ItemID          string   `json:"item_id,omitempty"`
-	SelectDefault   bool     `json:"select_default,omitempty"`
-	RecordSelection bool     `json:"record_selection,omitempty"`
-}
-
-// NormalizedMatchRecognition 对指定候选名称执行抗噪声严格 OCR 匹配。
-type NormalizedMatchRecognition struct{}
-
-var _ maa.CustomRecognitionRunner = (*NormalizedMatchRecognition)(nil)
-
-func (r *NormalizedMatchRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	if arg == nil || arg.Img == nil {
-		log.Warn().Str("component", componentName).Msg("arg or image is nil")
-		return nil, false
-	}
-
-	p, err := parseParams(arg.CustomRecognitionParam)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("component", componentName).
-			Str("raw_param", arg.CustomRecognitionParam).
-			Msg("failed to parse params")
-		return nil, false
-	}
-
-	if len(p.Candidates) == 0 && !p.SelectDefault {
-		log.Warn().Str("component", componentName).Msg("candidates is empty, nothing to match")
-		return nil, false
-	}
-
-	ocrParam := maa.OCRParam{
-		ROI: maa.NewTargetRect(arg.Roi),
-	}
-	detail, err := ctx.RunRecognitionDirect(maa.RecognitionTypeOCR, ocrParam, arg.Img)
-	if err != nil || detail == nil {
-		log.Warn().
-			Err(err).
-			Str("component", componentName).
-			Interface("roi", arg.Roi).
-			Msg("inner OCR failed")
-		return nil, false
-	}
-
-	ocrItems := collectOCRResults(detail)
-	if len(ocrItems) == 0 {
-		log.Debug().
-			Str("component", componentName).
-			Interface("roi", arg.Roi).
-			Msg("no OCR text in ROI")
-		return nil, false
-	}
-
-	var best *matchResult
-	selectedItemID := p.ItemID
-	if p.SelectDefault {
-		groups, err := loadItemSelectionGroupsFunc()
-		if err != nil {
-			log.Error().Err(err).Str("component", componentName).Msg("failed to load item candidates")
-			return nil, false
-		}
-		best, selectedItemID = findBestItemMatch(ocrItems, groups)
-	} else {
-		best = findBestMatch(ocrItems, p.Candidates)
-	}
-	if best == nil {
-		ocrTexts := make([]string, 0, len(ocrItems))
-		for _, it := range ocrItems {
-			ocrTexts = append(ocrTexts, it.text)
-		}
-		event := log.Debug().
-			Str("component", componentName).
-			Strs("ocr_texts", ocrTexts)
-		if p.SelectDefault {
-			event.Bool("select_default", true).Msg("no item candidate matched")
-		} else {
-			event.Strs("candidates", p.Candidates).Msg("no candidate matched")
-		}
-		return nil, false
-	}
-	if p.RecordSelection && selectedItemID != "" {
-		setSelectedReserveItem(selectedItemID)
-	}
-	log.Debug().
-		Str("component", componentName).
-		Str("ocr_text", best.ocrText).
-		Str("matched_candidate", best.candidate).
-		Str("item_id", selectedItemID).
-		Str("match_tier", best.tier).
-		Interface("box", best.box).
-		Msg("normalized match hit")
-
-	detailJSON, _ := json.Marshal(map[string]any{
-		"ocr_text":          best.ocrText,
-		"matched_candidate": best.candidate,
-		"item_id":           selectedItemID,
-		"match_tier":        best.tier,
-	})
-
-	return &maa.CustomRecognitionResult{
-		Box:    best.box,
-		Detail: string(detailJSON),
-	}, true
-}
-
-func parseParams(raw string) (*normalizedMatchParams, error) {
-	raw = strings.TrimSpace(raw)
-	if raw == "" {
-		return nil, fmt.Errorf("custom_recognition_param is empty")
-	}
-	var p normalizedMatchParams
-	if err := json.Unmarshal([]byte(raw), &p); err != nil {
-		return nil, fmt.Errorf("unmarshal custom_recognition_param: %w", err)
-	}
-	p.ItemID = strings.TrimSpace(p.ItemID)
-	return &p, nil
-}
 
 type ocrItem struct {
 	text string
 	box  maa.Rect
 }
 
-// collectOCRResults 优先使用 Filtered 结果（OCR expected 过滤后的结果）；
-// 若为空则退回 All。不按文本去重：findBestMatch 会按 Y/X 排序选最靠上 / 靠左的
+// collectOCRResults 优先使用 Filtered 结果（OCR expected 过滤后的结果），无结果时读取 All。
+// 结果保留相同文本的所有坐标：findBestMatch 会按 Y/X 排序选最靠上 / 靠左的
 // box，去重会丢失同一文本在多个位置的候选 box。
 func collectOCRResults(detail *maa.RecognitionDetail) []ocrItem {
 	if detail == nil || detail.Results == nil {

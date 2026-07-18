@@ -138,6 +138,14 @@ func TestParseOperatorSessionCompletionParam(t *testing.T) {
 	}
 }
 
+func TestParseOperatorSessionResetRequiresMode(t *testing.T) {
+	if _, err := parseOperatorSessionActionParam(&maa.CustomActionArg{
+		CustomActionParam: `{"operation":"reset"}`,
+	}); err == nil {
+		t.Fatal("reset operation without mode should be rejected")
+	}
+}
+
 func TestOperatorSessionSkipsRestoreLocation(t *testing.T) {
 	resetOperatorSessionForTest(t, operatorCacheModeCache)
 	operatorSessionSetPlannedRestore("RefugeeCamp", operatorCandidate{Name: "Shared"}, true)

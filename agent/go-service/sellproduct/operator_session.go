@@ -131,9 +131,6 @@ func parseOperatorSessionActionParam(arg *maa.CustomActionArg) (*operatorSession
 	p.Usage = strings.TrimSpace(p.Usage)
 	p.Location = strings.TrimSpace(p.Location)
 	if p.Operation == operatorSessionOperationReset {
-		if p.Mode == "" {
-			p.Mode = operatorCacheModeCache
-		}
 		if p.Mode != operatorCacheModeCache && p.Mode != operatorCacheModeRefresh {
 			return nil, fmt.Errorf("invalid mode %q", p.Mode)
 		}

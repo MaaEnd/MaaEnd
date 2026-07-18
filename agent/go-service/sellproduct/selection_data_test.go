@@ -4,21 +4,9 @@ import "testing"
 
 func testSellProductSelectionData() *sellProductSelectionDataFile {
 	return &sellProductSelectionDataFile{
-		SourceVersion: "test",
-		ItemOrder: []string{
-			"item_a",
-			"item_b",
-		},
 		Items: map[string]selectionDataItem{
 			"item_a": {Names: map[string]string{"zh_cn": "物品甲", "en_us": "Item A"}},
 			"item_b": {Names: map[string]string{"zh_cn": "物品乙", "en_us": "Item B"}},
-		},
-		KnownOperatorOrder: []string{
-			"Both",
-			"Money",
-			"Build",
-			"Restore",
-			"OtherOperator",
 		},
 		Operators: map[string]selectionDataOperator{
 			"Both":          {CacheName: "双加成", Names: map[string]string{"zh_cn": "双加成", "en_us": "Both"}},
@@ -68,9 +56,6 @@ func TestLoadSellProductSelectionData(t *testing.T) {
 	data, err := loadSellProductSelectionData()
 	if err != nil {
 		t.Fatalf("loadSellProductSelectionData: %v", err)
-	}
-	if data.SourceVersion == "" {
-		t.Fatal("source version should not be empty")
 	}
 	if len(data.Items) == 0 || len(data.Operators) == 0 || len(data.Locations) == 0 {
 		t.Fatalf("selection data is incomplete: %+v", data)

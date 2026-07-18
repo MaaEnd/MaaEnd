@@ -24,13 +24,10 @@ var (
 // sellProductSelectionDataFile 是生成器输出的最小运行时选品数据契约。
 // 上游 zmdmap 结构、排序和临时过滤均在构建阶段消化，Go 只展开稳定引用。
 type sellProductSelectionDataFile struct {
-	SourceVersion      string                           `json:"source_version"`
-	ItemOrder          []string                         `json:"item_order"`
-	Items              map[string]selectionDataItem     `json:"items"`
-	KnownOperatorOrder []string                         `json:"known_operator_order"`
-	Operators          map[string]selectionDataOperator `json:"operators"`
-	LocationOrder      []string                         `json:"location_order"`
-	Locations          map[string]selectionDataLocation `json:"locations"`
+	Items         map[string]selectionDataItem     `json:"items"`
+	Operators     map[string]selectionDataOperator `json:"operators"`
+	LocationOrder []string                         `json:"location_order"`
+	Locations     map[string]selectionDataLocation `json:"locations"`
 }
 
 type selectionDataItem struct {
@@ -66,7 +63,6 @@ func loadSellProductSelectionData() (*sellProductSelectionDataFile, error) {
 }
 
 // readSellProductSelectionData 在源码环境读取 assets 中的生成产物，发布环境读取 install/data。
-// 两条路径指向同一份 selection_data.json，不再回退到 tools 下的上游缓存。
 func readSellProductSelectionData(out *sellProductSelectionDataFile) error {
 	if sourcePath := sellProductSelectionDataSourcePath(); sourcePath != "" {
 		if content, err := os.ReadFile(sourcePath); err == nil {
@@ -102,10 +98,10 @@ func validateSellProductSelectionData(data *sellProductSelectionDataFile) error 
 	if data == nil {
 		return fmt.Errorf("data is nil")
 	}
-	if len(data.ItemOrder) == 0 || len(data.Items) == 0 {
+	if len(data.Items) == 0 {
 		return fmt.Errorf("item catalog is empty")
 	}
-	if len(data.KnownOperatorOrder) == 0 || len(data.Operators) == 0 {
+	if len(data.Operators) == 0 {
 		return fmt.Errorf("operator catalog is empty")
 	}
 	if len(data.LocationOrder) == 0 || len(data.Locations) == 0 {
@@ -114,17 +110,17 @@ func validateSellProductSelectionData(data *sellProductSelectionDataFile) error 
 	return nil
 }
 
-func selectionItemGroup(data *sellProductSelectionDataFile, itemID string) (itemSelectionGroup, error) {
+func selectionItemPriorityGroup(data *sellProductSelectionDataFile, itemID string) (itemPriorityGroup, error) {
 	itemID = strings.TrimSpace(itemID)
 	item, ok := data.Items[itemID]
 	if !ok {
-		return itemSelectionGroup{}, fmt.Errorf("item %q not found", itemID)
+		return itemPriorityGroup{}, fmt.Errorf("item %q not found", itemID)
 	}
 	candidates := selectionExpectedNames(item.Names)
 	if len(candidates) == 0 {
-		return itemSelectionGroup{}, fmt.Errorf("item %q expected names are empty", itemID)
+		return itemPriorityGroup{}, fmt.Errorf("item %q expected names are empty", itemID)
 	}
-	return itemSelectionGroup{
+	return itemPriorityGroup{
 		ItemID:      itemID,
 		DisplayName: localizedSelectionName(item.Names, itemID),
 		Candidates:  candidates,

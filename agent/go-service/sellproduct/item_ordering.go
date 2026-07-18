@@ -23,11 +23,11 @@ func buildItemPriorityGroups(data *sellProductSelectionDataFile) (map[string][]i
 		}
 		groups := make([]itemPriorityGroup, 0, len(location.ItemOrder))
 		for _, itemID := range location.ItemOrder {
-			group, err := selectionItemGroup(data, itemID)
+			group, err := selectionItemPriorityGroup(data, itemID)
 			if err != nil {
 				return nil, fmt.Errorf("location %q item order: %w", locationName, err)
 			}
-			groups = append(groups, itemPriorityGroup(group))
+			groups = append(groups, group)
 		}
 		result[locationName] = groups
 	}

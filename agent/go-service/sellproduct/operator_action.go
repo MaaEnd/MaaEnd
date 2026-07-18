@@ -76,10 +76,6 @@ func (r *SelectBestOperatorRecognition) Run(
 	if !ok {
 		return nil, false
 	}
-	if _, err := recordObservedOperators([]string{operatorCandidateCacheName(candidate)}); err != nil {
-		// 缓存是优化手段，不能让一次有效的界面识别因磁盘写入失败而失效。
-		log.Warn().Err(err).Str("component", selectBestOperatorRecognitionName).Msg("cache update failed")
-	}
 	recordTargetAssignment(p, candidate)
 	operatorListStateDelete(operatorListScanStateKey(p))
 	return &maa.CustomRecognitionResult{
@@ -132,9 +128,6 @@ func (r *CurrentBestOperatorRecognition) Run(
 	if !ok {
 		return nil, false
 	}
-	if _, err := recordObservedOperators([]string{operatorCandidateCacheName(candidate)}); err != nil {
-		log.Warn().Err(err).Str("component", currentBestOperatorRecognitionName).Msg("cache update failed")
-	}
 	recordTargetAssignment(p, candidate)
 	operatorListStateDelete(operatorListScanStateKey(p))
 	return &maa.CustomRecognitionResult{
@@ -157,7 +150,12 @@ func (r *OperatorCacheReadyRecognition) Run(
 		log.Error().Err(err).Str("component", operatorCacheReadyRecognitionName).Msg("invalid params")
 		return nil, false
 	}
-	if operatorCacheReadyForSelection(p) {
+	ready, err := operatorCacheReadyForSelection(p)
+	if err != nil {
+		log.Error().Err(err).Str("component", operatorCacheReadyRecognitionName).Msg("read operator cache failed")
+		return nil, false
+	}
+	if ready {
 		return &maa.CustomRecognitionResult{Detail: "cache_ready"}, true
 	}
 	return nil, false
@@ -296,12 +294,24 @@ func resolveOperatorSelectionParam(p *operatorActionParam) (*operatorSelectionPa
 			return nil, fmt.Errorf("operator data not found for location %q", p.Location)
 		}
 	}
+	scanCandidates := allOperatorScanCandidates(data)
+	if len(scanCandidates) == 0 {
+		return nil, fmt.Errorf("known operator data is empty")
+	}
 	session := operatorSessionSnapshot()
+	if len(session.ActiveLocations) == 0 {
+		return nil, fmt.Errorf("active locations are empty")
+	}
+	if p.Usage != operatorActionUsageAll {
+		if _, active := session.ActiveLocations[p.Location]; !active {
+			return nil, fmt.Errorf("location %q is not active", p.Location)
+		}
+	}
 	result := &operatorSelectionParam{
 		Usage:                      p.Usage,
 		Location:                   p.Location,
 		TargetCandidatesByLocation: data.TargetCandidates,
-		ScanCandidates:             allOperatorScanCandidates(data),
+		ScanCandidates:             scanCandidates,
 		KnownOperators:             data.KnownOperators,
 		ActiveLocations:            session.ActiveLocations,
 		CompletedRestoreLocations:  session.CompletedRestoreLocations,
@@ -318,25 +328,15 @@ func resolveOperatorSelectionParam(p *operatorActionParam) (*operatorSelectionPa
 	default:
 		return nil, fmt.Errorf("invalid usage %q", p.Usage)
 	}
-	if len(result.KnownOperators) == 0 {
-		result.KnownOperators = result.ScanCandidates
-	}
 	return result, nil
 }
 
-// allOperatorScanCandidates 合并全部据点的售卖与恢复候选，形成缓存刷新识别域。
+// allOperatorScanCandidates 返回配置中的完整干员表，形成缓存刷新识别域。
 func allOperatorScanCandidates(data *operatorSelectionData) []operatorCandidate {
 	if data == nil {
 		return nil
 	}
-	var candidates []operatorCandidate
-	for _, targetCandidates := range data.TargetCandidates {
-		candidates = append(candidates, targetCandidates...)
-	}
-	for _, group := range data.RestoreGroups {
-		candidates = append(candidates, group.Candidates...)
-	}
-	return normalizeOperatorCandidates(candidates)
+	return normalizeOperatorCandidates(data.KnownOperators)
 }
 
 func setPlannedRestoreCandidate(p *operatorSelectionParam, candidates []operatorCandidate) {
@@ -383,8 +383,7 @@ type operatorScanOutcomeDetail struct {
 // operatorListScanStates 仅保存当前进程内的短期扫描状态，键中包含 UID 和选择参数。
 var operatorListScanStates = map[string]operatorListScanState{}
 
-// loadOperatorOwnershipForSelection 读取当前账号的拥有干员集合及其完整性。
-// 不完整缓存只表示部分干员已确认拥有，不能据此排除尚未观察到的候选。
+// loadOperatorOwnershipForSelection 读取当前账号完整快照中的拥有干员集合。
 func loadOperatorOwnershipForSelection() (operatorOwnership, error) {
 	uid := currentOperatorCacheUID()
 	path := resolveOperatorCachePathFunc(uid)
@@ -394,37 +393,25 @@ func loadOperatorOwnershipForSelection() (operatorOwnership, error) {
 	}
 	return operatorOwnership{
 		Operators: operatorNameSet(operatorCacheOperatorsForUID(cache, uid)),
-		Complete:  operatorCacheHasSnapshot(cache, uid),
 	}, nil
 }
 
 // operatorCacheReadyForSelection 判断当前模式下缓存是否已经达到可消费状态。
-// cache 模式允许直接进入渐进搜索；refresh 模式必须等待本次任务完成一次全列表扫描。
-func operatorCacheReadyForSelection(p *operatorActionParam) bool {
+// cache 模式仅复用完整快照，没有快照时先扫描全部干员；refresh 模式始终等待本次任务完成扫描。
+func operatorCacheReadyForSelection(p *operatorActionParam) (bool, error) {
 	if p.Mode == operatorCacheModeRefresh {
-		return operatorSessionRefreshed()
+		return operatorSessionRefreshed(), nil
 	}
-	return true
-}
-
-// recordObservedOperators 把局部 OCR 确认拥有的干员合并进当前账号缓存，并返回最新集合。
-func recordObservedOperators(observed []string) (map[string]struct{}, error) {
 	uid := currentOperatorCacheUID()
 	path := resolveOperatorCachePathFunc(uid)
 	cache, err := readOperatorCache(path)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
-	if len(observed) > 0 {
-		cache = mergeObservedOperatorCache(cache, uid, observed, time.Now())
-		if err := writeOperatorCacheFile(path, cache); err != nil {
-			return nil, err
-		}
-	}
-	return operatorNameSet(operatorCacheOperatorsForUID(cache, uid)), nil
+	return operatorCacheHasSnapshot(cache, uid), nil
 }
 
-// replaceObservedOperators 用完整扫描结果刷新候选域，并在成功落盘后标记本次会话已刷新。
+// replaceObservedOperators 用完整扫描结果替换当前账号快照，并标记本次会话已刷新。
 func replaceObservedOperators(scanCandidates []operatorCandidate, observed []string) error {
 	uid := currentOperatorCacheUID()
 	path := resolveOperatorCachePathFunc(uid)
@@ -503,7 +490,7 @@ func findCurrentBestOperator(
 	return operatorCandidate{}, nil, false
 }
 
-// findCurrentOperatorPrefixMatch 兼容当前干员名称与右侧界面文本被 OCR 合并的情况。
+// findCurrentOperatorPrefixMatch 处理当前干员名称与右侧界面文本被 OCR 合并的情况。
 // 仅当目标名称是 OCR 文本前缀，且不存在更长的已知干员名称同样匹配该前缀时才命中。
 func findCurrentOperatorPrefixMatch(
 	items []ocrItem,

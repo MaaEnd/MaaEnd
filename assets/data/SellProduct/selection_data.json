@@ -1,35 +1,4 @@
 {
-    "source_version": "1.4.4",
-    "item_order": [
-        "item_bottled_rec_hp_1",
-        "item_glass_bottle",
-        "item_crystal_shell",
-        "item_glass_cmpt",
-        "item_proc_battery_2",
-        "item_bottled_rec_hp_2",
-        "item_bottled_food_1",
-        "item_bottled_rec_hp_3",
-        "item_proc_battery_3",
-        "item_bottled_food_2",
-        "item_bottled_food_3",
-        "item_proc_battery_1",
-        "item_iron_cmpt",
-        "item_iron_enr_cmpt",
-        "item_activity_xiranite_enr_hulu",
-        "item_activity_xiranite_hulu",
-        "item_proc_battery_4",
-        "item_bottled_rec_hp_4",
-        "item_xiranite_powder",
-        "item_bottled_food_4",
-        "item_copper_cmpt",
-        "item_proc_battery_5",
-        "item_copper_enr_cmpt",
-        "item_bottled_rec_hp_5",
-        "item_xiranite_enr_powder",
-        "item_bottled_food_5",
-        "item_copper_enr2_cmpt",
-        "item_filter_core"
-    ],
     "items": {
         "item_bottled_rec_hp_1": {
             "names": {
@@ -284,36 +253,6 @@
             }
         }
     },
-    "known_operator_order": [
-        "Perlica",
-        "Yvonne",
-        "Ardelia",
-        "Gilberta",
-        "ChenQianyu",
-        "Wulfgard",
-        "Antal",
-        "Xaihi",
-        "Lifeng",
-        "Catcher",
-        "Arclight",
-        "Avywenna",
-        "Laevatain",
-        "Alesh",
-        "Pogranichnik",
-        "LastRite",
-        "Ember",
-        "Snowshine",
-        "DaPan",
-        "Fluorite",
-        "Akekuri",
-        "Estella",
-        "Rossi",
-        "Tangtang",
-        "ZhuangFangyi",
-        "MiFu",
-        "Camille",
-        "Arcane"
-    ],
     "operators": {
         "Perlica": {
             "cache_name": "佩丽卡",

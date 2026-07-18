@@ -27,6 +27,9 @@ func TestRestoreSelectionReplansAfterTemporaryExclusion(t *testing.T) {
 	p := &operatorSelectionParam{
 		Usage:    operatorActionUsageRestore,
 		Location: "RefugeeCamp",
+		ActiveLocations: map[string]struct{}{
+			"RefugeeCamp": {},
+		},
 		RestoreGroups: []operatorCandidateGroup{
 			{
 				Location: "RefugeeCamp",
@@ -53,15 +56,15 @@ func TestBuildRestoreAssignmentPlanUniqueOperators(t *testing.T) {
 		{
 			Location: "A",
 			Candidates: []operatorCandidate{
-				{Name: "Shared", Priority: 0},
-				{Name: "AOnly", Priority: 1},
+				{Name: "Shared", CacheName: "Shared", Priority: 0},
+				{Name: "AOnly", CacheName: "AOnly", Priority: 1},
 			},
 		},
 		{
 			Location: "B",
 			Candidates: []operatorCandidate{
-				{Name: "Shared", Priority: 0},
-				{Name: "BOnly", Priority: 1},
+				{Name: "Shared", CacheName: "Shared", Priority: 0},
+				{Name: "BOnly", CacheName: "BOnly", Priority: 1},
 			},
 		},
 	}
@@ -90,14 +93,14 @@ func TestBuildRestoreAssignmentPlanMaximizesAssignedLocations(t *testing.T) {
 		{
 			Location: "A",
 			Candidates: []operatorCandidate{
-				{Name: "Shared", Priority: 0},
-				{Name: "AOnly", Priority: 9},
+				{Name: "Shared", CacheName: "Shared", Priority: 0},
+				{Name: "AOnly", CacheName: "AOnly", Priority: 9},
 			},
 		},
 		{
 			Location: "B",
 			Candidates: []operatorCandidate{
-				{Name: "Shared", Priority: 0},
+				{Name: "Shared", CacheName: "Shared", Priority: 0},
 			},
 		},
 	}
@@ -177,18 +180,22 @@ func TestCandidatesForCurrentSelectionUsesGlobalRestorePlan(t *testing.T) {
 	p := &operatorSelectionParam{
 		Usage:    operatorActionUsageRestore,
 		Location: "B",
+		ActiveLocations: map[string]struct{}{
+			"A": {},
+			"B": {},
+		},
 		RestoreGroups: []operatorCandidateGroup{
 			{
 				Location: "A",
 				Candidates: []operatorCandidate{
-					{Name: "Shared", Priority: 0},
-					{Name: "AOnly", Priority: 9},
+					{Name: "Shared", CacheName: "Shared", Priority: 0},
+					{Name: "AOnly", CacheName: "AOnly", Priority: 9},
 				},
 			},
 			{
 				Location: "B",
 				Candidates: []operatorCandidate{
-					{Name: "Shared", Priority: 0},
+					{Name: "Shared", CacheName: "Shared", Priority: 0},
 				},
 			},
 		},
@@ -243,7 +250,6 @@ func TestEquivalentTargetCandidatesIncludeAllBestBonusOperators(t *testing.T) {
 
 	candidates := equivalentTargetCandidatesForOwnership(p, operatorOwnership{
 		Operators: operatorNameSet([]string{"黎风", "诀", "艾尔黛拉"}),
-		Complete:  true,
 	})
 	if len(candidates) != 2 || candidates[0].Name != "Lifeng" || candidates[1].Name != "Arcane" {
 		t.Fatalf("同档候选 = %#v，期望 Lifeng、Arcane", candidates)
@@ -371,7 +377,6 @@ func TestGeneratedXiranflowRestorePreparesArcaneForNextRunAfterKeepingLifeng(t *
 	p.TargetAssignments = nil
 	nextRunCandidates := equivalentTargetCandidatesForOwnership(p, operatorOwnership{
 		Operators: operatorNameSet(ownedNames),
-		Complete:  true,
 	})
 	stable := false
 	for _, candidate := range nextRunCandidates {

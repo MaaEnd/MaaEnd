@@ -126,9 +126,6 @@ func composePlanningLogSnapshot(
 		selection.Usage = operatorActionUsageRestore
 		restore := firstOperatorName(candidatesForOwnership(selection, ownership))
 		locationName := operatorData.LocationNames[location]
-		if locationName == "" {
-			locationName = location
-		}
 		snapshot.Operators = append(snapshot.Operators, planningOperatorEntry{
 			Location:        location,
 			LocationName:    locationName,
@@ -201,27 +198,11 @@ func firstOperatorName(candidates []operatorCandidate) string {
 	if len(candidates) == 0 {
 		return ""
 	}
-	if candidates[0].DisplayName != "" {
-		return candidates[0].DisplayName
-	}
-	if candidates[0].CacheName != "" {
-		return candidates[0].CacheName
-	}
-	return candidates[0].Name
+	return candidates[0].DisplayName
 }
 
 func itemPriorityGroupName(group itemPriorityGroup) string {
-	if group.DisplayName != "" {
-		return group.DisplayName
-	}
-	return firstString(group.Candidates)
-}
-
-func firstString(values []string) string {
-	if len(values) == 0 {
-		return ""
-	}
-	return values[0]
+	return group.DisplayName
 }
 
 func planningItemNames(groupsByLocation map[string][]itemPriorityGroup) map[string]string {
@@ -266,24 +247,23 @@ func planningFocusMessages(snapshot planningLogSnapshot) []string {
 		}
 		messages = append(messages, i18n.T(
 			"sellproduct.plan.location",
-			fallbackPlanningText(operator.LocationName),
-			fallbackPlanningText(operator.TargetOperator),
-			fallbackPlanningText(operator.RestoreOperator),
-			fallbackPlanningList(itemNames, " → "),
-			fallbackPlanningList(reserves, i18n.Separator()),
+			planningTextOrNone(operator.LocationName),
+			planningTextOrNone(operator.TargetOperator),
+			planningListOrNone(itemNames, " → "),
+			planningListOrNone(reserves, i18n.Separator()),
 		))
 	}
 	return messages
 }
 
-func fallbackPlanningText(value string) string {
+func planningTextOrNone(value string) string {
 	if value = strings.TrimSpace(value); value != "" {
 		return value
 	}
 	return i18n.T("sellproduct.plan.none")
 }
 
-func fallbackPlanningList(values []string, separator string) string {
+func planningListOrNone(values []string, separator string) string {
 	if len(values) == 0 {
 		return i18n.T("sellproduct.plan.none")
 	}

@@ -16,7 +16,7 @@ const (
 	operatorScanOutcomeRecognitionName = "SellProductOperatorScanOutcome"
 	operatorSessionActionName          = "SellProductOperatorSession"
 
-	// cache 优先复用本地快照；refresh 强制先完整扫描一次干员列表。
+	// cache 仅复用完整本地快照，缺失时先扫描；refresh 强制先完整扫描一次干员列表。
 	operatorCacheModeCache   = "cache"
 	operatorCacheModeRefresh = "refresh"
 
@@ -37,10 +37,10 @@ const (
 type operatorCandidate struct {
 	// Name 是内部稳定标识，主要用于去重、分配和日志输出。
 	Name string `json:"name"`
-	// CacheName 是跨语言缓存键，当前优先使用中文名；为空时回退到 Name。
-	CacheName string `json:"cache_name,omitempty"`
+	// CacheName 是跨语言缓存键。
+	CacheName string `json:"cache_name"`
 	// DisplayName 是按当前客户端语言选择的用户可见名称。
-	DisplayName string `json:"display_name,omitempty"`
+	DisplayName string `json:"display_name"`
 	// Expected 是传给 OCR 匹配逻辑的多语言名称集合。
 	Expected []string `json:"expected"`
 	// Priority 表示候选顺序，值越小越优先。
@@ -83,7 +83,7 @@ type operatorSelectionParam struct {
 	ExcludedOperators          map[string]struct{}
 }
 
-// parseOperatorActionParam 解析并校验 Pipeline 参数，同时补齐兼容旧配置的默认值。
+// parseOperatorActionParam 解析并校验 Pipeline 参数。
 // 参数错误会直接让本次识别失败，避免使用不完整配置误点其他界面元素。
 func parseOperatorActionParam(raw string) (*operatorActionParam, error) {
 	raw = strings.TrimSpace(raw)
@@ -96,9 +96,6 @@ func parseOperatorActionParam(raw string) (*operatorActionParam, error) {
 		return nil, fmt.Errorf("unmarshal custom_action_param: %w", err)
 	}
 	p.Mode = strings.TrimSpace(p.Mode)
-	if p.Mode == "" {
-		p.Mode = operatorCacheModeCache
-	}
 	if p.Mode != operatorCacheModeCache && p.Mode != operatorCacheModeRefresh {
 		return nil, fmt.Errorf("invalid mode %q", p.Mode)
 	}
@@ -111,9 +108,6 @@ func parseOperatorActionParam(raw string) (*operatorActionParam, error) {
 		return nil, fmt.Errorf("location is empty")
 	}
 	p.Result = strings.TrimSpace(p.Result)
-	if len(p.ROI) == 0 {
-		p.ROI = []int{164, 121, 700, 430}
-	}
 	if len(p.ROI) != 4 {
 		return nil, fmt.Errorf("invalid roi length %d, expected 4", len(p.ROI))
 	}
@@ -130,11 +124,8 @@ func normalizeOperatorCandidates(candidates []operatorCandidate) []operatorCandi
 		candidate.Name = strings.TrimSpace(candidate.Name)
 		candidate.CacheName = strings.TrimSpace(candidate.CacheName)
 		candidate.DisplayName = strings.TrimSpace(candidate.DisplayName)
-		if candidate.CacheName == "" {
-			candidate.CacheName = candidate.Name
-		}
 		candidate.Expected = uniqueNonEmptyStrings(candidate.Expected)
-		if candidate.Name == "" || len(candidate.Expected) == 0 {
+		if candidate.Name == "" || candidate.CacheName == "" || len(candidate.Expected) == 0 {
 			continue
 		}
 		if _, ok := seen[candidate.Name]; ok {
@@ -214,25 +205,13 @@ func filterOwnedCandidates(candidates []operatorCandidate, owned map[string]stru
 
 // operatorCandidateCacheName 返回候选在本地拥有列表中的稳定键。
 func operatorCandidateCacheName(candidate operatorCandidate) string {
-	if candidate.CacheName != "" {
-		return candidate.CacheName
-	}
-	return candidate.Name
+	return candidate.CacheName
 }
 
-// collectScanCandidates 返回刷新缓存时需要识别的完整候选域。
-// 正常运行时由数据加载器显式提供 ScanCandidates；测试或旧调用方未提供时，
-// 则从目标候选和恢复候选中合并生成，避免漏掉只用于恢复岗位的干员。
+// collectScanCandidates 返回数据加载器提供的完整干员候选域。
 func collectScanCandidates(p *operatorSelectionParam) []operatorCandidate {
 	if p == nil {
 		return nil
 	}
-	if len(p.ScanCandidates) > 0 {
-		return normalizeOperatorCandidates(p.ScanCandidates)
-	}
-	candidates := append([]operatorCandidate{}, p.Candidates...)
-	for _, group := range p.RestoreGroups {
-		candidates = append(candidates, group.Candidates...)
-	}
-	return normalizeOperatorCandidates(candidates)
+	return normalizeOperatorCandidates(p.ScanCandidates)
 }

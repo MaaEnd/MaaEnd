@@ -1,19 +1,13 @@
 package sellproduct
 
-// operatorOwnership 描述当前账号的干员缓存及其完整性。
+// operatorOwnership 描述当前账号完整缓存中的拥有干员集合。
 type operatorOwnership struct {
 	Operators map[string]struct{}
-	Complete  bool
 }
 
-// candidatesForOwnership 在完整缓存上计算精确方案；缓存不完整时假设所有候选都可能拥有，
-// 从理论最优开始搜索。一次完整的列表到底会把该假设替换为真实拥有集合并重新规划。
+// candidatesForOwnership 根据完整缓存中的真实拥有集合计算精确方案。
 func candidatesForOwnership(p *operatorSelectionParam, ownership operatorOwnership) []operatorCandidate {
-	owned := ownership.Operators
-	if !ownership.Complete {
-		owned = operatorCandidateCacheNameSet(collectScanCandidates(p))
-	}
-	return candidatesForCurrentSelection(p, owned)
+	return candidatesForCurrentSelection(p, ownership.Operators)
 }
 
 // equivalentTargetCandidatesForOwnership 返回当前账号可用的最高售卖加成档候选。
@@ -22,11 +16,7 @@ func equivalentTargetCandidatesForOwnership(
 	p *operatorSelectionParam,
 	ownership operatorOwnership,
 ) []operatorCandidate {
-	owned := ownership.Operators
-	if !ownership.Complete {
-		owned = operatorCandidateCacheNameSet(collectScanCandidates(p))
-	}
-	available := cloneStringSet(owned)
+	available := cloneStringSet(ownership.Operators)
 	for excluded := range p.ExcludedOperators {
 		delete(available, excluded)
 	}
@@ -169,14 +159,8 @@ func availableTargetCandidates(
 func preferredRestoreAssignments(p *operatorSelectionParam, owned map[string]struct{}) map[string]operatorCandidate {
 	preferred := make(map[string]operatorCandidate)
 	active := p.ActiveLocations
-	if len(active) == 0 {
-		active = map[string]struct{}{p.Location: {}}
-	}
 	for location := range active {
 		candidates := p.TargetCandidatesByLocation[location]
-		if len(candidates) == 0 && location == p.Location {
-			candidates = p.Candidates
-		}
 		available := availableTargetCandidates(candidates, owned, location, p.LockedRestoreAssignments)
 		if len(available) > 0 {
 			preferred[location] = available[0]
@@ -196,15 +180,9 @@ func reusableTargetCandidatesByLocation(
 	owned map[string]struct{},
 ) map[string]map[string]struct{} {
 	active := p.ActiveLocations
-	if len(active) == 0 {
-		active = map[string]struct{}{p.Location: {}}
-	}
 	reusable := make(map[string]map[string]struct{}, len(active))
 	for location := range active {
 		candidates := p.TargetCandidatesByLocation[location]
-		if len(candidates) == 0 && location == p.Location {
-			candidates = p.Candidates
-		}
 		available := bestBonusTierCandidates(availableTargetCandidates(
 			candidates,
 			owned,
@@ -223,21 +201,14 @@ func reusableTargetCandidatesByLocation(
 	return reusable
 }
 
-// sameOperator 使用内部名称比较干员，缺少内部名称时回退到缓存键。
+// sameOperator 使用内部稳定名称比较干员。
 func sameOperator(a, b operatorCandidate) bool {
-	if a.Name != "" && b.Name != "" {
-		return a.Name == b.Name
-	}
-	return operatorCandidateCacheName(a) == operatorCandidateCacheName(b)
+	return a.Name == b.Name
 }
 
 // restoreGroupsForSelection 只保留本次任务启用且尚未完成恢复的据点。
-// 旧调用方没有注册作用域时，安全回退为只规划当前据点，绝不预留给未知据点。
 func restoreGroupsForSelection(p *operatorSelectionParam) []operatorCandidateGroup {
 	active := p.ActiveLocations
-	if len(active) == 0 {
-		active = map[string]struct{}{p.Location: {}}
-	}
 	groups := make([]operatorCandidateGroup, 0, len(active))
 	for _, group := range p.RestoreGroups {
 		if _, ok := active[group.Location]; !ok {

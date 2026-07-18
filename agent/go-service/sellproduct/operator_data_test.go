@@ -23,7 +23,7 @@ func TestBuildOperatorSelectionDataUsesGeneratedOrder(t *testing.T) {
 	if len(got.RestoreGroups) != 1 || got.RestoreGroups[0].Candidates[0].Name != "Restore" {
 		t.Fatalf("restore groups = %#v", got.RestoreGroups)
 	}
-	if got.KnownOperators[len(got.KnownOperators)-1].Name != "OtherOperator" {
+	if got.KnownOperators[0].Name != "Both" || got.KnownOperators[len(got.KnownOperators)-1].Name != "Restore" {
 		t.Fatalf("known operators = %#v", got.KnownOperators)
 	}
 }
@@ -86,17 +86,20 @@ func TestLoadOperatorSelectionDataCachedReusesDerivedData(t *testing.T) {
 }
 
 func TestResolveOperatorSelectionParamUsesDataFileCandidates(t *testing.T) {
+	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	operatorSessionRegisterLocation("A")
 	old := loadOperatorSelectionDataFunc
 	defer func() {
 		loadOperatorSelectionDataFunc = old
 	}()
 	loadOperatorSelectionDataFunc = func() (*operatorSelectionData, error) {
 		return &operatorSelectionData{
+			KnownOperators: []operatorCandidate{{Name: "Known", CacheName: "已知", Expected: []string{"已知"}}},
 			TargetCandidates: map[string][]operatorCandidate{
-				"A": {{Name: "Target", Expected: []string{"目标"}}},
+				"A": {{Name: "Target", CacheName: "目标", Expected: []string{"目标"}}},
 			},
 			RestoreGroups: []operatorCandidateGroup{
-				{Location: "A", Candidates: []operatorCandidate{{Name: "Restore", Expected: []string{"恢复"}}}},
+				{Location: "A", Candidates: []operatorCandidate{{Name: "Restore", CacheName: "恢复", Expected: []string{"恢复"}}}},
 			},
 		}, nil
 	}
@@ -143,5 +146,54 @@ func TestResolveOperatorSelectionParamRejectsUnknownLocation(t *testing.T) {
 	})
 	if err == nil {
 		t.Fatal("unknown location should return a configuration error")
+	}
+}
+
+func TestResolveOperatorSelectionParamRejectsMissingKnownOperators(t *testing.T) {
+	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	operatorSessionRegisterLocation("Known")
+	old := loadOperatorSelectionDataFunc
+	defer func() {
+		loadOperatorSelectionDataFunc = old
+	}()
+	loadOperatorSelectionDataFunc = func() (*operatorSelectionData, error) {
+		return &operatorSelectionData{
+			TargetCandidates: map[string][]operatorCandidate{
+				"Known": {{Name: "Target", Expected: []string{"目标"}}},
+			},
+		}, nil
+	}
+
+	_, err := resolveOperatorSelectionParam(&operatorActionParam{
+		Usage:    operatorActionUsageTarget,
+		Location: "Known",
+	})
+	if err == nil {
+		t.Fatal("missing known operators should return a configuration error")
+	}
+}
+
+func TestResolveOperatorSelectionParamRejectsInactiveLocation(t *testing.T) {
+	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	operatorSessionRegisterLocation("Active")
+	old := loadOperatorSelectionDataFunc
+	defer func() {
+		loadOperatorSelectionDataFunc = old
+	}()
+	loadOperatorSelectionDataFunc = func() (*operatorSelectionData, error) {
+		return &operatorSelectionData{
+			KnownOperators: []operatorCandidate{{Name: "Known", CacheName: "已知", Expected: []string{"已知"}}},
+			TargetCandidates: map[string][]operatorCandidate{
+				"Inactive": {{Name: "Target", CacheName: "目标", Expected: []string{"目标"}}},
+			},
+		}, nil
+	}
+
+	_, err := resolveOperatorSelectionParam(&operatorActionParam{
+		Usage:    operatorActionUsageTarget,
+		Location: "Inactive",
+	})
+	if err == nil {
+		t.Fatal("inactive location should return a configuration error")
 	}
 }
