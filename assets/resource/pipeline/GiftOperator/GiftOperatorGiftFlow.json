@@ -258,7 +258,6 @@
                 ],
                 "connected": true,
                 "count": 10
-             
             }
         }
     },
@@ -336,10 +335,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    616,
-                    679,
-                    48,
-                    40
+                    603,
+                    646,
+                    75,
+                    74
                 ],
                 "template": [
                     "RealTimeTask/AutoSkipNext2.png"
