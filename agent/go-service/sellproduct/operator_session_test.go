@@ -96,6 +96,26 @@ func TestOperatorSessionRegistersActiveLocations(t *testing.T) {
 	}
 }
 
+func TestOperatorSessionSkipsInactiveRegistration(t *testing.T) {
+	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	if ok := (&OperatorSessionAction{}).Run(nil, &maa.CustomActionArg{
+		CustomActionParam: `{"operation":"register","location":"RefugeeCamp","active":false}`,
+	}); !ok {
+		t.Fatal("inactive location registration should be a successful no-op")
+	}
+	if got := operatorSessionSnapshot().ActiveLocations; len(got) != 0 {
+		t.Fatalf("inactive location should not be registered: %#v", got)
+	}
+	if ok := (&OperatorSessionAction{}).Run(nil, &maa.CustomActionArg{
+		CustomActionParam: `{"operation":"register","location":"RefugeeCamp","active":true}`,
+	}); !ok {
+		t.Fatal("active location registration should succeed")
+	}
+	if _, ok := operatorSessionSnapshot().ActiveLocations["RefugeeCamp"]; !ok {
+		t.Fatal("active location should be registered")
+	}
+}
+
 func TestOperatorSessionLocksCompletedRestoreAssignment(t *testing.T) {
 	resetOperatorSessionForTest(t, operatorCacheModeCache)
 	candidate := operatorCandidate{Name: "Perlica", CacheName: "佩丽卡"}

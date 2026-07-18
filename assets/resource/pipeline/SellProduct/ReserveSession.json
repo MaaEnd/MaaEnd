@@ -11,20 +11,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRegisterReserveRule1",
-            "SellProductRegisterReserveRule2",
-            "SellProductRegisterReserveRule3",
-            "SellProductRegisterReserveRule4",
-            "SellProductRegisterPriorityItem1",
-            "SellProductRegisterPriorityItem2",
-            "SellProductRegisterPriorityItem3",
-            "SellProductRegisterPriorityItem4",
-            "SellProductInitializeOperatorSession"
+            "SellProductRegisterReserveRule1"
         ]
     },
     "SellProductRegisterReserveRule1": {
         "desc": "注册第1条独立物品保留规则",
-        "enabled": false,
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "SellProductReserveSession",
@@ -34,19 +25,11 @@
             "quantity": 0
         },
         "next": [
-            "SellProductRegisterReserveRule2",
-            "SellProductRegisterReserveRule3",
-            "SellProductRegisterReserveRule4",
-            "SellProductRegisterPriorityItem1",
-            "SellProductRegisterPriorityItem2",
-            "SellProductRegisterPriorityItem3",
-            "SellProductRegisterPriorityItem4",
-            "SellProductInitializeOperatorSession"
+            "SellProductRegisterReserveRule2"
         ]
     },
     "SellProductRegisterReserveRule2": {
         "desc": "注册第2条独立物品保留规则",
-        "enabled": false,
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "SellProductReserveSession",
@@ -56,18 +39,11 @@
             "quantity": 0
         },
         "next": [
-            "SellProductRegisterReserveRule3",
-            "SellProductRegisterReserveRule4",
-            "SellProductRegisterPriorityItem1",
-            "SellProductRegisterPriorityItem2",
-            "SellProductRegisterPriorityItem3",
-            "SellProductRegisterPriorityItem4",
-            "SellProductInitializeOperatorSession"
+            "SellProductRegisterReserveRule3"
         ]
     },
     "SellProductRegisterReserveRule3": {
         "desc": "注册第3条独立物品保留规则",
-        "enabled": false,
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "SellProductReserveSession",
@@ -77,17 +53,11 @@
             "quantity": 0
         },
         "next": [
-            "SellProductRegisterReserveRule4",
-            "SellProductRegisterPriorityItem1",
-            "SellProductRegisterPriorityItem2",
-            "SellProductRegisterPriorityItem3",
-            "SellProductRegisterPriorityItem4",
-            "SellProductInitializeOperatorSession"
+            "SellProductRegisterReserveRule4"
         ]
     },
     "SellProductRegisterReserveRule4": {
         "desc": "注册第4条独立物品保留规则",
-        "enabled": false,
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "SellProductReserveSession",
@@ -97,16 +67,11 @@
             "quantity": 0
         },
         "next": [
-            "SellProductRegisterPriorityItem1",
-            "SellProductRegisterPriorityItem2",
-            "SellProductRegisterPriorityItem3",
-            "SellProductRegisterPriorityItem4",
-            "SellProductInitializeOperatorSession"
+            "SellProductRegisterPriorityItem1"
         ]
     },
     "SellProductRegisterPriorityItem1": {
         "desc": "注册第1个优先售卖物品",
-        "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -118,15 +83,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRegisterPriorityItem2",
-            "SellProductRegisterPriorityItem3",
-            "SellProductRegisterPriorityItem4",
-            "SellProductInitializeOperatorSession"
+            "SellProductRegisterPriorityItem2"
         ]
     },
     "SellProductRegisterPriorityItem2": {
         "desc": "注册第2个优先售卖物品",
-        "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -138,14 +99,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRegisterPriorityItem3",
-            "SellProductRegisterPriorityItem4",
-            "SellProductInitializeOperatorSession"
+            "SellProductRegisterPriorityItem3"
         ]
     },
     "SellProductRegisterPriorityItem3": {
         "desc": "注册第3个优先售卖物品",
-        "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -157,13 +115,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRegisterPriorityItem4",
-            "SellProductInitializeOperatorSession"
+            "SellProductRegisterPriorityItem4"
         ]
     },
     "SellProductRegisterPriorityItem4": {
         "desc": "注册第4个优先售卖物品",
-        "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",

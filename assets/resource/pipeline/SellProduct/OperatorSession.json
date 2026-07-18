@@ -1,117 +1,104 @@
 {
     "SellProductRegisterAutoRefugeeCamp": {
         "desc": "注册难民暂居处自动干员恢复范围",
-        "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SellProductOperatorSession",
         "custom_action_param": {
             "operation": "register",
-            "location": "RefugeeCamp"
+            "location": "RefugeeCamp",
+            "active": false
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRegisterAutoInfraStation",
-            "SellProductRegisterAutoReconstructionHQ",
-            "SellProductRegisterAutoSkyKingFlatsConstructionSite",
-            "SellProductRegisterAutoCardiacRemediationStation",
-            "SellProductRegisterAutoXiranflowCloudseederStation",
-            "SellProductOperatorSessionReady"
+            "SellProductRegisterAutoInfraStation"
         ]
     },
     "SellProductRegisterAutoInfraStation": {
         "desc": "注册基建前站自动干员恢复范围",
-        "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SellProductOperatorSession",
         "custom_action_param": {
             "operation": "register",
-            "location": "InfraStation"
+            "location": "InfraStation",
+            "active": false
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRegisterAutoReconstructionHQ",
-            "SellProductRegisterAutoSkyKingFlatsConstructionSite",
-            "SellProductRegisterAutoCardiacRemediationStation",
-            "SellProductRegisterAutoXiranflowCloudseederStation",
-            "SellProductOperatorSessionReady"
+            "SellProductRegisterAutoReconstructionHQ"
         ]
     },
     "SellProductRegisterAutoReconstructionHQ": {
         "desc": "注册重建指挥部自动干员恢复范围",
-        "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SellProductOperatorSession",
         "custom_action_param": {
             "operation": "register",
-            "location": "ReconstructionHQ"
+            "location": "ReconstructionHQ",
+            "active": false
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRegisterAutoSkyKingFlatsConstructionSite",
-            "SellProductRegisterAutoCardiacRemediationStation",
-            "SellProductRegisterAutoXiranflowCloudseederStation",
-            "SellProductOperatorSessionReady"
+            "SellProductRegisterAutoSkyKingFlatsConstructionSite"
         ]
     },
     "SellProductRegisterAutoSkyKingFlatsConstructionSite": {
         "desc": "注册天王坪援建点自动干员恢复范围",
-        "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SellProductOperatorSession",
         "custom_action_param": {
             "operation": "register",
-            "location": "SkyKingFlatsConstructionSite"
+            "location": "SkyKingFlatsConstructionSite",
+            "active": false
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRegisterAutoCardiacRemediationStation",
-            "SellProductRegisterAutoXiranflowCloudseederStation",
-            "SellProductOperatorSessionReady"
+            "SellProductRegisterAutoCardiacRemediationStation"
         ]
     },
     "SellProductRegisterAutoCardiacRemediationStation": {
         "desc": "注册心脏修缮站自动干员恢复范围",
-        "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SellProductOperatorSession",
         "custom_action_param": {
             "operation": "register",
-            "location": "CardiacRemediationStation"
+            "location": "CardiacRemediationStation",
+            "active": false
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRegisterAutoXiranflowCloudseederStation",
-            "SellProductOperatorSessionReady"
+            "SellProductRegisterAutoXiranflowCloudseederStation"
         ]
     },
     "SellProductRegisterAutoXiranflowCloudseederStation": {
         "desc": "注册盈天台建设站自动干员恢复范围",
-        "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SellProductOperatorSession",
         "custom_action_param": {
             "operation": "register",
-            "location": "XiranflowCloudseederStation"
+            "location": "XiranflowCloudseederStation",
+            "active": false
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "next": ["SellProductOperatorSessionReady"]
+        "next": [
+            "SellProductOperatorSessionReady"
+        ]
     }
 }

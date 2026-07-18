@@ -8,5 +8,5 @@ const operatorRegistrationNodes = [
 export default sellProductLocations.map((location, index) => ({
     LocationId: location.LocationId,
     LocationDesc: location.LocationDesc,
-    OperatorRegistrationNext: operatorRegistrationNodes.slice(index + 1),
+    OperatorRegistrationNext: operatorRegistrationNodes[index + 1],
 }));

@@ -46,6 +46,7 @@ type operatorSessionActionParam struct {
 	Usage     string `json:"usage,omitempty"`
 	Location  string `json:"location,omitempty"`
 	Changed   bool   `json:"changed,omitempty"`
+	Active    bool   `json:"active,omitempty"`
 }
 
 // OperatorSessionAction 由 Pipeline 在任务入口和恢复完成节点调用。
@@ -70,6 +71,12 @@ func (a *OperatorSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 	case operatorSessionOperationReset:
 		operatorSessionReset(p.Mode)
 	case operatorSessionOperationRegister:
+		if !p.Active {
+			log.Debug().Str("component", operatorSessionActionName).
+				Str("location", p.Location).
+				Msg("inactive operator location slot skipped")
+			return true
+		}
 		operatorSessionRegisterLocation(p.Location)
 	case operatorSessionOperationEnterLocation:
 		if operatorSessionEnterLocation(p.Location) {

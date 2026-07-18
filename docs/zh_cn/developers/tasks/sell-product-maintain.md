@@ -18,12 +18,15 @@ SellProductSchedule                                  （Task 入口，按星期�
        └─ SellProductEnterRegionalDevelopment        （SceneManager：进入地区建设）
             └─ SellProductCaptureUid                 （捕获哈希 UID，隔离账号缓存）
                  └─ SellProductInitializeReserveSession （清空上次任务的保留/选品状态）
-                      ├─ SellProductRegisterReserveRule{1..4} （注册启用的保留规则）
-                      └─ SellProductInitializeOperatorSession （初始化干员规划与恢复锁）
-                           ├─ SellProductRegisterAuto{LocationId} × N （注册启用据点）
-                           └─ SellProductOperatorSessionReady
-                                └─ SellProductLoop         （进入地区遍历）
+                      └─ SellProductRegisterReserveRule{1..4} （固定串联，空槽位直接跳过）
+                           └─ SellProductRegisterPriorityItem{1..4} （固定串联，空槽位直接跳过）
+                                └─ SellProductInitializeOperatorSession （初始化干员规划与恢复锁）
+                                     └─ SellProductRegisterAuto{LocationId} × N （固定串联，非活跃据点直接跳过）
+                                          └─ SellProductOperatorSessionReady
+                                               └─ SellProductLoop         （进入地区遍历）
 ```
+
+保留规则和优先物品的 8 个注册节点始终启用，并按槽位顺序固定串联。任务选项只覆盖已配置槽位的稳定 `itemId`；未配置槽位保留空 `item_id`，Custom Action 将其作为 no-op 成功跳过。据点注册节点同样固定串联，任务选项只把启用据点的 `active` 参数设为 `true`，非活跃据点直接 no-op。两段初始化流程均无需为任意启用组合维护逐层缩短的 `next` 候选列表。
 
 `SellProductLoop` 根据配置执行四号谷地、武陵或自动选择地区。地区入口通过 SceneManager 进入据点管理页，准备干员缓存，再用 `[JumpBack]` 依次执行该地区的据点：
 

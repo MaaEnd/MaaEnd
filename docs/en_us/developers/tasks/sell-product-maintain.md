@@ -18,12 +18,15 @@ SellProductSchedule                                  (Task entry, weekday gate)
        └─ SellProductEnterRegionalDevelopment        (SceneManager: enter Regional Development)
             └─ SellProductCaptureUid                 (capture hashed UID for account-scoped cache)
                  └─ SellProductInitializeReserveSession (clear previous reserve/selection state)
-                      ├─ SellProductRegisterReserveRule{1..4} (register enabled rules)
-                      └─ SellProductInitializeOperatorSession (initialize plans and locks)
-                           ├─ SellProductRegisterAuto{LocationId} × N (register enabled outposts)
-                           └─ SellProductOperatorSessionReady
-                                └─ SellProductLoop         (begin region traversal)
+                      └─ SellProductRegisterReserveRule{1..4} (fixed chain; skip empty slots)
+                           └─ SellProductRegisterPriorityItem{1..4} (fixed chain; skip empty slots)
+                                └─ SellProductInitializeOperatorSession (initialize plans and locks)
+                                     └─ SellProductRegisterAuto{LocationId} × N (fixed chain; skip inactive outposts)
+                                          └─ SellProductOperatorSessionReady
+                                               └─ SellProductLoop         (begin region traversal)
 ```
+
+The eight reserve-rule and priority-item registration nodes are always enabled and form a fixed slot-order chain. Task options override the stable `itemId` only for configured slots. Unconfigured slots keep an empty `item_id`, which the Custom Action treats as a successful no-op. Outpost registration nodes use the same fixed-chain approach: task options set `active` to `true` only for enabled outposts, while inactive outposts are successful no-ops. Neither initialization stage needs progressively shortened `next` candidate lists for every possible enabled-slot combination.
 
 `SellProductLoop` executes Valley IV, Wuling, or automatic region selection according to task configuration. A region entry uses SceneManager to open outpost management, prepares the operator cache, then executes each outpost through `[JumpBack]`:
 

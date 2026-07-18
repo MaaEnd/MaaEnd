@@ -313,7 +313,11 @@
                             "enabled": true
                         },
                         "SellProductRegisterAuto${LocationId}": {
-                            "enabled": true
+                            "custom_action_param": {
+                                "operation": "register",
+                                "location": "${LocationId}",
+                                "active": true
+                            }
                         }
                     }
                 },
@@ -321,9 +325,6 @@
                     "name": "No",
                     "pipeline_override": {
                         "SellProduct${LocationId}": {
-                            "enabled": false
-                        },
-                        "SellProductRegisterAuto${LocationId}": {
                             "enabled": false
                         }
                     }

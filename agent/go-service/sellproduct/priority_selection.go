@@ -135,6 +135,11 @@ func (a *PrioritySessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 	}
 	switch param.Operation {
 	case priorityOperationRegister:
+		if param.ItemID == "" {
+			log.Debug().Str("component", prioritySessionActionName).
+				Msg("unconfigured priority item slot skipped")
+			return true
+		}
 		registered := registerPriorityItem(param.ItemID)
 		log.Info().Str("component", prioritySessionActionName).
 			Str("item_id", param.ItemID).
@@ -185,9 +190,6 @@ func parsePrioritySessionActionParam(arg *maa.CustomActionArg) (*prioritySession
 	param.ItemID = strings.TrimSpace(param.ItemID)
 	switch param.Operation {
 	case priorityOperationRegister:
-		if param.ItemID == "" {
-			return nil, fmt.Errorf("item_id is empty")
-		}
 	case priorityOperationCommit:
 		if param.Location == "" {
 			return nil, fmt.Errorf("location is empty")

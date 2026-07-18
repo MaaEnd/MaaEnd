@@ -25,6 +25,98 @@
         }
     ],
     "option": {
+        "SellProductSchedule": {
+            "type": "checkbox",
+            "label": "$option.TaskSchedule.label",
+            "default_case": [
+                "SellProductScheduleMonday",
+                "SellProductScheduleTuesday",
+                "SellProductScheduleWednesday",
+                "SellProductScheduleThursday",
+                "SellProductScheduleFriday",
+                "SellProductScheduleSaturday",
+                "SellProductScheduleSunday"
+            ],
+            "cases": [
+                {
+                    "name": "SellProductScheduleMonday",
+                    "label": "$option.TaskScheduleMonday.label",
+                    "pipeline_override": {
+                        "SellProductScheduleEnabled": {
+                            "attach": {
+                                "monday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleTuesday",
+                    "label": "$option.TaskScheduleTuesday.label",
+                    "pipeline_override": {
+                        "SellProductScheduleEnabled": {
+                            "attach": {
+                                "tuesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleWednesday",
+                    "label": "$option.TaskScheduleWednesday.label",
+                    "pipeline_override": {
+                        "SellProductScheduleEnabled": {
+                            "attach": {
+                                "wednesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleThursday",
+                    "label": "$option.TaskScheduleThursday.label",
+                    "pipeline_override": {
+                        "SellProductScheduleEnabled": {
+                            "attach": {
+                                "thursday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleFriday",
+                    "label": "$option.TaskScheduleFriday.label",
+                    "pipeline_override": {
+                        "SellProductScheduleEnabled": {
+                            "attach": {
+                                "friday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleSaturday",
+                    "label": "$option.TaskScheduleSaturday.label",
+                    "pipeline_override": {
+                        "SellProductScheduleEnabled": {
+                            "attach": {
+                                "saturday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleSunday",
+                    "label": "$option.TaskScheduleSunday.label",
+                    "pipeline_override": {
+                        "SellProductScheduleEnabled": {
+                            "attach": {
+                                "sunday": true
+                            }
+                        }
+                    }
+                }
+            ]
+        },
         "SellProductPriorityRules": {
             "type": "switch",
             "label": "$task.SellProduct.PrioritySwitch",
@@ -59,7 +151,6 @@
                     "label": "$item.LCWulingBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_4"
@@ -72,7 +163,6 @@
                     "label": "$item.YazhenSyringeC",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_4"
@@ -85,7 +175,6 @@
                     "label": "$item.Xiranite",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_xiranite_powder"
@@ -98,7 +187,6 @@
                     "label": "$item.JincaoDrink",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_4"
@@ -111,7 +199,6 @@
                     "label": "$item.CupriumPart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_copper_cmpt"
@@ -124,7 +211,6 @@
                     "label": "$item.SCWulingBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_5"
@@ -137,7 +223,6 @@
                     "label": "$item.HetonitePart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_copper_enr_cmpt"
@@ -150,7 +235,6 @@
                     "label": "$item.YazhenSyringeA",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_5"
@@ -163,7 +247,6 @@
                     "label": "$item.HeavyXiranite",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_xiranite_enr_powder"
@@ -176,7 +259,6 @@
                     "label": "$item.JincaoTea",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_5"
@@ -188,7 +270,6 @@
                     "name": "灼铜零件",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_copper_enr2_cmpt"
@@ -200,7 +281,6 @@
                     "name": "分离芯",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_filter_core"
@@ -213,7 +293,6 @@
                     "label": "$item.BuckCapsuleC",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_1"
@@ -226,7 +305,6 @@
                     "label": "$item.AmethystBottle",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_bottle"
@@ -239,7 +317,6 @@
                     "label": "$item.Origocrust",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_crystal_shell"
@@ -252,7 +329,6 @@
                     "label": "$item.AmethystPart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_cmpt"
@@ -265,7 +341,6 @@
                     "label": "$item.SCValleyBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_2"
@@ -278,7 +353,6 @@
                     "label": "$item.BuckCapsuleB",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_2"
@@ -291,7 +365,6 @@
                     "label": "$item.CannedCitromeC",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_1"
@@ -304,7 +377,6 @@
                     "label": "$item.BuckCapsuleA",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_3"
@@ -317,7 +389,6 @@
                     "label": "$item.HCValleyBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_3"
@@ -330,7 +401,6 @@
                     "label": "$item.CannedCitromeB",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_2"
@@ -343,7 +413,6 @@
                     "label": "$item.CannedCitromeA",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_3"
@@ -356,7 +425,6 @@
                     "label": "$item.LCValleyBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_1"
@@ -369,7 +437,6 @@
                     "label": "$item.FerriumPart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_cmpt"
@@ -382,7 +449,6 @@
                     "label": "$item.SteelPart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem1": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_enr_cmpt"
@@ -406,7 +472,6 @@
                     "label": "$item.LCWulingBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_4"
@@ -419,7 +484,6 @@
                     "label": "$item.YazhenSyringeC",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_4"
@@ -432,7 +496,6 @@
                     "label": "$item.Xiranite",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_xiranite_powder"
@@ -445,7 +508,6 @@
                     "label": "$item.JincaoDrink",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_4"
@@ -458,7 +520,6 @@
                     "label": "$item.CupriumPart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_copper_cmpt"
@@ -471,7 +532,6 @@
                     "label": "$item.SCWulingBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_5"
@@ -484,7 +544,6 @@
                     "label": "$item.HetonitePart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_copper_enr_cmpt"
@@ -497,7 +556,6 @@
                     "label": "$item.YazhenSyringeA",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_5"
@@ -510,7 +568,6 @@
                     "label": "$item.HeavyXiranite",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_xiranite_enr_powder"
@@ -523,7 +580,6 @@
                     "label": "$item.JincaoTea",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_5"
@@ -535,7 +591,6 @@
                     "name": "灼铜零件",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_copper_enr2_cmpt"
@@ -547,7 +602,6 @@
                     "name": "分离芯",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_filter_core"
@@ -560,7 +614,6 @@
                     "label": "$item.BuckCapsuleC",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_1"
@@ -573,7 +626,6 @@
                     "label": "$item.AmethystBottle",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_bottle"
@@ -586,7 +638,6 @@
                     "label": "$item.Origocrust",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_crystal_shell"
@@ -599,7 +650,6 @@
                     "label": "$item.AmethystPart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_cmpt"
@@ -612,7 +662,6 @@
                     "label": "$item.SCValleyBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_2"
@@ -625,7 +674,6 @@
                     "label": "$item.BuckCapsuleB",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_2"
@@ -638,7 +686,6 @@
                     "label": "$item.CannedCitromeC",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_1"
@@ -651,7 +698,6 @@
                     "label": "$item.BuckCapsuleA",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_3"
@@ -664,7 +710,6 @@
                     "label": "$item.HCValleyBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_3"
@@ -677,7 +722,6 @@
                     "label": "$item.CannedCitromeB",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_2"
@@ -690,7 +734,6 @@
                     "label": "$item.CannedCitromeA",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_3"
@@ -703,7 +746,6 @@
                     "label": "$item.LCValleyBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_1"
@@ -716,7 +758,6 @@
                     "label": "$item.FerriumPart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_cmpt"
@@ -729,7 +770,6 @@
                     "label": "$item.SteelPart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem2": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_enr_cmpt"
@@ -753,7 +793,6 @@
                     "label": "$item.LCWulingBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_4"
@@ -766,7 +805,6 @@
                     "label": "$item.YazhenSyringeC",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_4"
@@ -779,7 +817,6 @@
                     "label": "$item.Xiranite",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_xiranite_powder"
@@ -792,7 +829,6 @@
                     "label": "$item.JincaoDrink",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_4"
@@ -805,7 +841,6 @@
                     "label": "$item.CupriumPart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_copper_cmpt"
@@ -818,7 +853,6 @@
                     "label": "$item.SCWulingBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_5"
@@ -831,7 +865,6 @@
                     "label": "$item.HetonitePart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_copper_enr_cmpt"
@@ -844,7 +877,6 @@
                     "label": "$item.YazhenSyringeA",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_5"
@@ -857,7 +889,6 @@
                     "label": "$item.HeavyXiranite",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_xiranite_enr_powder"
@@ -870,7 +901,6 @@
                     "label": "$item.JincaoTea",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_5"
@@ -882,7 +912,6 @@
                     "name": "灼铜零件",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_copper_enr2_cmpt"
@@ -894,7 +923,6 @@
                     "name": "分离芯",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_filter_core"
@@ -907,7 +935,6 @@
                     "label": "$item.BuckCapsuleC",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_1"
@@ -920,7 +947,6 @@
                     "label": "$item.AmethystBottle",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_bottle"
@@ -933,7 +959,6 @@
                     "label": "$item.Origocrust",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_crystal_shell"
@@ -946,7 +971,6 @@
                     "label": "$item.AmethystPart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_cmpt"
@@ -959,7 +983,6 @@
                     "label": "$item.SCValleyBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_2"
@@ -972,7 +995,6 @@
                     "label": "$item.BuckCapsuleB",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_2"
@@ -985,7 +1007,6 @@
                     "label": "$item.CannedCitromeC",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_1"
@@ -998,7 +1019,6 @@
                     "label": "$item.BuckCapsuleA",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_3"
@@ -1011,7 +1031,6 @@
                     "label": "$item.HCValleyBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_3"
@@ -1024,7 +1043,6 @@
                     "label": "$item.CannedCitromeB",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_2"
@@ -1037,7 +1055,6 @@
                     "label": "$item.CannedCitromeA",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_3"
@@ -1050,7 +1067,6 @@
                     "label": "$item.LCValleyBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_1"
@@ -1063,7 +1079,6 @@
                     "label": "$item.FerriumPart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_cmpt"
@@ -1076,7 +1091,6 @@
                     "label": "$item.SteelPart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem3": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_enr_cmpt"
@@ -1100,7 +1114,6 @@
                     "label": "$item.LCWulingBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_4"
@@ -1113,7 +1126,6 @@
                     "label": "$item.YazhenSyringeC",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_4"
@@ -1126,7 +1138,6 @@
                     "label": "$item.Xiranite",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_xiranite_powder"
@@ -1139,7 +1150,6 @@
                     "label": "$item.JincaoDrink",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_4"
@@ -1152,7 +1162,6 @@
                     "label": "$item.CupriumPart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_copper_cmpt"
@@ -1165,7 +1174,6 @@
                     "label": "$item.SCWulingBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_5"
@@ -1178,7 +1186,6 @@
                     "label": "$item.HetonitePart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_copper_enr_cmpt"
@@ -1191,7 +1198,6 @@
                     "label": "$item.YazhenSyringeA",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_5"
@@ -1204,7 +1210,6 @@
                     "label": "$item.HeavyXiranite",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_xiranite_enr_powder"
@@ -1217,7 +1222,6 @@
                     "label": "$item.JincaoTea",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_5"
@@ -1229,7 +1233,6 @@
                     "name": "灼铜零件",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_copper_enr2_cmpt"
@@ -1241,7 +1244,6 @@
                     "name": "分离芯",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_filter_core"
@@ -1254,7 +1256,6 @@
                     "label": "$item.BuckCapsuleC",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_1"
@@ -1267,7 +1268,6 @@
                     "label": "$item.AmethystBottle",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_bottle"
@@ -1280,7 +1280,6 @@
                     "label": "$item.Origocrust",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_crystal_shell"
@@ -1293,7 +1292,6 @@
                     "label": "$item.AmethystPart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_cmpt"
@@ -1306,7 +1304,6 @@
                     "label": "$item.SCValleyBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_2"
@@ -1319,7 +1316,6 @@
                     "label": "$item.BuckCapsuleB",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_2"
@@ -1332,7 +1328,6 @@
                     "label": "$item.CannedCitromeC",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_1"
@@ -1345,7 +1340,6 @@
                     "label": "$item.BuckCapsuleA",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_3"
@@ -1358,7 +1352,6 @@
                     "label": "$item.HCValleyBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_3"
@@ -1371,7 +1364,6 @@
                     "label": "$item.CannedCitromeB",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_2"
@@ -1384,7 +1376,6 @@
                     "label": "$item.CannedCitromeA",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_3"
@@ -1397,7 +1388,6 @@
                     "label": "$item.LCValleyBattery",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_1"
@@ -1410,7 +1400,6 @@
                     "label": "$item.FerriumPart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_cmpt"
@@ -1423,7 +1412,6 @@
                     "label": "$item.SteelPart",
                     "pipeline_override": {
                         "SellProductRegisterPriorityItem4": {
-                            "enabled": true,
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_enr_cmpt"
@@ -1471,7 +1459,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_4"
                             }
@@ -1486,7 +1473,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_4"
                             }
@@ -1501,7 +1487,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_xiranite_powder"
                             }
@@ -1516,7 +1501,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_4"
                             }
@@ -1531,7 +1515,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_copper_cmpt"
                             }
@@ -1546,7 +1529,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_5"
                             }
@@ -1561,7 +1543,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_copper_enr_cmpt"
                             }
@@ -1576,7 +1557,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_5"
                             }
@@ -1591,7 +1571,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_xiranite_enr_powder"
                             }
@@ -1606,7 +1585,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_5"
                             }
@@ -1620,7 +1598,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_copper_enr2_cmpt"
                             }
@@ -1634,7 +1611,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_filter_core"
                             }
@@ -1649,7 +1625,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_1"
                             }
@@ -1664,7 +1639,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_glass_bottle"
                             }
@@ -1679,7 +1653,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_crystal_shell"
                             }
@@ -1694,7 +1667,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_glass_cmpt"
                             }
@@ -1709,7 +1681,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_2"
                             }
@@ -1724,7 +1695,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_2"
                             }
@@ -1739,7 +1709,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_1"
                             }
@@ -1754,7 +1723,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_3"
                             }
@@ -1769,7 +1737,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_3"
                             }
@@ -1784,7 +1751,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_2"
                             }
@@ -1799,7 +1765,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_3"
                             }
@@ -1814,7 +1779,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_1"
                             }
@@ -1829,7 +1793,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_iron_cmpt"
                             }
@@ -1844,7 +1807,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_iron_enr_cmpt"
                             }
@@ -1892,7 +1854,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_4"
                             }
@@ -1907,7 +1868,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_4"
                             }
@@ -1922,7 +1882,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_xiranite_powder"
                             }
@@ -1937,7 +1896,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_4"
                             }
@@ -1952,7 +1910,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_copper_cmpt"
                             }
@@ -1967,7 +1924,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_5"
                             }
@@ -1982,7 +1938,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_copper_enr_cmpt"
                             }
@@ -1997,7 +1952,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_5"
                             }
@@ -2012,7 +1966,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_xiranite_enr_powder"
                             }
@@ -2027,7 +1980,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_5"
                             }
@@ -2041,7 +1993,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_copper_enr2_cmpt"
                             }
@@ -2055,7 +2006,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_filter_core"
                             }
@@ -2070,7 +2020,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_1"
                             }
@@ -2085,7 +2034,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_glass_bottle"
                             }
@@ -2100,7 +2048,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_crystal_shell"
                             }
@@ -2115,7 +2062,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_glass_cmpt"
                             }
@@ -2130,7 +2076,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_2"
                             }
@@ -2145,7 +2090,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_2"
                             }
@@ -2160,7 +2104,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_1"
                             }
@@ -2175,7 +2118,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_3"
                             }
@@ -2190,7 +2132,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_3"
                             }
@@ -2205,7 +2146,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_2"
                             }
@@ -2220,7 +2160,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_3"
                             }
@@ -2235,7 +2174,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_1"
                             }
@@ -2250,7 +2188,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_iron_cmpt"
                             }
@@ -2265,7 +2202,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_iron_enr_cmpt"
                             }
@@ -2313,7 +2249,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_4"
                             }
@@ -2328,7 +2263,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_4"
                             }
@@ -2343,7 +2277,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_xiranite_powder"
                             }
@@ -2358,7 +2291,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_4"
                             }
@@ -2373,7 +2305,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_copper_cmpt"
                             }
@@ -2388,7 +2319,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_5"
                             }
@@ -2403,7 +2333,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_copper_enr_cmpt"
                             }
@@ -2418,7 +2347,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_5"
                             }
@@ -2433,7 +2361,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_xiranite_enr_powder"
                             }
@@ -2448,7 +2375,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_5"
                             }
@@ -2462,7 +2388,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_copper_enr2_cmpt"
                             }
@@ -2476,7 +2401,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_filter_core"
                             }
@@ -2491,7 +2415,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_1"
                             }
@@ -2506,7 +2429,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_glass_bottle"
                             }
@@ -2521,7 +2443,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_crystal_shell"
                             }
@@ -2536,7 +2457,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_glass_cmpt"
                             }
@@ -2551,7 +2471,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_2"
                             }
@@ -2566,7 +2485,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_2"
                             }
@@ -2581,7 +2499,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_1"
                             }
@@ -2596,7 +2513,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_3"
                             }
@@ -2611,7 +2527,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_3"
                             }
@@ -2626,7 +2541,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_2"
                             }
@@ -2641,7 +2555,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_3"
                             }
@@ -2656,7 +2569,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_1"
                             }
@@ -2671,7 +2583,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_iron_cmpt"
                             }
@@ -2686,7 +2597,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_iron_enr_cmpt"
                             }
@@ -2734,7 +2644,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_4"
                             }
@@ -2749,7 +2658,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_4"
                             }
@@ -2764,7 +2672,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_xiranite_powder"
                             }
@@ -2779,7 +2686,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_4"
                             }
@@ -2794,7 +2700,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_copper_cmpt"
                             }
@@ -2809,7 +2714,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_5"
                             }
@@ -2824,7 +2728,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_copper_enr_cmpt"
                             }
@@ -2839,7 +2742,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_5"
                             }
@@ -2854,7 +2756,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_xiranite_enr_powder"
                             }
@@ -2869,7 +2770,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_5"
                             }
@@ -2883,7 +2783,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_copper_enr2_cmpt"
                             }
@@ -2897,7 +2796,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_filter_core"
                             }
@@ -2912,7 +2810,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_1"
                             }
@@ -2927,7 +2824,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_glass_bottle"
                             }
@@ -2942,7 +2838,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_crystal_shell"
                             }
@@ -2957,7 +2852,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_glass_cmpt"
                             }
@@ -2972,7 +2866,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_2"
                             }
@@ -2987,7 +2880,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_2"
                             }
@@ -3002,7 +2894,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_1"
                             }
@@ -3017,7 +2908,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_rec_hp_3"
                             }
@@ -3032,7 +2922,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_3"
                             }
@@ -3047,7 +2936,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_2"
                             }
@@ -3062,7 +2950,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_bottled_food_3"
                             }
@@ -3077,7 +2964,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_proc_battery_1"
                             }
@@ -3092,7 +2978,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_iron_cmpt"
                             }
@@ -3107,7 +2992,6 @@
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
-                            "enabled": true,
                             "attach": {
                                 "item_id": "item_iron_enr_cmpt"
                             }
@@ -3902,7 +3786,11 @@
                             "enabled": true
                         },
                         "SellProductRegisterAutoRefugeeCamp": {
-                            "enabled": true
+                            "custom_action_param": {
+                                "operation": "register",
+                                "location": "RefugeeCamp",
+                                "active": true
+                            }
                         }
                     }
                 },
@@ -3910,9 +3798,6 @@
                     "name": "No",
                     "pipeline_override": {
                         "SellProductRefugeeCamp": {
-                            "enabled": false
-                        },
-                        "SellProductRegisterAutoRefugeeCamp": {
                             "enabled": false
                         }
                     }
@@ -3931,7 +3816,11 @@
                             "enabled": true
                         },
                         "SellProductRegisterAutoInfraStation": {
-                            "enabled": true
+                            "custom_action_param": {
+                                "operation": "register",
+                                "location": "InfraStation",
+                                "active": true
+                            }
                         }
                     }
                 },
@@ -3939,9 +3828,6 @@
                     "name": "No",
                     "pipeline_override": {
                         "SellProductInfraStation": {
-                            "enabled": false
-                        },
-                        "SellProductRegisterAutoInfraStation": {
                             "enabled": false
                         }
                     }
@@ -3960,7 +3846,11 @@
                             "enabled": true
                         },
                         "SellProductRegisterAutoReconstructionHQ": {
-                            "enabled": true
+                            "custom_action_param": {
+                                "operation": "register",
+                                "location": "ReconstructionHQ",
+                                "active": true
+                            }
                         }
                     }
                 },
@@ -3968,9 +3858,6 @@
                     "name": "No",
                     "pipeline_override": {
                         "SellProductReconstructionHQ": {
-                            "enabled": false
-                        },
-                        "SellProductRegisterAutoReconstructionHQ": {
                             "enabled": false
                         }
                     }
@@ -4018,7 +3905,11 @@
                             "enabled": true
                         },
                         "SellProductRegisterAutoSkyKingFlatsConstructionSite": {
-                            "enabled": true
+                            "custom_action_param": {
+                                "operation": "register",
+                                "location": "SkyKingFlatsConstructionSite",
+                                "active": true
+                            }
                         }
                     }
                 },
@@ -4026,9 +3917,6 @@
                     "name": "No",
                     "pipeline_override": {
                         "SellProductSkyKingFlatsConstructionSite": {
-                            "enabled": false
-                        },
-                        "SellProductRegisterAutoSkyKingFlatsConstructionSite": {
                             "enabled": false
                         }
                     }
@@ -4047,7 +3935,11 @@
                             "enabled": true
                         },
                         "SellProductRegisterAutoCardiacRemediationStation": {
-                            "enabled": true
+                            "custom_action_param": {
+                                "operation": "register",
+                                "location": "CardiacRemediationStation",
+                                "active": true
+                            }
                         }
                     }
                 },
@@ -4055,9 +3947,6 @@
                     "name": "No",
                     "pipeline_override": {
                         "SellProductCardiacRemediationStation": {
-                            "enabled": false
-                        },
-                        "SellProductRegisterAutoCardiacRemediationStation": {
                             "enabled": false
                         }
                     }
@@ -4076,7 +3965,11 @@
                             "enabled": true
                         },
                         "SellProductRegisterAutoXiranflowCloudseederStation": {
-                            "enabled": true
+                            "custom_action_param": {
+                                "operation": "register",
+                                "location": "XiranflowCloudseederStation",
+                                "active": true
+                            }
                         }
                     }
                 },
@@ -4085,101 +3978,6 @@
                     "pipeline_override": {
                         "SellProductXiranflowCloudseederStation": {
                             "enabled": false
-                        },
-                        "SellProductRegisterAutoXiranflowCloudseederStation": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        "SellProductSchedule": {
-            "type": "checkbox",
-            "label": "$option.TaskSchedule.label",
-            "default_case": [
-                "SellProductScheduleMonday",
-                "SellProductScheduleTuesday",
-                "SellProductScheduleWednesday",
-                "SellProductScheduleThursday",
-                "SellProductScheduleFriday",
-                "SellProductScheduleSaturday",
-                "SellProductScheduleSunday"
-            ],
-            "cases": [
-                {
-                    "name": "SellProductScheduleMonday",
-                    "label": "$option.TaskScheduleMonday.label",
-                    "pipeline_override": {
-                        "SellProductScheduleEnabled": {
-                            "attach": {
-                                "monday": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "SellProductScheduleTuesday",
-                    "label": "$option.TaskScheduleTuesday.label",
-                    "pipeline_override": {
-                        "SellProductScheduleEnabled": {
-                            "attach": {
-                                "tuesday": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "SellProductScheduleWednesday",
-                    "label": "$option.TaskScheduleWednesday.label",
-                    "pipeline_override": {
-                        "SellProductScheduleEnabled": {
-                            "attach": {
-                                "wednesday": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "SellProductScheduleThursday",
-                    "label": "$option.TaskScheduleThursday.label",
-                    "pipeline_override": {
-                        "SellProductScheduleEnabled": {
-                            "attach": {
-                                "thursday": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "SellProductScheduleFriday",
-                    "label": "$option.TaskScheduleFriday.label",
-                    "pipeline_override": {
-                        "SellProductScheduleEnabled": {
-                            "attach": {
-                                "friday": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "SellProductScheduleSaturday",
-                    "label": "$option.TaskScheduleSaturday.label",
-                    "pipeline_override": {
-                        "SellProductScheduleEnabled": {
-                            "attach": {
-                                "saturday": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "SellProductScheduleSunday",
-                    "label": "$option.TaskScheduleSunday.label",
-                    "pipeline_override": {
-                        "SellProductScheduleEnabled": {
-                            "attach": {
-                                "sunday": true
-                            }
                         }
                     }
                 }

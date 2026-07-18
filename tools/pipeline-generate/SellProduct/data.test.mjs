@@ -185,7 +185,7 @@ test("SellProduct priority switch expands four direct priority slots", () => {
         const itemCase = cases.find((entry) => entry.name === "精选荞愈胶囊");
         assert.ok(itemCase);
         const registration = itemCase.pipeline_override[`SellProductRegisterPriorityItem${slot}`];
-        assert.equal(registration.enabled, true);
+        assert.equal(registration.enabled, undefined);
         assert.equal(registration.custom_action_param.operation, "register");
         assert.ok(registration.custom_action_param.item_id.startsWith("item_"));
     }
@@ -196,7 +196,7 @@ test("SellProduct concrete reserve rule separates itemId attach from quantity in
     assert.ok(itemCase);
     assert.deepEqual(itemCase.option, ["SellProductReserveItem1Value"]);
     const registration = itemCase.pipeline_override.SellProductRegisterReserveRule1;
-    assert.equal(registration.enabled, true);
+    assert.equal(registration.enabled, undefined);
     assert.ok(registration.attach.item_id.startsWith("item_"));
     assert.equal(registration.custom_action_param, undefined);
 
@@ -208,6 +208,71 @@ test("SellProduct reserve None case does not register a rule", () => {
     const noneCase = root.ReserveItemCases1.find((entry) => entry.name === "None");
     assert.ok(noneCase);
     assert.equal(noneCase.pipeline_override, undefined);
+});
+
+test("SellProduct registration slots form an always-enabled no-op chain", () => {
+    const pipeline = readPipeline(
+        new URL("../../../assets/resource/pipeline/SellProduct/ReserveSession.json", import.meta.url),
+    );
+    const chain = [
+        "SellProductInitializeReserveSession",
+        "SellProductRegisterReserveRule1",
+        "SellProductRegisterReserveRule2",
+        "SellProductRegisterReserveRule3",
+        "SellProductRegisterReserveRule4",
+        "SellProductRegisterPriorityItem1",
+        "SellProductRegisterPriorityItem2",
+        "SellProductRegisterPriorityItem3",
+        "SellProductRegisterPriorityItem4",
+        "SellProductInitializeOperatorSession",
+    ];
+
+    for (let index = 0; index < chain.length - 1; index += 1) {
+        const node = pipeline[chain[index]];
+        assert.ok(node, `missing registration node ${chain[index]}`);
+        assert.equal(node.enabled, undefined);
+        assert.deepEqual(node.next, [chain[index + 1]]);
+    }
+});
+
+test("SellProduct operator locations form an always-enabled active-flag chain", () => {
+    const scan = readPipeline(
+        new URL("../../../assets/resource/pipeline/SellProduct/OperatorScan.json", import.meta.url),
+    );
+    const session = readPipeline(
+        new URL("../../../assets/resource/pipeline/SellProduct/OperatorSession.json", import.meta.url),
+    );
+    const pipeline = {...scan, ...session};
+    const registrationNodes = sellProductLocations.map((location) => `SellProductRegisterAuto${location.LocationId}`);
+    const chain = [
+        "SellProductInitializeOperatorSession",
+        ...registrationNodes,
+        "SellProductOperatorSessionReady",
+    ];
+
+    for (let index = 0; index < chain.length - 1; index += 1) {
+        const node = pipeline[chain[index]];
+        assert.ok(node, `missing operator registration node ${chain[index]}`);
+        assert.equal(node.enabled, undefined);
+        assert.deepEqual(node.next, [chain[index + 1]]);
+    }
+    for (const nodeName of registrationNodes) {
+        assert.equal(pipeline[nodeName].custom_action_param.active, false);
+    }
+
+    const task = readPipeline(new URL("../../../assets/tasks/SellProduct.json", import.meta.url));
+    for (const location of sellProductLocations) {
+        const option = task.option[`${location.RegionPrefix}${location.LocationId}`];
+        const enabledCase = option.cases.find((itemCase) => itemCase.name === "Yes");
+        const disabledCase = option.cases.find((itemCase) => itemCase.name === "No");
+        const nodeName = `SellProductRegisterAuto${location.LocationId}`;
+        assert.deepEqual(enabledCase.pipeline_override[nodeName].custom_action_param, {
+            operation: "register",
+            location: location.LocationId,
+            active: true,
+        });
+        assert.equal(disabledCase.pipeline_override[nodeName], undefined);
+    }
 });
 
 test("SellProduct pipeline templates use one dynamic priority loop instead of fixed attempts", () => {

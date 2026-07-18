@@ -77,7 +77,6 @@ function buildReserveItemCases(slot) {
             option: [`SellProductReserveItem${slot}Value`],
             pipeline_override: {
                 [`SellProductRegisterReserveRule${slot}`]: {
-                    enabled: true,
                     attach: {
                         item_id: item.id,
                     },
@@ -99,7 +98,6 @@ function buildPriorityItemCases(slot) {
             ...(item.label ? {label: item.label} : {}),
             pipeline_override: {
                 [`SellProductRegisterPriorityItem${slot}`]: {
-                    enabled: true,
                     custom_action_param: {
                         operation: "register",
                         item_id: item.id,

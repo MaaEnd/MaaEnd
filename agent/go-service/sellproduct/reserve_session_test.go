@@ -111,7 +111,8 @@ func TestParseReserveItemIDAttach(t *testing.T) {
 	if itemID != "item_a" {
 		t.Fatalf("unexpected item id: %q", itemID)
 	}
-	if _, err := parseReserveItemIDAttach(`{"attach":{}}`, "RegisterRule"); err == nil {
-		t.Fatal("empty attach item id should fail")
+	itemID, err = parseReserveItemIDAttach(`{"attach":{}}`, "RegisterRule")
+	if err != nil || itemID != "" {
+		t.Fatalf("empty attach should represent an unconfigured slot: item=%q err=%v", itemID, err)
 	}
 }

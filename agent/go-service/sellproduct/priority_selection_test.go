@@ -39,10 +39,20 @@ func TestParsePrioritySessionActionParamByOperation(t *testing.T) {
 	if err != nil || commit.Location != "Outpost" {
 		t.Fatalf("提交参数 = %+v，错误 = %v", commit, err)
 	}
-	if _, err := parsePrioritySessionActionParam(&maa.CustomActionArg{
+	empty, err := parsePrioritySessionActionParam(&maa.CustomActionArg{
 		CustomActionParam: `{"operation":"register"}`,
-	}); err == nil {
-		t.Fatal("登记操作缺少 item_id 时应校验失败")
+	})
+	if err != nil || empty.ItemID != "" {
+		t.Fatalf("空 item_id 应表示未配置槽位：参数 = %+v，错误 = %v", empty, err)
+	}
+	resetPrioritySelectionSession()
+	if ok := (&PrioritySessionAction{}).Run(nil, &maa.CustomActionArg{
+		CustomActionParam: `{"operation":"register"}`,
+	}); !ok {
+		t.Fatal("未配置优先物品槽位应成功跳过")
+	}
+	if got := priorityItemsSnapshot(); len(got) != 0 {
+		t.Fatalf("跳过未配置槽位后不应登记空物品：%v", got)
 	}
 }
 

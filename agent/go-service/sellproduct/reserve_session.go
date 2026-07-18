@@ -66,6 +66,12 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 				return false
 			}
 		}
+		if itemID == "" {
+			log.Debug().Str("component", reserveSessionActionName).
+				Str("node", arg.CurrentTaskName).
+				Msg("unconfigured reserve rule slot skipped")
+			return true
+		}
 		replaced := registerReserveRule(itemID, param.Quantity)
 		event := log.Info()
 		if replaced {
@@ -161,9 +167,6 @@ func parseReserveItemIDAttach(raw string, nodeName string) (string, error) {
 		return "", fmt.Errorf("unmarshal %s attach: %w", nodeName, err)
 	}
 	itemID := strings.TrimSpace(wrapper.Attach.ItemID)
-	if itemID == "" {
-		return "", fmt.Errorf("%s attach item_id is empty", nodeName)
-	}
 	return itemID, nil
 }
 
