@@ -144,8 +144,6 @@ A missing selling target or failed scan stops the task to avoid selling under th
 
 The task provides a priority-selling switch that is disabled by default. Enabling it expands four priority slots that directly adjust this list. Configured items move ahead of the default order from slot 1 through 4. Items unavailable at the current outpost are skipped, duplicate selections keep only the earliest slot, and all remaining items retain the default order above.
 
-`SellProductLogPlan` emits a structured log and UI node notifications before selling. In the structured log, `operator_plan` records selling and restoration operators for enabled outposts, `item_priorities` records the effective item order after user overrides, and `reserve_rules` records items and reserve quantities. The UI run log displays an overall plan followed by each enabled outpost in game order, with localized names, selling and restoration operators, the complete item priority, and applicable reserve quantities. The logs omit cache state, rarity, and unit price.
-
 During execution, the UI log reports each outpost after entry is confirmed, whether its operator was kept or switched, the currently selected goods, and completed trades. An operator assigned to another outpost reports the excluded candidate and replanning reason; a new plan produced by a complete scan reports the outpost, purpose, and selected operator. The log also reports an unavailable selling operator, operator-scan failures, and restoration skipped because no restoration operator is available. Every UI message in the task uses the current client language.
 
 Locked goods are absent from the current screen and are skipped naturally. There is no fixed sell-attempt limit. Each round follows this flow:

@@ -13,5 +13,4 @@ func Register() {
 	maa.AgentServerRegisterCustomAction(operatorSessionActionName, &OperatorSessionAction{})
 	maa.AgentServerRegisterCustomAction(reserveSessionActionName, &ReserveSessionAction{})
 	maa.AgentServerRegisterCustomAction(prioritySessionActionName, &PrioritySessionAction{})
-	maa.AgentServerRegisterCustomAction(planningLogActionName, &PlanningLogAction{})
 }

@@ -38,7 +38,6 @@ type operatorSessionState struct {
 	ExcludedOperators         map[string]struct{}
 	RetriedSelections         map[string]struct{}
 	Refreshed                 bool
-	PlanningLogged            bool
 }
 
 type operatorSessionActionParam struct {
@@ -192,7 +191,6 @@ func operatorSessionSnapshot() operatorSessionState {
 		ExcludedOperators:         cloneStringSet(operatorSession.ExcludedOperators),
 		RetriedSelections:         cloneStringSet(operatorSession.RetriedSelections),
 		Refreshed:                 operatorSession.Refreshed,
-		PlanningLogged:            operatorSession.PlanningLogged,
 	}
 }
 
@@ -219,18 +217,6 @@ func operatorSessionEnterLocation(location string) bool {
 		return false
 	}
 	operatorSession.EnteredLocations[location] = struct{}{}
-	return true
-}
-
-// operatorSessionClaimPlanningLog 保证一次售卖任务只输出一次完整规划。
-func operatorSessionClaimPlanningLog() bool {
-	operatorStateMu.Lock()
-	defer operatorStateMu.Unlock()
-	ensureOperatorSessionLocked()
-	if operatorSession.PlanningLogged {
-		return false
-	}
-	operatorSession.PlanningLogged = true
 	return true
 }
 

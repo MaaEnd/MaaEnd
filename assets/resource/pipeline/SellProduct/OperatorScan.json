@@ -59,8 +59,7 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": ["SellProductLogPlan"]
+        "rate_limit": 0
     },
     "SellProductOpenOperatorListForScan": {
         "desc": "打开联络干员列表以扫描缓存",
@@ -201,17 +200,6 @@
                 620
             ]
         },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": ["SellProductLogPlan"]
-    },
-    "SellProductLogPlan": {
-        "desc": "正式售卖前输出当前干员、货品优先级和保留数量规划",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductLogPlan",
-        "custom_action_param": {},
         "post_delay": 0,
         "rate_limit": 0
     }

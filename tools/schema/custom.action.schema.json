@@ -75,7 +75,6 @@
                 "SeizeDeliveryJobsDepartureAction",
                 "SeizeDeliveryJobsResetScanStateAction",
                 "SeizeDeliveryJobsScanTargetAction",
-                "SellProductLogPlan",
                 "SellProductOperatorSession",
                 "SellProductPrioritySession",
                 "SellProductReserveSession",
