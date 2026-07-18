@@ -6,13 +6,12 @@
         "custom_action": "VisitFriendsMainAction",
         "post_delay": 0,
         "next": [
-            "[JumpBack]VisitFriendsRemark",
-            "[JumpBack]VisitFriendsNormal",
+            "[JumpBack]VisitFriendsEnter",
             "VisitFriendsFakeTrue"
         ]
     },
-    "VisitFriendsRemark": {
-        "desc": "拜访带备注的好友",
+    "VisitFriendsEnter": {
+        "desc": "进入大世界并打开好友列表",
         "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
@@ -23,38 +22,12 @@
                 "SceneEnterMenuFriendsList"
             ]
         },
-        "anchor": {
-            "VisitFriendsMenuScanTargetFriendAnchorOpen": "VisitFriendsMenuScanTargetFriendRemarkOpen"
-        },
         "post_delay": 0,
         "next": [
             "VisitFriendsMenu"
         ],
         "focus": {
-            "Node.Action.Succeeded": "拜访带备注的好友"
-        }
-    },
-    "VisitFriendsNormal": {
-        "desc": "拜访普通好友",
-        "max_hit": 1,
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneAnyEnterWorld",
-                "SceneEnterMenuFriendsList"
-            ]
-        },
-        "anchor": {
-            "VisitFriendsMenuScanTargetFriendAnchorOpen": "VisitFriendsMenuScanTargetFriendNormalOpen"
-        },
-        "post_delay": 0,
-        "next": [
-            "VisitFriendsMenu"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "拜访所有好友"
+            "Node.Action.Succeeded": "开始拜访好友"
         }
     },
     "VisitFriendsMenu": {

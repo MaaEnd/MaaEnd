@@ -24,13 +24,11 @@
             ".*#.*"
         ]
     },
-    "VisitFriendsRecognitionItemWithName": {
-        "desc": "识别好友名称",
-        "recognition": "And",
-        "all_of": [
-            "VisitFriendsRecognitionItemEnterButton",
-            {
-                "recognition": "OCR",
+    "VisitFriendsRecognitionItemNameByEnterButton": {
+        "desc": "按进船按钮偏移识别好友名（可由 SelectFriend 覆盖 expected 排除已访问）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
                 "roi": "VisitFriendsRecognitionItemEnterButton",
                 "roi_offset": [
                     -1050,
@@ -43,7 +41,16 @@
                 ],
                 "order_by": "Vertical"
             }
-        ]
+        }
+    },
+    "VisitFriendsRecognitionItemWithName": {
+        "desc": "识别进船按钮与对应好友名",
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsRecognitionItemEnterButton",
+            "VisitFriendsRecognitionItemNameByEnterButton"
+        ],
+        "box_index": 1
     },
     "VisitFriendsRecognitionItemClueExchange": {
         "desc": "识别线索交换",

@@ -1,0 +1,86 @@
+{
+    "VisitFriendsSelectFriendTest": {
+        "desc": "选好友识别器压测（点击侧）：持续用 VisitFriendsSelectFriendRecognition 选人并 Click 进船按钮。请另开实例跑 VisitFriendsSelectFriendTestClose 负责关详情。需停留在好友列表界面启动。",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsSelectFriendTestClick",
+            "VisitFriendsSelectFriendTestWait"
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "SelectFriend 测试：点击侧"
+        }
+    },
+    "VisitFriendsSelectFriendTestClick": {
+        "desc": "识别未访问好友并点击进船按钮",
+        "recognition": "Custom",
+        "custom_recognition": "VisitFriendsSelectFriendRecognition",
+        "custom_recognition_param": {
+            "only_remark_friends": false
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "attach": {
+            "visited": []
+        },
+        "next": [
+            "VisitFriendsSelectFriendTest"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "选中好友并点击",
+            "Node.Recognition.Failed": "当前屏无可点好友"
+        }
+    },
+    "VisitFriendsSelectFriendTestWait": {
+        "desc": "点击侧未命中时短暂等待后重试（详情遮挡或名单扫完）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_wait_freezes": 300,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsSelectFriendTest"
+        ]
+    },
+    "VisitFriendsSelectFriendTestClose": {
+        "desc": "选好友识别器压测（关闭侧）：持续识别并点击好友详情灰色取消按钮。请另开实例跑 VisitFriendsSelectFriendTest 负责点好友。",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsSelectFriendTestCloseClick",
+            "VisitFriendsSelectFriendTestCloseWait"
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "SelectFriend 测试：关闭侧"
+        }
+    },
+    "VisitFriendsSelectFriendTestCloseClick": {
+        "desc": "识别好友详情取消按钮并关闭",
+        "recognition": "And",
+        "all_of": [
+            "GrayCancelButton"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsSelectFriendTestClose"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "关闭好友详情",
+            "Node.Recognition.Failed": "当前无详情可关"
+        }
+    },
+    "VisitFriendsSelectFriendTestCloseWait": {
+        "desc": "关闭侧未命中时短暂等待后重试",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsSelectFriendTestClose"
+        ]
+    }
+}

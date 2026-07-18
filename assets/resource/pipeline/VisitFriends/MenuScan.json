@@ -5,51 +5,47 @@
         "post_delay": 0,
         "next": [
             "VisitFriendsMenuScanFriendsFull",
-            "[JumpBack][Anchor]VisitFriendsMenuScanTargetFriendAnchorOpen",
+            "[JumpBack]VisitFriendsMenuScanTargetFriendOpen",
             "VisitFriendsMenuScanScrollFinish",
             "VisitFriendsMenuScanScrollFinishSpecial",
             "[JumpBack]VisitFriendsMenuScanScrollList"
         ]
     },
-    "VisitFriendsMenuScanTargetFriendRemarkOpen": {
-        "desc": "前往需要拜访的好友",
+    "VisitFriendsMenuScanTargetFriendOpen": {
+        "desc": "选择下一个好友（识别①）：ClearHitCount 重置滚动 → 打开详情 → 检查助力或关闭。only_remark_friends 由任务选项覆盖",
         "recognition": "Custom",
-        "custom_recognition": "VisitFriendsMenuScanTargetFriendOpenRecognition",
-        "custom_recognition_param": {
-            "only_remark_friends": true
-        },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMenuScanTargetFriendOpenAction",
-        "custom_action_param": {
-            "param_attach_node": "VisitFriendsMenuScanTargetFriendRemarkOpen"
-        },
-        "post_delay": 0,
-        "attach": {
-            "control_nexus_assist": false,
-            "mfg_cabin_assist": false,
-            "growth_chamber_assist": false
-        }
-    },
-    "VisitFriendsMenuScanTargetFriendNormalOpen": {
-        "desc": "前往需要拜访的好友",
-        "recognition": "Custom",
-        "custom_recognition": "VisitFriendsMenuScanTargetFriendOpenRecognition",
+        "custom_recognition": "VisitFriendsSelectFriendRecognition",
         "custom_recognition_param": {
             "only_remark_friends": false
         },
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "VisitFriendsMenuScanTargetFriendOpenAction",
+        "custom_action": "ClearHitCount",
         "custom_action_param": {
-            "param_attach_node": "VisitFriendsMenuScanTargetFriendNormalOpen"
+            "nodes": [
+                "VisitFriendsMenuScanScrollList"
+            ]
         },
         "post_delay": 0,
         "attach": {
-            "control_nexus_assist": false,
-            "mfg_cabin_assist": false,
-            "growth_chamber_assist": false
-        }
+            "visited": []
+        },
+        "next": [
+            "VisitFriendsMenuScanSelectFriendOpenDetail"
+        ]
+    },
+    "VisitFriendsMenuScanSelectFriendOpenDetail": {
+        "desc": "点击进船按钮打开好友详情；符合助力条件则进入 CheckAssist，否则关闭详情",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": "VisitFriendsMenuScanTargetFriendOpen",
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsCheckAssist",
+            "VisitFriendsMenuScanDetailClose"
+        ]
     },
     "VisitFriendsMenuScanScrollFinish": {
         "desc": "判断是否滚动完成",
@@ -122,6 +118,7 @@
     },
     "VisitFriendsMenuScanScrollList": {
         "desc": "向下滚动好友列表",
+        "max_hit": 1,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -214,7 +211,7 @@
         ]
     },
     "VisitFriendsMenuScanDetailSaveAssist": {
-        "desc": "保存好友船助力详情",
+        "desc": "保存好友船助力详情（旧路径，待 CheckAssist 完全替换后删除）",
         "recognition": "Custom",
         "custom_recognition": "VisitFriendsMenuScanDetailAssistRecognition",
         "custom_recognition_param": {
@@ -224,6 +221,43 @@
         "post_delay": 0,
         "next": [
             "VisitFriendsMenuScanDetailClose"
+        ]
+    },
+    "VisitFriendsCheckAssist": {
+        "desc": "打开好友详情后检查可助力设施（识别②）：未勾选的子节点为 OCR a^（永不命中），勾选后覆盖为对应 TemplateMatch",
+        "recognition": "Or",
+        "any_of": [
+            "VisitFriendsCheckAssistControlNexus",
+            "VisitFriendsCheckAssistMFGCabin",
+            "VisitFriendsCheckAssistGrowthChamber"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "好友有需要的助力资源",
+            "Node.Recognition.Failed": "好友没有需要的助力资源"
+        }
+    },
+    "VisitFriendsCheckAssistControlNexus": {
+        "desc": "检查总控中枢可助力；默认 OCR a^ 永不命中，由 ProductionAssistControl 选项覆盖为模板识别",
+        "recognition": "OCR",
+        "expected": [
+            "a^"
+        ]
+    },
+    "VisitFriendsCheckAssistMFGCabin": {
+        "desc": "检查制造舱可助力；默认 OCR a^ 永不命中，由 ProductionAssistControl 选项覆盖为模板识别",
+        "recognition": "OCR",
+        "expected": [
+            "a^"
+        ]
+    },
+    "VisitFriendsCheckAssistGrowthChamber": {
+        "desc": "检查培养舱可助力；默认 OCR a^ 永不命中，由 ProductionAssistControl 选项覆盖为模板识别",
+        "recognition": "OCR",
+        "expected": [
+            "a^"
         ]
     },
     "VisitFriendsMenuScanDetailClose": {
