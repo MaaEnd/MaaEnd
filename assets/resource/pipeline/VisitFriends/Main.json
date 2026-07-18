@@ -123,12 +123,24 @@
                     "expected": [
                         "a^"
                     ]
+                },
+                "VisitFriendsMenuAssistControlNexusEntry": {
+                    "enabled": false
+                },
+                "VisitFriendsMenuAssistMFGCabin1Entry": {
+                    "enabled": false
+                },
+                "VisitFriendsMenuAssistMFGCabin2Entry": {
+                    "enabled": false
+                },
+                "VisitFriendsMenuAssistGrowthChamberSwipeEntry": {
+                    "enabled": false
                 }
             }
         },
         "post_delay": 0,
         "focus": {
-            "Node.Action.Succeeded": "助力次数已满，已关闭设施助力检查"
+            "Node.Action.Succeeded": "助力次数已满，已关闭设施助力检查与领取"
         }
     },
     "VisitFriendsClueExchangeFull": {
@@ -172,12 +184,15 @@
                     "expected": [
                         "a^"
                     ]
+                },
+                "VisitFriendsMenuClueExchangeEntry": {
+                    "enabled": false
                 }
             }
         },
         "post_delay": 0,
         "focus": {
-            "Node.Action.Succeeded": "线索交换次数已满，已关闭线索交换检查"
+            "Node.Action.Succeeded": "线索交换次数已满，已关闭线索交换检查与领取"
         }
     }
 }
