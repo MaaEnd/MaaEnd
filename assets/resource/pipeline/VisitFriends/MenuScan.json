@@ -4,11 +4,12 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "[JumpBack]VisitFriendsAssistFull",
+            "[JumpBack]VisitFriendsClueExchangeFull",
             "VisitFriendsMenuScanFriendsFull",
             "[JumpBack]VisitFriendsMenuScanTargetFriendOpen",
-            "VisitFriendsMenuScanScrollFinish",
-            "VisitFriendsMenuScanScrollFinishSpecial",
-            "[JumpBack]VisitFriendsMenuScanScrollList"
+            "[JumpBack]VisitFriendsMenuScanScrollList",
+            "VisitFriendsMenuScanScrollFinish"
         ]
     },
     "VisitFriendsMenuScanTargetFriendOpen": {
@@ -48,68 +49,20 @@
         ]
     },
     "VisitFriendsMenuScanScrollFinish": {
-        "desc": "判断是否滚动完成",
-        "recognition": "Custom",
-        "custom_recognition": "VisitFriendsMenuScanScrollFinishRecognition",
+        "desc": "滚动完成,滑动后仍然无其他目标",
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
             "Node.Recognition.Succeeded": "好友列表已滚动到底部，拜访完成"
         }
     },
-    "VisitFriendsMenuScanScrollFinishSpecial": {
-        "desc": "判断是否只有一个好友",
+    "VisitFriendsMenuScanFriendsFull": {
+        "desc": "拜访好友已达到上限：助力次数与线索交换次数均归零",
         "recognition": "And",
         "all_of": [
-            {
-                "sub_name": "_CanVisitText",
-                "recognition": {
-                    "type": "OCR",
-                    "param": {
-                        "roi": [
-                            0,
-                            0,
-                            307,
-                            203
-                        ],
-                        "expected": [
-                            "可拜访的好友",
-                            "可拜訪的好友",
-                            "Visitable Friends",
-                            "訪問できるフレンド",
-                            "可拜访"
-                        ]
-                    }
-                }
-            },
-            {
-                "recognition": {
-                    "type": "OCR",
-                    "param": {
-                        "roi": "_CanVisitText",
-                        "roi_offset": [
-                            0,
-                            0,
-                            15,
-                            0
-                        ],
-                        "expected": [
-                            // @i18n-skip
-                            "(^|[^\\d])1(?!\\d)"
-                        ],
-                        "only_rec": true
-                    }
-                }
-            }
+            "VisitFriendsAssistFull",
+            "VisitFriendsClueExchangeFull"
         ],
-        "focus": {
-            "Node.Recognition.Succeeded": "当前只有一个好友"
-        }
-    },
-    "VisitFriendsMenuScanFriendsFull": {
-        "desc": "拜访好友已达到上限",
-        "recognition": "Custom",
-        "custom_recognition": "VisitFriendsMenuScanScrollFullRecognition",
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
@@ -224,9 +177,10 @@
         ]
     },
     "VisitFriendsCheckAssist": {
-        "desc": "打开好友详情后检查可助力设施（识别②）：未勾选的子节点为 OCR a^（永不命中），勾选后覆盖为对应 TemplateMatch",
+        "desc": "打开好友详情后检查可访问资源（识别②）：线索交换固定开启；助力子节点未勾选时为 OCR a^，勾选后覆盖为 TemplateMatch",
         "recognition": "Or",
         "any_of": [
+            "VisitFriendsCheckAssistClueExchange",
             "VisitFriendsCheckAssistControlNexus",
             "VisitFriendsCheckAssistMFGCabin",
             "VisitFriendsCheckAssistGrowthChamber"
@@ -235,9 +189,19 @@
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
-            "Node.Recognition.Succeeded": "好友有需要的助力资源",
-            "Node.Recognition.Failed": "好友没有需要的助力资源"
-        }
+            "Node.Recognition.Succeeded": "好友有需要的资源",
+            "Node.Recognition.Failed": "好友没有需要的资源"
+        },
+        "next": [
+            "VisitFriendsEnterShip"
+        ]
+    },
+    "VisitFriendsCheckAssistClueExchange": {
+        "desc": "检查是否可线索交换",
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsRecognitionItemClueExchange"
+        ]
     },
     "VisitFriendsCheckAssistControlNexus": {
         "desc": "检查总控中枢可助力；默认 OCR a^ 永不命中，由 ProductionAssistControl 选项覆盖为模板识别",

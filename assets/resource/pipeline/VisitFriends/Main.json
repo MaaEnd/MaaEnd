@@ -73,7 +73,8 @@
         }
     },
     "VisitFriendsAssistFull": {
-        "desc": "好友助力交换次数已满",
+        "desc": "好友助力次数归零：关闭总控中枢 / 制造舱 / 培养舱检查",
+        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             {
@@ -103,10 +104,38 @@
             }
         ],
         "pre_delay": 0,
-        "post_delay": 0
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "VisitFriendsCheckAssistControlNexus": {
+                    "recognition": "OCR",
+                    "expected": [
+                        "a^"
+                    ]
+                },
+                "VisitFriendsCheckAssistMFGCabin": {
+                    "recognition": "OCR",
+                    "expected": [
+                        "a^"
+                    ]
+                },
+                "VisitFriendsCheckAssistGrowthChamber": {
+                    "recognition": "OCR",
+                    "expected": [
+                        "a^"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "助力次数已满，已关闭设施助力检查"
+        }
     },
     "VisitFriendsClueExchangeFull": {
-        "desc": "好友线索交换次数已满",
+        "desc": "线索交换次数归零：关闭线索交换检查",
+        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             {
@@ -136,7 +165,22 @@
             }
         ],
         "pre_delay": 0,
-        "post_delay": 0
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "VisitFriendsCheckAssistClueExchange": {
+                    "recognition": "OCR",
+                    "expected": [
+                        "a^"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "线索交换次数已满，已关闭线索交换检查"
+        }
     },
     "VisitFriendsExecuteVisit": {
         "desc": "执行拜访",

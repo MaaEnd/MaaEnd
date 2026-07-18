@@ -1,13 +1,8 @@
 {
     "VisitFriendsEnterShip": {
-        "desc": "识别进入好友船的按钮",
+        "desc": "点击进船按钮进入好友船（target 取自选好友识别框）",
         "action": "Click",
-        "target": [
-            -100,
-            0,
-            100,
-            100
-        ],
+        "target": "VisitFriendsMenuScanTargetFriendOpen",
         "target_offset": [
             5,
             5,
