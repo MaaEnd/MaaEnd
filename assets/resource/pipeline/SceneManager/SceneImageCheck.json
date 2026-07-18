@@ -50,6 +50,7 @@
             "[JumpBack]__SceneCheckOSD",
             "[JumpBack]__SceneImageCheckAICPlanColor",
             "[JumpBack]__SceneImageCheckMod",
+            "[JumpBack]__SceneImageCheckLanguage",
             "__SceneImageCheckFinishSave"
         ]
     },
@@ -94,6 +95,44 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "__SceneImageCheckLanguage": {
+        "desc": "检查游戏语言是否为简体中文",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SceneImageCheckLanguageSuccess",
+            "__SceneImageCheckLanguageFailedWarn"
+        ]
+    },
+    "__SceneImageCheckLanguageSuccess": {
+        "desc": "游戏语言为简体中文",
+        "recognition": "OCR",
+        "roi": [
+            400,
+            250,
+            470,
+            200
+        ],
+        "expected": [
+            // 是否退出至登录界面
+            // @i18n-skip
+            "是否退出至登录界面"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__SceneImageCheckLanguageFailedWarn": {
+        "desc": "游戏语言不是简体中文，输出警告",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Starting": "$task.SceneManager.focus.language_not_zh_cn"
+        }
     },
     "__SceneImageCheckAICPlanColor": {
         "desc": "检查颜色",
