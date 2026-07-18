@@ -19,4 +19,6 @@ const (
 	overflowQuotaAdditionNodeName  = "AutoStockpileGetQuotaAddition"
 	locateGoodsNodeName            = "AutoStockpileLocateGoods"
 	goodsPriceNodeName             = "AutoStockpileGetGoods"
+	swipeShelfDownNodeName         = "AutoStockpileSwipeShelfDown"
+	swipeShelfUpNodeName           = "AutoStockpileSwipeShelfUp"
 )
