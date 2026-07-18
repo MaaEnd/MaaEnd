@@ -75,6 +75,8 @@
                 "SeizeDeliveryJobsResetScanStateAction",
                 "SeizeDeliveryJobsScanTargetAction",
                 "RealTimeTaskAction",
+                "RepeatUntilFoundAction",
+                "RepeatUntilNotFoundAction",
                 "SceneManagerMenuListClickItemAction",
                 "SubTask",
                 "TrialOfSwordmancy.Decide",
@@ -131,6 +133,34 @@
 			"then": {
 				"properties": {
 					"custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/FinishParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "RepeatUntilFoundAction" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/repeat_action.schema.json#/$defs/RepeatUntilFoundParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "RepeatUntilNotFoundAction" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/repeat_action.schema.json#/$defs/RepeatUntilNotFoundParam" }
 				},
 				"required": [ "custom_action_param" ]
 			}

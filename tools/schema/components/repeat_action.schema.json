@@ -1,0 +1,126 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "RepeatUntil Action Schema",
+    "description": "RepeatUntilFoundAction / RepeatUntilNotFoundAction parameter definitions. Referenced by custom.action.schema.json.",
+    "$defs": {
+        "CommonRepeatParam": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "title": "Built-in Action",
+                    "description": "Built-in action type to repeat (e.g. Click). Mutually exclusive with custom_action.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "custom_action": {
+                    "title": "Custom Action",
+                    "description": "Registered custom action name to repeat (e.g. AutoAltClickAction). Mutually exclusive with action.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "custom_action_param": {
+                    "title": "Custom Action Param",
+                    "description": "Forwarded to the nested custom action as its custom_action_param.",
+                    "type": "object"
+                },
+                "repeat_count": {
+                    "title": "Repeat Count",
+                    "description": "Max attempts. Omit or <= 0 defaults to 3.",
+                    "type": "integer"
+                },
+                "interval_ms": {
+                    "title": "Interval Ms",
+                    "description": "Delay between failed attempts in milliseconds. Omit or 0 defaults to 200.",
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
+        "RepeatUntilFoundParam": {
+            "title": "RepeatUntilFoundAction Param",
+            "description": "Repeat a built-in or custom action until any wait node hits.",
+            "allOf": [
+                {
+                    "$ref": "#/$defs/CommonRepeatParam"
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["wait_nodes"],
+                    "properties": {
+                        "action": true,
+                        "custom_action": true,
+                        "custom_action_param": true,
+                        "repeat_count": true,
+                        "interval_ms": true,
+                        "wait_nodes": {
+                            "title": "Wait Nodes",
+                            "description": "Recognition nodes to poll after each attempt; success if any hits.",
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        }
+                    },
+                    "oneOf": [
+                        {
+                            "required": ["action"],
+                            "not": {
+                                "required": ["custom_action"]
+                            }
+                        },
+                        {
+                            "required": ["custom_action"],
+                            "not": {
+                                "required": ["action"]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "RepeatUntilNotFoundParam": {
+            "title": "RepeatUntilNotFoundAction Param",
+            "description": "Repeat a built-in or custom action until the wait node misses.",
+            "allOf": [
+                {
+                    "$ref": "#/$defs/CommonRepeatParam"
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["wait_node"],
+                    "properties": {
+                        "action": true,
+                        "custom_action": true,
+                        "custom_action_param": true,
+                        "repeat_count": true,
+                        "interval_ms": true,
+                        "wait_node": {
+                            "title": "Wait Node",
+                            "description": "Recognition node to poll after each attempt; success when it misses.",
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "oneOf": [
+                        {
+                            "required": ["action"],
+                            "not": {
+                                "required": ["custom_action"]
+                            }
+                        },
+                        {
+                            "required": ["custom_action"],
+                            "not": {
+                                "required": ["action"]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

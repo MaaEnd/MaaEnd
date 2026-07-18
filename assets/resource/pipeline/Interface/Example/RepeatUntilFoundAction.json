@@ -23,5 +23,30 @@
         "recognition": "DirectHit",
         "action": "DoNothing",
         "next": []
+    },
+    "RepeatUntilFoundActionCustomExampleRun": {
+        "desc": "RepeatUntilFoundAction 重复自定义动作示例：反复 AutoAltClick 直到节点出现",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            // 需要重复的自定义动作名（与 action 二选一）
+            "custom_action": "AutoAltClickAction",
+            // 透传给自定义动作的参数，格式同该动作自身的 custom_action_param
+            "custom_action_param": {
+                "target_offset": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "wait_nodes": [
+                "RepeatUntilFoundActionExampleReady"
+            ],
+            "repeat_count": 3,
+            "interval_ms": 200
+        },
+        "next": []
     }
 }
