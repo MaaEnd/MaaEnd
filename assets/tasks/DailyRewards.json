@@ -44,10 +44,6 @@
                         }
                     }
                 }
-            ],
-            "controller": [
-                "Win32-Front",
-                "Wlroots"
             ]
         },
         "DailyEventRewards": {
