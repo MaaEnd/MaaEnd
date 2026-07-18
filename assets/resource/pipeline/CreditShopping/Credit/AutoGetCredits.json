@@ -1,0 +1,68 @@
+{
+    "AutoGetCredits": {
+        "desc": "已启用购买物品买不起时自动去基建获取（由 CreditShoppingPriority1AutoGetCredits / CreditShoppingPriority2AutoGetCredits / CreditShoppingPriority3AutoGetCredits 控制）",
+        "max_hit": 1,
+        "recognition": "Or",
+        "any_of": [
+            "AutoGetCreditsBuyPriority1",
+            "AutoGetCreditsBuyPriority2",
+            "AutoGetCreditsBuyPriority3"
+        ],
+        "next": [
+            "GoToNeedCredit"
+        ]
+    },
+    "GoToNeedCredit": {
+        "max_hit": 1,
+        "next": [
+            "[JumpBack]NeedCredit",
+            "CreditShoppingShopping",
+            "CreditShoppingCheckShopPage",
+            "[JumpBack]SceneEnterMenuShop"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.CreditShopping.auto_get_credits"
+        }
+    },
+    "AutoGetCreditsBuy": {
+        "recognition": "Or",
+        "any_of": [
+            "AutoGetCreditsBuyPriority1",
+            "AutoGetCreditsBuyPriority2",
+            "AutoGetCreditsBuyPriority3"
+        ]
+    },
+    "AutoGetCreditsBuyPriority1": {
+        "recognition": "And",
+        "all_of": [
+            "CreditIcon",
+            "NotSoldOut",
+            "CanNotAfford",
+            "BuyFirstOCR_CanNotAfford_Expected",
+            "IsDiscountPriority1_CanNotAfford"
+        ],
+        "box_index": 4
+    },
+    "AutoGetCreditsBuyPriority2": {
+        "recognition": "And",
+        "all_of": [
+            "CreditIcon",
+            "NotSoldOut",
+            "CanNotAfford",
+            "Priority2OCR_CanNotAfford_Expected",
+            "IsDiscountPriority2_CanNotAfford"
+        ],
+        "box_index": 4
+    },
+    "AutoGetCreditsBuyPriority3": {
+        "recognition": "And",
+        "all_of": [
+            "CreditIcon",
+            "NotSoldOut",
+            "CanNotAfford",
+            "Priority3OCR_CanNotAfford_Expected",
+            "IsDiscountPriority3_CanNotAfford"
+        ],
+        "box_index": 4
+    }
+}

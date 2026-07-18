@@ -103,6 +103,8 @@ struct NaviWaypointObjectInput
     std::string zone_;
     std::string map_name_;
     std::string mapName_;
+    std::string target_tier_;
+    std::string targetTier_;
     bool strict_ = false;
     bool strict_arrival_ = false;
     bool strictArrival_ = false;
@@ -137,6 +139,8 @@ struct NaviWaypointObjectInput
         MEO_OPT MEO_KEY("zone") zone_,
         MEO_OPT MEO_KEY("map_name") map_name_,
         MEO_OPT MEO_KEY("mapName") mapName_,
+        MEO_OPT MEO_KEY("target_tier") target_tier_,
+        MEO_OPT MEO_KEY("targetTier") targetTier_,
         MEO_OPT MEO_KEY("strict") strict_,
         MEO_OPT MEO_KEY("strict_arrival") strict_arrival_,
         MEO_OPT MEO_KEY("strictArrival") strictArrival_,
@@ -197,6 +201,7 @@ struct NaviWaypointInput
     double y_ = 0.0;
     std::vector<ActionType> actions_;
     std::string zone_id_;
+    std::string target_tier_;
     bool strict_arrival_ = false;
     double angle_ = 0.0;
     std::array<double, 2> target_ {};
@@ -284,6 +289,7 @@ private:
         appendActions(object_input.actions_);
 
         zone_id_ = resolveZoneId(object_input);
+        target_tier_ = resolveTargetTier(object_input);
         strict_arrival_ = resolveStrictArrival(object_input);
         x_ = object_input.x_;
         y_ = object_input.y_;
@@ -338,6 +344,16 @@ private:
     static std::string resolveZoneId(const NaviWaypointObjectInput& input)
     {
         return firstNonEmpty(input.zone_id_, input.zoneId_, input.zone_, input.map_name_, input.mapName_);
+    }
+
+    static std::string resolveTargetTier(const NaviWaypointObjectInput& input)
+    {
+        for (const std::string* value : { &input.target_tier_, &input.targetTier_ }) {
+            if (!value->empty()) {
+                return *value;
+            }
+        }
+        return {};
     }
 
     static bool resolveStrictArrival(const NaviWaypointObjectInput& input)
@@ -574,6 +590,10 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
         Waypoint navmesh_waypoint(input.target_.at(0), input.target_.at(1), ActionType::NAVMESH);
         navmesh_waypoint.strict_arrival = true;
         navmesh_waypoint.zone_id = zone_id;
+        // The tier whose coordinate frame `target` was authored in. Distinct from zone_id, which is the
+        // start/floor context and is inheritable from a preceding ZONE declaration — reusing it would
+        // double-convert legacy base-pixel targets. Empty -> target stays base-pixel (legacy), see expander.
+        navmesh_waypoint.target_tier = input.target_tier_;
         out_waypoints.push_back(std::move(navmesh_waypoint));
         return true;
     }

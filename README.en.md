@@ -61,7 +61,7 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 - 💬 **Baker message cleanup**: Clears Baker conversation messages automatically so those chat prompts do not pile up.
 - 📅 **Daily automation**: Daily rewards, Simulation Space rewards, encyclopedia red dots, production manual rewards, and more can all be cleaned up in one sweep. ✅
 - 💊 **Emergency sanity medication**: One-click emergency sanity medication use saves you a step. 💊
-- 💻 **Multi-platform support**: Supports PC (`Win32` default / background / foreground) and Android (`ADB`), so MaaEnd can tag along wherever you play. 🐟
+- 💻 **Multi-platform support**: Supports PC (`Win32` foreground) and Android (`ADB`), so MaaEnd can tag along wherever you play. 🐟
 
 ## 🛠️ Developer Guide
 
@@ -81,10 +81,11 @@ With your support, MaaEnd continues to grow and improve. ❤️
 
 Come hang out and chat with everyone:
 
-- 💬 **User QQ Group**: [1097256935](https://qm.qq.com/q/2AK5MoVfOQ)  
+- 💬 **User QQ Group**: [1103911816](https://qm.qq.com/q/YLkMv83h0Q)  
   For usage questions, feature requests, and casual chatting.
 - 👨‍💻 **Developer QQ Group**: [1072587329](https://qm.qq.com/q/EyirQpBiW4)  
   Dedicated to development discussion. (For general usage questions, please go to the user group above.)
+- <img src="https://cdn.simpleicons.org/discord/5865F2" width="16" height="16" alt="Discord" /> **Discord**: [Join our Discord community](https://discord.gg/JKu5pgcdCC)
 
 ## ☕ Support Us
 

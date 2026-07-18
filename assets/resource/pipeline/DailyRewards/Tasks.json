@@ -91,7 +91,46 @@
             "param": {}
         },
         "post_delay": 400, // 画面变化太小了，不适合wait_freeze
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "DailyTaskClaimSingleRewardSuccess"
+        ]
+    },
+    "DailyTaskClaimSingleRewardSuccess": {
+        "desc": "单个任务领取成功",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    825,
+                    200,
+                    300,
+                    400
+                ],
+                "expected": [
+                    "领取",
+                    "領取",
+                    "(?i)Claim",
+                    "受取",
+                    "[Cc]laim"
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    825,
+                    200,
+                    300,
+                    400
+                ],
+                "template": [
+                    "DailyRewards/TaskClaimSingleReward.png"
+                ],
+                "threshold": 0.9
+            }
+        ],
+        "inverse": true
     },
     "DailyTaskClaimActivityRewards": {
         "desc": "领取活跃度奖励",

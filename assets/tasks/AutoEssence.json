@@ -7,16 +7,19 @@
             "description": "$task.AutoEssence.description",
             "controller": [
                 "ADB",
+                "PlayCover",
                 "Win32-Front",
                 "Wlroots"
             ],
             "option": [
-                "AutoEssenceSpecifiedLocation",
-                "AutoEssenceChallengeMode",
+                "AutoEssenceChooseLocation",
                 "AutoEssenceObtainMode",
-                "AutoEssenceDoOverride",
-                "EssenceFilterAfterBattle",
-                "AutoEssenceRepeatCount"
+                "AutoEssenceRepeatCount",
+                // "AutoEssenceChooseLocationMode",
+                // ⚠️TODO: 由于 Dispatcher 在每轮之间会立即识别交互按钮，
+                // 这样就跳过了 Anchor 传送步骤，所以实际上暂时做不到每轮之间改换地区，
+                // 暂时没有什么好的解决方法，上面这个选项先注释掉，等以后再看看。
+                "AutoFightSettingFull"
             ],
             "group": [
                 "sanity_sink"
@@ -24,20 +27,20 @@
         }
     ],
     "option": {
-        "AutoEssenceSpecifiedLocation": {
-            "type": "select",
-            "label": "$option.AutoEssenceSpecifiedLocation.label",
-            "description": "$option.AutoEssenceSpecifiedLocation.description",
-            "default_case": "VFTheHub",
+        "AutoEssenceChooseLocation": {
+            "type": "checkbox",
+            "label": "$option.AutoEssenceChooseLocation.label",
+            "description": "$option.AutoEssenceChooseLocation.description",
+            "default_case": [
+                "VFTheHub"
+            ],
             "cases": [
                 {
                     "name": "VFTheHub",
                     "label": "$global.region.TheHub",
                     "pipeline_override": {
-                        "AutoEssenceSpecifiedLocation": {
-                            "next": [
-                                "VFTheHubMoveToTriggerPointAuto"
-                            ]
+                        "GotoTriggerPointSetAnchor_VFTheHub": {
+                            "enabled": true
                         }
                     }
                 },
@@ -45,10 +48,8 @@
                     "name": "VFOriginiumSciencePark",
                     "label": "$global.region.OriginiumSciencePark",
                     "pipeline_override": {
-                        "AutoEssenceSpecifiedLocation": {
-                            "next": [
-                                "VFOriginiumScienceParkMoveToTriggerPointAuto"
-                            ]
+                        "GotoTriggerPointSetAnchor_VFOriginiumSciencePark": {
+                            "enabled": true
                         }
                     }
                 },
@@ -56,10 +57,8 @@
                     "name": "VFOriginLodespring",
                     "label": "$global.region.OriginLodespring",
                     "pipeline_override": {
-                        "AutoEssenceSpecifiedLocation": {
-                            "next": [
-                                "VFOriginLodespringMoveToTriggerPointAuto"
-                            ]
+                        "GotoTriggerPointSetAnchor_VFOriginLodespring": {
+                            "enabled": true
                         }
                     }
                 },
@@ -67,10 +66,8 @@
                     "name": "VFPowerPlateau",
                     "label": "$global.region.PowerPlateau",
                     "pipeline_override": {
-                        "AutoEssenceSpecifiedLocation": {
-                            "next": [
-                                "VFPowerPlateauMoveToTriggerPointAuto"
-                            ]
+                        "GotoTriggerPointSetAnchor_VFPowerPlateau": {
+                            "enabled": true
                         }
                     }
                 },
@@ -78,10 +75,8 @@
                     "name": "WLWulingCity",
                     "label": "$global.region.WulingCity",
                     "pipeline_override": {
-                        "AutoEssenceSpecifiedLocation": {
-                            "next": [
-                                "WLWulingCityMoveToTriggerPointAuto"
-                            ]
+                        "GotoTriggerPointSetAnchor_WLWulingCity": {
+                            "enabled": true
                         }
                     }
                 },
@@ -89,10 +84,8 @@
                     "name": "WLQingboStockade",
                     "label": "$global.region.QingboStockade",
                     "pipeline_override": {
-                        "AutoEssenceSpecifiedLocation": {
-                            "next": [
-                                "WLQingboStockadeMoveToTriggerPointAuto"
-                            ]
+                        "GotoTriggerPointSetAnchor_WLQingboStockade": {
+                            "enabled": true
                         }
                     }
                 },
@@ -100,44 +93,25 @@
                     "name": "WLMarkerStone",
                     "label": "$global.region.MarkerStone",
                     "pipeline_override": {
-                        "AutoEssenceSpecifiedLocation": {
-                            "next": [
-                                "WLMarkerStoneMoveToTriggerPointAuto"
-                            ]
-                        }
-                    }
-                }
-            ]
-        },
-        "AutoEssenceChallengeMode": {
-            "type": "select",
-            "label": "$option.AutoEssenceChallengeMode.label",
-            "description": "$option.AutoEssenceChallengeMode.description",
-            "default_case": "Walk",
-            "cases": [
-                {
-                    "name": "Walk",
-                    "label": "$option.AutoEssenceChallengeMode.cases.Walk.label",
-                    "pipeline_override": {
-                        "AutoEssenceClickEssenceChallengeUsingWalk": {
+                        "GotoTriggerPointSetAnchor_WLMarkerStone": {
                             "enabled": true
-                        },
-                        "AutoEssenceClickEssenceChallengeUsingAutoFight": {
-                            "enabled": false
                         }
                     }
                 },
                 {
-                    "name": "AutoFight",
-                    "label": "$option.AutoEssenceChallengeMode.cases.AutoFight.label",
-                    "option": [
-                        "AutoFightSetting"
-                    ],
+                    "name": "WLTestArea",
+                    "label": "$global.region.TestArea",
                     "pipeline_override": {
-                        "AutoEssenceClickEssenceChallengeUsingWalk": {
-                            "enabled": false
-                        },
-                        "AutoEssenceClickEssenceChallengeUsingAutoFight": {
+                        "GotoTriggerPointSetAnchor_WLTestArea": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "WLSwordVaultDale",
+                    "label": "$global.region.SwordVaultDale",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLSwordVaultDale": {
                             "enabled": true
                         }
                     }
@@ -148,32 +122,57 @@
             "type": "select",
             "label": "$option.AutoEssenceObtainMode.label",
             "description": "$option.AutoEssenceObtainMode.description",
-            "default_case": "ObtainScaling1",
+            "default_case": "ObtainScaling2",
             "cases": [
                 {
                     "name": "Discard",
                     "label": "$option.AutoEssenceObtainMode.cases.Discard.label",
                     "pipeline_override": {
-                        "AutoEssenceClickObtainButtonPre": {
-                            "next": [
-                                "AutoEssenceClickDiscardButton"
-                            ]
+                        "AutoEssenceClickObtainButton": {
+                            "enabled": false
+                        },
+                        "AutoEssenceClickDiscardButton": {
+                            "enabled": true
                         }
                     }
                 },
                 {
                     "name": "ObtainScaling1",
                     "label": "$option.AutoEssenceObtainMode.cases.ObtainScaling1.label",
-                    "pipeline_override": {}
+                    "pipeline_override": {
+                        "AutoEssenceClickObtainButton": {
+                            "enabled": true
+                        },
+                        "AutoEssenceClickDiscardButton": {
+                            "enabled": false
+                        },
+                        "AutoEssenceChooseScaling2": {
+                            "enabled": false
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceDoOverride",
+                        "EssenceFilterAfterBattle"
+                    ]
                 },
                 {
                     "name": "ObtainScaling2",
                     "label": "$option.AutoEssenceObtainMode.cases.ObtainScaling2.label",
                     "pipeline_override": {
+                        "AutoEssenceClickObtainButton": {
+                            "enabled": true
+                        },
+                        "AutoEssenceClickDiscardButton": {
+                            "enabled": false
+                        },
                         "AutoEssenceChooseScaling2": {
                             "enabled": true
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoEssenceDoOverride",
+                        "EssenceFilterAfterBattle"
+                    ]
                 }
             ]
         },
@@ -233,6 +232,32 @@
                     ]
                 }
             }
+        },
+        "AutoEssenceChooseLocationMode": {
+            "type": "select",
+            "label": "$option.AutoEssenceChooseLocationMode.label",
+            "description": "$option.AutoEssenceChooseLocationMode.description",
+            "default_case": "ChooseOnlyOnce",
+            "cases": [
+                {
+                    "name": "ChooseOnlyOnce",
+                    "label": "$option.AutoEssenceChooseLocationMode.cases.ChooseOnlyOnce.label",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "max_hit": 1
+                        }
+                    }
+                },
+                {
+                    "name": "ChooseEveryTime",
+                    "label": "$option.AutoEssenceChooseLocationMode.cases.ChooseEveryTime.label",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "max_hit": 999999
+                        }
+                    }
+                }
+            ]
         },
         "EssenceFilterAfterBattle": {
             "type": "switch",

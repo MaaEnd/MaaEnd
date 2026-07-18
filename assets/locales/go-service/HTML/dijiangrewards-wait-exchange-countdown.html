@@ -1,0 +1,18 @@
+<div
+    class="dijiangrewards-wait-exchange-countdown"
+    style="
+        background: #ffffff;
+        color: #222222;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #d8ecff;
+        max-width: 400px;
+    ">
+    <style>
+        div:has(.dijiangrewards-wait-exchange-countdown):has(~ div .dijiangrewards-wait-exchange-countdown) {
+            display: none !important;
+        }
+    </style>
+    <div style="font-size: 0.95em; color: #1f5f99; font-weight: 600">{{t "message"}}</div>
+    <div style="font-size: 1.2em; font-weight: 600; color: #1f5f99; font-family: monospace">{{.Formatted}}</div>
+</div>

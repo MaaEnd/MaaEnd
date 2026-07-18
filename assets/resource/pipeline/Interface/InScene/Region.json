@@ -13,7 +13,8 @@
                 ],
                 "template": [
                     "SceneManager/MapMind.png"
-                ]
+                ],
+                "method": 10001 // 默认5时，当弹出右侧面板，此图片依然能匹配上
             },
             {
                 "recognition": "TemplateMatch",
@@ -109,6 +110,48 @@
                     "首墩",
                     "Marker Stone",
                     "首礎"
+                ]
+            }
+        ]
+    },
+    "InMapWulingTestArea": {
+        "desc": "在武陵-试验园区地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "试验园区",
+                    "Test Area",
+                    "實驗園區"
+                ]
+            }
+        ]
+    },
+    "InMapWulingSwordVaultDale": {
+        "desc": "在武陵-藏剑谷地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "藏剑谷",
+                    "Sword Vault Dale",
+                    "藏劍谷"
                 ]
             }
         ]
@@ -242,16 +285,41 @@
     },
     "InMenuList": {
         "desc": "在菜单列表界面",
-        "recognition": "OCR",
-        "roi": [
-            420,
-            -100,
-            450,
-            100
-        ],
-        "expected": [
-            "FIELD",
-            "ENDFIELD"
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    420,
+                    -100,
+                    450,
+                    100
+                ],
+                "expected": [
+                    "FIELD",
+                    "ENDFIELD"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    0,
+                    -200,
+                    200,
+                    200
+                ],
+                "lower": [
+                    90,
+                    35,
+                    35
+                ],
+                "upper": [
+                    191,
+                    83,
+                    85
+                ],
+                "count": 100
+            }
         ]
     },
     "InNoticeRewards": {
@@ -269,8 +337,7 @@
                     "InScene/NoticeRewardsIcon.png",
                     "InScene/NoticeRewardsIcon2.png",
                     "InScene/NoticeRewardsIcon3.png"
-                ],
-                "threshold": 0.9
+                ]
             }
         }
     },

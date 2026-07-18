@@ -5,7 +5,15 @@
             "label": "$task.BakerEntry.label",
             "entry": "BakerEntry",
             "description": "$task.BakerEntry.description",
-            "group": ["other_menu"]
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
+            "group": [
+                "other_menu"
+            ]
         }
     ],
     "option": {}

@@ -232,11 +232,7 @@ YoloCoarseResult YoloPredictor::predictCoarseByYOLO(const cv::Mat& minimap)
 
         LogInfo << "YOLO Success" << VAR(predictedName) << VAR(result.zone_id) << VAR(maxConf) << VAR(result.has_roi);
         if (result.has_roi) {
-            LogInfo << "YOLO ROI"
-                    << VAR(result.roi_x)
-                    << VAR(result.roi_y)
-                    << VAR(result.roi_w)
-                    << VAR(result.roi_h)
+            LogInfo << "YOLO ROI" << VAR(result.roi_x) << VAR(result.roi_y) << VAR(result.roi_w) << VAR(result.roi_h)
                     << VAR(result.infer_margin);
         }
         return result;

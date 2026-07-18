@@ -1,9 +1,9 @@
 {
-    "AutoStockStapleGoodsCountValidateColor": {
+    "AutoStockStapleGoodsCountValidateArea": {
         "roi": [
-            1144,
-            140,
-            56,
+            1116,
+            147,
+            80,
             20
         ]
     }

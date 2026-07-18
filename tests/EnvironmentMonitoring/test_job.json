@@ -10,11 +10,17 @@
     "cases": [
         {
             "image": "武陵_地区建设_环境监测终端_城郊监测终端_接取委托.png",
-            "hits": ["EternalSunsetJob"]
+            "hits": [
+                "EternalSunsetJob",
+                "AcceptEternalSunset"
+            ]
         },
         {
             "image": "武陵_地区建设_环境监测终端_城郊监测终端_前往任务.png",
-            "hits": ["EternalSunsetJob"]
+            "hits": [
+                "EternalSunsetJob",
+                "GoToEternalSunsetMission"
+            ]
         },
         {
             "image": "武陵_拍照模式_拍摄目标.png",

@@ -14,6 +14,17 @@
             "maxItems": 2,
             "items": false
         },
+        "Coordinate2I": {
+            "type": "array",
+            "description": "A 2D integer coordinate [x, y].",
+            "prefixItems": [
+                { "type": "integer" },
+                { "type": "integer" }
+            ],
+            "minItems": 2,
+            "maxItems": 2,
+            "items": false
+        },
         "Rect4D": {
             "type": "array",
             "description": "A rectangle [x, y, w, h].",
@@ -45,11 +56,8 @@
                 }
             }
         },
-        "MapTrackerMoveParam": {
-            "type": "object",
-            "description": "Parameters for MapTrackerMove: navigate player along waypoints using minimap tracking.",
-            "additionalProperties": false,
-            "required": [ "map_name", "path" ],
+        "MapTrackerMovementBaseParam": {
+            "description": "Shared movement parameters for MapTrackerMove and MapTrackerGoal.",
             "properties": {
                 "map_name": {
                     "title": "Map Name",
@@ -82,15 +90,14 @@
                     "enum": [ "FinalTarget", "AllTargets", "Never" ],
                     "default": "FinalTarget"
                 },
+                "on_finish": {
+                    "title": "On Finish",
+                    "description": "Inline pipeline node object executed once after navigation succeeds.",
+                    "$ref": "../pipeline.schema.json#/$defs/Node"
+                },
                 "no_ensure_initial_movement_state": {
                     "title": "No Ensure Initial Movement State",
                     "description": "Skip sprint preparation before first move.",
-                    "type": "boolean",
-                    "default": false
-                },
-                "no_ensure_final_orientation": {
-                    "title": "No Ensure Final Orientation",
-                    "description": "Skip camera orientation adjustment at final target.",
                     "type": "boolean",
                     "default": false
                 },
@@ -163,6 +170,127 @@
                 }
             }
         },
+        "MapTrackerMoveParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerMove: navigate player along waypoints using minimap tracking.",
+            "allOf": [
+                { "$ref": "#/$defs/MapTrackerMovementBaseParam" }
+            ],
+            "unevaluatedProperties": false,
+            "required": [ "map_name", "path" ]
+        },
+        "MapTrackerGoalParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerGoal: navigate to a target coordinate or entity through NavMesh pathfinding.",
+            "allOf": [
+                { "$ref": "#/$defs/MapTrackerMovementBaseParam" }
+            ],
+            "unevaluatedProperties": false,
+            "required": [ "map_name" ],
+            "properties": {
+                "target": {
+                    "title": "Target",
+                    "description": "Target coordinate [x, y] in map pixel coordinates.",
+                    "$ref": "#/$defs/Coordinate2D"
+                },
+                "entity_id": {
+                    "title": "Entity ID",
+                    "description": "NavMesh entity ID to look up as the target.",
+                    "type": "integer",
+                    "exclusiveMinimum": 0
+                },
+                "zipline_policy": {
+                    "title": "Zipline Policy",
+                    "description": "How aggressively MapTrackerGoal should consider runtime zipline edges.",
+                    "type": "string",
+                    "enum": [ "Never", "Lazy", "Active", "Aggressive" ],
+                    "default": "Never"
+                }
+            },
+            "anyOf": [
+                { "required": [ "target" ] },
+                { "required": [ "entity_id" ] }
+            ]
+        },
+        "MapTrackerTowardParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerToward: adjust the player's orientation to face a given angle or map point. At least one of angle and target must be provided; angle takes precedence when both are set.",
+            "additionalProperties": false,
+            "properties": {
+                "angle": {
+                    "title": "Angle",
+                    "description": "Target orientation in degrees, where 0 is North and the value increases clockwise.",
+                    "type": "number"
+                },
+                "map_name": {
+                    "title": "Map Name",
+                    "description": "Unique map identifier. Required only in target mode (when target is set); in pure angle mode the rotation is inferred without any map dependency.",
+                    "type": "string"
+                },
+                "target": {
+                    "title": "Target",
+                    "description": "Map coordinate [x, y] the player should face toward.",
+                    "$ref": "#/$defs/Coordinate2D"
+                },
+                "rotation_threshold": {
+                    "title": "Rotation Threshold",
+                    "description": "Maximum allowed angle difference in degrees to treat the player as already facing the target orientation.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "exclusiveMaximum": 180,
+                    "default": 12
+                },
+                "map_name_match_rule": {
+                    "title": "Map Name Match Rule",
+                    "description": "Regex template for matching map names. %s is replaced by map_name (auto-escaped).",
+                    "type": "string",
+                    "default": "^%s(_tier_\\w+)?$"
+                }
+            },
+            "anyOf": [
+                { "required": [ "angle" ] },
+                { "required": [ "target", "map_name" ] }
+            ]
+        },
+        "MapTrackerZiplineParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerZipline: perform one zipline fast travel while already on a zipline.",
+            "additionalProperties": false,
+            "required": [ "map_name", "target" ],
+            "properties": {
+                "map_name": {
+                    "title": "Map Name",
+                    "description": "Unique map identifier.",
+                    "type": "string"
+                },
+                "target": {
+                    "title": "Target",
+                    "description": "Target zipline point coordinate [x, y] in map pixel coordinates.",
+                    "$ref": "#/$defs/Coordinate2D"
+                },
+                "map_name_match_rule": {
+                    "title": "Map Name Match Rule",
+                    "description": "Regex template for matching map names. %s is replaced by map_name (auto-escaped).",
+                    "type": "string",
+                    "default": "^%s(_tier_\\w+)?$"
+                },
+                "rotation_threshold": {
+                    "title": "Rotation Threshold",
+                    "description": "Angular difference threshold in degrees to consider the target zipline point aligned.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "exclusiveMaximum": 180,
+                    "default": 9
+                },
+                "timeout": {
+                    "title": "Timeout",
+                    "description": "Max time in milliseconds for rotation and movement completion.",
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "default": 15000
+                }
+            }
+        },
         "MapTrackerBigMapPickParam": {
             "type": "object",
             "description": "Parameters for MapTrackerBigMapPick: pan big map view to find and interact with a target coordinate.",
@@ -192,11 +320,29 @@
                     "type": "boolean",
                     "default": false
                 },
-                "no_zoom": {
-                    "title": "No Zoom",
-                    "description": "Disable auto zoom adjustment.",
-                    "type": "boolean",
-                    "default": false
+                "zoom_value": {
+                    "title": "Zoom Value",
+                    "description": "Target zoom slider position.",
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "default": 0.725
+                }
+            }
+        },
+        "MapTrackerBigMapZoomParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerBigMapZoom: adjust the big-map zoom slider to a target position.",
+            "additionalProperties": false,
+            "required": [ "zoom_value" ],
+            "properties": {
+                "zoom_value": {
+                    "title": "Zoom Value",
+                    "description": "Target slider position in range (0, 1], where 1 is zoom-out end and values near 0 are zoom-in end. Set to 0 to disable the zoom action.",
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "default": 0
                 }
             }
         },
@@ -228,12 +374,6 @@
                     "exclusiveMinimum": 0,
                     "maximum": 1,
                     "default": 0.4
-                },
-                "fast_mode": {
-                    "title": "Fast Mode",
-                    "description": "Enable fast matching mode for extra speed. Not recommended unless hitting performance bottleneck.",
-                    "type": "boolean",
-                    "default": false
                 }
             }
         },
@@ -263,6 +403,14 @@
                     "exclusiveMinimum": 0,
                     "maximum": 1,
                     "default": 0.4
+                },
+                "allowed_modes": {
+                    "title": "Allowed Modes",
+                    "description": "Bitmask controlling which location inference modes are allowed. 1 = FullSearch, 2 = FastSearch. Default 3 (both).",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 3,
+                    "default": 3
                 }
             }
         },
@@ -284,6 +432,91 @@
                     "exclusiveMinimum": 0,
                     "maximum": 1,
                     "default": 0.5
+                }
+            }
+        },
+        "MapTrackerBigMapFindImageParam": {
+            "type": "object",
+            "description": "Parameters for MapTrackerBigMapFindImage: find icon images in the current big-map viewport, optionally panning until required points are visible.",
+            "additionalProperties": false,
+            "required": [ "template", "expected" ],
+            "properties": {
+                "template": {
+                    "title": "Template",
+                    "description": "Template image resource path.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "expected": {
+                    "title": "Expected",
+                    "description": "Recognition hit condition: true for at least one match, false for no matches, integer for exact match count, or an object with map_name and target for a required map-coordinate rectangle hit.",
+                    "oneOf": [
+                        { "type": "boolean" },
+                        { "type": "integer", "minimum": 0 },
+                        {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [ "map_name", "target" ],
+                            "properties": {
+                                "map_name": {
+                                    "title": "Map Name",
+                                    "description": "Map identifier that the match must land on.",
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "target": {
+                                    "title": "Target",
+                                    "description": "Bounding box [x, y, w, h] defining the required hit region in map pixel coordinates.",
+                                    "$ref": "#/$defs/Rect4D"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "threshold": {
+                    "title": "Threshold",
+                    "description": "Minimum template matching confidence.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 1,
+                    "default": 0.5
+                },
+                "max_matches": {
+                    "title": "Max Matches",
+                    "description": "Maximum number of matches to return.",
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "default": 32
+                },
+                "green_mask": {
+                    "title": "Green Mask",
+                    "description": "Use green pixels in the template as mask pixels.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "with_rotation": {
+                    "title": "With Rotation",
+                    "description": "Match the template across rotations and return the matched angle.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "zoom_value": {
+                    "title": "Zoom Value",
+                    "description": "Optional big-map zoom slider position (0-1) to apply before matching.",
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "must_see_points": {
+                    "title": "Must See Points",
+                    "description": "Map points that must all be covered by the big-map viewport before matching.",
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/Coordinate2I" }
+                },
+                "map_name_regex": {
+                    "title": "Map Name Regex",
+                    "description": "Regex to filter which maps participate in inference. When set, limits MapTrackerBigMapInfer to matching candidate maps only.",
+                    "type": "string"
                 }
             }
         }

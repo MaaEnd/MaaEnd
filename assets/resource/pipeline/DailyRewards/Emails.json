@@ -239,13 +239,21 @@
                 "expected": [
                     "全部收取",
                     "(?i)Claim\\s*All",
-                    "一括受取"
+                    "一括受取",
+                    "括受取"
                 ]
             }
         },
         "action": {
             "type": "Click",
-            "param": {}
+            "param": {
+                "target_offset": [
+                    0,
+                    4,
+                    0,
+                    -4
+                ]
+            }
         },
         "next": [
             "DailyEmailNoEmailRewards",

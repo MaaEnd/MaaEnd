@@ -57,7 +57,7 @@
             54
         ],
         "connected": true,
-        "count": 300
+        "count": 280
     },
     "AutoSellStockRedistributionItemGreenLineRecognition": {
         "desc": "识别物资调度界面中的绿线所在位置，用于定位item宽度",
@@ -80,7 +80,7 @@
             80
         ],
         "connected": true,
-        "count": 400
+        "count": 370
     },
     "AutoSellStockRedistributionItemNameRecRecognition": {
         "desc": "识别物资调度界面中文字所在roi，方便only_rec识别",
@@ -191,18 +191,67 @@
                 "template": [
                     "AutoSell/SellTicketFriendValleyIV.png",
                     "AutoSell/SellTicketFriendWuling.png"
-                ],
-                "threshold": 0.9
+                ]
             },
             {
                 "recognition": "OCR",
                 "roi": "ticket_icon",
                 "roi_offset": [
-                    30,
+                    32,
                     0,
                     32,
                     0
                 ],
+                "expected": [
+                    "\\d"
+                ],
+                "only_rec": true
+            }
+        ],
+        "box_index": 2
+    },
+    "AutoSellOwnTicketCountRecognition": {
+        "desc": "识别调度券拥有数量",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "ticket_count",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -300,
+                    0,
+                    300,
+                    80
+                ],
+                "template": [
+                    "AutoSell/TicketOwnValleyIV.png",
+                    "AutoSell/TicketOwnWuling.png"
+                ]
+            },
+            {
+                "sub_name": "text_roi",
+                "recognition": "ColorMatch",
+                "roi": "ticket_count",
+                "roi_offset": [
+                    26,
+                    -5,
+                    100,
+                    10
+                ],
+                "lower": [
+                    200,
+                    200,
+                    200
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": "text_roi",
                 "expected": [
                     "\\d"
                 ],

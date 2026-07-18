@@ -23,10 +23,18 @@ jobs:
           github.triggering_actor != 'github-actions[bot]' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Generate MaaEndBot GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
+          permission-contents: write
+
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
           show-progress: false
 
       - name: Setup python
@@ -50,6 +58,8 @@ jobs:
       - name: Commit and push changes
         uses: actions-js/push@master
         with:
+          author_name: "maaendbotapp[bot]"
+          author_email: "305547419+maaendbotapp[bot]@users.noreply.github.com"
           rebase: true
           branch: ${{ github.ref }}
           message: "${{ github.event.inputs.commit_message || 'chore: Auto Templates Optimization' }}
@@ -57,4 +67,4 @@ jobs:
             Triggered by ${{ github.sha }}
 
             [skip changelog]"
-          github_token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          github_token: ${{ steps.app-token.outputs.token }}

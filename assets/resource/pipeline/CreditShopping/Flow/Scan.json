@@ -1,0 +1,48 @@
+{
+    "CreditShoppingScanItemTabSelected": {
+        "desc": "信用交易所 Tab 已选中",
+        "recognition": "TemplateMatch",
+        "roi": [
+            813,
+            44,
+            293,
+            82
+        ],
+        "template": "CreditShopping/CreditShoppingTabSelected.png",
+        "threshold": 0.7
+    },
+    "CreditShoppingScanItem": {
+        "desc": "货架快照门控（商店 Tab 已选中且可识别刷新花费）",
+        "recognition": "And",
+        "all_of": [
+            "CreditShoppingScanItemTabSelected",
+            "RefreshButton"
+        ],
+        "next": [
+            "CreditShoppingScanItemAction"
+        ]
+    },
+    "CreditShoppingScanItemAction": {
+        "desc": "货架快照",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CreditShoppingScanItemAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoGetCredits",
+            "CreditShoppingBuyPriority1",
+            "CreditShoppingBuyPriority2",
+            "CreditShoppingBuyPriority3",
+            "CreditShoppingReserveCredit",
+            "CreditShoppingRefreshCountReached",
+            "CreditShoppingPrudentRefresh",
+            "CreditShoppingBuyBlacklist",
+            "CreditShippingCanNotToBuy",
+            "ADBSpecial",
+            "RefreshItem",
+            "CreditShoppingNothingToBuy"
+        ]
+    }
+}

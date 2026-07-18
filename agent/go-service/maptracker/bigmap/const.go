@@ -16,8 +16,8 @@ const (
 const (
 	PADDING_LR           = 0.192 * WORK_W
 	PADDING_TB           = 0.208 * WORK_H
-	SAMPLE_PADDING_LR    = 0.4 * WORK_W
-	SAMPLE_PADDING_TB    = 0.4 * WORK_H
+	SAMPLE_PADDING_LR    = 0.375 * WORK_W
+	SAMPLE_PADDING_TB    = 0.375 * WORK_H
 	WIRE_MATCH_PRECISION = 0.5
 	GAME_MAP_SCALE_MIN   = 1.0
 	GAME_MAP_SCALE_MAX   = 7.0
@@ -36,4 +36,10 @@ const (
 const (
 	BIG_MAP_PAN_FACTOR_NUMERATOR = 2500.0 // panFactor = this constant / screen diagonal size
 	BIG_MAP_PICK_RETRY           = 10
+)
+
+// Big map delay configuration
+const (
+	INFER_PRE_DELAY_MS = 100
+	PAN_POST_DELAY_MS  = 50
 )

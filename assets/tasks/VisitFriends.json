@@ -9,6 +9,12 @@
                 "VisitFriendsRemark",
                 "ProductionAssistControl"
             ],
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
             "group": [
                 "dijiang_ship"
             ]

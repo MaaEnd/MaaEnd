@@ -12,7 +12,8 @@ import (
 )
 
 type attachToExpectedRegexParam struct {
-	Target string `json:"target"`
+	Target  string   `json:"target"`
+	Targets []string `json:"targets"`
 }
 
 // AttachToExpectedRegexAction merges attach keywords from the target node itself
@@ -32,15 +33,30 @@ func (a *AttachToExpectedRegexAction) Run(ctx *maa.Context, arg *maa.CustomActio
 		return false
 	}
 
-	if strings.TrimSpace(param.Target) == "" {
+	targets := make([]string, 0, len(param.Targets)+1)
+	if strings.TrimSpace(param.Target) != "" {
+		targets = append(targets, param.Target)
+	}
+	for _, t := range param.Targets {
+		trimmed := strings.TrimSpace(t)
+		if trimmed != "" {
+			targets = append(targets, trimmed)
+		}
+	}
+	if len(targets) == 0 {
 		log.Error().
 			Str("component", "AttachToExpectedRegexAction").
 			Interface("param", param).
-			Msg("target is required")
+			Msg("target or targets is required")
 		return false
 	}
 
-	return applyAttachRegexOverride(ctx, param.Target, "AttachToExpectedRegexAction")
+	for _, target := range targets {
+		if !applyAttachRegexOverride(ctx, target, "AttachToExpectedRegexAction") {
+			return false
+		}
+	}
+	return true
 }
 
 func applyAttachRegexOverride(ctx *maa.Context, targetNodeName string, component string) bool {

@@ -2,9 +2,15 @@
     "AutoCollectRoute11Start": {
         "desc": "重黯石",
         "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley4"
+            ]
+        },
         "next": [
-            "AutoCollectRoute11AssertLocation1",
-            "[JumpBack]SceneEnterWorldWulingJingyuValley4"
+            "AutoCollectRoute11AssertLocation1"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$option.AutoCollectRoute11.label"

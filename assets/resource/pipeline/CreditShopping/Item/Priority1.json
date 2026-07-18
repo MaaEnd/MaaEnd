@@ -1,0 +1,182 @@
+{
+    "BuyFirstOCRLabelColor": {
+        "desc": "优先购买1折扣匹配标签颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "CanAfford",
+                "roi_offset": [
+                    -100,
+                    31,
+                    118,
+                    25
+                ],
+                "lower": [
+                    50,
+                    50,
+                    50
+                ],
+                "upper": [
+                    130,
+                    130,
+                    130
+                ],
+                "connected": true,
+                "count": 1500
+            }
+        }
+    },
+    "BuyFirstOCRTextColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "BuyFirstOCRLabelColor",
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    0,
+                    1,
+                    255
+                ],
+                "count": 10
+            }
+        }
+    },
+    "BuyFirstOCR": {
+        "desc": "按用户指定顺序购买",
+        "recognition": "OCR",
+        "roi": "BuyFirstOCRTextColor",
+        "roi_offset": [
+            -2,
+            -2,
+            4,
+            4
+        ],
+        "expected": "^(嵌晶玉|武库配额|折金票)$",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR_Expected": {
+        "recognition": "And",
+        "all_of": [
+            "BuyFirstOCRLabelColor",
+            "BuyFirstOCRTextColor",
+            "BuyFirstOCR"
+        ],
+        "box_index": 2
+    },
+    "BuyFirstOCR_CanNotAfford_LabelColor": {
+        "desc": "优先购买1（买不起）折扣匹配标签颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "CanNotAfford",
+                "roi_offset": [
+                    -100,
+                    31,
+                    118,
+                    25
+                ],
+                "lower": [
+                    60,
+                    60,
+                    60
+                ],
+                "upper": [
+                    70,
+                    70,
+                    70
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "BuyFirstOCR_CanNotAfford_TextColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "BuyFirstOCR_CanNotAfford_LabelColor",
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    0,
+                    1,
+                    255
+                ],
+                "count": 10
+            }
+        }
+    },
+    "BuyFirstOCR_CanNotAfford": {
+        "desc": "有商品,但是买不起",
+        "recognition": "OCR",
+        "roi": "BuyFirstOCR_CanNotAfford_TextColor",
+        "roi_offset": [
+            -2,
+            -2,
+            4,
+            4
+        ],
+        "expected": "^(嵌晶玉|武库配额|折金票)$",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR_CanNotAfford_Expected": {
+        "recognition": "And",
+        "all_of": [
+            "BuyFirstOCR_CanNotAfford_LabelColor",
+            "BuyFirstOCR_CanNotAfford_TextColor",
+            "BuyFirstOCR_CanNotAfford"
+        ],
+        "box_index": 2
+    },
+    "IsDiscountPriority1": {
+        "desc": "优先购买1折扣匹配",
+        "recognition": "OCR",
+        "roi": "BuyFirstOCR",
+        "roi_offset": [
+            44,
+            -170,
+            4,
+            4
+        ],
+        "expected": [
+            "95",
+            "99",
+            "75",
+            "50",
+            "25"
+        ],
+        "only_rec": true,
+        "order_by": "Expected"
+    },
+    "IsDiscountPriority1_CanNotAfford": {
+        "desc": "优先购买1买不起时折扣匹配",
+        "recognition": "OCR",
+        "roi": "BuyFirstOCR_CanNotAfford",
+        "roi_offset": [
+            44,
+            -170,
+            4,
+            4
+        ],
+        "expected": [
+            "95",
+            "99",
+            "75",
+            "50",
+            "25"
+        ],
+        "only_rec": true,
+        "order_by": "Expected"
+    }
+}

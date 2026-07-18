@@ -1,14 +1,39 @@
 {
     "ItemTransfer": {
-        "desc": "在 tasks 中对默认 false 的 前置(next) 任务进行 override",
         "recognition": "DirectHit",
         "next": [
-            "ItemTransferStart",
-            "ItemTransferInBackpack"
+            "ItemTransferSkipSameRegionValleyIV",
+            "ItemTransferSkipSameRegionWuling",
+            "ItemTransferStart"
         ]
     },
-    "ItemTransferStart": {
+    "ItemTransferSkipSameRegionValleyIV": {
         "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ItemTransferSkipSameRegionStop"
+        ]
+    },
+    "ItemTransferSkipSameRegionWuling": {
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ItemTransferSkipSameRegionStop"
+        ]
+    },
+    "ItemTransferSkipSameRegionStop": {
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "$task.ItemTransfer.same_region_skipped"
+        }
+    },
+    "ItemTransferStart": {
         "next": [
             "ItemTransferStartAtReceptionRoom",
             "[JumpBack]SceneEnterWorldDijiang2"
@@ -57,26 +82,138 @@
         ]
     },
     "ItemTransferStartOpenRepo": {
-        "action": "ClickKey",
-        "key": 66, // B
-        "post_wait_freezes": 400,
+        "desc": "直接打开背包而非通过快捷键",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -250,
+                                    0,
+                                    200,
+                                    200
+                                ],
+                                "template": [
+                                    "SceneManager/Backpack.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    400,
+                                    80
+                                ],
+                                "template": [
+                                    "SceneManager/WorldDijiangMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -200,
+                                    0,
+                                    200,
+                                    200
+                                ],
+                                "template": [
+                                    "SceneManager/WorldMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    }
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 400,
+            "target": [
+                900,
+                100,
+                250,
+                160
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferStartOpenRepoSuccess"
+        ]
+    },
+    "ItemTransferStartOpenRepoSuccess": {
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "ItemTransferInBackpack"
         ]
     },
     "ItemTransferInBackpack": {
         "desc": "当前在背包界面，开始转移任务",
+        "recognition": "And",
+        "all_of": [
+            "InBackpack"
+        ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "StashBackpackSubTask",
-                "ItemTransferSwitchRepoToOrigin"
+                "ItemTransferStashBackpackSubTask"
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferSwitchRepoToOrigin"
+        ]
+    },
+    "ItemTransferStashBackpackSubTask": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferStashBackpackMain",
+            "EmptyNode"
+        ]
+    },
+    "ItemTransferStashBackpackMain": {
+        "desc": "保留整理背包功能，不复用通用整理背包传送兜底",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackEnterSuccess"
+        ]
     },
     "ItemTransferSwitchRepoToOrigin": {
         "recognition": "OCR",
@@ -686,8 +823,66 @@
     "ItemTransferCtrlKeyUpBagReturn": {
         "action": "KeyUp",
         "key": 17,
+        "next": [
+            "ItemTransferCheckIfFullReturn",
+            "ItemTransferBagReturnCompleted"
+        ]
+    },
+    "ItemTransferCheckIfFullReturn": {
+        "recognition": "OCR",
+        "roi": [
+            493,
+            112,
+            291,
+            20
+        ],
+        "expected": [
+            "已充满",
+            "已充滿",
+            "(?i)Full",
+            "FULL",
+            "已满",
+            "已満"
+        ],
+        "next": [
+            "ItemTransferClickQuickStashReturn",
+            "ItemTransferBagReturnManualCleanup"
+        ]
+    },
+    "ItemTransferClickQuickStashReturn": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            871,
+            472,
+            162,
+            125
+        ],
+        "template": [
+            "StashBackpack/QuickStash.png"
+        ],
+        "order_by": "Score",
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "next": [
+            "ItemTransferBagReturnStashCompleted"
+        ]
+    },
+    "ItemTransferBagReturnCompleted": {
+        "action": "StopTask",
         "focus": {
             "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_completed"
+        }
+    },
+    "ItemTransferBagReturnManualCleanup": {
+        "action": "StopTask",
+        "focus": {
+            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_manual_cleanup"
+        }
+    },
+    "ItemTransferBagReturnStashCompleted": {
+        "action": "StopTask",
+        "focus": {
+            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_stash_completed"
         }
     },
     "ItemTransferStop": {
@@ -769,9 +964,10 @@
             "side": "bag",
             "max_distance": 1
         },
-        "focus": {
-            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_completed"
-        }
+        "next": [
+            "ItemTransferCheckIfFullReturn",
+            "ItemTransferBagReturnCompleted"
+        ]
     },
     "ItemTransferFindItemFallback": {
         "desc": "NND 兜底：hover + OCR + 二分法查找（仓库侧）",
@@ -810,8 +1006,9 @@
             "side": "bag",
             "max_distance": 1
         },
-        "focus": {
-            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_completed"
-        }
+        "next": [
+            "ItemTransferCheckIfFullReturn",
+            "ItemTransferBagReturnCompleted"
+        ]
     }
 }

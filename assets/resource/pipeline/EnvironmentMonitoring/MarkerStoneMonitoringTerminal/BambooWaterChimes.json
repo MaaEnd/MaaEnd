@@ -6,10 +6,34 @@
         "all_of": [
             "CheckBambooWaterChimesText",
             "CheckBambooWaterChimesIcon",
-            "CheckBambooWaterChimesReadyText"
+            "CheckBambooWaterChimesWulingStockBill"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "BambooWaterChimesExecute",
+            "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "failure_task": "BambooWaterChimesFailed"
+        },
         "post_delay": 0,
+        "rate_limit": 0
+    },
+    "BambooWaterChimesFailed": {
+        "desc": "水竹铃任务执行失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.BambooWaterChimes.failed"
+        }
+    },
+    "BambooWaterChimesExecute": {
+        "desc": "执行水竹铃任务路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AcceptBambooWaterChimes",
             "GoToBambooWaterChimesMission"
@@ -31,7 +55,27 @@
             "水竹鈴",
             "수죽령"
         ],
-        "order_by": "Vertical"
+        "replace": [],
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckBambooWaterChimesWulingStockBill": {
+        "desc": "检查水竹铃任务下方的武陵调度券图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckBambooWaterChimesIcon",
+        "roi_offset": [
+            -14,
+            300,
+            359,
+            76
+        ],
+        "template": "EnvironmentMonitoring/WulingStockBill.png",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckBambooWaterChimesIcon": {
         "desc": "检查水竹铃文本下方的图标",
@@ -44,30 +88,10 @@
             28
         ],
         "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8
-    },
-    "CheckBambooWaterChimesReadyText": {
-        "desc": "检查水竹铃委托是否准备好",
-        "recognition": "OCR",
-        "roi": "CheckBambooWaterChimesIcon",
-        "roi_offset": [
-            -14,
-            332,
-            359,
-            76
-        ],
-        "expected": [
-            "接取委托",
-            "接取委託",
-            "(?i)Accept\\s*Job",
-            "引き受ける",
-            "前往任务",
-            "前往任務",
-            "(?i)Go\\s*to\\s*Mission",
-            "任務へ",
-            "의뢰 수령",
-            "임무로 이동하기"
-        ]
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckBambooWaterChimesJob": {
         "desc": "检查水竹铃委托是否可以接取",
@@ -85,7 +109,10 @@
             "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckBambooWaterChimesGoToMissionText": {
         "desc": "检查水竹铃委托是否可以前往",
@@ -103,7 +130,10 @@
             "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "InBambooWaterChimesMission": {
         "desc": "是否在水竹铃任务界面",
@@ -120,7 +150,11 @@
             "(?i)Photo:\\s*Bamboo\\s*Water\\s*Chimes",
             "水竹鈴の写真を撮る",
             "수죽령을 촬영하기"
-        ]
+        ],
+        "replace": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AcceptBambooWaterChimes": {
         "desc": "接取水竹铃委托",
@@ -131,7 +165,10 @@
             "CheckBambooWaterChimesJob"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToBambooWaterChimesMission"
         ]
@@ -145,7 +182,10 @@
             "CheckBambooWaterChimesGoToMissionText"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "BambooWaterChimesTrackOrGoTo"
         ]
@@ -156,6 +196,9 @@
         "all_of": [
             "InBambooWaterChimesMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrackBambooWaterChimes",
             "AlreadyTrackedBambooWaterChimes"
@@ -168,7 +211,10 @@
             "TrackMissionButton",
             "InBambooWaterChimesMission"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToBambooWaterChimes"
         ]
@@ -180,18 +226,25 @@
             "AlreadyTrackedMissionButton",
             "InBambooWaterChimesMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToBambooWaterChimes"
         ]
     },
     "BambooWaterChimesNotAdapted": {
         "desc": "水竹铃任务尚未适配，仅接取并追踪",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
         }
     },
     "GoToBambooWaterChimes": {
         "desc": "前往水竹铃，先回到大世界再进行判断",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -199,6 +252,8 @@
                 "SceneAnyEnterWorld"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToBambooWaterChimesStartPos",
             "GoToBambooWaterChimesNotAtStartPos"
@@ -221,12 +276,16 @@
                 }
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "GoToBambooWaterChimesMapTrackerMove"
+            "GoToBambooWaterChimesMove"
         ]
     },
     "GoToBambooWaterChimesNotAtStartPos": {
         "desc": "不在水竹铃任务开始位置附近，先传送再检查落点",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -234,12 +293,15 @@
                 "SceneEnterWorldWulingQingboStockade1"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToBambooWaterChimesStartPos"
         ]
     },
-    "GoToBambooWaterChimesMapTrackerMove": {
-        "desc": "前往水竹铃",
+    "GoToBambooWaterChimesMove": {
+        "desc": "自动寻路前往水竹铃",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -261,19 +323,19 @@
                     268.8,
                     458.1
                 ]
-            ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 345
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "BambooWaterChimesAdjustCamera"
         },
-        "next": [
-            "BambooWaterChimesAdjustHeading"
-        ]
-    },
-    "BambooWaterChimesAdjustHeading": {
-        "desc": "水竹铃任务无需调整角色朝向",
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -283,6 +345,9 @@
     "BambooWaterChimesAdjustCamera": {
         "desc": "水竹铃任务中调整朝向",
         "max_hit": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringSwipeScreenLeft"
         ]

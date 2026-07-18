@@ -35,6 +35,12 @@ const customActParser: PropSelector = (name, param, utils) => {
         tryAddTemplate(utils, result, obj)
       }
     }
+  } else if (name === 'RealTimeTaskAction') {
+    for (const [key, obj] of utils.parseObject(param)) {
+      if (key === 'nodes') {
+        tryAddTaskArray(utils, result, obj, 'ignore')
+      }
+    }
   }
   return result
 }

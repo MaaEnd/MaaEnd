@@ -4,12 +4,15 @@
 #include <MaaToolkit/MaaToolkitAPI.h>
 
 #include "Common/ParentProcessWatcher.h"
+#include "EssenceGridScan/EssenceGridScan.h"
 #include "MapLocator/MapLocateAction.h"
 #include "MapNavigator/MapNavigator.h"
 #include "MapNavigator/MapNavigatorCompatible.h"
 #include "RealTimeTask/RealTimeTaskAction.h"
-#include "my_reco_1/my_reco_1.h"
+#include "RecoGrid/RecoGridRecognition.h"
 #include "Test/test.h"
+#include "WeaponInventoryScan/WeaponInventoryScan.h"
+#include "my_reco_1/my_reco_1.h"
 #include "utils.h"
 
 int main(int argc, char** argv)
@@ -41,6 +44,13 @@ int main(int argc, char** argv)
     MaaAgentServerRegisterCustomRecognition(
         "MapNavigatorAssertLocationCompatible",
         mapnavigator::MapNavigatorAssertLocationCompatibleRun,
+        nullptr);
+    MaaAgentServerRegisterCustomRecognition("RecoGridRecognition", recogrid::RecoGridRecognitionRun, nullptr);
+    MaaAgentServerRegisterCustomRecognition("EssenceGridAdvanceRecognition", essencegridscan::EssenceGridAdvanceRecognitionRun, nullptr);
+    MaaAgentServerRegisterCustomRecognition("EssenceGridPendingRecognition", essencegridscan::EssenceGridPendingRecognitionRun, nullptr);
+    MaaAgentServerRegisterCustomRecognition(
+        "WeaponInventoryScanRecognition",
+        weaponinventoryscan::WeaponInventoryScanRecognitionRun,
         nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigatorCompatible", mapnavigator::MapNavigatorCompatibleRun, nullptr);

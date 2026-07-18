@@ -1,0 +1,92 @@
+{
+    "BlacklistOCRLabelColor": {
+        "desc": "黑名单过滤折扣匹配标签颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "CanAfford",
+                "roi_offset": [
+                    -100,
+                    31,
+                    118,
+                    25
+                ],
+                "lower": [
+                    60,
+                    60,
+                    60
+                ],
+                "upper": [
+                    70,
+                    70,
+                    70
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "BlacklistOCRTextColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "BlacklistOCRLabelColor",
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    0,
+                    1,
+                    255
+                ],
+                "count": 10
+            }
+        }
+    },
+    "BlacklistOCR": {
+        "desc": "不是黑名单物品",
+        "recognition": "OCR",
+        "roi": "BlacklistOCRTextColor",
+        "roi_offset": [
+            -2,
+            -2,
+            4,
+            4
+        ],
+        "expected": "^(?!(协议棱柱组)$).*$",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BlacklistOCR_Expected": {
+        "recognition": "And",
+        "all_of": [
+            "BlacklistOCRLabelColor",
+            "BlacklistOCRTextColor",
+            "BlacklistOCR"
+        ],
+        "box_index": 2
+    },
+    "IsDiscount": {
+        "desc": "有折扣",
+        "recognition": "OCR",
+        "roi": "BlacklistOCR",
+        "roi_offset": [
+            44,
+            -170,
+            4,
+            4
+        ],
+        "expected": [
+            "95",
+            "99",
+            "75",
+            "50",
+            "25"
+        ],
+        "only_rec": true,
+        "order_by": "Expected"
+    }
+}

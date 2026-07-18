@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any, Literal
 
 
-ConnectionKind = Literal["win32", "adb"]
+ConnectionKind = Literal["win32", "adb", "playcover"]
 
 
 @dataclass(frozen=True)
@@ -52,15 +52,26 @@ class AdbConnectionConfig:
 
 
 @dataclass(frozen=True)
+class PlayCoverConnectionConfig:
+    """PlayCover 录制所需的连接配置。"""
+
+    address: str = "127.0.0.1:1717"
+    uuid: str = "maa.playcover"
+
+
+@dataclass(frozen=True)
 class RecordingSessionConfig:
     """一次录制会话的完整连接配置。"""
 
     kind: ConnectionKind
     win32: Win32ConnectionConfig = field(default_factory=Win32ConnectionConfig)
     adb: AdbConnectionConfig = field(default_factory=AdbConnectionConfig)
+    playcover: PlayCoverConnectionConfig = field(default_factory=PlayCoverConnectionConfig)
 
     def display_name(self) -> str:
         if self.kind == "adb":
             target = self.adb.address or "未选择设备"
             return f"ADB / {target}"
+        elif self.kind == "playcover":
+            return f"PlayCover / {self.playcover.uuid}"
         return f"Win32 / {self.win32.window_title}"

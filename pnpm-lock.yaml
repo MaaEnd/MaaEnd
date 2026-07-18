@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@joebao/maa-pipeline-generate':
-        specifier: ^1.2.0
-        version: 1.2.0
+        specifier: ^1.2.1
+        version: 1.2.1
       '@nekosu/maa-tools':
         specifier: 1.0.22
         version: 1.0.22
@@ -77,8 +77,8 @@ packages:
     resolution: {integrity: sha512-wgm9Ehl2jpeqP3zw/7mo3kRHFp5MEDhqAdwy1fTGkHAwnkGOVsgpvQhL8B5n1qlb01jV3n/bI0ZfZp5lWA1k4w==}
     engines: {node: '>=18.0.0'}
 
-  '@joebao/maa-pipeline-generate@1.2.0':
-    resolution: {integrity: sha512-Fg3oSUUgJc+w5wJDMUnDZNFhky2b+8ArSc0XsNKyyNeuGKh5a9VIWD+7nz8F99bCokpp1p8BJFKQ55pLbjGnKw==}
+  '@joebao/maa-pipeline-generate@1.2.1':
+    resolution: {integrity: sha512-ieWAiCjC84Lh7tachQDBtkvJBfKJ52AvuztOCX5/nCmdNQdyyp7C+Nup/7a5wFrJB/ht/oKnBlH2p2Z5ZUiOkQ==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -651,7 +651,7 @@ snapshots:
     dependencies:
       minipass: 7.1.3
 
-  '@joebao/maa-pipeline-generate@1.2.0':
+  '@joebao/maa-pipeline-generate@1.2.1':
     dependencies:
       '@nekosu/maa-pipeline-manager': 1.0.10
       jsonc-parser: 3.3.1

@@ -1,0 +1,227 @@
+{
+    "TrialOfSwordmancyStartTrial": {
+        "desc": "开始演算",
+        "recognition": "TemplateMatch",
+        "roi": [
+            986,
+            628,
+            17,
+            25
+        ],
+        "template": "TrialOfSwordmancy/TrialStart.png",
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyPrepareTeam"
+        ]
+    },
+    "TrialOfSwordmancyPrepareTeam": {
+        // 同 ProtocolSpaceEnterSpacePrepareSuccess
+        "desc": "准备编队界面",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ],
+        "template": "ProtocolSpace/TeamChooseIcon.png",
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                100,
+                200
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyConfirmTeam"
+        ]
+    },
+    "TrialOfSwordmancyConfirmTeam": {
+        "desc": "开始战斗前确认编队", // TODO: 编队切换
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType2"
+        ],
+        "pre_wait_freezes": 400,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]SceneWaitBlackScreenLoadingExit",
+            "TrialOfSwordmancyLoadingExit"
+        ]
+    },
+    "TrialOfSwordmancyLoadingExit": {
+        "desc": "加载完毕",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyEnterTrialTarget",
+            "TrialOfSwordmancyOutOfBounds"
+        ]
+    },
+    "TrialOfSwordmancyOutOfBounds": {
+        "desc": "加载完但未出现挑战目标界面，说明开始演算时角色在演算区域外",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "arrival_timeout": 10000,
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1863,
+                        1789
+                    ]
+                }
+            ]
+        },
+        "post_delay": 0,
+        "on_error": [
+            // 本次寻路必定失败
+            "TrialOfSwordmancyEnterTrialTarget"
+        ]
+    },
+    "TrialOfSwordmancyEnterTrialTarget": {
+        "desc": "进入挑战目标界面",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyChallengeBackground"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyCloseTrialTarget"
+        ]
+    },
+    // 挑战目标界面无任何画面变化，用不了 post_wait_freezes
+    "TrialOfSwordmancyCloseTrialTarget": {
+        "desc": "关闭挑战目标界面",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1042,
+            176,
+            119,
+            119
+        ],
+        "template": "Common/Button/CloseButtonType4.png",
+        "pre_delay": 500, // 防止点击失效
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyEnterTrialSuccess"
+        ]
+    },
+    "TrialOfSwordmancyEnterTrialSuccess": {
+        "desc": "成功关闭挑战目标界面，开始演算",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyChallengeBackground"
+        ],
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyFightSuccess",
+            "[JumpBack]AutoFight"
+        ]
+    },
+    "TrialOfSwordmancyFightSuccess": {
+        "desc": "战斗胜利",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyRewardExhausted",
+            "TrialOfSwordmancyReEnterTrialMenuSuccess"
+        ]
+    },
+    "TrialOfSwordmancyRewardExhausted": {
+        "desc": "奖励次数用尽，即将进入自由演算模式",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyFinish"
+        ]
+    },
+    "TrialOfSwordmancyReEnterTrialMenuSuccess": {
+        "desc": "成功返回演算菜单",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCard"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                // 等待抽牌按钮的骰子转动完毕
+                1081,
+                510,
+                68,
+                60
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyAutoFightRearmResetState",
+            "TrialOfSwordmancyMain"
+        ]
+    },
+    "TrialOfSwordmancyDailyAutoFightResetState": {
+        "desc": "自动作战模式下，一次性重置到选剑演武入口",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "TrialOfSwordmancyGotoTrialArenaStart"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyDailyMain"
+        ]
+    },
+    "TrialOfSwordmancyDailyAutoFightRearmResetState": {
+        "desc": "自动作战模式下，为下一轮重新启用入口重置",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "TrialOfSwordmancyDailyAutoFightResetState",
+                "TrialOfSwordmancyGotoTrialArenaCpp"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyMain"
+        ]
+    }
+}

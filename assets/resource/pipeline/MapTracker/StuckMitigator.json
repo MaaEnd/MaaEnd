@@ -3,11 +3,18 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractReco",
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPre",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit"
         ]
     },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractReco": {
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            // Finish pipeline execution
+        ]
+    },
+    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPre": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -23,11 +30,6 @@
                 "order_by": "Score"
             }
         },
-        "next": [
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPre"
-        ]
-    },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPre": {
         "action": {
             "type": "KeyDown",
             "param": {
@@ -42,7 +44,7 @@
         "action": {
             "type": "Click",
             "param": {
-                "target": "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractReco"
+                "target": "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPre"
             }
         },
         "next": [
@@ -56,19 +58,16 @@
                 "key": 18 // Alt
             }
         },
+        "timeout": 5000,
+        "rate_limit": 500,
         "next": [
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_DeleteDevice",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveDevice",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveAICCore",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_SkipChat",
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseBagDialog",
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseUnknownDeviceDialog",
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit"
+            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseUnknownDeviceDialog"
         ]
-    },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit": {
-        "pre_delay": 0,
-        "post_delay": 0
     },
     "__MapTrackerInternal_IsInFactoryDeviceDialog": {
         "recognition": {
@@ -169,6 +168,7 @@
                     "MapTracker/StuckMitigator/ChatDialog.png"
                 ],
                 "green_mask": true,
+                "threshold": 0.6,
                 "order_by": "Score"
             }
         }
@@ -187,6 +187,7 @@
                     "MapTracker/StuckMitigator/SkipChatButton.png"
                 ],
                 "green_mask": true,
+                "threshold": 0.6,
                 "order_by": "Score"
             }
         }
@@ -239,6 +240,16 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "target": [
+                520,
+                300,
+                240,
+                120
+            ],
+            "time": 500,
+            "timeout": 10000
+        },
         "next": [
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_DeleteDeviceConfirm"
         ]
@@ -260,7 +271,10 @@
                 "order_by": "Score"
             }
         },
-        "action": "Click"
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 500
     },
     "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveDevice": {
         "recognition": {
@@ -276,7 +290,7 @@
         "action": {
             "type": "Click"
         },
-        "post_delay": 250,
+        "post_delay": 300,
         "next": [
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CancelMove"
         ]
@@ -322,6 +336,16 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "target": [
+                520,
+                300,
+                240,
+                120
+            ],
+            "time": 500,
+            "timeout": 10000
+        },
         "next": [
             "__MapTrackerStuckMitigator_MoveOrDeleteDevice_SkipChatConfirm"
         ]
@@ -343,7 +367,10 @@
                 "order_by": "Score"
             }
         },
-        "action": "Click"
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 500
     },
     "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseBagDialog": {
         "recognition": {
@@ -378,6 +405,7 @@
         },
         "action": {
             "type": "Click"
-        }
+        },
+        "post_delay": 500
     }
 }

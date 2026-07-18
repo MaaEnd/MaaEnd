@@ -1,0 +1,121 @@
+{
+    "GotoTriggerPointSetAnchor_WLTestArea": {
+        "enabled": false,
+        "pre_delay": 0,
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_WLTestArea",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLTestArea"
+        },
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "📌目标地点：试验园区"
+        }
+    },
+    "GotoTriggerPointMaybeTeleport_WLTestArea": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 距离淤积点最近的锚点附近
+                            "map_name": "map02_lv005_tier_322",
+                            "target": [
+                                380.7,
+                                350.3,
+                                20.0,
+                                20.0
+                            ]
+                        },
+                        {
+                            // 淤积点附近
+                            "map_name": "map02_lv005_tier_321",
+                            "target": [
+                                330.9,
+                                347.2,
+                                20.0,
+                                20.0
+                            ]
+                        }
+                    ],
+                    "precision": 1.0
+                }
+            }
+        },
+        "inverse": true,
+        "next": [
+            "[JumpBack]__GotoTriggerPointTeleportOnce_WLTestArea",
+            "GotoTriggerPointMove_WLTestArea"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✈️准备传送到最近锚点"
+        }
+    },
+    "__GotoTriggerPointTeleportOnce_WLTestArea": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneEnterWorldWulingTestArea2"
+        ]
+    },
+    "GotoTriggerPointMove_WLTestArea": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv005",
+                    "path": [
+                        [
+                            389.8,
+                            357.0
+                        ],
+                        [
+                            354.8,
+                            357.8
+                        ],
+                        [
+                            345.7,
+                            359.4
+                        ]
+                    ],
+                    "path_trim": true,
+                    "map_name_match_rule": "^%s_tier_(321)|(322)$" // 特殊处理
+                }
+            }
+        },
+        "next": [
+            "GotoTriggerPointMoveExact_WLTestArea"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近"
+        }
+    },
+    "GotoTriggerPointMoveExact_WLTestArea": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv005",
+                    "path": [
+                        [
+                            340.9,
+                            357.2
+                        ]
+                    ],
+                    "no_ensure_initial_movement_state": true
+                }
+            }
+        },
+        "post_delay": 1500, // 确保彻底停下，规避移动惯性
+        "next": [
+            "AutoEssenceDispatcher"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点"
+        }
+    }
+}

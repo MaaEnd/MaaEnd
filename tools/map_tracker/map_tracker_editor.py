@@ -19,7 +19,6 @@ from typing import NamedTuple
 from _internal.core_utils import (
     _G,
     _Y,
-    _C,
     _0,
     Color,
     Drawer,
@@ -35,6 +34,7 @@ from _internal.gui_pages import (
     StepPage,
     PageStepper,
     MapImageSelectStep,
+    ExportStringPage,
 )
 from _internal.gui_widgets import (
     Button,
@@ -226,8 +226,9 @@ class PathEditPage(MapViewportPage):
         )
         self._finish_button = Button(
             (-100, -100, -90, -90),
-            "Finish",
+            "[E] Export",
             base_color=0x3C643C,
+            hotkey=(ord("e"), ord("E")),
             on_click=self._on_click_finish,
             font_scale=0.45,
         )
@@ -452,7 +453,7 @@ class PathEditPage(MapViewportPage):
 
     def _fit_view_to_points_or_map(self) -> None:
         if self.points:
-            self.view.fit_to(self.points)
+            self.view.fit_to(self.points, padding=0.3, min_zoom=1.0, max_zoom=5.0)
             return
         img_h, img_w = self.img.shape[:2]
         self.view.fit_to([(0, 0), (img_w, img_h)], padding=0.02)
@@ -565,16 +566,17 @@ class PathEditPage(MapViewportPage):
     ) -> bool:
         if k < 1:
             raise ValueError("k must be >= 1")
-        prev_next_dx, prev_next_dy = next_p[0] - prev_p[0], next_p[1] - prev_p[1]
-        d_prev_next = math.hypot(prev_next_dx, prev_next_dy)
-        if d_prev_next < (k - 1) + 1e-6:
-            return True
+        prev_mid_dx, prev_mid_dy = mid_p[0] - prev_p[0], mid_p[1] - prev_p[1]
         mid_next_dx, mid_next_dy = next_p[0] - mid_p[0], next_p[1] - mid_p[1]
-        sin_prev_next_sub_mid_next = abs(
-            prev_next_dx * mid_next_dy - prev_next_dy * mid_next_dx
-        ) / (d_prev_next * math.hypot(mid_next_dx, mid_next_dy) + 1e-6)
+        d_mid_next = math.hypot(mid_next_dx, mid_next_dy)
+        if d_mid_next < (k - 1) + 1e-6:
+            return True
+        d_prev_mid = math.hypot(prev_mid_dx, prev_mid_dy)
+        sin_delta_theta = abs(prev_mid_dx * mid_next_dy - prev_mid_dy * mid_next_dx) / (
+            d_prev_mid * d_mid_next + 1e-6
+        )
         # y = arcsin(k / (x + 1)) -> sin(y) = k / (x + 1) -> sin(y) * (x + 1) = k
-        return sin_prev_next_sub_mid_next * (d_prev_next + 1) < k
+        return sin_delta_theta * (d_mid_next + 1) < k
 
     def _get_map_coords(self, screen_x, screen_y):
         mx, my = self.view.get_real_coords(screen_x, screen_y)
@@ -749,7 +751,6 @@ class PathEditPage(MapViewportPage):
         btn_w = sw - pad * 2
         btn_x0 = pad
         has_pipeline = self.pipeline_context is not None
-        dirty = self.is_dirty
 
         record_y0 = cy
         record_y1 = cy + btn_h
@@ -794,15 +795,15 @@ class PathEditPage(MapViewportPage):
             save_y1 = cy + btn_h
             save_rect = (btn_x0, save_y0, btn_x0 + btn_w, save_y1)
             self._save_button.text = "[S] Save"
-            self._save_button.base_color = 0x64C800 if dirty else 0x3C643C
-            self._save_button.text_color = 0xFFFFFF if dirty else 0x648264
+            self._save_button.base_color = 0x3C643C
+            self._save_button.text_color = 0xFFFFFF if self.is_dirty else 0x648264
             self._sidebar_group.add_button(self._save_button, save_rect)
             cy = save_y1 + 8
 
         finish_y0 = cy
         finish_y1 = cy + btn_h
         finish_rect = (btn_x0, finish_y0, btn_x0 + btn_w, finish_y1)
-        self._finish_button.text = "Finish"
+        self._finish_button.text = "[E] Export"
         self._finish_button.base_color = 0x4C4C64 if has_pipeline else 0x3C643C
         self._finish_button.text_color = 0xFFFFFF
         self._sidebar_group.add_button(self._finish_button, finish_rect)
@@ -1072,8 +1073,9 @@ class AreaEditPage(MapViewportPage):
         )
         self._finish_button = Button(
             (-100, -100, -90, -90),
-            "Finish",
+            "[E] Export",
             base_color=0x3C643C,
+            hotkey=(ord("e"), ord("E")),
             on_click=self._on_click_finish,
             font_scale=0.45,
         )
@@ -1110,7 +1112,9 @@ class AreaEditPage(MapViewportPage):
     def _fit_view_to_target_or_map(self) -> None:
         if self.target is not None:
             x, y, w, h = self.target
-            self.view.fit_to([(x, y), (x + w, y + h)], padding=0.2)
+            self.view.fit_to(
+                [(x, y), (x + w, y + h)], padding=0.2, min_zoom=1.0, max_zoom=5.0
+            )
             return
         img_h, img_w = self.img.shape[:2]
         self.view.fit_to([(0, 0), (img_w, img_h)], padding=0.02)
@@ -1198,7 +1202,7 @@ class AreaEditPage(MapViewportPage):
         has_pipeline = self.pipeline_context is not None
         if has_pipeline:
             save_rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
-            self._save_button.base_color = 0x64C800 if self.is_dirty else 0x3C643C
+            self._save_button.base_color = 0x3C643C
             self._save_button.text_color = 0xFFFFFF if self.is_dirty else 0x648264
             self._sidebar_group.add_button(self._save_button, save_rect)
             cy += btn_h + 8
@@ -1622,177 +1626,90 @@ class EditorAdapterStep(BasePage):
         return self.editor.consume_key(key)
 
 
-class ExportStep(StepPage):
+class ExportStep(ExportStringPage):
     def __init__(
         self, points, import_context, map_name, *, node_type: str = NODE_TYPE_MOVE
     ):
-        super().__init__(StepData("Export / Save Result"))
         self.points = points
         self.import_context = import_context
         self.map_name = map_name
         self.node_type = node_type
+        super().__init__("Export Result", self._build_export_options())
 
-        self.options = [
-            {
-                "label": (
-                    "Just Save to File (Replace path)"
-                    if node_type == NODE_TYPE_MOVE
-                    else "Just Save to File (Replace target)"
-                ),
-                "data": "S",
-                "disabled": import_context is None,
-            },
-            {"label": "Print Context Dict", "data": "D"},
-            {"label": "Print Node JSON", "data": "J"},
-            {
-                "label": (
-                    "Print Point List"
-                    if node_type == NODE_TYPE_MOVE
-                    else "Print Target Rect"
-                ),
-                "data": "L",
-            },
-        ]
-        self.list_widget = ScrollableListWidget(45)
-        self.list_widget.set_items(self.options)
-        self.saved_text = ""
+    def _build_map_stem(self) -> str:
+        raw_map_name = (
+            self.import_context.get("original_map_name", self.map_name)
+            if self.import_context
+            else self.map_name
+        )
+        return os.path.splitext(os.path.basename(raw_map_name))[0]
 
-    def _render_content(self, drawer):
-        self.list_widget.render(drawer, (100, 150, self.WINDOW_W - 100, 350))
-        if self.saved_text:
-            drawer.text_centered(
-                self.saved_text, (self.WINDOW_W // 2, 450), 0.8, color=0x50DC50
-            )
-
-    def _handle_content_mouse(self, event, x, y, flags, param):
-        if self.list_widget.consume_mouse(event, x, y, flags):
-            if self.list_widget.submitted_idx >= 0:
-                self._submit(
-                    self.list_widget.items[self.list_widget.submitted_idx]["data"]
-                )
-            else:
-                self.stepper.request_render()
-            return
-
-    def _handle_content_key(self, key):
-        if self.list_widget.consume_key(key):
-            if self.list_widget.submitted_idx >= 0:
-                self._submit(
-                    self.list_widget.items[self.list_widget.submitted_idx]["data"]
-                )
-            else:
-                self.stepper.request_render()
-            return
-
-    def _submit(self, mode):
-        if mode == "S":
-            handler = self.import_context["handler"]
-            node_name = self.import_context["node_name"]
-            if self.node_type == NODE_TYPE_ASSERT_LOCATION:
-                raw_map_name = self.import_context.get(
-                    "original_map_name", self.map_name
-                )
-                map_name_stem = os.path.splitext(os.path.basename(raw_map_name))[0]
-                ok = handler.replace_assert_location(
-                    node_name, map_name_stem, self.points
-                )
-            else:
-                ok = handler.replace_path(node_name, self.points)
-            if ok:
-                self.saved_text = f"Successfully updated node '{node_name}'!"
-                print(f"\n{_G}Successfully updated node {_0}'{node_name}'")
-            else:
-                self.saved_text = "Failed to update node!"
-            self.stepper.request_render()
-
-        elif mode == "J":
-            raw_map_name = (
-                self.import_context.get("original_map_name", self.map_name)
-                if self.import_context
-                else self.map_name
-            )
-            map_stem = os.path.splitext(os.path.basename(raw_map_name))[0]
-            if self.node_type == NODE_TYPE_ASSERT_LOCATION:
-                param_data = {
-                    "expected": [
-                        {
-                            "map_name": map_stem,
-                            "target": [round(float(v), 1) for v in self.points],
-                        }
-                    ]
-                }
-                node_data = {
-                    "recognition": "Custom",
-                    "custom_recognition": NODE_TYPE_ASSERT_LOCATION,
-                    "custom_recognition_param": param_data,
-                    "action": "DoNothing",
-                }
-            else:
-                param_data = {
-                    "map_name": map_stem,
-                    "path": [[round(p[0], 1), round(p[1], 1)] for p in self.points],
-                }
-                is_new = (
-                    self.import_context.get("is_new_structure", False)
-                    if self.import_context
-                    else False
-                )
-                if is_new:
-                    node_data = {
-                        "action": {
-                            "custom_action": NODE_TYPE_MOVE,
-                            "custom_action_param": param_data,
-                        }
+    def _build_param_data(self) -> dict:
+        map_stem = self._build_map_stem()
+        if self.node_type == NODE_TYPE_ASSERT_LOCATION:
+            return {
+                "expected": [
+                    {
+                        "map_name": map_stem,
+                        "target": [round(float(v), 1) for v in self.points],
                     }
-                else:
-                    node_data = {
-                        "action": "Custom",
-                        "custom_action": NODE_TYPE_MOVE,
-                        "custom_action_param": param_data,
-                    }
-            print(f"\n{_C}--- JSON Snippet ---{_0}\n")
-            print(json.dumps({"NodeName": node_data}, indent=4, ensure_ascii=False))
-            self.saved_text = "JSON output printed to terminal!"
-            self.stepper.request_render()
+                ]
+            }
+        return {
+            "map_name": map_stem,
+            "path": [[round(p[0], 1), round(p[1], 1)] for p in self.points],
+        }
 
-        elif mode == "D":
-            raw_map_name = (
-                self.import_context.get("original_map_name", self.map_name)
-                if self.import_context
-                else self.map_name
-            )
-            map_stem = os.path.splitext(os.path.basename(raw_map_name))[0]
-            if self.node_type == NODE_TYPE_ASSERT_LOCATION:
-                param_data = {
-                    "expected": [
-                        {
-                            "map_name": map_stem,
-                            "target": [round(float(v), 1) for v in self.points],
-                        }
-                    ]
-                }
-            else:
-                param_data = {
-                    "map_name": map_stem,
-                    "path": [[round(p[0], 1), round(p[1], 1)] for p in self.points],
-                }
-            print(f"\n{_C}--- Parameters Dict ---{_0}\n")
-            print(json.dumps(param_data, indent=4, ensure_ascii=False))
-            self.saved_text = "Dict output printed to terminal!"
-            self.stepper.request_render()
+    def _build_node_data(self) -> dict:
+        param_data = self._build_param_data()
+        if self.node_type == NODE_TYPE_ASSERT_LOCATION:
+            return {
+                "recognition": "Custom",
+                "custom_recognition": NODE_TYPE_ASSERT_LOCATION,
+                "custom_recognition_param": param_data,
+                "action": "DoNothing",
+            }
 
-        elif mode == "L":
-            if self.node_type == NODE_TYPE_ASSERT_LOCATION:
-                target_rect = [round(float(v), 1) for v in self.points]
-                print(f"\n{_C}--- Target Rect ---{_0}\n")
-                print(target_rect)
-                self.saved_text = "Target rect printed to terminal!"
-            else:
-                point_list = [[round(p[0], 1), round(p[1], 1)] for p in self.points]
-                print(f"\n{_C}--- Point List ---{_0}\n")
-                print(point_list)
-                self.saved_text = "Point list printed to terminal!"
-            self.stepper.request_render()
+        is_new = (
+            self.import_context.get("is_new_structure", False)
+            if self.import_context
+            else False
+        )
+        if is_new:
+            return {
+                "action": {
+                    "custom_action": NODE_TYPE_MOVE,
+                    "custom_action_param": param_data,
+                }
+            }
+        return {
+            "action": "Custom",
+            "custom_action": NODE_TYPE_MOVE,
+            "custom_action_param": param_data,
+        }
+
+    def _build_list_text(self) -> str:
+        if self.node_type == NODE_TYPE_ASSERT_LOCATION:
+            target_rect = [round(float(v), 1) for v in self.points]
+            return json.dumps(target_rect, ensure_ascii=False)
+        point_list = [[round(p[0], 1), round(p[1], 1)] for p in self.points]
+        return json.dumps(point_list, ensure_ascii=False)
+
+    def _build_export_options(self) -> dict[str, str]:
+        list_label = (
+            "Point List Export"
+            if self.node_type == NODE_TYPE_MOVE
+            else "Target Rect Export"
+        )
+        return {
+            "JSON Dict Export": json.dumps(
+                self._build_param_data(), indent=4, ensure_ascii=False
+            ),
+            "Node JSON Export": json.dumps(
+                {"NodeName": self._build_node_data()}, indent=4, ensure_ascii=False
+            ),
+            list_label: self._build_list_text(),
+        }
 
 
 class RegionEditorAdapterStep(BasePage):

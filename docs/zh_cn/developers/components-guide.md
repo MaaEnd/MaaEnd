@@ -51,6 +51,7 @@ MaaEnd 基于 [MaaFramework](https://github.com/MaaXYZ/MaaFramework)，主体流
 | MapLocator                                      | AI + CV 小地图定位                | [components/map-locator.md](./components/map-locator.md)                   |
 | MapTracker                                      | 小地图追踪与路径移动              | [components/map-tracker.md](./components/map-tracker.md)                   |
 | MapNavigator                                    | 高精度自动导航 + BaseNav A\* 预览 | [components/map-navigator.md](./components/map-navigator.md)               |
+| RecoGrid Engine                                 | C++ 网格识别与滚动累计扫描引擎    | [components/recogrid-engine.md](./components/recogrid-engine.md)           |
 
 ## 任务维护文档
 

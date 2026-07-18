@@ -345,6 +345,16 @@ class LevelEntitiesTable:
             ]
         return cls(categories=categories)
 
+    # ── entity search ─────────────────────────────────────────────────────
+
+    def find_entity_by_id(self, entity_id: int) -> EntityData | None:
+        """Find an entity by its unique ID across all categories."""
+        for entities in self.categories.values():
+            for entity in entities:
+                if entity.id == entity_id:
+                    return entity
+        return None
+
 
 @dataclass
 class RegionEntitiesTable:
@@ -361,6 +371,16 @@ class RegionEntitiesTable:
             lv["map_level_id"]: LevelEntitiesTable.from_raw(lv) for lv in raw["levels"]
         }
         return cls(levels=levels)
+
+    # ── entity search ─────────────────────────────────────────────────────
+
+    def find_entity_by_id(self, entity_id: int) -> EntityData | None:
+        """Find an entity by its unique ID across all levels and categories."""
+        for level in self.levels.values():
+            entity = level.find_entity_by_id(entity_id)
+            if entity is not None:
+                return entity
+        return None
 
 
 @dataclass
@@ -383,3 +403,13 @@ class EntitiesTable:
     @classmethod
     def load(cls, path: str | Path) -> Self:
         return cls.loads(Path(path).read_text(encoding="utf-8"))
+
+    # ── entity search ─────────────────────────────────────────────────────
+
+    def find_entity_by_id(self, entity_id: int) -> EntityData | None:
+        """Find an entity by its unique ID across all regions, levels, and categories."""
+        for region in self.regions.values():
+            entity = region.find_entity_by_id(entity_id)
+            if entity is not None:
+                return entity
+        return None

@@ -67,7 +67,8 @@
                     "收下禮物",
                     "(?i)Accept\\s*gift",
                     "プレゼントを受け取る",
-                    "收下礼"
+                    "收下",
+                    "礼物"
                 ]
             }
         },
@@ -94,6 +95,41 @@
     "GiftOperatorClickGift": {
         "desc": "选择礼物",
         "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorClickGiftColor",
+                    "GiftOperatorClickGiftColorNumber"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GiftOperatorGiftSelected"
+        ]
+    },
+    "GiftOperatorClickGiftColorNumber": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorClickGiftColor",
+                "roi_offset": [
+                    26,
+                    -24,
+                    -50,
+                    24
+                ],
+                "expected": [
+                    "[1-9]\\d*"
+                ]
+            }
+        }
+    },
+    "GiftOperatorClickGiftColor": {
+        "recognition": {
             "type": "ColorMatch",
             "param": {
                 "roi": [
@@ -116,21 +152,7 @@
                 "connected": true,
                 "count": 10
             }
-        },
-        "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    40,
-                    -60,
-                    -80,
-                    0
-                ]
-            }
-        },
-        "next": [
-            "GiftOperatorGiftSelected"
-        ]
+        }
     },
     "GiftOperatorConfirmGift": {
         "desc": "点击赠送按钮",
@@ -290,6 +312,16 @@
                     "預設",
                     "(?i)Default",
                     "デフォルト"
+                ],
+                "replace": [
+                    [
+                        "数",
+                        "默"
+                    ],
+                    [
+                        "以",
+                        "认"
+                    ]
                 ]
             }
         },
@@ -317,13 +349,13 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 200,
-            "timeout": 3000,
+            "time": 1000,
+            "timeout": 2000,
             "target": [
-                102,
-                103,
-                15,
-                15
+                831,
+                403,
+                161,
+                176
             ]
         },
         "next": [
@@ -353,7 +385,13 @@
         },
         "pre_wait_freezes": {
             "time": 200,
-            "timeout": 2000
+            "timeout": 2000,
+            "target": [
+                977,
+                145,
+                192,
+                215
+            ]
         },
         "action": {
             "type": "Click"
@@ -361,7 +399,8 @@
         "next": [
             "GiftOperatorBranchGift",
             "GiftOperatorBranchReceive",
-            "GiftOperatorBranchMaxAffinity"
+            "GiftOperatorBranchMaxAffinity",
+            "GiftOperatorSkipDialog"
         ]
     }
 }

@@ -164,6 +164,29 @@ MapNavigator 负责的是“**已知目标路径后，稳定把人带过去**”
 
 **只要原始路径在不发生交互、过图或特殊机关的情况下本来就可达，`NAVMESH` 只需要一个 `target` 就能直接把角色带到目标位置**。不需要预录制整段路线，也不需要为了这个目标点额外补中间点、调坐标或手动拼路径，GUI 里只要点出目标，运行时就会基于 BaseNav 三角图直接规划出可执行路径。
 
+###### 跨层目标：`target_tier`
+
+不写 `target_tier` 时，`target` 默认就是 **base（基础底图）坐标**——这是上面的默认写法，行为完全不变。
+
+当目标点在某个 **tier（分层底图）** 上时，每个 tier 都是一套**互相独立的坐标系**：同样的数字 `[123, 456]` 在 base 和在 tier 上是完全不同的物理位置。这时只要在节点上加一个 `target_tier` 字段，声明 `target` 是按**哪一层**的坐标系填的即可：
+
+```json
+{
+    "action": "NAVMESH",
+    "target": [
+        81.77,
+        108.72
+    ],
+    "target_tier": "ValleyIV_L1_171"
+}
+```
+
+- `target`：在 GUI 里**切到该 tier 底图后直接点出来的坐标**，不用手动换算成 base。
+- `target_tier`：那一层的**区域名**，即 GUI 里 tier 下拉框 `id:name` 中 `:` 后面的 name 部分。
+- 运行时会用该 tier 烤进 `.nav` 的仿射变换，把 `target` 自动投影回 base 坐标系（与起点定位自动归一化是同一套镜像逻辑），并按该层的楼层高度做落点吸附。
+- 这是去 tier 唯一需要做的事：**一个节点 `target` + `target_tier` 就够了**，不需要额外的 `ZONE` 节点、不需要补中间点、也不需要手动改坐标。
+- 字段也支持驼峰写法 `targetTier`；填了不存在的层名会被记录告警并退回当作 base 坐标处理。
+
 #### 返回行为
 
 `MapNavigateAction` 是一个 Action 节点，没有像 Recognition 那样稳定的结构化识别输出；其结果主要体现为：
@@ -489,8 +512,11 @@ uv run main.py
 | `assets/resource/pipeline/AutoCollect/AutoCollectRoute*.json` | 路径定义，包含 `MapNavigateAction` 节点和采集坐标                 | 新增路线、调整坐标、增减采集点  |
 | `assets/resource/pipeline/AutoCollect/AutoCollectClick.json`  | `COLLECT` 触发的 OCR 与点击子任务，入口为 `AutoCollectClickStart` | 新增或删除 OCR 识别的采集物名称 |
 | `assets/resource/pipeline/AutoCollect/AutoCollectDig.json`    | `DIG` 触发的挖掘子任务，入口为 `AutoCollectDigStart`              | 挖掘交互逻辑发生变更时          |
+| `assets/resource/pipeline/AutoCollect.json`                   | 路线遍历、失败收集及任务前后存放背包                              | 新增路线入口或调整总流程时      |
 
 **绝大多数情况下，路径作者只需要改 `AutoCollectRoute*.json`。**
+
+自动采集总流程由 `AutoCollectLoop` 依次调用路线包装节点。每个包装节点使用通用 `FailureCollectorRunTask` 执行已启用路线；路线内部任意节点失败时，包装 Action 会记录该路线的 `{Route}Failed` Pipeline 节点，并返回成功让 Pipeline 继续下一条路线。所有路线及后置背包整理结束后，`AutoCollectFinish` 按失败顺序依次调用这些节点，输出 `$option.*.label` 本地化文案，再让自动采集任务返回失败。
 
 ### 路径作者不需要碰的部分
 

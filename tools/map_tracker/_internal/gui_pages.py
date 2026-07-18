@@ -3,7 +3,14 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
-from .core_utils import Drawer, MapImageLayer, MapName, ViewportManager, cv2
+from .core_utils import (
+    Drawer,
+    MapImageLayer,
+    MapName,
+    ViewportManager,
+    clipboard_copy_text,
+    cv2,
+)
 from .gui_widgets import Button, DropdownSelectWidget, ScrollableListWidget, WidgetGroup
 from .sprite_utils import get_sprite_image
 
@@ -587,6 +594,200 @@ class MapImageSelectStep(StepPage):
         if self._on_select is None:
             raise NotImplementedError()
         self._on_select(map_name)
+
+
+class ExportStringPage(StepPage):
+    """A reusable wizard page that previews, copies, and prints export strings."""
+
+    MAX_OPTIONS = 3
+
+    def __init__(self, title: str, options: dict[str, str]):
+        if len(options) > self.MAX_OPTIONS:
+            raise ValueError(f"ExportStringPage supports at most {self.MAX_OPTIONS} options")
+        super().__init__(StepData(title))
+        self.options = list(options.items())
+        self._export_group = WidgetGroup((0, 0, self.WINDOW_W, self.WINDOW_H))
+        self.groups.append(self._export_group)
+        self._copy_buttons: list[Button] = []
+        self._print_buttons: list[Button] = []
+        self._status_text = ""
+        self._status_color = 0xFFFFFF
+
+        for label, text in self.options:
+            self._copy_buttons.append(
+                Button(
+                    (-100, -100, -90, -90),
+                    "Copy",
+                    base_color=0x2E6FD1,
+                    on_click=self._make_copy_handler(label, text),
+                    font_scale=0.45,
+                )
+            )
+            self._print_buttons.append(
+                Button(
+                    (-100, -100, -90, -90),
+                    "Print",
+                    base_color=0x3C643C,
+                    on_click=self._make_print_handler(text),
+                    font_scale=0.45,
+                )
+            )
+
+    def _make_copy_handler(self, label: str, text: str) -> Callable[[], None]:
+        def on_copy() -> None:
+            if clipboard_copy_text(text):
+                self._clear_status()
+            else:
+                self._set_status(0xFC4040, f"Failed to copy {label}.")
+            self.render_request()
+
+        return on_copy
+
+    def _make_print_handler(self, text: str) -> Callable[[], None]:
+        def on_print() -> None:
+            print(text)
+            self._clear_status()
+            self.render_request()
+
+        return on_print
+
+    def _set_status(self, color: int, text: str) -> None:
+        self._status_color = color
+        self._status_text = text
+
+    def _clear_status(self) -> None:
+        self._status_text = ""
+
+    def _truncate_line(
+        self,
+        drawer: Drawer,
+        line: str,
+        *,
+        font_scale: float,
+        max_width: int,
+    ) -> str:
+        if drawer.get_text_size(line, font_scale)[0] <= max_width:
+            return line
+
+        suffix = "..."
+        lo = 0
+        hi = len(line)
+        while lo < hi:
+            mid = (lo + hi + 1) // 2
+            candidate = line[:mid] + suffix
+            if drawer.get_text_size(candidate, font_scale)[0] <= max_width:
+                lo = mid
+            else:
+                hi = mid - 1
+        return line[:lo] + suffix
+
+    def _render_preview(
+        self,
+        drawer: Drawer,
+        text: str,
+        rect: tuple[int, int, int, int],
+    ) -> None:
+        x1, y1, x2, y2 = rect
+        drawer.rect((x1, y1), (x2, y2), color=0x000000, thickness=-1)
+        drawer.rect((x1, y1), (x2, y2), color=0x444455, thickness=1)
+
+        pad = 10
+        font_scale = 0.38
+        line_h = 18
+        max_lines = max(1, (y2 - y1 - pad * 2) // line_h)
+        lines = text.splitlines() or [""]
+        if len(lines) > max_lines:
+            lines = lines[: max_lines - 1] + ["..."]
+
+        max_width = max(1, x2 - x1 - pad * 2)
+        text_y = y1 + pad + 13
+        for line in lines:
+            drawer.text(
+                self._truncate_line(
+                    drawer,
+                    line,
+                    font_scale=font_scale,
+                    max_width=max_width,
+                ),
+                (x1 + pad, text_y),
+                font_scale,
+                color=0xFFFFFF,
+            )
+            text_y += line_h
+
+    def _render_content(self, drawer: Drawer) -> None:
+        self._export_group.set_rect((0, 0, self.WINDOW_W, self.WINDOW_H))
+        self._export_group.clear()
+
+        count = max(1, len(self.options))
+        left = 50
+        right = self.WINDOW_W - 50
+        top = 105
+        option_gap = 20
+        header_h = 32
+        preview_h = self.WINDOW_H - self.FOOTER_H - top - header_h - 45
+        button_w = 70
+        button_gap = 8
+        row_h = 30
+        column_w = (right - left - option_gap * (count - 1)) // count
+
+        for idx, (label, text) in enumerate(self.options):
+            x = left + idx * (column_w + option_gap)
+            y = top
+            label_w = column_w - button_w * 2 - button_gap * 2
+            label_rect = (x, y, x + label_w, y + row_h)
+            copy_rect = (
+                label_rect[2] + button_gap,
+                y,
+                label_rect[2] + button_gap + button_w,
+                y + row_h,
+            )
+            print_rect = (
+                copy_rect[2] + button_gap,
+                y,
+                copy_rect[2] + button_gap + button_w,
+                y + row_h,
+            )
+
+            drawer.rect(
+                (label_rect[0], label_rect[1]),
+                (label_rect[2], label_rect[3]),
+                color=0x132B4F,
+                thickness=-1,
+            )
+            drawer.rect(
+                (label_rect[0], label_rect[1]),
+                (label_rect[2], label_rect[3]),
+                color=0x223044,
+                thickness=1,
+            )
+            drawer.text(
+                self._truncate_line(
+                    drawer,
+                    label,
+                    font_scale=0.42,
+                    max_width=max(1, label_w - 20),
+                ),
+                (label_rect[0] + 10, label_rect[3] - 9),
+                0.42,
+                color=0xFFFFFF,
+            )
+            self._export_group.add_button(self._copy_buttons[idx], copy_rect)
+            self._export_group.add_button(self._print_buttons[idx], print_rect)
+
+            self._render_preview(
+                drawer,
+                text,
+                (x, y + header_h, x + column_w, y + header_h + preview_h),
+            )
+
+        if self._status_text:
+            drawer.text_centered(
+                self._status_text,
+                (self.WINDOW_W // 2, self.WINDOW_H - self.FOOTER_H - 18),
+                0.55,
+                color=self._status_color,
+            )
 
 
 class PageStepper:

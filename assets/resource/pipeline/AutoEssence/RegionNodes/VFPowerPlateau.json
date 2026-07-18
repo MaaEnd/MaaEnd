@@ -1,43 +1,17 @@
 {
-    "VFPowerPlateauMoveToTriggerPointAuto": {
+    "GotoTriggerPointSetAnchor_VFPowerPlateau": {
+        "enabled": false,
+        "pre_delay": 0,
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFPowerPlateauMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "VFPowerPlateauWalkAround1"
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_VFPowerPlateau",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_VFPowerPlateau"
         },
-        "next": [
-            "[JumpBack]VFPowerPlateauMaybeTeleport",
-            "VFPowerPlateauMoveToTriggerPoint"
-        ]
-    },
-    "VFPowerPlateauLocationAssertion": {
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            "map_name": "map01_lv007",
-                            "target": [
-                                341.0,
-                                142.0,
-                                32.0,
-                                24.0
-                            ]
-                        }
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFPowerPlateauMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "VFPowerPlateauWalkAround1"
-        },
+        "post_delay": 0,
         "focus": {
-            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>供能高地</strong></p>"
+            "Node.Action.Starting": "📌目标地点：供能高地"
         }
     },
-    "VFPowerPlateauMaybeTeleport": {
+    "GotoTriggerPointMaybeTeleport_VFPowerPlateau": {
         "recognition": {
             "type": "Custom",
             "param": {
@@ -80,13 +54,22 @@
         },
         "inverse": true,
         "next": [
-            "SceneEnterWorldValleyIVPowerPlateau1"
+            "[JumpBack]__GotoTriggerPointTeleportOnce_VFPowerPlateau",
+            "GotoTriggerPointMove_VFPowerPlateau"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
     },
-    "VFPowerPlateauMoveToTriggerPoint": {
+    "__GotoTriggerPointTeleportOnce_VFPowerPlateau": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneEnterWorldValleyIVPowerPlateau1"
+        ]
+    },
+    "GotoTriggerPointMove_VFPowerPlateau": {
         "action": {
             "type": "Custom",
             "param": {
@@ -228,13 +211,13 @@
             }
         },
         "next": [
-            "VFPowerPlateauMoveToTriggerPointExact"
+            "GotoTriggerPointMoveExact_VFPowerPlateau"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点附近"
         }
     },
-    "VFPowerPlateauMoveToTriggerPointExact": {
+    "GotoTriggerPointMoveExact_VFPowerPlateau": {
         "action": {
             "type": "Custom",
             "param": {
@@ -246,69 +229,17 @@
                             359.1,
                             154.1
                         ]
-                    ]
+                    ],
+                    "no_ensure_initial_movement_state": true
                 }
             }
         },
+        "post_delay": 1500, // 确保彻底停下，规避移动惯性
         "next": [
-            "AutoEssenceAtTriggerState"
+            "AutoEssenceDispatcher"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点"
-        }
-    },
-    "VFPowerPlateauWalkAround1": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv007",
-                    "path": [
-                        [
-                            366.5,
-                            161.0
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "VFPowerPlateauWalkAround2"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
-        }
-    },
-    "VFPowerPlateauWalkAround2": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv007",
-                    "path": [
-                        [
-                            347.5,
-                            148.0
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "VFPowerPlateauWalkAround1"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
         }
     }
 }

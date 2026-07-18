@@ -1,44 +1,17 @@
 {
-    "VFTheHubMoveToTriggerPointAuto": {
+    "GotoTriggerPointSetAnchor_VFTheHub": {
+        "enabled": false,
+        "pre_delay": 0,
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFTheHubMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "VFTheHubWalkAround1"
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_VFTheHub",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_VFTheHub"
         },
-        "next": [
-            "[JumpBack]VFTheHubMaybeTeleport",
-            "VFTheHubMoveToTriggerPoint"
-        ]
-    },
-    "VFTheHubLocationAssertion": {
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            // 淤积点附近（锚点也在这个区域里）
-                            "map_name": "map01_lv001",
-                            "target": [
-                                385.0,
-                                496.0,
-                                32.0,
-                                42.0
-                            ]
-                        }
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFTheHubMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "VFTheHubWalkAround1"
-        },
+        "post_delay": 0,
         "focus": {
-            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>枢纽区</strong></p>"
+            "Node.Action.Starting": "📌目标地点：枢纽区"
         }
     },
-    "VFTheHubMaybeTeleport": {
+    "GotoTriggerPointMaybeTeleport_VFTheHub": {
         "recognition": {
             "type": "Custom",
             "param": {
@@ -61,13 +34,22 @@
         },
         "inverse": true,
         "next": [
-            "SceneEnterWorldValleyIVTheHub1"
+            "[JumpBack]__GotoTriggerPointTeleportOnce_VFTheHub",
+            "GotoTriggerPointMove_VFTheHub"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
     },
-    "VFTheHubMoveToTriggerPoint": {
+    "__GotoTriggerPointTeleportOnce_VFTheHub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneEnterWorldValleyIVTheHub1"
+        ]
+    },
+    "GotoTriggerPointMove_VFTheHub": {
         "action": {
             "type": "Custom",
             "param": {
@@ -87,65 +69,12 @@
                 }
             }
         },
+        "post_delay": 1500, // 确保彻底停下，规避移动惯性
         "next": [
-            "AutoEssenceAtTriggerState"
+            "AutoEssenceDispatcher"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点"
-        }
-    },
-    "VFTheHubWalkAround1": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv001",
-                    "path": [
-                        [
-                            413.5,
-                            517.1
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "VFTheHubWalkAround2"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
-        }
-    },
-    "VFTheHubWalkAround2": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv001",
-                    "path": [
-                        [
-                            395.5,
-                            541.1
-                        ]
-                    ],
-                    "rotation_lower_threshold": 12.0,
-                    "rotation_upper_threshold": 120.0,
-                    "sprint_threshold": 6.0
-                }
-            }
-        },
-        "next": [
-            "AutoEssenceCheckOngoing",
-            "VFTheHubWalkAround1"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
         }
     }
 }

@@ -230,7 +230,7 @@
         },
         "post_delay": 0,
         "next": [
-            "EssenceFilterRowNextItem"
+            "EssenceGridAdvance"
         ],
         "focus": {
             "Node.Action.Failed": "OCR 超时：跳过"
@@ -247,7 +247,7 @@
         },
         "post_delay": 0,
         "next": [
-            "EssenceFilterRowNextItem"
+            "EssenceGridAdvance"
         ]
     }
 }

@@ -1,0 +1,47 @@
+{
+    "CreditShoppingShopping": {
+        "desc": "信用购物",
+        "recognition": "TemplateMatch",
+        "roi": [
+            813,
+            44,
+            293,
+            82
+        ],
+        "template": "CreditShopping/CreditShoppingTabSelected.png",
+        "threshold": 0.7,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                52,
+                98,
+                1186,
+                548
+            ]
+        },
+        "next": [
+            "[JumpBack]CreditShoppingInit",
+            "CreditShoppingScanItem"
+        ]
+    },
+    "CreditShoppingInit": {
+        "desc": "白名单初始化：合并所有档位 attach 生成 expected 正则（仅执行一次）",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AttachToExpectedRegexAction",
+        "custom_action_param": {
+            "targets": [
+                "BuyFirstOCR",
+                "BuyFirstOCR_CanNotAfford",
+                "Priority2OCR",
+                "Priority2OCR_CanNotAfford",
+                "Priority3OCR",
+                "Priority3OCR_CanNotAfford"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

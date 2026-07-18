@@ -39,6 +39,8 @@
 
 - `threshold`: 介于 $(0, 1]$ 的实数，默认 `0.4`。控制匹配的置信度阈值。低于此值的匹配结果将不命中识别。
 
+- `allowed_modes`: 整数，默认 `3`。高级参数，控制允许使用的定位推断模式，取值为 `INFER_MODE_FULL_SEARCH = 1` 与 `INFER_MODE_FAST_SEARCH = 2` 的按位或结果。该参数必须包含 `INFER_MODE_FULL_SEARCH`。
+
 ### Recognition: MapTrackerBigMapInfer
 
 🗺️ 在大地图界面中推断当前视野区域在地图中的坐标与地图缩放。
@@ -49,7 +51,69 @@
 
 #### 节点参数
 
-请参见具体代码中 `MapTrackerBigMapInferParam` 的类型定义。
+请参见具体代码中 `MapTrackerBigMapInferParam` 的类型定义，参数包括 `map_name_regex` 和 `threshold`。这些参数也被内嵌到 `MapTrackerBigMapFindImage` 节点的 `MapTrackerBigMapFindImageParam` 中，以控制其内部的大地图推断行为。
+
+## 算法解释
+
+### 点密度-偏转权衡算法
+
+> [!TIP]
+>
+> 此算法仅用于路网录制工具中，并非在 Go 主业务中使用。
+
+给定三个点 $p1$、$p2$、$p3$，我们希望判断 $p3$ 是否应该被添加到路径中，并且要求：
+
+- 如果 $p3$ 与 $p2$ 的距离 $d$ 过近，则倾向于不添加 $p3$，以避免点位过于稠密；
+- 如果 $p2$ 到 $p3$ 的方向角 $\theta_1$ 与 $p1$ 到 $p2$ 的方向角 $\theta_0$ 之间的偏差过大，则倾向于添加 $p3$，以避免丢失偏转信息。
+
+为了解决该“点密度-偏转”的权衡问题，一个简单的启发式方法是考虑它们之间的三角学特征。
+
+若 $\theta_1$ 和 $\theta_0$ 的差值为 $\Delta\theta$，那么函数 $f(d, \Delta\theta) = (d + 1) \cdot |\sin\Delta\theta|$ 具有特性“当 $d$ 较大且 $\Delta\theta$ 较大时，$f(d, \Delta\theta)$ 的值较大”，符合我们的需求。
+
+可以设置一个阈值 $k$，当 $f(d, \Delta\theta) < k$ 时，我们就认为 $p3$ 不应该被添加到路径中；反之，则应该被添加到路径中。
+
+## 其他设定
+
+### 滑索相关常量
+
+`MapTrackerGoal` 会将 `zipline_policy` 解析为内部滑索策略，其中三类运行时边的权值系数如下（距离乘算）：
+
+| 策略         | 启用滑索 | 接近滑索点 | 离开滑索点 | 滑索点之间 |
+| ------------ | -------- | ---------: | ---------: | ---------: |
+| `Never`      | 否       |       `64` |       `16` |      `2.0` |
+| `Lazy`       | 是       |       `64` |       `16` |      `2.0` |
+| `Active`     | 是       |        `8` |        `4` |      `0.5` |
+| `Aggressive` | 是       |        `1` |        `1` |     `0.25` |
+
+## 测试办法
+
+### 单元测试
+
+MapTracker 的部分组件，以及 MapTracker 所依赖的核心库 [minicv](/agent/go-service/pkg/minicv/) 具有单元测试，您可以通过 Go 的测试命令执行它们。
+
+### 集成测试
+
+集成测试主要是通过创建一个离线 MaaFW 控制器，并向其中输入固定的图片文件，来验证 MapTracker 的识别结果是否符合预期。
+
+您可以运行下面的脚本来完成批量测试：
+
+```bash
+python tools/map_tracker/map_tracker_tester.py batch_test -i tests/MaaEndTestset/Win32/Official_CN/map_tracker
+```
+
+> [!NOTE]
+>
+> 运行这个测试脚本前，您需要安装 Python 及 `opencv-python`、`maafw` 库，并事先配置好本项目的开发环境。
+
+> [!TIP]
+>
+> 如你所见，测试集位于 Git Submodule `tests/MaaEndTestset` 的 `Win32/Official_CN/map_tracker` 目录。您需要确保该 Submodule 已经被正确拉取到本地。
+
+如果需要采集新的测试样本图，您可以运行下面的脚本来从游戏中实时录制：
+
+```bash
+python tools/map_tracker/map_tracker_tester.py collect_data -o your_output_dir
+```
 
 ## 维护办法
 
@@ -59,47 +123,49 @@ MapTracker 的日常维护主要涉及的是**地图图片的更新**。当游�
 
 ### 操作步骤
 
-> [!TIP]
+> [!NOTE]
 >
-> 运行脚本要求安装 Python 及 `opencv-python`、`PyMaxflow` 依赖库。
->
-> ```bash
-> pip install opencv-python PyMaxflow
-> ```
+> 运行下面的脚本前，您需要安装 Python 及 `opencv-python`、`PyMaxflow` 依赖库。
 
 该工具脚本的完整操作步骤如下：
 
-1. 从 zmdmap 拉取最新的地图数据：
+1. 从 zmdmap 拉取最新的地图数据到生产数据目录：
 
     ```bash
-    python tools/map_tracker/map_fetcher.py json -o tools/map_tracker/data
+    python tools/map_tracker/map_fetcher.py json -o assets/data/ZmdMap
     ```
 
-2. 从 zmdmap 拉取最新的 Region 地图的原始图片（并将其切割为若干 Level 地图图片），同时拉取最新的 Tier 地图的原始图片：
+2. 从 zmdmap 拉取最新的 Region 地图的原始图片（并将其切割为若干 Level 地图图片），同时拉取最新的 Tier 地图的原始图片。原始图片不是运行时资源，暂存在 `.cache/map_tracker/images`：
 
     ```bash
-    python tools/map_tracker/map_fetcher.py image -i tools/map_tracker/data -o tools/map_tracker/images
+    python tools/map_tracker/map_fetcher.py image -i assets/data/ZmdMap -o .cache/map_tracker/images
     ```
 
 3. 对所有 Level 地图图片进行重叠区域再分配：
 
     ```bash
-    python tools/map_tracker/map_generator.py distinguish_levels -i tools/map_tracker/images -o tools/map_tracker/final --layout-dir tools/map_tracker/data
+    python tools/map_tracker/map_generator.py distinguish_levels -i .cache/map_tracker/images -o .cache/map_tracker/images_staged --data-dir assets/data/ZmdMap
     ```
 
-4. 对所有 Tier 地图图片进行画布扩展和背景叠加：
+4. 在所有非 Tier 地图图片上附加固定图标，并部署到生产目录：
 
     ```bash
-    python tools/map_tracker/map_generator.py tidy_tiers -i tools/map_tracker/images -o tools/map_tracker/final
+    python tools/map_tracker/map_generator.py attach_icons -i .cache/map_tracker/images_staged -o assets/resource/image/MapTracker/map/ --data-dir assets/data/ZmdMap
     ```
 
-5. 生成最终地图图片的 BBox 数据：
+5. 对所有 Tier 地图图片进行画布扩展和背景叠加，并部署到生产目录：
 
     ```bash
-    python tools/map_tracker/map_generator.py bbox -i tools/map_tracker/final -o tools/map_tracker/final
+    python tools/map_tracker/map_generator.py tidy_tiers -i .cache/map_tracker/images -o assets/resource/image/MapTracker/map/
     ```
 
-6. 得到的 `tools/map_tracker/final` 目录下的图片和 BBox 数据即为最新的地图图片库。
+6. 根据生产资源目录中的最终地图图片生成 BBox 数据：
+
+    ```bash
+    python tools/map_tracker/map_generator.py bbox -i assets/resource/image/MapTracker/map -o assets/data/MapTracker
+    ```
+
+MapTracker 使用的生产资源为 `assets/resource/image/MapTracker/map` 中的地图图片和 `assets/data/MapTracker/map_bbox_data.json`。`assets/data/ZmdMap` 保存地图生成工具使用的 zmdmap 数据；`.cache/map_tracker` 仅用于暂存下载和生成过程中的中间文件，不应作为生产资源提交。
 
 ### 名词解释
 
@@ -110,6 +176,8 @@ MapTracker 的日常维护主要涉及的是**地图图片的更新**。当游�
 - Tier 地图：指的是游戏中的分层地图；
 
 - 重叠区域再分配：为了保证同一地点不会在两个 Level 地图中同时出现，采用了一种基于最大流切割的算法，将多个 Level 的重叠区域划分到合适的 Level 中。
+
+- 图标附加：根据地图实体数据，在所有非 Tier 地图上叠加固定图标，用于增强地图特征。
 
 - 画布扩展：为了方便计算坐标，会把 Tier 地图的画布扩展到与对应 Level 地图相同的尺寸。
 

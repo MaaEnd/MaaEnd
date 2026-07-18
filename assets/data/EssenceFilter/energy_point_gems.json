@@ -7348,5 +7348,908 @@
             60,
             60
         ]
+    },
+    {
+        "gameMechanicsId": "world_energy_point09_1",
+        "pointName": "能量淤积点·藏剑谷",
+        "levelId": "map02_lv006",
+        "gameGroupId": "world_energy_point_group09",
+        "groupName": "能量淤积点",
+        "worldLevel": 1,
+        "recommendLv": 55,
+        "costStamina": 0,
+        "rewardId": null,
+        "staminaRewardAll": [],
+        "staminaRewardGems": [],
+        "staminaRewardOther": [],
+        "battleRandomPresets": [
+            "item_preset_gem_5_no",
+            "item_preset_gem_5_force",
+            "item_preset_gem_5_combo",
+            "item_preset_gem_5_spirit",
+            "item_preset_gem_5_phyabn",
+            "item_preset_gem_5_heal",
+            "item_preset_gem_5_crit",
+            "item_preset_gem_5_burst",
+            "item_preset_gem_5_keyword"
+        ],
+        "battleRandomPresetNames": [
+            "无瑕基质",
+            "无瑕基质·强攻",
+            "无瑕基质·追袭",
+            "无瑕基质·昂扬",
+            "无瑕基质·巧技",
+            "无瑕基质·医疗",
+            "无瑕基质·切骨",
+            "无瑕基质·迸发",
+            "无瑕基质·效益"
+        ],
+        "groupGemRandId": "item_gem_gold_ep_wuling_5",
+        "groupGemRandName": "金色基质·武陵·组5",
+        "primAttrTermIds": [
+            "gat_passive_attr_agi",
+            "gat_passive_attr_str",
+            "gat_passive_attr_will",
+            "gat_passive_attr_wisd",
+            "gat_passive_attr_main"
+        ],
+        "primAttrTermNames": [
+            "敏捷提升",
+            "力量提升",
+            "意志提升",
+            "智识提升",
+            "主能力提升"
+        ],
+        "secAttrTermIds": [
+            "gat_passive_attr_atk",
+            "gat_passive_attr_hp",
+            "gat_passive_attr_phydam",
+            "gat_passive_attr_firedam",
+            "gat_passive_attr_icedam",
+            "gat_passive_attr_naturaldam",
+            "gat_passive_attr_physpell",
+            "gat_passive_attr_heal"
+        ],
+        "secAttrTermNames": [
+            "攻击提升",
+            "生命提升",
+            "物理伤害提升",
+            "灼热伤害提升",
+            "寒冷伤害提升",
+            "自然伤害提升",
+            "源石技艺提升",
+            "治疗效率提升"
+        ],
+        "skillTermIds": [
+            "gst_passive_force",
+            "gst_passive_combo",
+            "gst_passive_spirit",
+            "gst_passive_phyabn",
+            "gst_passive_heal",
+            "gst_passive_crit",
+            "gst_passive_burst",
+            "gst_passive_keyword"
+        ],
+        "skillTermNames": [
+            "强攻",
+            "追袭",
+            "昂扬",
+            "巧技",
+            "医疗",
+            "切骨",
+            "迸发",
+            "效益"
+        ],
+        "regularDrops": [],
+        "enemyIds": [
+            "eny_0113_jzogre",
+            "eny_0055_hscrane",
+            "eny_0085_hsrogue",
+            "eny_0053_hsmob",
+            "eny_0084_hshunt",
+            "eny_0112_jzmonk"
+        ],
+        "enemyLevels": [
+            55,
+            55,
+            55,
+            55,
+            55,
+            55
+        ]
+    },
+    {
+        "gameMechanicsId": "world_energy_point09_2",
+        "pointName": "能量淤积点·藏剑谷",
+        "levelId": "map02_lv006",
+        "gameGroupId": "world_energy_point_group09",
+        "groupName": "能量淤积点",
+        "worldLevel": 2,
+        "recommendLv": 55,
+        "costStamina": 0,
+        "rewardId": null,
+        "staminaRewardAll": [],
+        "staminaRewardGems": [],
+        "staminaRewardOther": [],
+        "battleRandomPresets": [
+            "item_preset_gem_5_no",
+            "item_preset_gem_5_force",
+            "item_preset_gem_5_combo",
+            "item_preset_gem_5_spirit",
+            "item_preset_gem_5_phyabn",
+            "item_preset_gem_5_heal",
+            "item_preset_gem_5_crit",
+            "item_preset_gem_5_burst",
+            "item_preset_gem_5_keyword"
+        ],
+        "battleRandomPresetNames": [
+            "无瑕基质",
+            "无瑕基质·强攻",
+            "无瑕基质·追袭",
+            "无瑕基质·昂扬",
+            "无瑕基质·巧技",
+            "无瑕基质·医疗",
+            "无瑕基质·切骨",
+            "无瑕基质·迸发",
+            "无瑕基质·效益"
+        ],
+        "groupGemRandId": "item_gem_gold_ep_wuling_5",
+        "groupGemRandName": "金色基质·武陵·组5",
+        "primAttrTermIds": [
+            "gat_passive_attr_agi",
+            "gat_passive_attr_str",
+            "gat_passive_attr_will",
+            "gat_passive_attr_wisd",
+            "gat_passive_attr_main"
+        ],
+        "primAttrTermNames": [
+            "敏捷提升",
+            "力量提升",
+            "意志提升",
+            "智识提升",
+            "主能力提升"
+        ],
+        "secAttrTermIds": [
+            "gat_passive_attr_atk",
+            "gat_passive_attr_hp",
+            "gat_passive_attr_phydam",
+            "gat_passive_attr_firedam",
+            "gat_passive_attr_icedam",
+            "gat_passive_attr_naturaldam",
+            "gat_passive_attr_physpell",
+            "gat_passive_attr_heal"
+        ],
+        "secAttrTermNames": [
+            "攻击提升",
+            "生命提升",
+            "物理伤害提升",
+            "灼热伤害提升",
+            "寒冷伤害提升",
+            "自然伤害提升",
+            "源石技艺提升",
+            "治疗效率提升"
+        ],
+        "skillTermIds": [
+            "gst_passive_force",
+            "gst_passive_combo",
+            "gst_passive_spirit",
+            "gst_passive_phyabn",
+            "gst_passive_heal",
+            "gst_passive_crit",
+            "gst_passive_burst",
+            "gst_passive_keyword"
+        ],
+        "skillTermNames": [
+            "强攻",
+            "追袭",
+            "昂扬",
+            "巧技",
+            "医疗",
+            "切骨",
+            "迸发",
+            "效益"
+        ],
+        "regularDrops": [],
+        "enemyIds": [
+            "eny_0113_jzogre",
+            "eny_0055_hscrane",
+            "eny_0085_hsrogue",
+            "eny_0053_hsmob",
+            "eny_0084_hshunt",
+            "eny_0112_jzmonk"
+        ],
+        "enemyLevels": [
+            55,
+            55,
+            55,
+            55,
+            55,
+            55
+        ]
+    },
+    {
+        "gameMechanicsId": "world_energy_point09_3",
+        "pointName": "能量淤积点·藏剑谷",
+        "levelId": "map02_lv006",
+        "gameGroupId": "world_energy_point_group09",
+        "groupName": "能量淤积点",
+        "worldLevel": 3,
+        "recommendLv": 55,
+        "costStamina": 0,
+        "rewardId": null,
+        "staminaRewardAll": [],
+        "staminaRewardGems": [],
+        "staminaRewardOther": [],
+        "battleRandomPresets": [
+            "item_preset_gem_5_no",
+            "item_preset_gem_5_force",
+            "item_preset_gem_5_combo",
+            "item_preset_gem_5_spirit",
+            "item_preset_gem_5_phyabn",
+            "item_preset_gem_5_heal",
+            "item_preset_gem_5_crit",
+            "item_preset_gem_5_burst",
+            "item_preset_gem_5_keyword"
+        ],
+        "battleRandomPresetNames": [
+            "无瑕基质",
+            "无瑕基质·强攻",
+            "无瑕基质·追袭",
+            "无瑕基质·昂扬",
+            "无瑕基质·巧技",
+            "无瑕基质·医疗",
+            "无瑕基质·切骨",
+            "无瑕基质·迸发",
+            "无瑕基质·效益"
+        ],
+        "groupGemRandId": "item_gem_gold_ep_wuling_5",
+        "groupGemRandName": "金色基质·武陵·组5",
+        "primAttrTermIds": [
+            "gat_passive_attr_agi",
+            "gat_passive_attr_str",
+            "gat_passive_attr_will",
+            "gat_passive_attr_wisd",
+            "gat_passive_attr_main"
+        ],
+        "primAttrTermNames": [
+            "敏捷提升",
+            "力量提升",
+            "意志提升",
+            "智识提升",
+            "主能力提升"
+        ],
+        "secAttrTermIds": [
+            "gat_passive_attr_atk",
+            "gat_passive_attr_hp",
+            "gat_passive_attr_phydam",
+            "gat_passive_attr_firedam",
+            "gat_passive_attr_icedam",
+            "gat_passive_attr_naturaldam",
+            "gat_passive_attr_physpell",
+            "gat_passive_attr_heal"
+        ],
+        "secAttrTermNames": [
+            "攻击提升",
+            "生命提升",
+            "物理伤害提升",
+            "灼热伤害提升",
+            "寒冷伤害提升",
+            "自然伤害提升",
+            "源石技艺提升",
+            "治疗效率提升"
+        ],
+        "skillTermIds": [
+            "gst_passive_force",
+            "gst_passive_combo",
+            "gst_passive_spirit",
+            "gst_passive_phyabn",
+            "gst_passive_heal",
+            "gst_passive_crit",
+            "gst_passive_burst",
+            "gst_passive_keyword"
+        ],
+        "skillTermNames": [
+            "强攻",
+            "追袭",
+            "昂扬",
+            "巧技",
+            "医疗",
+            "切骨",
+            "迸发",
+            "效益"
+        ],
+        "regularDrops": [],
+        "enemyIds": [
+            "eny_0113_jzogre",
+            "eny_0055_hscrane",
+            "eny_0085_hsrogue",
+            "eny_0053_hsmob",
+            "eny_0084_hshunt",
+            "eny_0112_jzmonk"
+        ],
+        "enemyLevels": [
+            55,
+            55,
+            55,
+            55,
+            55,
+            55
+        ]
+    },
+    {
+        "gameMechanicsId": "world_energy_point09_4",
+        "pointName": "重度能量淤积点·藏剑谷",
+        "levelId": "map02_lv006",
+        "gameGroupId": "world_energy_point_group09",
+        "groupName": "能量淤积点",
+        "worldLevel": 4,
+        "recommendLv": 55,
+        "costStamina": 50,
+        "rewardId": "reward_ep_wuling_5_4",
+        "staminaRewardAll": [
+            {
+                "itemId": "item_adventureexp",
+                "count": 300,
+                "name": "行动资历"
+            },
+            {
+                "itemId": "item_gem_gold_ep_wuling_5",
+                "count": 1,
+                "name": "金色基质·武陵·组5"
+            },
+            {
+                "itemId": "item_gem_purple_ep_wuling_5",
+                "count": 2,
+                "name": "紫色基质·武陵·组5"
+            }
+        ],
+        "staminaRewardGems": [
+            {
+                "itemId": "item_gem_gold_ep_wuling_5",
+                "count": 1,
+                "name": "金色基质·武陵·组5"
+            },
+            {
+                "itemId": "item_gem_purple_ep_wuling_5",
+                "count": 2,
+                "name": "紫色基质·武陵·组5"
+            }
+        ],
+        "staminaRewardOther": [
+            {
+                "itemId": "item_adventureexp",
+                "count": 300,
+                "name": "行动资历"
+            }
+        ],
+        "battleRandomPresets": [
+            "item_preset_gem_5_no",
+            "item_preset_gem_5_force",
+            "item_preset_gem_5_combo",
+            "item_preset_gem_5_spirit",
+            "item_preset_gem_5_phyabn",
+            "item_preset_gem_5_heal",
+            "item_preset_gem_5_crit",
+            "item_preset_gem_5_burst",
+            "item_preset_gem_5_keyword"
+        ],
+        "battleRandomPresetNames": [
+            "无瑕基质",
+            "无瑕基质·强攻",
+            "无瑕基质·追袭",
+            "无瑕基质·昂扬",
+            "无瑕基质·巧技",
+            "无瑕基质·医疗",
+            "无瑕基质·切骨",
+            "无瑕基质·迸发",
+            "无瑕基质·效益"
+        ],
+        "groupGemRandId": "item_gem_gold_ep_wuling_5",
+        "groupGemRandName": "金色基质·武陵·组5",
+        "primAttrTermIds": [
+            "gat_passive_attr_agi",
+            "gat_passive_attr_str",
+            "gat_passive_attr_will",
+            "gat_passive_attr_wisd",
+            "gat_passive_attr_main"
+        ],
+        "primAttrTermNames": [
+            "敏捷提升",
+            "力量提升",
+            "意志提升",
+            "智识提升",
+            "主能力提升"
+        ],
+        "secAttrTermIds": [
+            "gat_passive_attr_atk",
+            "gat_passive_attr_hp",
+            "gat_passive_attr_phydam",
+            "gat_passive_attr_firedam",
+            "gat_passive_attr_icedam",
+            "gat_passive_attr_naturaldam",
+            "gat_passive_attr_physpell",
+            "gat_passive_attr_heal"
+        ],
+        "secAttrTermNames": [
+            "攻击提升",
+            "生命提升",
+            "物理伤害提升",
+            "灼热伤害提升",
+            "寒冷伤害提升",
+            "自然伤害提升",
+            "源石技艺提升",
+            "治疗效率提升"
+        ],
+        "skillTermIds": [
+            "gst_passive_force",
+            "gst_passive_combo",
+            "gst_passive_spirit",
+            "gst_passive_phyabn",
+            "gst_passive_heal",
+            "gst_passive_crit",
+            "gst_passive_burst",
+            "gst_passive_keyword"
+        ],
+        "skillTermNames": [
+            "强攻",
+            "追袭",
+            "昂扬",
+            "巧技",
+            "医疗",
+            "切骨",
+            "迸发",
+            "效益"
+        ],
+        "regularDrops": [
+            "行动资历×300"
+        ],
+        "enemyIds": [
+            "eny_0113_jzogre",
+            "eny_0055_hscrane",
+            "eny_0085_hsrogue",
+            "eny_0053_hsmob",
+            "eny_0084_hshunt",
+            "eny_0112_jzmonk"
+        ],
+        "enemyLevels": [
+            55,
+            55,
+            55,
+            55,
+            55,
+            55
+        ]
+    },
+    {
+        "gameMechanicsId": "world_energy_point09_5",
+        "pointName": "重度能量淤积点·藏剑谷",
+        "levelId": "map02_lv006",
+        "gameGroupId": "world_energy_point_group09",
+        "groupName": "能量淤积点",
+        "worldLevel": 5,
+        "recommendLv": 55,
+        "costStamina": 60,
+        "rewardId": "reward_ep_wuling_5_5",
+        "staminaRewardAll": [
+            {
+                "itemId": "item_adventureexp",
+                "count": 360,
+                "name": "行动资历"
+            },
+            {
+                "itemId": "item_gem_gold_ep_wuling_5",
+                "count": 1,
+                "name": "金色基质·武陵·组5"
+            },
+            {
+                "itemId": "item_gem_purple_ep_wuling_5",
+                "count": 2,
+                "name": "紫色基质·武陵·组5"
+            }
+        ],
+        "staminaRewardGems": [
+            {
+                "itemId": "item_gem_gold_ep_wuling_5",
+                "count": 1,
+                "name": "金色基质·武陵·组5"
+            },
+            {
+                "itemId": "item_gem_purple_ep_wuling_5",
+                "count": 2,
+                "name": "紫色基质·武陵·组5"
+            }
+        ],
+        "staminaRewardOther": [
+            {
+                "itemId": "item_adventureexp",
+                "count": 360,
+                "name": "行动资历"
+            }
+        ],
+        "battleRandomPresets": [
+            "item_preset_gem_5_no",
+            "item_preset_gem_5_force",
+            "item_preset_gem_5_combo",
+            "item_preset_gem_5_spirit",
+            "item_preset_gem_5_phyabn",
+            "item_preset_gem_5_heal",
+            "item_preset_gem_5_crit",
+            "item_preset_gem_5_burst",
+            "item_preset_gem_5_keyword"
+        ],
+        "battleRandomPresetNames": [
+            "无瑕基质",
+            "无瑕基质·强攻",
+            "无瑕基质·追袭",
+            "无瑕基质·昂扬",
+            "无瑕基质·巧技",
+            "无瑕基质·医疗",
+            "无瑕基质·切骨",
+            "无瑕基质·迸发",
+            "无瑕基质·效益"
+        ],
+        "groupGemRandId": "item_gem_gold_ep_wuling_5",
+        "groupGemRandName": "金色基质·武陵·组5",
+        "primAttrTermIds": [
+            "gat_passive_attr_agi",
+            "gat_passive_attr_str",
+            "gat_passive_attr_will",
+            "gat_passive_attr_wisd",
+            "gat_passive_attr_main"
+        ],
+        "primAttrTermNames": [
+            "敏捷提升",
+            "力量提升",
+            "意志提升",
+            "智识提升",
+            "主能力提升"
+        ],
+        "secAttrTermIds": [
+            "gat_passive_attr_atk",
+            "gat_passive_attr_hp",
+            "gat_passive_attr_phydam",
+            "gat_passive_attr_firedam",
+            "gat_passive_attr_icedam",
+            "gat_passive_attr_naturaldam",
+            "gat_passive_attr_physpell",
+            "gat_passive_attr_heal"
+        ],
+        "secAttrTermNames": [
+            "攻击提升",
+            "生命提升",
+            "物理伤害提升",
+            "灼热伤害提升",
+            "寒冷伤害提升",
+            "自然伤害提升",
+            "源石技艺提升",
+            "治疗效率提升"
+        ],
+        "skillTermIds": [
+            "gst_passive_force",
+            "gst_passive_combo",
+            "gst_passive_spirit",
+            "gst_passive_phyabn",
+            "gst_passive_heal",
+            "gst_passive_crit",
+            "gst_passive_burst",
+            "gst_passive_keyword"
+        ],
+        "skillTermNames": [
+            "强攻",
+            "追袭",
+            "昂扬",
+            "巧技",
+            "医疗",
+            "切骨",
+            "迸发",
+            "效益"
+        ],
+        "regularDrops": [
+            "行动资历×360"
+        ],
+        "enemyIds": [
+            "eny_0113_jzogre",
+            "eny_0055_hscrane",
+            "eny_0085_hsrogue",
+            "eny_0053_hsmob",
+            "eny_0084_hshunt",
+            "eny_0112_jzmonk"
+        ],
+        "enemyLevels": [
+            55,
+            55,
+            55,
+            55,
+            55,
+            55
+        ]
+    },
+    {
+        "gameMechanicsId": "world_energy_point09_6",
+        "pointName": "重度能量淤积点·藏剑谷",
+        "levelId": "map02_lv006",
+        "gameGroupId": "world_energy_point_group09",
+        "groupName": "能量淤积点",
+        "worldLevel": 6,
+        "recommendLv": 55,
+        "costStamina": 70,
+        "rewardId": "reward_ep_wuling_5_6",
+        "staminaRewardAll": [
+            {
+                "itemId": "item_adventureexp",
+                "count": 420,
+                "name": "行动资历"
+            },
+            {
+                "itemId": "item_gem_gold_ep_wuling_5",
+                "count": 2,
+                "name": "金色基质·武陵·组5"
+            },
+            {
+                "itemId": "item_gem_purple_ep_wuling_5",
+                "count": 2,
+                "name": "紫色基质·武陵·组5"
+            }
+        ],
+        "staminaRewardGems": [
+            {
+                "itemId": "item_gem_gold_ep_wuling_5",
+                "count": 2,
+                "name": "金色基质·武陵·组5"
+            },
+            {
+                "itemId": "item_gem_purple_ep_wuling_5",
+                "count": 2,
+                "name": "紫色基质·武陵·组5"
+            }
+        ],
+        "staminaRewardOther": [
+            {
+                "itemId": "item_adventureexp",
+                "count": 420,
+                "name": "行动资历"
+            }
+        ],
+        "battleRandomPresets": [
+            "item_preset_gem_5_no",
+            "item_preset_gem_5_force",
+            "item_preset_gem_5_combo",
+            "item_preset_gem_5_spirit",
+            "item_preset_gem_5_phyabn",
+            "item_preset_gem_5_heal",
+            "item_preset_gem_5_crit",
+            "item_preset_gem_5_burst",
+            "item_preset_gem_5_keyword"
+        ],
+        "battleRandomPresetNames": [
+            "无瑕基质",
+            "无瑕基质·强攻",
+            "无瑕基质·追袭",
+            "无瑕基质·昂扬",
+            "无瑕基质·巧技",
+            "无瑕基质·医疗",
+            "无瑕基质·切骨",
+            "无瑕基质·迸发",
+            "无瑕基质·效益"
+        ],
+        "groupGemRandId": "item_gem_gold_ep_wuling_5",
+        "groupGemRandName": "金色基质·武陵·组5",
+        "primAttrTermIds": [
+            "gat_passive_attr_agi",
+            "gat_passive_attr_str",
+            "gat_passive_attr_will",
+            "gat_passive_attr_wisd",
+            "gat_passive_attr_main"
+        ],
+        "primAttrTermNames": [
+            "敏捷提升",
+            "力量提升",
+            "意志提升",
+            "智识提升",
+            "主能力提升"
+        ],
+        "secAttrTermIds": [
+            "gat_passive_attr_atk",
+            "gat_passive_attr_hp",
+            "gat_passive_attr_phydam",
+            "gat_passive_attr_firedam",
+            "gat_passive_attr_icedam",
+            "gat_passive_attr_naturaldam",
+            "gat_passive_attr_physpell",
+            "gat_passive_attr_heal"
+        ],
+        "secAttrTermNames": [
+            "攻击提升",
+            "生命提升",
+            "物理伤害提升",
+            "灼热伤害提升",
+            "寒冷伤害提升",
+            "自然伤害提升",
+            "源石技艺提升",
+            "治疗效率提升"
+        ],
+        "skillTermIds": [
+            "gst_passive_force",
+            "gst_passive_combo",
+            "gst_passive_spirit",
+            "gst_passive_phyabn",
+            "gst_passive_heal",
+            "gst_passive_crit",
+            "gst_passive_burst",
+            "gst_passive_keyword"
+        ],
+        "skillTermNames": [
+            "强攻",
+            "追袭",
+            "昂扬",
+            "巧技",
+            "医疗",
+            "切骨",
+            "迸发",
+            "效益"
+        ],
+        "regularDrops": [
+            "行动资历×420"
+        ],
+        "enemyIds": [
+            "eny_0113_jzogre",
+            "eny_0055_hscrane",
+            "eny_0085_hsrogue",
+            "eny_0053_hsmob",
+            "eny_0084_hshunt",
+            "eny_0112_jzmonk"
+        ],
+        "enemyLevels": [
+            55,
+            55,
+            55,
+            55,
+            55,
+            55
+        ]
+    },
+    {
+        "gameMechanicsId": "world_energy_point09_7",
+        "pointName": "重度能量淤积点·藏剑谷",
+        "levelId": "map02_lv006",
+        "gameGroupId": "world_energy_point_group09",
+        "groupName": "能量淤积点",
+        "worldLevel": 7,
+        "recommendLv": 60,
+        "costStamina": 80,
+        "rewardId": "reward_ep_wuling_5_7",
+        "staminaRewardAll": [
+            {
+                "itemId": "item_adventureexp",
+                "count": 480,
+                "name": "行动资历"
+            },
+            {
+                "itemId": "item_gem_gold_ep_wuling_5",
+                "count": 3,
+                "name": "金色基质·武陵·组5"
+            },
+            {
+                "itemId": "item_gem_purple_ep_wuling_5",
+                "count": 2,
+                "name": "紫色基质·武陵·组5"
+            }
+        ],
+        "staminaRewardGems": [
+            {
+                "itemId": "item_gem_gold_ep_wuling_5",
+                "count": 3,
+                "name": "金色基质·武陵·组5"
+            },
+            {
+                "itemId": "item_gem_purple_ep_wuling_5",
+                "count": 2,
+                "name": "紫色基质·武陵·组5"
+            }
+        ],
+        "staminaRewardOther": [
+            {
+                "itemId": "item_adventureexp",
+                "count": 480,
+                "name": "行动资历"
+            }
+        ],
+        "battleRandomPresets": [
+            "item_preset_gem_5_no",
+            "item_preset_gem_5_force",
+            "item_preset_gem_5_combo",
+            "item_preset_gem_5_spirit",
+            "item_preset_gem_5_phyabn",
+            "item_preset_gem_5_heal",
+            "item_preset_gem_5_crit",
+            "item_preset_gem_5_burst",
+            "item_preset_gem_5_keyword"
+        ],
+        "battleRandomPresetNames": [
+            "无瑕基质",
+            "无瑕基质·强攻",
+            "无瑕基质·追袭",
+            "无瑕基质·昂扬",
+            "无瑕基质·巧技",
+            "无瑕基质·医疗",
+            "无瑕基质·切骨",
+            "无瑕基质·迸发",
+            "无瑕基质·效益"
+        ],
+        "groupGemRandId": "item_gem_gold_ep_wuling_5",
+        "groupGemRandName": "金色基质·武陵·组5",
+        "primAttrTermIds": [
+            "gat_passive_attr_agi",
+            "gat_passive_attr_str",
+            "gat_passive_attr_will",
+            "gat_passive_attr_wisd",
+            "gat_passive_attr_main"
+        ],
+        "primAttrTermNames": [
+            "敏捷提升",
+            "力量提升",
+            "意志提升",
+            "智识提升",
+            "主能力提升"
+        ],
+        "secAttrTermIds": [
+            "gat_passive_attr_atk",
+            "gat_passive_attr_hp",
+            "gat_passive_attr_phydam",
+            "gat_passive_attr_firedam",
+            "gat_passive_attr_icedam",
+            "gat_passive_attr_naturaldam",
+            "gat_passive_attr_physpell",
+            "gat_passive_attr_heal"
+        ],
+        "secAttrTermNames": [
+            "攻击提升",
+            "生命提升",
+            "物理伤害提升",
+            "灼热伤害提升",
+            "寒冷伤害提升",
+            "自然伤害提升",
+            "源石技艺提升",
+            "治疗效率提升"
+        ],
+        "skillTermIds": [
+            "gst_passive_force",
+            "gst_passive_combo",
+            "gst_passive_spirit",
+            "gst_passive_phyabn",
+            "gst_passive_heal",
+            "gst_passive_crit",
+            "gst_passive_burst",
+            "gst_passive_keyword"
+        ],
+        "skillTermNames": [
+            "强攻",
+            "追袭",
+            "昂扬",
+            "巧技",
+            "医疗",
+            "切骨",
+            "迸发",
+            "效益"
+        ],
+        "regularDrops": [
+            "行动资历×480"
+        ],
+        "enemyIds": [
+            "eny_0113_jzogre",
+            "eny_0055_hscrane",
+            "eny_0085_hsrogue",
+            "eny_0053_hsmob",
+            "eny_0084_hshunt",
+            "eny_0112_jzmonk"
+        ],
+        "enemyLevels": [
+            60,
+            60,
+            60,
+            60,
+            60,
+            60
+        ]
     }
 ]

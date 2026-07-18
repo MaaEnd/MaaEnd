@@ -11,6 +11,12 @@
                 "ClueSetting",
                 "SelectToGrow"
             ],
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
             "group": [
                 "dijiang_ship"
             ]
@@ -25,6 +31,9 @@
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "WaitExchangeBeforeStart"
+                    ],
                     "pipeline_override": {
                         "ReceptionRoomStartExchange": {
                             "enabled": true
@@ -36,10 +45,86 @@
                     "pipeline_override": {
                         "ReceptionRoomStartExchange": {
                             "enabled": false
+                        },
+                        "ReceptionRoomWaitExchangeBeforeStart": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomWaitExchangeUntilReady": {
+                            "enabled": false
                         }
                     }
                 }
             ]
+        },
+        "WaitExchangeBeforeStart": {
+            "type": "switch",
+            "label": "$option.WaitExchangeBeforeStart.label",
+            "description": "$option.WaitExchangeBeforeStart.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "WaitExchangeBeforeStartThreshold"
+                    ],
+                    "pipeline_override": {
+                        "ReceptionRoomWaitExchangeBeforeStart": {
+                            "enabled": true
+                        },
+                        "ReceptionRoomWaitExchangeUntilReady": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ReceptionRoomWaitExchangeBeforeStart": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomWaitExchangeUntilReady": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WaitExchangeBeforeStartThreshold": {
+            "type": "input",
+            "label": "$option.WaitExchangeBeforeStartThreshold.label",
+            "description": "$option.WaitExchangeBeforeStartThreshold.description",
+            "inputs": [
+                {
+                    "name": "WaitExchangeBeforeStartMinutes",
+                    "label": "$option.WaitExchangeBeforeStartThreshold.label",
+                    "description": "$option.WaitExchangeBeforeStartThreshold.description",
+                    "pipeline_type": "int",
+                    "verify": "^(?:[1-9]|[1-9]\\d|[1-9]\\d{2}|1[01]\\d{2}|1200)$",
+                    "pattern_msg": "$option.WaitExchangeBeforeStartThreshold.inputs.WaitExchangeBeforeStartMinutes.pattern_msg",
+                    "default": "5"
+                }
+            ],
+            "pipeline_override": {
+                "ReceptionRoomExchangeCountdownWithinThreshold": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "threshold_minutes": "{WaitExchangeBeforeStartMinutes}"
+                            }
+                        }
+                    }
+                },
+                "ReceptionRoomWaitExchangeCountdownNotice": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "threshold_minutes": "{WaitExchangeBeforeStartMinutes}",
+                                "report_waiting": true
+                            }
+                        }
+                    }
+                }
+            }
         },
         "StageTaskSetting": {
             "type": "switch",
@@ -197,6 +282,7 @@
                 {
                     "name": "Yes",
                     "option": [
+                        "SendCluesDirect",
                         "ClueSend",
                         "ClueStockLimit"
                     ]
@@ -209,6 +295,30 @@
                         },
                         "ClueItemCount": {
                             "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        }
+                    }
+                }
+            ]
+        },
+        "SendCluesDirect": {
+            "type": "switch",
+            "label": "$option.SendCluesDirect.label",
+            "description": "$option.SendCluesDirect.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesDirect": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesDirect": {
+                            "enabled": false
                         }
                     }
                 }
@@ -345,7 +455,22 @@
                                 "晶華多齒葉",
                                 "重紅柱狀菌",
                                 "中紅柱狀菌",
-                                "輕紅柱狀菌"
+                                "輕紅柱狀菌",
+                                "塔罗斯菌",
+                                "塔羅斯菌",
+                                "Talos Cap",
+                                "タロス茸",
+                                "탈로스 버섯",
+                                "红矛叶",
+                                "紅矛葉",
+                                "Crimson Spearleaf",
+                                "赤槍葉",
+                                "붉은 창 잎",
+                                "协议纹石",
+                                "協議紋石",
+                                "Protocolith",
+                                "協約紋石",
+                                "프로토콜 문양석"
                             ]
                         }
                     },
@@ -862,6 +987,117 @@
                                 "Pink Bolete",
                                 "薄紅茸",
                                 "輕紅柱狀菌"
+                            ]
+                        },
+                        "GrowthChamberCheckSeedNotEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoExtractSeed"
+                    ]
+                },
+                {
+                    "name": "TalosCap",
+                    "label": "$item.TalosCap",
+                    "pipeline_override": {
+                        "GrowthChamberSelectTarget": {
+                            "expected": [
+                                "塔罗斯菌",
+                                "Talos Cap",
+                                "タロス茸",
+                                "塔羅斯菌",
+                                "탈로스 버섯"
+                            ]
+                        },
+                        "GrowthChamberCheckSeedNotEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoExtractSeed"
+                    ]
+                },
+                {
+                    "name": "CrimsonSpearleaf",
+                    "label": "$item.CrimsonSpearleaf",
+                    "pipeline_override": {
+                        "GrowthChamberSelectTarget": {
+                            "expected": [
+                                "红矛叶",
+                                "Crimson Spearleaf",
+                                "赤槍葉",
+                                "紅矛葉",
+                                "붉은 창 잎"
+                            ]
+                        },
+                        "GrowthChamberCheckSeedNotEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoExtractSeed"
+                    ]
+                },
+                {
+                    "name": "Protocolith",
+                    "label": "$item.Protocolith",
+                    "pipeline_override": {
+                        "GrowthChamberSelectTarget": {
+                            "expected": [
+                                "协议纹石",
+                                "Protocolith",
+                                "協約紋石",
+                                "協議紋石",
+                                "프로토콜 문양석"
                             ]
                         },
                         "GrowthChamberCheckSeedNotEmpty": {

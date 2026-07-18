@@ -1,0 +1,151 @@
+{
+    "SeizeDeliveryJobsPostDepartureEntry": {
+        "desc": "自动送委托的入口点（此节点默认关闭）",
+        "enabled": false,
+        "pre_delay": 0,
+        "anchor": {
+            "SeizeDeliveryJobsAfterEnterDestinationMap": "SeizeDeliveryJobsPostPurifyDestinationMap"
+        },
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsEnterDestinationMap"
+        ],
+        "focus": {
+            "Node.Action.Starting": "**进入自动送货流程**"
+        }
+    },
+    "SeizeDeliveryJobsPostPurifyDestinationMap": {
+        "desc": "在目的地地图界面，清理地图图标遮挡",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "MapTrackerBigMap_FilterNone"
+            ]
+        },
+        "anchor": {
+            "SeizeDeliveryJobsAfterEnterWulingJobList": "" // 任务结束，置空锚点以防止误用
+        },
+        "next": [
+            "SeizeDeliveryJobsRunDeparture"
+        ]
+    },
+    "SeizeDeliveryJobsRunDeparture": {
+        "desc": "在目的地地图界面，调用 custom 进行自动送货流程",
+        "action": "Custom",
+        "custom_action": "SeizeDeliveryJobsDepartureAction",
+        "custom_action_param": {
+            "map_name_regex": "map02_lv002|map02_lv005", // 所有可用的送货地图名称（后续增加新地区需要更新此值）
+            "zipline_policy": "Lazy", // 默认不优先使用滑索（可以覆写为 "Active"）
+            "is_retry": false
+        },
+        "next": [
+            // 此 CustomAction 内部会自行规划后续节点，故无需在此处指定 next
+        ]
+    },
+    // ===== 分割线：下面的节点由 Go 调用 =====
+    "SeizeDeliveryJobsClickTracking": {
+        "desc": "在目的地地图界面，点击任务的定位标（此节点由 Go 覆写 target 并调用）",
+        "action": "Click",
+        "target": [
+            -1,
+            -1
+        ], // 需要由 Go 覆写点击位置
+        "timeout": 5000, // 断言可以正常取消追踪
+        "next": [
+            "SeizeDeliveryJobsCancelTracking"
+        ]
+    },
+    "SeizeDeliveryJobsCancelTracking": {
+        "desc": "在目的地地图界面，取消任务追踪以防止追踪标志干扰后续识别",
+        "enabled": true,
+        "recognition": "TemplateMatch",
+        "roi": [
+            1100,
+            560,
+            170,
+            150
+        ],
+        "template": "Common/Button/CancelButtonType1.png",
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            // 后续由 Go 内部逻辑来进行后续流程控制
+        ],
+        "focus": {
+            "Node.Action.Starting": "成功识别目的地位置"
+        }
+    },
+    "SeizeDeliveryJobsSubmitEntry": {
+        "desc": "自动送委托的提交入口点（此节点由 Go 调用）",
+        "enabled": true,
+        "pre_delay": 0,
+        "post_delay": 2000, // 等待玩家止步
+        "next": [
+            "SeizeDeliveryJobsSubmit",
+            "SeizeDeliveryJobsSubmitFallback"
+        ],
+        "focus": {
+            "Node.Action.Starting": "识别提交货物按钮"
+        }
+    },
+    "SeizeDeliveryJobsSubmit": {
+        "desc": "在货物交付地点附近，识别交互按钮并提交货物",
+        "recognition": "TemplateMatch",
+        "roi": [
+            760,
+            350,
+            200,
+            270
+        ],
+        "template": [
+            "SeizeDeliveryJobs/SubmitGoods.png", // NPC 交货按钮
+            "SeizeDeliveryJobs/SubmitGoods2.png" // 非 NPC 交货按钮
+        ],
+        "threshold": 0.8,
+        "order_by": "Score",
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
+        "next": [
+            "[JumpBack]__MapTrackerStuckMitigator_MoveOrDeleteDevice_SkipChat", // 这里调了别人的私有节点来跳过对话，需考虑后续使用公共节点替换
+            "SeizeDeliveryJobsCloseRewardDialog"
+        ],
+        "focus": {
+            "Node.Action.Starting": "开始提交货物"
+        }
+    },
+    "SeizeDeliveryJobsCloseRewardDialog": {
+        "desc": "在提交货物后，关闭奖励对话框；随后按剩余循环次数决定回到抢单入口或结束任务",
+        "recognition": "And",
+        "all_of": [
+            "CloseRewardsButton"
+        ],
+        "pre_wait_freezes": 500, // 等待奖励动画播放完毕
+        "action": "Click",
+        "next": [
+            "SeizeDeliveryJobsMain", // 有剩余次数时继续循环
+            "SeizeDeliveryJobsTaskEnd" // 次数用尽时结束任务
+        ],
+        "focus": {
+            "Node.Action.Starting": "**成功提交货物**"
+        }
+    },
+    "SeizeDeliveryJobsSubmitFallback": {
+        "desc": "未能找到提交货物按钮时触发，使用缓存坐标重新返回大世界并送货（有最大尝试次数限制）",
+        "max_hit": 5,
+        "action": "Custom",
+        "custom_action": "SeizeDeliveryJobsDepartureAction",
+        "custom_action_param": {
+            "map_name_regex": "", // 重试使用的是缓存数据，此处不填即可
+            "zipline_policy": "Never", // 重试时玩家离终点很近，不要使用滑索
+            "is_retry": true
+        },
+        "next": [
+            // 后续由 Go 内部逻辑来重新调用提交货物分支
+        ],
+        "focus": {
+            "Node.Action.Starting": "准备重新前往终点"
+        }
+    }
+}

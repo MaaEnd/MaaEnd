@@ -63,7 +63,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "EssenceFilterRowNextItem"
+            "EssenceGridAdvance"
         ],
         "on_error": [
             "EssenceFilterLockItem"
@@ -71,66 +71,6 @@
         "focus": {
             "Node.Action.Succeeded": "已确认上锁"
         }
-    },
-    "EssenceThumbMarked": {
-        "desc": "检测基质左下角锁定或废弃小图标",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1,
-                    1,
-                    1,
-                    1
-                ],
-                "template": [
-                    "EssenceFilter/ThumbLock.png",
-                    "EssenceFilter/ThumbDiscard.png"
-                ],
-                "method": 5,
-                "threshold": 0.65
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0
-    },
-    "EssenceThumbLock": {
-        "desc": "检测缩略图已锁定小图标（单模板）",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1,
-                    1,
-                    1,
-                    1
-                ],
-                "template": "EssenceFilter/ThumbLock.png",
-                "method": 5,
-                "threshold": 0.65
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0
-    },
-    "EssenceThumbDiscard": {
-        "desc": "检测缩略图已废弃小图标（单模板）",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1,
-                    1,
-                    1,
-                    1
-                ],
-                "template": "EssenceFilter/ThumbDiscard.png",
-                "method": 5,
-                "threshold": 0.65
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0
     },
     "EssenceFilterDiscardItemLog": {
         "desc": "日志：即将废弃 Essence",
@@ -196,7 +136,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "EssenceFilterRowNextItem"
+            "EssenceGridAdvance"
         ],
         "on_error": [
             "EssenceFilterDiscardItem"
@@ -204,19 +144,5 @@
         "focus": {
             "Node.Action.Succeeded": "已确认废弃"
         }
-    },
-    "EssenceFilterRowNextItem": {
-        "desc": "处理下一个命中的格子，或滑动/结束",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "EssenceFilterRowNextItemAction"
-            }
-        },
-        "post_delay": 0,
-        "next": [
-            "EssenceFilterFinish"
-        ]
     }
 }

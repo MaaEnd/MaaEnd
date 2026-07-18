@@ -10,7 +10,6 @@
 #include <optional>
 #include <thread>
 
-
 // 无标题栏的可拖拽/可缩放原生窗口。
 //
 // 设计要点：
@@ -85,6 +84,7 @@ protected:
 
     // 派生类钩子，均在 UI 线程上调用。
     virtual void onUiThreadInit() {}
+
     virtual void onUiThreadShutdown() {}
 
     // 派生类可重写以拦截窗口消息。返回 std::nullopt 表示走基类默认处理。
@@ -168,6 +168,7 @@ protected:
     bool isOpened() const noexcept { return opened_.load(std::memory_order_acquire); }
 
     virtual void onUiThreadInit() {}
+
     virtual void onUiThreadShutdown() {}
 
 private:

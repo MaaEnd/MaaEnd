@@ -16,80 +16,60 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "DailyEventUnreadItemInit",
+            "[JumpBack]DailyEventGoToHongYun", // 宏运连连乐不依赖红点,所以不会进入通用识别中
+            "[JumpBack]DailyEventGoTo",
+            "[JumpBack]DailyEventSwipe",
             "DailyEventFinish"
         ]
     },
-    "DailyEventUnreadItemInit": {
-        "desc": "初始化未读活动",
+    "DailyEventGoTo": {
+        "desc": "进入未读活动（动态识别入口名）",
         "recognition": "Custom",
-        "custom_recognition": "DailyEventUnreadItemInitRecognition",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "DailyEventUnreadItemInitAction",
-        "post_delay": 0
-    },
-    "DailyEventUnreadItemSwitch": {
-        "desc": "切换未处理的活动列表",
-        "recognition": "OCR",
-        "roi": [
-            36,
-            110,
-            166,
-            40
-        ],
-        "expected": [
-            ".{3,}" // 匹配三个及以上字符
-        ],
-        "only_rec": true,
+        "custom_recognition": "DailyEventGoToRecognition",
         "pre_delay": 0,
         "action": "Click",
-        "target_offset": [
-            40,
-            0,
-            0,
-            0
-        ],
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "DailyEventUnreadItemSwitchSuccess"
+            "DailyEventGoToFinish"
         ],
-        "focus": {
-            "Node.Recognition.Succeeded": "切换活动"
+        "attach": {
+            "visited": []
         }
     },
-    "DailyEventUnreadItemSwitchSuccess": {
-        "desc": "切换活动成功",
-        "recognition": "And",
-        "all_of": [
-            {
-                "recognition": "TemplateMatch",
-                "roi": "DailyEventUnreadItemSwitch",
+    "DailyEventGoToFinish": {
+        "desc": "进入未读活动完成",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "DailyEventGoTo",
+                // 注意避免x轴<0越界
                 "roi_offset": [
                     -20,
-                    -30,
+                    -50,
                     20,
-                    40
+                    100
                 ],
-                "template": "DailyRewards/Event/EventSwitchSuccess.png",
+                "template": [
+                    "DailyRewards/Event/EventSwitchSuccess.png"
+                ],
                 "threshold": 0.9
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": "DailyRewards/Event/EventDetailsIcon.png",
-                "green_mask": true
             }
-        ],
-        "box_index": 1,
-        "pre_wait_freezes": 100,
+        },
         "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                1129,
+                77,
+                151,
+                192
+            ]
+        },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DailyEventUnreadLimitedTimeSignin",
             "DailyEventUnreadWeeklyRoutine",
@@ -97,8 +77,43 @@
             "DailyEventUnreadChallengeEvent",
             "DailyEventUnreadSpaceExplorationEvent",
             "DailyEventUnreadLimitedTimeEvent",
+            "DailyEventUnreadGiftEvent",
             "DailyEventUnreadUnknown"
         ]
+    },
+    "DailyEventSwipe": {
+        "desc": "滑动一次",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "InEventCenter"
+        ],
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            100,
+            600
+        ],
+        "end": [
+            [
+                100,
+                200
+            ],
+            [
+                400,
+                200
+            ]
+        ],
+        "end_hold": 100,
+        "post_wait_freezes": 350,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DailyEventFinish": {
+        "desc": "结束任务",
+        "focus": {
+            "Node.Recognition.Succeeded": "领取活动奖励结束"
+        }
     },
     "DailyEventUnreadUnknown": {
         "desc": "跳过未支持的活动",
@@ -108,57 +123,108 @@
             "Node.Recognition.Succeeded": "跳过未支持的活动"
         }
     },
-    "DailyEventFinish": {
-        "desc": "结束任务",
-        "focus": {
-            "Node.Recognition.Succeeded": "领取活动奖励结束"
-        }
-    },
     "DailyEventRecognitionRedDot": {
         "desc": "识别活动界面的红点",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "ColorMatch",
             "param": {
                 "roi": [
-                    0,
-                    0,
-                    300,
-                    720
+                    21,
+                    100,
+                    211,
+                    530
                 ],
-                "template": [
-                    "DailyRewards/EventRedDot.png",
-                    "DailyRewards/EventRedDot2.png",
-                    "DailyRewards/EventRedDot3.png",
-                    "DailyRewards/EventRedDot4.png"
+                "method": 40,
+                "lower": [
+                    14,
+                    245,
+                    245
                 ],
-                "green_mask": true
+                "upper": [
+                    14,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 40
             }
         }
     },
-    "DailyEventRecognitionGotoButton": {
-        "desc": "识别活动界面是前往按钮",
+    "DailyEventRecognitionNew": {
+        "desc": "识别活动界面的新提示",
+        "recognition": "OCR",
+        "roi": [
+            21,
+            100,
+            211,
+            530
+        ],
+        "expected": [
+            "NEW"
+        ]
+    },
+    "DailyEventRecognitionItemTextByRedDot": {
+        "desc": "红点左侧入口名（至少3字，可由 Go 覆盖 expected）",
         "recognition": {
             "type": "OCR",
             "param": {
+                "roi": "DailyEventRecognitionRedDot",
+                // 避免截取到背景文本
+                "roi_offset": [
+                    -175,
+                    0,
+                    130,
+                    44
+                ],
                 "expected": [
-                    "前往",
-                    "Go",
-                    "移動",
-                    "바로가기"
+                    ".{3,}" // 匹配三个及以上字符
                 ]
             }
         }
     },
-    "DailyEventRecognitionItemText": {
-        "desc": "识别活动界面的红点",
+    "DailyEventRecognitionItemTextByNew": {
+        "desc": "NEW左侧入口名（至少3字，可由 Go 覆盖 expected）",
         "recognition": {
             "type": "OCR",
             "param": {
+                "roi": "DailyEventRecognitionNew",
+                // 避免截取到背景文本
+                "roi_offset": [
+                    -175,
+                    0,
+                    130,
+                    44
+                ],
                 "expected": [
                     ".{3,}" // 匹配三个及以上字符
-                ],
-                "threshold": 0.7
+                ]
             }
         }
+    },
+    "DailyEventGoToCandidateByRedDot": {
+        "desc": "红点 ∧ 左侧入口名",
+        "recognition": "And",
+        "all_of": [
+            "DailyEventRecognitionRedDot",
+            "DailyEventRecognitionItemTextByRedDot"
+        ],
+        "box_index": 1
+    },
+    "DailyEventGoToCandidateByNew": {
+        "desc": "NEW ∧ 左侧入口名",
+        "recognition": "And",
+        "all_of": [
+            "DailyEventRecognitionNew",
+            "DailyEventRecognitionItemTextByNew"
+        ],
+        "box_index": 1
+    },
+    "DailyEventGoToCandidate": {
+        "desc": "未读活动入口候选：红点入口或NEW入口",
+        "recognition": "Or",
+        "any_of": [
+            "DailyEventGoToCandidateByRedDot",
+            "DailyEventGoToCandidateByNew"
+        ]
     }
 }

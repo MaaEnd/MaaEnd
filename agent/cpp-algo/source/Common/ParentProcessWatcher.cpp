@@ -68,8 +68,7 @@ void RunWatcherLoop(HANDLE parent_handle, DWORD parent_pid)
             std::exit(0);
         }
         if (wait_result == WAIT_FAILED) {
-            LogWarn << "WaitForSingleObject failed on parent handle." << VAR(parent_pid)
-                    << VAR(GetLastError());
+            LogWarn << "WaitForSingleObject failed on parent handle." << VAR(parent_pid) << VAR(GetLastError());
         }
         std::this_thread::sleep_for(kPollInterval);
     }
@@ -104,8 +103,7 @@ void StartParentProcessWatcher()
 
     HANDLE parent_handle = OpenProcess(SYNCHRONIZE, FALSE, parent_pid);
     if (parent_handle == nullptr) {
-        LogWarn << "Failed to open parent process; parent watcher disabled." << VAR(parent_pid)
-                << VAR(GetLastError());
+        LogWarn << "Failed to open parent process; parent watcher disabled." << VAR(parent_pid) << VAR(GetLastError());
         return;
     }
 

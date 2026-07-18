@@ -6,10 +6,34 @@
         "all_of": [
             "CheckXiraniteNexusText",
             "CheckXiraniteNexusIcon",
-            "CheckXiraniteNexusReadyText"
+            "CheckXiraniteNexusWulingStockBill"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "XiraniteNexusExecute",
+            "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "failure_task": "XiraniteNexusFailed"
+        },
         "post_delay": 0,
+        "rate_limit": 0
+    },
+    "XiraniteNexusFailed": {
+        "desc": "枢壤仪任务执行失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.XiraniteNexus.failed"
+        }
+    },
+    "XiraniteNexusExecute": {
+        "desc": "执行枢壤仪任务路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AcceptXiraniteNexus",
             "GoToXiraniteNexusMission"
@@ -31,7 +55,27 @@
             "枢壌儀",
             "중추 식양 장치"
         ],
-        "order_by": "Vertical"
+        "replace": [],
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckXiraniteNexusWulingStockBill": {
+        "desc": "检查枢壤仪任务下方的武陵调度券图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckXiraniteNexusIcon",
+        "roi_offset": [
+            -14,
+            300,
+            359,
+            76
+        ],
+        "template": "EnvironmentMonitoring/WulingStockBill.png",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckXiraniteNexusIcon": {
         "desc": "检查枢壤仪文本下方的图标",
@@ -44,30 +88,10 @@
             28
         ],
         "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8
-    },
-    "CheckXiraniteNexusReadyText": {
-        "desc": "检查枢壤仪委托是否准备好",
-        "recognition": "OCR",
-        "roi": "CheckXiraniteNexusIcon",
-        "roi_offset": [
-            -14,
-            332,
-            359,
-            76
-        ],
-        "expected": [
-            "接取委托",
-            "接取委託",
-            "(?i)Accept\\s*Job",
-            "引き受ける",
-            "前往任务",
-            "前往任務",
-            "(?i)Go\\s*to\\s*Mission",
-            "任務へ",
-            "의뢰 수령",
-            "임무로 이동하기"
-        ]
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckXiraniteNexusJob": {
         "desc": "检查枢壤仪委托是否可以接取",
@@ -85,7 +109,10 @@
             "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckXiraniteNexusGoToMissionText": {
         "desc": "检查枢壤仪委托是否可以前往",
@@ -103,7 +130,10 @@
             "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "InXiraniteNexusMission": {
         "desc": "是否在枢壤仪任务界面",
@@ -120,7 +150,11 @@
             "(?i)Photo:\\s*Xiranite\\s*Nexus",
             "枢壌儀の写真を撮る",
             "중추 식양 장치를 촬영하기"
-        ]
+        ],
+        "replace": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AcceptXiraniteNexus": {
         "desc": "接取枢壤仪委托",
@@ -131,7 +165,10 @@
             "CheckXiraniteNexusJob"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToXiraniteNexusMission"
         ]
@@ -145,7 +182,10 @@
             "CheckXiraniteNexusGoToMissionText"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "XiraniteNexusTrackOrGoTo"
         ]
@@ -156,6 +196,9 @@
         "all_of": [
             "InXiraniteNexusMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrackXiraniteNexus",
             "AlreadyTrackedXiraniteNexus"
@@ -168,7 +211,10 @@
             "TrackMissionButton",
             "InXiraniteNexusMission"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToXiraniteNexus"
         ]
@@ -180,18 +226,25 @@
             "AlreadyTrackedMissionButton",
             "InXiraniteNexusMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToXiraniteNexus"
         ]
     },
     "XiraniteNexusNotAdapted": {
         "desc": "枢壤仪任务尚未适配，仅接取并追踪",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
         }
     },
     "GoToXiraniteNexus": {
         "desc": "前往枢壤仪，先回到大世界再进行判断",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -199,6 +252,8 @@
                 "SceneAnyEnterWorld"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToXiraniteNexusStartPos",
             "GoToXiraniteNexusNotAtStartPos"
@@ -221,12 +276,16 @@
                 }
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "GoToXiraniteNexusMapTrackerMove"
+            "GoToXiraniteNexusMove"
         ]
     },
     "GoToXiraniteNexusNotAtStartPos": {
         "desc": "不在枢壤仪任务开始位置附近，先传送再检查落点",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -234,12 +293,15 @@
                 "SceneEnterWorldWulingWulingCity4"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToXiraniteNexusStartPos"
         ]
     },
-    "GoToXiraniteNexusMapTrackerMove": {
-        "desc": "前往枢壤仪",
+    "GoToXiraniteNexusMove": {
+        "desc": "自动寻路前往枢壤仪",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -273,19 +335,19 @@
                     171.8,
                     674.6
                 ]
-            ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 270
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "XiraniteNexusAdjustCamera"
         },
-        "next": [
-            "XiraniteNexusAdjustHeading"
-        ]
-    },
-    "XiraniteNexusAdjustHeading": {
-        "desc": "枢壤仪任务无需调整角色朝向",
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -295,6 +357,9 @@
     "XiraniteNexusAdjustCamera": {
         "desc": "枢壤仪任务中调整朝向",
         "max_hit": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringSwipeScreenUp"
         ]

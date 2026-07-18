@@ -6,10 +6,34 @@
         "all_of": [
             "CheckAnnularWaterfallText",
             "CheckAnnularWaterfallIcon",
-            "CheckAnnularWaterfallReadyText"
+            "CheckAnnularWaterfallWulingStockBill"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "AnnularWaterfallExecute",
+            "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "failure_task": "AnnularWaterfallFailed"
+        },
         "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AnnularWaterfallFailed": {
+        "desc": "环形瀑布任务执行失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.AnnularWaterfall.failed"
+        }
+    },
+    "AnnularWaterfallExecute": {
+        "desc": "执行环形瀑布任务路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AcceptAnnularWaterfall",
             "GoToAnnularWaterfallMission"
@@ -31,7 +55,27 @@
             "環状滝",
             "원형 폭포"
         ],
-        "order_by": "Vertical"
+        "replace": [],
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckAnnularWaterfallWulingStockBill": {
+        "desc": "检查环形瀑布任务下方的武陵调度券图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckAnnularWaterfallIcon",
+        "roi_offset": [
+            -14,
+            300,
+            359,
+            76
+        ],
+        "template": "EnvironmentMonitoring/WulingStockBill.png",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckAnnularWaterfallIcon": {
         "desc": "检查环形瀑布文本下方的图标",
@@ -44,30 +88,10 @@
             28
         ],
         "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8
-    },
-    "CheckAnnularWaterfallReadyText": {
-        "desc": "检查环形瀑布委托是否准备好",
-        "recognition": "OCR",
-        "roi": "CheckAnnularWaterfallIcon",
-        "roi_offset": [
-            -14,
-            332,
-            359,
-            76
-        ],
-        "expected": [
-            "接取委托",
-            "接取委託",
-            "(?i)Accept\\s*Job",
-            "引き受ける",
-            "前往任务",
-            "前往任務",
-            "(?i)Go\\s*to\\s*Mission",
-            "任務へ",
-            "의뢰 수령",
-            "임무로 이동하기"
-        ]
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckAnnularWaterfallJob": {
         "desc": "检查环形瀑布委托是否可以接取",
@@ -85,7 +109,10 @@
             "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckAnnularWaterfallGoToMissionText": {
         "desc": "检查环形瀑布委托是否可以前往",
@@ -103,7 +130,10 @@
             "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "InAnnularWaterfallMission": {
         "desc": "是否在环形瀑布任务界面",
@@ -120,7 +150,11 @@
             "(?i)Photo:\\s*Annular\\s*Waterfall",
             "祖泉周辺の環状滝の写真を撮る",
             "선조의 샘 주변의 원형 폭포를 촬영하기"
-        ]
+        ],
+        "replace": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AcceptAnnularWaterfall": {
         "desc": "接取环形瀑布委托",
@@ -131,7 +165,10 @@
             "CheckAnnularWaterfallJob"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToAnnularWaterfallMission"
         ]
@@ -145,7 +182,10 @@
             "CheckAnnularWaterfallGoToMissionText"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AnnularWaterfallTrackOrGoTo"
         ]
@@ -156,6 +196,9 @@
         "all_of": [
             "InAnnularWaterfallMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrackAnnularWaterfall",
             "AlreadyTrackedAnnularWaterfall"
@@ -168,7 +211,10 @@
             "TrackMissionButton",
             "InAnnularWaterfallMission"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToAnnularWaterfall"
         ]
@@ -180,18 +226,25 @@
             "AlreadyTrackedMissionButton",
             "InAnnularWaterfallMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToAnnularWaterfall"
         ]
     },
     "AnnularWaterfallNotAdapted": {
         "desc": "环形瀑布任务尚未适配，仅接取并追踪",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
         }
     },
     "GoToAnnularWaterfall": {
         "desc": "前往环形瀑布，先回到大世界再进行判断",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -199,6 +252,8 @@
                 "SceneAnyEnterWorld"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToAnnularWaterfallStartPos",
             "GoToAnnularWaterfallNotAtStartPos"
@@ -221,12 +276,16 @@
                 }
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "GoToAnnularWaterfallMapTrackerMove"
+            "GoToAnnularWaterfallMove"
         ]
     },
     "GoToAnnularWaterfallNotAtStartPos": {
         "desc": "不在环形瀑布任务开始位置附近，先传送再检查落点",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -234,12 +293,15 @@
                 "SceneEnterWorldWulingQingboStockade3"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToAnnularWaterfallStartPos"
         ]
     },
-    "GoToAnnularWaterfallMapTrackerMove": {
-        "desc": "前往环形瀑布",
+    "GoToAnnularWaterfallMove": {
+        "desc": "自动寻路前往环形瀑布",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -261,19 +323,19 @@
                     507.4,
                     330.5
                 ]
-            ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 15
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "AnnularWaterfallAdjustCamera"
         },
-        "next": [
-            "AnnularWaterfallAdjustHeading"
-        ]
-    },
-    "AnnularWaterfallAdjustHeading": {
-        "desc": "环形瀑布任务无需调整角色朝向",
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -283,6 +345,9 @@
     "AnnularWaterfallAdjustCamera": {
         "desc": "环形瀑布任务中调整朝向",
         "max_hit": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringSwipeScreenUp"
         ]

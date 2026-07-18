@@ -7,36 +7,33 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - name: Generate MaaEndBot GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
         with:
-          token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
+          permission-contents: write
+
+      - uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
           show-progress: false
 
-      - name: Fetch index.json and update README
+      - name: Sync QQ group references
         run: |
-          DATA=$(curl -sf https://end.maafw.com/index.json) || exit 0
-
-          USER_GROUP=$(echo "$DATA" | jq -r '.qq_groups.user.number // empty')
-          USER_LINK=$(echo "$DATA" | jq -r '.qq_groups.user.link // empty')
-          DEV_GROUP=$(echo "$DATA" | jq -r '.qq_groups.dev.number // empty')
-          DEV_LINK=$(echo "$DATA" | jq -r '.qq_groups.dev.link // empty')
-
-          if [ -z "$USER_GROUP" ] || [ -z "$USER_LINK" ] || [ -z "$DEV_GROUP" ] || [ -z "$DEV_LINK" ]; then
-            echo "Missing fields in index.json, skipping"
-            exit 0
-          fi
-
-          sed -i "s|\*\*用户 QQ 群\*\*: \[[0-9]*\](https://qm.qq.com/q/[^)]*)|**用户 QQ 群**: [$USER_GROUP]($USER_LINK)|" README.md
-          sed -i "s|\*\*开发 QQ 群\*\*: \[[0-9]*\](https://qm.qq.com/q/[^)]*)|**开发 QQ 群**: [$DEV_GROUP]($DEV_LINK)|" README.md
+          python3 .github/scripts/sync_qq_groups.py
 
       - name: Commit and push
         uses: actions-js/push@master
         with:
+          author_name: "maaendbotapp[bot]"
+          author_email: "305547419+maaendbotapp[bot]@users.noreply.github.com"
           rebase: true
           branch: ${{ github.ref }}
-          message: "chore: sync QQ group info in README
+          message: "chore: sync QQ group info
 
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
             [skip changelog]"
-          github_token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          github_token: ${{ steps.app-token.outputs.token }}

@@ -3,40 +3,8 @@
         "desc": "处理联动活动",
         "recognition": "And",
         "all_of": [
-            {
-                "sub_name": "color",
-                "recognition": "ColorMatch",
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "lower": [
-                    230,
-                    230,
-                    0
-                ],
-                "upper": [
-                    255,
-                    255,
-                    13
-                ],
-                "connected": true,
-                "count": 200
-            },
-            {
-                "recognition": "OCR",
-                "roi": "color",
-                "expected": [
-                    "联动活动",
-                    "太空主題活動",
-                    "Space Exploration Event",
-                    "宇宙事業",
-                    "우주 테마 이벤트"
-                ],
-                "only_rec": true
-            }
+            "DailyEventUnreadSpaceExplorationEventColor",
+            "DailyEventUnreadSpaceExplorationEventTitle"
         ],
         "pre_wait_freezes": {
             "target": [
@@ -52,10 +20,7 @@
         "next": [
             "DailyEventUnreadSpaceExplorationEventPickAll",
             "DailyEventUnreadSpaceExplorationEventFinish"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "进入联动活动"
-        }
+        ]
     },
     "DailyEventUnreadSpaceExplorationEventPickAll": {
         "desc": "联动活动内一键领取",
@@ -84,5 +49,40 @@
         "desc": "领取完了联动活动奖励",
         "pre_delay": 0,
         "post_delay": 0
+    },
+    "DailyEventUnreadSpaceExplorationEventColor": {
+        "desc": "联动活动详情标题黄字区域",
+        "recognition": "ColorMatch",
+        "roi": [
+            -200,
+            0,
+            200,
+            200
+        ],
+        "lower": [
+            230,
+            230,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            13
+        ],
+        "connected": true,
+        "count": 200
+    },
+    "DailyEventUnreadSpaceExplorationEventTitle": {
+        "desc": "联动活动详情标题",
+        "recognition": "OCR",
+        "roi": "DailyEventUnreadSpaceExplorationEventColor",
+        "expected": [
+            "联动活动",
+            "太空主題活動",
+            "Space Exploration Event",
+            "宇宙事業",
+            "우주 테마 이벤트"
+        ],
+        "only_rec": true
     }
 }

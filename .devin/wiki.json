@@ -21,7 +21,7 @@
             "author": "maintainer"
         },
         {
-            "content": "项目支持的平台：PC 端（Win32 默认/后台/前台控制器）和安卓端（ADB 控制器）。安卓端的适配资源位于 assets/resource_adb/ 目录下，与 PC 端的 assets/resource/ 平行存在。",
+            "content": "项目支持的平台：PC 端（Win32 前台控制器）和安卓端（ADB 控制器）。安卓端的适配资源位于 assets/resource_adb/ 目录下，与 PC 端的 assets/resource/ 平行存在。",
             "author": "maintainer"
         },
         {

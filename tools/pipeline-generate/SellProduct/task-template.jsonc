@@ -10,9 +10,13 @@
                 "SellBeyondAidQuota",
                 "${RegionPrefix}Sell"
             ],
-            "group": [
-                "regional_development"
-            ]
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
+            "group": ["regional_development"]
         }
     ],
     "option": {
@@ -34,7 +38,7 @@
                     "name": "SellProductScheduleMonday",
                     "label": "$option.TaskScheduleMonday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "monday": true
                             }
@@ -45,7 +49,7 @@
                     "name": "SellProductScheduleTuesday",
                     "label": "$option.TaskScheduleTuesday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "tuesday": true
                             }
@@ -56,7 +60,7 @@
                     "name": "SellProductScheduleWednesday",
                     "label": "$option.TaskScheduleWednesday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "wednesday": true
                             }
@@ -67,7 +71,7 @@
                     "name": "SellProductScheduleThursday",
                     "label": "$option.TaskScheduleThursday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "thursday": true
                             }
@@ -78,7 +82,7 @@
                     "name": "SellProductScheduleFriday",
                     "label": "$option.TaskScheduleFriday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "friday": true
                             }
@@ -89,7 +93,7 @@
                     "name": "SellProductScheduleSaturday",
                     "label": "$option.TaskScheduleSaturday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "saturday": true
                             }
@@ -100,7 +104,7 @@
                     "name": "SellProductScheduleSunday",
                     "label": "$option.TaskScheduleSunday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "sunday": true
                             }
@@ -186,6 +190,7 @@
                         }
                     },
                     "option": [
+                        "${RegionPrefix}${LocationId}Operator",
                         "${RegionPrefix}${LocationId}Attempt1",
                         "${RegionPrefix}${LocationId}Attempt2",
                         "${RegionPrefix}${LocationId}Attempt3",
@@ -201,6 +206,53 @@
                     }
                 }
             ]
+        },
+        // ===== 联络干员切换 =====
+        "${RegionPrefix}${LocationId}Operator": {
+            "type": "switch",
+            "label": "$task.SellProduct.OperatorSwitch",
+            "description": "$task.SellProduct.OperatorSwitchDescription",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProduct${LocationId}SetBeforeSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": "SellProduct${LocationId}BeforeSellOperator"
+                            }
+                        }
+                    },
+                    "option": [
+                        "${RegionPrefix}${LocationId}TargetOperator",
+                        "${RegionPrefix}${LocationId}RestoreOperator"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProduct${LocationId}SetBeforeSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": ""
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "${RegionPrefix}${LocationId}TargetOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.TargetOperator",
+            "description": "$task.SellProduct.TargetOperatorDescription",
+            "default_case": "${TargetOperatorDefaultCase}",
+            "cases": "${TargetOperatorCases}"
+        },
+        "${RegionPrefix}${LocationId}RestoreOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.RestoreOperator",
+            "description": "$task.SellProduct.RestoreOperatorDescription",
+            "default_case": "DoNotRestore",
+            "cases": "${RestoreOperatorCases}"
         },
         // ===== 售卖尝试 1（默认开启，含描述） =====
         "${RegionPrefix}${LocationId}Attempt1": {
@@ -352,9 +404,7 @@
                 },
                 {
                     "name": "保留指定份数",
-                    "option": [
-                        "${RegionPrefix}${LocationId}ReserveValue1"
-                    ]
+                    "option": ["${RegionPrefix}${LocationId}ReserveValue1"]
                 }
             ]
         },
@@ -394,9 +444,7 @@
                 },
                 {
                     "name": "保留指定份数",
-                    "option": [
-                        "${RegionPrefix}${LocationId}ReserveValue2"
-                    ]
+                    "option": ["${RegionPrefix}${LocationId}ReserveValue2"]
                 }
             ]
         },
@@ -436,9 +484,7 @@
                 },
                 {
                     "name": "保留指定份数",
-                    "option": [
-                        "${RegionPrefix}${LocationId}ReserveValue3"
-                    ]
+                    "option": ["${RegionPrefix}${LocationId}ReserveValue3"]
                 }
             ]
         },
@@ -478,9 +524,7 @@
                 },
                 {
                     "name": "保留指定份数",
-                    "option": [
-                        "${RegionPrefix}${LocationId}ReserveValue4"
-                    ]
+                    "option": ["${RegionPrefix}${LocationId}ReserveValue4"]
                 }
             ]
         },

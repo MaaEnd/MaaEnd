@@ -1,0 +1,336 @@
+{
+    "PoolLotusJob": {
+        "desc": "小池荷任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckPoolLotusText",
+            "CheckPoolLotusIcon",
+            "CheckPoolLotusWulingStockBill"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "PoolLotusExecute",
+            "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "failure_task": "PoolLotusFailed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "PoolLotusFailed": {
+        "desc": "小池荷任务执行失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.PoolLotus.failed"
+        }
+    },
+    "PoolLotusExecute": {
+        "desc": "执行小池荷任务路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AcceptPoolLotus",
+            "GoToPoolLotusMission"
+        ]
+    },
+    "CheckPoolLotusText": {
+        "desc": "检查是否有小池荷文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "“小池荷”",
+            "「小池荷」",
+            "(?i)\"Pool\\s*Lotus\"",
+            "「池の蓮」",
+            "'작은 연못의 연꽃'"
+        ],
+        "replace": [],
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckPoolLotusWulingStockBill": {
+        "desc": "检查小池荷任务下方的武陵调度券图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckPoolLotusIcon",
+        "roi_offset": [
+            -14,
+            300,
+            359,
+            76
+        ],
+        "template": "EnvironmentMonitoring/WulingStockBill.png",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckPoolLotusIcon": {
+        "desc": "检查小池荷文本下方的图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckPoolLotusText",
+        "roi_offset": [
+            -18,
+            0,
+            0,
+            28
+        ],
+        "template": "EnvironmentMonitoring/PhotoIcon.png",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckPoolLotusJob": {
+        "desc": "检查小池荷委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckPoolLotusIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "(?i)Accept\\s*Job",
+            "引き受ける",
+            "의뢰 수령"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckPoolLotusGoToMissionText": {
+        "desc": "检查小池荷委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckPoolLotusIcon",
+        "roi_offset": [
+            -14,
+            332,
+            359,
+            76
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "(?i)Go\\s*to\\s*Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InPoolLotusMission": {
+        "desc": "是否在小池荷任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "拍摄“小池荷”",
+            "拍攝「小池荷」",
+            "(?i)Photo:\\s*\"Pool\\s*Lotus\"",
+            "「池の蓮」の写真を撮る",
+            "'작은 연못의 연꽃'을 촬영하기"
+        ],
+        "replace": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AcceptPoolLotus": {
+        "desc": "接取小池荷委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckPoolLotusText",
+            "CheckPoolLotusIcon",
+            "CheckPoolLotusJob"
+        ],
+        "box_index": 2,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GoToPoolLotusMission"
+        ]
+    },
+    "GoToPoolLotusMission": {
+        "desc": "前往小池荷任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckPoolLotusText",
+            "CheckPoolLotusIcon",
+            "CheckPoolLotusGoToMissionText"
+        ],
+        "box_index": 2,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "PoolLotusTrackOrGoTo"
+        ]
+    },
+    "PoolLotusTrackOrGoTo": {
+        "desc": "在小池荷任务中，如果有开始追踪的按钮就点击追踪，已在追踪则继续",
+        "recognition": "And",
+        "all_of": [
+            "InPoolLotusMission"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "TrackPoolLotus",
+            "AlreadyTrackedPoolLotus"
+        ]
+    },
+    "TrackPoolLotus": {
+        "desc": "追踪小池荷任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InPoolLotusMission"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "PoolLotusNotAdapted"
+        ]
+    },
+    "AlreadyTrackedPoolLotus": {
+        "desc": "小池荷任务已经在追踪中",
+        "recognition": "And",
+        "all_of": [
+            "AlreadyTrackedMissionButton",
+            "InPoolLotusMission"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "PoolLotusNotAdapted"
+        ]
+    },
+    "PoolLotusNotAdapted": {
+        "desc": "小池荷任务尚未适配，仅接取并追踪",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
+        }
+    },
+    "GoToPoolLotus": {
+        "desc": "前往小池荷，先回到大世界再进行判断",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GoToPoolLotusStartPos",
+            "GoToPoolLotusNotAtStartPos"
+        ]
+    },
+    "GoToPoolLotusStartPos": {
+        "desc": "在小池荷任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "^map\\d+_lv\\d+$",
+                    "target": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GoToPoolLotusMove"
+        ]
+    },
+    "GoToPoolLotusNotAtStartPos": {
+        "desc": "不在小池荷任务开始位置附近，先传送再检查落点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GoToPoolLotusStartPos"
+        ]
+    },
+    "GoToPoolLotusMove": {
+        "desc": "自动寻路前往小池荷",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "^map\\d+_lv\\d+$",
+            "path": [
+                [
+                    0,
+                    0
+                ]
+            ]
+        },
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "PoolLotusAdjustCamera"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "PoolLotusAdjustCamera": {
+        "desc": "小池荷任务中调整朝向",
+        "max_hit": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
+        ]
+    }
+}

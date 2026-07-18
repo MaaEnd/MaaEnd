@@ -23,7 +23,6 @@ type mapNavigateCompatibleParam struct {
 	PathTrim                     bool              `json:"path_trim,omitempty"`
 	FineApproach                 string            `json:"fine_approach,omitempty"`
 	NoEnsureInitialMovementState bool              `json:"no_ensure_initial_movement_state,omitempty"`
-	NoEnsureFinalOrientation     bool              `json:"no_ensure_final_orientation,omitempty"`
 	ArrivalThreshold             float64           `json:"arrival_threshold,omitempty"`
 	ArrivalTimeout               int64             `json:"arrival_timeout,omitempty"`
 	RotationLowerThreshold       float64           `json:"rotation_lower_threshold,omitempty"`
@@ -161,7 +160,6 @@ func (a *MapTrackerMoveCompatible) convertParam(param *mapNavigateCompatiblePara
 		PathTrim:                     param.PathTrim,
 		FineApproach:                 param.FineApproach,
 		NoEnsureInitialMovementState: param.NoEnsureInitialMovementState,
-		NoEnsureFinalOrientation:     param.NoEnsureFinalOrientation,
 		ArrivalThreshold:             param.ArrivalThreshold,
 		ArrivalTimeout:               param.ArrivalTimeout,
 		RotationLowerThreshold:       param.RotationLowerThreshold,

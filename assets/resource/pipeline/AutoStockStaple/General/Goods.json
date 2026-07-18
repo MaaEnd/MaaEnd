@@ -506,6 +506,27 @@
             }
         }
     },
+    "AutoStockStapleGoodsRindFlavoredSprouts": {
+        "desc": "陈皮拌笋",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "陈皮拌笋",
+                    "陳皮拌筍",
+                    "(?i)Rind-Flavored\\s*Sprouts",
+                    "陳皮と筍の和え物",
+                    "Rind-Flavored Sprouts"
+                ]
+            }
+        }
+    },
     "AutoStockStapleGoodsWulingArtificingCatalyst": {
         "desc": "武陵精锻助剂",
         "recognition": {
@@ -671,6 +692,48 @@
             }
         }
     },
+    "AutoStockStapleGoodsFinNChips": {
+        "desc": "炸鳞薯条",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "炸鳞薯条",
+                    "炸鱗薯條",
+                    "(?i)Fin-n-Chips",
+                    "鱗獣アンドチップス",
+                    "Fin-n-Chips"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsBizarroCupcake": {
+        "desc": "怪味纸杯蛋糕",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "怪味纸杯蛋糕",
+                    "怪味杯子蛋糕",
+                    "(?i)Bizarro\\s*Cupcake",
+                    "複雑な味のカップケーキ",
+                    "Bizarro Cupcake"
+                ]
+            }
+        }
+    },
     "AutoStockStapleGoodsChubbyLungFangxingMemorabilia": {
         "desc": "龙泡泡·方兴纪念",
         "recognition": {
@@ -698,6 +761,116 @@
                     "方兴纪念",
                     "方興紀念",
                     "方興記念"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsStoneholdRemedy": {
+        "desc": "蓄石秘剂",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "蓄石秘剂",
+                    "蓄石秘劑",
+                    "(?i)Stonehold\\s*Remedy",
+                    "蓄石の秘薬",
+                    "축석의 비약"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsRuinPurgerRemedy": {
+        "desc": "洗灾秘剂",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "洗灾秘剂",
+                    "洗災秘劑",
+                    "(?i)Ruin\\s*-\\s*Purger\\s*Remedy",
+                    "厄除の秘薬",
+                    "재앙 정화의 비약"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsWulingTalositeProbe": {
+        "desc": "武陵塔晶探针",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "武陵塔晶探针",
+                    "武陵塔晶探針",
+                    "(?i)Wuling\\s*Talosite\\s*Probe",
+                    "武陵タロサイト探査機",
+                    "무릉 유령수정 탐침기"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsFowlbeastPaperKite": {
+        "desc": "羽兽剪纸风筝",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "羽兽剪纸风筝",
+                    "羽獸剪紙風箏",
+                    "(?i)Fowlbeast\\s*Paper\\s*Kite",
+                    "羽獣の切り紙凧",
+                    "파울비스트 종이 연"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsSwingingGentlemanClassicalAlbum": {
+        "desc": "《摇摆绅士古典特辑》",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "《摇摆绅士古典特辑》",
+                    "《搖擺紳士古典特輯》",
+                    "(?i)Der\\s*Schwingende\\s*Gentleman\\s*Classical\\s*Album",
+                    "『スウィングジェントルのクラシックアルバム』",
+                    "<스윙 젠틀맨 고전 특집>",
+                    "《摇摆绅士",
+                    "《搖擺紳士",
+                    "(?i)Der\\sSchwingende",
+                    "『スウィン",
+                    "<스윙 젠틀"
                 ]
             }
         }

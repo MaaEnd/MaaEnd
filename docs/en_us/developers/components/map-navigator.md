@@ -1,63 +1,63 @@
-# Developer Guide - MapNavigator Path Navigation System
+# Development Manual - MapNavigator Path Navigation System
 
 ## Introduction
 
-This document explains how to use **MapNavigator**-related nodes, and how to record, edit, and export navigation paths that can be used directly in Pipeline with the built-in GUI tool.
+This document explains how to use the **MapNavigator** related nodes and how to leverage the built-in GUI tool in the repository to record, edit, and export navigation paths that can be directly used in a Pipeline.
 
-**MapNavigator** is MaaEnd's current high-precision automatic navigation Action module. It continuously obtains the player's current zone, global coordinates, and facing direction from the underlying localization capability, then drives the character point by point along the developer-provided `path`, executing sprint, jump, interaction, and zone-transition actions at key points.
+**MapNavigator** is MaaEnd's current high-precision automatic navigation Action module. It relies on underlying localization capabilities to continuously obtain the character's current area, global coordinates, and orientation. Then, it drives the character to move point-by-point according to the developer-provided `path` waypoint sequence, executing actions like sprinting, jumping, interaction, and map transition at key points.
 
-In addition to the traditional recorded-path workflow, MapNavigator now also supports BNAV v2-based `NAVMESH` semantic routing. The GUI can load `base.nav.gz` directly for triangle-based A\* preview, and the runtime expands `NAVMESH` nodes into ordinary `RUN` waypoints so preview, copy, and execution all share the same BaseNav data.
+In addition to traditional recorded paths, MapNavigator now also supports `NAVMESH` semantic pathfinding based on BNAV v2. The GUI can directly load `base.nav.gz` for triangle-face A\* preview. During runtime, the `NAVMESH` node is expanded into ordinary `RUN` waypoints, allowing preview, copying, and execution to all use the same set of BaseNav data.
 
-### Scope and Limitations
+### Boundary Description
 
-MapNavigator is responsible for "**given a route, move the character there reliably**" and belongs to the Action layer.
+MapNavigator is responsible for "**stably leading the person there after the target path is known**", belonging to the Action layer.
 
-- It does **not** handle business flow orchestration. When to start moving, where to stop, and how to handle unexpected situations should still be decided by the outer Pipeline.
-- It does **not** generate business logic automatically. The path itself still needs to be recorded or edited by the developer first, then passed into `custom_action_param.path`.
-- It does **not** decide whether "this route should be used right now." For entry-condition checks, you should first use recognition or scene-related nodes, and only then enter the navigation action.
+- It **does not** handle business process orchestration. Decisions like when to start walking, what constitutes success upon arrival, or how to handle unexpected situations en route should still be determined by the outer Pipeline.
+- It **does not** handle automatic generation of business logic. The path itself needs to be recorded and edited by the developer beforehand and then passed to `custom_action_param.path`.
+- It **does not** make judgments like "should this path be taken this time". For such entry condition judgments, it is recommended to first confirm using recognition or scene nodes before entering the navigation action.
 
-### Relationship Between MapNavigator and the Recording Tool
+### Relationship Between MapNavigator and Recording Tool
 
-The repository includes a dedicated GUI tool at `/tools/MapNavigator`.
+A dedicated GUI tool is provided within the repository: `/tools/MapNavigator`.
 
-Its intended workflow is extremely direct:
+Its design goal is very direct:
 
-1. Launch the game, then open the tool.
-2. Click Start Recording.
-3. Walk the route once in-game.
-4. Stop recording, then fine-tune points, delete points, or add actions in the GUI.
-5. Click Copy, then paste the exported `path` into Pipeline `custom_action_param.path`.
+1. Start the game and open the tool.
+2. Click to start recording directly.
+3. Walk through the actual path in the game.
+4. After stopping the recording, fine-tune, delete points, and add actions in the GUI.
+5. Click to copy, and paste the exported `path` into the Pipeline's `custom_action_param.path`.
 
-In other words, **most routes do not need to be written by hand**. For developers, the recommended workflow is "record first, arrange later, paste at the end."
+This means that **most paths do not require manually writing coordinates**. For developers, the recommended workflow is "record first, then orchestrate, and finally paste".
 
 ---
 
 ## Node Description
 
-The following sections detail the usage of nodes provided by MapNavigator. The current interface is a MAA `Custom` Action: `MapNavigateAction`.
+Below is a detailed introduction to the node usage provided by MapNavigator. The current interface is based on MAA `Custom` Action: `MapNavigateAction`.
 
 ### custom_action: MapNavigateAction
 
-Moves the character automatically along the given path and executes extra actions on path points.
+Controls the character to move automatically along a given path and execute additional actions at waypoints.
 
 #### Node Parameters
 
-**Required Parameters (in practice, you should at least provide `path`)**:
+**Required Parameters (at least provide `path` recommended)**:
 
-- `path`: A list of path nodes. MapNavigator consumes them in order and continues navigation until the route finishes or fails midway.
+- `path`: List of path points. MapNavigator will consume these nodes sequentially and navigate continuously until the path ends or fails midway.
 
 **Common Optional Parameters (`custom_action_param`)**:
 
-- `map_name`: String, default empty. Used as the initial zone context. If your `path` already contains `ZONE` declaration nodes, you usually do not need to set it.
-- `arrival_timeout`: Positive integer, default `60000`. Maximum allowed time for a single target point before it is considered unreachable, in milliseconds.
-- `sprint_threshold`: Positive real number, default `25.0`. Threshold for the estimated contiguous runnable segment ahead, rather than only the straight-line distance to the current point.
-- Other unknown top-level fields: currently ignored silently.
+- `map_name`: String, empty by default. Used as the initial area context. If the `path` already contains a `ZONE` declaration node, this usually does not need to be filled additionally.
+- `arrival_timeout`: Positive integer, `60000` by default. Maximum allowed time in milliseconds for a single target point to remain unreached before being considered failed.
+- `sprint_threshold`: Positive real number, `25.0` by default. The "length of continuously runnable segment ahead" threshold used for automatic sprint judgment, rather than just looking at the straight-line distance to the current point.
+- Other unknown top-level fields: Currently ignored silently without causing errors.
 
 #### `path` Data Structure
 
-`path` is essentially an array, and each element represents one "path node." In normal use, you usually do not need to write these by hand. It is much more recommended to arrange them with the GUI tool at `/tools/MapNavigator`. Common forms are shown below.
+`path` is essentially an array where each element represents a "path node". Typically, you don't need to manually write this content; using the accompanying GUI tool `/tools/MapNavigator` for orchestration is more recommended. Common usage is as follows.
 
-##### **1. The most common coordinate point**
+##### **1. Most Common Coordinate Point**
 
 ```json
 [
@@ -66,9 +66,9 @@ Moves the character automatically along the given path and executes extra action
 ]
 ```
 
-This represents a normal movement point. Once the character reaches this coordinate, navigation proceeds to the next point.
+Represents an ordinary movement point, meaning proceeding to the next point upon reaching this coordinate.
 
-##### **2. A coordinate point with an action**
+##### **2. Coordinate Point with Action**
 
 ```json
 [
@@ -78,20 +78,20 @@ This represents a normal movement point. Once the character reaches this coordin
 ]
 ```
 
-This means a `SPRINT` action should be executed upon reaching that point. Common actions currently include:
+Indicates that a `SPRINT` action should be executed upon reaching this point. Current common actions include:
 
-- `RUN`: A normal movement point.
-- `SPRINT`: Trigger one sprint upon arrival.
+- `RUN`: Ordinary movement point.
+- `SPRINT`: Perform a sprint once upon arrival.
 - `JUMP`: Jump upon arrival.
 - `FIGHT`: Attack once upon arrival.
 - `INTERACT`: Interact upon arrival.
-- `TRANSFER`: Stop at the point and wait for an external mechanism to move the character to the next segment, then continue from following waypoints.
-- `PORTAL`: A cross-zone transition point. Once committed, it enters blind-walk mode and waits for the zone switch.
-- `HEADING`: Turn the camera to the specified heading, then tap `W` once.
-- `COLLECT`: A gathering point. Upon precise arrival, stops the character and synchronously triggers the AutoCollect OCR + click subtask without exiting NaviController. See [Gathering Semantics](#gathering-semantics-collect--dig).
-- `DIG`: A digging point. Same as `COLLECT` but triggers the digging subtask instead. See [Gathering Semantics](#gathering-semantics-collect--dig).
+- `TRANSFER`: Stop upon arrival, wait for external force to move the character to the next path segment, then continue navigation from subsequent points.
+- `PORTAL`: Cross-area transition point, upon triggering, enter blind walk to wait for area switch.
+- `HEADING`: Adjust the camera to a specified orientation, then press `W` once.
+- `COLLECT`: Collection point, upon precise arrival, synchronously trigger AutoCollect OCR + click, without exiting NaviController. See [Collection Semantics](#collection-semantics-collect--dig).
+- `DIG`: Digging point, same as `COLLECT`, but triggers a digging subtask. See [Collection Semantics](#collection-semantics-collect--dig).
 
-##### **3. Strict-arrival point**
+##### **3. Strict Arrival Point**
 
 ```json
 [
@@ -102,9 +102,9 @@ This means a `SPRINT` action should be executed upon reaching that point. Common
 ]
 ```
 
-The trailing `true` means strict arrival is enabled for that point. For certain key points that really require precise arrival, such as interaction, jump, teleport, or zone-transition points, it is recommended to use strict arrival or directly use the corresponding action point, because the underlying logic already applies stricter arrival semantics there, such as slower approach and tighter arrival-radius confirmation.
+The trailing `true` enables strict arrival for this point. For certain interactions, jumps, teleports, or map transitions that genuinely require strict arrival at key points, it is recommended to use strict arrival or directly use the corresponding action point. This is because the underlying system already processes these critical actions with stricter arrival semantics (slower arrival, stricter confirmation of arrival radius threshold).
 
-##### **4. Zone declaration node**
+##### **4. Zone Declaration Node**
 
 ```json
 {
@@ -113,9 +113,9 @@ The trailing `true` means strict arrival is enabled for that point. For certain 
 }
 ```
 
-This is a **positionless control node** used to declare which zone the following path should belong to. It does not move the character by itself, but it provides zone-validation context for the subsequent path points.
+This is a **non-coordinate control node** used to declare "which area the subsequent path should be in". It itself does not execute displacement but only provides area **verification** context for subsequent path points.
 
-##### **5. Heading control node `HEADING`**
+##### **5. Orientation Control Node `HEADING`**
 
 ```json
 {
@@ -136,9 +136,9 @@ Or:
 }
 ```
 
-A positionless node. It turns the camera, then taps `W` once. `angle` provides a direct heading in degrees, while `target` computes that heading from the current position toward the given coordinate before reusing the same `HEADING` behavior.
+Non-coordinate node. During execution, after adjusting the camera orientation, lightly press `W` once to advance and make the orientation take effect. `angle` specifies the orientation angle directly; `target` calculates the orientation based on "current position -> target coordinates" and then reuses the same `HEADING` action flow.
 
-##### **6. BaseNav semantic node `NAVMESH`**
+##### **6. BaseNav Semantic Node `NAVMESH`**
 
 ```json
 {
@@ -150,32 +150,55 @@ A positionless node. It turns the camera, then taps `W` once. `angle` provides a
 }
 ```
 
-This is a **BaseNav semantic routing node**. It does not carry `zone_id`, `navmesh_zone`, or `path`; it only provides the target point `target`, while the rest is inferred automatically from the current localization state.
+This is a **BaseNav semantic pathfinding node**. It does not carry `zone_id`, `navmesh_zone`, or `path`; it only provides the target point `target`. The remaining information is automatically inferred at runtime based on current localization.
 
-`NAVMESH` runs as follows:
+The operational flow of `NAVMESH` is:
 
-1. The runtime first loads `assets/resource/model/map/navmesh/base.nav.gz`, and falls back to `base.nav` if needed.
-2. It infers the current BaseNav zone from the localization context.
-3. It runs A\* on the `.nav` triangle graph and only follows BaseNav links.
-4. It expands the result into ordinary `RUN` waypoints before handing control to the old movement execution chain.
+1. At runtime, prioritize loading `assets/resource/model/map/navmesh/base.nav.gz`; fall back to `base.nav` if it doesn't exist.
+2. Infer the BaseNav zone based on the current localization area.
+3. Execute A\* on the `.nav` triangle graph, only traversing BaseNav's own edges.
+4. Expand the planning result into ordinary `RUN` waypoints, which are then handed over to the old movement execution chain.
 
-In the GUI, clicking `Load BaseNav` enters the same BaseNav preview flow, and `Copy NAVMESH` copies exactly this node shape to the clipboard.
-`NAVMESH` is useful when you want the system to find a triangle-graph route from the current standing position to a target point without manually recording an entire path first.
+In the GUI, clicking `Load BaseNav` makes the tool enter the same BaseNav preview logic; clicking `Copy NAVMESH` copies this type of node to the clipboard.
+`NAVMESH` is suitable for scenarios that require "automatically finding a triangle graph path from the current position to the target point" without needing to manually record an entire path segment beforehand.
 
-**As long as the raw route is reachable without interactions, zone transitions, or special mechanisms, `NAVMESH` only needs a single `target` to carry the character directly to the destination**. You do not need to pre-record the whole path, add intermediate waypoints, or tune the route by hand for that goal. In the GUI, once you click the target, the runtime uses the BaseNav triangle graph to plan an executable route directly.
+**As long as the original path is inherently reachable without interactions, map transitions, or special mechanisms, `NAVMESH` only needs a `target` to directly lead the character to the target location**. No pre-recording of the entire route is needed, nor is there a need to add intermediate points, adjust coordinates, or manually splice the path for this target point. In the GUI, simply click out the target, and at runtime, an executable path will be planned directly based on the BaseNav triangle graph.
+
+###### Cross-tier Target: `target_tier`
+
+When `target_tier` is not specified, `target` defaults to **base (base map) coordinates**—this is the default behavior described above, with no change in functionality.
+
+When the target point is on a specific **tier (layered map)**, each tier is a **mutually independent coordinate system**: the same numbers `[123, 456]` on the base and on a tier are completely different physical locations. In this case, simply add a `target_tier` field to the node, declaring which layer's coordinate system the `target` is filled according to:
+
+```json
+{
+    "action": "NAVMESH",
+    "target": [
+        81.77,
+        108.72
+    ],
+    "target_tier": "ValleyIV_L1_171"
+}
+```
+
+- `target`: The coordinate **directly clicked out in the GUI after switching to that tier's base map**, without needing to manually convert it to base coordinates.
+- `target_tier`: The **area name** of that layer, i.e., the name part after `:` in the `id:name` of the tier dropdown in the GUI.
+- At runtime, the affine transformation baked into the `.nav` for that tier is used to automatically project `target` back to the base coordinate system (using the same mirroring logic as automatic normalization of the starting point localization), and snap the landing point according to that tier's floor height.
+- This is the only thing needed to go to a tier: **a single node with `target` + `target_tier` is enough**. No additional `ZONE` node is needed, no intermediate points need to be added, and no manual coordinate adjustment is required.
+- The field also supports camelCase writing `targetTier`; filling in a non-existent layer name will be logged as a warning and treated as base coordinates.
 
 #### Return Behavior
 
-`MapNavigateAction` is an Action node, so it does not expose a stable structured recognition output like a Recognition node does. In practice, its result is mainly reflected as:
+`MapNavigateAction` is an Action node; it does not have a stable structured recognition output like Recognition. Its results are mainly reflected as:
 
-- If the entire route is completed successfully, the Action returns success.
-- If a fast-fail condition is hit midway (sustained no-progress timeout / sustained divergence timeout), the Action returns failure.
+- If navigation successfully completes the entire path, the current Action returns success.
+- If a quick failure condition is triggered during the process (continuous lack of progress timeout / continuous deviation timeout), the current Action returns failure.
 
-So in Pipeline, it is generally best treated as an atomic action: "**either the whole path finishes, or the node fails**."
+Therefore, in a Pipeline, it is generally regarded as an atomic action that either **completes the entire path or the entire node fails**.
 
-#### Usage Example
+#### Example Usage
 
-The most common usage is simply to paste the `path` copied from the recording tool:
+Below is the most common usage pattern; simply paste the `path` copied from the recording tool:
 
 ```json
 {
@@ -244,32 +267,32 @@ The most common usage is simply to paste the `path` copied from the recording to
 
 > [!TIP]
 >
-> In actual development, it is recommended to place `MapNavigateAction` after a node that has already confirmed the entry state. Confirm that the character is indeed in the expected scene, zone, and roughly correct orientation before starting a full navigation segment. This improves success rate significantly.
+> In actual development, it is recommended to use `MapNavigateAction` after a node that has confirmed the entry state. First confirm that the character is indeed in the expected scene, area, and near the expected orientation before starting the entire navigation, which will significantly increase the success rate.
 
 > [!WARNING]
 >
-> Adjacent path points should still be reasonably traversable one after another. Do not expect the navigator to clip through geometry, route around highly complex obstacles, or understand business-specific mechanisms automatically. For special segments such as portal transitions, jump pads, falling, or lift-like mechanisms, explicitly split them using `PORTAL`, `TRANSFER`, and separate business nodes.
+> Path points should preferably satisfy the requirement of "being able to move coherently to the next point". Do not expect the navigator to pass through models, circumvent particularly complex obstacles, or automatically understand business mechanisms. Special segments like map transitions, jump platforms, falls, and ascent mechanisms should be explicitly split into `PORTAL` / `TRANSFER` / business node combinations for handling.
 
 ---
 
-## Tool Guide
+## Tool Description
 
-We provide a dedicated GUI tool for MapNavigator at `/tools/MapNavigator`, with `main.py` as the entry point.
+We provide a dedicated GUI tool for MapNavigator, located at `/tools/MapNavigator`, with the entry point being `main.py`.
 
 It supports:
 
-1. Connecting directly to the current game window and recording real movement traces.
-2. Automatically adding `ZONE` and `PORTAL` semantics based on zone changes.
-3. Deleting points, dragging points, changing coordinate-point actions, and editing strict-arrival settings in the GUI.
-4. Importing existing JSON / JSONC files, recursively searching recognizable `path` data, and continuing editing.
-5. One-click copying of the canonical `path` that can be pasted directly into `custom_action_param.path`.
-6. A separate `Assert Mode` for manually selecting a map and drawing a rectangle, then exporting a `MapLocateAssertLocation` node.
-7. A BaseNav A\* mode that loads `.nav.gz` / `.nav`, previews routes on the red triangle overlay, and copies `NAVMESH` nodes.
+1. Direct connection to the current game window to record actual movement trajectories.
+2. Automatic addition of `ZONE` / `PORTAL` semantics based on area transitions.
+3. Deleting points, dragging points, changing coordinate point actions, and modifying strict arrival in the GUI.
+4. Importing existing JSON / JSONC, recursively searching for recognizable `path` data and continuing editing.
+5. One-click copying of canonical `path` that can be directly pasted into `custom_action_param.path`.
+6. Through an independent `Assert mode` to manually select the base map and frame rectangular areas, exporting `MapLocateAssertLocation` nodes.
+7. Entering BaseNav A\* mode, loading `.nav.gz` / `.nav`, previewing paths on the red triangle face overlay, and copying `NAVMESH` nodes.
 
-One extra note: the current GUI editor mainly round-trips coordinate-bearing path points, plus the `ZONE` declarations derived from zone information.  
-Positionless control nodes such as `HEADING`, and semantic routing nodes such as `NAVMESH`, are not part of the normal GUI point-editing workflow. It is safer to add or maintain `HEADING` manually after exporting the `path`, while `NAVMESH` can be generated directly through `Copy NAVMESH`.
+An additional note is that the current GUI editor primarily round-trips path points with coordinates and `ZONE` declarations derived from area information.
+Non-coordinate control nodes like `HEADING` and semantic pathfinding nodes like `NAVMESH` are not regular point editing objects in the GUI. It is recommended to manually add back or maintain `HEADING` after exporting the `path`, while `NAVMESH` can be directly generated using `Copy NAVMESH`.
 
-### Running the Tool
+### Running Method
 
 #### 1) Standard Python
 
@@ -288,115 +311,118 @@ cd tools\MapNavigator
 uv run main.py
 ```
 
-### Before You Start
+### Pre-run Preparation
 
-Before recording, make sure:
+Before starting to record, please confirm:
 
-1. The workspace is set up per [getting-started](../getting-started.md), especially `install/agent/cpp-algo.exe` and `install/maafw`.
+1. The project development environment has been configured according to the development manual, especially that `install/agent/cpp-algo.exe` and `install/maafw` are usable.
 2. The Python dependencies `maafw`, `Pillow`, and `pynput` are installed.
-3. **Windows**: The tool must be run **as Administrator**. Otherwise, the G/X hotkeys may not be captured by the system when the game (an elevated process) is in the foreground. `main.py` auto-detects this and triggers a UAC elevation prompt on startup.
-4. **macOS**: On the first run, you need to grant permission in **System Settings → Privacy & Security → Input Monitoring** for your terminal or Python interpreter, otherwise global hotkeys will have no effect.
-5. The game is already running and the window is **not minimized** (if using Win32 connection).
-6. `adb` is available and the target emulator/device is visible in the device list (if using ADB).
-7. The character is already standing near the starting point of the route you want to record.
+3. **Windows**: The tool needs to be run with **administrator privileges**; otherwise, the G/X hotkeys may not be captured by the system when the game (an administrator process) is in the foreground. `main.py` will automatically detect this and prompt a UAC elevation request at startup.
+4. **macOS**: On the first run, you need to authorize the current terminal or Python interpreter in **System Settings → Privacy & Security → Input Monitoring**, otherwise global hotkeys will not work.
+5. If using `Win32` connection, the game is already started, and the window is **not minimized**.
+6. If using `ADB` connection, `adb` is available, and the target emulator/device appears in the device list.
+7. The current character is standing near the starting point of the route you want to record.
 
 ### Recommended Workflow
 
-This is the most recommended and least painful way to use MapNavigator in practice.
+The following flow is the most recommended and hassle-free actual usage for MapNavigator.
 
-#### Step 1: Open the tool and start recording
+#### Step 1: Open the Tool and Start Recording
 
-Run `tools/MapNavigator/main.py`, then click **`Start Recording`** in the top-left of the GUI.
+After running `tools/MapNavigator/main.py`, first select the controller to be used for this recording in the top `Connection` area, then click **`Start Recording`** in the upper-left corner of the GUI.
+
+- When recording the PC version, select `Win32 Window`, modifying the window title if necessary.
+- When recording an emulator/real device, select `ADB Device`, configure the `adb` path, refresh the device list, and select the target.
 
 The tool will automatically:
 
 1. Launch the local Agent.
-2. Search for the current game window.
-3. Call the underlying localization logic continuously to read coordinates and zone information.
-4. Sample the route you actually walked into a raw trajectory.
+2. Establish a controller based on the selected connection method.
+3. Call the underlying localization recognition to continuously read the current coordinates and area.
+4. Sample your actual walked route into a raw trajectory.
 
-If the environment is incomplete or the game window cannot be found, the tool reports an error directly instead of producing invalid path data.
+If the current environment is incomplete, the Win32 window is not found, or the ADB device is not connected, the tool will report an error directly without generating an invalid trajectory.
 
-#### Step 2: Switch back to the game and walk the route once manually
+#### Step 2: Switch Back to the Game and Walk Through Manually
 
-After recording starts, go back to the game and simply **walk the route the way you want the character to execute it later**.
+After recording starts, switch back to the game and simply **walk through once as you wish the character to automatically execute in the future**.
 
-During recording, the following hotkeys are available:
+During recording, you can use the following shortcut keys:
 
-| Hotkey | Function                                                                                                                  |
-| ------ | ------------------------------------------------------------------------------------------------------------------------- |
-| `G`    | 📋 **Copy the current coordinates** to the clipboard as `[x, y]` (does not affect recorded data, can be pressed any time) |
-| `X`    | 📌 **Force-insert a strict-arrival waypoint** at the current exact position into the recorded data                        |
+| Shortcut Key | Function                                                                                                                        |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| `G`          | 📋 **Copy the current coordinates to the clipboard** in `[x, y]` format (does not affect recorded data, can be pressed anytime) |
+| `X`          | 📌 **Force insert a strict arrival (strict) path point** at the current precise location into the recorded data                 |
 
 > [!TIP]
 >
-> Use `G` to quickly capture coordinates of interest without interrupting the recording flow. Use `X` to mark key positions (interaction points, portal triggers, etc.) so they are guaranteed to be recorded and marked as strict-arrival points.
+> The `G` key is used to quickly record coordinates of interest without interrupting the recording process. The `X` key is used to mark key locations (interaction points, map transition points, etc.) to ensure that the coordinate is definitely recorded and marked as a strict arrival point.
 
-One important note: points with stronger business semantics such as `FIGHT`, `TRANSFER`, and `HEADING` are **not inferred automatically during recording**. The usual workflow is to stop recording first, then manually change those points to the desired action in the GUI.
+It should be noted that points with stronger business semantics like `FIGHT`, `TRANSFER`, `HEADING` **will not be automatically determined during the recording phase**. The usual practice is to manually change the corresponding point to the target action in the GUI after stopping the recording.
 
-So the most basic workflow is simply:
+Therefore, the simplest usage is:
 
-1. Click Start Recording.
-2. Go into the game and run the route normally.
-3. Press `X` at key positions to force-pin them (e.g. interaction triggers, jump-pad landings).
-4. Come back and click Stop when finished.
+1. Click start recording.
+2. Go run the map normally in the game.
+3. Press `X` at key locations to force mark points (e.g., interaction trigger points, jump platform landing points).
+4. Come back and click stop after finishing.
 
-#### Step 3: Stop recording and review the automatically cleaned-up result
+#### Step 3: Stop Recording and Observe the Automatically Organized Results
 
-After clicking **`Stop Recording`**, the tool performs one round of cleanup on the raw trace, including:
+After clicking **`Stop Recording`**, the tool will perform a round of organization on the raw trajectory, including:
 
-- Normalizing coordinates, actions, `strict`, and `zone` data into the canonical format.
-- Automatically adding `PORTAL` semantics on cross-zone boundaries.
-- Splitting the view by the current zone for easier browsing.
+- Unifying the canonical format of coordinates, actions, `strict`, and `zone`.
+- Automatically adding `PORTAL` semantics at cross-area boundaries.
+- Splitting the view by current area for browsing.
 
-What you see here is a normalized, editable, and exportable navigation route.
+What you see is a navigation route that has been normalized and can be further edited and exported.
 
-#### Step 4: Arrange the path in the GUI
+#### Step 4: Orchestrate the Path in the GUI
 
-At this point, you can handle the remaining details directly in the GUI.
+Next, directly handle the details in the GUI.
 
-**View operations:**
+**View Operations:**
 
-- Mouse wheel: zoom.
-- Right mouse drag: pan the view.
-- Left click on blank space: insert a new point.
-- Left click on an existing point: select it.
-- Left drag on an existing point: fine-tune its coordinate.
+- Mouse wheel: Zoom in/out.
+- Right mouse button drag: Pan the view.
+- Left mouse button click on empty space: Insert a new point.
+- Left mouse button click on an existing point: Select that point.
+- Left mouse button drag on an existing point: Fine-tune coordinates.
 
-**Zone switching:**
+**Area Switching:**
 
-- The `◀ / ▶` buttons at the top are used to switch between zones.
-- If the route crosses zones, the tool displays each zone as a separate segment, making it easier to verify whether the transition before and after the zone boundary is reasonable.
+- The top `◀ / ▶` buttons are used to switch between different areas for viewing.
+- If the route crosses areas, the tool will display each area separately for easy inspection of whether the area transitions are reasonable.
 
-**Point property editing:**
+**Point Property Editing:**
 
-- The action dropdown at the top lets you set the action for the current point.
-- `Set`: replace the current point's action with the selected one.
-- `Append`: append another action semantic to the current point.
-- `Pop`: remove the last action semantic from the current point's action chain.
-- `Strict`: mark the current point as a strict-arrival point.
-- `🗑`: delete the currently selected point.
+- The top action dropdown can set the action for the current point.
+- `Set Single`: Change the current point's action to the selected action in the dropdown.
+- `Append`: Append an action semantic after the current point.
+- `Undo One`: Remove the last action in the current point's action chain.
+- `Strict`: Mark the current point as a strict arrival point.
+- `🗑`: Delete the currently selected point.
 
-The action dropdown currently targets coordinate-point actions, which in practice means `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`.  
-Control nodes such as `HEADING` are outside this GUI action-chain model.
+The current action dropdown targets coordinate point actions, commonly edited to `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`.
+Non-coordinate control nodes like `HEADING` are not part of this GUI action chain.
 
-**Undo / Redo:**
+**Undo/Redo:**
 
-- `Ctrl+Z`: undo.
-- `Ctrl+Y`: redo.
-- `C`: copy the coordinates of the currently selected point to the clipboard as `[x, y]` (supports multi-select for line-by-line output).
+- `Ctrl+Z`: Undo.
+- `Ctrl+Y`: Redo.
+- `C`: Copy the coordinates of the currently selected point to the clipboard (format is `[x, y]`, supports copying multiple selected points line by line).
 
-In practice, these are usually the only edits you really need:
+Usually, the only fine-tuning you really need to do is:
 
-1. Change key interaction points to `INTERACT` and enable `Strict` (points placed with the `X` hotkey during recording are already strict-arrival points).
-2. Change points that need jumping, sprinting, external transfer, or zone-transition behavior into the corresponding action (for example `JUMP` / `SPRINT` / `TRANSFER` / `PORTAL`).
-3. Check whether the points before and after a zone transition are placed reasonably.
+1. Change key interaction points to `INTERACT` and check `Strict` (points recorded with the X key are already strict arrival by default).
+2. Change points that require jumping, sprinting, external teleportation, or map transitions to the corresponding action (e.g., `JUMP` / `SPRINT` / `TRANSFER` / `PORTAL`).
+3. Check whether the two points before and after an area transition fall in reasonable locations.
 
-#### Step 5: Copy the `path` and paste it into Pipeline
+#### Step 5: Copy `path` and Paste into Pipeline
 
-Once the route looks correct, click **`Copy Path`**.
+After confirming the route is correct, click **`Copy Path`**.
 
-What the tool copies to the clipboard is **the `path` body only**, not a full node JSON object. That means you can paste it directly into:
+What the tool copies to the clipboard is **only the `path` body**, not the complete node JSON. That is, you can directly paste it into:
 
 ```json
 "custom_action_param": {
@@ -406,60 +432,60 @@ What the tool copies to the clipboard is **the `path` body only**, not a full no
 }
 ```
 
-This is also why it is recommended to finish all editing in the GUI before copying, because the exported content is already the canonical format that MapNavigator can consume directly.
+This is also why it is recommended to finish all orchestration in the GUI before copying, because the exported content is already in the canonical format that MapNavigator can directly consume.
 
-### Import and Edit Existing Paths
+### Importing Existing Paths for Editing
 
-If you already wrote a path in another Pipeline, or a teammate gives you a JSON / JSONC file, you can also click **`Import JSON`**.
+If you have already written a path in another Pipeline, or a colleague has given you a piece of JSON / JSONC, you can also click **`Import JSON`**.
 
-The tool recursively scans the file for recognizable `path` data and automatically loads the candidate route with the most points. If the source data lacks zone information, the GUI will ask you to assign a zone for each route segment before continuing with editing and export.
+The tool will recursively scan the file for recognizable `path` data and automatically load the candidate route with the most points. If the source data lacks zone information, the GUI will prompt you to assign areas to each route segment before continuing with editing and exporting.
 
-This is especially useful for:
+This is very suitable for the following scenarios:
 
 - Migrating old paths to the new navigation module.
-- Reusing existing routes in collaborative development.
-- Modifying a previously created route.
+- Reusing existing routes in multi-person collaboration.
+- Modifying previous routes.
 
 ### Assert Mode
 
-When you do not need to record a route, but instead need to check whether the character is currently inside a certain rectangular area, you can use the `Assert Mode` at the top of the tool.
+When you need not to "record a path" but to "determine whether the character currently falls within a certain rectangular area", you can directly use the `Assert Mode` at the top of the tool.
 
-Workflow:
+Usage:
 
-1. Enable `Assert Mode`.
+1. Check `Assert Mode`.
 2. Select the target `zone` from the dropdown.
-3. Drag a rectangle on the map.
-4. Click `Copy Assert` to copy a complete `MapLocateAssertLocation` node to the clipboard.
+3. Drag out a rectangle on the base map.
+4. Click `Copy Assert` to copy the complete `MapLocateAssertLocation` node to the clipboard.
 
-This mode does not modify the current path data. It simply reuses the same map rendering workflow to generate area-assertion nodes quickly.
-
----
-
-## Practical Development Advice
-
-1. Record when possible. Try not to hand-write an entire path. Actually walking the route once is usually more accurate than filling coordinates in by feel. If the precision of path points recorded while running and sprinting feels insufficient, just walk more slowly.
-2. Keep the starting point stable. Before recording, stabilize the character's position and camera as much as possible. This reduces later editing work.
-3. Use special action points sparingly and precisely. Especially for `INTERACT`, `TRANSFER`, `PORTAL`, and `HEADING`, only place them where they are truly needed. Also remember that `HEADING` is a control node, so it is usually safest to maintain it manually after GUI export.
-4. Always inspect zone-transition routes carefully. Automatically adding `PORTAL` only helps supplement semantics; it does not mean every cross-zone boundary is naturally valid.
-5. The outer Pipeline still needs proper entry checks and failure fallback. Navigation is not your business flow itself, so do not push all exception handling into a single `MapNavigateAction`.
+This mode does not modify the current path data; it merely borrows the same map rendering capabilities to quickly generate area determination nodes.
 
 ---
 
-## Gathering Semantics: COLLECT / DIG
+## Actual Development Suggestions
+
+1. Record whenever possible; try not to manually craft the entire path. Walking through once in reality is usually more accurate than filling coordinates by feeling. If the precision of points hit by running and sprinting feels insufficient, try walking slowly.
+2. Starting point stability. Before recording, tidy up the character's position and viewpoint to reduce the cost of subsequent point correction.
+3. Special action points should be fewer but more precise; do not indiscriminately scatter them along the path. Especially for points like `INTERACT`, `TRANSFER`, `PORTAL`, `HEADING`, they should only be placed where they genuinely need to be triggered. `HEADING` also requires attention as a control node; it is usually more stable to manually maintain it after GUI export.
+4. For cross-area routes, always check the map transition points. Automatic addition of `PORTAL` is only for semantic supplementation, meaning not all cross-area boundaries are inherently reasonable.
+5. The outer Pipeline should still perform entry verification and failure fallback. Navigation is not the business flow itself; do not place all exception handling on a single `MapNavigateAction`.
+
+---
+
+## Collection Semantics COLLECT / DIG
 
 ### Concept
 
-`COLLECT` and `DIG` are **native gathering/digging semantic waypoints** in MapNavigator. A route author only needs to write gathering coordinates as `[x, y, "COLLECT"]` or `[x, y, "DIG"]` in the `path` array. Once the character arrives precisely, MapNavigator stops the character, synchronously runs the corresponding pipeline subtask to complete the gathering or digging, and then continues with the remaining path — **without exiting NaviController at any point**.
+`COLLECT` and `DIG` are MapNavigator's **native collection/digging semantic points**. The path author only needs to write the collection coordinates as `[x, y, "COLLECT"]` or `[x, y, "DIG"]` in the `path` array. After the navigator arrives precisely, it will automatically stop, synchronously trigger the corresponding pipeline subtask to complete collection/digging, and then continue to the next path segment, **without exiting NaviController throughout**.
 
-Compared to the old `anchor`-chain approach, this offers:
+This improvement over the old `anchor` chain writing method includes:
 
-- No per-collection reconnection, re-Bootstrap, or sprint startup-grace reset
-- Auto-sprint is suppressed for the entire segment leading up to a gathering point; the character will not overshoot
-- Multiple gathering points fit in a single Pipeline node; no need to split into many `GotoFindN` nodes
+- No re-establishment of connection, re-bootstrapping, or resetting of sprint start grace period for each collection.
+- The entire segment near collection points automatically prohibits sprinting, preventing overshooting the target.
+- Multiple collection points are merged in a single Pipeline node, without needing to split them into multiple `GotoFindN` nodes.
 
-### Syntax
+### Writing Method
 
-In `custom_action_param.path`, set the third element of a target coordinate to the corresponding action string:
+In `custom_action_param.path`, change the third element of the target coordinates that need collection/digging to the corresponding action string:
 
 ```json
 "path": [
@@ -472,46 +498,49 @@ In `custom_action_param.path`, set the third element of a target coordinate to t
 ]
 ```
 
-- `[x, y, "COLLECT"]`: upon arrival, triggers OCR recognition + auto-click gathering (`AutoCollectClickStart`)
-- `[x, y, "DIG"]`: upon arrival, triggers unconditional two-click digging (`AutoCollectDigStart`)
-- Any number of `COLLECT` and `DIG` points can be mixed in the same `MapNavigateAction` node
-- **No** `anchor` or `next: ["AutoCollectClickStart"]` is needed on the Pipeline node
+- `[x, y, "COLLECT"]`: Triggers OCR recognition + automatic click collection (`AutoCollectClickStart`) upon reaching this point.
+- `[x, y, "DIG"]`: Triggers unconditional click digging (`AutoCollectDigStart`) upon reaching this point.
+- Any number of `COLLECT` and `DIG` points can be mixed within the same `MapNavigateAction` node.
+- **No need** to write `anchor` on the node or point `next` to `AutoCollectClickStart`.
 
-### Files the Route Author Should Care About
+### Files Path Authors Need to Care About
 
-| File                                                          | Purpose                                                                    | When to Edit                                                              |
-| ------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `assets/resource/pipeline/AutoCollect/AutoCollectRoute*.json` | Route definitions with `MapNavigateAction` nodes and gathering coordinates | Adding routes, adjusting coordinates, adding or removing gathering points |
-| `assets/resource/pipeline/AutoCollect/AutoCollectClick.json`  | `COLLECT` OCR + click subtask, entry: `AutoCollectClickStart`              | Adding or removing OCR-recognized material names                          |
-| `assets/resource/pipeline/AutoCollect/AutoCollectDig.json`    | `DIG` digging subtask, entry: `AutoCollectDigStart`                        | When digging interaction logic changes                                    |
+| File                                                          | Responsibility                                                                       | When Changes Are Needed                                          |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| `assets/resource/pipeline/AutoCollect/AutoCollectRoute*.json` | Path definitions, containing `MapNavigateAction` nodes and collection coordinates    | Add new routes, adjust coordinates, add/remove collection points |
+| `assets/resource/pipeline/AutoCollect/AutoCollectClick.json`  | OCR and click subtask triggered by `COLLECT`, entry point is `AutoCollectClickStart` | Add or delete OCR-recognized collection object names             |
+| `assets/resource/pipeline/AutoCollect/AutoCollectDig.json`    | Digging subtask triggered by `DIG`, entry point is `AutoCollectDigStart`             | When digging interaction logic changes                           |
+| `assets/resource/pipeline/AutoCollect.json`                   | Route iteration, failure collection, and backpack storage before/after collection    | Add route entries or adjust the overall flow                     |
 
-**In the vast majority of cases, a route author only needs to touch `AutoCollectRoute*.json`.**
+**In most cases, path authors only need to modify `AutoCollectRoute*.json`.**
 
-### Files the Route Author Should Not Touch
+The overall Auto Collect flow uses `AutoCollectLoop` to invoke route wrapper nodes in order. Each wrapper uses the generic `FailureCollectorRunTask` to execute an enabled route; if any node inside the route fails, the wrapper Action records that route's `{Route}Failed` Pipeline node and returns success so Pipeline continues with the next route. After all routes and the final backpack storage step finish, `AutoCollectFinish` calls those nodes in failure order to output the localized `$option.*.label`, then makes the Auto Collect task return failure.
 
-The following files are maintained by the cpp-algo maintainer and do not need to be changed by route authors:
+### Parts Path Authors Do Not Need to Touch
 
-- `agent/cpp-algo/source/MapNavigator/navi_domain_types.h`: `ActionType` enum; `COLLECT`/`DIG` are declared here
-- `agent/cpp-algo/source/MapNavigator/navi_config.h`: subtask entry names, `pipeline_override` JSON, post-collection sleep duration
-- `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`: the execution logic upon arrival at a gathering point
+The following files are maintained by cpp-algo developers; path authors do not need to modify them:
 
-### Boundary Notes
+- `agent/cpp-algo/source/MapNavigator/navi_domain_types.h`: `ActionType` enum, `COLLECT`/`DIG` declared here.
+- `agent/cpp-algo/source/MapNavigator/navi_config.h`: Subtask entry names, `pipeline_override`, wait time after collection, and other constants.
+- `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`: Execution logic after arriving at the collection point.
 
-**Old anchor-chain style is deprecated**
+### Boundary Description
 
-The old `anchor: { "AutoCollectClickAfter": "..." }` + `next: ["AutoCollectClickStart"]` split-node style is deprecated and should not appear in new routes.
+**Old Writing Method Deprecated**
 
-**Do not change `AutoCollectClickEnd`'s `next`**
+The old `anchor: { "AutoCollectClickAfter": "..." }` + `next: ["AutoCollectClickStart"]` chain-splitting writing method is deprecated and should no longer appear in new routes.
 
-`AutoCollectClickEnd` in `AutoCollectClick.json` has `next: ["[Anchor]AutoCollectClickAfter"]` to maintain backward compatibility with the old anchor-chain calling convention. When the subtask is called via `MaaContextRunTask`, the cpp-algo layer temporarily overrides that `next` to empty via `pipeline_override`, so the subtask exits cleanly. Route authors **must not change** this field, as doing so would break any routes still using the old calling style.
+**`AutoCollectClickEnd`'s `next` Cannot Be Changed**
 
-**Sprint suppression is controlled by the runtime**
+The `next` in `AutoCollectClickEnd` within `AutoCollectClick.json` points to `[Anchor]AutoCollectClickAfter` to maintain compatibility with old anchor chain calls. When called from a `MaaContextRunTask` subtask, the cpp-algo layer temporarily nullifies this `next` via `pipeline_override`, allowing the subtask to exit cleanly. Path authors **should not modify** this field, as it may affect other routes still using the old writing method.
 
-Auto-sprint suppression for the entire segment leading up to any `COLLECT`, `DIG`, or strict-arrival point is enforced at the `NavigationStateMachine` level in cpp-algo. Route authors cannot and do not need to control this from the path JSON.
+**Sprint Control is Runtime-Managed**
 
-### Full Steps to Add a New Gathering Route
+For all `COLLECT`, `DIG`, and strict arrival points, the sprint on the entire preceding segment is hard-disabled by cpp-algo at the `NavigationStateMachine` level. Path authors cannot and do not need to control this behavior in the path JSON.
 
-1. Create `AutoCollectRouteN.json` in `assets/resource/pipeline/AutoCollect/`. Use an existing route as a reference; the skeleton is `Start` → `AssertLocation` → `Goto` → `End`.
-2. Record the path with the MapNavigator tool. In the GUI, set gathering target points to the `Collect` or `Dig` action. Copy the `path` and paste it into the `Goto` node's `custom_action_param.path`.
-3. Register the new route entry in `interface.json` or the relevant task entry JSON.
-4. No changes are needed to `AutoCollectClick.json`, `AutoCollectDig.json`, or any cpp-algo source file.
+### Complete Steps for Adding a New Collection Route
+
+1. Create a new `AutoCollectRouteN.json` under `assets/resource/pipeline/AutoCollect/`, referencing existing routes to write the basic skeleton of four nodes: `Start` → `AssertLocation` → `Goto` → `End`.
+2. Use the MapNavigator tool to record the path. In the GUI, change the action of the collection target points to `Collect` or `Dig`, copy the `path`, and paste it into the `custom_action_param.path` of the `Goto` node.
+3. Register the new route entry in `interface.json` / the task entry JSON.
+4. No changes are needed to `AutoCollectClick.json`, `AutoCollectDig.json`, or any cpp-algo source files.

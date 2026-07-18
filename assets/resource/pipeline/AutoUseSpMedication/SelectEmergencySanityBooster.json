@@ -1,0 +1,38 @@
+{
+    "AutoUseSpMedicationSelectEmergencySanityBooster": {
+        "desc": "选择应急理智加强剂",
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "FindDeadlineEmergencySanityBooster"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "next": [
+            "AutoUseSpMedicationUseEmergencySpBooster"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoUseSpMedication.focus.select_booster_starting"
+        }
+    },
+    // 战斗内使用应急理智加强剂的入口节点。其他开发者可在 next 或 [JumpBack] 中调用
+    // AutoUseSpMedicationSelectEmergencySanityBoosterInCombat，在战斗界面快捷使用符合条件的应急理智加强剂。
+    "AutoUseSpMedicationSelectEmergencySanityBoosterInCombat": {
+        "desc": "选择应急理智加强剂",
+        "enabled": true,
+        "max_hit": 3,
+        "recognition": "And",
+        "all_of": [
+            "FindDeadlineEmergencySanityBooster"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "next": [
+            "AutoUseSpMedicationQuickUse",
+            "AutoUseSpMedicationQuickUseCancel"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoUseSpMedication.focus.select_booster_starting"
+        }
+    }
+}

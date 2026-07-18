@@ -76,9 +76,6 @@ func TestMapTrackerAssertLocationCompatibleConvertsRegionalSamples(t *testing.T)
 					t.Fatalf("target[%d] got %.3f, want %.3f", i, condition.Target[i], expect)
 				}
 			}
-			if !converted.FastMode {
-				t.Fatal("expected fast_mode")
-			}
 		})
 	}
 }

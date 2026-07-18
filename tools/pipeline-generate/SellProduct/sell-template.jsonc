@@ -1,0 +1,17 @@
+{
+    "SellProduct${RegionPrefix}Sell": {
+        "desc": "在${RegionDesc}售卖",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopment${RegionPrefix}OutpostManagement"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": "${Next}"
+    }
+}

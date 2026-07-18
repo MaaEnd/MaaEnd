@@ -1,0 +1,27 @@
+{
+    "CreditShoppingBuyItemOCR_ArsenalTicket": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            135,
+            422,
+            146
+        ],
+        "expected": [
+            "武库配额",
+            "武庫配額",
+            "(?i)Arsenal\\s*Ticket",
+            "武庫配給"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ArsenalTicket"
+        }
+    }
+}

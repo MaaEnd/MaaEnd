@@ -9,7 +9,6 @@
 
 #include <MaaUtils/Logger.h>
 
-
 namespace
 {
 
@@ -265,8 +264,7 @@ void FramelessWindow::uiThreadMain()
         if (!SetWindowDisplayAffinity(hwnd_, WDA_EXCLUDEFROMCAPTURE)) {
             const DWORD ec1 = GetLastError();
             if (!SetWindowDisplayAffinity(hwnd_, WDA_MONITOR)) {
-                LogWarn << "FramelessWindow: SetWindowDisplayAffinity failed" << VAR(ec1)
-                        << VAR(GetLastError());
+                LogWarn << "FramelessWindow: SetWindowDisplayAffinity failed" << VAR(ec1) << VAR(GetLastError());
             }
         }
     }
@@ -299,8 +297,7 @@ bool FramelessWindow::createNativeWindow()
     // WS_THICKFRAME 是无边框窗口启用系统级边框拉伸（DWM 自带光标变化）的关键。
     // WS_CAPTION 让 Windows 的窗口动画/最大化/Aero Snap 行为保持正常，
     // 实际的标题栏会被 WM_NCCALCSIZE 抹掉。
-    constexpr DWORD kStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX
-                             | WS_MAXIMIZEBOX | WS_CLIPCHILDREN;
+    constexpr DWORD kStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CLIPCHILDREN;
 
     // WS_EX_APPWINDOW 强制窗口出现在任务栏；WS_EX_TOOLWINDOW 把窗口标记为工具窗，
     // 不进任务栏也不进 Alt+Tab 列表。两者互斥，由 SetShowInTaskbar 控制。
@@ -453,7 +450,9 @@ bool FramelessWindow::Open()
     return true;
 }
 
-void FramelessWindow::Close() {}
+void FramelessWindow::Close()
+{
+}
 
 void FramelessWindow::SetTopMost(bool top_most)
 {

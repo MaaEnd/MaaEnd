@@ -6,10 +6,34 @@
         "all_of": [
             "CheckEcologyNearTheFieldLogisticsDepotText",
             "CheckEcologyNearTheFieldLogisticsDepotIcon",
-            "CheckEcologyNearTheFieldLogisticsDepotReadyText"
+            "CheckEcologyNearTheFieldLogisticsDepotWulingStockBill"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "EcologyNearTheFieldLogisticsDepotExecute",
+            "recovery_task": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "failure_task": "EcologyNearTheFieldLogisticsDepotFailed"
+        },
         "post_delay": 0,
+        "rate_limit": 0
+    },
+    "EcologyNearTheFieldLogisticsDepotFailed": {
+        "desc": "储备站周围的生态环境任务执行失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.EcologyNearTheFieldLogisticsDepot.failed"
+        }
+    },
+    "EcologyNearTheFieldLogisticsDepotExecute": {
+        "desc": "执行储备站周围的生态环境任务路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AcceptEcologyNearTheFieldLogisticsDepot",
             "GoToEcologyNearTheFieldLogisticsDepotMission"
@@ -31,7 +55,27 @@
             "備蓄施設周辺の生態環境",
             "보급소 주변의 생태 환경"
         ],
-        "order_by": "Vertical"
+        "replace": [],
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckEcologyNearTheFieldLogisticsDepotWulingStockBill": {
+        "desc": "检查储备站周围的生态环境任务下方的武陵调度券图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckEcologyNearTheFieldLogisticsDepotIcon",
+        "roi_offset": [
+            -14,
+            300,
+            359,
+            76
+        ],
+        "template": "EnvironmentMonitoring/WulingStockBill.png",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckEcologyNearTheFieldLogisticsDepotIcon": {
         "desc": "检查储备站周围的生态环境文本下方的图标",
@@ -44,30 +88,10 @@
             28
         ],
         "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8
-    },
-    "CheckEcologyNearTheFieldLogisticsDepotReadyText": {
-        "desc": "检查储备站周围的生态环境委托是否准备好",
-        "recognition": "OCR",
-        "roi": "CheckEcologyNearTheFieldLogisticsDepotIcon",
-        "roi_offset": [
-            -14,
-            332,
-            359,
-            76
-        ],
-        "expected": [
-            "接取委托",
-            "接取委託",
-            "(?i)Accept\\s*Job",
-            "引き受ける",
-            "前往任务",
-            "前往任務",
-            "(?i)Go\\s*to\\s*Mission",
-            "任務へ",
-            "의뢰 수령",
-            "임무로 이동하기"
-        ]
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckEcologyNearTheFieldLogisticsDepotJob": {
         "desc": "检查储备站周围的生态环境委托是否可以接取",
@@ -85,7 +109,10 @@
             "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckEcologyNearTheFieldLogisticsDepotGoToMissionText": {
         "desc": "检查储备站周围的生态环境委托是否可以前往",
@@ -103,7 +130,10 @@
             "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "InEcologyNearTheFieldLogisticsDepotMission": {
         "desc": "是否在储备站周围的生态环境任务界面",
@@ -117,10 +147,14 @@
         "expected": [
             "拍摄储备站周围的生态环境",
             "拍攝儲備站周圍的生態環境",
-            "(?i)Photograph\\s*the\\s*ecology\\s*near\\s*the\\s*Field\\s*Logistics\\s*Depot",
+            "(?i)Photo:\\s*Field\\s*Logistics\\s*Depot\\s*Ecology",
             "備蓄施設周辺の生態環境の写真を撮る",
             "보급소 주변의 생태 환경을 촬영하기"
-        ]
+        ],
+        "replace": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AcceptEcologyNearTheFieldLogisticsDepot": {
         "desc": "接取储备站周围的生态环境委托",
@@ -131,7 +165,10 @@
             "CheckEcologyNearTheFieldLogisticsDepotJob"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToEcologyNearTheFieldLogisticsDepotMission"
         ]
@@ -145,7 +182,10 @@
             "CheckEcologyNearTheFieldLogisticsDepotGoToMissionText"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EcologyNearTheFieldLogisticsDepotTrackOrGoTo"
         ]
@@ -156,6 +196,9 @@
         "all_of": [
             "InEcologyNearTheFieldLogisticsDepotMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrackEcologyNearTheFieldLogisticsDepot",
             "AlreadyTrackedEcologyNearTheFieldLogisticsDepot"
@@ -168,7 +211,10 @@
             "TrackMissionButton",
             "InEcologyNearTheFieldLogisticsDepotMission"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToEcologyNearTheFieldLogisticsDepot"
         ]
@@ -180,18 +226,25 @@
             "AlreadyTrackedMissionButton",
             "InEcologyNearTheFieldLogisticsDepotMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToEcologyNearTheFieldLogisticsDepot"
         ]
     },
     "EcologyNearTheFieldLogisticsDepotNotAdapted": {
         "desc": "储备站周围的生态环境任务尚未适配，仅接取并追踪",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
         }
     },
     "GoToEcologyNearTheFieldLogisticsDepot": {
         "desc": "前往储备站周围的生态环境，先回到大世界再进行判断",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -199,6 +252,8 @@
                 "SceneAnyEnterWorld"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToEcologyNearTheFieldLogisticsDepotStartPos",
             "GoToEcologyNearTheFieldLogisticsDepotNotAtStartPos"
@@ -213,20 +268,24 @@
                 {
                     "map_name": "map02_lv002",
                     "target": [
-                        689.1,
-                        915.3,
-                        13.4,
-                        12.7
+                        684.3,
+                        910.9,
+                        20.5,
+                        20.5
                     ]
                 }
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "GoToEcologyNearTheFieldLogisticsDepotMapTrackerMove"
+            "GoToEcologyNearTheFieldLogisticsDepotMove"
         ]
     },
     "GoToEcologyNearTheFieldLogisticsDepotNotAtStartPos": {
-        "desc": "不在储备站周围的生态环境任务开始位置附近，先传送再检查落点",
+        "desc": "不在储备站周围的生态环境任务开始位置附近，先传送再继续寻路",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -234,74 +293,35 @@
                 "SceneEnterWorldWulingWulingCity8"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "GoToEcologyNearTheFieldLogisticsDepotStartPos"
+            "GoToEcologyNearTheFieldLogisticsDepotMove"
         ]
     },
-    "GoToEcologyNearTheFieldLogisticsDepotMapTrackerMove": {
-        "desc": "前往储备站周围的生态环境",
+    "GoToEcologyNearTheFieldLogisticsDepotMove": {
+        "desc": "自动寻路前往储备站周围的生态环境",
+        "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv002",
-            "path": [
-                [
-                    692.3,
-                    922.7
-                ],
-                [
-                    679.3,
-                    925.9
-                ],
-                [
-                    673.5,
-                    918.3
-                ],
-                [
-                    649.4,
-                    916.3
-                ],
-                [
-                    649.7,
-                    928.2
-                ],
-                [
-                    654.1,
-                    931.8
-                ],
-                [
-                    667.8,
-                    907.8
-                ],
-                [
-                    665.6,
-                    897.7
-                ],
-                [
-                    662.4,
-                    892.6
-                ],
-                [
-                    628.7,
-                    898.2
-                ],
-                [
-                    618.8,
-                    901.6
-                ]
-            ]
+            "target": [
+                618.8,
+                901.6
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 270
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "EcologyNearTheFieldLogisticsDepotAdjustCamera"
         },
-        "next": [
-            "EcologyNearTheFieldLogisticsDepotAdjustHeading"
-        ]
-    },
-    "EcologyNearTheFieldLogisticsDepotAdjustHeading": {
-        "desc": "储备站周围的生态环境任务无需调整角色朝向",
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -311,6 +331,9 @@
     "EcologyNearTheFieldLogisticsDepotAdjustCamera": {
         "desc": "储备站周围的生态环境任务中调整朝向",
         "max_hit": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringSwipeScreenLeft"
         ]

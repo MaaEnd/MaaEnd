@@ -1,0 +1,192 @@
+{
+    "task": [
+        {
+            "name": "TrialOfSwordmancy",
+            "label": "$task.TrialOfSwordmancy.label",
+            "entry": "TrialOfSwordmancyMain",
+            "description": "$task.TrialOfSwordmancy.description",
+            "option": [
+                "TrialOfSwordmancyMode"
+            ],
+            "controller": [
+                "Win32-Front",
+                "Wlroots"
+            ],
+            "group": [
+                "regional_development"
+            ]
+        }
+    ],
+    "option": {
+        "TrialOfSwordmancyConfirmRisk": {
+            "type": "switch",
+            "label": "$option.TrialOfSwordmancyConfirmRisk.label",
+            "description": "$option.TrialOfSwordmancyConfirmRisk.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyDisabledError": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "TrialOfSwordmancyMode": {
+            "type": "select",
+            "label": "$option.TrialOfSwordmancyMode.label",
+            "description": "$option.TrialOfSwordmancyMode.description",
+            "default_case": "Daily",
+            "cases": [
+                {
+                    "name": "Daily",
+                    "label": "$option.TrialOfSwordmancyMode.cases.Daily.label",
+                    "option": [
+                        "TrialOfSwordmancyConfirmRisk",
+                        "TrialOfSwordmancyOverflow",
+                        "TrialOfSwordmancyAutoFight"
+                    ],
+                    "pipeline_override": {
+                        "TrialOfSwordmancyDaily": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Coating",
+                    "label": "$option.TrialOfSwordmancyMode.cases.Coating.label",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyCoating": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Farm25",
+                    "label": "$option.TrialOfSwordmancyMode.cases.Farm25.label",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyFarm25": {
+                            "enabled": true
+                        },
+                        "TrialOfSwordmancyCoatingCheck1": {
+                            "any_of": [
+                                "TrialOfSwordmancyBattlePts5"
+                            ]
+                        },
+                        "TrialOfSwordmancyCoatingCheck2": {
+                            "any_of": [
+                                "TrialOfSwordmancyBattlePts10"
+                            ]
+                        },
+                        "TrialOfSwordmancyCoatingCheck3": {
+                            "any_of": [
+                                "TrialOfSwordmancyBattlePts4"
+                            ]
+                        },
+                        "TrialOfSwordmancyCoatingCheck4": {
+                            "any_of": [
+                                "TrialOfSwordmancyBattlePts9"
+                            ]
+                        },
+                        "TrialOfSwordmancyCoatingCheck5": {
+                            "any_of": [
+                                "TrialOfSwordmancyBattlePts3"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "TrialOfSwordmancyOverflow": {
+            "type": "select",
+            "label": "$option.TrialOfSwordmancyOverflow.label",
+            "description": "$option.TrialOfSwordmancyOverflow.description",
+            "default_case": "Twice",
+            "cases": [
+                {
+                    "name": "None",
+                    "label": "$option.TrialOfSwordmancyOverflow.cases.None.label",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyDecide": {
+                            "custom_action_param": {
+                                "overflowMode": "OverflowNone"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Once",
+                    "label": "$option.TrialOfSwordmancyOverflow.cases.Once.label",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyDecide": {
+                            "custom_action_param": {
+                                "overflowMode": "OverflowOnce"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Twice",
+                    "label": "$option.TrialOfSwordmancyOverflow.cases.Twice.label"
+                }
+            ]
+        },
+        "TrialOfSwordmancyAutoFight": {
+            "type": "switch",
+            "label": "$option.TrialOfSwordmancyAutoFight.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyStartTrial": {
+                            "action": "DoNothing",
+                            "next": []
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoFightSetting",
+                        "TrialOfSwordmancyRecoverBeforeBattle"
+                    ]
+                }
+            ]
+        },
+        "TrialOfSwordmancyRecoverBeforeBattle": {
+            "type": "switch",
+            "label": "$option.TrialOfSwordmancyRecoverBeforeBattle.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyDailyAutoFightResetState": {
+                            "enabled": true
+                        },
+                        "TrialOfSwordmancyDailyAutoFightRearmResetState": {
+                            "enabled": true
+                        },
+                        "TrialOfSwordmancyDailyMain": {
+                            "next": [
+                                "TrialOfSwordmancyDailyAutoFightResetState",
+                                "TrialOfSwordmancyDailyCheckRewardMode",
+                                "[JumpBack]TrialOfSwordmancyEnterTrialMenu",
+                                "[JumpBack]TrialOfSwordmancyGotoTrialArenaStart"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

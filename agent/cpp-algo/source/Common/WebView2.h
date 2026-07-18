@@ -15,7 +15,6 @@
 // 因此 <WebView2.h> 不会被本头文件遮蔽，仍会解析到 WebView2 SDK 的头文件。
 #include <WebView2.h>
 
-
 // 内嵌 Microsoft Edge WebView2 控件的无边框窗口。
 //
 // 用法：
@@ -59,6 +58,14 @@ public:
     // 仅在 Open() 之前调用有效；之后调用会被忽略。
     void SetTouchEmulation(bool enabled);
 
+    // 覆盖 WebView2 的 User-Agent。空字符串表示沿用 WebView2 默认 UA。
+    // 通过 ICoreWebView2Settings2::put_UserAgent 实现，作用于本控件后续发出的所有请求。
+    // 主要用途：让那些通过 navigator.userAgent 判定运行环境的网站（如内嵌
+    // WebView 与桌面浏览器分流的活动页/H5）把当前窗口认作目标客户端，跳过
+    // 「请在 xxx App 内打开」之类的引导。具体应当伪装成什么 UA 由调用方决定。
+    // 仅在 Open() 之前调用有效；之后调用会被忽略。
+    void SetUserAgent(std::string user_agent);
+
     // 设置是否启用 WebView2 默认右键菜单（即「检查」「重新加载」等弹出菜单）。
     // 默认 true。设置为 false 后右键不会再弹出菜单。
     // 仅在 Open() 之前调用有效；之后调用会被忽略。
@@ -85,6 +92,7 @@ private:
 
     // 配置字段：仅在 Open() 之前由业务线程写入，UI 线程在 onControllerCreated 中读取一次。
     std::string initial_url_;
+    std::string user_agent_;
     bool touch_emulation_ = false;
     bool context_menu_enabled_ = true;
 
@@ -121,6 +129,7 @@ public:
     void SetURL(std::string url);
     void SetTouchEmulation(bool enabled);
     void SetContextMenuEnabled(bool enabled);
+    void SetUserAgent(std::string user_agent);
 };
 
 #endif // _WIN32

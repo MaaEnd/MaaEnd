@@ -12,12 +12,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]GearAssemblySwitchAscending",
+            "GearAssemblyBasicGear",
             "GearAssemblySetGear",
             "GearAssemblyNonsetGear"
         ]
     },
-    "GearAssemblySetGear": {
-        "desc": "套组装备",
+    "GearAssemblyBasicGear": {
+        "desc": "基础装备",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -28,10 +30,10 @@
                     100
                 ],
                 "expected": [
-                    "套组装备",
-                    "套裝裝備",
-                    "(?i)Set\\s*Gear",
-                    "セット装備"
+                    "基础装备",
+                    "基礎裝備",
+                    "(?i)Basic\\s*Gear",
+                    "基礎装備"
                 ]
             }
         },
@@ -39,22 +41,57 @@
         "action": "Click",
         "post_wait_freezes": {
             "target": [
-                -300,
-                -150,
-                300,
-                150
+                0,
+                644,
+                135,
+                32
             ],
-            "time": 200
+            "time": 300
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]GearAssemblySwitchAscending",
+            "GearAssemblySelectFirstGear"
+        ]
+    },
+    "GearAssemblySetGear": {
+        "desc": "高阶套组装备",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    500,
+                    100
+                ],
+                "expected": [
+                    "高阶套组装备",
+                    "高階套組裝備",
+                    "(?i)Advanced\\s*Set\\s*Gear",
+                    "高階セット装備"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                0,
+                644,
+                135,
+                32
+            ],
+            "time": 300
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "GearAssemblySelectFirstGear"
         ]
     },
     "GearAssemblyNonsetGear": {
-        "desc": "非套组装备",
+        "desc": "高阶独立装备",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -65,10 +102,10 @@
                     100
                 ],
                 "expected": [
-                    "独立装备",
-                    "獨立裝備",
-                    "(?i)Non\\s*-\\s*set\\s*Gear",
-                    "単品装備"
+                    "高阶独立装备",
+                    "高階獨立裝備",
+                    "(?i)Advanced\\s*Non\\s*-\\s*set\\s*Gear",
+                    "高階単品装備"
                 ]
             }
         },
@@ -86,7 +123,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]GearAssemblySwitchAscending",
             "GearAssemblySelectFirstGear"
         ]
     },
@@ -377,18 +413,6 @@
             "GearAssemblyClickProduceBtn",
             "GearAssemblyCheckIfReachedScrollEnd",
             "GearAssemblySwipeToNextRow"
-        ]
-    },
-    "GearAssemblyFirstAssemble": {
-        "desc": "仅第一个选择模式",
-        "enabled": true,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]GearAssemblySwitchAscending",
-            "GearAssemblyClickProduceBtn",
-            "GearAssemblyCheckFailedAndFinish"
         ]
     },
     "GearAssemblyCheckFailedAndFinish": {

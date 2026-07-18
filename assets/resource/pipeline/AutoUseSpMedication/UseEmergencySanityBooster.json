@@ -1,0 +1,215 @@
+{
+    "AutoUseSpMedicationUseEmergencySpBooster": {
+        "desc": "点击详情页的使用按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1"
+                ],
+                "box_index": 0
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "next": [
+            "AutoUseSpMedicationCheckSanity",
+            "AutoUseSpMedicationCheckSanityEnough"
+        ]
+    },
+    "AutoUseSpMedicationCheckSanity": {
+        "desc": "检查理智小于用户输入,继续",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{AutoUseSpMedicationCurrentSanity}<9999",
+                    "box_node": "AutoUseSpMedicationCurrentSanity"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoUseSpMedicationQuickUse",
+            "AutoUseSpMedicationQuickUseCancel"
+        ]
+    },
+    "AutoUseSpMedicationCheckSanityEnough": {
+        "desc": "检查理智大于用户输入,停止",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{AutoUseSpMedicationCurrentSanity}>=9999",
+                    "box_node": "AutoUseSpMedicationCurrentSanity"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "StopTask"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoUseSpMedication.focus.check_sanity_sufficient"
+        }
+    },
+    "AutoUseSpMedicationCurrentSanity": {
+        "desc": "检查当前理智数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoUseSpMedicationCurrentSanityColor",
+                    "AutoUseSpMedicationCurrentSanityText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "AutoUseSpMedicationCurrentSanityColor": {
+        "desc": "识别当前理智颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    346,
+                    213,
+                    357,
+                    107
+                ],
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    245
+                ],
+                "upper": [
+                    0,
+                    0,
+                    255
+                ],
+                "count": 10
+            }
+        }
+    },
+    "AutoUseSpMedicationCurrentSanityText": {
+        "desc": "识别当前理智文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoUseSpMedicationCurrentSanityColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
+                "expected": [
+                    "\\d+"
+                ]
+            }
+        }
+    },
+    "AutoUseSpMedicationQuickUse": {
+        "desc": "确认使用应急理智加强剂",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType2",
+                    {
+                        "param": {
+                            "expected": [
+                                "快捷使用",
+                                "Quick Use",
+                                "恢复理智"
+                            ],
+                            "roi": [
+                                190,
+                                205,
+                                155,
+                                35
+                            ]
+                        },
+                        "type": "OCR"
+                    }
+                ],
+                "box_index": 0
+            }
+        },
+        "action": "Click",
+        "timeout": 5000,
+        "next": [
+            "AutoUseSpMedicationRewardsConfirm"
+        ]
+    },
+    "AutoUseSpMedicationRewardsConfirm": {
+        "desc": "点击奖励界面的确认按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "SceneNoticeRewardsConfirm"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 400,
+            "timeout": 5000,
+            "target": [
+                230,
+                250,
+                800,
+                200
+            ]
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 2000,
+            "target": [
+                500,
+                0,
+                280,
+                200
+            ]
+        }
+    },
+    "AutoUseSpMedicationQuickUseError": {
+        "desc": "提示错误并结束任务",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoUseSpMedication.focus.quick_use_error"
+        }
+    },
+    "AutoUseSpMedicationQuickUseCancel": {
+        "desc": "退出快捷使用",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "action": "Click",
+        "next": [
+            "AutoUseSpMedicationQuickUseError"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoUseSpMedication.focus.quick_use_unavailable"
+        }
+    }
+}

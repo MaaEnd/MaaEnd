@@ -11,6 +11,22 @@
             "AttachRegexTargetOCR"
         ]
     },
+    "AttachRegexPrepareKeywordsMulti": {
+        "desc": "同时处理多个目标节点（使用 targets 数组）",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AttachToExpectedRegexAction",
+        "custom_action_param": {
+            "targets": [
+                "AttachRegexTargetOCR",
+                "AttachRegexTargetOCR2"
+            ]
+        },
+        "next": [
+            "AttachRegexTargetOCR",
+            "AttachRegexTargetOCR2"
+        ]
+    },
     "AttachRegexTargetOCR": {
         "desc": "目标 OCR 节点：实际 expected 会在运行时被 AttachToExpectedRegexAction 覆盖",
         "recognition": "OCR",
@@ -28,6 +44,25 @@
             "稀有资材": [
                 "稀有资材",
                 "高级资材"
+            ]
+        }
+    },
+    "AttachRegexTargetOCR2": {
+        "desc": "另一个目标 OCR 节点，与 AttachRegexTargetOCR 同时被初始化",
+        "recognition": "OCR",
+        "roi": [
+            500,
+            320,
+            280,
+            80
+        ],
+        "expected": "^PLACEHOLDER$",
+        "next": [],
+        "attach": {
+            "示例物品A": "示例物品A",
+            "示例物品B": [
+                "示例物品B",
+                "示例物品C"
             ]
         }
     }

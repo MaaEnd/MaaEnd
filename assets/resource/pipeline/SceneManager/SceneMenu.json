@@ -1,4 +1,24 @@
 {
+    "__ScenePrivateMenuListLoadingEnterWorld": {
+        "desc": "从菜单总列表退出到大世界，部分电脑从菜单列表回到大世界会卡很久，菜单列表是从上往下渐显加载，因此抓一下右上方先出现的特征",
+        "recognition": "OCR",
+        "roi": [
+            830,
+            0,
+            180,
+            50
+        ],
+        "expected": [
+            "BREAKING",
+            "NEWS"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuListEnterWorld"
+        ]
+    },
     "__ScenePrivateMenuListEnterWorld": {
         "desc": "从菜单总列表退出到大世界，避免电脑比较卡反复在菜单总列表和大世界之间切换",
         "recognition": "And",
@@ -6,14 +26,53 @@
             "InMenuList"
         ],
         "pre_delay": 0,
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 27 // ESC
-            }
-        },
+        "action": "Click",
+        "target": [
+            -60,
+            40,
+            20,
+            20
+        ],
         "post_delay": 1500, // 3D动画菜单会一直动无法用wait_freeze
         "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterWorldSuccess"
+        ]
+    },
+    "__ScenePrivateTrialOfSwordmancyEnterWorld": {
+        "desc": "从选剑演武界面退出到大世界",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "选剑演武"
+                ]
+            },
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "__ScenePrivateTrialOfSwordmancyEnterWorldConfirm",
+            "__ScenePrivateAnyEnterWorldSuccess"
+        ]
+    },
+    "__ScenePrivateTrialOfSwordmancyEnterWorldConfirm": {
+        "desc": "从选剑演武界面退出到大世界的确认界面",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
         "next": [
             "__ScenePrivateAnyEnterWorldSuccess"
         ]
@@ -34,6 +93,10 @@
                 ],
                 "green_mask": true
             }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
         },
         "pre_delay": 0,
         "action": {
@@ -776,17 +839,7 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "_SceneStashValuablesTabIn": {
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InStashValuablesTab"
-                ]
-            }
-        }
-    },
-    "_SceneStashValuablesTabSwitch": {
+    "__ScenePrivateMenuValuablesEnterValuableTab": {
         "desc": "切换到珍贵物品标签页",
         "recognition": {
             "type": "TemplateMatch",
@@ -797,20 +850,36 @@
                     23,
                     23
                 ],
-                "template": "SceneManager/ValuablesTabNotChoose.png",
-                "threshold": 0.6
+                "template": "SceneManager/ValuablesTabNotChoose.png"
             }
         },
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 100,
         "next": [
-            "_SceneStashValuablesTabIn"
-        ],
-        "focus": {
-            "Node.Action.Starting": "切换到珍贵物品页界面"
-        }
+            "__ScenePrivateAnyEnterValuableTabSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterValuableTabSuccess": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "target": [
+                0,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateWorldEnterMenuOperationalManual": {
         "desc": "从大世界进入行动手册菜单",
@@ -927,6 +996,86 @@
                 0,
                 200,
                 100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateWorldEnterMenuTeam": {
+        "desc": "从大世界进入编队菜单",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuListEnterMenuTeam",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
+        ]
+    },
+    "__ScenePrivateMenuListEnterMenuTeam": {
+        "desc": "从菜单列表进入编队菜单",
+        "recognition": "And",
+        "all_of": [
+            "InMenuList",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            -400,
+                            0,
+                            400,
+                            720
+                        ],
+                        "expected": [
+                            "编队",
+                            "編隊",
+                            "(?i)Team",
+                            "編成",
+                            "편성"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SceneManagerMenuListClickItemAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuTeamSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuTeamSuccess": {
+        "desc": "成功进入编队菜单",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InTeam"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                100,
+                200
             ]
         },
         "pre_delay": 0,
@@ -1131,8 +1280,8 @@
         },
         "post_delay": 0
     },
-    "__ScenePrivateWorldEnterMenuFriends": {
-        "desc": "从大世界进入好友菜单",
+    "__ScenePrivateWorldEnterMenuFriendsAdd": {
+        "desc": "从大世界进入好友添加菜单",
         "recognition": {
             "type": "And",
             "param": {
@@ -1142,6 +1291,30 @@
             }
         },
         "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMenuListEnterMenuFriendsNextAnchor": "__ScenePrivateMenuFriendsEnterMenuFriendsAdd"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuListEnterMenuFriends",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
+        ]
+    },
+    "__ScenePrivateWorldEnterMenuFriendsList": {
+        "desc": "从大世界进入好友列表菜单",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMenuListEnterMenuFriendsNextAnchor": "__ScenePrivateMenuFriendsEnterMenuFriendsList"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -1186,10 +1359,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateAnyEnterMenuFriendsSuccess"
+            "__ScenePrivateMenuFriendsEnterMenuFriendsAnchor"
         ]
     },
-    "__ScenePrivateAnyEnterMenuFriendsSuccess": {
+    "__ScenePrivateMenuFriendsEnterMenuFriendsAnchor": {
         "desc": "成功进入好友菜单",
         "recognition": {
             "type": "OCR",
@@ -1215,6 +1388,109 @@
                 0,
                 200,
                 100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[Anchor]__ScenePrivateMenuListEnterMenuFriendsNextAnchor"
+        ]
+    },
+    "__ScenePrivateMenuFriendsEnterMenuFriendsList": {
+        "desc": "从好友菜单进入好友列表",
+        "recognition": "TemplateMatch",
+        "roi": [
+            450,
+            0,
+            400,
+            70
+        ],
+        "template": [
+            "SceneManager/FriendsList1.png",
+            "SceneManager/FriendsList2.png"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMenuFriendsEnterMenuFriendsListSuccess"
+        ]
+    },
+    "__ScenePrivateMenuFriendsEnterMenuFriendsListSuccess": {
+        "desc": "成功进入好友列表",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "好友列表",
+                    "(?i)Friends\\s*List",
+                    "フレンドリスト",
+                    "친구 목록"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                -400,
+                200,
+                400
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMenuFriendsEnterMenuFriendsAdd": {
+        "desc": "从好友菜单进入好友添加",
+        "recognition": "TemplateMatch",
+        "roi": [
+            620,
+            0,
+            200,
+            120
+        ],
+        "template": "BatchAddFriends/addFriend.png",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMenuFriendsEnterMenuFriendsAddSuccess"
+        ]
+    },
+    "__ScenePrivateMenuFriendsEnterMenuFriendsAddSuccess": {
+        "desc": "成功进入好友添加",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "添加好友",
+                    "新增好友",
+                    "(?i)Add\\s*Friend",
+                    "フレンド追加"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                -400,
+                200,
+                400
             ]
         },
         "pre_delay": 0,
@@ -1362,8 +1638,8 @@
                     100
                 ],
                 "template": [
-                    "SceneManager/MenuGearAssemblySetChoose.png",
-                    "SceneManager/MenuGearAssemblySetNotChoose.png"
+                    "SceneManager/MenuGearAssemblyBasicChoose.png",
+                    "SceneManager/MenuGearAssemblyBasicNotChoose.png"
                 ],
                 "threshold": 0.9
             }

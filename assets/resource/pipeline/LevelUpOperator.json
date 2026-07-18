@@ -118,7 +118,7 @@
             "[JumpBack]OperatorListScrollUp"
         ],
         "focus": {
-            "Node.Action.Succeeded": "正在选择第一个干员"
+            "Node.Action.Succeeded": "正在选择列表中第一个干员"
         }
     },
     "OperatorListScrollUpFinished": {
@@ -200,7 +200,7 @@
             200,
             528
         ],
-        "end_hold": 300
+        "end_hold": 500
     },
     "LevelUpOperatorSearchAvailableOperator": {
         "desc": "搜寻可升级的干员",
@@ -247,12 +247,12 @@
             }
         },
         "next": [
-            "[JumpBack]LevelUpOperatorSearchSwipeRight",
+            "[JumpBack]LevelUpOperatorSearchSwipeLeft",
             "LevelUpOperatorSearchFinished",
             "LevelUpOperatorSwitchToNextOperator"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "大于等于最大等级限制，切换到下一个干员"
+            "Node.Recognition.Succeeded": "当前干员等级大于等于最大等级限制，切换到下一个干员"
         }
     },
     "SelectedOperatorCurrentLevel": {
@@ -298,21 +298,16 @@
     "LevelUpOperatorEnterLevelUpMenu": {
         "desc": "打开升级界面",
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
                     1000,
                     210,
-                    88,
-                    60
+                    120,
+                    70
                 ],
-                "expected": [
-                    "LEVEL",
-                    "等级",
-                    "等級",
-                    "(?i)Level",
-                    "レベル",
-                    "레벨"
+                "template": [
+                    "LevelUpOperator/LevelUpWhitePlus.png"
                 ]
             }
         },
@@ -324,7 +319,7 @@
             "LevelUpOperatorExitLevelUpMenu"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "打开升级界面"
+            "Node.Recognition.Succeeded": "尝试打开升级界面"
         }
     },
     "LevelUpOperatorExitLevelUpMenu": {
@@ -362,8 +357,8 @@
             "LevelUpOperatorSwitchToNextOperator"
         ]
     },
-    "LevelUpOperatorSearchSwipeRight": {
-        "desc": "向右滑",
+    "LevelUpOperatorSearchSwipeLeft": {
+        "desc": "向左滑动，以搜索下一个干员",
         "max_hit": 1,
         "recognition": {
             "type": "TemplateMatch",
@@ -392,8 +387,11 @@
                     310,
                     30
                 ],
-                "end_hold": 300
+                "end_hold": 500
             }
+        },
+        "focus": {
+            "Node.Action.Succeeded": "向左滑动"
         }
     },
     "LevelUpOperatorSearchFinished": {
@@ -461,17 +459,17 @@
         },
         "post_wait_freezes": 100,
         "next": [
-            "LevelUpOperatorClearSwipeRightHitCount"
+            "LevelUpOperatorClearSwipeLeftHitCount"
         ]
     },
-    "LevelUpOperatorClearSwipeRightHitCount": {
-        "desc": "清除右滑计数",
+    "LevelUpOperatorClearSwipeLeftHitCount": {
+        "desc": "清除左滑计数",
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "ClearHitCount",
         "custom_action_param": {
             "nodes": [
-                "LevelUpOperatorSearchSwipeRight"
+                "LevelUpOperatorSearchSwipeLeft"
             ]
         },
         "next": [
@@ -479,7 +477,7 @@
         ]
     },
     "LevelUpOperatorLevelUpButton": {
-        "desc": "点击升级按钮",
+        "desc": "点击添加升级材料按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -500,22 +498,16 @@
         "post_delay": 0,
         "next": [
             "LevelUpOperatorConfirmLevelUp"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "识别到添加升级材料按钮"
+        }
     },
     "LevelUpOperatorConfirmLevelUp": {
         "desc": "确认升级",
         "recognition": "And",
         "all_of": [
-            "LevelUpButton",
-            {
-                "recognition": "OCR",
-                "roi": [
-                    1110,
-                    92,
-                    20,
-                    40
-                ]
-            }
+            "LevelUpButton"
         ],
         "box_index": 0,
         "pre_delay": 0,
@@ -535,7 +527,10 @@
         "next": [
             "[JumpBack]SceneNoticeRewardsConfirm",
             "LevelUpOperatorFinished"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已确认升级"
+        }
     },
     "LevelUpOperatorFinished": {
         "desc": "完成",

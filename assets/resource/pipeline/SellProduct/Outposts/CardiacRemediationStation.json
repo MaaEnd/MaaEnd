@@ -34,8 +34,445 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "SellProductCardiacRemediationStationSetBeforeSellOperatorAnchor"
+        ]
+    },
+    "SellProductCardiacRemediationStationSetBeforeSellOperatorAnchor": {
+        "desc": "心脏修缮站设置售卖前联络干员锚点",
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductBeforeSellOperator": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor"
+        ]
+    },
+    "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
+        "desc": "心脏修缮站设置售卖后恢复干员锚点",
+        "pre_delay": 0,
+        "anchor": {
+            "SellProductAfterSellOperator": "SellProductAfterSellOperator"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]SellProductBeforeSellOperator",
             "SellProductSellLoop"
         ]
+    },
+    // ===== 售卖前联络干员切换 =====
+    "SellProductCardiacRemediationStationBeforeSellOperator": {
+        "desc": "心脏修缮站售卖前检查并切换联络干员",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationCurrentTargetOperator",
+            "SellProductCardiacRemediationStationOpenTargetOperatorList"
+        ]
+    },
+    "SellProductCardiacRemediationStationCurrentTargetOperator": {
+        "desc": "心脏修缮站当前联络干员已是售卖用干员",
+        "recognition": "OCR",
+        "roi": [
+            268,
+            568,
+            190,
+            35
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ]
+    },
+    "SellProductCardiacRemediationStationOpenTargetOperatorList": {
+        "desc": "心脏修缮站打开联络干员列表以切换售卖用干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOpenOperatorLiaisonButton",
+            "SellProductInCardiacRemediationStation"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationInTargetOperatorList"
+        ]
+    },
+    "SellProductCardiacRemediationStationInTargetOperatorList": {
+        "desc": "心脏修缮站已打开联络干员列表，选择售卖用干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSelectTargetOperator",
+            "SellProductCardiacRemediationStationSwipeTargetOperatorList",
+            "SellProductCardiacRemediationStationTargetOperatorNotFound"
+        ]
+    },
+    "SellProductCardiacRemediationStationSelectTargetOperator": {
+        "desc": "心脏修缮站在联络干员列表中选择售卖用干员",
+        "recognition": "OCR",
+        "roi": [
+            164,
+            121,
+            700,
+            430
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationConfirmTargetOperator"
+        ]
+    },
+    "SellProductCardiacRemediationStationConfirmTargetOperator": {
+        "desc": "心脏修缮站点击派驻确认售卖用干员",
+        "recognition": "OCR",
+        "roi": [
+            900,
+            540,
+            330,
+            135
+        ],
+        "expected": [
+            "派驻",
+            "派駐",
+            "Assign",
+            "派遣",
+            "배치"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                190,
+                160,
+                360,
+                150
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationCloseTargetOperatorLiaison"
+        ]
+    },
+    "SellProductCardiacRemediationStationCloseTargetOperatorLiaison": {
+        "desc": "心脏修缮站关闭售卖用联络干员列表",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationTargetOperatorDone"
+        ]
+    },
+    "SellProductCardiacRemediationStationTargetOperatorDone": {
+        "desc": "心脏修缮站售卖用干员派驻完成，回到售卖循环",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInCardiacRemediationStation"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ]
+    },
+    "SellProductCardiacRemediationStationSwipeTargetOperatorList": {
+        "desc": "心脏修缮站在联络干员列表中向下滑动查找售卖用干员",
+        "max_hit": 8,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison"
+        ],
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            620,
+            520
+        ],
+        "end": [
+            [
+                620,
+                285
+            ],
+            [
+                760,
+                285
+            ]
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationInTargetOperatorList"
+        ]
+    },
+    "SellProductCardiacRemediationStationTargetOperatorNotFound": {
+        "desc": "心脏修缮站未找到配置的售卖用干员，停止任务",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison"
+        ],
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "未在联络干员列表中找到配置的售卖用干员，请确认干员已持有或调整据点配置"
+        }
+    },
+    // ===== 售卖后联络干员恢复 =====
+    "SellProductCardiacRemediationStationAfterSellOperator": {
+        "desc": "心脏修缮站售卖后恢复联络干员",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationCurrentRestoreOperator",
+            "SellProductCardiacRemediationStationOpenRestoreOperatorList"
+        ]
+    },
+    "SellProductCardiacRemediationStationCurrentRestoreOperator": {
+        "desc": "心脏修缮站当前联络干员已是恢复目标",
+        "recognition": "OCR",
+        "roi": [
+            268,
+            568,
+            190,
+            35
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProductCardiacRemediationStationOpenRestoreOperatorList": {
+        "desc": "心脏修缮站打开联络干员列表以恢复干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOpenOperatorLiaisonButton",
+            "SellProductInCardiacRemediationStation"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationInRestoreOperatorList"
+        ]
+    },
+    "SellProductCardiacRemediationStationInRestoreOperatorList": {
+        "desc": "心脏修缮站已打开联络干员列表，选择恢复干员",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSelectRestoreOperator",
+            "SellProductCardiacRemediationStationSwipeRestoreOperatorList",
+            "SellProductCardiacRemediationStationRestoreOperatorNotFound"
+        ]
+    },
+    "SellProductCardiacRemediationStationSelectRestoreOperator": {
+        "desc": "心脏修缮站在联络干员列表中选择恢复干员",
+        "recognition": "OCR",
+        "roi": [
+            164,
+            121,
+            700,
+            430
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationConfirmRestoreOperator"
+        ]
+    },
+    "SellProductCardiacRemediationStationConfirmRestoreOperator": {
+        "desc": "心脏修缮站点击派驻确认恢复干员",
+        "recognition": "OCR",
+        "roi": [
+            900,
+            540,
+            330,
+            135
+        ],
+        "expected": [
+            "派驻",
+            "派駐",
+            "Assign",
+            "派遣",
+            "배치"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                190,
+                160,
+                360,
+                150
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationCloseRestoreOperatorLiaison"
+        ]
+    },
+    "SellProductCardiacRemediationStationCloseRestoreOperatorLiaison": {
+        "desc": "心脏修缮站关闭恢复干员联络干员列表",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationRestoreOperatorDone"
+        ]
+    },
+    "SellProductCardiacRemediationStationRestoreOperatorDone": {
+        "desc": "心脏修缮站恢复干员派驻完成",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInCardiacRemediationStation"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProductCardiacRemediationStationSwipeRestoreOperatorList": {
+        "desc": "心脏修缮站在联络干员列表中向下滑动查找恢复干员",
+        "max_hit": 8,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison"
+        ],
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            620,
+            520
+        ],
+        "end": [
+            [
+                620,
+                285
+            ],
+            [
+                760,
+                285
+            ]
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationInRestoreOperatorList"
+        ]
+    },
+    "SellProductCardiacRemediationStationRestoreOperatorNotFound": {
+        "desc": "心脏修缮站未找到配置的恢复干员，停止任务",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison"
+        ],
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "未在联络干员列表中找到配置的恢复干员，请确认干员已持有或调整据点配置"
+        }
     },
     // ===== 在指定据点的识别节点 =====
     "SellProductInCardiacRemediationStation": {

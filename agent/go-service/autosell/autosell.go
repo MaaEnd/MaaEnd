@@ -154,7 +154,9 @@ func (a *AutoSellItemExecuteItemTaskAction) Run(ctx *maa.Context, arg *maa.Custo
 			},
 			"AutoSellFriendsPricesExpected": map[string]any{
 				"custom_recognition_param": map[string]any{
-					"expression": "{AutoSellFriendsPriceRecognition} >= " + strconv.Itoa(targetPrice),
+					"expression":                          "{AutoSellFriendsPriceRecognition} >= " + strconv.Itoa(targetPrice),
+					"focus_matched_resolved_expression":   true,
+					"focus_unmatched_resolved_expression": true,
 				},
 			},
 			"AutoSellFriendsPricesExpectedBuy": map[string]any{
@@ -197,7 +199,7 @@ func firstContainedKeyword(s string, subs []string) string {
 
 var (
 	moderatePriceKeywords = []string{"锚点", "悬空", "巫术", "天使", "岳研", "冬虫", "武陵", "武侠"}
-	largePriceKeywords    = []string{"谷地水", "团结", "塞什", "星体", "天师", "息壤", "清波"}
+	largePriceKeywords    = []string{"谷地水", "团结", "塞什", "星体", "天师", "息壤净", "息壤色", "清波", "飞天"}
 	massivePriceKeywords  = []string{"源石", "警戒", "硬脑", "边角"}
 )
 

@@ -6,10 +6,34 @@
         "all_of": [
             "CheckWitheredBranchesText",
             "CheckWitheredBranchesIcon",
-            "CheckWitheredBranchesReadyText"
+            "CheckWitheredBranchesWulingStockBill"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "EnvironmentMonitoring",
+            "task": "WitheredBranchesExecute",
+            "recovery_task": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
+            "failure_task": "WitheredBranchesFailed"
+        },
         "post_delay": 0,
+        "rate_limit": 0
+    },
+    "WitheredBranchesFailed": {
+        "desc": "枯枝任务执行失败提示",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.route.WitheredBranches.failed"
+        }
+    },
+    "WitheredBranchesExecute": {
+        "desc": "执行枯枝任务路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AcceptWitheredBranches",
             "GoToWitheredBranchesMission"
@@ -31,7 +55,27 @@
             "枯れ枝",
             "마른 가지"
         ],
-        "order_by": "Vertical"
+        "replace": [],
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckWitheredBranchesWulingStockBill": {
+        "desc": "检查枯枝任务下方的武陵调度券图标",
+        "recognition": "TemplateMatch",
+        "roi": "CheckWitheredBranchesIcon",
+        "roi_offset": [
+            -14,
+            300,
+            359,
+            76
+        ],
+        "template": "EnvironmentMonitoring/WulingStockBill.png",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckWitheredBranchesIcon": {
         "desc": "检查枯枝文本下方的图标",
@@ -44,30 +88,10 @@
             28
         ],
         "template": "EnvironmentMonitoring/PhotoIcon.png",
-        "threshold": 0.8
-    },
-    "CheckWitheredBranchesReadyText": {
-        "desc": "检查枯枝委托是否准备好",
-        "recognition": "OCR",
-        "roi": "CheckWitheredBranchesIcon",
-        "roi_offset": [
-            -14,
-            332,
-            359,
-            76
-        ],
-        "expected": [
-            "接取委托",
-            "接取委託",
-            "(?i)Accept\\s*Job",
-            "引き受ける",
-            "前往任务",
-            "前往任務",
-            "(?i)Go\\s*to\\s*Mission",
-            "任務へ",
-            "의뢰 수령",
-            "임무로 이동하기"
-        ]
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckWitheredBranchesJob": {
         "desc": "检查枯枝委托是否可以接取",
@@ -85,7 +109,10 @@
             "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CheckWitheredBranchesGoToMissionText": {
         "desc": "检查枯枝委托是否可以前往",
@@ -103,7 +130,10 @@
             "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "InWitheredBranchesMission": {
         "desc": "是否在枯枝任务界面",
@@ -120,7 +150,11 @@
             "(?i)Photo:\\s*Withered\\s*Branches",
             "祖泉周辺の枯れ枝の写真を撮る",
             "선조의 샘 주변의 마른 가지를 촬영하기"
-        ]
+        ],
+        "replace": [],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AcceptWitheredBranches": {
         "desc": "接取枯枝委托",
@@ -131,7 +165,10 @@
             "CheckWitheredBranchesJob"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToWitheredBranchesMission"
         ]
@@ -145,7 +182,10 @@
             "CheckWitheredBranchesGoToMissionText"
         ],
         "box_index": 2,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "WitheredBranchesTrackOrGoTo"
         ]
@@ -156,6 +196,9 @@
         "all_of": [
             "InWitheredBranchesMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrackWitheredBranches",
             "AlreadyTrackedWitheredBranches"
@@ -168,7 +211,10 @@
             "TrackMissionButton",
             "InWitheredBranchesMission"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToWitheredBranches"
         ]
@@ -180,18 +226,25 @@
             "AlreadyTrackedMissionButton",
             "InWitheredBranchesMission"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToWitheredBranches"
         ]
     },
     "WitheredBranchesNotAdapted": {
         "desc": "枯枝任务尚未适配，仅接取并追踪",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.EnvironmentMonitoring.not_adapted"
         }
     },
     "GoToWitheredBranches": {
         "desc": "前往枯枝，先回到大世界再进行判断",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -199,6 +252,8 @@
                 "SceneAnyEnterWorld"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToWitheredBranchesStartPos",
             "GoToWitheredBranchesNotAtStartPos"
@@ -221,12 +276,16 @@
                 }
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "GoToWitheredBranchesMapTrackerMove"
+            "GoToWitheredBranchesMove"
         ]
     },
     "GoToWitheredBranchesNotAtStartPos": {
         "desc": "不在枯枝任务开始位置附近，先传送再检查落点",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -234,12 +293,15 @@
                 "SceneEnterWorldWulingQingboStockade3"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GoToWitheredBranchesStartPos"
         ]
     },
-    "GoToWitheredBranchesMapTrackerMove": {
-        "desc": "前往枯枝",
+    "GoToWitheredBranchesMove": {
+        "desc": "自动寻路前往枯枝",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -253,19 +315,19 @@
                     507.5,
                     379.2
                 ]
-            ]
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 135
+                }
+            }
         },
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "WitheredBranchesAdjustCamera"
         },
-        "next": [
-            "WitheredBranchesAdjustHeading"
-        ]
-    },
-    "WitheredBranchesAdjustHeading": {
-        "desc": "枯枝任务无需调整角色朝向",
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -275,6 +337,9 @@
     "WitheredBranchesAdjustCamera": {
         "desc": "枯枝任务中调整朝向",
         "max_hit": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringSwipeScreenUp"
         ]

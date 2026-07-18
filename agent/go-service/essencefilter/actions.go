@@ -2,21 +2,15 @@ package essencefilter
 
 import (
 	"encoding/json"
-	"image"
 	"regexp"
-	"sort"
 	"strconv"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 var levelParseRe = regexp.MustCompile(`\+?(\d+)`)
-
-// essenceMaxSinglePageInventory is the max items visible on one screen row grid (and tail-scan threshold when total is known).
-const essenceMaxSinglePageInventory = 45
 
 // --- Init ---
 
@@ -29,8 +23,6 @@ func afterBattleInitResetPerLoot(st *RunState) {
 	st.RowIndex = 0
 	st.CurrentSkills = [3]string{}
 	st.CurrentSkillLevels = [3]int{}
-	st.PhysicalItemCount = 0
-	st.EncounteredTierBoundary = false
 }
 
 func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
@@ -87,7 +79,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		essenceMode = EssenceModePureOnly
 	}
 
-	st := &RunState{MaxItemsPerRow: 9, EssenceTypes: essenceTypes}
+	st := &RunState{EssenceTypes: essenceTypes}
 	st.Reset()
 	st.PipelineOpts = *opts
 	st.InputLanguage = inputLocale
@@ -118,40 +110,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	return true
 }
 
-// --- OCR 库存数量 / Trace（同一 case：轻量辅助 action）---
-
-// OCREssenceInventoryNumberAction - OCR inventory count and override next if single page
-type OCREssenceInventoryNumberAction struct{}
-
-func (a *OCREssenceInventoryNumberAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	text, ok := firstOCRText(arg.RecognitionDetail)
-	if !ok {
-		log.Error().Str("component", "EssenceFilter").Str("action", "CheckTotal").Msg("OCR text empty")
-		return false
-	}
-	re := regexp.MustCompile(`\d+`)
-	nums := re.FindAllString(text, -1)
-	if len(nums) == 0 {
-		log.Error().Str("component", "EssenceFilter").Str("action", "CheckTotal").Str("text", text).Msg("no number found")
-		return false
-	}
-	n, err := strconv.Atoi(nums[0])
-	if err != nil {
-		log.Error().Err(err).Str("component", "EssenceFilter").Str("action", "CheckTotal").Str("text", text).Msg("parse failed")
-		return false
-	}
-	log.Info().Str("component", "EssenceFilter").Str("action", "CheckTotal").Int("count", n).Int("max_single_page", essenceMaxSinglePageInventory).Str("raw", text).Msg("total parsed")
-	if st := getRunState(); st != nil {
-		LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.inventory_count", map[string]any{"Count": n}))
-		st.TotalCount = n
-	} else {
-		LogMXUHTML(ctx, i18n.RenderHTML("essencefilter.inventory_count", map[string]any{"Count": n}))
-	}
-	if n <= essenceMaxSinglePageInventory {
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceDetectFinal"}})
-	}
-	return true
-}
+// --- Trace ---
 
 // EssenceFilterTraceAction - log node/step
 type EssenceFilterTraceAction struct{}
@@ -274,247 +233,11 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 	return runUnifiedSkillDecision(ctx, arg, st, st.MatchEngine, ocr, decisionNextNodes{
 		Lock:    "EssenceFilterLockItemLog",
 		Discard: "EssenceFilterDiscardItemLog",
-		Skip:    "EssenceFilterRowNextItem",
+		Skip:    "EssenceGridAdvance",
 	})
 }
 
-// --- RowCollect / RowNextItem / Finish / SwipeCalibrate（同一 case：行遍历与网格）---
-
-// rowCollectThumbHit returns thumbnail lock/discard mark for RowCollect per skip_thumb_lock / skip_thumb_discard.
-func rowCollectThumbHit(ctx *maa.Context, img image.Image, thumbROI []int, skipLock, skipDiscard bool) bool {
-	param := map[string]any{"roi": thumbROI}
-	switch {
-	case skipLock && skipDiscard:
-		d, err := ctx.RunRecognition("EssenceThumbMarked", img, map[string]any{"EssenceThumbMarked": param})
-		return err == nil && d != nil && d.Hit
-	case skipLock:
-		d, err := ctx.RunRecognition("EssenceThumbLock", img, map[string]any{"EssenceThumbLock": param})
-		return err == nil && d != nil && d.Hit
-	case skipDiscard:
-		d, err := ctx.RunRecognition("EssenceThumbDiscard", img, map[string]any{"EssenceThumbDiscard": param})
-		return err == nil && d != nil && d.Hit
-	default:
-		return false
-	}
-}
-
-// EssenceFilterRowCollectAction - collect boxes in a row (TemplateMatch + ColorMatch), then RowNextItem
-type EssenceFilterRowCollectAction struct{}
-
-func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || !arg.RecognitionDetail.Hit {
-		log.Error().Str("component", "EssenceFilter").Str("action", "RowCollect").Msg("recognition detail empty")
-		return false
-	}
-	st := getRunState()
-	if st == nil {
-		return false
-	}
-	results := arg.RecognitionDetail.Results.Filtered
-	if len(results) == 0 {
-		results = arg.RecognitionDetail.Results.All
-	}
-	controller := ctx.GetTasker().GetController()
-	if controller == nil {
-		log.Error().Str("component", "EssenceFilter").Str("action", "RowCollect").Msg("controller nil")
-		return false
-	}
-	controller.PostScreencap().Wait()
-	img, err := controller.CacheImage()
-	if err != nil {
-		log.Error().Err(err).Str("component", "EssenceFilter").Str("action", "RowCollect").Msg("get screenshot failed")
-		return false
-	}
-	st.RowBoxes = st.RowBoxes[:0]
-	st.PhysicalItemCount = len(results)
-
-	skipLock := st.PipelineOpts.SkipThumbLock
-	skipDiscard := st.PipelineOpts.SkipThumbDiscard
-	anyThumbSkip := skipLock || skipDiscard
-	boundaryHit := false
-
-	for _, res := range results {
-		tm, ok := res.AsTemplateMatch()
-		if !ok {
-			continue
-		}
-		b := tm.Box
-		boxArr := [4]int{b.X(), b.Y(), b.Width(), b.Height()}
-		colorMatchROIW := boxArr[2]
-		colorMatchROIH := boxArr[3] - 90
-		if colorMatchROIW <= 0 || colorMatchROIH <= 0 {
-			continue
-		}
-		roi := maa.Rect{boxArr[0], boxArr[1] + 90, colorMatchROIW, colorMatchROIH}
-
-		colorMatched := false
-		for _, et := range st.EssenceTypes {
-			cDetail, err := ctx.RunRecognition("EssenceColorMatch", img, map[string]any{
-				"EssenceColorMatch": map[string]any{"roi": roi, "lower": et.Range.Lower, "upper": et.Range.Upper},
-			})
-			if err != nil {
-				continue
-			}
-			if cDetail != nil && cDetail.Hit {
-				colorMatched = true
-				break
-			}
-		}
-
-		// Flawless-only boundary: if box didn't match flawless, probe pure in the same pass.
-		// First pure hit means we've reached the tier boundary (inventory is sorted flawless-first).
-		if !colorMatched && !boundaryHit && st.EssenceMode == EssenceModeFlawlessOnly {
-			cDetail, err := ctx.RunRecognition("EssenceColorMatch", img, map[string]any{
-				"EssenceColorMatch": map[string]any{
-					"roi":   roi,
-					"lower": PureEssenceMeta.Range.Lower,
-					"upper": PureEssenceMeta.Range.Upper,
-				},
-			})
-			if err == nil && cDetail != nil && cDetail.Hit {
-				boundaryHit = true
-			}
-		}
-
-		if colorMatched {
-			isMarked := false
-			if anyThumbSkip {
-				margin := 10
-				bx1, by1 := boxArr[0]-margin, boxArr[1]-margin
-				if bx1 < 0 {
-					bx1 = 0
-				}
-				if by1 < 0 {
-					by1 = 0
-				}
-				bw, bh := boxArr[2]+margin*2, boxArr[3]+margin*2
-
-				roiX := bx1
-				roiY := by1 + int(float64(bh)*0.65)
-				roiW := int(float64(bw) * 0.30)
-				roiH := int(float64(bh) * 0.35)
-
-				isMarked = rowCollectThumbHit(ctx, img, []int{roiX, roiY, roiW, roiH}, skipLock, skipDiscard)
-			}
-
-			if !isMarked {
-				st.RowBoxes = append(st.RowBoxes, boxArr)
-			}
-		}
-	}
-
-	sort.Slice(st.RowBoxes, func(i, j int) bool {
-		if st.RowBoxes[i][1] == st.RowBoxes[j][1] {
-			return st.RowBoxes[i][0] < st.RowBoxes[j][0]
-		}
-		return st.RowBoxes[i][1] < st.RowBoxes[j][1]
-	})
-
-	log.Info().Str("component", "EssenceFilter").Str("action", "RowCollect").Int("len_results", len(results)).Int("valid_boxes", len(st.RowBoxes)).Msg("color match done")
-
-	if boundaryHit {
-		st.EncounteredTierBoundary = true
-		log.Info().Str("component", "EssenceFilter").Str("action", "RowCollect").
-			Msg("flawless-only: pure essence detected, tier boundary reached")
-		if len(st.RowBoxes) == 0 {
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterTierBoundaryFlawlessNotice"}})
-			return true
-		}
-		st.RowIndex = 0
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterRowNextItem"}})
-		return true
-	}
-
-	if anyThumbSkip && len(st.RowBoxes) == 0 && st.PhysicalItemCount == st.MaxItemsPerRow {
-		reportColoredByKey(ctx, st, "#11cf00", "focus.row.all_marked", st.CurrentRow)
-	}
-
-	isFallbackScan := arg.CurrentTaskName == "EssenceDetectFinal"
-	st.InFinalScan = isFallbackScan
-	if isFallbackScan && !st.FinalLargeScanUsed {
-		st.FinalLargeScanUsed = true
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceDetectFinal"}})
-		reportColoredByKey(ctx, st, "#1a01fd", "focus.row.tail_scan_done")
-		return true
-	}
-	if (st.PhysicalItemCount > st.MaxItemsPerRow) && !isFallbackScan {
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterFinish"}})
-		return true
-	}
-	if st.PhysicalItemCount == 0 {
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterFinish"}})
-		return true
-	}
-	st.RowIndex = 0
-	ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterRowNextItem"}})
-	return true
-}
-
-// EssenceFilterRowNextItemAction - proceed to next box or swipe/finish
-type EssenceFilterRowNextItemAction struct{}
-
-func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	st := getRunState()
-	if st == nil {
-		return false
-	}
-	if st.PendingFinalScan {
-		st.PendingFinalScan = false
-		st.InFinalScan = true
-		log.Info().Str("component", "EssenceFilter").Str("action", "RowNextItem").Msg("补 swipe 完成，进入尾扫")
-		reportSimpleByKey(ctx, st, "focus.row.enter_final_scan")
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceDetectFinal"}})
-		return true
-	}
-	if st.RowIndex >= len(st.RowBoxes) {
-		if st.EncounteredTierBoundary {
-			log.Info().Str("component", "EssenceFilter").Str("action", "RowNextItem").
-				Msg("tier boundary: skipping remaining rows and tail-scan")
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterTierBoundaryFlawlessNotice"}})
-			return true
-		}
-		if (st.PhysicalItemCount == st.MaxItemsPerRow) && !st.FinalLargeScanUsed {
-			rowsDone := st.CurrentRow
-			remaining := st.TotalCount - st.MaxItemsPerRow*rowsDone
-			if st.TotalCount > 0 && remaining <= essenceMaxSinglePageInventory {
-				st.PendingFinalScan = true
-				reportSimpleByKey(ctx, st, "focus.row.pending_final_swipe", remaining, essenceMaxSinglePageInventory, st.TotalCount, rowsDone)
-			}
-			nextNode := "EssenceFilterSwipeNext"
-			if !st.FirstRowSwipeDone {
-				st.FirstRowSwipeDone = true
-				nextNode = "EssenceFilterSwipeFirst"
-			}
-			// 最后一次补滑（remaining <= 45）不走校准：避免 SwipeCalibrate 识别失败导致流程中断
-			if st.PendingFinalScan {
-				if nextNode == "EssenceFilterSwipeFirst" {
-					nextNode = "EssenceFilterSwipeFirstNoCalibrate"
-				} else {
-					nextNode = "EssenceFilterSwipeNextNoCalibrate"
-				}
-			}
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: nextNode}})
-			reportSimpleByKey(ctx, st, "focus.row.swipe_to", st.CurrentRow+1)
-			st.CurrentRow++
-			return true
-		}
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterFinish"}})
-		return true
-	}
-
-	box := st.RowBoxes[st.RowIndex]
-	log.Info().Str("component", "EssenceFilter").Str("action", "RowNextItem").Ints("box", box[:]).Msg("click next box")
-	clickingBox := [4]int{box[0] + 10, box[1] + 10, box[2] - 20, box[3] - 20}
-	ctx.RunTask("NodeClick", map[string]any{
-		"NodeClick": map[string]any{
-			"action": map[string]any{"param": map[string]any{"target": clickingBox}},
-		},
-	})
-	st.VisitedCount++
-	st.RowIndex++
-	ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterCheckItemSlot1"}})
-	return true
-}
+// --- Finish ---
 
 // EssenceFilterFinishAction - finish and reset
 type EssenceFilterFinishAction struct{}
@@ -532,96 +255,12 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 	return true
 }
 
-const firstRowTargetY = 86       //首行Y
-const calibrateTolerance = 8     //校准误差
-const calibrateScrollRatio = 1.1 //校准滑动比例
-const calibrateSwipeMin = 13     //校准滑动最小值（13px）
-const calibrateSwipeMax = 40     //校准滑动最大值
-
-// EssenceFilterSwipeCalibrateAction - 根据首个 box 的 Y 校准到基准 firstRowTargetY
-type EssenceFilterSwipeCalibrateAction struct{}
-
-func intAbs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
-
 // Compile-time interface checks
 var (
 	_ maa.CustomActionRunner = &EssenceFilterInitAction{}
-	_ maa.CustomActionRunner = &OCREssenceInventoryNumberAction{}
 	_ maa.CustomActionRunner = &EssenceFilterTraceAction{}
 	_ maa.CustomActionRunner = &EssenceFilterCheckItemAction{}
 	_ maa.CustomActionRunner = &EssenceFilterCheckItemLevelAction{}
 	_ maa.CustomActionRunner = &EssenceFilterSkillDecisionAction{}
-	_ maa.CustomActionRunner = &EssenceFilterRowCollectAction{}
-	_ maa.CustomActionRunner = &EssenceFilterRowNextItemAction{}
 	_ maa.CustomActionRunner = &EssenceFilterFinishAction{}
-	_ maa.CustomActionRunner = &EssenceFilterSwipeCalibrateAction{}
 )
-
-func (a *EssenceFilterSwipeCalibrateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	st := getRunState()
-	if st == nil {
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceRowDetect"}, {Name: "EssenceDetectFinal"}})
-		return true
-	}
-	if st.SwipeCalibrateRetry >= 5 {
-		st.SwipeCalibrateRetry = 0
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceRowDetect"}, {Name: "EssenceDetectFinal"}})
-		return true
-	}
-	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || !arg.RecognitionDetail.Hit {
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceRowDetect"}, {Name: "EssenceDetectFinal"}})
-		return true
-	}
-	results := arg.RecognitionDetail.Results.Filtered
-	if len(results) == 0 {
-		results = arg.RecognitionDetail.Results.All
-	}
-	if len(results) == 0 {
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceRowDetect"}, {Name: "EssenceDetectFinal"}})
-		return true
-	}
-	boxes := make([][4]int, 0, len(results))
-	for _, res := range results {
-		tm, ok := res.AsTemplateMatch()
-		if !ok {
-			continue
-		}
-		b := tm.Box
-		boxes = append(boxes, [4]int{b.X(), b.Y(), b.Width(), b.Height()})
-	}
-	sort.Slice(boxes, func(i, j int) bool { return boxes[i][0] < boxes[j][0] })
-	firstBoxY := boxes[0][1]
-	if firstBoxY >= firstRowTargetY-calibrateTolerance && firstBoxY <= firstRowTargetY+calibrateTolerance {
-		st.SwipeCalibrateRetry = 0
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceRowDetect"}, {Name: "EssenceDetectFinal"}})
-		return true
-	}
-	delta := firstBoxY - firstRowTargetY
-	swipeDist := int(float64(intAbs(delta)) * calibrateScrollRatio)
-	if swipeDist < calibrateSwipeMin {
-		swipeDist = calibrateSwipeMin
-	}
-	if swipeDist > calibrateSwipeMax {
-		swipeDist = calibrateSwipeMax
-	}
-	centerX, beginY := 135, 191
-	var endY int
-	if delta > 0 {
-		endY = beginY - swipeDist
-	} else {
-		endY = beginY + swipeDist
-	}
-	ctx.RunTask("EssenceFilterSwipeCalibrateCorrect", map[string]any{
-		"EssenceFilterSwipeCalibrateCorrect": map[string]any{
-			"action": map[string]any{"param": map[string]any{"begin": []int{centerX, beginY}, "end": []int{centerX, endY}}},
-		},
-	})
-	st.SwipeCalibrateRetry++
-	ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterSwipeCalibrate"}})
-	return true
-}

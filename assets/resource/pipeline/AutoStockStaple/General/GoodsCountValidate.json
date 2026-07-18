@@ -5,10 +5,34 @@
             "type": "And",
             "param": {
                 "all_of": [
+                    "AutoStockStapleGoodsCountValidateArea",
                     "AutoStockStapleGoodsCountValidateColor",
                     "AutoStockStapleGoodsCountValidateText"
                 ],
-                "box_index": 1
+                "box_index": 2
+            }
+        }
+    },
+    "AutoStockStapleGoodsCountValidateArea": {
+        "desc": "物品数量验证区域",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1036,
+                    189,
+                    50,
+                    17
+                ],
+                "method": 6,
+                "lower": [
+                    90
+                ],
+                "upper": [
+                    100
+                ],
+                "connected": true,
+                "count": 10
             }
         }
     },
@@ -36,12 +60,7 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "roi": [
-                    1042,
-                    184,
-                    46,
-                    16
-                ],
+                "roi": "AutoStockStapleGoodsCountValidateArea",
                 "method": 6,
                 "lower": [
                     160
@@ -304,6 +323,18 @@
             }
         }
     },
+    "AutoStockStapleGoodsRindFlavoredSproutsValidate": {
+        "desc": "陈皮拌笋数量验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
     "AutoStockStapleGoodsWulingArtificingCatalystValidate": {
         "desc": "武陵精锻助剂数量验证",
         "recognition": {
@@ -378,6 +409,30 @@
     },
     "AutoStockStapleGoodsScrimshawOfThePackValidate": {
         "desc": "狼群骨雕数量验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsFinNChipsValidate": {
+        "desc": "炸鳞薯条数量验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsBizarroCupcakeValidate": {
+        "desc": "怪味纸杯蛋糕数量验证",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -652,6 +707,18 @@
             }
         }
     },
+    "AutoStockStapleGoodsRindFlavoredSproutsExcludeValidate": {
+        "desc": "陈皮拌笋数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
     "AutoStockStapleGoodsWulingArtificingCatalystExcludeValidate": {
         "desc": "武陵精锻助剂数量排除验证",
         "recognition": {
@@ -736,8 +803,152 @@
             }
         }
     },
+    "AutoStockStapleGoodsFinNChipsExcludeValidate": {
+        "desc": "炸鳞薯条数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsBizarroCupcakeExcludeValidate": {
+        "desc": "怪味纸杯蛋糕数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
     "AutoStockStapleGoodsChubbyLungFangxingMemorabiliaExcludeValidate": {
         "desc": "龙泡泡·方兴纪念数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsStoneholdRemedyValidate": {
+        "desc": "蓄石秘剂数量验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsStoneholdRemedyExcludeValidate": {
+        "desc": "蓄石秘剂数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsRuinPurgerRemedyValidate": {
+        "desc": "洗灾秘剂数量验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsRuinPurgerRemedyExcludeValidate": {
+        "desc": "洗灾秘剂数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsWulingTalositeProbeValidate": {
+        "desc": "武陵塔晶探针数量验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsWulingTalositeProbeExcludeValidate": {
+        "desc": "武陵塔晶探针数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsFowlbeastPaperKiteValidate": {
+        "desc": "羽兽剪纸风筝数量验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsFowlbeastPaperKiteExcludeValidate": {
+        "desc": "羽兽剪纸风筝数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsSwingingGentlemanClassicalAlbumValidate": {
+        "desc": "《摇摆绅士古典特辑》数量验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoodsSwingingGentlemanClassicalAlbumExcludeValidate": {
+        "desc": "《摇摆绅士古典特辑》数量排除验证",
         "recognition": {
             "type": "Custom",
             "param": {

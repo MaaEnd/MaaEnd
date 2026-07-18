@@ -69,7 +69,7 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
 - 💬 **Baker 嘴替**：自动清掉会话消息，聊天红点和提示一并收拾干净！
 - 📅 **日常自动化**：日常奖励（任务/通行证/邮件/暂存区/活动）、模拟空间奖励、百科红点、简制手册领取……一键清空！✅
 - 💊 **自动吃药**：应急理智加强剂一键开吃，省一步是一步~💊
-- 💻 **多端适配**：支持 PC 端 (Win32 默认/后台/前台) 与安卓端 (ADB)，无论你在哪个平台，我们都能陪你摸鱼~ 🐟
+- 💻 **多端适配**：支持 PC 端 (Win32 前台) 与安卓端 (ADB)，无论你在哪个平台，我们都能陪你摸鱼~ 🐟
 
 ## 🛠️ 开发者指南
 
@@ -93,6 +93,7 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
   使用问题、功能建议、闲聊摸鱼，欢迎来撩~
 - 👨‍💻 **开发 QQ 群**: [1072587329](https://qm.qq.com/q/EyirQpBiW4)  
   这是干活群，欢迎开发者加入一起造轮子！（仅限技术讨论，使用问题请去用户群哦）
+- <img src="https://cdn.simpleicons.org/discord/5865F2" width="16" height="16" alt="Discord" /> **Discord**: [加入 Discord 社区](https://discord.gg/JKu5pgcdCC)
 
 ## ☕ 请我们喝咖啡
 

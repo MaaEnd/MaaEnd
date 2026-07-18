@@ -51,6 +51,7 @@ class MaaRuntime:
     Resource: Any
     Win32Controller: Any
     AdbController: Any
+    PlayCoverController: Any
     Tasker: Any
     AgentClient: Any
     Toolkit: Any
@@ -78,6 +79,11 @@ def load_maa_runtime() -> MaaRuntime | None:
         AdbController = None
 
     try:
+        from maa.controller import PlayCoverController
+    except ImportError:
+        PlayCoverController = None
+
+    try:
         from maa.toolkit import Toolkit
     except ImportError:
         Toolkit = None
@@ -87,6 +93,7 @@ def load_maa_runtime() -> MaaRuntime | None:
         Resource=Resource,
         Win32Controller=Win32Controller,
         AdbController=AdbController,
+        PlayCoverController=PlayCoverController,
         Tasker=Tasker,
         AgentClient=AgentClient,
         Toolkit=Toolkit,

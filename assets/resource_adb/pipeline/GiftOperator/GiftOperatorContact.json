@@ -39,10 +39,22 @@
         "recognition": {
             "param": {
                 "roi_offset": [
-                    42,
-                    -104,
-                    -24,
-                    0
+                    49,
+                    -106,
+                    6,
+                    5
+                ]
+            }
+        }
+    },
+    "GiftOperatorTrustValue": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -32,
+                    106,
+                    12,
+                    -6
                 ]
             }
         }

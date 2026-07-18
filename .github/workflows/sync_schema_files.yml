@@ -31,10 +31,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check Out Repository
-        uses: actions/checkout@v4
+      - name: Generate MaaEndBot GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
         with:
-          token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
+          permission-contents: write
+
+      - name: Check Out Repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Download JSON schema files from MaaFramework
         run: |
@@ -44,19 +52,13 @@ jobs:
           mkdir -p tools/schema
 
           # 下载JSON schema文件
-          curl -s -o tools/schema/interface.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/interface.schema.json || echo "Failed to download interface.schema.json"
-          curl -s -o tools/schema/interface_config.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/interface_config.schema.json || echo "Failed to download interface_config.schema.json"
-          curl -s -o tools/schema/interface_import.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/interface_import.schema.json || echo "Failed to download interface_import.schema.json"
-          curl -s -o tools/schema/pipeline.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/pipeline.schema.json || echo "Failed to download pipeline.schema.json"
+          curl -sfS -o tools/schema/interface.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/interface.schema.json || { echo "::error::Failed to download interface.schema.json"; exit 1; }
+          curl -sfS -o tools/schema/interface_config.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/interface_config.schema.json || { echo "::error::Failed to download interface_config.schema.json"; exit 1; }
+          curl -sfS -o tools/schema/interface_import.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/interface_import.schema.json || { echo "::error::Failed to download interface_import.schema.json"; exit 1; }
+          curl -sfS -o tools/schema/pipeline.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/pipeline.schema.json || { echo "::error::Failed to download pipeline.schema.json"; exit 1; }
 
-          # 检查文件是否成功下载
-          echo "Checking downloaded files:"
-          if compgen -G "tools/schema/*.schema.json" > /dev/null; then
-            ls -la tools/schema/*.schema.json
-          else
-            echo "No schema files downloaded"
-            exit 1
-          fi
+          echo "Downloaded files:"
+          ls -la tools/schema/*.schema.json
 
       - name: Check for changes with git status
         id: check_status
@@ -124,6 +126,8 @@ jobs:
         if: steps.check_status.outputs.changes_detected == 'true'
         uses: actions-js/push@master
         with:
+          author_name: "maaendbotapp[bot]"
+          author_email: "305547419+maaendbotapp[bot]@users.noreply.github.com"
           rebase: true
           branch: ${{ github.ref }}
           message: "${{ steps.build_msg.outputs.msg }}
@@ -131,7 +135,7 @@ jobs:
             Triggered by ${{ github.sha }}
 
             [skip changelog]"
-          github_token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          github_token: ${{ steps.app-token.outputs.token }}
 
       - name: No changes detected
         if: steps.check_status.outputs.changes_detected != 'true'

@@ -39,7 +39,7 @@
 
 - `no_print`: 真假值，默认 `false`。是否关闭寻路状态的 UI 消息打印。为提升用户体验，不建议关闭此节点的消息打印。
 
-- `path_trim`: 真假值，默认 `false`。是否在寻路启动时选择距离角色最近的路径点作为实际起点（该点之前的路径点会被自动跳过）；关闭此功能则会始终从首个路径点开始移动。
+- `path_trim`: 真假值，默认 `false`。是否在寻路启动时选择距离角色最近的路径点作为实际起点（该点之前的路径点会被自动跳过）；否则始终从首个路径点开始移动。
 
 - `fine_approach`: 字符串，默认 `"FinalTarget"`。控制何时启用精细进近（极精确地到达目标点），可选值：
 
@@ -49,12 +49,12 @@
     | `"AllTargets"`  | 在每一个目标点都启用精细进近           | 对途径点的精度要求极高时（例如经过狭窄桥梁时） |
     | `"Never"`       | 不启用精细进近                         | /                                              |
 
+- `on_finish`: Pipeline 节点对象，默认不填。寻路成功后执行一次该 Pipeline 节点。有关示例可参见 [MapTrackerToward](#action-maptrackertoward) 的 Tip 部分。所填节点的 `pre_delay` 和 `post_delay` 在缺省时默认为 `0` 毫秒。
+
 <details>
 <summary>高级可选参数（展开）</summary>
 
 - `no_ensure_initial_movement_state`: 真假值，默认 `false`。是否在开始首次移动前跳过“冲刺”准备动作。开启后会直接进入寻路流程，不再主动重置为稳定的初始移动状态。
-
-- `no_ensure_final_orientation`: 真假值，默认 `false`。是否禁用在抵达最后一个目标点时调整玩家朝向以确保相机面向路径的最后一个方向。
 
 - `arrival_threshold`: 正实数，默认 `2.5`。判断到达下一个目标点的距离阈值，单位是像素距离。较大的值会更容易被判定为到达目标点，但可能导致寻路不完全；较小的值会要求更精确地到达目标点，但可能导致寻路难以完成。
 
@@ -117,28 +117,185 @@
 >
 > 执行此节点期间，请确保玩家**始终处于**指定的地图中，并且相邻的路径点之间**可以直线抵达**。
 
-### Action: MapTrackerBigMapPick
+### Action: MapTrackerGoal
 
-🫳 在大地图界面中拖动视野直到指定的点出现，随后可以进行点击操作。
+🧭 基于 NavMesh 自动规划路径，并操控玩家移动到指定目标。
+
+#### 工作原理
+
+此节点会先识别玩家当前位置，再读取 NavMesh 路网数据，将当前位置和目标点临时连接到路网中，通过 Dijkstra 算法规划路径，最后交给 [MapTrackerMove](#action-maptrackermove) 执行移动。
+
+若主动指定了滑索策略，还会在寻路前自动扫描大地图中的滑索点位，并将滑索纳入寻路考量中。
 
 #### 节点参数
 
 必填参数：
 
-- `map_name`: 地图的唯一名称。例如 "map01_lv001"。
+- `map_name`: 地图的唯一名称。例如 "map02_lv002"。
 
-- `target`: 由 2 个实数组成的列表 `[x, y]`，表示目标坐标点。
+- `target` 或 `entity_id`: 选择一种即可。
+    - `target`: 由 2 个实数组成的列表 `[x, y]`，表示目标坐标点。
+    - `entity_id`: NavMesh 顶点关联的实体 ID。
 
 可选参数：
 
-- `on_find`: 找到目标点后执行的操作。默认 `"Click"`。可选值为：
-    - `"Click"`：点击目标点（默认）；
-    - `"Teleport"`：执行传送操作（要求目标点是传送锚点）；
-    - `"DoNothing"`：不执行任何操作。
+- `zipline_policy`: 字符串，默认 `"Never"`。控制使用滑索的积极程度。可选值：
 
-- `auto_open_map_scene`: 真假值，默认 `false`。是否预先自动打开对应的大地图界面。此功能依赖于 SceneManager 系列节点。未启用此功能的情况下，请确认玩家当前已经处于对应的大地图界面。
+    | 选项值         | 含义                       | 适用场景                     |
+    | -------------- | -------------------------- | ---------------------------- |
+    | `"Never"`      | 始终不使用滑索（默认）     | 大多数场景                   |
+    | `"Lazy"`       | 仅在极端情况下使用滑索     | 需要跨越水域等不可通行区域时 |
+    | `"Active"`     | 像人类玩家一样主动使用滑索 | 不可通行区域较多且路程较长时 |
+    | `"Aggressive"` | 非常积极地使用滑索         | 一般不推荐                   |
 
-- `no_zoom`: 真假值，默认 `false`。是否禁用自动缩放调整功能（自动调整大地图的缩放到合适的范围）。禁用此功能可能会降低本节点的成功率。
+- 其他参数：支持补充填写 [MapTrackerMove](#action-maptrackermove) 的各个参数，这会透传给最终的移动过程，例如 `fine_approach`、`arrival_timeout`、`stuck_mitigators` 等。
+
+> [!TIP]
+>
+> 如果同时提供 `target` 和 `entity_id`，节点会优先使用 `target`，不会报错。
+
+#### 示例用法
+
+使用坐标作为目标：
+
+```json
+{
+    "MyNodeName": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerGoal",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "target": [
+                670.0,
+                350.8
+            ]
+        }
+    }
+}
+```
+
+使用实体 ID 作为目标：
+
+```json
+{
+    "MyNodeName": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerGoal",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "entity_id": 22800173539
+        }
+    }
+}
+```
+
+> [!TIP]
+>
+> 实体信息可在 [assets/data/ZmdMap/maaend_entities.json](/assets/data/ZmdMap/maaend_entities.json) 文件中查找，并使用 [ZmdMap 网站](https://zmdmap.com)进行对照。
+
+> [!WARNING]
+>
+> 执行此节点期间，请确保玩家**始终处于**指定的地图中，并且目标点能够通过对应 NavMesh 路网抵达。
+
+### Action: MapTrackerToward
+
+➡️ 调整玩家的朝向，使其面向指定的角度或地图点位。
+
+#### 节点参数
+
+必填参数：
+
+- `angle` 或 `target`: 选择一种即可。
+    - `angle`: 实数。预期朝向的角度，单位是度。适用于需要面向固定角度值的情况，鲁棒性最好。0° 表示正北方向，以顺时针旋转为递增方向。也可以设为负数，表示逆时针旋转的角度。
+    - `target`: 由 2 个实数组成的列表 `[x, y]`，表示预期面向的地图坐标点。适用于角度不固定或需要面向某个特定点的情况。选择此参数时还需要提供 `map_name` 参数。
+
+可选参数：
+
+- `map_name`: 地图的唯一名称。仅在 `target` 模式下必填，`angle` 模式下无需提供。
+
+<details>
+<summary>高级可选参数（展开）</summary>
+
+- `rotation_threshold`: 介于 $(0, 180)$ 的实数，默认 `12.0`。判断已朝向目标的方向角偏离阈值，单位是度。
+
+- `map_name_match_rule`: 含义同 [MapTrackerMove](#action-maptrackermove) 节点中的 `map_name_match_rule` 参数。
+
+</details>
+
+#### 示例用法
+
+面向指定角度（正东方向）：
+
+```json
+{
+    "MyNodeName": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerToward",
+        "custom_action_param": {
+            "angle": 90.0
+        }
+    }
+}
+```
+
+面向指定的地图点位：
+
+```json
+{
+    "MyNodeName": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerToward",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "target": [
+                670.0,
+                350.8
+            ]
+        }
+    }
+}
+```
+
+> [!TIP]
+>
+> 如果想在寻路移动成功结束后，立即调用这个节点来调整玩家朝向，比较方便的写法是，直接在 [MapTrackerMove](#action-maptrackermove) 中提供一个 `on_finish` 参数：
+>
+> ```json
+> "on_finish": {
+>     "action": "Custom",
+>     "custom_action": "MapTrackerToward",
+>     "custom_action_param": {
+>         "angle": 90.0
+>     }
+> }
+> ```
+
+### Action: MapTrackerZipline
+
+🎢 让滑索架上的玩家转向下一个指定的滑索架，对准后自动执行滑索移动。
+
+#### 节点参数
+
+必填参数：
+
+- `map_name`: 地图的唯一名称。
+
+- `target`: 下一个滑索架所处的地图坐标 `[x, y]`。
+
+<details>
+<summary>高级可选参数（展开）</summary>
+
+- `rotation_threshold`: 介于 $(0, 180)$ 的正实数，默认 `9.0`。判断已朝向目标滑索点的方向角偏离阈值，单位是度。
+
+- `timeout`: 正整数，默认 `15000`。转向目标滑索架，以及执行滑索移动操作的超时时间，单位是毫秒。
+
+- `map_name_match_rule`: 含义同 [MapTrackerMove](#action-maptrackermove) 节点中的 `map_name_match_rule` 参数。
+
+</details>
 
 #### 示例用法
 
@@ -147,18 +304,25 @@
     "MyNodeName": {
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTrackerZipline",
         "custom_action_param": {
             "map_name": "map02_lv002",
             "target": [
-                585.8,
-                825.5
-            ],
-            "on_find": "Teleport"
+                114.0,
+                514.0
+            ]
         }
     }
 }
 ```
+
+> [!TIP]
+>
+> 此节点全程**在滑索架上**完成。即，节点被调用时，要求玩家已经在滑索架上；节点执行完毕后，玩家不会自动下滑索架。
+
+> [!WARNING]
+>
+> 若目标滑索架无法抵达（滑索架未通电、滑索架不存在、障碍物阻挡），此节点会立即返回失败。
 
 ### Recognition: MapTrackerAssertLocation
 
@@ -178,8 +342,6 @@
 - `precision`: 含义同 [MapTrackerInfer](./map-tracker%28advanced%29.md#recognition-maptrackerinfer) 节点中的 `precision` 参数。
 
 - `threshold`: 含义同 [MapTrackerInfer](./map-tracker%28advanced%29.md#recognition-maptrackerinfer) 节点中的 `threshold` 参数。
-
-- `fast_mode`: 真假值，默认 `false`。控制是否开启快速匹配模式，以额外提升识别速度。除非遇到性能瓶颈，否则不建议开启此模式。
 
 </details>
 
@@ -204,6 +366,142 @@
             ]
         },
         "action": "DoNothing"
+    }
+}
+```
+
+### Recognition: MapTrackerBigMapFindImage
+
+🔍 在大地图界面中通过模板匹配查找指定图标的位置。
+
+#### 节点参数
+
+必填参数：
+
+- `template`: 模板图片路径。注意这个路径是相对于 `assets/resource` 目录的，例如 `image/MapTracker/BigMapIcons/Pointer.png`（玩家指针图标）。
+
+- `expected`: 布尔值、非负整数、或者条件对象。控制命中识别的条件，具体含义如下：
+    - 如果是布尔值 `true`，则表示找到至少一个匹配结果即可命中识别；
+    - 如果是布尔值 `false`，则表示找不到匹配结果才能命中识别；
+    - 如果是非负整数 `n`，则表示匹配到恰好 `n` 个结果才能命中识别；
+    - 如果是对象 `{"map_name": "...", "target": [x, y, w, h]}`，则表示指定的地图的矩形坐标区域内有至少一个匹配结果才能命中识别。
+
+可选参数：
+
+- `threshold`: 介于 $(0, 1]$ 的实数，默认 `0.5`。匹配置信度阈值，低于此值的匹配结果将被忽略。
+
+- `green_mask`: 布尔值，默认 `false`。是否对模板图启用绿色遮罩。
+
+- `with_rotation`: 布尔值，默认 `false`。是否开启任意角度匹配，适用于需要匹配旋转图标的情况（例如玩家指针）。
+
+- `zoom_value`: 介于 $[0, 1]$ 的实数，默认 `0`。开始匹配之前先将大地图缩放滑块调整到该位置。若设为 `0`（默认），则表示不进行缩放滑块的调整。
+
+- `map_name_regex`: 字符串，默认不填。限制大地图推断时的候选地图范围。仅在可能出现地图误判时设置，例如 `"^map02_lv002$"` 会锁定推断只在 "map02_lv002" 中进行。
+
+<details>
+<summary>高级可选参数（展开）</summary>
+
+- `max_matches`: 整数，默认 `32`。控制最多匹配多少个结果。此参数一般无需调整。
+- `must_see_points`: 由若干个实数坐标组成的点列表，默认不填。指定匹配过程中地图视口必须涵盖的地图坐标点。若填写了此参数，在匹配期间会自动拖拽地图视口直到所有指定的坐标点都曾出现在视口中。此参数适合需要在大范围区域内进行大规模匹配的情况，但会显著增加匹配耗时。
+
+</details>
+
+#### 示例用法
+
+下面演示了如何判断“蓝色任务定位标”是否在地图的某个区域内：
+
+```json
+{
+    "MyFindImageNode": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerBigMapFindImage",
+        "custom_recognition_param": {
+            "template": "image/SeizeDeliveryJobs/BlueTaskLocation.png",
+            "expected": {
+                "map_name": "map02_lv005",
+                "target": [
+                    114,
+                    514,
+                    19,
+                    19
+                ]
+            },
+            "green_mask": true,
+            "zoom_value": 0.25
+        },
+        "action": "DoNothing"
+    }
+}
+```
+
+> [!TIP]
+>
+> 当然，此节点在 Go 侧调用可以获得更丰富的信息返回。返回结果的具体格式请参考本节点的 Go 代码。
+
+### Action: MapTrackerBigMapPick
+
+🫳 在大地图界面中拖动视野直到指定的点出现，随后可以进行点击操作。
+
+#### 节点参数
+
+必填参数：
+
+- `map_name`: 地图的唯一名称。例如 "map01_lv001"。
+
+- `target`: 由 2 个实数组成的列表 `[x, y]`，表示目标坐标点。
+
+可选参数：
+
+- `on_find`: 找到目标点后执行的操作。默认 `"Click"`。可选值为：
+    - `"Click"`：点击目标点（默认）；
+    - `"Teleport"`：执行传送操作（要求目标点是传送锚点）；
+    - `"DoNothing"`：不执行任何操作。
+
+- `auto_open_map_scene`: 真假值，默认 `false`。是否预先自动打开对应的大地图界面。此功能依赖于 SceneManager 系列节点。未启用此功能的情况下，请确认玩家当前已经处于对应的大地图界面。
+
+- `zoom_value`: 控制在寻找目标点之前的自动缩放调整行为，详情参见 [MapTrackerBigMapZoom](#action-maptrackerbigmapzoom) 节点的 `zoom_value` 参数。不填时，默认值为 0.725。
+
+#### 示例用法
+
+```json
+{
+    "MyNodeName": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "target": [
+                585.8,
+                825.5
+            ],
+            "on_find": "Teleport"
+        }
+    }
+}
+```
+
+### Action: MapTrackerBigMapZoom
+
+🔍 在大地图界面中调整缩放滑条到指定位置。
+
+#### 节点参数
+
+必填参数：
+
+- `zoom_value`: 介于 $[0, 1]$ 的实数。若设为 `0` 或不填，则表示禁用缩放调整（什么都不会发生）。其余非零值表示的是大地图缩放滑条的点击位置，越接近 `0` 就越接近最近视野（最大缩放），`1` 为最远视野（最小缩放）。
+
+#### 示例用法
+
+```json
+{
+    "MyNodeName": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapZoom",
+        "custom_action_param": {
+            "zoom_value": 0.7
+        }
     }
 }
 ```

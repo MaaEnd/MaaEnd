@@ -6,12 +6,14 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "StashBackpackSubTask",
-                "AutoEcoFarmMain"
+                "StashBackpackSubTask"
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoEcoFarmMain"
+        ]
     },
     "AutoEcoFarmMain": {
         "desc": "自动生态农场主入口",

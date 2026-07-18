@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"image/draw"
 	_ "image/png"
+	"maps"
 	"math"
 	"os"
 	"path/filepath"
@@ -40,10 +41,10 @@ type MapTrackerMoveParam struct {
 	PathTrim bool `json:"path_trim,omitempty"`
 	// FineApproach controls when to enable fine approaching behavior. Valid values: "FinalTarget", "AllTargets", "Never".
 	FineApproach string `json:"fine_approach,omitempty"`
+	// OnFinish is an inline pipeline node object executed once after the navigation succeeds.
+	OnFinish map[string]any `json:"on_finish,omitempty"`
 	// NoEnsureInitialMovementState controls whether to skip ensuring the movement state when starting the initial movement.
 	NoEnsureInitialMovementState bool `json:"no_ensure_initial_movement_state,omitempty"`
-	// NoEnsureFinalOrientation controls whether to skip the final camera orientation adjustment when reaching the final target.
-	NoEnsureFinalOrientation bool `json:"no_ensure_final_orientation,omitempty"`
 	// ArrivalThreshold is the minimum distance to consider a target reached.
 	ArrivalThreshold float64 `json:"arrival_threshold,omitempty"`
 	// ArrivalTimeout is the maximum allowed time in milliseconds to reach each target point.
@@ -146,6 +147,8 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	log.Info().Str("map", param.MapName).Int("targetsCount", len(param.Path)).Msg("Starting navigation to targets")
 
+	// Start of all targets, reset cursor and initial movement state
+	ca.ResetCursor(control.CursorResetActive)
 	if !param.NoEnsureInitialMovementState {
 		// Reset player movement state
 		ca.AggressivelyResetPlayerMovement()
@@ -242,16 +245,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					log.Debug().Float64("nextDeltaRot", float64(nextDeltaRot)).Msg("Finishing target, foreseeing rotation adjustment for next target")
 					augNextDeltaRot := float64(nextDeltaRot) * 0.618
 					ca.RotateCamera(int(augNextDeltaRot*rotationSpeed), 0)
-					ca.AggressivelyResetCamera()
-				} else if !param.NoEnsureFinalOrientation && i == len(param.Path)-1 && len(param.Path) >= 2 {
-					// Ensure camera orientation when reached the final target
-					finalTarget := param.Path[len(param.Path)-1]
-					prevTarget := param.Path[len(param.Path)-2]
-					orientTargetRot := calcTargetRotation(prevTarget[0], prevTarget[1], finalTarget[0], finalTarget[1])
-					orientDeltaRot := calcDeltaRotation(rot, orientTargetRot)
-					log.Debug().Float64("orientDeltaRot", float64(orientDeltaRot)).Msg("Finishing target, ensuring final camera orientation")
-					ca.RotateCamera(int(float64(orientDeltaRot)*rotationSpeed), 0)
-					ca.AggressivelyResetCamera()
+					ca.ResetCursor(control.CursorResetLazy)
 				}
 			}
 
@@ -319,10 +313,10 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					if distTravel > control.MovementWalk.DistanceDuring(rotAdjState.expectedElapsed) {
 						// Check if rotation difference is sufficient to consider adjusting rotation speed
 						actualDeltaRot := calcDeltaRotation(rotAdjState.fromRot, rot)
-						if math.Abs(float64(actualDeltaRot))+math.Abs(rotAdjState.deltaRot) > param.RotationLowerThreshold {
-							idealRotSpeed := rotAdjState.deltaRot / (float64(actualDeltaRot) + 1e-6)
+						if math.Abs(float64(actualDeltaRot)) > param.RotationLowerThreshold && math.Abs(rotAdjState.deltaRot) > param.RotationLowerThreshold {
+							idealRotSpeed := rotationSpeed * rotAdjState.deltaRot / (float64(actualDeltaRot) + 1e-6)
 							if idealRotSpeed >= ROTATION_MIN_SPEED && idealRotSpeed <= ROTATION_MAX_SPEED {
-								rotationSpeed = rotationSpeed*0.618 + idealRotSpeed*0.382
+								rotationSpeed = rotationSpeed*0.865 + idealRotSpeed*0.135 // 1/e^2
 								rotAdjStateCache = rotAdjState
 								log.Debug().
 									Float64("idealRotSpeed", idealRotSpeed).
@@ -380,7 +374,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						startTime:       time.Now(),
 						expectedElapsed: ca.GetPlayerMovement().EtaOfRotation(math.Abs(finalDeltaRot)),
 					}
-					ca.AggressivelyResetCamera()
+					ca.ResetCursor(control.CursorResetLazy)
 				}
 			}
 		}
@@ -402,6 +396,15 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		maafocus.PrintLargeContentTrimNewline(
 			a.buildNavigationFinishedHTML(param, finishedX, finishedY),
 		)
+	}
+
+	// Run the on_finish pipeline node once if provided
+	if len(param.OnFinish) > 0 {
+		log.Info().Msg("Running on_finish node for MapTrackerMove")
+		if err := runOnFinishNode(ctx, param.OnFinish); err != nil {
+			log.Error().Err(err).Msg("Failed to run on_finish node for MapTrackerMove")
+			return false
+		}
 	}
 
 	return true
@@ -500,6 +503,8 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 }
 
 func doPlayerStop(ca control.ControlAdaptor) {
+	// Actively reset cursor to prevent other tasks' potential issue
+	ca.ResetCursor(control.CursorResetActive)
 	// Softly stop movement first
 	ca.SetPlayerMovement(control.MovementStop, control.PolicyLazy)
 	// Then reset player to running state to ensure consistent movement state for next navigation
@@ -575,6 +580,24 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 	}
 
 	return &result, nil
+}
+
+// runOnFinishNode registers the given inline node object under a temporary name and runs it once.
+// It defaults pre_delay and post_delay to 0 ms when they are not specified by the node.
+func runOnFinishNode(ctx *maa.Context, node map[string]any) error {
+	const onFinishNodeName = "__MapTrackerMoveOnFinish"
+	nodeWithDefaults := maps.Clone(node)
+	if _, ok := nodeWithDefaults["pre_delay"]; !ok {
+		nodeWithDefaults["pre_delay"] = 0
+	}
+	if _, ok := nodeWithDefaults["post_delay"]; !ok {
+		nodeWithDefaults["post_delay"] = 0
+	}
+	override := map[string]any{onFinishNodeName: nodeWithDefaults}
+	if _, err := ctx.RunTask(onFinishNodeName, override); err != nil {
+		return fmt.Errorf("failed to run on_finish temporary node: %w", err)
+	}
+	return nil
 }
 
 func executeStuckMitigator(ctx *maa.Context, ca control.ControlAdaptor, action string) {

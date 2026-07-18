@@ -4,8 +4,8 @@
 
 #include <MaaUtils/Logger.h>
 
-#include "MatchStrategy.h"
 #include "MapAlgorithm.h"
+#include "MatchStrategy.h"
 
 namespace fs = std::filesystem;
 

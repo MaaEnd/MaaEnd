@@ -12,9 +12,14 @@ import (
 func Register() {
 	maa.AgentServerRegisterCustomRecognition("MapTrackerInfer", &maptrackerdefault.MapTrackerInfer{})
 	maa.AgentServerRegisterCustomRecognition("MapTrackerBigMapInfer", &maptrackerbigmap.MapTrackerBigMapInfer{})
+	maa.AgentServerRegisterCustomRecognition("MapTrackerBigMapFindImage", &maptrackerbigmap.MapTrackerBigMapFindImage{})
 	maa.AgentServerRegisterCustomRecognition("MapTrackerAssertLocation", &maptrackerdefault.MapTrackerAssertLocation{})
 	maa.AgentServerRegisterCustomRecognition("MapTrackerAssertLocationCompatible", &maptrackercompatible.MapTrackerAssertLocationCompatible{})
 	maa.AgentServerRegisterCustomAction("MapTrackerMove", &maptrackerdefault.MapTrackerMove{})
+	maa.AgentServerRegisterCustomAction("MapTrackerGoal", &maptrackerdefault.MapTrackerGoal{})
+	maa.AgentServerRegisterCustomAction("MapTrackerZipline", &maptrackerdefault.MapTrackerZipline{})
+	maa.AgentServerRegisterCustomAction("MapTrackerToward", &maptrackerdefault.MapTrackerToward{})
 	maa.AgentServerRegisterCustomAction("MapTrackerMoveCompatible", &maptrackercompatible.MapTrackerMoveCompatible{})
 	maa.AgentServerRegisterCustomAction("MapTrackerBigMapPick", &maptrackerbigmap.MapTrackerBigMapPick{})
+	maa.AgentServerRegisterCustomAction("MapTrackerBigMapZoom", &maptrackerbigmap.MapTrackerBigMapZoom{})
 }

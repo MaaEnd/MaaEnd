@@ -11,6 +11,12 @@
                 "ValleyIVSell",
                 "WulingSell"
             ],
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
             "group": [
                 "regional_development"
             ]
@@ -34,7 +40,7 @@
                     "name": "SellProductScheduleMonday",
                     "label": "$option.TaskScheduleMonday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "monday": true
                             }
@@ -45,7 +51,7 @@
                     "name": "SellProductScheduleTuesday",
                     "label": "$option.TaskScheduleTuesday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "tuesday": true
                             }
@@ -56,7 +62,7 @@
                     "name": "SellProductScheduleWednesday",
                     "label": "$option.TaskScheduleWednesday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "wednesday": true
                             }
@@ -67,7 +73,7 @@
                     "name": "SellProductScheduleThursday",
                     "label": "$option.TaskScheduleThursday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "thursday": true
                             }
@@ -78,7 +84,7 @@
                     "name": "SellProductScheduleFriday",
                     "label": "$option.TaskScheduleFriday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "friday": true
                             }
@@ -89,7 +95,7 @@
                     "name": "SellProductScheduleSaturday",
                     "label": "$option.TaskScheduleSaturday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "saturday": true
                             }
@@ -100,7 +106,7 @@
                     "name": "SellProductScheduleSunday",
                     "label": "$option.TaskScheduleSunday.label",
                     "pipeline_override": {
-                        "SellProductSchedule": {
+                        "SellProductScheduleEnabled": {
                             "attach": {
                                 "sunday": true
                             }
@@ -187,6 +193,7 @@
                         }
                     },
                     "option": [
+                        "ValleyIVRefugeeCampOperator",
                         "ValleyIVRefugeeCampAttempt1",
                         "ValleyIVRefugeeCampAttempt2",
                         "ValleyIVRefugeeCampAttempt3",
@@ -198,6 +205,445 @@
                     "pipeline_override": {
                         "SellProductRefugeeCamp": {
                             "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVRefugeeCampOperator": {
+            "type": "switch",
+            "label": "$task.SellProduct.OperatorSwitch",
+            "description": "$task.SellProduct.OperatorSwitchDescription",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampSetBeforeSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": "SellProductRefugeeCampBeforeSellOperator"
+                            }
+                        }
+                    },
+                    "option": [
+                        "ValleyIVRefugeeCampTargetOperator",
+                        "ValleyIVRefugeeCampRestoreOperator"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampSetBeforeSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": ""
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVRefugeeCampTargetOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.TargetOperator",
+            "description": "$task.SellProduct.TargetOperatorDescription",
+            "default_case": "Perlica",
+            "cases": [
+                {
+                    "name": "Perlica",
+                    "label": "$operator.Perlica",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampCurrentTargetOperator": {
+                            "expected": [
+                                "佩丽卡",
+                                "佩麗卡",
+                                "Perlica",
+                                "ペリカ",
+                                "펠리카"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectTargetOperator": {
+                            "expected": [
+                                "佩丽卡",
+                                "佩麗卡",
+                                "Perlica",
+                                "ペリカ",
+                                "펠리카"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Ardelia",
+                    "label": "$operator.Ardelia",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampCurrentTargetOperator": {
+                            "expected": [
+                                "艾尔黛拉",
+                                "艾爾黛拉",
+                                "Ardelia",
+                                "アルデリア",
+                                "아델리아"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectTargetOperator": {
+                            "expected": [
+                                "艾尔黛拉",
+                                "艾爾黛拉",
+                                "Ardelia",
+                                "アルデリア",
+                                "아델리아"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Gilberta",
+                    "label": "$operator.Gilberta",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampCurrentTargetOperator": {
+                            "expected": [
+                                "洁尔佩塔",
+                                "潔爾佩塔",
+                                "Gilberta",
+                                "ギルベルタ",
+                                "질베르타"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectTargetOperator": {
+                            "expected": [
+                                "洁尔佩塔",
+                                "潔爾佩塔",
+                                "Gilberta",
+                                "ギルベルタ",
+                                "질베르타"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Wulfgard",
+                    "label": "$operator.Wulfgard",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampCurrentTargetOperator": {
+                            "expected": [
+                                "狼卫",
+                                "狼衛",
+                                "Wulfgard",
+                                "ウルフガード",
+                                "울프가드"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectTargetOperator": {
+                            "expected": [
+                                "狼卫",
+                                "狼衛",
+                                "Wulfgard",
+                                "ウルフガード",
+                                "울프가드"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Antal",
+                    "label": "$operator.Antal",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampCurrentTargetOperator": {
+                            "expected": [
+                                "安塔尔",
+                                "安塔爾",
+                                "Antal",
+                                "アンタル",
+                                "안탈"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectTargetOperator": {
+                            "expected": [
+                                "安塔尔",
+                                "安塔爾",
+                                "Antal",
+                                "アンタル",
+                                "안탈"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Laevatain",
+                    "label": "$operator.Laevatain",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampCurrentTargetOperator": {
+                            "expected": [
+                                "莱万汀",
+                                "萊萬汀",
+                                "Laevatain",
+                                "レーヴァテイン",
+                                "레바테인"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectTargetOperator": {
+                            "expected": [
+                                "莱万汀",
+                                "萊萬汀",
+                                "Laevatain",
+                                "レーヴァテイン",
+                                "레바테인"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Pogranichnik",
+                    "label": "$operator.Pogranichnik",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampCurrentTargetOperator": {
+                            "expected": [
+                                "骏卫",
+                                "駿衛",
+                                "Pogranichnik",
+                                "ポグラニチニク",
+                                "포그라니치니크"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectTargetOperator": {
+                            "expected": [
+                                "骏卫",
+                                "駿衛",
+                                "Pogranichnik",
+                                "ポグラニチニク",
+                                "포그라니치니크"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Snowshine",
+                    "label": "$operator.Snowshine",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampCurrentTargetOperator": {
+                            "expected": [
+                                "昼雪",
+                                "晝雪",
+                                "Snowshine",
+                                "スノーシャイン",
+                                "스노우샤인"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectTargetOperator": {
+                            "expected": [
+                                "昼雪",
+                                "晝雪",
+                                "Snowshine",
+                                "スノーシャイン",
+                                "스노우샤인"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Fluorite",
+                    "label": "$operator.Fluorite",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampCurrentTargetOperator": {
+                            "expected": [
+                                "萤石",
+                                "螢石",
+                                "Fluorite",
+                                "フローライト",
+                                "플루라이트"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectTargetOperator": {
+                            "expected": [
+                                "萤石",
+                                "螢石",
+                                "Fluorite",
+                                "フローライト",
+                                "플루라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Tangtang",
+                    "label": "$operator.Tangtang",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampCurrentTargetOperator": {
+                            "expected": [
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectTargetOperator": {
+                            "expected": [
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Camille",
+                    "label": "$operator.Camille",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampCurrentTargetOperator": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectTargetOperator": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVRefugeeCampRestoreOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.RestoreOperator",
+            "description": "$task.SellProduct.RestoreOperatorDescription",
+            "default_case": "DoNotRestore",
+            "cases": [
+                {
+                    "name": "DoNotRestore",
+                    "label": "$task.SellProduct.OperatorRestoreDoNotRestore",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductAfterSellOperator"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Antal",
+                    "label": "$operator.Antal",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
+                            }
+                        },
+                        "SellProductRefugeeCampCurrentRestoreOperator": {
+                            "expected": [
+                                "安塔尔",
+                                "安塔爾",
+                                "Antal",
+                                "アンタル",
+                                "안탈"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectRestoreOperator": {
+                            "expected": [
+                                "安塔尔",
+                                "安塔爾",
+                                "Antal",
+                                "アンタル",
+                                "안탈"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Laevatain",
+                    "label": "$operator.Laevatain",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
+                            }
+                        },
+                        "SellProductRefugeeCampCurrentRestoreOperator": {
+                            "expected": [
+                                "莱万汀",
+                                "萊萬汀",
+                                "Laevatain",
+                                "レーヴァテイン",
+                                "레바테인"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectRestoreOperator": {
+                            "expected": [
+                                "莱万汀",
+                                "萊萬汀",
+                                "Laevatain",
+                                "レーヴァテイン",
+                                "레바테인"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Rossi",
+                    "label": "$operator.Rossi",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
+                            }
+                        },
+                        "SellProductRefugeeCampCurrentRestoreOperator": {
+                            "expected": [
+                                "洛茜",
+                                "洛西",
+                                "Rossi",
+                                "ロッシ",
+                                "로시"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectRestoreOperator": {
+                            "expected": [
+                                "洛茜",
+                                "洛西",
+                                "Rossi",
+                                "ロッシ",
+                                "로시"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Camille",
+                    "label": "$operator.Camille",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductRefugeeCampAfterSellOperator"
+                            }
+                        },
+                        "SellProductRefugeeCampCurrentRestoreOperator": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
+                        },
+                        "SellProductRefugeeCampSelectRestoreOperator": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
                         }
                     }
                 }
@@ -1541,6 +1987,7 @@
                         }
                     },
                     "option": [
+                        "ValleyIVInfrastructureOutpostOperator",
                         "ValleyIVInfrastructureOutpostAttempt1",
                         "ValleyIVInfrastructureOutpostAttempt2",
                         "ValleyIVInfrastructureOutpostAttempt3",
@@ -1552,6 +1999,455 @@
                     "pipeline_override": {
                         "SellProductInfrastructureOutpost": {
                             "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVInfrastructureOutpostOperator": {
+            "type": "switch",
+            "label": "$task.SellProduct.OperatorSwitch",
+            "description": "$task.SellProduct.OperatorSwitchDescription",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostSetBeforeSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": "SellProductInfrastructureOutpostBeforeSellOperator"
+                            }
+                        }
+                    },
+                    "option": [
+                        "ValleyIVInfrastructureOutpostTargetOperator",
+                        "ValleyIVInfrastructureOutpostRestoreOperator"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostSetBeforeSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": ""
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVInfrastructureOutpostTargetOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.TargetOperator",
+            "description": "$task.SellProduct.TargetOperatorDescription",
+            "default_case": "Perlica",
+            "cases": [
+                {
+                    "name": "Perlica",
+                    "label": "$operator.Perlica",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostCurrentTargetOperator": {
+                            "expected": [
+                                "佩丽卡",
+                                "佩麗卡",
+                                "Perlica",
+                                "ペリカ",
+                                "펠리카"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectTargetOperator": {
+                            "expected": [
+                                "佩丽卡",
+                                "佩麗卡",
+                                "Perlica",
+                                "ペリカ",
+                                "펠리카"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Yvonne",
+                    "label": "$operator.Yvonne",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostCurrentTargetOperator": {
+                            "expected": [
+                                "伊冯",
+                                "伊馮",
+                                "Yvonne",
+                                "イヴォンヌ",
+                                "이본"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectTargetOperator": {
+                            "expected": [
+                                "伊冯",
+                                "伊馮",
+                                "Yvonne",
+                                "イヴォンヌ",
+                                "이본"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ChenQianyu",
+                    "label": "$operator.ChenQianyu",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostCurrentTargetOperator": {
+                            "expected": [
+                                "陈千语",
+                                "陳千語",
+                                "Chen Qianyu",
+                                "チェン・センユー",
+                                "진천우"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectTargetOperator": {
+                            "expected": [
+                                "陈千语",
+                                "陳千語",
+                                "Chen Qianyu",
+                                "チェン・センユー",
+                                "진천우"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Wulfgard",
+                    "label": "$operator.Wulfgard",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostCurrentTargetOperator": {
+                            "expected": [
+                                "狼卫",
+                                "狼衛",
+                                "Wulfgard",
+                                "ウルフガード",
+                                "울프가드"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectTargetOperator": {
+                            "expected": [
+                                "狼卫",
+                                "狼衛",
+                                "Wulfgard",
+                                "ウルフガード",
+                                "울프가드"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Antal",
+                    "label": "$operator.Antal",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostCurrentTargetOperator": {
+                            "expected": [
+                                "安塔尔",
+                                "安塔爾",
+                                "Antal",
+                                "アンタル",
+                                "안탈"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectTargetOperator": {
+                            "expected": [
+                                "安塔尔",
+                                "安塔爾",
+                                "Antal",
+                                "アンタル",
+                                "안탈"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Xaihi",
+                    "label": "$operator.Xaihi",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostCurrentTargetOperator": {
+                            "expected": [
+                                "赛希",
+                                "賽希",
+                                "Xaihi",
+                                "ザイヒ",
+                                "자이히"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectTargetOperator": {
+                            "expected": [
+                                "赛希",
+                                "賽希",
+                                "Xaihi",
+                                "ザイヒ",
+                                "자이히"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Catcher",
+                    "label": "$operator.Catcher",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostCurrentTargetOperator": {
+                            "expected": [
+                                "卡契尔",
+                                "卡契爾",
+                                "Catcher",
+                                "キャッチャー",
+                                "카치르"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectTargetOperator": {
+                            "expected": [
+                                "卡契尔",
+                                "卡契爾",
+                                "Catcher",
+                                "キャッチャー",
+                                "카치르"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Ember",
+                    "label": "$operator.Ember",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostCurrentTargetOperator": {
+                            "expected": [
+                                "余烬",
+                                "餘燼",
+                                "Ember",
+                                "エンバー",
+                                "엠버"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectTargetOperator": {
+                            "expected": [
+                                "余烬",
+                                "餘燼",
+                                "Ember",
+                                "エンバー",
+                                "엠버"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Fluorite",
+                    "label": "$operator.Fluorite",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostCurrentTargetOperator": {
+                            "expected": [
+                                "萤石",
+                                "螢石",
+                                "Fluorite",
+                                "フローライト",
+                                "플루라이트"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectTargetOperator": {
+                            "expected": [
+                                "萤石",
+                                "螢石",
+                                "Fluorite",
+                                "フローライト",
+                                "플루라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Akekuri",
+                    "label": "$operator.Akekuri",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostCurrentTargetOperator": {
+                            "expected": [
+                                "秋栗",
+                                "Akekuri",
+                                "アケクリ",
+                                "아케쿠리"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectTargetOperator": {
+                            "expected": [
+                                "秋栗",
+                                "Akekuri",
+                                "アケクリ",
+                                "아케쿠리"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Estella",
+                    "label": "$operator.Estella",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostCurrentTargetOperator": {
+                            "expected": [
+                                "埃特拉",
+                                "Estella",
+                                "エステーラ",
+                                "에스텔라"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectTargetOperator": {
+                            "expected": [
+                                "埃特拉",
+                                "Estella",
+                                "エステーラ",
+                                "에스텔라"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Rossi",
+                    "label": "$operator.Rossi",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostCurrentTargetOperator": {
+                            "expected": [
+                                "洛茜",
+                                "洛西",
+                                "Rossi",
+                                "ロッシ",
+                                "로시"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectTargetOperator": {
+                            "expected": [
+                                "洛茜",
+                                "洛西",
+                                "Rossi",
+                                "ロッシ",
+                                "로시"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Tangtang",
+                    "label": "$operator.Tangtang",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostCurrentTargetOperator": {
+                            "expected": [
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectTargetOperator": {
+                            "expected": [
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Camille",
+                    "label": "$operator.Camille",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostCurrentTargetOperator": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectTargetOperator": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVInfrastructureOutpostRestoreOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.RestoreOperator",
+            "description": "$task.SellProduct.RestoreOperatorDescription",
+            "default_case": "DoNotRestore",
+            "cases": [
+                {
+                    "name": "DoNotRestore",
+                    "label": "$task.SellProduct.OperatorRestoreDoNotRestore",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductAfterSellOperator"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Yvonne",
+                    "label": "$operator.Yvonne",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
+                            }
+                        },
+                        "SellProductInfrastructureOutpostCurrentRestoreOperator": {
+                            "expected": [
+                                "伊冯",
+                                "伊馮",
+                                "Yvonne",
+                                "イヴォンヌ",
+                                "이본"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectRestoreOperator": {
+                            "expected": [
+                                "伊冯",
+                                "伊馮",
+                                "Yvonne",
+                                "イヴォンヌ",
+                                "이본"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ChenQianyu",
+                    "label": "$operator.ChenQianyu",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductInfrastructureOutpostAfterSellOperator"
+                            }
+                        },
+                        "SellProductInfrastructureOutpostCurrentRestoreOperator": {
+                            "expected": [
+                                "陈千语",
+                                "陳千語",
+                                "Chen Qianyu",
+                                "チェン・センユー",
+                                "진천우"
+                            ]
+                        },
+                        "SellProductInfrastructureOutpostSelectRestoreOperator": {
+                            "expected": [
+                                "陈千语",
+                                "陳千語",
+                                "Chen Qianyu",
+                                "チェン・センユー",
+                                "진천우"
+                            ]
                         }
                     }
                 }
@@ -2719,6 +3615,7 @@
                         }
                     },
                     "option": [
+                        "ValleyIVReconstructionCommandOperator",
                         "ValleyIVReconstructionCommandAttempt1",
                         "ValleyIVReconstructionCommandAttempt2",
                         "ValleyIVReconstructionCommandAttempt3",
@@ -2730,6 +3627,342 @@
                     "pipeline_override": {
                         "SellProductReconstructionCommand": {
                             "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVReconstructionCommandOperator": {
+            "type": "switch",
+            "label": "$task.SellProduct.OperatorSwitch",
+            "description": "$task.SellProduct.OperatorSwitchDescription",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandSetBeforeSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": "SellProductReconstructionCommandBeforeSellOperator"
+                            }
+                        }
+                    },
+                    "option": [
+                        "ValleyIVReconstructionCommandTargetOperator",
+                        "ValleyIVReconstructionCommandRestoreOperator"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandSetBeforeSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": ""
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVReconstructionCommandTargetOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.TargetOperator",
+            "description": "$task.SellProduct.TargetOperatorDescription",
+            "default_case": "Ardelia",
+            "cases": [
+                {
+                    "name": "Ardelia",
+                    "label": "$operator.Ardelia",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandCurrentTargetOperator": {
+                            "expected": [
+                                "艾尔黛拉",
+                                "艾爾黛拉",
+                                "Ardelia",
+                                "アルデリア",
+                                "아델리아"
+                            ]
+                        },
+                        "SellProductReconstructionCommandSelectTargetOperator": {
+                            "expected": [
+                                "艾尔黛拉",
+                                "艾爾黛拉",
+                                "Ardelia",
+                                "アルデリア",
+                                "아델리아"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Gilberta",
+                    "label": "$operator.Gilberta",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandCurrentTargetOperator": {
+                            "expected": [
+                                "洁尔佩塔",
+                                "潔爾佩塔",
+                                "Gilberta",
+                                "ギルベルタ",
+                                "질베르타"
+                            ]
+                        },
+                        "SellProductReconstructionCommandSelectTargetOperator": {
+                            "expected": [
+                                "洁尔佩塔",
+                                "潔爾佩塔",
+                                "Gilberta",
+                                "ギルベルタ",
+                                "질베르타"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ChenQianyu",
+                    "label": "$operator.ChenQianyu",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandCurrentTargetOperator": {
+                            "expected": [
+                                "陈千语",
+                                "陳千語",
+                                "Chen Qianyu",
+                                "チェン・センユー",
+                                "진천우"
+                            ]
+                        },
+                        "SellProductReconstructionCommandSelectTargetOperator": {
+                            "expected": [
+                                "陈千语",
+                                "陳千語",
+                                "Chen Qianyu",
+                                "チェン・センユー",
+                                "진천우"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Laevatain",
+                    "label": "$operator.Laevatain",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandCurrentTargetOperator": {
+                            "expected": [
+                                "莱万汀",
+                                "萊萬汀",
+                                "Laevatain",
+                                "レーヴァテイン",
+                                "레바테인"
+                            ]
+                        },
+                        "SellProductReconstructionCommandSelectTargetOperator": {
+                            "expected": [
+                                "莱万汀",
+                                "萊萬汀",
+                                "Laevatain",
+                                "レーヴァテイン",
+                                "레바테인"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Alesh",
+                    "label": "$operator.Alesh",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandCurrentTargetOperator": {
+                            "expected": [
+                                "阿列什",
+                                "Alesh",
+                                "アレッシュ",
+                                "알레쉬"
+                            ]
+                        },
+                        "SellProductReconstructionCommandSelectTargetOperator": {
+                            "expected": [
+                                "阿列什",
+                                "Alesh",
+                                "アレッシュ",
+                                "알레쉬"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Pogranichnik",
+                    "label": "$operator.Pogranichnik",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandCurrentTargetOperator": {
+                            "expected": [
+                                "骏卫",
+                                "駿衛",
+                                "Pogranichnik",
+                                "ポグラニチニク",
+                                "포그라니치니크"
+                            ]
+                        },
+                        "SellProductReconstructionCommandSelectTargetOperator": {
+                            "expected": [
+                                "骏卫",
+                                "駿衛",
+                                "Pogranichnik",
+                                "ポグラニチニク",
+                                "포그라니치니크"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Snowshine",
+                    "label": "$operator.Snowshine",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandCurrentTargetOperator": {
+                            "expected": [
+                                "昼雪",
+                                "晝雪",
+                                "Snowshine",
+                                "スノーシャイン",
+                                "스노우샤인"
+                            ]
+                        },
+                        "SellProductReconstructionCommandSelectTargetOperator": {
+                            "expected": [
+                                "昼雪",
+                                "晝雪",
+                                "Snowshine",
+                                "スノーシャイン",
+                                "스노우샤인"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ZhuangFangyi",
+                    "label": "$operator.ZhuangFangyi",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandCurrentTargetOperator": {
+                            "expected": [
+                                "庄方宜",
+                                "莊方宜",
+                                "Zhuang Fangyi",
+                                "ゾアン・ファンイ",
+                                "장방이"
+                            ]
+                        },
+                        "SellProductReconstructionCommandSelectTargetOperator": {
+                            "expected": [
+                                "庄方宜",
+                                "莊方宜",
+                                "Zhuang Fangyi",
+                                "ゾアン・ファンイ",
+                                "장방이"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVReconstructionCommandRestoreOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.RestoreOperator",
+            "description": "$task.SellProduct.RestoreOperatorDescription",
+            "default_case": "DoNotRestore",
+            "cases": [
+                {
+                    "name": "DoNotRestore",
+                    "label": "$task.SellProduct.OperatorRestoreDoNotRestore",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductAfterSellOperator"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Perlica",
+                    "label": "$operator.Perlica",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
+                            }
+                        },
+                        "SellProductReconstructionCommandCurrentRestoreOperator": {
+                            "expected": [
+                                "佩丽卡",
+                                "佩麗卡",
+                                "Perlica",
+                                "ペリカ",
+                                "펠리카"
+                            ]
+                        },
+                        "SellProductReconstructionCommandSelectRestoreOperator": {
+                            "expected": [
+                                "佩丽卡",
+                                "佩麗卡",
+                                "Perlica",
+                                "ペリカ",
+                                "펠리카"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Gilberta",
+                    "label": "$operator.Gilberta",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
+                            }
+                        },
+                        "SellProductReconstructionCommandCurrentRestoreOperator": {
+                            "expected": [
+                                "洁尔佩塔",
+                                "潔爾佩塔",
+                                "Gilberta",
+                                "ギルベルタ",
+                                "질베르타"
+                            ]
+                        },
+                        "SellProductReconstructionCommandSelectRestoreOperator": {
+                            "expected": [
+                                "洁尔佩塔",
+                                "潔爾佩塔",
+                                "Gilberta",
+                                "ギルベルタ",
+                                "질베르타"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Laevatain",
+                    "label": "$operator.Laevatain",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductReconstructionCommandAfterSellOperator"
+                            }
+                        },
+                        "SellProductReconstructionCommandCurrentRestoreOperator": {
+                            "expected": [
+                                "莱万汀",
+                                "萊萬汀",
+                                "Laevatain",
+                                "レーヴァテイン",
+                                "레바테인"
+                            ]
+                        },
+                        "SellProductReconstructionCommandSelectRestoreOperator": {
+                            "expected": [
+                                "莱万汀",
+                                "萊萬汀",
+                                "Laevatain",
+                                "レーヴァテイン",
+                                "레바테인"
+                            ]
                         }
                     }
                 }
@@ -3811,7 +5044,8 @@
                     },
                     "option": [
                         "WulingSkyKingFlats",
-                        "WulingCardiacRemediationStation"
+                        "WulingCardiacRemediationStation",
+                        "WulingXiranflowCloudseederStation"
                     ]
                 },
                 {
@@ -3837,6 +5071,7 @@
                         }
                     },
                     "option": [
+                        "WulingSkyKingFlatsOperator",
                         "WulingSkyKingFlatsAttempt1",
                         "WulingSkyKingFlatsAttempt2",
                         "WulingSkyKingFlatsAttempt3",
@@ -3848,6 +5083,475 @@
                     "pipeline_override": {
                         "SellProductSkyKingFlats": {
                             "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingSkyKingFlatsOperator": {
+            "type": "switch",
+            "label": "$task.SellProduct.OperatorSwitch",
+            "description": "$task.SellProduct.OperatorSwitchDescription",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSetBeforeSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": "SellProductSkyKingFlatsBeforeSellOperator"
+                            }
+                        }
+                    },
+                    "option": [
+                        "WulingSkyKingFlatsTargetOperator",
+                        "WulingSkyKingFlatsRestoreOperator"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSetBeforeSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": ""
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingSkyKingFlatsTargetOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.TargetOperator",
+            "description": "$task.SellProduct.TargetOperatorDescription",
+            "default_case": "Ardelia",
+            "cases": [
+                {
+                    "name": "Ardelia",
+                    "label": "$operator.Ardelia",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsCurrentTargetOperator": {
+                            "expected": [
+                                "艾尔黛拉",
+                                "艾爾黛拉",
+                                "Ardelia",
+                                "アルデリア",
+                                "아델리아"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectTargetOperator": {
+                            "expected": [
+                                "艾尔黛拉",
+                                "艾爾黛拉",
+                                "Ardelia",
+                                "アルデリア",
+                                "아델리아"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Wulfgard",
+                    "label": "$operator.Wulfgard",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsCurrentTargetOperator": {
+                            "expected": [
+                                "狼卫",
+                                "狼衛",
+                                "Wulfgard",
+                                "ウルフガード",
+                                "울프가드"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectTargetOperator": {
+                            "expected": [
+                                "狼卫",
+                                "狼衛",
+                                "Wulfgard",
+                                "ウルフガード",
+                                "울프가드"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Lifeng",
+                    "label": "$operator.Lifeng",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsCurrentTargetOperator": {
+                            "expected": [
+                                "黎风",
+                                "黎風",
+                                "Lifeng",
+                                "リーフォン",
+                                "여풍"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectTargetOperator": {
+                            "expected": [
+                                "黎风",
+                                "黎風",
+                                "Lifeng",
+                                "リーフォン",
+                                "여풍"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Arclight",
+                    "label": "$operator.Arclight",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsCurrentTargetOperator": {
+                            "expected": [
+                                "弧光",
+                                "Arclight",
+                                "アークライト",
+                                "아크라이트"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectTargetOperator": {
+                            "expected": [
+                                "弧光",
+                                "Arclight",
+                                "アークライト",
+                                "아크라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Avywenna",
+                    "label": "$operator.Avywenna",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsCurrentTargetOperator": {
+                            "expected": [
+                                "艾维文娜",
+                                "艾維文娜",
+                                "Avywenna",
+                                "アイビーエナ",
+                                "아비웨나"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectTargetOperator": {
+                            "expected": [
+                                "艾维文娜",
+                                "艾維文娜",
+                                "Avywenna",
+                                "アイビーエナ",
+                                "아비웨나"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Fluorite",
+                    "label": "$operator.Fluorite",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsCurrentTargetOperator": {
+                            "expected": [
+                                "萤石",
+                                "螢石",
+                                "Fluorite",
+                                "フローライト",
+                                "플루라이트"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectTargetOperator": {
+                            "expected": [
+                                "萤石",
+                                "螢石",
+                                "Fluorite",
+                                "フローライト",
+                                "플루라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Rossi",
+                    "label": "$operator.Rossi",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsCurrentTargetOperator": {
+                            "expected": [
+                                "洛茜",
+                                "洛西",
+                                "Rossi",
+                                "ロッシ",
+                                "로시"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectTargetOperator": {
+                            "expected": [
+                                "洛茜",
+                                "洛西",
+                                "Rossi",
+                                "ロッシ",
+                                "로시"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Tangtang",
+                    "label": "$operator.Tangtang",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsCurrentTargetOperator": {
+                            "expected": [
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectTargetOperator": {
+                            "expected": [
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Camille",
+                    "label": "$operator.Camille",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsCurrentTargetOperator": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectTargetOperator": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Arcane",
+                    "label": "$operator.Arcane",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsCurrentTargetOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectTargetOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingSkyKingFlatsRestoreOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.RestoreOperator",
+            "description": "$task.SellProduct.RestoreOperatorDescription",
+            "default_case": "DoNotRestore",
+            "cases": [
+                {
+                    "name": "DoNotRestore",
+                    "label": "$task.SellProduct.OperatorRestoreDoNotRestore",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductAfterSellOperator"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Wulfgard",
+                    "label": "$operator.Wulfgard",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
+                            }
+                        },
+                        "SellProductSkyKingFlatsCurrentRestoreOperator": {
+                            "expected": [
+                                "狼卫",
+                                "狼衛",
+                                "Wulfgard",
+                                "ウルフガード",
+                                "울프가드"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectRestoreOperator": {
+                            "expected": [
+                                "狼卫",
+                                "狼衛",
+                                "Wulfgard",
+                                "ウルフガード",
+                                "울프가드"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "LastRite",
+                    "label": "$operator.LastRite",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
+                            }
+                        },
+                        "SellProductSkyKingFlatsCurrentRestoreOperator": {
+                            "expected": [
+                                "别礼",
+                                "別禮",
+                                "Last Rite",
+                                "ラストライト",
+                                "라스트 라이트"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectRestoreOperator": {
+                            "expected": [
+                                "别礼",
+                                "別禮",
+                                "Last Rite",
+                                "ラストライト",
+                                "라스트 라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Ember",
+                    "label": "$operator.Ember",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
+                            }
+                        },
+                        "SellProductSkyKingFlatsCurrentRestoreOperator": {
+                            "expected": [
+                                "余烬",
+                                "餘燼",
+                                "Ember",
+                                "エンバー",
+                                "엠버"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectRestoreOperator": {
+                            "expected": [
+                                "余烬",
+                                "餘燼",
+                                "Ember",
+                                "エンバー",
+                                "엠버"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Tangtang",
+                    "label": "$operator.Tangtang",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
+                            }
+                        },
+                        "SellProductSkyKingFlatsCurrentRestoreOperator": {
+                            "expected": [
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectRestoreOperator": {
+                            "expected": [
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
+                            }
+                        },
+                        "SellProductSkyKingFlatsCurrentRestoreOperator": {
+                            "expected": [
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미브"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectRestoreOperator": {
+                            "expected": [
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미브"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Arcane",
+                    "label": "$operator.Arcane",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductSkyKingFlatsAfterSellOperator"
+                            }
+                        },
+                        "SellProductSkyKingFlatsCurrentRestoreOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsSelectRestoreOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
                         }
                     }
                 }
@@ -4069,6 +5773,50 @@
                     "label": "$item.YazhenSyringeA"
                 },
                 {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质锦草软饮",
+                                    "優質錦草飲料",
+                                    "錦草ソーダⅡ",
+                                    "Jincao Tea"
+                                ]
+                            }
+                        },
+                        "SellProductSkyKingFlatsSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "重息壤",
+                                    "重息壤",
+                                    "重息壌",
+                                    "Heavy Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductSkyKingFlatsSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
+                },
+                {
                     "name": "芽针针剂",
                     "pipeline_override": {
                         "SellProductSkyKingFlatsSelectItem1": {
@@ -4263,6 +6011,50 @@
                         }
                     },
                     "label": "$item.YazhenSyringeA"
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质锦草软饮",
+                                    "優質錦草飲料",
+                                    "錦草ソーダⅡ",
+                                    "Jincao Tea"
+                                ]
+                            }
+                        },
+                        "SellProductSkyKingFlatsSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "重息壤",
+                                    "重息壤",
+                                    "重息壌",
+                                    "Heavy Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductSkyKingFlatsSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
                 },
                 {
                     "name": "芽针针剂",
@@ -4461,6 +6253,50 @@
                     "label": "$item.YazhenSyringeA"
                 },
                 {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质锦草软饮",
+                                    "優質錦草飲料",
+                                    "錦草ソーダⅡ",
+                                    "Jincao Tea"
+                                ]
+                            }
+                        },
+                        "SellProductSkyKingFlatsSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "重息壤",
+                                    "重息壤",
+                                    "重息壌",
+                                    "Heavy Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductSkyKingFlatsSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
+                },
+                {
                     "name": "芽针针剂",
                     "pipeline_override": {
                         "SellProductSkyKingFlatsSelectItem3": {
@@ -4655,6 +6491,50 @@
                         }
                     },
                     "label": "$item.YazhenSyringeA"
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质锦草软饮",
+                                    "優質錦草飲料",
+                                    "錦草ソーダⅡ",
+                                    "Jincao Tea"
+                                ]
+                            }
+                        },
+                        "SellProductSkyKingFlatsSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "重息壤",
+                                    "重息壤",
+                                    "重息壌",
+                                    "Heavy Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductSkyKingFlatsSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
                 },
                 {
                     "name": "芽针针剂",
@@ -4927,6 +6807,7 @@
                         }
                     },
                     "option": [
+                        "WulingCardiacRemediationStationOperator",
                         "WulingCardiacRemediationStationAttempt1",
                         "WulingCardiacRemediationStationAttempt2",
                         "WulingCardiacRemediationStationAttempt3",
@@ -4938,6 +6819,440 @@
                     "pipeline_override": {
                         "SellProductCardiacRemediationStation": {
                             "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingCardiacRemediationStationOperator": {
+            "type": "switch",
+            "label": "$task.SellProduct.OperatorSwitch",
+            "description": "$task.SellProduct.OperatorSwitchDescription",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSetBeforeSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": "SellProductCardiacRemediationStationBeforeSellOperator"
+                            }
+                        }
+                    },
+                    "option": [
+                        "WulingCardiacRemediationStationTargetOperator",
+                        "WulingCardiacRemediationStationRestoreOperator"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSetBeforeSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": ""
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingCardiacRemediationStationTargetOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.TargetOperator",
+            "description": "$task.SellProduct.TargetOperatorDescription",
+            "default_case": "ChenQianyu",
+            "cases": [
+                {
+                    "name": "ChenQianyu",
+                    "label": "$operator.ChenQianyu",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationCurrentTargetOperator": {
+                            "expected": [
+                                "陈千语",
+                                "陳千語",
+                                "Chen Qianyu",
+                                "チェン・センユー",
+                                "진천우"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectTargetOperator": {
+                            "expected": [
+                                "陈千语",
+                                "陳千語",
+                                "Chen Qianyu",
+                                "チェン・センユー",
+                                "진천우"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Lifeng",
+                    "label": "$operator.Lifeng",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationCurrentTargetOperator": {
+                            "expected": [
+                                "黎风",
+                                "黎風",
+                                "Lifeng",
+                                "リーフォン",
+                                "여풍"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectTargetOperator": {
+                            "expected": [
+                                "黎风",
+                                "黎風",
+                                "Lifeng",
+                                "リーフォン",
+                                "여풍"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Alesh",
+                    "label": "$operator.Alesh",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationCurrentTargetOperator": {
+                            "expected": [
+                                "阿列什",
+                                "Alesh",
+                                "アレッシュ",
+                                "알레쉬"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectTargetOperator": {
+                            "expected": [
+                                "阿列什",
+                                "Alesh",
+                                "アレッシュ",
+                                "알레쉬"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "LastRite",
+                    "label": "$operator.LastRite",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationCurrentTargetOperator": {
+                            "expected": [
+                                "别礼",
+                                "別禮",
+                                "Last Rite",
+                                "ラストライト",
+                                "라스트 라이트"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectTargetOperator": {
+                            "expected": [
+                                "别礼",
+                                "別禮",
+                                "Last Rite",
+                                "ラストライト",
+                                "라스트 라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Snowshine",
+                    "label": "$operator.Snowshine",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationCurrentTargetOperator": {
+                            "expected": [
+                                "昼雪",
+                                "晝雪",
+                                "Snowshine",
+                                "スノーシャイン",
+                                "스노우샤인"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectTargetOperator": {
+                            "expected": [
+                                "昼雪",
+                                "晝雪",
+                                "Snowshine",
+                                "スノーシャイン",
+                                "스노우샤인"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "DaPan",
+                    "label": "$operator.DaPan",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationCurrentTargetOperator": {
+                            "expected": [
+                                "大潘",
+                                "Da Pan",
+                                "ダパン",
+                                "판"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectTargetOperator": {
+                            "expected": [
+                                "大潘",
+                                "Da Pan",
+                                "ダパン",
+                                "판"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Akekuri",
+                    "label": "$operator.Akekuri",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationCurrentTargetOperator": {
+                            "expected": [
+                                "秋栗",
+                                "Akekuri",
+                                "アケクリ",
+                                "아케쿠리"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectTargetOperator": {
+                            "expected": [
+                                "秋栗",
+                                "Akekuri",
+                                "アケクリ",
+                                "아케쿠리"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ZhuangFangyi",
+                    "label": "$operator.ZhuangFangyi",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationCurrentTargetOperator": {
+                            "expected": [
+                                "庄方宜",
+                                "莊方宜",
+                                "Zhuang Fangyi",
+                                "ゾアン・ファンイ",
+                                "장방이"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectTargetOperator": {
+                            "expected": [
+                                "庄方宜",
+                                "莊方宜",
+                                "Zhuang Fangyi",
+                                "ゾアン・ファンイ",
+                                "장방이"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationCurrentTargetOperator": {
+                            "expected": [
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미브"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectTargetOperator": {
+                            "expected": [
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미브"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Arcane",
+                    "label": "$operator.Arcane",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationCurrentTargetOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectTargetOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingCardiacRemediationStationRestoreOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.RestoreOperator",
+            "description": "$task.SellProduct.RestoreOperatorDescription",
+            "default_case": "DoNotRestore",
+            "cases": [
+                {
+                    "name": "DoNotRestore",
+                    "label": "$task.SellProduct.OperatorRestoreDoNotRestore",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductAfterSellOperator"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Perlica",
+                    "label": "$operator.Perlica",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductCardiacRemediationStationCurrentRestoreOperator": {
+                            "expected": [
+                                "佩丽卡",
+                                "佩麗卡",
+                                "Perlica",
+                                "ペリカ",
+                                "펠리카"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectRestoreOperator": {
+                            "expected": [
+                                "佩丽卡",
+                                "佩麗卡",
+                                "Perlica",
+                                "ペリカ",
+                                "펠리카"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Yvonne",
+                    "label": "$operator.Yvonne",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductCardiacRemediationStationCurrentRestoreOperator": {
+                            "expected": [
+                                "伊冯",
+                                "伊馮",
+                                "Yvonne",
+                                "イヴォンヌ",
+                                "이본"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectRestoreOperator": {
+                            "expected": [
+                                "伊冯",
+                                "伊馮",
+                                "Yvonne",
+                                "イヴォンヌ",
+                                "이본"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Pogranichnik",
+                    "label": "$operator.Pogranichnik",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductCardiacRemediationStationCurrentRestoreOperator": {
+                            "expected": [
+                                "骏卫",
+                                "駿衛",
+                                "Pogranichnik",
+                                "ポグラニチニク",
+                                "포그라니치니크"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectRestoreOperator": {
+                            "expected": [
+                                "骏卫",
+                                "駿衛",
+                                "Pogranichnik",
+                                "ポグラニチニク",
+                                "포그라니치니크"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Akekuri",
+                    "label": "$operator.Akekuri",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductCardiacRemediationStationCurrentRestoreOperator": {
+                            "expected": [
+                                "秋栗",
+                                "Akekuri",
+                                "アケクリ",
+                                "아케쿠리"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectRestoreOperator": {
+                            "expected": [
+                                "秋栗",
+                                "Akekuri",
+                                "アケクリ",
+                                "아케쿠리"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ZhuangFangyi",
+                    "label": "$operator.ZhuangFangyi",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductCardiacRemediationStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductCardiacRemediationStationCurrentRestoreOperator": {
+                            "expected": [
+                                "庄方宜",
+                                "莊方宜",
+                                "Zhuang Fangyi",
+                                "ゾアン・ファンイ",
+                                "장방이"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSelectRestoreOperator": {
+                            "expected": [
+                                "庄方宜",
+                                "莊方宜",
+                                "Zhuang Fangyi",
+                                "ゾアン・ファンイ",
+                                "장방이"
+                            ]
                         }
                     }
                 }
@@ -5066,6 +7381,27 @@
                         "SellProductCardiacRemediationStationSellAttempt1SetMissHandler": {
                             "anchor": {
                                 "SellProductPriorityGoodMissHandler": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "灼铜零件",
+                                    "灼銅零件",
+                                    "焔銅部品",
+                                    "Pyrrolite Part"
+                                ]
+                            }
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     }
@@ -5245,6 +7581,27 @@
                     }
                 },
                 {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "灼铜零件",
+                                    "灼銅零件",
+                                    "焔銅部品",
+                                    "Pyrrolite Part"
+                                ]
+                            }
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "中容武陵电池",
                     "pipeline_override": {
                         "SellProductCardiacRemediationStationSelectItem2": {
@@ -5419,6 +7776,27 @@
                     }
                 },
                 {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "灼铜零件",
+                                    "灼銅零件",
+                                    "焔銅部品",
+                                    "Pyrrolite Part"
+                                ]
+                            }
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "中容武陵电池",
                     "pipeline_override": {
                         "SellProductCardiacRemediationStationSelectItem3": {
@@ -5588,6 +7966,27 @@
                         "SellProductCardiacRemediationStationSellAttempt4SetMissHandler": {
                             "anchor": {
                                 "SellProductPriorityGoodMissHandler": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductCardiacRemediationStationSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "灼铜零件",
+                                    "灼銅零件",
+                                    "焔銅部品",
+                                    "Pyrrolite Part"
+                                ]
+                            }
+                        },
+                        "SellProductCardiacRemediationStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
                             }
                         }
                     }
@@ -5911,6 +8310,1514 @@
                     ],
                     "attach": {
                         "Target": "{WulingCardiacRemediationStationReserveValue4}",
+                        "TargetReverse": true
+                    }
+                }
+            }
+        },
+        "WulingXiranflowCloudseederStation": {
+            "type": "switch",
+            "label": "$task.SellProduct.WulingXiranflowCloudseederStation",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStation": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingXiranflowCloudseederStationOperator",
+                        "WulingXiranflowCloudseederStationAttempt1",
+                        "WulingXiranflowCloudseederStationAttempt2",
+                        "WulingXiranflowCloudseederStationAttempt3",
+                        "WulingXiranflowCloudseederStationAttempt4"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStation": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationOperator": {
+            "type": "switch",
+            "label": "$task.SellProduct.OperatorSwitch",
+            "description": "$task.SellProduct.OperatorSwitchDescription",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetBeforeSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": "SellProductXiranflowCloudseederStationBeforeSellOperator"
+                            }
+                        }
+                    },
+                    "option": [
+                        "WulingXiranflowCloudseederStationTargetOperator",
+                        "WulingXiranflowCloudseederStationRestoreOperator"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetBeforeSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductBeforeSellOperator": ""
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationTargetOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.TargetOperator",
+            "description": "$task.SellProduct.TargetOperatorDescription",
+            "default_case": "Ardelia",
+            "cases": [
+                {
+                    "name": "Ardelia",
+                    "label": "$operator.Ardelia",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "艾尔黛拉",
+                                "艾爾黛拉",
+                                "Ardelia",
+                                "アルデリア",
+                                "아델리아"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "艾尔黛拉",
+                                "艾爾黛拉",
+                                "Ardelia",
+                                "アルデリア",
+                                "아델리아"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Wulfgard",
+                    "label": "$operator.Wulfgard",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "狼卫",
+                                "狼衛",
+                                "Wulfgard",
+                                "ウルフガード",
+                                "울프가드"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "狼卫",
+                                "狼衛",
+                                "Wulfgard",
+                                "ウルフガード",
+                                "울프가드"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Xaihi",
+                    "label": "$operator.Xaihi",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "赛希",
+                                "賽希",
+                                "Xaihi",
+                                "ザイヒ",
+                                "자이히"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "赛希",
+                                "賽希",
+                                "Xaihi",
+                                "ザイヒ",
+                                "자이히"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Lifeng",
+                    "label": "$operator.Lifeng",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "黎风",
+                                "黎風",
+                                "Lifeng",
+                                "リーフォン",
+                                "여풍"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "黎风",
+                                "黎風",
+                                "Lifeng",
+                                "リーフォン",
+                                "여풍"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Arclight",
+                    "label": "$operator.Arclight",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "弧光",
+                                "Arclight",
+                                "アークライト",
+                                "아크라이트"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "弧光",
+                                "Arclight",
+                                "アークライト",
+                                "아크라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "DaPan",
+                    "label": "$operator.DaPan",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "大潘",
+                                "Da Pan",
+                                "ダパン",
+                                "판"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "大潘",
+                                "Da Pan",
+                                "ダパン",
+                                "판"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Fluorite",
+                    "label": "$operator.Fluorite",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "萤石",
+                                "螢石",
+                                "Fluorite",
+                                "フローライト",
+                                "플루라이트"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "萤石",
+                                "螢石",
+                                "Fluorite",
+                                "フローライト",
+                                "플루라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Rossi",
+                    "label": "$operator.Rossi",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "洛茜",
+                                "洛西",
+                                "Rossi",
+                                "ロッシ",
+                                "로시"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "洛茜",
+                                "洛西",
+                                "Rossi",
+                                "ロッシ",
+                                "로시"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Tangtang",
+                    "label": "$operator.Tangtang",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ZhuangFangyi",
+                    "label": "$operator.ZhuangFangyi",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "庄方宜",
+                                "莊方宜",
+                                "Zhuang Fangyi",
+                                "ゾアン・ファンイ",
+                                "장방이"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "庄方宜",
+                                "莊方宜",
+                                "Zhuang Fangyi",
+                                "ゾアン・ファンイ",
+                                "장방이"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미브"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미브"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Arcane",
+                    "label": "$operator.Arcane",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectTargetOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationRestoreOperator": {
+            "type": "select",
+            "label": "$task.SellProduct.RestoreOperator",
+            "description": "$task.SellProduct.RestoreOperatorDescription",
+            "default_case": "DoNotRestore",
+            "cases": [
+                {
+                    "name": "DoNotRestore",
+                    "label": "$task.SellProduct.OperatorRestoreDoNotRestore",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductAfterSellOperator"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Yvonne",
+                    "label": "$operator.Yvonne",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductXiranflowCloudseederStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationCurrentRestoreOperator": {
+                            "expected": [
+                                "伊冯",
+                                "伊馮",
+                                "Yvonne",
+                                "イヴォンヌ",
+                                "이본"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectRestoreOperator": {
+                            "expected": [
+                                "伊冯",
+                                "伊馮",
+                                "Yvonne",
+                                "イヴォンヌ",
+                                "이본"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ChenQianyu",
+                    "label": "$operator.ChenQianyu",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductXiranflowCloudseederStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationCurrentRestoreOperator": {
+                            "expected": [
+                                "陈千语",
+                                "陳千語",
+                                "Chen Qianyu",
+                                "チェン・センユー",
+                                "진천우"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectRestoreOperator": {
+                            "expected": [
+                                "陈千语",
+                                "陳千語",
+                                "Chen Qianyu",
+                                "チェン・センユー",
+                                "진천우"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "LastRite",
+                    "label": "$operator.LastRite",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductXiranflowCloudseederStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationCurrentRestoreOperator": {
+                            "expected": [
+                                "别礼",
+                                "別禮",
+                                "Last Rite",
+                                "ラストライト",
+                                "라스트 라이트"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectRestoreOperator": {
+                            "expected": [
+                                "别礼",
+                                "別禮",
+                                "Last Rite",
+                                "ラストライト",
+                                "라스트 라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Ember",
+                    "label": "$operator.Ember",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductXiranflowCloudseederStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationCurrentRestoreOperator": {
+                            "expected": [
+                                "余烬",
+                                "餘燼",
+                                "Ember",
+                                "エンバー",
+                                "엠버"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectRestoreOperator": {
+                            "expected": [
+                                "余烬",
+                                "餘燼",
+                                "Ember",
+                                "エンバー",
+                                "엠버"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductXiranflowCloudseederStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationCurrentRestoreOperator": {
+                            "expected": [
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미브"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectRestoreOperator": {
+                            "expected": [
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미브"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Arcane",
+                    "label": "$operator.Arcane",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSetAfterSellOperatorAnchor": {
+                            "anchor": {
+                                "SellProductAfterSellOperator": "SellProductXiranflowCloudseederStationAfterSellOperator"
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationCurrentRestoreOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSelectRestoreOperator": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationAttempt1": {
+            "type": "switch",
+            "label": "$task.SellProduct.SellAttempt1",
+            "description": "$task.SellProduct.SellAttemptDescription",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSellAttempt1": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingXiranflowCloudseederStationItem1",
+                        "WulingXiranflowCloudseederStationReserve1"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSellAttempt1": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationAttempt2": {
+            "type": "switch",
+            "label": "$task.SellProduct.SellAttempt2",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSellAttempt2": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingXiranflowCloudseederStationItem2",
+                        "WulingXiranflowCloudseederStationReserve2"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSellAttempt2": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationAttempt3": {
+            "type": "switch",
+            "label": "$task.SellProduct.SellAttempt3",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSellAttempt3": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingXiranflowCloudseederStationItem3",
+                        "WulingXiranflowCloudseederStationReserve3"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSellAttempt3": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationAttempt4": {
+            "type": "switch",
+            "label": "$task.SellProduct.SellAttempt4",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSellAttempt4": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingXiranflowCloudseederStationItem4",
+                        "WulingXiranflowCloudseederStationReserve4"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSellAttempt4": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationItem1": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem1",
+            "default_case": "无",
+            "cases": [
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem1": {
+                            "enabled": false
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "灼铜零件",
+                                    "灼銅零件",
+                                    "焔銅部品",
+                                    "Pyrrolite Part"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "中容武陵电池",
+                                    "中容量武陵電池",
+                                    "中容量武陵バッテリー",
+                                    "SC Wuling Battery"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.SCWulingBattery"
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质锦草软饮",
+                                    "優質錦草飲料",
+                                    "錦草ソーダⅡ",
+                                    "Jincao Tea"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质芽针针剂",
+                                    "優質芽針針劑",
+                                    "芽針注射剤Ⅱ",
+                                    "Yazhen Syringe A"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.YazhenSyringeA"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "重息壤",
+                                    "重息壤",
+                                    "重息壌",
+                                    "Heavy Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
+                },
+                {
+                    "name": "分离芯",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "分离芯",
+                                    "分離芯",
+                                    "分離コア",
+                                    "Separator Core"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "息壤",
+                                    "息壤",
+                                    "息壌",
+                                    "Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt1SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.Xiranite"
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationItem2": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem2",
+            "default_case": "无",
+            "cases": [
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem2": {
+                            "enabled": false
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "灼铜零件",
+                                    "灼銅零件",
+                                    "焔銅部品",
+                                    "Pyrrolite Part"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "中容武陵电池",
+                                    "中容量武陵電池",
+                                    "中容量武陵バッテリー",
+                                    "SC Wuling Battery"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.SCWulingBattery"
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质锦草软饮",
+                                    "優質錦草飲料",
+                                    "錦草ソーダⅡ",
+                                    "Jincao Tea"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质芽针针剂",
+                                    "優質芽針針劑",
+                                    "芽針注射剤Ⅱ",
+                                    "Yazhen Syringe A"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.YazhenSyringeA"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "重息壤",
+                                    "重息壤",
+                                    "重息壌",
+                                    "Heavy Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
+                },
+                {
+                    "name": "分离芯",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "分离芯",
+                                    "分離芯",
+                                    "分離コア",
+                                    "Separator Core"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "息壤",
+                                    "息壤",
+                                    "息壌",
+                                    "Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt2SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.Xiranite"
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationItem3": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem3",
+            "default_case": "无",
+            "cases": [
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem3": {
+                            "enabled": false
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "灼铜零件",
+                                    "灼銅零件",
+                                    "焔銅部品",
+                                    "Pyrrolite Part"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "中容武陵电池",
+                                    "中容量武陵電池",
+                                    "中容量武陵バッテリー",
+                                    "SC Wuling Battery"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.SCWulingBattery"
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质锦草软饮",
+                                    "優質錦草飲料",
+                                    "錦草ソーダⅡ",
+                                    "Jincao Tea"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质芽针针剂",
+                                    "優質芽針針劑",
+                                    "芽針注射剤Ⅱ",
+                                    "Yazhen Syringe A"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.YazhenSyringeA"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "重息壤",
+                                    "重息壤",
+                                    "重息壌",
+                                    "Heavy Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
+                },
+                {
+                    "name": "分离芯",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "分离芯",
+                                    "分離芯",
+                                    "分離コア",
+                                    "Separator Core"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "息壤",
+                                    "息壤",
+                                    "息壌",
+                                    "Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt3SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.Xiranite"
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationItem4": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem4",
+            "default_case": "无",
+            "cases": [
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem4": {
+                            "enabled": false
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "灼铜零件",
+                                    "灼銅零件",
+                                    "焔銅部品",
+                                    "Pyrrolite Part"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "中容武陵电池",
+                                    "中容量武陵電池",
+                                    "中容量武陵バッテリー",
+                                    "SC Wuling Battery"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.SCWulingBattery"
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质锦草软饮",
+                                    "優質錦草飲料",
+                                    "錦草ソーダⅡ",
+                                    "Jincao Tea"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.JincaoTea"
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "优质芽针针剂",
+                                    "優質芽針針劑",
+                                    "芽針注射剤Ⅱ",
+                                    "Yazhen Syringe A"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.YazhenSyringeA"
+                },
+                {
+                    "name": "重息壤",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "重息壤",
+                                    "重息壤",
+                                    "重息壌",
+                                    "Heavy Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.HeavyXiranite"
+                },
+                {
+                    "name": "分离芯",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "分离芯",
+                                    "分離芯",
+                                    "分離コア",
+                                    "Separator Core"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "pipeline_override": {
+                        "SellProductXiranflowCloudseederStationSelectItem4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "candidates": [
+                                    "息壤",
+                                    "息壤",
+                                    "息壌",
+                                    "Xiranite"
+                                ]
+                            }
+                        },
+                        "SellProductXiranflowCloudseederStationSellAttempt4SetMissHandler": {
+                            "anchor": {
+                                "SellProductPriorityGoodMissHandler": "SellProductPriorityGoodMissWarning"
+                            }
+                        }
+                    },
+                    "label": "$item.Xiranite"
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationReserve1": {
+            "type": "select",
+            "label": "$task.SellProduct.Reserve1",
+            "description": "$task.SellProduct.ReserveDescription",
+            "default_case": "全部售出",
+            "cases": [
+                {
+                    "name": "全部售出"
+                },
+                {
+                    "name": "保留指定份数",
+                    "option": [
+                        "WulingXiranflowCloudseederStationReserveValue1"
+                    ]
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationReserveValue1": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveValueInput",
+            "inputs": [
+                {
+                    "name": "WulingXiranflowCloudseederStationReserveValue1",
+                    "label": "$task.SellProduct.ReserveValue",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9][0-9]*$",
+                    "default": "100"
+                }
+            ],
+            "pipeline_override": {
+                "SellProductXiranflowCloudseederStationBetterSliding1": {
+                    "next": [
+                        "SellProductSkipToNextSellLoop",
+                        "SellProductSellThenLoop"
+                    ],
+                    "attach": {
+                        "Target": "{WulingXiranflowCloudseederStationReserveValue1}",
+                        "TargetReverse": true
+                    }
+                }
+            }
+        },
+        "WulingXiranflowCloudseederStationReserve2": {
+            "type": "select",
+            "label": "$task.SellProduct.Reserve2",
+            "description": "$task.SellProduct.ReserveDescription",
+            "default_case": "全部售出",
+            "cases": [
+                {
+                    "name": "全部售出"
+                },
+                {
+                    "name": "保留指定份数",
+                    "option": [
+                        "WulingXiranflowCloudseederStationReserveValue2"
+                    ]
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationReserveValue2": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveValueInput",
+            "inputs": [
+                {
+                    "name": "WulingXiranflowCloudseederStationReserveValue2",
+                    "label": "$task.SellProduct.ReserveValue",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9][0-9]*$",
+                    "default": "100"
+                }
+            ],
+            "pipeline_override": {
+                "SellProductXiranflowCloudseederStationBetterSliding2": {
+                    "next": [
+                        "SellProductSkipToNextSellLoop",
+                        "SellProductSellThenLoop"
+                    ],
+                    "attach": {
+                        "Target": "{WulingXiranflowCloudseederStationReserveValue2}",
+                        "TargetReverse": true
+                    }
+                }
+            }
+        },
+        "WulingXiranflowCloudseederStationReserve3": {
+            "type": "select",
+            "label": "$task.SellProduct.Reserve3",
+            "description": "$task.SellProduct.ReserveDescription",
+            "default_case": "全部售出",
+            "cases": [
+                {
+                    "name": "全部售出"
+                },
+                {
+                    "name": "保留指定份数",
+                    "option": [
+                        "WulingXiranflowCloudseederStationReserveValue3"
+                    ]
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationReserveValue3": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveValueInput",
+            "inputs": [
+                {
+                    "name": "WulingXiranflowCloudseederStationReserveValue3",
+                    "label": "$task.SellProduct.ReserveValue",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9][0-9]*$",
+                    "default": "100"
+                }
+            ],
+            "pipeline_override": {
+                "SellProductXiranflowCloudseederStationBetterSliding3": {
+                    "next": [
+                        "SellProductSkipToNextSellLoop",
+                        "SellProductSellThenLoop"
+                    ],
+                    "attach": {
+                        "Target": "{WulingXiranflowCloudseederStationReserveValue3}",
+                        "TargetReverse": true
+                    }
+                }
+            }
+        },
+        "WulingXiranflowCloudseederStationReserve4": {
+            "type": "select",
+            "label": "$task.SellProduct.Reserve4",
+            "description": "$task.SellProduct.ReserveDescription",
+            "default_case": "全部售出",
+            "cases": [
+                {
+                    "name": "全部售出"
+                },
+                {
+                    "name": "保留指定份数",
+                    "option": [
+                        "WulingXiranflowCloudseederStationReserveValue4"
+                    ]
+                }
+            ]
+        },
+        "WulingXiranflowCloudseederStationReserveValue4": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveValueInput",
+            "inputs": [
+                {
+                    "name": "WulingXiranflowCloudseederStationReserveValue4",
+                    "label": "$task.SellProduct.ReserveValue",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9][0-9]*$",
+                    "default": "100"
+                }
+            ],
+            "pipeline_override": {
+                "SellProductXiranflowCloudseederStationBetterSliding4": {
+                    "next": [
+                        "SellProductSkipToNextSellLoop",
+                        "SellProductSellThenLoop"
+                    ],
+                    "attach": {
+                        "Target": "{WulingXiranflowCloudseederStationReserveValue4}",
                         "TargetReverse": true
                     }
                 }

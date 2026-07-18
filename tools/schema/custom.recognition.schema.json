@@ -9,22 +9,31 @@
                 "AutoSellPriceCompareRecognition",
                 "AutoSellScanItemRecognition",
                 "AutoStockpile.Recognition",
-                "DailyEventUnreadItemInitRecognition",
+                "DailyEventGoToRecognition",
                 "EssenceFilterAfterBattleNthRecognition",
+                "EssenceGridAdvanceRecognition",
+                "EssenceGridPendingRecognition",
                 "ExpressionRecognition",
                 "ImageCheckNotPassedRecognition",
                 "MapLocateAssertLocation",
                 "MapTrackerAssertLocation",
                 "MapTrackerAssertLocationCompatible",
+                "MapTrackerBigMapFindImage",
                 "MapTrackerBigMapInfer",
                 "MapTrackerInfer",
                 "PuzzleRecognition",
+                "ReceptionRoomExchangeCountdownWithinThresholdRecognition",
+                "ReceptionRoomWaitExchangeKeepAliveDueRecognition",
+                "ScheduleRecognition",
                 "SellProductNormalizedItemMatch",
+                "TrialOfSwordmancy.Recognize",
                 "VisitFriendsMenuScanDetailAssistRecognition",
                 "VisitFriendsMenuScanDetailClueExchangeRecognition",
                 "VisitFriendsMenuScanScrollFinishRecognition",
                 "VisitFriendsMenuScanScrollFullRecognition",
                 "VisitFriendsMenuScanTargetFriendOpenRecognition",
+                "WeaponInventoryScanRecognition",
+                "SeizeDeliveryJobsScanTargetRecognition",
                 "autoEcoFarmCalculateSwipeTarget",
                 "autoEcoFarmFindNearestRecognitionResult"
             ]
@@ -111,6 +120,20 @@
                 "required": [ "custom_recognition_param" ],
                 "properties": {
                     "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapInferParam" }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "MapTrackerBigMapFindImage" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapFindImageParam" }
                 }
             }
         }

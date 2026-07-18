@@ -40,12 +40,20 @@ type MapTrackerInferParam struct {
 	Precision float64 `json:"precision,omitempty"`
 	// Threshold controls the minimum confidence required to consider the inference successful.
 	Threshold float64 `json:"threshold,omitempty"`
+	// AllowedModes controls which location inference modes are allowed.
+	AllowedModes int `json:"allowed_modes,omitempty"`
 }
+
+const (
+	INFER_MODE_FULL_SEARCH = 1
+	INFER_MODE_FAST_SEARCH = 2
+)
 
 var mapTrackerInferDefaultParam = MapTrackerInferParam{
 	MapNameRegex: "^map\\d+_lv\\d+$",
 	Precision:    0.5,
 	Threshold:    0.4,
+	AllowedModes: INFER_MODE_FULL_SEARCH | INFER_MODE_FAST_SEARCH,
 }
 
 // MapTrackerInfer is the custom recognition component for map tracking
@@ -94,7 +102,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		return nil, false
 	}
 
-	rotStep := max(2, min(8, int(math.Round(8-param.Precision*6))))
+	rotStep := max(2, min(6, int(math.Round(6-param.Precision*4))))
 
 	// Initialize map resources
 	internal.Resource.InitRawMaps(ctx)
@@ -147,6 +155,12 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 			if globalInferState.IsImmediateTrackLoss() {
 				// It's an immediate track loss, start a new pending
 				globalInferState.SetPending(*loc)
+
+				if param.AllowedModes&INFER_MODE_FAST_SEARCH == 0 {
+					// If fast search is not allowed, directly take this hit as final to avoid long wait for next hit
+					// Otherwise, don't set finalLoc here to wait for next fast search
+					finalLoc = loc
+				}
 			} else {
 				// It's a stale track loss, directly replace convinced with this new hit
 				globalInferState.SetConvinced(*loc)
@@ -232,6 +246,12 @@ func (r *MapTrackerInfer) parseParam(paramStr string) (*MapTrackerInferParam, er
 			} else if param.Threshold < 0.0 || param.Threshold > 1.0 {
 				return nil, fmt.Errorf("invalid threshold value: %f", param.Threshold)
 			}
+
+			if param.AllowedModes == 0 {
+				param.AllowedModes = mapTrackerInferDefaultParam.AllowedModes
+			} else if param.AllowedModes&INFER_MODE_FULL_SEARCH == 0 {
+				return nil, fmt.Errorf("allowed_modes must include INFER_MODE_FULL_SEARCH")
+			}
 		} else {
 			return nil, fmt.Errorf("failed to unmarshal parameters: %w", err)
 		}
@@ -280,9 +300,7 @@ func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, 
 	}
 
 	miniMap = minicv.ImageScale(miniMap, scale)
-	miniMapBounds := miniMap.Bounds()
-	miniMapW, miniMapH := miniMapBounds.Dx(), miniMapBounds.Dy()
-	miniMapHalfW, miniMapHalfH := float64(miniMapW)/2.0, float64(miniMapH)/2.0
+	miniMapHalfW, miniMapHalfH := float64(miniMap.Bounds().Dx())/2.0, float64(miniMap.Bounds().Dy())/2.0
 
 	// Precompute needle (minimap) statistics for all matches
 	miniStats := minicv.GetImageStats(miniMap)
@@ -315,7 +333,7 @@ func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, 
 	}
 
 	// Try fast search if stable
-	if isStable() {
+	if param.AllowedModes&INFER_MODE_FAST_SEARCH != 0 && isStable() {
 		fastBestVal := -1.0
 		fastBestX, fastBestY := 0.0, 0.0
 		fastBestMapName := ""
@@ -495,9 +513,9 @@ func (i *MapTrackerInfer) inferRotation(ctrlType string, screenImg *image.RGBA, 
 			// Rotate the patch
 			rotatedRGBA := minicv.ImageRotate(patch, float64(a))
 
-			// Match against pointer template
+			// Match against pointer template and ignore green-screen pixels in the template.
 			integral := minicv.GetIntegralArray(rotatedRGBA)
-			_, _, matchVal := minicv.MatchTemplate(rotatedRGBA, integral, pointerTemplate.Image, pointerTemplate.Stats)
+			_, _, matchVal := minicv.MatchTemplateWithMask(rotatedRGBA, integral, pointerTemplate.Image, pointerTemplate.Stats, 0x00FF00)
 
 			resChan <- result{a, matchVal}
 		}(angle)

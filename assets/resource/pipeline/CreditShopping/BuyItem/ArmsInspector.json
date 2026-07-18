@@ -1,0 +1,27 @@
+{
+    "CreditShoppingBuyItemOCR_ArmsInspector": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            135,
+            422,
+            146
+        ],
+        "expected": [
+            "武器检查单元",
+            "武器檢查單元",
+            "(?i)Arms\\s*Inspector",
+            "武器検査ユニット"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ArmsInspector"
+        }
+    }
+}

@@ -47,10 +47,18 @@ jobs:
       branch_name: ${{ steps.branch.outputs.branch_name }}
       repo_sha: ${{ steps.snapshot.outputs.repo_sha }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Generate MaaEndBot GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
         with:
-          token: ${{ secrets.MAAEND_BOT_TOKEN || secrets.GITHUB_TOKEN }}
+          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
+          permission-contents: read
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
           ref: ${{ github.event.repository.default_branch }}
           fetch-depth: 0
 
@@ -107,7 +115,7 @@ jobs:
           fi
 
       - name: Upload docs sync artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: docs-sync-artifacts
           path: artifacts/
@@ -118,15 +126,24 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Generate MaaEndBot GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
         with:
-          token: ${{ secrets.MAAEND_BOT_TOKEN || secrets.GITHUB_TOKEN }}
+          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
           ref: ${{ needs.prepare.outputs.repo_sha }}
           fetch-depth: 0
 
       - name: Download docs sync artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: docs-sync-artifacts
           path: artifacts
@@ -180,8 +197,8 @@ jobs:
           BRANCH_NAME: ${{ needs.prepare.outputs.branch_name }}
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "maaendbotapp[bot]"
+          git config user.email "305547419+maaendbotapp[bot]@users.noreply.github.com"
           git add docs/en_us
           git commit \
             -m "docs: sync en_us mirror from zh_cn" \
@@ -193,7 +210,7 @@ jobs:
       - name: Create or update PR
         if: steps.changes.outputs.has_changes == 'true'
         env:
-          GH_TOKEN: ${{ secrets.MAAEND_BOT_TOKEN || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           BASE_BRANCH: ${{ github.event.repository.default_branch }}
           BRANCH_NAME: ${{ needs.prepare.outputs.branch_name }}
         run: |

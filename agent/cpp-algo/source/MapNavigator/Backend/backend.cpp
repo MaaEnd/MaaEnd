@@ -3,10 +3,10 @@
 #include <MaaUtils/Logger.h>
 
 #include "../../MapLocator/MapLocateAction.h"
-#include "MapNavigator/controller_info_utils.h"
 #include "../controller_type_utils.h"
 #include "Adb/adb_input_backend.h"
 #include "Desktop/desktop_input_backend.h"
+#include "MapNavigator/controller_info_utils.h"
 #include "WlRoots/wlroots_input_backend.h"
 #include "backend.h"
 

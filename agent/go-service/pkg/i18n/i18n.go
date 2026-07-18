@@ -29,6 +29,7 @@ const (
 
 var htmlTemplates = map[string]string{
 	"tasker.process_warning":                  "HTML/process-warning.html",
+	"tasker.task_failed_feedback_hint":        "HTML/task-failed-feedback.html",
 	"tasker.hdr_warning":                      "HTML/hdr-warning.html",
 	"tasker.aspect_ratio_warning":             "HTML/aspect-ratio-warning.html",
 	"maptracker.emergency_stop":               "HTML/emergency-stop.html",
@@ -40,7 +41,6 @@ var htmlTemplates = map[string]string{
 	"essencefilter.plan_recommend":            "HTML/essencefilter-plan-recommend.html",
 	"essencefilter.plan_card":                 "HTML/essencefilter-plan-card.html",
 	"essencefilter.simple_message":            "HTML/essencefilter-simple-message.html",
-	"essencefilter.inventory_count":           "HTML/essencefilter-inventory-count.html",
 	"essencefilter.matched_weapons":           "HTML/essencefilter-matched-weapons.html",
 	"essencefilter.ext_rule_lock":             "HTML/essencefilter-ext-rule-lock.html",
 	"essencefilter.ext_rule_noop":             "HTML/essencefilter-ext-rule-noop.html",
@@ -51,6 +51,7 @@ var htmlTemplates = map[string]string{
 	"autoecofarm.interruptible_sleep":         "HTML/interruptible-sleep.html",
 	"autoecofarm.interruptible_sleep_done":    "HTML/interruptible-sleep-done.html",
 	"autoecofarm.interruptible_sleep_stopped": "HTML/interruptible-sleep-stopped.html",
+	"dijiangrewards.wait_exchange_countdown":  "HTML/dijiangrewards-wait-exchange-countdown.html",
 }
 
 var (

@@ -1,0 +1,92 @@
+{
+    "CreditShoppingReserveCredit": {
+        "desc": "信用点低于保留阈值（选项：保留信用点阈值）",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{CreditShoppingReserveCreditOCRInternal}<300"
+                }
+            }
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.reserve_credit_reached"
+        }
+    },
+    "CreditShoppingReserveCreditSatisfied": {
+        "desc": "信用点高于等于保留阈值（选项：保留信用点阈值）",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{CreditShoppingReserveCreditOCRInternal}>=300"
+                }
+            }
+        }
+    },
+    "CreditShoppingPriority1ReserveCreditGate": {
+        "desc": "优先购买的保留信用点准入判断",
+        "recognition": "DirectHit"
+    },
+    "CreditShoppingPriority2ReserveCreditGate": {
+        "desc": "普通购买1的保留信用点准入判断",
+        "recognition": "And",
+        "all_of": [
+            "CreditShoppingReserveCreditSatisfied"
+        ]
+    },
+    "CreditShoppingPriority3ReserveCreditGate": {
+        "desc": "普通购买2的保留信用点准入判断",
+        "recognition": "And",
+        "all_of": [
+            "CreditShoppingReserveCreditSatisfied"
+        ]
+    },
+    "CreditShoppingReserveCreditOCRInternal": {
+        "desc": "识别当前信用点",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CreditShoppingReserveCreditOCRInternalColor",
+                    "CreditShoppingReserveCreditOCRInternalText"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "CreditShoppingReserveCreditOCRInternalText": {
+        "recognition": "OCR",
+        "roi": "CreditShoppingReserveCreditOCRInternalColor",
+        "roi_offset": [
+            -1,
+            -1,
+            2,
+            2
+        ],
+        "expected": "^\\d+$",
+        "only_rec": true
+    },
+    "CreditShoppingReserveCreditOCRInternalColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1084,
+                    0,
+                    133,
+                    66
+                ],
+                "method": 6,
+                "lower": [
+                    198
+                ],
+                "upper": [
+                    255
+                ]
+            }
+        }
+    }
+}

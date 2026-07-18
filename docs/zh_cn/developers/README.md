@@ -52,6 +52,7 @@ flowchart TD
 | [工具与调试](./tools-and-debug.md)                            | 开发工具清单、常用调试入口、交流群信息       |
 | [节点测试](./node-testing.md)                                 | 如何编写和运行节点测试，验证识别是否稳定命中 |
 | [Pipeline 协议](https://maafw.com/docs/3.1-PipelineProtocol/) | MaaFramework 官方 Pipeline 协议全文          |
+| [发版流程](./release-process.md)                              | 发版周期、分支模型、PR 往哪提、自动化说明    |
 
 ### Tier 3 — 规范与约束
 
@@ -79,6 +80,7 @@ flowchart TD
 | [AutoFight 自动战斗](./components/auto-fight.md)                     | 战斗内自动操作模块，自动完成普攻、技能、连携技等    |
 | [CharacterController 角色控制](./components/character-controller.md) | 角色视角旋转、移动及朝向目标自动移动                |
 | [BetterSliding 定量滑动](./components/better-sliding.md)             | 按目标值调节离散数量滑条的公共自定义动作            |
+| [RecoGrid Engine 网格扫描](./components/recogrid-engine.md)          | C++ 网格识别、多模板分类与滚动累计扫描引擎          |
 | [MapLocator 小地图定位](./components/map-locator.md)                 | 基于 AI + CV 的小地图定位系统，输出区域、坐标与朝向 |
 | [MapTracker 小地图追踪](./components/map-tracker.md)                 | 基于计算机视觉的小地图追踪与路径移动                |
 | [MapNavigator 路径导航](./components/map-navigator.md)               | 高精度自动导航 Action，附带 GUI 录制工具            |
@@ -90,11 +92,12 @@ flowchart TD
 | 文档                                                                         | 说明                                                       |
 | ---------------------------------------------------------------------------- | ---------------------------------------------------------- |
 | [AutoStockpile 自动囤货](./tasks/auto-stockpile-maintain.md)                 | 商品模板、商品映射、价格阈值与地区扩展维护                 |
-| [AutoStockStaple 稳定需求物资](./tasks/auto-stockstaple-maintain.md)         | 正则初始化、商品识别链、数量控制             |
+| [AutoStockStaple 稳定需求物资](./tasks/auto-stockstaple-maintain.md)         | 正则初始化、商品识别链、数量控制                           |
 | [DijiangRewards 基建任务](./tasks/dijiang-rewards-maintain.md)               | 主流程、阶段职责与 interface 选项覆盖逻辑                  |
 | [CreditShopping 信用点商店](./tasks/credit-shopping-maintain.md)             | 购买优先级、补信用联动、刷新策略与商品扩展                 |
 | [EnvironmentMonitoring 环境监测](./tasks/environment-monitoring-maintain.md) | 观察点路线数据、`pipeline-generate` 自动生成与新点接入流程 |
 | [SellProduct 售卖产品](./tasks/sell-product-maintain.md)                     | zmdmap 数据生成、据点售卖 Pipeline 与优先物品维护          |
+| [GiftOperator 赠送干员礼物](./tasks/gift-operator-maintain.md)               | 导航寻路、联络选人、送礼收礼分支与干员扩展维护             |
 
 ### 第三方协议文档（`protocol/`）
 
@@ -114,6 +117,7 @@ flowchart TD
 | 改 Pipeline 节点         | [components-guide.md](./components-guide.md) → [common-buttons.md](./common-buttons.md) / [in-scene.md](./in-scene.md) / [scene-manager.md](./scene-manager.md) |
 | 写或调 Go Service        | [components-guide.md](./components-guide.md) → [custom.md](./custom.md)                                                                                         |
 | 查阅编码规范             | [coding-standards.md](./coding-standards.md)                                                                                                                    |
+| 发版 / 提 PR 该往哪分支  | [release-process.md](./release-process.md)                                                                                                                      |
 
 ## 交流
 
