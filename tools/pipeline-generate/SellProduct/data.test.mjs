@@ -314,10 +314,28 @@ test("SellProduct 每轮换货前优先检查调度券不足", () => {
         "[Anchor]SellProductZeroMoneyHandler",
         "SellProductZeroProductAfterChangeStillEmpty",
     ]);
-    assert.equal(
-        pipeline.SellProductSellCheckThenLoop.anchor.SellProductZeroMoneyHandler,
-        "SellProductZeroMoney",
-    );
+    assert.equal(pipeline.SellProductSellCheckThenLoop.anchor.SellProductZeroMoneyHandler, "SellProductZeroMoney");
+    assert.deepEqual(pipeline.SellProductZeroProductAfterChangeStillEmpty.next, [
+        "[Anchor]SellProductMarkOutOfStock",
+    ]);
+});
+
+test("SellProduct 缺货物品通过据点锚点标记并在本次任务内共享", () => {
+    for (const location of sellProductLocations) {
+        const pipeline = readPipeline(
+            new URL(
+                `../../../assets/resource/pipeline/SellProduct/Outposts/${location.LocationId}.json`,
+                import.meta.url,
+            ),
+        );
+        const prefix = `SellProduct${location.LocationId}`;
+        assert.equal(pipeline[`${prefix}Sell`].anchor.SellProductMarkOutOfStock, `${prefix}MarkOutOfStock`);
+        assert.deepEqual(pipeline[`${prefix}MarkOutOfStock`].custom_action_param, {
+            operation: "out_of_stock",
+            location: location.LocationId,
+        });
+        assert.deepEqual(pipeline[`${prefix}MarkOutOfStock`].next, ["SellProductSellLoop"]);
+    }
 });
 
 test("SellProduct 已派驻干员会被临时排除并从列表顶部重新选择", () => {

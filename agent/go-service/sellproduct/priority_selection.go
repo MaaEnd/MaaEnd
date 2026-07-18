@@ -15,10 +15,11 @@ const (
 	priorityItemRecognitionName = "SellProductPriorityItem"
 	prioritySessionActionName   = "SellProductPrioritySession"
 
-	priorityResultSelect      = "select"
-	priorityResultExhausted   = "exhausted"
-	priorityOperationRegister = "register"
-	priorityOperationCommit   = "commit"
+	priorityResultSelect        = "select"
+	priorityResultExhausted     = "exhausted"
+	priorityOperationRegister   = "register"
+	priorityOperationCommit     = "commit"
+	priorityOperationOutOfStock = "out_of_stock"
 )
 
 type priorityItemRecognitionParam struct {
@@ -41,6 +42,8 @@ type prioritySelectionSessionState struct {
 	Preferred  []string
 	Attempted  map[string]map[string]struct{}
 	Pending    map[string]string
+	Current    map[string]string
+	OutOfStock map[string]struct{}
 	Exhaustion map[string]priorityExhaustionObservation
 }
 
@@ -88,8 +91,8 @@ func (r *PriorityItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 		return nil, false
 	}
 
-	attempted, pending := prioritySelectionSnapshot(param.Location)
-	match, itemID, recognized := findPriorityItemMatch(ocrItems, groups, attempted, pending)
+	attempted, outOfStock, pending := prioritySelectionSnapshot(param.Location)
+	match, itemID, recognized := findPriorityItemMatch(ocrItems, groups, attempted, outOfStock, pending)
 	switch param.Result {
 	case priorityResultSelect:
 		if match == nil {
@@ -121,8 +124,8 @@ func (r *PriorityItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 	}
 }
 
-// PrioritySessionAction 在初始化阶段登记用户优先级，并在 Pipeline 已点击且确认货品后
-// 提交待选结果。识别阶段不直接标记已尝试，避免点击失败后跳过最高优先级货品。
+// PrioritySessionAction 在初始化阶段登记用户优先级，在 Pipeline 确认换货后提交待选结果，
+// 并在 Pipeline 确认缺货时把当前物品加入本次任务共享的缺货集合。
 type PrioritySessionAction struct{}
 
 var _ maa.CustomActionRunner = (*PrioritySessionAction)(nil)
@@ -155,6 +158,22 @@ func (a *PrioritySessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		}
 		setSelectedReserveItem(itemID)
 		printRuntimeItemSwitched(ctx, param.Location, itemID)
+		return true
+	case priorityOperationOutOfStock:
+		itemID, marked, ok := prioritySelectionMarkOutOfStock(param.Location)
+		if !ok {
+			log.Error().Str("component", prioritySessionActionName).Str("location", param.Location).
+				Msg("out-of-stock mark has no committed item")
+			return false
+		}
+		log.Info().Str("component", prioritySessionActionName).
+			Str("location", param.Location).
+			Str("item_id", itemID).
+			Bool("marked", marked).
+			Msg("selling item marked out of stock for current task")
+		if marked {
+			printRuntimeItemOutOfStock(ctx, param.Location, itemID)
+		}
 		return true
 	default:
 		return false
@@ -190,7 +209,7 @@ func parsePrioritySessionActionParam(arg *maa.CustomActionArg) (*prioritySession
 	param.ItemID = strings.TrimSpace(param.ItemID)
 	switch param.Operation {
 	case priorityOperationRegister:
-	case priorityOperationCommit:
+	case priorityOperationCommit, priorityOperationOutOfStock:
 		if param.Location == "" {
 			return nil, fmt.Errorf("location is empty")
 		}
@@ -205,6 +224,8 @@ func newPrioritySelectionSessionState() prioritySelectionSessionState {
 		Preferred:  []string{},
 		Attempted:  map[string]map[string]struct{}{},
 		Pending:    map[string]string{},
+		Current:    map[string]string{},
+		OutOfStock: map[string]struct{}{},
 		Exhaustion: map[string]priorityExhaustionObservation{},
 	}
 }
@@ -228,20 +249,34 @@ func priorityItemsSnapshot() []string {
 	return append([]string{}, prioritySelection.Preferred...)
 }
 
+func priorityOutOfStockSnapshot() map[string]struct{} {
+	prioritySelectionMu.Lock()
+	defer prioritySelectionMu.Unlock()
+	outOfStock := make(map[string]struct{}, len(prioritySelection.OutOfStock))
+	for itemID := range prioritySelection.OutOfStock {
+		outOfStock[itemID] = struct{}{}
+	}
+	return outOfStock
+}
+
 func resetPrioritySelectionSession() {
 	prioritySelectionMu.Lock()
 	defer prioritySelectionMu.Unlock()
 	prioritySelection = newPrioritySelectionSessionState()
 }
 
-func prioritySelectionSnapshot(location string) (map[string]struct{}, string) {
+func prioritySelectionSnapshot(location string) (map[string]struct{}, map[string]struct{}, string) {
 	prioritySelectionMu.Lock()
 	defer prioritySelectionMu.Unlock()
 	attempted := make(map[string]struct{}, len(prioritySelection.Attempted[location]))
 	for itemID := range prioritySelection.Attempted[location] {
 		attempted[itemID] = struct{}{}
 	}
-	return attempted, prioritySelection.Pending[location]
+	outOfStock := make(map[string]struct{}, len(prioritySelection.OutOfStock))
+	for itemID := range prioritySelection.OutOfStock {
+		outOfStock[itemID] = struct{}{}
+	}
+	return attempted, outOfStock, prioritySelection.Pending[location]
 }
 
 func prioritySelectionSetPending(location, itemID string) {
@@ -262,9 +297,23 @@ func prioritySelectionCommit(location string) (string, bool) {
 		prioritySelection.Attempted[location] = map[string]struct{}{}
 	}
 	prioritySelection.Attempted[location][itemID] = struct{}{}
+	prioritySelection.Current[location] = itemID
 	delete(prioritySelection.Pending, location)
 	delete(prioritySelection.Exhaustion, location)
 	return itemID, true
+}
+
+func prioritySelectionMarkOutOfStock(location string) (string, bool, bool) {
+	prioritySelectionMu.Lock()
+	defer prioritySelectionMu.Unlock()
+	itemID := prioritySelection.Current[location]
+	if itemID == "" {
+		return "", false, false
+	}
+	_, exists := prioritySelection.OutOfStock[itemID]
+	prioritySelection.OutOfStock[itemID] = struct{}{}
+	delete(prioritySelection.Exhaustion, location)
+	return itemID, !exists, true
 }
 
 func prioritySelectionResetExhaustion(location string) {

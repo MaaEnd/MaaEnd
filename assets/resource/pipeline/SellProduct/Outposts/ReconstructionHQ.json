@@ -34,6 +34,7 @@
             "SellProductSelectPriorityItem": "SellProductReconstructionHQSelectPriorityItem",
             "SellProductPriorityItemsExhausted": "SellProductReconstructionHQPriorityItemsExhausted",
             "SellProductCommitPriorityItem": "SellProductReconstructionHQCommitPriorityItem",
+            "SellProductMarkOutOfStock": "SellProductReconstructionHQMarkOutOfStock",
             "SellProductBetterSliding": "SellProductReconstructionHQApplyReserve"
         },
         "post_delay": 0,
@@ -1019,6 +1020,21 @@
         "rate_limit": 0,
         "next": [
             "SellProductAtSell"
+        ]
+    },
+    "SellProductReconstructionHQMarkOutOfStock": {
+        "desc": "重建指挥部标记当前货品在本次任务中缺货",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "out_of_stock",
+            "location": "ReconstructionHQ"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
         ]
     },
     "SellProductReconstructionHQBetterSliding": {

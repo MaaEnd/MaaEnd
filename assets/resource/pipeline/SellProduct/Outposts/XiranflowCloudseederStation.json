@@ -34,6 +34,7 @@
             "SellProductSelectPriorityItem": "SellProductXiranflowCloudseederStationSelectPriorityItem",
             "SellProductPriorityItemsExhausted": "SellProductXiranflowCloudseederStationPriorityItemsExhausted",
             "SellProductCommitPriorityItem": "SellProductXiranflowCloudseederStationCommitPriorityItem",
+            "SellProductMarkOutOfStock": "SellProductXiranflowCloudseederStationMarkOutOfStock",
             "SellProductBetterSliding": "SellProductXiranflowCloudseederStationApplyReserve"
         },
         "post_delay": 0,
@@ -1017,6 +1018,21 @@
         "rate_limit": 0,
         "next": [
             "SellProductAtSell"
+        ]
+    },
+    "SellProductXiranflowCloudseederStationMarkOutOfStock": {
+        "desc": "盈天台建设站标记当前货品在本次任务中缺货",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "out_of_stock",
+            "location": "XiranflowCloudseederStation"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
         ]
     },
     "SellProductXiranflowCloudseederStationBetterSliding": {

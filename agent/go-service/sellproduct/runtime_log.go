@@ -15,10 +15,11 @@ type runtimeLocationPlanItem struct {
 }
 
 type runtimeLocationPlan struct {
-	LocationName    string
-	TargetOperator  string
-	RestoreOperator string
-	Items           []runtimeLocationPlanItem
+	LocationName       string
+	TargetOperator     string
+	RestoreOperator    string
+	Items              []runtimeLocationPlanItem
+	ExcludedOutOfStock []string
 }
 
 func printRuntimeLocationEntered(ctx *maa.Context, location string) {
@@ -67,17 +68,16 @@ func buildRuntimeLocationPlan(location string) (runtimeLocationPlan, error) {
 	}
 	groups := prioritizeItemGroups(groupsByLocation[location], priorityItemsSnapshot())
 	reserveRules := reserveRulesSnapshot()
-	items := make([]runtimeLocationPlanItem, 0, len(groups))
-	for _, group := range groups {
-		items = append(items, runtimeLocationPlanItem{
-			Name:            group.DisplayName,
-			ReserveQuantity: reserveRules[group.ItemID],
-		})
-	}
+	items, excludedOutOfStock := buildRuntimeLocationPlanItems(
+		groups,
+		reserveRules,
+		priorityOutOfStockSnapshot(),
+	)
 
 	plan := runtimeLocationPlan{
-		LocationName: runtimeLocationName(location),
-		Items:        items,
+		LocationName:       runtimeLocationName(location),
+		Items:              items,
+		ExcludedOutOfStock: excludedOutOfStock,
 	}
 	if len(targetCandidates) > 0 {
 		plan.TargetOperator = runtimeOperatorName(targetCandidates[0])
@@ -86,6 +86,26 @@ func buildRuntimeLocationPlan(location string) (runtimeLocationPlan, error) {
 		plan.RestoreOperator = runtimeOperatorName(restoreCandidates[0])
 	}
 	return plan, nil
+}
+
+func buildRuntimeLocationPlanItems(
+	groups []itemPriorityGroup,
+	reserveRules map[string]int,
+	outOfStock map[string]struct{},
+) ([]runtimeLocationPlanItem, []string) {
+	items := make([]runtimeLocationPlanItem, 0, len(groups))
+	excludedOutOfStock := make([]string, 0, len(outOfStock))
+	for _, group := range groups {
+		if _, unavailable := outOfStock[group.ItemID]; unavailable {
+			excludedOutOfStock = append(excludedOutOfStock, group.DisplayName)
+			continue
+		}
+		items = append(items, runtimeLocationPlanItem{
+			Name:            group.DisplayName,
+			ReserveQuantity: reserveRules[group.ItemID],
+		})
+	}
+	return items, excludedOutOfStock
 }
 
 func runtimeLocationPlanMessage(plan runtimeLocationPlan) string {
@@ -103,6 +123,7 @@ func runtimeLocationPlanMessage(plan runtimeLocationPlan) string {
 	}
 
 	itemOrder := runtimePlanTextOrNone(strings.Join(itemNames, " → "))
+	excludedOutOfStock := runtimePlanTextOrNone(strings.Join(plan.ExcludedOutOfStock, i18n.Separator()))
 	reservePlan := i18n.T("sellproduct.runtime.plan.no_reserve")
 	if len(reserveDescriptions) > 0 {
 		reservePlan = strings.Join(reserveDescriptions, i18n.Separator())
@@ -113,6 +134,7 @@ func runtimeLocationPlanMessage(plan runtimeLocationPlan) string {
 		runtimePlanTextOrNone(plan.TargetOperator),
 		runtimePlanTextOrNone(plan.RestoreOperator),
 		itemOrder,
+		excludedOutOfStock,
 		reservePlan,
 	)
 }
@@ -218,6 +240,18 @@ func printRuntimeItemSwitched(ctx *maa.Context, location string, itemID string) 
 func runtimeItemSwitchedMessage(location string, itemID string) string {
 	return i18n.T(
 		"sellproduct.runtime.item_switched",
+		runtimeItemName(itemID),
+		runtimeLocationName(location),
+	)
+}
+
+func printRuntimeItemOutOfStock(ctx *maa.Context, location string, itemID string) {
+	maafocus.Print(ctx, runtimeItemOutOfStockMessage(location, itemID))
+}
+
+func runtimeItemOutOfStockMessage(location string, itemID string) string {
+	return i18n.T(
+		"sellproduct.runtime.item_out_of_stock",
 		runtimeItemName(itemID),
 		runtimeLocationName(location),
 	)

@@ -148,7 +148,7 @@ A missing selling target or failed scan stops the task to avoid selling under th
 
 The task provides a priority-selling switch that is disabled by default. Enabling it expands six priority slots that directly adjust this list. Configured items move ahead of the default order from slot 1 through 6. Items unavailable at the current outpost are skipped, duplicate selections keep only the earliest slot, and all remaining items retain the default order above.
 
-During execution, after entry into each outpost is confirmed, the UI reports that outpost's selling-operator target, post-sale restoration target, planned selling order, and applicable reserve rules; unlisted items are sold without a reserve. It then reports whether the operator was actually kept or switched, the currently selected goods, and completed trades. An operator assigned to another outpost reports the excluded candidate and replanning reason; a new plan produced by a complete scan reports the outpost, purpose, and selected operator. The log also reports an unavailable selling operator, operator-scan failures, and restoration skipped because no restoration operator is available. Every UI message in the task uses the current client language.
+During execution, after entry into each outpost is confirmed, the UI reports that outpost's selling-operator target, post-sale restoration target, effective selling order, items excluded because they were already confirmed out of stock during this task, and applicable reserve rules; unlisted items are sold without a reserve. It then reports whether the operator was actually kept or switched, the currently selected goods, and completed trades. When the current outpost newly confirms an out-of-stock item, the UI immediately reports the item and outpost names. An operator assigned to another outpost reports the excluded candidate and replanning reason; a new plan produced by a complete scan reports the outpost, purpose, and selected operator. The log also reports an unavailable selling operator, operator-scan failures, and restoration skipped because no restoration operator is available. Every UI message in the task uses the current client language.
 
 Locked goods are absent from the current screen and are skipped naturally. There is no fixed sell-attempt limit. Each round follows this flow:
 
@@ -171,13 +171,15 @@ Each round checks the voucher balance before selecting goods. After a goods chan
 
 `SellProductPriorityItem` Custom Recognition records only a pending item. After Pipeline clicks and confirms it and recognizes the outpost sell screen again, `SellProductPrioritySession` marks it attempted. A failed click or one-frame OCR fluctuation cannot skip a higher-priority item.
 
+When `SellProductZeroProductAfterChangeStillEmpty` confirms zero stock after a goods change, Pipeline calls the `SellProductMarkOutOfStock` anchor bound by the current outpost. Go adds that outpost's last committed `itemId` to a task-wide out-of-stock set, so dynamic selection skips it at later outposts. The set is not persisted and is cleared when the next SellProduct session initializes.
+
 The loop ends only when:
 
 - `SellProductZeroMoney` recognizes insufficient vouchers at the current outpost;
-- Every known visible item is attempted and the same set is recognized twice consecutively;
+- Every known visible item is either attempted or marked out of stock for this task, and the same set is recognized twice consecutively;
 - `SellProductAidQuotaExceededStop` stops the task because the exchange limit was exceeded.
 
-An empty OCR result does not mean “no remaining goods.” Zero stock, a successful trade, or a reserve-based skip continues to the next round.
+An empty OCR result does not mean “no remaining goods.” Out-of-stock items remain in the stable recognized set but are no longer candidates. Zero stock, a successful trade, or a reserve-based skip continues to the next round.
 
 Independent reserve rules provide six slots, each keyed by stable `itemId`:
 

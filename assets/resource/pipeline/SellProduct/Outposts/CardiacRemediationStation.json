@@ -34,6 +34,7 @@
             "SellProductSelectPriorityItem": "SellProductCardiacRemediationStationSelectPriorityItem",
             "SellProductPriorityItemsExhausted": "SellProductCardiacRemediationStationPriorityItemsExhausted",
             "SellProductCommitPriorityItem": "SellProductCardiacRemediationStationCommitPriorityItem",
+            "SellProductMarkOutOfStock": "SellProductCardiacRemediationStationMarkOutOfStock",
             "SellProductBetterSliding": "SellProductCardiacRemediationStationApplyReserve"
         },
         "post_delay": 0,
@@ -1017,6 +1018,21 @@
         "rate_limit": 0,
         "next": [
             "SellProductAtSell"
+        ]
+    },
+    "SellProductCardiacRemediationStationMarkOutOfStock": {
+        "desc": "心脏修缮站标记当前货品在本次任务中缺货",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "out_of_stock",
+            "location": "CardiacRemediationStation"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
         ]
     },
     "SellProductCardiacRemediationStationBetterSliding": {

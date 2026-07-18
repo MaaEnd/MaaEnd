@@ -34,6 +34,7 @@
             "SellProductSelectPriorityItem": "SellProductRefugeeCampSelectPriorityItem",
             "SellProductPriorityItemsExhausted": "SellProductRefugeeCampPriorityItemsExhausted",
             "SellProductCommitPriorityItem": "SellProductRefugeeCampCommitPriorityItem",
+            "SellProductMarkOutOfStock": "SellProductRefugeeCampMarkOutOfStock",
             "SellProductBetterSliding": "SellProductRefugeeCampApplyReserve"
         },
         "post_delay": 0,
@@ -1017,6 +1018,21 @@
         "rate_limit": 0,
         "next": [
             "SellProductAtSell"
+        ]
+    },
+    "SellProductRefugeeCampMarkOutOfStock": {
+        "desc": "难民暂居处标记当前货品在本次任务中缺货",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "out_of_stock",
+            "location": "RefugeeCamp"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
         ]
     },
     "SellProductRefugeeCampBetterSliding": {

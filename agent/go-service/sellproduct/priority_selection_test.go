@@ -25,7 +25,7 @@ func TestPriorityItemRegistrationKeepsFirstSlotAndResetClearsItems(t *testing.T)
 	}
 }
 
-// TestParsePrioritySessionActionParamByOperation 验证登记和提交操作分别校验所需参数。
+// TestParsePrioritySessionActionParamByOperation 验证登记、提交和缺货操作分别校验所需参数。
 func TestParsePrioritySessionActionParamByOperation(t *testing.T) {
 	register, err := parsePrioritySessionActionParam(&maa.CustomActionArg{
 		CustomActionParam: `{"operation":"register","item_id":"item_a"}`,
@@ -38,6 +38,12 @@ func TestParsePrioritySessionActionParamByOperation(t *testing.T) {
 	})
 	if err != nil || commit.Location != "Outpost" {
 		t.Fatalf("提交参数 = %+v，错误 = %v", commit, err)
+	}
+	outOfStock, err := parsePrioritySessionActionParam(&maa.CustomActionArg{
+		CustomActionParam: `{"operation":"out_of_stock","location":"Outpost"}`,
+	})
+	if err != nil || outOfStock.Location != "Outpost" {
+		t.Fatalf("缺货参数 = %+v，错误 = %v", outOfStock, err)
 	}
 	empty, err := parsePrioritySessionActionParam(&maa.CustomActionArg{
 		CustomActionParam: `{"operation":"register"}`,
@@ -64,9 +70,50 @@ func TestPrioritySelectionCommitMarksAttempted(t *testing.T) {
 	if !ok || itemID != "item_a" {
 		t.Fatalf("提交结果 = %q，成功状态 = %v", itemID, ok)
 	}
-	attempted, pending := prioritySelectionSnapshot("Outpost")
+	attempted, outOfStock, pending := prioritySelectionSnapshot("Outpost")
 	if _, ok := attempted["item_a"]; !ok || pending != "" {
 		t.Fatalf("提交后的状态不符合预期：已尝试 = %v，待选 = %q", attempted, pending)
+	}
+	if len(outOfStock) != 0 {
+		t.Fatalf("提交物品不应直接标记为缺货：%v", outOfStock)
+	}
+}
+
+// TestPrioritySelectionOutOfStockSharedAndReset 验证缺货标记跨据点共享、重复标记去重，并随新任务重置。
+func TestPrioritySelectionOutOfStockSharedAndReset(t *testing.T) {
+	resetPrioritySelectionSession()
+	prioritySelectionSetPending("OutpostA", "item_a")
+	if _, ok := prioritySelectionCommit("OutpostA"); !ok {
+		t.Fatal("据点 A 的待选物品应提交成功")
+	}
+	itemID, marked, ok := prioritySelectionMarkOutOfStock("OutpostA")
+	if !ok || !marked || itemID != "item_a" {
+		t.Fatalf("首次缺货标记结果 = %q, %v, %v", itemID, marked, ok)
+	}
+	if _, marked, ok := prioritySelectionMarkOutOfStock("OutpostA"); !ok || marked {
+		t.Fatalf("重复缺货标记应成功但不重复新增：marked = %v, ok = %v", marked, ok)
+	}
+	_, outOfStock, _ := prioritySelectionSnapshot("OutpostB")
+	if _, exists := outOfStock["item_a"]; !exists {
+		t.Fatalf("据点 B 未继承任务内缺货集合：%v", outOfStock)
+	}
+	resetPrioritySelectionSession()
+	_, outOfStock, _ = prioritySelectionSnapshot("OutpostB")
+	if len(outOfStock) != 0 {
+		t.Fatalf("新任务仍残留缺货物品：%v", outOfStock)
+	}
+}
+
+// TestPrioritySelectionOutOfStockRequiresCommittedItem 验证没有已提交物品时不能误标缺货。
+func TestPrioritySelectionOutOfStockRequiresCommittedItem(t *testing.T) {
+	resetPrioritySelectionSession()
+	if itemID, marked, ok := prioritySelectionMarkOutOfStock("Outpost"); ok || marked || itemID != "" {
+		t.Fatalf("无已提交物品时不应标记缺货：%q, %v, %v", itemID, marked, ok)
+	}
+	if (&PrioritySessionAction{}).Run(nil, &maa.CustomActionArg{
+		CustomActionParam: `{"operation":"out_of_stock","location":"Outpost"}`,
+	}) {
+		t.Fatal("缺少已提交物品时 Custom Action 应失败")
 	}
 }
 

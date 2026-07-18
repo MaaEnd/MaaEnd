@@ -34,6 +34,7 @@
             "SellProductSelectPriorityItem": "SellProductSkyKingFlatsConstructionSiteSelectPriorityItem",
             "SellProductPriorityItemsExhausted": "SellProductSkyKingFlatsConstructionSitePriorityItemsExhausted",
             "SellProductCommitPriorityItem": "SellProductSkyKingFlatsConstructionSiteCommitPriorityItem",
+            "SellProductMarkOutOfStock": "SellProductSkyKingFlatsConstructionSiteMarkOutOfStock",
             "SellProductBetterSliding": "SellProductSkyKingFlatsConstructionSiteApplyReserve"
         },
         "post_delay": 0,
@@ -1027,6 +1028,21 @@
         "rate_limit": 0,
         "next": [
             "SellProductAtSell"
+        ]
+    },
+    "SellProductSkyKingFlatsConstructionSiteMarkOutOfStock": {
+        "desc": "天王坪援建点标记当前货品在本次任务中缺货",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "out_of_stock",
+            "location": "SkyKingFlatsConstructionSite"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
         ]
     },
     "SellProductSkyKingFlatsConstructionSiteBetterSliding": {

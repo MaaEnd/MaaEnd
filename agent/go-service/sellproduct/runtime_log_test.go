@@ -32,6 +32,11 @@ func TestRuntimeMessagesContainCurrentState(t *testing.T) {
 			expected: []string{"test_item", "TestLocation"},
 		},
 		{
+			name:     "货品缺货排除",
+			message:  runtimeItemOutOfStockMessage("TestLocation", "test_item"),
+			expected: []string{"缺货", "test_item", "TestLocation"},
+		},
+		{
 			name:     "全量缓存扫描失败",
 			message:  runtimeOperatorScanFailedMessage("global", operatorActionUsageAll),
 			expected: []string{"干员缓存扫描失败"},
@@ -59,6 +64,7 @@ func TestRuntimeLocationPlanMessage(t *testing.T) {
 			{Name: "物品甲"},
 			{Name: "物品乙", ReserveQuantity: 10},
 		},
+		ExcludedOutOfStock: []string{"物品丙"},
 	})
 
 	for _, expected := range []string{
@@ -66,6 +72,7 @@ func TestRuntimeLocationPlanMessage(t *testing.T) {
 		"售卖干员",
 		"恢复干员",
 		"物品甲 → 物品乙",
+		"缺货排除：物品丙",
 		"物品乙保留 10",
 	} {
 		if !strings.Contains(message, expected) {
@@ -74,6 +81,25 @@ func TestRuntimeLocationPlanMessage(t *testing.T) {
 	}
 	if strings.Contains(message, "物品甲保留") {
 		t.Fatalf("据点计划错误显示了未配置的保留规则：%q", message)
+	}
+}
+
+// TestBuildRuntimeLocationPlanItemsSeparatesOutOfStock 验证只排除当前据点支持的缺货物品，并保持计划顺序。
+func TestBuildRuntimeLocationPlanItemsSeparatesOutOfStock(t *testing.T) {
+	groups := []itemPriorityGroup{
+		{ItemID: "item_a", DisplayName: "物品甲"},
+		{ItemID: "item_b", DisplayName: "物品乙"},
+	}
+	items, excluded := buildRuntimeLocationPlanItems(
+		groups,
+		map[string]int{"item_a": 10, "item_b": 20},
+		map[string]struct{}{"item_b": {}, "other_location_item": {}},
+	)
+	if len(items) != 1 || items[0].Name != "物品甲" || items[0].ReserveQuantity != 10 {
+		t.Fatalf("可售计划 = %+v，期望仅保留物品甲及其保留规则", items)
+	}
+	if len(excluded) != 1 || excluded[0] != "物品乙" {
+		t.Fatalf("缺货排除 = %v，期望仅包含当前据点的物品乙", excluded)
 	}
 }
 

@@ -113,7 +113,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSellLoop"
+            "[Anchor]SellProductMarkOutOfStock"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.SellProduct.product_out_of_stock"

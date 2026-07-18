@@ -34,6 +34,7 @@
             "SellProductSelectPriorityItem": "SellProduct${LocationId}SelectPriorityItem",
             "SellProductPriorityItemsExhausted": "SellProduct${LocationId}PriorityItemsExhausted",
             "SellProductCommitPriorityItem": "SellProduct${LocationId}CommitPriorityItem",
+            "SellProductMarkOutOfStock": "SellProduct${LocationId}MarkOutOfStock",
             "SellProductBetterSliding": "SellProduct${LocationId}ApplyReserve"
         },
         "post_delay": 0,
@@ -995,6 +996,21 @@
         "rate_limit": 0,
         "next": [
             "SellProductAtSell"
+        ]
+    },
+    "SellProduct${LocationId}MarkOutOfStock": {
+        "desc": "${LocationDesc}标记当前货品在本次任务中缺货",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "out_of_stock",
+            "location": "${LocationId}"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
         ]
     },
     "SellProduct${LocationId}BetterSliding": {

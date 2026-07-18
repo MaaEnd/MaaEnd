@@ -70,7 +70,7 @@ func TestFindPriorityItemMatchUsesGroupPriorityBeforeScreenOrder(t *testing.T) {
 		{text: "低优先级", box: maa.Rect{100, 100, 120, 40}},
 		{text: "高优先级", box: maa.Rect{100, 300, 120, 40}},
 	}
-	match, itemID, recognized := findPriorityItemMatch(ocrItems, groups, nil, "")
+	match, itemID, recognized := findPriorityItemMatch(ocrItems, groups, nil, nil, "")
 	if match == nil || itemID != "high" {
 		t.Fatalf("应命中高优先级物品，实际匹配 = %+v，物品 = %q", match, itemID)
 	}
@@ -90,16 +90,36 @@ func TestFindPriorityItemMatchSkipsAttemptedAndKeepsPending(t *testing.T) {
 		{text: "低优先级", box: maa.Rect{100, 200, 120, 40}},
 	}
 	attempted := map[string]struct{}{"high": {}}
-	_, itemID, _ := findPriorityItemMatch(ocrItems, groups, attempted, "")
+	_, itemID, _ := findPriorityItemMatch(ocrItems, groups, attempted, nil, "")
 	if itemID != "low" {
 		t.Fatalf("高优先级物品尝试后应选择低优先级物品，实际为 %q", itemID)
 	}
-	_, itemID, _ = findPriorityItemMatch(ocrItems, groups, attempted, "high")
+	_, itemID, _ = findPriorityItemMatch(ocrItems, groups, attempted, nil, "high")
 	if itemID != "high" {
 		t.Fatalf("提交前应保持待选物品不变，实际为 %q", itemID)
 	}
-	_, itemID, _ = findPriorityItemMatch(ocrItems[1:], groups, attempted, "high")
+	_, itemID, _ = findPriorityItemMatch(ocrItems[1:], groups, attempted, nil, "high")
 	if itemID != "" {
 		t.Fatalf("待选物品暂时未识别时不应降级选择，实际为 %q", itemID)
+	}
+}
+
+// TestFindPriorityItemMatchSkipsOutOfStockAcrossLocations 验证任务内缺货物品不会成为后续据点候选。
+func TestFindPriorityItemMatchSkipsOutOfStockAcrossLocations(t *testing.T) {
+	groups := []itemPriorityGroup{
+		{ItemID: "high", Candidates: []string{"高优先级"}},
+		{ItemID: "low", Candidates: []string{"低优先级"}},
+	}
+	ocrItems := []ocrItem{
+		{text: "高优先级", box: maa.Rect{100, 100, 120, 40}},
+		{text: "低优先级", box: maa.Rect{100, 200, 120, 40}},
+	}
+	outOfStock := map[string]struct{}{"high": {}}
+	_, itemID, recognized := findPriorityItemMatch(ocrItems, groups, nil, outOfStock, "")
+	if itemID != "low" {
+		t.Fatalf("高优先级物品缺货后应选择低优先级物品，实际为 %q", itemID)
+	}
+	if !reflect.DeepEqual(recognized, []string{"high", "low"}) {
+		t.Fatalf("缺货物品仍应保留在稳定识别集合中，实际为 %v", recognized)
 	}
 }
