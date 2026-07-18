@@ -5,6 +5,12 @@
             "label": "$task.AutoStockpile.label",
             "entry": "AutoStockpileMain",
             "description": "$task.AutoStockpile.description",
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
             "group": [
                 "regional_development"
             ],

@@ -182,18 +182,18 @@ Add the new region identifier (e.g., `"NewRegion"`) to the `enum` list of the `r
 
 Recognition scans the elastic goods shelf for **at most two pages** so items below the fold are not missed:
 
-1. OCR + template match on the first-page screenshot.
+1. OCR + template match on the first-screen screenshot.
 2. Run `AutoStockpileSwipeShelfDown` once (`post_wait_freezes` waits for list settle).
-3. Screencap and scan the second page.
-4. Merge by goods **ID** (keep first-page entry on duplicates; IDs only on page 2 go into `SecondPageOnlyIDs`).
-5. Run `AutoStockpileSwipeShelfUp` to restore the first page.
+3. Screencap and scan the second screen.
+4. Merge by goods **ID** (on duplicates keep the first-screen entry; IDs seen only after the swipe go into `SecondPageOnlyIDs`). Internally screens are page0 = first screen, page1 = second screen (0-based); the field means **second-screen-only (page1)**, not the first screen (page0).
+5. Run `AutoStockpileSwipeShelfUp` to restore the first screen.
 
-If swipe/second-page scan fails, fall back to first-page results without aborting.
+If swipe/second-screen scan fails, fall back to first-screen results without aborting.
 
 After selection:
 
-- If the chosen ID is in `SecondPageOnlyIDs`, swipe down once more before `AutoStockpileSelectedGoodsClick`.
-- If the item was already on page 1, click without an extra swipe.
+- If the chosen ID is in `SecondPageOnlyIDs` (second-screen / page1 only), swipe down once more before `AutoStockpileSelectedGoodsClick`.
+- If the item was already on the first screen (page0), click without an extra swipe.
 
 Swipe nodes:
 
