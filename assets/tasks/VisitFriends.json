@@ -66,6 +66,9 @@
                             "all_of": [
                                 "VisitFriendsRecognitionItemDetailControlNexusAssist"
                             ]
+                        },
+                        "VisitFriendsMenuAssistControlNexusEntry": {
+                            "enabled": true
                         }
                     }
                 },
@@ -78,6 +81,12 @@
                             "all_of": [
                                 "VisitFriendsRecognitionItemDetailMFGCabinAssist"
                             ]
+                        },
+                        "VisitFriendsMenuAssistMFGCabin1Entry": {
+                            "enabled": true
+                        },
+                        "VisitFriendsMenuAssistMFGCabin2Entry": {
+                            "enabled": true
                         }
                     }
                 },
@@ -90,6 +99,9 @@
                             "all_of": [
                                 "VisitFriendsRecognitionItemDetailGrowthChamberAssist"
                             ]
+                        },
+                        "VisitFriendsMenuAssistGrowthChamberSwipeEntry": {
+                            "enabled": true
                         }
                     }
                 }
