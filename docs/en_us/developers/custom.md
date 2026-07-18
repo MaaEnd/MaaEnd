@@ -82,6 +82,27 @@ The `FalseAction` implementation is located in `agent/go-service/common/falseact
 
 - Parameters: None.
 
+### RepeatUntilFoundAction / RepeatUntilNotFoundAction
+
+Both are implemented in `agent/go-service/common/repeataction`. They repeatedly run a built-in or custom action, then check wait node(s) after each run. They succeed when the wait condition is met, and fail after `repeat_count` attempts without success.
+
+- `RepeatUntilFoundAction`: succeeds when **any** `wait_nodes` entry hits.
+- `RepeatUntilNotFoundAction`: succeeds when `wait_node` misses.
+
+- Shared parameters:
+    - `action?: string`: Built-in action type (e.g. `Click`); mutually exclusive with `custom_action`.
+    - `custom_action?: string`: Registered custom action name (e.g. `AutoAltClickAction`); mutually exclusive with `action`.
+    - `repeat_count?: int`: Maximum attempts. Defaults to `3` when omitted or `<= 0`.
+    - `interval_ms?: int`: Delay between attempts in milliseconds. Defaults to `200` when omitted or `0`. Negative values are invalid.
+- `RepeatUntilFoundAction` extra:
+    - `wait_nodes: string[]`: Pipeline node names to wait for. Required.
+- `RepeatUntilNotFoundAction` extra:
+    - `wait_node: string`: Single Pipeline node name to wait until it disappears. Required.
+
+No extra inner action parameters are accepted; the target position always uses the recognition `box` that triggered this Action. The loop aborts immediately and returns failure when the tasker reports stopping.
+
+Example file: [`RepeatUntilFoundAction.json`](../../../assets/resource/pipeline/Interface/Example/RepeatUntilFoundAction.json)
+
 ### PipelineOverride
 
 The `PipelineOverride` implementation is located in `agent/go-service/common/pipelineoverride` and is used at runtime to merge **node-organized partial JSON** into the current Pipeline (`ctx.OverridePipeline`). It is suitable for dynamically toggling node switches or adjusting recognition/action parameters **without changing the static flow topology**.
@@ -270,6 +291,8 @@ When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe
 | Run a series of subtasks in order        | `SubTask`                     |
 | Clear hit count of a node                | `ClearHitCount`               |
 | Force an Action to fail                  | `FalseAction`                 |
+| Repeat an action until a node appears            | `RepeatUntilFoundAction` |
+| Repeat an action until a node disappears         | `RepeatUntilNotFoundAction` |
 | Actively stop the current task           | `PostStop`                    |
 | Change node parameters at runtime        | `PipelineOverride`            |
 | Write keywords as regex back to OCR node | `AttachToExpectedRegexAction` |

@@ -84,6 +84,27 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 - 参数：无。
 
+### RepeatUntilFoundAction / RepeatUntilNotFoundAction
+
+二者实现均位于 `agent/go-service/common/repeataction`，用于反复执行一次内置动作或自定义动作，并在每次执行后检查等待节点；条件满足即成功，耗尽次数仍不满足则失败。
+
+- `RepeatUntilFoundAction`：`wait_nodes` 中**任一命中**即成功。
+- `RepeatUntilNotFoundAction`：`wait_node` **未命中**即成功。
+
+- 公共参数：
+    - `action?: string`：内置动作类型（如 `Click`）；与 `custom_action` **二选一**。
+    - `custom_action?: string`：已注册自定义动作名（如 `AutoAltClickAction`）；与 `action` **二选一**。
+    - `repeat_count?: int`：最大尝试次数；省略或 `<= 0` 时默认 `3`。
+    - `interval_ms?: int`：两次尝试之间的间隔（毫秒）；省略或 `0` 时默认 `200`；负值非法。
+- `RepeatUntilFoundAction` 额外参数：
+    - `wait_nodes: string[]`：等待出现的 Pipeline 节点名列表，必填。
+- `RepeatUntilNotFoundAction` 额外参数：
+    - `wait_node: string`：等待消失的 Pipeline 节点名，必填；一次只支持一个节点。
+
+不提供内层动作额外参数：目标位置固定使用触发本 Action 的识别框 `box`。循环在任务停止信号（`Stopping`）时会立即中止并返回失败。
+
+示例文件：[`RepeatUntilFoundAction.json`](../../../assets/resource/pipeline/Interface/Example/RepeatUntilFoundAction.json)
+
 ### PipelineOverride
 
 `PipelineOverride` 实现位于 `agent/go-service/common/pipelineoverride`，用于在运行时把**按节点组织的局部 JSON** 合并到当前 Pipeline 中（`ctx.OverridePipeline`）。适合在**不改静态流转拓扑**的前提下，动态切换节点开关或调整识别/动作参数。
@@ -272,6 +293,8 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 | 按顺序跑一组子任务            | `SubTask`                     |
 | 清零某节点的命中计数          | `ClearHitCount`               |
 | 强制让 Action 失败            | `FalseAction`                 |
+| 重复动作直到节点出现          | `RepeatUntilFoundAction`      |
+| 重复动作直到节点消失          | `RepeatUntilNotFoundAction`   |
 | 主动停止当前任务              | `PostStop`                    |
 | 运行时改节点参数              | `PipelineOverride`            |
 | 把关键词拼成正则写回 OCR 节点 | `AttachToExpectedRegexAction` |

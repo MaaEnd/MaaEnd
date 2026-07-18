@@ -1,0 +1,27 @@
+{
+    "RepeatUntilFoundActionExampleRun": {
+        "desc": "RepeatUntilFoundAction 使用示例：执行 Click，等待节点出现",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            // 与 custom_action 二选一：内置动作类型，如 Click
+            "action": "Click",
+            // 等待出现的节点列表；任一命中即成功
+            "wait_nodes": [
+                "RepeatUntilFoundActionExampleReady"
+            ],
+            // 可选，最大尝试次数；省略或 <= 0 时默认 3
+            "repeat_count": 3,
+            // 可选，两次尝试间隔（毫秒）；省略或 0 时默认 200
+            "interval_ms": 200
+        },
+        "next": []
+    },
+    "RepeatUntilFoundActionExampleReady": {
+        "desc": "RepeatUntilFoundAction 示例等待节点（占位，实际项目中替换为真实识别）",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": []
+    }
+}
