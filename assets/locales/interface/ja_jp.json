@@ -1184,6 +1184,7 @@
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "最大2回オーバーフローを許可",
     "option.TrialOfSwordmancyAutoFight.label": "自動戦闘を有効化",
     "option.TrialOfSwordmancyAutoFight.description": "有効にすると、MaaEnd が自動で戦闘を行います\n\nオーバーフローなし＋自動戦闘なら、フルオートデイリーに組み込めます",
+    "option.TrialOfSwordmancyReturnToWorld.label": "カード抽選終了後に大世界へ戻る",
     "option.ClientVersion.cases.CN.label": "中国サーバー（ハイパーグリフ）",
     "option.ClientVersion.cases.Bilibili.label": "中国サーバー（ビリビリ）",
     "option.ClientVersion.cases.Global.label": "グローバルサーバー（グリフライン）",

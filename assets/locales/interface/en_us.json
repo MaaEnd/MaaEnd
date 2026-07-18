@@ -1184,6 +1184,7 @@
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "Accept at most 2 overflows",
     "option.TrialOfSwordmancyAutoFight.label": "Enable auto-battle",
     "option.TrialOfSwordmancyAutoFight.description": "When enabled, MaaEnd fights battles automatically\n\nNo overflow + auto-battle, can be included in full-auto dailies",
+    "option.TrialOfSwordmancyReturnToWorld.label": "Return to open world after drawing cards",
     "option.ClientVersion.cases.CN.label": "CN (Hypergryph)",
     "option.ClientVersion.cases.Bilibili.label": "CN (Bilibili)",
     "option.ClientVersion.cases.Global.label": "Global (Gryphline)",

@@ -149,7 +149,10 @@
                             "action": "DoNothing",
                             "next": []
                         }
-                    }
+                    },
+                    "option": [
+                        "TrialOfSwordmancyReturnToWorld"
+                    ]
                 },
                 {
                     "name": "Yes",
@@ -183,6 +186,26 @@
                                 "TrialOfSwordmancyDailyCheckRewardMode",
                                 "[JumpBack]TrialOfSwordmancyEnterTrialMenu",
                                 "[JumpBack]TrialOfSwordmancyGotoTrialArenaStart"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "TrialOfSwordmancyReturnToWorld": {
+            "type": "switch",
+            "label": "$option.TrialOfSwordmancyReturnToWorld.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyStartTrial": {
+                            "next": [
+                                "SceneAnyEnterWorld"
                             ]
                         }
                     }

@@ -1184,6 +1184,7 @@
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "최대 2회 오버플로우 허용",
     "option.TrialOfSwordmancyAutoFight.label": "자동 전투 활성화",
     "option.TrialOfSwordmancyAutoFight.description": "활성화하면 MaaEnd가 자동으로 전투를 진행합니다\n\n오버플로우 미허용 + 자동 전투, 풀오토 일일에 포함 가능",
+    "option.TrialOfSwordmancyReturnToWorld.label": "카드 뽑기 종료 후 대월드로 복귀",
     "option.ClientVersion.cases.CN.label": "중국 서버",
     "option.ClientVersion.cases.Bilibili.label": "Bilibili",
     "option.ClientVersion.cases.Global.label": "글로벌 서버",

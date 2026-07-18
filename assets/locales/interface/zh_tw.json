@@ -1184,6 +1184,7 @@
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "接受至多2次溢出",
     "option.TrialOfSwordmancyAutoFight.label": "啟用自動戰鬥",
     "option.TrialOfSwordmancyAutoFight.description": "開啟後由 MaaEnd 自動進行戰鬥\n\n不接受溢出+自動戰鬥，可放入全自動日常",
+    "option.TrialOfSwordmancyReturnToWorld.label": "抽牌結束後返回大世界",
     "option.ClientVersion.cases.CN.label": "官服",
     "option.ClientVersion.cases.Bilibili.label": "B服",
     "option.ClientVersion.cases.Global.label": "國際服",
