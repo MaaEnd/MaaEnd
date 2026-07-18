@@ -4,6 +4,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "[JumpBack]VisitFriendsAssistFullInit",
             "[JumpBack]VisitFriendsAssistFull",
             "[JumpBack]VisitFriendsClueExchangeFull",
             "VisitFriendsMenuScanFriendsFull",
@@ -11,6 +12,26 @@
             "[JumpBack]VisitFriendsMenuScanScrollList",
             "VisitFriendsMenuScanScrollFinish"
         ]
+    },
+    "VisitFriendsAssistFullInit": {
+        "desc": "三舱助力均未勾选时，将 AssistFull 识别改为 DirectHit（默认开；任一舱室选项勾选后关闭本节点）",
+        "enabled": true,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "VisitFriendsAssistFull": {
+                    "recognition": "DirectHit"
+                }
+            }
+        },
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "未开启设施助力，AssistFull 改为直接命中"
+        }
     },
     "VisitFriendsMenuScanTargetFriendOpen": {
         "desc": "选择下一个好友（识别①）：ClearHitCount 重置滚动 → 打开详情 → 检查助力或关闭。only_remark_friends 由任务选项覆盖",
