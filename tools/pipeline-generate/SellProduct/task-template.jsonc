@@ -148,6 +148,18 @@
             "default_case": "None",
             "cases": "${PriorityItemCases4}"
         },
+        "SellProductPriorityItem5": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem5",
+            "default_case": "None",
+            "cases": "${PriorityItemCases5}"
+        },
+        "SellProductPriorityItem6": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem6",
+            "default_case": "None",
+            "cases": "${PriorityItemCases6}"
+        },
         "SellProductItemReserveRules": {
             "type": "switch",
             "label": "$task.SellProduct.ReserveSwitch",
@@ -265,6 +277,62 @@
                     "custom_action_param": {
                         "operation": "register",
                         "quantity": "{SellProductReserveItem4Value}"
+                    }
+                }
+            }
+        },
+        "SellProductReserveItem5": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveItem5",
+            "default_case": "None",
+            "cases": "${ReserveItemCases5}"
+        },
+        "SellProductReserveItem5Value": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem5Value",
+                    "label": "$task.SellProduct.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.SellProduct.ReserveQuantityPattern"
+                }
+            ],
+            "pipeline_override": {
+                "SellProductRegisterReserveRule5": {
+                    "custom_action_param": {
+                        "operation": "register",
+                        "quantity": "{SellProductReserveItem5Value}"
+                    }
+                }
+            }
+        },
+        "SellProductReserveItem6": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveItem6",
+            "default_case": "None",
+            "cases": "${ReserveItemCases6}"
+        },
+        "SellProductReserveItem6Value": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem6Value",
+                    "label": "$task.SellProduct.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.SellProduct.ReserveQuantityPattern"
+                }
+            ],
+            "pipeline_override": {
+                "SellProductRegisterReserveRule6": {
+                    "custom_action_param": {
+                        "operation": "register",
+                        "quantity": "{SellProductReserveItem6Value}"
                     }
                 }
             }

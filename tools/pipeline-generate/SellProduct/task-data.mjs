@@ -86,7 +86,7 @@ function buildReserveItemCases(slot) {
     ];
 }
 
-// 用户指定的四个槽位直接调整生成数据中的动态优先级。
+// 用户指定的六个槽位直接调整生成数据中的动态优先级。
 function buildPriorityItemCases(slot) {
     return [
         {
@@ -117,6 +117,8 @@ function buildPriorityRuleSwitchCases() {
                 "SellProductPriorityItem2",
                 "SellProductPriorityItem3",
                 "SellProductPriorityItem4",
+                "SellProductPriorityItem5",
+                "SellProductPriorityItem6",
             ],
         },
         {name: "No"},
@@ -132,6 +134,8 @@ function buildReserveRuleSwitchCases() {
                 "SellProductReserveItem2",
                 "SellProductReserveItem3",
                 "SellProductReserveItem4",
+                "SellProductReserveItem5",
+                "SellProductReserveItem6",
             ],
         },
         {name: "No"},
@@ -210,12 +214,16 @@ export const sellProductTaskRows = LOCATIONS.map((loc, index) => {
         PriorityItemCases2: index === 0 ? buildPriorityItemCases(2) : [],
         PriorityItemCases3: index === 0 ? buildPriorityItemCases(3) : [],
         PriorityItemCases4: index === 0 ? buildPriorityItemCases(4) : [],
+        PriorityItemCases5: index === 0 ? buildPriorityItemCases(5) : [],
+        PriorityItemCases6: index === 0 ? buildPriorityItemCases(6) : [],
         PriorityRuleSwitchCases: index === 0 ? PRIORITY_RULE_SWITCH_CASES : [],
         ReserveRuleSwitchCases: index === 0 ? RESERVE_RULE_SWITCH_CASES : [],
         ReserveItemCases1: index === 0 ? buildReserveItemCases(1) : [],
         ReserveItemCases2: index === 0 ? buildReserveItemCases(2) : [],
         ReserveItemCases3: index === 0 ? buildReserveItemCases(3) : [],
         ReserveItemCases4: index === 0 ? buildReserveItemCases(4) : [],
+        ReserveItemCases5: index === 0 ? buildReserveItemCases(5) : [],
+        ReserveItemCases6: index === 0 ? buildReserveItemCases(6) : [],
     };
 });
 

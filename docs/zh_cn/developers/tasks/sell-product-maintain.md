@@ -18,15 +18,15 @@ SellProductSchedule                                  （Task 入口，按星期�
        └─ SellProductEnterRegionalDevelopment        （SceneManager：进入地区建设）
             └─ SellProductCaptureUid                 （捕获哈希 UID，隔离账号缓存）
                  └─ SellProductInitializeReserveSession （清空上次任务的保留/选品状态）
-                      └─ SellProductRegisterReserveRule{1..4} （固定串联，空槽位直接跳过）
-                           └─ SellProductRegisterPriorityItem{1..4} （固定串联，空槽位直接跳过）
+                      └─ SellProductRegisterReserveRule{1..6} （固定串联，空槽位直接跳过）
+                           └─ SellProductRegisterPriorityItem{1..6} （固定串联，空槽位直接跳过）
                                 └─ SellProductInitializeOperatorSession （初始化干员规划与恢复锁）
                                      └─ SellProductRegisterAuto{LocationId} × N （固定串联，非活跃据点直接跳过）
                                           └─ SellProductOperatorSessionReady
                                                └─ SellProductLoop         （进入地区遍历）
 ```
 
-保留规则和优先物品的 8 个注册节点始终启用，并按槽位顺序固定串联。任务选项只覆盖已配置槽位的稳定 `itemId`；未配置槽位保留空 `item_id`，Custom Action 将其作为 no-op 成功跳过。据点注册节点同样固定串联，任务选项只把启用据点的 `active` 参数设为 `true`，非活跃据点直接 no-op。两段初始化流程均无需为任意启用组合维护逐层缩短的 `next` 候选列表。
+保留规则和优先物品的 12 个注册节点始终启用，并按槽位顺序固定串联。任务选项只覆盖已配置槽位的稳定 `itemId`；未配置槽位保留空 `item_id`，Custom Action 将其作为 no-op 成功跳过。据点注册节点同样固定串联，任务选项只把启用据点的 `active` 参数设为 `true`，非活跃据点直接 no-op。两段初始化流程均无需为任意启用组合维护逐层缩短的 `next` 候选列表。
 
 `SellProductLoop` 根据配置执行四号谷地、武陵或自动选择地区。地区入口通过 SceneManager 进入据点管理页，准备干员缓存，再用 `[JumpBack]` 依次执行该地区的据点：
 
@@ -145,7 +145,7 @@ SellProduct{LocationId}                              （识别/进入目标据�
 2. 单价降序；
 3. 同值保留数据源中的稳定顺序。
 
-任务配置提供一个默认关闭的优先售卖开关，开启后展开 4 个直接调整该列表的优先级槽位。已配置物品按槽位 1 至 4 移到默认列表最前面；不属于当前据点的物品自动跳过，同一物品重复配置时只保留最靠前的槽位，其余物品继续保持上述默认顺序。
+任务配置提供一个默认关闭的优先售卖开关，开启后展开 6 个直接调整该列表的优先级槽位。已配置物品按槽位 1 至 6 移到默认列表最前面；不属于当前据点的物品自动跳过，同一物品重复配置时只保留最靠前的槽位，其余物品继续保持上述默认顺序。
 
 任务运行期间，确认进入每个据点后，UI 会输出该据点的售卖干员目标、售卖后恢复目标、计划售卖顺序和适用的保留规则；未列出的物品默认全部售卖。随后在状态确认后显示干员实际沿用或切换结果、当前货品和交易完成状态。干员已在其他据点派驻时显示被排除的候选和重新规划原因；完整扫描产生新方案时显示据点、用途和新干员。售卖干员不可用、干员扫描失败以及恢复干员不可用并跳过恢复时也会显示对应结果。任务内的 UI 提示均使用当前客户端语言。
 
@@ -175,7 +175,7 @@ SellProductSellLoop                                  （不限次数的售卖循
 
 空 OCR 结果不会被当作“无剩余货品”。缺货、成功交易或因保留量跳过都会继续下一轮。
 
-独立保留规则提供四个槽位，每个槽位按稳定 `itemId` 配置最低保留数量：
+独立保留规则提供六个槽位，每个槽位按稳定 `itemId` 配置最低保留数量：
 
 - 未命中规则时，BetterSliding 使用默认“全部售出”。
 - 命中规则时，使用 `TargetReverse` 只售卖高于保留量的部分。

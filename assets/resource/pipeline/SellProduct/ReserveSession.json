@@ -67,6 +67,34 @@
             "quantity": 0
         },
         "next": [
+            "SellProductRegisterReserveRule5"
+        ]
+    },
+    "SellProductRegisterReserveRule5": {
+        "desc": "注册第5条独立物品保留规则",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": "",
+            "quantity": 0
+        },
+        "next": [
+            "SellProductRegisterReserveRule6"
+        ]
+    },
+    "SellProductRegisterReserveRule6": {
+        "desc": "注册第6条独立物品保留规则",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": "",
+            "quantity": 0
+        },
+        "next": [
             "SellProductRegisterPriorityItem1"
         ]
     },
@@ -120,6 +148,38 @@
     },
     "SellProductRegisterPriorityItem4": {
         "desc": "注册第4个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRegisterPriorityItem5"
+        ]
+    },
+    "SellProductRegisterPriorityItem5": {
+        "desc": "注册第5个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRegisterPriorityItem6"
+        ]
+    },
+    "SellProductRegisterPriorityItem6": {
+        "desc": "注册第6个优先售卖物品",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",

@@ -37,11 +37,11 @@ npx @joebao/maa-pipeline-generate --config pipeline-adb-config.json
 
 `pnpm generate:SellProduct` 会在渲染前根据 `settlement_trade.json` 按游戏据点顺序重排五语言 locale 的据点键，据点名始终覆盖为 zmdmap 当前官方译文，并补齐缺失的据点和干员键；随后生成随应用发布的 `selection_data.json`。
 
-`task-template.jsonc` 的任务选项依次为强制刷新干员缓存、优先售卖配置、物品保留规则和地区/据点售卖开关。优先售卖配置包含 4 个槽位，用户指定的物品按槽位 1 至 4 排在默认顺序之前；不属于当前据点的配置会跳过，重复配置采用最靠前的槽位。`selection_data.json` 按每个据点的稀有度、单价降序记录默认顺序。Pipeline 持续回环，直到据点券耗尽或没有剩余候选。
+`task-template.jsonc` 的任务选项依次为强制刷新干员缓存、优先售卖配置、物品保留规则和地区/据点售卖开关。优先售卖配置包含 6 个槽位，用户指定的物品按槽位 1 至 6 排在默认顺序之前；不属于当前据点的配置会跳过，重复配置采用最靠前的槽位。`selection_data.json` 按每个据点的稀有度、单价降序记录默认顺序。Pipeline 持续回环，直到据点券耗尽或没有剩余候选。
 
 干员缓存按 UID 保存完整扫描快照。当前 UID 没有快照时，Pipeline 会先扫描 `operators` 中的全部干员，再开始售卖；存在快照时直接使用。启用强制刷新后，本次任务始终重新扫描完整干员表。缓存只写入完整扫描结果，不记录选人过程中的局部观察。
 
-物品保留规则提供 4 个独立槽位，每个槽位选择具体货品和最低保留数量。物品 case 通过 `attach` 提供 `item_id`，数量 input 通过 `custom_action_param.quantity` 提供整数。动态选品确认成功后记录实际 `itemId`，保留规则据此生效；数量 `0` 表示全部可售，同一物品重复配置时后面的槽位覆盖前面的槽位。
+物品保留规则提供 6 个独立槽位，每个槽位选择具体货品和最低保留数量。物品 case 通过 `attach` 提供 `item_id`，数量 input 通过 `custom_action_param.quantity` 提供整数。动态选品确认成功后记录实际 `itemId`，保留规则据此生效；数量 `0` 表示全部可售，同一物品重复配置时后面的槽位覆盖前面的槽位。
 
 `selection_data.json` 的 `names` 映射提供五语言 OCR 候选和 UI 展示名，Go 按固定语言顺序展开并去重 OCR 候选。售卖候选同时保留 `bonus_tier`；同档候选优先沿用当前派驻，需要更换时由全局恢复方案决定，并优先形成后续任务可直接沿用的稳定派驻，以减少跨任务的无收益切换。
 

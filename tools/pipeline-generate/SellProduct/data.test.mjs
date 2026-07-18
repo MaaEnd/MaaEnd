@@ -81,12 +81,16 @@ test("SellProduct templates consume separate minimal projections of the shared l
         "PriorityItemCases2",
         "PriorityItemCases3",
         "PriorityItemCases4",
+        "PriorityItemCases5",
+        "PriorityItemCases6",
         "PriorityRuleSwitchCases",
         "RegionPrefix",
         "ReserveItemCases1",
         "ReserveItemCases2",
         "ReserveItemCases3",
         "ReserveItemCases4",
+        "ReserveItemCases5",
+        "ReserveItemCases6",
         "ReserveRuleSwitchCases",
         "SellOptions",
     ]);
@@ -155,17 +159,21 @@ test("SellProduct reserve rules only expand independent item slots", () => {
         "SellProductReserveItem2",
         "SellProductReserveItem3",
         "SellProductReserveItem4",
+        "SellProductReserveItem5",
+        "SellProductReserveItem6",
     ]);
     assert.equal(enabledCase.pipeline_override, undefined);
 });
 
-test("SellProduct priority switch expands four direct priority slots", () => {
+test("SellProduct priority switch expands six direct priority slots", () => {
     const enabledCase = root.PriorityRuleSwitchCases.find((itemCase) => itemCase.name === "Yes");
     assert.deepEqual(enabledCase.option, [
         "SellProductPriorityItem1",
         "SellProductPriorityItem2",
         "SellProductPriorityItem3",
         "SellProductPriorityItem4",
+        "SellProductPriorityItem5",
+        "SellProductPriorityItem6",
     ]);
     assert.equal(enabledCase.pipeline_override, undefined);
     const disabledCase = root.PriorityRuleSwitchCases.find((itemCase) => itemCase.name === "No");
@@ -176,6 +184,8 @@ test("SellProduct priority switch expands four direct priority slots", () => {
         2,
         3,
         4,
+        5,
+        6,
     ]) {
         const cases = root[`PriorityItemCases${slot}`];
         const noneCase = cases.find((entry) => entry.name === "None");
@@ -201,7 +211,7 @@ test("SellProduct concrete reserve rule separates itemId attach from quantity in
     assert.equal(registration.custom_action_param, undefined);
 
     const taskTemplate = readFileSync(new URL("./task-template.jsonc", import.meta.url), "utf8");
-    assert.equal((taskTemplate.match(/"quantity": "\{SellProductReserveItem[1-4]Value\}"/g) || []).length, 4);
+    assert.equal((taskTemplate.match(/"quantity": "\{SellProductReserveItem[1-6]Value\}"/g) || []).length, 6);
 });
 
 test("SellProduct reserve None case does not register a rule", () => {
@@ -220,10 +230,14 @@ test("SellProduct registration slots form an always-enabled no-op chain", () => 
         "SellProductRegisterReserveRule2",
         "SellProductRegisterReserveRule3",
         "SellProductRegisterReserveRule4",
+        "SellProductRegisterReserveRule5",
+        "SellProductRegisterReserveRule6",
         "SellProductRegisterPriorityItem1",
         "SellProductRegisterPriorityItem2",
         "SellProductRegisterPriorityItem3",
         "SellProductRegisterPriorityItem4",
+        "SellProductRegisterPriorityItem5",
+        "SellProductRegisterPriorityItem6",
         "SellProductInitializeOperatorSession",
     ];
 
@@ -306,7 +320,9 @@ test("SellProduct 已派驻干员会被临时排除并从列表顶部重新选�
     }
 
     assert.equal((pipelineTemplate.match(/"operation": "exclude_selected"/g) || []).length, 2);
-    assert.match(pipelineTemplate, /"YellowConfirmButtonType1",\s*"GrayCancelButton"/);
+    assert.match(pipelineTemplate, /"YellowConfirmButtonType1"/);
+    assert.match(pipelineTemplate, /"CancelButton"/);
+    assert.doesNotMatch(pipelineTemplate, /"GrayCancelButton"/);
 });
 
 test("SellProduct generated outpost nodes report confirmed runtime state changes", () => {

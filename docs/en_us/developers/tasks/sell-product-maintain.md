@@ -18,15 +18,15 @@ SellProductSchedule                                  (Task entry, weekday gate)
        └─ SellProductEnterRegionalDevelopment        (SceneManager: enter Regional Development)
             └─ SellProductCaptureUid                 (capture hashed UID for account-scoped cache)
                  └─ SellProductInitializeReserveSession (clear previous reserve/selection state)
-                      └─ SellProductRegisterReserveRule{1..4} (fixed chain; skip empty slots)
-                           └─ SellProductRegisterPriorityItem{1..4} (fixed chain; skip empty slots)
+                      └─ SellProductRegisterReserveRule{1..6} (fixed chain; skip empty slots)
+                           └─ SellProductRegisterPriorityItem{1..6} (fixed chain; skip empty slots)
                                 └─ SellProductInitializeOperatorSession (initialize plans and locks)
                                      └─ SellProductRegisterAuto{LocationId} × N (fixed chain; skip inactive outposts)
                                           └─ SellProductOperatorSessionReady
                                                └─ SellProductLoop         (begin region traversal)
 ```
 
-The eight reserve-rule and priority-item registration nodes are always enabled and form a fixed slot-order chain. Task options override the stable `itemId` only for configured slots. Unconfigured slots keep an empty `item_id`, which the Custom Action treats as a successful no-op. Outpost registration nodes use the same fixed-chain approach: task options set `active` to `true` only for enabled outposts, while inactive outposts are successful no-ops. Neither initialization stage needs progressively shortened `next` candidate lists for every possible enabled-slot combination.
+The twelve reserve-rule and priority-item registration nodes are always enabled and form a fixed slot-order chain. Task options override the stable `itemId` only for configured slots. Unconfigured slots keep an empty `item_id`, which the Custom Action treats as a successful no-op. Outpost registration nodes use the same fixed-chain approach: task options set `active` to `true` only for enabled outposts, while inactive outposts are successful no-ops. Neither initialization stage needs progressively shortened `next` candidate lists for every possible enabled-slot combination.
 
 `SellProductLoop` executes Valley IV, Wuling, or automatic region selection according to task configuration. A region entry uses SceneManager to open outpost management, prepares the operator cache, then executes each outpost through `[JumpBack]`:
 
@@ -145,7 +145,7 @@ A missing selling target or failed scan stops the task to avoid selling under th
 2. Unit price descending;
 3. Stable source order for ties.
 
-The task provides a priority-selling switch that is disabled by default. Enabling it expands four priority slots that directly adjust this list. Configured items move ahead of the default order from slot 1 through 4. Items unavailable at the current outpost are skipped, duplicate selections keep only the earliest slot, and all remaining items retain the default order above.
+The task provides a priority-selling switch that is disabled by default. Enabling it expands six priority slots that directly adjust this list. Configured items move ahead of the default order from slot 1 through 6. Items unavailable at the current outpost are skipped, duplicate selections keep only the earliest slot, and all remaining items retain the default order above.
 
 During execution, after entry into each outpost is confirmed, the UI reports that outpost's selling-operator target, post-sale restoration target, planned selling order, and applicable reserve rules; unlisted items are sold without a reserve. It then reports whether the operator was actually kept or switched, the currently selected goods, and completed trades. An operator assigned to another outpost reports the excluded candidate and replanning reason; a new plan produced by a complete scan reports the outpost, purpose, and selected operator. The log also reports an unavailable selling operator, operator-scan failures, and restoration skipped because no restoration operator is available. Every UI message in the task uses the current client language.
 
@@ -175,7 +175,7 @@ The loop ends only when:
 
 An empty OCR result does not mean “no remaining goods.” Zero stock, a successful trade, or a reserve-based skip continues to the next round.
 
-Independent reserve rules provide four slots, each keyed by stable `itemId`:
+Independent reserve rules provide six slots, each keyed by stable `itemId`:
 
 - Without a matching rule, BetterSliding uses the default sell-all behavior.
 - With a matching rule, `TargetReverse` sells only stock above the reserve.
