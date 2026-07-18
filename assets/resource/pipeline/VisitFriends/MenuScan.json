@@ -93,7 +93,7 @@
     },
     "VisitFriendsMenuScanScrollList": {
         "desc": "向下滚动好友列表",
-        "max_hit": 1,
+        "max_hit": 2, //连续两次滑动没有找到目标后停止滑动,进入停止任务步骤
         "recognition": {
             "type": "TemplateMatch",
             "param": {
