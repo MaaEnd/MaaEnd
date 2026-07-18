@@ -58,7 +58,7 @@ func scanGoodsWithOptionalSecondPage(
 	firstImg image.Image,
 	region string,
 	itemMap *ItemMap,
-) (goods []GoodsItem, page1OnlyIDs []string, abortReason AbortReason, err error) {
+) (goods []GoodsItem, secondPageOnlyIDs []string, abortReason AbortReason, err error) {
 	page0, abortReason, err := scanGoodsOnImage(ctx, firstImg, region, itemMap)
 	if abortReason != AbortReasonNone || err != nil {
 		return nil, nil, abortReason, err
@@ -111,15 +111,15 @@ func scanGoodsWithOptionalSecondPage(
 		return page0, nil, AbortReasonNone, nil
 	}
 
-	goods, page1OnlyIDs = mergeGoodsByID(page0, page1)
+	goods, secondPageOnlyIDs = mergeGoodsByID(page0, page1)
 	log.Info().
 		Str("component", autoStockpileComponent).
 		Str("step", "merge_pages").
 		Int("page0_count", len(page0)).
 		Int("page1_count", len(page1)).
 		Int("merged_count", len(goods)).
-		Int("page1_only_count", len(page1OnlyIDs)).
-		Strs("page1_only_ids", page1OnlyIDs).
+		Int("second_page_only_count", len(secondPageOnlyIDs)).
+		Strs("second_page_only_ids", secondPageOnlyIDs).
 		Msg("dual-page goods scan merged")
 
 	if upErr := swipeShelfUp(ctx); upErr != nil {
@@ -132,5 +132,5 @@ func scanGoodsWithOptionalSecondPage(
 		restored = true
 	}
 
-	return goods, page1OnlyIDs, AbortReasonNone, nil
+	return goods, secondPageOnlyIDs, AbortReasonNone, nil
 }

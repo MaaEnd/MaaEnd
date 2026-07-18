@@ -24,12 +24,12 @@ var (
 func copyRecognitionData(src RecognitionData) RecognitionData {
 	dst := src
 	dst.Goods = append([]GoodsItem(nil), src.Goods...)
-	dst.Page1OnlyIDs = append([]string(nil), src.Page1OnlyIDs...)
+	dst.SecondPageOnlyIDs = append([]string(nil), src.SecondPageOnlyIDs...)
 	return dst
 }
 
-func isPage1OnlyID(data RecognitionData, productID string) bool {
-	for _, id := range data.Page1OnlyIDs {
+func isSecondPageOnlyID(data RecognitionData, productID string) bool {
+	for _, id := range data.SecondPageOnlyIDs {
 		if id == productID {
 			return true
 		}

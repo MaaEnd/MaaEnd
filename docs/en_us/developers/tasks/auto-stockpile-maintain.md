@@ -185,14 +185,14 @@ Recognition scans the elastic goods shelf for **at most two pages** so items bel
 1. OCR + template match on the first-page screenshot.
 2. Run `AutoStockpileSwipeShelfDown` once (`post_wait_freezes` waits for list settle).
 3. Screencap and scan the second page.
-4. Merge by goods **ID** (keep first-page entry on duplicates; IDs only on page 2 go into `Page1OnlyIDs`).
+4. Merge by goods **ID** (keep first-page entry on duplicates; IDs only on page 2 go into `SecondPageOnlyIDs`).
 5. Run `AutoStockpileSwipeShelfUp` to restore the first page.
 
 If swipe/second-page scan fails, fall back to first-page results without aborting.
 
 After selection:
 
-- If the chosen ID is in `Page1OnlyIDs`, swipe down once more before `AutoStockpileSelectedGoodsClick`.
+- If the chosen ID is in `SecondPageOnlyIDs`, swipe down once more before `AutoStockpileSelectedGoodsClick`.
 - If the item was already on page 1, click without an extra swipe.
 
 Swipe nodes:

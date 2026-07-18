@@ -167,7 +167,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 
-	if isPage1OnlyID(*data, selection.ProductID) {
+	if isSecondPageOnlyID(*data, selection.ProductID) {
 		log.Info().
 			Str("component", "autostockpile").
 			Str("product_id", selection.ProductID).
@@ -179,7 +179,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 				Str("component", "autostockpile").
 				Str("product_id", selection.ProductID).
 				Str("step", "shelf_swipe_down_before_click").
-				Msg("failed to reveal page1-only goods before click")
+				Msg("failed to reveal second-page-only goods before click")
 			return false
 		}
 	}

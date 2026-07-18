@@ -185,14 +185,14 @@ var regionBases = map[string]int{
 1. 对首屏截图执行 OCR + 模板匹配。
 2. 调用 `AutoStockpileSwipeShelfDown` 下滑一次（`post_wait_freezes` 等待列表稳定）。
 3. 再截图扫描次屏。
-4. 按商品 **ID 去重合并**（同 ID 保留首屏结果；仅次屏出现的 ID 记入 `Page1OnlyIDs`）。
+4. 按商品 **ID 去重合并**（同 ID 保留首屏结果；仅次屏出现的 ID 记入 `SecondPageOnlyIDs`）。
 5. 调用 `AutoStockpileSwipeShelfUp` 滑回首屏。
 
 任一滑动/次屏扫描失败时降级为仅首屏结果，不中断任务。
 
 选中商品后：
 
-- 若商品 ID 在 `Page1OnlyIDs` 中（例如最后一排只在次屏可见），点击前会再执行一次 `AutoStockpileSwipeShelfDown`，再交给 `AutoStockpileSelectedGoodsClick` 做模板点击。
+- 若商品 ID 在 `SecondPageOnlyIDs` 中（例如最后一排只在次屏可见），点击前会再执行一次 `AutoStockpileSwipeShelfDown`，再交给 `AutoStockpileSelectedGoodsClick` 做模板点击。
 - 若首屏已有该商品，则不额外滑动。
 
 滑动节点：

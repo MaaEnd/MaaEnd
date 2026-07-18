@@ -57,9 +57,11 @@ type RecognitionResult struct {
 
 // RecognitionData 表示识别成功时传递给消费端的原始数据。
 type RecognitionData struct {
-	Quota        QuotaInfo   `json:"Quota"`
-	Goods        []GoodsItem `json:"Goods"`
-	Page1OnlyIDs []string    `json:"Page1OnlyIDs,omitempty"`
+	Quota QuotaInfo   `json:"Quota"`
+	Goods []GoodsItem `json:"Goods"`
+	// SecondPageOnlyIDs 仅在下滑后的第二屏扫到、首屏没有的商品 ID。
+	// 选中这类商品后需先下滑再点击；勿理解成“第一页专属”。
+	SecondPageOnlyIDs []string `json:"SecondPageOnlyIDs,omitempty"`
 }
 
 // QuotaInfo 表示额度识别结果。
