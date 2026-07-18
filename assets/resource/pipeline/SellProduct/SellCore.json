@@ -1,6 +1,6 @@
 {
     "SellProductSellLoop": {
-        "desc": "售卖循环，按价值优先级选择下一个可售物品",
+        "desc": "售卖循环，先检查调度券再按价值优先级选择下一个可售物品",
         "recognition": "And",
         "all_of": [
             "SellProductInOutpost"
@@ -9,6 +9,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[Anchor]SellProductZeroMoneyHandler",
             "SellProductChangeGoods"
         ]
     },
@@ -22,8 +23,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductZeroProductAfterChangeStillEmpty",
             "[Anchor]SellProductZeroMoneyHandler",
+            "SellProductZeroProductAfterChangeStillEmpty",
             "SellProductNeedSelectGoodsTryChangeGoods",
             "[Anchor]SellProductBetterSliding"
         ]

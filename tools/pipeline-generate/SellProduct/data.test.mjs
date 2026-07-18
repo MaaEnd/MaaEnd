@@ -301,6 +301,25 @@ test("SellProduct pipeline templates use one dynamic priority loop instead of fi
     assert.match(adbTemplate, /SellProduct\$\{LocationId\}BetterSliding/);
 });
 
+test("SellProduct 每轮换货前优先检查调度券不足", () => {
+    const pipeline = readPipeline(
+        new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url),
+    );
+
+    assert.deepEqual(pipeline.SellProductSellLoop.next, [
+        "[Anchor]SellProductZeroMoneyHandler",
+        "SellProductChangeGoods",
+    ]);
+    assert.deepEqual(pipeline.SellProductAtSell.next.slice(0, 2), [
+        "[Anchor]SellProductZeroMoneyHandler",
+        "SellProductZeroProductAfterChangeStillEmpty",
+    ]);
+    assert.equal(
+        pipeline.SellProductSellCheckThenLoop.anchor.SellProductZeroMoneyHandler,
+        "SellProductZeroMoney",
+    );
+});
+
 test("SellProduct 已派驻干员会被临时排除并从列表顶部重新选择", () => {
     const pipelineTemplate = readFileSync(new URL("./pipeline-template.jsonc", import.meta.url), "utf8");
 

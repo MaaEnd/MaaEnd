@@ -153,7 +153,8 @@ Locked goods are absent from the current screen and are skipped naturally. There
 
 ```text
 SellProductSellLoop                                  (unbounded selling loop)
-  └─ SellProductChangeGoods                          (recognize and click Switch Goods)
+  ├─ [Anchor]SellProductZeroMoneyHandler             (end when no vouchers remain)
+  └─ SellProductChangeGoods                          (recognize and click Switch Goods when vouchers remain)
        └─ [Anchor]SellProductSelectPriorityItem      (recognize and click highest priority)
             └─ SellProductSelectNewGoodConfirm       (recognize and click Confirm)
                  └─ [Anchor]SellProductCommitPriorityItem (commit after sell screen returns)
@@ -164,6 +165,8 @@ SellProductSellLoop                                  (unbounded selling loop)
                                      └─ SellProductSellLoop
                                           (continue until an exit condition is met)
 ```
+
+Each round checks the voucher balance before selecting goods. After a goods change, insufficient vouchers also take precedence over an out-of-stock item, preventing traversal of later priority items once vouchers are exhausted. Insufficient vouchers on initial entry produce a notice; after a completed trade, the outpost selling loop ends silently.
 
 `SellProductPriorityItem` Custom Recognition records only a pending item. After Pipeline clicks and confirms it and recognizes the outpost sell screen again, `SellProductPrioritySession` marks it attempted. A failed click or one-frame OCR fluctuation cannot skip a higher-priority item.
 

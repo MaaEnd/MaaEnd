@@ -153,7 +153,8 @@ SellProduct{LocationId}                              （识别/进入目标据�
 
 ```text
 SellProductSellLoop                                  （不限次数的售卖循环）
-  └─ SellProductChangeGoods                          （识别并点击「更换货品」）
+  ├─ [Anchor]SellProductZeroMoneyHandler             （调度券不足则结束循环）
+  └─ SellProductChangeGoods                          （调度券充足时识别并点击「更换货品」）
        └─ [Anchor]SellProductSelectPriorityItem      （识别并点击最高优先级货品）
             └─ SellProductSelectNewGoodConfirm       （识别确认按钮并点击）
                  └─ [Anchor]SellProductCommitPriorityItem （回到售卖界面后提交）
@@ -164,6 +165,8 @@ SellProductSellLoop                                  （不限次数的售卖循
                                      └─ SellProductSellLoop
                                           （继续下一候选，直到满足结束条件）
 ```
+
+每轮选择货品前都会先检查调度券。换货后再次检查时，调度券不足也优先于当前货品缺货，避免调度券已经耗尽后继续遍历后续优先物品。首次进入据点即发现不足时显示提示；已有交易完成后则静默结束该据点售卖循环。
 
 `SellProductPriorityItem` 自定义识别器只在识别阶段记录为待处理。Pipeline 点击并确认货品、重新识别到据点售卖界面后，`SellProductPrioritySession` 才把该货品标记为已尝试。点击失败或单帧 OCR 波动不会跳过高优先级货品。
 
