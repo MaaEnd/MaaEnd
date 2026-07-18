@@ -81,8 +81,8 @@
         "desc": "拜访好友已达到上限：助力次数与线索交换次数均归零",
         "recognition": "And",
         "all_of": [
-            "VisitFriendsAssistFull",
-            "VisitFriendsClueExchangeFull"
+            "VisitFriendsAssistCountZero",
+            "VisitFriendsClueExchangeCountZero"
         ],
         "pre_delay": 0,
         "post_delay": 0,

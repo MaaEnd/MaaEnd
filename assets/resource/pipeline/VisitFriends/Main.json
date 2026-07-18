@@ -57,22 +57,8 @@
             "VisitFriendsMenuScan"
         ]
     },
-    "VisitFriendsFull": {
-        "desc": "好友助力次数已满",
-        "recognition": "And",
-        "all_of": [
-            "VisitFriendsAssistFull",
-            "VisitFriendsClueExchangeFull"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "好友助力和线索交换次数已满，停止拜访"
-        }
-    },
-    "VisitFriendsAssistFull": {
-        "desc": "好友助力次数归零：关闭总控中枢 / 制造舱 / 培养舱检查",
-        "max_hit": 1,
+    "VisitFriendsAssistCountZero": {
+        "desc": "助力次数为 0（纯识别，无 max_hit，供 Full 判定与 AssistFull 复用）",
         "recognition": "And",
         "all_of": [
             {
@@ -100,6 +86,58 @@
                     "0"
                 ]
             }
+        ]
+    },
+    "VisitFriendsClueExchangeCountZero": {
+        "desc": "线索交换次数为 0（纯识别，无 max_hit，供 Full 判定与 ClueExchangeFull 复用）",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -230,
+                    0,
+                    230,
+                    130
+                ],
+                "template": "VisitFriends/ClueExchangeCountIcon.png",
+                "threshold": 0.9
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    25,
+                    0
+                ],
+                "expected": [
+                    "0"
+                ]
+            }
+        ]
+    },
+    "VisitFriendsFull": {
+        "desc": "好友助力和线索交换次数均已归零，停止拜访",
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsAssistCountZero",
+            "VisitFriendsClueExchangeCountZero"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "好友助力和线索交换次数已满，停止拜访"
+        }
+    },
+    "VisitFriendsAssistFull": {
+        "desc": "好友助力次数归零：关闭总控中枢 / 制造舱 / 培养舱检查与领取",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsAssistCountZero"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -144,35 +182,11 @@
         }
     },
     "VisitFriendsClueExchangeFull": {
-        "desc": "线索交换次数归零：关闭线索交换检查",
+        "desc": "线索交换次数归零：关闭线索交换检查与领取",
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            {
-                "sub_name": "icon",
-                "recognition": "TemplateMatch",
-                "roi": [
-                    -230,
-                    0,
-                    230,
-                    130
-                ],
-                "template": "VisitFriends/ClueExchangeCountIcon.png",
-                "threshold": 0.9
-            },
-            {
-                "recognition": "OCR",
-                "roi": "icon",
-                "roi_offset": [
-                    0,
-                    0,
-                    25,
-                    0
-                ],
-                "expected": [
-                    "0"
-                ]
-            }
+            "VisitFriendsClueExchangeCountZero"
         ],
         "pre_delay": 0,
         "action": "Custom",
