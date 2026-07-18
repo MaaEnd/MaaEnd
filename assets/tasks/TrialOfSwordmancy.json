@@ -18,25 +18,6 @@
         }
     ],
     "option": {
-        "TrialOfSwordmancyConfirmRisk": {
-            "type": "switch",
-            "label": "$option.TrialOfSwordmancyConfirmRisk.label",
-            "description": "$option.TrialOfSwordmancyConfirmRisk.description",
-            "default_case": "No",
-            "cases": [
-                {
-                    "name": "No"
-                },
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "TrialOfSwordmancyDisabledError": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
         "TrialOfSwordmancyMode": {
             "type": "select",
             "label": "$option.TrialOfSwordmancyMode.label",
@@ -47,7 +28,6 @@
                     "name": "Daily",
                     "label": "$option.TrialOfSwordmancyMode.cases.Daily.label",
                     "option": [
-                        "TrialOfSwordmancyConfirmRisk",
                         "TrialOfSwordmancyOverflow",
                         "TrialOfSwordmancyAutoFight"
                     ],
@@ -106,7 +86,7 @@
             "type": "select",
             "label": "$option.TrialOfSwordmancyOverflow.label",
             "description": "$option.TrialOfSwordmancyOverflow.description",
-            "default_case": "Twice",
+            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
