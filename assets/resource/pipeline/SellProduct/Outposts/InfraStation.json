@@ -23,6 +23,12 @@
             "SellProductInInfraStation"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "enter_location",
+            "location": "InfraStation"
+        },
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectPriorityItem": "SellProductInfraStationSelectPriorityItem",
@@ -88,6 +94,13 @@
             ]
         },
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "complete_target",
+            "location": "InfraStation",
+            "changed": false
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -295,6 +308,13 @@
             "SellProductInInfraStation"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "complete_target",
+            "location": "InfraStation",
+            "changed": true
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -406,10 +426,7 @@
         "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "联络干员缓存更新失败，请检查日志和缓存文件写入权限"
-        }
+        "rate_limit": 0
     },
     "SellProductInfraStationTargetOperatorNotFound": {
         "desc": "基建前站联络干员列表已到底，未找到配置的售卖用干员",
@@ -430,10 +447,7 @@
         "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "未在联络干员列表中找到配置的售卖用干员，请确认干员已持有或调整据点配置"
-        }
+        "rate_limit": 0
     },
     // ===== 售卖后联络干员恢复 =====
     "SellProductInfraStationAfterSellOperator": {
@@ -466,7 +480,8 @@
         "custom_action": "SellProductOperatorSession",
         "custom_action_param": {
             "operation": "complete_restore",
-            "location": "InfraStation"
+            "location": "InfraStation",
+            "changed": false
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -699,7 +714,8 @@
         "custom_action": "SellProductOperatorSession",
         "custom_action_param": {
             "operation": "complete_restore",
-            "location": "InfraStation"
+            "location": "InfraStation",
+            "changed": true
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -809,10 +825,7 @@
         "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "联络干员缓存更新失败，请检查日志和缓存文件写入权限"
-        }
+        "rate_limit": 0
     },
     "SellProductInfraStationRestoreOperatorNotFound": {
         "desc": "基建前站联络干员列表已到底，未找到配置的恢复干员",
@@ -832,10 +845,7 @@
         "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "未在联络干员列表中找到配置的恢复干员，请确认干员已持有或调整据点配置"
-        }
+        "rate_limit": 0
     },
     "SellProductInfraStationCloseRestoreOperatorLiaisonAfterNotFound": {
         "desc": "基建前站未找到可用的恢复干员，关闭派驻列表并继续",

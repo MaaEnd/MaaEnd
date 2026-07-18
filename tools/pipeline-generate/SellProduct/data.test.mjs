@@ -15,6 +15,10 @@ function sortedKeys(value) {
     return Object.keys(value).sort();
 }
 
+function readPipeline(url) {
+    return JSON.parse(readFileSync(url, "utf8").replace(/^\s*\/\/.*$/gm, ""));
+}
+
 test("SellProduct templates consume separate minimal projections of the shared location model", () => {
     const locationIds = sellProductLocations.map((location) => location.LocationId);
     for (const rows of [
@@ -216,4 +220,110 @@ test("SellProduct 已派驻干员会被临时排除并从列表顶部重新选�
 
     assert.equal((pipelineTemplate.match(/"operation": "exclude_selected"/g) || []).length, 2);
     assert.match(pipelineTemplate, /"YellowConfirmButtonType1",\s*"GrayCancelButton"/);
+});
+
+test("SellProduct generated outpost nodes report confirmed runtime state changes", () => {
+    for (const location of sellProductLocations) {
+        const pipeline = readPipeline(
+            new URL(
+                `../../../assets/resource/pipeline/SellProduct/Outposts/${location.LocationId}.json`,
+                import.meta.url,
+            ),
+        );
+        const prefix = `SellProduct${location.LocationId}`;
+
+        assert.deepEqual(pipeline[`${prefix}Sell`].custom_action_param, {
+            operation: "enter_location",
+            location: location.LocationId,
+        });
+        assert.deepEqual(pipeline[`${prefix}CurrentTargetOperator`].custom_action_param, {
+            operation: "complete_target",
+            location: location.LocationId,
+            changed: false,
+        });
+        assert.deepEqual(pipeline[`${prefix}TargetOperatorDone`].custom_action_param, {
+            operation: "complete_target",
+            location: location.LocationId,
+            changed: true,
+        });
+        assert.deepEqual(pipeline[`${prefix}CurrentRestoreOperator`].custom_action_param, {
+            operation: "complete_restore",
+            location: location.LocationId,
+            changed: false,
+        });
+        assert.deepEqual(pipeline[`${prefix}RestoreOperatorDone`].custom_action_param, {
+            operation: "complete_restore",
+            location: location.LocationId,
+            changed: true,
+        });
+    }
+});
+
+test("SellProduct UI focus messages use complete interface i18n keys", () => {
+    const pipelineUrls = [
+        new URL("../../../assets/resource/pipeline/SellProduct.json", import.meta.url),
+        new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url),
+        new URL("../../../assets/resource/pipeline/SellProduct/OperatorScan.json", import.meta.url),
+        ...sellProductLocations.map(
+            (location) =>
+                new URL(
+                    `../../../assets/resource/pipeline/SellProduct/Outposts/${location.LocationId}.json`,
+                    import.meta.url,
+                ),
+        ),
+    ];
+    const focusKeys = new Set();
+    for (const url of pipelineUrls) {
+        for (const node of Object.values(readPipeline(url))) {
+            for (const value of Object.values(node.focus || {})) {
+                assert.match(value, /^\$task\.SellProduct\./, `${url.pathname}: ${value}`);
+                focusKeys.add(value.slice(1));
+            }
+        }
+    }
+
+    for (const lang of [
+        "zh_cn",
+        "zh_tw",
+        "en_us",
+        "ja_jp",
+        "ko_kr",
+    ]) {
+        const locale = JSON.parse(
+            readFileSync(new URL(`../../../assets/locales/interface/${lang}.json`, import.meta.url), "utf8"),
+        );
+        for (const key of focusKeys) {
+            assert.equal(typeof locale[key], "string", `${lang} missing ${key}`);
+            assert.notEqual(locale[key].trim(), "", `${lang} has empty ${key}`);
+        }
+    }
+});
+
+test("SellProduct Go UI messages have matching keys in all locales", () => {
+    const localeEntries = [
+        "zh_cn",
+        "zh_tw",
+        "en_us",
+        "ja_jp",
+        "ko_kr",
+    ].map((lang) => [
+        lang,
+        JSON.parse(readFileSync(new URL(`../../../assets/locales/go-service/${lang}.json`, import.meta.url), "utf8")),
+    ]);
+    const expectedKeys = Object.keys(localeEntries[0][1])
+        .filter((key) => key.startsWith("sellproduct."))
+        .sort();
+
+    for (const [
+        lang,
+        locale,
+    ] of localeEntries) {
+        const keys = Object.keys(locale)
+            .filter((key) => key.startsWith("sellproduct."))
+            .sort();
+        assert.deepEqual(keys, expectedKeys, `${lang} SellProduct keys differ`);
+        for (const key of keys) {
+            assert.notEqual(locale[key].trim(), "", `${lang} has empty ${key}`);
+        }
+    }
 });

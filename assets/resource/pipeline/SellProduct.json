@@ -189,7 +189,7 @@
             "SellProductLoop"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "据点管理未解锁"
+            "Node.Recognition.Succeeded": "$task.SellProduct.outpost_locked"
         }
     },
     "SellProductTaskEnd": {

@@ -13,6 +13,8 @@ import (
 const (
 	operatorSessionOperationReset           = "reset"
 	operatorSessionOperationRegister        = "register"
+	operatorSessionOperationEnterLocation   = "enter_location"
+	operatorSessionOperationCompleteTarget  = "complete_target"
 	operatorSessionOperationCompleteRestore = "complete_restore"
 	operatorSessionOperationSkipRestore     = "skip_restore"
 	operatorSessionOperationExcludeSelected = "exclude_selected"
@@ -29,6 +31,7 @@ type operatorSessionState struct {
 	Mode                      string
 	ActiveLocations           map[string]struct{}
 	CompletedRestoreLocations map[string]struct{}
+	EnteredLocations          map[string]struct{}
 	TargetAssignments         map[string]operatorCandidate
 	PlannedRestoreAssignments map[string]operatorCandidate
 	LockedRestoreAssignments  map[string]operatorCandidate
@@ -43,6 +46,7 @@ type operatorSessionActionParam struct {
 	Mode      string `json:"mode,omitempty"`
 	Usage     string `json:"usage,omitempty"`
 	Location  string `json:"location,omitempty"`
+	Changed   bool   `json:"changed,omitempty"`
 }
 
 // OperatorSessionAction 由 Pipeline 在任务入口和恢复完成节点调用。
@@ -56,7 +60,7 @@ var (
 	operatorSession operatorSessionState
 )
 
-func (a *OperatorSessionAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *OperatorSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	p, err := parseOperatorSessionActionParam(arg)
 	if err != nil {
 		log.Error().Err(err).Str("component", operatorSessionActionName).Msg("invalid params")
@@ -68,14 +72,29 @@ func (a *OperatorSessionAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bo
 		operatorSessionReset(p.Mode)
 	case operatorSessionOperationRegister:
 		operatorSessionRegisterLocation(p.Location)
+	case operatorSessionOperationEnterLocation:
+		if operatorSessionEnterLocation(p.Location) {
+			printRuntimeLocationEntered(ctx, p.Location)
+		}
+	case operatorSessionOperationCompleteTarget:
+		candidate, ok := operatorSessionTargetAssignment(p.Location)
+		if !ok {
+			log.Error().Str("component", operatorSessionActionName).Str("location", p.Location).
+				Msg("target completed without a planned assignment")
+			return false
+		}
+		printRuntimeOperatorAssignment(ctx, p.Location, operatorActionUsageTarget, candidate, p.Changed)
 	case operatorSessionOperationCompleteRestore:
-		if !operatorSessionCompleteRestore(p.Location) {
+		candidate, ok := operatorSessionCompleteRestore(p.Location)
+		if !ok {
 			log.Error().Str("component", operatorSessionActionName).Str("location", p.Location).
 				Msg("restore completed without a planned assignment")
 			return false
 		}
+		printRuntimeOperatorAssignment(ctx, p.Location, operatorActionUsageRestore, candidate, p.Changed)
 	case operatorSessionOperationSkipRestore:
 		operatorSessionSkipRestore(p.Location)
+		printRuntimeRestoreSkipped(ctx, p.Location)
 	case operatorSessionOperationExcludeSelected:
 		candidate, ok := operatorSessionExcludeSelected(p.Usage, p.Location)
 		if !ok {
@@ -90,6 +109,7 @@ func (a *OperatorSessionAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bo
 			Str("location", p.Location).
 			Str("operator", operatorCandidateCacheName(candidate)).
 			Msg("operator excluded after already assigned prompt")
+		printRuntimeOperatorConflict(ctx, p.Location, p.Usage, candidate)
 	default:
 		log.Error().Str("component", operatorSessionActionName).Str("operation", p.Operation).
 			Msg("unsupported operation")
@@ -119,6 +139,8 @@ func parseOperatorSessionActionParam(arg *maa.CustomActionArg) (*operatorSession
 		}
 	}
 	if (p.Operation == operatorSessionOperationRegister ||
+		p.Operation == operatorSessionOperationEnterLocation ||
+		p.Operation == operatorSessionOperationCompleteTarget ||
 		p.Operation == operatorSessionOperationCompleteRestore ||
 		p.Operation == operatorSessionOperationSkipRestore ||
 		p.Operation == operatorSessionOperationExcludeSelected) &&
@@ -140,6 +162,7 @@ func operatorSessionReset(mode string) {
 		Mode:                      mode,
 		ActiveLocations:           map[string]struct{}{},
 		CompletedRestoreLocations: map[string]struct{}{},
+		EnteredLocations:          map[string]struct{}{},
 		TargetAssignments:         map[string]operatorCandidate{},
 		PlannedRestoreAssignments: map[string]operatorCandidate{},
 		LockedRestoreAssignments:  map[string]operatorCandidate{},
@@ -165,6 +188,7 @@ func operatorSessionSnapshot() operatorSessionState {
 		Mode:                      operatorSession.Mode,
 		ActiveLocations:           cloneStringSet(operatorSession.ActiveLocations),
 		CompletedRestoreLocations: cloneStringSet(operatorSession.CompletedRestoreLocations),
+		EnteredLocations:          cloneStringSet(operatorSession.EnteredLocations),
 		TargetAssignments:         cloneRestoreAssignments(operatorSession.TargetAssignments),
 		PlannedRestoreAssignments: cloneRestoreAssignments(operatorSession.PlannedRestoreAssignments),
 		LockedRestoreAssignments:  cloneRestoreAssignments(operatorSession.LockedRestoreAssignments),
@@ -180,6 +204,25 @@ func operatorSessionSetTargetAssignment(location string, candidate operatorCandi
 	defer operatorStateMu.Unlock()
 	ensureOperatorSessionLocked()
 	operatorSession.TargetAssignments[location] = candidate
+}
+
+func operatorSessionTargetAssignment(location string) (operatorCandidate, bool) {
+	operatorStateMu.Lock()
+	defer operatorStateMu.Unlock()
+	ensureOperatorSessionLocked()
+	candidate, ok := operatorSession.TargetAssignments[location]
+	return candidate, ok
+}
+
+func operatorSessionEnterLocation(location string) bool {
+	operatorStateMu.Lock()
+	defer operatorStateMu.Unlock()
+	ensureOperatorSessionLocked()
+	if _, entered := operatorSession.EnteredLocations[location]; entered {
+		return false
+	}
+	operatorSession.EnteredLocations[location] = struct{}{}
+	return true
 }
 
 // operatorSessionClaimPlanningLog 保证一次售卖任务只输出一次完整规划。
@@ -231,19 +274,19 @@ func operatorSessionExcludeSelected(usage string, location string) (operatorCand
 	return candidate, true
 }
 
-func operatorSessionCompleteRestore(location string) bool {
+func operatorSessionCompleteRestore(location string) (operatorCandidate, bool) {
 	operatorStateMu.Lock()
 	defer operatorStateMu.Unlock()
 	ensureOperatorSessionLocked()
 	candidate, ok := operatorSession.PlannedRestoreAssignments[location]
 	if !ok {
-		return false
+		return operatorCandidate{}, false
 	}
 	operatorSession.LockedRestoreAssignments[location] = candidate
 	operatorSession.CompletedRestoreLocations[location] = struct{}{}
 	delete(operatorSession.TargetAssignments, location)
 	delete(operatorSession.PlannedRestoreAssignments, location)
-	return true
+	return candidate, true
 }
 
 // operatorSessionSkipRestore 记录当前据点已经确认没有可用恢复干员。
@@ -287,6 +330,9 @@ func operatorSessionRefreshed() bool {
 func ensureOperatorSessionLocked() {
 	uid := currentOperatorCacheUID()
 	if operatorSession.UID == uid && operatorSession.ActiveLocations != nil {
+		if operatorSession.EnteredLocations == nil {
+			operatorSession.EnteredLocations = map[string]struct{}{}
+		}
 		if operatorSession.ExcludedOperators == nil {
 			operatorSession.ExcludedOperators = map[string]struct{}{}
 		}
@@ -297,6 +343,7 @@ func ensureOperatorSessionLocked() {
 		Mode:                      operatorCacheModeCache,
 		ActiveLocations:           map[string]struct{}{},
 		CompletedRestoreLocations: map[string]struct{}{},
+		EnteredLocations:          map[string]struct{}{},
 		TargetAssignments:         map[string]operatorCandidate{},
 		PlannedRestoreAssignments: map[string]operatorCandidate{},
 		LockedRestoreAssignments:  map[string]operatorCandidate{},

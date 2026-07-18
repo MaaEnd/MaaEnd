@@ -127,7 +127,7 @@ type PrioritySessionAction struct{}
 
 var _ maa.CustomActionRunner = (*PrioritySessionAction)(nil)
 
-func (a *PrioritySessionAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *PrioritySessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	param, err := parsePrioritySessionActionParam(arg)
 	if err != nil {
 		log.Error().Err(err).Str("component", prioritySessionActionName).Msg("invalid params")
@@ -149,6 +149,7 @@ func (a *PrioritySessionAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bo
 			return false
 		}
 		setSelectedReserveItem(itemID)
+		printRuntimeItemSwitched(ctx, param.Location, itemID)
 		return true
 	default:
 		return false

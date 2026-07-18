@@ -234,12 +234,15 @@ func (r *OperatorListBottomRecognition) Run(
 		state.Error = "operator still unavailable after refreshed retry"
 		state.HasCandidate = false
 	}
+	if p.Result == operatorListBottomResultRetry && state.HasCandidate {
+		printRuntimeOperatorReplanned(ctx, p.Location, p.Usage, candidates[0])
+	}
 	operatorListStateSet(state)
 	return operatorListBottomResult(p, state)
 }
 
 func (r *OperatorScanOutcomeRecognition) Run(
-	_ *maa.Context,
+	ctx *maa.Context,
 	arg *maa.CustomRecognitionArg,
 ) (*maa.CustomRecognitionResult, bool) {
 	if arg == nil {
@@ -260,9 +263,13 @@ func (r *OperatorScanOutcomeRecognition) Run(
 		if state.Error == "" {
 			return nil, false
 		}
+		printRuntimeOperatorScanFailed(ctx, p.Location, p.Usage)
 	case operatorListBottomResultNotFound:
 		if state.Error != "" || state.HasCandidate {
 			return nil, false
+		}
+		if p.Usage == operatorActionUsageTarget {
+			printRuntimeOperatorUnavailable(ctx, p.Location, p.Usage)
 		}
 	default:
 		return nil, false

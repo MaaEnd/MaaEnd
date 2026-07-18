@@ -115,7 +115,7 @@
             "SellProductSellLoop"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "当前选择产品缺货，请制造或更换"
+            "Node.Recognition.Succeeded": "$task.SellProduct.product_out_of_stock"
         }
     },
     "SellProductNeedSelectGoodsTryChangeGoods": {
@@ -178,7 +178,7 @@
             "SellProductSellLoopEnd"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "该据点调度券不足，过一会再来吧"
+            "Node.Recognition.Succeeded": "$task.SellProduct.vouchers_exhausted"
         }
     },
     "SellProductSell": {
@@ -352,7 +352,7 @@
             "SellProductAtSell"
         ],
         "focus": {
-            "Node.Action.Succeeded": "成功完成一次交易"
+            "Node.Action.Succeeded": "$task.SellProduct.trade_completed"
         }
     },
     "SellProductSellThenLoop": {
@@ -410,7 +410,7 @@
             "SellProductSellLoop"
         ],
         "focus": {
-            "Node.Action.Succeeded": "成功完成一次交易"
+            "Node.Action.Succeeded": "$task.SellProduct.trade_completed"
         }
     },
     "SellProductSkipToNextSellLoop": {
@@ -423,7 +423,7 @@
             "SellProductSellLoop"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "保留数量大于等于当前库存，跳过本次交易尝试"
+            "Node.Recognition.Succeeded": "$task.SellProduct.reserve_skip"
         }
     },
     "SellProductSellLoopEnd": {

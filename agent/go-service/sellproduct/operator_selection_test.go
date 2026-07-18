@@ -339,7 +339,7 @@ func TestOperatorSessionTargetAssignmentClearedAfterRestore(t *testing.T) {
 	if got := before.TargetAssignments["RefugeeCamp"].Name; got != "Laevatain" {
 		t.Fatalf("售卖分配 = %q，期望 Laevatain", got)
 	}
-	if !operatorSessionCompleteRestore("RefugeeCamp") {
+	if _, ok := operatorSessionCompleteRestore("RefugeeCamp"); !ok {
 		t.Fatal("恢复完成操作应成功")
 	}
 	after := operatorSessionSnapshot()

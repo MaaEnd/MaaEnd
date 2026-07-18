@@ -142,10 +142,7 @@
         "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "联络干员缓存更新失败，请检查日志和缓存文件写入权限"
-        }
+        "rate_limit": 0
     },
     "SellProductSwipeOperatorListForScan": {
         "desc": "扫描联络干员列表时向下滑动",

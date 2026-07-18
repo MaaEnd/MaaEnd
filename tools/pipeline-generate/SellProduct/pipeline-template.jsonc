@@ -23,6 +23,12 @@
             "SellProductIn${LocationId}"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "enter_location",
+            "location": "${LocationId}"
+        },
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectPriorityItem": "SellProduct${LocationId}SelectPriorityItem",
@@ -83,6 +89,13 @@
             "roi": "${CurrentOperatorROI}"
         },
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "complete_target",
+            "location": "${LocationId}",
+            "changed": false
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -290,6 +303,13 @@
             "SellProductIn${LocationId}"
         ],
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "complete_target",
+            "location": "${LocationId}",
+            "changed": true
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -401,10 +421,7 @@
         "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "联络干员缓存更新失败，请检查日志和缓存文件写入权限"
-        }
+        "rate_limit": 0
     },
     "SellProduct${LocationId}TargetOperatorNotFound": {
         "desc": "${LocationDesc}联络干员列表已到底，未找到配置的售卖用干员",
@@ -425,10 +442,7 @@
         "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "未在联络干员列表中找到配置的售卖用干员，请确认干员已持有或调整据点配置"
-        }
+        "rate_limit": 0
     },
     // ===== 售卖后联络干员恢复 =====
     "SellProduct${LocationId}AfterSellOperator": {
@@ -456,7 +470,8 @@
         "custom_action": "SellProductOperatorSession",
         "custom_action_param": {
             "operation": "complete_restore",
-            "location": "${LocationId}"
+            "location": "${LocationId}",
+            "changed": false
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -689,7 +704,8 @@
         "custom_action": "SellProductOperatorSession",
         "custom_action_param": {
             "operation": "complete_restore",
-            "location": "${LocationId}"
+            "location": "${LocationId}",
+            "changed": true
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -799,10 +815,7 @@
         "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "联络干员缓存更新失败，请检查日志和缓存文件写入权限"
-        }
+        "rate_limit": 0
     },
     "SellProduct${LocationId}RestoreOperatorNotFound": {
         "desc": "${LocationDesc}联络干员列表已到底，未找到配置的恢复干员",
@@ -822,10 +835,7 @@
         "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "未在联络干员列表中找到配置的恢复干员，请确认干员已持有或调整据点配置"
-        }
+        "rate_limit": 0
     },
     "SellProduct${LocationId}CloseRestoreOperatorLiaisonAfterNotFound": {
         "desc": "${LocationDesc}未找到可用的恢复干员，关闭派驻列表并继续",

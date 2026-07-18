@@ -100,7 +100,8 @@ func TestOperatorSessionLocksCompletedRestoreAssignment(t *testing.T) {
 	resetOperatorSessionForTest(t, operatorCacheModeCache)
 	candidate := operatorCandidate{Name: "Perlica", CacheName: "佩丽卡"}
 	operatorSessionSetPlannedRestore("ReconstructionCommand", candidate, true)
-	if !operatorSessionCompleteRestore("ReconstructionCommand") {
+	completed, ok := operatorSessionCompleteRestore("ReconstructionCommand")
+	if !ok || completed.Name != candidate.Name {
 		t.Fatal("planned restore should be completable")
 	}
 
@@ -113,6 +114,27 @@ func TestOperatorSessionLocksCompletedRestoreAssignment(t *testing.T) {
 	}
 	if _, ok := session.CompletedRestoreLocations["ReconstructionCommand"]; !ok {
 		t.Fatal("completed restore should mark the location as handled")
+	}
+}
+
+func TestOperatorSessionEntersLocationOnce(t *testing.T) {
+	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	if !operatorSessionEnterLocation("RefugeeCamp") {
+		t.Fatal("first location entry should be recorded")
+	}
+	if operatorSessionEnterLocation("RefugeeCamp") {
+		t.Fatal("repeated location entry should not be recorded again")
+	}
+}
+
+func TestParseOperatorSessionCompletionParam(t *testing.T) {
+	p, err := parseOperatorSessionActionParam(&maa.CustomActionArg{CustomActionParam: `{
+        "operation": "complete_target",
+        "location": "RefugeeCamp",
+        "changed": true
+    }`})
+	if err != nil || p.Operation != operatorSessionOperationCompleteTarget || !p.Changed {
+		t.Fatalf("解析结果 = %+v，错误 = %v", p, err)
 	}
 }
 
