@@ -209,8 +209,8 @@
         "desc": "重建指挥部售卖用干员已派驻到其他据点，临时排除并重新规划",
         "recognition": "And",
         "all_of": [
-            "YellowConfirmButtonType1",
-            "GrayCancelButton"
+            "SellProductOperatorAlreadyAssignedPrompt",
+            "YellowConfirmButtonType1"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -230,8 +230,8 @@
         "desc": "重建指挥部取消抢占其他据点的售卖用干员",
         "recognition": "And",
         "all_of": [
-            "YellowConfirmButtonType1",
-            "GrayCancelButton"
+            "SellProductOperatorAlreadyAssignedPrompt",
+            "CancelButton"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -611,8 +611,8 @@
         "desc": "重建指挥部恢复干员已派驻到其他据点，临时排除并重新规划",
         "recognition": "And",
         "all_of": [
-            "YellowConfirmButtonType1",
-            "GrayCancelButton"
+            "SellProductOperatorAlreadyAssignedPrompt",
+            "YellowConfirmButtonType1"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -632,8 +632,8 @@
         "desc": "重建指挥部取消抢占其他据点的恢复干员",
         "recognition": "And",
         "all_of": [
-            "YellowConfirmButtonType1",
-            "GrayCancelButton"
+            "SellProductOperatorAlreadyAssignedPrompt",
+            "CancelButton"
         ],
         "box_index": 1,
         "pre_delay": 0,
