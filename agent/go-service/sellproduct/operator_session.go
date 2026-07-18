@@ -73,7 +73,13 @@ func (a *OperatorSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		operatorSessionRegisterLocation(p.Location)
 	case operatorSessionOperationEnterLocation:
 		if operatorSessionEnterLocation(p.Location) {
-			printRuntimeLocationEntered(ctx, p.Location)
+			if err := printRuntimeLocationPlan(ctx, p.Location); err != nil {
+				log.Warn().Err(err).
+					Str("component", operatorSessionActionName).
+					Str("location", p.Location).
+					Msg("failed to print outpost plan")
+				printRuntimeLocationEntered(ctx, p.Location)
+			}
 		}
 	case operatorSessionOperationCompleteTarget:
 		candidate, ok := operatorSessionTargetAssignment(p.Location)

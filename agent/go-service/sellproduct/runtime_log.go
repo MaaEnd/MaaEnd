@@ -1,13 +1,127 @@
 package sellproduct
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
+type runtimeLocationPlanItem struct {
+	Name            string
+	ReserveQuantity int
+}
+
+type runtimeLocationPlan struct {
+	LocationName    string
+	TargetOperator  string
+	RestoreOperator string
+	Items           []runtimeLocationPlanItem
+}
+
 func printRuntimeLocationEntered(ctx *maa.Context, location string) {
 	maafocus.Print(ctx, i18n.T("sellproduct.runtime.location_entered", runtimeLocationName(location)))
+}
+
+func printRuntimeLocationPlan(ctx *maa.Context, location string) error {
+	plan, err := buildRuntimeLocationPlan(location)
+	if err != nil {
+		return err
+	}
+	maafocus.Print(ctx, runtimeLocationPlanMessage(plan))
+	return nil
+}
+
+func buildRuntimeLocationPlan(location string) (runtimeLocationPlan, error) {
+	ownership, err := loadOperatorOwnershipForSelection()
+	if err != nil {
+		return runtimeLocationPlan{}, fmt.Errorf("load operator ownership: %w", err)
+	}
+
+	targetSelection, err := resolveOperatorSelectionParam(&operatorActionParam{
+		Usage:    operatorActionUsageTarget,
+		Location: location,
+	})
+	if err != nil {
+		return runtimeLocationPlan{}, fmt.Errorf("resolve target operator: %w", err)
+	}
+	targetCandidates := candidatesForOwnership(targetSelection, ownership)
+
+	restoreSelection, err := resolveOperatorSelectionParam(&operatorActionParam{
+		Usage:    operatorActionUsageRestore,
+		Location: location,
+	})
+	if err != nil {
+		return runtimeLocationPlan{}, fmt.Errorf("resolve restore operator: %w", err)
+	}
+	if len(targetCandidates) > 0 {
+		restoreSelection.TargetAssignments[location] = targetCandidates[0]
+	}
+	restoreCandidates := candidatesForOwnership(restoreSelection, ownership)
+
+	groupsByLocation, err := loadItemPriorityGroupsFunc()
+	if err != nil {
+		return runtimeLocationPlan{}, fmt.Errorf("load item priorities: %w", err)
+	}
+	groups := prioritizeItemGroups(groupsByLocation[location], priorityItemsSnapshot())
+	reserveRules := reserveRulesSnapshot()
+	items := make([]runtimeLocationPlanItem, 0, len(groups))
+	for _, group := range groups {
+		items = append(items, runtimeLocationPlanItem{
+			Name:            group.DisplayName,
+			ReserveQuantity: reserveRules[group.ItemID],
+		})
+	}
+
+	plan := runtimeLocationPlan{
+		LocationName: runtimeLocationName(location),
+		Items:        items,
+	}
+	if len(targetCandidates) > 0 {
+		plan.TargetOperator = runtimeOperatorName(targetCandidates[0])
+	}
+	if len(restoreCandidates) > 0 {
+		plan.RestoreOperator = runtimeOperatorName(restoreCandidates[0])
+	}
+	return plan, nil
+}
+
+func runtimeLocationPlanMessage(plan runtimeLocationPlan) string {
+	itemNames := make([]string, 0, len(plan.Items))
+	reserveDescriptions := make([]string, 0, len(plan.Items))
+	for _, item := range plan.Items {
+		itemNames = append(itemNames, item.Name)
+		if item.ReserveQuantity > 0 {
+			reserveDescriptions = append(reserveDescriptions, i18n.T(
+				"sellproduct.runtime.plan.reserve_rule",
+				item.Name,
+				item.ReserveQuantity,
+			))
+		}
+	}
+
+	itemOrder := runtimePlanTextOrNone(strings.Join(itemNames, " → "))
+	reservePlan := i18n.T("sellproduct.runtime.plan.no_reserve")
+	if len(reserveDescriptions) > 0 {
+		reservePlan = strings.Join(reserveDescriptions, i18n.Separator())
+	}
+	return i18n.T(
+		"sellproduct.runtime.location_plan",
+		runtimePlanTextOrNone(plan.LocationName),
+		runtimePlanTextOrNone(plan.TargetOperator),
+		runtimePlanTextOrNone(plan.RestoreOperator),
+		itemOrder,
+		reservePlan,
+	)
+}
+
+func runtimePlanTextOrNone(value string) string {
+	if value = strings.TrimSpace(value); value != "" {
+		return value
+	}
+	return i18n.T("sellproduct.runtime.plan.none")
 }
 
 func printRuntimeOperatorAssignment(

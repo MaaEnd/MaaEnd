@@ -45,7 +45,7 @@ npx @joebao/maa-pipeline-generate --config pipeline-adb-config.json
 
 `selection_data.json` 的 `names` 映射提供五语言 OCR 候选和 UI 展示名，Go 按固定语言顺序展开并去重 OCR 候选。售卖候选同时保留 `bonus_tier`；同档候选优先沿用当前派驻，需要更换时由全局恢复方案决定，并优先形成后续任务可直接沿用的稳定派驻，以减少跨任务的无收益切换。
 
-运行期 UI 日志在状态确认节点输出进入据点、干员沿用或切换、货品切换、交易完成、派驻冲突后的重新规划、完整扫描后的新干员方案、恢复跳过和关键扫描失败。Pipeline 的固定提示引用 interface i18n，Go Service 根据 `selection_data.json` 和 go-service i18n 输出当前语言的据点、干员、货品及动态状态。
+运行期 UI 日志在确认进入据点时输出当前据点的售卖/恢复干员目标、货品顺序和保留规则，随后在状态确认节点输出干员实际沿用或切换、货品切换、交易完成、派驻冲突后的重新规划、完整扫描后的新干员方案、恢复跳过和关键扫描失败。Pipeline 的固定提示引用 interface i18n，Go Service 根据 `selection_data.json` 和 go-service i18n 输出当前语言的据点、干员、货品及动态状态。
 
 据点开关同时控制 `SellProductRegisterAuto{LocationId}`，启用据点构成自动恢复分配的规划范围。自动干员选择和售卖后恢复是 Pipeline 固定流程，不提供任务开关。
 

@@ -48,3 +48,45 @@ func TestRuntimeMessagesContainCurrentState(t *testing.T) {
 		})
 	}
 }
+
+func TestRuntimeLocationPlanMessage(t *testing.T) {
+	i18n.Init()
+	message := runtimeLocationPlanMessage(runtimeLocationPlan{
+		LocationName:    "测试据点",
+		TargetOperator:  "售卖干员",
+		RestoreOperator: "恢复干员",
+		Items: []runtimeLocationPlanItem{
+			{Name: "物品甲"},
+			{Name: "物品乙", ReserveQuantity: 10},
+		},
+	})
+
+	for _, expected := range []string{
+		"测试据点",
+		"售卖干员",
+		"恢复干员",
+		"物品甲 → 物品乙",
+		"物品乙保留 10",
+	} {
+		if !strings.Contains(message, expected) {
+			t.Fatalf("据点计划 %q 不包含 %q", message, expected)
+		}
+	}
+	if strings.Contains(message, "物品甲保留") {
+		t.Fatalf("据点计划错误显示了未配置的保留规则：%q", message)
+	}
+}
+
+func TestRuntimeLocationPlanMessageWithoutReserve(t *testing.T) {
+	i18n.Init()
+	message := runtimeLocationPlanMessage(runtimeLocationPlan{
+		LocationName: "测试据点",
+		Items:        []runtimeLocationPlanItem{{Name: "物品甲"}},
+	})
+
+	for _, expected := range []string{"无", "全部售卖"} {
+		if !strings.Contains(message, expected) {
+			t.Fatalf("无保留计划 %q 不包含 %q", message, expected)
+		}
+	}
+}
