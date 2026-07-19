@@ -286,5 +286,25 @@
                 ]
             }
         }
+    },
+    "GrowthChamberInSelectTarget1": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1216,
+                    12,
+                    31,
+                    31
+                ],
+                "expected": [
+                    "培养时间",
+                    "培養時間",
+                    "Growing time",
+                    "培養時間",
+                    "육성 시간"
+                ]
+            }
+        }
     }
 }

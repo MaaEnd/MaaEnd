@@ -235,7 +235,8 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "GrowthChamberInSelectTarget"
+                    "GrowthChamberInSelectTarget",
+                    "GrowthChamberInSelectTarget1"
                 ]
             }
         },
