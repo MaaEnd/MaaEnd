@@ -23580,7 +23580,7 @@
               {
                 "id": 2100021214,
                 "template_name": "eny_0063_agmelee2_001",
-                "key_name": "eny_0063_agmelee2_001",
+                "key_name": "eny_0063_agmelee2",
                 "raw_location": [
                   138.216,
                   101.01,
@@ -23598,7 +23598,7 @@
               {
                 "id": 2100021215,
                 "template_name": "eny_0064_agrange2_001",
-                "key_name": "eny_0064_agrange2_001",
+                "key_name": "eny_0064_agrange2",
                 "raw_location": [
                   50.87,
                   118.491,
@@ -23616,7 +23616,7 @@
               {
                 "id": 2100021216,
                 "template_name": "eny_0023_aghornb_001",
-                "key_name": "eny_0023_aghornb_001",
+                "key_name": "eny_0023_aghornb",
                 "raw_location": [
                   -62.875,
                   98.143,
@@ -76547,7 +76547,7 @@
               {
                 "id": 10100300007,
                 "template_name": "int_trchest_supplybox",
-                "key_name": "int_trchest_supplybox_01",
+                "key_name": "int_trchest_supplybox",
                 "raw_location": [
                   -542.892,
                   261.869,
@@ -94374,7 +94374,7 @@
               {
                 "id": 22800540275,
                 "template_name": "eny_0093_hshog_special01",
-                "key_name": "eny_0093_hshog_special01",
+                "key_name": "eny_0093_hshog",
                 "raw_location": [
                   -1116.818,
                   281.995,
@@ -94392,7 +94392,7 @@
               {
                 "id": 22800540276,
                 "template_name": "eny_0093_hshog_special01",
-                "key_name": "eny_0093_hshog_special01",
+                "key_name": "eny_0093_hshog",
                 "raw_location": [
                   -1137.295,
                   281.988,
@@ -94410,7 +94410,7 @@
               {
                 "id": 22800540277,
                 "template_name": "eny_0093_hshog_special01",
-                "key_name": "eny_0093_hshog_special01",
+                "key_name": "eny_0093_hshog",
                 "raw_location": [
                   -1126.167,
                   281.988,
@@ -101280,7 +101280,7 @@
               {
                 "id": 22800063165,
                 "template_name": "int_trchest_supplybox",
-                "key_name": "int_trchest_supplybox_01",
+                "key_name": "int_trchest_supplybox",
                 "raw_location": [
                   -821.184,
                   267.422,
@@ -101298,7 +101298,7 @@
               {
                 "id": 22800063167,
                 "template_name": "int_trchest_supplybox",
-                "key_name": "int_trchest_supplybox_01",
+                "key_name": "int_trchest_supplybox",
                 "raw_location": [
                   -839.636,
                   258.481,
@@ -101316,7 +101316,7 @@
               {
                 "id": 22800063168,
                 "template_name": "int_trchest_supplybox",
-                "key_name": "int_trchest_supplybox_01",
+                "key_name": "int_trchest_supplybox",
                 "raw_location": [
                   -824.38,
                   249.646,
@@ -101334,7 +101334,7 @@
               {
                 "id": 22800063173,
                 "template_name": "int_trchest_supplybox",
-                "key_name": "int_trchest_supplybox_01",
+                "key_name": "int_trchest_supplybox",
                 "raw_location": [
                   -822.04,
                   249.784,
@@ -101388,7 +101388,7 @@
               {
                 "id": 22800063191,
                 "template_name": "int_trchest_supplybox",
-                "key_name": "int_trchest_supplybox_01",
+                "key_name": "int_trchest_supplybox",
                 "raw_location": [
                   -819.936,
                   258.514,
@@ -109160,7 +109160,7 @@
               {
                 "id": 23300000277,
                 "template_name": "int_trchest_supplybox",
-                "key_name": "int_trchest_supplybox_01",
+                "key_name": "int_trchest_supplybox",
                 "raw_location": [
                   -206.157,
                   283.824,
@@ -109412,7 +109412,7 @@
               {
                 "id": 23300000392,
                 "template_name": "int_trchest_supplybox",
-                "key_name": "int_trchest_supplybox_01",
+                "key_name": "int_trchest_supplybox",
                 "raw_location": [
                   -262.546,
                   281.989,
@@ -109430,7 +109430,7 @@
               {
                 "id": 23300000393,
                 "template_name": "int_trchest_supplybox",
-                "key_name": "int_trchest_supplybox_01",
+                "key_name": "int_trchest_supplybox",
                 "raw_location": [
                   -317.87,
                   269.721,
@@ -129497,7 +129497,7 @@
               {
                 "id": 23200013568,
                 "template_name": "int_trchest_supplybox",
-                "key_name": "int_trchest_supplybox_03",
+                "key_name": "int_trchest_supplybox",
                 "raw_location": [
                   -312.37,
                   242.35,
@@ -129515,7 +129515,7 @@
               {
                 "id": 23200013569,
                 "template_name": "int_trchest_supplybox",
-                "key_name": "int_trchest_supplybox_03",
+                "key_name": "int_trchest_supplybox",
                 "raw_location": [
                   -244.029,
                   242.461,
@@ -129533,7 +129533,7 @@
               {
                 "id": 23200013570,
                 "template_name": "int_trchest_supplybox",
-                "key_name": "int_trchest_supplybox_03",
+                "key_name": "int_trchest_supplybox",
                 "raw_location": [
                   -228.06,
                   242.4,
@@ -129551,7 +129551,7 @@
               {
                 "id": 23200013571,
                 "template_name": "int_trchest_supplybox",
-                "key_name": "int_trchest_supplybox_03",
+                "key_name": "int_trchest_supplybox",
                 "raw_location": [
                   -263.369,
                   250.394,
@@ -141743,7 +141743,7 @@
               {
                 "id": 10200030344,
                 "template_name": "int_collection_trstar",
-                "key_name": "int_collection_trstar_high",
+                "key_name": "int_collection_trstar",
                 "raw_location": [
                   -471.877,
                   256.9,
@@ -145771,7 +145771,7 @@
               {
                 "id": 23100240133,
                 "template_name": "int_collection_trstar",
-                "key_name": "int_collection_trstar_high",
+                "key_name": "int_collection_trstar",
                 "raw_location": [
                   -132.516,
                   171.971,
@@ -146707,7 +146707,7 @@
               {
                 "id": 23100240226,
                 "template_name": "int_collection_trstar",
-                "key_name": "int_collection_trstar_high",
+                "key_name": "int_collection_trstar",
                 "raw_location": [
                   48.313,
                   128.37,
@@ -146725,7 +146725,7 @@
               {
                 "id": 23100240227,
                 "template_name": "int_collection_trstar",
-                "key_name": "int_collection_trstar_high",
+                "key_name": "int_collection_trstar",
                 "raw_location": [
                   -16.313,
                   129.315,
@@ -147625,7 +147625,7 @@
               {
                 "id": 23100010617,
                 "template_name": "int_collection_trstar",
-                "key_name": "int_collection_trstar_high",
+                "key_name": "int_collection_trstar",
                 "raw_location": [
                   101.285,
                   163.295,
@@ -148669,7 +148669,7 @@
               {
                 "id": 23100030978,
                 "template_name": "int_collection_trstar",
-                "key_name": "int_collection_trstar_high",
+                "key_name": "int_collection_trstar",
                 "raw_location": [
                   -378.68,
                   181.982,
@@ -149173,7 +149173,7 @@
               {
                 "id": 23100031132,
                 "template_name": "int_collection_trstar",
-                "key_name": "int_collection_trstar_high",
+                "key_name": "int_collection_trstar",
                 "raw_location": [
                   -527.69,
                   206.75,
@@ -150245,7 +150245,7 @@
               {
                 "id": 23100010151,
                 "template_name": "eny_0123_klcap_avoidcombat_nonstop",
-                "key_name": "eny_0123_klcap_avoidcombat_nonstop",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -20.832,
                   145.796,
@@ -150299,7 +150299,7 @@
               {
                 "id": 23100010506,
                 "template_name": "eny_0123_klcap_avoidcombat_nonstop",
-                "key_name": "eny_0123_klcap_avoidcombat_nonstop",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   51.39,
                   144.85,
@@ -150587,7 +150587,7 @@
               {
                 "id": 23100030154,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -233.768,
                   181.573,
@@ -150605,7 +150605,7 @@
               {
                 "id": 23100030158,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -209.703,
                   177.714,
@@ -150623,7 +150623,7 @@
               {
                 "id": 23100030159,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -219.518,
                   181.052,
@@ -150641,7 +150641,7 @@
               {
                 "id": 23100030160,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -227.087,
                   181.609,
@@ -150659,7 +150659,7 @@
               {
                 "id": 23100030196,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -223.706,
                   179.23,
@@ -150677,7 +150677,7 @@
               {
                 "id": 23100030246,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -226.742,
                   181.478,
@@ -150695,7 +150695,7 @@
               {
                 "id": 23100030247,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -221.226,
                   181.083,
@@ -150713,7 +150713,7 @@
               {
                 "id": 23100030289,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -258.687,
                   178.833,
@@ -150731,7 +150731,7 @@
               {
                 "id": 23100030316,
                 "template_name": "eny_0123_klcap_avoidcombat_nonstop",
-                "key_name": "eny_0123_klcap_avoidcombat_nonstop",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -292.247,
                   178.211,
@@ -150749,7 +150749,7 @@
               {
                 "id": 23100030326,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -234.615,
                   179.38,
@@ -150767,7 +150767,7 @@
               {
                 "id": 23100030335,
                 "template_name": "eny_0123_klcap_avoidcombat_nonstop",
-                "key_name": "eny_0123_klcap_avoidcombat_nonstop",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -262.85,
                   163.183,
@@ -150785,7 +150785,7 @@
               {
                 "id": 23100030355,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -202.053,
                   176.94,
@@ -150803,7 +150803,7 @@
               {
                 "id": 23100030387,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -203.249,
                   179.364,
@@ -150821,7 +150821,7 @@
               {
                 "id": 23100030388,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -206.719,
                   179.344,
@@ -150839,7 +150839,7 @@
               {
                 "id": 23100030400,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -198.268,
                   179.336,
@@ -150857,7 +150857,7 @@
               {
                 "id": 23100030401,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -213.706,
                   179.508,
@@ -150875,7 +150875,7 @@
               {
                 "id": 23100030441,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -199.392,
                   180.17,
@@ -150893,7 +150893,7 @@
               {
                 "id": 23100030464,
                 "template_name": "eny_0123_klcap_avoidcombat_nonstop",
-                "key_name": "eny_0123_klcap_avoidcombat_nonstop",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -257.737,
                   178.651,
@@ -150911,7 +150911,7 @@
               {
                 "id": 23100030465,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -252.374,
                   178.657,
@@ -150929,7 +150929,7 @@
               {
                 "id": 23100030466,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -251.096,
                   178.648,
@@ -150947,7 +150947,7 @@
               {
                 "id": 23100030472,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -217.22,
                   179.303,
@@ -150965,7 +150965,7 @@
               {
                 "id": 23100030473,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -220.119,
                   179.57,
@@ -150983,7 +150983,7 @@
               {
                 "id": 23100030623,
                 "template_name": "eny_0123_klcap_avoidcombat_nonstop",
-                "key_name": "eny_0123_klcap_avoidcombat_nonstop",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -242.244,
                   190.036,
@@ -151001,7 +151001,7 @@
               {
                 "id": 23100030669,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -283.09,
                   157.85,
@@ -151019,7 +151019,7 @@
               {
                 "id": 23100030671,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -270.61,
                   157.85,
@@ -151037,7 +151037,7 @@
               {
                 "id": 23100030731,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -301.066,
                   176.641,
@@ -151055,7 +151055,7 @@
               {
                 "id": 23100030776,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -223.411,
                   179.41,
@@ -151073,7 +151073,7 @@
               {
                 "id": 23100030777,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -193.436,
                   179.42,
@@ -151091,7 +151091,7 @@
               {
                 "id": 23100030791,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -231.926,
                   181.518,
@@ -151109,7 +151109,7 @@
               {
                 "id": 23100030989,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -224.857,
                   182.751,
@@ -151541,7 +151541,7 @@
               {
                 "id": 23100031078,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -222.164,
                   179.323,
@@ -151559,7 +151559,7 @@
               {
                 "id": 23100031079,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -213.72,
                   179.323,
@@ -151757,7 +151757,7 @@
               {
                 "id": 23100031108,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -262.687,
                   177.864,
@@ -151775,7 +151775,7 @@
               {
                 "id": 23100031163,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -233.484,
                   189.533,
@@ -151793,7 +151793,7 @@
               {
                 "id": 23100031164,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -233.251,
                   188.56,
@@ -151865,7 +151865,7 @@
               {
                 "id": 23100031234,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -191.498,
                   179.285,
@@ -151883,7 +151883,7 @@
               {
                 "id": 23100031235,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -189.47,
                   179.285,
@@ -151901,7 +151901,7 @@
               {
                 "id": 23100031248,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -323.455,
                   167.195,
@@ -151919,7 +151919,7 @@
               {
                 "id": 23100031249,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -315.69,
                   167.126,
@@ -151937,7 +151937,7 @@
               {
                 "id": 23100031250,
                 "template_name": "eny_0123_klcap_avoidcombat",
-                "key_name": "eny_0123_klcap_avoidcombat",
+                "key_name": "eny_0123_klcap",
                 "raw_location": [
                   -306.018,
                   171.896,
