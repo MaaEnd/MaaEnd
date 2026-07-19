@@ -227,5 +227,95 @@
         "focus": {
             "Node.Recognition.Succeeded": "正在查看任务位置"
         }
+    },
+    // ===== 抢单核心识别（go 链式调用 + 价格下限过滤）=====
+    "__SeizeDeliveryJobsRecoWulingToken": {
+        "desc": "武陵城委托标记（仅识别，go 扫描整列拿多 box）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            840,
+            190,
+            50,
+            430
+        ],
+        "template": [
+            "SeizeDeliveryJobs/DepotNodePage/WulingToken.png"
+        ],
+        "order_by": "Score"
+    },
+    "__SeizeDeliveryJobsRecoReward": {
+        "desc": "委托奖励金额（go per-box 覆写 roi）",
+        "recognition": "OCR",
+        "roi": [
+            840,
+            220,
+            50,
+            410
+        ],
+        "expected": [
+            "\\d+(\\.\\d+)?"
+        ],
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "__SeizeDeliveryJobsRecoOrigin": {
+        "desc": "委托出发地（go per-box 覆写 roi；expected 由 tasks 按地区覆写）",
+        "recognition": "OCR",
+        "roi": [
+            611,
+            182,
+            100,
+            410
+        ],
+        "expected": [
+            "武陵城",
+            "Wuling City",
+            "무릉성"
+        ],
+        "order_by": "Vertical"
+    },
+    "__SeizeDeliveryJobsRecoAccept": {
+        "desc": "接取运送委托按钮文本（go per-box 覆写 roi）",
+        "recognition": "OCR",
+        "roi": [
+            1066,
+            216,
+            70,
+            410
+        ],
+        "expected": [
+            "接取运送委托",
+            "接取運送委託",
+            "(?i)Accept\\s*Delivery\\s*Job",
+            "配達依頼を受ける",
+            "輸送依頼を受注",
+            "輸送依頼を受ける"
+        ],
+        "order_by": "Vertical"
+    },
+    "__SeizeDeliveryJobsRecoViewLocation": {
+        "desc": "查看位置按钮文本（go per-box 覆写 roi）",
+        "recognition": "OCR",
+        "roi": [
+            625,
+            212,
+            34,
+            410
+        ],
+        "expected": [
+            "查看位置",
+            "查看地點",
+            "(?i)View\\s*Location",
+            "位置を確認",
+            "위치 확인"
+        ],
+        "order_by": "Vertical"
+    },
+    "__SeizeDeliveryJobsMinReward": {
+        "desc": "价格下限配置仓库（不实际识别；expected 由 tasks 覆写为用户输入，go 读取 expected[0]）",
+        "recognition": "OCR",
+        "expected": [
+            "16.3"
+        ]
     }
 }

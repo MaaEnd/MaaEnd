@@ -30,20 +30,11 @@
             ]
         }, // 等待查看位置的大地图界面弹出
         "next": [
-            "SeizeDeliveryJobsEndpointFilterCheck"
+            "SeizeDeliveryJobsEndpointFilter"
         ]
     },
-    "SeizeDeliveryJobsEndpointFilterCheck": {
-        "desc": "在大地图中检查委托终点是否符合筛选",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "SeizeDeliveryJobsEndpointFilterWulingCity",
-            "SeizeDeliveryJobsEndpointFilterTestArea"
-        ]
-    },
-    "SeizeDeliveryJobsEndpointFilterWulingCity": {
-        "desc": "武陵城终点筛选入口",
+    "SeizeDeliveryJobsEndpointFilter": {
+        "desc": "终点筛选入口",
         "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
@@ -52,15 +43,6 @@
             "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute",
             "SeizeDeliveryJobsEndpointFilterObservatory",
             "SeizeDeliveryJobsEndpointFilterTechProductionOffice",
-            "SeizeDeliveryJobsEndpointNotMatched"
-        ]
-    },
-    "SeizeDeliveryJobsEndpointFilterTestArea": {
-        "desc": "试验园区终点筛选入口",
-        "enabled": false,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
             "SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea",
             "SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea",
             "SeizeDeliveryJobsEndpointFilterJingweiFieldArea",

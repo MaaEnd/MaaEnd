@@ -35,6 +35,7 @@
                 "TrialOfSwordmancy.Recognize",
                 "VisitFriendsSelectFriendRecognition",
                 "WeaponInventoryScanRecognition",
+                "SeizeDeliveryJobsFindTargetRecognition",
                 "SeizeDeliveryJobsScanTargetRecognition",
                 "autoEcoFarmCalculateSwipeTarget",
                 "autoEcoFarmFindNearestRecognitionResult"
