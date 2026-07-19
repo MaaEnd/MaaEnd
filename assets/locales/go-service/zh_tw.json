@@ -96,6 +96,8 @@
     "sellproduct.runtime.operator_unavailable": "❌ %s沒有可用的%s",
     "sellproduct.runtime.operator_scan_failed": "❌ %s的%s掃描失敗",
     "sellproduct.runtime.operator_cache_scan_failed": "❌ 幹員快取掃描失敗",
+    "sellproduct.runtime.operator_cache_loaded": "👥 已載入幹員列表快取，將直接進行幹員規劃",
+    "sellproduct.runtime.operator_cache_scanning": "👥 正在掃描並快取幹員列表，期間會瀏覽完整列表",
     "sellproduct.runtime.restore_skipped": "⚠️ %s沒有可用的恢復幹員，跳過恢復",
     "sellproduct.runtime.item_switched": "📦 已切換貨品：%s（%s）",
     "sellproduct.runtime.item_out_of_stock": "🚫 已確認缺貨並排除：%s（%s）",

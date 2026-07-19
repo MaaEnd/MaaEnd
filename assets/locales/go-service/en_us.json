@@ -96,6 +96,8 @@
     "sellproduct.runtime.operator_unavailable": "❌ %s has no available %s",
     "sellproduct.runtime.operator_scan_failed": "❌ %s: %s scan failed",
     "sellproduct.runtime.operator_cache_scan_failed": "❌ Operator cache scan failed",
+    "sellproduct.runtime.operator_cache_loaded": "👥 Loaded the operator list cache; proceeding directly to operator planning",
+    "sellproduct.runtime.operator_cache_scanning": "👥 Scanning and caching the operator list; the full list will be reviewed",
     "sellproduct.runtime.restore_skipped": "⚠️ %s has no available restore operator; skipping restoration",
     "sellproduct.runtime.item_switched": "📦 Switched goods: %s (%s)",
     "sellproduct.runtime.item_out_of_stock": "🚫 Confirmed out of stock and excluded: %s (%s)",

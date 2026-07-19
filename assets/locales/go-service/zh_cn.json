@@ -96,6 +96,8 @@
     "sellproduct.runtime.operator_unavailable": "❌ %s没有可用的%s",
     "sellproduct.runtime.operator_scan_failed": "❌ %s的%s扫描失败",
     "sellproduct.runtime.operator_cache_scan_failed": "❌ 干员缓存扫描失败",
+    "sellproduct.runtime.operator_cache_loaded": "👥 已加载干员列表缓存，将直接进行干员规划",
+    "sellproduct.runtime.operator_cache_scanning": "👥 正在扫描并缓存干员列表，期间会浏览完整列表",
     "sellproduct.runtime.restore_skipped": "⚠️ %s没有可用的恢复干员，跳过恢复",
     "sellproduct.runtime.item_switched": "📦 已切换货品：%s（%s）",
     "sellproduct.runtime.item_out_of_stock": "🚫 已确认缺货并排除：%s（%s）",

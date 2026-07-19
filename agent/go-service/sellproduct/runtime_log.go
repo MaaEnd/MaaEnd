@@ -214,6 +214,18 @@ func printRuntimeOperatorUnavailable(ctx *maa.Context, location string, usage st
 	))
 }
 
+func printRuntimeOperatorCacheStatus(ctx *maa.Context, ready bool) {
+	maafocus.Print(ctx, runtimeOperatorCacheStatusMessage(ready))
+}
+
+func runtimeOperatorCacheStatusMessage(ready bool) string {
+	key := "sellproduct.runtime.operator_cache_scanning"
+	if ready {
+		key = "sellproduct.runtime.operator_cache_loaded"
+	}
+	return i18n.T(key)
+}
+
 func printRuntimeOperatorScanFailed(ctx *maa.Context, location string, usage string) {
 	maafocus.Print(ctx, runtimeOperatorScanFailedMessage(location, usage))
 }

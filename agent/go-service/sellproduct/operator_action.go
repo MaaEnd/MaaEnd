@@ -138,7 +138,7 @@ func (r *CurrentBestOperatorRecognition) Run(
 
 // Run 将缓存是否可用转换为 Pipeline 可识别的布尔命中结果。
 func (r *OperatorCacheReadyRecognition) Run(
-	_ *maa.Context,
+	ctx *maa.Context,
 	arg *maa.CustomRecognitionArg,
 ) (*maa.CustomRecognitionResult, bool) {
 	if arg == nil {
@@ -154,6 +154,9 @@ func (r *OperatorCacheReadyRecognition) Run(
 	if err != nil {
 		log.Error().Err(err).Str("component", operatorCacheReadyRecognitionName).Msg("read operator cache failed")
 		return nil, false
+	}
+	if operatorSessionClaimCacheNotice() {
+		printRuntimeOperatorCacheStatus(ctx, ready)
 	}
 	if ready {
 		return &maa.CustomRecognitionResult{Detail: "cache_ready"}, true

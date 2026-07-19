@@ -192,3 +192,18 @@ func TestOperatorSessionAllowsOneRetryPerSelection(t *testing.T) {
 		t.Fatal("target and restore retries should be tracked separately")
 	}
 }
+
+func TestOperatorSessionPrintsCacheNoticeOnce(t *testing.T) {
+	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	if !operatorSessionClaimCacheNotice() {
+		t.Fatal("首次缓存提示应允许输出")
+	}
+	if operatorSessionClaimCacheNotice() {
+		t.Fatal("同一次任务不应重复输出缓存提示")
+	}
+
+	operatorSessionReset(operatorCacheModeCache)
+	if !operatorSessionClaimCacheNotice() {
+		t.Fatal("新任务应重新允许输出缓存提示")
+	}
+}

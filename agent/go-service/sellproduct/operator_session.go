@@ -37,6 +37,7 @@ type operatorSessionState struct {
 	LockedRestoreAssignments  map[string]operatorCandidate
 	ExcludedOperators         map[string]struct{}
 	RetriedSelections         map[string]struct{}
+	CacheNoticePrinted        bool
 	Refreshed                 bool
 }
 
@@ -203,6 +204,7 @@ func operatorSessionSnapshot() operatorSessionState {
 		LockedRestoreAssignments:  cloneRestoreAssignments(operatorSession.LockedRestoreAssignments),
 		ExcludedOperators:         cloneStringSet(operatorSession.ExcludedOperators),
 		RetriedSelections:         cloneStringSet(operatorSession.RetriedSelections),
+		CacheNoticePrinted:        operatorSession.CacheNoticePrinted,
 		Refreshed:                 operatorSession.Refreshed,
 	}
 }
@@ -313,6 +315,18 @@ func operatorSessionClaimRetry(usage string, location string) bool {
 		return false
 	}
 	operatorSession.RetriedSelections[key] = struct{}{}
+	return true
+}
+
+// 保证缓存加载或扫描提示在一次任务中只输出一次，避免识别节点重试时重复刷屏。
+func operatorSessionClaimCacheNotice() bool {
+	operatorStateMu.Lock()
+	defer operatorStateMu.Unlock()
+	ensureOperatorSessionLocked()
+	if operatorSession.CacheNoticePrinted {
+		return false
+	}
+	operatorSession.CacheNoticePrinted = true
 	return true
 }
 

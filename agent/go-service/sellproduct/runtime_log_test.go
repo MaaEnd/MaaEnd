@@ -41,6 +41,16 @@ func TestRuntimeMessagesContainCurrentState(t *testing.T) {
 			message:  runtimeOperatorScanFailedMessage("global", operatorActionUsageAll),
 			expected: []string{"干员缓存扫描失败"},
 		},
+		{
+			name:     "加载干员缓存",
+			message:  runtimeOperatorCacheStatusMessage(true),
+			expected: []string{"已加载干员列表缓存"},
+		},
+		{
+			name:     "扫描干员缓存",
+			message:  runtimeOperatorCacheStatusMessage(false),
+			expected: []string{"正在扫描并缓存干员列表"},
+		},
 	}
 
 	for _, test := range tests {
