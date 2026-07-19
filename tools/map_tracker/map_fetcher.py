@@ -12,7 +12,6 @@
 #   python map_fetcher.py image -i/--input-dir <dir> -o/--output-dir <dir> [--match <kw>] [--no-tiers]
 
 import os
-import re
 import json
 import argparse
 import numpy as np
@@ -77,12 +76,6 @@ TIER_IMAGE_API = APIEndpoint(
 
 SCALE_MAP_FACTOR = 0.1625
 """Scale factor to convert *unscaled coordinates* to *converted coordinates*."""
-
-_RE_LAYOUT_FILE = re.compile(r"^([a-z]+\d*)_layout\.json$")
-"""Regex to match remote layout JSON file names. Regex group #1 is `region_name`."""
-
-_RE_INCLUDED_REGION_NAME = re.compile(r"^(map\d+)|(base\d+)|(dung\d+)|(indie)$")
-"""Regex to match included region names. Used to filter out unwanted regions from layouts."""
 
 
 def _save_json(data: dict | list, dest: str, *, sort_dict: bool) -> None:
@@ -233,32 +226,6 @@ def cmd_json(output_dir: str, use_cache: bool = False) -> None:
 # ── image subcommand ──────────────────────────────────────────────────────────
 
 
-def load_layouts(layout_dir: str) -> dict[str, RegionLayoutTable]:
-    """Load all *_layout.json files from layout_dir, returns region_name -> layout."""
-    layouts: dict[str, RegionLayoutTable] = {}
-    for fname in os.listdir(layout_dir):
-        # 1. Match with layout file pattern
-        m = _RE_LAYOUT_FILE.match(fname)
-        if not m:
-            continue
-        region_name = m.group(1)
-
-        # 2. Filter out unwanted region names
-        if not _RE_INCLUDED_REGION_NAME.match(region_name):
-            print(f"  {_A}Skipped: {fname}{_0}")
-            continue
-
-        # 3. Load layout file
-        try:
-            layouts[region_name] = RegionLayoutTable.load(
-                os.path.join(layout_dir, fname)
-            )
-            print(f"  {_A}Collected: {fname}{_0}")
-        except Exception as e:
-            print(f"  {_Y}Warning: failed to load {fname}: {e}{_0}")
-    return layouts
-
-
 def split_levels(
     canvas: np.ndarray,
     layout: RegionLayoutTable,
@@ -319,7 +286,9 @@ def cmd_image(
 ) -> None:
     """Download region images, split into levels, save to output_dir."""
     print(f"Loading layouts from {_C}{input_dir}{_0}...")
-    layouts = load_layouts(input_dir)
+    layouts = RegionLayoutTable.load_from_dir(
+        input_dir, include_pattern=RegionLayoutTable.RE_INCLUDED_REGION_NAME
+    )
     print(f"  {len(layouts)} layout(s) loaded")
 
     # Track which regions were processed for tier downloading

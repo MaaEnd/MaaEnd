@@ -45,8 +45,6 @@ FEATHER_KSIZE = 17
 FEATHER_SIGMA = 4.0
 """Gaussian sigma for edge feathering (ownership + tier ring)."""
 
-_RE_LAYOUT_FILE = re.compile(r"^([a-z]+\d*)_layout\.json$")
-
 
 def _feather_mask(mask: np.ndarray, ksize: int, sigma: float) -> np.ndarray:
     """Gaussian-blur a binary mask into soft alpha in [0, 1]."""
@@ -89,22 +87,6 @@ class LevelMapDistinguisher:
         self.output_dir = output_dir
         self.data_dir = data_dir
 
-    def _load_layouts(self) -> dict[str, RegionLayoutTable]:
-        """Load all *_layout.json files from data_dir."""
-        layouts: dict[str, RegionLayoutTable] = {}
-        for fname in os.listdir(self.data_dir):
-            m = _RE_LAYOUT_FILE.match(fname)
-            if not m:
-                continue
-            region_name = m.group(1)
-            try:
-                layouts[region_name] = RegionLayoutTable.load(
-                    os.path.join(self.data_dir, fname)
-                )
-            except Exception as e:
-                print(f"  {_Y}Warning: failed to load {fname}: {e}{_0}")
-        return layouts
-
     def _load_level_maps(self) -> dict[str, np.ndarray]:
         """Load level images (files containing '_lv') from input directory.
         Images are immediately converted to 3-channel RGB so all downstream
@@ -116,7 +98,7 @@ class LevelMapDistinguisher:
                 continue
             if fname.startswith("_"):
                 continue
-            if "_lv" not in fname:
+            if "lv" not in fname and "dg" not in fname:
                 continue
             name = fname[:-4]
             path = os.path.join(self.input_dir, fname)
@@ -561,7 +543,9 @@ class LevelMapDistinguisher:
 
         # Load layouts
         print(f"\nLoading layouts...")
-        layouts = self._load_layouts()
+        layouts = RegionLayoutTable.load_from_dir(
+            self.data_dir, include_pattern=RegionLayoutTable.RE_INCLUDED_REGION_NAME
+        )
         if not layouts:
             print(f"{_Y}No layout files found in {self.data_dir}{_0}")
             return
