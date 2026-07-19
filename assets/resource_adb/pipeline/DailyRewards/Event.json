@@ -1,0 +1,35 @@
+{
+    "DailyEventGoToFinish": {
+        "recognition": {
+            "param": {
+                // 注意避免x轴<0越界
+                "roi_offset": [
+                    -50,
+                    -50,
+                    20,
+                    100
+                ]
+            }
+        }
+    },
+    "DailyEventRecognitionRedDot": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    21,
+                    100,
+                    260,
+                    530
+                ]
+            }
+        }
+    },
+    "DailyEventRecognitionNew": {
+        "roi": [
+            21,
+            100,
+            260,
+            530
+        ]
+    }
+}
