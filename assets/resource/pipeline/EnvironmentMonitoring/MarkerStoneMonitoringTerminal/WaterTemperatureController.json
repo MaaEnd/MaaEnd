@@ -233,6 +233,80 @@
             "GoToWaterTemperatureController"
         ]
     },
+    "WaterTemperatureControllerOpenTrackedMissionMap": {
+        "desc": "净水温控装置任务已在追踪中，点击定位按钮进入任务地图",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringTrackedMissionMapButton",
+            "InWaterTemperatureControllerMission"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WaterTemperatureControllerInQuickTeleportMap"
+        ]
+    },
+    "WaterTemperatureControllerInQuickTeleportMap": {
+        "desc": "已进入净水温控装置任务地图，准备快捷传送",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringQuickTeleportSelectButton",
+            "InWaterTemperatureControllerMission"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WaterTemperatureControllerQuickTeleportSelect"
+        ]
+    },
+    "WaterTemperatureControllerQuickTeleportSelect": {
+        "desc": "在净水温控装置任务地图中点击前往传送",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringQuickTeleportSelectButton",
+            "InWaterTemperatureControllerMission"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WaterTemperatureControllerQuickTeleport"
+        ]
+    },
+    "WaterTemperatureControllerQuickTeleport": {
+        "desc": "在净水温控装置任务地图中点击传送",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WaterTemperatureControllerQuickTeleportDone",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "WaterTemperatureControllerQuickTeleportDone": {
+        "desc": "快捷传送完成，已返回大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GoToWaterTemperatureControllerStartPos"
+        ]
+    },
     "WaterTemperatureControllerNotAdapted": {
         "desc": "净水温控装置任务尚未适配，仅接取并追踪",
         "pre_delay": 0,

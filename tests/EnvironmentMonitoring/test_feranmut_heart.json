@@ -1,0 +1,30 @@
+{
+    "configs": {
+        "name": "环境监测：巨兽心脏",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "武陵_任务_拍摄巨兽心脏_开始追踪.png",
+            "hits": [
+                "InFeranmutHeartMission",
+                "TrackMissionButton",
+                "FeranmutHeartTrackOrGoTo",
+                "TrackFeranmutHeart"
+            ]
+        },
+        {
+            "image": "武陵_地图_拍摄巨兽心脏_前往传送.png",
+            "hits": [
+                "InFeranmutHeartMission",
+                "FeranmutHeartTrackOrGoTo",
+                "FeranmutHeartInQuickTeleportMap",
+                "FeranmutHeartQuickTeleportSelect"
+            ]
+        }
+    ]
+}

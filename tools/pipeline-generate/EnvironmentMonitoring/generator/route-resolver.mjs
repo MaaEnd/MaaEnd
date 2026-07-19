@@ -15,6 +15,7 @@ export const ROUTE_CONFIG_FIELDS = [
     "Replace",
     "Heading",
     "NoEnsureInitialMovementState",
+    "QuickTeleport",
 ];
 
 export const REQUIRED_ROUTE_FIELDS = [
@@ -195,11 +196,16 @@ export function createRouteResolver(routeConfig, options = {}) {
         resolve(mission) {
             const missionName = mission?.name?.["zh-CN"] || mission?.missionId || "UnknownMission";
             const override = getRouteOverride(mission, routeOverrides);
+            const QuickTeleport = override?.QuickTeleport === true;
 
             const resolved = {};
             const missingFields = [];
             for (const key of REQUIRED_ROUTE_FIELDS) {
                 const overrideValue = override?.[key];
+                if (key === "EnterMap" && QuickTeleport) {
+                    resolved[key] = isFieldMissing(overrideValue) ? UNREACHABLE_ROUTE_PLACEHOLDER[key] : overrideValue;
+                    continue;
+                }
                 if (isFieldMissing(overrideValue)) {
                     missingFields.push(key);
                     resolved[key] = UNREACHABLE_ROUTE_PLACEHOLDER[key];
@@ -269,6 +275,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                 CameraMaxHit,
                 Replace,
                 NoEnsureInitialMovementState,
+                QuickTeleport,
                 ShouldAssertAfterTeleport: navigationConfigCount !== 1 || hasMapPath,
                 ...heading,
                 ...buildNavigationParams({

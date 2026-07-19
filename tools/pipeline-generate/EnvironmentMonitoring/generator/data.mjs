@@ -46,7 +46,11 @@ function buildRow(mission) {
         `Track${Id}`,
         `AlreadyTracked${Id}`,
     ];
-    const AfterTrackedNext = route.isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
+    const defaultAfterTrackedNext = route.isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
+    const afterTrackNext =
+        route.isAdapted && route.QuickTeleport ? [`${Id}InQuickTeleportMap`] : defaultAfterTrackedNext;
+    const afterAlreadyTrackedNext =
+        route.isAdapted && route.QuickTeleport ? [`${Id}OpenTrackedMissionMap`] : defaultAfterTrackedNext;
     // NavMesh 可自行处理传送点附近的落点；手录路径仍需确认固定起点。
     const AfterTeleportDescription = route.ShouldAssertAfterTeleport ? "先传送再检查落点" : "先传送再继续寻路";
     const AfterTeleportNext = route.ShouldAssertAfterTeleport ? [`GoTo${Id}StartPos`] : [`GoTo${Id}Move`];
@@ -66,7 +70,8 @@ function buildRow(mission) {
         InExpectedText: buildExpectedFromLocaleMap(ShotTargetName),
         OcrReplace: rawJson(route.Replace),
         TrackOrGoToNext: rawJson(TrackOrGoToNext),
-        AfterTrackedNext: rawJson(AfterTrackedNext),
+        AfterTrackNext: rawJson(afterTrackNext),
+        AfterAlreadyTrackedNext: rawJson(afterAlreadyTrackedNext),
         AfterTeleportDescription,
         AfterTeleportNext: rawJson(AfterTeleportNext),
         MapNavigationAction: route.MapNavigationAction,

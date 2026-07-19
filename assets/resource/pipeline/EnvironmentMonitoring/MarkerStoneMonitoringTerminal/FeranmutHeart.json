@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "FeranmutHeartNotAdapted"
+            "FeranmutHeartInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedFeranmutHeart": {
@@ -230,7 +230,81 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "FeranmutHeartNotAdapted"
+            "FeranmutHeartOpenTrackedMissionMap"
+        ]
+    },
+    "FeranmutHeartOpenTrackedMissionMap": {
+        "desc": "巨兽心脏任务已在追踪中，点击定位按钮进入任务地图",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringTrackedMissionMapButton",
+            "InFeranmutHeartMission"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FeranmutHeartInQuickTeleportMap"
+        ]
+    },
+    "FeranmutHeartInQuickTeleportMap": {
+        "desc": "已进入巨兽心脏任务地图，准备快捷传送",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringQuickTeleportSelectButton",
+            "InFeranmutHeartMission"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FeranmutHeartQuickTeleportSelect"
+        ]
+    },
+    "FeranmutHeartQuickTeleportSelect": {
+        "desc": "在巨兽心脏任务地图中点击前往传送",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringQuickTeleportSelectButton",
+            "InFeranmutHeartMission"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FeranmutHeartQuickTeleport"
+        ]
+    },
+    "FeranmutHeartQuickTeleport": {
+        "desc": "在巨兽心脏任务地图中点击传送",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FeranmutHeartQuickTeleportDone",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "FeranmutHeartQuickTeleportDone": {
+        "desc": "快捷传送完成，已返回大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GoToFeranmutHeartMove"
         ]
     },
     "FeranmutHeartNotAdapted": {
@@ -262,18 +336,14 @@
     "GoToFeranmutHeartStartPos": {
         "desc": "在巨兽心脏任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "^map\\d+_lv\\d+$",
-                    "target": [
-                        0,
-                        0,
-                        1,
-                        1
-                    ]
-                }
+            "zone_id": "IndieDg007Tier338",
+            "target": [
+                55.7,
+                61.18,
+                154.44,
+                140.9
             ]
         },
         "pre_delay": 0,
@@ -284,7 +354,7 @@
         ]
     },
     "GoToFeranmutHeartNotAtStartPos": {
-        "desc": "不在巨兽心脏任务开始位置附近，先传送再检查落点",
+        "desc": "不在巨兽心脏任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -296,21 +366,27 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToFeranmutHeartStartPos"
+            "GoToFeranmutHeartMove"
         ]
     },
     "GoToFeranmutHeartMove": {
         "desc": "自动寻路前往巨兽心脏",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "^map\\d+_lv\\d+$",
             "path": [
-                [
-                    0,
-                    0
-                ]
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        144.48,
+                        128.11
+                    ]
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 270
+                }
             ]
         },
         "anchor": {
@@ -325,7 +401,7 @@
     },
     "FeranmutHeartAdjustCamera": {
         "desc": "巨兽心脏任务中调整朝向",
-        "max_hit": 2,
+        "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

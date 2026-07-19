@@ -912,7 +912,22 @@
     {
         "MissionId": "m1m71",
         "Name": "巨兽心脏",
-        "Id": "FeranmutHeart"
+        "Id": "FeranmutHeart",
+        "QuickTeleport": true,
+        "MapName": "IndieDg007Tier338",
+        "MapAssert": [
+            55.7,
+            61.18,
+            154.44,
+            140.9
+        ],
+        "MapTarget": [
+            144.48,
+            128.11
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "CameraMaxHit": 1,
+        "Heading": 270
     },
     {
         "MissionId": "m1m72",

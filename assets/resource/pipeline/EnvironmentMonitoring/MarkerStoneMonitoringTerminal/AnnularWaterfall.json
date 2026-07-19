@@ -233,6 +233,80 @@
             "GoToAnnularWaterfall"
         ]
     },
+    "AnnularWaterfallOpenTrackedMissionMap": {
+        "desc": "环形瀑布任务已在追踪中，点击定位按钮进入任务地图",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringTrackedMissionMapButton",
+            "InAnnularWaterfallMission"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AnnularWaterfallInQuickTeleportMap"
+        ]
+    },
+    "AnnularWaterfallInQuickTeleportMap": {
+        "desc": "已进入环形瀑布任务地图，准备快捷传送",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringQuickTeleportSelectButton",
+            "InAnnularWaterfallMission"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AnnularWaterfallQuickTeleportSelect"
+        ]
+    },
+    "AnnularWaterfallQuickTeleportSelect": {
+        "desc": "在环形瀑布任务地图中点击前往传送",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringQuickTeleportSelectButton",
+            "InAnnularWaterfallMission"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AnnularWaterfallQuickTeleport"
+        ]
+    },
+    "AnnularWaterfallQuickTeleport": {
+        "desc": "在环形瀑布任务地图中点击传送",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AnnularWaterfallQuickTeleportDone",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "AnnularWaterfallQuickTeleportDone": {
+        "desc": "快捷传送完成，已返回大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GoToAnnularWaterfallStartPos"
+        ]
+    },
     "AnnularWaterfallNotAdapted": {
         "desc": "环形瀑布任务尚未适配，仅接取并追踪",
         "pre_delay": 0,

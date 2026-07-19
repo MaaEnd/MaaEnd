@@ -233,6 +233,80 @@
             "GoToEcologyNearTheFieldLogisticsDepot"
         ]
     },
+    "EcologyNearTheFieldLogisticsDepotOpenTrackedMissionMap": {
+        "desc": "储备站周围的生态环境任务已在追踪中，点击定位按钮进入任务地图",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringTrackedMissionMapButton",
+            "InEcologyNearTheFieldLogisticsDepotMission"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EcologyNearTheFieldLogisticsDepotInQuickTeleportMap"
+        ]
+    },
+    "EcologyNearTheFieldLogisticsDepotInQuickTeleportMap": {
+        "desc": "已进入储备站周围的生态环境任务地图，准备快捷传送",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringQuickTeleportSelectButton",
+            "InEcologyNearTheFieldLogisticsDepotMission"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EcologyNearTheFieldLogisticsDepotQuickTeleportSelect"
+        ]
+    },
+    "EcologyNearTheFieldLogisticsDepotQuickTeleportSelect": {
+        "desc": "在储备站周围的生态环境任务地图中点击前往传送",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringQuickTeleportSelectButton",
+            "InEcologyNearTheFieldLogisticsDepotMission"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EcologyNearTheFieldLogisticsDepotQuickTeleport"
+        ]
+    },
+    "EcologyNearTheFieldLogisticsDepotQuickTeleport": {
+        "desc": "在储备站周围的生态环境任务地图中点击传送",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EcologyNearTheFieldLogisticsDepotQuickTeleportDone",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "EcologyNearTheFieldLogisticsDepotQuickTeleportDone": {
+        "desc": "快捷传送完成，已返回大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GoToEcologyNearTheFieldLogisticsDepotMove"
+        ]
+    },
     "EcologyNearTheFieldLogisticsDepotNotAdapted": {
         "desc": "储备站周围的生态环境任务尚未适配，仅接取并追踪",
         "pre_delay": 0,

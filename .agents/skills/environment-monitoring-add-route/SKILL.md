@@ -47,7 +47,7 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、MapAsse
 
 | 字段                   | 说明                                                                                                                                 |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `EnterMap`             | 真实传送节点（通常为 `SceneEnterWorld*`），必须已存在于 `assets/resource/pipeline/SceneManager/`                                     |
+| 传送入口               | 默认填写真实 `EnterMap`（通常为 `SceneEnterWorld*`）；或启用 `QuickTeleport: true`，从追踪任务地图快捷传送                           |
 | `MapName`              | `MapPath`：MapTracker `map_name`，可用正则；`MapGoal`：可加载 NavMesh 的精确 MapTracker `map_name`；`MapTarget`：MapLocate `zone_id` |
 | `MapAssert`            | 初始位置矩形 `[x, y, w, h]`；`MapPath` / `MapGoal` 使用 MapTracker 坐标，`MapTarget` 使用 MapLocate 坐标                             |
 | 三选一的寻路字段       | `MapPath` / `MapTarget` / `MapGoal` 必须且只能填写一个                                                                               |
@@ -65,13 +65,14 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、MapAsse
 
 ### 可选字段
 
-| 字段                           | 使用条件与写法                                                                                                      |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| `MapTargetTier`                | 仅用于 `MapTarget`。目标点取自 tier 底图且与起点不在同一层时填写 MapNavigator `target_tier`；否则省略               |
-| `CameraMaxHit`                 | 摄像头最大滑屏次数，默认 2；只有实测需要其他值时才写                                                                |
-| `Replace`                      | OCR 易混字符替换表 `[["误识别", "正确字符"], ...]`；仅有实际误识别证据时填写                                        |
-| `Heading`                      | 到达拍照点后的角色朝向，范围 `[0, 360)`；与 `CameraSwipeDirection` 的摄像头滑动相互独立                             |
-| `NoEnsureInitialMovementState` | 仅对 `MapPath` / `MapGoal` 的 MapTracker 动作有意义。起点紧贴桥边、悬崖等危险地形时设为 `true`；默认 `false` 时省略 |
+| 字段                           | 使用条件与写法                                                                                                         |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `MapTargetTier`                | 仅用于 `MapTarget`。目标点取自 tier 底图且与起点不在同一层时填写 MapNavigator `target_tier`；否则省略                  |
+| `CameraMaxHit`                 | 摄像头最大滑屏次数，默认 2；只有实测需要其他值时才写                                                                   |
+| `Replace`                      | OCR 易混字符替换表 `[["误识别", "正确字符"], ...]`；仅有实际误识别证据时填写                                           |
+| `Heading`                      | 到达拍照点后的角色朝向，范围 `[0, 360)`；与 `CameraSwipeDirection` 的摄像头滑动相互独立                                |
+| `NoEnsureInitialMovementState` | 仅对 `MapPath` / `MapGoal` 的 MapTracker 动作有意义。起点紧贴桥边、悬崖等危险地形时设为 `true`；默认 `false` 时省略    |
+| `QuickTeleport`                | 可选布尔值，默认 `false`。启用后依次点击任务地图的“前往传送”和“传送”，绕过 `EnterMap` 万能跳转；此时 `EnterMap` 可省略 |
 
 所有坐标均使用 720p（1280×720）基准，并与录制工具所用地图体系保持一致。
 
@@ -99,7 +100,7 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 
 用户没有一次性提供全部数据时，每次只询问一个字段，按以下顺序进行：
 
-1. `EnterMap`
+1. 传送入口：真实 `EnterMap`，或已实测任务地图支持的 `QuickTeleport: true`
 2. 寻路方式：`MapPath` / `MapTarget` / `MapGoal`
 3. `MapName`
 4. `MapAssert`
@@ -115,7 +116,7 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 
 ### 3. 验证传送节点
 
-在 `assets/resource/pipeline/SceneManager/` 中搜索 `EnterMap`，确认节点真实存在。
+使用默认传送入口时，在 `assets/resource/pipeline/SceneManager/` 中搜索 `EnterMap`，确认节点真实存在。启用 `QuickTeleport: true` 时跳过此项，但必须已有任务详情页、任务地图和传送按钮的实测界面信息。
 
 若不存在：
 
@@ -136,7 +137,7 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 - `MapPath` 的每个坐标对单独一行；
 - `MapPath` / `MapTarget` / `MapGoal` 只能保留一个；切换模式时删除旧模式字段；
 - `MapTargetTier` 只能与 `MapTarget` 同时存在；
-- 默认值不写：`CameraMaxHit: 2`、`NoEnsureInitialMovementState: false`；
+- 默认值不写：`CameraMaxHit: 2`、`NoEnsureInitialMovementState: false`、`QuickTeleport: false`；
 - 不确定的可选值直接省略，不写占位值或 TODO 注释；
 - 不手改 `Name` / `Id` 排序或 locale 失败提示，这些内容由同步器维护。
 
