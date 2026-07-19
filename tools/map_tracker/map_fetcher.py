@@ -79,16 +79,16 @@ SCALE_MAP_FACTOR = 0.1625
 """Scale factor to convert *unscaled coordinates* to *converted coordinates*."""
 
 _RE_LAYOUT_FILE = re.compile(r"^(\w+\d+)_layout\.json$")
-"""Regex to match remote layout JSON file names.
+"""Regex to match remote layout JSON file names. Regex group #1 is `region_name`."""
 
-Groups:
-1. region_name
-"""
+_RE_INCLUDED_REGION_NAME = re.compile(r"^(map\d+)|(base\d+)|(indie)$")
+"""Regex to match included region names. Used to filter out unwanted regions from layouts."""
 
 
 def _save_json(data: dict | list, dest: str, *, sort_dict: bool) -> None:
-    if isinstance(data, dict) and sort_dict:
-        data = dict(sorted(data.items()))
+    if isinstance(data, dict):
+        if sort_dict:
+            data = dict(sorted(data.items()))
     elif not isinstance(data, list):
         raise ValueError(f"Data must be a dict or list, got {type(data)}")
     with open(dest, "w", encoding="utf-8") as f:
@@ -136,8 +136,9 @@ def test_entities_data(entities_table: EntitiesTable) -> bool:
 
     # 2. Test some specific entities
     TEST_CASES = [
-        (22800030005, "campfire", 423.64512, 575.81365),  # 武陵城东门传送锚点
-        (23400083018, "campfire", 498.95625, 199.86563),  # 首墩蓄水站传送锚点
+        (2100000031, "campfire", 392.57918, 498.66680),  # 枢纽区资源回收站传送锚点
+        (22800030005, "campfire", 423.64512, 575.81367),  # 武陵城东门传送锚点
+        (23400083018, "campfire", 498.95625, 199.86586),  # 首墩蓄水站传送锚点
         (25000000462, "campfire", 601.68164, 479.32676),  # 藏剑谷演武传送锚点
     ]
 
@@ -236,14 +237,23 @@ def load_layouts(layout_dir: str) -> dict[str, RegionLayoutTable]:
     """Load all *_layout.json files from layout_dir, returns region_name -> layout."""
     layouts: dict[str, RegionLayoutTable] = {}
     for fname in os.listdir(layout_dir):
+        # 1. Match with layout file pattern
         m = _RE_LAYOUT_FILE.match(fname)
         if not m:
             continue
         region_name = m.group(1)
+
+        # 2. Filter out unwanted region names
+        if not _RE_INCLUDED_REGION_NAME.match(region_name):
+            print(f"  {_A}Skipped: {fname}{_0}")
+            continue
+
+        # 3. Load layout file
         try:
             layouts[region_name] = RegionLayoutTable.load(
                 os.path.join(layout_dir, fname)
             )
+            print(f"  {_A}Collected: {fname}{_0}")
         except Exception as e:
             print(f"  {_Y}Warning: failed to load {fname}: {e}{_0}")
     return layouts
@@ -308,9 +318,9 @@ def cmd_image(
     no_tiers: bool = False,
 ) -> None:
     """Download region images, split into levels, save to output_dir."""
-    print(f"  Loading layouts from {_C}{input_dir}{_0}...")
+    print(f"Loading layouts from {_C}{input_dir}{_0}...")
     layouts = load_layouts(input_dir)
-    print(f"  {len(layouts)} layout(s) loaded.")
+    print(f"  {len(layouts)} layout(s) loaded")
 
     # Track which regions were processed for tier downloading
     processed_regions: list[str] = []
@@ -378,7 +388,7 @@ def cmd_image(
                     print(f"    {_format_image_repr(dest, img, size)}")
                     tier_count += 1
 
-            print(f"\n  {_G}Downloaded {tier_count} tier image(s){_0}")
+            print(f"\n  Downloaded {tier_count} tier image(s)")
 
 
 # ── version subcommand ────────────────────────────────────────────────────────
