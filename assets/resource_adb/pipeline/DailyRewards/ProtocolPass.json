@@ -1,0 +1,22 @@
+{
+    "DailyProtocolRecognitionRedDot": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    21,
+                    100,
+                    260,
+                    530
+                ]
+            }
+        }
+    },
+    "DailyProtocolRecognitionNew": {
+        "roi": [
+            21,
+            100,
+            260,
+            530
+        ]
+    }
+}
