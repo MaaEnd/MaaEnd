@@ -1,0 +1,20 @@
+{
+    "AutoSellStockRedistributionItemOpenInFriendsSwipe": {
+        "action": "Swipe",
+        "begin": [
+            800,
+            500
+        ],
+        "end": [
+            [
+                800,
+                300
+            ],
+            [
+                900,
+                300
+            ]
+        ],
+        "end_hold": 200
+    }
+}

@@ -128,6 +128,28 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoSellStockRedistributionItemOpenInFriendsSwipe"
+        ]
+    },
+    "AutoSellStockRedistributionItemOpenInFriendsSwipe": {
+        "desc": "当前在好友界面，尝试滑动查找目标物资,ADB端滑动,win32无动作",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            600,
+            150
+        ],
+        "template": [
+            "AutoSell/StockRedistributionValleyIVChoose.png",
+            "AutoSell/StockRedistributionValleyIVNotChoose.png"
+        ],
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "post_delay": 0,
+        "action": "DoNothing",
+        "next": [
             "AutoSellTicketValleyIVOverflow",
             "AutoSellStockRedistributionItemOpenInFriends",
             "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToValleyIV"
