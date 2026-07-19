@@ -37,7 +37,6 @@ function collectMissingFields(route) {
         return ["route"];
     }
 
-    const fields = REQUIRED_ROUTE_FIELDS.filter((field) => isFieldMissing(route[field]));
     const hasMapPath = !isFieldMissing(route.MapPath);
     const hasMapTarget = !isFieldMissing(route.MapTarget);
     const hasMapGoal = !isFieldMissing(route.MapGoal);
@@ -46,6 +45,17 @@ function collectMissingFields(route) {
         hasMapTarget,
         hasMapGoal,
     ].filter(Boolean).length;
+    const quickTeleport = route.QuickTeleport === true;
+    const canSkipMapAssert = quickTeleport && navigationConfigCount === 1 && (hasMapTarget || hasMapGoal);
+    const fields = REQUIRED_ROUTE_FIELDS.filter((field) => {
+        if (field === "EnterMap" && quickTeleport) {
+            return false;
+        }
+        if (field === "MapAssert" && canSkipMapAssert) {
+            return false;
+        }
+        return isFieldMissing(route[field]);
+    });
 
     if (navigationConfigCount === 0) {
         fields.push("MapPath/MapTarget/MapGoal");
