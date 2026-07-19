@@ -55,7 +55,7 @@
         }
     },
     "VisitFriendsRecognitionItemWithName": {
-        "desc": "识别进船按钮与对应好友名",
+        "desc": "识别进船按钮与对应好友名（含线索锚点，供选友）",
         "recognition": "And",
         "all_of": [
             "VisitFriendsRecognitionItemEnterButton",
@@ -63,6 +63,35 @@
             "VisitFriendsRecognitionItemNameByEnterButton"
         ],
         "box_index": 2
+    },
+    "VisitFriendsRecognitionItemNameByEnterButtonForScroll": {
+        "desc": "滚动专用：直接以进船按钮为锚识别好友名，不依赖线索交换图标",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                // 等价于 ClueExchange(相对 EnterButton [24,-15,4,5]) 再叠 Name 偏移 [-1093,-14,214,0]
+                "roi": "VisitFriendsRecognitionItemEnterButton",
+                "roi_offset": [
+                    -1069,
+                    -29,
+                    218,
+                    5
+                ],
+                "expected": [
+                    ".*#.*"
+                ],
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "VisitFriendsRecognitionItemWithNameForScroll": {
+        "desc": "滚动专用 And：进船按钮 ∧ 好友名，不检查线索交换（供 ListComplete）",
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsRecognitionItemEnterButton",
+            "VisitFriendsRecognitionItemNameByEnterButtonForScroll"
+        ],
+        "box_index": 1
     },
     "VisitFriendsRecognitionItemDetailControlNexusAssist": {
         "desc": "在详情界面识别总控中枢",
