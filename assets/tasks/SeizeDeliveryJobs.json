@@ -104,6 +104,171 @@
                 }
             ]
         },
+        "SeizeDeliveryJobsSpecifyDeliveryPointWulingCity": {
+            "type": "switch",
+            "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SeizeDeliveryJobsDeliveryPointWulingCity"
+                    ],
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsFindTarget": {
+                            "enabled": false
+                        },
+                        "SeizeDeliveryJobsScanTarget": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilter": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsDeliveryPointWulingCity": {
+            "type": "checkbox",
+            "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.label",
+            "default_case": [
+                "Owl",
+                "MaterialResearchInstitute",
+                "Observatory",
+                "TechProductionOffice"
+            ],
+            "cases": [
+                {
+                    "name": "Owl",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.Owl.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterOwl": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "MaterialResearchInstitute",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.MaterialResearchInstitute.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Observatory",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.Observatory.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterObservatory": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "TechProductionOffice",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.TechProductionOffice.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterTechProductionOffice": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsSpecifyDeliveryPointTestArea": {
+            "type": "switch",
+            "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SeizeDeliveryJobsDeliveryPointTestArea"
+                    ],
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsFindTarget": {
+                            "enabled": false
+                        },
+                        "SeizeDeliveryJobsScanTarget": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilter": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsDeliveryPointTestArea": {
+            "type": "checkbox",
+            "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.label",
+            "default_case": [
+                "No1TypeCAnchorArea",
+                "No3TypeCAnchorArea",
+                "JingweiFieldArea"
+            ],
+            "cases": [
+                {
+                    "name": "No1TypeCAnchorArea",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.No1TypeCAnchorArea.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No3TypeCAnchorArea",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.No3TypeCAnchorArea.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "JingweiFieldArea",
+                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.JingweiFieldArea.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsEndpointFilterJingweiFieldArea": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsSpecifyDeliveryPointUnlimited": {
+            "type": "switch",
+            "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SeizeDeliveryJobsDeliveryPointWulingCity",
+                        "SeizeDeliveryJobsDeliveryPointTestArea"
+                    ],
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsFindTarget": {
+                            "enabled": false
+                        },
+                        "SeizeDeliveryJobsScanTarget": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilter": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
         "SeizeDeliveryJobsPostProcessing": {
             "type": "select",
             "default_case": "Disable",
@@ -229,160 +394,6 @@
                     "pipeline_override": {
                         "SeizeDeliveryJobsMain": {
                             "max_hit": 3
-                        }
-                    }
-                }
-            ]
-        },
-        "SeizeDeliveryJobsSpecifyDeliveryPointWulingCity": {
-            "type": "switch",
-            "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
-            "cases": [
-                {
-                    "name": "No"
-                },
-                {
-                    "name": "Yes",
-                    "option": [
-                        "SeizeDeliveryJobsDeliveryPointWulingCity"
-                    ],
-                    "pipeline_override": {
-                        "SeizeDeliveryJobsFindTarget": {
-                            "enabled": false
-                        },
-                        "SeizeDeliveryJobsScanTarget": {
-                            "enabled": true
-                        },
-                        "SeizeDeliveryJobsEndpointFilter": {
-                            "enabled": true
-                        }
-                    }
-                }
-            ]
-        },
-        "SeizeDeliveryJobsSpecifyDeliveryPointTestArea": {
-            "type": "switch",
-            "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
-            "cases": [
-                {
-                    "name": "No"
-                },
-                {
-                    "name": "Yes",
-                    "option": [
-                        "SeizeDeliveryJobsDeliveryPointTestArea"
-                    ],
-                    "pipeline_override": {
-                        "SeizeDeliveryJobsFindTarget": {
-                            "enabled": false
-                        },
-                        "SeizeDeliveryJobsScanTarget": {
-                            "enabled": true
-                        },
-                        "SeizeDeliveryJobsEndpointFilter": {
-                            "enabled": true
-                        }
-                    }
-                }
-            ]
-        },
-        "SeizeDeliveryJobsSpecifyDeliveryPointUnlimited": {
-            "type": "switch",
-            "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
-            "cases": [
-                {
-                    "name": "No"
-                },
-                {
-                    "name": "Yes",
-                    "option": [
-                        "SeizeDeliveryJobsDeliveryPointWulingCity",
-                        "SeizeDeliveryJobsDeliveryPointTestArea"
-                    ]
-                }
-            ]
-        },
-        "SeizeDeliveryJobsDeliveryPointWulingCity": {
-            "type": "checkbox",
-            "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.label",
-            "default_case": [
-                "Owl",
-                "MaterialResearchInstitute",
-                "Observatory",
-                "TechProductionOffice"
-            ],
-            "cases": [
-                {
-                    "name": "Owl",
-                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.Owl.label",
-                    "pipeline_override": {
-                        "SeizeDeliveryJobsEndpointFilterOwl": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "MaterialResearchInstitute",
-                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.MaterialResearchInstitute.label",
-                    "pipeline_override": {
-                        "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "Observatory",
-                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.Observatory.label",
-                    "pipeline_override": {
-                        "SeizeDeliveryJobsEndpointFilterObservatory": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "TechProductionOffice",
-                    "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.cases.TechProductionOffice.label",
-                    "pipeline_override": {
-                        "SeizeDeliveryJobsEndpointFilterTechProductionOffice": {
-                            "enabled": true
-                        }
-                    }
-                }
-            ]
-        },
-        "SeizeDeliveryJobsDeliveryPointTestArea": {
-            "type": "checkbox",
-            "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.label",
-            "default_case": [
-                "No1TypeCAnchorArea",
-                "No3TypeCAnchorArea",
-                "JingweiFieldArea"
-            ],
-            "cases": [
-                {
-                    "name": "No1TypeCAnchorArea",
-                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.No1TypeCAnchorArea.label",
-                    "pipeline_override": {
-                        "SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No3TypeCAnchorArea",
-                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.No3TypeCAnchorArea.label",
-                    "pipeline_override": {
-                        "SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "JingweiFieldArea",
-                    "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.cases.JingweiFieldArea.label",
-                    "pipeline_override": {
-                        "SeizeDeliveryJobsEndpointFilterJingweiFieldArea": {
-                            "enabled": true
                         }
                     }
                 }
