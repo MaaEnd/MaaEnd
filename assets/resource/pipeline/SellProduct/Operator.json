@@ -19,6 +19,50 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "SellProductCheckAssignText": {
+        "desc": "识别联络干员派驻按钮文本",
+        "recognition": "OCR",
+        "roi": [
+            900,
+            540,
+            330,
+            135
+        ],
+        "expected": [
+            "派驻",
+            "派駐",
+            "Assign",
+            "派遣",
+            "배치"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProductCheckWithdrawText": {
+        "desc": "识别联络干员撤下按钮文本",
+        "recognition": "OCR",
+        "roi": [
+            900,
+            540,
+            330,
+            135
+        ],
+        "expected": [
+            "撤下",
+            "撤下",
+            "Remove",
+            "外す",
+            "철수"
+        ],
+        "replace": [
+            "撒",
+            "撤"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "SellProductOperatorAlreadyAssignedPrompt": {
         "desc": "联络干员已派驻到其他据点确认弹窗",
         "recognition": "OCR",

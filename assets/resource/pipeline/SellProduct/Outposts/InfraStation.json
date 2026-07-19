@@ -174,20 +174,12 @@
     },
     "SellProductInfraStationConfirmTargetOperator": {
         "desc": "基建前站点击派驻确认售卖用干员",
-        "recognition": "OCR",
-        "roi": [
-            900,
-            540,
-            330,
-            135
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckAssignText",
+            "WhiteConfirmButtonType1"
         ],
-        "expected": [
-            "派驻",
-            "派駐",
-            "Assign",
-            "派遣",
-            "배치"
-        ],
+        "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {
@@ -338,9 +330,10 @@
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison",
+            "SellProductCheckWithdrawText",
             "CloseButtonType1"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {
@@ -632,20 +625,12 @@
     },
     "SellProductInfraStationConfirmRestoreOperator": {
         "desc": "基建前站点击派驻确认恢复干员",
-        "recognition": "OCR",
-        "roi": [
-            900,
-            540,
-            330,
-            135
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckAssignText",
+            "WhiteConfirmButtonType1"
         ],
-        "expected": [
-            "派驻",
-            "派駐",
-            "Assign",
-            "派遣",
-            "배치"
-        ],
+        "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {
@@ -796,9 +781,10 @@
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison",
+            "SellProductCheckWithdrawText",
             "CloseButtonType1"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {

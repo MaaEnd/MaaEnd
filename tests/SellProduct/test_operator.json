@@ -11,23 +11,25 @@
         {
             "image": "四号谷地_地区建设_据点_难民暂居处.png",
             "hits": [
-                "SellProductOpenOperatorLiaisonButton"
+                "SellProductOpenOperatorLiaisonButton",
+                "WhiteConfirmButtonType1"
             ]
         },
         {
             "image": "四号谷地_地区建设_据点_联络干员_派驻.png",
             "hits": [
                 "SellProductInOperatorLiaison",
+                "SellProductCheckAssignText",
+                "WhiteConfirmButtonType1",
                 "SellProductInfraStationConfirmTargetOperator",
-                "SellProductInfraStationConfirmRestoreOperator",
-                "SellProductInfraStationCloseTargetOperatorLiaison",
-                "SellProductInfraStationCloseRestoreOperatorLiaison"
+                "SellProductInfraStationConfirmRestoreOperator"
             ]
         },
         {
             "image": "四号谷地_地区建设_据点_联络干员_撤下.png",
             "hits": [
                 "SellProductInOperatorLiaison",
+                "SellProductCheckWithdrawText",
                 "SellProductInfraStationCloseTargetOperatorLiaison",
                 "SellProductInfraStationCloseRestoreOperatorLiaison"
             ]
@@ -36,6 +38,7 @@
             "image": "武陵_地区建设_据点_联络干员_撤下.png",
             "hits": [
                 "SellProductInOperatorLiaison",
+                "SellProductCheckWithdrawText",
                 "SellProductInfraStationCloseTargetOperatorLiaison",
                 "SellProductInfraStationCloseRestoreOperatorLiaison"
             ]
@@ -44,10 +47,10 @@
             "image": "四号谷地_地区建设_据点_重建指挥部_联络干员_确认更改派驻.png",
             "hits": [
                 "SellProductInOperatorLiaison",
+                "SellProductCheckAssignText",
+                "WhiteConfirmButtonType1",
                 "SellProductInfraStationConfirmTargetOperator",
                 "SellProductInfraStationConfirmRestoreOperator",
-                "SellProductInfraStationCloseTargetOperatorLiaison",
-                "SellProductInfraStationCloseRestoreOperatorLiaison",
                 "SellProductOperatorAlreadyAssignedPrompt"
             ]
         }

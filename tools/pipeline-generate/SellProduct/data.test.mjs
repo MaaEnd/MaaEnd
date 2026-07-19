@@ -361,10 +361,7 @@ test("SellProduct 按启用据点边界处理已派驻干员冲突", () => {
         "Restore",
     ]) {
         assert.match(pipelineTemplate, new RegExp(`SellProduct\\$\\{LocationId\\}${usage}OperatorManagedConflict`));
-        assert.match(
-            pipelineTemplate,
-            new RegExp(`SellProduct\\$\\{LocationId\\}${usage}OperatorProtectedConflict`),
-        );
+        assert.match(pipelineTemplate, new RegExp(`SellProduct\\$\\{LocationId\\}${usage}OperatorProtectedConflict`));
         assert.match(
             pipelineTemplate,
             new RegExp(`SellProduct\\$\\{LocationId\\}Cancel${usage}OperatorAlreadyAssigned`),
@@ -390,9 +387,18 @@ test("SellProduct 按启用据点边界处理已派驻干员冲突", () => {
             ),
         );
         const prefix = `SellProduct${location.LocationId}`;
-        for (const [usageName, usage] of [
-            ["Target", "target"],
-            ["Restore", "restore"],
+        for (const [
+            usageName,
+            usage,
+        ] of [
+            [
+                "Target",
+                "target",
+            ],
+            [
+                "Restore",
+                "restore",
+            ],
         ]) {
             const managed = pipeline[`${prefix}${usageName}OperatorManagedConflict`];
             const protectedConflict = pipeline[`${prefix}${usageName}OperatorProtectedConflict`];
@@ -431,6 +437,21 @@ test("SellProduct 按启用据点边界处理已派驻干员冲突", () => {
                 custom_recognition_param: {result: "protected", ...expectedParam},
             });
             assert.equal(protectedConflict.all_of[2], "CancelButton");
+
+            const close = pipeline[`${prefix}Close${usageName}OperatorLiaison`];
+            assert.deepEqual(close.all_of, [
+                "SellProductInOperatorLiaison",
+                "SellProductCheckWithdrawText",
+                "CloseButtonType1",
+            ]);
+            assert.equal(close.box_index, 2);
+
+            const confirm = pipeline[`${prefix}Confirm${usageName}Operator`];
+            assert.equal(confirm.recognition, "And");
+            assert.equal(confirm.all_of[0], "SellProductCheckAssignText");
+            assert.equal(confirm.all_of[1], "WhiteConfirmButtonType1");
+            assert.equal(confirm.box_index, 1);
+            assert.equal(confirm.target_offset, undefined);
         }
     }
 });
