@@ -844,10 +844,10 @@
                                 "param": {
                                     "roi": "AutoStockInStapleItemName",
                                     "roi_offset": [
-                                        39,
-                                        -212,
-                                        25,
-                                        63
+                                        37,
+                                        -190,
+                                        10,
+                                        28
                                     ],
                                     "lower": [
                                         0,
@@ -1929,10 +1929,10 @@
                                 "param": {
                                     "roi": "AutoStockInStapleItemName",
                                     "roi_offset": [
-                                        39,
-                                        -212,
-                                        25,
-                                        63
+                                        37,
+                                        -190,
+                                        10,
+                                        28
                                     ],
                                     "method": 40,
                                     "lower": [
