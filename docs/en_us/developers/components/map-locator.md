@@ -1,71 +1,60 @@
 # Developer Guide - MapLocator Minimap Localization System
 
-## Introduction
+MapLocator is a native C++ minimap localization system that combines AI inference with traditional computer vision algorithms. It outputs the map area the character is currently in (ZoneID), the global pixel coordinates `(x, y)`, and the orientation angle.
 
-This document explains how to use nodes related to **MapLocator**.
+It is also the position source for [MapNavigator](./map-navigator.md) — every position judgment made during navigation comes from MapLocator's per-frame recognition.
 
-**MapLocator** is a next-generation minimap localization system developed in native C++, deeply integrating AI and traditional computer vision algorithms. It can robustly output the map area the player is currently in (usually the map name/ZoneID), the global pixel coordinates $(x, y)$, and the current rotation angle, even under severe visual interference like heavy skill effects. This system is designed for extreme scenarios involving heavy UI occlusion and intense lighting changes, achieving millisecond-level precision localization with extremely low system overhead.
+- [MapLocateRecognition](#maplocaterecognition)
+- [MapLocateAssertLocation](#maplocateassertlocation)
+- [How Localization Works](#how-localization-works)
 
-### Scope and Limitations
-
-MapLocator acts strictly as the "bright eyes of the system"—providing high-frequency, high-precision **coordinate and rotation recognition**, and belongs to the Recognition layer. To achieve actions like "making the character run to a specified coordinate", you need to integrate a pathfinding algorithm (e.g., A\*) in the outer layer and issue control codes for physical operations (like mouse rotation, keyboard movement) through the Action layer. This module does not automatically take over game control.
-
-### MapLocator Core Architecture
-
-1. **Native Compute Advantage and OpenCV Integration**
-   This system runs as an independent `cpp-algo` process component connected to the Pipeline. Thanks to the native C++ and OpenCV underlying image pipeline and highly optimized memory processing, it maintains extremely low runtime latency even with the inclusion of YOLO model inference.
-2. **Robust Dynamic Environment Awareness with YOLO Pre-filtering**
-   The system deploys an independently trained YOLOv26-small model as a pre-validation stream for scene recognition. Based on the confidence score, the model can directly confirm whether a valid minimap area (Minimap ROI) exists in the current frame, quickly filtering out disturbances caused by abnormal scenes such as full-screen menus or heavy particle occlusion, significantly reducing false positive rates.
-3. **Gradient-Domain ZNCC Matching and Interference Resistance**
-   Built into the system is a gradient feature extraction and ZNCC (Zero-mean Normalized Cross-Correlation) template matching mechanism optimized directly for multi-layer Alpha rendering (semi-transparent UI stacking). It maintains high matching robustness relying on edge features and contour weights when encountering flashing skill effects or drastic UI changes.
-4. **Tracking Optimization via Internal MotionTracker Engine**
-   The system internally records and analyzes the historical movement speed of the character. When proceeding to the next frame recognition, the algorithm will not blindly perform a global search. Instead, it estimates a reasonable movement radius (Search Bounds) for the character at that moment based on the instantaneous speed calculated from previous frames. This narrows the template matching scope, greatly boosting computation speed, and avoids erroneously matching distant but remarkably similar color blocks.
+MapLocator belongs to the Recognition layer and is only responsible for coordinate and orientation recognition; it does not take over game control. To make the character move to a specified coordinate, use [MapNavigator](./map-navigator.md), which already implements pathfinding and movement control on top of MapLocator; alternatively, you can write your own control logic based on the `out_detail` output.
 
 ---
 
-## Node Description
+## MapLocateRecognition
 
-The following sections detail the usage of the nodes provided by MapLocator. This node is designed as a `Custom` type in MAA and can be directly embedded into the Pipeline. It is highly recommended that the subsequent control/Action layer directly capture the high-precision numerical values from its output (`out_detail`) to determine movement logic.
+Retrieves the zone name (ZoneID) where the character is currently located, along with exact coordinates and rotation.
 
-### custom_recognition: MapLocateRecognition
+Each call processes a single frame. The locator keeps its tracking state across calls: a regular call only searches locally near the previous position, and tracking is declared lost after `max_lost_frames` consecutive frames without a valid result, falling back to a global search. For continuous tracking, invoke this node repeatedly at a high frequency through the Pipeline's loop mechanism (e.g., linking `next` back to itself).
 
-Retrieves the large map zone name (ZoneID or mapName) where the player is currently located, along with exact coordinates and rotation.
+### Node Parameters
 
-#### Node Parameters
+No required parameters. Optional parameters (`custom_recognition_param`):
 
-**Run Mechanism**: Calling the `MapLocateRecognition` node will process **one and only one frame (the current valid screenshot)** of minimap calculation and return the coordinates. If you need continuous, real-time tracking like a "radar," you must wrap it using the Pipeline's loop mechanism (e.g., using `next` to loop the node itself or nesting it in a loop node) to invoke it at a high frequency and provide a continuous stream of data.
+| Parameter             | Default | Description                                                                                                                                                              |
+| --------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `loc_threshold`       | `0.55`  | Lower bound of the template matching score. Lower it appropriately (e.g., `0.45`) when heavy interference causes frequent localization loss                              |
+| `yolo_threshold`      | `0.70`  | Minimum confidence for YOLO to accept a minimap area. Setting it too low may misidentify other disc-shaped UIs as the minimap                                            |
+| `force_global_search` | `false` | Set to `true` after cross-region teleports, respawns, or long screen switches to abandon tracking and re-lock via a full-map search                                      |
+| `max_lost_frames`     | `3`     | Consecutive frames without a valid result before tracking is declared lost. Raising it tolerates brief occlusion but also lengthens how long an incorrect state persists |
+| `expected_zone_id`    | Empty   | When non-empty, only localization results in this zone are accepted. Useful when the character's area is already known                                                   |
 
-**Required Parameters**: **None**
+### Return Value (out_detail)
 
-**Optional Parameters (`custom_recognition_param`)**:
-Supports passing advanced parameter settings in JSON object format to override defaults and specifically fine-tune the locator for extreme or specialized scenarios.
+| Field       | Description                                                        |
+| ----------- | ------------------------------------------------------------------ |
+| `status`    | Status code, see the table below                                   |
+| `message`   | Failure reason or debug information                                |
+| `mapName`   | (On success) The localized zone name, e.g., `map01_lv001`          |
+| `x` / `y`   | (On success) Global pixel coordinates                              |
+| `rot`       | (On success) Orientation yaw angle, 0°–360°, north as zero         |
+| `locConf`   | Confidence score of this hit, for reference when tuning parameters |
+| `latencyMs` | Time consumed by this calculation (milliseconds)                   |
 
-- `loc_threshold`: A floating-point number in the range $[0, 1]$, default is `0.55`. Controls the most lenient primary score threshold for image matching features. If the environment is exceedingly complex and causes frequent unexpected tracking losses, you can appropriately lower this (e.g., `0.45`); in normal situations, it's recommended to keep the default or increase it slightly to guarantee precision.
-- `yolo_threshold`: A floating-point number in the range $[0, 1]$, default is `0.70`. The minimum confidence threshold for YOLO to judge map UI categories. A value too low may misidentify UIs similar to mini-maps (like circular menus).
-- `force_global_search`: Boolean, default is `false`. For extreme optimization, daily tracking only follows the area matching the player's last location (Local Search). However, when experiencing massive region transitions, respawn teleports, or recovering from a long screen freeze, you should set this to `true` to force a full-map global scan to lock the position.
-- `max_lost_frames`: Integer, default is `3`. Defines how many continuous frames the system is allowed to fail a valid result detection before officially declaring "Tracking Lost". Increasing this value enhances transition capabilities through brief UI blockages but simultaneously extends the false-lock duration.
+`status` values:
 
-#### Return Value Structure (Out Detail)
+| Value | Enum            | Meaning                                                                                              |
+| ----- | --------------- | ---------------------------------------------------------------------------------------------------- |
+| `0`   | `Success`       | Localization succeeded                                                                               |
+| `1`   | `TrackingLost`  | Tracking lost; falling back to a global search still produced no match                               |
+| `2`   | `ScreenBlocked` | The frame is occluded over a large area; no valid features can be extracted                          |
+| `3`   | `Teleported`    | Displacement between two frames exceeds the normal movement speed limit, judged as a forced teleport |
+| `4`   | `YoloFailed`    | YOLO pre-filtering determined that the current frame contains no minimap area                        |
 
-Upon successful localization or termination of detection, the node will output complete status feedback in a JSON structure to the `out_detail` pipeline and the console. This can be used for complex business flow routing or error handling:
+### Examples
 
-- `status`: [Internal status code enumeration]
-    - `0 (Success)`: Successfully localized.
-    - `1 (TrackingLost)`: Tracking dropped (global burst search also yielded no results).
-    - `2 (ScreenBlocked)`: Image overwhelmed/occluded by unknown, massive obstructions.
-    - `3 (Teleported)`: Coordinate displacement between two frames severely exceeded human/vehicle movement limits, deduced as a forced teleportation.
-    - `4 (YoloFailed)`: The initial YOLO model confirmed the current game screenshot does not contain a minimap recognition area.
-- `mapName`: (On Success) The large map area name with the highest localization matching degree (e.g., "map01_lv001").
-- `x`: (On Success) The global pixel coordinate on the X-axis (horizontal).
-- `y`: (On Success) The global pixel coordinate on the Y-axis (vertical).
-- `rot`: (On Success) The true yaw angle computed output (high precision, usually $0^\circ \sim 360^\circ$ with North as zero).
-- `locConf`: The final hit confidence score, often used as a reference when fine-tuning parameters.
-- `latencyMs`: The total natural milliseconds consumed by the node's algorithm execution, useful for performance monitoring.
-
-#### Usage Examples
-
-**Minimal Invocation (Recommended for basic usage):**
-Thanks to a robust internal adaptive initialization flow, in most cases, you can simply call `MapLocateRecognition` directly as shown below, without passing any extra parameters. The system will automatically use YOLO inference to locate the associated map and carry out fully automated long-term tracking:
+Minimal invocation (in most cases no parameters are needed; the node determines the zone through YOLO and enters tracking automatically):
 
 ```json
 {
@@ -77,8 +66,7 @@ Thanks to a robust internal adaptive initialization flow, in most cases, you can
 }
 ```
 
-**Advanced Invocation (Passing extra parameters):**
-When executing a long-distance respawn teleport, or when you need to skip the previous calculation and forcefully specify coordinate tracking in a designated map, you can use `custom_recognition_param` to override the parameters:
+Overriding parameters (e.g., forcing a global search after a long-distance teleport):
 
 ```json
 {
@@ -95,38 +83,48 @@ When executing a long-distance respawn teleport, or when you need to skip the pr
 }
 ```
 
-### custom_recognition: MapLocateAssertLocation
+---
 
-Checks whether the player is currently inside a specified rectangle within a given `zone_id`.
+## MapLocateAssertLocation
 
-This node is essentially a thin wrapper around `MapLocateRecognition`: it performs one localization pass first, then validates whether the returned `zone_id` and `(x, y)` satisfy the target condition. It is a pure recognition/assertion node. It does not move the character and does not alter navigation state.
+Checks whether the character is currently inside a specified rectangle within a given `zone_id`.
 
-#### Node Parameters
+Unlike the single-frame check of `MapLocateRecognition`, this node performs a **settled determination**: it resets the tracking state, forces a global search, then polls at 250ms intervals (up to 60 frames, about 15 seconds). It requires 3 consecutive frames with successful localization, a matching zone, and positions stable within a 12px radius, and finally checks the centroid coordinate against the rectangle. A call may therefore block for several seconds — it is not instantaneous.
 
-**Required Parameters (`custom_recognition_param`)**:
+### Node Parameters
 
-- `zone_id`: Target zone name. It must exactly match the localized zone name.
-- `target`: An array of 4 numbers `[x, y, w, h]`, representing the top-left corner and the rectangle width and height.
+Required parameters (`custom_recognition_param`):
 
-**Optional Parameters (`custom_recognition_param`)**:
+| Parameter | Description                                                           |
+| --------- | --------------------------------------------------------------------- |
+| `zone_id` | Target zone name; must exactly match the localized zone name          |
+| `target`  | Array of 4 numbers `[x, y, w, h]`: rectangle top-left corner and size |
 
-- `loc_threshold`: Same meaning as in [MapLocateRecognition](#custom_recognition-maplocaterecognition).
-- `yolo_threshold`: Same meaning as in [MapLocateRecognition](#custom_recognition-maplocaterecognition).
-- `force_global_search`: Same meaning as in [MapLocateRecognition](#custom_recognition-maplocaterecognition).
+Optional parameters (`custom_recognition_param`):
 
-#### Return Value Structure (Out Detail)
+| Parameter        | Default | Description                                                                                                                      |
+| ---------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `loc_threshold`  | `0.70`  | Lower bound of the template matching score, same meaning as above; note the default is higher than for single-frame localization |
+| `yolo_threshold` | `0.70`  | Same meaning as above                                                                                                            |
 
-This node also writes a JSON object to `out_detail`. Common fields include:
+The assertion always forces a global search and only accepts localization results inside `zone_id`; no search-scope configuration is needed.
 
-- `status`: Underlying localization status code, with the same meaning as `MapLocateRecognition`.
-- `matched`: Boolean. `true` only when both the zone and the rectangle match.
-- `inTarget`: Equivalent to `matched`, provided for direct "inside target area" checks.
-- `message`: Underlying localization log or failure reason.
-- `zoneId`: The target zone name required by this assertion.
-- `x` / `y` / `rot` / `locConf` / `latencyMs`: The localization result for this check; only meaningful when localization succeeds.
-- `target`: Echoes the `[x, y, w, h]` rectangle used for this assertion.
+### Return Value (out_detail)
 
-#### Usage Example
+| Field       | Description                                                      |
+| ----------- | ---------------------------------------------------------------- |
+| `status`    | Localization status code, same meaning as `MapLocateRecognition` |
+| `matched`   | `true` only when both the zone and the rectangle match           |
+| `inTarget`  | Equivalent to `matched`                                          |
+| `message`   | Localization log or failure reason                               |
+| `zoneId`    | The target zone name required by this assertion                  |
+| `x` / `y`   | (On success) Centroid coordinates of the stable window           |
+| `rot`       | (On success) Orientation yaw angle                               |
+| `locConf`   | Confidence score of this hit                                     |
+| `latencyMs` | Time consumed by this calculation (milliseconds)                 |
+| `target`    | Echoes the `[x, y, w, h]` rectangle used for this assertion      |
+
+### Example
 
 ```json
 {
@@ -149,4 +147,19 @@ This node also writes a JSON object to `out_detail`. Common fields include:
 
 > [!TIP]
 >
-> This node is useful as an entry guard before `MapNavigateAction`. For example, you can first confirm that the character is already near a portal landing area, and then decide whether to continue with the corresponding route.
+> This node works well as an entry guard before `MapNavigateAction`: confirm the character is in the expected area first, then start the navigation. The companion tool's `Assert Mode` can export this node by dragging a rectangle directly; see [MapNavigator](./map-navigator.md).
+
+---
+
+## How Localization Works
+
+This section is for readers who want to understand the internals; it is not required for everyday use.
+
+1. **Native C++ image pipeline**: integrated into the Pipeline as an independent `cpp-algo` process. Image processing is built on C++ / OpenCV and optimized for memory copying, keeping latency at millisecond level even with YOLO inference included.
+2. **YOLO pre-filtering**: judges by confidence whether a valid minimap area exists in the current frame, filtering out abnormal frames such as full-screen menus and effect occlusion.
+3. **Gradient-domain ZNCC matching**: gradient features are extracted for semi-transparent UI stacking scenarios, paired with ZNCC (Zero-mean Normalized Cross-Correlation) template matching. Matching relies mainly on edge and contour features, staying stable when skill effects flash or the UI changes.
+4. **MotionTracker motion prediction**: infers the search range for the current frame from historical movement speed instead of searching globally every frame, which improves speed and avoids matching distant areas that look similar but are not actually reachable.
+
+> [!IMPORTANT]
+>
+> The per-frame recognition result is the only source of position truth. When localization is briefly lost, you **should not** derive a "virtual position" from motion prediction to fill the gap — this lets the upper layer keep acting without any actual observation, and the error accumulates with no way to self-correct. The correct approach is to rely on the `max_lost_frames` transition and the global search recovery mechanism.

@@ -42,16 +42,16 @@ The following nodes can be called directly within Pipelines. It is recommended t
 
 The following nodes are implemented based on Go/C++ and have high business-specific features. According to the [coding standards](./coding-standards.md#go-service-standards), they should not be used unnecessarily.
 
-| Node                                            | Description                                                 | Documentation                                                              |
-| ----------------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------- |
-| SubTask / ClearHitCount / ExpressionRecognition | Sub-task scheduling, count clearing, expression recognition | [custom.md](./custom.md)                                                   |
-| AutoFight                                       | Automatic operation during combat                           | [components/auto-fight.md](./components/auto-fight.md)                     |
-| CharacterController                             | Character view rotation, movement, facing targets           | [components/character-controller.md](./components/character-controller.md) |
-| BetterSliding                                   | Discrete quantity slider adjustment                         | [components/better-sliding.md](./components/better-sliding.md)             |
-| MapLocator                                      | AI + CV minimap positioning                                 | [components/map-locator.md](./components/map-locator.md)                   |
-| MapTracker                                      | Minimap tracking and path movement                          | [components/map-tracker.md](./components/map-tracker.md)                   |
-| MapNavigator                                    | High-precision automatic navigation + BaseNav A\* preview   | [components/map-navigator.md](./components/map-navigator.md)               |
-| RecoGrid Engine                                 | C++ grid recognition and rolling cumulative scanning engine | [components/recogrid-engine.md](./components/recogrid-engine.md)           |
+| Node                                            | Description                                                                                                    | Documentation                                                              |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| SubTask / ClearHitCount / ExpressionRecognition | Sub-task scheduling, count clearing, expression recognition                                                    | [custom.md](./custom.md)                                                   |
+| AutoFight                                       | Automatic operation during combat                                                                              | [components/auto-fight.md](./components/auto-fight.md)                     |
+| CharacterController                             | Character view rotation, movement, facing targets                                                              | [components/character-controller.md](./components/character-controller.md) |
+| BetterSliding                                   | Discrete quantity slider adjustment                                                                            | [components/better-sliding.md](./components/better-sliding.md)             |
+| MapLocator                                      | AI + CV minimap positioning                                                                                    | [components/map-locator.md](./components/map-locator.md)                   |
+| MapNavigator                                    | Automatic pathfinding: reaches a target coordinate without recording; routes with interactions can be recorded | [components/map-navigator.md](./components/map-navigator.md)               |
+| MapTracker                                      | Minimap tracking and path movement                                                                             | [components/map-tracker.md](./components/map-tracker.md)                   |
+| RecoGrid Engine                                 | C++ grid recognition and rolling cumulative scanning engine                                                    | [components/recogrid-engine.md](./components/recogrid-engine.md)           |
 
 ## Task Maintenance Documentation
 

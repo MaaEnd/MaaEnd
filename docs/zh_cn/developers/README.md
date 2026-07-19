@@ -83,7 +83,7 @@ flowchart TD
 | [RecoGrid Engine 网格扫描](./components/recogrid-engine.md)          | C++ 网格识别、多模板分类与滚动累计扫描引擎          |
 | [MapLocator 小地图定位](./components/map-locator.md)                 | 基于 AI + CV 的小地图定位系统，输出区域、坐标与朝向 |
 | [MapTracker 小地图追踪](./components/map-tracker.md)                 | 基于计算机视觉的小地图追踪与路径移动                |
-| [MapNavigator 路径导航](./components/map-navigator.md)               | 高精度自动导航 Action，附带 GUI 录制工具            |
+| [MapNavigator 路径导航](./components/map-navigator.md)               | 路径导航 Action，支持免录制的目标式寻路与 GUI 录制  |
 
 ### 任务维护文档（`tasks/`）
 

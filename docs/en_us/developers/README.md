@@ -83,7 +83,7 @@ Consult as needed. Only required when using the corresponding component.
 | [RecoGrid Engine](./components/recogrid-engine.md)          | C++ grid recognition, multi-template classification, and scroll accumulation scanning engine   |
 | [MapLocator](./components/map-locator.md)                   | AI + CV based minimap positioning system, outputs region, coordinates, and orientation         |
 | [MapTracker](./components/map-tracker.md)                   | Computer vision based minimap tracking and path movement                                       |
-| [MapNavigator](./components/map-navigator.md)               | High-precision automatic navigation Action, with GUI recording tool                            |
+| [MapNavigator](./components/map-navigator.md)               | Path navigation Action, supports record-free target-based pathfinding and GUI recording        |
 
 ### Task Maintenance Documents (`tasks/`)
 
