@@ -147,20 +147,6 @@ test("SellProduct generated target operators prioritize combined profit bonuses"
             "expProfit",
             "moneyProfit",
         ],
-        new Map([
-            [
-                "Exp",
-                0,
-            ],
-            [
-                "Money",
-                1,
-            ],
-            [
-                "Both",
-                2,
-            ],
-        ]),
         operators,
         true,
     );
@@ -177,6 +163,60 @@ test("SellProduct generated target operators prioritize combined profit bonuses"
             name: "Exp",
             bonus_tier: 2,
         },
+    ]);
+});
+
+test("SellProduct generated operator order follows feature matches then descending character id", () => {
+    const mostMatches = {charId: "chr_0016_most", name: {CN: "三特性", EN: "Most"}};
+    const higherID = {charId: "chr_0033_higher", name: {CN: "二特性", EN: "Higher"}};
+    const lowerID = {charId: "chr_0004_lower", name: {CN: "一特性", EN: "Lower"}};
+    const settlement = {
+        settlementFeatures: [
+            {
+                bonuses: [{type: "moneyProfit"}],
+                matchingOperators: [
+                    lowerID,
+                    mostMatches,
+                    higherID,
+                ],
+            },
+            {
+                bonuses: [{type: "moneyProduceSpeed"}],
+                matchingOperators: [
+                    mostMatches,
+                    higherID,
+                ],
+            },
+            {
+                bonuses: [{type: "expProfit"}],
+                matchingOperators: [mostMatches],
+            },
+        ],
+    };
+
+    const order = buildLocationOperatorOrder(settlement, ["moneyProfit"], {}, true);
+    assert.deepEqual(order, [
+        {
+            name: "Most",
+            bonus_tier: 1,
+        },
+        {
+            name: "Higher",
+            bonus_tier: 1,
+        },
+        {
+            name: "Lower",
+            bonus_tier: 1,
+        },
+    ]);
+});
+
+test("SellProduct generated Refugee Camp restore order matches the observed in-game list", () => {
+    assert.deepEqual(sellProductSelectionData.locations.RefugeeCamp.restore_operators, [
+        "Laevatain",
+        "Camille",
+        "Antal",
+        "Rossi",
     ]);
 });
 

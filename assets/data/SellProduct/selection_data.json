@@ -571,11 +571,7 @@
                     "bonus_tier": 0
                 },
                 {
-                    "name": "Perlica",
-                    "bonus_tier": 1
-                },
-                {
-                    "name": "Wulfgard",
+                    "name": "Camille",
                     "bonus_tier": 1
                 },
                 {
@@ -583,39 +579,43 @@
                     "bonus_tier": 1
                 },
                 {
-                    "name": "Fluorite",
-                    "bonus_tier": 1
-                },
-                {
                     "name": "Tangtang",
                     "bonus_tier": 1
                 },
                 {
-                    "name": "Camille",
+                    "name": "Fluorite",
                     "bonus_tier": 1
                 },
                 {
-                    "name": "Ardelia",
-                    "bonus_tier": 2
+                    "name": "Wulfgard",
+                    "bonus_tier": 1
                 },
                 {
-                    "name": "Gilberta",
-                    "bonus_tier": 2
+                    "name": "Perlica",
+                    "bonus_tier": 1
                 },
                 {
                     "name": "Pogranichnik",
                     "bonus_tier": 2
                 },
                 {
+                    "name": "Ardelia",
+                    "bonus_tier": 2
+                },
+                {
                     "name": "Snowshine",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Gilberta",
                     "bonus_tier": 2
                 }
             ],
             "restore_operators": [
-                "Antal",
                 "Laevatain",
-                "Rossi",
-                "Camille"
+                "Camille",
+                "Antal",
+                "Rossi"
             ]
         },
         "InfraStation": {
@@ -643,6 +643,10 @@
                     "bonus_tier": 0
                 },
                 {
+                    "name": "Camille",
+                    "bonus_tier": 1
+                },
+                {
                     "name": "Xaihi",
                     "bonus_tier": 1
                 },
@@ -651,39 +655,7 @@
                     "bonus_tier": 1
                 },
                 {
-                    "name": "Camille",
-                    "bonus_tier": 1
-                },
-                {
-                    "name": "Perlica",
-                    "bonus_tier": 2
-                },
-                {
                     "name": "ChenQianyu",
-                    "bonus_tier": 2
-                },
-                {
-                    "name": "Wulfgard",
-                    "bonus_tier": 2
-                },
-                {
-                    "name": "Antal",
-                    "bonus_tier": 2
-                },
-                {
-                    "name": "Catcher",
-                    "bonus_tier": 2
-                },
-                {
-                    "name": "Fluorite",
-                    "bonus_tier": 2
-                },
-                {
-                    "name": "Akekuri",
-                    "bonus_tier": 2
-                },
-                {
-                    "name": "Estella",
                     "bonus_tier": 2
                 },
                 {
@@ -692,6 +664,34 @@
                 },
                 {
                     "name": "Tangtang",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Antal",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Fluorite",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Estella",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Catcher",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Akekuri",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Wulfgard",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Perlica",
                     "bonus_tier": 2
                 }
             ],
@@ -728,7 +728,7 @@
                     "bonus_tier": 0
                 },
                 {
-                    "name": "ChenQianyu",
+                    "name": "ZhuangFangyi",
                     "bonus_tier": 1
                 },
                 {
@@ -736,15 +736,15 @@
                     "bonus_tier": 1
                 },
                 {
-                    "name": "ZhuangFangyi",
+                    "name": "ChenQianyu",
                     "bonus_tier": 1
                 },
                 {
-                    "name": "Ardelia",
+                    "name": "Laevatain",
                     "bonus_tier": 2
                 },
                 {
-                    "name": "Laevatain",
+                    "name": "Ardelia",
                     "bonus_tier": 2
                 },
                 {
@@ -753,9 +753,9 @@
                 }
             ],
             "restore_operators": [
-                "Perlica",
                 "Gilberta",
-                "Laevatain"
+                "Laevatain",
+                "Perlica"
             ]
         },
         "SkyKingFlatsConstructionSite": {
@@ -780,15 +780,15 @@
             ],
             "target_operators": [
                 {
-                    "name": "Lifeng",
-                    "bonus_tier": 0
-                },
-                {
                     "name": "Tangtang",
                     "bonus_tier": 0
                 },
                 {
-                    "name": "Ardelia",
+                    "name": "Lifeng",
+                    "bonus_tier": 0
+                },
+                {
+                    "name": "Arcane",
                     "bonus_tier": 1
                 },
                 {
@@ -796,7 +796,11 @@
                     "bonus_tier": 1
                 },
                 {
-                    "name": "Arclight",
+                    "name": "Rossi",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Ardelia",
                     "bonus_tier": 1
                 },
                 {
@@ -804,29 +808,25 @@
                     "bonus_tier": 1
                 },
                 {
-                    "name": "Rossi",
+                    "name": "Arclight",
                     "bonus_tier": 1
-                },
-                {
-                    "name": "Arcane",
-                    "bonus_tier": 1
-                },
-                {
-                    "name": "Avywenna",
-                    "bonus_tier": 2
                 },
                 {
                     "name": "Camille",
                     "bonus_tier": 2
+                },
+                {
+                    "name": "Avywenna",
+                    "bonus_tier": 2
                 }
             ],
             "restore_operators": [
-                "Wulfgard",
-                "LastRite",
-                "Ember",
                 "Tangtang",
+                "Arcane",
+                "Wulfgard",
                 "MiFu",
-                "Arcane"
+                "LastRite",
+                "Ember"
             ]
         },
         "CardiacRemediationStation": {
@@ -849,10 +849,6 @@
             ],
             "target_operators": [
                 {
-                    "name": "DaPan",
-                    "bonus_tier": 0
-                },
-                {
                     "name": "ZhuangFangyi",
                     "bonus_tier": 0
                 },
@@ -861,7 +857,11 @@
                     "bonus_tier": 0
                 },
                 {
-                    "name": "ChenQianyu",
+                    "name": "DaPan",
+                    "bonus_tier": 0
+                },
+                {
+                    "name": "Akekuri",
                     "bonus_tier": 1
                 },
                 {
@@ -873,11 +873,11 @@
                     "bonus_tier": 1
                 },
                 {
-                    "name": "Akekuri",
+                    "name": "ChenQianyu",
                     "bonus_tier": 1
                 },
                 {
-                    "name": "Lifeng",
+                    "name": "MiFu",
                     "bonus_tier": 2
                 },
                 {
@@ -885,16 +885,16 @@
                     "bonus_tier": 2
                 },
                 {
-                    "name": "MiFu",
+                    "name": "Lifeng",
                     "bonus_tier": 2
                 }
             ],
             "restore_operators": [
-                "Perlica",
-                "Yvonne",
-                "Pogranichnik",
+                "ZhuangFangyi",
                 "Akekuri",
-                "ZhuangFangyi"
+                "Pogranichnik",
+                "Yvonne",
+                "Perlica"
             ]
         },
         "XiranflowCloudseederStation": {
@@ -916,28 +916,12 @@
             ],
             "target_operators": [
                 {
-                    "name": "Lifeng",
-                    "bonus_tier": 0
-                },
-                {
                     "name": "Arcane",
                     "bonus_tier": 0
                 },
                 {
-                    "name": "Ardelia",
-                    "bonus_tier": 1
-                },
-                {
-                    "name": "Wulfgard",
-                    "bonus_tier": 1
-                },
-                {
-                    "name": "Arclight",
-                    "bonus_tier": 1
-                },
-                {
-                    "name": "Fluorite",
-                    "bonus_tier": 1
+                    "name": "Lifeng",
+                    "bonus_tier": 0
                 },
                 {
                     "name": "Rossi",
@@ -948,11 +932,23 @@
                     "bonus_tier": 1
                 },
                 {
-                    "name": "Xaihi",
-                    "bonus_tier": 2
+                    "name": "Ardelia",
+                    "bonus_tier": 1
                 },
                 {
-                    "name": "DaPan",
+                    "name": "Fluorite",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Arclight",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "Wulfgard",
+                    "bonus_tier": 1
+                },
+                {
+                    "name": "MiFu",
                     "bonus_tier": 2
                 },
                 {
@@ -960,17 +956,21 @@
                     "bonus_tier": 2
                 },
                 {
-                    "name": "MiFu",
+                    "name": "DaPan",
+                    "bonus_tier": 2
+                },
+                {
+                    "name": "Xaihi",
                     "bonus_tier": 2
                 }
             ],
             "restore_operators": [
-                "Yvonne",
-                "ChenQianyu",
-                "LastRite",
-                "Ember",
+                "Arcane",
                 "MiFu",
-                "Arcane"
+                "LastRite",
+                "Yvonne",
+                "Ember",
+                "ChenQianyu"
             ]
         }
     }

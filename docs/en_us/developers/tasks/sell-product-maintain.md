@@ -120,6 +120,8 @@ Selling operators are first grouped by selling benefit:
 3. EXP bonus only;
 4. Preserve stable in-game order within the same selling tier.
 
+The in-game list order changes with the current outpost. The generator derives the observed rule from zmdmap: sort operators first by the number of matching `settlementFeatures` for that outpost in descending order, then by the numeric portion of `charId` in descending order; rarity does not participate. Selling candidates apply this order only within the same benefit tier, while restoration candidates apply it directly. As a result, when selling benefit and restoration outcomes are equivalent, the Go planner prefers an operator closer to the top of the list and requires less scrolling.
+
 In this document, the “highest bonus tier” means the intersection of the current outpost's best selling tier and its restoration candidates: operators that perfectly satisfy both selling and restoration. If the account owns at least one perfect candidate, pre-sell planning considers only those candidates, even when one is currently assigned to another enabled outpost. Only when no perfect candidate is owned does planning fall back to the best available selling tier.
 
 `selection_data.json` retains a `bonus_tier` for every selling candidate so stable ordering is not mistaken for a benefit difference. If the current assignment belongs to the available highest bonus tier, Pipeline keeps it without opening the operator list. Otherwise, Go evaluates the global restoration plan for each candidate in that tier, preferring the current assignment and plans that keep more selling operators and remain reusable by later runs. Stable candidate order breaks any remaining tie.
