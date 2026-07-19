@@ -20,6 +20,11 @@ type Fields struct {
 	BoxIndex int
 }
 
+// nodeJSONSource 抽象 ctx.GetNodeJSON，便于 EffectiveType 沿节点名引用解析，并在测试中注入假数据。
+type nodeJSONSource interface {
+	GetNodeJSON(nodeName string) (string, error)
+}
+
 // ParseNodeJSON 解析节点 JSON 的 recognition / all_of / box_index。
 // 兼容：
 //   - 扁平写法："recognition":"And","all_of":[...],"box_index":n
@@ -128,10 +133,13 @@ func SelectedDetail(detail *maa.RecognitionDetail, boxIndex int) (*maa.Recogniti
 // EffectiveType 沿 And.box_index 链解析节点的有效识别类型（如 "OCR"、"TemplateMatch"）。
 // all_of 子项支持节点名引用与内联对象。
 func EffectiveType(ctx *maa.Context, nodeName string) (string, error) {
+	if ctx == nil {
+		return "", fmt.Errorf("context is nil")
+	}
 	return effectiveType(ctx, nodeName, map[string]struct{}{})
 }
 
-func effectiveType(ctx *maa.Context, nodeName string, visiting map[string]struct{}) (string, error) {
+func effectiveType(src nodeJSONSource, nodeName string, visiting map[string]struct{}) (string, error) {
 	nodeName = strings.TrimSpace(nodeName)
 	if nodeName == "" {
 		return "", fmt.Errorf("node name is empty")
@@ -141,20 +149,20 @@ func effectiveType(ctx *maa.Context, nodeName string, visiting map[string]struct
 	}
 	visiting[nodeName] = struct{}{}
 
-	if ctx == nil {
+	if src == nil {
 		return "", fmt.Errorf("context is nil")
 	}
-	raw, err := ctx.GetNodeJSON(nodeName)
+	raw, err := src.GetNodeJSON(nodeName)
 	if err != nil {
 		return "", fmt.Errorf("get node %s json: %w", nodeName, err)
 	}
 	if strings.TrimSpace(raw) == "" {
 		return "", fmt.Errorf("node %s json is empty", nodeName)
 	}
-	return effectiveTypeFromJSON(ctx, []byte(raw), visiting)
+	return effectiveTypeFromJSON(src, []byte(raw), visiting)
 }
 
-func effectiveTypeFromJSON(ctx *maa.Context, raw []byte, visiting map[string]struct{}) (string, error) {
+func effectiveTypeFromJSON(src nodeJSONSource, raw []byte, visiting map[string]struct{}) (string, error) {
 	fields, err := ParseNodeJSON(raw)
 	if err != nil {
 		return "", err
@@ -168,10 +176,10 @@ func effectiveTypeFromJSON(ctx *maa.Context, raw []byte, visiting map[string]str
 	if fields.BoxIndex < 0 || fields.BoxIndex >= len(fields.AllOf) {
 		return "", fmt.Errorf("and node box_index %d out of range, all_of size=%d", fields.BoxIndex, len(fields.AllOf))
 	}
-	return allOfChildEffectiveType(ctx, fields.AllOf[fields.BoxIndex], visiting)
+	return allOfChildEffectiveType(src, fields.AllOf[fields.BoxIndex], visiting)
 }
 
-func allOfChildEffectiveType(ctx *maa.Context, raw json.RawMessage, visiting map[string]struct{}) (string, error) {
+func allOfChildEffectiveType(src nodeJSONSource, raw json.RawMessage, visiting map[string]struct{}) (string, error) {
 	if len(raw) == 0 || string(raw) == "null" {
 		return "", fmt.Errorf("all_of child is empty")
 	}
@@ -182,10 +190,10 @@ func allOfChildEffectiveType(ctx *maa.Context, raw json.RawMessage, visiting map
 		if refName == "" {
 			return "", fmt.Errorf("all_of child node ref is empty")
 		}
-		return effectiveType(ctx, refName, visiting)
+		return effectiveType(src, refName, visiting)
 	}
 
-	return effectiveTypeFromJSON(ctx, raw, visiting)
+	return effectiveTypeFromJSON(src, raw, visiting)
 }
 
 func parseRecognitionFields(node map[string]json.RawMessage) (Fields, error) {
