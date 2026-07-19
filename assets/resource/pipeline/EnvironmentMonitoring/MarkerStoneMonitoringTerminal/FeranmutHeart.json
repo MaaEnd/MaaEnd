@@ -381,7 +381,8 @@
                     "target": [
                         144.48,
                         128.11
-                    ]
+                    ],
+                    "target_tier": "IndieDg007Tier338"
                 },
                 {
                     "action": "HEADING",

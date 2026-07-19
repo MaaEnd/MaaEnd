@@ -915,6 +915,7 @@
         "Id": "FeranmutHeart",
         "QuickTeleport": true,
         "MapName": "IndieDg007Tier338",
+        "MapTargetTier": "IndieDg007Tier338",
         "MapTarget": [
             144.48,
             128.11
