@@ -649,7 +649,6 @@ def cmd_bbox(input_dir: str, output_dir: str) -> None:
         results = dict(sorted(results.items()))
         json.dump(results, f, indent=4, ensure_ascii=False)
     print(f"{_G}Saved map rectangles to {output_path}{_0}")
-    return output_path
 
 
 # Tier image filename format: region_level_gx_gy_tier_id.png
