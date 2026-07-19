@@ -176,20 +176,72 @@ type selectFriendOCRHit struct {
 }
 
 func parseSelectFriendCombinedHits(detail *maa.RecognitionDetail) (buttons, names []selectFriendOCRHit, ok bool) {
+	// CombinedResult 与 WithName.all_of 对齐：
+	// [0]=进船按钮，[1]=线索交换，[2]=名称 OCR；Results.Best 为空时只能走 DetailJson。
+	buttonRaw, ok := selectFriendCombinedDetailJSON(detail, 0, "button")
+	if !ok {
+		return nil, nil, false
+	}
+	nameRaw, ok := selectFriendCombinedDetailJSON(detail, 2, "name")
+	if !ok {
+		return nil, nil, false
+	}
+
 	var buttonJSON, nameJSON struct {
 		Filtered []selectFriendOCRHit `json:"filtered"`
 	}
-	// CombinedResult 与 WithName.all_of 对齐：
-	// [0]=进船按钮，[1]=线索交换，[2]=名称 OCR；Results.Best 为空时只能走 DetailJson。
-	if err := json.Unmarshal([]byte(detail.CombinedResult[0].DetailJson), &buttonJSON); err != nil {
+	if err := json.Unmarshal([]byte(buttonRaw), &buttonJSON); err != nil {
 		log.Error().Err(err).Str("component", selectFriendRecognitionName).Msg("parse button detail json")
 		return nil, nil, false
 	}
-	if err := json.Unmarshal([]byte(detail.CombinedResult[2].DetailJson), &nameJSON); err != nil {
+	if err := json.Unmarshal([]byte(nameRaw), &nameJSON); err != nil {
 		log.Error().Err(err).Str("component", selectFriendRecognitionName).Msg("parse name detail json")
 		return nil, nil, false
 	}
+
+	// Filtered 缺失时按空切片处理，交给调用方统一判定「无候选」。
+	if buttonJSON.Filtered == nil {
+		buttonJSON.Filtered = []selectFriendOCRHit{}
+	}
+	if nameJSON.Filtered == nil {
+		nameJSON.Filtered = []selectFriendOCRHit{}
+	}
 	return buttonJSON.Filtered, nameJSON.Filtered, true
+}
+
+func selectFriendCombinedDetailJSON(detail *maa.RecognitionDetail, index int, kind string) (string, bool) {
+	if detail == nil {
+		log.Warn().Str("component", selectFriendRecognitionName).Str("kind", kind).Msg("combined detail is nil")
+		return "", false
+	}
+	if index < 0 || index >= len(detail.CombinedResult) {
+		log.Warn().
+			Str("component", selectFriendRecognitionName).
+			Str("kind", kind).
+			Int("index", index).
+			Int("combined_len", len(detail.CombinedResult)).
+			Msg("combined result index out of range")
+		return "", false
+	}
+	child := detail.CombinedResult[index]
+	if child == nil {
+		log.Warn().
+			Str("component", selectFriendRecognitionName).
+			Str("kind", kind).
+			Int("index", index).
+			Msg("combined result entry is nil")
+		return "", false
+	}
+	raw := strings.TrimSpace(child.DetailJson)
+	if raw == "" {
+		log.Warn().
+			Str("component", selectFriendRecognitionName).
+			Str("kind", kind).
+			Int("index", index).
+			Msg("combined result DetailJson is empty")
+		return "", false
+	}
+	return raw, true
 }
 
 func friendNameHasRemark(name string) bool {
