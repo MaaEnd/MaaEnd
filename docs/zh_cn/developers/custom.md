@@ -247,6 +247,46 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 - 表达式中的整数字面量，以及 OCR 换算后的数值，若超出当前平台 `int` 可表示范围，会自动钳制到 `int` 最大值或最小值（正溢出取最大值，负溢出取最小值），并输出警告日志；表达式会继续求值，而不是直接失败。
 - 该识别器只负责表达式求值，不负责业务语义本身，业务侧应在 Pipeline 中自行组织节点与阈值。
 
+### ListCompleteRecognition
+
+`ListCompleteRecognition` 实现位于 `agent/go-service/common/listcomplete`，用于通过 OCR 文本是否变化判断列表是否仍在更新（常见于滑动列表到底检测）。
+
+参数：
+
+- `node: string`：必填。OCR 节点名，或 `And` 节点名（其 `box_index` 指向的子项必须是 OCR）。
+
+行为：
+
+1. 执行 `node` 识别；未命中或无法提取 OCR 文字时返回未命中。
+2. 读取当前自定义识别节点自身的 `attach.last_text`。
+3. 若 `last_text` 为空（首次成功）：返回命中，框为 OCR 文字位置，并把当前文字写入 `attach.last_text`。
+4. 若当前文字与 `last_text` 一致：返回未命中（视为列表已到底/未变化）。
+5. 若当前文字与 `last_text` 不一致：更新 `attach.last_text` 并返回命中。
+
+对 `And` 节点，目标解析与 `ExpressionRecognition` 共用 `pkg/recogtarget`：先执行该 `And` 节点本身，再按其原生 `box_index`（默认 `0`）从本次 `CombinedResult` 中选取对应子识别结果，并从该子结果提取 OCR 文本与框。节点定义阶段也会校验 `box_index` 目标含 OCR。
+
+示例文件：[`ListCompleteRecognition.json`](../../../assets/resource/pipeline/Interface/Example/ListCompleteRecognition.json)
+
+```json
+{
+    "recognition": {
+        "type": "Custom",
+        "param": {
+            "custom_recognition": "ListCompleteRecognition",
+            "custom_recognition_param": {
+                "node": "SomeListAnchorOCR"
+            }
+        }
+    }
+}
+```
+
+注意事项：
+
+- 状态保存在**当前 Custom 识别节点**的 `attach.last_text`，不是 `node` 指向的 OCR/`And` 节点。
+- 需要重新开始一轮列表扫描时，应清空该 Custom 节点的 `attach.last_text`（例如通过 `PipelineOverride`）。
+- 该识别器只负责“文本是否变化”，滑动、点击等流程仍由 Pipeline 组织。
+
 ### ScheduleRecognition
 
 `ScheduleRecognition` 实现位于 `agent/go-service/common/schedule`，用于按星期几判断当前任务是否应继续执行。它只返回识别是否命中，不在 Go 中直接运行子任务；后续流程应通过 Pipeline 的 `next` 组织。
@@ -276,6 +316,7 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 | 运行时改节点参数              | `PipelineOverride`            |
 | 把关键词拼成正则写回 OCR 节点 | `AttachToExpectedRegexAction` |
 | 计算 OCR 数值表达式           | `ExpressionRecognition`       |
+| 判断列表 OCR 文本是否变化     | `ListCompleteRecognition`     |
 | 按星期几门控后续节点          | `ScheduleRecognition`         |
 | 在指定位置 Alt + 点击         | `AutoAltClickAction`          |
 | 在指定位置 Alt + 长按         | `AutoAltLongPressAction`      |

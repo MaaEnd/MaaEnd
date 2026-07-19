@@ -1,0 +1,59 @@
+{
+    "ListCompleteRecognitionExampleGate": {
+        "desc": "ListCompleteRecognition 示例：OCR 文本首次命中或发生变化时返回 true，文本不变时返回 false",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "custom_recognition_param": {
+                    // 可传 OCR 节点，或 And 节点（按其原生 box_index 取 OCR 子结果）
+                    "node": "ListCompleteRecognitionSampleAnd"
+                }
+            }
+        },
+        "action": "DoNothing",
+        "next": [
+            "ListCompleteRecognitionPass"
+        ]
+    },
+    "ListCompleteRecognitionSampleAnd": {
+        "desc": "And 示例：box_index=1 指向 OCR 子节点，对齐 ExpressionRecognition 取值方式",
+        "recognition": "And",
+        "all_of": [
+            "ListCompleteRecognitionSampleMarker",
+            "ListCompleteRecognitionSampleOCR"
+        ],
+        "box_index": 1,
+        "next": []
+    },
+    "ListCompleteRecognitionSampleMarker": {
+        "desc": "列表区域辅助识别（示意，可换成 TemplateMatch 等）",
+        "recognition": "OCR",
+        "roi": [
+            480,
+            160,
+            320,
+            40
+        ],
+        "expected": ".+",
+        "next": []
+    },
+    "ListCompleteRecognitionSampleOCR": {
+        "desc": "列表锚点 OCR 节点（应返回可用于对比变化的文本）；被 And.box_index 选中",
+        "recognition": "OCR",
+        "roi": [
+            480,
+            200,
+            320,
+            80
+        ],
+        "expected": ".+",
+        "next": []
+    },
+    "ListCompleteRecognitionPass": {
+        "desc": "列表仍有变化时的后续流程（例如继续滑动）",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": []
+    }
+}

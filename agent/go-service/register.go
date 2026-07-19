@@ -18,6 +18,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expressionrecognition"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/failurecollector"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/falseaction"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/listcomplete"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/pipelineoverride"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/poststop"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/schedule"
@@ -62,6 +63,7 @@ func registerAll() {
 	clearhitcount.Register()
 	pipelineoverride.Register()
 	expressionrecognition.Register()
+	listcomplete.Register()
 	attachregex.Register()
 	autoalt.Register()
 	charactercontroller.Register()
