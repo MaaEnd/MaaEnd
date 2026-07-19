@@ -35,36 +35,19 @@
         }
     },
     "VisitFriendsMenuScanTargetFriendOpen": {
-        "desc": "选择下一个好友（识别①）：ClearHitCount 重置滚动 → 打开详情 → 检查助力或关闭。only_remark_friends 由任务选项覆盖",
+        "desc": "选择下一个好友。only_remark_friends 由任务选项覆盖",
         "recognition": "Custom",
         "custom_recognition": "VisitFriendsSelectFriendRecognition",
         "custom_recognition_param": {
             "only_remark_friends": false
         },
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "ClearHitCount",
-        "custom_action_param": {
-            "nodes": [
-                "VisitFriendsMenuScanScrollList"
-            ]
-        },
+        "action": "Click",
+        "post_wait_freezes": 200,
         "post_delay": 0,
         "attach": {
             "visited": []
         },
-        "next": [
-            "VisitFriendsMenuScanSelectFriendOpenDetail"
-        ]
-    },
-    "VisitFriendsMenuScanSelectFriendOpenDetail": {
-        "desc": "点击进船按钮打开好友详情；符合助力条件则进入 CheckAssist，否则关闭详情",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Click",
-        "target": "VisitFriendsMenuScanTargetFriendOpen",
-        "post_wait_freezes": 200,
-        "post_delay": 0,
         "next": [
             "VisitFriendsCheckAssist",
             "VisitFriendsMenuScanDetailClose"
@@ -92,21 +75,13 @@
         }
     },
     "VisitFriendsMenuScanScrollList": {
-        "desc": "向下滚动好友列表",
-        "max_hit": 2, //连续两次滑动没有找到目标后停止滑动,进入停止任务步骤
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    200,
-                    170
-                ],
-                "template": "VisitFriends/OnFriendList.png",
-                "threshold": 0.8
-            }
+        "desc": "好友列表未到底时向下滚动：ListComplete 对比 VisitFriendsRecognitionItemWithName（box_index=2 好友名）文字变化",
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {
+            "node": "VisitFriendsRecognitionItemWithName"
         },
+        "pre_delay": 0,
         "action": "Swipe",
         "begin": [
             650,
@@ -117,6 +92,10 @@
             150
         ],
         "end_hold": 600, // 太短了松开会晃动
+        "post_delay": 0,
+        "attach": {
+            "last_text": ""
+        },
         "focus": {
             "Node.Action.Succeeded": "向下滑动好友列表"
         }
