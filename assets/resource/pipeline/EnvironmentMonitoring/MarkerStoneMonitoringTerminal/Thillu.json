@@ -329,21 +329,24 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToThilluStartPos",
             "GoToThilluNotAtStartPos"
         ]
     },
     "GoToThilluStartPos": {
         "desc": "在表象任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
-            "zone_id": "IndieDg007Tier337",
-            "target": [
-                0,
-                0,
-                1,
-                1
+            "expected": [
+                {
+                    "map_name": "^map\\d+_lv\\d+$",
+                    "target": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ]
+                }
             ]
         },
         "pre_delay": 0,
@@ -354,7 +357,7 @@
         ]
     },
     "GoToThilluNotAtStartPos": {
-        "desc": "不在表象任务开始位置附近，先传送再继续寻路",
+        "desc": "前往表象传送点，传送后调整朝向并拍照",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -370,25 +373,12 @@
         ]
     },
     "GoToThilluMove": {
-        "desc": "自动寻路前往表象",
+        "desc": "在表象传送点调整拍照朝向",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapNavigateAction",
+        "custom_action": "MapTrackerToward",
         "custom_action_param": {
-            "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        88.75,
-                        189.87
-                    ],
-                    "target_tier": "IndieDg007Tier337"
-                },
-                {
-                    "action": "HEADING",
-                    "angle": 270
-                }
-            ]
+            "angle": 270
         },
         "post_delay": 0,
         "rate_limit": 0,

@@ -914,12 +914,6 @@
         "Name": "巨兽心脏",
         "Id": "FeranmutHeart",
         "QuickTeleport": true,
-        "MapName": "IndieDg007Tier338",
-        "MapTargetTier": "IndieDg007Tier338",
-        "MapTarget": [
-            144.48,
-            128.11
-        ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "CameraMaxHit": 1,
         "Heading": 270
@@ -929,12 +923,6 @@
         "Name": "“表象”",
         "Id": "Thillu",
         "QuickTeleport": true,
-        "MapName": "IndieDg007Tier337",
-        "MapTargetTier": "IndieDg007Tier337",
-        "MapTarget": [
-            88.75,
-            189.87
-        ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenRight",
         "CameraMaxHit": 1,
         "Heading": 270
