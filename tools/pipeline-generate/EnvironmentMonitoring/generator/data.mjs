@@ -52,12 +52,13 @@ export function buildRow(mission) {
     const afterAlreadyTrackedNext =
         route.isAdapted && route.QuickTeleport ? [`${Id}OpenTrackedMissionMap`] : defaultAfterTrackedNext;
     // 传送点可直接拍照时不需要位置断言：统一先进入大世界，再无条件执行真实传送。
-    const GoToNext = route.IsDirectPhoto
-        ? [`GoTo${Id}NotAtStartPos`]
-        : [
-              `GoTo${Id}StartPos`,
-              `GoTo${Id}NotAtStartPos`,
-          ];
+    const GoToNext =
+        route.IsDirectPhoto && !route.QuickTeleport
+            ? [`GoTo${Id}NotAtStartPos`]
+            : [
+                  `GoTo${Id}StartPos`,
+                  `GoTo${Id}NotAtStartPos`,
+              ];
     // NavMesh 可自行处理传送点附近的落点；手录路径仍需确认固定起点。
     const AfterTeleportDescription = route.IsDirectPhoto
         ? route.HasHeading

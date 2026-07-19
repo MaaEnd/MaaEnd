@@ -3,7 +3,7 @@ import test from "node:test";
 
 import {buildRow} from "./data.mjs";
 
-function buildDirectPhotoRow(hasHeading) {
+function buildDirectPhotoRow(hasHeading, quickTeleport = false) {
     return buildRow({
         Station: "TestMonitoringTerminal",
         Id: "TestMission",
@@ -16,7 +16,7 @@ function buildDirectPhotoRow(hasHeading) {
         },
         route: {
             isAdapted: true,
-            QuickTeleport: false,
+            QuickTeleport: quickTeleport,
             IsDirectPhoto: true,
             HasHeading: hasHeading,
             ShouldAssertAfterTeleport: false,
@@ -46,4 +46,15 @@ test("direct-photo routes apply optional Heading before taking a photo", () => {
     assert.equal(row.RouteAction, "MapTrackerToward");
     assert.deepEqual(row.RouteActionParam.value, {angle: 90});
     assert.equal(row.MoveDescription, "在测试观察点传送点调整拍照朝向");
+});
+
+test("QuickTeleport direct-photo routes preserve the unused GoTo branch", () => {
+    const row = buildDirectPhotoRow(true, true);
+
+    assert.deepEqual(row.GoToNext.value, [
+        "GoToTestMissionStartPos",
+        "GoToTestMissionNotAtStartPos",
+    ]);
+    assert.deepEqual(row.AfterTrackNext.value, ["TestMissionInQuickTeleportMap"]);
+    assert.deepEqual(row.AfterTeleportNext.value, ["GoToTestMissionMove"]);
 });
