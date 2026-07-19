@@ -37,16 +37,31 @@ func readMinReward(ctx *maa.Context) (float64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("get node %s: %w", minRewardNode, err)
 	}
+	log.Debug().
+		Str("component", "SeizeDeliveryJobs").
+		Str("step", "read_min_reward").
+		Str("raw", raw).
+		Msg("MinReward node json")
+	// expected 可能出现在顶层（V1 pipeline）或 recognition.param.expected（V2）
 	var node struct {
 		Expected []string `json:"expected"`
+		Recognition struct {
+			Param struct {
+				Expected []string `json:"expected"`
+			} `json:"param"`
+		} `json:"recognition"`
 	}
 	if err := json.Unmarshal([]byte(raw), &node); err != nil {
 		return 0, fmt.Errorf("parse %s: %w", minRewardNode, err)
 	}
-	if len(node.Expected) == 0 {
-		return 0, fmt.Errorf("%s.expected empty", minRewardNode)
+	exps := node.Expected
+	if len(exps) == 0 {
+		exps = node.Recognition.Param.Expected
 	}
-	return parseRewardFloat(node.Expected[0])
+	if len(exps) == 0 {
+		return 0, fmt.Errorf("%s.expected empty (raw: %s)", minRewardNode, raw)
+	}
+	return parseRewardFloat(exps[0])
 }
 
 // parseRewardFloat 解析价格文本为 float（单位统一为「万」）。
