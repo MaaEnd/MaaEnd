@@ -47,8 +47,28 @@
         "action": "Click",
         "post_delay": 0,
         "next": [
+            "[JumpBack]DailyEventUnreadGiftEventClickNew",
             "SceneNoticeRewardsConfirm"
         ]
+    },
+    "DailyEventUnreadGiftEventClickNew": {
+        "desc": "点击获得界面右下角 NEW",
+        "recognition": "OCR",
+        "roi": [
+            900,
+            400,
+            250,
+            150
+        ],
+        "expected": [
+            // 武器领取的NEW
+            // @i18n-skip
+            "NEW"
+        ],
+        "pre_delay": 1000, // 防止动画一直在动
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "DailyEventUnreadGiftEventFinish": {
         "desc": "领取完了",
