@@ -71,8 +71,13 @@ async function fetchAndCache(version) {
             throw new Error(`下载 ${file} 失败: ${res.status} ${res.statusText}`);
         }
         const text = await res.text();
-        writeFileSync(resolve(dataDir, file), text, "utf8");
-        console.log(`[fetch-data] 已缓存 ${file} (${(Buffer.byteLength(text) / 1024).toFixed(0)} KB)`);
+        // 保留超出 Number 安全范围的 ID 原始字面量，避免格式化时发生精度丢失。
+        const data = JSON.parse(text, (_key, value, context) =>
+            typeof value === "number" ? JSON.rawJSON(context.source) : value,
+        );
+        const formattedData = `${JSON.stringify(data, null, 2)}\n`;
+        writeFileSync(resolve(dataDir, file), formattedData, "utf8");
+        console.log(`[fetch-data] 已缓存 ${file} (${(Buffer.byteLength(formattedData) / 1024).toFixed(0)} KB)`);
     }
 
     writeFileSync(resolve(dataDir, VERSION_FILE), version, "utf8");
