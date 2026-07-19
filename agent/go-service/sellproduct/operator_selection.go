@@ -20,6 +20,7 @@ func equivalentTargetCandidatesForOwnership(
 	for excluded := range p.ExcludedOperators {
 		delete(available, excluded)
 	}
+	removeOtherLockedRestoreOperators(available, p.LockedRestoreAssignments, p.Location)
 	return preferredTargetCandidates(
 		p.Candidates,
 		available,
@@ -37,6 +38,7 @@ func candidatesForCurrentSelection(p *operatorSelectionParam, owned map[string]s
 		delete(availableOwned, excluded)
 	}
 	if p.Usage == operatorActionUsageTarget {
+		removeOtherLockedRestoreOperators(availableOwned, p.LockedRestoreAssignments, p.Location)
 		candidates := preferredTargetCandidates(
 			p.Candidates,
 			availableOwned,
@@ -71,6 +73,21 @@ func candidatesForCurrentSelection(p *operatorSelectionParam, owned map[string]s
 		return nil
 	}
 	return []operatorCandidate{candidate}
+}
+
+// removeOtherLockedRestoreOperators 保护已经完成恢复的据点，避免后续据点再次调走其干员。
+// 当前据点自己的锁定结果仍可沿用；尚未完成恢复的启用据点不在锁定集合中，固定顺序售卖仍可临时调人。
+func removeOtherLockedRestoreOperators(
+	available map[string]struct{},
+	locked map[string]operatorCandidate,
+	currentLocation string,
+) {
+	for location, candidate := range locked {
+		if location == currentLocation {
+			continue
+		}
+		delete(available, operatorCandidateCacheName(candidate))
+	}
 }
 
 func bestBonusTierCandidates(candidates []operatorCandidate) []operatorCandidate {
@@ -134,7 +151,8 @@ func restorePlanForTargetCandidate(
 // preferredTargetCandidates 返回当前据点可用的最高加成档候选。
 // 最高加成档指最高售卖档中同时满足该据点恢复条件的完美候选；
 // 若不存在完美候选，则回退到最高售卖档。
-// 售卖按固定据点顺序执行，因此其他已启用据点的恢复锁不能阻止当前据点使用完美候选。
+// 售卖按固定据点顺序执行：尚未处理的启用据点不会阻止当前据点调人，
+// 但已经完成恢复的据点会在进入本函数前从可用集合中移除。
 func preferredTargetCandidates(
 	candidates []operatorCandidate,
 	owned map[string]struct{},
