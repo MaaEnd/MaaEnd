@@ -4473,6 +4473,9 @@
                 {
                     "name": "No",
                     "pipeline_override": {
+                        "SellProductScanOperatorList": {
+                            "next": []
+                        },
                         "SellProductSellMain": {
                             "next": [
                                 "SellProductSellLoop"
@@ -4480,12 +4483,6 @@
                         },
                         "SellProductSellLoopEnd": {
                             "next": []
-                        },
-                        "SellProductValleyIVPrepareOperatorCache": {
-                            "action": "DoNothing"
-                        },
-                        "SellProductWulingPrepareOperatorCache": {
-                            "action": "DoNothing"
                         }
                     }
                 }

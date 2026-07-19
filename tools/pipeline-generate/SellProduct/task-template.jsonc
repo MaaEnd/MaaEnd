@@ -342,7 +342,30 @@
             "label": "$task.SellProduct.OperatorAutoSwitch",
             "description": "$task.SellProduct.OperatorAutoSwitchDescription",
             "default_case": "Yes",
-            "cases": "${OperatorAutoSwitchCases}"
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SellProductForceRefreshOperatorCache"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductScanOperatorList": {
+                            "next": []
+                        },
+                        "SellProductSellMain": {
+                            "next": [
+                                "SellProductSellLoop"
+                            ]
+                        },
+                        "SellProductSellLoopEnd": {
+                            "next": []
+                        }
+                    }
+                }
+            ]
         },
         "SellProductForceRefreshOperatorCache": {
             "type": "switch",

@@ -200,30 +200,7 @@ function buildOperatorRefreshModeCases(locations) {
     ];
 }
 
-// 生成全局“启用干员自动切换”开关；默认开启，关闭后跳过售前切换、售后恢复与缓存扫描，售卖不受影响。
-// “强制刷新干员缓存”作为其子选项，仅在开启时出现。
-function buildOperatorAutoSwitchCases(locations) {
-    const override = {
-        SellProductSellMain: {next: ["SellProductSellLoop"]},
-        SellProductSellLoopEnd: {next: []},
-    };
-    for (const regionPrefix of new Set(locations.map((loc) => loc.RegionPrefix))) {
-        override[`SellProduct${regionPrefix}PrepareOperatorCache`] = {action: "DoNothing"};
-    }
-    return [
-        {
-            name: "Yes",
-            option: ["SellProductForceRefreshOperatorCache"],
-        },
-        {
-            name: "No",
-            pipeline_override: override,
-        },
-    ];
-}
-
 const OPERATOR_REFRESH_MODE_CASES = buildOperatorRefreshModeCases(LOCATIONS);
-const OPERATOR_AUTO_SWITCH_CASES = buildOperatorAutoSwitchCases(LOCATIONS);
 const PRIORITY_RULE_SWITCH_CASES = buildPriorityRuleSwitchCases();
 const RESERVE_RULE_SWITCH_CASES = buildReserveRuleSwitchCases();
 
@@ -233,7 +210,6 @@ export const sellProductTaskRows = LOCATIONS.map((loc, index) => {
         SellOptions: SETTLEMENT_REGION_MAP[loc.RegionPrefix],
         LocationId: loc.LocationId,
         OperatorRefreshModeCases: index === 0 ? OPERATOR_REFRESH_MODE_CASES : [],
-        OperatorAutoSwitchCases: index === 0 ? OPERATOR_AUTO_SWITCH_CASES : [],
         PriorityItemCases1: index === 0 ? buildPriorityItemCases(1) : [],
         PriorityItemCases2: index === 0 ? buildPriorityItemCases(2) : [],
         PriorityItemCases3: index === 0 ? buildPriorityItemCases(3) : [],

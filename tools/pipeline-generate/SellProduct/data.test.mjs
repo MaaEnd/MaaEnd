@@ -89,7 +89,6 @@ test("SellProduct templates consume separate minimal projections of the shared l
     ]);
     assert.deepEqual(sortedKeys(root), [
         "LocationId",
-        "OperatorAutoSwitchCases",
         "OperatorRefreshModeCases",
         "PriorityItemCases1",
         "PriorityItemCases2",
@@ -341,10 +340,12 @@ test("SellProduct operator switching uses shared core dispatch nodes", () => {
         next: ["SellProductSellLoop"],
     });
     assert.deepEqual(disabledCase.pipeline_override.SellProductSellLoopEnd, {next: []});
-    assert.equal(
-        Object.keys(disabledCase.pipeline_override).some((nodeName) => nodeName.endsWith("SetAfterSellOperatorAnchor")),
-        false,
-    );
+    assert.deepEqual(disabledCase.pipeline_override.SellProductScanOperatorList, {next: []});
+    assert.deepEqual(Object.keys(disabledCase.pipeline_override).sort(), [
+        "SellProductScanOperatorList",
+        "SellProductSellLoopEnd",
+        "SellProductSellMain",
+    ]);
 });
 
 test("SellProduct pipeline templates use one dynamic priority loop instead of fixed attempts", () => {
