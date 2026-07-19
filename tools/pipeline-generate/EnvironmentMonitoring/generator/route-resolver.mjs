@@ -18,12 +18,68 @@ export const ROUTE_CONFIG_FIELDS = [
     "QuickTeleport",
 ];
 
-export const REQUIRED_ROUTE_FIELDS = [
+const ROUTE_RENDER_FIELDS = [
     "EnterMap",
     "MapName",
     "MapAssert",
     "CameraSwipeDirection",
 ];
+
+export function collectMissingRouteFields(route) {
+    if (route == null) {
+        return ["route"];
+    }
+
+    const quickTeleport = route.QuickTeleport === true;
+    const hasMapAssert = !isFieldMissing(route.MapAssert);
+    const hasMapPath = !isFieldMissing(route.MapPath);
+    const hasMapTarget = !isFieldMissing(route.MapTarget);
+    const hasMapGoal = !isFieldMissing(route.MapGoal);
+    const navigationConfigCount = [
+        hasMapPath,
+        hasMapTarget,
+        hasMapGoal,
+    ].filter(Boolean).length;
+    const isDirectPhoto = !hasMapAssert && navigationConfigCount === 0;
+    const canSkipMapAssert = quickTeleport && navigationConfigCount === 1 && (hasMapTarget || hasMapGoal);
+    const missingFields = [];
+
+    if (!quickTeleport && isFieldMissing(route.EnterMap)) {
+        missingFields.push("EnterMap");
+    }
+    if (isFieldMissing(route.CameraSwipeDirection)) {
+        missingFields.push("CameraSwipeDirection");
+    }
+
+    if (isDirectPhoto) {
+        const unusedDirectPhotoFields = [
+            "MapName",
+            "MapTargetTier",
+            "NoEnsureInitialMovementState",
+        ].filter((field) => !isFieldMissing(route[field]));
+        if (unusedDirectPhotoFields.length > 0) {
+            missingFields.push(`传送后直拍不应配置 ${unusedDirectPhotoFields.join("/")}`);
+        }
+    } else {
+        if (isFieldMissing(route.MapName)) {
+            missingFields.push("MapName");
+        }
+        if (!canSkipMapAssert && !hasMapAssert) {
+            missingFields.push("MapAssert");
+        }
+        if (navigationConfigCount === 0) {
+            missingFields.push("MapPath/MapTarget/MapGoal");
+        } else if (navigationConfigCount > 1) {
+            missingFields.push("MapPath/MapTarget/MapGoal 三选一");
+        }
+    }
+
+    if (!isFieldMissing(route.MapTargetTier) && !hasMapTarget) {
+        missingFields.push("MapTargetTier 仅可与 MapTarget 同时使用");
+    }
+
+    return missingFields;
+}
 
 // 未适配任务不会进入寻路/拍照分支；这些值只用于渲染模板中不可达的路线节点。
 const UNREACHABLE_ROUTE_PLACEHOLDER = {
@@ -109,6 +165,7 @@ function buildNavigationParams({
     NoEnsureInitialMovementState,
     hasMapTarget,
     hasMapGoal,
+    isDirectPhoto,
     heading,
 }) {
     // 1. 构建位置断言识别节点
@@ -131,7 +188,14 @@ function buildNavigationParams({
               };
 
     // 2. 构建导航动作节点
-    const MapNavigationAction = hasMapTarget ? "MapNavigateAction" : hasMapGoal ? "MapTrackerGoal" : "MapTrackerMove";
+    const shouldAdjustDirectPhotoHeading = isDirectPhoto && heading.HasHeading;
+    const RouteAction = shouldAdjustDirectPhotoHeading
+        ? "MapTrackerToward"
+        : hasMapTarget
+          ? "MapNavigateAction"
+          : hasMapGoal
+            ? "MapTrackerGoal"
+            : "MapTrackerMove";
     const mapTrackerExtraParams = {
         ...(heading.HasHeading
             ? {
@@ -146,45 +210,48 @@ function buildNavigationParams({
             : {}),
         ...(NoEnsureInitialMovementState ? {no_ensure_initial_movement_state: true} : {}),
     };
-    const MapNavigationParam =
-        MapNavigationAction === "MapNavigateAction"
+    const RouteActionParam = shouldAdjustDirectPhotoHeading
+        ? {
+              angle: heading.Heading,
+          }
+        : RouteAction === "MapNavigateAction"
+          ? {
+                // 使用 MapNavigateAction
+                path: [
+                    {
+                        action: "NAVMESH",
+                        target: MapTarget,
+                        ...(!isFieldMissing(MapTargetTier) ? {target_tier: MapTargetTier} : {}),
+                    },
+                    ...(heading.HasHeading
+                        ? [
+                              {
+                                  action: "HEADING",
+                                  angle: heading.Heading,
+                              },
+                          ]
+                        : []),
+                ],
+            }
+          : RouteAction === "MapTrackerGoal"
             ? {
-                  // 使用 MapNavigateAction
-                  path: [
-                      {
-                          action: "NAVMESH",
-                          target: MapTarget,
-                          ...(!isFieldMissing(MapTargetTier) ? {target_tier: MapTargetTier} : {}),
-                      },
-                      ...(heading.HasHeading
-                          ? [
-                                {
-                                    action: "HEADING",
-                                    angle: heading.Heading,
-                                },
-                            ]
-                          : []),
-                  ],
+                  // 使用 MapTrackerGoal
+                  map_name: MapName,
+                  target: MapGoal,
+                  ...mapTrackerExtraParams,
               }
-            : MapNavigationAction === "MapTrackerGoal"
-              ? {
-                    // 使用 MapTrackerGoal
-                    map_name: MapName,
-                    target: MapGoal,
-                    ...mapTrackerExtraParams,
-                }
-              : {
-                    // 使用 MapTrackerMove
-                    map_name: MapName,
-                    path: MapPath,
-                    ...mapTrackerExtraParams,
-                };
+            : {
+                  // 使用 MapTrackerMove
+                  map_name: MapName,
+                  path: MapPath,
+                  ...mapTrackerExtraParams,
+              };
 
     return {
         MapAssertRecognition,
         MapAssertParam,
-        MapNavigationAction,
-        MapNavigationParam,
+        RouteAction,
+        RouteActionParam,
     };
 }
 
@@ -205,33 +272,30 @@ export function createRouteResolver(routeConfig, options = {}) {
                 hasMapTarget,
                 hasMapGoal,
             ].filter(Boolean).length;
+            const isDirectPhoto = isFieldMissing(override?.MapAssert) && navigationConfigCount === 0;
             const canSkipMapAssert = QuickTeleport && navigationConfigCount === 1 && (hasMapTarget || hasMapGoal);
 
             const resolved = {};
-            const missingFields = [];
-            for (const key of REQUIRED_ROUTE_FIELDS) {
+            const missingFields = collectMissingRouteFields(override);
+            for (const key of ROUTE_RENDER_FIELDS) {
                 const overrideValue = override?.[key];
                 if (key === "EnterMap" && QuickTeleport) {
                     resolved[key] = isFieldMissing(overrideValue) ? UNREACHABLE_ROUTE_PLACEHOLDER[key] : overrideValue;
                     continue;
                 }
-                if (key === "MapAssert" && canSkipMapAssert) {
+                if (key === "MapAssert" && (canSkipMapAssert || isDirectPhoto)) {
+                    resolved[key] = isFieldMissing(overrideValue) ? UNREACHABLE_ROUTE_PLACEHOLDER[key] : overrideValue;
+                    continue;
+                }
+                if (key === "MapName" && isDirectPhoto) {
                     resolved[key] = isFieldMissing(overrideValue) ? UNREACHABLE_ROUTE_PLACEHOLDER[key] : overrideValue;
                     continue;
                 }
                 if (isFieldMissing(overrideValue)) {
-                    missingFields.push(key);
                     resolved[key] = UNREACHABLE_ROUTE_PLACEHOLDER[key];
                 } else {
                     resolved[key] = overrideValue;
                 }
-            }
-
-            if (navigationConfigCount === 0) {
-                missingFields.push("MapPath/MapTarget/MapGoal");
-            }
-            if (navigationConfigCount > 1) {
-                missingFields.push("MapPath/MapTarget/MapGoal 三选一");
             }
 
             const {EnterMap, MapName, MapAssert, CameraSwipeDirection} = resolved;
@@ -281,7 +345,8 @@ export function createRouteResolver(routeConfig, options = {}) {
                 Replace,
                 NoEnsureInitialMovementState,
                 QuickTeleport,
-                ShouldAssertAfterTeleport: navigationConfigCount !== 1 || hasMapPath,
+                IsDirectPhoto: isAdapted && isDirectPhoto,
+                ShouldAssertAfterTeleport: !isDirectPhoto && (navigationConfigCount !== 1 || hasMapPath),
                 ...heading,
                 ...buildNavigationParams({
                     MapName,
@@ -293,6 +358,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                     NoEnsureInitialMovementState,
                     hasMapTarget: navigationConfigCount === 1 && hasMapTarget,
                     hasMapGoal: navigationConfigCount === 1 && hasMapGoal,
+                    isDirectPhoto,
                     heading,
                 }),
             };

@@ -390,6 +390,15 @@
                 }
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ThilluTakePhoto"
+        ]
+    },
+    "ThilluTakePhoto": {
+        "desc": "在表象任务拍照点开始拍照",
+        "pre_delay": 0,
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "ThilluAdjustCamera"

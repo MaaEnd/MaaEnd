@@ -307,10 +307,7 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "GoTo${Id}StartPos",
-            "GoTo${Id}NotAtStartPos"
-        ]
+        "next": "${GoToNext}"
     },
     "GoTo${Id}StartPos": {
         "rate_limit": 0,
@@ -325,7 +322,7 @@
         ]
     },
     "GoTo${Id}NotAtStartPos": {
-        "desc": "不在${Name}任务开始位置附近，${AfterTeleportDescription}",
+        "desc": "${GoToNotAtStartPosDescription}",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -339,11 +336,20 @@
         "next": "${AfterTeleportNext}"
     },
     "GoTo${Id}Move": {
-        "desc": "自动寻路前往${Name}",
+        "desc": "${MoveDescription}",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "${MapNavigationAction}",
-        "custom_action_param": "${MapNavigationParam}",
+        "custom_action": "${RouteAction}",
+        "custom_action_param": "${RouteActionParam}",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "${Id}TakePhoto"
+        ]
+    },
+    "${Id}TakePhoto": {
+        "desc": "在${Name}任务拍照点开始拍照",
+        "pre_delay": 0,
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "${GoToMonitoringTerminal}",
             "EnvironmentMonitoringAdjustCamera": "${Id}AdjustCamera"

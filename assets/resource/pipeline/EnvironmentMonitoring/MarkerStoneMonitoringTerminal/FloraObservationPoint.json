@@ -390,6 +390,15 @@
                 }
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FloraObservationPointTakePhoto"
+        ]
+    },
+    "FloraObservationPointTakePhoto": {
+        "desc": "在植物观察点任务拍照点开始拍照",
+        "pre_delay": 0,
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "FloraObservationPointAdjustCamera"

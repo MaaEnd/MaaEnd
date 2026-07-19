@@ -434,6 +434,15 @@
                 }
             }
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BeaconDamagedInTheBlightTideTakePhoto"
+        ]
+    },
+    "BeaconDamagedInTheBlightTideTakePhoto": {
+        "desc": "在侵蚀潮中损坏的信标任务拍照点开始拍照",
+        "pre_delay": 0,
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "BeaconDamagedInTheBlightTideAdjustCamera"

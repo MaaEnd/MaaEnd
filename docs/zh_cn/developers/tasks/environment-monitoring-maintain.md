@@ -70,19 +70,28 @@ EnvironmentMonitoringMain
                  ├─ {Id}NotAdapted   （路线未适配 → 仅提示并结束该观察点）
                  └─ GoTo{Id}         （路线已适配 → 继续前往）
                       ├─ 默认传送：GoTo{Id}
-                      │    ├─ GoTo{Id}StartPos （已在起点 → 寻路）
-                      │    └─ GoTo{Id}NotAtStartPos
-                      │         └─ SubTask: ${EnterMap}      （SceneManager 万能跳转）
+                      │    ├─ 寻路路线
+                      │    │    ├─ GoTo{Id}StartPos （已在起点 → 寻路）
+                      │    │    └─ GoTo{Id}NotAtStartPos → SubTask: ${EnterMap}
+                      │    └─ 传送后直拍
+                      │         └─ GoTo{Id}NotAtStartPos → SubTask: ${EnterMap}
+                      │              ├─ 无 Heading → {Id}TakePhoto
+                      │              └─ 有 Heading → GoTo{Id}Move（MapTrackerToward）
                       └─ QuickTeleport: true
                            ├─ Track{Id} → {Id}InQuickTeleportMap
                            └─ AlreadyTracked{Id} → {Id}OpenTrackedMissionMap → {Id}InQuickTeleportMap
                                 └─ {Id}QuickTeleportSelect   （点击“前往传送”）
                                      └─ {Id}QuickTeleport    （点击“传送”）
                                           └─ {Id}QuickTeleportDone
-                                               └─ GoTo{Id}Move
-                                                    ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
-                                                    ├─ anchor: EnvironmentMonitoringAdjustCamera   → ${Id}AdjustCamera
-                                                    └─ next: EnvironmentMonitoringTakePhoto
+                                               ├─ 寻路路线 → GoTo{Id}Move
+                                               └─ 传送后直拍
+                                                    ├─ 无 Heading → {Id}TakePhoto
+                                                    └─ 有 Heading → GoTo{Id}Move
+GoTo{Id}Move                         （寻路动作；直拍有 Heading 时为 MapTrackerToward）
+  └─ {Id}TakePhoto
+       ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
+       ├─ anchor: EnvironmentMonitoringAdjustCamera   → ${Id}AdjustCamera
+       └─ next: EnvironmentMonitoringTakePhoto
 EnvironmentMonitoringTakePhoto       （进入拍照模式 → 朝向 → 拍照）
   └─ [Anchor]EnvironmentMonitoringBackToTerminal
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
@@ -155,22 +164,22 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 
 `data.mjs` 的默认导出是数组，每个元素 = 一个观察点的渲染上下文（字段名与 `template.json` 中 `${Xxx}` 占位符对应）。`pnpm generate:EnvironmentMonitoring` 会先调用 `sync-routes.mjs` 刷新上一级 `routes.json`；随后 `model.mjs` 只读 `routes.json` 与 `kite_station_i18n.json`，通过 `route-resolver.mjs` 装配规范化任务，`data.mjs` 再投影出最终行：
 
-| 字段                                                                            | 来源                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Station`                                                                       | `kite_station_i18n.json` 的英文站名（PascalCase）                                                                                                                                                                                                                                                                                                                                                                            |
-| `Id`                                                                            | 默认由官方英文名 PascalCase 自动生成；会同步写回 `routes.json`，等价于最终模板使用的节点 ID                                                                                                                                                                                                                                                                                                                                  |
-| `Name`                                                                          | 来自 `kite_station_i18n.json` 的中文名；`MissionId` 只作为 `model.mjs` 匹配 `routes.json` 的主键，不透传给模板                                                                                                                                                                                                                                                                                                               |
-| `GoToMonitoringTerminal`                                                        | 由 `Station` 决定                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `EnterMap`                                                                      | `routes.json[*].EnterMap`，默认传送入口，必须是 SceneManager 中存在的节点名；启用 `QuickTeleport` 时不会使用，可省略                                                                                                                                                                                                                                                                                                         |
-| `QuickTeleport`                                                                 | `routes.json[*].QuickTeleport`，可选布尔值，默认 `false`；启用后从追踪任务地图依次点击“前往传送”和“传送”，绕过 `EnterMap` 万能跳转                                                                                                                                                                                                                                                                                           |
-| `MapName` / `MapAssert` / `MapPath` / `MapTarget` / `MapTargetTier` / `MapGoal` | `routes.json[*]`，对应初始位置判断与后续寻路参数；`MapPath` 生成 `MapTrackerAssertLocation` + `MapTrackerMove`，`MapTarget` 生成 `MapLocateAssertLocation` + `MapNavigateAction` 的 `NAVMESH` 目标点，`MapTargetTier` 可选生成 `target_tier`，`MapGoal` 生成 `MapTrackerAssertLocation` + `MapTrackerGoal`；`MapPath` / `MapTarget` / `MapGoal` 三者必须且只能选一个；`QuickTeleport + MapTarget/MapGoal` 可省略 `MapAssert` |
-| `CameraSwipeDirection`                                                          | `routes.json[*]`，必须是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 之一                                                                                                                                                                                                                                                                                                                                         |
-| `CameraMaxHit`                                                                  | `routes.json[*].CameraMaxHit`，缺省为 `2`；对应 `${Id}AdjustCamera` 滑屏动作的最大命中次数                                                                                                                                                                                                                                                                                                                                   |
-| `OcrReplace`                                                                    | 由 `routes.json[*].Replace` 透传到 `Check${Id}Text.replace` 与 `In${Id}Mission.replace`；用于按任务配置任务列表和任务详情页 OCR 的易混字符替换，不影响路线是否已适配的判断                                                                                                                                                                                                                                                   |
-| `ExpectedText`                                                                  | 由 `kite_station_i18n.json` 的 `mission.name` 多语言 map 自动展开（5 语言，英文转柔性正则）                                                                                                                                                                                                                                                                                                                                  |
-| `InExpectedText`                                                                | 由 `kite_station_i18n.json` 的 `mission.shotTargetName` 自动展开                                                                                                                                                                                                                                                                                                                                                             |
-| `TrackOrGoToNext` / `AfterTrackNext` / `AfterAlreadyTrackedNext`                | 由 `data.mjs` 根据路线是否完整及 `QuickTeleport` 自动决定：默认进入 `GoTo${Id}`；快捷传送时，开始追踪后等待任务地图，已追踪则先点击定位图标打开任务地图；未适配时进入 `${Id}NotAdapted`                                                                                                                                                                                                                                      |
-| `AfterTeleportDescription` / `AfterTeleportNext`                                | 由 `data.mjs` 根据寻路类型自动决定：`MapPath` 传送后返回 `GoTo${Id}StartPos` 复核落点，`MapTarget` / `MapGoal` 传送后直接进入 `GoTo${Id}Move`                                                                                                                                                                                                                                                                                |
+| 字段                                                                            | 来源                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Station`                                                                       | `kite_station_i18n.json` 的英文站名（PascalCase）                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `Id`                                                                            | 默认由官方英文名 PascalCase 自动生成；会同步写回 `routes.json`，等价于最终模板使用的节点 ID                                                                                                                                                                                                                                                                                                                                                                       |
+| `Name`                                                                          | 来自 `kite_station_i18n.json` 的中文名；`MissionId` 只作为 `model.mjs` 匹配 `routes.json` 的主键，不透传给模板                                                                                                                                                                                                                                                                                                                                                    |
+| `GoToMonitoringTerminal`                                                        | 由 `Station` 决定                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `EnterMap`                                                                      | `routes.json[*].EnterMap`，默认传送入口，必须是 SceneManager 中存在的节点名；启用 `QuickTeleport` 时不会使用，可省略                                                                                                                                                                                                                                                                                                                                              |
+| `QuickTeleport`                                                                 | `routes.json[*].QuickTeleport`，可选布尔值，默认 `false`；启用后从追踪任务地图依次点击“前往传送”和“传送”，绕过 `EnterMap` 万能跳转                                                                                                                                                                                                                                                                                                                                |
+| `MapName` / `MapAssert` / `MapPath` / `MapTarget` / `MapTargetTier` / `MapGoal` | `routes.json[*]`，对应初始位置判断与后续寻路参数；`MapPath` 生成 `MapTrackerAssertLocation` + `MapTrackerMove`，`MapTarget` 生成 `MapLocateAssertLocation` + `MapNavigateAction` 的 `NAVMESH` 目标点，`MapTargetTier` 可选生成 `target_tier`，`MapGoal` 生成 `MapTrackerAssertLocation` + `MapTrackerGoal`。传送后直拍时这些字段全部省略；寻路时 `MapPath` / `MapTarget` / `MapGoal` 三者必须且只能选一个；`QuickTeleport + MapTarget/MapGoal` 可省略 `MapAssert` |
+| `CameraSwipeDirection`                                                          | `routes.json[*]`，必须是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 之一                                                                                                                                                                                                                                                                                                                                                                              |
+| `CameraMaxHit`                                                                  | `routes.json[*].CameraMaxHit`，缺省为 `2`；对应 `${Id}AdjustCamera` 滑屏动作的最大命中次数                                                                                                                                                                                                                                                                                                                                                                        |
+| `OcrReplace`                                                                    | 由 `routes.json[*].Replace` 透传到 `Check${Id}Text.replace` 与 `In${Id}Mission.replace`；用于按任务配置任务列表和任务详情页 OCR 的易混字符替换，不影响路线是否已适配的判断                                                                                                                                                                                                                                                                                        |
+| `ExpectedText`                                                                  | 由 `kite_station_i18n.json` 的 `mission.name` 多语言 map 自动展开（5 语言，英文转柔性正则）                                                                                                                                                                                                                                                                                                                                                                       |
+| `InExpectedText`                                                                | 由 `kite_station_i18n.json` 的 `mission.shotTargetName` 自动展开                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `TrackOrGoToNext` / `AfterTrackNext` / `AfterAlreadyTrackedNext`                | 由 `data.mjs` 根据路线是否完整及 `QuickTeleport` 自动决定：默认进入 `GoTo${Id}`；快捷传送时，开始追踪后等待任务地图，已追踪则先点击定位图标打开任务地图；未适配时进入 `${Id}NotAdapted`                                                                                                                                                                                                                                                                           |
+| `GoToNext` / `AfterTeleportDescription` / `AfterTeleportNext`                   | 由 `data.mjs` 根据路线类型自动决定：传送后直拍始终执行真实传送并进入 `${Id}TakePhoto`；`MapPath` 传送后返回 `GoTo${Id}StartPos` 复核落点；`MapTarget` / `MapGoal` 传送后直接进入 `GoTo${Id}Move`                                                                                                                                                                                                                                                                  |
 
 ### 终端分组：`terminals-config.json`
 
@@ -219,8 +228,9 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 观察点的传送与寻路流程会按路线类型组合使用 MapTracker 与 MapNavigator：
 
 - `MapTrackerAssertLocation` / `MapLocateAssertLocation`（识别）：根据当前小地图判断是否在 `MapAssert` 矩形内。普通传送路线用于判断是否需要调用 `EnterMap`，`QuickTeleport + MapPath` 用于传送后复核固定起点；`QuickTeleport + MapTarget/MapGoal` 不进入该节点，可省略 `MapAssert`。
-- `MapTrackerMove` / `MapTrackerGoal` / `MapNavigateAction`（动作）：沿 `MapPath` 路径走到目标点，按 `MapGoal` 调用 `MapTrackerGoal` 自动规划并前往目标，或按 `MapTarget` 生成 `NAVMESH` 目标点并前往目标；`MapTargetTier` 会透传为 `target_tier`，用于目标坐标与起点不在同一 tier 的情况；过程中支持 anchor 机制改写 `EnvironmentMonitoringBackToTerminal` / `EnvironmentMonitoringAdjustCamera`。
-- 传送后仅 `MapPath` 路线再次复核 `MapAssert`；`MapTarget` / `MapGoal` 路线依靠 NavMesh 从传送点附近自行前往目标，直接进入寻路动作。
+- `MapTrackerMove` / `MapTrackerGoal` / `MapNavigateAction`（动作）：沿 `MapPath` 路径走到目标点，按 `MapGoal` 调用 `MapTrackerGoal` 自动规划并前往目标，或按 `MapTarget` 生成 `NAVMESH` 目标点并前往目标；`MapTargetTier` 会透传为 `target_tier`，用于目标坐标与起点不在同一 tier 的情况。
+- `${Id}TakePhoto`（包装节点）：为寻路和直拍路线统一设置 `EnvironmentMonitoringBackToTerminal` / `EnvironmentMonitoringAdjustCamera` anchor，再进入公共拍照流程。
+- 传送后直拍不执行地图断言或寻路；配置 `Heading` 时会独立调用 `MapTrackerToward` 调整角色朝向。`MapPath` 路线传送后再次复核 `MapAssert`；`MapTarget` / `MapGoal` 路线依靠 NavMesh 从传送点附近自行前往目标。
 
 详细参数与坐标录制方式见 [map-tracker.md](../components/map-tracker.md)、[map-locator.md](../components/map-locator.md) 与 [map-navigator.md](../components/map-navigator.md)。
 
@@ -228,7 +238,21 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 默认传送路线的 `EnterMap` 字段必须填写 SceneManager 中已存在的传送节点名，例如 `SceneEnterWorldWulingJingyuValley7`。如果新增观察点位于尚未支持的传送点，需要先在 `assets/resource/pipeline/SceneManager/` 与 `assets/resource/pipeline/Interface/` 下补齐对应的 `SceneEnterWorld*` 与场景识别节点（参见 [scene-manager.md](../scene-manager.md)）。启用 `QuickTeleport: true` 时不会调用 `EnterMap`，该字段可以省略。
 
-`model.mjs` 通过判断 `routes.json` 条目是否完整决定是否进入寻路/拍照流程，未适配点会直接走 `${Id}NotAdapted` 分支。要让观察点完整自动化，必须在 `routes.json` 里给齐 `MapName` / `CameraSwipeDirection`，并在 `MapPath` / `MapTarget` / `MapGoal` 中三选一；传送入口则在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种。普通传送和 `QuickTeleport + MapPath` 还必须提供 `MapAssert`，`QuickTeleport + MapTarget/MapGoal` 可省略。
+`model.mjs` 通过判断 `routes.json` 条目是否完整决定是否进入寻路/拍照流程，未适配点会直接走 `${Id}NotAdapted` 分支。所有已适配条目都必须在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种传送入口，并配置 `CameraSwipeDirection`。如果传送落点已经满足拍照条件，则省略 `MapName`、`MapAssert` 和全部寻路相关字段，生成器自动进入直拍分支；否则需要配置 `MapName`，在 `MapPath` / `MapTarget` / `MapGoal` 中三选一，并按路线类型补 `MapAssert`。
+
+### `routes.json` 配置类型
+
+所有完整适配条目都需要元数据、`CameraSwipeDirection`，以及 `EnterMap` / `QuickTeleport: true` 中的一种传送入口。不同路线类型的字段组合如下：
+
+| 类型          | 地图与路线字段                                                         | `MapAssert`                  | 运行行为                                   |
+| ------------- | ---------------------------------------------------------------------- | ---------------------------- | ------------------------------------------ |
+| metadata-only | 仅 `MissionId` / `Name` / `Id`                                         | 不填                         | 仅接取并追踪，不传送或拍照                 |
+| 传送后直拍    | 不填 `MapName` 和寻路字段；可选 `Heading`                              | 不填                         | 传送 → 可选 `MapTrackerToward` → 拍照      |
+| `MapPath`     | `MapName` + `MapPath`；可选 `Heading` / `NoEnsureInitialMovementState` | 默认传送和快捷传送都必填     | 断言固定起点 → `MapTrackerMove` → 拍照     |
+| `MapTarget`   | `MapName` + `MapTarget`；跨层时可加 `MapTargetTier`                    | 默认传送必填；快捷传送可省略 | `MapNavigateAction` 的 NAVMESH 寻路 → 拍照 |
+| `MapGoal`     | `MapName` + `MapGoal`；可选 `Heading` / `NoEnsureInitialMovementState` | 默认传送必填；快捷传送可省略 | `MapTrackerGoal` 自动寻路 → 拍照           |
+
+`CameraMaxHit` 和 `Replace` 适用于所有已适配路线，不改变路线类型。直拍配置只能用于已经游戏实测确认的传送落点；缺少路线数据时继续保留 metadata-only 状态。
 
 ### 主菜单入口
 
@@ -276,6 +300,22 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 }
 ```
 
+传送点可直接拍照时使用精简写法，不增加额外开关字段：
+
+```jsonc
+{
+    "MissionId": "m1m30",
+    "Name": "我的新观察点",
+    "Id": "MyNewObservationPoint",
+    "EnterMap": "SceneEnterWorldWulingXxx",
+    // 或使用 "QuickTeleport": true
+    "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+    "Heading": 90, // 可选；传送后先原地调整角色朝向
+}
+```
+
+直拍条目不要填写 `MapName`、`MapAssert`、`MapPath`、`MapTarget`、`MapTargetTier`、`MapGoal` 或 `NoEnsureInitialMovementState`。可按实测结果配置 `Heading`；生成器会在传送后独立调用 `MapTrackerToward`，再进入拍照流程。生成器根据“传送入口与拍照方向完整，同时没有地图断言和寻路配置”识别直拍模式。仅含 `MissionId` / `Name` / `Id` 的 metadata-only 条目仍然属于未适配。
+
 > [!IMPORTANT]
 >
 > `routes.json` 是严格 JSON：双引号、不允许行内注释、不允许尾随逗号。上述代码块里的 `//` 只是文档示意，写进真实文件会让 JSON 解析失败。
@@ -286,7 +326,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 ### 4. 录制坐标和路径
 
-参考 [map-navigator.md](../components/map-navigator.md) 的 GUI 工具录制所需的 `MapAssert` / `MapPath`，复制 MapNavigateAction 的 `NAVMESH` 目标点填入 `MapTarget`，需要跨层目标时把 `target_tier` 填入 `MapTargetTier`，或复制 MapTrackerGoal 目标点填入 `MapGoal`。仅 `QuickTeleport + MapTarget/MapGoal` 不需要录制 `MapAssert`。随后在游戏中确认：
+如果传送点不能直接拍照，参考 [map-navigator.md](../components/map-navigator.md) 的 GUI 工具录制所需的 `MapAssert` / `MapPath`，复制 MapNavigateAction 的 `NAVMESH` 目标点填入 `MapTarget`，需要跨层目标时把 `target_tier` 填入 `MapTargetTier`，或复制 MapTrackerGoal 目标点填入 `MapGoal`。仅 `QuickTeleport + MapTarget/MapGoal` 不需要录制 `MapAssert`。随后在游戏中确认：
 
 - `MapName` 与使用的工具一致：`MapPath` 路线填写 MapTracker 的 `map_name`（如 `map02_lv001` / 正则），`MapGoal` 路线填写可加载 NavMesh 的精确 MapTracker `map_name`（如 `map02_lv001`），`MapTarget` 路线填写 MapLocate 的 `zone_id`（如 `Wuling_Base`），可选的 `MapTargetTier` 填 MapNavigator `target_tier` 的区域名。两套标识不要混用。
 
@@ -329,7 +369,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 
 1. `tools/pipeline-generate/EnvironmentMonitoring/routes.json` 中新增/修改条目是否字段齐全。
 2. `routes.json` 中新增条目的 `MissionId` 是否能匹配 `kite_station_i18n.json` 的 `missionId`；`Id` 由生成器自动刷新。
-3. 已适配条目的传送入口已在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种，`CameraSwipeDirection` 已填写真实值，且 `MapPath` / `MapTarget` / `MapGoal` 已三选一填写；普通传送和 `QuickTeleport + MapPath` 另有真实 `MapAssert`。
+3. 已适配条目的传送入口已在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种，`CameraSwipeDirection` 已填写真实值；直拍路线没有任何地图与寻路字段，寻路路线则在 `MapPath` / `MapTarget` / `MapGoal` 中三选一，并按类型补齐真实 `MapAssert`。
 4. 重生成的 `Terminals.json` 中各 `{Station}MonitoringTerminalLoop.next` 包含全部新 `[JumpBack]{Id}Job`，并以 `EnvironmentMonitoringTerminalFinish` 收尾。
 5. 若填写了 `EnterMap`，其引用的 `Scene*` 节点确实存在于 `assets/resource/pipeline/SceneManager/` 与 `Interface/` 中。
 6. `CameraSwipeDirection` 是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 四者之一。
@@ -344,6 +384,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 - **`Id` 与 `kite_station_i18n.json` 英文名漂移**：当游戏侧改英文名后，自动算出的 `Id` 会变，可能带来生成文件重命名或旧文件残留；重新生成后 `routes.json` 里的 `Id` 会同步刷新。
 - **默认传送路线的 `EnterMap` 写了不存在的 Scene 节点**：生成本身不校验 Scene 引用，运行时会卡在 `GoTo{Id}NotAtStartPos`；只有明确启用 `QuickTeleport: true` 时才能省略。
 - **`MapPath` / `MapTarget` / `MapGoal` 经过未解锁区域 / 战斗 / 互动物**：MapTracker 与 MapNavigateAction 都不处理战斗、剧情、过图和机关交互，路径只能选纯通行段。
+- **把缺路线数据误写成直拍**：只有游戏实测确认传送落点能完成拍照时，才能保留“传送入口 + `CameraSwipeDirection`”的精简配置；缺少真实路线数据时应继续保留 metadata-only 未适配条目。
 - **`Station` 新增但 `Locations.json` / `EnvironmentMonitoringLoop.next` 没同步**：新终端无法被识别进入，所有观察点都跑不到。
 - **`anchor` 占位符名一致性**：`template.json` 中 `anchor` 的 key 名 `EnvironmentMonitoringBackToTerminal` 必须与 `TakePhoto.json` 中的 `[Anchor]EnvironmentMonitoringBackToTerminal` 保持完全一致，否则 anchor 机制失效。
-- **「生成成功 ≠ 已完整适配」**：没有 `routes.json` 条目、或条目存在但必填字段缺失的观察点会生成成降级流程，只接取并追踪，不会前往拍照。完整自动化必须在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种传送入口，补齐 `MapName`、`CameraSwipeDirection`，并在 `MapPath` / `MapTarget` / `MapGoal` 中三选一；普通传送和 `QuickTeleport + MapPath` 还需要 `MapAssert`。
+- **「生成成功 ≠ 已完整适配」**：没有 `routes.json` 条目、或条目存在但必填字段缺失的观察点会生成成降级流程，只接取并追踪，不会前往拍照。完整自动化必须选择真实传送入口并配置 `CameraSwipeDirection`；随后要么使用经过实测的传送后直拍精简写法，要么补齐地图断言和寻路配置。

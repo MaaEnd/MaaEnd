@@ -1,6 +1,6 @@
 ---
 name: environment-monitoring-add-route
-description: "新增、补全或改写 MaaEnd EnvironmentMonitoring 环境监测观察点路线配置。凡是用户要求适配 zmdmap / kite_station_i18n 新观察点、补充 routes.json、选择 MapPath / MapTarget / MapGoal、配置 MapTargetTier / Heading / Replace，或重新生成环境监测 Pipeline 时都应使用。会先同步 metadata-only 条目，按 MissionId 原位更新，验证传送点与路线字段，并自动同步五语言失败提示。"
+description: "新增、补全或改写 MaaEnd EnvironmentMonitoring 环境监测观察点路线配置。凡是用户要求适配 zmdmap / kite_station_i18n 新观察点、补充 routes.json、配置传送后直拍、选择 MapPath / MapTarget / MapGoal、配置 MapTargetTier / Heading / Replace，或重新生成环境监测 Pipeline 时都应使用。会先同步 metadata-only 条目，按 MissionId 原位更新，验证传送点与路线字段，并自动同步五语言失败提示。"
 argument-hint: "可选：观察点名称，以及录制好的 EnterMap、MapAssert、MapPath / MapTarget / MapGoal 等路线数据"
 ---
 
@@ -45,23 +45,24 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、MapAsse
 
 ### 完整适配必填字段
 
-| 字段                   | 说明                                                                                                                                 |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| 传送入口               | 默认填写真实 `EnterMap`（通常为 `SceneEnterWorld*`）；或启用 `QuickTeleport: true`，从追踪任务地图快捷传送                           |
-| `MapName`              | `MapPath`：MapTracker `map_name`，可用正则；`MapGoal`：可加载 NavMesh 的精确 MapTracker `map_name`；`MapTarget`：MapLocate `zone_id` |
-| `MapAssert`            | 初始位置矩形 `[x, y, w, h]`；普通传送和 `QuickTeleport + MapPath` 必填，`QuickTeleport + MapTarget/MapGoal` 可省略                   |
-| 三选一的寻路字段       | `MapPath` / `MapTarget` / `MapGoal` 必须且只能填写一个                                                                               |
-| `CameraSwipeDirection` | `EnvironmentMonitoringSwipeScreenUp/Down/Left/Right`，用于进入拍照后的摄像头调整                                                     |
+| 字段                   | 说明                                                                                                                      |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| 传送入口               | 默认填写真实 `EnterMap`（通常为 `SceneEnterWorld*`）；或启用 `QuickTeleport: true`，从追踪任务地图快捷传送                |
+| 路线方式               | 传送点可直接拍照时不填地图与寻路字段；否则 `MapPath` / `MapTarget` / `MapGoal` 必须且只能填写一个                         |
+| `MapName`              | 仅寻路路线必填。`MapPath`：MapTracker `map_name`；`MapGoal`：精确 MapTracker `map_name`；`MapTarget`：MapLocate `zone_id` |
+| `MapAssert`            | 直拍路线不填；普通传送和 `QuickTeleport + MapPath` 必填，`QuickTeleport + MapTarget/MapGoal` 可省略                       |
+| `CameraSwipeDirection` | `EnvironmentMonitoringSwipeScreenUp/Down/Left/Right`，用于进入拍照后的摄像头调整                                          |
 
-### 三种寻路模式
+### 四种路线模式
 
 | 模式        | 数据格式          | 生成动作            | 适用场景                                                                    |
 | ----------- | ----------------- | ------------------- | --------------------------------------------------------------------------- |
 | `MapPath`   | `[[x1, y1], ...]` | `MapTrackerMove`    | 需要按实录路径逐点行走；传送后会再次用 `MapAssert` 复核固定起点             |
 | `MapTarget` | `[x, y]`          | `MapNavigateAction` | 使用 MapLocate / MapNavigator 的 NAVMESH 目标；快捷传送时可省略 `MapAssert` |
 | `MapGoal`   | `[x, y]`          | `MapTrackerGoal`    | 使用 MapTracker NavMesh 自动寻路；快捷传送时可省略 `MapAssert`              |
+| 传送后直拍  | 不配置地图字段    | 可选转向后拍照      | 传送落点已经满足拍照条件；可配置 `Heading`，但不配置地图断言或寻路字段      |
 
-三种模式都只适合普通可通行路线，不负责战斗、剧情、过图、机关或交互。遇到这些情况不要用更多重试或硬延迟掩盖，应保留未适配状态或重新设计真实可通行路线。
+三种寻路模式都只适合普通可通行路线，不负责战斗、剧情、过图、机关或交互。传送后直拍必须经过游戏实测确认；不能因为缺少路线数据就把未适配条目写成直拍。遇到这些情况不要用更多重试或硬延迟掩盖，应保留未适配状态或重新设计真实可通行路线。
 
 ### 可选字段
 
@@ -70,7 +71,7 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、MapAsse
 | `MapTargetTier`                | 仅用于 `MapTarget`。目标点取自 tier 底图且与起点不在同一层时填写 MapNavigator `target_tier`；否则省略                  |
 | `CameraMaxHit`                 | 摄像头最大滑屏次数，默认 2；只有实测需要其他值时才写                                                                   |
 | `Replace`                      | OCR 易混字符替换表 `[["误识别", "正确字符"], ...]`；仅有实际误识别证据时填写                                           |
-| `Heading`                      | 到达拍照点后的角色朝向，范围 `[0, 360)`；与 `CameraSwipeDirection` 的摄像头滑动相互独立                                |
+| `Heading`                      | 可选。进入拍照模式前的角色朝向，范围 `[0, 360)`；直拍路线会在传送后独立调用 `MapTrackerToward`                         |
 | `NoEnsureInitialMovementState` | 仅对 `MapPath` / `MapGoal` 的 MapTracker 动作有意义。起点紧贴桥边、悬崖等危险地形时设为 `true`；默认 `false` 时省略    |
 | `QuickTeleport`                | 可选布尔值，默认 `false`。启用后依次点击任务地图的“前往传送”和“传送”，绕过 `EnterMap` 万能跳转；此时 `EnterMap` 可省略 |
 
@@ -101,8 +102,8 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 用户没有一次性提供全部数据时，每次只询问一个字段，按以下顺序进行：
 
 1. 传送入口：真实 `EnterMap`，或已实测任务地图支持的 `QuickTeleport: true`
-2. 寻路方式：`MapPath` / `MapTarget` / `MapGoal`
-3. `MapName`
+2. 路线方式：已实测可传送后直拍，或 `MapPath` / `MapTarget` / `MapGoal`
+3. 直拍时直接跳到第 7 项；寻路时收集 `MapName`
 4. `MapAssert`（普通传送或 `QuickTeleport + MapPath` 必填；`QuickTeleport + MapTarget/MapGoal` 跳过）
 5. 所选寻路字段的坐标
 6. `MapTargetTier`（仅 `MapTarget` 且确有跨 tier 目标时）
@@ -135,7 +136,8 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 
 - 严格 JSON：双引号、无注释、无尾随逗号、4 空格缩进；
 - `MapPath` 的每个坐标对单独一行；
-- `MapPath` / `MapTarget` / `MapGoal` 只能保留一个；切换模式时删除旧模式字段；
+- 寻路路线中 `MapPath` / `MapTarget` / `MapGoal` 只能保留一个；切换模式时删除旧模式字段；
+- 传送后直拍不增加开关字段，删除 `MapName`、`MapAssert`、三种寻路字段、`MapTargetTier` 和 `NoEnsureInitialMovementState`；按实测结果可保留 `Heading`；
 - `MapTargetTier` 只能与 `MapTarget` 同时存在；
 - 默认值不写：`CameraMaxHit: 2`、`NoEnsureInitialMovementState: false`、`QuickTeleport: false`；
 - 不确定的可选值直接省略，不写占位值或 TODO 注释；
@@ -169,7 +171,7 @@ pnpm test
 检查：
 
 - 目标观察点不再出现在待适配列表；有意保留 metadata-only 时除外；
-- `routes.json` 中没有重复 `MissionId`，且寻路字段恰好一个；
+- `routes.json` 中没有重复 `MissionId`；寻路路线恰好配置一个寻路字段，直拍路线没有地图与寻路字段；
 - `EnterMap`、`MapName`、坐标和方向仍与用户提供的数据一致；
 - 生成目录包含对应 `{Station}/{Id}.json`，终端列表已接线；
 - 五语言存在对应 `.failed`，且已有人工文案未被覆盖；

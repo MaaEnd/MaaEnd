@@ -392,6 +392,15 @@
                 }
             }
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "HangingVinesTakePhoto"
+        ]
+    },
+    "HangingVinesTakePhoto": {
+        "desc": "在垂藤任务拍照点开始拍照",
+        "pre_delay": 0,
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "HangingVinesAdjustCamera"

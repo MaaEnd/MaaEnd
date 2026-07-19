@@ -389,6 +389,15 @@
                 }
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IndoorCropsTakePhoto"
+        ]
+    },
+    "IndoorCropsTakePhoto": {
+        "desc": "在室内作物任务拍照点开始拍照",
+        "pre_delay": 0,
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "IndoorCropsAdjustCamera"

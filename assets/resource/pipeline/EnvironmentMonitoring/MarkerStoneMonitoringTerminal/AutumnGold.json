@@ -393,6 +393,15 @@
             },
             "no_ensure_initial_movement_state": true
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutumnGoldTakePhoto"
+        ]
+    },
+    "AutumnGoldTakePhoto": {
+        "desc": "在金秋时任务拍照点开始拍照",
+        "pre_delay": 0,
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "AutumnGoldAdjustCamera"

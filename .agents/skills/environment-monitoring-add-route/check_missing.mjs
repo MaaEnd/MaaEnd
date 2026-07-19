@@ -6,12 +6,11 @@
 import {
     buildGeneratedIdIndex,
     collectMonitoringMissions,
-    isFieldMissing,
     KITE_STATION_DATA_PATH,
     readJson,
     ROUTES_PATH,
 } from "../../../tools/pipeline-generate/EnvironmentMonitoring/generator/common.mjs";
-import {REQUIRED_ROUTE_FIELDS} from "../../../tools/pipeline-generate/EnvironmentMonitoring/generator/route-resolver.mjs";
+import {collectMissingRouteFields} from "../../../tools/pipeline-generate/EnvironmentMonitoring/generator/route-resolver.mjs";
 
 const kiteStationData = readJson(KITE_STATION_DATA_PATH);
 const routes = readJson(ROUTES_PATH);
@@ -32,48 +31,10 @@ for (const route of routes) {
     routeByMissionId.set(route.MissionId, route);
 }
 
-function collectMissingFields(route) {
-    if (!route) {
-        return ["route"];
-    }
-
-    const hasMapPath = !isFieldMissing(route.MapPath);
-    const hasMapTarget = !isFieldMissing(route.MapTarget);
-    const hasMapGoal = !isFieldMissing(route.MapGoal);
-    const navigationConfigCount = [
-        hasMapPath,
-        hasMapTarget,
-        hasMapGoal,
-    ].filter(Boolean).length;
-    const quickTeleport = route.QuickTeleport === true;
-    const canSkipMapAssert = quickTeleport && navigationConfigCount === 1 && (hasMapTarget || hasMapGoal);
-    const fields = REQUIRED_ROUTE_FIELDS.filter((field) => {
-        if (field === "EnterMap" && quickTeleport) {
-            return false;
-        }
-        if (field === "MapAssert" && canSkipMapAssert) {
-            return false;
-        }
-        return isFieldMissing(route[field]);
-    });
-
-    if (navigationConfigCount === 0) {
-        fields.push("MapPath/MapTarget/MapGoal");
-    } else if (navigationConfigCount > 1) {
-        fields.push("MapPath/MapTarget/MapGoal 三选一");
-    }
-
-    if (!isFieldMissing(route.MapTargetTier) && !hasMapTarget) {
-        fields.push("MapTargetTier 仅可与 MapTarget 同时使用");
-    }
-
-    return fields;
-}
-
 const pending = missions
     .map((mission) => {
         const route = routeByMissionId.get(mission.missionId);
-        const missingFields = collectMissingFields(route);
+        const missingFields = collectMissingRouteFields(route);
         if (missingFields.length === 0) {
             return null;
         }

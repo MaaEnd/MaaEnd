@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToPoolLotusStartPos"
+            "GoToPoolLotusMove"
         ]
     },
     "PoolLotusNotAdapted": {
@@ -358,7 +358,7 @@
         ]
     },
     "GoToPoolLotusNotAtStartPos": {
-        "desc": "不在小池荷任务开始位置附近，先传送再检查落点",
+        "desc": "不在小池荷任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -370,7 +370,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToPoolLotusStartPos"
+            "GoToPoolLotusMove"
         ]
     },
     "GoToPoolLotusMove": {
@@ -387,6 +387,15 @@
                 ]
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "PoolLotusTakePhoto"
+        ]
+    },
+    "PoolLotusTakePhoto": {
+        "desc": "在小池荷任务拍照点开始拍照",
+        "pre_delay": 0,
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "PoolLotusAdjustCamera"

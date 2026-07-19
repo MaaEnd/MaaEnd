@@ -403,6 +403,15 @@
             },
             "no_ensure_initial_movement_state": true
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SerenityGardenTianshiPillarTakePhoto"
+        ]
+    },
+    "SerenityGardenTianshiPillarTakePhoto": {
+        "desc": "在安思园的天师桩任务拍照点开始拍照",
+        "pre_delay": 0,
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "SerenityGardenTianshiPillarAdjustCamera"

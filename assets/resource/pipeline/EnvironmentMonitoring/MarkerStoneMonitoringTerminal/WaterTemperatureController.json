@@ -447,6 +447,15 @@
             },
             "no_ensure_initial_movement_state": true
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WaterTemperatureControllerTakePhoto"
+        ]
+    },
+    "WaterTemperatureControllerTakePhoto": {
+        "desc": "在净水温控装置任务拍照点开始拍照",
+        "pre_delay": 0,
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "WaterTemperatureControllerAdjustCamera"
