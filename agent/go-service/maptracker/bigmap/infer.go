@@ -31,7 +31,7 @@ type MapTrackerBigMapInferParam struct {
 }
 
 var mapTrackerBigMapInferDefaultParam = MapTrackerBigMapInferParam{
-	MapNameRegex: "^map\\d+_lv\\d+$",
+	MapNameRegex: "^[a-z]+\\d*_[a-z]+\\d+$",
 	Threshold:    0.5,
 }
 

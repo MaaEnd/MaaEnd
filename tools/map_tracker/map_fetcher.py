@@ -78,10 +78,10 @@ TIER_IMAGE_API = APIEndpoint(
 SCALE_MAP_FACTOR = 0.1625
 """Scale factor to convert *unscaled coordinates* to *converted coordinates*."""
 
-_RE_LAYOUT_FILE = re.compile(r"^(\w+\d+)_layout\.json$")
+_RE_LAYOUT_FILE = re.compile(r"^([a-z]+\d*)_layout\.json$")
 """Regex to match remote layout JSON file names. Regex group #1 is `region_name`."""
 
-_RE_INCLUDED_REGION_NAME = re.compile(r"^(map\d+)|(base\d+)|(indie)$")
+_RE_INCLUDED_REGION_NAME = re.compile(r"^(map\d+)|(base\d+)|(dung\d+)|(indie)$")
 """Regex to match included region names. Used to filter out unwanted regions from layouts."""
 
 

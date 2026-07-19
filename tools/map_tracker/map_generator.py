@@ -45,7 +45,7 @@ FEATHER_KSIZE = 17
 FEATHER_SIGMA = 4.0
 """Gaussian sigma for edge feathering (ownership + tier ring)."""
 
-_RE_LAYOUT_FILE = re.compile(r"^(\w+\d+)_layout\.json$")
+_RE_LAYOUT_FILE = re.compile(r"^([a-z]+\d*)_layout\.json$")
 
 
 def _feather_mask(mask: np.ndarray, ksize: int, sigma: float) -> np.ndarray:
