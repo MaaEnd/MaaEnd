@@ -174,3 +174,87 @@ func TestMapTrackerMoveCompatibleConvertsRegionalSamples(t *testing.T) {
 		})
 	}
 }
+
+func TestParseCompatibleTrackerMapName(t *testing.T) {
+	tests := []struct {
+		mapName         string
+		wantPrefix      string
+		wantRegion      string
+		wantLocatorFile string
+		wantCandidate   string
+		wantIsBase      bool
+		wantOK          bool
+	}{
+		{
+			mapName:         "map01_lv001",
+			wantPrefix:      "map01",
+			wantRegion:      "ValleyIV",
+			wantLocatorFile: "Base.png",
+			wantCandidate:   "map01_lv001",
+			wantIsBase:      true,
+			wantOK:          true,
+		},
+		{
+			mapName:         "map01_lv001_tier_114",
+			wantPrefix:      "map01",
+			wantRegion:      "ValleyIV",
+			wantLocatorFile: "Lv001Tier114.png",
+			wantCandidate:   "map01_lv001_tier_114",
+			wantIsBase:      false,
+			wantOK:          true,
+		},
+		{
+			mapName:         "map02_lv005_tier_321",
+			wantPrefix:      "map02",
+			wantRegion:      "Wuling",
+			wantLocatorFile: "Lv005Tier321.png",
+			wantCandidate:   "map02_lv005_tier_321",
+			wantIsBase:      false,
+			wantOK:          true,
+		},
+		{
+			mapName:         "base01_lv003",
+			wantPrefix:      "base01",
+			wantRegion:      "OMVBase",
+			wantLocatorFile: "Base.png",
+			wantCandidate:   "base01_lv003",
+			wantIsBase:      true,
+			wantOK:          true,
+		},
+		{
+			mapName:    "unknown_lv001",
+			wantPrefix: "",
+			wantOK:     false,
+		},
+		{
+			mapName: "",
+			wantOK:  false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.mapName, func(t *testing.T) {
+			got, ok := parseCompatibleTrackerMapName(tt.mapName)
+			if ok != tt.wantOK {
+				t.Fatalf("ok = %v, want %v", ok, tt.wantOK)
+			}
+			if !ok {
+				return
+			}
+			if got.MapPrefix != tt.wantPrefix {
+				t.Fatalf("prefix = %q, want %q", got.MapPrefix, tt.wantPrefix)
+			}
+			if got.Region != tt.wantRegion {
+				t.Fatalf("region = %q, want %q", got.Region, tt.wantRegion)
+			}
+			if got.LocatorFile != tt.wantLocatorFile {
+				t.Fatalf("locator_file = %q, want %q", got.LocatorFile, tt.wantLocatorFile)
+			}
+			if got.CandidateMap != tt.wantCandidate {
+				t.Fatalf("candidate = %q, want %q", got.CandidateMap, tt.wantCandidate)
+			}
+			if got.IsBase != tt.wantIsBase {
+				t.Fatalf("is_base = %v, want %v", got.IsBase, tt.wantIsBase)
+			}
+		})
+	}
+}

@@ -284,10 +284,14 @@ func parseCompatibleTrackerMapName(mapName string) (compatibleLocatorSource, boo
 	}
 
 	if tier != "" {
+		locLevel := levelID
+		if after, ok := strings.CutPrefix(levelID, "lv"); ok {
+			locLevel = after
+		}
 		return compatibleLocatorSource{
 			Region:       region,
 			MapPrefix:    prefix,
-			LocatorFile:  fmt.Sprintf("Lv%sTier%s.png", levelID, tier),
+			LocatorFile:  fmt.Sprintf("Lv%sTier%s.png", locLevel, tier),
 			CandidateMap: mapName,
 		}, true
 	}
