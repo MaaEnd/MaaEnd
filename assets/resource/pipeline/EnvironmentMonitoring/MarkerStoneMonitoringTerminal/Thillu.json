@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ThilluNotAdapted"
+            "ThilluInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedThillu": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ThilluNotAdapted"
+            "ThilluOpenTrackedMissionMap"
         ]
     },
     "ThilluOpenTrackedMissionMap": {
@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToThilluStartPos"
+            "GoToThilluMove"
         ]
     },
     "ThilluNotAdapted": {
@@ -336,18 +336,14 @@
     "GoToThilluStartPos": {
         "desc": "在表象任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "^map\\d+_lv\\d+$",
-                    "target": [
-                        0,
-                        0,
-                        1,
-                        1
-                    ]
-                }
+            "zone_id": "IndieDg007Tier337",
+            "target": [
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -358,7 +354,7 @@
         ]
     },
     "GoToThilluNotAtStartPos": {
-        "desc": "不在表象任务开始位置附近，先传送再检查落点",
+        "desc": "不在表象任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -370,21 +366,28 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToThilluStartPos"
+            "GoToThilluMove"
         ]
     },
     "GoToThilluMove": {
         "desc": "自动寻路前往表象",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "^map\\d+_lv\\d+$",
             "path": [
-                [
-                    0,
-                    0
-                ]
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        88.75,
+                        189.87
+                    ],
+                    "target_tier": "IndieDg007Tier337"
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 270
+                }
             ]
         },
         "anchor": {
@@ -399,12 +402,12 @@
     },
     "ThilluAdjustCamera": {
         "desc": "表象任务中调整朝向",
-        "max_hit": 2,
+        "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringSwipeScreenUp"
+            "EnvironmentMonitoringSwipeScreenRight"
         ]
     }
 }
