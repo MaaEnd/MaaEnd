@@ -102,7 +102,13 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction",
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "__ScenePrivateAnyEnterMenuListSuccess"
+                    ]
+                },
                 "target_offset": [
                     5,
                     5,
@@ -272,7 +278,13 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "__ScenePrivateAnyEnterMenuOperatorSuccess"
+                    ]
+                }
             }
         },
         "post_delay": 0,
@@ -338,7 +350,13 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "__ScenePrivateAnyEnterMenuAICPlanSuccess"
+                    ]
+                }
             }
         },
         "post_delay": 0,
@@ -438,7 +456,14 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "__ScenePrivateMenuRegionalDevelopmentUnlockClose",
+                        "__ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess"
+                    ]
+                }
             }
         },
         "post_delay": 0,
@@ -590,7 +615,13 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "__ScenePrivateAnyEnterMenuEventSuccess"
+                    ]
+                }
             }
         },
         "post_delay": 0,
@@ -716,7 +747,14 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "__ScenePrivateValuablesItemsExpired",
+                        "__ScenePrivateAnyEnterMenuValuablesWaitExpired"
+                    ]
+                }
             }
         },
         "post_delay": 0,
@@ -960,7 +998,13 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "__ScenePrivateAnyEnterMenuOperationalManualSuccess"
+                    ]
+                }
             }
         },
         "post_delay": 0,
@@ -1164,7 +1208,15 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "__ScenePrivateAnyEnterMenuProtocolPassSuccess",
+                        "__ScenePrivateAnyEnterMenuProtocolPassNew",
+                        "__ScenePrivateAnyEnterMenuProtocolPassAdvancedSupply"
+                    ]
+                }
             }
         },
         "post_delay": 0,
@@ -1232,12 +1284,7 @@
             ]
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoAltClickAction"
-            }
-        },
+        "action": "Click",
         "post_delay": 0
     },
     "__ScenePrivateAnyEnterMenuProtocolPassAdvancedSupply": {
@@ -1272,12 +1319,7 @@
             ]
         },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoAltClickAction"
-            }
-        },
+        "action": "Click",
         "post_delay": 0
     },
     "__ScenePrivateWorldEnterMenuFriendsAdd": {
@@ -1802,7 +1844,13 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "__ScenePrivateAnyEnterMenuBackpackSuccess"
+                    ]
+                }
             }
         },
         "post_delay": 0,
@@ -1885,7 +1933,13 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "__ScenePrivateAnyEnterMenuBackpackSuccess"
+                    ]
+                }
             }
         },
         "post_delay": 0,
@@ -1922,7 +1976,13 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "__ScenePrivateAnyEnterMenuBakerSuccess"
+                    ]
+                }
             }
         },
         "post_delay": 0,
@@ -2113,7 +2173,13 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "__ScenePrivateAnyEnterMenuShopSuccess"
+                    ]
+                }
             }
         },
         "post_delay": 0,

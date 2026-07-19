@@ -86,21 +86,23 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 ### RepeatUntilFoundAction / RepeatUntilNotFoundAction
 
-二者实现均位于 `agent/go-service/common/repeataction`，用于反复执行一次内置动作，并在每次执行后检查等待节点；条件满足即成功，耗尽次数仍不满足则失败。
+二者实现均位于 `agent/go-service/common/repeataction`，用于反复执行一次内置或自定义动作，每次执行后等待再识别；条件满足即成功，耗尽次数仍不满足则失败。
 
 - `RepeatUntilFoundAction`：`wait_nodes` 中**任一命中**即成功。
 - `RepeatUntilNotFoundAction`：`wait_node` **未命中**即成功。
 
 - 公共参数：
-    - `action: string`：内置动作类型（如 `Click`），必填。
+    - `action: string`：内置动作类型（如 `Click`），与 `custom_action` 二选一。
+    - `custom_action?: string`：已注册的自定义动作名（如 `AutoAltClickAction`），与 `action` 二选一。
+    - `custom_action_param?: object`：透传给内层自定义动作的参数。
     - `repeat_count?: int`：最大尝试次数；省略或 `<= 0` 时默认 `3`。
-    - `interval_ms?: int`：两次尝试之间的间隔（毫秒）；省略或 `0` 时默认 `200`；负值非法。
+    - `interval_ms?: int`：每次尝试后、识别前的等待（毫秒）；省略或 `0` 时默认 `1000`；负值非法。
 - `RepeatUntilFoundAction` 额外参数：
     - `wait_nodes: string[]`：等待出现的 Pipeline 节点名列表，必填。
 - `RepeatUntilNotFoundAction` 额外参数：
     - `wait_node: string`：等待消失的 Pipeline 节点名，必填；一次只支持一个节点。
 
-不提供内层动作额外参数：目标位置固定使用触发本 Action 的识别框 `box`。循环在任务停止信号（`Stopping`）时会立即中止并返回失败。
+目标位置固定使用触发本 Action 的识别框 `box`（可由外层 `target` / `target_offset` 调整）。循环在任务停止信号（`Stopping`）时会立即中止并返回失败。
 
 示例文件：[`RepeatUntilFoundAction.json`](../../../assets/resource/pipeline/Interface/Example/RepeatUntilFoundAction.json)
 

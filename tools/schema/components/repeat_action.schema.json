@@ -30,7 +30,7 @@
                 },
                 "interval_ms": {
                     "title": "Interval Ms",
-                    "description": "Delay between failed attempts in milliseconds. Omit or 0 defaults to 200.",
+                    "description": "Wait after each attempt before recognition (ms). Omit or 0 defaults to 1000.",
                     "type": "integer",
                     "minimum": 0
                 }
@@ -55,7 +55,7 @@
                         "interval_ms": true,
                         "wait_nodes": {
                             "title": "Wait Nodes",
-                            "description": "Recognition nodes to poll after each attempt; success if any hits.",
+                            "description": "Recognition nodes checked after each attempt; success if any hits.",
                             "type": "array",
                             "minItems": 1,
                             "items": {
@@ -100,7 +100,7 @@
                         "interval_ms": true,
                         "wait_node": {
                             "title": "Wait Node",
-                            "description": "Recognition node to poll after each attempt; success when it misses.",
+                            "description": "Recognition node checked after each attempt; success when it misses.",
                             "type": "string",
                             "minLength": 1
                         }

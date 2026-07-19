@@ -515,7 +515,13 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction",
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "__ScenePrivateAnyEnterMapSuccess"
+                    ]
+                },
                 "target": [
                     90,
                     90,

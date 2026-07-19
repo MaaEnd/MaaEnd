@@ -84,21 +84,23 @@ The `FalseAction` implementation is located in `agent/go-service/common/falseact
 
 ### RepeatUntilFoundAction / RepeatUntilNotFoundAction
 
-Both are implemented in `agent/go-service/common/repeataction`. They repeatedly run a built-in action, then check wait node(s) after each run. They succeed when the wait condition is met, and fail after `repeat_count` attempts without success.
+Both are implemented in `agent/go-service/common/repeataction`. They repeatedly run a built-in or custom action, wait, then check recognition. They succeed when the wait condition is met, and fail after `repeat_count` attempts without success.
 
 - `RepeatUntilFoundAction`: succeeds when **any** `wait_nodes` entry hits.
 - `RepeatUntilNotFoundAction`: succeeds when `wait_node` misses.
 
 - Shared parameters:
-    - `action: string`: Built-in action type (e.g. `Click`). Required.
+    - `action: string`: Built-in action type (e.g. `Click`). Mutually exclusive with `custom_action`.
+    - `custom_action?: string`: Registered custom action name (e.g. `AutoAltClickAction`). Mutually exclusive with `action`.
+    - `custom_action_param?: object`: Forwarded to the nested custom action.
     - `repeat_count?: int`: Maximum attempts. Defaults to `3` when omitted or `<= 0`.
-    - `interval_ms?: int`: Delay between attempts in milliseconds. Defaults to `200` when omitted or `0`. Negative values are invalid.
+    - `interval_ms?: int`: Wait after each attempt before recognition, in milliseconds. Defaults to `1000` when omitted or `0`. Negative values are invalid.
 - `RepeatUntilFoundAction` extra:
     - `wait_nodes: string[]`: Pipeline node names to wait for. Required.
 - `RepeatUntilNotFoundAction` extra:
     - `wait_node: string`: Single Pipeline node name to wait until it disappears. Required.
 
-No extra inner action parameters are accepted; the target position always uses the recognition `box` that triggered this Action. The loop aborts immediately and returns failure when the tasker reports stopping.
+The target position always uses the recognition `box` that triggered this Action (optionally adjusted by outer `target` / `target_offset`). The loop aborts immediately and returns failure when the tasker reports stopping.
 
 Example file: [`RepeatUntilFoundAction.json`](../../../assets/resource/pipeline/Interface/Example/RepeatUntilFoundAction.json)
 

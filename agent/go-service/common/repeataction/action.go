@@ -11,7 +11,7 @@ import (
 
 const (
 	defaultRepeatCount = 3
-	defaultIntervalMs  = 200
+	defaultIntervalMs  = 1000
 	innerActionEntry   = "__RepeatUntilActionInner"
 )
 
@@ -143,16 +143,15 @@ func runRepeatUntil(
 			log.Warn().Err(err).Str("component", component).Int("attempt", i+1).Msg("inner action failed")
 		}
 
+		// Wait after the action so UI transitions can settle before recognition.
+		time.Sleep(interval)
+
 		ctrl.PostScreencap().Wait()
 		img, err := ctrl.CacheImage()
 		if err != nil || img == nil {
 			log.Warn().Err(err).Str("component", component).Msg("cache image failed")
 		} else if waitConditionMet(ctx, img, waitNodes, untilFound) {
 			return true
-		}
-
-		if i+1 < repeatCount {
-			time.Sleep(interval) // interval_ms between failed attempts
 		}
 	}
 	return false

@@ -168,7 +168,13 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "__ScenePrivateWorldEnterMenuControlNexusSuccess"
+                    ]
+                }
             }
         },
         "post_delay": 0,
