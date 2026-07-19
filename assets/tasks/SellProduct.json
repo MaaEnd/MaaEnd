@@ -4473,38 +4473,13 @@
                 {
                     "name": "No",
                     "pipeline_override": {
+                        "SellProductSellMain": {
+                            "next": [
+                                "SellProductSellLoop"
+                            ]
+                        },
                         "SellProductSellLoopEnd": {
                             "next": []
-                        },
-                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
-                            "next": [
-                                "SellProductSellLoop"
-                            ]
-                        },
-                        "SellProductInfraStationSetAfterSellOperatorAnchor": {
-                            "next": [
-                                "SellProductSellLoop"
-                            ]
-                        },
-                        "SellProductReconstructionHQSetAfterSellOperatorAnchor": {
-                            "next": [
-                                "SellProductSellLoop"
-                            ]
-                        },
-                        "SellProductSkyKingFlatsConstructionSiteSetAfterSellOperatorAnchor": {
-                            "next": [
-                                "SellProductSellLoop"
-                            ]
-                        },
-                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
-                            "next": [
-                                "SellProductSellLoop"
-                            ]
-                        },
-                        "SellProductXiranflowCloudseederStationSetAfterSellOperatorAnchor": {
-                            "next": [
-                                "SellProductSellLoop"
-                            ]
                         },
                         "SellProductValleyIVPrepareOperatorCache": {
                             "action": "DoNothing"

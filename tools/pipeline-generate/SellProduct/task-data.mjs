@@ -203,13 +203,10 @@ function buildOperatorRefreshModeCases(locations) {
 // 生成全局“启用干员自动切换”开关；默认开启，关闭后跳过售前切换、售后恢复与缓存扫描，售卖不受影响。
 // “强制刷新干员缓存”作为其子选项，仅在开启时出现。
 function buildOperatorAutoSwitchCases(locations) {
-    const override = {};
-    override.SellProductSellLoopEnd = {next: []};
-    for (const loc of locations) {
-        override[`SellProduct${loc.LocationId}SetAfterSellOperatorAnchor`] = {
-            next: ["SellProductSellLoop"],
-        };
-    }
+    const override = {
+        SellProductSellMain: {next: ["SellProductSellLoop"]},
+        SellProductSellLoopEnd: {next: []},
+    };
     for (const regionPrefix of new Set(locations.map((loc) => loc.RegionPrefix))) {
         override[`SellProduct${regionPrefix}PrepareOperatorCache`] = {action: "DoNothing"};
     }

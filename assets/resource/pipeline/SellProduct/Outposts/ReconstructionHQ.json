@@ -40,32 +40,20 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQSetBeforeSellOperatorAnchor"
+            "SellProductReconstructionHQSetOperatorAnchors"
         ]
     },
-    "SellProductReconstructionHQSetBeforeSellOperatorAnchor": {
-        "desc": "重建指挥部设置售卖前联络干员锚点",
+    "SellProductReconstructionHQSetOperatorAnchors": {
+        "desc": "重建指挥部设置联络干员流程锚点",
         "pre_delay": 0,
         "anchor": {
-            "SellProductBeforeSellOperator": "SellProductReconstructionHQBeforeSellOperator"
+            "SellProductBeforeSellOperatorTarget": "SellProductReconstructionHQBeforeSellOperator",
+            "SellProductAfterSellOperatorTarget": "SellProductReconstructionHQAfterSellOperator"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQSetAfterSellOperatorAnchor"
-        ]
-    },
-    "SellProductReconstructionHQSetAfterSellOperatorAnchor": {
-        "desc": "重建指挥部设置售卖后恢复干员锚点",
-        "pre_delay": 0,
-        "anchor": {
-            "SellProductAfterSellOperator": "SellProductReconstructionHQAfterSellOperator"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[Anchor]SellProductBeforeSellOperator",
-            "SellProductSellLoop"
+            "SellProductSellMain"
         ]
     },
     // ===== 售卖前联络干员切换 =====
@@ -972,7 +960,7 @@
         ]
     },
     "SellProductReconstructionHQSkipRestoreOperatorDone": {
-        "desc": "重建指挥部记录本次任务不再恢复原干员",
+        "desc": "重建指挥部记录本次任务跳过售后生产干员派驻",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",

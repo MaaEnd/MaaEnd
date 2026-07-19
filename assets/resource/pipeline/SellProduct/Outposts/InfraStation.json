@@ -40,32 +40,20 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductInfraStationSetBeforeSellOperatorAnchor"
+            "SellProductInfraStationSetOperatorAnchors"
         ]
     },
-    "SellProductInfraStationSetBeforeSellOperatorAnchor": {
-        "desc": "基建前站设置售卖前联络干员锚点",
+    "SellProductInfraStationSetOperatorAnchors": {
+        "desc": "基建前站设置联络干员流程锚点",
         "pre_delay": 0,
         "anchor": {
-            "SellProductBeforeSellOperator": "SellProductInfraStationBeforeSellOperator"
+            "SellProductBeforeSellOperatorTarget": "SellProductInfraStationBeforeSellOperator",
+            "SellProductAfterSellOperatorTarget": "SellProductInfraStationAfterSellOperator"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductInfraStationSetAfterSellOperatorAnchor"
-        ]
-    },
-    "SellProductInfraStationSetAfterSellOperatorAnchor": {
-        "desc": "基建前站设置售卖后恢复干员锚点",
-        "pre_delay": 0,
-        "anchor": {
-            "SellProductAfterSellOperator": "SellProductInfraStationAfterSellOperator"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[Anchor]SellProductBeforeSellOperator",
-            "SellProductSellLoop"
+            "SellProductSellMain"
         ]
     },
     // ===== 售卖前联络干员切换 =====
@@ -972,7 +960,7 @@
         ]
     },
     "SellProductInfraStationSkipRestoreOperatorDone": {
-        "desc": "基建前站记录本次任务不再恢复原干员",
+        "desc": "基建前站记录本次任务跳过售后生产干员派驻",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",

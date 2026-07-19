@@ -305,6 +305,48 @@ test("SellProduct operator locations form an always-enabled active-flag chain", 
     }
 });
 
+test("SellProduct operator switching uses shared core dispatch nodes", () => {
+    const core = readPipeline(new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url));
+    assert.deepEqual(core.SellProductSellMain.next, ["SellProductBeforeSellOperator"]);
+    assert.deepEqual(core.SellProductBeforeSellOperator.next, [
+        "[Anchor]SellProductBeforeSellOperatorTarget",
+    ]);
+    assert.deepEqual(core.SellProductSellLoopEnd.next, ["SellProductAfterSellOperator"]);
+    assert.deepEqual(core.SellProductAfterSellOperator.next, [
+        "[Anchor]SellProductAfterSellOperatorTarget",
+    ]);
+
+    for (const location of sellProductLocations) {
+        const pipeline = readPipeline(
+            new URL(
+                `../../../assets/resource/pipeline/SellProduct/Outposts/${location.LocationId}.json`,
+                import.meta.url,
+            ),
+        );
+        const prefix = `SellProduct${location.LocationId}`;
+        assert.deepEqual(pipeline[`${prefix}SetOperatorAnchors`].anchor, {
+            SellProductBeforeSellOperatorTarget: `${prefix}BeforeSellOperator`,
+            SellProductAfterSellOperatorTarget: `${prefix}AfterSellOperator`,
+        });
+        assert.deepEqual(pipeline[`${prefix}SetOperatorAnchors`].next, [
+            "SellProductSellMain",
+        ]);
+        assert.equal(pipeline[`${prefix}SetBeforeSellOperatorAnchor`], undefined);
+        assert.equal(pipeline[`${prefix}SetAfterSellOperatorAnchor`], undefined);
+    }
+
+    const task = readPipeline(new URL("../../../assets/tasks/SellProduct.json", import.meta.url));
+    const disabledCase = task.option.SellProductOperatorAutoSwitch.cases.find((itemCase) => itemCase.name === "No");
+    assert.deepEqual(disabledCase.pipeline_override.SellProductSellMain, {
+        next: ["SellProductSellLoop"],
+    });
+    assert.deepEqual(disabledCase.pipeline_override.SellProductSellLoopEnd, {next: []});
+    assert.equal(
+        Object.keys(disabledCase.pipeline_override).some((nodeName) => nodeName.endsWith("SetAfterSellOperatorAnchor")),
+        false,
+    );
+});
+
 test("SellProduct pipeline templates use one dynamic priority loop instead of fixed attempts", () => {
     const pipelineTemplate = readFileSync(new URL("./pipeline-template.jsonc", import.meta.url), "utf8");
     const adbTemplate = readFileSync(new URL("./pipeline-adb-template.jsonc", import.meta.url), "utf8");

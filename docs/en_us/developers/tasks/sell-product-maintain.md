@@ -45,27 +45,31 @@ SellProductLoop                                      (Regional Development main 
   └─ SellProductTaskEnd                              (all enabled regions are complete)
 ```
 
-Each outpost binds the generic flow to outpost-specific anchors, switches to the planned contact operator, and enters the common sell loop. When selling ends, the restoration anchor assigns the production operator chosen by the global plan before returning to the region node.
+Each outpost binds both pre-sell and post-sell target anchors in one node, then enters the shared dispatch nodes in `SellCore.json`. The pre-sell dispatcher switches to the planned contact operator before the common sell loop; when selling ends, the post-sell dispatcher assigns production operators from the global plan before returning to the region node.
 
 ```text
 SellProduct{LocationId}                              (recognize/enter the target outpost)
-  └─ [Anchor]SellProductBeforeSellOperator           (check and assign selling operator)
-       └─ SellProductSellLoop                        (select and sell goods by priority)
-            └─ SellProductSellLoopEnd                (vouchers or candidates exhausted)
-                 └─ [Anchor]SellProductAfterSellOperator (restore operator and return)
+  └─ SellProduct{LocationId}SetOperatorAnchors       (bind pre-sell and post-sell targets)
+       └─ SellProductSellMain                        (shared selling entry)
+            └─ SellProductBeforeSellOperator         (shared pre-sell dispatcher)
+                 └─ [Anchor]SellProductBeforeSellOperatorTarget
+                      └─ SellProductSellLoop         (select and sell goods by priority)
+                           └─ SellProductSellLoopEnd (vouchers or candidates exhausted)
+                                └─ SellProductAfterSellOperator (shared post-sell dispatcher)
+                                     └─ [Anchor]SellProductAfterSellOperatorTarget
 ```
 
 When outpost management is locked, `SellProductOutpostLocked` returns to the regional loop. If submitted aid exceeds the outpost's voucher exchange limit, `SellProductAidQuotaExceededStop` stops the entire task. The limit dialog is not confirmed automatically.
 
 ## Automatic Operator Rules
 
-`assets/data/SellProduct/selection_data.json` contains the operator candidates, bonus types, multilingual names, and stable ordering derived from `tools/pipeline-generate/data/settlement_trade.json`. Go uses this data to plan selling and restoration operators for enabled outposts, and Pipeline performs the corresponding list operations.
+`assets/data/SellProduct/selection_data.json` contains the operator candidates, bonus types, multilingual names, and stable ordering derived from `tools/pipeline-generate/data/settlement_trade.json`. Go uses this data to plan selling operators and post-sale production assignments for enabled outposts, and Pipeline performs the corresponding list operations.
 
-Automatic selection has two phases—pre-sell assignment and post-sell restoration. Both use the same “check current operator → open list → scan pages → replan from the complete owned set” loop:
+Automatic selection has two phases: pre-sell assignment and post-sale production assignment. Both use the same “check current operator → open list → scan pages → replan from the complete owned set” loop. In code, `restore` refers to the post-sale production-assignment phase:
 
 ```text
-[Anchor]SellProductBeforeSellOperator                    (enter pre-sell assignment for this outpost)
-  └─ SellProduct{LocationId}BeforeSellOperator
+SellProductBeforeSellOperator                            (enter the shared pre-sell dispatcher)
+  └─ [Anchor]SellProductBeforeSellOperatorTarget → SellProduct{LocationId}BeforeSellOperator
        ├─ SellProduct{LocationId}CurrentTargetOperator   (first planned candidate is already assigned)
        │    └─ SellProductSellLoop
        └─ SellProduct{LocationId}OpenTargetOperatorList  (open the contact-operator list)
@@ -86,8 +90,8 @@ Automatic selection has two phases—pre-sell assignment and post-sell restorati
                  ├─ TargetOperatorNotFound              (no candidate after a complete scan; stop task)
                  └─ TargetOperatorScanFailed            (scan/cache failure; stop task)
 
-[Anchor]SellProductAfterSellOperator                     (restore production operator after selling)
-  └─ SellProduct{LocationId}AfterSellOperator
+SellProductAfterSellOperator                             (enter the shared post-sell dispatcher)
+  └─ [Anchor]SellProductAfterSellOperatorTarget → SellProduct{LocationId}AfterSellOperator
        ├─ SellProduct{LocationId}CurrentRestoreOperator  (restore target is already assigned)
        └─ SellProduct{LocationId}OpenRestoreOperatorList
             └─ SellProduct{LocationId}InRestoreOperatorList
@@ -131,7 +135,7 @@ The owned-operator cache is stored in `debug/record/SellProductOwnedOperators.js
 - Pipeline must recognize the list, click the candidate, recognize Assign, and confirm the return to the outpost before committing the switch.
 - If assigning opens a confirmation that the candidate is already assigned elsewhere, Pipeline uses `And` to combine the prompt, Go source classification, and the corresponding button. When the source outpost is enabled for this run, Pipeline confirms reassignment to the current outpost. When the source is disabled or cannot be identified reliably, Pipeline cancels, adds the candidate to a task-scoped global exclusion set, and replans. The exclusion set resets when the next task initializes.
 
-Restoration must prevent one operator from occupying multiple outposts. Go assigns operators in this order:
+Post-sale production assignment must prevent one operator from occupying multiple outposts. Go assigns operators in this order:
 
 1. Maximize the number of outposts that can be restored;
 2. With equal coverage, keep the selling operator already assigned before selling whenever possible to avoid unnecessary switches;
@@ -151,7 +155,7 @@ A missing selling target or failed scan stops the task to avoid selling under th
 
 The task provides a priority-selling switch that is disabled by default. Enabling it expands six priority slots that directly adjust this list. Configured items move ahead of the default order from slot 1 through 6. Items unavailable at the current outpost are skipped, duplicate selections keep only the earliest slot, and all remaining items retain the default order above.
 
-During execution, after entry into each outpost is confirmed, the UI reports that outpost's selling-operator target, post-sale restoration target, effective selling order, items excluded because they were already confirmed out of stock during this task, and applicable reserve rules; unlisted items are sold without a reserve. It then reports whether the operator was actually kept or switched, the currently selected goods, and completed trades. When the current outpost newly confirms an out-of-stock item, the UI immediately reports the item and outpost names. For an operator assigned elsewhere, the log reports whether the source outpost is managed by this run; protected candidates also report exclusion and replanning reasons. A new plan produced by a complete scan reports the outpost, purpose, and selected operator. The log also reports an unavailable selling operator, operator-scan failures, and restoration skipped because no restoration operator is available. Every UI message in the task uses the current client language.
+During execution, after entry into each outpost is confirmed, the UI reports that outpost's selling-operator target, post-sale production-assignment target, effective selling order, items excluded because they were already confirmed out of stock during this task, and applicable reserve rules; unlisted items are sold without a reserve. It then reports whether the operator was actually kept or switched, the currently selected goods, and completed trades. When the current outpost newly confirms an out-of-stock item, the UI immediately reports the item and outpost names. For an operator assigned elsewhere, the log reports whether the source outpost is managed by this run; protected candidates also report exclusion and replanning reasons. A new plan produced by a complete scan reports the outpost, purpose, and selected operator. The log also reports an unavailable selling operator, operator-scan failures, and skipped post-sale assignment when no production operator is available. Every UI message in the task uses the current client language.
 
 Locked goods are absent from the current screen and are skipped naturally. There is no fixed sell-attempt limit. Each round follows this flow:
 
@@ -164,8 +168,8 @@ SellProductSellLoop                                  (unbounded selling loop)
                  └─ [Anchor]SellProductCommitPriorityItem (commit after sell screen returns)
                       └─ [Anchor]SellProductBetterSliding  (apply reserve rule)
                            └─ SellProduct{LocationId}BetterSliding (set sellable quantity)
-                                └─ SellProductSell / SellProductSkipToNextSellLoop
-                                     (trade or skip because of reserve stock)
+                                 └─ SellProductSell / SellProductSellThenLoop / SellProductSkipToNextSellLoop
+                                      (sell all, sell with a reserve, or skip because of reserve stock)
                                      └─ SellProductSellLoop
                                           (continue until an exit condition is met)
 ```

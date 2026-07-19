@@ -1,4 +1,22 @@
 {
+    "SellProductSellMain": {
+        "desc": "进入当前据点的通用售卖流程",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductBeforeSellOperator"
+        ]
+    },
+    "SellProductBeforeSellOperator": {
+        "desc": "进入当前据点的售卖前联络干员切换流程",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]SellProductBeforeSellOperatorTarget"
+        ]
+    },
     "SellProductSellLoop": {
         "desc": "售卖循环，先检查调度券再按价值优先级选择下一个可售物品",
         "recognition": "And",
@@ -297,6 +315,7 @@
             "Node.Action.Succeeded": "$task.SellProduct.trade_completed"
         }
     },
+    // SellProductReserveSession 通过 Pipeline override 动态引用以下按保留数量交易的节点。
     "SellProductSellThenLoop": {
         "desc": "交易，完成后直接选择下一个优先物品",
         "recognition": "OCR",
@@ -373,13 +392,16 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]SellProductAfterSellOperator"
+            "SellProductAfterSellOperator"
         ]
     },
     "SellProductAfterSellOperator": {
-        "desc": "售卖后恢复干员的兜底锚点；各据点会替换为对应恢复流程",
+        "desc": "进入当前据点的售后生产干员派驻流程",
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]SellProductAfterSellOperatorTarget"
+        ]
     }
 }
