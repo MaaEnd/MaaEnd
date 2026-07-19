@@ -650,12 +650,12 @@
             8.1
         ],
         "MapGoal": [
-            579.2,
-            253.7
+            520,
+            288
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "CameraMaxHit": 3,
-        "Heading": 90
+        "Heading": 0
     },
     {
         "MissionId": "m1m63",

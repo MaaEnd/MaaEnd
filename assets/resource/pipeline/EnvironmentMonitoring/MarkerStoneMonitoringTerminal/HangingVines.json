@@ -307,14 +307,14 @@
         "custom_action_param": {
             "map_name": "map02_lv004",
             "target": [
-                579.2,
-                253.7
+                520,
+                288
             ],
             "on_finish": {
                 "action": "Custom",
                 "custom_action": "MapTrackerToward",
                 "custom_action_param": {
-                    "angle": 90
+                    "angle": 0
                 }
             }
         },
