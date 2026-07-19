@@ -119,9 +119,9 @@ test("SellProduct generated item order merges prosperity levels and sorts by rar
 });
 
 test("SellProduct generated target operators prioritize combined profit bonuses", () => {
-    const both = {charId: "both", name: {CN: "双加成", EN: "Both"}};
-    const money = {charId: "money", name: {CN: "收益", EN: "Money"}};
-    const exp = {charId: "exp", name: {CN: "经验", EN: "Exp"}};
+    const both = {charId: "chr_0003_both", name: {CN: "双加成", EN: "Both"}};
+    const money = {charId: "chr_0002_money", name: {CN: "收益", EN: "Money"}};
+    const exp = {charId: "chr_0001_exp", name: {CN: "经验", EN: "Exp"}};
     const settlement = {
         settlementFeatures: [
             {
@@ -209,6 +209,23 @@ test("SellProduct generated operator order follows feature matches then descendi
             bonus_tier: 1,
         },
     ]);
+});
+
+test("SellProduct generated operator order rejects missing or malformed character ids", () => {
+    for (const operator of [
+        {name: {CN: "缺少编号", EN: "Missing"}},
+        {charId: "invalid", name: {CN: "非法编号", EN: "Invalid"}},
+    ]) {
+        const settlement = {
+            settlementFeatures: [
+                {
+                    bonuses: [{type: "moneyProfit"}],
+                    matchingOperators: [operator],
+                },
+            ],
+        };
+        assert.throws(() => buildLocationOperatorOrder(settlement, ["moneyProfit"], {}, true), /has invalid charId/);
+    }
 });
 
 test("SellProduct generated Refugee Camp restore order matches the observed in-game list", () => {

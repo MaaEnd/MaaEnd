@@ -20,6 +20,7 @@ const LOCALE_BY_LANGUAGE = {
     JP: "ja_jp",
     KR: "ko_kr",
 };
+const OPERATOR_CHAR_ID_PATTERN = /^chr_(\d+)(?:_|$)/;
 
 // 活动结束且 zmdmap 移除这些物品后，删除此临时过滤。
 const TEMP_EXCLUDED_ITEM_CN_NAMES = new Set([
@@ -67,8 +68,17 @@ function operatorCacheName(operator) {
     );
 }
 
-function operatorStableKey(operator) {
-    return operator.charId?.trim() || getOperatorCaseName(operator);
+function parseOperatorCharId(operator) {
+    const charId = operator?.charId?.trim() || "";
+    const match = OPERATOR_CHAR_ID_PATTERN.exec(charId);
+    if (!match) {
+        const label = operator?.name?.EN || operator?.name?.CN || "<unknown>";
+        throw new Error(`operator ${JSON.stringify(label)} has invalid charId ${JSON.stringify(charId)}`);
+    }
+    return {
+        id: charId,
+        number: Number.parseInt(match[1], 10),
+    };
 }
 
 function buildOperatorFeatureCounts(settlement) {
@@ -76,30 +86,26 @@ function buildOperatorFeatureCounts(settlement) {
     for (const feature of settlement.settlementFeatures || []) {
         const matchedInFeature = new Set();
         for (const operator of feature.matchingOperators || []) {
-            const key = operatorStableKey(operator);
-            if (!key || matchedInFeature.has(key)) continue;
-            matchedInFeature.add(key);
-            counts.set(key, (counts.get(key) || 0) + 1);
+            const {id} = parseOperatorCharId(operator);
+            if (matchedInFeature.has(id)) continue;
+            matchedInFeature.add(id);
+            counts.set(id, (counts.get(id) || 0) + 1);
         }
     }
     return counts;
 }
 
-function operatorCharacterNumber(operator) {
-    const match = /^chr_(\d+)(?:_|$)/.exec(operator.charId?.trim() || "");
-    return match ? Number.parseInt(match[1], 10) : -1;
-}
-
 function compareInGameOperatorOrder(left, right) {
     return (
         right.featureCount - left.featureCount ||
-        operatorCharacterNumber(right.operator) - operatorCharacterNumber(left.operator) ||
+        right.characterNumber - left.characterNumber ||
         left.name.localeCompare(right.name)
     );
 }
 
 function registerOperator(operators, operator) {
-    if (!operator || isAdminOperator(operator)) return null;
+    const {id: charId, number: characterNumber} = parseOperatorCharId(operator);
+    if (isAdminOperator(operator)) return null;
     const name = getOperatorCaseName(operator);
     const names = buildLocalizedNames(operator.name);
     if (!name || Object.keys(names).length === 0) return null;
@@ -112,7 +118,11 @@ function registerOperator(operators, operator) {
             ...names,
         },
     };
-    return name;
+    return {
+        name,
+        charId,
+        characterNumber,
+    };
 }
 
 function targetBonusTier(entry) {
@@ -133,12 +143,13 @@ export function buildLocationOperatorOrder(settlement, acceptedBonusTypes, opera
         if (matchedTypes.length === 0) continue;
 
         for (const operator of feature.matchingOperators || []) {
-            const name = registerOperator(operators, operator);
-            if (!name) continue;
+            const registered = registerOperator(operators, operator);
+            if (!registered) continue;
+            const {name, charId, characterNumber} = registered;
             const entry = entries.get(name) || {
                 name,
-                operator,
-                featureCount: featureCounts.get(operatorStableKey(operator)) || 0,
+                characterNumber,
+                featureCount: featureCounts.get(charId) || 0,
                 bonusTypes: new Set(),
             };
             for (const type of matchedTypes) {
