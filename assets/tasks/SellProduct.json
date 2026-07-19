@@ -7,7 +7,7 @@
             "description": "$task.SellProduct.description",
             "option": [
                 "SellProductSchedule",
-                "SellProductForceRefreshOperatorCache",
+                "SellProductOperatorAutoSwitch",
                 "SellProductPriorityRules",
                 "SellProductItemReserveRules",
                 "ValleyIVSell",
@@ -4457,6 +4457,64 @@
                     }
                 }
             }
+        },
+        "SellProductOperatorAutoSwitch": {
+            "type": "switch",
+            "label": "$task.SellProduct.OperatorAutoSwitch",
+            "description": "$task.SellProduct.OperatorAutoSwitchDescription",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SellProductForceRefreshOperatorCache"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductSellLoopEnd": {
+                            "next": []
+                        },
+                        "SellProductRefugeeCampSetAfterSellOperatorAnchor": {
+                            "next": [
+                                "SellProductSellLoop"
+                            ]
+                        },
+                        "SellProductInfraStationSetAfterSellOperatorAnchor": {
+                            "next": [
+                                "SellProductSellLoop"
+                            ]
+                        },
+                        "SellProductReconstructionHQSetAfterSellOperatorAnchor": {
+                            "next": [
+                                "SellProductSellLoop"
+                            ]
+                        },
+                        "SellProductSkyKingFlatsConstructionSiteSetAfterSellOperatorAnchor": {
+                            "next": [
+                                "SellProductSellLoop"
+                            ]
+                        },
+                        "SellProductCardiacRemediationStationSetAfterSellOperatorAnchor": {
+                            "next": [
+                                "SellProductSellLoop"
+                            ]
+                        },
+                        "SellProductXiranflowCloudseederStationSetAfterSellOperatorAnchor": {
+                            "next": [
+                                "SellProductSellLoop"
+                            ]
+                        },
+                        "SellProductValleyIVPrepareOperatorCache": {
+                            "action": "DoNothing"
+                        },
+                        "SellProductWulingPrepareOperatorCache": {
+                            "action": "DoNothing"
+                        }
+                    }
+                }
+            ]
         },
         "SellProductForceRefreshOperatorCache": {
             "type": "switch",

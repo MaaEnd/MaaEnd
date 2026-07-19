@@ -7,7 +7,7 @@
             "description": "$task.SellProduct.description",
             "option": [
                 "SellProductSchedule",
-                "SellProductForceRefreshOperatorCache",
+                "SellProductOperatorAutoSwitch",
                 "SellProductPriorityRules",
                 "SellProductItemReserveRules",
                 "${RegionPrefix}Sell"
@@ -336,6 +336,13 @@
                     }
                 }
             }
+        },
+        "SellProductOperatorAutoSwitch": {
+            "type": "switch",
+            "label": "$task.SellProduct.OperatorAutoSwitch",
+            "description": "$task.SellProduct.OperatorAutoSwitchDescription",
+            "default_case": "Yes",
+            "cases": "${OperatorAutoSwitchCases}"
         },
         "SellProductForceRefreshOperatorCache": {
             "type": "switch",

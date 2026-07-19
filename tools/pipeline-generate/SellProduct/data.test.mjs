@@ -89,6 +89,7 @@ test("SellProduct templates consume separate minimal projections of the shared l
     ]);
     assert.deepEqual(sortedKeys(root), [
         "LocationId",
+        "OperatorAutoSwitchCases",
         "OperatorRefreshModeCases",
         "PriorityItemCases1",
         "PriorityItemCases2",

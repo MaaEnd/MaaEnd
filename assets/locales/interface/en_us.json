@@ -709,6 +709,8 @@
     "task.SellProduct.vouchers_exhausted": "🎫 This outpost has insufficient procurement vouchers; ending sales here",
     "task.SellProduct.trade_completed": "✅ Trade completed",
     "task.SellProduct.reserve_skip": "⏭️ Current stock does not exceed the reserve quantity; skipping this trade",
+    "task.SellProduct.OperatorAutoSwitch": "Enable Operator Auto-Switch",
+    "task.SellProduct.OperatorAutoSwitchDescription": "Automatically switch to the best operator and restore the original assignment after selling.",
     "task.SellProduct.ForceRefreshOperatorCache": "Force Refresh Operator Cache",
     "task.SellProduct.ForceRefreshOperatorCacheDescription": "When enabled, this run scans the complete operator list before calculating the best operator for every enabled outpost.",
     "task.SellProduct.PrioritySwitch": "Enable Priority Selling",

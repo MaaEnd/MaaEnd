@@ -502,6 +502,8 @@
     "task.SellProduct.vouchers_exhausted": "🎫 當前據點調度券不足，結束本據點售賣",
     "task.SellProduct.trade_completed": "✅ 已完成交易",
     "task.SellProduct.reserve_skip": "⏭️ 當前庫存未超過保留數量，跳過本次交易",
+    "task.SellProduct.OperatorAutoSwitch": "啟用幹員自動切換",
+    "task.SellProduct.OperatorAutoSwitchDescription": "自動切換最佳幹員，售賣後恢復原派駐",
     "task.SellProduct.ForceRefreshOperatorCache": "強制刷新幹員快取",
     "task.SellProduct.ForceRefreshOperatorCacheDescription": "開啟後，本次任務會先完整瀏覽一次幹員列表，再為所有啟用據點計算最佳幹員。",
     "task.SellProduct.PrioritySwitch": "啟用優先販售設定",

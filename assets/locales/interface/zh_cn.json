@@ -629,6 +629,8 @@
     "task.SellProduct.vouchers_exhausted": "🎫 当前据点调度券不足，结束本据点售卖",
     "task.SellProduct.trade_completed": "✅ 已完成交易",
     "task.SellProduct.reserve_skip": "⏭️ 当前库存未超过保留数量，跳过本次交易",
+    "task.SellProduct.OperatorAutoSwitch": "启用干员自动切换",
+    "task.SellProduct.OperatorAutoSwitchDescription": "自动切换最佳干员，售卖后恢复原派驻",
     "task.SellProduct.ForceRefreshOperatorCache": "强制刷新干员缓存",
     "task.SellProduct.ForceRefreshOperatorCacheDescription": "开启后，本次任务会先完整遍历一次干员列表，再为所有启用据点计算最优干员。",
     "task.SellProduct.PrioritySwitch": "启用优先售卖配置",

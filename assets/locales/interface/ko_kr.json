@@ -498,6 +498,8 @@
     "task.SellProduct.vouchers_exhausted": "🎫 이 거점의 조달권이 부족하여 여기서 판매를 종료합니다",
     "task.SellProduct.trade_completed": "✅ 거래 완료",
     "task.SellProduct.reserve_skip": "⏭️ 현재 재고가 보유 수량을 초과하지 않아 이번 거래를 건너뜁니다",
+    "task.SellProduct.OperatorAutoSwitch": "오퍼레이터 자동 전환 활성화",
+    "task.SellProduct.OperatorAutoSwitchDescription": "최적의 오퍼레이터로 자동 전환 후 판매 완료 시 원래 배치를 복원합니다.",
     "task.SellProduct.ForceRefreshOperatorCache": "오퍼레이터 캐시 강제 새로고침",
     "task.SellProduct.ForceRefreshOperatorCacheDescription": "활성화하면 이번 작업에서 오퍼레이터 목록을 끝까지 확인한 뒤 활성화된 모든 전초기지의 최적 오퍼레이터를 계산합니다.",
     "task.SellProduct.PrioritySwitch": "우선 판매 설정 활성화",
