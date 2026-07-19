@@ -1,6 +1,9 @@
 package sellproduct
 
-import "testing"
+import (
+	"slices"
+	"testing"
+)
 
 // TestCandidatesForCurrentSelectionSkipsTemporarilyExcludedOperator 验证派驻冲突干员会被临时跳过并选择下一候选。
 func TestCandidatesForCurrentSelectionSkipsTemporarilyExcludedOperator(t *testing.T) {
@@ -256,6 +259,52 @@ func TestEquivalentTargetCandidatesIncludeAllBestBonusOperators(t *testing.T) {
 	}
 }
 
+// TestPreferredTargetCandidatesPrioritizesPerfectOperator 验证最高加成档只保留同时满足售卖与恢复的完美候选。
+func TestPreferredTargetCandidatesPrioritizesPerfectOperator(t *testing.T) {
+	p := &operatorSelectionParam{
+		Usage:    operatorActionUsageTarget,
+		Location: "Current",
+		Candidates: []operatorCandidate{
+			{Name: "SellOnly", CacheName: "仅售卖", Priority: 0, BonusTier: 0},
+			{Name: "Perfect", CacheName: "完美", Priority: 1, BonusTier: 0},
+		},
+		RestoreGroups: []operatorCandidateGroup{
+			{
+				Location:   "Current",
+				Candidates: []operatorCandidate{{Name: "Perfect", CacheName: "完美"}},
+			},
+		},
+	}
+
+	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"仅售卖", "完美"}))
+	if len(candidates) != 1 || candidates[0].Name != "Perfect" {
+		t.Fatalf("售卖候选 = %#v，期望选择同时满足售卖与恢复的 Perfect", candidates)
+	}
+}
+
+// TestPreferredTargetCandidatesFallsBackToBestSellingTier 验证没有最高加成档完美候选时回退到最高售卖档。
+func TestPreferredTargetCandidatesFallsBackToBestSellingTier(t *testing.T) {
+	p := &operatorSelectionParam{
+		Usage:    operatorActionUsageTarget,
+		Location: "Current",
+		Candidates: []operatorCandidate{
+			{Name: "SellOnly", CacheName: "仅售卖", Priority: 0, BonusTier: 0},
+			{Name: "Perfect", CacheName: "完美", Priority: 1, BonusTier: 0},
+		},
+		RestoreGroups: []operatorCandidateGroup{
+			{
+				Location:   "Current",
+				Candidates: []operatorCandidate{{Name: "Perfect", CacheName: "完美"}},
+			},
+		},
+	}
+
+	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"仅售卖"}))
+	if len(candidates) != 1 || candidates[0].Name != "SellOnly" {
+		t.Fatalf("售卖候选 = %#v，期望在未拥有完美候选时回退到 SellOnly", candidates)
+	}
+}
+
 func TestTargetSelectionMinimizesGlobalOperatorChangesWithinBestBonusTier(t *testing.T) {
 	p := &operatorSelectionParam{
 		Usage:    operatorActionUsageTarget,
@@ -334,6 +383,107 @@ func TestGeneratedXiranflowPlanKeepsArcaneForSellingAndRestore(t *testing.T) {
 	restore := candidatesForCurrentSelection(restoreSelection, owned)
 	if len(restore) != 1 || restore[0].Name != "Arcane" {
 		t.Fatalf("盈天台恢复干员 = %#v，期望继续沿用 Arcane", restore)
+	}
+}
+
+// TestPlanningMatches20260719LogSnapshot 使用 MaaEnd-logs-v0.1.0-20260719-094957
+// 中的完整拥有干员快照，验证六据点固定顺序下的售卖与恢复规划。
+func TestPlanningMatches20260719LogSnapshot(t *testing.T) {
+	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	data, err := loadOperatorSelectionData()
+	if err != nil {
+		t.Fatalf("加载 SellProduct 干员数据失败：%v", err)
+	}
+
+	locationOrder := []string{
+		"RefugeeCamp",
+		"InfraStation",
+		"ReconstructionHQ",
+		"SkyKingFlatsConstructionSite",
+		"CardiacRemediationStation",
+		"XiranflowCloudseederStation",
+	}
+	if !slices.Equal(data.LocationOrder, locationOrder) {
+		t.Fatalf("据点顺序 = %#v，期望 %#v", data.LocationOrder, locationOrder)
+	}
+	for _, location := range locationOrder {
+		operatorSessionRegisterLocation(location)
+	}
+
+	// 来源：merged/record/SellProductOwnedOperators.json，更新时间 2026-07-19T01:29:13Z。
+	owned := operatorNameSet([]string{
+		"伊冯",
+		"余烬",
+		"佩丽卡",
+		"别礼",
+		"卡契尔",
+		"卡缪",
+		"埃特拉",
+		"大潘",
+		"安塔尔",
+		"庄方宜",
+		"弧光",
+		"弭弗",
+		"昼雪",
+		"汤汤",
+		"洁尔佩塔",
+		"洛茜",
+		"狼卫",
+		"秋栗",
+		"艾尔黛拉",
+		"艾维文娜",
+		"莱万汀",
+		"萤石",
+		"诀",
+		"赛希",
+		"阿列什",
+		"陈千语",
+		"骏卫",
+		"黎风",
+	})
+	expected := map[string]string{
+		"RefugeeCamp":                  "Laevatain",
+		"InfraStation":                 "Yvonne",
+		"ReconstructionHQ":             "Gilberta",
+		"SkyKingFlatsConstructionSite": "Tangtang",
+		"CardiacRemediationStation":    "ZhuangFangyi",
+		"XiranflowCloudseederStation":  "Arcane",
+	}
+
+	for _, location := range locationOrder {
+		targetSelection, resolveErr := resolveOperatorSelectionParam(&operatorActionParam{
+			Usage:    operatorActionUsageTarget,
+			Location: location,
+		})
+		if resolveErr != nil {
+			t.Fatalf("解析 %s 售卖参数失败：%v", location, resolveErr)
+		}
+		target := candidatesForCurrentSelection(targetSelection, owned)
+		if len(target) != 1 || target[0].Name != expected[location] {
+			t.Fatalf("%s 售卖规划 = %#v，期望 %s", location, target, expected[location])
+		}
+		operatorSessionSetTargetAssignment(location, target[0])
+
+		restoreSelection, resolveErr := resolveOperatorSelectionParam(&operatorActionParam{
+			Usage:    operatorActionUsageRestore,
+			Location: location,
+		})
+		if resolveErr != nil {
+			t.Fatalf("解析 %s 恢复参数失败：%v", location, resolveErr)
+		}
+		restore := candidatesForCurrentSelection(restoreSelection, owned)
+		if len(restore) != 1 || restore[0].Name != expected[location] {
+			t.Fatalf("%s 恢复规划 = %#v，期望沿用 %s", location, restore, expected[location])
+		}
+		operatorSessionSetPlannedRestore(location, restore[0], true)
+		if _, ok := operatorSessionCompleteRestore(location); !ok {
+			t.Fatalf("%s 恢复规划无法锁定", location)
+		}
+	}
+
+	active := operatorSessionSnapshot().ActiveLocations
+	if !operatorConflictSourceManaged("ReconstructionHQ", true, active) {
+		t.Fatal("日志中的重建指挥部已启用，莱万汀冲突应允许调至难民暂居处")
 	}
 }
 
@@ -451,14 +601,24 @@ func TestCandidatesForCurrentSelectionKeepsLockedRestoreAssignments(t *testing.T
 	}
 }
 
-// TestTargetSelectionDoesNotMoveOperatorLockedToAnotherLocation 验证售卖选择不会挪用其他据点锁定的恢复干员。
-func TestTargetSelectionDoesNotMoveOperatorLockedToAnotherLocation(t *testing.T) {
+// TestTargetSelectionMayMoveOperatorLockedToEnabledLocation 验证固定顺序售卖允许当前据点调入被其他启用据点占用的完美候选。
+func TestTargetSelectionMayMoveOperatorLockedToEnabledLocation(t *testing.T) {
 	p := &operatorSelectionParam{
 		Usage:    operatorActionUsageTarget,
 		Location: "ReconstructionHQ",
+		ActiveLocations: map[string]struct{}{
+			"CardiacRemediationStation": {},
+			"ReconstructionHQ":          {},
+		},
 		Candidates: []operatorCandidate{
 			{Name: "Pogranichnik", CacheName: "骏卫", Priority: 0},
 			{Name: "Fallback", CacheName: "备选", Priority: 1},
+		},
+		RestoreGroups: []operatorCandidateGroup{
+			{
+				Location:   "ReconstructionHQ",
+				Candidates: []operatorCandidate{{Name: "Pogranichnik", CacheName: "骏卫"}},
+			},
 		},
 		LockedRestoreAssignments: map[string]operatorCandidate{
 			"CardiacRemediationStation": {Name: "Pogranichnik", CacheName: "骏卫"},
@@ -466,8 +626,8 @@ func TestTargetSelectionDoesNotMoveOperatorLockedToAnotherLocation(t *testing.T)
 	}
 
 	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"骏卫", "备选"}))
-	if len(candidates) != 1 || candidates[0].Name != "Fallback" {
-		t.Fatalf("候选 = %#v，期望未锁定的备选干员", candidates)
+	if len(candidates) != 1 || candidates[0].Name != "Pogranichnik" {
+		t.Fatalf("候选 = %#v，期望调入被其他启用据点占用的完美候选 Pogranichnik", candidates)
 	}
 }
 

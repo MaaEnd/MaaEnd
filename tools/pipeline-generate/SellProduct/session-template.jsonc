@@ -1,6 +1,6 @@
 {
-    "SellProductRegisterAuto${LocationId}": {
-        "desc": "注册${LocationDesc}自动干员恢复范围",
+    "SellProductRegisterLocation${LocationId}": {
+        "desc": "注册${LocationDesc}本次售卖与干员规划范围",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",

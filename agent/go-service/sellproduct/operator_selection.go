@@ -10,8 +10,8 @@ func candidatesForOwnership(p *operatorSelectionParam, ownership operatorOwnersh
 	return candidatesForCurrentSelection(p, ownership.Operators)
 }
 
-// equivalentTargetCandidatesForOwnership 返回当前账号可用的最高售卖加成档候选。
-// 当前派驻识别使用完整同档集合，避免把稳定顺序误当成收益差异而产生无意义更换。
+// equivalentTargetCandidatesForOwnership 返回当前账号可用的最高加成档候选。
+// 最高加成档优先取同时满足售卖和恢复的完美候选；不存在时回退到最高售卖档。
 func equivalentTargetCandidatesForOwnership(
 	p *operatorSelectionParam,
 	ownership operatorOwnership,
@@ -20,12 +20,12 @@ func equivalentTargetCandidatesForOwnership(
 	for excluded := range p.ExcludedOperators {
 		delete(available, excluded)
 	}
-	return bestBonusTierCandidates(availableTargetCandidates(
+	return preferredTargetCandidates(
 		p.Candidates,
 		available,
 		p.Location,
-		p.LockedRestoreAssignments,
-	))
+		p.RestoreGroups,
+	)
 }
 
 // candidatesForCurrentSelection 根据 usage 生成本轮真正允许选择的候选。
@@ -37,12 +37,12 @@ func candidatesForCurrentSelection(p *operatorSelectionParam, owned map[string]s
 		delete(availableOwned, excluded)
 	}
 	if p.Usage == operatorActionUsageTarget {
-		candidates := bestBonusTierCandidates(availableTargetCandidates(
+		candidates := preferredTargetCandidates(
 			p.Candidates,
 			availableOwned,
 			p.Location,
-			p.LockedRestoreAssignments,
-		))
+			p.RestoreGroups,
+		)
 		if len(candidates) == 0 {
 			return nil
 		}
@@ -131,28 +131,46 @@ func restorePlanForTargetCandidate(
 	)
 }
 
-// availableTargetCandidates 筛出已拥有且未被其他据点恢复岗位锁定的候选。
-func availableTargetCandidates(
+// preferredTargetCandidates 返回当前据点可用的最高加成档候选。
+// 最高加成档指最高售卖档中同时满足该据点恢复条件的完美候选；
+// 若不存在完美候选，则回退到最高售卖档。
+// 售卖按固定据点顺序执行，因此其他已启用据点的恢复锁不能阻止当前据点使用完美候选。
+func preferredTargetCandidates(
 	candidates []operatorCandidate,
 	owned map[string]struct{},
 	location string,
-	locked map[string]operatorCandidate,
+	restoreGroups []operatorCandidateGroup,
 ) []operatorCandidate {
-	filtered := filterOwnedCandidates(candidates, owned)
-	result := make([]operatorCandidate, 0, len(filtered))
-	for _, candidate := range filtered {
-		reservedElsewhere := false
-		for lockedLocation, lockedCandidate := range locked {
-			if lockedLocation != location && sameOperator(candidate, lockedCandidate) {
-				reservedElsewhere = true
-				break
-			}
-		}
-		if !reservedElsewhere {
-			result = append(result, candidate)
+	bestSelling := bestBonusTierCandidates(filterOwnedCandidates(candidates, owned))
+	if len(bestSelling) == 0 {
+		return nil
+	}
+
+	restoreNames := restoreCandidateNames(restoreGroups, location)
+	perfect := make([]operatorCandidate, 0, len(bestSelling))
+	for _, candidate := range bestSelling {
+		if _, ok := restoreNames[candidate.Name]; ok {
+			perfect = append(perfect, candidate)
 		}
 	}
-	return result
+	if len(perfect) > 0 {
+		return perfect
+	}
+	return bestSelling
+}
+
+func restoreCandidateNames(groups []operatorCandidateGroup, location string) map[string]struct{} {
+	for _, group := range groups {
+		if group.Location != location {
+			continue
+		}
+		names := make(map[string]struct{}, len(group.Candidates))
+		for _, candidate := range group.Candidates {
+			names[candidate.Name] = struct{}{}
+		}
+		return names
+	}
+	return nil
 }
 
 // preferredRestoreAssignments 返回各据点应尽量保留的当前售卖干员。
@@ -161,7 +179,7 @@ func preferredRestoreAssignments(p *operatorSelectionParam, owned map[string]str
 	active := p.ActiveLocations
 	for location := range active {
 		candidates := p.TargetCandidatesByLocation[location]
-		available := availableTargetCandidates(candidates, owned, location, p.LockedRestoreAssignments)
+		available := preferredTargetCandidates(candidates, owned, location, p.RestoreGroups)
 		if len(available) > 0 {
 			preferred[location] = available[0]
 		}
@@ -174,7 +192,7 @@ func preferredRestoreAssignments(p *operatorSelectionParam, owned map[string]str
 	return preferred
 }
 
-// reusableTargetCandidatesByLocation 返回各据点下次运行时可直接沿用的最高售卖加成档干员。
+// reusableTargetCandidatesByLocation 返回各据点下次运行时可直接沿用的最高加成档干员。
 func reusableTargetCandidatesByLocation(
 	p *operatorSelectionParam,
 	owned map[string]struct{},
@@ -183,12 +201,12 @@ func reusableTargetCandidatesByLocation(
 	reusable := make(map[string]map[string]struct{}, len(active))
 	for location := range active {
 		candidates := p.TargetCandidatesByLocation[location]
-		available := bestBonusTierCandidates(availableTargetCandidates(
+		available := preferredTargetCandidates(
 			candidates,
 			owned,
 			location,
-			p.LockedRestoreAssignments,
-		))
+			p.RestoreGroups,
+		)
 		if len(available) == 0 {
 			continue
 		}

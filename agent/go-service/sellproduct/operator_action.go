@@ -16,8 +16,8 @@ import (
 // 命中框交给 Pipeline 点击；若当前页没有目标，则由 Pipeline 继续滚动列表。
 type SelectBestOperatorRecognition struct{}
 
-// CurrentBestOperatorRecognition 检查最高售卖加成档候选是否已经处于选中位置。
-// 同档候选收益相同，沿用当前干员可以减少售卖和恢复过程中的无意义更换。
+// CurrentBestOperatorRecognition 检查当前据点的最高加成档候选是否已经处于选中位置。
+// 最高加成档优先取同时满足售卖和恢复的完美候选；同档沿用可减少无意义更换。
 type CurrentBestOperatorRecognition struct{}
 
 // OperatorCacheReadyRecognition 判断当前账号是否已有可用于选择的拥有干员快照。
@@ -84,7 +84,7 @@ func (r *SelectBestOperatorRecognition) Run(
 	}, true
 }
 
-// Run 检查当前派驻是否属于最高售卖加成档，恢复阶段仍只检查全局规划候选。
+// Run 检查当前派驻是否属于当前据点的最高加成档，恢复阶段仍只检查全局规划候选。
 func (r *CurrentBestOperatorRecognition) Run(
 	ctx *maa.Context,
 	arg *maa.CustomRecognitionArg,
@@ -498,7 +498,7 @@ func findBestVisibleOperator(candidates []operatorCandidate, items []ocrItem) (o
 	return operatorCandidate{}, nil, false
 }
 
-// findCurrentBestOperator 按稳定顺序匹配最高售卖加成档中的任一当前干员。
+// findCurrentBestOperator 按稳定顺序匹配当前据点最高加成档中的任一当前干员。
 func findCurrentBestOperator(
 	candidates []operatorCandidate,
 	knownOperators []operatorCandidate,

@@ -1,6 +1,6 @@
 {
-    "SellProductRegisterAutoRefugeeCamp": {
-        "desc": "注册难民暂居处自动干员恢复范围",
+    "SellProductRegisterLocationRefugeeCamp": {
+        "desc": "注册难民暂居处本次售卖与干员规划范围",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -13,11 +13,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRegisterAutoInfraStation"
+            "SellProductRegisterLocationInfraStation"
         ]
     },
-    "SellProductRegisterAutoInfraStation": {
-        "desc": "注册基建前站自动干员恢复范围",
+    "SellProductRegisterLocationInfraStation": {
+        "desc": "注册基建前站本次售卖与干员规划范围",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -30,11 +30,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRegisterAutoReconstructionHQ"
+            "SellProductRegisterLocationReconstructionHQ"
         ]
     },
-    "SellProductRegisterAutoReconstructionHQ": {
-        "desc": "注册重建指挥部自动干员恢复范围",
+    "SellProductRegisterLocationReconstructionHQ": {
+        "desc": "注册重建指挥部本次售卖与干员规划范围",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -47,11 +47,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRegisterAutoSkyKingFlatsConstructionSite"
+            "SellProductRegisterLocationSkyKingFlatsConstructionSite"
         ]
     },
-    "SellProductRegisterAutoSkyKingFlatsConstructionSite": {
-        "desc": "注册天王坪援建点自动干员恢复范围",
+    "SellProductRegisterLocationSkyKingFlatsConstructionSite": {
+        "desc": "注册天王坪援建点本次售卖与干员规划范围",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -64,11 +64,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRegisterAutoCardiacRemediationStation"
+            "SellProductRegisterLocationCardiacRemediationStation"
         ]
     },
-    "SellProductRegisterAutoCardiacRemediationStation": {
-        "desc": "注册心脏修缮站自动干员恢复范围",
+    "SellProductRegisterLocationCardiacRemediationStation": {
+        "desc": "注册心脏修缮站本次售卖与干员规划范围",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -81,11 +81,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRegisterAutoXiranflowCloudseederStation"
+            "SellProductRegisterLocationXiranflowCloudseederStation"
         ]
     },
-    "SellProductRegisterAutoXiranflowCloudseederStation": {
-        "desc": "注册盈天台建设站自动干员恢复范围",
+    "SellProductRegisterLocationXiranflowCloudseederStation": {
+        "desc": "注册盈天台建设站本次售卖与干员规划范围",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",

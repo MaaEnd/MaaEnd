@@ -21,19 +21,17 @@ SellProductSchedule                                  (Task entry, weekday gate)
                       └─ SellProductRegisterReserveRule{1..6} (fixed chain; skip empty slots)
                            └─ SellProductRegisterPriorityItem{1..6} (fixed chain; skip empty slots)
                                 └─ SellProductInitializeOperatorSession (initialize plans and locks)
-                                     └─ SellProductRegisterAuto{LocationId} × N (fixed chain; skip inactive outposts)
+                                     └─ SellProductRegisterLocation{LocationId} × N (fixed chain; skip inactive outposts)
                                           └─ SellProductOperatorSessionReady
                                                └─ SellProductLoop         (begin region traversal)
 ```
 
 The twelve reserve-rule and priority-item registration nodes are always enabled and form a fixed slot-order chain. Task options override the stable `itemId` only for configured slots. Unconfigured slots keep an empty `item_id`, which the Custom Action treats as a successful no-op. Outpost registration nodes use the same fixed-chain approach: task options set `active` to `true` only for enabled outposts, while inactive outposts are successful no-ops. Neither initialization stage needs progressively shortened `next` candidate lists for every possible enabled-slot combination.
 
-`SellProductLoop` executes Valley IV, Wuling, or automatic region selection according to task configuration. A region entry uses SceneManager to open outpost management, prepares the operator cache, then executes each outpost through `[JumpBack]`:
+`SellProductLoop` always executes regions in the fixed order Valley IV → Wuling. Outposts within each region follow the stable order in the generated model. Disabled regions and outposts are skipped by their entries, so the same enabled set always produces the same selling order. A region entry uses SceneManager to open outpost management, prepares the operator cache, then executes each outpost through `[JumpBack]`:
 
 ```text
 SellProductLoop                                      (Regional Development main loop)
-  ├─ SellProductAuto                                 (recognize the current region)
-  │    └─ SellProductValleyIV / SellProductWuling
   ├─ SellProductValleyIVSell                         (enter Valley IV outpost management)
   │    ├─ [Anchor]SellProductValleyIVPrepareOperatorCache (prepare operator cache)
   │    └─ [JumpBack]SellProductRefugeeCamp → SellProductInfraStation
@@ -75,9 +73,11 @@ Automatic selection has two phases—pre-sell assignment and post-sell restorati
                  ├─ SelectTargetOperator → ConfirmTargetOperator
                  │    → CloseTargetOperatorLiaison → TargetOperatorDone
                  │      (assign the planned candidate and enter the sell loop)
-                 ├─ TargetOperatorAlreadyAssigned → CancelTargetOperatorAlreadyAssigned
+                 ├─ TargetOperatorManagedConflict → CloseTargetOperatorLiaison
+                 │      (source outpost is enabled; confirm reassignment to the current outpost)
+                 ├─ TargetOperatorProtectedConflict → CancelTargetOperatorAlreadyAssigned
                  │    → CloseTargetOperatorLiaisonAfterAlreadyAssigned → OpenTargetOperatorList
-                 │      (candidate is assigned elsewhere; temporarily exclude it and restart at the top)
+                 │      (source is disabled or unknown; cancel, exclude temporarily, and restart at the top)
                  ├─ SwipeTargetOperatorList → InTargetOperatorList
                  │      (no match on this page; continue scanning downward)
                  ├─ RetryTargetOperatorAfterScan → CloseTargetOperatorLiaisonAfterScan
@@ -94,9 +94,11 @@ Automatic selection has two phases—pre-sell assignment and post-sell restorati
                  ├─ SelectRestoreOperator → ConfirmRestoreOperator
                  │    → CloseRestoreOperatorLiaison → RestoreOperatorDone
                  │      (assign and lock the restored location -> operator pair)
-                 ├─ RestoreOperatorAlreadyAssigned → CancelRestoreOperatorAlreadyAssigned
+                 ├─ RestoreOperatorManagedConflict → CloseRestoreOperatorLiaison
+                 │      (source outpost is enabled; confirm reassignment to the current outpost)
+                 ├─ RestoreOperatorProtectedConflict → CancelRestoreOperatorAlreadyAssigned
                  │    → CloseRestoreOperatorLiaisonAfterAlreadyAssigned → OpenRestoreOperatorList
-                 │      (restoration candidate is assigned elsewhere; temporarily exclude and replan)
+                 │      (source is disabled or unknown; cancel, exclude temporarily, and replan)
                  ├─ SwipeRestoreOperatorList → InRestoreOperatorList
                  │      (no match on this page; continue scanning downward)
                  ├─ RetryRestoreOperatorAfterScan → CloseRestoreOperatorLiaisonAfterScan
@@ -107,15 +109,16 @@ Automatic selection has two phases—pre-sell assignment and post-sell restorati
                  └─ RestoreOperatorScanFailed            (scan/cache failure; stop task)
 ```
 
-Selling-operator priority is fixed:
+Selling operators are first grouped by selling benefit:
 
 1. Both EXP and credit bonuses;
 2. Credit bonus only;
 3. EXP bonus only;
-4. Within the same bonus tier, keep the currently assigned operator first; when a switch is required, prefer the candidate that lets the global restoration plan keep more selling operators and leaves assignments reusable by later runs;
-5. Use the stable in-game operator order when the global restoration result is still tied.
+4. Preserve stable in-game order within the same selling tier.
 
-`selection_data.json` retains a `bonus_tier` for every selling candidate so stable ordering is not mistaken for a benefit difference. If the current assignment belongs to the best available tier, Pipeline keeps it without opening the operator list. Otherwise, Go evaluates the global restoration plan for each candidate in that tier.
+In this document, the “highest bonus tier” means the intersection of the current outpost's best selling tier and its restoration candidates: operators that perfectly satisfy both selling and restoration. If the account owns at least one perfect candidate, pre-sell planning considers only those candidates, even when one is currently assigned to another enabled outpost. Only when no perfect candidate is owned does planning fall back to the best available selling tier.
+
+`selection_data.json` retains a `bonus_tier` for every selling candidate so stable ordering is not mistaken for a benefit difference. If the current assignment belongs to the available highest bonus tier, Pipeline keeps it without opening the operator list. Otherwise, Go evaluates the global restoration plan for each candidate in that tier, preferring the current assignment and plans that keep more selling operators and remain reusable by later runs. Stable candidate order breaks any remaining tie.
 
 The owned-operator cache is stored in `debug/record/SellProductOwnedOperators.json` and partitioned by hashed UID:
 
@@ -126,13 +129,13 @@ The owned-operator cache is stored in `debug/record/SellProductOwnedOperators.js
 - Planning and selection use only the real owned set from a complete snapshot. Incomplete observations are never treated as a theoretical optimum.
 - After a full scan, if a refresh or replan changes the target, Pipeline may close and reopen the list once to execute the new plan.
 - Pipeline must recognize the list, click the candidate, recognize Assign, and confirm the return to the outpost before committing the switch.
-- If assigning opens a confirmation that the candidate is already assigned to another outpost, Pipeline cancels the takeover. Go adds that candidate to a task-scoped global exclusion set, clears the unconfirmed assignment, and replans. The exclusion set resets when the next task initializes.
+- If assigning opens a confirmation that the candidate is already assigned elsewhere, Pipeline uses `And` to combine the prompt, Go source classification, and the corresponding button. When the source outpost is enabled for this run, Pipeline confirms reassignment to the current outpost. When the source is disabled or cannot be identified reliably, Pipeline cancels, adds the candidate to a task-scoped global exclusion set, and replans. The exclusion set resets when the next task initializes.
 
 Restoration must prevent one operator from occupying multiple outposts. Go assigns operators in this order:
 
 1. Maximize the number of outposts that can be restored;
 2. With equal coverage, keep the selling operator already assigned before selling whenever possible to avoid unnecessary switches;
-3. With the same number of operators kept in this run, maximize final assignments that remain in the outpost's best selling-bonus tier so later runs need no switch;
+3. With the same number of operators kept in this run, maximize final assignments in each outpost's highest bonus tier (perfect for both selling and restoration) so later runs need no switch;
 4. With the same number of reusable assignments, choose the plan with the smaller total candidate `Priority`;
 5. Lock each confirmed `location -> operator` assignment so later outposts cannot reuse it.
 
@@ -148,7 +151,7 @@ A missing selling target or failed scan stops the task to avoid selling under th
 
 The task provides a priority-selling switch that is disabled by default. Enabling it expands six priority slots that directly adjust this list. Configured items move ahead of the default order from slot 1 through 6. Items unavailable at the current outpost are skipped, duplicate selections keep only the earliest slot, and all remaining items retain the default order above.
 
-During execution, after entry into each outpost is confirmed, the UI reports that outpost's selling-operator target, post-sale restoration target, effective selling order, items excluded because they were already confirmed out of stock during this task, and applicable reserve rules; unlisted items are sold without a reserve. It then reports whether the operator was actually kept or switched, the currently selected goods, and completed trades. When the current outpost newly confirms an out-of-stock item, the UI immediately reports the item and outpost names. An operator assigned to another outpost reports the excluded candidate and replanning reason; a new plan produced by a complete scan reports the outpost, purpose, and selected operator. The log also reports an unavailable selling operator, operator-scan failures, and restoration skipped because no restoration operator is available. Every UI message in the task uses the current client language.
+During execution, after entry into each outpost is confirmed, the UI reports that outpost's selling-operator target, post-sale restoration target, effective selling order, items excluded because they were already confirmed out of stock during this task, and applicable reserve rules; unlisted items are sold without a reserve. It then reports whether the operator was actually kept or switched, the currently selected goods, and completed trades. When the current outpost newly confirms an out-of-stock item, the UI immediately reports the item and outpost names. For an operator assigned elsewhere, the log reports whether the source outpost is managed by this run; protected candidates also report exclusion and replanning reasons. A new plan produced by a complete scan reports the outpost, purpose, and selected operator. The log also reports an unavailable selling operator, operator-scan failures, and restoration skipped because no restoration operator is available. Every UI message in the task uses the current client language.
 
 Locked goods are absent from the current screen and are skipped naturally. There is no fixed sell-attempt limit. Each round follows this flow:
 

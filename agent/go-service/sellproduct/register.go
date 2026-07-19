@@ -10,6 +10,7 @@ func Register() {
 	maa.AgentServerRegisterCustomRecognition(operatorCacheReadyRecognitionName, &OperatorCacheReadyRecognition{})
 	maa.AgentServerRegisterCustomRecognition(operatorListBottomRecognitionName, &OperatorListBottomRecognition{})
 	maa.AgentServerRegisterCustomRecognition(operatorScanOutcomeRecognitionName, &OperatorScanOutcomeRecognition{})
+	maa.AgentServerRegisterCustomRecognition(operatorConflictRecognitionName, &OperatorConflictRecognition{})
 	maa.AgentServerRegisterCustomAction(operatorSessionActionName, &OperatorSessionAction{})
 	maa.AgentServerRegisterCustomAction(reserveSessionActionName, &ReserveSessionAction{})
 	maa.AgentServerRegisterCustomAction(prioritySessionActionName, &PrioritySessionAction{})

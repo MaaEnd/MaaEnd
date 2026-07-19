@@ -5221,7 +5221,7 @@
                         "SellProductRefugeeCamp": {
                             "enabled": true
                         },
-                        "SellProductRegisterAutoRefugeeCamp": {
+                        "SellProductRegisterLocationRefugeeCamp": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "location": "RefugeeCamp",
@@ -5251,7 +5251,7 @@
                         "SellProductInfraStation": {
                             "enabled": true
                         },
-                        "SellProductRegisterAutoInfraStation": {
+                        "SellProductRegisterLocationInfraStation": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "location": "InfraStation",
@@ -5281,7 +5281,7 @@
                         "SellProductReconstructionHQ": {
                             "enabled": true
                         },
-                        "SellProductRegisterAutoReconstructionHQ": {
+                        "SellProductRegisterLocationReconstructionHQ": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "location": "ReconstructionHQ",
@@ -5340,7 +5340,7 @@
                         "SellProductSkyKingFlatsConstructionSite": {
                             "enabled": true
                         },
-                        "SellProductRegisterAutoSkyKingFlatsConstructionSite": {
+                        "SellProductRegisterLocationSkyKingFlatsConstructionSite": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "location": "SkyKingFlatsConstructionSite",
@@ -5370,7 +5370,7 @@
                         "SellProductCardiacRemediationStation": {
                             "enabled": true
                         },
-                        "SellProductRegisterAutoCardiacRemediationStation": {
+                        "SellProductRegisterLocationCardiacRemediationStation": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "location": "CardiacRemediationStation",
@@ -5400,7 +5400,7 @@
                         "SellProductXiranflowCloudseederStation": {
                             "enabled": true
                         },
-                        "SellProductRegisterAutoXiranflowCloudseederStation": {
+                        "SellProductRegisterLocationXiranflowCloudseederStation": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "location": "XiranflowCloudseederStation",

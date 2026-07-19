@@ -14,6 +14,7 @@ const (
 	operatorCacheReadyRecognitionName  = "SellProductOperatorCacheReady"
 	operatorListBottomRecognitionName  = "SellProductOperatorListBottom"
 	operatorScanOutcomeRecognitionName = "SellProductOperatorScanOutcome"
+	operatorConflictRecognitionName    = "SellProductOperatorConflict"
 	operatorSessionActionName          = "SellProductOperatorSession"
 
 	// cache 仅复用完整本地快照，缺失时先扫描；refresh 强制先完整扫描一次干员列表。
@@ -30,6 +31,10 @@ const (
 	operatorListBottomResultRetry    = "retry"
 	operatorListBottomResultNotFound = "not_found"
 	operatorListBottomResultError    = "error"
+
+	// 派驻冲突按来源据点是否属于本次启用范围分为可接管与受保护两类。
+	operatorConflictResultManaged   = "managed"
+	operatorConflictResultProtected = "protected"
 )
 
 // operatorCandidate 描述一个可供自动选择的干员。

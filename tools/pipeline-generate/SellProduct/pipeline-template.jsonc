@@ -197,16 +197,72 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProduct${LocationId}TargetOperatorAlreadyAssigned",
+            "SellProduct${LocationId}TargetOperatorManagedConflict",
+            "SellProduct${LocationId}TargetOperatorProtectedConflict",
             "SellProduct${LocationId}CloseTargetOperatorLiaison"
         ]
     },
-    "SellProduct${LocationId}TargetOperatorAlreadyAssigned": {
-        "desc": "${LocationDesc}售卖用干员已派驻到其他据点，临时排除并重新规划",
+    "SellProduct${LocationId}TargetOperatorManagedConflict": {
+        "desc": "${LocationDesc}售卖用干员来自本次启用据点，确认调至当前据点",
         "recognition": "And",
         "all_of": [
             "SellProductOperatorAlreadyAssignedPrompt",
+            {
+                "recognition": "Custom",
+                "custom_recognition": "SellProductOperatorConflict",
+                "custom_recognition_param": {
+                    "result": "managed",
+                    "usage": "target",
+                    "location": "${LocationId}"
+                },
+                "roi": [
+                    240,
+                    260,
+                    800,
+                    90
+                ]
+            },
             "YellowConfirmButtonType1"
+        ],
+        "box_index": 2,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                190,
+                160,
+                360,
+                150
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}CloseTargetOperatorLiaison"
+        ]
+    },
+    "SellProduct${LocationId}TargetOperatorProtectedConflict": {
+        "desc": "${LocationDesc}售卖用干员来自未启用据点，临时排除并重新规划",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorAlreadyAssignedPrompt",
+            {
+                "recognition": "Custom",
+                "custom_recognition": "SellProductOperatorConflict",
+                "custom_recognition_param": {
+                    "result": "protected",
+                    "usage": "target",
+                    "location": "${LocationId}"
+                },
+                "roi": [
+                    240,
+                    260,
+                    800,
+                    90
+                ]
+            },
+            "CancelButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -269,7 +325,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProduct${LocationId}OpenTargetOperatorList"
+            "SellProduct${LocationId}BeforeSellOperator"
         ]
     },
     "SellProduct${LocationId}CloseTargetOperatorLiaison": {
@@ -594,16 +650,72 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProduct${LocationId}RestoreOperatorAlreadyAssigned",
+            "SellProduct${LocationId}RestoreOperatorManagedConflict",
+            "SellProduct${LocationId}RestoreOperatorProtectedConflict",
             "SellProduct${LocationId}CloseRestoreOperatorLiaison"
         ]
     },
-    "SellProduct${LocationId}RestoreOperatorAlreadyAssigned": {
-        "desc": "${LocationDesc}恢复干员已派驻到其他据点，临时排除并重新规划",
+    "SellProduct${LocationId}RestoreOperatorManagedConflict": {
+        "desc": "${LocationDesc}恢复干员来自本次启用据点，确认调至当前据点",
         "recognition": "And",
         "all_of": [
             "SellProductOperatorAlreadyAssignedPrompt",
+            {
+                "recognition": "Custom",
+                "custom_recognition": "SellProductOperatorConflict",
+                "custom_recognition_param": {
+                    "result": "managed",
+                    "usage": "restore",
+                    "location": "${LocationId}"
+                },
+                "roi": [
+                    240,
+                    260,
+                    800,
+                    90
+                ]
+            },
             "YellowConfirmButtonType1"
+        ],
+        "box_index": 2,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                190,
+                160,
+                360,
+                150
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}CloseRestoreOperatorLiaison"
+        ]
+    },
+    "SellProduct${LocationId}RestoreOperatorProtectedConflict": {
+        "desc": "${LocationDesc}恢复干员来自未启用据点，临时排除并重新规划",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorAlreadyAssignedPrompt",
+            {
+                "recognition": "Custom",
+                "custom_recognition": "SellProductOperatorConflict",
+                "custom_recognition_param": {
+                    "result": "protected",
+                    "usage": "restore",
+                    "location": "${LocationId}"
+                },
+                "roi": [
+                    240,
+                    260,
+                    800,
+                    90
+                ]
+            },
+            "CancelButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -666,7 +778,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProduct${LocationId}OpenRestoreOperatorList"
+            "SellProduct${LocationId}AfterSellOperator"
         ]
     },
     "SellProduct${LocationId}CloseRestoreOperatorLiaison": {

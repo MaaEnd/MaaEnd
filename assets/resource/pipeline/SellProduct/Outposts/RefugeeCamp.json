@@ -202,16 +202,72 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRefugeeCampTargetOperatorAlreadyAssigned",
+            "SellProductRefugeeCampTargetOperatorManagedConflict",
+            "SellProductRefugeeCampTargetOperatorProtectedConflict",
             "SellProductRefugeeCampCloseTargetOperatorLiaison"
         ]
     },
-    "SellProductRefugeeCampTargetOperatorAlreadyAssigned": {
-        "desc": "难民暂居处售卖用干员已派驻到其他据点，临时排除并重新规划",
+    "SellProductRefugeeCampTargetOperatorManagedConflict": {
+        "desc": "难民暂居处售卖用干员来自本次启用据点，确认调至当前据点",
         "recognition": "And",
         "all_of": [
             "SellProductOperatorAlreadyAssignedPrompt",
+            {
+                "recognition": "Custom",
+                "custom_recognition": "SellProductOperatorConflict",
+                "custom_recognition_param": {
+                    "result": "managed",
+                    "usage": "target",
+                    "location": "RefugeeCamp"
+                },
+                "roi": [
+                    240,
+                    260,
+                    800,
+                    90
+                ]
+            },
             "YellowConfirmButtonType1"
+        ],
+        "box_index": 2,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                190,
+                160,
+                360,
+                150
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampCloseTargetOperatorLiaison"
+        ]
+    },
+    "SellProductRefugeeCampTargetOperatorProtectedConflict": {
+        "desc": "难民暂居处售卖用干员来自未启用据点，临时排除并重新规划",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorAlreadyAssignedPrompt",
+            {
+                "recognition": "Custom",
+                "custom_recognition": "SellProductOperatorConflict",
+                "custom_recognition_param": {
+                    "result": "protected",
+                    "usage": "target",
+                    "location": "RefugeeCamp"
+                },
+                "roi": [
+                    240,
+                    260,
+                    800,
+                    90
+                ]
+            },
+            "CancelButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -274,7 +330,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRefugeeCampOpenTargetOperatorList"
+            "SellProductRefugeeCampBeforeSellOperator"
         ]
     },
     "SellProductRefugeeCampCloseTargetOperatorLiaison": {
@@ -604,16 +660,72 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRefugeeCampRestoreOperatorAlreadyAssigned",
+            "SellProductRefugeeCampRestoreOperatorManagedConflict",
+            "SellProductRefugeeCampRestoreOperatorProtectedConflict",
             "SellProductRefugeeCampCloseRestoreOperatorLiaison"
         ]
     },
-    "SellProductRefugeeCampRestoreOperatorAlreadyAssigned": {
-        "desc": "难民暂居处恢复干员已派驻到其他据点，临时排除并重新规划",
+    "SellProductRefugeeCampRestoreOperatorManagedConflict": {
+        "desc": "难民暂居处恢复干员来自本次启用据点，确认调至当前据点",
         "recognition": "And",
         "all_of": [
             "SellProductOperatorAlreadyAssignedPrompt",
+            {
+                "recognition": "Custom",
+                "custom_recognition": "SellProductOperatorConflict",
+                "custom_recognition_param": {
+                    "result": "managed",
+                    "usage": "restore",
+                    "location": "RefugeeCamp"
+                },
+                "roi": [
+                    240,
+                    260,
+                    800,
+                    90
+                ]
+            },
             "YellowConfirmButtonType1"
+        ],
+        "box_index": 2,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                190,
+                160,
+                360,
+                150
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampCloseRestoreOperatorLiaison"
+        ]
+    },
+    "SellProductRefugeeCampRestoreOperatorProtectedConflict": {
+        "desc": "难民暂居处恢复干员来自未启用据点，临时排除并重新规划",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorAlreadyAssignedPrompt",
+            {
+                "recognition": "Custom",
+                "custom_recognition": "SellProductOperatorConflict",
+                "custom_recognition_param": {
+                    "result": "protected",
+                    "usage": "restore",
+                    "location": "RefugeeCamp"
+                },
+                "roi": [
+                    240,
+                    260,
+                    800,
+                    90
+                ]
+            },
+            "CancelButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -676,7 +788,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRefugeeCampOpenRestoreOperatorList"
+            "SellProductRefugeeCampAfterSellOperator"
         ]
     },
     "SellProductRefugeeCampCloseRestoreOperatorLiaison": {

@@ -380,7 +380,7 @@
                         "SellProduct${LocationId}": {
                             "enabled": true
                         },
-                        "SellProductRegisterAuto${LocationId}": {
+                        "SellProductRegisterLocation${LocationId}": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "location": "${LocationId}",

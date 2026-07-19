@@ -1,7 +1,7 @@
 import {sellProductLocations} from "./model.mjs";
 
 const operatorRegistrationNodes = [
-    ...sellProductLocations.map((location) => `SellProductRegisterAuto${location.LocationId}`),
+    ...sellProductLocations.map((location) => `SellProductRegisterLocation${location.LocationId}`),
     "SellProductOperatorSessionReady",
 ];
 

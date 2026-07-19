@@ -202,16 +202,72 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSkyKingFlatsConstructionSiteTargetOperatorAlreadyAssigned",
+            "SellProductSkyKingFlatsConstructionSiteTargetOperatorManagedConflict",
+            "SellProductSkyKingFlatsConstructionSiteTargetOperatorProtectedConflict",
             "SellProductSkyKingFlatsConstructionSiteCloseTargetOperatorLiaison"
         ]
     },
-    "SellProductSkyKingFlatsConstructionSiteTargetOperatorAlreadyAssigned": {
-        "desc": "天王坪援建点售卖用干员已派驻到其他据点，临时排除并重新规划",
+    "SellProductSkyKingFlatsConstructionSiteTargetOperatorManagedConflict": {
+        "desc": "天王坪援建点售卖用干员来自本次启用据点，确认调至当前据点",
         "recognition": "And",
         "all_of": [
             "SellProductOperatorAlreadyAssignedPrompt",
+            {
+                "recognition": "Custom",
+                "custom_recognition": "SellProductOperatorConflict",
+                "custom_recognition_param": {
+                    "result": "managed",
+                    "usage": "target",
+                    "location": "SkyKingFlatsConstructionSite"
+                },
+                "roi": [
+                    240,
+                    260,
+                    800,
+                    90
+                ]
+            },
             "YellowConfirmButtonType1"
+        ],
+        "box_index": 2,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                190,
+                160,
+                360,
+                150
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSkyKingFlatsConstructionSiteCloseTargetOperatorLiaison"
+        ]
+    },
+    "SellProductSkyKingFlatsConstructionSiteTargetOperatorProtectedConflict": {
+        "desc": "天王坪援建点售卖用干员来自未启用据点，临时排除并重新规划",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorAlreadyAssignedPrompt",
+            {
+                "recognition": "Custom",
+                "custom_recognition": "SellProductOperatorConflict",
+                "custom_recognition_param": {
+                    "result": "protected",
+                    "usage": "target",
+                    "location": "SkyKingFlatsConstructionSite"
+                },
+                "roi": [
+                    240,
+                    260,
+                    800,
+                    90
+                ]
+            },
+            "CancelButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -274,7 +330,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSkyKingFlatsConstructionSiteOpenTargetOperatorList"
+            "SellProductSkyKingFlatsConstructionSiteBeforeSellOperator"
         ]
     },
     "SellProductSkyKingFlatsConstructionSiteCloseTargetOperatorLiaison": {
@@ -604,16 +660,72 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSkyKingFlatsConstructionSiteRestoreOperatorAlreadyAssigned",
+            "SellProductSkyKingFlatsConstructionSiteRestoreOperatorManagedConflict",
+            "SellProductSkyKingFlatsConstructionSiteRestoreOperatorProtectedConflict",
             "SellProductSkyKingFlatsConstructionSiteCloseRestoreOperatorLiaison"
         ]
     },
-    "SellProductSkyKingFlatsConstructionSiteRestoreOperatorAlreadyAssigned": {
-        "desc": "天王坪援建点恢复干员已派驻到其他据点，临时排除并重新规划",
+    "SellProductSkyKingFlatsConstructionSiteRestoreOperatorManagedConflict": {
+        "desc": "天王坪援建点恢复干员来自本次启用据点，确认调至当前据点",
         "recognition": "And",
         "all_of": [
             "SellProductOperatorAlreadyAssignedPrompt",
+            {
+                "recognition": "Custom",
+                "custom_recognition": "SellProductOperatorConflict",
+                "custom_recognition_param": {
+                    "result": "managed",
+                    "usage": "restore",
+                    "location": "SkyKingFlatsConstructionSite"
+                },
+                "roi": [
+                    240,
+                    260,
+                    800,
+                    90
+                ]
+            },
             "YellowConfirmButtonType1"
+        ],
+        "box_index": 2,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                190,
+                160,
+                360,
+                150
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSkyKingFlatsConstructionSiteCloseRestoreOperatorLiaison"
+        ]
+    },
+    "SellProductSkyKingFlatsConstructionSiteRestoreOperatorProtectedConflict": {
+        "desc": "天王坪援建点恢复干员来自未启用据点，临时排除并重新规划",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOperatorAlreadyAssignedPrompt",
+            {
+                "recognition": "Custom",
+                "custom_recognition": "SellProductOperatorConflict",
+                "custom_recognition_param": {
+                    "result": "protected",
+                    "usage": "restore",
+                    "location": "SkyKingFlatsConstructionSite"
+                },
+                "roi": [
+                    240,
+                    260,
+                    800,
+                    90
+                ]
+            },
+            "CancelButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -676,7 +788,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSkyKingFlatsConstructionSiteOpenRestoreOperatorList"
+            "SellProductSkyKingFlatsConstructionSiteAfterSellOperator"
         ]
     },
     "SellProductSkyKingFlatsConstructionSiteCloseRestoreOperatorLiaison": {
