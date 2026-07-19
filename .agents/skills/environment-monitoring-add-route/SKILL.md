@@ -49,17 +49,17 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、MapAsse
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | 传送入口               | 默认填写真实 `EnterMap`（通常为 `SceneEnterWorld*`）；或启用 `QuickTeleport: true`，从追踪任务地图快捷传送                           |
 | `MapName`              | `MapPath`：MapTracker `map_name`，可用正则；`MapGoal`：可加载 NavMesh 的精确 MapTracker `map_name`；`MapTarget`：MapLocate `zone_id` |
-| `MapAssert`            | 初始位置矩形 `[x, y, w, h]`；`MapPath` / `MapGoal` 使用 MapTracker 坐标，`MapTarget` 使用 MapLocate 坐标                             |
+| `MapAssert`            | 初始位置矩形 `[x, y, w, h]`；普通传送和 `QuickTeleport + MapPath` 必填，`QuickTeleport + MapTarget/MapGoal` 可省略                   |
 | 三选一的寻路字段       | `MapPath` / `MapTarget` / `MapGoal` 必须且只能填写一个                                                                               |
 | `CameraSwipeDirection` | `EnvironmentMonitoringSwipeScreenUp/Down/Left/Right`，用于进入拍照后的摄像头调整                                                     |
 
 ### 三种寻路模式
 
-| 模式        | 数据格式          | 生成动作            | 适用场景                                                               |
-| ----------- | ----------------- | ------------------- | ---------------------------------------------------------------------- |
-| `MapPath`   | `[[x1, y1], ...]` | `MapTrackerMove`    | 需要按实录路径逐点行走；传送后会再次用 `MapAssert` 复核固定起点        |
-| `MapTarget` | `[x, y]`          | `MapNavigateAction` | 使用 MapLocate / MapNavigator 的 NAVMESH 目标；传送后直接寻路          |
-| `MapGoal`   | `[x, y]`          | `MapTrackerGoal`    | 使用 MapTracker NavMesh 自动寻路；`MapName` 必须是精确且可加载的地图名 |
+| 模式        | 数据格式          | 生成动作            | 适用场景                                                                    |
+| ----------- | ----------------- | ------------------- | --------------------------------------------------------------------------- |
+| `MapPath`   | `[[x1, y1], ...]` | `MapTrackerMove`    | 需要按实录路径逐点行走；传送后会再次用 `MapAssert` 复核固定起点             |
+| `MapTarget` | `[x, y]`          | `MapNavigateAction` | 使用 MapLocate / MapNavigator 的 NAVMESH 目标；快捷传送时可省略 `MapAssert` |
+| `MapGoal`   | `[x, y]`          | `MapTrackerGoal`    | 使用 MapTracker NavMesh 自动寻路；快捷传送时可省略 `MapAssert`              |
 
 三种模式都只适合普通可通行路线，不负责战斗、剧情、过图、机关或交互。遇到这些情况不要用更多重试或硬延迟掩盖，应保留未适配状态或重新设计真实可通行路线。
 
@@ -103,7 +103,7 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 1. 传送入口：真实 `EnterMap`，或已实测任务地图支持的 `QuickTeleport: true`
 2. 寻路方式：`MapPath` / `MapTarget` / `MapGoal`
 3. `MapName`
-4. `MapAssert`
+4. `MapAssert`（普通传送或 `QuickTeleport + MapPath` 必填；`QuickTeleport + MapTarget/MapGoal` 跳过）
 5. 所选寻路字段的坐标
 6. `MapTargetTier`（仅 `MapTarget` 且确有跨 tier 目标时）
 7. `CameraSwipeDirection`

@@ -197,12 +197,25 @@ export function createRouteResolver(routeConfig, options = {}) {
             const missionName = mission?.name?.["zh-CN"] || mission?.missionId || "UnknownMission";
             const override = getRouteOverride(mission, routeOverrides);
             const QuickTeleport = override?.QuickTeleport === true;
+            const hasMapPath = !isFieldMissing(override?.MapPath);
+            const hasMapTarget = !isFieldMissing(override?.MapTarget);
+            const hasMapGoal = !isFieldMissing(override?.MapGoal);
+            const navigationConfigCount = [
+                hasMapPath,
+                hasMapTarget,
+                hasMapGoal,
+            ].filter(Boolean).length;
+            const canSkipMapAssert = QuickTeleport && navigationConfigCount === 1 && (hasMapTarget || hasMapGoal);
 
             const resolved = {};
             const missingFields = [];
             for (const key of REQUIRED_ROUTE_FIELDS) {
                 const overrideValue = override?.[key];
                 if (key === "EnterMap" && QuickTeleport) {
+                    resolved[key] = isFieldMissing(overrideValue) ? UNREACHABLE_ROUTE_PLACEHOLDER[key] : overrideValue;
+                    continue;
+                }
+                if (key === "MapAssert" && canSkipMapAssert) {
                     resolved[key] = isFieldMissing(overrideValue) ? UNREACHABLE_ROUTE_PLACEHOLDER[key] : overrideValue;
                     continue;
                 }
@@ -214,14 +227,6 @@ export function createRouteResolver(routeConfig, options = {}) {
                 }
             }
 
-            const hasMapPath = !isFieldMissing(override?.MapPath);
-            const hasMapTarget = !isFieldMissing(override?.MapTarget);
-            const hasMapGoal = !isFieldMissing(override?.MapGoal);
-            const navigationConfigCount = [
-                hasMapPath,
-                hasMapTarget,
-                hasMapGoal,
-            ].filter(Boolean).length;
             if (navigationConfigCount === 0) {
                 missingFields.push("MapPath/MapTarget/MapGoal");
             }

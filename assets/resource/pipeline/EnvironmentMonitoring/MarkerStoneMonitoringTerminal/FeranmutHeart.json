@@ -340,10 +340,10 @@
         "custom_recognition_param": {
             "zone_id": "IndieDg007Tier338",
             "target": [
-                55.7,
-                61.18,
-                154.44,
-                140.9
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
