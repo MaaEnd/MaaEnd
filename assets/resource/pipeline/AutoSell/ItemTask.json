@@ -66,7 +66,7 @@
             650,
             180
         ],
-        "template": "AutoSell/TabSwitchElasticGoods.png",
+        "template": "AutoStockpile/ElasticGoodsButton.png",
         "threshold": 0.9,
         "pre_delay": 0,
         "action": "Click",
@@ -82,7 +82,7 @@
         "roi": [
             0,
             0,
-            650,
+            850,
             180
         ],
         "template": "AutoSell/TabSwitchElasticGoodsActive.png",
@@ -467,8 +467,14 @@
     "AutoSellFriendsPricesExpectedBuySlide": {
         "desc": "从好友价格界面返回到物资调度界面调整滑块",
         "recognition": "TemplateMatch",
-        "template": "AutoSell/ItemAddButton.png",
-        "threshold": 0.9,
+        "template": "AutoStockpile/IncreaseButton.png",
+        "roi_offset": [
+            639,
+            495,
+            255,
+            146
+        ],
+        "green_mask": true,
         "pre_wait_freezes": 100,
         "pre_delay": 0,
         "action": "Click",

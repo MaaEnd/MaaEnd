@@ -14,28 +14,6 @@
         ],
         "threshold": 0.8
     },
-    "AutoSellStockRedistributionItemNameAreaRecognition": {
-        "desc": "识别物资调度界面中的item",
-        "recognition": "ColorMatch",
-        "roi": "AutoSellStockRedistributionItemGreenLineRecognition",
-        "roi_offset": [
-            0,
-            0,
-            0,
-            30
-        ],
-        "lower": [
-            61,
-            60,
-            60
-        ],
-        "upper": [
-            81,
-            80,
-            80
-        ],
-        "count": 100
-    },
     "AutoSellStockRedistributionItemOwnedRecognition": {
         "desc": "识别物资调度界面中的拥有所在黑色背景，区分是售卖还是购买物品",
         "recognition": "ColorMatch",
@@ -58,6 +36,28 @@
         ],
         "connected": true,
         "count": 280
+    },
+    "AutoSellStockRedistributionItemNameAreaRecognition": {
+        "desc": "识别物资调度界面中的item",
+        "recognition": "ColorMatch",
+        "roi": "AutoSellStockRedistributionItemGreenLineRecognition",
+        "roi_offset": [
+            0,
+            0,
+            0,
+            30
+        ],
+        "lower": [
+            61,
+            60,
+            60
+        ],
+        "upper": [
+            81,
+            80,
+            80
+        ],
+        "count": 100
     },
     "AutoSellStockRedistributionItemGreenLineRecognition": {
         "desc": "识别物资调度界面中的绿线所在位置，用于定位item宽度",

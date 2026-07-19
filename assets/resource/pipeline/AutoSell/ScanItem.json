@@ -25,10 +25,10 @@
         "roi": [
             0,
             0,
-            650,
+            850,
             180
         ],
-        "template": "AutoSell/TabSwitchElasticGoods.png",
+        "template": "AutoStockpile/ElasticGoodsButton.png",
         "threshold": 0.9,
         "pre_delay": 0,
         "action": "Click",
@@ -44,7 +44,7 @@
         "roi": [
             0,
             0,
-            650,
+            850,
             180
         ],
         "template": "AutoSell/TabSwitchElasticGoodsActive.png",
@@ -95,10 +95,10 @@
         "roi": [
             0,
             0,
-            650,
+            850,
             180
         ],
-        "template": "AutoSell/TabSwitchElasticGoods.png",
+        "template": "AutoStockpile/ElasticGoodsButton.png",
         "threshold": 0.9,
         "pre_delay": 0,
         "action": "Click",
@@ -123,7 +123,7 @@
         "roi": [
             0,
             0,
-            650,
+            850,
             180
         ],
         "template": "AutoSell/TabSwitchElasticGoodsActive.png",
