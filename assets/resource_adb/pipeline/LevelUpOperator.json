@@ -1,0 +1,83 @@
+{
+    "SelectedOperatorCurrentLevel": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    951,
+                    160,
+                    122,
+                    81
+                ]
+            }
+        }
+    },
+    "CurrentLevelColorFilter": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    951,
+                    160,
+                    122,
+                    81
+                ]
+            }
+        }
+    },
+    "LevelUpOperatorSelectedInList": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    0,
+                    71,
+                    121,
+                    608
+                ]
+            }
+        }
+    },
+    "LevelUpOperatorSearchSwipeLeft": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    45,
+                    425
+                ],
+                "end": [
+                    45,
+                    300
+                ]
+            }
+        }
+    },
+    "LevelUpOperatorSearchFinished": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    0,
+                    425,
+                    118,
+                    176
+                ]
+            }
+        }
+    },
+    "LevelUpOperatorSwitchToNextOperator": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    15,
+                    109,
+                    -42,
+                    -49
+                ]
+            }
+        }
+    }
+}
+
+
+
+
+

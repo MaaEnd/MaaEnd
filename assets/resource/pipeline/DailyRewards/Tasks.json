@@ -51,39 +51,43 @@
             "DailyTaskComplete"
         ]
     },
+    "DailyTaskClaimSingleRewardOCR": {
+        "desc": "识别单个任务领取按钮（OCR）",
+        "recognition": "OCR",
+        "roi": [
+            825,
+            200,
+            300,
+            400
+        ],
+        "expected": [
+            "领取",
+            "領取",
+            "(?i)Claim",
+            "受取",
+            "[Cc]laim"
+        ]
+    },
+    "DailyTaskClaimSingleRewardTemplate": {
+        "desc": "识别单个任务领取按钮（模板）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            825,
+            200,
+            300,
+            400
+        ],
+        "template": [
+            "DailyRewards/TaskClaimSingleReward.png"
+        ],
+        "threshold": 0.9
+    },
     "DailyTaskClaimSingleReward": {
         "desc": "点击单个任务中领取按钮",
         "recognition": "Or",
         "any_of": [
-            {
-                "recognition": "OCR",
-                "roi": [
-                    825,
-                    200,
-                    300,
-                    400
-                ],
-                "expected": [
-                    "领取",
-                    "領取",
-                    "(?i)Claim",
-                    "受取",
-                    "[Cc]laim"
-                ]
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    825,
-                    200,
-                    300,
-                    400
-                ],
-                "template": [
-                    "DailyRewards/TaskClaimSingleReward.png"
-                ],
-                "threshold": 0.9
-            }
+            "DailyTaskClaimSingleRewardOCR",
+            "DailyTaskClaimSingleRewardTemplate"
         ],
         "pre_delay": 0,
         "action": {
@@ -100,35 +104,8 @@
         "desc": "单个任务领取成功",
         "recognition": "Or",
         "any_of": [
-            {
-                "recognition": "OCR",
-                "roi": [
-                    825,
-                    200,
-                    300,
-                    400
-                ],
-                "expected": [
-                    "领取",
-                    "領取",
-                    "(?i)Claim",
-                    "受取",
-                    "[Cc]laim"
-                ]
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    825,
-                    200,
-                    300,
-                    400
-                ],
-                "template": [
-                    "DailyRewards/TaskClaimSingleReward.png"
-                ],
-                "threshold": 0.9
-            }
+            "DailyTaskClaimSingleRewardOCR",
+            "DailyTaskClaimSingleRewardTemplate"
         ],
         "inverse": true
     },
