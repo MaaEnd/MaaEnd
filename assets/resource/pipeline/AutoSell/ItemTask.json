@@ -346,6 +346,10 @@
                 "template": [
                     "AutoSell/SellTicketFriendValleyIV.png",
                     "AutoSell/SellTicketFriendWuling.png"
+                ],
+                "threshold": [
+                    0.9,
+                    0.9
                 ]
             }
         ],
@@ -513,28 +517,7 @@
         "recognition": "And",
         "all_of": [
             "AutoSellFriendsPriceFirstTicketRecognition",
-            {
-                "recognition": "ColorMatch",
-                "roi": "AutoSellFriendsPriceFirstTicketRecognition",
-                "roi_offset": [
-                    -260,
-                    -20,
-                    20,
-                    30
-                ],
-                "lower": [
-                    245,
-                    228,
-                    0
-                ],
-                "upper": [
-                    255,
-                    248,
-                    10
-                ],
-                "connected": true,
-                "count": 15
-            }
+            "AutoSellFriendsPricesExpectedGoToHighlightRecognition"
         ],
         "box_index": 1,
         "pre_delay": 0,

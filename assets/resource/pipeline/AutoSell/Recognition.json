@@ -152,61 +152,88 @@
         ],
         "box_index": 1
     },
+    "AutoSellFriendsPricesExpectedGoToHighlightRecognition": {
+        "desc": "识别好友列表最高价行是否为当前选中高亮",
+        "recognition": "ColorMatch",
+        "roi": "AutoSellFriendsPriceFirstTicketRecognition",
+        "roi_offset": [
+            -260,
+            -20,
+            20,
+            30
+        ],
+        "lower": [
+            245,
+            228,
+            0
+        ],
+        "upper": [
+            255,
+            248,
+            10
+        ],
+        "connected": true,
+        "count": 15
+    },
+    "AutoSellFriendsPriceCurrentAreaRecognition": {
+        "desc": "识别好友列表里当前选中行的高亮区域",
+        "recognition": "ColorMatch",
+        "roi": [
+            440,
+            230,
+            300,
+            355
+        ],
+        "lower": [
+            245,
+            228,
+            0
+        ],
+        "upper": [
+            255,
+            248,
+            10
+        ],
+        "connected": true,
+        "count": 150
+    },
+    "AutoSellFriendsPriceCurrentTicketRecognition": {
+        "desc": "识别好友列表当前选中行的调度券图标",
+        "recognition": "TemplateMatch",
+        "roi": "AutoSellFriendsPriceCurrentAreaRecognition",
+        "roi_offset": [
+            0,
+            -15,
+            200,
+            30
+        ],
+        "template": [
+            "AutoSell/SellTicketFriendValleyIV.png",
+            "AutoSell/SellTicketFriendWuling.png"
+        ]
+    },
+    "AutoSellFriendsPriceCurrentOCRRecognition": {
+        "desc": "识别好友列表当前选中行的价格数字",
+        "recognition": "OCR",
+        "roi": "AutoSellFriendsPriceCurrentTicketRecognition",
+        "roi_offset": [
+            32,
+            0,
+            32,
+            0
+        ],
+        "expected": [
+            "\\d"
+        ],
+        "only_rec": true
+    },
     "AutoSellFriendsPriceCurrentRecognition": {
         "desc": "识别好友列表里当前价格是否符合预期",
         "recognition": "And",
         "all_of": [
-            {
-                "sub_name": "current_area",
-                "recognition": "ColorMatch",
-                "roi": [
-                    540,
-                    230,
-                    200,
-                    355
-                ],
-                "lower": [
-                    245,
-                    228,
-                    0
-                ],
-                "upper": [
-                    255,
-                    248,
-                    10
-                ],
-                "connected": true,
-                "count": 150
-            },
-            {
-                "sub_name": "ticket_icon",
-                "recognition": "TemplateMatch",
-                "roi": "current_area",
-                "roi_offset": [
-                    0,
-                    -15,
-                    200,
-                    30
-                ],
-                "template": [
-                    "AutoSell/SellTicketFriendValleyIV.png",
-                    "AutoSell/SellTicketFriendWuling.png"
-                ]
-            },
-            {
-                "recognition": "OCR",
-                "roi": "ticket_icon",
-                "roi_offset": [
-                    32,
-                    0,
-                    32,
-                    0
-                ],
-                "expected": [
-                    "\\d"
-                ],
-                "only_rec": true
-            }
+            "AutoSellFriendsPriceCurrentAreaRecognition",
+            "AutoSellFriendsPriceCurrentTicketRecognition",
+            "AutoSellFriendsPriceCurrentOCRRecognition"
         ],
         "box_index": 2
     },
