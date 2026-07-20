@@ -75,26 +75,6 @@
         "key": 89, // Y
         "post_delay": 0,
         "next": [
-            "VisitFriendsEnterShipSuccessClearScrollText"
-        ]
-    },
-    "VisitFriendsEnterShipSuccessClearScrollText": {
-        "desc": "进入好友船后清空列表滚动检测的文字缓存，确保返回列表后重新探测",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
-        "custom_action_param": {
-            "patch": {
-                "VisitFriendsMenuScanScrollList": {
-                    "attach": {
-                        "last_text": ""
-                    }
-                }
-            }
-        },
-        "post_delay": 0,
-        "next": [
             "VisitFriendsEnterMenuTerminalSuccess"
         ]
     },
