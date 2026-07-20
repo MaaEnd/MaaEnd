@@ -83,34 +83,9 @@ func TestSellProductCacheReadWrite(t *testing.T) {
 }
 
 func TestDefaultSellProductCachePathIsSingleFile(t *testing.T) {
-	tests := []struct {
-		name string
-		uid  string
-		want string
-	}{
-		{
-			name: "hashed uid",
-			uid:  testCacheUID,
-			want: filepath.Join("debug", "record", sellProductCacheFileName),
-		},
-		{
-			name: "empty uid",
-			uid:  "",
-			want: filepath.Join("debug", "record", sellProductCacheFileName),
-		},
-		{
-			name: "unsafe uid",
-			uid:  "../uid value",
-			want: filepath.Join("debug", "record", sellProductCacheFileName),
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := defaultSellProductCachePath(tt.uid); got != tt.want {
-				t.Fatalf("defaultSellProductCachePath(%q) = %q, want %q", tt.uid, got, tt.want)
-			}
-		})
+	want := filepath.Join("debug", "record", sellProductCacheFileName)
+	if got := defaultSellProductCachePath(); got != want {
+		t.Fatalf("defaultSellProductCachePath() = %q, want %q", got, want)
 	}
 }
 

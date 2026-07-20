@@ -559,7 +559,7 @@ func resetOperatorSessionForTest(t *testing.T, mode string) {
 	operatorStateMu.Unlock()
 	previousCachePath := resolveSellProductCachePathFunc
 	cachePath := filepath.Join(t.TempDir(), sellProductCacheFileName)
-	resolveSellProductCachePathFunc = func(string) string { return cachePath }
+	resolveSellProductCachePathFunc = func() string { return cachePath }
 	operatorSessionReset(mode)
 	t.Cleanup(func() {
 		operatorStateMu.Lock()
@@ -573,7 +573,7 @@ func resetOperatorSessionForTest(t *testing.T, mode string) {
 func setSellProductCachePathForTest(t *testing.T, path string) {
 	t.Helper()
 	previous := resolveSellProductCachePathFunc
-	resolveSellProductCachePathFunc = func(string) string { return path }
+	resolveSellProductCachePathFunc = func() string { return path }
 	t.Cleanup(func() {
 		resolveSellProductCachePathFunc = previous
 	})

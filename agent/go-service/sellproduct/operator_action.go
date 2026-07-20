@@ -388,7 +388,7 @@ var operatorListScanStates = map[string]operatorListScanState{}
 // loadOperatorOwnershipForSelection 读取当前账号完整快照中的拥有干员集合。
 func loadOperatorOwnershipForSelection() (operatorOwnership, error) {
 	uid := currentSellProductCacheUID()
-	path := resolveSellProductCachePathFunc(uid)
+	path := resolveSellProductCachePathFunc()
 	cache, err := readSellProductCache(path)
 	if err != nil {
 		return operatorOwnership{}, err
@@ -410,7 +410,7 @@ func operatorCacheStatusForSelection(p *operatorActionParam) (operatorCacheStatu
 		return operatorCacheStatus{Ready: operatorSessionRefreshed()}, nil
 	}
 	uid := currentSellProductCacheUID()
-	path := resolveSellProductCachePathFunc(uid)
+	path := resolveSellProductCachePathFunc()
 	cache, err := readSellProductCache(path)
 	if err != nil {
 		return operatorCacheStatus{}, err
@@ -434,7 +434,7 @@ func replaceObservedOperators(
 		return fmt.Errorf("operator action param is nil")
 	}
 	uid := currentSellProductCacheUID()
-	path := resolveSellProductCachePathFunc(uid)
+	path := resolveSellProductCachePathFunc()
 	sellProductCacheMu.Lock()
 	defer sellProductCacheMu.Unlock()
 	cache, err := readSellProductCache(path)

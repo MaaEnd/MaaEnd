@@ -387,7 +387,7 @@ func TestCachedOutpostProsperityChangesGeneratedSellingOperator(t *testing.T) {
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := writeSellProductCache(
-				resolveSellProductCachePathFunc(uid),
+				resolveSellProductCachePathFunc(),
 				sellProductCache{
 					Accounts: map[string]sellProductCacheAccount{
 						uid: {
@@ -470,7 +470,7 @@ func TestCachedProsperityPlanningFollowsGameOrderAndPrioritizesPerfectMatches(t 
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := writeSellProductCache(
-				resolveSellProductCachePathFunc(uid),
+				resolveSellProductCachePathFunc(),
 				sellProductCache{
 					Accounts: map[string]sellProductCacheAccount{
 						uid: {
@@ -553,7 +553,7 @@ func TestObservedOutpostProsperityChangeReplansFutureAssignments(t *testing.T) {
 	currentLocation := "InfraStation"
 	futureLocation := "ReconstructionHQ"
 	if err := writeSellProductCache(
-		resolveSellProductCachePathFunc(uid),
+		resolveSellProductCachePathFunc(),
 		sellProductCache{
 			Accounts: map[string]sellProductCacheAccount{
 				uid: {Locations: map[string]bool{futureLocation: true}},

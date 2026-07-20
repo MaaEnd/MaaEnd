@@ -57,8 +57,7 @@ func currentSellProductCacheUID() string {
 }
 
 // defaultSellProductCachePath 返回运行记录目录中的统一缓存文件路径。
-// uid 由文件内部 Accounts 分区，因此不参与文件名拼接。
-func defaultSellProductCachePath(string) string {
+func defaultSellProductCachePath() string {
 	return filepath.Join("debug", "record", sellProductCacheFileName)
 }
 
@@ -136,10 +135,10 @@ func sellProductCacheIsValid(cache sellProductCache) (bool, error) {
 			if account.Operators.UpdatedAt.IsZero() {
 				return false, nil
 			}
-		}
-		for _, operatorID := range operatorSnapshotIDs(account.Operators) {
-			if _, ok := data.Operators[operatorID]; !ok {
-				return false, nil
+			for _, operatorID := range account.Operators.IDs {
+				if _, ok := data.Operators[operatorID]; !ok {
+					return false, nil
+				}
 			}
 		}
 		for locationID := range account.Locations {
@@ -181,10 +180,10 @@ func sellProductCacheHasOperatorSnapshot(cache sellProductCache, uid string) boo
 // cachedOperatorIDsForUID 返回指定账号的规范化干员 ID 列表。
 func cachedOperatorIDsForUID(cache sellProductCache, uid string) []string {
 	account, ok := normalizeSellProductCache(cache).Accounts[uid]
-	if !ok {
+	if !ok || account.Operators == nil {
 		return nil
 	}
-	return operatorSnapshotIDs(account.Operators)
+	return account.Operators.IDs
 }
 
 // cachedOperatorUpdatedAtForUID 返回指定账号完整干员快照的扫描时间。
@@ -198,7 +197,7 @@ func cachedOperatorUpdatedAtForUID(cache sellProductCache, uid string) time.Time
 
 // loadOutpostProsperityMaxLocations 从统一账号缓存中读取已满级据点。
 func loadOutpostProsperityMaxLocations(uid string) (map[string]struct{}, error) {
-	cache, err := readSellProductCache(resolveSellProductCachePathFunc(uid))
+	cache, err := readSellProductCache(resolveSellProductCachePathFunc())
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +207,7 @@ func loadOutpostProsperityMaxLocations(uid string) (map[string]struct{}, error) 
 // persistOutpostProsperityStatus 把本次识别到的据点状态写回统一账号缓存。
 func persistOutpostProsperityStatus(uid string, location string, reached bool) (bool, error) {
 	return updateCachedOutpostProsperity(
-		resolveSellProductCachePathFunc(uid),
+		resolveSellProductCachePathFunc(),
 		uid,
 		location,
 		reached,
@@ -314,13 +313,6 @@ func normalizeSellProductCache(cache sellProductCache) sellProductCache {
 		normalized.Accounts = nil
 	}
 	return normalized
-}
-
-func operatorSnapshotIDs(snapshot *sellProductOperatorSnapshot) []string {
-	if snapshot == nil {
-		return nil
-	}
-	return snapshot.IDs
 }
 
 func cloneBoolMap(src map[string]bool) map[string]bool {
