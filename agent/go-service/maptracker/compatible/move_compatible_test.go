@@ -3,11 +3,12 @@ package maptrackercompatible
 
 import (
 	"encoding/json"
-	"math"
 	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
+
+	internal "github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/internal"
 )
 
 func moveCompatibleTestRepoRoot(t *testing.T) string {
@@ -166,9 +167,10 @@ func TestMapTrackerMoveCompatibleConvertsRegionalSamples(t *testing.T) {
 			}
 			for i, expect := range tt.expects {
 				got := converted.Path[i]
-				dist := math.Hypot(got[0]-expect[0], got[1]-expect[1])
+				expectPoint := internal.Point{X: expect[0], Y: expect[1]}
+				dist := got.DistanceTo(expectPoint)
 				if dist > 2.0 {
-					t.Fatalf("point %d got [%.3f, %.3f], want [%.3f, %.3f], dist %.3f", i, got[0], got[1], expect[0], expect[1], dist)
+					t.Fatalf("point %d got [%.3f, %.3f], want [%.3f, %.3f], dist %.3f", i, got.X, got.Y, expect[0], expect[1], dist)
 				}
 			}
 		})

@@ -36,7 +36,7 @@ type compatibleSourcePoint struct {
 
 type compatibleConvertedPath struct {
 	MapName string
-	Path    [][2]float64
+	Path    []maptrackerinternal.Point
 }
 
 type compatibleSourceRect struct {
@@ -108,7 +108,7 @@ func convertCompatiblePoints(preferredMapName string, points []compatibleSourceP
 	}
 
 	mapper := &compatibleCoordinateMapper{preferredMapName: preferredMapName}
-	path := make([][2]float64, 0, len(points))
+	path := make([]maptrackerinternal.Point, 0, len(points))
 	moveMapName := ""
 	for _, sourcePoint := range points {
 		point, err := mapper.mapPoint(sourcePoint.SourceName, sourcePoint.X, sourcePoint.Y)
@@ -121,7 +121,7 @@ func convertCompatiblePoints(preferredMapName string, points []compatibleSourceP
 		} else if moveMapName != rootMapName {
 			return compatibleConvertedPath{}, fmt.Errorf("MapTrackerMove cannot represent route across multiple levels: %s and %s", moveMapName, rootMapName)
 		}
-		path = append(path, [2]float64{point.X, point.Y})
+		path = append(path, maptrackerinternal.Point{X: point.X, Y: point.Y})
 	}
 
 	if moveMapName == "" {

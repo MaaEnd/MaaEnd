@@ -95,7 +95,7 @@ func benchmarkDijkstraPathPairs(b *testing.B, adjacency map[int][]algoEdge, pair
 	}
 }
 
-func loadBenchmarkMap02Lv002Graph(tb testing.TB) (map[int]algoPoint, map[int][]algoEdge) {
+func loadBenchmarkMap02Lv002Graph(tb testing.TB) (map[int]Point, map[int][]algoEdge) {
 	tb.Helper()
 	file, err := os.Open(filepath.Join("..", "..", "..", "..", "assets", "data", "MapTrackerNavMesh", "map02_lv002.mtnm"))
 	if err != nil {
@@ -110,7 +110,7 @@ func loadBenchmarkMap02Lv002Graph(tb testing.TB) (map[int]algoPoint, map[int][]a
 	return mesh.buildPathGraph()
 }
 
-func benchmarkReachablePathPairs(tb testing.TB, points map[int]algoPoint, adjacency map[int][]algoEdge, count int) []benchmarkPathPair {
+func benchmarkReachablePathPairs(tb testing.TB, points map[int]Point, adjacency map[int][]algoEdge, count int) []benchmarkPathPair {
 	tb.Helper()
 	ids := make([]int, 0, len(points))
 	for id := range points {
