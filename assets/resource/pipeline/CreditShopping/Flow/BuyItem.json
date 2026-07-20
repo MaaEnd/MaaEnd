@@ -107,8 +107,15 @@
             "type": "Click"
         },
         "next": [
-            "CreditShoppingScanItem"
+            "CreditShoppingFailed"
         ]
+    },
+    "CreditShoppingFailed": {
+        "action": "Custom",
+        "custom_action": "ERROR",
+        "focus": {
+            "Node.Action.Failed": "购买失败"
+        }
     },
     "CreditShoppingBuyConfirm": {
         "desc": "购买确认",
