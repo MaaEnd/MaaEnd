@@ -367,12 +367,80 @@ func TestOutpostProsperityMaxTreatsMoneyAndProductionAsPerfect(t *testing.T) {
 	}
 }
 
+// TestCachedOutpostProsperityChangesGeneratedSellingOperator 验证任务启动时会从统一缓存加载据点发展值状态，
+// 并直接影响真实生成数据中的售卖干员选择：满级忽略发展值加成，未满则优先发展值加成。
+func TestCachedOutpostProsperityChangesGeneratedSellingOperator(t *testing.T) {
+	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	data, err := loadOperatorSelectionData()
+	if err != nil {
+		t.Fatalf("加载 SellProduct 干员数据失败：%v", err)
+	}
+
+	location := "ReconstructionHQ"
+	locationOrder := orderedEnabledLocations(t, data.LocationOrder, location)
+	uid := currentSellProductCacheUID()
+	for _, tt := range []struct {
+		name                 string
+		outpostProsperityMax bool
+		want                 string
+	}{
+		{name: "满级选择阿列什", outpostProsperityMax: true, want: "Alesh"},
+		{name: "未满选择莱万汀", outpostProsperityMax: false, want: "Laevatain"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := writeSellProductCache(
+				resolveSellProductCachePathFunc(uid),
+				sellProductCache{
+					Accounts: map[string]sellProductCacheAccount{
+						uid: {
+							Operators: []string{"莱万汀", "阿列什"},
+							Locations: map[string]bool{location: tt.outpostProsperityMax},
+						},
+					},
+				},
+			); err != nil {
+				t.Fatalf("准备 SellProduct 缓存失败：%v", err)
+			}
+
+			operatorSessionReset(operatorCacheModeCache)
+			for _, activeLocation := range locationOrder {
+				operatorSessionRegisterLocation(activeLocation)
+			}
+			_, cachedMax := operatorSessionSnapshot().OutpostProsperityMaxLocations[location]
+			if cachedMax != tt.outpostProsperityMax {
+				t.Fatalf("缓存加载后的据点满级状态 = %v，期望 %v", cachedMax, tt.outpostProsperityMax)
+			}
+
+			selection, err := resolveOperatorSelectionParam(&operatorActionParam{
+				Usage:    operatorActionUsageTarget,
+				Location: location,
+			})
+			if err != nil {
+				t.Fatalf("解析重建指挥部售卖参数失败：%v", err)
+			}
+			ownership, err := loadOperatorOwnershipForSelection()
+			if err != nil {
+				t.Fatalf("加载 SellProduct 干员缓存失败：%v", err)
+			}
+			candidates := candidatesForOwnership(selection, ownership)
+			if len(candidates) != 1 || candidates[0].Name != tt.want {
+				t.Fatalf("重建指挥部售卖干员 = %#v，期望 %s", candidates, tt.want)
+			}
+		})
+	}
+}
+
 // TestObservedOutpostProsperityChangeReplansFutureAssignments 验证任务开始时使用缓存的满级状态，
 // 进入据点确认开放新等级后，会为未满据点重新预留发展值干员。
 func TestObservedOutpostProsperityChangeReplansFutureAssignments(t *testing.T) {
 	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	data, err := loadOperatorSelectionData()
+	if err != nil {
+		t.Fatalf("加载 SellProduct 干员数据失败：%v", err)
+	}
 	uid := currentSellProductCacheUID()
-	futureLocation := "Future"
+	currentLocation := "InfraStation"
+	futureLocation := "ReconstructionHQ"
 	if err := writeSellProductCache(
 		resolveSellProductCachePathFunc(uid),
 		sellProductCache{
@@ -384,7 +452,7 @@ func TestObservedOutpostProsperityChangeReplansFutureAssignments(t *testing.T) {
 		t.Fatalf("准备据点发展值缓存失败：%v", err)
 	}
 	operatorSessionReset(operatorCacheModeCache)
-	for _, location := range []string{"Current", futureLocation} {
+	for _, location := range orderedEnabledLocations(t, data.LocationOrder, currentLocation, futureLocation) {
 		operatorSessionRegisterLocation(location)
 	}
 
@@ -392,7 +460,7 @@ func TestObservedOutpostProsperityChangeReplansFutureAssignments(t *testing.T) {
 		session := operatorSessionSnapshot()
 		return &operatorSelectionParam{
 			Usage:           operatorActionUsageRestore,
-			Location:        "Current",
+			Location:        currentLocation,
 			ActiveLocations: session.ActiveLocations,
 			TargetCandidatesByLocation: map[string][]operatorCandidate{
 				futureLocation: {
@@ -414,7 +482,7 @@ func TestObservedOutpostProsperityChangeReplansFutureAssignments(t *testing.T) {
 			},
 			RestoreGroups: []operatorCandidateGroup{
 				{
-					Location: "Current",
+					Location: currentLocation,
 					Candidates: []operatorCandidate{
 						{Name: "TradeProfit", CacheName: "交易干员", Priority: 0},
 						{Name: "CurrentOnly", CacheName: "当前专属", Priority: 1},
@@ -526,6 +594,36 @@ func TestGeneratedXiranflowPlanKeepsArcaneForSellingAndRestore(t *testing.T) {
 	}
 }
 
+func orderedEnabledLocations(t *testing.T, gameOrder []string, enabled ...string) []string {
+	t.Helper()
+	enabledSet := make(map[string]struct{}, len(enabled))
+	for _, location := range enabled {
+		if _, exists := enabledSet[location]; exists {
+			t.Fatalf("测试重复启用了据点 %q", location)
+		}
+		enabledSet[location] = struct{}{}
+	}
+
+	ordered := make([]string, 0, len(enabled))
+	for _, location := range gameOrder {
+		if _, ok := enabledSet[location]; !ok {
+			continue
+		}
+		ordered = append(ordered, location)
+		delete(enabledSet, location)
+	}
+	if len(enabledSet) != 0 {
+		missing := make([]string, 0, len(enabledSet))
+		for _, location := range enabled {
+			if _, ok := enabledSet[location]; ok {
+				missing = append(missing, location)
+			}
+		}
+		t.Fatalf("启用据点不在游戏 location_order 中：%#v", missing)
+	}
+	return ordered
+}
+
 // TestPlanningMatches20260719LogSnapshot 使用 MaaEnd-logs-v0.1.0-20260719-094957
 // 中的完整拥有干员快照，验证六据点固定顺序下的售卖与恢复规划。
 func TestPlanningMatches20260719LogSnapshot(t *testing.T) {
@@ -535,7 +633,7 @@ func TestPlanningMatches20260719LogSnapshot(t *testing.T) {
 		t.Fatalf("加载 SellProduct 干员数据失败：%v", err)
 	}
 
-	locationOrder := []string{
+	expectedLocationOrder := []string{
 		"RefugeeCamp",
 		"InfraStation",
 		"ReconstructionHQ",
@@ -543,14 +641,15 @@ func TestPlanningMatches20260719LogSnapshot(t *testing.T) {
 		"CardiacRemediationStation",
 		"XiranflowCloudseederStation",
 	}
-	if !slices.Equal(data.LocationOrder, locationOrder) {
-		t.Fatalf("据点顺序 = %#v，期望 %#v", data.LocationOrder, locationOrder)
+	locationOrder := orderedEnabledLocations(t, data.LocationOrder, expectedLocationOrder...)
+	if !slices.Equal(locationOrder, expectedLocationOrder) {
+		t.Fatalf("据点售卖顺序 = %#v，期望游戏顺序 %#v", locationOrder, expectedLocationOrder)
 	}
 	for _, location := range locationOrder {
 		operatorSessionRegisterLocation(location)
 	}
 
-	// 来源：merged/record/SellProductOwnedOperators.json，更新时间 2026-07-19T01:29:13Z。
+	// 来源：merged/record/SellProductCache.json，更新时间 2026-07-19T01:29:13Z。
 	owned := operatorNameSet([]string{
 		"伊冯",
 		"余烬",
@@ -628,19 +727,27 @@ func TestPlanningMatches20260719LogSnapshot(t *testing.T) {
 }
 
 // TestPlanningMatches20260720ProsperityMaxLogSnapshot 使用 install/debug 最近一次运行的
-// SellProductOwnedOperators.json 与 10:57 运行日志，验证满级据点优先沿用无需切换的完美匹配干员。
+// SellProductCache.json 与 10:57 运行日志，验证满级据点优先沿用无需切换的完美匹配干员。
 func TestPlanningMatches20260720ProsperityMaxLogSnapshot(t *testing.T) {
 	resetOperatorSessionForTest(t, operatorCacheModeCache)
-	locationOrder := []string{
+	data, err := loadOperatorSelectionData()
+	if err != nil {
+		t.Fatalf("加载 SellProduct 干员数据失败：%v", err)
+	}
+	expectedLocationOrder := []string{
 		"SkyKingFlatsConstructionSite",
 		"CardiacRemediationStation",
+	}
+	locationOrder := orderedEnabledLocations(t, data.LocationOrder, expectedLocationOrder...)
+	if !slices.Equal(locationOrder, expectedLocationOrder) {
+		t.Fatalf("据点售卖顺序 = %#v，期望游戏顺序 %#v", locationOrder, expectedLocationOrder)
 	}
 	for _, location := range locationOrder {
 		operatorSessionRegisterLocation(location)
 		operatorSessionSetOutpostProsperityMax(location, true)
 	}
 
-	// 来源：install/debug/record/SellProductOwnedOperators.json，更新时间 2026-07-20T02:56:13Z。
+	// 来源：install/debug/record/SellProductCache.json，更新时间 2026-07-20T02:56:13Z。
 	owned := operatorNameSet([]string{
 		"余烬",
 		"佩丽卡",
@@ -897,13 +1004,12 @@ func TestTargetSelectionMayMoveOperatorFromUnprocessedEnabledLocation(t *testing
 // 按发展值优先规则改选莱万汀，同时不能挪用陈千语。
 func TestReconstructionReplanProtectsInfraRestoreFrom20260719NoonLog(t *testing.T) {
 	resetOperatorSessionForTest(t, operatorCacheModeCache)
-	for _, location := range []string{"InfraStation", "ReconstructionHQ"} {
-		operatorSessionRegisterLocation(location)
-	}
-
 	data, err := loadOperatorSelectionData()
 	if err != nil {
 		t.Fatalf("加载 SellProduct 干员数据失败：%v", err)
+	}
+	for _, location := range orderedEnabledLocations(t, data.LocationOrder, "InfraStation", "ReconstructionHQ") {
+		operatorSessionRegisterLocation(location)
 	}
 	candidateByName := func(name string) operatorCandidate {
 		for _, candidate := range data.KnownOperators {

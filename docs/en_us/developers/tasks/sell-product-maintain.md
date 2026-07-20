@@ -126,13 +126,14 @@ In this document, the “highest bonus tier” means the intersection of the cur
 
 `selection_data.json` retains a `bonus_tier` for every selling candidate so stable ordering is not mistaken for a benefit difference. If the current assignment belongs to the available highest bonus tier, Pipeline keeps it without opening the operator list. Otherwise, Go evaluates the global restoration plan for each candidate in that tier, preferring the current assignment and plans that keep more selling operators and remain reusable by later runs. Stable candidate order breaks any remaining tie.
 
-The owned-operator cache is stored in `debug/record/SellProductOwnedOperators.json` and partitioned by hashed UID:
+The unified SellProduct cache is stored in `debug/record/SellProductCache.json`. Each hashed-UID partition contains both a complete operator snapshot and outpost prosperity states:
 
-- The cache stores only complete list-scan snapshots. An account partition is treated as a consumable complete snapshot even when the owned list is empty.
+- `operators` stores only complete list-scan snapshots. `null` means scanning has not completed, while an empty array means a complete scan found no relevant operators.
 - If the current account has no snapshot, Pipeline performs a full operator-list scan and writes the cache before planning or selling.
 - Existing snapshots are reused directly. “Force refresh before this run” ignores the existing snapshot and performs one full scan when the task first enters a region; later regions in the same task reuse the result.
 - Only the global scan that creates the first snapshot or performs an explicit forced refresh may write the cache. Local scrolling while selecting an operator never overwrites an existing snapshot.
 - Planning and selection use only the real owned set from a complete snapshot. Incomplete observations are never treated as a theoretical optimum.
+- `locations` stores the last confirmed prosperity-limit state for each outpost. The task loads these states for global planning at startup; uncached outposts are treated as not maxed. Entering an outpost still rechecks and persists the latest state, immediately replanning unfinished outposts when it changes.
 - After a full scan, if a refresh or replan changes the target, Pipeline may close and reopen the list once to execute the new plan.
 - Pipeline must recognize the list, click the candidate, recognize Assign, and confirm the return to the outpost before committing the switch.
 - If assigning opens a confirmation that the candidate is already assigned elsewhere, Pipeline uses `And` to combine the prompt, Go source classification, and the corresponding button. When the source outpost is enabled for this run, Pipeline confirms reassignment to the current outpost. When the source is disabled or cannot be identified reliably, Pipeline cancels, adds the candidate to a task-scoped global exclusion set, and replans. The exclusion set resets when the next task initializes.
