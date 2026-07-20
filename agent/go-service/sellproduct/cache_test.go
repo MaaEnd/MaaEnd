@@ -9,7 +9,7 @@ import (
 )
 
 func TestSellProductCacheReadWrite(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "SellProductOwnedOperators.json")
+	path := filepath.Join(t.TempDir(), sellProductCacheFileName)
 	now := time.Date(2026, 6, 14, 1, 2, 3, 0, time.UTC)
 	uid := "abc123"
 
@@ -51,17 +51,17 @@ func TestDefaultSellProductCachePathIsSingleFile(t *testing.T) {
 		{
 			name: "hashed uid",
 			uid:  "abc123",
-			want: filepath.Join("debug", "record", "SellProductOwnedOperators.json"),
+			want: filepath.Join("debug", "record", sellProductCacheFileName),
 		},
 		{
 			name: "empty uid",
 			uid:  "",
-			want: filepath.Join("debug", "record", "SellProductOwnedOperators.json"),
+			want: filepath.Join("debug", "record", sellProductCacheFileName),
 		},
 		{
 			name: "unsafe uid",
 			uid:  "../uid value",
-			want: filepath.Join("debug", "record", "SellProductOwnedOperators.json"),
+			want: filepath.Join("debug", "record", sellProductCacheFileName),
 		},
 	}
 
@@ -71,6 +71,39 @@ func TestDefaultSellProductCachePathIsSingleFile(t *testing.T) {
 				t.Fatalf("defaultSellProductCachePath(%q) = %q, want %q", tt.uid, got, tt.want)
 			}
 		})
+	}
+}
+
+func TestSellProductCacheMigratesLegacyFileName(t *testing.T) {
+	dir := t.TempDir()
+	legacyPath := filepath.Join(dir, legacySellProductCacheFileName)
+	newPath := filepath.Join(dir, sellProductCacheFileName)
+	if err := writeSellProductCache(legacyPath, sellProductCache{
+		Accounts: map[string]sellProductCacheAccount{
+			"abc123": {
+				Operators: []string{"狼卫"},
+				Locations: map[string]bool{"Full": true},
+			},
+		},
+	}); err != nil {
+		t.Fatalf("准备旧版缓存失败：%v", err)
+	}
+
+	cache, err := readSellProductCache(newPath)
+	if err != nil {
+		t.Fatalf("迁移旧版缓存失败：%v", err)
+	}
+	if !sellProductCacheHasOperatorSnapshot(cache, "abc123") {
+		t.Fatal("迁移后完整干员快照丢失")
+	}
+	if reached := cache.Accounts["abc123"].Locations["Full"]; !reached {
+		t.Fatal("迁移后据点发展值状态丢失")
+	}
+	if _, err := os.Stat(newPath); err != nil {
+		t.Fatalf("迁移后缺少新缓存文件：%v", err)
+	}
+	if _, err := os.Stat(legacyPath); !os.IsNotExist(err) {
+		t.Fatalf("迁移后旧缓存文件仍存在：%v", err)
 	}
 }
 
@@ -99,7 +132,7 @@ func TestSellProductCacheMissingAndEmpty(t *testing.T) {
 }
 
 func TestSellProductCacheRejectsUnknownFields(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "SellProductOwnedOperators.json")
+	path := filepath.Join(t.TempDir(), sellProductCacheFileName)
 	if err := os.WriteFile(path, []byte(`{"updated_at":"","accounts":{},"unexpected":true}`), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -177,7 +210,7 @@ func TestSellProductCacheHasOperatorSnapshot(t *testing.T) {
 }
 
 func TestSellProductCachePersistsOperatorSnapshotPresence(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "SellProductOwnedOperators.json")
+	path := filepath.Join(t.TempDir(), sellProductCacheFileName)
 	if err := writeSellProductCache(path, sellProductCache{
 		Accounts: map[string]sellProductCacheAccount{
 			"locations-only": {

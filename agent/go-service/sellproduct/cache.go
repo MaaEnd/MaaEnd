@@ -16,7 +16,8 @@ import (
 
 const (
 	// 所有账号共享同一个 JSON 文件，并由 Accounts 按 UID 隔离状态。
-	sellProductCacheFileName = "SellProductOwnedOperators.json"
+	sellProductCacheFileName       = "SellProductCache.json"
+	legacySellProductCacheFileName = "SellProductOwnedOperators.json"
 	// 尚未捕获 UID 时仍允许使用临时分区，避免把空字符串作为 map 键写入文件。
 	sellProductCacheUnknownUID = "unknown"
 )
@@ -57,10 +58,13 @@ func defaultSellProductCachePath(string) string {
 func readSellProductCache(path string) (sellProductCache, error) {
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return sellProductCache{}, nil
+		if !os.IsNotExist(err) {
+			return sellProductCache{}, fmt.Errorf("read sell product cache: %w", err)
 		}
-		return sellProductCache{}, fmt.Errorf("read sell product cache: %w", err)
+		raw, err = migrateLegacySellProductCache(path)
+		if err != nil {
+			return sellProductCache{}, err
+		}
 	}
 	if len(raw) == 0 {
 		return sellProductCache{}, nil
@@ -73,6 +77,28 @@ func readSellProductCache(path string) (sellProductCache, error) {
 		return sellProductCache{}, fmt.Errorf("parse sell product cache: %w", err)
 	}
 	return normalizeSellProductCache(cache), nil
+}
+
+// migrateLegacySellProductCache 在新缓存不存在时迁移旧文件名，并返回原文件内容。
+func migrateLegacySellProductCache(path string) ([]byte, error) {
+	if filepath.Base(path) != sellProductCacheFileName {
+		return nil, nil
+	}
+	legacyPath := filepath.Join(filepath.Dir(path), legacySellProductCacheFileName)
+	raw, err := os.ReadFile(legacyPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("read legacy sell product cache: %w", err)
+	}
+	if err := os.Rename(legacyPath, path); err != nil {
+		// 并发迁移时若另一调用已经完成重命名，优先使用新文件；否则本次仍可复用旧内容。
+		if current, currentErr := os.ReadFile(path); currentErr == nil {
+			return current, nil
+		}
+	}
+	return raw, nil
 }
 
 // writeSellProductCache 规范化并格式化缓存，然后使用原子替换方式写盘。

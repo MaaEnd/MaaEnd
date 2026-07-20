@@ -244,7 +244,7 @@ func TestCandidatesForOwnershipUsesBestOwnedOperator(t *testing.T) {
 }
 
 func TestOperatorCacheReadyForSelectionCacheModeRequiresCompleteSnapshot(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "SellProductOwnedOperators.json")
+	path := filepath.Join(t.TempDir(), sellProductCacheFileName)
 	setSellProductCachePathForTest(t, path)
 	p := &operatorActionParam{
 		Mode:     operatorCacheModeCache,
@@ -385,7 +385,7 @@ func TestShouldWriteOperatorCacheSnapshotOnlyForGlobalInitializationOrRefresh(t 
 }
 
 func TestReplaceObservedOperatorsKeepsExistingCacheDuringLocalScan(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "SellProductOwnedOperators.json")
+	path := filepath.Join(t.TempDir(), sellProductCacheFileName)
 	setSellProductCachePathForTest(t, path)
 	uid := currentSellProductCacheUID()
 	updatedAt := time.Now().UTC().Format(time.RFC3339)
