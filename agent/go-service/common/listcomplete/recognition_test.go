@@ -60,22 +60,22 @@ func TestBuildFingerprintDetectsPartialScroll(t *testing.T) {
 
 	// 顶部名字不变、底部换人：旧 Best-only 会误判到底，首尾指纹应不同。
 	before := buildFingerprint([]ocrHit{
-		{Text: "苏墨#0514", Box: maa.Rect{135, 221, 147, 26}},
-		{Text: "daddy#8190", Box: maa.Rect{137, 328, 157, 22}},
-		{Text: "Astel#1915", Box: maa.Rect{137, 434, 84, 19}},
-		{Text: "心宿二#4702", Box: maa.Rect{136, 534, 161, 26}},
+		{Text: "Alpha#1001", Box: maa.Rect{135, 221, 147, 26}},
+		{Text: "Bravo#2002", Box: maa.Rect{137, 328, 157, 22}},
+		{Text: "Charlie#3003", Box: maa.Rect{137, 434, 84, 19}},
+		{Text: "Delta#4004", Box: maa.Rect{136, 534, 161, 26}},
 	})
 	after := buildFingerprint([]ocrHit{
-		{Text: "苏墨#0514", Box: maa.Rect{135, 221, 147, 26}},
-		{Text: "daddy#8190", Box: maa.Rect{137, 328, 157, 22}},
-		{Text: "Astel#1915", Box: maa.Rect{137, 434, 84, 19}},
-		{Text: "乘风#9587", Box: maa.Rect{136, 534, 120, 26}},
+		{Text: "Alpha#1001", Box: maa.Rect{135, 221, 147, 26}},
+		{Text: "Bravo#2002", Box: maa.Rect{137, 328, 157, 22}},
+		{Text: "Charlie#3003", Box: maa.Rect{137, 434, 84, 19}},
+		{Text: "Echo#5005", Box: maa.Rect{136, 534, 120, 26}},
 	})
 	if before.Text == after.Text {
 		t.Fatalf("partial scroll fingerprints collided: %q", before.Text)
 	}
-	wantBefore := "苏墨#0514" + fingerprintSep + "心宿二#4702"
-	wantAfter := "苏墨#0514" + fingerprintSep + "乘风#9587"
+	wantBefore := "Alpha#1001" + fingerprintSep + "Delta#4004"
+	wantAfter := "Alpha#1001" + fingerprintSep + "Echo#5005"
 	if before.Text != wantBefore {
 		t.Fatalf("before = %q, want %q", before.Text, wantBefore)
 	}
