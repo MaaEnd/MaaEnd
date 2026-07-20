@@ -75,7 +75,7 @@
         }
     },
     "VisitFriendsMenuScanScrollList": {
-        "desc": "好友列表未到底时向下滚动：ListComplete 对比 WithNameForScroll（不检查线索）好友名文字变化",
+        "desc": "好友列表未到底时向下滚动：ListComplete 对比 WithNameForScroll（不检查线索）好友名文字变化。attach.last_text 由 Exectue.json 的 VisitFriendsEnterShipSuccessClearScrollText 进入好友船时清空",
         "recognition": "Custom",
         "custom_recognition": "ListCompleteRecognition",
         "custom_recognition_param": {
