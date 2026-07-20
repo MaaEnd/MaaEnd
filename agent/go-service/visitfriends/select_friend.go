@@ -42,13 +42,11 @@ func normalizeFriendName(name string) string {
 
 // VisitFriendsSelectFriendRecognition 参考 DailyEventGoToRecognition：
 // 读取 attach.visited，排除已点好友后识别列表项，返回进船按钮框供 Pipeline Click。
+// 优先备注不走 custom param：由任务选项只改 Name OCR 的 expected + order_by=Expected，
+// 本识别器读取该节点 order_by，仅在注入 visited 排除时保持相同 expected 形态。
 type VisitFriendsSelectFriendRecognition struct{}
 
 var _ maa.CustomRecognitionRunner = &VisitFriendsSelectFriendRecognition{}
-
-type selectFriendParam struct {
-	OnlyRemarkFriends bool `json:"only_remark_friends"`
-}
 
 type selectFriendDetail struct {
 	NameText  string `json:"name_text"`
@@ -67,27 +65,27 @@ func (r *VisitFriendsSelectFriendRecognition) Run(ctx *maa.Context, arg *maa.Cus
 		return nil, false
 	}
 
-	var params selectFriendParam
-	if raw := strings.TrimSpace(arg.CustomRecognitionParam); raw != "" {
-		if err := json.Unmarshal([]byte(raw), &params); err != nil {
-			log.Error().Err(err).Str("component", selectFriendRecognitionName).Msg("failed to parse custom_recognition_param")
-			return nil, false
-		}
-	}
-
 	visited, err := loadSelectFriendVisited(ctx, nodeName)
 	if err != nil {
 		log.Error().Err(err).Str("component", selectFriendRecognitionName).Str("node", nodeName).Msg("load attach.visited failed")
 		return nil, false
 	}
 
-	// 与 DailyEventGoTo 一样覆盖 OCR expected，减少已访问命中；
-	// 覆盖 OCR expected 排除已访问；按钮与名字按纵向最近邻配对，不要求数量一致。
-	expected := buildSelectFriendExpected(visited)
+	// 覆盖 OCR expected 排除已访问；同步写回 order_by，避免扁平 override 冲掉备注优先规则。
+	prioritizeRemark, orderBy, err := loadSelectFriendNameOCROrder(ctx)
+	if err != nil {
+		log.Error().Err(err).Str("component", selectFriendRecognitionName).Msg("load name OCR order_by failed")
+		return nil, false
+	}
+	expected := buildSelectFriendExpected(visited, prioritizeRemark)
+	nameOCROverride := map[string]any{
+		"expected": expected,
+	}
+	if orderBy != "" {
+		nameOCROverride["order_by"] = orderBy
+	}
 	if err := ctx.OverridePipeline(map[string]any{
-		selectFriendNameOCRNode: map[string]any{
-			"expected": []string{expected},
-		},
+		selectFriendNameOCRNode: nameOCROverride,
 	}); err != nil {
 		log.Error().Err(err).Str("component", selectFriendRecognitionName).Msg("override name OCR expected failed")
 		return nil, false
@@ -120,10 +118,6 @@ func (r *VisitFriendsSelectFriendRecognition) Run(ctx *maa.Context, arg *maa.Cus
 	for i := range nameHits {
 		rawName := strings.TrimSpace(nameHits[i].Text)
 		if rawName == "" {
-			continue
-		}
-		if params.OnlyRemarkFriends && !friendNameHasRemark(rawName) {
-			log.Debug().Str("component", selectFriendRecognitionName).Str("name", rawName).Msg("no remark, skip")
 			continue
 		}
 
@@ -244,10 +238,6 @@ func selectFriendCombinedDetailJSON(detail *maa.RecognitionDetail, index int, ki
 	return raw, true
 }
 
-func friendNameHasRemark(name string) bool {
-	return strings.Contains(name, "(") || strings.Contains(name, "（")
-}
-
 func hitBoxCenterY(box []int) float64 {
 	if len(box) < 4 {
 		return math.NaN()
@@ -334,7 +324,50 @@ func selectFriendVisitedContains(visited []string, name string) bool {
 	return false
 }
 
-func buildSelectFriendExpected(visited []string) string {
+// loadSelectFriendNameOCROrder 读取 Name OCR 的 order_by。
+// order_by=Expected 表示任务选项开启了优先备注（expected 为「带括号 / 不带括号」两项）。
+func loadSelectFriendNameOCROrder(ctx *maa.Context) (prioritizeRemark bool, orderBy string, err error) {
+	raw, err := ctx.GetNodeJSON(selectFriendNameOCRNode)
+	if err != nil {
+		return false, "", err
+	}
+	orderBy, err = parseOCROrderBy([]byte(raw))
+	if err != nil {
+		return false, "", err
+	}
+	return strings.EqualFold(orderBy, "Expected"), orderBy, nil
+}
+
+func parseOCROrderBy(raw []byte) (string, error) {
+	var flat struct {
+		OrderBy     string          `json:"order_by"`
+		Recognition json.RawMessage `json:"recognition"`
+	}
+	if err := json.Unmarshal(raw, &flat); err != nil {
+		return "", err
+	}
+	if orderBy := strings.TrimSpace(flat.OrderBy); orderBy != "" {
+		return orderBy, nil
+	}
+	if len(flat.Recognition) == 0 {
+		return "", nil
+	}
+	// 扁平："recognition":"OCR"；v2："recognition":{"type":"OCR","param":{"order_by":...}}
+	if flat.Recognition[0] == '"' {
+		return "", nil
+	}
+	var v2 struct {
+		Param struct {
+			OrderBy string `json:"order_by"`
+		} `json:"param"`
+	}
+	if err := json.Unmarshal(flat.Recognition, &v2); err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(v2.Param.OrderBy), nil
+}
+
+func buildSelectFriendExpected(visited []string, prioritizeRemark bool) []string {
 	escaped := make([]string, 0, len(visited))
 	for _, name := range visited {
 		trimmed := strings.TrimSpace(name)
@@ -343,9 +376,22 @@ func buildSelectFriendExpected(visited []string) string {
 		}
 		escaped = append(escaped, regexp.QuoteMeta(trimmed))
 	}
-	if len(escaped) == 0 {
-		return ".*#.*"
+
+	// 带备注好友名形如「备注(原名)#xxxx」，用左括号区分。
+	// order_by=Expected 时：先带括号、后不带括号，优先命中备注好友。
+	const withRemark = `.*[（(].*#.*`
+	const anyFriend = `.*#.*`
+
+	prefix := ""
+	if len(escaped) > 0 {
+		// 与 DailyEventGoTo 相同：用负向预测排除已访问；Go 侧仍会再按 normalize 过滤一层。
+		prefix = fmt.Sprintf("^(?!(?:%s)$)", strings.Join(escaped, "|"))
 	}
-	// 与 DailyEventGoTo 相同：用负向预测排除已访问；Go 侧仍会再按 normalize 过滤一层。
-	return fmt.Sprintf("^(?!(?:%s)$).*#.*", strings.Join(escaped, "|"))
+	if prioritizeRemark {
+		return []string{
+			prefix + withRemark,
+			prefix + anyFriend,
+		}
+	}
+	return []string{prefix + anyFriend}
 }

@@ -35,12 +35,9 @@
         }
     },
     "VisitFriendsMenuScanTargetFriendOpen": {
-        "desc": "选择下一个好友。only_remark_friends 由任务选项覆盖",
+        "desc": "选择下一个好友（消费性：attach.visited）。优先备注由 Name OCR 的 expected+order_by 独立控制",
         "recognition": "Custom",
         "custom_recognition": "VisitFriendsSelectFriendRecognition",
-        "custom_recognition_param": {
-            "only_remark_friends": false
-        },
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": 200,
