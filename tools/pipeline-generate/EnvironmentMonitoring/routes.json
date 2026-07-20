@@ -886,7 +886,22 @@
     {
         "MissionId": "m1m69",
         "Name": "“小池荷”",
-        "Id": "PoolLotus"
+        "Id": "PoolLotus",
+        "EnterMap": "SceneEnterWorldWulingMarkerStone3",
+        "MapName": "map02_lv004",
+        "MapAssert": [
+            602.8,
+            325,
+            9.7,
+            8.1
+        ],
+        "MapGoal": [
+            594.4,
+            324.1
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenRight",
+        "CameraMaxHit": 1,
+        "Heading": 334
     },
     {
         "MissionId": "m1m70",

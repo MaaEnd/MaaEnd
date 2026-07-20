@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "PoolLotusNotAdapted"
+            "GoToPoolLotus"
         ]
     },
     "AlreadyTrackedPoolLotus": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "PoolLotusNotAdapted"
+            "GoToPoolLotus"
         ]
     },
     "PoolLotusOpenTrackedMissionMap": {
@@ -340,12 +340,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "^map\\d+_lv\\d+$",
+                    "map_name": "map02_lv004",
                     "target": [
-                        0,
-                        0,
-                        1,
-                        1
+                        602.8,
+                        325,
+                        9.7,
+                        8.1
                     ]
                 }
             ]
@@ -364,7 +364,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingMarkerStone3"
             ]
         },
         "post_delay": 0,
@@ -377,15 +377,20 @@
         "desc": "自动寻路前往小池荷",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
-            "map_name": "^map\\d+_lv\\d+$",
-            "path": [
-                [
-                    0,
-                    0
-                ]
-            ]
+            "map_name": "map02_lv004",
+            "target": [
+                594.4,
+                324.1
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 334
+                }
+            }
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -408,12 +413,12 @@
     },
     "PoolLotusAdjustCamera": {
         "desc": "小池荷任务中调整朝向",
-        "max_hit": 2,
+        "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringSwipeScreenUp"
+            "EnvironmentMonitoringSwipeScreenRight"
         ]
     }
 }
