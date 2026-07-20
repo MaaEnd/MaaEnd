@@ -142,7 +142,7 @@ func (a *MapTrackerToward) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			}
 		}
 
-		deltaRot := calcDeltaRotation(curRot, targetRot)
+		deltaRot := internal.DeltaRotation(curRot, targetRot)
 		absDeltaRot := math.Abs(float64(deltaRot))
 		log.Debug().Int("curRot", curRot).Int("targetRot", targetRot).Float64("deltaRot", float64(deltaRot)).Msg("Adjusting orientation")
 

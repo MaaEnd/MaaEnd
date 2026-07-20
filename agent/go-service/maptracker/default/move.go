@@ -238,7 +238,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 			// Calculate rotation difference
 			targetRot := int(math.Round(curLoc.AngleTo(targetLoc)))
-			rawDeltaRot := calcDeltaRotation(curRot, targetRot)
+			rawDeltaRot := internal.DeltaRotation(curRot, targetRot)
 			absRawDeltaRot := math.Abs(float64(rawDeltaRot))
 
 			// Check arrival
@@ -246,7 +246,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				if i < len(param.Path)-1 {
 					// Foresee rotation adjustment for the next but not final target
 					nextTargetRot := int(math.Round(loc.AngleTo(param.Path[i+1])))
-					nextDeltaRot := calcDeltaRotation(rot, nextTargetRot)
+					nextDeltaRot := internal.DeltaRotation(rot, nextTargetRot)
 					if math.Abs(float64(nextDeltaRot)) > param.RotationUpperThreshold {
 						ca.SetPlayerMovement(control.MovementWalk, control.PolicyDefault)
 					}
@@ -263,7 +263,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					log.Info().Int("index", i).Float64("dist", dist).Msg("Target point reached (fine approach)")
 					finishCurrentTarget(curLoc, curRot)
 					break
-				} else if math.Abs(float64(calcDeltaRotation(targetRot, initRot))) > 90.0 {
+				} else if math.Abs(float64(internal.DeltaRotation(targetRot, initRot))) > 90.0 {
 					log.Info().Int("index", i).Float64("dist", dist).Int("targetRot", targetRot).Int("initRot", initRot).Msg("Target point reached (fine approach, guessed by rotation)")
 					finishCurrentTarget(curLoc, curRot)
 					break
@@ -281,7 +281,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						finishCurrentTarget(curLoc, curRot)
 						break
 					}
-				} else if math.Abs(float64(calcDeltaRotation(targetRot, initRot))) > 90.0 {
+				} else if math.Abs(float64(internal.DeltaRotation(targetRot, initRot))) > 90.0 {
 					log.Info().Int("index", i).Float64("dist", dist).Int("targetRot", targetRot).Int("initRot", initRot).Msg("Target point reached (ordinary approach, guessed by rotation)")
 					finishCurrentTarget(curLoc, curRot)
 					break
@@ -320,7 +320,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					distTravel := curLoc.DistanceTo(rotAdjState.fromPos)
 					if distTravel > control.MovementWalk.DistanceDuring(rotAdjState.expectedElapsed) {
 						// Check if rotation difference is sufficient to consider adjusting rotation speed
-						actualDeltaRot := calcDeltaRotation(rotAdjState.fromRot, curRot)
+						actualDeltaRot := internal.DeltaRotation(rotAdjState.fromRot, curRot)
 						if math.Abs(float64(actualDeltaRot)) > param.RotationLowerThreshold && math.Abs(rotAdjState.deltaRot) > param.RotationLowerThreshold {
 							idealRotSpeed := rotationSpeed * rotAdjState.deltaRot / (float64(actualDeltaRot) + 1e-6)
 							if idealRotSpeed >= ROTATION_MIN_SPEED && idealRotSpeed <= ROTATION_MAX_SPEED {
@@ -659,18 +659,6 @@ func buildMapNameRegex(rule string, mapName string) string {
 	return rule
 }
 
-// calcDeltaRotation calculates min difference between two angles [-180, 180]
-func calcDeltaRotation(current, target int) int {
-	diff := target - current
-	for diff > 180 {
-		diff -= 360
-	}
-	for diff < -180 {
-		diff += 360
-	}
-	return diff
-}
-
 func (a *MapTrackerMove) buildNavigationMovingHTML(
 	param *MapTrackerMoveParam, targetIndex int, current internal.Point, target internal.Point,
 ) string {
@@ -852,21 +840,13 @@ func calcNavigationPreviewGeometry(focusPoints []internal.Point, current interna
 	minSpan := float64(minSize)
 	maxSpan := float64(maxSize)
 
-	minX, minY := math.Inf(1), math.Inf(1)
-	maxX, maxY := math.Inf(-1), math.Inf(-1)
-	update := func(p internal.Point) {
-		if !p.IsValid() {
-			return
-		}
-		minX = math.Min(minX, p.X)
-		minY = math.Min(minY, p.Y)
-		maxX = math.Max(maxX, p.X)
-		maxY = math.Max(maxY, p.Y)
+	minX, minY, maxX, maxY := internal.PathBounds(focusPoints)
+	if current.IsValid() {
+		minX = math.Min(minX, current.X)
+		minY = math.Min(minY, current.Y)
+		maxX = math.Max(maxX, current.X)
+		maxY = math.Max(maxY, current.Y)
 	}
-	for _, p := range focusPoints {
-		update(p)
-	}
-	update(current)
 
 	if math.IsNaN(minX) || math.IsInf(minX, 0) ||
 		math.IsNaN(minY) || math.IsInf(minY, 0) ||

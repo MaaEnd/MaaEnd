@@ -200,7 +200,7 @@ func (a *MapTrackerZipline) rotateTowardTarget(ctx *maa.Context, ctrl *maa.Contr
 			continue
 		}
 		targetRot := int(math.Round(result.Loc.AngleTo(*param.Target)))
-		deltaRot := calcDeltaRotation(result.Rot, targetRot)
+		deltaRot := internal.DeltaRotation(result.Rot, targetRot)
 		absDeltaRot := math.Abs(float64(deltaRot))
 		log.Debug().Int("curRot", result.Rot).Int("targetRot", targetRot).Float64("deltaRot", float64(deltaRot)).Msg("Rotating toward zipline")
 		if absDeltaRot <= param.RotationThreshold {

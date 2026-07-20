@@ -102,7 +102,24 @@ func (lt LinearTransform) Inverse(p Point) Point {
 	}
 }
 
-/* ******** Path ******** */
+/* ******** Misc ******** */
+
+// PathBounds returns the min and max X/Y of all valid points in path.
+// Returns (+Inf, +Inf, -Inf, -Inf) when no valid points are present.
+func PathBounds(path []Point) (minX, minY, maxX, maxY float64) {
+	minX, minY = math.Inf(1), math.Inf(1)
+	maxX, maxY = math.Inf(-1), math.Inf(-1)
+	for _, p := range path {
+		if !p.IsValid() {
+			continue
+		}
+		minX = math.Min(minX, p.X)
+		minY = math.Min(minY, p.Y)
+		maxX = math.Max(maxX, p.X)
+		maxY = math.Max(maxY, p.Y)
+	}
+	return
+}
 
 // PathTotalDistance returns the cumulative Euclidean distance along a coordinate path.
 func PathTotalDistance(path []Point) float64 {
@@ -111,6 +128,18 @@ func PathTotalDistance(path []Point) float64 {
 		distance += path[i].DistanceTo(path[i-1])
 	}
 	return distance
+}
+
+// DeltaRotation returns the minimum signed angle difference from current to target in [-180, 180].
+func DeltaRotation(current, target int) int {
+	diff := target - current
+	for diff > 180 {
+		diff -= 360
+	}
+	for diff < -180 {
+		diff += 360
+	}
+	return diff
 }
 
 /* ******** Graph searching algorithms ******** */
