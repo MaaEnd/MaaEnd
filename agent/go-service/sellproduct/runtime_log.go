@@ -3,6 +3,7 @@ package sellproduct
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -214,16 +215,26 @@ func printRuntimeOperatorUnavailable(ctx *maa.Context, location string, usage st
 	))
 }
 
-func printRuntimeOperatorCacheStatus(ctx *maa.Context, ready bool) {
-	maafocus.Print(ctx, runtimeOperatorCacheStatusMessage(ready))
+func printRuntimeOperatorCacheStatus(ctx *maa.Context, status operatorCacheStatus) {
+	maafocus.Print(ctx, runtimeOperatorCacheStatusMessage(status))
 }
 
-func runtimeOperatorCacheStatusMessage(ready bool) string {
-	key := "sellproduct.runtime.operator_cache_scanning"
-	if ready {
-		key = "sellproduct.runtime.operator_cache_loaded"
+func runtimeOperatorCacheStatusMessage(status operatorCacheStatus) string {
+	if !status.Ready {
+		return i18n.T("sellproduct.runtime.operator_cache_scanning")
 	}
-	return i18n.T(key)
+	return i18n.T(
+		"sellproduct.runtime.operator_cache_loaded",
+		runtimeLocalCacheUpdatedAt(status.UpdatedAt),
+	)
+}
+
+func runtimeLocalCacheUpdatedAt(updatedAt string) string {
+	parsed, err := time.Parse(time.RFC3339, strings.TrimSpace(updatedAt))
+	if err != nil {
+		return i18n.T("sellproduct.runtime.operator_cache_time_unknown")
+	}
+	return parsed.Local().Format("2006-01-02 15:04:05")
 }
 
 func printRuntimeOperatorScanFailed(ctx *maa.Context, location string, usage string) {

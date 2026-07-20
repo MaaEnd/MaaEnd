@@ -252,21 +252,21 @@ func TestOperatorCacheReadyForSelectionCacheModeRequiresCompleteSnapshot(t *test
 		Usage:    operatorActionUsageTarget,
 		Location: "TestLocation",
 	}
-	ready, err := operatorCacheReadyForSelection(p)
+	status, err := operatorCacheStatusForSelection(p)
 	if err != nil {
-		t.Fatalf("operatorCacheReadyForSelection: %v", err)
+		t.Fatalf("operatorCacheStatusForSelection: %v", err)
 	}
-	if ready {
+	if status.Ready {
 		t.Fatal("cache mode should scan before selling when no complete snapshot exists")
 	}
 	if err := os.WriteFile(path, []byte(`{"accounts":{"unknown":{"operators":["佩丽卡"]}}}`), 0644); err != nil {
 		t.Fatalf("write incompatible cache: %v", err)
 	}
-	ready, err = operatorCacheReadyForSelection(p)
+	status, err = operatorCacheStatusForSelection(p)
 	if err != nil {
-		t.Fatalf("operatorCacheReadyForSelection with incompatible cache: %v", err)
+		t.Fatalf("operatorCacheStatusForSelection with incompatible cache: %v", err)
 	}
-	if ready {
+	if status.Ready {
 		t.Fatal("cache mode should rescan when the persisted cache is incompatible")
 	}
 	updatedAt := time.Now().UTC().Format(time.RFC3339)
@@ -278,12 +278,15 @@ func TestOperatorCacheReadyForSelectionCacheModeRequiresCompleteSnapshot(t *test
 	}); err != nil {
 		t.Fatalf("writeSellProductCache: %v", err)
 	}
-	ready, err = operatorCacheReadyForSelection(p)
+	status, err = operatorCacheStatusForSelection(p)
 	if err != nil {
-		t.Fatalf("operatorCacheReadyForSelection: %v", err)
+		t.Fatalf("operatorCacheStatusForSelection: %v", err)
 	}
-	if !ready {
+	if !status.Ready {
 		t.Fatal("cache mode should reuse an existing complete snapshot")
+	}
+	if status.UpdatedAt != updatedAt {
+		t.Fatalf("cache updated_at = %q, want %q", status.UpdatedAt, updatedAt)
 	}
 }
 
@@ -295,20 +298,23 @@ func TestOperatorCacheReadyForSelectionRefreshModeWaitsForScanComplete(t *testin
 		Usage:    operatorActionUsageTarget,
 		Location: "TestLocation",
 	}
-	ready, err := operatorCacheReadyForSelection(p)
+	status, err := operatorCacheStatusForSelection(p)
 	if err != nil {
-		t.Fatalf("operatorCacheReadyForSelection: %v", err)
+		t.Fatalf("operatorCacheStatusForSelection: %v", err)
 	}
-	if ready {
+	if status.Ready {
 		t.Fatal("refresh mode should not be ready before scan completion")
 	}
 	operatorSessionMarkRefreshed()
-	ready, err = operatorCacheReadyForSelection(p)
+	status, err = operatorCacheStatusForSelection(p)
 	if err != nil {
-		t.Fatalf("operatorCacheReadyForSelection: %v", err)
+		t.Fatalf("operatorCacheStatusForSelection: %v", err)
 	}
-	if !ready {
+	if !status.Ready {
 		t.Fatal("refresh mode should be ready after scan completion")
+	}
+	if status.UpdatedAt != "" {
+		t.Fatalf("refresh mode should not report a persisted cache time: %q", status.UpdatedAt)
 	}
 }
 
@@ -321,11 +327,11 @@ func TestOperatorCacheReadyForSelectionRefreshModeUsesGlobalScanCompletion(t *te
 		Location: "SkyKingFlats",
 	}
 	operatorSessionMarkRefreshed()
-	ready, err := operatorCacheReadyForSelection(targetSelection)
+	status, err := operatorCacheStatusForSelection(targetSelection)
 	if err != nil {
-		t.Fatalf("operatorCacheReadyForSelection: %v", err)
+		t.Fatalf("operatorCacheStatusForSelection: %v", err)
 	}
-	if !ready {
+	if !status.Ready {
 		t.Fatal("refresh mode selection should reuse the global operator scan completion")
 	}
 }

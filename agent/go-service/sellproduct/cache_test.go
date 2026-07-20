@@ -36,6 +36,9 @@ func TestSellProductCacheReadWrite(t *testing.T) {
 	if account.UpdatedAt != "2026-06-14T01:02:03Z" {
 		t.Fatalf("account updated_at = %q", account.UpdatedAt)
 	}
+	if got := cachedUpdatedAtForUID(cache, uid); got != updatedAt {
+		t.Fatalf("cachedUpdatedAtForUID = %q, want %q", got, updatedAt)
+	}
 	want := []string{"ChenQianyu", "Perlica"}
 	if !reflect.DeepEqual(account.Operators, want) {
 		t.Fatalf("operators = %#v, want %#v", account.Operators, want)

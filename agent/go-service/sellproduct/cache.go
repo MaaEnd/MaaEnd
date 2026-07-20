@@ -164,6 +164,16 @@ func cachedOperatorIDsForUID(cache sellProductCache, uid string) []string {
 	return account.Operators
 }
 
+// cachedUpdatedAtForUID 返回指定账号缓存最近一次写入时间，账号未记录时回退到文件级时间。
+func cachedUpdatedAtForUID(cache sellProductCache, uid string) string {
+	uid = normalizeSellProductCacheUID(uid)
+	cache = normalizeSellProductCache(cache)
+	if account, ok := cache.Accounts[uid]; ok && account.UpdatedAt != "" {
+		return account.UpdatedAt
+	}
+	return cache.UpdatedAt
+}
+
 // loadOutpostProsperityMaxLocations 从统一账号缓存中读取已满级据点。
 func loadOutpostProsperityMaxLocations(uid string) (map[string]struct{}, error) {
 	cache, err := readSellProductCache(resolveSellProductCachePathFunc(uid))

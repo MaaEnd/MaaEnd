@@ -3,6 +3,7 @@ package sellproduct
 import (
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 )
@@ -42,13 +43,19 @@ func TestRuntimeMessagesContainCurrentState(t *testing.T) {
 			expected: []string{"干员缓存扫描失败"},
 		},
 		{
-			name:     "加载干员缓存",
-			message:  runtimeOperatorCacheStatusMessage(true),
-			expected: []string{"已加载干员列表缓存"},
+			name: "加载干员缓存",
+			message: runtimeOperatorCacheStatusMessage(operatorCacheStatus{
+				Ready:     true,
+				UpdatedAt: "2026-07-20T02:56:13Z",
+			}),
+			expected: []string{
+				"已加载干员列表缓存",
+				time.Date(2026, 7, 20, 2, 56, 13, 0, time.UTC).Local().Format("2006-01-02 15:04:05"),
+			},
 		},
 		{
 			name:     "扫描干员缓存",
-			message:  runtimeOperatorCacheStatusMessage(false),
+			message:  runtimeOperatorCacheStatusMessage(operatorCacheStatus{}),
 			expected: []string{"正在扫描并缓存干员列表"},
 		},
 	}
@@ -61,6 +68,13 @@ func TestRuntimeMessagesContainCurrentState(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestRuntimeLocalCacheUpdatedAtFallsBackForInvalidTimestamp(t *testing.T) {
+	i18n.Init()
+	if got := runtimeLocalCacheUpdatedAt("invalid"); got != "未知" {
+		t.Fatalf("无效缓存时间 = %q，期望未知", got)
 	}
 }
 

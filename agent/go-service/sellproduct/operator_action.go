@@ -150,15 +150,15 @@ func (r *OperatorCacheReadyRecognition) Run(
 		log.Error().Err(err).Str("component", operatorCacheReadyRecognitionName).Msg("invalid params")
 		return nil, false
 	}
-	ready, err := operatorCacheReadyForSelection(p)
+	status, err := operatorCacheStatusForSelection(p)
 	if err != nil {
 		log.Error().Err(err).Str("component", operatorCacheReadyRecognitionName).Msg("read operator cache failed")
 		return nil, false
 	}
 	if operatorSessionClaimCacheNotice() {
-		printRuntimeOperatorCacheStatus(ctx, ready)
+		printRuntimeOperatorCacheStatus(ctx, status)
 	}
-	if ready {
+	if status.Ready {
 		return &maa.CustomRecognitionResult{Detail: "cache_ready"}, true
 	}
 	return nil, false
@@ -398,19 +398,30 @@ func loadOperatorOwnershipForSelection() (operatorOwnership, error) {
 	}, nil
 }
 
-// operatorCacheReadyForSelection 判断当前模式下缓存是否已经达到可消费状态。
+type operatorCacheStatus struct {
+	Ready     bool
+	UpdatedAt string
+}
+
+// operatorCacheStatusForSelection 返回当前缓存是否可消费，以及实际复用缓存的更新时间。
 // cache 模式仅复用完整快照，没有快照时先扫描全部干员；refresh 模式始终等待本次任务完成扫描。
-func operatorCacheReadyForSelection(p *operatorActionParam) (bool, error) {
+func operatorCacheStatusForSelection(p *operatorActionParam) (operatorCacheStatus, error) {
 	if p.Mode == operatorCacheModeRefresh {
-		return operatorSessionRefreshed(), nil
+		return operatorCacheStatus{Ready: operatorSessionRefreshed()}, nil
 	}
 	uid := currentSellProductCacheUID()
 	path := resolveSellProductCachePathFunc(uid)
 	cache, err := readSellProductCache(path)
 	if err != nil {
-		return false, err
+		return operatorCacheStatus{}, err
 	}
-	return sellProductCacheHasOperatorSnapshot(cache, uid), nil
+	if !sellProductCacheHasOperatorSnapshot(cache, uid) {
+		return operatorCacheStatus{}, nil
+	}
+	return operatorCacheStatus{
+		Ready:     true,
+		UpdatedAt: cachedUpdatedAtForUID(cache, uid),
+	}, nil
 }
 
 // replaceObservedOperators 仅在全局首次扫描或主动刷新时写入当前账号的完整快照。
