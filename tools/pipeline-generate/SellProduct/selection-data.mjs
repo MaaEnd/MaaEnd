@@ -134,6 +134,10 @@ function targetBonusTier(entry) {
     return 3;
 }
 
+function developmentMaxBonusTier(entry) {
+    return entry.bonusTypes.has("moneyProfit") ? 0 : 1;
+}
+
 export function buildLocationOperatorOrder(settlement, acceptedBonusTypes, operators, targetUsage) {
     const accepted = new Set(acceptedBonusTypes);
     const featureCounts = buildOperatorFeatureCounts(settlement);
@@ -167,6 +171,7 @@ export function buildLocationOperatorOrder(settlement, acceptedBonusTypes, opera
         return sorted.map((entry) => ({
             name: entry.name,
             bonus_tier: targetBonusTier(entry),
+            development_max_bonus_tier: developmentMaxBonusTier(entry),
         }));
     }
     return sorted.map((entry) => entry.name);

@@ -23,12 +23,6 @@
             "SellProductInXiranflowCloudseederStation"
         ],
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductOperatorSession",
-        "custom_action_param": {
-            "operation": "enter_location",
-            "location": "XiranflowCloudseederStation"
-        },
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectPriorityItem": "SellProductXiranflowCloudseederStationSelectPriorityItem",
@@ -36,6 +30,48 @@
             "SellProductCommitPriorityItem": "SellProductXiranflowCloudseederStationCommitPriorityItem",
             "SellProductMarkOutOfStock": "SellProductXiranflowCloudseederStationMarkOutOfStock",
             "SellProductBetterSliding": "SellProductXiranflowCloudseederStationApplyReserve"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductXiranflowCloudseederStationDevelopmentValueAvailable",
+            "SellProductXiranflowCloudseederStationDevelopmentValueMax"
+        ]
+    },
+    "SellProductXiranflowCloudseederStationDevelopmentValueAvailable": {
+        "desc": "盈天台建设站据点发展值未达上限",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInXiranflowCloudseederStation",
+            "SellProductDevelopmentValueAvailable"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "enter_location",
+            "location": "XiranflowCloudseederStation",
+            "development_max": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductXiranflowCloudseederStationSetOperatorAnchors"
+        ]
+    },
+    "SellProductXiranflowCloudseederStationDevelopmentValueMax": {
+        "desc": "盈天台建设站据点发展值已达上限",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInXiranflowCloudseederStation"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "enter_location",
+            "location": "XiranflowCloudseederStation",
+            "development_max": true
         },
         "post_delay": 0,
         "rate_limit": 0,

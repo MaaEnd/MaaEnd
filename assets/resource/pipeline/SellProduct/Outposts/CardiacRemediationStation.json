@@ -23,12 +23,6 @@
             "SellProductInCardiacRemediationStation"
         ],
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductOperatorSession",
-        "custom_action_param": {
-            "operation": "enter_location",
-            "location": "CardiacRemediationStation"
-        },
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectPriorityItem": "SellProductCardiacRemediationStationSelectPriorityItem",
@@ -36,6 +30,48 @@
             "SellProductCommitPriorityItem": "SellProductCardiacRemediationStationCommitPriorityItem",
             "SellProductMarkOutOfStock": "SellProductCardiacRemediationStationMarkOutOfStock",
             "SellProductBetterSliding": "SellProductCardiacRemediationStationApplyReserve"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationDevelopmentValueAvailable",
+            "SellProductCardiacRemediationStationDevelopmentValueMax"
+        ]
+    },
+    "SellProductCardiacRemediationStationDevelopmentValueAvailable": {
+        "desc": "心脏修缮站据点发展值未达上限",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInCardiacRemediationStation",
+            "SellProductDevelopmentValueAvailable"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "enter_location",
+            "location": "CardiacRemediationStation",
+            "development_max": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationSetOperatorAnchors"
+        ]
+    },
+    "SellProductCardiacRemediationStationDevelopmentValueMax": {
+        "desc": "心脏修缮站据点发展值已达上限",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInCardiacRemediationStation"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "enter_location",
+            "location": "CardiacRemediationStation",
+            "development_max": true
         },
         "post_delay": 0,
         "rate_limit": 0,

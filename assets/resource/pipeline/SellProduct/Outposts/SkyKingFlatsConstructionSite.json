@@ -23,12 +23,6 @@
             "SellProductInSkyKingFlatsConstructionSite"
         ],
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductOperatorSession",
-        "custom_action_param": {
-            "operation": "enter_location",
-            "location": "SkyKingFlatsConstructionSite"
-        },
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectPriorityItem": "SellProductSkyKingFlatsConstructionSiteSelectPriorityItem",
@@ -36,6 +30,48 @@
             "SellProductCommitPriorityItem": "SellProductSkyKingFlatsConstructionSiteCommitPriorityItem",
             "SellProductMarkOutOfStock": "SellProductSkyKingFlatsConstructionSiteMarkOutOfStock",
             "SellProductBetterSliding": "SellProductSkyKingFlatsConstructionSiteApplyReserve"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSkyKingFlatsConstructionSiteDevelopmentValueAvailable",
+            "SellProductSkyKingFlatsConstructionSiteDevelopmentValueMax"
+        ]
+    },
+    "SellProductSkyKingFlatsConstructionSiteDevelopmentValueAvailable": {
+        "desc": "天王坪援建点据点发展值未达上限",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInSkyKingFlatsConstructionSite",
+            "SellProductDevelopmentValueAvailable"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "enter_location",
+            "location": "SkyKingFlatsConstructionSite",
+            "development_max": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSkyKingFlatsConstructionSiteSetOperatorAnchors"
+        ]
+    },
+    "SellProductSkyKingFlatsConstructionSiteDevelopmentValueMax": {
+        "desc": "天王坪援建点据点发展值已达上限",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInSkyKingFlatsConstructionSite"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "enter_location",
+            "location": "SkyKingFlatsConstructionSite",
+            "development_max": true
         },
         "post_delay": 0,
         "rate_limit": 0,

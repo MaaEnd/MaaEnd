@@ -57,7 +57,7 @@ func buildOperatorSelectionData(data *sellProductSelectionDataFile) (*operatorSe
 	}
 	sort.Strings(operatorNames)
 	for priority, name := range operatorNames {
-		candidate, err := selectionOperatorCandidate(data, name, priority, 0)
+		candidate, err := selectionOperatorCandidate(data, name, priority, 0, 0)
 		if err != nil {
 			return nil, fmt.Errorf("known operator: %w", err)
 		}
@@ -96,7 +96,7 @@ func buildSelectionOperatorCandidates(
 ) ([]operatorCandidate, error) {
 	candidates := make([]operatorCandidate, 0, len(names))
 	for priority, name := range names {
-		candidate, err := selectionOperatorCandidate(data, name, priority, 0)
+		candidate, err := selectionOperatorCandidate(data, name, priority, 0, 0)
 		if err != nil {
 			return nil, err
 		}
@@ -111,7 +111,13 @@ func buildTargetSelectionOperatorCandidates(
 ) ([]operatorCandidate, error) {
 	candidates := make([]operatorCandidate, 0, len(entries))
 	for priority, entry := range entries {
-		candidate, err := selectionOperatorCandidate(data, entry.Name, priority, entry.BonusTier)
+		candidate, err := selectionOperatorCandidate(
+			data,
+			entry.Name,
+			priority,
+			entry.BonusTier,
+			entry.DevelopmentMaxBonusTier,
+		)
 		if err != nil {
 			return nil, err
 		}

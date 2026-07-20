@@ -23,12 +23,6 @@
             "SellProductInRefugeeCamp"
         ],
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductOperatorSession",
-        "custom_action_param": {
-            "operation": "enter_location",
-            "location": "RefugeeCamp"
-        },
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectPriorityItem": "SellProductRefugeeCampSelectPriorityItem",
@@ -36,6 +30,48 @@
             "SellProductCommitPriorityItem": "SellProductRefugeeCampCommitPriorityItem",
             "SellProductMarkOutOfStock": "SellProductRefugeeCampMarkOutOfStock",
             "SellProductBetterSliding": "SellProductRefugeeCampApplyReserve"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampDevelopmentValueAvailable",
+            "SellProductRefugeeCampDevelopmentValueMax"
+        ]
+    },
+    "SellProductRefugeeCampDevelopmentValueAvailable": {
+        "desc": "难民暂居处据点发展值未达上限",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInRefugeeCamp",
+            "SellProductDevelopmentValueAvailable"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "enter_location",
+            "location": "RefugeeCamp",
+            "development_max": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRefugeeCampSetOperatorAnchors"
+        ]
+    },
+    "SellProductRefugeeCampDevelopmentValueMax": {
+        "desc": "难民暂居处据点发展值已达上限",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInRefugeeCamp"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "enter_location",
+            "location": "RefugeeCamp",
+            "development_max": true
         },
         "post_delay": 0,
         "rate_limit": 0,

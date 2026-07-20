@@ -24,7 +24,7 @@ func TestRuntimeMessagesContainCurrentState(t *testing.T) {
 		{
 			name:     "完整扫描后重新规划",
 			message:  runtimeOperatorReplannedMessage("TestLocation", operatorActionUsageRestore, candidate),
-			expected: []string{"恢复干员", "测试干员", "TestLocation"},
+			expected: []string{"售后生产干员", "测试干员", "TestLocation"},
 		},
 		{
 			name:     "货品切换",

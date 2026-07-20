@@ -23,12 +23,6 @@
             "SellProductIn${LocationId}"
         ],
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductOperatorSession",
-        "custom_action_param": {
-            "operation": "enter_location",
-            "location": "${LocationId}"
-        },
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectPriorityItem": "SellProduct${LocationId}SelectPriorityItem",
@@ -36,6 +30,48 @@
             "SellProductCommitPriorityItem": "SellProduct${LocationId}CommitPriorityItem",
             "SellProductMarkOutOfStock": "SellProduct${LocationId}MarkOutOfStock",
             "SellProductBetterSliding": "SellProduct${LocationId}ApplyReserve"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}DevelopmentValueAvailable",
+            "SellProduct${LocationId}DevelopmentValueMax"
+        ]
+    },
+    "SellProduct${LocationId}DevelopmentValueAvailable": {
+        "desc": "${LocationDesc}据点发展值未达上限",
+        "recognition": "And",
+        "all_of": [
+            "SellProductIn${LocationId}",
+            "SellProductDevelopmentValueAvailable"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "enter_location",
+            "location": "${LocationId}",
+            "development_max": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}SetOperatorAnchors"
+        ]
+    },
+    "SellProduct${LocationId}DevelopmentValueMax": {
+        "desc": "${LocationDesc}据点发展值已达上限",
+        "recognition": "And",
+        "all_of": [
+            "SellProductIn${LocationId}"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "enter_location",
+            "location": "${LocationId}",
+            "development_max": true
         },
         "post_delay": 0,
         "rate_limit": 0,

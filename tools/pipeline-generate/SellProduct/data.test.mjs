@@ -323,6 +323,20 @@ test("SellProduct operator switching uses shared core dispatch nodes", () => {
             ),
         );
         const prefix = `SellProduct${location.LocationId}`;
+        assert.deepEqual(pipeline[`${prefix}Sell`].next, [
+            `${prefix}DevelopmentValueAvailable`,
+            `${prefix}DevelopmentValueMax`,
+        ]);
+        assert.deepEqual(pipeline[`${prefix}DevelopmentValueAvailable`].custom_action_param, {
+            operation: "enter_location",
+            location: location.LocationId,
+            development_max: false,
+        });
+        assert.deepEqual(pipeline[`${prefix}DevelopmentValueMax`].custom_action_param, {
+            operation: "enter_location",
+            location: location.LocationId,
+            development_max: true,
+        });
         assert.deepEqual(pipeline[`${prefix}SetOperatorAnchors`].anchor, {
             SellProductBeforeSellOperatorTarget: `${prefix}BeforeSellOperator`,
             SellProductAfterSellOperatorTarget: `${prefix}AfterSellOperator`,
@@ -510,9 +524,15 @@ test("SellProduct generated outpost nodes report confirmed runtime state changes
         );
         const prefix = `SellProduct${location.LocationId}`;
 
-        assert.deepEqual(pipeline[`${prefix}Sell`].custom_action_param, {
+        assert.deepEqual(pipeline[`${prefix}DevelopmentValueAvailable`].custom_action_param, {
             operation: "enter_location",
             location: location.LocationId,
+            development_max: false,
+        });
+        assert.deepEqual(pipeline[`${prefix}DevelopmentValueMax`].custom_action_param, {
+            operation: "enter_location",
+            location: location.LocationId,
+            development_max: true,
         });
         assert.deepEqual(pipeline[`${prefix}CurrentTargetOperator`].custom_action_param, {
             operation: "complete_target",

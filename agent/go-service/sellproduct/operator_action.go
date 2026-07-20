@@ -321,6 +321,7 @@ func resolveOperatorSelectionParam(p *operatorActionParam) (*operatorSelectionPa
 		TargetAssignments:          session.TargetAssignments,
 		LockedRestoreAssignments:   session.LockedRestoreAssignments,
 		ExcludedOperators:          session.ExcludedOperators,
+		DevelopmentMaxLocations:    session.DevelopmentMaxLocations,
 	}
 	switch p.Usage {
 	case operatorActionUsageTarget:

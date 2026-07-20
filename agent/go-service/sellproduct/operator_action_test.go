@@ -96,7 +96,7 @@ func TestFindCurrentBestOperatorRequiresTopBonusTier(t *testing.T) {
 		{Name: "Best", CacheName: "最优", Expected: []string{"最优"}, Priority: 0, BonusTier: 0},
 		{Name: "Fallback", CacheName: "备选", Expected: []string{"备选"}, Priority: 1, BonusTier: 1},
 	}
-	candidates := bestBonusTierCandidates(allCandidates)
+	candidates := bestBonusTierCandidates(allCandidates, false)
 	fallbackItems := []ocrItem{
 		{text: "备选", box: maa.Rect{100, 100, 80, 20}},
 	}

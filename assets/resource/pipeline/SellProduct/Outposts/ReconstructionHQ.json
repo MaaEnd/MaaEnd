@@ -23,12 +23,6 @@
             "SellProductInReconstructionHQ"
         ],
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductOperatorSession",
-        "custom_action_param": {
-            "operation": "enter_location",
-            "location": "ReconstructionHQ"
-        },
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectPriorityItem": "SellProductReconstructionHQSelectPriorityItem",
@@ -36,6 +30,48 @@
             "SellProductCommitPriorityItem": "SellProductReconstructionHQCommitPriorityItem",
             "SellProductMarkOutOfStock": "SellProductReconstructionHQMarkOutOfStock",
             "SellProductBetterSliding": "SellProductReconstructionHQApplyReserve"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionHQDevelopmentValueAvailable",
+            "SellProductReconstructionHQDevelopmentValueMax"
+        ]
+    },
+    "SellProductReconstructionHQDevelopmentValueAvailable": {
+        "desc": "重建指挥部据点发展值未达上限",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInReconstructionHQ",
+            "SellProductDevelopmentValueAvailable"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "enter_location",
+            "location": "ReconstructionHQ",
+            "development_max": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionHQSetOperatorAnchors"
+        ]
+    },
+    "SellProductReconstructionHQDevelopmentValueMax": {
+        "desc": "重建指挥部据点发展值已达上限",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInReconstructionHQ"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "enter_location",
+            "location": "ReconstructionHQ",
+            "development_max": true
         },
         "post_delay": 0,
         "rate_limit": 0,

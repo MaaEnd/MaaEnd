@@ -50,8 +50,10 @@ type operatorCandidate struct {
 	Expected []string `json:"expected"`
 	// Priority 表示候选顺序，值越小越优先。
 	Priority int `json:"priority"`
-	// BonusTier 表示售卖加成档位，值越小收益越高；同档候选可参与最少更换规划。
+	// BonusTier 表示据点发展值未满时的售卖加成档位，值越小收益越高。
 	BonusTier int `json:"bonus_tier"`
+	// DevelopmentMaxBonusTier 表示据点发展值已满时忽略发展值加成后的售卖档位。
+	DevelopmentMaxBonusTier int `json:"development_max_bonus_tier"`
 }
 
 // operatorCandidateGroup 表示某个据点及其可恢复到该岗位的干员集合。
@@ -86,6 +88,7 @@ type operatorSelectionParam struct {
 	TargetAssignments          map[string]operatorCandidate
 	LockedRestoreAssignments   map[string]operatorCandidate
 	ExcludedOperators          map[string]struct{}
+	DevelopmentMaxLocations    map[string]struct{}
 }
 
 // parseOperatorActionParam 解析并校验 Pipeline 参数。

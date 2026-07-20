@@ -17,6 +17,22 @@
             "[Anchor]SellProductBeforeSellOperatorTarget"
         ]
     },
+    "SellProductDevelopmentValueAvailable": {
+        "desc": "识别交易可获得的据点发展值图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            900,
+            550,
+            350,
+            80
+        ],
+        "template": "SellProduct/DevelopmentValue.png",
+        "green_mask": true,
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "SellProductSellLoop": {
         "desc": "售卖循环，先检查调度券再按价值优先级选择下一个可售物品",
         "recognition": "And",

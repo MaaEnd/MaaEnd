@@ -116,6 +116,27 @@ func TestOperatorSessionSkipsInactiveRegistration(t *testing.T) {
 	}
 }
 
+func TestOperatorSessionRecordsDevelopmentMax(t *testing.T) {
+	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	location := "XiranflowCloudseederStation"
+	if ok := (&OperatorSessionAction{}).Run(nil, &maa.CustomActionArg{
+		CustomActionParam: `{"operation":"enter_location","location":"XiranflowCloudseederStation","development_max":true}`,
+	}); !ok {
+		t.Fatal("recording development max should succeed")
+	}
+	if _, ok := operatorSessionSnapshot().DevelopmentMaxLocations[location]; !ok {
+		t.Fatal("development max location should be recorded")
+	}
+	if ok := (&OperatorSessionAction{}).Run(nil, &maa.CustomActionArg{
+		CustomActionParam: `{"operation":"enter_location","location":"XiranflowCloudseederStation","development_max":false}`,
+	}); !ok {
+		t.Fatal("recording available development should succeed")
+	}
+	if _, ok := operatorSessionSnapshot().DevelopmentMaxLocations[location]; ok {
+		t.Fatal("available development should clear the max marker")
+	}
+}
+
 func TestOperatorSessionLocksCompletedRestoreAssignment(t *testing.T) {
 	resetOperatorSessionForTest(t, operatorCacheModeCache)
 	candidate := operatorCandidate{Name: "Perlica", CacheName: "佩丽卡"}

@@ -33,6 +33,7 @@ func equivalentTargetCandidatesForOwnership(
 		available,
 		p.Location,
 		p.RestoreGroups,
+		p.DevelopmentMaxLocations,
 	)
 }
 
@@ -50,6 +51,7 @@ func candidatesForCurrentSelection(p *operatorSelectionParam, owned map[string]s
 			availableOwned,
 			p.Location,
 			p.RestoreGroups,
+			p.DevelopmentMaxLocations,
 		)
 		if len(candidates) == 0 {
 			return nil
@@ -118,18 +120,30 @@ func removeOtherLockedRestoreOperators(
 	}
 }
 
-// 从已经按 BonusTier 排序的列表中截取最高售卖档。
-// BonusTier 数值越小收益越高，因此第一项的档位就是当前最高档。
-func bestBonusTierCandidates(candidates []operatorCandidate) []operatorCandidate {
+// 从候选列表中保留当前据点状态下的最高售卖档，并维持原有游戏列表顺序。
+func bestBonusTierCandidates(candidates []operatorCandidate, developmentMax bool) []operatorCandidate {
 	if len(candidates) == 0 {
 		return nil
 	}
-	bestTier := candidates[0].BonusTier
-	count := 1
-	for count < len(candidates) && candidates[count].BonusTier == bestTier {
-		count++
+	bonusTier := func(candidate operatorCandidate) int {
+		if developmentMax {
+			return candidate.DevelopmentMaxBonusTier
+		}
+		return candidate.BonusTier
 	}
-	return candidates[:count]
+	bestTier := bonusTier(candidates[0])
+	best := make([]operatorCandidate, 0, len(candidates))
+	for _, candidate := range candidates {
+		tier := bonusTier(candidate)
+		if tier < bestTier {
+			bestTier = tier
+			best = best[:0]
+		}
+		if tier == bestTier {
+			best = append(best, candidate)
+		}
+	}
+	return best
 }
 
 // 在同档售卖候选中选择最有利于全局恢复的干员。
@@ -191,8 +205,10 @@ func preferredTargetCandidates(
 	owned map[string]struct{},
 	location string,
 	restoreGroups []operatorCandidateGroup,
+	developmentMaxLocations map[string]struct{},
 ) []operatorCandidate {
-	bestSelling := bestBonusTierCandidates(filterOwnedCandidates(candidates, owned))
+	_, developmentMax := developmentMaxLocations[location]
+	bestSelling := bestBonusTierCandidates(filterOwnedCandidates(candidates, owned), developmentMax)
 	if len(bestSelling) == 0 {
 		return nil
 	}
@@ -241,6 +257,7 @@ func restorePlanPreferences(
 			owned,
 			location,
 			p.RestoreGroups,
+			p.DevelopmentMaxLocations,
 		)
 		if len(available) == 0 {
 			continue
