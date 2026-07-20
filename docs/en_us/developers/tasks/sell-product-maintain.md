@@ -129,11 +129,13 @@ In this document, the “highest bonus tier” means the intersection of the cur
 The unified SellProduct cache is stored in `debug/record/SellProductCache.json`. Each hashed-UID partition contains both a complete operator snapshot and outpost prosperity states:
 
 - Both `operators` and `locations` store stable IDs from `selection_data.json`; they do not store localized names or depend on the client language.
-- `operators` stores only complete list-scan snapshots. `null` means scanning has not completed, while an empty array means a complete scan found no relevant operators.
-- The cache has no format-version field and does not migrate the old `SellProductOwnedOperators.json` file or caches containing Chinese names. An incompatible JSON structure, unknown field, localized name, empty ID, or ID absent from the current generated data invalidates the entire cache, so the next run performs a new complete scan.
+- Account keys use the 16-character lowercase hexadecimal salted hash produced by CaptureUID, or `unknown` before a UID is captured. SellProduct no longer performs a second character-replacement pass that could make distinct keys collide.
+- `operators` is a complete list-scan snapshot containing `updated_at` and `ids`. A missing or `null` field means scanning has not completed, while an empty `ids` array means a complete scan found no relevant operators.
+- The operator snapshot's `updated_at` changes only when a complete scan is written. Outpost-prosperity updates modify only `locations`, so an old operator list cannot appear freshly scanned.
+- The cache has no format-version field and does not migrate the old `SellProductOwnedOperators.json` file, flat operator arrays, or caches containing Chinese names. An incompatible JSON structure, unknown field, non-canonical UID, invalid timestamp, localized name, empty ID, or ID absent from the current generated data invalidates the entire cache, so the next run performs a new complete scan.
 - If the current account has no snapshot, Pipeline performs a full operator-list scan and writes the cache before planning or selling.
 - Existing snapshots are reused directly. “Force refresh before this run” ignores the existing snapshot and performs one full scan when the task first enters a region; later regions in the same task reuse the result.
-- When a complete snapshot is reused, the runtime UI converts the current account's `updated_at` value to local time and reports it once so users can judge the cache age.
+- When a complete snapshot is reused, the runtime UI converts the current account's `operators.updated_at` value to local time and reports it once so users can judge the operator-list age.
 - Only the global scan that creates the first snapshot or performs an explicit forced refresh may write the cache. Local scrolling while selecting an operator never overwrites an existing snapshot.
 - Planning and selection use only the real owned set from a complete snapshot. Incomplete observations are never treated as a theoretical optimum.
 - `locations` stores the last confirmed prosperity-limit state for each outpost. The task loads these states for global planning at startup; uncached outposts are treated as not maxed. Entering an outpost still rechecks and persists the latest state, immediately replanning unfinished outposts when it changes.

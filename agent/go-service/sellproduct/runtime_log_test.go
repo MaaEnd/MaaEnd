@@ -46,7 +46,7 @@ func TestRuntimeMessagesContainCurrentState(t *testing.T) {
 			name: "加载干员缓存",
 			message: runtimeOperatorCacheStatusMessage(operatorCacheStatus{
 				Ready:     true,
-				UpdatedAt: "2026-07-20T02:56:13Z",
+				UpdatedAt: time.Date(2026, 7, 20, 2, 56, 13, 0, time.UTC),
 			}),
 			expected: []string{
 				"已加载干员列表缓存",
@@ -73,7 +73,7 @@ func TestRuntimeMessagesContainCurrentState(t *testing.T) {
 
 func TestRuntimeLocalCacheUpdatedAtFallsBackForInvalidTimestamp(t *testing.T) {
 	i18n.Init()
-	if got := runtimeLocalCacheUpdatedAt("invalid"); got != "未知" {
+	if got := runtimeLocalCacheUpdatedAt(time.Time{}); got != "未知" {
 		t.Fatalf("无效缓存时间 = %q，期望未知", got)
 	}
 }

@@ -221,7 +221,7 @@ func TestCandidatesForOwnershipUsesCachedOperatorsOnly(t *testing.T) {
 		},
 	}
 	candidates := candidatesForOwnership(p, operatorOwnership{
-		Operators: operatorNameSet([]string{"Observed"}),
+		Operators: operatorIDSet([]string{"Observed"}),
 	})
 	if len(candidates) != 1 || candidates[0].Name != "Observed" {
 		t.Fatalf("candidates = %#v, want cached Observed", candidates)
@@ -237,7 +237,7 @@ func TestCandidatesForOwnershipUsesBestOwnedOperator(t *testing.T) {
 		},
 	}
 	candidates := candidatesForOwnership(p, operatorOwnership{
-		Operators: operatorNameSet([]string{"Observed"}),
+		Operators: operatorIDSet([]string{"Observed"}),
 	})
 	if len(candidates) != 1 || candidates[0].Name != "Observed" {
 		t.Fatalf("candidates = %#v, want observed candidate", candidates)
@@ -271,9 +271,8 @@ func TestOperatorCacheReadyForSelectionCacheModeRequiresCompleteSnapshot(t *test
 	}
 	updatedAt := time.Now().UTC().Format(time.RFC3339)
 	if err := writeSellProductCache(path, sellProductCache{
-		UpdatedAt: updatedAt,
 		Accounts: map[string]sellProductCacheAccount{
-			currentSellProductCacheUID(): {UpdatedAt: updatedAt, Operators: []string{"Perlica"}},
+			currentSellProductCacheUID(): {Operators: testOperatorSnapshotAt(updatedAt, "Perlica")},
 		},
 	}); err != nil {
 		t.Fatalf("writeSellProductCache: %v", err)
@@ -285,7 +284,7 @@ func TestOperatorCacheReadyForSelectionCacheModeRequiresCompleteSnapshot(t *test
 	if !status.Ready {
 		t.Fatal("cache mode should reuse an existing complete snapshot")
 	}
-	if status.UpdatedAt != updatedAt {
+	if status.UpdatedAt.Format(time.RFC3339) != updatedAt {
 		t.Fatalf("cache updated_at = %q, want %q", status.UpdatedAt, updatedAt)
 	}
 }
@@ -313,7 +312,7 @@ func TestOperatorCacheReadyForSelectionRefreshModeWaitsForScanComplete(t *testin
 	if !status.Ready {
 		t.Fatal("refresh mode should be ready after scan completion")
 	}
-	if status.UpdatedAt != "" {
+	if !status.UpdatedAt.IsZero() {
 		t.Fatalf("refresh mode should not report a persisted cache time: %q", status.UpdatedAt)
 	}
 }
@@ -337,10 +336,10 @@ func TestOperatorCacheReadyForSelectionRefreshModeUsesGlobalScanCompletion(t *te
 }
 
 func TestShouldWriteOperatorCacheSnapshotOnlyForGlobalInitializationOrRefresh(t *testing.T) {
-	uid := "test_uid"
+	uid := testCacheUID
 	existing := sellProductCache{
 		Accounts: map[string]sellProductCacheAccount{
-			uid: {Operators: []string{"Wulfgard"}},
+			uid: {Operators: testOperatorSnapshot("Wulfgard")},
 		},
 	}
 
@@ -407,9 +406,8 @@ func TestReplaceObservedOperatorsKeepsExistingCacheDuringLocalScan(t *testing.T)
 	uid := currentSellProductCacheUID()
 	updatedAt := time.Now().UTC().Format(time.RFC3339)
 	if err := writeSellProductCache(path, sellProductCache{
-		UpdatedAt: updatedAt,
 		Accounts: map[string]sellProductCacheAccount{
-			uid: {UpdatedAt: updatedAt, Operators: []string{"Wulfgard"}},
+			uid: {Operators: testOperatorSnapshotAt(updatedAt, "Wulfgard")},
 		},
 	}); err != nil {
 		t.Fatalf("写入初始干员缓存失败：%v", err)

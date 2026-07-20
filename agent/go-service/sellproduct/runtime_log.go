@@ -229,12 +229,11 @@ func runtimeOperatorCacheStatusMessage(status operatorCacheStatus) string {
 	)
 }
 
-func runtimeLocalCacheUpdatedAt(updatedAt string) string {
-	parsed, err := time.Parse(time.RFC3339, strings.TrimSpace(updatedAt))
-	if err != nil {
+func runtimeLocalCacheUpdatedAt(updatedAt time.Time) string {
+	if updatedAt.IsZero() {
 		return i18n.T("sellproduct.runtime.operator_cache_time_unknown")
 	}
-	return parsed.Local().Format("2006-01-02 15:04:05")
+	return updatedAt.Local().Format("2006-01-02 15:04:05")
 }
 
 func printRuntimeOperatorScanFailed(ctx *maa.Context, location string, usage string) {

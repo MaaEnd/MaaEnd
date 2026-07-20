@@ -394,13 +394,13 @@ func loadOperatorOwnershipForSelection() (operatorOwnership, error) {
 		return operatorOwnership{}, err
 	}
 	return operatorOwnership{
-		Operators: operatorNameSet(cachedOperatorIDsForUID(cache, uid)),
+		Operators: operatorIDSet(cachedOperatorIDsForUID(cache, uid)),
 	}, nil
 }
 
 type operatorCacheStatus struct {
 	Ready     bool
-	UpdatedAt string
+	UpdatedAt time.Time
 }
 
 // operatorCacheStatusForSelection 返回当前缓存是否可消费，以及实际复用缓存的更新时间。
@@ -420,7 +420,7 @@ func operatorCacheStatusForSelection(p *operatorActionParam) (operatorCacheStatu
 	}
 	return operatorCacheStatus{
 		Ready:     true,
-		UpdatedAt: cachedUpdatedAtForUID(cache, uid),
+		UpdatedAt: cachedOperatorUpdatedAtForUID(cache, uid),
 	}, nil
 }
 
@@ -676,7 +676,7 @@ func operatorCandidateIDs(candidates []operatorCandidate) []string {
 
 // observedConfiguredOperatorNames 按候选优先级返回本次完整扫描实际观察到的候选。
 func observedConfiguredOperatorNames(candidates []operatorCandidate, observed []string) []string {
-	observedSet := operatorNameSet(observed)
+	observedSet := operatorIDSet(observed)
 	names := make([]string, 0, len(candidates))
 	for _, candidate := range candidates {
 		name := candidate.Name

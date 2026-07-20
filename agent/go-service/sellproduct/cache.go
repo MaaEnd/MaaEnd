@@ -31,21 +31,29 @@ var sellProductCacheMu sync.Mutex
 // sellProductCache 是 SellProduct 持久缓存的顶层格式。
 // Accounts 按 UID 同时保存完整干员快照和据点发展值状态。
 type sellProductCache struct {
-	UpdatedAt string                             `json:"updated_at"`
-	Accounts  map[string]sellProductCacheAccount `json:"accounts,omitempty"`
+	Accounts map[string]sellProductCacheAccount `json:"accounts,omitempty"`
 }
 
 // sellProductCacheAccount 保存一个账号的完整干员快照和各据点发展值状态。
-// Operators 为 nil 表示尚未完成扫描，空数组表示完整扫描后没有相关干员。
+// Operators 为 nil 表示尚未完成扫描；非 nil 且 IDs 为空表示完整扫描后没有相关干员。
 type sellProductCacheAccount struct {
-	UpdatedAt string          `json:"updated_at"`
-	Operators []string        `json:"operators"`
-	Locations map[string]bool `json:"locations,omitempty"`
+	Operators *sellProductOperatorSnapshot `json:"operators,omitempty"`
+	Locations map[string]bool              `json:"locations,omitempty"`
 }
 
-// currentSellProductCacheUID 获取 CaptureUID 模块最近识别到的账号并规范化为安全键名。
+// sellProductOperatorSnapshot 把完整干员集合与其扫描时间绑定，避免据点状态更新污染干员缓存时间。
+type sellProductOperatorSnapshot struct {
+	UpdatedAt time.Time `json:"updated_at"`
+	IDs       []string  `json:"ids"`
+}
+
+// currentSellProductCacheUID 获取 CaptureUID 模块生成的加盐哈希；尚未捕获时使用 unknown 分区。
 func currentSellProductCacheUID() string {
-	return normalizeSellProductCacheUID(captureuid.GetCachedUID())
+	uid := captureuid.GetCachedUID()
+	if uid == "" {
+		return sellProductCacheUnknownUID
+	}
+	return uid
 }
 
 // defaultSellProductCachePath 返回运行记录目录中的统一缓存文件路径。
@@ -76,9 +84,9 @@ func readSellProductCache(path string) (sellProductCache, error) {
 	if err := decoder.Decode(&struct{}{}); err != io.EOF {
 		return sellProductCache{}, nil
 	}
-	valid, err := sellProductCacheUsesStableIDs(cache)
+	valid, err := sellProductCacheIsValid(cache)
 	if err != nil {
-		return sellProductCache{}, fmt.Errorf("validate sell product cache IDs: %w", err)
+		return sellProductCache{}, fmt.Errorf("validate sell product cache: %w", err)
 	}
 	if !valid {
 		return sellProductCache{}, nil
@@ -88,10 +96,17 @@ func readSellProductCache(path string) (sellProductCache, error) {
 
 // writeSellProductCache 规范化并格式化缓存，然后使用原子替换方式写盘。
 func writeSellProductCache(path string, cache sellProductCache) error {
+	cache = normalizeSellProductCache(cache)
+	valid, err := sellProductCacheIsValid(cache)
+	if err != nil {
+		return fmt.Errorf("validate sell product cache: %w", err)
+	}
+	if !valid {
+		return fmt.Errorf("validate sell product cache: invalid structure")
+	}
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 		return fmt.Errorf("create sell product cache dir: %w", err)
 	}
-	cache = normalizeSellProductCache(cache)
 	raw, err := json.MarshalIndent(cache, "", "    ")
 	if err != nil {
 		return fmt.Errorf("marshal sell product cache: %w", err)
@@ -103,15 +118,26 @@ func writeSellProductCache(path string, cache sellProductCache) error {
 	return nil
 }
 
-// sellProductCacheUsesStableIDs 验证缓存只包含当前生成数据里的精确干员与据点 ID。
-// 旧中文缓存、空 ID 或未知 ID 都会让整份缓存视为不存在，由 Pipeline 重新完整扫描。
-func sellProductCacheUsesStableIDs(cache sellProductCache) (bool, error) {
+// sellProductCacheIsValid 验证 UID、干员快照时间以及干员/据点 ID 都符合当前严格结构。
+// 旧中文缓存、非规范 UID、无效时间、空 ID 或未知 ID 都会让整份缓存视为不存在。
+func sellProductCacheIsValid(cache sellProductCache) (bool, error) {
 	data, err := loadSellProductSelectionDataCached()
 	if err != nil {
 		return false, err
 	}
-	for _, account := range cache.Accounts {
-		for _, operatorID := range account.Operators {
+	for uid, account := range cache.Accounts {
+		if !isValidSellProductCacheUID(uid) {
+			return false, nil
+		}
+		if account.Operators != nil {
+			if account.Operators.IDs == nil {
+				return false, nil
+			}
+			if account.Operators.UpdatedAt.IsZero() {
+				return false, nil
+			}
+		}
+		for _, operatorID := range operatorSnapshotIDs(account.Operators) {
 			if _, ok := data.Operators[operatorID]; !ok {
 				return false, nil
 			}
@@ -133,7 +159,6 @@ func mergeOperatorSnapshot(
 	owned []string,
 	now time.Time,
 ) sellProductCache {
-	uid = normalizeSellProductCacheUID(uid)
 	operatorSet := make(map[string]struct{}, len(owned))
 	scanSet := operatorCandidateIDSet(scanCandidates)
 
@@ -147,31 +172,28 @@ func mergeOperatorSnapshot(
 }
 
 // sellProductCacheHasOperatorSnapshot 判断指定账号是否建立过完整干员快照。
-// Operators 为 nil 表示只有据点状态；空数组表示完整扫描后没有相关干员。
+// Operators 为 nil 表示只有据点状态；非 nil 且 IDs 为空表示完整扫描后没有相关干员。
 func sellProductCacheHasOperatorSnapshot(cache sellProductCache, uid string) bool {
-	uid = normalizeSellProductCacheUID(uid)
 	account, ok := normalizeSellProductCache(cache).Accounts[uid]
 	return ok && account.Operators != nil
 }
 
 // cachedOperatorIDsForUID 返回指定账号的规范化干员 ID 列表。
 func cachedOperatorIDsForUID(cache sellProductCache, uid string) []string {
-	uid = normalizeSellProductCacheUID(uid)
 	account, ok := normalizeSellProductCache(cache).Accounts[uid]
 	if !ok {
 		return nil
 	}
-	return account.Operators
+	return operatorSnapshotIDs(account.Operators)
 }
 
-// cachedUpdatedAtForUID 返回指定账号缓存最近一次写入时间，账号未记录时回退到文件级时间。
-func cachedUpdatedAtForUID(cache sellProductCache, uid string) string {
-	uid = normalizeSellProductCacheUID(uid)
-	cache = normalizeSellProductCache(cache)
-	if account, ok := cache.Accounts[uid]; ok && account.UpdatedAt != "" {
-		return account.UpdatedAt
+// cachedOperatorUpdatedAtForUID 返回指定账号完整干员快照的扫描时间。
+func cachedOperatorUpdatedAtForUID(cache sellProductCache, uid string) time.Time {
+	account, ok := normalizeSellProductCache(cache).Accounts[uid]
+	if !ok || account.Operators == nil {
+		return time.Time{}
 	}
-	return cache.UpdatedAt
+	return account.Operators.UpdatedAt
 }
 
 // loadOutpostProsperityMaxLocations 从统一账号缓存中读取已满级据点。
@@ -190,12 +212,10 @@ func persistOutpostProsperityStatus(uid string, location string, reached bool) (
 		uid,
 		location,
 		reached,
-		time.Now(),
 	)
 }
 
 func outpostProsperityStatusesForUID(cache sellProductCache, uid string) map[string]bool {
-	uid = normalizeSellProductCacheUID(uid)
 	account, ok := normalizeSellProductCache(cache).Accounts[uid]
 	if !ok {
 		return nil
@@ -219,7 +239,6 @@ func updateCachedOutpostProsperity(
 	uid string,
 	location string,
 	reached bool,
-	now time.Time,
 ) (bool, error) {
 	sellProductCacheMu.Lock()
 	defer sellProductCacheMu.Unlock()
@@ -228,7 +247,6 @@ func updateCachedOutpostProsperity(
 	if err != nil {
 		return false, err
 	}
-	uid = normalizeSellProductCacheUID(uid)
 	location = strings.TrimSpace(location)
 	if location == "" {
 		return false, fmt.Errorf("outpost prosperity location is empty")
@@ -237,9 +255,7 @@ func updateCachedOutpostProsperity(
 		return false, nil
 	}
 
-	updatedAt := now.UTC().Format(time.RFC3339)
 	account := cache.Accounts[uid]
-	account.UpdatedAt = updatedAt
 	account.Locations = cloneBoolMap(account.Locations)
 	if account.Locations == nil {
 		account.Locations = map[string]bool{}
@@ -248,7 +264,6 @@ func updateCachedOutpostProsperity(
 	if cache.Accounts == nil {
 		cache.Accounts = map[string]sellProductCacheAccount{}
 	}
-	cache.UpdatedAt = updatedAt
 	cache.Accounts[uid] = account
 	if err := writeSellProductCache(path, cache); err != nil {
 		return false, err
@@ -264,46 +279,35 @@ func withOperatorSnapshot(
 	now time.Time,
 ) sellProductCache {
 	cache = normalizeSellProductCache(cache)
-	uid = normalizeSellProductCacheUID(uid)
-	updatedAt := now.UTC().Format(time.RFC3339)
-	cache.UpdatedAt = updatedAt
 	if cache.Accounts == nil {
 		cache.Accounts = map[string]sellProductCacheAccount{}
 	}
 	account := cache.Accounts[uid]
-	account.UpdatedAt = updatedAt
-	account.Operators = sortedSetValues(operatorSet)
+	account.Operators = &sellProductOperatorSnapshot{
+		UpdatedAt: now.UTC(),
+		IDs:       sortedSetValues(operatorSet),
+	}
 	cache.Accounts[uid] = account
 	return cache
 }
 
-// normalizeSellProductCache 消除缓存中的不稳定表示：
-// 规范 UID、合并碰撞账号、对干员去重排序，并清洗据点状态。
+// normalizeSellProductCache 对干员 ID 去重排序，并复制据点状态以避免共享可变 map。
+// UID 在读取校验阶段必须已经规范，禁止在这里合并可能碰撞的账号。
 func normalizeSellProductCache(cache sellProductCache) sellProductCache {
 	normalized := sellProductCache{
-		UpdatedAt: strings.TrimSpace(cache.UpdatedAt),
-		Accounts:  map[string]sellProductCacheAccount{},
+		Accounts: map[string]sellProductCacheAccount{},
 	}
 	for uid, account := range cache.Accounts {
-		uid = normalizeSellProductCacheUID(uid)
-		operatorSet := operatorNameSet(account.Operators)
-		existing := normalized.Accounts[uid]
-		for _, name := range existing.Operators {
-			operatorSet[name] = struct{}{}
-		}
-		hasOperatorSnapshot := account.Operators != nil || existing.Operators != nil
-		var operators []string
-		if hasOperatorSnapshot {
-			operators = sortedSetValues(operatorSet)
-		}
-		updatedAt := strings.TrimSpace(account.UpdatedAt)
-		if updatedAt < existing.UpdatedAt {
-			updatedAt = existing.UpdatedAt
+		var operators *sellProductOperatorSnapshot
+		if account.Operators != nil {
+			operators = &sellProductOperatorSnapshot{
+				UpdatedAt: account.Operators.UpdatedAt,
+				IDs:       sortedSetValues(operatorIDSet(account.Operators.IDs)),
+			}
 		}
 		normalized.Accounts[uid] = sellProductCacheAccount{
-			UpdatedAt: updatedAt,
 			Operators: operators,
-			Locations: mergeOutpostProsperityLocations(existing.Locations, account.Locations),
+			Locations: cloneBoolMap(account.Locations),
 		}
 	}
 	if len(normalized.Accounts) == 0 {
@@ -312,26 +316,11 @@ func normalizeSellProductCache(cache sellProductCache) sellProductCache {
 	return normalized
 }
 
-// mergeOutpostProsperityLocations 合并并规范据点状态；异常 UID 碰撞出现冲突时按未满处理。
-func mergeOutpostProsperityLocations(groups ...map[string]bool) map[string]bool {
-	locations := map[string]bool{}
-	for _, group := range groups {
-		for location, reached := range group {
-			location = strings.TrimSpace(location)
-			if location == "" {
-				continue
-			}
-			if previous, ok := locations[location]; ok {
-				locations[location] = previous && reached
-				continue
-			}
-			locations[location] = reached
-		}
-	}
-	if len(locations) == 0 {
+func operatorSnapshotIDs(snapshot *sellProductOperatorSnapshot) []string {
+	if snapshot == nil {
 		return nil
 	}
-	return locations
+	return snapshot.IDs
 }
 
 func cloneBoolMap(src map[string]bool) map[string]bool {
@@ -382,46 +371,30 @@ func writeSellProductCacheAtomic(path string, content []byte, perm os.FileMode) 
 	return nil
 }
 
-// normalizeSellProductCacheUID 把 UID 限制为适合作为持久化 map 键的 ASCII 字符集合。
-// 非法字符统一替换为下划线；空 UID 使用 unknown 分区，后续捕获真实 UID 后自然隔离。
-func normalizeSellProductCacheUID(uid string) string {
-	uid = strings.TrimSpace(uid)
-	if uid == "" {
-		return sellProductCacheUnknownUID
+// isValidSellProductCacheUID 只接受 CaptureUID 生成的 16 位小写十六进制哈希或 unknown。
+func isValidSellProductCacheUID(uid string) bool {
+	if uid == sellProductCacheUnknownUID {
+		return true
 	}
-
-	var b strings.Builder
-	b.Grow(len(uid))
+	if len(uid) != 16 {
+		return false
+	}
 	for _, r := range uid {
-		switch {
-		case r >= 'a' && r <= 'z':
-			b.WriteRune(r)
-		case r >= 'A' && r <= 'Z':
-			b.WriteRune(r)
-		case r >= '0' && r <= '9':
-			b.WriteRune(r)
-		case r == '.' || r == '_' || r == '-':
-			b.WriteRune(r)
-		default:
-			b.WriteByte('_')
+		if (r < '0' || r > '9') && (r < 'a' || r > 'f') {
+			return false
 		}
 	}
-
-	normalized := b.String()
-	if normalized == "" {
-		return sellProductCacheUnknownUID
-	}
-	return normalized
+	return true
 }
 
-// operatorNameSet 将名称切片转换为去重集合，并忽略空名称。
-func operatorNameSet(names []string) map[string]struct{} {
-	set := make(map[string]struct{}, len(names))
-	for _, name := range names {
-		if name == "" {
+// operatorIDSet 将内部 ID 切片转换为去重集合，并忽略空 ID。
+func operatorIDSet(ids []string) map[string]struct{} {
+	set := make(map[string]struct{}, len(ids))
+	for _, id := range ids {
+		if id == "" {
 			continue
 		}
-		set[name] = struct{}{}
+		set[id] = struct{}{}
 	}
 	return set
 }
