@@ -387,14 +387,14 @@ var operatorListScanStates = map[string]operatorListScanState{}
 
 // loadOperatorOwnershipForSelection 读取当前账号完整快照中的拥有干员集合。
 func loadOperatorOwnershipForSelection() (operatorOwnership, error) {
-	uid := currentOperatorCacheUID()
-	path := resolveOperatorCachePathFunc(uid)
-	cache, err := readOperatorCache(path)
+	uid := currentSellProductCacheUID()
+	path := resolveSellProductCachePathFunc(uid)
+	cache, err := readSellProductCache(path)
 	if err != nil {
 		return operatorOwnership{}, err
 	}
 	return operatorOwnership{
-		Operators: operatorNameSet(operatorCacheOperatorsForUID(cache, uid)),
+		Operators: operatorNameSet(cachedOperatorNamesForUID(cache, uid)),
 	}, nil
 }
 
@@ -404,13 +404,13 @@ func operatorCacheReadyForSelection(p *operatorActionParam) (bool, error) {
 	if p.Mode == operatorCacheModeRefresh {
 		return operatorSessionRefreshed(), nil
 	}
-	uid := currentOperatorCacheUID()
-	path := resolveOperatorCachePathFunc(uid)
-	cache, err := readOperatorCache(path)
+	uid := currentSellProductCacheUID()
+	path := resolveSellProductCachePathFunc(uid)
+	cache, err := readSellProductCache(path)
 	if err != nil {
 		return false, err
 	}
-	return operatorCacheHasSnapshot(cache, uid), nil
+	return sellProductCacheHasOperatorSnapshot(cache, uid), nil
 }
 
 // replaceObservedOperators 仅在全局首次扫描或主动刷新时写入当前账号的完整快照。
@@ -422,11 +422,11 @@ func replaceObservedOperators(
 	if p == nil {
 		return fmt.Errorf("operator action param is nil")
 	}
-	uid := currentOperatorCacheUID()
-	path := resolveOperatorCachePathFunc(uid)
+	uid := currentSellProductCacheUID()
+	path := resolveSellProductCachePathFunc(uid)
 	sellProductCacheMu.Lock()
 	defer sellProductCacheMu.Unlock()
-	cache, err := readOperatorCache(path)
+	cache, err := readSellProductCache(path)
 	if err != nil {
 		return err
 	}
@@ -439,8 +439,8 @@ func replaceObservedOperators(
 			Msg("operator cache write skipped")
 		return nil
 	}
-	cache = mergeOperatorCache(cache, uid, scanCandidates, observed, time.Now())
-	if err := writeOperatorCacheFile(path, cache); err != nil {
+	cache = mergeOperatorSnapshot(cache, uid, scanCandidates, observed, time.Now())
+	if err := writeSellProductCache(path, cache); err != nil {
 		return err
 	}
 	operatorSessionMarkRefreshed()
@@ -450,7 +450,7 @@ func replaceObservedOperators(
 // shouldWriteOperatorCacheSnapshot 限制缓存只能由全局完整扫描创建或主动刷新。
 func shouldWriteOperatorCacheSnapshot(
 	p *operatorActionParam,
-	cache operatorCacheFile,
+	cache sellProductCache,
 	uid string,
 ) bool {
 	if p == nil || p.Usage != operatorActionUsageAll || p.Location != "global" {
@@ -459,7 +459,7 @@ func shouldWriteOperatorCacheSnapshot(
 	if p.Mode == operatorCacheModeRefresh {
 		return true
 	}
-	return p.Mode == operatorCacheModeCache && !operatorCacheHasSnapshot(cache, uid)
+	return p.Mode == operatorCacheModeCache && !sellProductCacheHasOperatorSnapshot(cache, uid)
 }
 
 // observedOperatorCacheNames 将一帧 OCR 结果映射成去重、排序后的缓存键集合。
@@ -707,7 +707,7 @@ func operatorScanOutcomeDetailJSON(p *operatorActionParam, state operatorListSca
 // operatorListScanStateKey 为一次具体的列表扫描生成进程内隔离键。
 func operatorListScanStateKey(p *operatorActionParam) string {
 	return strings.Join([]string{
-		currentOperatorCacheUID(),
+		currentSellProductCacheUID(),
 		p.Mode,
 		p.Usage,
 		p.Location,

@@ -176,7 +176,7 @@ func parseOperatorSessionActionParam(arg *maa.CustomActionArg) (*operatorSession
 }
 
 func operatorSessionReset(mode string) {
-	uid := currentOperatorCacheUID()
+	uid := currentSellProductCacheUID()
 	outpostProsperityMaxLocations := cachedOutpostProsperityMaxLocations(uid)
 	operatorStateMu.Lock()
 	defer operatorStateMu.Unlock()
@@ -365,7 +365,7 @@ func operatorSessionRefreshed() bool {
 }
 
 func ensureOperatorSessionLocked() {
-	uid := currentOperatorCacheUID()
+	uid := currentSellProductCacheUID()
 	if operatorSession.UID == uid && operatorSession.ActiveLocations != nil {
 		if operatorSession.EnteredLocations == nil {
 			operatorSession.EnteredLocations = map[string]struct{}{}

@@ -371,12 +371,12 @@ func TestOutpostProsperityMaxTreatsMoneyAndProductionAsPerfect(t *testing.T) {
 // 进入据点确认开放新等级后，会为未满据点重新预留发展值干员。
 func TestObservedOutpostProsperityChangeReplansFutureAssignments(t *testing.T) {
 	resetOperatorSessionForTest(t, operatorCacheModeCache)
-	uid := currentOperatorCacheUID()
+	uid := currentSellProductCacheUID()
 	futureLocation := "Future"
-	if err := writeOperatorCacheFile(
-		resolveOperatorCachePathFunc(uid),
-		operatorCacheFile{
-			OutpostProsperity: map[string]outpostProsperityCacheAccount{
+	if err := writeSellProductCache(
+		resolveSellProductCachePathFunc(uid),
+		sellProductCache{
+			Accounts: map[string]sellProductCacheAccount{
 				uid: {Locations: map[string]bool{futureLocation: true}},
 			},
 		},

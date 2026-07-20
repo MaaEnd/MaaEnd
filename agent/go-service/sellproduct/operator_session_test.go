@@ -128,12 +128,12 @@ func TestOperatorSessionRecordsOutpostProsperityMax(t *testing.T) {
 	if _, ok := operatorSessionSnapshot().OutpostProsperityMaxLocations[location]; !ok {
 		t.Fatal("outpost prosperity max location should be recorded")
 	}
-	cachePath := resolveOperatorCachePathFunc(currentOperatorCacheUID())
-	cache, err := readOperatorCache(cachePath)
+	cachePath := resolveSellProductCachePathFunc(currentSellProductCacheUID())
+	cache, err := readSellProductCache(cachePath)
 	if err != nil {
 		t.Fatalf("读取据点发展值缓存失败：%v", err)
 	}
-	if reached, ok := outpostProsperityStatusesForUID(cache, currentOperatorCacheUID())[location]; !ok || !reached {
+	if reached, ok := outpostProsperityStatusesForUID(cache, currentSellProductCacheUID())[location]; !ok || !reached {
 		t.Fatalf("满级状态缓存 = %v, %v，期望 true", reached, ok)
 	}
 	if ok := (&OperatorSessionAction{}).Run(nil, &maa.CustomActionArg{
@@ -144,21 +144,21 @@ func TestOperatorSessionRecordsOutpostProsperityMax(t *testing.T) {
 	if _, ok := operatorSessionSnapshot().OutpostProsperityMaxLocations[location]; ok {
 		t.Fatal("available outpost prosperity should clear the max marker")
 	}
-	cache, err = readOperatorCache(cachePath)
+	cache, err = readSellProductCache(cachePath)
 	if err != nil {
 		t.Fatalf("重新读取据点发展值缓存失败：%v", err)
 	}
-	if reached, ok := outpostProsperityStatusesForUID(cache, currentOperatorCacheUID())[location]; !ok || reached {
+	if reached, ok := outpostProsperityStatusesForUID(cache, currentSellProductCacheUID())[location]; !ok || reached {
 		t.Fatalf("未满状态缓存 = %v, %v，期望明确保存 false", reached, ok)
 	}
 }
 
 func TestOperatorSessionResetLoadsOutpostProsperityCache(t *testing.T) {
 	resetOperatorSessionForTest(t, operatorCacheModeCache)
-	uid := currentOperatorCacheUID()
-	path := resolveOperatorCachePathFunc(uid)
-	if err := writeOperatorCacheFile(path, operatorCacheFile{
-		OutpostProsperity: map[string]outpostProsperityCacheAccount{
+	uid := currentSellProductCacheUID()
+	path := resolveSellProductCachePathFunc(uid)
+	if err := writeSellProductCache(path, sellProductCache{
+		Accounts: map[string]sellProductCacheAccount{
 			uid: {
 				Locations: map[string]bool{
 					"Full": true,
@@ -182,7 +182,7 @@ func TestOperatorSessionResetLoadsOutpostProsperityCache(t *testing.T) {
 
 func TestOperatorSessionUsesObservedStatusWhenProsperityCacheCannotBeWritten(t *testing.T) {
 	resetOperatorSessionForTest(t, operatorCacheModeCache)
-	path := resolveOperatorCachePathFunc(currentOperatorCacheUID())
+	path := resolveSellProductCachePathFunc(currentSellProductCacheUID())
 	if err := os.MkdirAll(path, 0755); err != nil {
 		t.Fatalf("准备不可写缓存路径失败：%v", err)
 	}

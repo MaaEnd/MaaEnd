@@ -245,7 +245,7 @@ func TestCandidatesForOwnershipUsesBestOwnedOperator(t *testing.T) {
 
 func TestOperatorCacheReadyForSelectionCacheModeRequiresCompleteSnapshot(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "SellProductOwnedOperators.json")
-	setOperatorCachePathForTest(t, path)
+	setSellProductCachePathForTest(t, path)
 	p := &operatorActionParam{
 		Mode:     operatorCacheModeCache,
 		Usage:    operatorActionUsageTarget,
@@ -259,13 +259,13 @@ func TestOperatorCacheReadyForSelectionCacheModeRequiresCompleteSnapshot(t *test
 		t.Fatal("cache mode should scan before selling when no complete snapshot exists")
 	}
 	updatedAt := time.Now().UTC().Format(time.RFC3339)
-	if err := writeOperatorCacheFile(path, operatorCacheFile{
+	if err := writeSellProductCache(path, sellProductCache{
 		UpdatedAt: updatedAt,
-		Accounts: map[string]operatorCacheAccount{
-			currentOperatorCacheUID(): {UpdatedAt: updatedAt, Operators: []string{"佩丽卡"}},
+		Accounts: map[string]sellProductCacheAccount{
+			currentSellProductCacheUID(): {UpdatedAt: updatedAt, Operators: []string{"佩丽卡"}},
 		},
 	}); err != nil {
-		t.Fatalf("writeOperatorCacheFile: %v", err)
+		t.Fatalf("writeSellProductCache: %v", err)
 	}
 	ready, err = operatorCacheReadyForSelection(p)
 	if err != nil {
@@ -321,8 +321,8 @@ func TestOperatorCacheReadyForSelectionRefreshModeUsesGlobalScanCompletion(t *te
 
 func TestShouldWriteOperatorCacheSnapshotOnlyForGlobalInitializationOrRefresh(t *testing.T) {
 	uid := "test_uid"
-	existing := operatorCacheFile{
-		Accounts: map[string]operatorCacheAccount{
+	existing := sellProductCache{
+		Accounts: map[string]sellProductCacheAccount{
 			uid: {Operators: []string{"狼卫"}},
 		},
 	}
@@ -330,7 +330,7 @@ func TestShouldWriteOperatorCacheSnapshotOnlyForGlobalInitializationOrRefresh(t 
 	tests := []struct {
 		name  string
 		param *operatorActionParam
-		cache operatorCacheFile
+		cache sellProductCache
 		want  bool
 	}{
 		{
@@ -340,7 +340,7 @@ func TestShouldWriteOperatorCacheSnapshotOnlyForGlobalInitializationOrRefresh(t 
 				Usage:    operatorActionUsageAll,
 				Location: "global",
 			},
-			cache: operatorCacheFile{},
+			cache: sellProductCache{},
 			want:  true,
 		},
 		{
@@ -386,12 +386,12 @@ func TestShouldWriteOperatorCacheSnapshotOnlyForGlobalInitializationOrRefresh(t 
 
 func TestReplaceObservedOperatorsKeepsExistingCacheDuringLocalScan(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "SellProductOwnedOperators.json")
-	setOperatorCachePathForTest(t, path)
-	uid := currentOperatorCacheUID()
+	setSellProductCachePathForTest(t, path)
+	uid := currentSellProductCacheUID()
 	updatedAt := time.Now().UTC().Format(time.RFC3339)
-	if err := writeOperatorCacheFile(path, operatorCacheFile{
+	if err := writeSellProductCache(path, sellProductCache{
 		UpdatedAt: updatedAt,
-		Accounts: map[string]operatorCacheAccount{
+		Accounts: map[string]sellProductCacheAccount{
 			uid: {UpdatedAt: updatedAt, Operators: []string{"狼卫"}},
 		},
 	}); err != nil {
@@ -411,11 +411,11 @@ func TestReplaceObservedOperatorsKeepsExistingCacheDuringLocalScan(t *testing.T)
 		t.Fatalf("处理据点局部扫描失败：%v", err)
 	}
 
-	cache, err := readOperatorCache(path)
+	cache, err := readSellProductCache(path)
 	if err != nil {
 		t.Fatalf("读取干员缓存失败：%v", err)
 	}
-	operators := operatorCacheOperatorsForUID(cache, uid)
+	operators := cachedOperatorNamesForUID(cache, uid)
 	if len(operators) != 1 || operators[0] != "狼卫" {
 		t.Fatalf("据点局部扫描后缓存 = %#v，期望仍保留狼卫", operators)
 	}
@@ -542,24 +542,24 @@ func resetOperatorSessionForTest(t *testing.T, mode string) {
 	previousSession := operatorSession
 	previousStates := operatorListScanStates
 	operatorStateMu.Unlock()
-	previousOperatorCachePath := resolveOperatorCachePathFunc
-	cachePath := filepath.Join(t.TempDir(), operatorCacheFilePrefix+operatorCacheFileExt)
-	resolveOperatorCachePathFunc = func(string) string { return cachePath }
+	previousCachePath := resolveSellProductCachePathFunc
+	cachePath := filepath.Join(t.TempDir(), sellProductCacheFileName)
+	resolveSellProductCachePathFunc = func(string) string { return cachePath }
 	operatorSessionReset(mode)
 	t.Cleanup(func() {
 		operatorStateMu.Lock()
 		operatorSession = previousSession
 		operatorListScanStates = previousStates
 		operatorStateMu.Unlock()
-		resolveOperatorCachePathFunc = previousOperatorCachePath
+		resolveSellProductCachePathFunc = previousCachePath
 	})
 }
 
-func setOperatorCachePathForTest(t *testing.T, path string) {
+func setSellProductCachePathForTest(t *testing.T, path string) {
 	t.Helper()
-	previous := resolveOperatorCachePathFunc
-	resolveOperatorCachePathFunc = func(string) string { return path }
+	previous := resolveSellProductCachePathFunc
+	resolveSellProductCachePathFunc = func(string) string { return path }
 	t.Cleanup(func() {
-		resolveOperatorCachePathFunc = previous
+		resolveSellProductCachePathFunc = previous
 	})
 }
