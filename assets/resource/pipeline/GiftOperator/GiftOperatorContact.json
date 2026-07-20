@@ -734,7 +734,7 @@
             }
         },
         "post_wait_freezes": {
-            "time": 200,
+            "time": 500,
             "timeout": 3000
         },
         "next": [
