@@ -277,7 +277,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						ca.SetPlayerMovement(control.MovementWalk, control.PolicyDefault)
 						log.Info().Int("index", i).Float64("dist", dist).Dur("expectedElapsed", fineApproachExpectedElapsed).Msg("Entering fine approach")
 					} else {
-						log.Info().Int("index", i).Float64("x", curLoc.X).Float64("y", curLoc.Y).Msg("Target point reached (ordinary approach)")
+						log.Info().Int("index", i).Float64("dist", dist).Object("pos", curLoc).Msg("Target point reached (ordinary approach)")
 						finishCurrentTarget(curLoc, curRot)
 						break
 					}
@@ -288,7 +288,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				}
 			}
 
-			log.Debug().Float64("curX", curLoc.X).Float64("curY", curLoc.Y).Int("curRot", curRot).Float64("dist", dist).Int("targetRot", targetRot).Msg("Navigating to target")
+			log.Debug().Object("cur", curLoc).Int("curRot", curRot).Float64("dist", dist).Int("targetRot", targetRot).Msg("Navigating to target")
 
 			// Check stuck
 			if prevLocation != nil && prevLocation.DistanceTo(curLoc) < 2.0 {

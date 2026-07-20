@@ -79,10 +79,8 @@ func (a *MapTrackerZipline) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool
 
 	distance := result.Loc.DistanceTo(*param.Target)
 	log.Info().
-		Float64("curX", result.Loc.X).
-		Float64("curY", result.Loc.Y).
-		Float64("targetX", param.Target.X).
-		Float64("targetY", param.Target.Y).
+		Object("current", result.Loc).
+		Object("target", param.Target).
 		Float64("distance", distance).
 		Msg("Current location and target for MapTrackerZipline")
 

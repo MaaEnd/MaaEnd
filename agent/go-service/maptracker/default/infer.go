@@ -215,7 +215,8 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	log.Info().Str("InferMode", result.InferMode).
 		Int64("InferTimeMs", result.InferTimeMs).
 		Str("MapName", result.MapName).
-		Float64("X", result.Loc.X).Float64("Y", result.Loc.Y).
+		Float64("X", result.Loc.X).Float64("Y", result.Loc.Y). // Reserved for backward compatibility
+		Object("LOC", result.Loc).
 		Int("Rot", result.Rot).
 		Float64("LocConf", result.LocConf).
 		Float64("RotConf", result.RotConf).

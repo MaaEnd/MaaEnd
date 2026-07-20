@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+
+	"github.com/rs/zerolog"
 )
 
 /* ******** Point ******** */
@@ -17,6 +19,11 @@ type Point struct {
 
 func (p Point) Clone() Point {
 	return Point{X: p.X, Y: p.Y}
+}
+
+// MarshalZerologObject serializes the point as zerolog sub-fields X and Y.
+func (p Point) MarshalZerologObject(e *zerolog.Event) {
+	e.Float64("X", p.X).Float64("Y", p.Y)
 }
 
 func (p Point) MarshalJSON() ([]byte, error) {
@@ -52,6 +59,11 @@ func (p Point) IsInf() bool {
 
 func (p Point) IsValid() bool {
 	return !p.IsNaN() && !p.IsInf()
+}
+
+// InRect reports whether p lies within the axis-aligned rectangle [x, x+w) x [y, y+h).
+func (p Point) InRect(x, y, w, h float64) bool {
+	return p.X >= x && p.X < x+w && p.Y >= y && p.Y < y+h
 }
 
 // DistanceTo returns the Euclidean distance from this point to another point.

@@ -86,7 +86,7 @@ func (r *MapTrackerAssertLocation) Run(ctx *maa.Context, arg *maa.CustomRecognit
 	for _, condition := range param.Expected {
 		if result.MapName == condition.MapName {
 			x, y, w, h := condition.Target[0], condition.Target[1], condition.Target[2], condition.Target[3]
-			if result.Loc.X >= x && result.Loc.X < x+w && result.Loc.Y >= y && result.Loc.Y < y+h {
+			if result.Loc.InRect(x, y, w, h) {
 				log.Info().
 					Interface("condition", condition).
 					Msg("Location assertion satisfied")

@@ -212,10 +212,8 @@ func (a *MapTrackerGoal) runOrdinaryGoal(goalCtx *goalContext, inferResult *MapT
 	}
 
 	log.Info().Str("map", goalCtx.param.MapName).
-		Float64("startX", inferResult.Loc.X).
-		Float64("startY", inferResult.Loc.Y).
-		Float64("targetX", goalCtx.target.X).
-		Float64("targetY", goalCtx.target.Y).
+		Object("start", inferResult.Loc).
+		Object("target", goalCtx.target).
 		Int("pathCount", len(path)).
 		Msg("MapTrackerGoal path generated")
 
@@ -397,8 +395,8 @@ func (a *MapTrackerGoal) validateZiplineArrival(
 		goalCtx.mesh.DisableVertex(destID)
 		log.Warn().
 			Int("vertex", destID).
-			Float64("curX", (*current).Loc.X).Float64("curY", (*current).Loc.Y).
-			Float64("targetX", destPoint.X).Float64("targetY", destPoint.Y).
+			Object("current", (*current).Loc).
+			Object("target", destPoint).
 			Msg("Zipline arrived at unexpected point, disabling expected point")
 		*onZipline = false
 		*current = a.inferAndGetOffZipline(goalCtx, *current)
