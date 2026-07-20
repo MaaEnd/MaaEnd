@@ -34,6 +34,11 @@ type sellProductCache struct {
 	Accounts map[string]sellProductCacheAccount `json:"accounts,omitempty"`
 }
 
+// sellProductCacheEnvelope 延迟解析账号对象，使单个账号损坏时仍能保留其他账号。
+type sellProductCacheEnvelope struct {
+	Accounts json.RawMessage `json:"accounts,omitempty"`
+}
+
 // sellProductCacheAccount 保存一个账号的完整干员快照和各据点发展值状态。
 // Operators 为 nil 表示尚未完成扫描；非 nil 且 IDs 为空表示完整扫描后没有相关干员。
 type sellProductCacheAccount struct {
@@ -61,7 +66,8 @@ func defaultSellProductCachePath() string {
 	return filepath.Join("debug", "record", sellProductCacheFileName)
 }
 
-// readSellProductCache 读取并规范化缓存；文件不存在、为空或结构不兼容时均视为尚未建立缓存。
+// readSellProductCache 读取并规范化缓存。
+// 顶层结构损坏时整份缓存视为不存在；单个账号不合法时只丢弃对应账号。
 func readSellProductCache(path string) (sellProductCache, error) {
 	raw, err := os.ReadFile(path)
 	if err != nil {
@@ -74,21 +80,43 @@ func readSellProductCache(path string) (sellProductCache, error) {
 		return sellProductCache{}, nil
 	}
 
-	var cache sellProductCache
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	decoder.DisallowUnknownFields()
-	if err := decoder.Decode(&cache); err != nil {
+	var envelope sellProductCacheEnvelope
+	if !decodeStrictSellProductCacheJSON(raw, &envelope) {
 		return sellProductCache{}, nil
 	}
-	if err := decoder.Decode(&struct{}{}); err != io.EOF {
+	if len(envelope.Accounts) == 0 {
 		return sellProductCache{}, nil
 	}
-	valid, err := sellProductCacheIsValid(cache)
+	accountsRaw := bytes.TrimSpace(envelope.Accounts)
+	if len(accountsRaw) == 0 || accountsRaw[0] != '{' {
+		return sellProductCache{}, nil
+	}
+
+	var accounts map[string]json.RawMessage
+	if !decodeStrictSellProductCacheJSON(accountsRaw, &accounts) {
+		return sellProductCache{}, nil
+	}
+	data, err := loadSellProductSelectionDataCached()
 	if err != nil {
-		return sellProductCache{}, fmt.Errorf("validate sell product cache: %w", err)
+		return sellProductCache{}, fmt.Errorf("validate sell product cache accounts: %w", err)
 	}
-	if !valid {
-		return sellProductCache{}, nil
+	cache := sellProductCache{Accounts: map[string]sellProductCacheAccount{}}
+	for uid, accountRaw := range accounts {
+		if !isValidSellProductCacheUID(uid) {
+			continue
+		}
+		accountJSON := bytes.TrimSpace(accountRaw)
+		if len(accountJSON) == 0 || accountJSON[0] != '{' {
+			continue
+		}
+		var account sellProductCacheAccount
+		if !decodeStrictSellProductCacheJSON(accountJSON, &account) {
+			continue
+		}
+		if !sellProductCacheAccountIsValid(account, data) {
+			continue
+		}
+		cache.Accounts[uid] = account
 	}
 	return normalizeSellProductCache(cache), nil
 }
@@ -117,8 +145,7 @@ func writeSellProductCache(path string, cache sellProductCache) error {
 	return nil
 }
 
-// sellProductCacheIsValid 验证 UID、干员快照时间以及干员/据点 ID 都符合当前严格结构。
-// 旧中文缓存、非规范 UID、无效时间、空 ID 或未知 ID 都会让整份缓存视为不存在。
+// sellProductCacheIsValid 验证待写入缓存的 UID 和每个账号都符合当前严格结构。
 func sellProductCacheIsValid(cache sellProductCache) (bool, error) {
 	data, err := loadSellProductSelectionDataCached()
 	if err != nil {
@@ -128,26 +155,42 @@ func sellProductCacheIsValid(cache sellProductCache) (bool, error) {
 		if !isValidSellProductCacheUID(uid) {
 			return false, nil
 		}
-		if account.Operators != nil {
-			if account.Operators.IDs == nil {
-				return false, nil
-			}
-			if account.Operators.UpdatedAt.IsZero() {
-				return false, nil
-			}
-			for _, operatorID := range account.Operators.IDs {
-				if _, ok := data.Operators[operatorID]; !ok {
-					return false, nil
-				}
-			}
-		}
-		for locationID := range account.Locations {
-			if _, ok := data.Locations[locationID]; !ok {
-				return false, nil
-			}
+		if !sellProductCacheAccountIsValid(account, data) {
+			return false, nil
 		}
 	}
 	return true, nil
+}
+
+func sellProductCacheAccountIsValid(
+	account sellProductCacheAccount,
+	data *sellProductSelectionDataFile,
+) bool {
+	if account.Operators != nil {
+		if account.Operators.IDs == nil || account.Operators.UpdatedAt.IsZero() {
+			return false
+		}
+		for _, operatorID := range account.Operators.IDs {
+			if _, ok := data.Operators[operatorID]; !ok {
+				return false
+			}
+		}
+	}
+	for locationID := range account.Locations {
+		if _, ok := data.Locations[locationID]; !ok {
+			return false
+		}
+	}
+	return true
+}
+
+func decodeStrictSellProductCacheJSON(raw []byte, target any) bool {
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(target); err != nil {
+		return false
+	}
+	return decoder.Decode(&struct{}{}) == io.EOF
 }
 
 // mergeOperatorSnapshot 用一次完整列表扫描结果替换当前账号的干员快照。

@@ -133,7 +133,7 @@ func TestSellProductCacheIgnoresLegacyFileName(t *testing.T) {
 	}
 }
 
-func TestSellProductCacheDiscardsInvalidIDs(t *testing.T) {
+func TestSellProductCacheDiscardsAccountWithInvalidIDs(t *testing.T) {
 	tests := []struct {
 		name    string
 		content string
@@ -170,7 +170,66 @@ func TestSellProductCacheDiscardsInvalidIDs(t *testing.T) {
 				t.Fatalf("读取无效 ID 缓存失败：%v", err)
 			}
 			if len(cache.Accounts) != 0 {
-				t.Fatalf("无效 ID 缓存应视为不存在：%#v", cache.Accounts)
+				t.Fatalf("包含无效 ID 的账号应视为不存在：%#v", cache.Accounts)
+			}
+		})
+	}
+}
+
+func TestSellProductCachePreservesValidAccountsWhenOneAccountIsInvalid(t *testing.T) {
+	tests := []struct {
+		name         string
+		invalidEntry string
+	}{
+		{
+			name:         "非规范 UID",
+			invalidEntry: `"not-a-hash":{"locations":{"RefugeeCamp":true}}`,
+		},
+		{
+			name:         "账号对象类型错误",
+			invalidEntry: `"fedcba9876543210":[]`,
+		},
+		{
+			name:         "账号包含未知字段",
+			invalidEntry: `"fedcba9876543210":{"unexpected":true}`,
+		},
+		{
+			name:         "干员快照时间无效",
+			invalidEntry: `"fedcba9876543210":{"operators":{"updated_at":"invalid","ids":["Wulfgard"]}}`,
+		},
+		{
+			name:         "干员 ID 无效",
+			invalidEntry: `"fedcba9876543210":{"operators":{"updated_at":"2026-07-20T03:00:00Z","ids":["UnknownOperator"]}}`,
+		},
+		{
+			name:         "据点 ID 无效",
+			invalidEntry: `"fedcba9876543210":{"locations":{"UnknownLocation":true}}`,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), sellProductCacheFileName)
+			content := `{"accounts":{"0123456789abcdef":{"operators":{"updated_at":"2026-07-20T03:00:00Z","ids":["Wulfgard"]},"locations":{"RefugeeCamp":true}},` + test.invalidEntry + `}}`
+			if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+				t.Fatal(err)
+			}
+
+			cache, err := readSellProductCache(path)
+			if err != nil {
+				t.Fatalf("读取混合账号缓存失败：%v", err)
+			}
+			if len(cache.Accounts) != 1 {
+				t.Fatalf("有效账号数量 = %d，期望 1：%#v", len(cache.Accounts), cache.Accounts)
+			}
+			account, ok := cache.Accounts[testCacheUID]
+			if !ok {
+				t.Fatalf("有效账号不应被无效账号连带丢弃：%#v", cache.Accounts)
+			}
+			if want := []string{"Wulfgard"}; !reflect.DeepEqual(account.Operators.IDs, want) {
+				t.Fatalf("有效账号干员 = %#v，期望 %#v", account.Operators.IDs, want)
+			}
+			if !account.Locations["RefugeeCamp"] {
+				t.Fatal("有效账号据点状态不应被无效账号连带丢弃")
 			}
 		})
 	}
@@ -200,16 +259,12 @@ func TestSellProductCacheMissingAndEmpty(t *testing.T) {
 	}
 }
 
-func TestSellProductCacheDiscardsInvalidStructure(t *testing.T) {
+func TestSellProductCacheDiscardsWholeFileWithInvalidTopLevelStructure(t *testing.T) {
 	contents := []string{
-		`{"updated_at":"","accounts":{},"unexpected":true}`,
+		`{"accounts":{"0123456789abcdef":{"locations":{"RefugeeCamp":true}}},"unexpected":true}`,
 		`{"accounts":[]}`,
 		`{"accounts":{`,
 		`{"accounts":{}} {}`,
-		`{"accounts":{"0123456789abcdef":{"updated_at":"2026-07-20T03:00:00Z","operators":["Wulfgard"]}}}`,
-		`{"accounts":{"0123456789abcdef":{"operators":{"updated_at":"invalid","ids":["Wulfgard"]}}}}`,
-		`{"accounts":{"0123456789abcdef":{"operators":{"updated_at":"2026-07-20T03:00:00Z"}}}}`,
-		`{"accounts":{"../abc123":{"locations":{"RefugeeCamp":true}}}}`,
 	}
 	for _, content := range contents {
 		path := filepath.Join(t.TempDir(), sellProductCacheFileName)
