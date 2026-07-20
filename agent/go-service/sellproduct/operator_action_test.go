@@ -542,12 +542,16 @@ func resetOperatorSessionForTest(t *testing.T, mode string) {
 	previousSession := operatorSession
 	previousStates := operatorListScanStates
 	operatorStateMu.Unlock()
+	previousOperatorCachePath := resolveOperatorCachePathFunc
+	cachePath := filepath.Join(t.TempDir(), operatorCacheFilePrefix+operatorCacheFileExt)
+	resolveOperatorCachePathFunc = func(string) string { return cachePath }
 	operatorSessionReset(mode)
 	t.Cleanup(func() {
 		operatorStateMu.Lock()
 		operatorSession = previousSession
 		operatorListScanStates = previousStates
 		operatorStateMu.Unlock()
+		resolveOperatorCachePathFunc = previousOperatorCachePath
 	})
 }
 

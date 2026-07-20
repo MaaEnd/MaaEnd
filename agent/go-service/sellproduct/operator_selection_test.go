@@ -367,6 +367,84 @@ func TestOutpostProsperityMaxTreatsMoneyAndProductionAsPerfect(t *testing.T) {
 	}
 }
 
+// TestObservedOutpostProsperityChangeReplansFutureAssignments 验证任务开始时使用缓存的满级状态，
+// 进入据点确认开放新等级后，会为未满据点重新预留发展值干员。
+func TestObservedOutpostProsperityChangeReplansFutureAssignments(t *testing.T) {
+	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	uid := currentOperatorCacheUID()
+	futureLocation := "Future"
+	if err := writeOperatorCacheFile(
+		resolveOperatorCachePathFunc(uid),
+		operatorCacheFile{
+			OutpostProsperity: map[string]outpostProsperityCacheAccount{
+				uid: {Locations: map[string]bool{futureLocation: true}},
+			},
+		},
+	); err != nil {
+		t.Fatalf("准备据点发展值缓存失败：%v", err)
+	}
+	operatorSessionReset(operatorCacheModeCache)
+	for _, location := range []string{"Current", futureLocation} {
+		operatorSessionRegisterLocation(location)
+	}
+
+	selection := func() *operatorSelectionParam {
+		session := operatorSessionSnapshot()
+		return &operatorSelectionParam{
+			Usage:           operatorActionUsageRestore,
+			Location:        "Current",
+			ActiveLocations: session.ActiveLocations,
+			TargetCandidatesByLocation: map[string][]operatorCandidate{
+				futureLocation: {
+					{
+						Name:                          "Development",
+						CacheName:                     "发展值干员",
+						Priority:                      1,
+						BonusTier:                     1,
+						OutpostProsperityMaxBonusTier: 1,
+					},
+					{
+						Name:                          "TradeProfit",
+						CacheName:                     "交易干员",
+						Priority:                      0,
+						BonusTier:                     2,
+						OutpostProsperityMaxBonusTier: 0,
+					},
+				},
+			},
+			RestoreGroups: []operatorCandidateGroup{
+				{
+					Location: "Current",
+					Candidates: []operatorCandidate{
+						{Name: "TradeProfit", CacheName: "交易干员", Priority: 0},
+						{Name: "CurrentOnly", CacheName: "当前专属", Priority: 1},
+					},
+				},
+				{
+					Location: futureLocation,
+					Candidates: []operatorCandidate{
+						{Name: "TradeProfit", CacheName: "交易干员", Priority: 0},
+						{Name: "Development", CacheName: "发展值干员", Priority: 1},
+					},
+				},
+			},
+			OutpostProsperityMaxLocations: session.OutpostProsperityMaxLocations,
+		}
+	}
+	owned := operatorNameSet([]string{"发展值干员", "交易干员", "当前专属"})
+
+	initial := candidatesForCurrentSelection(selection(), owned)
+	if len(initial) != 1 || initial[0].Name != "CurrentOnly" {
+		t.Fatalf("缓存满级状态下的当前据点生产分配 = %#v，期望为未来据点保留 TradeProfit", initial)
+	}
+
+	operatorSessionSetOutpostProsperityMax(futureLocation, false)
+	replanned := candidatesForCurrentSelection(selection(), owned)
+	if len(replanned) != 1 || replanned[0].Name != "TradeProfit" {
+		t.Fatalf("确认未满后的当前据点生产分配 = %#v，期望为未来据点保留 Development", replanned)
+	}
+}
+
 func TestTargetSelectionMinimizesGlobalOperatorChangesWithinBestBonusTier(t *testing.T) {
 	p := &operatorSelectionParam{
 		Usage:    operatorActionUsageTarget,

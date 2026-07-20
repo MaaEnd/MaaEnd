@@ -424,6 +424,8 @@ func replaceObservedOperators(
 	}
 	uid := currentOperatorCacheUID()
 	path := resolveOperatorCachePathFunc(uid)
+	sellProductCacheMu.Lock()
+	defer sellProductCacheMu.Unlock()
 	cache, err := readOperatorCache(path)
 	if err != nil {
 		return err

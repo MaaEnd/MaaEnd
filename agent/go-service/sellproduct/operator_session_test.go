@@ -1,6 +1,7 @@
 package sellproduct
 
 import (
+	"os"
 	"testing"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -127,6 +128,14 @@ func TestOperatorSessionRecordsOutpostProsperityMax(t *testing.T) {
 	if _, ok := operatorSessionSnapshot().OutpostProsperityMaxLocations[location]; !ok {
 		t.Fatal("outpost prosperity max location should be recorded")
 	}
+	cachePath := resolveOperatorCachePathFunc(currentOperatorCacheUID())
+	cache, err := readOperatorCache(cachePath)
+	if err != nil {
+		t.Fatalf("读取据点发展值缓存失败：%v", err)
+	}
+	if reached, ok := outpostProsperityStatusesForUID(cache, currentOperatorCacheUID())[location]; !ok || !reached {
+		t.Fatalf("满级状态缓存 = %v, %v，期望 true", reached, ok)
+	}
 	if ok := (&OperatorSessionAction{}).Run(nil, &maa.CustomActionArg{
 		CustomActionParam: `{"operation":"enter_location","location":"XiranflowCloudseederStation","outpost_prosperity_max":false}`,
 	}); !ok {
@@ -134,6 +143,57 @@ func TestOperatorSessionRecordsOutpostProsperityMax(t *testing.T) {
 	}
 	if _, ok := operatorSessionSnapshot().OutpostProsperityMaxLocations[location]; ok {
 		t.Fatal("available outpost prosperity should clear the max marker")
+	}
+	cache, err = readOperatorCache(cachePath)
+	if err != nil {
+		t.Fatalf("重新读取据点发展值缓存失败：%v", err)
+	}
+	if reached, ok := outpostProsperityStatusesForUID(cache, currentOperatorCacheUID())[location]; !ok || reached {
+		t.Fatalf("未满状态缓存 = %v, %v，期望明确保存 false", reached, ok)
+	}
+}
+
+func TestOperatorSessionResetLoadsOutpostProsperityCache(t *testing.T) {
+	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	uid := currentOperatorCacheUID()
+	path := resolveOperatorCachePathFunc(uid)
+	if err := writeOperatorCacheFile(path, operatorCacheFile{
+		OutpostProsperity: map[string]outpostProsperityCacheAccount{
+			uid: {
+				Locations: map[string]bool{
+					"Full": true,
+					"Open": false,
+				},
+			},
+		},
+	}); err != nil {
+		t.Fatalf("准备据点发展值缓存失败：%v", err)
+	}
+
+	operatorSessionReset(operatorCacheModeCache)
+	maxLocations := operatorSessionSnapshot().OutpostProsperityMaxLocations
+	if len(maxLocations) != 1 {
+		t.Fatalf("初始化后的满级据点 = %#v，期望仅包含 Full", maxLocations)
+	}
+	if _, ok := maxLocations["Full"]; !ok {
+		t.Fatal("会话初始化未加载 Full 的满级状态")
+	}
+}
+
+func TestOperatorSessionUsesObservedStatusWhenProsperityCacheCannotBeWritten(t *testing.T) {
+	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	path := resolveOperatorCachePathFunc(currentOperatorCacheUID())
+	if err := os.MkdirAll(path, 0755); err != nil {
+		t.Fatalf("准备不可写缓存路径失败：%v", err)
+	}
+	location := "Full"
+	if ok := (&OperatorSessionAction{}).Run(nil, &maa.CustomActionArg{
+		CustomActionParam: `{"operation":"enter_location","location":"Full","outpost_prosperity_max":true}`,
+	}); !ok {
+		t.Fatal("缓存写入失败不应阻断据点状态更新")
+	}
+	if _, ok := operatorSessionSnapshot().OutpostProsperityMaxLocations[location]; !ok {
+		t.Fatal("缓存写入失败后会话仍应使用本次识别到的满级状态")
 	}
 }
 

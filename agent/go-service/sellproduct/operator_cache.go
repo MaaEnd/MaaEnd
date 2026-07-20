@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/captureuid"
@@ -24,11 +25,15 @@ const (
 // resolveOperatorCachePathFunc 是单元测试替换缓存目录的注入点。
 var resolveOperatorCachePathFunc = defaultOperatorCachePath
 
-// operatorCacheFile 是拥有干员缓存的顶层格式。
-// UpdatedAt 记录最后一次任意账号更新，Accounts 中则保存各账号独立快照。
+// sellProductCacheMu 串行化同一个缓存文件的读取-修改-写入，防止不同缓存分区互相覆盖。
+var sellProductCacheMu sync.Mutex
+
+// operatorCacheFile 是 SellProduct 持久缓存的顶层格式。
+// Accounts 保存完整干员快照，OutpostProsperity 独立保存据点发展值状态，二者均按 UID 隔离。
 type operatorCacheFile struct {
-	UpdatedAt string                          `json:"updated_at"`
-	Accounts  map[string]operatorCacheAccount `json:"accounts,omitempty"`
+	UpdatedAt         string                                   `json:"updated_at"`
+	Accounts          map[string]operatorCacheAccount          `json:"accounts,omitempty"`
+	OutpostProsperity map[string]outpostProsperityCacheAccount `json:"outpost_prosperity,omitempty"`
 }
 
 // operatorCacheAccount 保存一个账号经完整扫描确认拥有的相关干员。
@@ -82,7 +87,7 @@ func writeOperatorCacheFile(path string, cache operatorCacheFile) error {
 		return fmt.Errorf("marshal operator cache: %w", err)
 	}
 	raw = append(raw, '\n')
-	if err := writeOperatorCacheAtomic(path, raw, 0644); err != nil {
+	if err := writeSellProductCacheAtomic(path, raw, 0644); err != nil {
 		return fmt.Errorf("write operator cache: %w", err)
 	}
 	return nil
@@ -152,8 +157,9 @@ func withOperatorCacheAccount(
 // 规范 UID、合并碰撞账号，并对干员去重和排序。
 func normalizeOperatorCacheFile(cache operatorCacheFile) operatorCacheFile {
 	normalized := operatorCacheFile{
-		UpdatedAt: strings.TrimSpace(cache.UpdatedAt),
-		Accounts:  map[string]operatorCacheAccount{},
+		UpdatedAt:         strings.TrimSpace(cache.UpdatedAt),
+		Accounts:          map[string]operatorCacheAccount{},
+		OutpostProsperity: normalizeOutpostProsperityAccounts(cache.OutpostProsperity),
 	}
 	for uid, account := range cache.Accounts {
 		uid = normalizeOperatorCacheUID(uid)
@@ -177,9 +183,9 @@ func normalizeOperatorCacheFile(cache operatorCacheFile) operatorCacheFile {
 	return normalized
 }
 
-// writeOperatorCacheAtomic 先在目标目录写入临时文件并刷盘，再原子重命名覆盖正式文件。
+// writeSellProductCacheAtomic 先在目标目录写入临时文件并刷盘，再原子重命名覆盖正式文件。
 // 任一步失败都会清理临时文件，防止进程中断留下半截 JSON 破坏后续任务。
-func writeOperatorCacheAtomic(path string, content []byte, perm os.FileMode) error {
+func writeSellProductCacheAtomic(path string, content []byte, perm os.FileMode) error {
 	dir := filepath.Dir(path)
 	tmp, err := os.CreateTemp(dir, "."+filepath.Base(path)+".*.tmp")
 	if err != nil {
