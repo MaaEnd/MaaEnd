@@ -128,7 +128,9 @@ SellProductAfterSellOperator                             （进入售后公共�
 
 SellProduct 缓存统一保存在 `debug/record/SellProductCache.json`，按哈希 UID 隔离完整干员快照与据点发展值状态：
 
+- `operators` 和 `locations` 都保存 `selection_data.json` 中的稳定 ID；不再保存中文名，也不依赖客户端语言。
 - `operators` 只保存完整列表扫描结果；字段为 `null` 表示尚未完成扫描，空数组才表示完整扫描后没有相关干员。
+- 缓存不设置格式版本，也不迁移旧版 `SellProductOwnedOperators.json` 或旧中文缓存。JSON 结构不兼容、包含未知字段、中文名称、空 ID 或当前生成数据中不存在的 ID 时，整份缓存直接视为不存在，并在下次运行重新完整扫描。
 - 当前账号没有快照时，Pipeline 会先完整扫描干员列表并写入缓存，再开始规划与售卖。
 - 已有快照时直接复用；“本次运行前强制刷新”会忽略现有快照，在本次任务首次进入地区时完整扫描一次，同一任务的后续地区复用结果。
 - 只有首次建立或主动强制刷新的全局扫描允许写入缓存；据点内选人时的局部滚动扫描不会覆盖已有快照。

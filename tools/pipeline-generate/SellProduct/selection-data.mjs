@@ -57,17 +57,6 @@ export function buildLocalizedNames(names = {}) {
     return completeLocalizedNames(localizedNamesFromSource(names));
 }
 
-function operatorCacheName(operator) {
-    return (
-        operator.name?.CN ||
-        operator.name?.TC ||
-        operator.name?.EN ||
-        operator.name?.JP ||
-        operator.name?.KR ||
-        operator.charId
-    );
-}
-
 function parseOperatorCharId(operator) {
     const charId = operator?.charId?.trim() || "";
     const match = OPERATOR_CHAR_ID_PATTERN.exec(charId);
@@ -112,7 +101,6 @@ function registerOperator(operators, operator) {
 
     const previous = operators[name];
     operators[name] = {
-        cache_name: previous?.cache_name || operatorCacheName(operator) || name,
         names: {
             ...(previous?.names || {}),
             ...names,

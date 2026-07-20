@@ -8,8 +8,7 @@ package sellproduct
 //   - target（售卖）：先取当前据点的最高售卖档，再优先选择同时满足恢复条件的完美候选；
 //   - restore（恢复）：把所有启用且尚未恢复的据点放在一起，计算互不重复的全局分配方案。
 
-// 当前账号完整缓存中的拥有干员集合。
-// Operators 的键是跨语言稳定的 CacheName。
+// 当前账号完整缓存中的拥有干员 ID 集合。
 type operatorOwnership struct {
 	Operators map[string]struct{}
 }
@@ -73,7 +72,7 @@ func candidatesForCurrentSelection(p *operatorSelectionParam, owned map[string]s
 	// 恢复阶段同时规划所有启用且尚未完成恢复的据点。
 	available := cloneStringSet(availableOwned)
 	for _, candidate := range p.LockedRestoreAssignments {
-		delete(available, operatorCandidateCacheName(candidate))
+		delete(available, candidate.Name)
 	}
 	preferred, reusable := restorePlanPreferences(p, availableOwned)
 	plan := buildRestoreAssignmentPlanWithPreferencesAndTargets(
@@ -116,7 +115,7 @@ func removeOtherLockedRestoreOperators(
 		if location == currentLocation {
 			continue
 		}
-		delete(available, operatorCandidateCacheName(candidate))
+		delete(available, candidate.Name)
 	}
 }
 
@@ -186,7 +185,7 @@ func restorePlanForTargetCandidate(
 
 	available := cloneStringSet(owned)
 	for _, lockedCandidate := range p.LockedRestoreAssignments {
-		delete(available, operatorCandidateCacheName(lockedCandidate))
+		delete(available, lockedCandidate.Name)
 	}
 	preferred, reusable := restorePlanPreferences(&selection, owned)
 	return buildRestoreAssignmentPlanWithPreferencesAndTargets(
@@ -265,7 +264,7 @@ func restorePlanPreferences(
 		preferred[location] = available[0]
 		names := make(map[string]struct{}, len(available))
 		for _, candidate := range available {
-			names[operatorCandidateCacheName(candidate)] = struct{}{}
+			names[candidate.Name] = struct{}{}
 		}
 		reusable[location] = names
 	}
@@ -370,7 +369,7 @@ func buildRestoreAssignmentPlanWithPreferencesAndTargets(
 			}
 			reusable := reusableCount
 			if names := reusableTargets[group.Location]; names != nil {
-				if _, ok := names[operatorCandidateCacheName(candidate)]; ok {
+				if _, ok := names[candidate.Name]; ok {
 					reusable++
 				}
 			}

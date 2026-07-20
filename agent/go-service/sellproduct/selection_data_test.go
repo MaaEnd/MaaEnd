@@ -9,11 +9,11 @@ func testSellProductSelectionData() *sellProductSelectionDataFile {
 			"item_b": {Names: map[string]string{"zh_cn": "物品乙", "en_us": "Item B"}},
 		},
 		Operators: map[string]selectionDataOperator{
-			"Both":          {CacheName: "双加成", Names: map[string]string{"zh_cn": "双加成", "en_us": "Both"}},
-			"Money":         {CacheName: "收益", Names: map[string]string{"zh_cn": "收益", "en_us": "Money"}},
-			"Build":         {CacheName: "建设", Names: map[string]string{"zh_cn": "建设", "en_us": "Build"}},
-			"Restore":       {CacheName: "恢复", Names: map[string]string{"zh_cn": "恢复", "en_us": "Restore"}},
-			"OtherOperator": {CacheName: "其他干员", Names: map[string]string{"zh_cn": "其他干员", "en_us": "Other Operator"}},
+			"Both":          {Names: map[string]string{"zh_cn": "双加成", "en_us": "Both"}},
+			"Money":         {Names: map[string]string{"zh_cn": "收益", "en_us": "Money"}},
+			"Build":         {Names: map[string]string{"zh_cn": "建设", "en_us": "Build"}},
+			"Restore":       {Names: map[string]string{"zh_cn": "恢复", "en_us": "Restore"}},
+			"OtherOperator": {Names: map[string]string{"zh_cn": "其他干员", "en_us": "Other Operator"}},
 		},
 		LocationOrder: []string{"TestOutpost"},
 		Locations: map[string]selectionDataLocation{

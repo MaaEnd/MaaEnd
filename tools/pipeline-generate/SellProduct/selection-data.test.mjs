@@ -35,6 +35,7 @@ test("SellProduct selection data contains only valid stable references", () => {
         ]);
     }
     for (const operator of Object.values(data.operators)) {
+        assert.equal("cache_name" in operator, false);
         assert.deepEqual(Object.keys(operator.names), [
             "zh_cn",
             "zh_tw",

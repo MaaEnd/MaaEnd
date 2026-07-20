@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -16,8 +17,7 @@ import (
 
 const (
 	// 所有账号共享同一个 JSON 文件，并由 Accounts 按 UID 隔离状态。
-	sellProductCacheFileName       = "SellProductCache.json"
-	legacySellProductCacheFileName = "SellProductOwnedOperators.json"
+	sellProductCacheFileName = "SellProductCache.json"
 	// 尚未捕获 UID 时仍允许使用临时分区，避免把空字符串作为 map 键写入文件。
 	sellProductCacheUnknownUID = "unknown"
 )
@@ -54,17 +54,14 @@ func defaultSellProductCachePath(string) string {
 	return filepath.Join("debug", "record", sellProductCacheFileName)
 }
 
-// readSellProductCache 读取并规范化缓存；文件不存在或为空视为尚未建立缓存，而不是错误。
+// readSellProductCache 读取并规范化缓存；文件不存在、为空或结构不兼容时均视为尚未建立缓存。
 func readSellProductCache(path string) (sellProductCache, error) {
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		if !os.IsNotExist(err) {
-			return sellProductCache{}, fmt.Errorf("read sell product cache: %w", err)
+		if os.IsNotExist(err) {
+			return sellProductCache{}, nil
 		}
-		raw, err = migrateLegacySellProductCache(path)
-		if err != nil {
-			return sellProductCache{}, err
-		}
+		return sellProductCache{}, fmt.Errorf("read sell product cache: %w", err)
 	}
 	if len(raw) == 0 {
 		return sellProductCache{}, nil
@@ -74,31 +71,19 @@ func readSellProductCache(path string) (sellProductCache, error) {
 	decoder := json.NewDecoder(bytes.NewReader(raw))
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(&cache); err != nil {
-		return sellProductCache{}, fmt.Errorf("parse sell product cache: %w", err)
+		return sellProductCache{}, nil
+	}
+	if err := decoder.Decode(&struct{}{}); err != io.EOF {
+		return sellProductCache{}, nil
+	}
+	valid, err := sellProductCacheUsesStableIDs(cache)
+	if err != nil {
+		return sellProductCache{}, fmt.Errorf("validate sell product cache IDs: %w", err)
+	}
+	if !valid {
+		return sellProductCache{}, nil
 	}
 	return normalizeSellProductCache(cache), nil
-}
-
-// migrateLegacySellProductCache 在新缓存不存在时迁移旧文件名，并返回原文件内容。
-func migrateLegacySellProductCache(path string) ([]byte, error) {
-	if filepath.Base(path) != sellProductCacheFileName {
-		return nil, nil
-	}
-	legacyPath := filepath.Join(filepath.Dir(path), legacySellProductCacheFileName)
-	raw, err := os.ReadFile(legacyPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
-		}
-		return nil, fmt.Errorf("read legacy sell product cache: %w", err)
-	}
-	if err := os.Rename(legacyPath, path); err != nil {
-		// 并发迁移时若另一调用已经完成重命名，优先使用新文件；否则本次仍可复用旧内容。
-		if current, currentErr := os.ReadFile(path); currentErr == nil {
-			return current, nil
-		}
-	}
-	return raw, nil
 }
 
 // writeSellProductCache 规范化并格式化缓存，然后使用原子替换方式写盘。
@@ -118,6 +103,28 @@ func writeSellProductCache(path string, cache sellProductCache) error {
 	return nil
 }
 
+// sellProductCacheUsesStableIDs 验证缓存只包含当前生成数据里的精确干员与据点 ID。
+// 旧中文缓存、空 ID 或未知 ID 都会让整份缓存视为不存在，由 Pipeline 重新完整扫描。
+func sellProductCacheUsesStableIDs(cache sellProductCache) (bool, error) {
+	data, err := loadSellProductSelectionDataCached()
+	if err != nil {
+		return false, err
+	}
+	for _, account := range cache.Accounts {
+		for _, operatorID := range account.Operators {
+			if _, ok := data.Operators[operatorID]; !ok {
+				return false, nil
+			}
+		}
+		for locationID := range account.Locations {
+			if _, ok := data.Locations[locationID]; !ok {
+				return false, nil
+			}
+		}
+	}
+	return true, nil
+}
+
 // mergeOperatorSnapshot 用一次完整列表扫描结果替换当前账号的干员快照。
 func mergeOperatorSnapshot(
 	cache sellProductCache,
@@ -128,7 +135,7 @@ func mergeOperatorSnapshot(
 ) sellProductCache {
 	uid = normalizeSellProductCacheUID(uid)
 	operatorSet := make(map[string]struct{}, len(owned))
-	scanSet := operatorCandidateCacheNameSet(scanCandidates)
+	scanSet := operatorCandidateIDSet(scanCandidates)
 
 	for _, name := range owned {
 		if _, ok := scanSet[name]; ok {
@@ -147,8 +154,8 @@ func sellProductCacheHasOperatorSnapshot(cache sellProductCache, uid string) boo
 	return ok && account.Operators != nil
 }
 
-// cachedOperatorNamesForUID 返回指定账号的规范化干员列表。
-func cachedOperatorNamesForUID(cache sellProductCache, uid string) []string {
+// cachedOperatorIDsForUID 返回指定账号的规范化干员 ID 列表。
+func cachedOperatorIDsForUID(cache sellProductCache, uid string) []string {
 	uid = normalizeSellProductCacheUID(uid)
 	account, ok := normalizeSellProductCache(cache).Accounts[uid]
 	if !ok {
@@ -409,15 +416,14 @@ func operatorNameSet(names []string) map[string]struct{} {
 	return set
 }
 
-// operatorCandidateCacheNameSet 提取候选域中所有稳定缓存键。
-func operatorCandidateCacheNameSet(candidates []operatorCandidate) map[string]struct{} {
+// operatorCandidateIDSet 提取候选域中的内部稳定 ID。
+func operatorCandidateIDSet(candidates []operatorCandidate) map[string]struct{} {
 	set := make(map[string]struct{}, len(candidates))
 	for _, candidate := range candidates {
-		name := operatorCandidateCacheName(candidate)
-		if name == "" {
+		if candidate.Name == "" {
 			continue
 		}
-		set[name] = struct{}{}
+		set[candidate.Name] = struct{}{}
 	}
 	return set
 }

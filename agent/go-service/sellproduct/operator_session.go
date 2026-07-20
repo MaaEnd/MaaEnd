@@ -131,7 +131,7 @@ func (a *OperatorSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		log.Warn().Str("component", operatorSessionActionName).
 			Str("usage", p.Usage).
 			Str("location", p.Location).
-			Str("operator", operatorCandidateCacheName(candidate)).
+			Str("operator", candidate.Name).
 			Msg("operator excluded after already assigned prompt")
 		printRuntimeOperatorConflict(ctx, p.Location, p.Usage, candidate)
 	default:
@@ -295,7 +295,7 @@ func operatorSessionExcludeSelected(usage string, location string) (operatorCand
 	if !ok {
 		return operatorCandidate{}, false
 	}
-	operatorSession.ExcludedOperators[operatorCandidateCacheName(candidate)] = struct{}{}
+	operatorSession.ExcludedOperators[candidate.Name] = struct{}{}
 	return candidate, true
 }
 

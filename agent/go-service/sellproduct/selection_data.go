@@ -35,8 +35,7 @@ type selectionDataItem struct {
 }
 
 type selectionDataOperator struct {
-	CacheName string            `json:"cache_name"`
-	Names     map[string]string `json:"names"`
+	Names map[string]string `json:"names"`
 }
 
 type selectionDataTargetOperator struct {
@@ -142,7 +141,6 @@ func selectionOperatorCandidate(
 	}
 	candidate := operatorCandidate{
 		Name:                          name,
-		CacheName:                     operator.CacheName,
 		DisplayName:                   localizedSelectionName(operator.Names, name),
 		Expected:                      selectionExpectedNames(operator.Names),
 		Priority:                      priority,

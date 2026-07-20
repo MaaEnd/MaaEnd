@@ -255,7 +255,6 @@
     },
     "operators": {
         "Perlica": {
-            "cache_name": "佩丽卡",
             "names": {
                 "zh_cn": "佩丽卡",
                 "zh_tw": "佩麗卡",
@@ -265,7 +264,6 @@
             }
         },
         "ChenQianyu": {
-            "cache_name": "陈千语",
             "names": {
                 "zh_cn": "陈千语",
                 "zh_tw": "陳千語",
@@ -275,7 +273,6 @@
             }
         },
         "Wulfgard": {
-            "cache_name": "狼卫",
             "names": {
                 "zh_cn": "狼卫",
                 "zh_tw": "狼衛",
@@ -285,7 +282,6 @@
             }
         },
         "Arclight": {
-            "cache_name": "弧光",
             "names": {
                 "zh_cn": "弧光",
                 "zh_tw": "弧光",
@@ -295,7 +291,6 @@
             }
         },
         "Ember": {
-            "cache_name": "余烬",
             "names": {
                 "zh_cn": "余烬",
                 "zh_tw": "餘燼",
@@ -305,7 +300,6 @@
             }
         },
         "Xaihi": {
-            "cache_name": "赛希",
             "names": {
                 "zh_cn": "赛希",
                 "zh_tw": "賽希",
@@ -315,7 +309,6 @@
             }
         },
         "Avywenna": {
-            "cache_name": "艾维文娜",
             "names": {
                 "zh_cn": "艾维文娜",
                 "zh_tw": "艾維文娜",
@@ -325,7 +318,6 @@
             }
         },
         "Gilberta": {
-            "cache_name": "洁尔佩塔",
             "names": {
                 "zh_cn": "洁尔佩塔",
                 "zh_tw": "潔爾佩塔",
@@ -335,7 +327,6 @@
             }
         },
         "Snowshine": {
-            "cache_name": "昼雪",
             "names": {
                 "zh_cn": "昼雪",
                 "zh_tw": "晝雪",
@@ -345,7 +336,6 @@
             }
         },
         "Lifeng": {
-            "cache_name": "黎风",
             "names": {
                 "zh_cn": "黎风",
                 "zh_tw": "黎風",
@@ -355,7 +345,6 @@
             }
         },
         "Laevatain": {
-            "cache_name": "莱万汀",
             "names": {
                 "zh_cn": "莱万汀",
                 "zh_tw": "萊萬汀",
@@ -365,7 +354,6 @@
             }
         },
         "Yvonne": {
-            "cache_name": "伊冯",
             "names": {
                 "zh_cn": "伊冯",
                 "zh_tw": "伊馮",
@@ -375,7 +363,6 @@
             }
         },
         "DaPan": {
-            "cache_name": "大潘",
             "names": {
                 "zh_cn": "大潘",
                 "zh_tw": "大潘",
@@ -385,7 +372,6 @@
             }
         },
         "Akekuri": {
-            "cache_name": "秋栗",
             "names": {
                 "zh_cn": "秋栗",
                 "zh_tw": "秋栗",
@@ -395,7 +381,6 @@
             }
         },
         "Catcher": {
-            "cache_name": "卡契尔",
             "names": {
                 "zh_cn": "卡契尔",
                 "zh_tw": "卡契爾",
@@ -405,7 +390,6 @@
             }
         },
         "Estella": {
-            "cache_name": "埃特拉",
             "names": {
                 "zh_cn": "埃特拉",
                 "zh_tw": "埃特拉",
@@ -415,7 +399,6 @@
             }
         },
         "Fluorite": {
-            "cache_name": "萤石",
             "names": {
                 "zh_cn": "萤石",
                 "zh_tw": "螢石",
@@ -425,7 +408,6 @@
             }
         },
         "Antal": {
-            "cache_name": "安塔尔",
             "names": {
                 "zh_cn": "安塔尔",
                 "zh_tw": "安塔爾",
@@ -435,7 +417,6 @@
             }
         },
         "Alesh": {
-            "cache_name": "阿列什",
             "names": {
                 "zh_cn": "阿列什",
                 "zh_tw": "阿列什",
@@ -445,7 +426,6 @@
             }
         },
         "Ardelia": {
-            "cache_name": "艾尔黛拉",
             "names": {
                 "zh_cn": "艾尔黛拉",
                 "zh_tw": "艾爾黛拉",
@@ -455,7 +435,6 @@
             }
         },
         "LastRite": {
-            "cache_name": "别礼",
             "names": {
                 "zh_cn": "别礼",
                 "zh_tw": "別禮",
@@ -465,7 +444,6 @@
             }
         },
         "Tangtang": {
-            "cache_name": "汤汤",
             "names": {
                 "zh_cn": "汤汤",
                 "zh_tw": "湯湯",
@@ -475,7 +453,6 @@
             }
         },
         "Rossi": {
-            "cache_name": "洛茜",
             "names": {
                 "zh_cn": "洛茜",
                 "zh_tw": "洛西",
@@ -485,7 +462,6 @@
             }
         },
         "Pogranichnik": {
-            "cache_name": "骏卫",
             "names": {
                 "zh_cn": "骏卫",
                 "zh_tw": "駿衛",
@@ -495,7 +471,6 @@
             }
         },
         "ZhuangFangyi": {
-            "cache_name": "庄方宜",
             "names": {
                 "zh_cn": "庄方宜",
                 "zh_tw": "莊方宜",
@@ -505,7 +480,6 @@
             }
         },
         "MiFu": {
-            "cache_name": "弭弗",
             "names": {
                 "zh_cn": "弭弗",
                 "zh_tw": "弭弗",
@@ -515,7 +489,6 @@
             }
         },
         "Arcane": {
-            "cache_name": "诀",
             "names": {
                 "zh_cn": "诀",
                 "zh_tw": "訣",
@@ -525,7 +498,6 @@
             }
         },
         "Camille": {
-            "cache_name": "卡缪",
             "names": {
                 "zh_cn": "卡缪",
                 "zh_tw": "卡繆",

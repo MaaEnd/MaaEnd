@@ -43,7 +43,7 @@ func TestOperatorSessionExcludesSelectedOperators(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			resetOperatorSessionForTest(t, operatorCacheModeCache)
 			location := "RefugeeCamp"
-			candidate := operatorCandidate{Name: "Perlica", CacheName: "佩丽卡"}
+			candidate := operatorCandidate{Name: "Perlica"}
 			test.prepare(location, candidate)
 
 			excluded, ok := operatorSessionExcludeSelected(test.usage, location)
@@ -51,8 +51,8 @@ func TestOperatorSessionExcludesSelectedOperators(t *testing.T) {
 				t.Fatalf("排除结果 = %+v，成功状态 = %v", excluded, ok)
 			}
 			session := operatorSessionSnapshot()
-			if _, ok := session.ExcludedOperators[candidate.CacheName]; !ok {
-				t.Fatalf("临时排除集合中缺少 %q", candidate.CacheName)
+			if _, ok := session.ExcludedOperators[candidate.Name]; !ok {
+				t.Fatalf("临时排除集合中缺少 %q", candidate.Name)
 			}
 			if test.remaining(session, location) {
 				t.Fatal("派驻冲突后仍残留待确认的干员分配")
@@ -161,8 +161,8 @@ func TestOperatorSessionResetLoadsOutpostProsperityCache(t *testing.T) {
 		Accounts: map[string]sellProductCacheAccount{
 			uid: {
 				Locations: map[string]bool{
-					"Full": true,
-					"Open": false,
+					"RefugeeCamp":      true,
+					"ReconstructionHQ": false,
 				},
 			},
 		},
@@ -173,10 +173,10 @@ func TestOperatorSessionResetLoadsOutpostProsperityCache(t *testing.T) {
 	operatorSessionReset(operatorCacheModeCache)
 	maxLocations := operatorSessionSnapshot().OutpostProsperityMaxLocations
 	if len(maxLocations) != 1 {
-		t.Fatalf("初始化后的满级据点 = %#v，期望仅包含 Full", maxLocations)
+		t.Fatalf("初始化后的满级据点 = %#v，期望仅包含 RefugeeCamp", maxLocations)
 	}
-	if _, ok := maxLocations["Full"]; !ok {
-		t.Fatal("会话初始化未加载 Full 的满级状态")
+	if _, ok := maxLocations["RefugeeCamp"]; !ok {
+		t.Fatal("会话初始化未加载 RefugeeCamp 的满级状态")
 	}
 }
 
@@ -186,9 +186,9 @@ func TestOperatorSessionUsesObservedStatusWhenProsperityCacheCannotBeWritten(t *
 	if err := os.MkdirAll(path, 0755); err != nil {
 		t.Fatalf("准备不可写缓存路径失败：%v", err)
 	}
-	location := "Full"
+	location := "RefugeeCamp"
 	if ok := (&OperatorSessionAction{}).Run(nil, &maa.CustomActionArg{
-		CustomActionParam: `{"operation":"enter_location","location":"Full","outpost_prosperity_max":true}`,
+		CustomActionParam: `{"operation":"enter_location","location":"RefugeeCamp","outpost_prosperity_max":true}`,
 	}); !ok {
 		t.Fatal("缓存写入失败不应阻断据点状态更新")
 	}
@@ -199,7 +199,7 @@ func TestOperatorSessionUsesObservedStatusWhenProsperityCacheCannotBeWritten(t *
 
 func TestOperatorSessionLocksCompletedRestoreAssignment(t *testing.T) {
 	resetOperatorSessionForTest(t, operatorCacheModeCache)
-	candidate := operatorCandidate{Name: "Perlica", CacheName: "佩丽卡"}
+	candidate := operatorCandidate{Name: "Perlica"}
 	operatorSessionSetPlannedRestore("ReconstructionCommand", candidate, true)
 	completed, ok := operatorSessionCompleteRestore("ReconstructionCommand")
 	if !ok || completed.Name != candidate.Name {

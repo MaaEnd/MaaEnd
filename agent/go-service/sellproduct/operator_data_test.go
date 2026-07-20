@@ -11,7 +11,7 @@ func TestBuildOperatorSelectionDataUsesGeneratedOrder(t *testing.T) {
 	if len(target) != 3 {
 		t.Fatalf("target candidates = %#v", target)
 	}
-	if target[0].Name != "Both" || target[0].Priority != 0 || target[0].BonusTier != 0 || target[0].CacheName != "双加成" {
+	if target[0].Name != "Both" || target[0].Priority != 0 || target[0].BonusTier != 0 {
 		t.Fatalf("first target candidate = %#v", target[0])
 	}
 	if target[1].Name != "Money" || target[1].Priority != 1 || target[1].BonusTier != 1 {
@@ -94,12 +94,12 @@ func TestResolveOperatorSelectionParamUsesDataFileCandidates(t *testing.T) {
 	}()
 	loadOperatorSelectionDataFunc = func() (*operatorSelectionData, error) {
 		return &operatorSelectionData{
-			KnownOperators: []operatorCandidate{{Name: "Known", CacheName: "已知", Expected: []string{"已知"}}},
+			KnownOperators: []operatorCandidate{{Name: "Known", Expected: []string{"已知"}}},
 			TargetCandidates: map[string][]operatorCandidate{
-				"A": {{Name: "Target", CacheName: "目标", Expected: []string{"目标"}}},
+				"A": {{Name: "Target", Expected: []string{"目标"}}},
 			},
 			RestoreGroups: []operatorCandidateGroup{
-				{Location: "A", Candidates: []operatorCandidate{{Name: "Restore", CacheName: "恢复", Expected: []string{"恢复"}}}},
+				{Location: "A", Candidates: []operatorCandidate{{Name: "Restore", Expected: []string{"恢复"}}}},
 			},
 		}, nil
 	}
@@ -182,9 +182,9 @@ func TestResolveOperatorSelectionParamRejectsInactiveLocation(t *testing.T) {
 	}()
 	loadOperatorSelectionDataFunc = func() (*operatorSelectionData, error) {
 		return &operatorSelectionData{
-			KnownOperators: []operatorCandidate{{Name: "Known", CacheName: "已知", Expected: []string{"已知"}}},
+			KnownOperators: []operatorCandidate{{Name: "Known", Expected: []string{"已知"}}},
 			TargetCandidates: map[string][]operatorCandidate{
-				"Inactive": {{Name: "Target", CacheName: "目标", Expected: []string{"目标"}}},
+				"Inactive": {{Name: "Target", Expected: []string{"目标"}}},
 			},
 		}, nil
 	}

@@ -11,15 +11,15 @@ func TestCandidatesForCurrentSelectionSkipsTemporarilyExcludedOperator(t *testin
 		Usage:    operatorActionUsageTarget,
 		Location: "RefugeeCamp",
 		Candidates: []operatorCandidate{
-			{Name: "Best", CacheName: "最优", Priority: 0},
-			{Name: "Fallback", CacheName: "备选", Priority: 1},
+			{Name: "Best", Priority: 0},
+			{Name: "Fallback", Priority: 1},
 		},
 		ExcludedOperators: map[string]struct{}{
-			"最优": {},
+			"Best": {},
 		},
 	}
 
-	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"最优", "备选"}))
+	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"Best", "Fallback"}))
 	if len(candidates) != 1 || candidates[0].Name != "Fallback" {
 		t.Fatalf("候选 = %#v，期望仅包含 Fallback", candidates)
 	}
@@ -37,17 +37,17 @@ func TestRestoreSelectionReplansAfterTemporaryExclusion(t *testing.T) {
 			{
 				Location: "RefugeeCamp",
 				Candidates: []operatorCandidate{
-					{Name: "Best", CacheName: "最优", Priority: 0},
-					{Name: "Fallback", CacheName: "备选", Priority: 1},
+					{Name: "Best", Priority: 0},
+					{Name: "Fallback", Priority: 1},
 				},
 			},
 		},
 		ExcludedOperators: map[string]struct{}{
-			"最优": {},
+			"Best": {},
 		},
 	}
 
-	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"最优", "备选"}))
+	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"Best", "Fallback"}))
 	if len(candidates) != 1 || candidates[0].Name != "Fallback" {
 		t.Fatalf("恢复候选 = %#v，期望重新规划为 Fallback", candidates)
 	}
@@ -59,15 +59,15 @@ func TestBuildRestoreAssignmentPlanUniqueOperators(t *testing.T) {
 		{
 			Location: "A",
 			Candidates: []operatorCandidate{
-				{Name: "Shared", CacheName: "Shared", Priority: 0},
-				{Name: "AOnly", CacheName: "AOnly", Priority: 1},
+				{Name: "Shared", Priority: 0},
+				{Name: "AOnly", Priority: 1},
 			},
 		},
 		{
 			Location: "B",
 			Candidates: []operatorCandidate{
-				{Name: "Shared", CacheName: "Shared", Priority: 0},
-				{Name: "BOnly", CacheName: "BOnly", Priority: 1},
+				{Name: "Shared", Priority: 0},
+				{Name: "BOnly", Priority: 1},
 			},
 		},
 	}
@@ -96,14 +96,14 @@ func TestBuildRestoreAssignmentPlanMaximizesAssignedLocations(t *testing.T) {
 		{
 			Location: "A",
 			Candidates: []operatorCandidate{
-				{Name: "Shared", CacheName: "Shared", Priority: 0},
-				{Name: "AOnly", CacheName: "AOnly", Priority: 9},
+				{Name: "Shared", Priority: 0},
+				{Name: "AOnly", Priority: 9},
 			},
 		},
 		{
 			Location: "B",
 			Candidates: []operatorCandidate{
-				{Name: "Shared", CacheName: "Shared", Priority: 0},
+				{Name: "Shared", Priority: 0},
 			},
 		},
 	}
@@ -127,14 +127,14 @@ func TestBuildRestoreAssignmentPlanPrefersKeepingTargetOperator(t *testing.T) {
 		{
 			Location: "RefugeeCamp",
 			Candidates: []operatorCandidate{
-				{Name: "Antal", CacheName: "安塔尔", Priority: 0},
-				{Name: "Laevatain", CacheName: "莱万汀", Priority: 1},
+				{Name: "Antal", Priority: 0},
+				{Name: "Laevatain", Priority: 1},
 			},
 		},
 	}
-	owned := operatorNameSet([]string{"安塔尔", "莱万汀"})
+	owned := operatorNameSet([]string{"Antal", "Laevatain"})
 	preferred := map[string]operatorCandidate{
-		"RefugeeCamp": {Name: "Laevatain", CacheName: "莱万汀"},
+		"RefugeeCamp": {Name: "Laevatain"},
 	}
 
 	plan := buildRestoreAssignmentPlanWithPreferences(groups, owned, preferred)
@@ -152,18 +152,18 @@ func TestBuildRestoreAssignmentPlanDoesNotSacrificeCoverageToKeepTarget(t *testi
 		{
 			Location: "A",
 			Candidates: []operatorCandidate{
-				{Name: "Shared", CacheName: "共享", Priority: 0},
-				{Name: "AOnly", CacheName: "甲专属", Priority: 1},
+				{Name: "Shared", Priority: 0},
+				{Name: "AOnly", Priority: 1},
 			},
 		},
 		{
 			Location:   "B",
-			Candidates: []operatorCandidate{{Name: "Shared", CacheName: "共享", Priority: 0}},
+			Candidates: []operatorCandidate{{Name: "Shared", Priority: 0}},
 		},
 	}
-	owned := operatorNameSet([]string{"共享", "甲专属"})
+	owned := operatorNameSet([]string{"Shared", "AOnly"})
 	preferred := map[string]operatorCandidate{
-		"A": {Name: "Shared", CacheName: "共享"},
+		"A": {Name: "Shared"},
 	}
 
 	plan := buildRestoreAssignmentPlanWithPreferences(groups, owned, preferred)
@@ -191,14 +191,14 @@ func TestCandidatesForCurrentSelectionUsesGlobalRestorePlan(t *testing.T) {
 			{
 				Location: "A",
 				Candidates: []operatorCandidate{
-					{Name: "Shared", CacheName: "Shared", Priority: 0},
-					{Name: "AOnly", CacheName: "AOnly", Priority: 9},
+					{Name: "Shared", Priority: 0},
+					{Name: "AOnly", Priority: 9},
 				},
 			},
 			{
 				Location: "B",
 				Candidates: []operatorCandidate{
-					{Name: "Shared", CacheName: "Shared", Priority: 0},
+					{Name: "Shared", Priority: 0},
 				},
 			},
 		},
@@ -230,11 +230,11 @@ func TestCandidatesForCurrentSelectionReturnsOnlyGlobalBestTarget(t *testing.T) 
 	p := &operatorSelectionParam{
 		Usage: operatorActionUsageTarget,
 		Candidates: []operatorCandidate{
-			{Name: "Best", CacheName: "最优", Priority: 0, BonusTier: 0},
-			{Name: "Fallback", CacheName: "备选", Priority: 1, BonusTier: 1},
+			{Name: "Best", Priority: 0, BonusTier: 0},
+			{Name: "Fallback", Priority: 1, BonusTier: 1},
 		},
 	}
-	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"最优", "备选"}))
+	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"Best", "Fallback"}))
 	if len(candidates) != 1 || candidates[0].Name != "Best" {
 		t.Fatalf("候选 = %#v，期望仅包含 Best", candidates)
 	}
@@ -247,12 +247,12 @@ func TestCandidatesForCurrentSelectionPrioritizesOutpostProsperity(t *testing.T)
 		Usage:    operatorActionUsageTarget,
 		Location: "Current",
 		Candidates: []operatorCandidate{
-			{Name: "Prosperity", CacheName: "发展值", Priority: 0, BonusTier: 1},
-			{Name: "TradeProfit", CacheName: "交易收益", Priority: 1, BonusTier: 2},
+			{Name: "Prosperity", Priority: 0, BonusTier: 1},
+			{Name: "TradeProfit", Priority: 1, BonusTier: 2},
 		},
 	}
 
-	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"发展值", "交易收益"}))
+	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"Prosperity", "TradeProfit"}))
 	if len(candidates) != 1 || candidates[0].Name != "Prosperity" {
 		t.Fatalf("发展值未满时的售卖候选 = %#v，期望优先 Prosperity", candidates)
 	}
@@ -263,14 +263,14 @@ func TestEquivalentTargetCandidatesIncludeAllBestBonusOperators(t *testing.T) {
 		Usage:    operatorActionUsageTarget,
 		Location: "XiranflowCloudseederStation",
 		Candidates: []operatorCandidate{
-			{Name: "Lifeng", CacheName: "黎风", Priority: 0, BonusTier: 0},
-			{Name: "Arcane", CacheName: "诀", Priority: 1, BonusTier: 0},
-			{Name: "Ardelia", CacheName: "艾尔黛拉", Priority: 2, BonusTier: 1},
+			{Name: "Lifeng", Priority: 0, BonusTier: 0},
+			{Name: "Arcane", Priority: 1, BonusTier: 0},
+			{Name: "Ardelia", Priority: 2, BonusTier: 1},
 		},
 	}
 
 	candidates := equivalentTargetCandidatesForOwnership(p, operatorOwnership{
-		Operators: operatorNameSet([]string{"黎风", "诀", "艾尔黛拉"}),
+		Operators: operatorNameSet([]string{"Lifeng", "Arcane", "Ardelia"}),
 	})
 	if len(candidates) != 2 || candidates[0].Name != "Lifeng" || candidates[1].Name != "Arcane" {
 		t.Fatalf("同档候选 = %#v，期望 Lifeng、Arcane", candidates)
@@ -283,18 +283,18 @@ func TestPreferredTargetCandidatesPrioritizesPerfectOperator(t *testing.T) {
 		Usage:    operatorActionUsageTarget,
 		Location: "Current",
 		Candidates: []operatorCandidate{
-			{Name: "SellOnly", CacheName: "仅售卖", Priority: 0, BonusTier: 0},
-			{Name: "Perfect", CacheName: "完美", Priority: 1, BonusTier: 0},
+			{Name: "SellOnly", Priority: 0, BonusTier: 0},
+			{Name: "Perfect", Priority: 1, BonusTier: 0},
 		},
 		RestoreGroups: []operatorCandidateGroup{
 			{
 				Location:   "Current",
-				Candidates: []operatorCandidate{{Name: "Perfect", CacheName: "完美"}},
+				Candidates: []operatorCandidate{{Name: "Perfect"}},
 			},
 		},
 	}
 
-	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"仅售卖", "完美"}))
+	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"SellOnly", "Perfect"}))
 	if len(candidates) != 1 || candidates[0].Name != "Perfect" {
 		t.Fatalf("售卖候选 = %#v，期望选择同时满足售卖与恢复的 Perfect", candidates)
 	}
@@ -306,18 +306,18 @@ func TestPreferredTargetCandidatesFallsBackToBestSellingTier(t *testing.T) {
 		Usage:    operatorActionUsageTarget,
 		Location: "Current",
 		Candidates: []operatorCandidate{
-			{Name: "SellOnly", CacheName: "仅售卖", Priority: 0, BonusTier: 0},
-			{Name: "Perfect", CacheName: "完美", Priority: 1, BonusTier: 0},
+			{Name: "SellOnly", Priority: 0, BonusTier: 0},
+			{Name: "Perfect", Priority: 1, BonusTier: 0},
 		},
 		RestoreGroups: []operatorCandidateGroup{
 			{
 				Location:   "Current",
-				Candidates: []operatorCandidate{{Name: "Perfect", CacheName: "完美"}},
+				Candidates: []operatorCandidate{{Name: "Perfect"}},
 			},
 		},
 	}
 
-	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"仅售卖"}))
+	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"SellOnly"}))
 	if len(candidates) != 1 || candidates[0].Name != "SellOnly" {
 		t.Fatalf("售卖候选 = %#v，期望在未拥有完美候选时回退到 SellOnly", candidates)
 	}
@@ -331,14 +331,12 @@ func TestOutpostProsperityMaxTreatsMoneyAndProductionAsPerfect(t *testing.T) {
 		Candidates: []operatorCandidate{
 			{
 				Name:                          "DevelopmentAndMoney",
-				CacheName:                     "发展与收益",
 				Priority:                      0,
 				BonusTier:                     0,
 				OutpostProsperityMaxBonusTier: 0,
 			},
 			{
 				Name:                          "MoneyAndProduction",
-				CacheName:                     "收益与生产",
 				Priority:                      1,
 				BonusTier:                     1,
 				OutpostProsperityMaxBonusTier: 0,
@@ -348,12 +346,12 @@ func TestOutpostProsperityMaxTreatsMoneyAndProductionAsPerfect(t *testing.T) {
 			{
 				Location: "Current",
 				Candidates: []operatorCandidate{
-					{Name: "MoneyAndProduction", CacheName: "收益与生产"},
+					{Name: "MoneyAndProduction"},
 				},
 			},
 		},
 	}
-	owned := operatorNameSet([]string{"发展与收益", "收益与生产"})
+	owned := operatorNameSet([]string{"DevelopmentAndMoney", "MoneyAndProduction"})
 
 	notMax := candidatesForCurrentSelection(p, owned)
 	if len(notMax) != 1 || notMax[0].Name != "DevelopmentAndMoney" {
@@ -393,7 +391,7 @@ func TestCachedOutpostProsperityChangesGeneratedSellingOperator(t *testing.T) {
 				sellProductCache{
 					Accounts: map[string]sellProductCacheAccount{
 						uid: {
-							Operators: []string{"莱万汀", "阿列什"},
+							Operators: []string{"Laevatain", "Alesh"},
 							Locations: map[string]bool{location: tt.outpostProsperityMax},
 						},
 					},
@@ -454,7 +452,7 @@ func TestCachedProsperityPlanningFollowsGameOrderAndPrioritizesPerfectMatches(t 
 	}{
 		{
 			name:      "后续据点已有完美替代",
-			operators: []string{"卡缪", "莱万汀", "洁尔佩塔"},
+			operators: []string{"Camille", "Laevatain", "Gilberta"},
 			expected: map[string]string{
 				"RefugeeCamp":      "Laevatain",
 				"ReconstructionHQ": "Gilberta",
@@ -462,7 +460,7 @@ func TestCachedProsperityPlanningFollowsGameOrderAndPrioritizesPerfectMatches(t 
 		},
 		{
 			name:                 "后续据点缺少等价替代",
-			operators:            []string{"卡缪", "莱万汀", "阿列什"},
+			operators:            []string{"Camille", "Laevatain", "Alesh"},
 			keepCurrentLaevatain: true,
 			expected: map[string]string{
 				"RefugeeCamp":      "Camille",
@@ -579,14 +577,12 @@ func TestObservedOutpostProsperityChangeReplansFutureAssignments(t *testing.T) {
 				futureLocation: {
 					{
 						Name:                          "Development",
-						CacheName:                     "发展值干员",
 						Priority:                      1,
 						BonusTier:                     1,
 						OutpostProsperityMaxBonusTier: 1,
 					},
 					{
 						Name:                          "TradeProfit",
-						CacheName:                     "交易干员",
 						Priority:                      0,
 						BonusTier:                     2,
 						OutpostProsperityMaxBonusTier: 0,
@@ -597,22 +593,22 @@ func TestObservedOutpostProsperityChangeReplansFutureAssignments(t *testing.T) {
 				{
 					Location: currentLocation,
 					Candidates: []operatorCandidate{
-						{Name: "TradeProfit", CacheName: "交易干员", Priority: 0},
-						{Name: "CurrentOnly", CacheName: "当前专属", Priority: 1},
+						{Name: "TradeProfit", Priority: 0},
+						{Name: "CurrentOnly", Priority: 1},
 					},
 				},
 				{
 					Location: futureLocation,
 					Candidates: []operatorCandidate{
-						{Name: "TradeProfit", CacheName: "交易干员", Priority: 0},
-						{Name: "Development", CacheName: "发展值干员", Priority: 1},
+						{Name: "TradeProfit", Priority: 0},
+						{Name: "Development", Priority: 1},
 					},
 				},
 			},
 			OutpostProsperityMaxLocations: session.OutpostProsperityMaxLocations,
 		}
 	}
-	owned := operatorNameSet([]string{"发展值干员", "交易干员", "当前专属"})
+	owned := operatorNameSet([]string{"Development", "TradeProfit", "CurrentOnly"})
 
 	initial := candidatesForCurrentSelection(selection(), owned)
 	if len(initial) != 1 || initial[0].Name != "CurrentOnly" {
@@ -635,29 +631,29 @@ func TestTargetSelectionMinimizesGlobalOperatorChangesWithinBestBonusTier(t *tes
 			"XiranflowCloudseederStation": {},
 		},
 		Candidates: []operatorCandidate{
-			{Name: "Lifeng", CacheName: "黎风", Priority: 0, BonusTier: 0},
-			{Name: "Arcane", CacheName: "诀", Priority: 1, BonusTier: 0},
+			{Name: "Lifeng", Priority: 0, BonusTier: 0},
+			{Name: "Arcane", Priority: 1, BonusTier: 0},
 		},
 		TargetAssignments: map[string]operatorCandidate{
-			"Other": {Name: "OtherKeeper", CacheName: "其他驻员"},
+			"Other": {Name: "OtherKeeper"},
 		},
 		RestoreGroups: []operatorCandidateGroup{
 			{
 				Location: "Other",
 				Candidates: []operatorCandidate{
-					{Name: "OtherKeeper", CacheName: "其他驻员", Priority: 0},
+					{Name: "OtherKeeper", Priority: 0},
 				},
 			},
 			{
 				Location: "XiranflowCloudseederStation",
 				Candidates: []operatorCandidate{
-					{Name: "ChenQianyu", CacheName: "陈千语", Priority: 0},
-					{Name: "Arcane", CacheName: "诀", Priority: 5},
+					{Name: "ChenQianyu", Priority: 0},
+					{Name: "Arcane", Priority: 5},
 				},
 			},
 		},
 	}
-	owned := operatorNameSet([]string{"黎风", "诀", "陈千语", "其他驻员"})
+	owned := operatorNameSet([]string{"Lifeng", "Arcane", "ChenQianyu", "OtherKeeper"})
 
 	candidates := candidatesForCurrentSelection(p, owned)
 	if len(candidates) != 1 || candidates[0].Name != "Arcane" {
@@ -686,7 +682,7 @@ func TestGeneratedXiranflowPlanKeepsArcaneForSellingAndRestore(t *testing.T) {
 	if err != nil {
 		t.Fatalf("解析盈天台售卖参数失败：%v", err)
 	}
-	owned := operatorNameSet([]string{"黎风", "诀", "陈千语"})
+	owned := operatorNameSet([]string{"Lifeng", "Arcane", "ChenQianyu"})
 
 	target := candidatesForCurrentSelection(targetSelection, owned)
 	if len(target) != 1 || target[0].Name != "Arcane" {
@@ -764,34 +760,34 @@ func TestPlanningMatches20260719LogSnapshot(t *testing.T) {
 
 	// 来源：merged/record/SellProductCache.json，更新时间 2026-07-19T01:29:13Z。
 	owned := operatorNameSet([]string{
-		"伊冯",
-		"余烬",
-		"佩丽卡",
-		"别礼",
-		"卡契尔",
-		"卡缪",
-		"埃特拉",
-		"大潘",
-		"安塔尔",
-		"庄方宜",
-		"弧光",
-		"弭弗",
-		"昼雪",
-		"汤汤",
-		"洁尔佩塔",
-		"洛茜",
-		"狼卫",
-		"秋栗",
-		"艾尔黛拉",
-		"艾维文娜",
-		"莱万汀",
-		"萤石",
-		"诀",
-		"赛希",
-		"阿列什",
-		"陈千语",
-		"骏卫",
-		"黎风",
+		"Yvonne",
+		"Ember",
+		"Perlica",
+		"LastRite",
+		"Catcher",
+		"Camille",
+		"Estella",
+		"DaPan",
+		"Antal",
+		"ZhuangFangyi",
+		"Arclight",
+		"MiFu",
+		"Snowshine",
+		"Tangtang",
+		"Gilberta",
+		"Rossi",
+		"Wulfgard",
+		"Akekuri",
+		"Ardelia",
+		"Avywenna",
+		"Laevatain",
+		"Fluorite",
+		"Arcane",
+		"Xaihi",
+		"Alesh",
+		"ChenQianyu",
+		"Pogranichnik",
+		"Lifeng",
 	})
 	expected := map[string]string{
 		"RefugeeCamp":                  "Laevatain",
@@ -862,28 +858,28 @@ func TestPlanningMatches20260720ProsperityMaxLogSnapshot(t *testing.T) {
 
 	// 来源：install/debug/record/SellProductCache.json，更新时间 2026-07-20T02:56:13Z。
 	owned := operatorNameSet([]string{
-		"余烬",
-		"佩丽卡",
-		"别礼",
-		"卡契尔",
-		"卡缪",
-		"埃特拉",
-		"大潘",
-		"安塔尔",
-		"弧光",
-		"昼雪",
-		"洛茜",
-		"狼卫",
-		"秋栗",
-		"艾尔黛拉",
-		"艾维文娜",
-		"莱万汀",
-		"萤石",
-		"赛希",
-		"阿列什",
-		"陈千语",
-		"骏卫",
-		"黎风",
+		"Ember",
+		"Perlica",
+		"LastRite",
+		"Catcher",
+		"Camille",
+		"Estella",
+		"DaPan",
+		"Antal",
+		"Arclight",
+		"Snowshine",
+		"Rossi",
+		"Wulfgard",
+		"Akekuri",
+		"Ardelia",
+		"Avywenna",
+		"Laevatain",
+		"Fluorite",
+		"Xaihi",
+		"Alesh",
+		"ChenQianyu",
+		"Pogranichnik",
+		"Lifeng",
 	})
 	expected := map[string]string{
 		"SkyKingFlatsConstructionSite": "Wulfgard",
@@ -971,7 +967,7 @@ func TestGeneratedXiranflowRestorePreparesArcaneForNextRunAfterKeepingLifeng(t *
 			location: lifeng,
 		},
 	}
-	ownedNames := []string{"黎风", "诀", "陈千语"}
+	ownedNames := []string{"Lifeng", "Arcane", "ChenQianyu"}
 	owned := operatorNameSet(ownedNames)
 
 	restore := candidatesForCurrentSelection(p, owned)
@@ -1007,15 +1003,15 @@ func TestCandidatesForCurrentSelectionIgnoresInactiveRestoreLocations(t *testing
 		RestoreGroups: []operatorCandidateGroup{
 			{
 				Location:   "Active",
-				Candidates: []operatorCandidate{{Name: "Shared", CacheName: "共享", Priority: 0}},
+				Candidates: []operatorCandidate{{Name: "Shared", Priority: 0}},
 			},
 			{
 				Location:   "Inactive",
-				Candidates: []operatorCandidate{{Name: "Shared", CacheName: "共享", Priority: 0}},
+				Candidates: []operatorCandidate{{Name: "Shared", Priority: 0}},
 			},
 		},
 	}
-	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"共享"}))
+	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"Shared"}))
 	if len(candidates) != 1 || candidates[0].Name != "Shared" {
 		t.Fatalf("候选 = %#v，启用据点应获得 Shared", candidates)
 	}
@@ -1031,25 +1027,25 @@ func TestCandidatesForCurrentSelectionKeepsLockedRestoreAssignments(t *testing.T
 			"Pending": {},
 		},
 		LockedRestoreAssignments: map[string]operatorCandidate{
-			"Done": {Name: "Shared", CacheName: "共享", Priority: 0},
+			"Done": {Name: "Shared", Priority: 0},
 		},
 		RestoreGroups: []operatorCandidateGroup{
 			{
 				Location: "Done",
 				Candidates: []operatorCandidate{
-					{Name: "Shared", CacheName: "共享", Priority: 0},
+					{Name: "Shared", Priority: 0},
 				},
 			},
 			{
 				Location: "Pending",
 				Candidates: []operatorCandidate{
-					{Name: "Shared", CacheName: "共享", Priority: 0},
-					{Name: "PendingOnly", CacheName: "待处理专属", Priority: 1},
+					{Name: "Shared", Priority: 0},
+					{Name: "PendingOnly", Priority: 1},
 				},
 			},
 		},
 	}
-	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"共享", "待处理专属"}))
+	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"Shared", "PendingOnly"}))
 	if len(candidates) != 1 || candidates[0].Name != "PendingOnly" {
 		t.Fatalf("候选 = %#v，期望 PendingOnly", candidates)
 	}
@@ -1065,21 +1061,21 @@ func TestTargetSelectionProtectsOperatorLockedToCompletedLocation(t *testing.T) 
 			"ReconstructionHQ":          {},
 		},
 		Candidates: []operatorCandidate{
-			{Name: "Pogranichnik", CacheName: "骏卫", Priority: 0},
-			{Name: "Fallback", CacheName: "备选", Priority: 1},
+			{Name: "Pogranichnik", Priority: 0},
+			{Name: "Fallback", Priority: 1},
 		},
 		RestoreGroups: []operatorCandidateGroup{
 			{
 				Location:   "ReconstructionHQ",
-				Candidates: []operatorCandidate{{Name: "Pogranichnik", CacheName: "骏卫"}},
+				Candidates: []operatorCandidate{{Name: "Pogranichnik"}},
 			},
 		},
 		LockedRestoreAssignments: map[string]operatorCandidate{
-			"CardiacRemediationStation": {Name: "Pogranichnik", CacheName: "骏卫"},
+			"CardiacRemediationStation": {Name: "Pogranichnik"},
 		},
 	}
 
-	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"骏卫", "备选"}))
+	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"Pogranichnik", "Fallback"}))
 	if len(candidates) != 1 || candidates[0].Name != "Fallback" {
 		t.Fatalf("候选 = %#v，期望保护已恢复干员并改选 Fallback", candidates)
 	}
@@ -1095,18 +1091,18 @@ func TestTargetSelectionMayMoveOperatorFromUnprocessedEnabledLocation(t *testing
 			"ReconstructionHQ":          {},
 		},
 		Candidates: []operatorCandidate{
-			{Name: "Pogranichnik", CacheName: "骏卫", Priority: 0},
-			{Name: "Fallback", CacheName: "备选", Priority: 1},
+			{Name: "Pogranichnik", Priority: 0},
+			{Name: "Fallback", Priority: 1},
 		},
 		RestoreGroups: []operatorCandidateGroup{
 			{
 				Location:   "ReconstructionHQ",
-				Candidates: []operatorCandidate{{Name: "Pogranichnik", CacheName: "骏卫"}},
+				Candidates: []operatorCandidate{{Name: "Pogranichnik"}},
 			},
 		},
 	}
 
-	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"骏卫", "备选"}))
+	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"Pogranichnik", "Fallback"}))
 	if len(candidates) != 1 || candidates[0].Name != "Pogranichnik" {
 		t.Fatalf("候选 = %#v，期望调入尚未完成恢复据点的 Pogranichnik", candidates)
 	}
@@ -1141,9 +1137,9 @@ func TestReconstructionReplanProtectsInfraRestoreFrom20260719NoonLog(t *testing.
 	}
 
 	owned := operatorNameSet([]string{
-		"余烬", "佩丽卡", "别礼", "卡契尔", "卡缪", "埃特拉", "大潘", "安塔尔", "弧光", "昼雪",
-		"洛茜", "狼卫", "秋栗", "艾尔黛拉", "艾维文娜", "莱万汀", "萤石", "赛希", "阿列什", "陈千语",
-		"骏卫", "黎风",
+		"Ember", "Perlica", "LastRite", "Catcher", "Camille", "Estella", "DaPan", "Antal", "Arclight", "Snowshine",
+		"Rossi", "Wulfgard", "Akekuri", "Ardelia", "Avywenna", "Laevatain", "Fluorite", "Xaihi", "Alesh", "ChenQianyu",
+		"Pogranichnik", "Lifeng",
 	})
 	selection, err := resolveOperatorSelectionParam(&operatorActionParam{
 		Usage:    operatorActionUsageTarget,
@@ -1184,14 +1180,14 @@ func TestTargetSelectionMayKeepOperatorLockedToCurrentLocation(t *testing.T) {
 		Usage:    operatorActionUsageTarget,
 		Location: "CardiacRemediationStation",
 		Candidates: []operatorCandidate{
-			{Name: "Pogranichnik", CacheName: "骏卫", Priority: 0},
+			{Name: "Pogranichnik", Priority: 0},
 		},
 		LockedRestoreAssignments: map[string]operatorCandidate{
-			"CardiacRemediationStation": {Name: "Pogranichnik", CacheName: "骏卫"},
+			"CardiacRemediationStation": {Name: "Pogranichnik"},
 		},
 	}
 
-	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"骏卫"}))
+	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"Pogranichnik"}))
 	if len(candidates) != 1 || candidates[0].Name != "Pogranichnik" {
 		t.Fatalf("候选 = %#v，期望当前据点已锁定的干员", candidates)
 	}
@@ -1200,7 +1196,7 @@ func TestTargetSelectionMayKeepOperatorLockedToCurrentLocation(t *testing.T) {
 // TestOperatorSessionTargetAssignmentClearedAfterRestore 验证恢复完成后清除售卖分配并锁定恢复结果。
 func TestOperatorSessionTargetAssignmentClearedAfterRestore(t *testing.T) {
 	resetOperatorSessionForTest(t, operatorCacheModeCache)
-	target := operatorCandidate{Name: "Laevatain", CacheName: "莱万汀"}
+	target := operatorCandidate{Name: "Laevatain"}
 	operatorSessionSetTargetAssignment("RefugeeCamp", target)
 	operatorSessionSetPlannedRestore("RefugeeCamp", target, true)
 
@@ -1235,16 +1231,16 @@ func TestCandidatesForCurrentSelectionIgnoresSkippedRestoreLocations(t *testing.
 		RestoreGroups: []operatorCandidateGroup{
 			{
 				Location:   "Skipped",
-				Candidates: []operatorCandidate{{Name: "Shared", CacheName: "共享", Priority: 0}},
+				Candidates: []operatorCandidate{{Name: "Shared", Priority: 0}},
 			},
 			{
 				Location:   "Pending",
-				Candidates: []operatorCandidate{{Name: "Shared", CacheName: "共享", Priority: 0}},
+				Candidates: []operatorCandidate{{Name: "Shared", Priority: 0}},
 			},
 		},
 	}
 
-	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"共享"}))
+	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"Shared"}))
 	if len(candidates) != 1 || candidates[0].Name != "Shared" {
 		t.Fatalf("候选 = %#v，待处理据点应获得 Shared", candidates)
 	}

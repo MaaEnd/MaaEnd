@@ -42,8 +42,6 @@ const (
 type operatorCandidate struct {
 	// Name 是内部稳定标识，主要用于去重、分配和日志输出。
 	Name string `json:"name"`
-	// CacheName 是跨语言缓存键。
-	CacheName string `json:"cache_name"`
 	// DisplayName 是按当前客户端语言选择的用户可见名称。
 	DisplayName string `json:"display_name"`
 	// Expected 是传给 OCR 匹配逻辑的多语言名称集合。
@@ -130,10 +128,9 @@ func normalizeOperatorCandidates(candidates []operatorCandidate) []operatorCandi
 	seen := make(map[string]struct{}, len(candidates))
 	for _, candidate := range candidates {
 		candidate.Name = strings.TrimSpace(candidate.Name)
-		candidate.CacheName = strings.TrimSpace(candidate.CacheName)
 		candidate.DisplayName = strings.TrimSpace(candidate.DisplayName)
 		candidate.Expected = uniqueNonEmptyStrings(candidate.Expected)
-		if candidate.Name == "" || candidate.CacheName == "" || len(candidate.Expected) == 0 {
+		if candidate.Name == "" || len(candidate.Expected) == 0 {
 			continue
 		}
 		if _, ok := seen[candidate.Name]; ok {
@@ -196,24 +193,18 @@ func normalizeOperatorCandidateGroups(groups []operatorCandidateGroup) []operato
 	return normalized
 }
 
-// filterOwnedCandidates 从候选集中筛出当前账号已经拥有的干员。
-// 缓存使用 CacheName，而分配阶段使用 Name，因此这里必须先统一转换缓存键。
+// filterOwnedCandidates 从候选集中筛出当前账号已经拥有的干员 ID。
 func filterOwnedCandidates(candidates []operatorCandidate, owned map[string]struct{}) []operatorCandidate {
 	if len(candidates) == 0 || len(owned) == 0 {
 		return nil
 	}
 	filtered := make([]operatorCandidate, 0, len(candidates))
 	for _, candidate := range candidates {
-		if _, ok := owned[operatorCandidateCacheName(candidate)]; ok {
+		if _, ok := owned[candidate.Name]; ok {
 			filtered = append(filtered, candidate)
 		}
 	}
 	return filtered
-}
-
-// operatorCandidateCacheName 返回候选在本地拥有列表中的稳定键。
-func operatorCandidateCacheName(candidate operatorCandidate) string {
-	return candidate.CacheName
 }
 
 // collectScanCandidates 返回数据加载器提供的完整干员候选域。

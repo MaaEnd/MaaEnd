@@ -19,7 +19,7 @@ func TestSellProductCacheReadWrite(t *testing.T) {
 		Accounts: map[string]sellProductCacheAccount{
 			uid: {
 				UpdatedAt: updatedAt,
-				Operators: []string{"佩丽卡", "陈千语", "佩丽卡", ""},
+				Operators: []string{"Perlica", "ChenQianyu", "Perlica"},
 			},
 		},
 	}); err != nil {
@@ -36,7 +36,7 @@ func TestSellProductCacheReadWrite(t *testing.T) {
 	if account.UpdatedAt != "2026-06-14T01:02:03Z" {
 		t.Fatalf("account updated_at = %q", account.UpdatedAt)
 	}
-	want := []string{"佩丽卡", "陈千语"}
+	want := []string{"ChenQianyu", "Perlica"}
 	if !reflect.DeepEqual(account.Operators, want) {
 		t.Fatalf("operators = %#v, want %#v", account.Operators, want)
 	}
@@ -74,15 +74,15 @@ func TestDefaultSellProductCachePathIsSingleFile(t *testing.T) {
 	}
 }
 
-func TestSellProductCacheMigratesLegacyFileName(t *testing.T) {
+func TestSellProductCacheIgnoresLegacyFileName(t *testing.T) {
 	dir := t.TempDir()
-	legacyPath := filepath.Join(dir, legacySellProductCacheFileName)
+	legacyPath := filepath.Join(dir, "SellProductOwnedOperators.json")
 	newPath := filepath.Join(dir, sellProductCacheFileName)
 	if err := writeSellProductCache(legacyPath, sellProductCache{
 		Accounts: map[string]sellProductCacheAccount{
 			"abc123": {
-				Operators: []string{"狼卫"},
-				Locations: map[string]bool{"Full": true},
+				Operators: []string{"Wulfgard"},
+				Locations: map[string]bool{"RefugeeCamp": true},
 			},
 		},
 	}); err != nil {
@@ -91,19 +91,56 @@ func TestSellProductCacheMigratesLegacyFileName(t *testing.T) {
 
 	cache, err := readSellProductCache(newPath)
 	if err != nil {
-		t.Fatalf("迁移旧版缓存失败：%v", err)
+		t.Fatalf("读取新缓存失败：%v", err)
 	}
-	if !sellProductCacheHasOperatorSnapshot(cache, "abc123") {
-		t.Fatal("迁移后完整干员快照丢失")
+	if len(cache.Accounts) != 0 {
+		t.Fatalf("旧文件名不应被读取：%#v", cache.Accounts)
 	}
-	if reached := cache.Accounts["abc123"].Locations["Full"]; !reached {
-		t.Fatal("迁移后据点发展值状态丢失")
+	if _, err := os.Stat(legacyPath); err != nil {
+		t.Fatalf("旧缓存文件不应被迁移或删除：%v", err)
 	}
-	if _, err := os.Stat(newPath); err != nil {
-		t.Fatalf("迁移后缺少新缓存文件：%v", err)
+}
+
+func TestSellProductCacheDiscardsInvalidIDs(t *testing.T) {
+	tests := []struct {
+		name    string
+		content string
+	}{
+		{
+			name:    "中文干员名",
+			content: `{"accounts":{"abc123":{"operators":["狼卫"],"locations":{"RefugeeCamp":true}}}}`,
+		},
+		{
+			name:    "中文据点名",
+			content: `{"accounts":{"abc123":{"operators":["Wulfgard"],"locations":{"难民暂居处":true}}}}`,
+		},
+		{
+			name:    "未知干员 ID",
+			content: `{"accounts":{"abc123":{"operators":["UnknownOperator"],"locations":{"RefugeeCamp":true}}}}`,
+		},
+		{
+			name:    "未知据点 ID",
+			content: `{"accounts":{"abc123":{"operators":["Wulfgard"],"locations":{"UnknownLocation":true}}}}`,
+		},
+		{
+			name:    "非精确 ID",
+			content: `{"accounts":{"abc123":{"operators":["Wulfgard"],"locations":{" RefugeeCamp ":true}}}}`,
+		},
 	}
-	if _, err := os.Stat(legacyPath); !os.IsNotExist(err) {
-		t.Fatalf("迁移后旧缓存文件仍存在：%v", err)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), sellProductCacheFileName)
+			if err := os.WriteFile(path, []byte(test.content), 0644); err != nil {
+				t.Fatal(err)
+			}
+			cache, err := readSellProductCache(path)
+			if err != nil {
+				t.Fatalf("读取无效 ID 缓存失败：%v", err)
+			}
+			if len(cache.Accounts) != 0 {
+				t.Fatalf("无效 ID 缓存应视为不存在：%#v", cache.Accounts)
+			}
+		})
 	}
 }
 
@@ -131,43 +168,55 @@ func TestSellProductCacheMissingAndEmpty(t *testing.T) {
 	}
 }
 
-func TestSellProductCacheRejectsUnknownFields(t *testing.T) {
-	path := filepath.Join(t.TempDir(), sellProductCacheFileName)
-	if err := os.WriteFile(path, []byte(`{"updated_at":"","accounts":{},"unexpected":true}`), 0644); err != nil {
-		t.Fatal(err)
+func TestSellProductCacheDiscardsInvalidStructure(t *testing.T) {
+	contents := []string{
+		`{"updated_at":"","accounts":{},"unexpected":true}`,
+		`{"accounts":[]}`,
+		`{"accounts":{`,
+		`{"accounts":{}} {}`,
 	}
-	if _, err := readSellProductCache(path); err == nil {
-		t.Fatal("cache with unknown fields should be rejected")
+	for _, content := range contents {
+		path := filepath.Join(t.TempDir(), sellProductCacheFileName)
+		if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+			t.Fatal(err)
+		}
+		cache, err := readSellProductCache(path)
+		if err != nil {
+			t.Fatalf("结构无效的缓存应直接视为不存在：%v", err)
+		}
+		if len(cache.Accounts) != 0 {
+			t.Fatalf("结构无效的缓存不应保留数据：%#v", cache.Accounts)
+		}
 	}
 }
 
 func TestNormalizeOperatorCandidates(t *testing.T) {
 	got := normalizeOperatorCandidates([]operatorCandidate{
-		{Name: "Beta", CacheName: "贝塔", Expected: []string{"贝塔"}, Priority: 2},
-		{Name: "", CacheName: "忽略", Expected: []string{"忽略"}, Priority: 0},
-		{Name: "Alpha", CacheName: "阿尔法", Expected: []string{"阿尔法", "阿尔法", ""}, Priority: 1},
+		{Name: "Beta", Expected: []string{"贝塔"}, Priority: 2},
+		{Name: "", Expected: []string{"忽略"}, Priority: 0},
+		{Name: "Alpha", Expected: []string{"阿尔法", "阿尔法", ""}, Priority: 1},
 		{Name: "Beta", Expected: []string{"重复"}, Priority: 0},
 	})
 	want := []operatorCandidate{
-		{Name: "Alpha", CacheName: "阿尔法", Expected: []string{"阿尔法"}, Priority: 1},
-		{Name: "Beta", CacheName: "贝塔", Expected: []string{"贝塔"}, Priority: 2},
+		{Name: "Alpha", Expected: []string{"阿尔法"}, Priority: 1},
+		{Name: "Beta", Expected: []string{"贝塔"}, Priority: 2},
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("normalizeOperatorCandidates = %#v, want %#v", got, want)
 	}
 }
 
-func TestFilterOwnedCandidatesUsesCacheName(t *testing.T) {
+func TestFilterOwnedCandidatesUsesOperatorID(t *testing.T) {
 	candidates := []operatorCandidate{
-		{Name: "Both", CacheName: "双加成", Priority: 0},
-		{Name: "Money", CacheName: "收益", Priority: 1},
-		{Name: "Exp", CacheName: "经验", Priority: 2},
+		{Name: "Both", Priority: 0},
+		{Name: "Money", Priority: 1},
+		{Name: "Exp", Priority: 2},
 	}
-	owned := operatorNameSet([]string{"经验", "双加成"})
+	owned := operatorNameSet([]string{"Exp", "Both"})
 	got := filterOwnedCandidates(candidates, owned)
 	want := []operatorCandidate{
-		{Name: "Both", CacheName: "双加成", Priority: 0},
-		{Name: "Exp", CacheName: "经验", Priority: 2},
+		{Name: "Both", Priority: 0},
+		{Name: "Exp", Priority: 2},
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("filterOwnedCandidates = %#v, want %#v", got, want)
@@ -181,14 +230,14 @@ func TestSellProductCacheHasOperatorSnapshot(t *testing.T) {
 	}
 	if !sellProductCacheHasOperatorSnapshot(sellProductCache{
 		Accounts: map[string]sellProductCacheAccount{
-			uid: {Operators: []string{"佩丽卡"}},
+			uid: {Operators: []string{"Perlica"}},
 		},
 	}, uid) {
 		t.Fatal("account cache should be treated as a snapshot")
 	}
 	if sellProductCacheHasOperatorSnapshot(sellProductCache{
 		Accounts: map[string]sellProductCacheAccount{
-			"other": {Operators: []string{"佩丽卡"}},
+			"other": {Operators: []string{"Perlica"}},
 		},
 	}, uid) {
 		t.Fatal("cache without this uid should not be treated as a snapshot")
@@ -214,7 +263,7 @@ func TestSellProductCachePersistsOperatorSnapshotPresence(t *testing.T) {
 	if err := writeSellProductCache(path, sellProductCache{
 		Accounts: map[string]sellProductCacheAccount{
 			"locations-only": {
-				Locations: map[string]bool{"Full": true},
+				Locations: map[string]bool{"RefugeeCamp": true},
 			},
 			"empty-snapshot": {
 				Operators: []string{},
@@ -247,14 +296,14 @@ func TestMergeOperatorSnapshotReplacesCurrentAccount(t *testing.T) {
 	got := mergeOperatorSnapshot(
 		cache,
 		uid,
-		[]operatorCandidate{{Name: "CandidateA", CacheName: "候选甲"}, {Name: "CandidateB", CacheName: "候选乙"}},
-		[]string{"候选乙"},
+		[]operatorCandidate{{Name: "CandidateA"}, {Name: "CandidateB"}},
+		[]string{"CandidateB"},
 		now,
 	)
 	if got.UpdatedAt != "2026-06-14T01:02:03Z" {
 		t.Fatalf("updated_at = %q", got.UpdatedAt)
 	}
-	if want := []string{"候选乙"}; !reflect.DeepEqual(got.Accounts[uid].Operators, want) {
+	if want := []string{"CandidateB"}; !reflect.DeepEqual(got.Accounts[uid].Operators, want) {
 		t.Fatalf("operators = %#v, want %#v", got.Accounts[uid].Operators, want)
 	}
 	if want := []string{"其他账号干员"}; !reflect.DeepEqual(got.Accounts["other"].Operators, want) {
@@ -270,11 +319,10 @@ func TestSellProductCacheReadWriteLocationsBesideOperators(t *testing.T) {
 		Accounts: map[string]sellProductCacheAccount{
 			"abc123": {
 				UpdatedAt: updatedAt,
-				Operators: []string{"狼卫"},
+				Operators: []string{"Wulfgard"},
 				Locations: map[string]bool{
-					" Full ": true,
-					"Open":   false,
-					"":       true,
+					"RefugeeCamp":      true,
+					"ReconstructionHQ": false,
 				},
 			},
 		},
@@ -289,7 +337,7 @@ func TestSellProductCacheReadWriteLocationsBesideOperators(t *testing.T) {
 	if !sellProductCacheHasOperatorSnapshot(cache, "abc123") {
 		t.Fatal("写入据点发展值状态后不应破坏完整干员快照")
 	}
-	want := map[string]bool{"Full": true, "Open": false}
+	want := map[string]bool{"RefugeeCamp": true, "ReconstructionHQ": false}
 	if got := outpostProsperityStatusesForUID(cache, "abc123"); !reflect.DeepEqual(got, want) {
 		t.Fatalf("据点发展值缓存 = %#v，期望 %#v", got, want)
 	}
@@ -298,7 +346,7 @@ func TestSellProductCacheReadWriteLocationsBesideOperators(t *testing.T) {
 func TestLocationsOnlyAccountIsNotAnOperatorSnapshot(t *testing.T) {
 	cache := sellProductCache{
 		Accounts: map[string]sellProductCacheAccount{
-			"abc123": {Locations: map[string]bool{"Full": true}},
+			"abc123": {Locations: map[string]bool{"RefugeeCamp": true}},
 		},
 	}
 	if sellProductCacheHasOperatorSnapshot(cache, "abc123") {
@@ -311,22 +359,22 @@ func TestUpdateLocationsPreservesOperatorSnapshots(t *testing.T) {
 	first := time.Date(2026, 7, 20, 3, 0, 0, 0, time.UTC)
 	if err := writeSellProductCache(path, sellProductCache{
 		Accounts: map[string]sellProductCacheAccount{
-			"account-a": {Operators: []string{"狼卫"}},
-			"account-b": {Operators: []string{"秋栗"}},
+			"account-a": {Operators: []string{"Wulfgard"}},
+			"account-b": {Operators: []string{"Akekuri"}},
 		},
 	}); err != nil {
 		t.Fatalf("准备干员缓存失败：%v", err)
 	}
 
-	changed, err := updateCachedOutpostProsperity(path, "account-a", "Full", true, first)
+	changed, err := updateCachedOutpostProsperity(path, "account-a", "RefugeeCamp", true, first)
 	if err != nil || !changed {
 		t.Fatalf("首次更新结果 = %v, %v，期望写入缓存", changed, err)
 	}
-	changed, err = updateCachedOutpostProsperity(path, "account-b", "Open", false, first.Add(time.Minute))
+	changed, err = updateCachedOutpostProsperity(path, "account-b", "ReconstructionHQ", false, first.Add(time.Minute))
 	if err != nil || !changed {
 		t.Fatalf("第二账号更新结果 = %v, %v，期望写入缓存", changed, err)
 	}
-	changed, err = updateCachedOutpostProsperity(path, "account-a", "Full", true, first.Add(2*time.Minute))
+	changed, err = updateCachedOutpostProsperity(path, "account-a", "RefugeeCamp", true, first.Add(2*time.Minute))
 	if err != nil || changed {
 		t.Fatalf("相同状态更新结果 = %v, %v，期望跳过写盘", changed, err)
 	}
@@ -335,16 +383,16 @@ func TestUpdateLocationsPreservesOperatorSnapshots(t *testing.T) {
 	if err != nil {
 		t.Fatalf("读取更新后的缓存失败：%v", err)
 	}
-	if want := []string{"狼卫"}; !reflect.DeepEqual(cache.Accounts["account-a"].Operators, want) {
+	if want := []string{"Wulfgard"}; !reflect.DeepEqual(cache.Accounts["account-a"].Operators, want) {
 		t.Fatalf("account-a 干员快照 = %#v，期望 %#v", cache.Accounts["account-a"].Operators, want)
 	}
-	if want := []string{"秋栗"}; !reflect.DeepEqual(cache.Accounts["account-b"].Operators, want) {
+	if want := []string{"Akekuri"}; !reflect.DeepEqual(cache.Accounts["account-b"].Operators, want) {
 		t.Fatalf("account-b 干员快照 = %#v，期望 %#v", cache.Accounts["account-b"].Operators, want)
 	}
-	if got := cache.Accounts["account-a"].Locations["Full"]; !got {
+	if got := cache.Accounts["account-a"].Locations["RefugeeCamp"]; !got {
 		t.Fatal("account-a 的满级状态丢失")
 	}
-	if got, ok := cache.Accounts["account-b"].Locations["Open"]; !ok || got {
+	if got, ok := cache.Accounts["account-b"].Locations["ReconstructionHQ"]; !ok || got {
 		t.Fatalf("account-b 的未满状态 = %v, %v，期望明确保存 false", got, ok)
 	}
 	if got := cache.Accounts["account-a"].UpdatedAt; got != first.Format(time.RFC3339) {
@@ -355,17 +403,17 @@ func TestUpdateLocationsPreservesOperatorSnapshots(t *testing.T) {
 func TestMergeOperatorCachePreservesLocations(t *testing.T) {
 	cache := sellProductCache{
 		Accounts: map[string]sellProductCacheAccount{
-			"abc123": {Locations: map[string]bool{"Full": true, "Open": false}},
+			"abc123": {Locations: map[string]bool{"RefugeeCamp": true, "ReconstructionHQ": false}},
 		},
 	}
 	merged := mergeOperatorSnapshot(
 		cache,
 		"abc123",
-		[]operatorCandidate{{Name: "Wulfgard", CacheName: "狼卫"}},
-		[]string{"狼卫"},
+		[]operatorCandidate{{Name: "Wulfgard"}},
+		[]string{"Wulfgard"},
 		time.Date(2026, 7, 20, 3, 0, 0, 0, time.UTC),
 	)
-	want := map[string]bool{"Full": true, "Open": false}
+	want := map[string]bool{"RefugeeCamp": true, "ReconstructionHQ": false}
 	if got := outpostProsperityStatusesForUID(merged, "abc123"); !reflect.DeepEqual(got, want) {
 		t.Fatalf("刷新干员快照后的据点发展值状态 = %#v，期望 %#v", got, want)
 	}

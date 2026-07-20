@@ -128,7 +128,9 @@ In this document, the “highest bonus tier” means the intersection of the cur
 
 The unified SellProduct cache is stored in `debug/record/SellProductCache.json`. Each hashed-UID partition contains both a complete operator snapshot and outpost prosperity states:
 
+- Both `operators` and `locations` store stable IDs from `selection_data.json`; they do not store localized names or depend on the client language.
 - `operators` stores only complete list-scan snapshots. `null` means scanning has not completed, while an empty array means a complete scan found no relevant operators.
+- The cache has no format-version field and does not migrate the old `SellProductOwnedOperators.json` file or caches containing Chinese names. An incompatible JSON structure, unknown field, localized name, empty ID, or ID absent from the current generated data invalidates the entire cache, so the next run performs a new complete scan.
 - If the current account has no snapshot, Pipeline performs a full operator-list scan and writes the cache before planning or selling.
 - Existing snapshots are reused directly. “Force refresh before this run” ignores the existing snapshot and performs one full scan when the task first enters a region; later regions in the same task reuse the result.
 - Only the global scan that creates the first snapshot or performs an explicit forced refresh may write the cache. Local scrolling while selecting an operator never overwrites an existing snapshot.

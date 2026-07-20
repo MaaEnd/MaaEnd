@@ -201,7 +201,7 @@ func (r *OperatorListBottomRecognition) Run(
 		operatorListStateSet(state)
 		return nil, false
 	}
-	observed := observedOperatorCacheNames(items, scanCandidates)
+	observed := observedOperatorIDs(items, scanCandidates)
 	state.Observed = append(state.Observed, observed...)
 	signature := operatorListSignature(observed)
 	// Pipeline 在每次识别失败后继续向下滚动；相邻两帧内容一致说明已经到达底部。
@@ -229,7 +229,7 @@ func (r *OperatorListBottomRecognition) Run(
 	candidates := candidatesForOwnership(selectionParam, ownership)
 	setPlannedRestoreCandidate(selectionParam, candidates)
 	configuredCandidates := configuredCandidatesForOutcome(selectionParam)
-	state.ExpectedCandidates = operatorCandidateCacheNames(configuredCandidates)
+	state.ExpectedCandidates = operatorCandidateIDs(configuredCandidates)
 	state.ObservedCandidates = observedConfiguredOperatorNames(configuredCandidates, state.Observed)
 	state.Completed = true
 	state.HasCandidate = len(candidates) > 0
@@ -394,7 +394,7 @@ func loadOperatorOwnershipForSelection() (operatorOwnership, error) {
 		return operatorOwnership{}, err
 	}
 	return operatorOwnership{
-		Operators: operatorNameSet(cachedOperatorNamesForUID(cache, uid)),
+		Operators: operatorNameSet(cachedOperatorIDsForUID(cache, uid)),
 	}, nil
 }
 
@@ -462,12 +462,12 @@ func shouldWriteOperatorCacheSnapshot(
 	return p.Mode == operatorCacheModeCache && !sellProductCacheHasOperatorSnapshot(cache, uid)
 }
 
-// observedOperatorCacheNames 将一帧 OCR 结果映射成去重、排序后的缓存键集合。
-func observedOperatorCacheNames(items []ocrItem, candidates []operatorCandidate) []string {
+// observedOperatorIDs 将一帧 OCR 结果映射成去重、排序后的干员 ID 集合。
+func observedOperatorIDs(items []ocrItem, candidates []operatorCandidate) []string {
 	observedSet := map[string]struct{}{}
 	for _, candidate := range candidates {
 		if findBestMatch(items, candidate.Expected) != nil {
-			observedSet[operatorCandidateCacheName(candidate)] = struct{}{}
+			observedSet[candidate.Name] = struct{}{}
 		}
 	}
 	return sortedSetValues(observedSet)
@@ -655,10 +655,10 @@ func configuredCandidatesForOutcome(p *operatorSelectionParam) []operatorCandida
 	return nil
 }
 
-func operatorCandidateCacheNames(candidates []operatorCandidate) []string {
+func operatorCandidateIDs(candidates []operatorCandidate) []string {
 	names := make([]string, 0, len(candidates))
 	for _, candidate := range candidates {
-		names = append(names, operatorCandidateCacheName(candidate))
+		names = append(names, candidate.Name)
 	}
 	return uniqueNonEmptyStrings(names)
 }
@@ -668,7 +668,7 @@ func observedConfiguredOperatorNames(candidates []operatorCandidate, observed []
 	observedSet := operatorNameSet(observed)
 	names := make([]string, 0, len(candidates))
 	for _, candidate := range candidates {
-		name := operatorCandidateCacheName(candidate)
+		name := candidate.Name
 		if _, ok := observedSet[name]; ok {
 			names = append(names, name)
 		}
