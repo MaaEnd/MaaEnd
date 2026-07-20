@@ -384,61 +384,106 @@
         ],
         "template": "TrialOfSwordmancy/DoubleRewardSelected.png"
     },
-    // —— 手牌 5 槽点数位（模板匹配；Go 运行时把 template override 成 Point1-5.png 取最高分得点数）——
+    // —— 手牌点数识别（模板匹配）——
     "TrialOfSwordmancyHandPoint1": {
-        "desc": "[go] 手牌槽1点数位",
+        "desc": "[go] 手牌点数1",
         "recognition": "TemplateMatch",
         "roi": [
             173,
             123,
-            74,
+            875,
             80
         ],
         "template": "TrialOfSwordmancy/Point1.png"
     },
     "TrialOfSwordmancyHandPoint2": {
-        "desc": "[go] 手牌槽2点数位",
+        "desc": "[go] 手牌点数2",
         "recognition": "TemplateMatch",
+        "roi": [
+            173,
+            123,
+            875,
+            80
+        ],
+        "template": "TrialOfSwordmancy/Point2.png"
+    },
+    "TrialOfSwordmancyHandPoint3": {
+        "desc": "[go] 手牌点数3",
+        "recognition": "TemplateMatch",
+        "roi": [
+            173,
+            123,
+            875,
+            80
+        ],
+        "template": "TrialOfSwordmancy/Point3.png"
+    },
+    "TrialOfSwordmancyHandPoint4": {
+        "desc": "[go] 手牌点数4",
+        "recognition": "TemplateMatch",
+        "roi": [
+            173,
+            123,
+            875,
+            80
+        ],
+        "template": "TrialOfSwordmancy/Point4.png"
+    },
+    "TrialOfSwordmancyHandPoint5": {
+        "desc": "[go] 手牌点数5",
+        "recognition": "TemplateMatch",
+        "roi": [
+            173,
+            123,
+            875,
+            80
+        ],
+        "template": "TrialOfSwordmancy/Point5.png"
+    },
+    "TrialOfSwordmancyHandPosition1": {
+        "desc": "[go] 手牌槽1位置",
+        "roi": [
+            173,
+            123,
+            74,
+            80
+        ]
+    },
+    "TrialOfSwordmancyHandPosition2": {
+        "desc": "[go] 手牌槽2位置",
         "roi": [
             373,
             123,
             74,
             80
-        ],
-        "template": "TrialOfSwordmancy/Point1.png"
+        ]
     },
-    "TrialOfSwordmancyHandPoint3": {
-        "desc": "[go] 手牌槽3点数位",
-        "recognition": "TemplateMatch",
+    "TrialOfSwordmancyHandPosition3": {
+        "desc": "[go] 手牌槽3位置",
         "roi": [
             573,
             123,
             74,
             80
-        ],
-        "template": "TrialOfSwordmancy/Point1.png"
+        ]
     },
-    "TrialOfSwordmancyHandPoint4": {
-        "desc": "[go] 手牌槽4点数位",
-        "recognition": "TemplateMatch",
+    "TrialOfSwordmancyHandPosition4": {
+        "desc": "[go] 手牌槽4位置",
         "roi": [
             773,
             123,
             74,
             80
-        ],
-        "template": "TrialOfSwordmancy/Point1.png"
+        ]
     },
-    "TrialOfSwordmancyHandPoint5": {
-        "desc": "[go] 手牌槽5点数位",
-        "recognition": "TemplateMatch",
+    "TrialOfSwordmancyHandPosition5": {
+        "desc": "[go] 手牌槽5位置",
         "roi": [
             973,
             123,
             74,
             80
-        ],
-        "template": "TrialOfSwordmancy/Point1.png"
+        ]
     },
     // —— 溢出叹号（爆表，观测字段）——
     "TrialOfSwordmancyOverflowExclamation": {

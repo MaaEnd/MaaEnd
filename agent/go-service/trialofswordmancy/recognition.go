@@ -2,7 +2,6 @@ package trialofswordmancy
 
 import (
 	"encoding/json"
-	"fmt"
 	"image"
 	"strconv"
 	"strings"
@@ -22,7 +21,7 @@ var _ maa.CustomRecognitionRunner = &Recognition{}
 //
 // 各字段来源（ROI/模板都在 TrialOfSwordmancyCommon.json 的 [go] 节点里，Go 按名调用 maafw）：
 //   - 屏幕态：RewardMode / DrawCard 在场 → 处于抽牌界面。
-//   - Hand：5 个手牌位（HandPoint1-5）匹配 Point1-5.png，命中即该槽点数+在场。
+//   - Hand：HandPoint1-5 分别整行匹配 Point1-5.png，按 HandPosition1-5 ROI 归槽。
 //   - Deck：牌库「剩余库存」整列 OCR（Deck，按 DeckCount1-5 ROI 分组，抽牌递减）；总牌量 = 剩余 + 手牌。
 //   - RemainCalc / RemainDouble：OCR（RemainCalc / RemainDouble 节点）。
 //   - RemainAband：持久化缓存；未知(-1)时探测（点放弃→OCR 弹窗→取消）。
@@ -139,18 +138,46 @@ func (r *Recognition) detectOverflow(ctx *maa.Context, img image.Image) bool {
 	return runTemplateHit(ctx, img, nodeOverflowExclamation)
 }
 
-// recognizeHand 识别 5 个手牌位置的点数。每个位置（HandPoint1-5 节点）上匹配 Point1-5.png，
-// 最高分模板即该牌点数，同时表示该槽有牌；都没中 → 空槽。
+// recognizeHand 跑 HandPoint1-5 五个整行模板节点，再按 HandPosition1-5 ROI 筛选各槽点数。
+// 同一槽命中多个点数模板时取最高分；都没中则为空槽。
 func (r *Recognition) recognizeHand(ctx *maa.Context, img image.Image) (handCounts [5]int, handRaw [5]int) {
-	for slot := 0; slot < 5; slot++ {
-		point, hit := recognizePointValue(ctx, img, slot)
-		if !hit {
+	var rois [5]maa.Rect
+	for i := range rois {
+		roi, err := nodeROI(ctx, nodeHandPositionPrefix+strconv.Itoa(i+1))
+		if err != nil {
+			return handCounts, handRaw
+		}
+		rois[i] = roi
+	}
+
+	var bestScores [5]float64
+	for point := 1; point <= 5; point++ {
+		detail, err := ctx.RunRecognition(nodeHandPointPrefix+strconv.Itoa(point), img, nil)
+		if err != nil || detail == nil || detail.Results == nil {
 			continue
 		}
-		if point >= 1 && point <= 5 {
+		for _, result := range detail.Results.Filtered {
+			if result == nil {
+				continue
+			}
+			tm, ok := result.AsTemplateMatch()
+			if !ok || tm == nil {
+				continue
+			}
+			for slot, roi := range rois {
+				if rectContains(roi, tm.Box) && tm.Score > bestScores[slot] {
+					bestScores[slot] = tm.Score
+					handRaw[slot] = point
+					break
+				}
+			}
+		}
+	}
+
+	for _, point := range handRaw {
+		if point != 0 {
 			handCounts[point-1]++
 		}
-		handRaw[slot] = point
 	}
 	return handCounts, handRaw
 }
@@ -329,67 +356,6 @@ func runTemplateHit(ctx *maa.Context, img image.Image, nodeName string) bool {
 		return false
 	}
 	return detail.Hit
-}
-
-// recognizePointValue 在第 slot 个手牌位上匹配 Point1-5.png，返回最高分的点数（1-5）。
-// 槽位 roi 由 HandPoint{slot+1} 节点定，Go 只 override template 逐点取分。
-func recognizePointValue(ctx *maa.Context, img image.Image, slot int) (int, bool) {
-	nodeName := nodeHandPointPrefix + strconv.Itoa(slot+1)
-	bestPoint := 0
-	bestScore := 0.0
-	for point := 1; point <= 5; point++ {
-		tpl := fmt.Sprintf("%s%d.png", pointTemplatePrefix, point)
-		score, hit := runHandPointScore(ctx, img, nodeName, tpl)
-		if !hit {
-			continue
-		}
-		if score > bestScore {
-			bestScore = score
-			bestPoint = point
-		}
-	}
-	return bestPoint, bestPoint != 0
-}
-
-// runHandPointScore 把 HandPoint 节点的 template override 成指定模板后跑识别，返回 (score, hit)。
-func runHandPointScore(ctx *maa.Context, img image.Image, nodeName, templatePath string) (float64, bool) {
-	if err := overrideTemplate(ctx, nodeName, templatePath); err != nil {
-		log.Warn().Err(err).Str("component", component).Str("template", templatePath).Msg("override hand-point template 失败")
-		return 0, false
-	}
-	detail, err := ctx.RunRecognition(nodeName, img, nil)
-	if err != nil || detail == nil || !detail.Hit {
-		return 0, false
-	}
-	return bestTemplateScore(detail)
-}
-
-// overrideTemplate 把某节点的 template（运行时）覆盖成指定模板路径，roi 等保持节点原定义。
-func overrideTemplate(ctx *maa.Context, nodeName, templatePath string) error {
-	if ctx == nil {
-		return fmt.Errorf("context is nil")
-	}
-	return ctx.OverridePipeline(map[string]any{
-		nodeName: map[string]any{
-			"recognition": map[string]any{
-				"param": map[string]any{
-					"template": []string{templatePath},
-				},
-			},
-		},
-	})
-}
-
-// bestTemplateScore 取模板匹配最佳结果的分数。
-func bestTemplateScore(detail *maa.RecognitionDetail) (float64, bool) {
-	if detail == nil || detail.Results == nil || detail.Results.Best == nil {
-		return 0, false
-	}
-	tm, ok := detail.Results.Best.AsTemplateMatch()
-	if !ok {
-		return 0, false
-	}
-	return tm.Score, true
 }
 
 // allOCRText 拼接一个识别节点全部 OCR 框的文本（优先 Filtered，空则退回 All），用空串连接。

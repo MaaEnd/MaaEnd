@@ -44,12 +44,8 @@ const (
 	nodeAbandPopup   = "TrialOfSwordmancyAbandPopup"   // OCR：放弃确认弹窗文本
 	nodeIsDoubled    = "TrialOfSwordmancyIsDoubled"    // 模板：已翻倍指示
 
-	nodeDeck            = "TrialOfSwordmancyDeck"      // OCR：牌库整列库存数
-	nodeDeckCountPrefix = "TrialOfSwordmancyDeckCount" // + "1".."5"：牌库各点数库存数 OCR
-	nodeHandPointPrefix = "TrialOfSwordmancyHandPoint" // + "1".."5"：手牌各槽点数位（模板，运行时 override template）
+	nodeDeck               = "TrialOfSwordmancyDeck"         // OCR：牌库整列库存数
+	nodeDeckCountPrefix    = "TrialOfSwordmancyDeckCount"    // + "1".."5"：牌库各点数库存数 OCR
+	nodeHandPointPrefix    = "TrialOfSwordmancyHandPoint"    // + "1".."5"：各点数模板整行匹配
+	nodeHandPositionPrefix = "TrialOfSwordmancyHandPosition" // + "1".."5"：手牌槽位 ROI
 )
-
-// Point 模板路径前缀：Point1.png … Point5.png。
-// recognizePointValue 运行时把对应模板 override 到 TrialOfSwordmancyHandPoint{slot} 上（roi 由该节点定），
-// 取各点数最高分得该槽点数。
-const pointTemplatePrefix = "TrialOfSwordmancy/Point"
