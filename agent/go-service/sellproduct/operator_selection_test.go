@@ -430,6 +430,96 @@ func TestCachedOutpostProsperityChangesGeneratedSellingOperator(t *testing.T) {
 	}
 }
 
+// TestCachedProsperityPlanningFollowsGameOrderAndKeepsReconstructionOperator 验证缓存规划按游戏顺序执行：
+// 难民暂居处先使用卡缪，轮到未满的重建指挥部时，直接沿用上一轮已留驻的莱万汀。
+func TestCachedProsperityPlanningFollowsGameOrderAndKeepsReconstructionOperator(t *testing.T) {
+	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	data, err := loadOperatorSelectionData()
+	if err != nil {
+		t.Fatalf("加载 SellProduct 干员数据失败：%v", err)
+	}
+
+	locationOrder := orderedEnabledLocations(t, data.LocationOrder, "ReconstructionHQ", "RefugeeCamp")
+	expectedLocationOrder := []string{"RefugeeCamp", "ReconstructionHQ"}
+	if !slices.Equal(locationOrder, expectedLocationOrder) {
+		t.Fatalf("据点售卖顺序 = %#v，期望游戏顺序 %#v", locationOrder, expectedLocationOrder)
+	}
+
+	uid := currentSellProductCacheUID()
+	if err := writeSellProductCache(
+		resolveSellProductCachePathFunc(uid),
+		sellProductCache{
+			Accounts: map[string]sellProductCacheAccount{
+				uid: {
+					Operators: []string{"卡缪", "莱万汀", "阿列什"},
+					Locations: map[string]bool{
+						"RefugeeCamp":      true,
+						"ReconstructionHQ": false,
+					},
+				},
+			},
+		},
+	); err != nil {
+		t.Fatalf("准备 SellProduct 缓存失败：%v", err)
+	}
+
+	operatorSessionReset(operatorCacheModeCache)
+	for _, location := range locationOrder {
+		operatorSessionRegisterLocation(location)
+	}
+	ownership, err := loadOperatorOwnershipForSelection()
+	if err != nil {
+		t.Fatalf("加载 SellProduct 干员缓存失败：%v", err)
+	}
+
+	expected := map[string]string{
+		"RefugeeCamp":      "Camille",
+		"ReconstructionHQ": "Laevatain",
+	}
+	for _, location := range locationOrder {
+		targetSelection, err := resolveOperatorSelectionParam(&operatorActionParam{
+			Usage:    operatorActionUsageTarget,
+			Location: location,
+		})
+		if err != nil {
+			t.Fatalf("解析 %s 售卖参数失败：%v", location, err)
+		}
+		target := candidatesForOwnership(targetSelection, ownership)
+		if len(target) != 1 || target[0].Name != expected[location] {
+			t.Fatalf("%s 售卖干员 = %#v，期望 %s", location, target, expected[location])
+		}
+
+		if location == "ReconstructionHQ" {
+			equivalent := equivalentTargetCandidatesForOwnership(targetSelection, ownership)
+			current, _, ok := findCurrentBestOperator(
+				equivalent,
+				targetSelection.KnownOperators,
+				[]ocrItem{{text: "莱万汀派驻效果"}},
+			)
+			if !ok || current.Name != "Laevatain" {
+				t.Fatalf("重建指挥部当前干员识别 = %#v, %v，期望直接沿用莱万汀", current, ok)
+			}
+		}
+
+		operatorSessionSetTargetAssignment(location, target[0])
+		restoreSelection, err := resolveOperatorSelectionParam(&operatorActionParam{
+			Usage:    operatorActionUsageRestore,
+			Location: location,
+		})
+		if err != nil {
+			t.Fatalf("解析 %s 售后生产派驻参数失败：%v", location, err)
+		}
+		restore := candidatesForOwnership(restoreSelection, ownership)
+		if len(restore) != 1 || restore[0].Name != expected[location] {
+			t.Fatalf("%s 售后生产派驻干员 = %#v，期望沿用 %s", location, restore, expected[location])
+		}
+		operatorSessionSetPlannedRestore(location, restore[0], true)
+		if _, ok := operatorSessionCompleteRestore(location); !ok {
+			t.Fatalf("%s 售后生产派驻结果无法锁定", location)
+		}
+	}
+}
+
 // TestObservedOutpostProsperityChangeReplansFutureAssignments 验证任务开始时使用缓存的满级状态，
 // 进入据点确认开放新等级后，会为未满据点重新预留发展值干员。
 func TestObservedOutpostProsperityChangeReplansFutureAssignments(t *testing.T) {
