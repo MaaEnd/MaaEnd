@@ -36,10 +36,10 @@
         "recognition": "ColorMatch",
         "roi": "NotSoldOut",
         "roi_offset": [
-            94,
-            133,
-            -94,
-            -147
+            108,
+            136,
+            -128,
+            -152
         ],
         "lower": [
             200,
@@ -59,19 +59,23 @@
         "recognition": "ColorMatch",
         "roi": "NotSoldOut",
         "roi_offset": [
-            94,
-            133,
-            -94,
-            -147
+            108,
+            136,
+            -128,
+            -152
         ],
-        "method": 6,
+        "method": 40,
         "lower": [
-            0
+            0,
+            0,
+            70
         ],
         "upper": [
-            90
+            0,
+            2,
+            150
         ],
-        "count": 15,
+        "count": 30,
         "order_by": "Vertical"
     }
 }
