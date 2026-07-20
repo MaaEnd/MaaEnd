@@ -50,7 +50,7 @@ type operatorCandidate struct {
 	Expected []string `json:"expected"`
 	// Priority 表示候选顺序，值越小越优先。
 	Priority int `json:"priority"`
-	// BonusTier 表示据点发展值未满时的售卖加成档位，值越小收益越高。
+	// BonusTier 表示据点发展值未满时的加成档位，先比较发展值、再比较交易收益，值越小越优先。
 	BonusTier int `json:"bonus_tier"`
 	// OutpostProsperityMaxBonusTier 表示据点发展值已满时忽略发展值加成后的售卖档位。
 	OutpostProsperityMaxBonusTier int `json:"outpost_prosperity_max_bonus_tier"`

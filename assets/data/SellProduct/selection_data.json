@@ -572,54 +572,54 @@
                     "outpost_prosperity_max_bonus_tier": 0
                 },
                 {
-                    "name": "Camille",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Antal",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Tangtang",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Fluorite",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Wulfgard",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Perlica",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
                     "name": "Pogranichnik",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Ardelia",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Snowshine",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Gilberta",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Camille",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Antal",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Tangtang",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Fluorite",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Wulfgard",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Perlica",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
                 }
             ],
             "restore_operators": [
@@ -655,69 +655,69 @@
                     "outpost_prosperity_max_bonus_tier": 0
                 },
                 {
-                    "name": "Camille",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Xaihi",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Ember",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
                     "name": "ChenQianyu",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Rossi",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Tangtang",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Antal",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Fluorite",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Estella",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Catcher",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Akekuri",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Wulfgard",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Perlica",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Camille",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Xaihi",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Ember",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
                 }
             ],
             "restore_operators": [
@@ -755,34 +755,34 @@
                     "outpost_prosperity_max_bonus_tier": 0
                 },
                 {
-                    "name": "ZhuangFangyi",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Alesh",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "ChenQianyu",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
                     "name": "Laevatain",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Ardelia",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Snowshine",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "ZhuangFangyi",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Alesh",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "ChenQianyu",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
                 }
             ],
             "restore_operators": [
@@ -823,44 +823,44 @@
                     "outpost_prosperity_max_bonus_tier": 0
                 },
                 {
-                    "name": "Arcane",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Wulfgard",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Rossi",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Ardelia",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Fluorite",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Arclight",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
                     "name": "Camille",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Avywenna",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Arcane",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Wulfgard",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Rossi",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Ardelia",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Fluorite",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Arclight",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
                 }
             ],
             "restore_operators": [
@@ -907,39 +907,39 @@
                     "outpost_prosperity_max_bonus_tier": 0
                 },
                 {
-                    "name": "Akekuri",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "LastRite",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Snowshine",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "ChenQianyu",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
                     "name": "MiFu",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Alesh",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Lifeng",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Akekuri",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "LastRite",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Snowshine",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "ChenQianyu",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
                 }
             ],
             "restore_operators": [
@@ -979,54 +979,54 @@
                     "outpost_prosperity_max_bonus_tier": 0
                 },
                 {
-                    "name": "Rossi",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Tangtang",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Ardelia",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Fluorite",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Arclight",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
-                    "name": "Wulfgard",
-                    "bonus_tier": 1,
-                    "outpost_prosperity_max_bonus_tier": 0
-                },
-                {
                     "name": "MiFu",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "ZhuangFangyi",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "DaPan",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Xaihi",
-                    "bonus_tier": 2,
+                    "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Rossi",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Tangtang",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Ardelia",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Fluorite",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Arclight",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Wulfgard",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
                 }
             ],
             "restore_operators": [

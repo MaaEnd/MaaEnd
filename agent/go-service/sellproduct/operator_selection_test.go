@@ -240,6 +240,24 @@ func TestCandidatesForCurrentSelectionReturnsOnlyGlobalBestTarget(t *testing.T) 
 	}
 }
 
+// TestCandidatesForCurrentSelectionPrioritizesOutpostProsperity 验证据点发展值未满时，
+// 单发展值加成优先于单交易收益加成。
+func TestCandidatesForCurrentSelectionPrioritizesOutpostProsperity(t *testing.T) {
+	p := &operatorSelectionParam{
+		Usage:    operatorActionUsageTarget,
+		Location: "Current",
+		Candidates: []operatorCandidate{
+			{Name: "Prosperity", CacheName: "发展值", Priority: 0, BonusTier: 1},
+			{Name: "TradeProfit", CacheName: "交易收益", Priority: 1, BonusTier: 2},
+		},
+	}
+
+	candidates := candidatesForCurrentSelection(p, operatorNameSet([]string{"发展值", "交易收益"}))
+	if len(candidates) != 1 || candidates[0].Name != "Prosperity" {
+		t.Fatalf("发展值未满时的售卖候选 = %#v，期望优先 Prosperity", candidates)
+	}
+}
+
 func TestEquivalentTargetCandidatesIncludeAllBestBonusOperators(t *testing.T) {
 	p := &operatorSelectionParam{
 		Usage:    operatorActionUsageTarget,
@@ -531,6 +549,100 @@ func TestPlanningMatches20260719LogSnapshot(t *testing.T) {
 	}
 }
 
+// TestPlanningMatches20260720ProsperityMaxLogSnapshot 使用 install/debug 最近一次运行的
+// SellProductOwnedOperators.json 与 10:57 运行日志，验证满级据点优先沿用无需切换的完美匹配干员。
+func TestPlanningMatches20260720ProsperityMaxLogSnapshot(t *testing.T) {
+	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	locationOrder := []string{
+		"SkyKingFlatsConstructionSite",
+		"CardiacRemediationStation",
+	}
+	for _, location := range locationOrder {
+		operatorSessionRegisterLocation(location)
+		operatorSessionSetOutpostProsperityMax(location, true)
+	}
+
+	// 来源：install/debug/record/SellProductOwnedOperators.json，更新时间 2026-07-20T02:56:13Z。
+	owned := operatorNameSet([]string{
+		"余烬",
+		"佩丽卡",
+		"别礼",
+		"卡契尔",
+		"卡缪",
+		"埃特拉",
+		"大潘",
+		"安塔尔",
+		"弧光",
+		"昼雪",
+		"洛茜",
+		"狼卫",
+		"秋栗",
+		"艾尔黛拉",
+		"艾维文娜",
+		"莱万汀",
+		"萤石",
+		"赛希",
+		"阿列什",
+		"陈千语",
+		"骏卫",
+		"黎风",
+	})
+	expected := map[string]string{
+		"SkyKingFlatsConstructionSite": "Wulfgard",
+		"CardiacRemediationStation":    "Akekuri",
+	}
+	currentOCR := map[string]string{
+		"SkyKingFlatsConstructionSite": "狼卫派驻效果",
+		"CardiacRemediationStation":    "秋栗派驻效果",
+	}
+
+	for _, location := range locationOrder {
+		targetSelection, err := resolveOperatorSelectionParam(&operatorActionParam{
+			Usage:    operatorActionUsageTarget,
+			Location: location,
+		})
+		if err != nil {
+			t.Fatalf("解析 %s 售卖参数失败：%v", location, err)
+		}
+		equivalent := equivalentTargetCandidatesForOwnership(targetSelection, operatorOwnership{
+			Operators: owned,
+		})
+		if len(equivalent) != 1 || equivalent[0].Name != expected[location] {
+			t.Fatalf("%s 可沿用售卖候选 = %#v，期望仅包含 %s", location, equivalent, expected[location])
+		}
+		current, _, ok := findCurrentBestOperator(
+			equivalent,
+			targetSelection.KnownOperators,
+			[]ocrItem{{text: currentOCR[location]}},
+		)
+		if !ok || current.Name != expected[location] {
+			t.Fatalf("%s 当前干员识别 = %#v, %v，期望直接沿用 %s", location, current, ok, expected[location])
+		}
+
+		target := candidatesForCurrentSelection(targetSelection, owned)
+		if len(target) != 1 || target[0].Name != expected[location] {
+			t.Fatalf("%s 售卖规划 = %#v，期望沿用 %s", location, target, expected[location])
+		}
+		operatorSessionSetTargetAssignment(location, target[0])
+
+		restoreSelection, err := resolveOperatorSelectionParam(&operatorActionParam{
+			Usage:    operatorActionUsageRestore,
+			Location: location,
+		})
+		if err != nil {
+			t.Fatalf("解析 %s 售后生产派驻参数失败：%v", location, err)
+		}
+		restore := candidatesForCurrentSelection(restoreSelection, owned)
+		if len(restore) != 1 || restore[0].Name != expected[location] {
+			t.Fatalf("%s 售后生产派驻规划 = %#v，期望沿用 %s", location, restore, expected[location])
+		}
+		operatorSessionSetPlannedRestore(location, restore[0], true)
+		if _, ok := operatorSessionCompleteRestore(location); !ok {
+			t.Fatalf("%s 售后生产派驻结果无法锁定", location)
+		}
+	}
+}
+
 func TestGeneratedXiranflowRestorePreparesArcaneForNextRunAfterKeepingLifeng(t *testing.T) {
 	data, err := loadOperatorSelectionData()
 	if err != nil {
@@ -703,7 +815,8 @@ func TestTargetSelectionMayMoveOperatorFromUnprocessedEnabledLocation(t *testing
 }
 
 // TestReconstructionReplanProtectsInfraRestoreFrom20260719NoonLog 复现 12:00 日志：
-// 基建前站已经恢复陈千语，重建指挥部排除被未启用据点占用的骏卫后必须改选阿列什。
+// 基建前站已经恢复陈千语，重建指挥部排除被未启用据点占用的骏卫后，
+// 按发展值优先规则改选莱万汀，同时不能挪用陈千语。
 func TestReconstructionReplanProtectsInfraRestoreFrom20260719NoonLog(t *testing.T) {
 	resetOperatorSessionForTest(t, operatorCacheModeCache)
 	for _, location := range []string{"InfraStation", "ReconstructionHQ"} {
@@ -760,8 +873,8 @@ func TestReconstructionReplanProtectsInfraRestoreFrom20260719NoonLog(t *testing.
 		t.Fatalf("重新解析重建指挥部售卖参数失败：%v", err)
 	}
 	replanned := candidatesForCurrentSelection(selection, owned)
-	if len(replanned) != 1 || replanned[0].Name != "Alesh" {
-		t.Fatalf("重建指挥部重新规划 = %#v，期望避开陈千语并改选阿列什", replanned)
+	if len(replanned) != 1 || replanned[0].Name != "Laevatain" {
+		t.Fatalf("重建指挥部重新规划 = %#v，期望避开陈千语并按发展值优先改选莱万汀", replanned)
 	}
 	if sameOperator(replanned[0], chenQianyu) {
 		t.Fatal("重建指挥部不应挪用基建前站已经恢复的陈千语")

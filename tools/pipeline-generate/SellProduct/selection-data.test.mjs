@@ -118,7 +118,7 @@ test("SellProduct generated item order merges prosperity levels and sorts by rar
     assert.ok(result.items.event);
 });
 
-test("SellProduct generated target operators prioritize combined profit bonuses", () => {
+test("SellProduct generated target operators prioritize prosperity before trade profit", () => {
     const both = {charId: "chr_0003_both", name: {CN: "双加成", EN: "Both"}};
     const money = {charId: "chr_0002_money", name: {CN: "收益", EN: "Money"}};
     const exp = {charId: "chr_0001_exp", name: {CN: "经验", EN: "Exp"}};
@@ -157,14 +157,14 @@ test("SellProduct generated target operators prioritize combined profit bonuses"
             outpost_prosperity_max_bonus_tier: 0,
         },
         {
-            name: "Money",
+            name: "Exp",
             bonus_tier: 1,
-            outpost_prosperity_max_bonus_tier: 0,
+            outpost_prosperity_max_bonus_tier: 1,
         },
         {
-            name: "Exp",
+            name: "Money",
             bonus_tier: 2,
-            outpost_prosperity_max_bonus_tier: 1,
+            outpost_prosperity_max_bonus_tier: 0,
         },
     ]);
 });
@@ -201,17 +201,17 @@ test("SellProduct generated operator order follows feature matches then descendi
     assert.deepEqual(order, [
         {
             name: "Most",
-            bonus_tier: 1,
+            bonus_tier: 2,
             outpost_prosperity_max_bonus_tier: 0,
         },
         {
             name: "Higher",
-            bonus_tier: 1,
+            bonus_tier: 2,
             outpost_prosperity_max_bonus_tier: 0,
         },
         {
             name: "Lower",
-            bonus_tier: 1,
+            bonus_tier: 2,
             outpost_prosperity_max_bonus_tier: 0,
         },
     ]);

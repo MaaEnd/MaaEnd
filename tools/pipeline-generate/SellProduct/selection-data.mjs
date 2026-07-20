@@ -129,8 +129,8 @@ function targetBonusTier(entry) {
     const hasExp = entry.bonusTypes.has("expProfit");
     const hasMoney = entry.bonusTypes.has("moneyProfit");
     if (hasExp && hasMoney) return 0;
-    if (hasMoney) return 1;
-    if (hasExp) return 2;
+    if (hasExp) return 1;
+    if (hasMoney) return 2;
     return 3;
 }
 
