@@ -36,7 +36,7 @@
         "order_by": "Vertical"
     },
     "VisitFriendsRecognitionItemNameByEnterButton": {
-        "desc": "按进船按钮偏移识别好友名（可由 SelectFriend 覆盖 expected 排除已访问）",
+        "desc": "按进船按钮偏移识别好友名。默认 Vertical；VisitFriendsRemark=Yes 时改为两项 expected + order_by Expected",
         "recognition": {
             "type": "OCR",
             "param": {
