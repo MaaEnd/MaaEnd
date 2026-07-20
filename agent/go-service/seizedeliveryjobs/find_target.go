@@ -65,32 +65,11 @@ func readMinReward(ctx *maa.Context) (float64, error) {
 }
 
 // parseRewardFloat 解析价格文本为 float（单位统一为「万」）。
-// 支持 "16.3"、"16.3万"、"1.63亿" 等；无单位时假定已是万单位。
+// 仅接受「万」单位（如 "16.3万"）；无单位时假定已是万单位。
 func parseRewardFloat(s string) (float64, error) {
 	s = strings.TrimSpace(s)
-	units := []struct {
-		suffix string
-		factor float64 // 该单位换算到「万」的系数
-	}{
-		{"亿", 10000},
-		{"億", 10000},
-		{"万", 1},
-		{"萬", 1},
-		{"K", 0.0001},
-		{"k", 0.0001},
-		{"M", 0.1},
-		{"m", 0.1},
-		{"B", 100},
-		{"b", 100},
-	}
-	for _, u := range units {
-		if num, ok := strings.CutSuffix(s, u.suffix); ok {
-			f, err := strconv.ParseFloat(num, 64)
-			if err != nil {
-				return 0, err
-			}
-			return f * u.factor, nil
-		}
+	if num, ok := strings.CutSuffix(s, "万"); ok {
+		return strconv.ParseFloat(num, 64)
 	}
 	return strconv.ParseFloat(s, 64)
 }
@@ -169,10 +148,21 @@ func scanJobs(ctx *maa.Context, img image.Image, minReward float64) ([]deliveryJ
 		if price < minReward {
 			continue
 		}
-		// 出发地 / 接取 / 查看位置（基于 RewardOcr box 偏移）
-		originText, _, _ := ocrFirst(ctx, img, recoOriginNode, offsetBox(rewardBox, offsetRewardToOrigin))
-		_, acceptBox, _ := ocrFirst(ctx, img, recoAcceptNode, offsetBox(rewardBox, offsetRewardToAccept))
-		_, viewBox, _ := ocrFirst(ctx, img, recoViewLocationNode, offsetBox(rewardBox, offsetRewardToView))
+		// 出发地 / 接取 / 查看位置（基于 RewardOcr box 偏移）；任一 OCR 未命中即跳过，避免下游拿到空 box
+		originText, _, originOk := ocrFirst(ctx, img, recoOriginNode, offsetBox(rewardBox, offsetRewardToOrigin))
+		_, acceptBox, acceptOk := ocrFirst(ctx, img, recoAcceptNode, offsetBox(rewardBox, offsetRewardToAccept))
+		_, viewBox, viewOk := ocrFirst(ctx, img, recoViewLocationNode, offsetBox(rewardBox, offsetRewardToView))
+		if !originOk || !acceptOk || !viewOk {
+			log.Debug().
+				Str("component", "SeizeDeliveryJobs").
+				Str("step", "scan_jobs").
+				Str("reward_text", rewardText).
+				Bool("origin_ok", originOk).
+				Bool("accept_ok", acceptOk).
+				Bool("view_ok", viewOk).
+				Msg("skip job: incomplete downstream ocr")
+			continue
+		}
 
 		items = append(items, deliveryJobItem{
 			RewardBox:       rewardBox,

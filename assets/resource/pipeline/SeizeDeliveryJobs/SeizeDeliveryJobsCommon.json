@@ -268,9 +268,7 @@
             410
         ],
         "expected": [
-            "武陵城",
-            "Wuling City",
-            "무릉성"
+            "武陵城"
         ],
         "order_by": "Vertical"
     },
@@ -284,12 +282,7 @@
             410
         ],
         "expected": [
-            "接取运送委托",
-            "接取運送委託",
-            "(?i)Accept\\s*Delivery\\s*Job",
-            "配達依頼を受ける",
-            "輸送依頼を受注",
-            "輸送依頼を受ける"
+            "接取运送委托"
         ],
         "order_by": "Vertical"
     },
@@ -303,11 +296,7 @@
             410
         ],
         "expected": [
-            "查看位置",
-            "查看地點",
-            "(?i)View\\s*Location",
-            "位置を確認",
-            "위치 확인"
+            "查看位置"
         ],
         "order_by": "Vertical"
     },
