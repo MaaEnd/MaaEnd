@@ -3,6 +3,7 @@ package listcomplete
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/recogtarget"
@@ -13,18 +14,23 @@ import (
 const (
 	componentName  = "ListCompleteRecognition"
 	attachLastText = "last_text"
+	// fingerprintSep 拼接整屏 OCR 文本；选不会出现在好友名中的分隔符。
+	fingerprintSep = "\n"
 )
 
 var _ maa.CustomRecognitionRunner = &Recognition{}
 
-// Recognition 是通用的列表完成识别器：通过 OCR 文本是否变化判断列表是否仍在滚动/更新。
+// Recognition 是通用的列表完成识别器：通过 OCR 指纹是否变化判断列表是否仍在滚动/更新。
 //
-// 首次命中（当前节点 attach.last_text 为空）时，只要 OCR 成功即返回 true，并写入文字与框；
-// 之后若文字与 attach.last_text 一致则返回 false（视为列表已到底/未变化），
+// 指纹取自目标 OCR 节点的整屏命中（优先 Filtered，否则 All），按纵向（再按横向）排序后
+// 用换行拼接，避免只比 Best 时顶部名字不变、下方已滚动仍被误判到底。
+//
+// 首次命中（当前节点 attach.last_text 为空）时，只要能抽出指纹即返回 true，并写入指纹与框；
+// 之后若指纹与 attach.last_text 一致则返回 false（视为列表已到底/未变化），
 // 不一致则更新 attach 并返回 true。
 //
 // node 可为 OCR 节点，或 And 节点。对 And 节点，按节点自身 box_index（默认 0）
-// 从 CombinedResult 中选取子识别结果，再从该结果提取 OCR 文本与框——目标解析复用 recogtarget。
+// 从 CombinedResult 中选取子识别结果，再从该结果提取 OCR——目标解析复用 recogtarget。
 type Recognition struct{}
 
 type params struct {
@@ -90,13 +96,13 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		return nil, false
 	}
 
-	hit, err := extractOCRHitFromNode(ctx, p.Node, detail)
+	hit, err := extractOCRFingerprintFromNode(ctx, p.Node, detail)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", componentName).
 			Str("node", p.Node).
-			Msg("failed to extract OCR from recognition result")
+			Msg("failed to extract OCR fingerprint from recognition result")
 		return nil, false
 	}
 
@@ -115,7 +121,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 			Str("component", componentName).
 			Str("node", p.Node).
 			Str("text", hit.Text).
-			Msg("OCR text unchanged, list complete")
+			Msg("OCR fingerprint unchanged, list complete")
 		return nil, false
 	}
 
@@ -142,7 +148,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		Str("text", hit.Text).
 		Str("last_text", lastText).
 		Bool("first_run", lastText == "").
-		Msg("OCR text accepted")
+		Msg("OCR fingerprint accepted")
 
 	return &maa.CustomRecognitionResult{
 		Box:    hit.Box,
@@ -177,60 +183,84 @@ func ensureNodeContainsOCR(ctx *maa.Context, nodeName string) error {
 	return nil
 }
 
-// extractOCRHitFromNode 先用 recogtarget 按 box_index 选中目标子结果，再提取 OCR 文本与框。
-func extractOCRHitFromNode(ctx *maa.Context, nodeName string, detail *maa.RecognitionDetail) (ocrHit, error) {
+// extractOCRFingerprintFromNode 先用 recogtarget 按 box_index 选中目标子结果，
+// 再收集整屏 OCR 命中并生成指纹（纵向排序后 join）。
+func extractOCRFingerprintFromNode(ctx *maa.Context, nodeName string, detail *maa.RecognitionDetail) (ocrHit, error) {
 	selected, err := recogtarget.SelectDetail(ctx, nodeName, detail)
 	if err != nil {
 		return ocrHit{}, err
 	}
-	hit, ok := ocrHitFromResults(selected)
+	hit, ok := fingerprintFromOCRResults(selected)
 	if !ok {
 		return ocrHit{}, fmt.Errorf("no ocr result found")
 	}
 	return hit, nil
 }
 
-func ocrHitFromResults(detail *maa.RecognitionDetail) (ocrHit, bool) {
-	if detail == nil || detail.Results == nil {
+// fingerprintFromOCRResults 收集 Filtered（空则 All）中全部 OCR 文本，
+// 按 box 纵向再横向排序后拼接为指纹；Box 取最上方一条。
+func fingerprintFromOCRResults(detail *maa.RecognitionDetail) (ocrHit, bool) {
+	hits := collectOCRHits(detail)
+	if len(hits) == 0 {
 		return ocrHit{}, false
 	}
+	return buildFingerprint(hits), true
+}
 
-	try := func(result *maa.RecognitionResult) (ocrHit, bool) {
+func collectOCRHits(detail *maa.RecognitionDetail) []ocrHit {
+	if detail == nil || detail.Results == nil {
+		return nil
+	}
+
+	results := detail.Results.Filtered
+	if len(results) == 0 {
+		results = detail.Results.All
+	}
+
+	hits := make([]ocrHit, 0, len(results))
+	for _, result := range results {
 		if result == nil {
-			return ocrHit{}, false
+			continue
 		}
 		ocrResult, ok := result.AsOCR()
 		if !ok {
-			return ocrHit{}, false
+			continue
 		}
 		text := strings.TrimSpace(ocrResult.Text)
 		if text == "" {
-			return ocrHit{}, false
+			continue
 		}
 		box := ocrResult.Box
 		if !rectValid(box) && rectValid(detail.Box) {
 			box = detail.Box
 		}
 		if !rectValid(box) {
-			return ocrHit{}, false
+			continue
 		}
-		return ocrHit{Text: text, Box: box}, true
+		hits = append(hits, ocrHit{Text: text, Box: box})
 	}
+	return hits
+}
 
-	if hit, ok := try(detail.Results.Best); ok {
-		return hit, true
-	}
-	for _, result := range detail.Results.Filtered {
-		if hit, ok := try(result); ok {
-			return hit, true
+func buildFingerprint(hits []ocrHit) ocrHit {
+	sorted := append([]ocrHit(nil), hits...)
+	sort.SliceStable(sorted, func(i, j int) bool {
+		yi := sorted[i].Box[1]
+		yj := sorted[j].Box[1]
+		if yi != yj {
+			return yi < yj
 		}
+		return sorted[i].Box[0] < sorted[j].Box[0]
+	})
+
+	texts := make([]string, 0, len(sorted))
+	for _, h := range sorted {
+		texts = append(texts, h.Text)
 	}
-	for _, result := range detail.Results.All {
-		if hit, ok := try(result); ok {
-			return hit, true
-		}
+	return ocrHit{
+		Text: strings.Join(texts, fingerprintSep),
+		Box:  sorted[0].Box,
 	}
-	return ocrHit{}, false
 }
 
 func rectValid(box maa.Rect) bool {

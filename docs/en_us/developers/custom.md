@@ -247,7 +247,7 @@ Important Notes:
 
 ### ListCompleteRecognition
 
-The `ListCompleteRecognition` implementation is located in `agent/go-service/common/listcomplete`. It detects whether a list is still updating by checking whether OCR text has changed (commonly used to detect when a scrollable list has reached the end).
+The `ListCompleteRecognition` implementation is located in `agent/go-service/common/listcomplete`. It detects whether a list is still updating by checking whether an OCR fingerprint has changed (commonly used to detect when a scrollable list has reached the end).
 
 Parameters:
 
@@ -256,12 +256,13 @@ Parameters:
 Behavior:
 
 1. Run recognition on `node`; return no match if it misses or no OCR text can be extracted.
-2. Read `attach.last_text` from the current custom recognition node itself.
-3. If `last_text` is empty (first success): return a match, with the box set to the OCR text position, and write the current text into `attach.last_text`.
-4. If the current text equals `last_text`: return no match (treat as list complete / unchanged).
-5. If the current text differs from `last_text`: update `attach.last_text` and return a match.
+2. Collect all OCR hits from the target result (`Filtered`, else `All`), sort by vertical then horizontal position, and join with newlines as the fingerprint; the returned box is the topmost hit. Do not use `Best` alone, or a partial scroll that keeps the top name unchanged can be misread as list-complete.
+3. Read `attach.last_text` from the current custom recognition node itself.
+4. If `last_text` is empty (first success): return a match and write the current fingerprint into `attach.last_text`.
+5. If the current fingerprint equals `last_text`: return no match (treat as list complete / unchanged).
+6. If the current fingerprint differs from `last_text`: update `attach.last_text` and return a match.
 
-For `And` nodes, target resolution is shared with `ExpressionRecognition` via `pkg/recogtarget`: first run the `And` node itself, then read the corresponding sub-recognition result from this run's `CombinedResult` using that node's native `box_index` (default `0`), and extract OCR text/box from that selected child. Node definition validation also requires the `box_index` target to contain OCR.
+For `And` nodes, target resolution is shared with `ExpressionRecognition` via `pkg/recogtarget`: first run the `And` node itself, then read the corresponding sub-recognition result from this run's `CombinedResult` using that node's native `box_index` (default `0`), and extract OCR from that selected child. Node definition validation also requires the `box_index` target to contain OCR.
 
 Example file: [`ListCompleteRecognition.json`](../../../assets/resource/pipeline/Interface/Example/ListCompleteRecognition.json)
 
@@ -283,7 +284,7 @@ Notes:
 
 - State is stored in `attach.last_text` on the **current Custom recognition node**, not on the OCR/`And` node referenced by `node`.
 - To restart a list scan, clear that Custom node's `attach.last_text` (for example via `PipelineOverride`).
-- This recognizer only answers "did the text change"; scrolling/clicking still belong in Pipeline.
+- This recognizer only answers "did the full-screen OCR fingerprint change"; scrolling/clicking still belong in Pipeline.
 
 ### ScheduleRecognition
 
