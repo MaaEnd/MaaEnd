@@ -258,7 +258,7 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 行为：
 
 1. 执行 `node` 识别；未命中或无法提取 OCR 文字时返回未命中。
-2. 从目标 OCR 结果收集整屏命中（优先 `Filtered`，否则 `All`），按纵向（再按横向）排序后用换行拼接为指纹；返回框取最上方一条。不要只用 `Best`，以免顶部名字不变、下方已滚动时误判到底。
+2. 从目标 OCR 结果收集命中（优先 `Filtered`，否则 `All`），按纵向（再按横向）排序后只取首尾两条用换行拼接为指纹（仅一条时用该条）；返回框取最上方一条。比只用 `Best` 更能发现「顶不变、底已滚」；比整屏 join 更耐中间 OCR 抖动。
 3. 读取当前自定义识别节点自身的 `attach.last_text`。
 4. 若 `last_text` 为空（首次成功）：返回命中，并把当前指纹写入 `attach.last_text`。
 5. 若当前指纹与 `last_text` 一致：返回未命中（视为列表已到底/未变化）。
@@ -286,7 +286,7 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 
 - 状态保存在**当前 Custom 识别节点**的 `attach.last_text`，不是 `node` 指向的 OCR/`And` 节点。
 - 需要重新开始一轮列表扫描时，应清空该 Custom 节点的 `attach.last_text`（例如通过 `PipelineOverride`）。
-- 该识别器只负责“整屏 OCR 指纹是否变化”，滑动、点击等流程仍由 Pipeline 组织。
+- 该识别器只负责“OCR 首尾指纹是否变化”，滑动、点击等流程仍由 Pipeline 组织。
 
 ### ScheduleRecognition
 

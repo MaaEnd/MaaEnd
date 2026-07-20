@@ -256,7 +256,7 @@ Parameters:
 Behavior:
 
 1. Run recognition on `node`; return no match if it misses or no OCR text can be extracted.
-2. Collect all OCR hits from the target result (`Filtered`, else `All`), sort by vertical then horizontal position, and join with newlines as the fingerprint; the returned box is the topmost hit. Do not use `Best` alone, or a partial scroll that keeps the top name unchanged can be misread as list-complete.
+2. Collect OCR hits from the target result (`Filtered`, else `All`), sort by vertical then horizontal position, and fingerprint only the first and last hits joined with a newline (or the single hit if there is only one); the returned box is the topmost hit. This still detects “top unchanged, bottom scrolled” better than `Best` alone, while staying more stable than joining every on-screen string.
 3. Read `attach.last_text` from the current custom recognition node itself.
 4. If `last_text` is empty (first success): return a match and write the current fingerprint into `attach.last_text`.
 5. If the current fingerprint equals `last_text`: return no match (treat as list complete / unchanged).
@@ -284,7 +284,7 @@ Notes:
 
 - State is stored in `attach.last_text` on the **current Custom recognition node**, not on the OCR/`And` node referenced by `node`.
 - To restart a list scan, clear that Custom node's `attach.last_text` (for example via `PipelineOverride`).
-- This recognizer only answers "did the full-screen OCR fingerprint change"; scrolling/clicking still belong in Pipeline.
+- This recognizer only answers "did the first/last OCR fingerprint change"; scrolling/clicking still belong in Pipeline.
 
 ### ScheduleRecognition
 

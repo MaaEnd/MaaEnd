@@ -22,8 +22,9 @@ var _ maa.CustomRecognitionRunner = &Recognition{}
 
 // Recognition 是通用的列表完成识别器：通过 OCR 指纹是否变化判断列表是否仍在滚动/更新。
 //
-// 指纹取自目标 OCR 节点的整屏命中（优先 Filtered，否则 All），按纵向（再按横向）排序后
-// 用换行拼接，避免只比 Best 时顶部名字不变、下方已滚动仍被误判到底。
+// 指纹取自目标 OCR 节点命中（优先 Filtered，否则 All）：按纵向（再按横向）排序后
+// 只取首尾两条用换行拼接（仅一条时用该条）。比只用 Best 更能发现「顶不变、底已滚」；
+// 比整屏 join 更耐中间项 OCR 抖动。
 //
 // 首次命中（当前节点 attach.last_text 为空）时，只要能抽出指纹即返回 true，并写入指纹与框；
 // 之后若指纹与 attach.last_text 一致则返回 false（视为列表已到底/未变化），
@@ -197,8 +198,8 @@ func extractOCRFingerprintFromNode(ctx *maa.Context, nodeName string, detail *ma
 	return hit, nil
 }
 
-// fingerprintFromOCRResults 收集 Filtered（空则 All）中全部 OCR 文本，
-// 按 box 纵向再横向排序后拼接为指纹；Box 取最上方一条。
+// fingerprintFromOCRResults 收集 Filtered（空则 All）中 OCR 命中，
+// 按 box 纵向再横向排序后取首尾生成指纹；Box 取最上方一条。
 func fingerprintFromOCRResults(detail *maa.RecognitionDetail) (ocrHit, bool) {
 	hits := collectOCRHits(detail)
 	if len(hits) == 0 {
@@ -253,9 +254,10 @@ func buildFingerprint(hits []ocrHit) ocrHit {
 		return sorted[i].Box[0] < sorted[j].Box[0]
 	})
 
-	texts := make([]string, 0, len(sorted))
-	for _, h := range sorted {
-		texts = append(texts, h.Text)
+	// 只取首尾：中间漏检/多检不影响；底部换人仍能与 Best-only 区分开。
+	texts := []string{sorted[0].Text}
+	if last := sorted[len(sorted)-1]; len(sorted) > 1 {
+		texts = append(texts, last.Text)
 	}
 	return ocrHit{
 		Text: strings.Join(texts, fingerprintSep),
