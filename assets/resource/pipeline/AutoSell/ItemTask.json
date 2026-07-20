@@ -486,8 +486,46 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellFriendsPricesExpectedBuySlide",
-            "AutoSellFriendsPricesExpectedBuyClick"
+            "AutoSellFriendsPricesExpectedNeedSlide",
+            "AutoSellFriendsPricesExpectedBuyDirect"
+        ]
+    },
+    "AutoSellFriendsPricesExpectedBuyDirect": {
+        "desc": "当前价格符合预期，可以直接售卖",
+        "recognition": "OCR",
+        "roi": [
+            314,
+            96,
+            346,
+            174
+        ],
+        "expected": [
+            "(?<![0-9])[01](?![0-9])"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            // "AutoSellFriendsPricesExpectedBuyClick"
+        ]
+    },
+    "AutoSellFriendsPricesExpectedNeedSlide": {
+        "desc": "当前价格符合预期，需要滑动调整价格",
+        "recognition": "OCR",
+        "roi": [
+            314,
+            96,
+            346,
+            174
+        ],
+        "expected": [
+            "(?<![0-9])(?![01](?![0-9]))\\d+(?![0-9])"
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuySlide"
         ]
     },
     "AutoSellFriendsPricesExpectedBuySlide": {
