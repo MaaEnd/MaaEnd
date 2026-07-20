@@ -44,6 +44,7 @@ const (
 	nodeAbandPopup   = "TrialOfSwordmancyAbandPopup"   // OCR：放弃确认弹窗文本
 	nodeIsDoubled    = "TrialOfSwordmancyIsDoubled"    // 模板：已翻倍指示
 
+	nodeDeck            = "TrialOfSwordmancyDeck"      // OCR：牌库整列库存数
 	nodeDeckCountPrefix = "TrialOfSwordmancyDeckCount" // + "1".."5"：牌库各点数库存数 OCR
 	nodeHandPointPrefix = "TrialOfSwordmancyHandPoint" // + "1".."5"：手牌各槽点数位（模板，运行时 override template）
 )

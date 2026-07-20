@@ -23,7 +23,7 @@ var _ maa.CustomRecognitionRunner = &Recognition{}
 // 各字段来源（ROI/模板都在 TrialOfSwordmancyCommon.json 的 [go] 节点里，Go 按名调用 maafw）：
 //   - 屏幕态：RewardMode / DrawCard 在场 → 处于抽牌界面。
 //   - Hand：5 个手牌位（HandPoint1-5）匹配 Point1-5.png，命中即该槽点数+在场。
-//   - Deck：牌库「剩余库存」OCR（DeckCount1-5，抽牌递减）；总牌量 = 剩余 + 手牌。
+//   - Deck：牌库「剩余库存」整列 OCR（Deck，按 DeckCount1-5 ROI 分组，抽牌递减）；总牌量 = 剩余 + 手牌。
 //   - RemainCalc / RemainDouble：OCR（RemainCalc / RemainDouble 节点）。
 //   - RemainAband：持久化缓存；未知(-1)时探测（点放弃→OCR 弹窗→取消）。
 //   - IsDoubled：模板匹配（IsDoubled 节点）。
@@ -164,18 +164,74 @@ func recognizeCount(ctx *maa.Context, img image.Image, nodeName string) (int, bo
 	return parseFirstInt(text)
 }
 
-// recognizeDeck 跑 DeckCount1-5 五个 OCR 节点读牌库「剩余库存」（抽一张递减一次）；任一读不到则整体失败。
-// 返回的是剩余量，调用方需 + hand 还原总牌量（求解器吃总牌量）。
+// recognizeDeck 跑一次 Deck OCR 读牌库整列，再按 DeckCount1-5 的 ROI 筛选各点数「剩余库存」。
+// 任一 ROI 读不到数字则整体失败。
 func recognizeDeck(ctx *maa.Context, img image.Image) ([5]int, bool) {
+	detail, err := ctx.RunRecognition(nodeDeck, img, nil)
+	if err != nil || detail == nil || detail.Results == nil {
+		return [5]int{}, false
+	}
+
+	var rois [5]maa.Rect
+	for i := range rois {
+		roi, err := nodeROI(ctx, nodeDeckCountPrefix+strconv.Itoa(i+1))
+		if err != nil {
+			return [5]int{}, false
+		}
+		rois[i] = roi
+	}
+
+	var texts [5]strings.Builder
+	for _, result := range detail.Results.Filtered {
+		if result == nil {
+			continue
+		}
+		ocr, ok := result.AsOCR()
+		if !ok || ocr == nil {
+			continue
+		}
+		for i, roi := range rois {
+			if rectContains(roi, ocr.Box) {
+				texts[i].WriteString(strings.TrimSpace(ocr.Text))
+				break
+			}
+		}
+	}
+
 	var deck [5]int
-	for i := 0; i < 5; i++ {
-		n, ok := recognizeCount(ctx, img, nodeDeckCountPrefix+strconv.Itoa(i+1))
+	for i := range deck {
+		n, ok := parseFirstInt(texts[i].String())
 		if !ok {
 			return [5]int{}, false
 		}
 		deck[i] = n
 	}
 	return deck, true
+}
+
+func nodeROI(ctx *maa.Context, nodeName string) (maa.Rect, error) {
+	raw, err := ctx.GetNodeJSON(nodeName)
+	if err != nil {
+		return maa.Rect{}, err
+	}
+	var node struct {
+		Recognition struct {
+			Param struct {
+				ROI maa.Rect `json:"roi"`
+			} `json:"param"`
+		} `json:"recognition"`
+	}
+	if err := json.Unmarshal([]byte(raw), &node); err != nil {
+		return maa.Rect{}, err
+	}
+	return node.Recognition.Param.ROI, nil
+}
+
+func rectContains(outer, inner maa.Rect) bool {
+	return inner.X() >= outer.X() &&
+		inner.Y() >= outer.Y() &&
+		inner.X()+inner.Width() <= outer.X()+outer.Width() &&
+		inner.Y()+inner.Height() <= outer.Y()+outer.Height()
 }
 
 // recognizeIsDoubled 跑 IsDoubled 模板节点，命中即本局已翻倍。
