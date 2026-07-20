@@ -1,0 +1,150 @@
+{
+    "DailyTaskClaimSingleRewardOCR": {
+        "roi": [
+            994,
+            136,
+            246,
+            538
+        ]
+    },
+    "DailyTaskClaimSingleRewardTemplate": {
+        "roi": [
+            994,
+            136,
+            246,
+            538
+        ]
+    },
+    "DailyTaskClaimActivityRewards": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    17,
+                    127,
+                    157,
+                    464
+                ]
+            }
+        }
+    },
+    "DailyTaskScrollFinished": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    956,
+                    484,
+                    260,
+                    194
+                ]
+            }
+        }
+    },
+    "DailyTaskActivityLimitReached": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    260,
+                    409,
+                    979,
+                    311
+                ]
+            }
+        }
+    },
+    "DailyTaskUpgradeWeapon": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    265,
+                    144,
+                    577,
+                    496
+                ]
+            }
+        }
+    },
+    "DailyTaskCreation": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    265,
+                    144,
+                    577,
+                    496
+                ]
+            }
+        }
+    },
+    "DailyTaskAssemble": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    265,
+                    144,
+                    577,
+                    496
+                ]
+            }
+        }
+    },
+    "DailyTaskLevelUpOperator": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    265,
+                    144,
+                    577,
+                    496
+                ]
+            }
+        }
+    },
+    "DailyTaskCreationIsValid": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    686,
+                    -37,
+                    24,
+                    86
+                ]
+            }
+        }
+    },
+    "DailyTaskAssembleIsValid": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    686,
+                    -37,
+                    24,
+                    86
+                ]
+            }
+        }
+    },
+    "DailyTaskUpgradeWeaponIsValid": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    686,
+                    -37,
+                    24,
+                    86
+                ]
+            }
+        }
+    },
+    "DailyTaskLevelUpOperatorIsValid": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    686,
+                    -37,
+                    24,
+                    86
+                ]
+            }
+        }
+    }
+}

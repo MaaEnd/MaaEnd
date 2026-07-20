@@ -398,7 +398,7 @@ func getAllPuzzleThumbLoc(img image.Image) [][2]int {
 		}
 	}
 
-	if len(results) >= PUZZLE_THUMB_MAX_ROWS*PUZZLE_THUMB_MAX_COLS {
+	if len(results) > PUZZLE_THUMB_MAX_ROWS*PUZZLE_THUMB_MAX_COLS {
 		// False-positive
 		log.Warn().Int("count", len(results)).Msg("Detected too many puzzle thumbnails, skipping")
 		return [][2]int{}

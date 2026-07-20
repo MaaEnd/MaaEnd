@@ -177,3 +177,25 @@ var regionBases = map[string]int{
 文件：`docs/zh_cn/protocol/autostockpile-daily-storage/daily_storage.schema.json`（以及对应 `en_us` 版本）
 
 在 `region` 字段的 `enum` 列表中加入新地区标识（如 `"NewRegion"`），确保第三方工具能通过 Schema 校验新增地区的数据。
+
+## 货架双页扫描
+
+识别阶段会对弹性货架做**最多两页**扫描，避免清单超出一屏时漏扫商品：
+
+1. 对首屏截图执行 OCR + 模板匹配。
+2. 调用 `AutoStockpileSwipeShelfDown` 下滑一次（`post_wait_freezes` 等待列表稳定）。
+3. 再截图扫描次屏。
+4. 按商品 **ID 去重合并**（同 ID 保留首屏结果；仅下滑后次屏才出现的 ID 记入 `SecondPageOnlyIDs`）。内部扫屏顺序为 page0=首屏、page1=次屏（0-based）；字段名表示**仅第二屏（page1）**，不是第一屏（page0）。
+5. 调用 `AutoStockpileSwipeShelfUp` 滑回首屏。
+
+任一滑动/次屏扫描失败时降级为仅首屏结果，不中断任务。
+
+选中商品后：
+
+- 若商品 ID 在 `SecondPageOnlyIDs` 中（仅第二屏 / page1 可见，例如最后一排），点击前会再执行一次 `AutoStockpileSwipeShelfDown`，再交给 `AutoStockpileSelectedGoodsClick` 做模板点击。
+- 若首屏（page0）已有该商品，则不额外滑动。
+
+滑动节点：
+
+- Win32 默认：`assets/resource/pipeline/AutoStockpile/Helper.json` 中为 `DoNothing`（一屏可看全）。
+- ADB / PlayCover：`assets/resource_adb/pipeline/AutoStockpile/Helper.json` 覆盖为真实 `Swipe`（含横向收尾与 `end_hold`）。坐标基于 720p，实机若漏扫或过量重复，优先微调 ADB 侧 `begin` / `end` 与 `post_wait_freezes.target`。

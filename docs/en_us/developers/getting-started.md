@@ -206,7 +206,6 @@ The next step in `SellProductLoop` should continue using a recognition node to c
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAuto",
             "SellProductValleyIV",
             "SellProductWuling",
             "SellProductTaskEnd"

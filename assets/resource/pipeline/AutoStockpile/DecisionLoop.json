@@ -118,10 +118,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    170,
-                    120,
-                    50,
-                    50
+                    55,
+                    64,
+                    165,
+                    106
                 ],
                 "template": [
                     "AutoStockpile/Cart.png"
@@ -131,10 +131,10 @@
         "pre_wait_freezes": {
             "time": 80,
             "target": [
-                1000,
-                240,
-                80,
-                30
+                55,
+                64,
+                165,
+                106
             ],
             "threshold": 0.98
         },
@@ -152,9 +152,9 @@
             "param": {
                 "roi": [
                     975,
-                    230,
-                    130,
-                    50
+                    213,
+                    164,
+                    67
                 ],
                 "template": [
                     "AutoStockpile/ValleyCash.png",

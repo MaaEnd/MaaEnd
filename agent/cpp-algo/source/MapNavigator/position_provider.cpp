@@ -1,5 +1,7 @@
 #include <chrono>
 
+#include <MaaUtils/Logger.h>
+
 #include "../utils.h"
 #include "MapNavigator/controller_info_utils.h"
 #include "controller_type_utils.h"
@@ -88,6 +90,16 @@ bool PositionProvider::Capture(NaviPosition* out_pos, bool force_global_search, 
     options.expected_zone_id = expected_zone_id;
 
     const auto locate_result = locator_->locate(minimap, options);
+    const int status = static_cast<int>(locate_result.status);
+    if (locate_result.position) {
+        const auto& position = *locate_result.position;
+        LogInfo << "MapLocator" << VAR(status) << VAR(locate_result.debugMessage) << VAR(position.zoneId) << VAR(position.x)
+                << VAR(position.y) << VAR(position.score) << VAR(position.sliceIndex) << VAR(position.scale) << VAR(position.angle)
+                << VAR(position.latencyMs) << VAR(position.isHeld);
+    }
+    else {
+        LogInfo << "MapLocator" << VAR(status) << VAR(locate_result.debugMessage) << "position=null";
+    }
     if (locate_result.status != maplocator::LocateStatus::Success || !locate_result.position) {
         last_capture_was_held_ = false;
         held_fix_streak_ = 0;

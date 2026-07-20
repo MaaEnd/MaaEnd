@@ -69,6 +69,11 @@
                         },
                         {
                             "required": [
+                                "Replace"
+                            ]
+                        },
+                        {
+                            "required": [
                                 "Heading"
                             ]
                         },
@@ -76,30 +81,138 @@
                             "required": [
                                 "NoEnsureInitialMovementState"
                             ]
+                        },
+                        {
+                            "required": [
+                                "QuickTeleport"
+                            ]
                         }
                     ]
                 },
                 "then": {
                     "required": [
-                        "EnterMap",
-                        "MapName",
-                        "MapAssert",
                         "CameraSwipeDirection"
+                    ],
+                    "anyOf": [
+                        {
+                            "required": [
+                                "EnterMap"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "QuickTeleport"
+                            ],
+                            "properties": {
+                                "QuickTeleport": {
+                                    "const": true
+                                }
+                            }
+                        }
                     ],
                     "oneOf": [
                         {
-                            "required": [
-                                "MapPath"
-                            ]
+                            "title": "TeleportAndTakePhoto",
+                            "description": "传送点可直接拍照：不配置 MapAssert 和任何寻路字段。",
+                            "not": {
+                                "anyOf": [
+                                    {
+                                        "required": [
+                                            "MapAssert"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "MapPath"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "MapTarget"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "MapGoal"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "MapName"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "MapTargetTier"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "NoEnsureInitialMovementState"
+                                        ]
+                                    }
+                                ]
+                            }
                         },
                         {
                             "required": [
-                                "MapTarget"
-                            ]
-                        },
-                        {
-                            "required": [
-                                "MapGoal"
+                                "MapName"
+                            ],
+                            "allOf": [
+                                {
+                                    "if": {
+                                        "not": {
+                                            "allOf": [
+                                                {
+                                                    "required": [
+                                                        "QuickTeleport"
+                                                    ],
+                                                    "properties": {
+                                                        "QuickTeleport": {
+                                                            "const": true
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "anyOf": [
+                                                        {
+                                                            "required": [
+                                                                "MapTarget"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "required": [
+                                                                "MapGoal"
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "then": {
+                                        "required": [
+                                            "MapAssert"
+                                        ]
+                                    }
+                                }
+                            ],
+                            "oneOf": [
+                                {
+                                    "required": [
+                                        "MapPath"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                        "MapTarget"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                        "MapGoal"
+                                    ]
+                                }
                             ]
                         }
                     ]
@@ -134,7 +247,7 @@
             "MapName": {
                 "type": "string",
                 "minLength": 1,
-                "description": "地图标识。使用 MapPath 时填写 MapTracker 的 map_name（支持正则）；使用 MapGoal 时填写可加载 NavMesh 的精确 MapTracker map_name；使用 MapTarget 时填写 MapLocate 的 zone_id。必须与录制 MapAssert/MapPath/MapTarget/MapGoal 时使用的工具保持一致。",
+                "description": "仅寻路路线使用。使用 MapPath 时填写 MapTracker 的 map_name（支持正则）；使用 MapGoal 时填写可加载 NavMesh 的精确 MapTracker map_name；使用 MapTarget 时填写 MapLocate 的 zone_id。传送后直拍时省略。",
                 "examples": [
                     "map02_lv001",
                     "map02_lv002",
@@ -147,7 +260,7 @@
             },
             "MapAssert": {
                 "type": "array",
-                "description": "初始位置判断矩形 [x, y, w, h]。使用 MapPath / MapGoal 时由 MapTrackerAssertLocation 判断；使用 MapTarget 时由 MapLocateAssertLocation 判断。仅 MapPath 在传送后再次复核，MapTarget / MapGoal 直接开始 NavMesh 寻路。",
+                "description": "初始位置判断矩形 [x, y, w, h]。普通传送寻路路线和 MapPath 快捷传送路线必填；QuickTeleport 与 MapTarget / MapGoal 组合时可省略；传送后直拍时必须省略。",
                 "items": {
                     "type": "number"
                 },
@@ -156,7 +269,7 @@
             },
             "MapPath": {
                 "type": "array",
-                "description": "寻路路径（小地图坐标序列），由 MapTrackerMove 逐点跟随。与 MapTarget / MapGoal 三选一。用 tools/MapNavigator/ 的 GUI 工具录制。",
+                "description": "寻路路径（小地图坐标序列），由 MapTrackerMove 逐点跟随。寻路路线中与 MapTarget / MapGoal 三选一；传送后直拍时省略。用 tools/MapNavigator/ 的 GUI 工具录制。",
                 "minItems": 1,
                 "items": {
                     "type": "array",
@@ -238,13 +351,17 @@
             },
             "Heading": {
                 "type": "number",
-                "description": "可选；到达拍照点后、进入拍照模式前，先用 MapNavigator 的 HEADING 动作把角色朝向旋转到该角度（度数，与 MapNavigator 角度约定一致）。未配置时不调整角色朝向。仅影响角色朝向，与摄像头滑屏（CameraSwipeDirection）相互独立。",
+                "description": "可选；进入拍照模式前把角色朝向旋转到该角度。传送后直拍时会独立调用 MapTrackerToward，不需要 MapName 或 MapAssert。仅影响角色朝向，与摄像头滑屏（CameraSwipeDirection）相互独立。",
                 "minimum": 0,
                 "exclusiveMaximum": 360
             },
             "NoEnsureInitialMovementState": {
                 "type": "boolean",
                 "description": "可选，默认 false。对应 MapTrackerMove 的 no_ensure_initial_movement_state 参数。一般只在路线起点紧贴桥边、悬崖边等危险地形时开启，用于跳过开局的冲刺准备动作，避免角色因为这一步直接掉下桥或掉下悬崖。"
+            },
+            "QuickTeleport": {
+                "type": "boolean",
+                "description": "可选，默认 false。启用后通过已追踪任务的地图界面依次点击“前往传送”和“传送”，不再通过 EnterMap 的 SceneManager 万能跳转前往传送点；此时 EnterMap 可省略。"
             }
         }
     }

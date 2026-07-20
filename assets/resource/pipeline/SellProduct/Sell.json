@@ -10,12 +10,38 @@
                 "SceneEnterMenuRegionalDevelopmentValleyIVOutpostManagement"
             ]
         },
+        "anchor": {
+            "SellProductValleyIVPrepareOperatorCache": "SellProductValleyIVPrepareOperatorCache"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[Anchor]SellProductValleyIVPrepareOperatorCache",
             "[JumpBack]SellProductRefugeeCamp",
-            "[JumpBack]SellProductInfrastructureOutpost",
-            "[JumpBack]SellProductReconstructionCommand",
+            "[JumpBack]SellProductInfraStation",
+            "[JumpBack]SellProductReconstructionHQ",
+            "SellProductLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    },
+    "SellProductValleyIVPrepareOperatorCache": {
+        "desc": "四号谷地售卖前准备联络干员缓存",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SellProductScanOperatorList"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductOutpostLocked",
+            "[JumpBack]SellProductRefugeeCamp",
+            "[JumpBack]SellProductInfraStation",
+            "[JumpBack]SellProductReconstructionHQ",
             "SellProductLoop",
             "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
@@ -31,10 +57,36 @@
                 "SceneEnterMenuRegionalDevelopmentWulingOutpostManagement"
             ]
         },
+        "anchor": {
+            "SellProductWulingPrepareOperatorCache": "SellProductWulingPrepareOperatorCache"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]SellProductSkyKingFlats",
+            "[Anchor]SellProductWulingPrepareOperatorCache",
+            "[JumpBack]SellProductSkyKingFlatsConstructionSite",
+            "[JumpBack]SellProductCardiacRemediationStation",
+            "[JumpBack]SellProductXiranflowCloudseederStation",
+            "SellProductLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    },
+    "SellProductWulingPrepareOperatorCache": {
+        "desc": "武陵售卖前准备联络干员缓存",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SellProductScanOperatorList"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductOutpostLocked",
+            "[JumpBack]SellProductSkyKingFlatsConstructionSite",
             "[JumpBack]SellProductCardiacRemediationStation",
             "[JumpBack]SellProductXiranflowCloudseederStation",
             "SellProductLoop",

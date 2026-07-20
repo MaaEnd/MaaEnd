@@ -1,0 +1,23 @@
+{
+    "skill_name": "maaend-test-image",
+    "evals": [
+        {
+            "id": 1,
+            "prompt": "把 C:\\Screenshots\\确认转交.png 加到 MaaEnd 的 ADB 官服自动转交送货任务测试里，图片名用 四号谷地_确认转交_二测.png，预期命中 DeliveryJobsConfirmTaskTransfer。原图有 UID，记得打码。",
+            "expected_output": "从仓库外原图直接生成 tests/MaaEndTestset/ADB/Official_CN/四号谷地_确认转交_二测.png 的脱敏版本，在语义匹配的 tests/DeliveryJobs/test_transfer_job.json 中添加带 .png 的 image 和指定 hits，并运行 pnpm check 与 pnpm test。",
+            "files": []
+        },
+        {
+            "id": 2,
+            "prompt": "Win32 的 C:\\Temp\\wrong-level.png 是升级武器按钮的反例，请作为 WrongUpLevelButton_2.png 加进 MaaEnd 现有通用按钮测试。右上角昵称 OCR 没识别出来，需要再遮住 1100,20,160,40。",
+            "expected_output": "用 Win32 固定 ROI、UID/# OCR 和额外 ROI 生成 tests/MaaEndTestset/Win32/Official_CN/WrongUpLevelButton_2.png，把用例追加到语义匹配的 tests/Common/Button/test_*.json，hits 为空数组，目视复核后运行 pnpm check 与 pnpm test。",
+            "files": []
+        },
+        {
+            "id": 3,
+            "prompt": "把 downloads 里的 new-shot.png 加成一个 MaaEnd 节点识别测试，预期框大概在按钮附近。",
+            "expected_output": "平台、目标测试主题、节点名和精确 box 都不足以安全推断；先检查 MaaEnd 本地上下文，仍无法确定时只追问会影响落盘位置和测试语义的必要信息，不猜测 box，也不把未脱敏原图复制进 tests/MaaEndTestset。",
+            "files": []
+        }
+    ]
+}

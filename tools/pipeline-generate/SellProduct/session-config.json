@@ -1,0 +1,8 @@
+{
+    "template": "session-template.jsonc",
+    "data": "session-data.mjs",
+    "outputDir": "../../../assets/resource/pipeline/SellProduct",
+    "outputFile": "OperatorSession.json",
+    "format": true,
+    "merged": true
+}

@@ -68,13 +68,13 @@
         "MapName": "Wuling_Base",
         "MapAssert": [
             747.21,
-            1516.86,
+            2572.86,
             36.4,
             31.87
         ],
         "MapTarget": [
             794,
-            1546.21
+            2602.21
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "Heading": 235
@@ -136,13 +136,13 @@
         "MapName": "Wuling_Base",
         "MapAssert": [
             517.16,
-            675.72,
+            1731.72,
             31.13,
             26.64
         ],
         "MapTarget": [
             474.12,
-            716.18
+            1772.18
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 180
@@ -155,13 +155,13 @@
         "MapName": "Wuling_Base",
         "MapAssert": [
             745.98,
-            1519.62,
+            2575.62,
             54.24,
             42.21
         ],
         "MapTarget": [
             829.41,
-            1520.94
+            2576.94
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 245
@@ -174,13 +174,13 @@
         "MapName": "Wuling_Base",
         "MapAssert": [
             671.75,
-            1564.08,
+            2620.08,
             46.31,
             54.57
         ],
         "MapTarget": [
             644.99,
-            1561.89
+            2617.89
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 290
@@ -239,13 +239,13 @@
         "MapName": "Wuling_Base",
         "MapAssert": [
             682.09,
-            1580.41,
+            2636.41,
             44.2,
             48.35
         ],
         "MapTarget": [
             691.16,
-            1578.78
+            2634.78
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "Heading": 100
@@ -625,7 +625,7 @@
         "MapName": "Wuling_Base",
         "MapAssert": [
             480.76,
-            1056.91,
+            2112.91,
             21.99,
             23.92
         ],
@@ -650,12 +650,12 @@
             8.1
         ],
         "MapGoal": [
-            579.2,
-            253.7
+            520,
+            288
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "CameraMaxHit": 3,
-        "Heading": 90
+        "Heading": 0
     },
     {
         "MissionId": "m1m63",
@@ -665,7 +665,7 @@
         "MapName": "Wuling_Base",
         "MapAssert": [
             567.66,
-            1154.92,
+            2210.92,
             65.56,
             55.32
         ],
@@ -886,21 +886,60 @@
     {
         "MissionId": "m1m69",
         "Name": "“小池荷”",
-        "Id": "PoolLotus"
+        "Id": "PoolLotus",
+        "EnterMap": "SceneEnterWorldWulingMarkerStone3",
+        "MapName": "map02_lv004",
+        "MapAssert": [
+            602.8,
+            325,
+            9.7,
+            8.1
+        ],
+        "MapGoal": [
+            594.4,
+            324.1
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenRight",
+        "CameraMaxHit": 1,
+        "Heading": 334
     },
     {
         "MissionId": "m1m70",
         "Name": "“金秋时”",
-        "Id": "AutumnGold"
+        "Id": "AutumnGold",
+        "EnterMap": "SceneEnterWorldWulingMarkerStone2",
+        "MapName": "map02_lv004",
+        "MapAssert": [
+            402.4,
+            313.4,
+            20.8,
+            17.4
+        ],
+        "MapGoal": [
+            299.5,
+            386.5
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "CameraMaxHit": 1,
+        "NoEnsureInitialMovementState": true,
+        "Heading": 270
     },
     {
         "MissionId": "m1m71",
         "Name": "巨兽心脏",
-        "Id": "FeranmutHeart"
+        "Id": "FeranmutHeart",
+        "QuickTeleport": true,
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "CameraMaxHit": 1,
+        "Heading": 270
     },
     {
         "MissionId": "m1m72",
         "Name": "“表象”",
-        "Id": "Thillu"
+        "Id": "Thillu",
+        "QuickTeleport": true,
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenRight",
+        "CameraMaxHit": 1,
+        "Heading": 270
     }
 ]

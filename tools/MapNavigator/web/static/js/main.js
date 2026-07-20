@@ -1839,7 +1839,9 @@ class MapNavigatorApp {
               if (this._selectDisplayZoneById(zoneIdNum)) this._onAstarZoneChanged(false);
             }
 
-            this._addAstarHint(x, y, '游戏当前位置');
+            // 定位给的是所在 zone 自己的帧(tier 上即 tier px), 预览点存 base px。
+            const [bx, by] = this._pointToBase(zoneIdNum, x, y);
+            this._addAstarHint(bx, by, '游戏当前位置');
             setStatus(`已标记 A* 定位预览点: [${x.toFixed(1)}, ${y.toFixed(1)}]。当前有 ${this.astarLocateHints.length} 个预览点。`, '#10b981');
             this._focusAstarHints();
           }
@@ -1853,7 +1855,8 @@ class MapNavigatorApp {
               this.els.assertZoneCombo.value = numericIdStr;
               this._onAssertZoneChanged();
             }
-            this.assertLocateHint = [x, y];
+            // 定位给的是所在 zone 自己的帧(tier 上即 tier px), 提示点存 base px。
+            this.assertLocateHint = zoneObj ? this._pointToBase(zoneObj.zone_id, x, y) : [x, y];
             this._fitView();
             setStatus(`已定位到游戏当前位置 [${x.toFixed(1)}, ${y.toFixed(1)}]，请在此提示点周围拖拽鼠标来画出断言矩形。`, '#10b981');
             this._paint();
@@ -1872,8 +1875,8 @@ class MapNavigatorApp {
   // ==================================================================================
 
   /**
-   * Append an A* preview marker. Coords are **base px** — the frame locate fixes and
-   * exported NAVMESH targets use; `_paint` projects them into the display frame.
+   * Append an A* preview marker. Coords are **base px** (callers convert from the point's
+   * own zone frame); `_paint` projects them into the display frame.
    * @param {number} x @param {number} y @param {string} label caption drawn under the marker
    * @returns {void}
    */
@@ -2188,10 +2191,11 @@ class MapNavigatorApp {
             tierName = zone.name;
           }
         }
-        // Preview markers are already base px (locate fixes / hand-entered coords).
+        // 预览点存的是 base px; 带 target_tier 时运行时按 tier px 解读 target, 所以反投回去。
+        const target = tierName ? this.field.baseToTier(tierId, hint.x, hint.y) : [hint.x, hint.y];
         const payload = {
           action: 'NAVMESH',
-          target: [compactNumber(hint.x), compactNumber(hint.y)]
+          target: [compactNumber(target[0]), compactNumber(target[1])]
         };
         if (tierName) {
           payload.target_tier = tierName;
@@ -2219,10 +2223,11 @@ class MapNavigatorApp {
     const targets = [];
     for (let i = 1; i < this.astarPoints.length; i++) {
       const pt = this.astarPoints[i];
-      const basePt = tierId !== null ? this.field.tierToBase(tierId, pt[0], pt[1]) : pt;
+      // 画的点本就是显示帧 px(有 tier 时即 tier px), 正是 target_tier 要的帧; 不带 tier 才转 base px。
+      const target = tierName ? pt : tierId !== null ? this.field.tierToBase(tierId, pt[0], pt[1]) : pt;
       const payload = {
         action: 'NAVMESH',
-        target: [compactNumber(basePt[0]), compactNumber(basePt[1])]
+        target: [compactNumber(target[0]), compactNumber(target[1])]
       };
       if (tierName) {
         payload.target_tier = tierName;

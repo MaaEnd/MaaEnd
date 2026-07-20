@@ -1,0 +1,201 @@
+{
+    "SellProductInitializeOperatorSession": {
+        "desc": "初始化自动选择干员会话",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "reset",
+            "mode": "cache"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRegisterLocationRefugeeCamp"
+        ]
+    },
+    "SellProductOperatorSessionReady": {
+        "desc": "自动选择干员会话已就绪",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductLoop"
+        ]
+    },
+    "SellProductScanOperatorList": {
+        "desc": "扫描联络干员列表",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductOperatorCacheReady",
+            "SellProductOpenOperatorListForScan"
+        ]
+    },
+    "SellProductOperatorCacheReady": {
+        "desc": "联络干员缓存已就绪",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorCacheReady",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "all",
+            "location": "global",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProductOpenOperatorListForScan": {
+        "desc": "打开联络干员列表以扫描缓存",
+        "recognition": "And",
+        "all_of": [
+            "SellProductOpenOperatorLiaisonButton",
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductInOperatorListForScan"
+        ]
+    },
+    "SellProductInOperatorListForScan": {
+        "desc": "已打开联络干员列表，扫描当前页",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductOperatorListScanDone",
+            "SellProductOperatorListScanFailed",
+            "SellProductSwipeOperatorListForScan"
+        ]
+    },
+    "SellProductOperatorListScanDone": {
+        "desc": "联络干员列表扫描到底",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorListBottom",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "all",
+            "location": "global",
+            "result": "scan_done",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCloseOperatorListAfterScan"
+        ]
+    },
+    "SellProductOperatorListScanFailed": {
+        "desc": "联络干员缓存扫描失败",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductOperatorScanOutcome",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "all",
+            "location": "global",
+            "result": "error",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProductSwipeOperatorListForScan": {
+        "desc": "扫描联络干员列表时向下滑动",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison"
+        ],
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            620,
+            520
+        ],
+        "end": [
+            [
+                620,
+                285
+            ],
+            [
+                760,
+                285
+            ]
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductInOperatorListForScan"
+        ]
+    },
+    "SellProductCloseOperatorListAfterScan": {
+        "desc": "扫描联络干员列表后关闭列表",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOperatorLiaison",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

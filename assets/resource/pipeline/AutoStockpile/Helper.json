@@ -77,8 +77,8 @@
                 "roi": [
                     250,
                     120,
-                    200,
-                    60
+                    240,
+                    100
                 ],
                 "expected": [
                     "\\+\\d"
@@ -97,8 +97,8 @@
                 "roi": [
                     50,
                     120,
-                    270,
-                    60
+                    280,
+                    90
                 ],
                 "expected": [
                     "\\d/\\d"
@@ -175,6 +175,32 @@
             }
         },
         "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileSwipeShelfDown": {
+        "desc": "货架向下滑动一页（Win32 一屏可见，无需滑动）",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileSwipeShelfUp": {
+        "desc": "货架向上滑动一页（Win32 一屏可见，无需滑动）",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
         "post_delay": 0,
         "rate_limit": 0
     }

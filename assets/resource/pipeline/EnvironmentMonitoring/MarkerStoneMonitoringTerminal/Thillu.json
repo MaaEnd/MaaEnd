@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ThilluNotAdapted"
+            "ThilluInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedThillu": {
@@ -230,7 +230,81 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ThilluNotAdapted"
+            "ThilluOpenTrackedMissionMap"
+        ]
+    },
+    "ThilluOpenTrackedMissionMap": {
+        "desc": "表象任务已在追踪中，点击定位按钮进入任务地图",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringTrackedMissionMapButton",
+            "InThilluMission"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ThilluInQuickTeleportMap"
+        ]
+    },
+    "ThilluInQuickTeleportMap": {
+        "desc": "已进入表象任务地图，准备快捷传送",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringQuickTeleportSelectButton",
+            "InThilluMission"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ThilluQuickTeleportSelect"
+        ]
+    },
+    "ThilluQuickTeleportSelect": {
+        "desc": "在表象任务地图中点击前往传送",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringQuickTeleportSelectButton",
+            "InThilluMission"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ThilluQuickTeleport"
+        ]
+    },
+    "ThilluQuickTeleport": {
+        "desc": "在表象任务地图中点击传送",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ThilluQuickTeleportDone",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "ThilluQuickTeleportDone": {
+        "desc": "快捷传送完成，已返回大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GoToThilluMove"
         ]
     },
     "ThilluNotAdapted": {
@@ -284,7 +358,7 @@
         ]
     },
     "GoToThilluNotAtStartPos": {
-        "desc": "不在表象任务开始位置附近，先传送再检查落点",
+        "desc": "前往表象传送点，传送后调整朝向并拍照",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -296,23 +370,26 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToThilluStartPos"
+            "GoToThilluMove"
         ]
     },
     "GoToThilluMove": {
-        "desc": "自动寻路前往表象",
+        "desc": "在表象传送点调整拍照朝向",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerToward",
         "custom_action_param": {
-            "map_name": "^map\\d+_lv\\d+$",
-            "path": [
-                [
-                    0,
-                    0
-                ]
-            ]
+            "angle": 270
         },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ThilluTakePhoto"
+        ]
+    },
+    "ThilluTakePhoto": {
+        "desc": "在表象任务拍照点开始拍照",
+        "pre_delay": 0,
         "anchor": {
             "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
             "EnvironmentMonitoringAdjustCamera": "ThilluAdjustCamera"
@@ -325,12 +402,12 @@
     },
     "ThilluAdjustCamera": {
         "desc": "表象任务中调整朝向",
-        "max_hit": 2,
+        "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringSwipeScreenUp"
+            "EnvironmentMonitoringSwipeScreenRight"
         ]
     }
 }

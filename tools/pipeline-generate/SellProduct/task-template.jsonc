@@ -7,7 +7,9 @@
             "description": "$task.SellProduct.description",
             "option": [
                 "SellProductSchedule",
-                "SellBeyondAidQuota",
+                "SellProductOperatorAutoSwitch",
+                "SellProductPriorityRules",
+                "SellProductItemReserveRules",
                 "${RegionPrefix}Sell"
             ],
             "controller": [
@@ -16,7 +18,9 @@
                 "PlayCover",
                 "Wlroots"
             ],
-            "group": ["regional_development"]
+            "group": [
+                "regional_development"
+            ]
         }
     ],
     "option": {
@@ -113,44 +117,263 @@
                 }
             ]
         },
-        // ==== 超出调度券上限时是否仍确认交易 =====
-        "SellBeyondAidQuota": {
+        "SellProductPriorityRules": {
             "type": "switch",
-            "label": "$task.SellProduct.option.SellBeyondAidQuota.label",
-            "description": "$task.SellProduct.option.SellBeyondAidQuota.description",
+            "label": "$task.SellProduct.PrioritySwitch",
+            "description": "$task.SellProduct.PriorityDescription",
             "default_case": "No",
+            "cases": "${PriorityRuleSwitchCases}"
+        },
+        "SellProductPriorityItem1": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem1",
+            "default_case": "None",
+            "cases": "${PriorityItemCases1}"
+        },
+        "SellProductPriorityItem2": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem2",
+            "default_case": "None",
+            "cases": "${PriorityItemCases2}"
+        },
+        "SellProductPriorityItem3": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem3",
+            "default_case": "None",
+            "cases": "${PriorityItemCases3}"
+        },
+        "SellProductPriorityItem4": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem4",
+            "default_case": "None",
+            "cases": "${PriorityItemCases4}"
+        },
+        "SellProductPriorityItem5": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem5",
+            "default_case": "None",
+            "cases": "${PriorityItemCases5}"
+        },
+        "SellProductPriorityItem6": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem6",
+            "default_case": "None",
+            "cases": "${PriorityItemCases6}"
+        },
+        "SellProductItemReserveRules": {
+            "type": "switch",
+            "label": "$task.SellProduct.ReserveSwitch",
+            "description": "$task.SellProduct.ReserveSwitchDescription",
+            "default_case": "No",
+            "cases": "${ReserveRuleSwitchCases}"
+        },
+        // 选中具体货品后才展开对应数量输入。
+        "SellProductReserveItem1": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveItem1",
+            "description": "$task.SellProduct.ReserveDescription",
+            "default_case": "None",
+            "cases": "${ReserveItemCases1}"
+        },
+        "SellProductReserveItem1Value": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem1Value",
+                    "label": "$task.SellProduct.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.SellProduct.ReserveQuantityPattern"
+                }
+            ],
+            "pipeline_override": {
+                "SellProductRegisterReserveRule1": {
+                    "custom_action_param": {
+                        "operation": "register",
+                        "quantity": "{SellProductReserveItem1Value}"
+                    }
+                }
+            }
+        },
+        "SellProductReserveItem2": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveItem2",
+            "default_case": "None",
+            "cases": "${ReserveItemCases2}"
+        },
+        "SellProductReserveItem2Value": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem2Value",
+                    "label": "$task.SellProduct.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.SellProduct.ReserveQuantityPattern"
+                }
+            ],
+            "pipeline_override": {
+                "SellProductRegisterReserveRule2": {
+                    "custom_action_param": {
+                        "operation": "register",
+                        "quantity": "{SellProductReserveItem2Value}"
+                    }
+                }
+            }
+        },
+        "SellProductReserveItem3": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveItem3",
+            "default_case": "None",
+            "cases": "${ReserveItemCases3}"
+        },
+        "SellProductReserveItem3Value": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem3Value",
+                    "label": "$task.SellProduct.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.SellProduct.ReserveQuantityPattern"
+                }
+            ],
+            "pipeline_override": {
+                "SellProductRegisterReserveRule3": {
+                    "custom_action_param": {
+                        "operation": "register",
+                        "quantity": "{SellProductReserveItem3Value}"
+                    }
+                }
+            }
+        },
+        "SellProductReserveItem4": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveItem4",
+            "default_case": "None",
+            "cases": "${ReserveItemCases4}"
+        },
+        "SellProductReserveItem4Value": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem4Value",
+                    "label": "$task.SellProduct.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.SellProduct.ReserveQuantityPattern"
+                }
+            ],
+            "pipeline_override": {
+                "SellProductRegisterReserveRule4": {
+                    "custom_action_param": {
+                        "operation": "register",
+                        "quantity": "{SellProductReserveItem4Value}"
+                    }
+                }
+            }
+        },
+        "SellProductReserveItem5": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveItem5",
+            "default_case": "None",
+            "cases": "${ReserveItemCases5}"
+        },
+        "SellProductReserveItem5Value": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem5Value",
+                    "label": "$task.SellProduct.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.SellProduct.ReserveQuantityPattern"
+                }
+            ],
+            "pipeline_override": {
+                "SellProductRegisterReserveRule5": {
+                    "custom_action_param": {
+                        "operation": "register",
+                        "quantity": "{SellProductReserveItem5Value}"
+                    }
+                }
+            }
+        },
+        "SellProductReserveItem6": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveItem6",
+            "default_case": "None",
+            "cases": "${ReserveItemCases6}"
+        },
+        "SellProductReserveItem6Value": {
+            "type": "input",
+            "label": "$task.SellProduct.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem6Value",
+                    "label": "$task.SellProduct.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.SellProduct.ReserveQuantityPattern"
+                }
+            ],
+            "pipeline_override": {
+                "SellProductRegisterReserveRule6": {
+                    "custom_action_param": {
+                        "operation": "register",
+                        "quantity": "{SellProductReserveItem6Value}"
+                    }
+                }
+            }
+        },
+        "SellProductOperatorAutoSwitch": {
+            "type": "switch",
+            "label": "$task.SellProduct.OperatorAutoSwitch",
+            "description": "$task.SellProduct.OperatorAutoSwitchDescription",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
-                    "pipeline_override": {
-                        "SellProductAidQuotaExceededStop": {
-                            "enabled": false
-                        },
-                        "SellProductAidQuotaExceededConfirm": {
-                            "enabled": true
-                        },
-                        "SellProductAidQuotaExceededConfirmThenLoop": {
-                            "enabled": true
-                        }
-                    }
+                    "option": [
+                        "SellProductForceRefreshOperatorCache"
+                    ]
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductAidQuotaExceededStop": {
-                            "enabled": true
+                        "SellProductScanOperatorList": {
+                            "next": []
                         },
-                        "SellProductAidQuotaExceededConfirm": {
-                            "enabled": false
+                        "SellProductSellMain": {
+                            "next": [
+                                "SellProductSellLoop"
+                            ]
                         },
-                        "SellProductAidQuotaExceededConfirmThenLoop": {
-                            "enabled": false
+                        "SellProductSellLoopEnd": {
+                            "next": []
                         }
                     }
                 }
             ]
         },
-        // ==== 售卖总开关 =====
+        "SellProductForceRefreshOperatorCache": {
+            "type": "switch",
+            "label": "$task.SellProduct.ForceRefreshOperatorCache",
+            "description": "$task.SellProduct.ForceRefreshOperatorCacheDescription",
+            "default_case": "No",
+            "cases": "${OperatorRefreshModeCases}"
+        },
         "${RegionPrefix}Sell": {
             "type": "switch",
             "label": "$global.region.${RegionPrefix}",
@@ -176,7 +399,6 @@
                 }
             ]
         },
-        // ===== 售卖点开关 =====
         "${RegionPrefix}${LocationId}": {
             "type": "switch",
             "label": "$task.SellProduct.${RegionPrefix}${LocationId}",
@@ -187,15 +409,15 @@
                     "pipeline_override": {
                         "SellProduct${LocationId}": {
                             "enabled": true
+                        },
+                        "SellProductRegisterLocation${LocationId}": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "location": "${LocationId}",
+                                "active": true
+                            }
                         }
-                    },
-                    "option": [
-                        "${RegionPrefix}${LocationId}Operator",
-                        "${RegionPrefix}${LocationId}Attempt1",
-                        "${RegionPrefix}${LocationId}Attempt2",
-                        "${RegionPrefix}${LocationId}Attempt3",
-                        "${RegionPrefix}${LocationId}Attempt4"
-                    ]
+                    }
                 },
                 {
                     "name": "No",
@@ -206,352 +428,6 @@
                     }
                 }
             ]
-        },
-        // ===== 联络干员切换 =====
-        "${RegionPrefix}${LocationId}Operator": {
-            "type": "switch",
-            "label": "$task.SellProduct.OperatorSwitch",
-            "description": "$task.SellProduct.OperatorSwitchDescription",
-            "default_case": "No",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "SellProduct${LocationId}SetBeforeSellOperatorAnchor": {
-                            "anchor": {
-                                "SellProductBeforeSellOperator": "SellProduct${LocationId}BeforeSellOperator"
-                            }
-                        }
-                    },
-                    "option": [
-                        "${RegionPrefix}${LocationId}TargetOperator",
-                        "${RegionPrefix}${LocationId}RestoreOperator"
-                    ]
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "SellProduct${LocationId}SetBeforeSellOperatorAnchor": {
-                            "anchor": {
-                                "SellProductBeforeSellOperator": ""
-                            }
-                        }
-                    }
-                }
-            ]
-        },
-        "${RegionPrefix}${LocationId}TargetOperator": {
-            "type": "select",
-            "label": "$task.SellProduct.TargetOperator",
-            "description": "$task.SellProduct.TargetOperatorDescription",
-            "default_case": "${TargetOperatorDefaultCase}",
-            "cases": "${TargetOperatorCases}"
-        },
-        "${RegionPrefix}${LocationId}RestoreOperator": {
-            "type": "select",
-            "label": "$task.SellProduct.RestoreOperator",
-            "description": "$task.SellProduct.RestoreOperatorDescription",
-            "default_case": "DoNotRestore",
-            "cases": "${RestoreOperatorCases}"
-        },
-        // ===== 售卖尝试 1（默认开启，含描述） =====
-        "${RegionPrefix}${LocationId}Attempt1": {
-            "type": "switch",
-            "label": "$task.SellProduct.SellAttempt1",
-            "description": "$task.SellProduct.SellAttemptDescription",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "SellProduct${LocationId}SellAttempt1": {
-                            "enabled": true
-                        }
-                    },
-                    "option": [
-                        "${RegionPrefix}${LocationId}Item1",
-                        "${RegionPrefix}${LocationId}Reserve1"
-                    ]
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "SellProduct${LocationId}SellAttempt1": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        // ===== 售卖尝试 2（默认开启） =====
-        "${RegionPrefix}${LocationId}Attempt2": {
-            "type": "switch",
-            "label": "$task.SellProduct.SellAttempt2",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "SellProduct${LocationId}SellAttempt2": {
-                            "enabled": true
-                        }
-                    },
-                    "option": [
-                        "${RegionPrefix}${LocationId}Item2",
-                        "${RegionPrefix}${LocationId}Reserve2"
-                    ]
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "SellProduct${LocationId}SellAttempt2": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        // ===== 售卖尝试 3（默认关闭） =====
-        "${RegionPrefix}${LocationId}Attempt3": {
-            "type": "switch",
-            "label": "$task.SellProduct.SellAttempt3",
-            "default_case": "No",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "SellProduct${LocationId}SellAttempt3": {
-                            "enabled": true
-                        }
-                    },
-                    "option": [
-                        "${RegionPrefix}${LocationId}Item3",
-                        "${RegionPrefix}${LocationId}Reserve3"
-                    ]
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "SellProduct${LocationId}SellAttempt3": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        // ===== 售卖尝试 4（默认关闭） =====
-        "${RegionPrefix}${LocationId}Attempt4": {
-            "type": "switch",
-            "label": "$task.SellProduct.SellAttempt4",
-            "default_case": "No",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "SellProduct${LocationId}SellAttempt4": {
-                            "enabled": true
-                        }
-                    },
-                    "option": [
-                        "${RegionPrefix}${LocationId}Item4",
-                        "${RegionPrefix}${LocationId}Reserve4"
-                    ]
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "SellProduct${LocationId}SellAttempt4": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        // ===== 优先物品选择 1-4 =====
-        "${RegionPrefix}${LocationId}Item1": {
-            "type": "select",
-            "label": "$task.SellProduct.PriorityItem1",
-            "default_case": "无",
-            "cases": "${ItemCases1}"
-        },
-        "${RegionPrefix}${LocationId}Item2": {
-            "type": "select",
-            "label": "$task.SellProduct.PriorityItem2",
-            "default_case": "无",
-            "cases": "${ItemCases2}"
-        },
-        "${RegionPrefix}${LocationId}Item3": {
-            "type": "select",
-            "label": "$task.SellProduct.PriorityItem3",
-            "default_case": "无",
-            "cases": "${ItemCases3}"
-        },
-        "${RegionPrefix}${LocationId}Item4": {
-            "type": "select",
-            "label": "$task.SellProduct.PriorityItem4",
-            "default_case": "无",
-            "cases": "${ItemCases4}"
-        },
-        // ===== 保留份数 1-4 =====
-        "${RegionPrefix}${LocationId}Reserve1": {
-            "type": "select",
-            "label": "$task.SellProduct.Reserve1",
-            "description": "$task.SellProduct.ReserveDescription",
-            "default_case": "全部售出",
-            "cases": [
-                {
-                    "name": "全部售出"
-                },
-                {
-                    "name": "保留指定份数",
-                    "option": ["${RegionPrefix}${LocationId}ReserveValue1"]
-                }
-            ]
-        },
-        "${RegionPrefix}${LocationId}ReserveValue1": {
-            "type": "input",
-            "label": "$task.SellProduct.ReserveValueInput",
-            "inputs": [
-                {
-                    "name": "${RegionPrefix}${LocationId}ReserveValue1",
-                    "label": "$task.SellProduct.ReserveValue",
-                    "pipeline_type": "int",
-                    "verify": "^[1-9][0-9]*$",
-                    "default": "100"
-                }
-            ],
-            "pipeline_override": {
-                "SellProduct${LocationId}BetterSliding1": {
-                    "next": [
-                        "SellProductSkipToNextSellLoop",
-                        "SellProductSellThenLoop"
-                    ],
-                    "attach": {
-                        "Target": "{${RegionPrefix}${LocationId}ReserveValue1}",
-                        "TargetReverse": true
-                    }
-                }
-            }
-        },
-        "${RegionPrefix}${LocationId}Reserve2": {
-            "type": "select",
-            "label": "$task.SellProduct.Reserve2",
-            "description": "$task.SellProduct.ReserveDescription",
-            "default_case": "全部售出",
-            "cases": [
-                {
-                    "name": "全部售出"
-                },
-                {
-                    "name": "保留指定份数",
-                    "option": ["${RegionPrefix}${LocationId}ReserveValue2"]
-                }
-            ]
-        },
-        "${RegionPrefix}${LocationId}ReserveValue2": {
-            "type": "input",
-            "label": "$task.SellProduct.ReserveValueInput",
-            "inputs": [
-                {
-                    "name": "${RegionPrefix}${LocationId}ReserveValue2",
-                    "label": "$task.SellProduct.ReserveValue",
-                    "pipeline_type": "int",
-                    "verify": "^[1-9][0-9]*$",
-                    "default": "100"
-                }
-            ],
-            "pipeline_override": {
-                "SellProduct${LocationId}BetterSliding2": {
-                    "next": [
-                        "SellProductSkipToNextSellLoop",
-                        "SellProductSellThenLoop"
-                    ],
-                    "attach": {
-                        "Target": "{${RegionPrefix}${LocationId}ReserveValue2}",
-                        "TargetReverse": true
-                    }
-                }
-            }
-        },
-        "${RegionPrefix}${LocationId}Reserve3": {
-            "type": "select",
-            "label": "$task.SellProduct.Reserve3",
-            "description": "$task.SellProduct.ReserveDescription",
-            "default_case": "全部售出",
-            "cases": [
-                {
-                    "name": "全部售出"
-                },
-                {
-                    "name": "保留指定份数",
-                    "option": ["${RegionPrefix}${LocationId}ReserveValue3"]
-                }
-            ]
-        },
-        "${RegionPrefix}${LocationId}ReserveValue3": {
-            "type": "input",
-            "label": "$task.SellProduct.ReserveValueInput",
-            "inputs": [
-                {
-                    "name": "${RegionPrefix}${LocationId}ReserveValue3",
-                    "label": "$task.SellProduct.ReserveValue",
-                    "pipeline_type": "int",
-                    "verify": "^[1-9][0-9]*$",
-                    "default": "100"
-                }
-            ],
-            "pipeline_override": {
-                "SellProduct${LocationId}BetterSliding3": {
-                    "next": [
-                        "SellProductSkipToNextSellLoop",
-                        "SellProductSellThenLoop"
-                    ],
-                    "attach": {
-                        "Target": "{${RegionPrefix}${LocationId}ReserveValue3}",
-                        "TargetReverse": true
-                    }
-                }
-            }
-        },
-        "${RegionPrefix}${LocationId}Reserve4": {
-            "type": "select",
-            "label": "$task.SellProduct.Reserve4",
-            "description": "$task.SellProduct.ReserveDescription",
-            "default_case": "全部售出",
-            "cases": [
-                {
-                    "name": "全部售出"
-                },
-                {
-                    "name": "保留指定份数",
-                    "option": ["${RegionPrefix}${LocationId}ReserveValue4"]
-                }
-            ]
-        },
-        "${RegionPrefix}${LocationId}ReserveValue4": {
-            "type": "input",
-            "label": "$task.SellProduct.ReserveValueInput",
-            "inputs": [
-                {
-                    "name": "${RegionPrefix}${LocationId}ReserveValue4",
-                    "label": "$task.SellProduct.ReserveValue",
-                    "pipeline_type": "int",
-                    "verify": "^[1-9][0-9]*$",
-                    "default": "100"
-                }
-            ],
-            "pipeline_override": {
-                "SellProduct${LocationId}BetterSliding4": {
-                    "next": [
-                        "SellProductSkipToNextSellLoop",
-                        "SellProductSellThenLoop"
-                    ],
-                    "attach": {
-                        "Target": "{${RegionPrefix}${LocationId}ReserveValue4}",
-                        "TargetReverse": true
-                    }
-                }
-            }
         }
     }
 }

@@ -19,7 +19,7 @@ func TestStripSeparators(t *testing.T) {
 		{"优质柑实罐头", "优质柑实罐头"},
 		{"精选·柑实罐头", "精选柑实罐头"},
 		{"", ""},
-		// 覆盖 stripSeparators 全字符表，防止后续删除分隔符引入回归。
+		// 覆盖 stripSeparators 支持的全部分隔字符。
 		{"精选(柑实罐头)", "精选柑实罐头"},
 		{"精选-柑实罐头", "精选柑实罐头"},
 		{"精选_柑实罐头", "精选柑实罐头"},
@@ -58,8 +58,8 @@ func TestStripASCIIAlnum(t *testing.T) {
 	}
 }
 
-// Issue #2344: OCR 读出 "I紫晶质瓶"，候选含 "紫晶质瓶"，必须匹配。
-func TestFindBestMatch_Issue2344(t *testing.T) {
+// TestFindBestMatchIgnoresASCIINoiseInCJKNames 验证 CJK 名称可以剔除 ASCII OCR 噪声后命中。
+func TestFindBestMatchIgnoresASCIINoiseInCJKNames(t *testing.T) {
 	ocr := []ocrItem{
 		{text: "I紫晶质瓶", box: maa.Rect{200, 150, 120, 40}},
 		{text: "柑实罐头", box: maa.Rect{200, 250, 120, 40}},
@@ -84,9 +84,8 @@ func TestFindBestMatch_Issue2344(t *testing.T) {
 	}
 }
 
-// PR #1790 / Issue #1793 回归测试：「柑实罐头」不应误匹配到
-// 「优质柑实罐头」「精选柑实罐头」「精选优质柑实罐头」。
-func TestFindBestMatch_NoPR1790Regression(t *testing.T) {
+// TestFindBestMatchRejectsLongerCJKNames 验证严格匹配不会混淆带前缀的其他货品。
+func TestFindBestMatchRejectsLongerCJKNames(t *testing.T) {
 	candidates := []string{"柑實罐頭", "柑实罐头", "シトロームの缶詰", "Canned Citrome C"}
 
 	cases := []struct {
@@ -197,6 +196,14 @@ func TestFindBestMatch_NoOCR(t *testing.T) {
 	}
 }
 
+// TestFindBestMatchKeepsOperatorPrefixNoiseStrict 验证通用货品/列表匹配不会接受当前干员专用的前缀容错。
+func TestFindBestMatchKeepsOperatorPrefixNoiseStrict(t *testing.T) {
+	ocr := []ocrItem{{text: "大潘派", box: maa.Rect{0, 0, 10, 10}}}
+	if got := findBestMatch(ocr, []string{"大潘"}); got != nil {
+		t.Fatalf("通用严格匹配不应接受尾字噪声，实际结果 = %+v", got)
+	}
+}
+
 // Tier A 稳定性：上方的 OCR 优先命中。
 func TestFindBestMatch_PrefersTopLeftOCR(t *testing.T) {
 	ocr := []ocrItem{
@@ -213,23 +220,6 @@ func TestFindBestMatch_PrefersTopLeftOCR(t *testing.T) {
 	}
 }
 
-func TestParseParams(t *testing.T) {
-	p, err := parseParams(`{"candidates":["紫晶质瓶","紫晶質瓶"]}`)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if len(p.Candidates) != 2 {
-		t.Errorf("expected 2 candidates, got %d", len(p.Candidates))
-	}
-
-	if _, err := parseParams(""); err == nil {
-		t.Error("expected error for empty param")
-	}
-	if _, err := parseParams("not-json"); err == nil {
-		t.Error("expected error for invalid json")
-	}
-}
-
 // 候选与 OCR 在 Tier B 都被 strip 成空字符串时不应命中（保护 candB == "" 的分支）。
 func TestFindBestMatch_TierBEmptyDoesNotMatch(t *testing.T) {
 	candidates := []string{"Canned Citrome C"}
@@ -239,8 +229,7 @@ func TestFindBestMatch_TierBEmptyDoesNotMatch(t *testing.T) {
 	}
 }
 
-// 同一 OCR 文本出现在多个位置时，应选最靠上 / 靠左的 box；
-// 这是 collectOCRResults 不再按文本去重后必须保留的语义。
+// 同一 OCR 文本出现在多个位置时，应选最靠上 / 靠左的 box。
 func TestFindBestMatch_DuplicateTextPicksTopLeftBox(t *testing.T) {
 	candidates := []string{"紫晶质瓶"}
 	ocr := []ocrItem{

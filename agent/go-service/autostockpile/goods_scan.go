@@ -45,6 +45,165 @@ func runGoodsTemplateMatch(ctx *maa.Context, img image.Image, templatePath strin
 	return ctx.RunRecognition(locateGoodsNodeName, img, nil)
 }
 
+// scanGoodsOnImage 对单帧截图执行 OCR 绑价与模板补全，返回本页识别到的商品列表。
+func scanGoodsOnImage(ctx *maa.Context, img image.Image, region string, itemMap *ItemMap) ([]GoodsItem, AbortReason, error) {
+	if ctx == nil || img == nil {
+		return nil, AbortReasonGoodsOCRUnavailableWarn, fmt.Errorf("ctx or image is nil")
+	}
+	if err := validateItemMap(itemMap); err != nil {
+		return nil, AbortReasonNone, err
+	}
+
+	goodsROI := resolveGoodsRecognitionROI(ctx, img)
+	prices, ocrNames, goodsOCRAbortReason, goodsOCRErr := runGoodsOCR(ctx, img, goodsROI, itemMap)
+	if goodsOCRAbortReason != AbortReasonNone {
+		return nil, goodsOCRAbortReason, goodsOCRErr
+	}
+	log.Info().
+		Str("component", autoStockpileComponent).
+		Str("step", "scan_page").
+		Str("region", region).
+		Int("price_count", len(prices)).
+		Int("ocr_name_count", len(ocrNames)).
+		Msg("goods ocr finished")
+
+	boundIDs := make(map[string]bool)
+	usedPrice := make([]bool, len(prices))
+	pass1Goods := make([]GoodsItem, 0, len(ocrNames))
+	pass1Success := 0
+	pass1Failed := 0
+
+	sort.Slice(ocrNames, func(i, j int) bool {
+		if ocrNames[i].box.Y() != ocrNames[j].box.Y() {
+			return ocrNames[i].box.Y() < ocrNames[j].box.Y()
+		}
+		return ocrNames[i].box.X() < ocrNames[j].box.X()
+	})
+
+	for _, name := range ocrNames {
+		boundPrice, ok := bindPriceToOCRGoods(name, prices, usedPrice)
+		if !ok {
+			pass1Failed++
+			log.Warn().
+				Str("component", autoStockpileComponent).
+				Str("bind_pass", "ocr").
+				Str("goods_id", name.id).
+				Str("goods_name", name.name).
+				Str("tier", name.tier).
+				Int("goods_x", name.box.X()).
+				Int("goods_y", name.box.Y()).
+				Msg("failed to bind price for goods")
+			continue
+		}
+
+		pass1Goods = append(pass1Goods, GoodsItem{
+			ID:    name.id,
+			Name:  name.name,
+			Tier:  name.tier,
+			Price: boundPrice,
+		})
+		boundIDs[name.id] = true
+		pass1Success++
+	}
+
+	log.Info().
+		Str("component", autoStockpileComponent).
+		Str("bind_pass", "ocr").
+		Int("bind_success", pass1Success).
+		Int("bind_failed", pass1Failed).
+		Msg("goods-price binding finished")
+
+	candidateIDs := listUnboundRegionItemIDs(itemMap, region, boundIDs)
+	log.Info().
+		Str("component", autoStockpileComponent).
+		Str("region", region).
+		Str("template_source", "item_map").
+		Int("template_count", len(candidateIDs)).
+		Msg("goods template candidates loaded")
+
+	goods := make([]goodsCandidate, 0, len(candidateIDs))
+	for _, id := range candidateIDs {
+		templatePath := BuildTemplatePath(id)
+
+		detail, recErr := runGoodsTemplateMatch(ctx, img, templatePath, goodsROI)
+		if recErr != nil {
+			log.Warn().
+				Err(recErr).
+				Str("component", autoStockpileComponent).
+				Str("template", templatePath).
+				Msg("template match failed")
+			continue
+		}
+
+		box, hit := bestTemplateHit(detail)
+		if !hit {
+			continue
+		}
+
+		itemName := itemMap.IDToName[id]
+		tier := ParseTierFromID(id)
+
+		goods = append(goods, goodsCandidate{
+			item: GoodsItem{
+				ID:    id,
+				Name:  itemName,
+				Tier:  tier,
+				Price: 0,
+			},
+			box: box,
+		})
+	}
+
+	log.Info().
+		Str("component", autoStockpileComponent).
+		Int("template_hits", len(goods)).
+		Msg("template matching finished")
+
+	sort.Slice(goods, func(i, j int) bool {
+		if goods[i].box.Y() == goods[j].box.Y() {
+			return goods[i].box.X() < goods[j].box.X()
+		}
+		return goods[i].box.Y() < goods[j].box.Y()
+	})
+
+	resultGoods := make([]GoodsItem, 0, len(pass1Goods)+len(goods))
+	resultGoods = append(resultGoods, pass1Goods...)
+	bindingSuccess := 0
+	bindingFailed := 0
+
+	for _, g := range goods {
+		boundPrice, ok := bindPriceToGoods(g, prices, usedPrice)
+		item := g.item
+		if ok {
+			item.Price = boundPrice
+			bindingSuccess++
+		} else {
+			bindingFailed++
+			log.Warn().
+				Str("component", autoStockpileComponent).
+				Str("bind_pass", "template").
+				Str("goods_id", g.item.ID).
+				Str("goods_name", g.item.Name).
+				Str("tier", g.item.Tier).
+				Int("price", item.Price).
+				Int("goods_x", g.box.X()).
+				Int("goods_y", g.box.Y()).
+				Msg("failed to bind price for goods, skipping")
+			continue
+		}
+		resultGoods = append(resultGoods, item)
+	}
+
+	log.Info().
+		Str("component", autoStockpileComponent).
+		Str("bind_pass", "template").
+		Int("bind_success", bindingSuccess).
+		Int("bind_failed", bindingFailed).
+		Msg("goods-price binding finished")
+
+	return resultGoods, AbortReasonNone, nil
+}
+
 func resolveGoodsRecognitionROI(ctx *maa.Context, img image.Image) []int {
 	baseROI := []int{63, 162, 1177, 553}
 	marketMarkBox, found, err := runFindMarketMark(ctx, img)

@@ -1,6 +1,40 @@
 {
+    "SellProductSellMain": {
+        "desc": "进入当前据点的通用售卖流程",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductBeforeSellOperator"
+        ]
+    },
+    "SellProductBeforeSellOperator": {
+        "desc": "进入当前据点的售卖前联络干员切换流程",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]SellProductBeforeSellOperatorTarget"
+        ]
+    },
+    "SellProductOutpostProsperityAvailable": {
+        "desc": "识别交易可获得的据点发展值图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            900,
+            550,
+            350,
+            80
+        ],
+        "template": "SellProduct/OutpostProsperity.png",
+        "green_mask": true,
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "SellProductSellLoop": {
-        "desc": "售卖循环，按优先级依次换货并尝试售卖",
+        "desc": "售卖循环，先检查调度券再按价值优先级选择下一个可售物品",
         "recognition": "And",
         "all_of": [
             "SellProductInOutpost"
@@ -9,11 +43,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]SellProductSellAttempt1",
-            "[Anchor]SellProductSellAttempt2",
-            "[Anchor]SellProductSellAttempt3",
-            "[Anchor]SellProductSellAttempt4",
-            "SellProductSellLoopEnd"
+            "[Anchor]SellProductZeroMoneyHandler",
+            "SellProductChangeGoods"
         ]
     },
     "SellProductAtSell": {
@@ -26,8 +57,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductZeroProductAfterChangeStillEmpty",
             "[Anchor]SellProductZeroMoneyHandler",
+            "SellProductZeroProductAfterChangeStillEmpty",
             "SellProductNeedSelectGoodsTryChangeGoods",
             "[Anchor]SellProductBetterSliding"
         ]
@@ -107,7 +138,7 @@
         "rate_limit": 0
     },
     "SellProductZeroProductAfterChangeStillEmpty": {
-        "desc": "换货后货物仍不足，尝试下一次售卖配置",
+        "desc": "换货后货物仍不足，继续选择下一个优先物品",
         "recognition": "And",
         "all_of": [
             "SellProductZeroProduct"
@@ -116,10 +147,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSellLoop"
+            "[Anchor]SellProductMarkOutOfStock"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "当前选择产品缺货，请制造或更换"
+            "Node.Recognition.Succeeded": "$task.SellProduct.product_out_of_stock"
         }
     },
     "SellProductNeedSelectGoodsTryChangeGoods": {
@@ -182,7 +213,7 @@
             "SellProductSellLoopEnd"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "该据点调度券不足，过一会再来吧"
+            "Node.Recognition.Succeeded": "$task.SellProduct.vouchers_exhausted"
         }
     },
     "SellProductSell": {
@@ -206,12 +237,11 @@
         "rate_limit": 0,
         "next": [
             "SellProductAidQuotaExceededStop",
-            "SellProductAidQuotaExceededConfirm",
             "SellProductSellCheck"
         ]
     },
     "SellProductCheckAidQuotaExceededDialogText": {
-        "desc": "检查援助超出调度券上限确认弹窗文案（供 Stop / Confirm 共用）",
+        "desc": "检查援助超出调度券上限确认弹窗文案",
         "recognition": "OCR",
         "roi": [
             40,
@@ -260,64 +290,6 @@
             "Node.Recognition.Succeeded": "$task.SellProduct.aid_quota_exceeded"
         }
     },
-    "SellProductAidQuotaExceededConfirm": {
-        "desc": "选项开启时：超出调度券上限弹窗上单击黄色确认，继续交易后校验",
-        "enabled": false,
-        "recognition": "And",
-        "all_of": [
-            "SellProductCheckAidQuotaExceededDialogText",
-            "YellowConfirmButtonType1"
-        ],
-        "box_index": 1,
-        "pre_wait_freezes": {
-            "time": 200,
-            "target": [
-                0,
-                0,
-                1280,
-                720
-            ]
-        },
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductSellCheck"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "$task.SellProduct.aid_quota_confirm_tapped"
-        }
-    },
-    "SellProductAidQuotaExceededConfirmThenLoop": {
-        "desc": "选项开启时：超出调度券上限弹窗上单击黄色确认（售卖循环路径）",
-        "enabled": false,
-        "recognition": "And",
-        "all_of": [
-            "SellProductCheckAidQuotaExceededDialogText",
-            "YellowConfirmButtonType1"
-        ],
-        "box_index": 1,
-        "pre_wait_freezes": {
-            "time": 200,
-            "target": [
-                0,
-                0,
-                1280,
-                720
-            ]
-        },
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductSellCheckThenLoop"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "$task.SellProduct.aid_quota_confirm_tapped"
-        }
-    },
     "SellProductSellCheck": {
         "desc": "交易后确认",
         "recognition": "And",
@@ -356,11 +328,12 @@
             "SellProductAtSell"
         ],
         "focus": {
-            "Node.Action.Succeeded": "成功完成一次交易"
+            "Node.Action.Succeeded": "$task.SellProduct.trade_completed"
         }
     },
+    // SellProductReserveSession 通过 Pipeline override 动态引用以下按保留数量交易的节点。
     "SellProductSellThenLoop": {
-        "desc": "交易，完成后直接进入下一次售卖尝试",
+        "desc": "交易，完成后直接选择下一个优先物品",
         "recognition": "OCR",
         "roi": [
             975,
@@ -380,12 +353,11 @@
         "rate_limit": 0,
         "next": [
             "SellProductAidQuotaExceededStop",
-            "SellProductAidQuotaExceededConfirmThenLoop",
             "SellProductSellCheckThenLoop"
         ]
     },
     "SellProductSellCheckThenLoop": {
-        "desc": "交易后确认，直接进入下一次售卖尝试",
+        "desc": "交易后确认，直接选择下一个优先物品",
         "recognition": "And",
         "all_of": [
             "CloseRewardsButton",
@@ -414,11 +386,11 @@
             "SellProductSellLoop"
         ],
         "focus": {
-            "Node.Action.Succeeded": "成功完成一次交易"
+            "Node.Action.Succeeded": "$task.SellProduct.trade_completed"
         }
     },
     "SellProductSkipToNextSellLoop": {
-        "desc": "保留数量大于等于当前库存，跳过本次交易尝试",
+        "desc": "保留数量大于等于当前库存，继续选择下一个优先物品",
         "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
@@ -427,22 +399,25 @@
             "SellProductSellLoop"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "保留数量大于等于当前库存，跳过本次交易尝试"
+            "Node.Recognition.Succeeded": "$task.SellProduct.reserve_skip"
         }
     },
     "SellProductSellLoopEnd": {
-        "desc": "售卖循环结束，所有售卖尝试完成",
+        "desc": "售卖循环结束，据点券耗尽或没有剩余可售物品",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]SellProductAfterSellOperator"
+            "SellProductAfterSellOperator"
         ]
     },
     "SellProductAfterSellOperator": {
-        "desc": "未配置售卖后恢复干员，结束售卖流程",
+        "desc": "进入当前据点的售后生产干员派驻流程",
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]SellProductAfterSellOperatorTarget"
+        ]
     }
 }

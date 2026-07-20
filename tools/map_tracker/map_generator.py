@@ -45,8 +45,6 @@ FEATHER_KSIZE = 17
 FEATHER_SIGMA = 4.0
 """Gaussian sigma for edge feathering (ownership + tier ring)."""
 
-_RE_LAYOUT_FILE = re.compile(r"^(\w+\d+)_layout\.json$")
-
 
 def _feather_mask(mask: np.ndarray, ksize: int, sigma: float) -> np.ndarray:
     """Gaussian-blur a binary mask into soft alpha in [0, 1]."""
@@ -89,22 +87,6 @@ class LevelMapDistinguisher:
         self.output_dir = output_dir
         self.data_dir = data_dir
 
-    def _load_layouts(self) -> dict[str, RegionLayoutTable]:
-        """Load all *_layout.json files from data_dir."""
-        layouts: dict[str, RegionLayoutTable] = {}
-        for fname in os.listdir(self.data_dir):
-            m = _RE_LAYOUT_FILE.match(fname)
-            if not m:
-                continue
-            region_name = m.group(1)
-            try:
-                layouts[region_name] = RegionLayoutTable.load(
-                    os.path.join(self.data_dir, fname)
-                )
-            except Exception as e:
-                print(f"  {_Y}Warning: failed to load {fname}: {e}{_0}")
-        return layouts
-
     def _load_level_maps(self) -> dict[str, np.ndarray]:
         """Load level images (files containing '_lv') from input directory.
         Images are immediately converted to 3-channel RGB so all downstream
@@ -116,7 +98,7 @@ class LevelMapDistinguisher:
                 continue
             if fname.startswith("_"):
                 continue
-            if "_lv" not in fname:
+            if "lv" not in fname and "dg" not in fname:
                 continue
             name = fname[:-4]
             path = os.path.join(self.input_dir, fname)
@@ -561,7 +543,9 @@ class LevelMapDistinguisher:
 
         # Load layouts
         print(f"\nLoading layouts...")
-        layouts = self._load_layouts()
+        layouts = RegionLayoutTable.load_from_dir(
+            self.data_dir, include_pattern=RegionLayoutTable.RE_INCLUDED_REGION_NAME
+        )
         if not layouts:
             print(f"{_Y}No layout files found in {self.data_dir}{_0}")
             return
@@ -595,47 +579,6 @@ class LevelMapDistinguisher:
             self._distinguish_group(group_key, group_maps, layout)
 
 
-def generate_map_bbox_json(input_dir: str, output_dir: str) -> str:
-    """Generate map bbox json for all map png files in directory recursively."""
-    ensure_output_dir(output_dir)
-    results: dict[str, list[int]] = {}
-
-    for root, _, files in os.walk(input_dir):
-        for file in files:
-            if not file.endswith(".png"):
-                continue
-            if file.startswith("_"):
-                continue
-            map_name = os.path.splitext(file)[0]
-            img_path = os.path.join(root, file)
-            img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
-            if img is None:
-                continue
-
-            if img.ndim == 2:
-                rgb = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
-            elif img.shape[2] == 3:
-                rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            else:
-                continue
-
-            brightness = np.mean(rgb, axis=2).astype(np.uint8)
-            brightness = cv2.GaussianBlur(brightness, (5, 5), 0)
-            ys, xs = np.where(brightness >= LAND_THRESHOLD)
-            if len(ys) == 0 or len(xs) == 0:
-                continue
-
-            min_x, max_x = int(xs.min()), int(xs.max())
-            min_y, max_y = int(ys.min()), int(ys.max())
-            results[map_name] = [min_x, min_y, max_x + 1, max_y + 1]
-
-    output_path = os.path.join(output_dir, "map_bbox_data.json")
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=4, ensure_ascii=False)
-    print(f"{_G}Saved map rectangles to {output_path}{_0}")
-    return output_path
-
-
 def cmd_distinguish_levels(input_dir: str, output_dir: str, data_dir: str) -> None:
     """Distinguish level images with island removal and overlap splitting."""
     if not os.path.isdir(input_dir):
@@ -654,8 +597,42 @@ def cmd_bbox(input_dir: str, output_dir: str) -> None:
     if not os.path.isdir(input_dir):
         print(f"{_R}Input directory not found: {input_dir}{_0}")
         return
+    ensure_output_dir(output_dir)
 
-    generate_map_bbox_json(input_dir, output_dir)
+    results: dict[str, list[int]] = {}
+    for root, _, files in os.walk(input_dir):
+        for file in files:
+            if not file.endswith(".png") or file.startswith("_"):
+                continue
+
+            img = cv2.imread(os.path.join(root, file), cv2.IMREAD_UNCHANGED)
+            if img is not None and img.ndim == 3:
+                if img.shape[2] == 4:
+                    rgb = cv2.cvtColor(img, cv2.COLOR_BGRA2RGB)
+                elif img.shape[2] == 3:
+                    rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                else:
+                    continue
+            else:
+                continue
+
+            brightness = np.mean(rgb, axis=2).astype(np.uint8)
+            brightness = cv2.GaussianBlur(brightness, (5, 5), 0)
+            ys, xs = np.where(brightness >= LAND_THRESHOLD)
+            if len(ys) == 0 or len(xs) == 0:
+                continue
+
+            min_x, max_x = int(xs.min()), int(xs.max())
+            min_y, max_y = int(ys.min()), int(ys.max())
+
+            map_name = os.path.splitext(file)[0]
+            results[map_name] = [min_x, min_y, max_x + 1, max_y + 1]
+
+    output_path = os.path.join(output_dir, "map_bbox_data.json")
+    with open(output_path, "w", encoding="utf-8") as f:
+        results = dict(sorted(results.items()))
+        json.dump(results, f, indent=4, ensure_ascii=False)
+    print(f"{_G}Saved map rectangles to {output_path}{_0}")
 
 
 # Tier image filename format: region_level_gx_gy_tier_id.png

@@ -83,7 +83,7 @@ Consult as needed. Only required when using the corresponding component.
 | [RecoGrid Engine](./components/recogrid-engine.md)          | C++ grid recognition, multi-template classification, and scroll accumulation scanning engine   |
 | [MapLocator](./components/map-locator.md)                   | AI + CV based minimap positioning system, outputs region, coordinates, and orientation         |
 | [MapTracker](./components/map-tracker.md)                   | Computer vision based minimap tracking and path movement                                       |
-| [MapNavigator](./components/map-navigator.md)               | High-precision automatic navigation Action, with GUI recording tool                            |
+| [MapNavigator](./components/map-navigator.md)               | Path navigation Action, supports record-free target-based pathfinding and GUI recording        |
 
 ### Task Maintenance Documents (`tasks/`)
 
@@ -96,7 +96,7 @@ Only required when maintaining the corresponding task.
 | [DijiangRewards](./tasks/dijiang-rewards-maintain.md)               | Main flow, stage responsibilities, and interface option override logic                                                 |
 | [CreditShopping](./tasks/credit-shopping-maintain.md)               | Purchase priority, credit linkage, refresh strategy, and product extension                                             |
 | [EnvironmentMonitoring](./tasks/environment-monitoring-maintain.md) | Observation point route data, `pipeline-generate` automatic generation and new point integration process               |
-| [SellProduct](./tasks/sell-product-maintain.md)                     | zmdmap data generation, stronghold selling Pipeline, and priority item maintenance                                     |
+| [SellProduct](./tasks/sell-product-maintain.md)                     | Main flow, zmdmap generation, automatic operators, and dynamic selling-loop maintenance                                |
 | [GiftOperator](./tasks/gift-operator-maintain.md)                   | Navigation pathfinding, contact operator selection, gift giving/receiving branches, and operator extension maintenance |
 
 ### Third-Party Protocol Documents (`protocol/`)

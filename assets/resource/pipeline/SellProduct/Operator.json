@@ -19,6 +19,76 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "SellProductCheckAssignText": {
+        "desc": "识别联络干员派驻按钮文本",
+        "recognition": "OCR",
+        "roi": [
+            900,
+            540,
+            330,
+            135
+        ],
+        "expected": [
+            "派驻",
+            "派駐",
+            "Assign",
+            "派遣",
+            "배치"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProductCheckWithdrawText": {
+        "desc": "识别联络干员撤下按钮文本",
+        "recognition": "OCR",
+        "roi": [
+            900,
+            540,
+            330,
+            135
+        ],
+        "expected": [
+            "撤下",
+            "撤下",
+            "Remove",
+            "外す",
+            "철수"
+        ],
+        "replace": [
+            "撒",
+            "撤"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProductOperatorAlreadyAssignedPrompt": {
+        "desc": "联络干员已派驻到其他据点确认弹窗",
+        "recognition": "OCR",
+        "roi": [
+            240,
+            260,
+            800,
+            90
+        ],
+        // "干员%s已派驻至%s，是否确认更改派驻至当前据点？"
+        // "幹員%s已派駐至%s，是否確定更改派駐至目前據點？"
+        // "Operator %s already assigned to %s. Re-assign the operator to this outpost?"
+        // "%sは%sに派遣中ですが、派遣先を変更しますか？"
+        // "%s 오퍼레이터가 %s에 배치되어 있습니다. 현재 거점으로 배치를 변경하시겠습니까?"
+        "expected": [
+            // @i18n-skip
+            "更改派驻至当前据点",
+            "更改派駐至目前據點",
+            "(?i)Re-assign\\s*the\\s*operator",
+            "派遣先を変更",
+            "현재\\s*거점으로\\s*배치를\\s*변경"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "SellProductOpenOperatorLiaisonButton": {
         "desc": "打开据点联络干员列表按钮",
         "recognition": "TemplateMatch",

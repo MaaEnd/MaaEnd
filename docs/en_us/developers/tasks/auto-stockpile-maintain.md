@@ -177,3 +177,25 @@ Language files to update: `zh_cn.json`, `en_us.json`, `ja_jp.json`, `ko_kr.json`
 File: `docs/zh_cn/protocol/autostockpile-daily-storage/daily_storage.schema.json` (and the corresponding `en_us` version)
 
 Add the new region identifier (e.g., `"NewRegion"`) to the `enum` list of the `region` field to ensure third-party tools can validate data for the new region via the Schema.
+
+## Dual-page Shelf Scan
+
+Recognition scans the elastic goods shelf for **at most two pages** so items below the fold are not missed:
+
+1. OCR + template match on the first-screen screenshot.
+2. Run `AutoStockpileSwipeShelfDown` once (`post_wait_freezes` waits for list settle).
+3. Screencap and scan the second screen.
+4. Merge by goods **ID** (on duplicates keep the first-screen entry; IDs seen only after the swipe go into `SecondPageOnlyIDs`). Internally screens are page0 = first screen, page1 = second screen (0-based); the field means **second-screen-only (page1)**, not the first screen (page0).
+5. Run `AutoStockpileSwipeShelfUp` to restore the first screen.
+
+If swipe/second-screen scan fails, fall back to first-screen results without aborting.
+
+After selection:
+
+- If the chosen ID is in `SecondPageOnlyIDs` (second-screen / page1 only), swipe down once more before `AutoStockpileSelectedGoodsClick`.
+- If the item was already on the first screen (page0), click without an extra swipe.
+
+Swipe nodes:
+
+- Win32 default: `DoNothing` in `assets/resource/pipeline/AutoStockpile/Helper.json` (full list fits one screen).
+- ADB / PlayCover: real `Swipe` override in `assets/resource_adb/pipeline/AutoStockpile/Helper.json` (with horizontal end segment and `end_hold`). Coordinates are 720p; tune ADB `begin` / `end` and `post_wait_freezes.target` if devices miss or over-scroll.

@@ -11,31 +11,70 @@
         "template": "VisitFriends/EnterButton.png",
         "threshold": 0.9
     },
-    "VisitFriendsRecognitionItemName": {
-        "desc": "识别好友名称",
-        "recognition": "OCR",
-        "roi": [
-            130,
-            110,
-            300,
-            66
+    "VisitFriendsRecognitionItemClueExchange": {
+        "desc": "进船按钮旁锚点：默认 ColorMatch 匹配全部好友（助力未满时不筛线索）；助力满/未开时由 AssistFull 覆盖为线索可用 TemplateMatch",
+        "recognition": "ColorMatch",
+        "roi": "VisitFriendsRecognitionItemEnterButton",
+        "roi_offset": [
+            24,
+            -15,
+            4,
+            5
         ],
-        "expected": [
-            ".*#.*"
-        ]
+        "lower": [
+            0,
+            0,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "connected": false,
+        "count": 1,
+        "order_by": "Vertical"
+    },
+    "VisitFriendsRecognitionItemNameByEnterButton": {
+        "desc": "按进船按钮偏移识别好友名（可由 SelectFriend 覆盖 expected 排除已访问）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "VisitFriendsRecognitionItemClueExchange",
+                "roi_offset": [
+                    -1093,
+                    -14,
+                    214,
+                    0
+                ],
+                "expected": [
+                    ".*#.*"
+                ],
+                "order_by": "Vertical"
+            }
+        }
     },
     "VisitFriendsRecognitionItemWithName": {
-        "desc": "识别好友名称",
+        "desc": "识别进船按钮与对应好友名（含线索锚点，供选友）",
         "recognition": "And",
         "all_of": [
             "VisitFriendsRecognitionItemEnterButton",
-            {
-                "recognition": "OCR",
+            "VisitFriendsRecognitionItemClueExchange",
+            "VisitFriendsRecognitionItemNameByEnterButton"
+        ],
+        "box_index": 2
+    },
+    "VisitFriendsRecognitionItemNameByEnterButtonForScroll": {
+        "desc": "滚动专用：直接以进船按钮为锚识别好友名，不依赖线索交换图标",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                // 等价于 ClueExchange(相对 EnterButton [24,-15,4,5]) 再叠 Name 偏移 [-1093,-14,214,0]
                 "roi": "VisitFriendsRecognitionItemEnterButton",
                 "roi_offset": [
-                    -1050,
-                    -30,
-                    300,
+                    -1069,
+                    -29,
+                    218,
                     5
                 ],
                 "expected": [
@@ -43,37 +82,16 @@
                 ],
                 "order_by": "Vertical"
             }
-        ]
+        }
     },
-    "VisitFriendsRecognitionItemClueExchange": {
-        "desc": "识别线索交换",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1159,
-            111,
-            85,
-            95
+    "VisitFriendsRecognitionItemWithNameForScroll": {
+        "desc": "滚动专用 And：进船按钮 ∧ 好友名，不检查线索交换（供 ListComplete）",
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsRecognitionItemEnterButton",
+            "VisitFriendsRecognitionItemNameByEnterButtonForScroll"
         ],
-        "template": "VisitFriends/ClueExchangeAvailable.png",
-        "threshold": 0.9
-    },
-    "VisitFriendsRecognitionItemClueExchangeByEnterButton": {
-        "desc": "根据进入按钮偏移识别线索交换",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1159,
-            111,
-            85,
-            95
-        ],
-        "roi_offset": [
-            -20,
-            -30,
-            60,
-            60
-        ],
-        "template": "VisitFriends/ClueExchangeAvailable.png",
-        "threshold": 0.9
+        "box_index": 1
     },
     "VisitFriendsRecognitionItemDetailControlNexusAssist": {
         "desc": "在详情界面识别总控中枢",

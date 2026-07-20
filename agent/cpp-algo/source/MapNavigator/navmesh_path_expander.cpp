@@ -59,11 +59,13 @@ struct BaseNavZoneAlias
     std::array<std::string_view, 2> prefixes;
 };
 
-constexpr std::array<BaseNavZoneAlias, 4> kBaseNavZoneAliases { {
+constexpr std::array<BaseNavZoneAlias, 6> kBaseNavZoneAliases { {
     { "map01base", { "map01", "ValleyIV" } },
     { "map02base", { "map02", "Wuling" } },
     { "base01", { "base01", "OMVBase" } },
     { "dung01", { "dung01", "Dung" } },
+    { "indie_dg005", { "indie_dg005", "IndieDg005" } },
+    { "indie_dg007", { "indie_dg007", "IndieDg007" } },
 } };
 
 constexpr std::array<double, 3> kDetourRadii { 3.0, 5.0, 7.0 };

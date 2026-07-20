@@ -169,14 +169,6 @@ jobs:
         run: |
           python3 -u tools/map_tracker/map_fetcher.py json -o .cache/data
 
-      - name: Get version info
-        id: version
-        run: |
-          readarray -t VER < <(python3 tools/map_tracker/map_fetcher.py version -i .cache/data/version.json)
-          echo "version=${VER[0]}" >> "$GITHUB_OUTPUT"
-          echo "game_version=${VER[1]}" >> "$GITHUB_OUTPUT"
-          echo "res_version=${VER[2]}" >> "$GITHUB_OUTPUT"
-
       - name: Download map images
         run: |
           python3 -u tools/map_tracker/map_fetcher.py image -i .cache/data -o .cache/images
@@ -197,10 +189,6 @@ jobs:
         run: |
           cp -f .cache/final/*.png assets/resource/image/MapTracker/map/
 
-      - name: Generate bbox data
-        run: |
-          python3 -u tools/map_tracker/map_generator.py bbox -i assets/resource/image/MapTracker/map -o assets/data/MapTracker
-
       - name: Setup oxipng
         uses: baptiste0928/cargo-install@v3
         with:
@@ -209,6 +197,18 @@ jobs:
       - name: Optimize png images
         run: |
           python3 tools/optimize_templates/optimize_templates.py
+
+      - name: Generate bbox data
+        run: |
+          python3 -u tools/map_tracker/map_generator.py bbox -i assets/resource/image/MapTracker/map -o assets/data/MapTracker
+
+      - name: Get version info
+        id: version
+        run: |
+          readarray -t VER < <(python3 tools/map_tracker/map_fetcher.py version -i .cache/data/version.json)
+          echo "version=${VER[0]}" >> "$GITHUB_OUTPUT"
+          echo "game_version=${VER[1]}" >> "$GITHUB_OUTPUT"
+          echo "res_version=${VER[2]}" >> "$GITHUB_OUTPUT"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8

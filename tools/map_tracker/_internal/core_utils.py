@@ -127,39 +127,37 @@ class MapName:
         stem, _ = os.path.splitext(basename)
         name = stem.lower()
 
-        tile_m = re.match(
-            r"^(?P<kind>map|base|dung)(?P<map>\d+)_lv(?P<lv>\d+)_(?P<x>\d+)_(?P<y>\d+)(?:_tier_(?P<tier>[a-z0-9_]+))?$",
+        m = re.match(
+            r"^(?P<map_id>[a-z]+\d*)_(?P<map_level_id>[a-z]+\d+)(?:_(?P<x>\d+)_(?P<y>\d+))?(?:_tier_(?P<tier>[a-z0-9_]+))?$",
             name,
         )
-        merged_m = re.match(
-            r"^(?P<kind>map|base|dung)(?P<map>\d+)_lv(?P<lv>\d+)(?:_tier_(?P<tier>[a-z0-9_]+))?$",
-            name,
-        )
+        if not m:
+            raise ValueError(f"unrecognized map name format: {name_or_path}")
+
+        map_id = m.group("map_id")
+        map_level_id = m.group("map_level_id")
+        tier_suffix = m.group("tier")
 
         if is_tile:
-            if not tile_m:
-                raise ValueError(f"expected tile map name format: {name_or_path}")
-            m = tile_m
+            if m.group("x") is None or m.group("y") is None:
+                raise ValueError(f"expected tile map name format (with _X_Y): {name_or_path}")
+            tile_x = int(m.group("x"))
+            tile_y = int(m.group("y"))
         else:
-            if not merged_m:
-                raise ValueError(f"expected non-tile map name format: {name_or_path}")
-            m = merged_m
+            if m.group("x") is not None or m.group("y") is not None:
+                raise ValueError(f"expected non-tile map name format (without _X_Y): {name_or_path}")
+            tile_x = None
+            tile_y = None
 
-        kind = m.group("kind")
-        map_id = f"{kind}{m.group('map')}"
-        map_level_id = f"lv{m.group('lv')}"
         map_type: MapType
-        tier_suffix = m.group("tier")
         if tier_suffix is not None:
             map_type = "tier"
-        elif kind == "map":
-            map_type = "normal"
-        elif kind == "base":
+        elif map_id.startswith("base"):
             map_type = "base"
-        else:
+        elif map_id.startswith("dung"):
             map_type = "dung"
-        tile_x = int(m.group("x")) if is_tile else None
-        tile_y = int(m.group("y")) if is_tile else None
+        else:
+            map_type = "normal"
         return MapName(
             map_id=map_id,
             map_level_id=map_level_id,

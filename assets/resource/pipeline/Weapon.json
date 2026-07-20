@@ -150,9 +150,9 @@
                 "recognition": "TemplateMatch",
                 "roi": [
                     0,
-                    -200,
+                    -250,
                     200,
-                    200
+                    250
                 ],
                 "template": "Weapon/UpgradeMaterialsDelete.png"
             }

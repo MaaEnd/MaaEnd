@@ -39,5 +39,38 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "EnvironmentMonitoringTrackedMissionMapButton": {
+        "desc": "已追踪任务详情页中停止追踪旁边的定位按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            940,
+            580,
+            150,
+            130
+        ],
+        "template": "SeizeDeliveryJobs/TrackTaskButton.png",
+        "order_by": "Score",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "EnvironmentMonitoringQuickTeleportSelectButton": {
+        "desc": "任务地图中的前往传送按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            950,
+            540,
+            210,
+            160
+        ],
+        "template": [
+            "Common/Button/WhiteConfirmButtonType1.png",
+            "Common/Button/WhiteConfirmButtonType1Hover.png"
+        ],
+        "order_by": "Score",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

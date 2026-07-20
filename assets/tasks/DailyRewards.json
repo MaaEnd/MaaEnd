@@ -44,10 +44,6 @@
                         }
                     }
                 }
-            ],
-            "controller": [
-                "Win32-Front",
-                "Wlroots"
             ]
         },
         "DailyEventRewards": {
@@ -70,10 +66,6 @@
                         }
                     }
                 }
-            ],
-            "controller": [
-                "Win32-Front",
-                "Wlroots"
             ]
         },
         "DailyTaskRewards": {
@@ -102,10 +94,6 @@
                         }
                     }
                 }
-            ],
-            "controller": [
-                "Win32-Front",
-                "Wlroots"
             ]
         },
         "DailyClaimDeliveryJobsRewards": {
@@ -150,10 +138,6 @@
                         }
                     }
                 }
-            ],
-            "controller": [
-                "Win32-Front",
-                "Wlroots"
             ]
         },
         "DailyTaskUpgradeWeapon": {

@@ -8,6 +8,24 @@
             "[JumpBack]SceneEnterMenuOperator"
         ]
     },
+    "LevelUpOperatorFilterButton": {
+        "desc": "干员列表筛选按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    600,
+                    180,
+                    90
+                ],
+                "template": [
+                    "LevelUpOperator/Filter.png",
+                    "LevelUpOperator/FilterHover.png"
+                ]
+            }
+        }
+    },
     "LevelUpOperatorOpenOperatorList": {
         "desc": "打开干员列表",
         "recognition": {
@@ -15,23 +33,7 @@
             "param": {
                 "all_of": [
                     "InOperator",
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    0,
-                                    600,
-                                    180,
-                                    90
-                                ],
-                                "template": [
-                                    "LevelUpOperator/Filter.png",
-                                    "LevelUpOperator/FilterHover.png"
-                                ]
-                            }
-                        }
-                    }
+                    "LevelUpOperatorFilterButton"
                 ],
                 "box_index": 1
             }
@@ -55,9 +57,9 @@
             "param": {
                 "roi": [
                     0,
-                    10,
-                    100,
-                    40
+                    0,
+                    150,
+                    90
                 ],
                 "expected": [
                     "干员",
@@ -81,10 +83,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    315,
-                    645,
-                    75,
-                    30
+                    314,
+                    620,
+                    76,
+                    57
                 ],
                 "template": [
                     "LevelUpOperator/FilterDesc.png",
@@ -128,9 +130,9 @@
             "param": {
                 "roi": [
                     0,
-                    45,
-                    400,
-                    55
+                    20,
+                    450,
+                    105
                 ],
                 "template": [
                     "LevelUpOperator/TeamMemberIcon.png"
@@ -156,10 +158,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    360,
-                    648,
-                    28,
-                    28
+                    314,
+                    620,
+                    76,
+                    57
                 ],
                 "template": [
                     "LevelUpOperator/FilterAsce.png",
@@ -357,9 +359,8 @@
             "LevelUpOperatorSwitchToNextOperator"
         ]
     },
-    "LevelUpOperatorSearchSwipeLeft": {
-        "desc": "向左滑动，以搜索下一个干员",
-        "max_hit": 1,
+    "LevelUpOperatorSelectedInList": {
+        "desc": "干员列表中已选中的干员",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -374,7 +375,15 @@
                 ],
                 "green_mask": true
             }
-        },
+        }
+    },
+    "LevelUpOperatorSearchSwipeLeft": {
+        "desc": "向左滑动，以搜索下一个干员",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "LevelUpOperatorSelectedInList"
+        ],
         "inverse": true,
         "action": {
             "type": "Swipe",
@@ -425,23 +434,7 @@
             "param": {
                 "all_of": [
                     "InOperator",
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    273,
-                                    0,
-                                    650,
-                                    100
-                                ],
-                                "template": [
-                                    "LevelUpOperator/OperatorSelected.png"
-                                ],
-                                "green_mask": true
-                            }
-                        }
-                    }
+                    "LevelUpOperatorSelectedInList"
                 ],
                 "box_index": 1
             }

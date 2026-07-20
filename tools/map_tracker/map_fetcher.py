@@ -12,7 +12,6 @@
 #   python map_fetcher.py image -i/--input-dir <dir> -o/--output-dir <dir> [--match <kw>] [--no-tiers]
 
 import os
-import re
 import json
 import argparse
 import numpy as np
@@ -78,17 +77,11 @@ TIER_IMAGE_API = APIEndpoint(
 SCALE_MAP_FACTOR = 0.1625
 """Scale factor to convert *unscaled coordinates* to *converted coordinates*."""
 
-_RE_LAYOUT_FILE = re.compile(r"^(\w+\d+)_layout\.json$")
-"""Regex to match remote layout JSON file names.
-
-Groups:
-1. region_name
-"""
-
 
 def _save_json(data: dict | list, dest: str, *, sort_dict: bool) -> None:
-    if isinstance(data, dict) and sort_dict:
-        data = dict(sorted(data.items()))
+    if isinstance(data, dict):
+        if sort_dict:
+            data = dict(sorted(data.items()))
     elif not isinstance(data, list):
         raise ValueError(f"Data must be a dict or list, got {type(data)}")
     with open(dest, "w", encoding="utf-8") as f:
@@ -136,8 +129,9 @@ def test_entities_data(entities_table: EntitiesTable) -> bool:
 
     # 2. Test some specific entities
     TEST_CASES = [
-        (22800030005, "campfire", 423.64512, 575.81365),  # 武陵城东门传送锚点
-        (23400083018, "campfire", 498.95625, 199.86563),  # 首墩蓄水站传送锚点
+        (2100000031, "campfire", 392.57918, 498.66680),  # 枢纽区资源回收站传送锚点
+        (22800030005, "campfire", 423.64512, 575.81367),  # 武陵城东门传送锚点
+        (23400083018, "campfire", 498.95625, 199.86586),  # 首墩蓄水站传送锚点
         (25000000462, "campfire", 601.68164, 479.32676),  # 藏剑谷演武传送锚点
     ]
 
@@ -232,23 +226,6 @@ def cmd_json(output_dir: str, use_cache: bool = False) -> None:
 # ── image subcommand ──────────────────────────────────────────────────────────
 
 
-def load_layouts(layout_dir: str) -> dict[str, RegionLayoutTable]:
-    """Load all *_layout.json files from layout_dir, returns region_name -> layout."""
-    layouts: dict[str, RegionLayoutTable] = {}
-    for fname in os.listdir(layout_dir):
-        m = _RE_LAYOUT_FILE.match(fname)
-        if not m:
-            continue
-        region_name = m.group(1)
-        try:
-            layouts[region_name] = RegionLayoutTable.load(
-                os.path.join(layout_dir, fname)
-            )
-        except Exception as e:
-            print(f"  {_Y}Warning: failed to load {fname}: {e}{_0}")
-    return layouts
-
-
 def split_levels(
     canvas: np.ndarray,
     layout: RegionLayoutTable,
@@ -308,9 +285,11 @@ def cmd_image(
     no_tiers: bool = False,
 ) -> None:
     """Download region images, split into levels, save to output_dir."""
-    print(f"  Loading layouts from {_C}{input_dir}{_0}...")
-    layouts = load_layouts(input_dir)
-    print(f"  {len(layouts)} layout(s) loaded.")
+    print(f"Loading layouts from {_C}{input_dir}{_0}...")
+    layouts = RegionLayoutTable.load_from_dir(
+        input_dir, include_pattern=RegionLayoutTable.RE_INCLUDED_REGION_NAME
+    )
+    print(f"  {len(layouts)} layout(s) loaded")
 
     # Track which regions were processed for tier downloading
     processed_regions: list[str] = []
@@ -378,7 +357,7 @@ def cmd_image(
                     print(f"    {_format_image_repr(dest, img, size)}")
                     tier_count += 1
 
-            print(f"\n  {_G}Downloaded {tier_count} tier image(s){_0}")
+            print(f"\n  Downloaded {tier_count} tier image(s)")
 
 
 # ── version subcommand ────────────────────────────────────────────────────────

@@ -111,6 +111,8 @@ export const BASE_NAV_ZONE_IMAGE_PARTS = {
   map02base: ['MapLocator', 'Wuling', 'Base.png'],
   base01: ['MapLocator', 'OMVBase', 'OMVBase01.png'],
   dung01: ['MapLocator', 'Dung', 'Dung01Base.png'],
+  indie_dg005: ['MapLocator', 'IndieDg005', 'IndieDg005Base.png'],
+  indie_dg007: ['MapLocator', 'IndieDg007', 'IndieDg007Base.png'],
 };
 
 /** @type {string[]} */

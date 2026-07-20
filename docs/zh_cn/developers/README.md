@@ -83,7 +83,7 @@ flowchart TD
 | [RecoGrid Engine 网格扫描](./components/recogrid-engine.md)          | C++ 网格识别、多模板分类与滚动累计扫描引擎          |
 | [MapLocator 小地图定位](./components/map-locator.md)                 | 基于 AI + CV 的小地图定位系统，输出区域、坐标与朝向 |
 | [MapTracker 小地图追踪](./components/map-tracker.md)                 | 基于计算机视觉的小地图追踪与路径移动                |
-| [MapNavigator 路径导航](./components/map-navigator.md)               | 高精度自动导航 Action，附带 GUI 录制工具            |
+| [MapNavigator 路径导航](./components/map-navigator.md)               | 路径导航 Action，支持免录制的目标式寻路与 GUI 录制  |
 
 ### 任务维护文档（`tasks/`）
 
@@ -96,7 +96,7 @@ flowchart TD
 | [DijiangRewards 基建任务](./tasks/dijiang-rewards-maintain.md)               | 主流程、阶段职责与 interface 选项覆盖逻辑                  |
 | [CreditShopping 信用点商店](./tasks/credit-shopping-maintain.md)             | 购买优先级、补信用联动、刷新策略与商品扩展                 |
 | [EnvironmentMonitoring 环境监测](./tasks/environment-monitoring-maintain.md) | 观察点路线数据、`pipeline-generate` 自动生成与新点接入流程 |
-| [SellProduct 售卖产品](./tasks/sell-product-maintain.md)                     | zmdmap 数据生成、据点售卖 Pipeline 与优先物品维护          |
+| [SellProduct 售卖产品](./tasks/sell-product-maintain.md)                     | 主流程、zmdmap 数据生成、自动干员与动态售卖循环维护        |
 | [GiftOperator 赠送干员礼物](./tasks/gift-operator-maintain.md)               | 导航寻路、联络选人、送礼收礼分支与干员扩展维护             |
 
 ### 第三方协议文档（`protocol/`）

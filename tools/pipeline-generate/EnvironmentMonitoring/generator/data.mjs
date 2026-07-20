@@ -37,7 +37,7 @@ function buildGoToMonitoringTerminal(station) {
     return `EnvironmentMonitoringGoTo${station}`;
 }
 
-function buildRow(mission) {
+export function buildRow(mission) {
     const {Station, Id, Name, LocalizedName, ShotTargetName, route} = mission;
     const GoToMonitoringTerminal = buildGoToMonitoringTerminal(Station);
 
@@ -46,10 +46,36 @@ function buildRow(mission) {
         `Track${Id}`,
         `AlreadyTracked${Id}`,
     ];
-    const AfterTrackedNext = route.isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
+    const defaultAfterTrackedNext = route.isAdapted ? [`GoTo${Id}`] : [`${Id}NotAdapted`];
+    const afterTrackNext =
+        route.isAdapted && route.QuickTeleport ? [`${Id}InQuickTeleportMap`] : defaultAfterTrackedNext;
+    const afterAlreadyTrackedNext =
+        route.isAdapted && route.QuickTeleport ? [`${Id}OpenTrackedMissionMap`] : defaultAfterTrackedNext;
+    // 传送点可直接拍照时不需要位置断言：统一先进入大世界，再无条件执行真实传送。
+    const GoToNext =
+        route.IsDirectPhoto && !route.QuickTeleport
+            ? [`GoTo${Id}NotAtStartPos`]
+            : [
+                  `GoTo${Id}StartPos`,
+                  `GoTo${Id}NotAtStartPos`,
+              ];
     // NavMesh 可自行处理传送点附近的落点；手录路径仍需确认固定起点。
-    const AfterTeleportDescription = route.ShouldAssertAfterTeleport ? "先传送再检查落点" : "先传送再继续寻路";
-    const AfterTeleportNext = route.ShouldAssertAfterTeleport ? [`GoTo${Id}StartPos`] : [`GoTo${Id}Move`];
+    const AfterTeleportDescription = route.IsDirectPhoto
+        ? route.HasHeading
+            ? "传送后调整朝向并拍照"
+            : "传送后直接拍照"
+        : route.ShouldAssertAfterTeleport
+          ? "先传送再检查落点"
+          : "先传送再继续寻路";
+    const AfterTeleportNext = route.IsDirectPhoto
+        ? [route.HasHeading ? `GoTo${Id}Move` : `${Id}TakePhoto`]
+        : route.ShouldAssertAfterTeleport
+          ? [`GoTo${Id}StartPos`]
+          : [`GoTo${Id}Move`];
+    const GoToNotAtStartPosDescription = route.IsDirectPhoto
+        ? `前往${Name}传送点，${AfterTeleportDescription}`
+        : `不在${Name}任务开始位置附近，${AfterTeleportDescription}`;
+    const MoveDescription = route.IsDirectPhoto ? `在${Name}传送点调整拍照朝向` : `自动寻路前往${Name}`;
 
     return {
         Station,
@@ -66,11 +92,15 @@ function buildRow(mission) {
         InExpectedText: buildExpectedFromLocaleMap(ShotTargetName),
         OcrReplace: rawJson(route.Replace),
         TrackOrGoToNext: rawJson(TrackOrGoToNext),
-        AfterTrackedNext: rawJson(AfterTrackedNext),
+        AfterTrackNext: rawJson(afterTrackNext),
+        AfterAlreadyTrackedNext: rawJson(afterAlreadyTrackedNext),
+        GoToNext: rawJson(GoToNext),
+        GoToNotAtStartPosDescription,
+        MoveDescription,
         AfterTeleportDescription,
         AfterTeleportNext: rawJson(AfterTeleportNext),
-        MapNavigationAction: route.MapNavigationAction,
-        MapNavigationParam: rawJson(route.MapNavigationParam),
+        RouteAction: route.RouteAction,
+        RouteActionParam: rawJson(route.RouteActionParam),
     };
 }
 

@@ -386,7 +386,7 @@
                     "title": "Map Name Regex",
                     "description": "Regex to filter which maps participate in recognition.",
                     "type": "string",
-                    "default": "^map\\d+_lv\\d+$"
+"default": "^[a-z]+\\d*_[a-z]+\\d+$"
                 },
                 "precision": {
                     "title": "Precision",
@@ -406,10 +406,8 @@
                 },
                 "allowed_modes": {
                     "title": "Allowed Modes",
-                    "description": "Bitmask controlling which location inference modes are allowed. 1 = FullSearch, 2 = FastSearch. Default 3 (both).",
+                    "description": "Bitmask of allowed inference modes. 1 = FULL_SEARCH, 2 = FAST_SEARCH.",
                     "type": "integer",
-                    "minimum": 1,
-                    "maximum": 3,
                     "default": 3
                 }
             }
@@ -423,7 +421,7 @@
                     "title": "Map Name Regex",
                     "description": "Regex to filter which maps participate in recognition.",
                     "type": "string",
-                    "default": "^map\\d+_lv\\d+$"
+                    "default": "^[a-z]+\\d*_[a-z]+\\d+$"
                 },
                 "threshold": {
                     "title": "Threshold",

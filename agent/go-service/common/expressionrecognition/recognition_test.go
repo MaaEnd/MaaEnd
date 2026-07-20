@@ -2,8 +2,6 @@ package expressionrecognition
 
 import (
 	"testing"
-
-	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
 func TestParseOCRNumericValue(t *testing.T) {
@@ -71,110 +69,6 @@ func TestParseOCRNumericValue(t *testing.T) {
 				t.Fatalf("parseOCRNumericValue(%q) = %d, want %d", tc.text, got, tc.want)
 			}
 		})
-	}
-}
-
-func TestResolveAndNodeBoxIndex(t *testing.T) {
-	testCases := []struct {
-		name          string
-		raw           string
-		wantBoxIndex  int
-		wantIsAndNode bool
-		wantErr       bool
-	}{
-		{
-			name: "and node uses box index target",
-			raw: `{
-				"recognition": {
-					"type": "And",
-					"param": {
-						"all_of": ["ColorNode", "TextNode"],
-						"box_index": 1
-					}
-				}
-			}`,
-			wantBoxIndex:  1,
-			wantIsAndNode: true,
-		},
-		{
-			name: "and node defaults to first child",
-			raw: `{
-				"recognition": {
-					"type": "And",
-					"param": {
-						"all_of": ["FirstNode", "SecondNode"]
-					}
-				}
-			}`,
-			wantBoxIndex:  0,
-			wantIsAndNode: true,
-		},
-		{
-			name: "non and node ignored",
-			raw: `{
-				"recognition": {
-					"type": "OCR",
-					"param": {
-						"expected": ["\\d+"]
-					}
-				}
-			}`,
-			wantIsAndNode: false,
-		},
-		{
-			name: "and node rejects out of range index",
-			raw: `{
-				"recognition": {
-					"type": "And",
-					"param": {
-						"all_of": ["OnlyNode"],
-						"box_index": 1
-					}
-				}
-			}`,
-			wantErr: true,
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			gotBoxIndex, gotIsAndNode, err := resolveAndNodeBoxIndex(tc.raw)
-			if tc.wantErr {
-				if err == nil {
-					t.Fatalf("expected error, got nil")
-				}
-				return
-			}
-			if err != nil {
-				t.Fatalf("unexpected error: %v", err)
-			}
-			if gotIsAndNode != tc.wantIsAndNode {
-				t.Fatalf("resolveAndNodeBoxIndex() isAndNode = %v, want %v", gotIsAndNode, tc.wantIsAndNode)
-			}
-			if gotBoxIndex != tc.wantBoxIndex {
-				t.Fatalf("resolveAndNodeBoxIndex() boxIndex = %d, want %d", gotBoxIndex, tc.wantBoxIndex)
-			}
-		})
-	}
-}
-
-func TestExtractAndSelectedDetail(t *testing.T) {
-	detail := &maa.RecognitionDetail{
-		CombinedResult: []*maa.RecognitionDetail{
-			{Box: maa.Rect{1, 2, 3, 4}},
-			{Box: maa.Rect{5, 6, 7, 8}},
-		},
-	}
-
-	got, err := extractAndSelectedDetail(detail, 1)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if got == nil {
-		t.Fatalf("expected detail, got nil")
-	}
-	if got.Box != (maa.Rect{5, 6, 7, 8}) {
-		t.Fatalf("extractAndSelectedDetail() box = %v, want %v", got.Box, maa.Rect{5, 6, 7, 8})
 	}
 }
 

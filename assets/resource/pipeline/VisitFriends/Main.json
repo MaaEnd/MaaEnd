@@ -2,17 +2,14 @@
     "VisitFriendsMain": {
         "desc": "函数入口",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMainAction",
         "post_delay": 0,
         "next": [
-            "[JumpBack]VisitFriendsRemark",
-            "[JumpBack]VisitFriendsNormal",
+            "[JumpBack]VisitFriendsEnter",
             "VisitFriendsFakeTrue"
         ]
     },
-    "VisitFriendsRemark": {
-        "desc": "拜访带备注的好友",
+    "VisitFriendsEnter": {
+        "desc": "进入大世界并打开好友列表",
         "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
@@ -23,38 +20,12 @@
                 "SceneEnterMenuFriendsList"
             ]
         },
-        "anchor": {
-            "VisitFriendsMenuScanTargetFriendAnchorOpen": "VisitFriendsMenuScanTargetFriendRemarkOpen"
-        },
         "post_delay": 0,
         "next": [
             "VisitFriendsMenu"
         ],
         "focus": {
-            "Node.Action.Succeeded": "拜访带备注的好友"
-        }
-    },
-    "VisitFriendsNormal": {
-        "desc": "拜访普通好友",
-        "max_hit": 1,
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneAnyEnterWorld",
-                "SceneEnterMenuFriendsList"
-            ]
-        },
-        "anchor": {
-            "VisitFriendsMenuScanTargetFriendAnchorOpen": "VisitFriendsMenuScanTargetFriendNormalOpen"
-        },
-        "post_delay": 0,
-        "next": [
-            "VisitFriendsMenu"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "拜访所有好友"
+            "Node.Action.Succeeded": "开始拜访好友"
         }
     },
     "VisitFriendsMenu": {
@@ -86,21 +57,8 @@
             "VisitFriendsMenuScan"
         ]
     },
-    "VisitFriendsFull": {
-        "desc": "好友助力次数已满",
-        "recognition": "And",
-        "all_of": [
-            "VisitFriendsAssistFull",
-            "VisitFriendsClueExchangeFull"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "好友助力和线索交换次数已满，停止拜访"
-        }
-    },
-    "VisitFriendsAssistFull": {
-        "desc": "好友助力交换次数已满",
+    "VisitFriendsAssistCountZero": {
+        "desc": "助力次数为 0（纯识别，无 max_hit，供 Full 判定与 AssistFull 复用）",
         "recognition": "And",
         "all_of": [
             {
@@ -128,12 +86,10 @@
                     "0"
                 ]
             }
-        ],
-        "pre_delay": 0,
-        "post_delay": 0
+        ]
     },
-    "VisitFriendsClueExchangeFull": {
-        "desc": "好友线索交换次数已满",
+    "VisitFriendsClueExchangeCountZero": {
+        "desc": "线索交换次数为 0（纯识别，无 max_hit，供 Full 判定与 ClueExchangeFull 复用）",
         "recognition": "And",
         "all_of": [
             {
@@ -161,15 +117,101 @@
                     "0"
                 ]
             }
+        ]
+    },
+    "VisitFriendsFull": {
+        "desc": "好友助力和线索交换次数均已归零，停止拜访",
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsAssistCountZero",
+            "VisitFriendsClueExchangeCountZero"
         ],
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "好友助力和线索交换次数已满，停止拜访"
+        }
     },
-    "VisitFriendsExecuteVisit": {
-        "desc": "执行拜访",
+    "VisitFriendsAssistFull": {
+        "desc": "助力次数归零（或 AssistFullInit 将 CountZero 置为 DirectHit）：关闭三舱检查/领取，列表改为只认可线索好友",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsAssistCountZero"
+        ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "VisitFriendsExecuteVisitAction",
-        "post_delay": 0
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "VisitFriendsCheckAssistControlNexus": {
+                    "recognition": "OCR",
+                    "expected": [
+                        "a^"
+                    ]
+                },
+                "VisitFriendsCheckAssistMFGCabin": {
+                    "recognition": "OCR",
+                    "expected": [
+                        "a^"
+                    ]
+                },
+                "VisitFriendsCheckAssistGrowthChamber": {
+                    "recognition": "OCR",
+                    "expected": [
+                        "a^"
+                    ]
+                },
+                "VisitFriendsMenuAssistControlNexusEntry": {
+                    "enabled": false
+                },
+                "VisitFriendsMenuAssistMFGCabin1Entry": {
+                    "enabled": false
+                },
+                "VisitFriendsMenuAssistMFGCabin2Entry": {
+                    "enabled": false
+                },
+                "VisitFriendsMenuAssistGrowthChamberSwipeEntry": {
+                    "enabled": false
+                },
+                "VisitFriendsRecognitionItemClueExchange": {
+                    "recognition": "TemplateMatch",
+                    "template": "VisitFriends/ClueExchangeAvailable.png",
+                    "threshold": 0.9
+                }
+            }
+        },
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "助力次数已满；列表改为只认可线索交换好友"
+        }
+    },
+    "VisitFriendsClueExchangeFull": {
+        "desc": "线索交换次数归零：关闭线索交换检查与领取",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsClueExchangeCountZero"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "VisitFriendsCheckAssistClueExchange": {
+                    "recognition": "OCR",
+                    "expected": [
+                        "a^"
+                    ]
+                },
+                "VisitFriendsMenuClueExchangeEntry": {
+                    "enabled": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "线索交换次数已满，已关闭线索交换检查与领取"
+        }
     }
 }

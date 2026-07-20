@@ -203,6 +203,10 @@
                 ]
             }
         },
+        "pre_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
         "pre_delay": 0,
         "action": {
             "type": "Click",
@@ -219,10 +223,6 @@
             "time": 150,
             "timeout": 2000
         },
-        "pre_wait_freezes": {
-            "time": 100,
-            "timeout": 1000
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -235,7 +235,8 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "GrowthChamberInSelectTarget"
+                    "GrowthChamberInSelectTarget",
+                    "GrowthChamberInSelectTarget1"
                 ]
             }
         },

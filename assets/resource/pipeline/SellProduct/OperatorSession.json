@@ -1,0 +1,104 @@
+{
+    "SellProductRegisterLocationRefugeeCamp": {
+        "desc": "注册难民暂居处本次售卖与干员规划范围",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "register",
+            "location": "RefugeeCamp",
+            "active": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRegisterLocationInfraStation"
+        ]
+    },
+    "SellProductRegisterLocationInfraStation": {
+        "desc": "注册基建前站本次售卖与干员规划范围",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "register",
+            "location": "InfraStation",
+            "active": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRegisterLocationReconstructionHQ"
+        ]
+    },
+    "SellProductRegisterLocationReconstructionHQ": {
+        "desc": "注册重建指挥部本次售卖与干员规划范围",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "register",
+            "location": "ReconstructionHQ",
+            "active": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRegisterLocationSkyKingFlatsConstructionSite"
+        ]
+    },
+    "SellProductRegisterLocationSkyKingFlatsConstructionSite": {
+        "desc": "注册天王坪援建点本次售卖与干员规划范围",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "register",
+            "location": "SkyKingFlatsConstructionSite",
+            "active": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRegisterLocationCardiacRemediationStation"
+        ]
+    },
+    "SellProductRegisterLocationCardiacRemediationStation": {
+        "desc": "注册心脏修缮站本次售卖与干员规划范围",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "register",
+            "location": "CardiacRemediationStation",
+            "active": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductRegisterLocationXiranflowCloudseederStation"
+        ]
+    },
+    "SellProductRegisterLocationXiranflowCloudseederStation": {
+        "desc": "注册盈天台建设站本次售卖与干员规划范围",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductOperatorSession",
+        "custom_action_param": {
+            "operation": "register",
+            "location": "XiranflowCloudseederStation",
+            "active": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductOperatorSessionReady"
+        ]
+    }
+}

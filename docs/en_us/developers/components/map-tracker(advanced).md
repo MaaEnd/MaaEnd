@@ -30,9 +30,12 @@ Required Parameters: None
 Optional Parameters:
 
 - `map_name_regex`: A [regular expression](https://regexr.com/) used to filter map names. Only maps matching this regular expression will participate in recognition. For example:
-    - `^map\\d+_lv\\d+$`: Default value. Matches all regular maps.
+    - `^[a-z]+\\d*_[a-z]+\\d+$`: Default value. Matches all regular maps, including:
+        - Overworld maps, e.g., `map01_lv001` (Valley IV - The Hub).
+        - Building maps, e.g., `indie_dg007` (Marker Stone Interior).
+        - Dungeon maps, e.g., `dung01_wrdg001` (Echoes of Lost Images Season 1).
     - `^map\\d+_lv\\d+(_tier_\\d+)?$`: Matches all regular maps and tiered maps (Tier).
-    - `^map01_lv001$`: Only matches "map01_lv001" (Valley IV - Hub Zone).
+    - `^map01_lv001$`: Only matches "map01_lv001" (Valley IV - The Hub).
     - `^map01_lv\\d+$`: Matches all sub-regions of "map01" (Valley IV).
 
 - `precision`: A real number in the range $(0, 1]$, default `0.5`. Controls the matching precision. Larger values are stricter about matching map features, but may slow down matching; smaller values greatly improve matching speed, but may lead to incorrect results. When the number of maps to match is small (for example, matching only one map), a larger value is recommended for more accurate results.

@@ -1,4 +1,6 @@
 import json
+import os
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Self
@@ -154,6 +156,31 @@ class RegionLayoutTable:
     @classmethod
     def load(cls, path: str | Path) -> Self:
         return cls.loads(Path(path).read_text(encoding="utf-8"))
+
+    RE_LAYOUT_FILE = re.compile(r"^([a-z]+\d*)_layout\.json$")
+    RE_INCLUDED_REGION_NAME = re.compile(r"^(map\d+)|(base\d+)|(dung\d+)|(indie)$")
+
+    @classmethod
+    def load_from_dir(
+        cls,
+        layout_dir: str | Path,
+        include_pattern: re.Pattern | None = None,
+    ) -> dict[str, "RegionLayoutTable"]:
+        """Load all `*_layout.json` files from a directory."""
+        layouts: dict[str, RegionLayoutTable] = {}
+        layout_path = Path(layout_dir)
+        for fname in sorted(os.listdir(layout_dir)):
+            m = cls.RE_LAYOUT_FILE.match(fname)
+            if not m:
+                continue
+            region_name = m.group(1)
+            if include_pattern and not include_pattern.match(region_name):
+                continue
+            try:
+                layouts[region_name] = RegionLayoutTable.load(str(layout_path / fname))
+            except Exception:
+                continue
+        return layouts
 
 
 # ── Grid Tiers ────────────────────────────────────────────────────────────────

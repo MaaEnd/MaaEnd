@@ -3974,24 +3974,28 @@
                         "ItemTransferClickOrigin": {
                             "expected": [
                                 "四号谷地",
+                                "四號谷地",
                                 "Valley IV"
                             ]
                         },
                         "ItemTransferClickOriginClicked": {
                             "expected": [
                                 "四号谷地",
+                                "四號谷地",
                                 "Valley IV"
                             ]
                         },
                         "ItemTransferClickOriginReturn": {
                             "expected": [
                                 "四号谷地",
+                                "四號谷地",
                                 "Valley IV"
                             ]
                         },
                         "ItemTransferClickOriginReturnClicked": {
                             "expected": [
                                 "四号谷地",
+                                "四號谷地",
                                 "Valley IV"
                             ]
                         }
@@ -4048,12 +4052,14 @@
                         "ItemTransferClickDestination": {
                             "expected": [
                                 "四号谷地",
+                                "四號谷地",
                                 "Valley IV"
                             ]
                         },
                         "ItemTransferClickDestinationClicked": {
                             "expected": [
                                 "四号谷地",
+                                "四號谷地",
                                 "Valley IV"
                             ]
                         }

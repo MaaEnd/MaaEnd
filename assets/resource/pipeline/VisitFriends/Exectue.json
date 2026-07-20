@@ -1,13 +1,8 @@
 {
     "VisitFriendsEnterShip": {
-        "desc": "识别进入好友船的按钮",
+        "desc": "点击进船按钮进入好友船（target 取自选好友识别框）",
         "action": "Click",
-        "target": [
-            -100,
-            0,
-            100,
-            100
-        ],
+        "target": "VisitFriendsMenuScanTargetFriendOpen",
         "target_offset": [
             5,
             5,
@@ -133,6 +128,8 @@
         ]
     },
     "VisitFriendsMenuAssistControlNexusEntry": {
+        "desc": "总控中枢助力入口（默认关，由 ProductionAssistControl 选项开启）",
+        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -142,6 +139,8 @@
         ]
     },
     "VisitFriendsMenuAssistMFGCabin1Entry": {
+        "desc": "制造舱1助力入口（默认关，由 ProductionAssistControl 选项开启）",
+        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -151,6 +150,8 @@
         ]
     },
     "VisitFriendsMenuAssistMFGCabin2Entry": {
+        "desc": "制造舱2助力入口（默认关，由 ProductionAssistControl 选项开启）",
+        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -160,6 +161,8 @@
         ]
     },
     "VisitFriendsMenuAssistGrowthChamberSwipeEntry": {
+        "desc": "培养舱助力入口（默认关，由 ProductionAssistControl 选项开启）",
+        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -199,8 +202,7 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMenuClueExchangeAction",
+        "action": "Click",
         "post_delay": 0,
         "next": [
             "VisitFriendsMenuClueExchangeSuccess"
@@ -280,8 +282,6 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMenuClueExchangeFullAction",
         "post_delay": 0
     },
     "VisitFriendsMenuAssistFull": {
@@ -319,8 +319,6 @@
             }
         ],
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMenuClueAssistFullAction",
         "post_delay": 0
     },
     "VisitFriendsMenuAssistControlNexus": {
@@ -354,8 +352,7 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMenuClueAssistAction",
+        "action": "Click",
         "post_delay": 0,
         "next": [
             "VisitFriendsMenuAssistControlNexusSuccess"
@@ -430,8 +427,7 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMenuClueAssistAction",
+        "action": "Click",
         "post_delay": 0,
         "next": [
             "VisitFriendsMenuAssistMFGCabin1Success"
@@ -505,8 +501,7 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMenuClueAssistAction",
+        "action": "Click",
         "post_delay": 0,
         "next": [
             "VisitFriendsMenuAssistMFGCabin2Success"
@@ -608,8 +603,7 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMenuClueAssistAction",
+        "action": "Click",
         "post_delay": 0,
         "next": [
             "SceneNoticeRewardsConfirm"
@@ -672,18 +666,5 @@
         "all_of": [
             "InFriendsList"
         ]
-    },
-    "VisitFriendsMenuClickAction": {
-        "desc": "点击助力",
-        "pre_delay": 0,
-        "action": "Click",
-        // 调试用
-        // "target_offset": [
-        //     0,
-        //     -60,
-        //     0,
-        //     0
-        // ],
-        "post_delay": 0
     }
 }

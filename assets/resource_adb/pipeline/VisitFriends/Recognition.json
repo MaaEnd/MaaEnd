@@ -1,0 +1,35 @@
+{
+    "VisitFriendsRecognitionItemClueExchange": {
+        "roi_offset": [
+            29,
+            -14,
+            2,
+            0
+        ]
+    },
+    "VisitFriendsRecognitionItemNameByEnterButton": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -956,
+                    -24,
+                    259,
+                    5
+                ]
+            }
+        }
+    },
+    "VisitFriendsRecognitionItemNameByEnterButtonForScroll": {
+        "recognition": {
+            "param": {
+                // 等价于 ClueExchange(相对 EnterButton [29,-14,2,0]) 再叠 Name 偏移 [-956,-24,259,5]
+                "roi_offset": [
+                    -927,
+                    -38,
+                    261,
+                    5
+                ]
+            }
+        }
+    }
+}

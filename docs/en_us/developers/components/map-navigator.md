@@ -4,16 +4,62 @@
 
 This document explains how to use the **MapNavigator** related nodes and how to leverage the built-in GUI tool in the repository to record, edit, and export navigation paths that can be directly used in a Pipeline.
 
-**MapNavigator** is MaaEnd's current high-precision automatic navigation Action module. It relies on underlying localization capabilities to continuously obtain the character's current area, global coordinates, and orientation. Then, it drives the character to move point-by-point according to the developer-provided `path` waypoint sequence, executing actions like sprinting, jumping, interaction, and map transition at key points.
+**MapNavigator** is MaaEnd's current high-precision automatic navigation Action module. It relies on the underlying MapLocator's continuous localization to obtain the character's current area, global coordinates, and orientation. Then, it drives the character to move to the target location, executing actions like sprinting, jumping, interaction, and map transition at key points.
 
-In addition to traditional recorded paths, MapNavigator now also supports `NAVMESH` semantic pathfinding based on BNAV v2. The GUI can directly load `base.nav.gz` for triangle-face A\* preview. During runtime, the `NAVMESH` node is expanded into ordinary `RUN` waypoints, allowing preview, copying, and execution to all use the same set of BaseNav data.
+### Two Workflows
+
+MapNavigator offers two ways to specify "where to go". **Determining which one your scenario belongs to first can save a great deal of work**:
+
+| Workflow                     | What you need to provide   | Applicable scenario                                                                                         |
+| ---------------------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| **Target-based pathfinding** | A single target coordinate | The target point is inherently walkable, with no special mechanisms along the way                           |
+| **Recorded path**            | The full waypoint sequence | The route involves interactions, map transitions, jump platforms, external teleports, and similar semantics |
+
+#### Target-based: `NAVMESH`
+
+As long as the target point is inherently reachable without interactions, map transitions, or special mechanisms, **filling in a single `target` is enough**:
+
+```json
+{
+    "GotoTarget": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        720,
+                        630
+                    ]
+                }
+            ]
+        }
+    }
+}
+```
+
+No pre-recording of the route, no intermediate points, and no `zone_id` are needed — at runtime the area is inferred from the current localization, and an executable path is planned on the BaseNav triangle graph. When the target point is on a layered map, just add one more [`target_tier`](#cross-tier-target-target_tier) field.
+
+This form is already used in production routes such as Auto Collect and Environment Monitoring.
+
+#### Recorded: `path`
+
+When the route itself contains semantics the navigator cannot infer on its own — interacting at a certain point, passing through a map transition point, using a jump platform, or waiting for an external teleport — you need a recorded path. The accompanying GUI tool `/tools/MapNavigator` lets you walk the route once in-game to record it automatically, then fine-tune it, add actions, and copy it with one click.
+
+The two forms can be mixed within the same `path` array: use `NAVMESH` to cover long stretches of plain travel, and coordinate points to handle the local segments that need precise semantics.
+
+> [!NOTE]
+>
+> The GUI's A\* preview and the runtime pathfinder read the same `base.nav.gz` and follow the same planning logic, so the route previewed in the GUI matches the route the runtime plans, and you can judge from the preview whether a target point can be reached. Note that this refers to the **planning result** being consistent; actual execution is still affected by localization, terrain, and in-game conditions, so the outer Pipeline still needs failure fallback.
 
 ### Boundary Description
 
-MapNavigator is responsible for "**stably leading the person there after the target path is known**", belonging to the Action layer.
+MapNavigator is responsible for "**stably leading the person there once the target is given**", belonging to the Action layer.
 
 - It **does not** handle business process orchestration. Decisions like when to start walking, what constitutes success upon arrival, or how to handle unexpected situations en route should still be determined by the outer Pipeline.
-- It **does not** handle automatic generation of business logic. The path itself needs to be recorded and edited by the developer beforehand and then passed to `custom_action_param.path`.
+- It **does not** infer business semantics. Plain-travel paths can be planned automatically by `NAVMESH`, but semantics like interaction, map transition, jump platforms, and external teleports must be explicitly annotated by the developer in `path`.
 - It **does not** make judgments like "should this path be taken this time". For such entry condition judgments, it is recommended to first confirm using recognition or scene nodes before entering the navigation action.
 
 ### Relationship Between MapNavigator and Recording Tool
@@ -28,7 +74,7 @@ Its design goal is very direct:
 4. After stopping the recording, fine-tune, delete points, and add actions in the GUI.
 5. Click to copy, and paste the exported `path` into the Pipeline's `custom_action_param.path`.
 
-This means that **most paths do not require manually writing coordinates**. For developers, the recommended workflow is "record first, then orchestrate, and finally paste".
+This means that **recording a route does not require manually writing coordinates**: walk it once, fine-tune, and paste. What mainly needs recording are routes containing interactions, map transitions, and mechanisms; for stretches of plain travel, giving `NAVMESH` a target coordinate skips recording entirely (see [Two Workflows](#two-workflows)).
 
 ---
 
@@ -156,8 +202,10 @@ The operational flow of `NAVMESH` is:
 
 1. At runtime, prioritize loading `assets/resource/model/map/navmesh/base.nav.gz`; fall back to `base.nav` if it doesn't exist.
 2. Infer the BaseNav zone based on the current localization area.
-3. Execute A\* on the `.nav` triangle graph, only traversing BaseNav's own edges.
-4. Expand the planning result into ordinary `RUN` waypoints, which are then handed over to the old movement execution chain.
+3. Snap the landing point according to the current floor height, then execute A\* on the `.nav` triangle graph, only traversing BaseNav's own edges.
+4. Expand the planning result into ordinary `RUN` waypoints, which are then handed over to the movement execution chain.
+
+Step 3's floor snapping is worth calling out separately: on multi-floor maps, triangle faces from several floors are stacked at the same planar coordinate. Without distinguishing height, the start or end point may be snapped to the wrong floor, which shows up as the character clipping through walls or the path being unreachable. BaseNav bakes the floor height for each zone into the data pack and filters candidate faces by height band during planning, so the landing point in multi-floor areas is deterministic.
 
 In the GUI, clicking `Load BaseNav` makes the tool enter the same BaseNav preview logic; clicking `Copy NAVMESH` copies this type of node to the clipboard.
 `NAVMESH` is suitable for scenarios that require "automatically finding a triangle graph path from the current position to the target point" without needing to manually record an entire path segment beforehand.
@@ -325,7 +373,7 @@ Before starting to record, please confirm:
 
 ### Recommended Workflow
 
-The following flow is the most recommended and hassle-free actual usage for MapNavigator.
+The following flow is the complete usage for recorded paths. If the target point is reachable by plain travel alone, giving `NAVMESH` a coordinate is enough and you do not need this flow (see [Two Workflows](#two-workflows)).
 
 #### Step 1: Open the Tool and Start Recording
 

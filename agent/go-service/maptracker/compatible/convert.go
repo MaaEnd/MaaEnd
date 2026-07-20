@@ -97,10 +97,10 @@ var compatibleTrackerMapCache = struct {
 }{ByPrefix: map[string][]string{}}
 
 // compatibleZoneRegexp matches MapLocator tier zone IDs like ValleyIV_L1_114.
-var compatibleZoneRegexp = regexp.MustCompile(`^(ValleyIV|Wuling)_L(\d+)_(\d+)$`)
+var compatibleZoneRegexp = regexp.MustCompile(`^(\w+)_L(\d+)_(\d+)$`)
 
-// compatibleTrackerMapRegexp matches MapTracker map names like map01_lv001 or map01_lv003_tier_123.
-var compatibleTrackerMapRegexp = regexp.MustCompile(`^((?:map0[12])|(?:base01))_lv(\d{3})(?:_tier_(\d+))?$`)
+// compatibleTrackerMapRegexp matches MapTracker map names like map01_lv001, indie_dg007, map01_lv003_tier_123.
+var compatibleTrackerMapRegexp = regexp.MustCompile(`^([a-z]+\d*_[a-z]+\d+)(?:_tier_(\d+))?$`)
 
 func convertCompatiblePoints(preferredMapName string, points []compatibleSourcePoint) (compatibleConvertedPath, error) {
 	if len(points) == 0 {
@@ -236,7 +236,7 @@ func resolveCompatibleSourceMap(sourceName string, preferredMapName string) (com
 			return compatibleLocatorSource{}, fmt.Errorf("unsupported MapNavigator region: %s", region)
 		}
 		candidate := ""
-		if strings.HasPrefix(preferredMapName, prefix+"_lv") && !strings.Contains(preferredMapName, "_tier_") {
+		if strings.HasPrefix(preferredMapName, prefix+"_") && !strings.Contains(preferredMapName, "_tier_") {
 			candidate = preferredMapName
 		}
 		return compatibleLocatorSource{Region: region, MapPrefix: prefix, LocatorFile: "Base.png", CandidateMap: candidate, IsBase: true}, nil
@@ -265,24 +265,39 @@ func resolveCompatibleSourceMap(sourceName string, preferredMapName string) (com
 
 func parseCompatibleTrackerMapName(mapName string) (compatibleLocatorSource, bool) {
 	matches := compatibleTrackerMapRegexp.FindStringSubmatch(mapName)
-	if len(matches) != 4 {
+	if len(matches) < 2 {
 		return compatibleLocatorSource{}, false
 	}
-	region, ok := compatibleMapPrefixRegion(matches[1])
+	baseName := matches[1]
+	tier := ""
+	if len(matches) >= 3 {
+		tier = matches[2]
+	}
+
+	idx := strings.Index(baseName, "_")
+	prefix := baseName[:idx]
+	levelID := baseName[idx+1:]
+
+	region, ok := compatibleMapPrefixRegion(prefix)
 	if !ok {
 		return compatibleLocatorSource{}, false
 	}
-	if matches[3] != "" {
+
+	if tier != "" {
+		locLevel := levelID
+		if after, ok := strings.CutPrefix(levelID, "lv"); ok {
+			locLevel = after
+		}
 		return compatibleLocatorSource{
 			Region:       region,
-			MapPrefix:    matches[1],
-			LocatorFile:  fmt.Sprintf("Lv%sTier%s.png", matches[2], matches[3]),
+			MapPrefix:    prefix,
+			LocatorFile:  fmt.Sprintf("Lv%sTier%s.png", locLevel, tier),
 			CandidateMap: mapName,
 		}, true
 	}
 	return compatibleLocatorSource{
 		Region:       region,
-		MapPrefix:    matches[1],
+		MapPrefix:    prefix,
 		LocatorFile:  "Base.png",
 		CandidateMap: mapName,
 		IsBase:       true,
@@ -427,7 +442,7 @@ func compatibleTrackerBaseMaps(prefix string) ([]string, error) {
 			continue
 		}
 		name := strings.TrimSuffix(entry.Name(), ".png")
-		if strings.HasPrefix(name, prefix+"_lv") && !strings.Contains(name, "_tier_") {
+		if strings.HasPrefix(name, prefix+"_") && !strings.Contains(name, "_tier_") {
 			maps = append(maps, name)
 		}
 	}
@@ -451,7 +466,7 @@ func (s compatibleLocatorSource) acceptsCandidate(mapName string) bool {
 	if s.CandidateMap != "" {
 		return s.CandidateMap == mapName
 	}
-	return strings.HasPrefix(mapName, s.MapPrefix+"_lv")
+	return strings.HasPrefix(mapName, s.MapPrefix+"_")
 }
 
 func compatibleRegionMapPrefix(region string) (string, bool) {
@@ -462,6 +477,10 @@ func compatibleRegionMapPrefix(region string) (string, bool) {
 		return "map02", true
 	case "OMVBase":
 		return "base01", true
+	case "Indie":
+		return "indie", true
+	case "Dung01":
+		return "dung01", true
 	default:
 		return "", false
 	}
@@ -475,6 +494,10 @@ func compatibleMapPrefixRegion(prefix string) (string, bool) {
 		return "Wuling", true
 	case "base01":
 		return "OMVBase", true
+	case "indie":
+		return "Indie", true
+	case "dung01":
+		return "Dung01", true
 	default:
 		return "", false
 	}

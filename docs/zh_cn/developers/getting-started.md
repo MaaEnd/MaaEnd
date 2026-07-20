@@ -206,7 +206,6 @@ Pipeline 的核心逻辑是类似**有限状态机（FSM）/决策树（Decision
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAuto",
             "SellProductValleyIV",
             "SellProductWuling",
             "SellProductTaskEnd"

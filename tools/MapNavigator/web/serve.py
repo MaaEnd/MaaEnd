@@ -50,6 +50,7 @@ import subprocess
 import sys
 import threading
 import time
+import traceback
 import webbrowser
 from contextlib import asynccontextmanager
 from dataclasses import asdict
@@ -86,6 +87,7 @@ from runtime import (  # noqa: E402
     configure_runtime_env,
     get_agent_env,
     load_maa_runtime,
+    new_agent_id,
 )
 from settings_store import (  # noqa: E402
     CONNECTION_KINDS,
@@ -100,6 +102,7 @@ from fastapi.concurrency import run_in_threadpool  # noqa: E402
 from fastapi.responses import FileResponse, JSONResponse, Response  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 from pydantic import BaseModel  # noqa: E402
+from starlette.datastructures import MutableHeaders  # noqa: E402
 
 
 # --- 常量 -----------------------------------------------------------------------------
@@ -362,6 +365,36 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(title="MapNavigator Web Backend", lifespan=lifespan)
+
+
+class NoStoreMiddleware:
+    """给所有 HTTP 响应打 Cache-Control: no-store。
+
+    这是给别的开发者用的工具, 底图/数据包/前端 JS 都可能被就地替换。浏览器默认对没有
+    Cache-Control 的 FileResponse 走启发式缓存, 会拿旧底图旧代码却毫无提示 —— 非本模块
+    开发者根本察觉不到。localhost 每次重取代价为零, 宁可不缓存也不让任何人踩到隐形旧图。
+
+    纯 ASGI 实现: 只在 http.response.start 时补一个响应头, 不缓冲 FileResponse 响应体
+    (BaseHTTPMiddleware 会缓冲, 破坏大文件与 range), 也不碰 websocket。
+    """
+
+    def __init__(self, app: Any) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        async def send_no_store(message: Any) -> None:
+            if message["type"] == "http.response.start":
+                MutableHeaders(scope=message)["Cache-Control"] = "no-store"
+            await send(message)
+
+        await self.app(scope, receive, send_no_store)
+
+
+app.add_middleware(NoStoreMiddleware)
 
 
 class RouteRequest(BaseModel):
@@ -1185,7 +1218,7 @@ def do_locate_once(runtime: Any, session_config: Any) -> dict[str, Any]:
     """
     agent_process = None
     try:
-        agent_id = f"MapLocatorOnceAgent_{int(time.time())}"
+        agent_id = new_agent_id("MapLocatorOnceAgent")
         if not CPP_AGENT_EXE.exists():
             raise FileNotFoundError(f"找不到 Agent 可执行文件: {CPP_AGENT_EXE}")
 
@@ -1274,7 +1307,8 @@ async def api_locate_once(payload: dict[str, Any] = Body(default_factory=dict)) 
         res = await run_in_threadpool(do_locate_once, runtime, session_config)
         return res
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"定位执行失败: {exc}")
+        _log(f"定位失败:\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"定位执行失败: {exc}") from exc
 
 
 # 静态站点挂在最后, 使显式 API 路由优先匹配。空目录也不会崩 (已在 lifespan 中 mkdir)。

@@ -4,116 +4,70 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "[JumpBack]VisitFriendsAssistFullInit",
+            "[JumpBack]VisitFriendsAssistFull",
+            "[JumpBack]VisitFriendsClueExchangeFull",
             "VisitFriendsMenuScanFriendsFull",
-            "[JumpBack][Anchor]VisitFriendsMenuScanTargetFriendAnchorOpen",
-            "VisitFriendsMenuScanScrollFinish",
-            "VisitFriendsMenuScanScrollFinishSpecial",
-            "[JumpBack]VisitFriendsMenuScanScrollList"
+            "[JumpBack]VisitFriendsMenuScanTargetFriendOpen",
+            "[JumpBack]VisitFriendsMenuScanScrollList",
+            "VisitFriendsMenuScanScrollFinish"
         ]
     },
-    "VisitFriendsMenuScanTargetFriendRemarkOpen": {
-        "desc": "前往需要拜访的好友",
-        "recognition": "Custom",
-        "custom_recognition": "VisitFriendsMenuScanTargetFriendOpenRecognition",
-        "custom_recognition_param": {
-            "only_remark_friends": true
-        },
+    "VisitFriendsAssistFullInit": {
+        "desc": "三舱助力均未勾选时：仅将 AssistCountZero 设为 DirectHit，复用 AssistFull 的关闭/线索模板覆盖",
+        "enabled": true,
+        "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "VisitFriendsMenuScanTargetFriendOpenAction",
+        "custom_action": "PipelineOverrideAction",
         "custom_action_param": {
-            "param_attach_node": "VisitFriendsMenuScanTargetFriendRemarkOpen"
+            "patch": {
+                "VisitFriendsAssistCountZero": {
+                    "recognition": "DirectHit",
+                    "focsu": {}
+                }
+            }
         },
         "post_delay": 0,
-        "attach": {
-            "control_nexus_assist": false,
-            "mfg_cabin_assist": false,
-            "growth_chamber_assist": false
+        "focus": {
+            "Node.Action.Succeeded": "未开启设施助力"
         }
     },
-    "VisitFriendsMenuScanTargetFriendNormalOpen": {
-        "desc": "前往需要拜访的好友",
+    "VisitFriendsMenuScanTargetFriendOpen": {
+        "desc": "选择下一个好友。only_remark_friends 由任务选项覆盖",
         "recognition": "Custom",
-        "custom_recognition": "VisitFriendsMenuScanTargetFriendOpenRecognition",
+        "custom_recognition": "VisitFriendsSelectFriendRecognition",
         "custom_recognition_param": {
             "only_remark_friends": false
         },
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsMenuScanTargetFriendOpenAction",
-        "custom_action_param": {
-            "param_attach_node": "VisitFriendsMenuScanTargetFriendNormalOpen"
-        },
+        "action": "Click",
+        "post_wait_freezes": 200,
         "post_delay": 0,
+        "next": [
+            "VisitFriendsCheckAssist",
+            "VisitFriendsMenuScanDetailClose"
+        ],
         "attach": {
-            "control_nexus_assist": false,
-            "mfg_cabin_assist": false,
-            "growth_chamber_assist": false
+            "visited": []
         }
     },
     "VisitFriendsMenuScanScrollFinish": {
-        "desc": "判断是否滚动完成",
-        "recognition": "Custom",
-        "custom_recognition": "VisitFriendsMenuScanScrollFinishRecognition",
+        "desc": "滚动完成,滑动后仍然无其他目标",
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
             "Node.Recognition.Succeeded": "好友列表已滚动到底部，拜访完成"
         }
     },
-    "VisitFriendsMenuScanScrollFinishSpecial": {
-        "desc": "判断是否只有一个好友",
+    "VisitFriendsMenuScanFriendsFull": {
+        "desc": "拜访好友已达到上限：助力次数与线索交换次数均归零",
         "recognition": "And",
         "all_of": [
-            {
-                "sub_name": "_CanVisitText",
-                "recognition": {
-                    "type": "OCR",
-                    "param": {
-                        "roi": [
-                            0,
-                            0,
-                            307,
-                            203
-                        ],
-                        "expected": [
-                            "可拜访的好友",
-                            "可拜訪的好友",
-                            "Visitable Friends",
-                            "訪問できるフレンド",
-                            "可拜访"
-                        ]
-                    }
-                }
-            },
-            {
-                "recognition": {
-                    "type": "OCR",
-                    "param": {
-                        "roi": "_CanVisitText",
-                        "roi_offset": [
-                            0,
-                            0,
-                            15,
-                            0
-                        ],
-                        "expected": [
-                            // @i18n-skip
-                            "(^|[^\\d])1(?!\\d)"
-                        ],
-                        "only_rec": true
-                    }
-                }
-            }
+            "VisitFriendsAssistCountZero",
+            "VisitFriendsClueExchangeCountZero"
         ],
-        "focus": {
-            "Node.Recognition.Succeeded": "当前只有一个好友"
-        }
-    },
-    "VisitFriendsMenuScanFriendsFull": {
-        "desc": "拜访好友已达到上限",
-        "recognition": "Custom",
-        "custom_recognition": "VisitFriendsMenuScanScrollFullRecognition",
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
@@ -121,20 +75,13 @@
         }
     },
     "VisitFriendsMenuScanScrollList": {
-        "desc": "向下滚动好友列表",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    200,
-                    170
-                ],
-                "template": "VisitFriends/OnFriendList.png",
-                "threshold": 0.8
-            }
+        "desc": "好友列表未到底时向下滚动：ListComplete 对比 WithNameForScroll（不检查线索）好友名文字变化",
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {
+            "node": "VisitFriendsRecognitionItemWithNameForScroll"
         },
+        "pre_delay": 0,
         "action": "Swipe",
         "begin": [
             650,
@@ -145,85 +92,70 @@
             150
         ],
         "end_hold": 600, // 太短了松开会晃动
+        "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "向下滑动好友列表"
+        },
+        "attach": {
+            "last_text": ""
         }
     },
-    "VisitFriendsMenuScanDetail": {
-        "desc": "识别进入好友船的按钮",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "VisitFriendsMenuScanDetailClueExchange"
-        ]
-    },
-    "VisitFriendsMenuScanDetailClueExchange": {
-        "desc": "识别是否可以线索交换",
-        "recognition": "Custom",
-        "custom_recognition": "VisitFriendsMenuScanDetailClueExchangeRecognition",
-        "custom_recognition_param": {
-            "friend_name": "aaa#123",
-            "enter_button_box": [
-                0,
-                0,
-                100,
-                100
-            ]
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "VisitFriendsMenuScanDetailOpen",
-            "VisitFriendsMenuScanDetailFinish"
-        ]
-    },
-    "VisitFriendsMenuScanDetailOpen": {
-        "desc": "识别进入好友船的按钮",
-        "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            -100,
-            0,
-            100,
-            100
-        ],
-        "target_offset": [
-            5,
-            5,
-            -10,
-            -10
-        ],
-        "post_delay": 0,
-        "next": [
-            "VisitFriendsMenuScanDetailOpenSuccess"
-        ]
-    },
-    "VisitFriendsMenuScanDetailOpenSuccess": {
-        "desc": "成功打开好友详情弹窗",
-        "recognition": "And",
-        "all_of": [
-            "GrayCancelButton"
+    "VisitFriendsCheckAssist": {
+        "desc": "打开好友详情后检查可访问资源（识别②）：线索交换固定开启；助力子节点未勾选时为 OCR a^，勾选后覆盖为 TemplateMatch",
+        "recognition": "Or",
+        "any_of": [
+            "VisitFriendsCheckAssistClueExchange",
+            "VisitFriendsCheckAssistControlNexus",
+            "VisitFriendsCheckAssistMFGCabin",
+            "VisitFriendsCheckAssistGrowthChamber"
         ],
         "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "VisitFriendsMenuScanDetailSaveAssist"
+            "VisitFriendsEnterShip"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "好友有需要的资源",
+            "Node.Recognition.Failed": "好友没有需要的资源"
+        }
+    },
+    "VisitFriendsCheckAssistClueExchange": {
+        "desc": "检查是否可线索交换（固定开启，不可关闭）",
+        "recognition": "OCR",
+        "roi": [
+            312,
+            316,
+            658,
+            172
+        ],
+        "expected": [
+            "情报交流进行中",
+            "情報交流進行中",
+            "Clue Exchange in Progress",
+            "情報共有中",
+            "정보 교류 중"
         ]
     },
-    "VisitFriendsMenuScanDetailSaveAssist": {
-        "desc": "保存好友船助力详情",
-        "recognition": "Custom",
-        "custom_recognition": "VisitFriendsMenuScanDetailAssistRecognition",
-        "custom_recognition_param": {
-            "friend_name": "aaa#1234"
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "VisitFriendsMenuScanDetailClose"
+    "VisitFriendsCheckAssistControlNexus": {
+        "desc": "检查总控中枢可助力；默认 OCR a^ 永不命中，由 ProductionAssistControl 选项覆盖为模板识别",
+        "recognition": "OCR",
+        "expected": [
+            "a^"
+        ]
+    },
+    "VisitFriendsCheckAssistMFGCabin": {
+        "desc": "检查制造舱可助力；默认 OCR a^ 永不命中，由 ProductionAssistControl 选项覆盖为模板识别",
+        "recognition": "OCR",
+        "expected": [
+            "a^"
+        ]
+    },
+    "VisitFriendsCheckAssistGrowthChamber": {
+        "desc": "检查培养舱可助力；默认 OCR a^ 永不命中，由 ProductionAssistControl 选项覆盖为模板识别",
+        "recognition": "OCR",
+        "expected": [
+            "a^"
         ]
     },
     "VisitFriendsMenuScanDetailClose": {
@@ -235,11 +167,6 @@
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": 400,
-        "post_delay": 0
-    },
-    "VisitFriendsMenuScanDetailFinish": {
-        "desc": "完成好友详情识别",
-        "pre_delay": 0,
         "post_delay": 0
     }
 }

@@ -3,6 +3,7 @@
         "desc": "售卖产品计划任务",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductScheduleEnabled",
             "SellProductScheduleEnd"
@@ -19,6 +20,7 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductMain"
         ],
@@ -35,7 +37,8 @@
     "SellProductScheduleEnd": {
         "desc": "售卖产品计划任务跳过",
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductMain": {
         "desc": "脚本入口",
@@ -43,8 +46,39 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductLoop",
-            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+            "SellProductEnterRegionalDevelopment"
+        ]
+    },
+    "SellProductEnterRegionalDevelopment": {
+        "desc": "进入地区建设界面并准备捕获 UID",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopment"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCaptureUid"
+        ]
+    },
+    "SellProductCaptureUid": {
+        "desc": "捕获当前账号 UID，用于隔离自动干员缓存",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CaptureUid",
+        "custom_action_param": {
+            "use_cache": true,
+            "stay_on_current_screen": true,
+            "allow_unknown": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductInitializeReserveSession"
         ]
     },
     "SellProductLoop": {
@@ -57,50 +91,9 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAuto",
             "SellProductValleyIV",
             "SellProductWuling",
             "SellProductTaskEnd"
-        ]
-    },
-    "SellProductAuto": {
-        "desc": "自动选择起始地区售卖流程",
-        "max_hit": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductAutoValleyIV",
-            "SellProductAutoWuling",
-            "SellProductLoop"
-        ]
-    },
-    "SellProductAutoValleyIV": {
-        "desc": "自动选择四号谷地售卖流程",
-        "recognition": "And",
-        "all_of": [
-            "InRegionalDevelopmentValleyIV"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductValleyIV",
-            "SellProductLoop"
-        ]
-    },
-    "SellProductAutoWuling": {
-        "desc": "自动选择武陵售卖流程",
-        "recognition": "And",
-        "all_of": [
-            "InRegionalDevelopmentWuling"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductWuling",
-            "SellProductLoop"
         ]
     },
     "SellProductValleyIV": {
@@ -158,7 +151,7 @@
             "SellProductLoop"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "据点管理未解锁"
+            "Node.Recognition.Succeeded": "$task.SellProduct.outpost_locked"
         }
     },
     "SellProductTaskEnd": {

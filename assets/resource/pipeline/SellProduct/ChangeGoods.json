@@ -1,6 +1,6 @@
 {
     "SellProductChangeGoods": {
-        "desc": "识别更换货品并点击，进入更换界面，优先选择配置的货品，否则选择下一个货品",
+        "desc": "识别更换货品并点击，进入按优先级选择货品的界面",
         "recognition": "OCR",
         "roi": [
             1115,
@@ -36,7 +36,7 @@
         ]
     },
     "SellProductChangeGoodsRelay": {
-        "desc": "通用换货中继：确认已进入选择货品界面后再执行后续选择",
+        "desc": "确认已进入选择货品界面，再识别下一个优先物品",
         "recognition": "And",
         "all_of": [
             "SellProductCheckSelectGoodsText"
@@ -54,64 +54,12 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]SellProductSelectNewGood",
-            "[Anchor]SellProductPriorityGoodMissHandler",
-            "[Anchor]SellProductSelectGoodFirstTime",
-            "SellProductSelectNextGood"
-        ]
-    },
-    "SellProductPriorityGoodMissWarning": {
-        "desc": "已配置优先货品但本轮未识别到，记录提示并直接售卖当前货品",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductSelectFirstGood"
-        ],
-        "focus": {
-            "Node.Action.Starting": "已配置优先货品，但当前未识别到任何匹配项，直接售卖当前货品"
-        }
-    },
-    "SellProductSelectFirstGood": {
-        "desc": "在更换界面中点击第一个货品，作为默认选择",
-        "recognition": "OCR",
-        "roi": [
-            179,
-            171,
-            299,
-            102
-        ],
-        "expected": [
-            "^.{1,}$"
-        ],
-        "pre_delay": 0,
-        "action": "Click",
-        "anchor": {
-            "SellProductSelectGoodFirstTime": ""
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductSelectNewGoodConfirm"
-        ]
-    },
-    "SellProductSelectNextGood": {
-        "desc": "在更换界面中识别下一个货品并点击，作为默认选择",
-        "recognition": "And",
-        "all_of": [
-            "SellProductCheckNextGoodsText",
-            "SellProductCheckSelectGoodsText"
-        ],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductSelectNewGoodConfirm"
+            "[Anchor]SellProductSelectPriorityItem",
+            "[Anchor]SellProductPriorityItemsExhausted"
         ]
     },
     "SellProductSelectNewGoodConfirm": {
-        "desc": "点击确认",
+        "desc": "确认选择当前优先物品",
         "recognition": "And",
         "all_of": [
             "WhiteConfirmButtonType2",
@@ -122,7 +70,32 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductAtSell"
+            "[Anchor]SellProductCommitPriorityItem"
+        ]
+    },
+    "SellProductCloseGoodsAfterExhausted": {
+        "desc": "没有剩余可售物品，关闭选择界面并结束当前据点售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckSelectGoodsText",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoopEnd"
         ]
     },
     "SellProductCheckSelectGoodsText": {
@@ -140,26 +113,6 @@
             "(?i)Select\\s*Goods\\s*to\\s*Trade",
             "取引商品を選択",
             "거래할 상품 선택"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "SellProductCheckNextGoodsText": {
-        "desc": "检查下一个货品的文本",
-        "recognition": "OCR",
-        "roi": [
-            511,
-            180,
-            274,
-            83
-        ],
-        "expected": [
-            "本地仓储",
-            "本地區倉儲",
-            "(?i)Local\\s*Depot",
-            "地域在庫",
-            "지역 저장고"
         ],
         "pre_delay": 0,
         "post_delay": 0,

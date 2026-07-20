@@ -1,0 +1,1014 @@
+{
+    "items": {
+        "item_bottled_rec_hp_1": {
+            "names": {
+                "zh_cn": "荞愈胶囊",
+                "zh_tw": "蕎癒膠囊",
+                "en_us": "Buck Capsule [C]",
+                "ja_jp": "蕎花カプセルⅠ",
+                "ko_kr": "메밀꽃 치유 캡슐"
+            }
+        },
+        "item_glass_bottle": {
+            "names": {
+                "zh_cn": "紫晶质瓶",
+                "zh_tw": "紫晶質瓶",
+                "en_us": "Amethyst Bottle",
+                "ja_jp": "紫晶製ボトル",
+                "ko_kr": "자수정 병"
+            }
+        },
+        "item_crystal_shell": {
+            "names": {
+                "zh_cn": "晶体外壳",
+                "zh_tw": "晶體外殼",
+                "en_us": "Origocrust",
+                "ja_jp": "結晶外殻",
+                "ko_kr": "오리고 크러스트"
+            }
+        },
+        "item_glass_cmpt": {
+            "names": {
+                "zh_cn": "紫晶零件",
+                "zh_tw": "紫晶零件",
+                "en_us": "Amethyst Part",
+                "ja_jp": "紫晶部品",
+                "ko_kr": "자수정 부품"
+            }
+        },
+        "item_proc_battery_2": {
+            "names": {
+                "zh_cn": "中容谷地电池",
+                "zh_tw": "中容量谷地電池",
+                "en_us": "SC Valley Battery",
+                "ja_jp": "中容量谷地バッテリー",
+                "ko_kr": "중용량 협곡 배터리"
+            }
+        },
+        "item_bottled_rec_hp_2": {
+            "names": {
+                "zh_cn": "优质荞愈胶囊",
+                "zh_tw": "優質蕎癒膠囊",
+                "en_us": "Buck Capsule [B]",
+                "ja_jp": "蕎花カプセルⅡ",
+                "ko_kr": "메밀꽃 치유 캡슐(중)"
+            }
+        },
+        "item_bottled_food_1": {
+            "names": {
+                "zh_cn": "柑实罐头",
+                "zh_tw": "柑實罐頭",
+                "en_us": "Canned Citrome [C]",
+                "ja_jp": "シトロームの缶詰Ⅰ",
+                "ko_kr": "시트론 통조림"
+            }
+        },
+        "item_bottled_rec_hp_3": {
+            "names": {
+                "zh_cn": "精选荞愈胶囊",
+                "zh_tw": "精選蕎癒膠囊",
+                "en_us": "Buck Capsule [A]",
+                "ja_jp": "蕎花カプセルⅢ",
+                "ko_kr": "메밀꽃 치유 캡슐(대)"
+            }
+        },
+        "item_proc_battery_3": {
+            "names": {
+                "zh_cn": "高容谷地电池",
+                "zh_tw": "高容量谷地電池",
+                "en_us": "HC Valley Battery",
+                "ja_jp": "大容量谷地バッテリー",
+                "ko_kr": "대용량 협곡 배터리"
+            }
+        },
+        "item_bottled_food_2": {
+            "names": {
+                "zh_cn": "优质柑实罐头",
+                "zh_tw": "優質柑實罐頭",
+                "en_us": "Canned Citrome [B]",
+                "ja_jp": "シトロームの缶詰Ⅱ",
+                "ko_kr": "시트론 통조림(중)"
+            }
+        },
+        "item_bottled_food_3": {
+            "names": {
+                "zh_cn": "精选柑实罐头",
+                "zh_tw": "精選柑實罐頭",
+                "en_us": "Canned Citrome [A]",
+                "ja_jp": "シトロームの缶詰Ⅲ",
+                "ko_kr": "시트론 통조림(대)"
+            }
+        },
+        "item_proc_battery_1": {
+            "names": {
+                "zh_cn": "低容谷地电池",
+                "zh_tw": "低容量谷地電池",
+                "en_us": "LC Valley Battery",
+                "ja_jp": "小容量谷地バッテリー",
+                "ko_kr": "저용량 협곡 배터리"
+            }
+        },
+        "item_iron_cmpt": {
+            "names": {
+                "zh_cn": "铁制零件",
+                "zh_tw": "鐵製零件",
+                "en_us": "Ferrium Part",
+                "ja_jp": "鉄製部品",
+                "ko_kr": "페리움 부품"
+            }
+        },
+        "item_iron_enr_cmpt": {
+            "names": {
+                "zh_cn": "钢制零件",
+                "zh_tw": "鋼製零件",
+                "en_us": "Steel Part",
+                "ja_jp": "鋼製部品",
+                "ko_kr": "강철 부품"
+            }
+        },
+        "item_activity_xiranite_enr_hulu": {
+            "names": {
+                "zh_cn": "息壤玉葫芦",
+                "zh_tw": "息壤玉葫蘆",
+                "en_us": "Xiranite Jade Gourd",
+                "ja_jp": "息壌玉ひょうたん",
+                "ko_kr": "식양 옥 호리병"
+            }
+        },
+        "item_activity_xiranite_hulu": {
+            "names": {
+                "zh_cn": "息壤葫芦",
+                "zh_tw": "息壤葫蘆",
+                "en_us": "Xiranite Gourd",
+                "ja_jp": "息壌ひょうたん",
+                "ko_kr": "식양 호리병"
+            }
+        },
+        "item_proc_battery_4": {
+            "names": {
+                "zh_cn": "低容武陵电池",
+                "zh_tw": "低容量武陵電池",
+                "en_us": "LC Wuling Battery",
+                "ja_jp": "小容量武陵バッテリー",
+                "ko_kr": "저용량 무릉 배터리"
+            }
+        },
+        "item_bottled_rec_hp_4": {
+            "names": {
+                "zh_cn": "芽针针剂",
+                "zh_tw": "芽針針劑",
+                "en_us": "Yazhen Syringe [C]",
+                "ja_jp": "芽針注射剤Ⅰ",
+                "ko_kr": "야침 주사약"
+            }
+        },
+        "item_xiranite_powder": {
+            "names": {
+                "zh_cn": "息壤",
+                "zh_tw": "息壤",
+                "en_us": "Xiranite",
+                "ja_jp": "息壌",
+                "ko_kr": "식양"
+            }
+        },
+        "item_bottled_food_4": {
+            "names": {
+                "zh_cn": "锦草软饮",
+                "zh_tw": "錦草飲料",
+                "en_us": "Jincao Drink",
+                "ja_jp": "錦草ソーダⅠ",
+                "ko_kr": "금초 청량음료"
+            }
+        },
+        "item_copper_cmpt": {
+            "names": {
+                "zh_cn": "赤铜零件",
+                "zh_tw": "赤銅零件",
+                "en_us": "Cuprium Part",
+                "ja_jp": "赤銅部品",
+                "ko_kr": "적동 부품"
+            }
+        },
+        "item_proc_battery_5": {
+            "names": {
+                "zh_cn": "中容武陵电池",
+                "zh_tw": "中容量武陵電池",
+                "en_us": "SC Wuling Battery",
+                "ja_jp": "中容量武陵バッテリー",
+                "ko_kr": "중용량 무릉 배터리"
+            }
+        },
+        "item_copper_enr_cmpt": {
+            "names": {
+                "zh_cn": "赫铜零件",
+                "zh_tw": "赫銅零件",
+                "en_us": "Hetonite Part",
+                "ja_jp": "緋銅部品",
+                "ko_kr": "혁동 부품"
+            }
+        },
+        "item_bottled_rec_hp_5": {
+            "names": {
+                "zh_cn": "优质芽针针剂",
+                "zh_tw": "優質芽針針劑",
+                "en_us": "Yazhen Syringe [A]",
+                "ja_jp": "芽針注射剤Ⅱ",
+                "ko_kr": "고급 야침 주사약"
+            }
+        },
+        "item_xiranite_enr_powder": {
+            "names": {
+                "zh_cn": "重息壤",
+                "zh_tw": "重息壤",
+                "en_us": "Heavy Xiranite",
+                "ja_jp": "重息壌",
+                "ko_kr": "중식양"
+            }
+        },
+        "item_bottled_food_5": {
+            "names": {
+                "zh_cn": "优质锦草软饮",
+                "zh_tw": "優質錦草飲料",
+                "en_us": "Jincao Tea",
+                "ja_jp": "錦草ソーダⅡ",
+                "ko_kr": "고급 금초 청량음료"
+            }
+        },
+        "item_copper_enr2_cmpt": {
+            "names": {
+                "zh_cn": "灼铜零件",
+                "zh_tw": "灼銅零件",
+                "en_us": "Pyrrolite Part",
+                "ja_jp": "焔銅部品",
+                "ko_kr": "작동 부품"
+            }
+        },
+        "item_filter_core": {
+            "names": {
+                "zh_cn": "分离芯",
+                "zh_tw": "分離芯",
+                "en_us": "Separator Core",
+                "ja_jp": "分離コア",
+                "ko_kr": "분리 필터"
+            }
+        }
+    },
+    "operators": {
+        "Perlica": {
+            "names": {
+                "zh_cn": "佩丽卡",
+                "zh_tw": "佩麗卡",
+                "en_us": "Perlica",
+                "ja_jp": "ペリカ",
+                "ko_kr": "펠리카"
+            }
+        },
+        "ChenQianyu": {
+            "names": {
+                "zh_cn": "陈千语",
+                "zh_tw": "陳千語",
+                "en_us": "Chen Qianyu",
+                "ja_jp": "チェン・センユー",
+                "ko_kr": "진천우"
+            }
+        },
+        "Wulfgard": {
+            "names": {
+                "zh_cn": "狼卫",
+                "zh_tw": "狼衛",
+                "en_us": "Wulfgard",
+                "ja_jp": "ウルフガード",
+                "ko_kr": "울프가드"
+            }
+        },
+        "Arclight": {
+            "names": {
+                "zh_cn": "弧光",
+                "zh_tw": "弧光",
+                "en_us": "Arclight",
+                "ja_jp": "アークライト",
+                "ko_kr": "아크라이트"
+            }
+        },
+        "Ember": {
+            "names": {
+                "zh_cn": "余烬",
+                "zh_tw": "餘燼",
+                "en_us": "Ember",
+                "ja_jp": "エンバー",
+                "ko_kr": "엠버"
+            }
+        },
+        "Xaihi": {
+            "names": {
+                "zh_cn": "赛希",
+                "zh_tw": "賽希",
+                "en_us": "Xaihi",
+                "ja_jp": "ザイヒ",
+                "ko_kr": "자이히"
+            }
+        },
+        "Avywenna": {
+            "names": {
+                "zh_cn": "艾维文娜",
+                "zh_tw": "艾維文娜",
+                "en_us": "Avywenna",
+                "ja_jp": "アイビーエナ",
+                "ko_kr": "아비웨나"
+            }
+        },
+        "Gilberta": {
+            "names": {
+                "zh_cn": "洁尔佩塔",
+                "zh_tw": "潔爾佩塔",
+                "en_us": "Gilberta",
+                "ja_jp": "ギルベルタ",
+                "ko_kr": "질베르타"
+            }
+        },
+        "Snowshine": {
+            "names": {
+                "zh_cn": "昼雪",
+                "zh_tw": "晝雪",
+                "en_us": "Snowshine",
+                "ja_jp": "スノーシャイン",
+                "ko_kr": "스노우샤인"
+            }
+        },
+        "Lifeng": {
+            "names": {
+                "zh_cn": "黎风",
+                "zh_tw": "黎風",
+                "en_us": "Lifeng",
+                "ja_jp": "リーフォン",
+                "ko_kr": "여풍"
+            }
+        },
+        "Laevatain": {
+            "names": {
+                "zh_cn": "莱万汀",
+                "zh_tw": "萊萬汀",
+                "en_us": "Laevatain",
+                "ja_jp": "レーヴァテイン",
+                "ko_kr": "레바테인"
+            }
+        },
+        "Yvonne": {
+            "names": {
+                "zh_cn": "伊冯",
+                "zh_tw": "伊馮",
+                "en_us": "Yvonne",
+                "ja_jp": "イヴォンヌ",
+                "ko_kr": "이본"
+            }
+        },
+        "DaPan": {
+            "names": {
+                "zh_cn": "大潘",
+                "zh_tw": "大潘",
+                "en_us": "Da Pan",
+                "ja_jp": "ダパン",
+                "ko_kr": "판"
+            }
+        },
+        "Akekuri": {
+            "names": {
+                "zh_cn": "秋栗",
+                "zh_tw": "秋栗",
+                "en_us": "Akekuri",
+                "ja_jp": "アケクリ",
+                "ko_kr": "아케쿠리"
+            }
+        },
+        "Catcher": {
+            "names": {
+                "zh_cn": "卡契尔",
+                "zh_tw": "卡契爾",
+                "en_us": "Catcher",
+                "ja_jp": "キャッチャー",
+                "ko_kr": "카치르"
+            }
+        },
+        "Estella": {
+            "names": {
+                "zh_cn": "埃特拉",
+                "zh_tw": "埃特拉",
+                "en_us": "Estella",
+                "ja_jp": "エステーラ",
+                "ko_kr": "에스텔라"
+            }
+        },
+        "Fluorite": {
+            "names": {
+                "zh_cn": "萤石",
+                "zh_tw": "螢石",
+                "en_us": "Fluorite",
+                "ja_jp": "フローライト",
+                "ko_kr": "플루라이트"
+            }
+        },
+        "Antal": {
+            "names": {
+                "zh_cn": "安塔尔",
+                "zh_tw": "安塔爾",
+                "en_us": "Antal",
+                "ja_jp": "アンタル",
+                "ko_kr": "안탈"
+            }
+        },
+        "Alesh": {
+            "names": {
+                "zh_cn": "阿列什",
+                "zh_tw": "阿列什",
+                "en_us": "Alesh",
+                "ja_jp": "アレッシュ",
+                "ko_kr": "알레쉬"
+            }
+        },
+        "Ardelia": {
+            "names": {
+                "zh_cn": "艾尔黛拉",
+                "zh_tw": "艾爾黛拉",
+                "en_us": "Ardelia",
+                "ja_jp": "アルデリア",
+                "ko_kr": "아델리아"
+            }
+        },
+        "LastRite": {
+            "names": {
+                "zh_cn": "别礼",
+                "zh_tw": "別禮",
+                "en_us": "Last Rite",
+                "ja_jp": "ラストライト",
+                "ko_kr": "라스트 라이트"
+            }
+        },
+        "Tangtang": {
+            "names": {
+                "zh_cn": "汤汤",
+                "zh_tw": "湯湯",
+                "en_us": "Tangtang",
+                "ja_jp": "タンタン",
+                "ko_kr": "탕탕"
+            }
+        },
+        "Rossi": {
+            "names": {
+                "zh_cn": "洛茜",
+                "zh_tw": "洛西",
+                "en_us": "Rossi",
+                "ja_jp": "ロッシ",
+                "ko_kr": "로시"
+            }
+        },
+        "Pogranichnik": {
+            "names": {
+                "zh_cn": "骏卫",
+                "zh_tw": "駿衛",
+                "en_us": "Pogranichnik",
+                "ja_jp": "ポグラニチニク",
+                "ko_kr": "포그라니치니크"
+            }
+        },
+        "ZhuangFangyi": {
+            "names": {
+                "zh_cn": "庄方宜",
+                "zh_tw": "莊方宜",
+                "en_us": "Zhuang Fangyi",
+                "ja_jp": "ゾアン・ファンイ",
+                "ko_kr": "장방이"
+            }
+        },
+        "MiFu": {
+            "names": {
+                "zh_cn": "弭弗",
+                "zh_tw": "弭弗",
+                "en_us": "Mi Fu",
+                "ja_jp": "ミ・フ",
+                "ko_kr": "미브"
+            }
+        },
+        "Arcane": {
+            "names": {
+                "zh_cn": "诀",
+                "zh_tw": "訣",
+                "en_us": "Arcane",
+                "ja_jp": "オクギ",
+                "ko_kr": "결"
+            }
+        },
+        "Camille": {
+            "names": {
+                "zh_cn": "卡缪",
+                "zh_tw": "卡繆",
+                "en_us": "Camille",
+                "ja_jp": "カミーユ",
+                "ko_kr": "카뮤"
+            }
+        }
+    },
+    "location_order": [
+        "RefugeeCamp",
+        "InfraStation",
+        "ReconstructionHQ",
+        "SkyKingFlatsConstructionSite",
+        "CardiacRemediationStation",
+        "XiranflowCloudseederStation"
+    ],
+    "locations": {
+        "RefugeeCamp": {
+            "names": {
+                "zh_cn": "难民暂居处",
+                "zh_tw": "難民暫居處",
+                "en_us": "Refugee Camp",
+                "ja_jp": "仮設居住地",
+                "ko_kr": "유랑자 임시 거주지"
+            },
+            "item_order": [
+                "item_bottled_rec_hp_3",
+                "item_proc_battery_3",
+                "item_bottled_food_3",
+                "item_proc_battery_2",
+                "item_bottled_rec_hp_2",
+                "item_bottled_food_2",
+                "item_bottled_rec_hp_1",
+                "item_bottled_food_1",
+                "item_glass_bottle",
+                "item_crystal_shell",
+                "item_glass_cmpt"
+            ],
+            "target_operators": [
+                {
+                    "name": "Laevatain",
+                    "bonus_tier": 0,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Pogranichnik",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Ardelia",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Snowshine",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Gilberta",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Camille",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Antal",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Tangtang",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Fluorite",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Wulfgard",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Perlica",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                }
+            ],
+            "restore_operators": [
+                "Laevatain",
+                "Camille",
+                "Antal",
+                "Rossi"
+            ]
+        },
+        "InfraStation": {
+            "names": {
+                "zh_cn": "基建前站",
+                "zh_tw": "基建前站",
+                "en_us": "Infra-Station",
+                "ja_jp": "建設基地",
+                "ko_kr": "기초 건설 주둔지"
+            },
+            "item_order": [
+                "item_bottled_rec_hp_3",
+                "item_proc_battery_3",
+                "item_bottled_food_3",
+                "item_proc_battery_2",
+                "item_bottled_rec_hp_2",
+                "item_bottled_food_2",
+                "item_proc_battery_1",
+                "item_bottled_food_1",
+                "item_iron_cmpt"
+            ],
+            "target_operators": [
+                {
+                    "name": "Yvonne",
+                    "bonus_tier": 0,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "ChenQianyu",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Rossi",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Tangtang",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Antal",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Fluorite",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Estella",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Catcher",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Akekuri",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Wulfgard",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Perlica",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Camille",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Xaihi",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Ember",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                }
+            ],
+            "restore_operators": [
+                "Yvonne",
+                "ChenQianyu"
+            ]
+        },
+        "ReconstructionHQ": {
+            "names": {
+                "zh_cn": "重建指挥部",
+                "zh_tw": "重建指揮部",
+                "en_us": "Reconstruction HQ",
+                "ja_jp": "再建管理本部",
+                "ko_kr": "재건 지휘부"
+            },
+            "item_order": [
+                "item_bottled_rec_hp_3",
+                "item_proc_battery_3",
+                "item_bottled_food_3",
+                "item_proc_battery_2",
+                "item_bottled_rec_hp_2",
+                "item_bottled_food_2",
+                "item_bottled_food_1",
+                "item_iron_enr_cmpt"
+            ],
+            "target_operators": [
+                {
+                    "name": "Gilberta",
+                    "bonus_tier": 0,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Pogranichnik",
+                    "bonus_tier": 0,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Laevatain",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Ardelia",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Snowshine",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "ZhuangFangyi",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Alesh",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "ChenQianyu",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                }
+            ],
+            "restore_operators": [
+                "Gilberta",
+                "Laevatain",
+                "Perlica"
+            ]
+        },
+        "SkyKingFlatsConstructionSite": {
+            "names": {
+                "zh_cn": "天王坪援建点",
+                "zh_tw": "天王坪援助點",
+                "en_us": "Sky King Flats Construction Site",
+                "ja_jp": "天王原建設支援拠点",
+                "ko_kr": "천왕 평지 건설 지원소"
+            },
+            "item_order": [
+                "item_proc_battery_5",
+                "item_copper_enr_cmpt",
+                "item_proc_battery_4",
+                "item_bottled_rec_hp_5",
+                "item_bottled_food_5",
+                "item_xiranite_enr_powder",
+                "item_bottled_rec_hp_4",
+                "item_bottled_food_4",
+                "item_copper_cmpt",
+                "item_xiranite_powder"
+            ],
+            "target_operators": [
+                {
+                    "name": "Tangtang",
+                    "bonus_tier": 0,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Lifeng",
+                    "bonus_tier": 0,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Camille",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Avywenna",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Arcane",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Wulfgard",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Rossi",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Ardelia",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Fluorite",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Arclight",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                }
+            ],
+            "restore_operators": [
+                "Tangtang",
+                "Arcane",
+                "Wulfgard",
+                "MiFu",
+                "LastRite",
+                "Ember"
+            ]
+        },
+        "CardiacRemediationStation": {
+            "names": {
+                "zh_cn": "心脏修缮站",
+                "zh_tw": "心臟修繕站",
+                "en_us": "Cardiac Remediation Station",
+                "ja_jp": "心臓修復施設",
+                "ko_kr": "심장 수복실"
+            },
+            "item_order": [
+                "item_copper_enr2_cmpt",
+                "item_proc_battery_5",
+                "item_copper_enr_cmpt",
+                "item_proc_battery_4",
+                "item_bottled_food_5",
+                "item_bottled_rec_hp_5",
+                "item_xiranite_enr_powder",
+                "item_xiranite_powder"
+            ],
+            "target_operators": [
+                {
+                    "name": "ZhuangFangyi",
+                    "bonus_tier": 0,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Arcane",
+                    "bonus_tier": 0,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "DaPan",
+                    "bonus_tier": 0,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "MiFu",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Alesh",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Lifeng",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Akekuri",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "LastRite",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Snowshine",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "ChenQianyu",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                }
+            ],
+            "restore_operators": [
+                "ZhuangFangyi",
+                "Akekuri",
+                "Pogranichnik",
+                "Yvonne",
+                "Perlica"
+            ]
+        },
+        "XiranflowCloudseederStation": {
+            "names": {
+                "zh_cn": "盈天台建设站",
+                "zh_tw": "盈天台建設站",
+                "en_us": "Xiranflow Cloudseeder Station",
+                "ja_jp": "満天台建設基地",
+                "ko_kr": "영천대 건설 기지"
+            },
+            "item_order": [
+                "item_copper_enr2_cmpt",
+                "item_proc_battery_5",
+                "item_bottled_food_5",
+                "item_bottled_rec_hp_5",
+                "item_xiranite_enr_powder",
+                "item_filter_core",
+                "item_xiranite_powder"
+            ],
+            "target_operators": [
+                {
+                    "name": "Arcane",
+                    "bonus_tier": 0,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Lifeng",
+                    "bonus_tier": 0,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "MiFu",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "ZhuangFangyi",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "DaPan",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Xaihi",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Rossi",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Tangtang",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Ardelia",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Fluorite",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Arclight",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Wulfgard",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                }
+            ],
+            "restore_operators": [
+                "Arcane",
+                "MiFu",
+                "LastRite",
+                "Yvonne",
+                "Ember",
+                "ChenQianyu"
+            ]
+        }
+    }
+}
