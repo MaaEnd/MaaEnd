@@ -52,8 +52,8 @@ type operatorCandidate struct {
 	Priority int `json:"priority"`
 	// BonusTier 表示据点发展值未满时的售卖加成档位，值越小收益越高。
 	BonusTier int `json:"bonus_tier"`
-	// DevelopmentMaxBonusTier 表示据点发展值已满时忽略发展值加成后的售卖档位。
-	DevelopmentMaxBonusTier int `json:"development_max_bonus_tier"`
+	// OutpostProsperityMaxBonusTier 表示据点发展值已满时忽略发展值加成后的售卖档位。
+	OutpostProsperityMaxBonusTier int `json:"outpost_prosperity_max_bonus_tier"`
 }
 
 // operatorCandidateGroup 表示某个据点及其可恢复到该岗位的干员集合。
@@ -76,19 +76,19 @@ type operatorActionParam struct {
 // Candidates 用于目标据点选择，RestoreGroups 用于全局恢复分配，ScanCandidates
 // 则覆盖所有可能出现的相关干员，供刷新拥有列表缓存时统一识别。
 type operatorSelectionParam struct {
-	Usage                      string
-	Location                   string
-	Candidates                 []operatorCandidate
-	TargetCandidatesByLocation map[string][]operatorCandidate
-	RestoreGroups              []operatorCandidateGroup
-	ScanCandidates             []operatorCandidate
-	KnownOperators             []operatorCandidate
-	ActiveLocations            map[string]struct{}
-	CompletedRestoreLocations  map[string]struct{}
-	TargetAssignments          map[string]operatorCandidate
-	LockedRestoreAssignments   map[string]operatorCandidate
-	ExcludedOperators          map[string]struct{}
-	DevelopmentMaxLocations    map[string]struct{}
+	Usage                         string
+	Location                      string
+	Candidates                    []operatorCandidate
+	TargetCandidatesByLocation    map[string][]operatorCandidate
+	RestoreGroups                 []operatorCandidateGroup
+	ScanCandidates                []operatorCandidate
+	KnownOperators                []operatorCandidate
+	ActiveLocations               map[string]struct{}
+	CompletedRestoreLocations     map[string]struct{}
+	TargetAssignments             map[string]operatorCandidate
+	LockedRestoreAssignments      map[string]operatorCandidate
+	ExcludedOperators             map[string]struct{}
+	OutpostProsperityMaxLocations map[string]struct{}
 }
 
 // parseOperatorActionParam 解析并校验 Pipeline 参数。

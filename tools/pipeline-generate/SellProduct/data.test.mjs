@@ -324,18 +324,18 @@ test("SellProduct operator switching uses shared core dispatch nodes", () => {
         );
         const prefix = `SellProduct${location.LocationId}`;
         assert.deepEqual(pipeline[`${prefix}Sell`].next, [
-            `${prefix}DevelopmentValueAvailable`,
-            `${prefix}DevelopmentValueMax`,
+            `${prefix}OutpostProsperityAvailable`,
+            `${prefix}OutpostProsperityMax`,
         ]);
-        assert.deepEqual(pipeline[`${prefix}DevelopmentValueAvailable`].custom_action_param, {
+        assert.deepEqual(pipeline[`${prefix}OutpostProsperityAvailable`].custom_action_param, {
             operation: "enter_location",
             location: location.LocationId,
-            development_max: false,
+            outpost_prosperity_max: false,
         });
-        assert.deepEqual(pipeline[`${prefix}DevelopmentValueMax`].custom_action_param, {
+        assert.deepEqual(pipeline[`${prefix}OutpostProsperityMax`].custom_action_param, {
             operation: "enter_location",
             location: location.LocationId,
-            development_max: true,
+            outpost_prosperity_max: true,
         });
         assert.deepEqual(pipeline[`${prefix}SetOperatorAnchors`].anchor, {
             SellProductBeforeSellOperatorTarget: `${prefix}BeforeSellOperator`,
@@ -524,15 +524,15 @@ test("SellProduct generated outpost nodes report confirmed runtime state changes
         );
         const prefix = `SellProduct${location.LocationId}`;
 
-        assert.deepEqual(pipeline[`${prefix}DevelopmentValueAvailable`].custom_action_param, {
+        assert.deepEqual(pipeline[`${prefix}OutpostProsperityAvailable`].custom_action_param, {
             operation: "enter_location",
             location: location.LocationId,
-            development_max: false,
+            outpost_prosperity_max: false,
         });
-        assert.deepEqual(pipeline[`${prefix}DevelopmentValueMax`].custom_action_param, {
+        assert.deepEqual(pipeline[`${prefix}OutpostProsperityMax`].custom_action_param, {
             operation: "enter_location",
             location: location.LocationId,
-            development_max: true,
+            outpost_prosperity_max: true,
         });
         assert.deepEqual(pipeline[`${prefix}CurrentTargetOperator`].custom_action_param, {
             operation: "complete_target",

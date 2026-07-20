@@ -310,18 +310,18 @@ func resolveOperatorSelectionParam(p *operatorActionParam) (*operatorSelectionPa
 		}
 	}
 	result := &operatorSelectionParam{
-		Usage:                      p.Usage,
-		Location:                   p.Location,
-		TargetCandidatesByLocation: data.TargetCandidates,
-		RestoreGroups:              normalizeOperatorCandidateGroups(data.RestoreGroups),
-		ScanCandidates:             scanCandidates,
-		KnownOperators:             data.KnownOperators,
-		ActiveLocations:            session.ActiveLocations,
-		CompletedRestoreLocations:  session.CompletedRestoreLocations,
-		TargetAssignments:          session.TargetAssignments,
-		LockedRestoreAssignments:   session.LockedRestoreAssignments,
-		ExcludedOperators:          session.ExcludedOperators,
-		DevelopmentMaxLocations:    session.DevelopmentMaxLocations,
+		Usage:                         p.Usage,
+		Location:                      p.Location,
+		TargetCandidatesByLocation:    data.TargetCandidates,
+		RestoreGroups:                 normalizeOperatorCandidateGroups(data.RestoreGroups),
+		ScanCandidates:                scanCandidates,
+		KnownOperators:                data.KnownOperators,
+		ActiveLocations:               session.ActiveLocations,
+		CompletedRestoreLocations:     session.CompletedRestoreLocations,
+		TargetAssignments:             session.TargetAssignments,
+		LockedRestoreAssignments:      session.LockedRestoreAssignments,
+		ExcludedOperators:             session.ExcludedOperators,
+		OutpostProsperityMaxLocations: session.OutpostProsperityMaxLocations,
 	}
 	switch p.Usage {
 	case operatorActionUsageTarget:

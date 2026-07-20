@@ -17,7 +17,7 @@
             "[Anchor]SellProductBeforeSellOperatorTarget"
         ]
     },
-    "SellProductDevelopmentValueAvailable": {
+    "SellProductOutpostProsperityAvailable": {
         "desc": "识别交易可获得的据点发展值图标",
         "recognition": "TemplateMatch",
         "roi": [
@@ -26,7 +26,7 @@
             350,
             80
         ],
-        "template": "SellProduct/DevelopmentValue.png",
+        "template": "SellProduct/OutpostProsperity.png",
         "green_mask": true,
         "threshold": 0.8,
         "pre_delay": 0,

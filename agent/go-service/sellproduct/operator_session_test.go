@@ -116,24 +116,24 @@ func TestOperatorSessionSkipsInactiveRegistration(t *testing.T) {
 	}
 }
 
-func TestOperatorSessionRecordsDevelopmentMax(t *testing.T) {
+func TestOperatorSessionRecordsOutpostProsperityMax(t *testing.T) {
 	resetOperatorSessionForTest(t, operatorCacheModeCache)
 	location := "XiranflowCloudseederStation"
 	if ok := (&OperatorSessionAction{}).Run(nil, &maa.CustomActionArg{
-		CustomActionParam: `{"operation":"enter_location","location":"XiranflowCloudseederStation","development_max":true}`,
+		CustomActionParam: `{"operation":"enter_location","location":"XiranflowCloudseederStation","outpost_prosperity_max":true}`,
 	}); !ok {
-		t.Fatal("recording development max should succeed")
+		t.Fatal("recording outpost prosperity max should succeed")
 	}
-	if _, ok := operatorSessionSnapshot().DevelopmentMaxLocations[location]; !ok {
-		t.Fatal("development max location should be recorded")
+	if _, ok := operatorSessionSnapshot().OutpostProsperityMaxLocations[location]; !ok {
+		t.Fatal("outpost prosperity max location should be recorded")
 	}
 	if ok := (&OperatorSessionAction{}).Run(nil, &maa.CustomActionArg{
-		CustomActionParam: `{"operation":"enter_location","location":"XiranflowCloudseederStation","development_max":false}`,
+		CustomActionParam: `{"operation":"enter_location","location":"XiranflowCloudseederStation","outpost_prosperity_max":false}`,
 	}); !ok {
-		t.Fatal("recording available development should succeed")
+		t.Fatal("recording available outpost prosperity should succeed")
 	}
-	if _, ok := operatorSessionSnapshot().DevelopmentMaxLocations[location]; ok {
-		t.Fatal("available development should clear the max marker")
+	if _, ok := operatorSessionSnapshot().OutpostProsperityMaxLocations[location]; ok {
+		t.Fatal("available outpost prosperity should clear the max marker")
 	}
 }
 

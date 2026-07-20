@@ -34,16 +34,16 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQDevelopmentValueAvailable",
-            "SellProductReconstructionHQDevelopmentValueMax"
+            "SellProductReconstructionHQOutpostProsperityAvailable",
+            "SellProductReconstructionHQOutpostProsperityMax"
         ]
     },
-    "SellProductReconstructionHQDevelopmentValueAvailable": {
+    "SellProductReconstructionHQOutpostProsperityAvailable": {
         "desc": "重建指挥部据点发展值未达上限",
         "recognition": "And",
         "all_of": [
             "SellProductInReconstructionHQ",
-            "SellProductDevelopmentValueAvailable"
+            "SellProductOutpostProsperityAvailable"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -51,7 +51,7 @@
         "custom_action_param": {
             "operation": "enter_location",
             "location": "ReconstructionHQ",
-            "development_max": false
+            "outpost_prosperity_max": false
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -59,7 +59,7 @@
             "SellProductReconstructionHQSetOperatorAnchors"
         ]
     },
-    "SellProductReconstructionHQDevelopmentValueMax": {
+    "SellProductReconstructionHQOutpostProsperityMax": {
         "desc": "重建指挥部据点发展值已达上限",
         "recognition": "And",
         "all_of": [
@@ -71,7 +71,7 @@
         "custom_action_param": {
             "operation": "enter_location",
             "location": "ReconstructionHQ",
-            "development_max": true
+            "outpost_prosperity_max": true
         },
         "post_delay": 0,
         "rate_limit": 0,

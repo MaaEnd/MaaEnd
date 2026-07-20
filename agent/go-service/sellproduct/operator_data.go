@@ -116,7 +116,7 @@ func buildTargetSelectionOperatorCandidates(
 			entry.Name,
 			priority,
 			entry.BonusTier,
-			entry.DevelopmentMaxBonusTier,
+			entry.OutpostProsperityMaxBonusTier,
 		)
 		if err != nil {
 			return nil, err

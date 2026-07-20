@@ -305,25 +305,25 @@ func TestPreferredTargetCandidatesFallsBackToBestSellingTier(t *testing.T) {
 	}
 }
 
-// TestDevelopmentMaxTreatsMoneyAndProductionAsPerfect 验证发展值满级后不再要求发展值加成词条。
-func TestDevelopmentMaxTreatsMoneyAndProductionAsPerfect(t *testing.T) {
+// TestOutpostProsperityMaxTreatsMoneyAndProductionAsPerfect 验证据点发展值满级后不再要求发展值加成词条。
+func TestOutpostProsperityMaxTreatsMoneyAndProductionAsPerfect(t *testing.T) {
 	p := &operatorSelectionParam{
 		Usage:    operatorActionUsageTarget,
 		Location: "Current",
 		Candidates: []operatorCandidate{
 			{
-				Name:                    "DevelopmentAndMoney",
-				CacheName:               "发展与收益",
-				Priority:                0,
-				BonusTier:               0,
-				DevelopmentMaxBonusTier: 0,
+				Name:                          "DevelopmentAndMoney",
+				CacheName:                     "发展与收益",
+				Priority:                      0,
+				BonusTier:                     0,
+				OutpostProsperityMaxBonusTier: 0,
 			},
 			{
-				Name:                    "MoneyAndProduction",
-				CacheName:               "收益与生产",
-				Priority:                1,
-				BonusTier:               1,
-				DevelopmentMaxBonusTier: 0,
+				Name:                          "MoneyAndProduction",
+				CacheName:                     "收益与生产",
+				Priority:                      1,
+				BonusTier:                     1,
+				OutpostProsperityMaxBonusTier: 0,
 			},
 		},
 		RestoreGroups: []operatorCandidateGroup{
@@ -342,7 +342,7 @@ func TestDevelopmentMaxTreatsMoneyAndProductionAsPerfect(t *testing.T) {
 		t.Fatalf("发展值未满时的售卖候选 = %#v，期望优先 DevelopmentAndMoney", notMax)
 	}
 
-	p.DevelopmentMaxLocations = map[string]struct{}{"Current": {}}
+	p.OutpostProsperityMaxLocations = map[string]struct{}{"Current": {}}
 	max := candidatesForCurrentSelection(p, owned)
 	if len(max) != 1 || max[0].Name != "MoneyAndProduction" {
 		t.Fatalf("发展值满级时的售卖候选 = %#v，期望两词条完美候选 MoneyAndProduction", max)

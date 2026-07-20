@@ -134,7 +134,7 @@ function targetBonusTier(entry) {
     return 3;
 }
 
-function developmentMaxBonusTier(entry) {
+function outpostProsperityMaxBonusTier(entry) {
     return entry.bonusTypes.has("moneyProfit") ? 0 : 1;
 }
 
@@ -171,7 +171,7 @@ export function buildLocationOperatorOrder(settlement, acceptedBonusTypes, opera
         return sorted.map((entry) => ({
             name: entry.name,
             bonus_tier: targetBonusTier(entry),
-            development_max_bonus_tier: developmentMaxBonusTier(entry),
+            outpost_prosperity_max_bonus_tier: outpostProsperityMaxBonusTier(entry),
         }));
     }
     return sorted.map((entry) => entry.name);

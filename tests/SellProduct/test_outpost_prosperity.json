@@ -11,16 +11,16 @@
         {
             "image": "武陵_地区建设_据点_盈天台建设站_未满级.png",
             "hits": [
-                "SellProductDevelopmentValueAvailable",
+                "SellProductOutpostProsperityAvailable",
                 "SellProductInXiranflowCloudseederStation",
-                "SellProductXiranflowCloudseederStationDevelopmentValueAvailable"
+                "SellProductXiranflowCloudseederStationOutpostProsperityAvailable"
             ]
         },
         {
             "image": "四号谷地_地区建设_据点_重建指挥部.png",
             "hits": [
                 "SellProductInReconstructionHQ",
-                "SellProductReconstructionHQDevelopmentValueMax"
+                "SellProductReconstructionHQOutpostProsperityMax"
             ]
         }
     ]

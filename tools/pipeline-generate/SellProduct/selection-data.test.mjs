@@ -154,17 +154,17 @@ test("SellProduct generated target operators prioritize combined profit bonuses"
         {
             name: "Both",
             bonus_tier: 0,
-            development_max_bonus_tier: 0,
+            outpost_prosperity_max_bonus_tier: 0,
         },
         {
             name: "Money",
             bonus_tier: 1,
-            development_max_bonus_tier: 0,
+            outpost_prosperity_max_bonus_tier: 0,
         },
         {
             name: "Exp",
             bonus_tier: 2,
-            development_max_bonus_tier: 1,
+            outpost_prosperity_max_bonus_tier: 1,
         },
     ]);
 });
@@ -202,17 +202,17 @@ test("SellProduct generated operator order follows feature matches then descendi
         {
             name: "Most",
             bonus_tier: 1,
-            development_max_bonus_tier: 0,
+            outpost_prosperity_max_bonus_tier: 0,
         },
         {
             name: "Higher",
             bonus_tier: 1,
-            development_max_bonus_tier: 0,
+            outpost_prosperity_max_bonus_tier: 0,
         },
         {
             name: "Lower",
             bonus_tier: 1,
-            development_max_bonus_tier: 0,
+            outpost_prosperity_max_bonus_tier: 0,
         },
     ]);
 });

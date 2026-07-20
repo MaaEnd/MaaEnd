@@ -33,7 +33,7 @@ func equivalentTargetCandidatesForOwnership(
 		available,
 		p.Location,
 		p.RestoreGroups,
-		p.DevelopmentMaxLocations,
+		p.OutpostProsperityMaxLocations,
 	)
 }
 
@@ -51,7 +51,7 @@ func candidatesForCurrentSelection(p *operatorSelectionParam, owned map[string]s
 			availableOwned,
 			p.Location,
 			p.RestoreGroups,
-			p.DevelopmentMaxLocations,
+			p.OutpostProsperityMaxLocations,
 		)
 		if len(candidates) == 0 {
 			return nil
@@ -121,13 +121,13 @@ func removeOtherLockedRestoreOperators(
 }
 
 // 从候选列表中保留当前据点状态下的最高售卖档，并维持原有游戏列表顺序。
-func bestBonusTierCandidates(candidates []operatorCandidate, developmentMax bool) []operatorCandidate {
+func bestBonusTierCandidates(candidates []operatorCandidate, outpostProsperityMax bool) []operatorCandidate {
 	if len(candidates) == 0 {
 		return nil
 	}
 	bonusTier := func(candidate operatorCandidate) int {
-		if developmentMax {
-			return candidate.DevelopmentMaxBonusTier
+		if outpostProsperityMax {
+			return candidate.OutpostProsperityMaxBonusTier
 		}
 		return candidate.BonusTier
 	}
@@ -205,10 +205,10 @@ func preferredTargetCandidates(
 	owned map[string]struct{},
 	location string,
 	restoreGroups []operatorCandidateGroup,
-	developmentMaxLocations map[string]struct{},
+	outpostProsperityMaxLocations map[string]struct{},
 ) []operatorCandidate {
-	_, developmentMax := developmentMaxLocations[location]
-	bestSelling := bestBonusTierCandidates(filterOwnedCandidates(candidates, owned), developmentMax)
+	_, outpostProsperityMax := outpostProsperityMaxLocations[location]
+	bestSelling := bestBonusTierCandidates(filterOwnedCandidates(candidates, owned), outpostProsperityMax)
 	if len(bestSelling) == 0 {
 		return nil
 	}
@@ -257,7 +257,7 @@ func restorePlanPreferences(
 			owned,
 			location,
 			p.RestoreGroups,
-			p.DevelopmentMaxLocations,
+			p.OutpostProsperityMaxLocations,
 		)
 		if len(available) == 0 {
 			continue
