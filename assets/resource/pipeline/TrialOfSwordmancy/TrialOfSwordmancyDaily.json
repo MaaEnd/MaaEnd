@@ -206,15 +206,6 @@
         "all_of": [
             "TrialOfSwordmancyDrawCard"
         ],
-        "pre_wait_freezes": {
-            "time": 200,
-            "target": [
-                62,
-                146,
-                1191,
-                289
-            ]
-        },
         "pre_delay": 0,
         "post_wait_freezes": {
             "time": 200,
@@ -225,7 +216,7 @@
                 289
             ]
         },
-        "post_delay": 500, // 即使动画结束，抽牌按钮仍有一定时间不可用
+        "post_delay": 400, // 即使动画结束，抽牌按钮仍有一定时间不可用
         "next": [
             "TrialOfSwordmancyDecide"
         ]
