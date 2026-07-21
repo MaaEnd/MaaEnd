@@ -267,15 +267,16 @@ The `ListCompleteRecognition` implementation is located in `agent/go-service/com
 Parameters:
 
 - `node: string`: Required. An OCR node name, or an `And` node name whose `box_index` target must be OCR.
+- `retry: int`: Optional, default `0`. After the current fingerprint equals `attach.last_text`, keep returning a match this many times; treat the list as complete only when consecutive unchanged hits `unchanged_count > retry`. `0` means no retry (first unchanged hit completes the list).
 
 Behavior:
 
 1. Run recognition on `node`; return no match if it misses or no OCR text can be extracted.
 2. Collect OCR hits from the target result (`Filtered`, else `All`), sort by vertical then horizontal position, and fingerprint only the first and last hits joined with a newline (or the single hit if there is only one); the returned box is the topmost hit. This still detects “top unchanged, bottom scrolled” better than `Best` alone, while staying more stable than joining every on-screen string.
-3. Read `attach.last_text` from the current custom recognition node itself.
-4. If `last_text` is empty (first success): return a match and write the current fingerprint into `attach.last_text`.
-5. If the current fingerprint equals `last_text`: return no match (treat as list complete / unchanged).
-6. If the current fingerprint differs from `last_text`: update `attach.last_text` and return a match.
+3. Read `attach.last_text` / `attach.unchanged_count` from the current custom recognition node itself.
+4. If `last_text` is empty (first success): return a match, write the current fingerprint into `attach.last_text`, and reset `unchanged_count` to `0`.
+5. If the current fingerprint equals `last_text`: increment `unchanged_count`; if `unchanged_count > retry` return no match (list complete), otherwise still return a match (confirmation retry).
+6. If the current fingerprint differs from `last_text`: update `attach.last_text`, reset `unchanged_count` to `0`, and return a match.
 
 For `And` nodes, target resolution is shared with `ExpressionRecognition` via `pkg/recogtarget`: first run the `And` node itself, then read the corresponding sub-recognition result from this run's `CombinedResult` using that node's native `box_index` (default `0`), and extract OCR from that selected child. Node definition validation also requires the `box_index` target to contain OCR.
 
@@ -288,7 +289,8 @@ Example file: [`ListCompleteRecognition.json`](../../../assets/resource/pipeline
         "param": {
             "custom_recognition": "ListCompleteRecognition",
             "custom_recognition_param": {
-                "node": "SomeListAnchorOCR"
+                "node": "SomeListAnchorOCR",
+                "retry": 1
             }
         }
     }
@@ -297,8 +299,8 @@ Example file: [`ListCompleteRecognition.json`](../../../assets/resource/pipeline
 
 Notes:
 
-- State is stored in `attach.last_text` on the **current Custom recognition node**, not on the OCR/`And` node referenced by `node`.
-- To restart a list scan, clear that Custom node's `attach.last_text` (for example via `PipelineOverride`).
+- State is stored in `attach.last_text` / `attach.unchanged_count` on the **current Custom recognition node**, not on the OCR/`And` node referenced by `node`.
+- To restart a list scan, clear that Custom node's `attach.last_text` (preferably also reset `unchanged_count` to `0`, for example via `PipelineOverride`).
 - This recognizer only answers "did the first/last OCR fingerprint change"; scrolling/clicking still belong in Pipeline.
 
 ### ScheduleRecognition

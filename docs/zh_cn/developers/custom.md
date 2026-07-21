@@ -269,15 +269,16 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 参数：
 
 - `node: string`：必填。OCR 节点名，或 `And` 节点名（其 `box_index` 指向的子项必须是 OCR）。
+- `retry: int`：可选，默认 `0`。指纹与 `attach.last_text` 相等后，仍返回命中的次数；当连续相等次数 `unchanged_count > retry` 时才视为到底并返回未命中。`0` 表示不重试（第一次相等即到底）。
 
 行为：
 
 1. 执行 `node` 识别；未命中或无法提取 OCR 文字时返回未命中。
 2. 从目标 OCR 结果收集命中（优先 `Filtered`，否则 `All`），按纵向（再按横向）排序后只取首尾两条用换行拼接为指纹（仅一条时用该条）；返回框取最上方一条。比只用 `Best` 更能发现「顶不变、底已滚」；比整屏 join 更耐中间 OCR 抖动。
-3. 读取当前自定义识别节点自身的 `attach.last_text`。
-4. 若 `last_text` 为空（首次成功）：返回命中，并把当前指纹写入 `attach.last_text`。
-5. 若当前指纹与 `last_text` 一致：返回未命中（视为列表已到底/未变化）。
-6. 若当前指纹与 `last_text` 不一致：更新 `attach.last_text` 并返回命中。
+3. 读取当前自定义识别节点自身的 `attach.last_text` / `attach.unchanged_count`。
+4. 若 `last_text` 为空（首次成功）：返回命中，写入当前指纹，并将 `unchanged_count` 置 `0`。
+5. 若当前指纹与 `last_text` 一致：`unchanged_count += 1`；若 `unchanged_count > retry` 返回未命中（到底），否则仍返回命中（确认重试）。
+6. 若当前指纹与 `last_text` 不一致：更新 `attach.last_text`、将 `unchanged_count` 置 `0` 并返回命中。
 
 对 `And` 节点，目标解析与 `ExpressionRecognition` 共用 `pkg/recogtarget`：先执行该 `And` 节点本身，再按其原生 `box_index`（默认 `0`）从本次 `CombinedResult` 中选取对应子识别结果，并从该子结果提取 OCR。节点定义阶段也会校验 `box_index` 目标含 OCR。
 
@@ -290,7 +291,8 @@ Recognition 节点用于执行自定义识别。常见写法如下：
         "param": {
             "custom_recognition": "ListCompleteRecognition",
             "custom_recognition_param": {
-                "node": "SomeListAnchorOCR"
+                "node": "SomeListAnchorOCR",
+                "retry": 1
             }
         }
     }
@@ -299,8 +301,8 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 
 注意事项：
 
-- 状态保存在**当前 Custom 识别节点**的 `attach.last_text`，不是 `node` 指向的 OCR/`And` 节点。
-- 需要重新开始一轮列表扫描时，应清空该 Custom 节点的 `attach.last_text`（例如通过 `PipelineOverride`）。
+- 状态保存在**当前 Custom 识别节点**的 `attach.last_text` / `attach.unchanged_count`，不是 `node` 指向的 OCR/`And` 节点。
+- 需要重新开始一轮列表扫描时，应清空该 Custom 节点的 `attach.last_text`（建议同时将 `unchanged_count` 置 `0`，例如通过 `PipelineOverride`）。
 - 该识别器只负责“OCR 首尾指纹是否变化”，滑动、点击等流程仍由 Pipeline 组织。
 
 ### ScheduleRecognition

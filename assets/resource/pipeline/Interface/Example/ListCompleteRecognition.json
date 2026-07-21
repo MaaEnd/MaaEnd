@@ -1,15 +1,21 @@
 {
     "ListCompleteRecognitionExampleGate": {
-        "desc": "ListCompleteRecognition 示例：OCR 首尾指纹首次命中或发生变化时返回 true，指纹不变时返回 false",
+        "desc": "ListCompleteRecognition 示例：OCR 首尾指纹首次命中或发生变化时返回 true；指纹不变时默认立即 false，retry>0 时可再命中若干次",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ListCompleteRecognition",
                 "custom_recognition_param": {
                     // 可传 OCR 节点，或 And 节点（按其原生 box_index 取 OCR 子结果）
-                    "node": "ListCompleteRecognitionSampleAnd"
+                    "node": "ListCompleteRecognitionSampleAnd",
+                    // 相等后仍返回 true 的次数；默认 0（不重试）
+                    "retry": 0
                 }
             }
+        },
+        "attach": {
+            "last_text": "",
+            "unchanged_count": 0
         },
         "action": "DoNothing",
         "next": [

@@ -12,8 +12,9 @@ import (
 )
 
 const (
-	componentName  = "ListCompleteRecognition"
-	attachLastText = "last_text"
+	componentName        = "ListCompleteRecognition"
+	attachLastText       = "last_text"
+	attachUnchangedCount = "unchanged_count"
 	// fingerprintSep 拼接整屏 OCR 文本；选不会出现在好友名中的分隔符。
 	fingerprintSep = "\n"
 )
@@ -27,8 +28,9 @@ var _ maa.CustomRecognitionRunner = &Recognition{}
 // 比整屏 join 更耐中间项 OCR 抖动。
 //
 // 首次命中（当前节点 attach.last_text 为空）时，只要能抽出指纹即返回 true，并写入指纹与框；
-// 之后若指纹与 attach.last_text 一致则返回 false（视为列表已到底/未变化），
-// 不一致则更新 attach 并返回 true。
+// 之后若指纹与 attach.last_text 不一致则更新 attach、清零 unchanged_count 并返回 true；
+// 若一致则累加 unchanged_count：当 unchanged_count > retry（默认 0）时返回 false（视为到底），
+// 否则仍返回 true（确认重试，便于 Pipeline 再滑一次）。
 //
 // node 可为 OCR 节点，或 And 节点。对 And 节点，按节点自身 box_index（默认 0）
 // 从 CombinedResult 中选取子识别结果，再从该结果提取 OCR——目标解析复用 recogtarget。
@@ -37,11 +39,18 @@ type Recognition struct{}
 type params struct {
 	// Node 为 OCR 节点名，或内部必须包含 OCR 的 And 节点名。
 	Node string `json:"node"`
+	// Retry 为指纹判定相等后仍返回 true 的次数；超过该次数才返回 false。默认 0（不重试）。
+	Retry int `json:"retry"`
 }
 
 type ocrHit struct {
 	Text string
 	Box  maa.Rect
+}
+
+type attachState struct {
+	LastText       string
+	UnchangedCount int
 }
 
 // Run implements maa.CustomRecognitionRunner.
@@ -107,48 +116,94 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		return nil, false
 	}
 
-	lastText, err := loadLastText(ctx, currentNode)
+	state, err := loadAttachState(ctx, currentNode)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", componentName).
 			Str("node", currentNode).
-			Msg("failed to load attach.last_text")
+			Msg("failed to load attach state")
 		return nil, false
 	}
 
-	if lastText != "" && lastText == hit.Text {
+	if state.LastText != "" && state.LastText == hit.Text {
+		unchanged := state.UnchangedCount + 1
+		if err := saveAttachState(ctx, currentNode, attachState{
+			LastText:       hit.Text,
+			UnchangedCount: unchanged,
+		}); err != nil {
+			log.Error().
+				Err(err).
+				Str("component", componentName).
+				Str("node", currentNode).
+				Str("text", hit.Text).
+				Int("unchanged_count", unchanged).
+				Msg("failed to save attach state")
+			return nil, false
+		}
+
+		if unchanged > p.Retry {
+			log.Info().
+				Str("component", componentName).
+				Str("node", p.Node).
+				Str("text", hit.Text).
+				Int("unchanged_count", unchanged).
+				Int("retry", p.Retry).
+				Msg("OCR fingerprint unchanged, list complete")
+			return nil, false
+		}
+
+		detailJSON, _ := json.Marshal(map[string]any{
+			"node":            p.Node,
+			"text":            hit.Text,
+			"last_text":       state.LastText,
+			"unchanged_count": unchanged,
+			"retry":           p.Retry,
+			"unchanged_retry": true,
+		})
+
 		log.Info().
 			Str("component", componentName).
 			Str("node", p.Node).
 			Str("text", hit.Text).
-			Msg("OCR fingerprint unchanged, list complete")
-		return nil, false
+			Int("unchanged_count", unchanged).
+			Int("retry", p.Retry).
+			Msg("OCR fingerprint unchanged, retrying")
+
+		return &maa.CustomRecognitionResult{
+			Box:    hit.Box,
+			Detail: string(detailJSON),
+		}, true
 	}
 
-	if err := saveLastText(ctx, currentNode, hit.Text); err != nil {
+	if err := saveAttachState(ctx, currentNode, attachState{
+		LastText:       hit.Text,
+		UnchangedCount: 0,
+	}); err != nil {
 		log.Error().
 			Err(err).
 			Str("component", componentName).
 			Str("node", currentNode).
 			Str("text", hit.Text).
-			Msg("failed to save attach.last_text")
+			Msg("failed to save attach state")
 		return nil, false
 	}
 
 	detailJSON, _ := json.Marshal(map[string]any{
-		"node":      p.Node,
-		"text":      hit.Text,
-		"last_text": lastText,
-		"first_run": lastText == "",
+		"node":            p.Node,
+		"text":            hit.Text,
+		"last_text":       state.LastText,
+		"first_run":       state.LastText == "",
+		"unchanged_count": 0,
+		"retry":           p.Retry,
 	})
 
 	log.Info().
 		Str("component", componentName).
 		Str("node", p.Node).
 		Str("text", hit.Text).
-		Str("last_text", lastText).
-		Bool("first_run", lastText == "").
+		Str("last_text", state.LastText).
+		Bool("first_run", state.LastText == "").
 		Msg("OCR fingerprint accepted")
 
 	return &maa.CustomRecognitionResult{
@@ -169,6 +224,9 @@ func parseParams(raw string) (*params, error) {
 	p.Node = strings.TrimSpace(p.Node)
 	if p.Node == "" {
 		return nil, fmt.Errorf("node is required")
+	}
+	if p.Retry < 0 {
+		return nil, fmt.Errorf("retry must be >= 0")
 	}
 	return &p, nil
 }
@@ -269,32 +327,43 @@ func rectValid(box maa.Rect) bool {
 	return box[2] > 0 && box[3] > 0
 }
 
-func loadLastText(ctx *maa.Context, nodeName string) (string, error) {
+func loadAttachState(ctx *maa.Context, nodeName string) (attachState, error) {
 	raw, err := ctx.GetNodeJSON(nodeName)
 	if err != nil {
-		return "", err
+		return attachState{}, err
 	}
 	var wrapper struct {
 		Attach map[string]json.RawMessage `json:"attach"`
 	}
 	if err := json.Unmarshal([]byte(raw), &wrapper); err != nil {
-		return "", err
+		return attachState{}, err
 	}
 	if wrapper.Attach == nil {
-		return "", nil
+		return attachState{}, nil
 	}
-	rawText, ok := wrapper.Attach[attachLastText]
-	if !ok || len(rawText) == 0 || string(rawText) == "null" {
-		return "", nil
+
+	var state attachState
+	if rawText, ok := wrapper.Attach[attachLastText]; ok && len(rawText) > 0 && string(rawText) != "null" {
+		var text string
+		if err := json.Unmarshal(rawText, &text); err != nil {
+			return attachState{}, fmt.Errorf("attach.%s must be string: %w", attachLastText, err)
+		}
+		state.LastText = strings.TrimSpace(text)
 	}
-	var text string
-	if err := json.Unmarshal(rawText, &text); err != nil {
-		return "", fmt.Errorf("attach.%s must be string: %w", attachLastText, err)
+	if rawCount, ok := wrapper.Attach[attachUnchangedCount]; ok && len(rawCount) > 0 && string(rawCount) != "null" {
+		var count int
+		if err := json.Unmarshal(rawCount, &count); err != nil {
+			return attachState{}, fmt.Errorf("attach.%s must be int: %w", attachUnchangedCount, err)
+		}
+		if count < 0 {
+			count = 0
+		}
+		state.UnchangedCount = count
 	}
-	return strings.TrimSpace(text), nil
+	return state, nil
 }
 
-func saveLastText(ctx *maa.Context, nodeName string, text string) error {
+func saveAttachState(ctx *maa.Context, nodeName string, state attachState) error {
 	raw, err := ctx.GetNodeJSON(nodeName)
 	if err != nil {
 		return err
@@ -309,7 +378,8 @@ func saveLastText(ctx *maa.Context, nodeName string, text string) error {
 	if wrapper.Attach == nil {
 		wrapper.Attach = make(map[string]any)
 	}
-	wrapper.Attach[attachLastText] = text
+	wrapper.Attach[attachLastText] = state.LastText
+	wrapper.Attach[attachUnchangedCount] = state.UnchangedCount
 
 	return ctx.OverridePipeline(map[string]any{
 		nodeName: map[string]any{

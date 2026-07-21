@@ -63,6 +63,13 @@
                                 "minLength": 1,
                                 "title": "Node",
                                 "description": "OCR node name, or an And node name whose native box_index target must be OCR. Compared across runs via attach.last_text on the current Custom recognition node."
+                            },
+                            "retry": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "default": 0,
+                                "title": "Retry",
+                                "description": "After OCR fingerprint equals attach.last_text, keep returning true this many times (incrementing attach.unchanged_count) before treating the list as complete. Default 0 means no retry: first unchanged hit returns false."
                             }
                         }
                     }

@@ -16,7 +16,21 @@ func TestParseParams(t *testing.T) {
 	if p.Node != "FooOCR" {
 		t.Fatalf("node = %q, want FooOCR", p.Node)
 	}
+	if p.Retry != 0 {
+		t.Fatalf("retry = %d, want 0 (default)", p.Retry)
+	}
 
+	p, err = parseParams(`{"node":"FooOCR","retry":2}`)
+	if err != nil {
+		t.Fatalf("parseParams with retry returned error: %v", err)
+	}
+	if p.Retry != 2 {
+		t.Fatalf("retry = %d, want 2", p.Retry)
+	}
+
+	if _, err := parseParams(`{"node":"FooOCR","retry":-1}`); err == nil {
+		t.Fatal("expected error for negative retry")
+	}
 	if _, err := parseParams(`{}`); err == nil {
 		t.Fatal("expected error for empty node")
 	}
