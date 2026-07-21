@@ -307,16 +307,16 @@ The `ExpendableRecognition` implementation is located in `agent/go-service/commo
 
 Parameters:
 
-- `candidate: string`: Required. External recognition node (`OCR` / `And` / `Or`, etc.). Named OCR nodes in its tree are auto-discovered for visited exclusion and key extraction. Its hit box is returned for `Click`.
+- `candidate: string`: Required. An `OCR` node, an `And` whose `box_index` points at the text OCR, or an `Or` of such `And`s. Only those named `box_index` OCR nodes are patched; the candidate hit box is returned for `Click`.
 
 Behavior:
 
 1. Load `attach.visited` from the current Custom node.
-2. Discover OCR nodes under `candidate`, read each current `expected` (after stripping a previous visited negative prefix) and `order_by`, rebuild visited exclusion, and override them.
+2. Resolve key OCR nodes from `candidate` (`And.box_index`, or each Or-child And's `box_index`), read their `expected`/`order_by`, rebuild a negative blacklist from `visited`, and override them.
 3. Run `candidate`; miss means no match.
-4. Prefer the OCR text whose box matches the candidate hit box as the key (usually the `And.box_index` target), append to `visited`, and return the candidate hit box.
+4. Extract OCR text from the hit, append to `visited`, and return the hit box.
 
-Candidate layout, click target (`And.box_index`), and remark priority (multi `expected` + `order_by: Expected`) stay in Pipeline; this recognizer does not interpret UI business logic.
+Candidate layout, click target, and remark priority (multi `expected` + `order_by: Expected`) stay in Pipeline.
 
 Example file: [`ExpendableRecognition.json`](../../../assets/resource/pipeline/Interface/Example/ExpendableRecognition.json)
 
@@ -341,8 +341,8 @@ Notes:
 
 - State lives in `attach.visited` on the **current Custom recognition node**.
 - Clear `attach.visited` before a fresh scan (task re-entry or `PipelineOverride`).
-- `expected` on discovered OCR nodes is fully replaced with "base patterns + visited exclusion"; bases come from the node `expected` before override (previous exclusion prefixes are stripped).
-- OCR leaves in the candidate tree must be **named node refs**; inline OCR objects cannot be overridden by name and will error.
+- `expected` on key OCR nodes is fully replaced with "base patterns + visited blacklist"; bases come from the node before override (previous exclusion prefixes are stripped).
+- Key OCR leaves must be **named node refs** (`And.box_index` must not point at an inline OCR object).
 
 ### ScheduleRecognition
 

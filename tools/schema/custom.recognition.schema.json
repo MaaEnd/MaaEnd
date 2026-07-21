@@ -87,7 +87,7 @@
                                 "type": "string",
                                 "minLength": 1,
                                 "title": "Candidate",
-                                "description": "External recognition node to run (OCR / And / Or). Named OCR nodes in its tree are auto-discovered for visited exclusion and key extraction. Its hit box is returned for Click."
+                                "description": "OCR, And (box_index -> text OCR), or Or(And...). Only named box_index OCR nodes are patched with visited blacklist. Hit box is returned for Click."
                             }
                         }
                     }
