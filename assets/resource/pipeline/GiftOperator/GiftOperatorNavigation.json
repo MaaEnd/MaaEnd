@@ -90,7 +90,7 @@
         "post_delay": 1000 //需要等待角色彻底停下
     },
     "GiftOperatorMoveLocation2": {
-        "desc": "转向0度(正北)尝试接触到干员(预设位置2)",
+        "desc": "转向345度(北偏西15度)尝试接触到干员(预设位置2)",
         "max_hit": 2,
         "action": {
             "type": "Custom",
@@ -100,7 +100,7 @@
                     "path": [
                         {
                             "action": "HEADING",
-                            "angle": 0,
+                            "angle": 345,
                             "zone_id": "OMVBase01"
                         }
                     ]
