@@ -19,17 +19,17 @@
         ]
     },
     "ExpendableRecognitionSampleCandidate": {
-        "desc": "候选 And：box_index=0 为点击框（标记），OCR 文案作 visited key",
+        "desc": "候选 And：box_index 指向文案 OCR（visited key 与点击框）；Marker 仅作筛选条件",
         "recognition": "And",
         "all_of": [
             "ExpendableRecognitionSampleMarker",
             "ExpendableRecognitionSampleOCR"
         ],
-        "box_index": 0,
+        "box_index": 1,
         "next": []
     },
     "ExpendableRecognitionSampleMarker": {
-        "desc": "可点击区域示意（可换成 TemplateMatch）",
+        "desc": "标记筛选示意（可换成 TemplateMatch / ColorMatch；不必作点击框）",
         "recognition": "OCR",
         "roi": [
             480,
@@ -41,7 +41,7 @@
         "next": []
     },
     "ExpendableRecognitionSampleOCR": {
-        "desc": "列表项文案 OCR；expected / order_by 由业务节点配置，识别器只注入 visited 排除",
+        "desc": "列表项文案 OCR（And.box_index 目标）；expected / order_by 由业务配置，识别器只注入 visited 排除",
         "recognition": "OCR",
         "roi": [
             560,

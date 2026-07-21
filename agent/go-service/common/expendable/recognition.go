@@ -132,14 +132,33 @@ func keyOCRNode(ctx *maa.Context, candidate string) (string, error) {
 		return "", err
 	}
 
+	var ocrNode string
 	switch strings.ToLower(fields.Type) {
 	case "ocr":
-		return candidate, nil
+		ocrNode = candidate
 	case "and":
-		return namedChild(fields.AllOf, fields.BoxIndex)
+		ocrNode, err = namedChild(fields.AllOf, fields.BoxIndex)
+		if err != nil {
+			return "", err
+		}
 	default:
 		return "", fmt.Errorf("candidate type %q unsupported; want OCR/And", fields.Type)
 	}
+	if err := ensureKeyIsOCR(ctx, ocrNode); err != nil {
+		return "", err
+	}
+	return ocrNode, nil
+}
+
+func ensureKeyIsOCR(ctx *maa.Context, nodeName string) error {
+	effectiveType, err := recogtarget.EffectiveType(ctx, nodeName)
+	if err != nil {
+		return fmt.Errorf("resolve key node %s type: %w", nodeName, err)
+	}
+	if effectiveType != "OCR" {
+		return fmt.Errorf("key node %s effective recognition type is %q, want OCR (And.box_index must point at text OCR)", nodeName, effectiveType)
+	}
+	return nil
 }
 
 func namedChild(allOf []json.RawMessage, boxIndex int) (string, error) {

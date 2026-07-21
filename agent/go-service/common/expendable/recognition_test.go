@@ -45,18 +45,46 @@ func TestParseParams(t *testing.T) {
 	if _, err := parseParams(`{}`); err == nil {
 		t.Fatal("expected error")
 	}
+
+	if _, err := parseParams(""); err == nil || err.Error() != "custom_recognition_param is empty" {
+		t.Fatalf("empty raw: err=%v", err)
+	}
+	if _, err := parseParams("   \n\t  "); err == nil || err.Error() != "custom_recognition_param is empty" {
+		t.Fatalf("whitespace-only raw: err=%v", err)
+	}
+	if _, err := parseParams(`{`); err == nil {
+		t.Fatal("invalid JSON: expected unmarshal error")
+	}
+	if _, err := parseParams(`{"candidate":"   "}`); err == nil || err.Error() != "candidate is required" {
+		t.Fatalf("blank candidate: err=%v", err)
+	}
 }
+
 
 func TestNamedChild(t *testing.T) {
 	t.Parallel()
-	name, err := namedChild([]json.RawMessage{
+	children := []json.RawMessage{
 		[]byte(`"A"`),
 		[]byte(`"B"`),
-	}, 1)
+	}
+	name, err := namedChild(children, 1)
 	if err != nil || name != "B" {
 		t.Fatalf("got=%q err=%v", name, err)
 	}
 	if _, err := namedChild([]json.RawMessage{[]byte(`{"type":"OCR"}`)}, 0); err == nil {
 		t.Fatal("inline should fail")
+	}
+
+	if _, err := namedChild(children, -1); err == nil || err.Error() != "box_index -1 out of range" {
+		t.Fatalf("negative index: err=%v", err)
+	}
+	if _, err := namedChild(children, 2); err == nil || err.Error() != "box_index 2 out of range" {
+		t.Fatalf("index past end: err=%v", err)
+	}
+	if _, err := namedChild(nil, 0); err == nil || err.Error() != "box_index 0 out of range" {
+		t.Fatalf("empty slice: err=%v", err)
+	}
+	if _, err := namedChild([]json.RawMessage{[]byte(`"  "`)}, 0); err == nil || err.Error() != "box_index target name is empty" {
+		t.Fatalf("blank name: err=%v", err)
 	}
 }
