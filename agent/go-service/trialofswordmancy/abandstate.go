@@ -67,8 +67,7 @@ func recognizeAbandExhausted(ctx *maa.Context, arg *maa.CustomRecognitionArg) (b
 //
 // 生命周期：
 //   - 进程内初始化为 -1（未知）。
-//   - 路由到 放弃(Abandon) 或 开始演算(Calculate) 时重置为 -1——前者因为放弃会扣 1 次（缓存失效），
-//     后者作为回合结束的统一兜底，下回合重新识别。
+//   - 路由到 放弃(Abandon) 或 开始演算(Calculate) 时重置为 -1，回合结束后重新识别。
 var (
 	abandMu    sync.Mutex
 	abandCount = -1 // -1 = 未知，需从放弃弹窗识别

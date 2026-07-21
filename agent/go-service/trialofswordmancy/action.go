@@ -18,16 +18,11 @@ import (
 
 var _ maa.CustomActionRunner = &DecideAction{}
 
-// remainCalcEndgame 标志跨天残局：求解器态空间 RemainCalc 上界 3（每日演算上限），
-// recognition 用 OCR+1 还原后，残局那局 OCR 读到 3 → RemainCalc=4，超出态空间。残局不求解，
-// Decide 直接放弃这局（见 DecideAction.Run）。
-const remainCalcEndgame = 4
-
 // DecideAction 反序列化 recognition 产出的 GameState，调 solver.Decide 取最优单步决策，
 // 按决策用 OverrideNext 路由到执行节点。
 //
 // 几乎无状态：每步的完整 State 都由 recognition 读出后传入；本动作只做「求解 → 路由」。
-// 唯一副作用：路由到 放弃/开始演算（回合结束）时 resetAband()（放弃会扣1次致缓存失效）。
+// 唯一副作用：路由到 放弃/开始演算（回合结束）时 resetAband()，使下回合重新识别放弃次数。
 // 单步循环靠 pipeline 的 next 回到 TrialOfSwordmancyDecide（recognition 重新读图），
 // 直到奖励耗尽（pipeline 检测 → Finish）。solver 只返回单步最优决策。
 type DecideAction struct{}
@@ -55,44 +50,6 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	// 跨天残局：recognition 读出 RemainCalc=4（OCR=3，超出求解器态空间上界 3=每日演算上限）。
-	// 残局那局白送、且放弃只扣放弃次数不扣演算次数——跳过求解，直接放弃这局，回到主入口开正常的 3 局。
-	// （求解器态空间不支持 4 层；故残局直接放弃，不在 recognition 钳制近似。）
-	if gs.State.RemainCalc == remainCalcEndgame {
-		resetAband() // 放弃扣 1 次放弃次数，缓存失效，下回合首步重新探测
-		if err := routeDecision(ctx, arg.CurrentTaskName, solver.Abandon); err != nil {
-			log.Error().Err(err).Str("component", component).Msg("failed to route endgame give-up")
-			return false
-		}
-		log.Info().
-			Str("component", component).
-			Int("remainCalc", gs.State.RemainCalc).
-			Msg("cross-day endgame (RemainCalc=4): skip solver, give up the free run")
-		maafocus.Print(ctx, i18n.T("trialofswordmancy.endgame"))
-		return true
-	}
-
-	// 手动残局：玩家手动打了跨天残局并消耗了翻倍 → 翻倍消耗超前于演算消耗，落进求解器 stateFilter
-	// 判不可达的状态（第3条 RemainDouble >= RemainCalc-3+MaxDouble）。典型如开局 331（Calc=3,Double=1）。
-	// 放弃只扣放弃次数、不扣演算，放完仍非法；演算才扣演算次数。故跳过求解直接演算：未翻倍 331→231 即合法；
-	// 已翻倍演算再扣 1 次翻倍（331→230→130），每步 RemainCalc 至少 -1，到 Calc=1 时 Double>=0 恒成立，
-	// 必然落回合法态空间，不死循环。
-	if gs.State.RemainDouble < gs.State.RemainCalc-3+solver.MaxDouble {
-		resetAband() // 开始演算结束本回合，下回合新局首步重新探测放弃次数
-		if err := routeDecision(ctx, arg.CurrentTaskName, solver.Calculate); err != nil {
-			log.Error().Err(err).Str("component", component).Msg("failed to route manual-endgame calculate")
-			return false
-		}
-		log.Info().
-			Str("component", component).
-			Int("remainCalc", gs.State.RemainCalc).
-			Int("remainDouble", gs.State.RemainDouble).
-			Bool("isDoubled", gs.State.IsDoubled).
-			Msg("manual endgame (Double<Calc-3+MaxDouble): skip solver, calculate to restore valid state")
-		maafocus.Print(ctx, i18n.T("trialofswordmancy.legacy_double"))
-		return true
-	}
-
 	// 配置：牌库/手牌/剩余次数/翻倍态来自 recognition 截图识别；溢出模式是玩家策略选项，
 	// 由本节点 custom_action_param.overflowMode 提供（任务 select 决定），覆盖 recognition 的默认值。
 	cfg := gs.Config
@@ -115,7 +72,7 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	// 放弃/开始演算会结束当前回合：放弃还会扣 1 次放弃次数（缓存失效）。重置为 -1，下回合首步重新探测。
+	// 放弃/开始演算会结束当前回合。重置为 -1，下回合首步重新探测放弃次数。
 	if best == solver.Abandon || best == solver.Calculate {
 		resetAband()
 	}

@@ -132,7 +132,7 @@ type Config struct {
 // State 是对外查询的当前游戏状态（每步循环都变）。
 // 全部为扁平字段，Hand 用 [5]int 值类型避免底层数组串值。
 type State struct {
-	RemainCalc   int    `json:"remainCalc"`   // 剩余演算次数 1..3（0 = 已结束/吸收态）
+	RemainCalc   int    `json:"remainCalc"`   // 剩余演算次数 1..4（4 = 跨日残局，0 = 已结束/吸收态）
 	RemainAband  int    `json:"remainAband"`  // 剩余放弃次数 0..3
 	RemainDouble int    `json:"remainDouble"` // 剩余翻倍次数 0..MaxDouble
 	IsDoubled    bool   `json:"isDoubled"`    // 本局是否已选择翻倍
