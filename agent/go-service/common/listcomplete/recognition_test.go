@@ -275,8 +275,12 @@ func (f *fakeNodeStore) GetNodeJSON(nodeName string) (string, error) {
 	return string(raw), nil
 }
 
-func (f *fakeNodeStore) OverridePipeline(pipelineOverride map[string]any) error {
-	for name, rawPatch := range pipelineOverride {
+func (f *fakeNodeStore) OverridePipeline(pipelineOverride any) error {
+	overrideMap, ok := pipelineOverride.(map[string]any)
+	if !ok {
+		return fmt.Errorf("pipeline override must be map[string]any, got %T", pipelineOverride)
+	}
+	for name, rawPatch := range overrideMap {
 		patch, ok := rawPatch.(map[string]any)
 		if !ok {
 			return fmt.Errorf("override for %s must be object", name)

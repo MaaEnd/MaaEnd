@@ -65,7 +65,7 @@ type listCompleteOutcome struct {
 // nodeStore 抽象 attach 读写，便于单测用 fake 跨多次调用保留状态。
 type nodeStore interface {
 	GetNodeJSON(nodeName string) (string, error)
-	OverridePipeline(pipelineOverride map[string]any) error
+	OverridePipeline(pipelineOverride any) error
 }
 
 // evaluateListComplete 根据上次指纹与 retry 判定是否继续命中。
