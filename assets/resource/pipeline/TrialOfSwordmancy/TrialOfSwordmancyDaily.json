@@ -45,10 +45,10 @@
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyEnsureFirstCard",
-            "TrialOfSwordmancyDecide"
+            "TrialOfSwordmancyAbandProbeClickGiveUp"
         ]
     },
-    // 若尚未抽牌（第1张 Lv 不在）则先抽一张，保证探测放弃次数时有牌；已有牌则 fall through 到 Decide
+    // 若尚未抽牌（第1张 Lv 不在）则先抽一张，保证探测放弃次数时有牌；已有牌则 fall through 到 AbandProbe
     "TrialOfSwordmancyEnsureFirstCard": {
         "desc": "空手则先抽一张",
         "recognition": "And",
@@ -61,7 +61,100 @@
         "target": "TrialOfSwordmancyDrawCard",
         "post_delay": 400,
         "next": [
-            "TrialOfSwordmancyDoWaitDrawCardFreezes"
+            "TrialOfSwordmancyDrawFirstCardSuccess"
+        ]
+    },
+    "TrialOfSwordmancyDrawFirstCardSuccess": {
+        "desc": "抽取第一张牌成功",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyEnemyCard1"
+        ],
+        "pre_delay": 0,
+        "post_delay": 400,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                62,
+                146,
+                173,
+                289
+            ]
+        },
+        "next": [
+            "TrialOfSwordmancyAbandProbeClickGiveUp"
+        ]
+    },
+    // 探测放弃次数 → 回 Decide（同局继续）
+    "TrialOfSwordmancyAbandProbeClickGiveUp": {
+        "desc": "探测放弃次数①：点放弃按钮",
+        "recognition": "And",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "all_of": [
+            "TrialOfSwordmancyGiveUp"
+        ],
+        "action": "Click",
+        "next": [
+            "TrialOfSwordmancyAbandProbeWaitPopup"
+        ]
+    },
+    "TrialOfSwordmancyAbandProbeWaitPopup": {
+        "desc": "探测放弃次数①：等放弃确认弹窗出现",
+        "recognition": "And",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "all_of": [
+            "CancelButton",
+            "YellowConfirmButtonType1"
+        ],
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                303,
+                344,
+                674,
+                18
+            ]
+        },
+        "next": [
+            "TrialOfSwordmancyAbandProbeRecognize"
+        ]
+    },
+    "TrialOfSwordmancyAbandProbeRecognize": {
+        "desc": "识别放弃次数",
+        "recognition": "Custom",
+        "custom_recognition": "TrialOfSwordmancy.RecognizeAband",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyAbandProbeClickCancel"
+        ]
+    },
+    "TrialOfSwordmancyAbandProbeClickCancel": {
+        "desc": "探测放弃次数②：点取消按钮",
+        "recognition": "And",
+        "all_of": [
+            "CancelButton"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": "Click",
+        "next": [
+            "TrialOfSwordmancyAbandProbeWaitBackFreeze"
+        ]
+    },
+    "TrialOfSwordmancyAbandProbeWaitBackFreeze": {
+        "desc": "探测放弃次数②：等回抽牌页并 freeze",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyEnemyCard1"
+        ],
+        "pre_delay": 0,
+        "post_delay": 400,
+        "post_wait_freezes": 200,
+        "next": [
+            "TrialOfSwordmancyDecide"
         ]
     },
     "TrialOfSwordmancyDecide": {
@@ -113,15 +206,6 @@
         "all_of": [
             "TrialOfSwordmancyDrawCard"
         ],
-        "pre_wait_freezes": {
-            "time": 200,
-            "target": [
-                62,
-                146,
-                1191,
-                289
-            ]
-        },
         "pre_delay": 0,
         "post_wait_freezes": {
             "time": 200,
@@ -132,7 +216,7 @@
                 289
             ]
         },
-        "post_delay": 500, // 即使动画结束，抽牌按钮仍有一定时间不可用
+        "post_delay": 400, // 即使动画结束，抽牌按钮仍有一定时间不可用
         "next": [
             "TrialOfSwordmancyDecide"
         ]

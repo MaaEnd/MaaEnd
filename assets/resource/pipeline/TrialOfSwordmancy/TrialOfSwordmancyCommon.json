@@ -4,7 +4,6 @@
     // ===========================================================================
     // 下半部分（见分隔线后）：仅 go-service（recognition.go）运行时通过 ctx.RunRecognition
     // 调用、pipeline 流程不直接引用的节点（[go] 前缀标注）。节点名仍全文件共享同一命名空间。
-
     // 第1-5张卡牌 Lv（在场判定）。EnsureFirstCard 用 EnemyCard1 判是否已抽牌；Coating 用 1-5 全部。
     "TrialOfSwordmancyEnemyCard1": {
         "desc": "第1张卡牌 Lv",
@@ -283,12 +282,10 @@
         "template": "TrialOfSwordmancy/ChallengeBackground.png",
         "green_mask": true
     },
-
     // ===========================================================================
     // 以下节点仅供 go-service 经 ctx.RunRecognition 调用（pipeline 流程不直接引用）。
     // ROI/模板均在此定义，Go 侧不硬编码坐标；Go 按名字调用并解析结果。
     // ===========================================================================
-
     // —— 抽牌界面信息位 OCR（读文本，Go 侧 parseFirstInt 取数字）——
     "TrialOfSwordmancyRemainCalc": {
         "desc": "[go] 本日剩余奖励演算次数（OCR，值 2/1/0）",
@@ -310,9 +307,18 @@
             71
         ]
     },
-    "TrialOfSwordmancyDeckCount1": {
-        "desc": "[go] 牌库点数1库存数（OCR）",
+    "TrialOfSwordmancyDeck": {
+        "desc": "[go] 牌库",
         "recognition": "OCR",
+        "roi": [
+            1220,
+            116,
+            27,
+            227
+        ]
+    },
+    "TrialOfSwordmancyDeckCount1": {
+        "desc": "[go] 牌库点数1库存数",
         "roi": [
             1220,
             116,
@@ -321,8 +327,7 @@
         ]
     },
     "TrialOfSwordmancyDeckCount2": {
-        "desc": "[go] 牌库点数2库存数（OCR）",
-        "recognition": "OCR",
+        "desc": "[go] 牌库点数2库存数",
         "roi": [
             1219,
             168,
@@ -331,8 +336,7 @@
         ]
     },
     "TrialOfSwordmancyDeckCount3": {
-        "desc": "[go] 牌库点数3库存数（OCR）",
-        "recognition": "OCR",
+        "desc": "[go] 牌库点数3库存数",
         "roi": [
             1218,
             215,
@@ -341,8 +345,7 @@
         ]
     },
     "TrialOfSwordmancyDeckCount4": {
-        "desc": "[go] 牌库点数4库存数（OCR）",
-        "recognition": "OCR",
+        "desc": "[go] 牌库点数4库存数",
         "roi": [
             1219,
             265,
@@ -351,8 +354,7 @@
         ]
     },
     "TrialOfSwordmancyDeckCount5": {
-        "desc": "[go] 牌库点数5库存数（OCR）",
-        "recognition": "OCR",
+        "desc": "[go] 牌库点数5库存数",
         "roi": [
             1219,
             312,
@@ -361,7 +363,7 @@
         ]
     },
     "TrialOfSwordmancyAbandPopup": {
-        "desc": "[go] 放弃确认弹窗文本（OCR：『剩余放弃次数x次』或『已用完』）",
+        "desc": "[go] 放弃确认弹窗文本（OCR：『剩余放弃次数x次』）",
         "recognition": "OCR",
         "roi": [
             276,
@@ -370,7 +372,27 @@
             58
         ]
     },
-
+    "TrialOfSwordmancyAbandExhausted": {
+        "desc": "[go] 放弃次数耗尽时的红色文本",
+        "recognition": "ColorMatch",
+        "roi": [
+            303,
+            344,
+            674,
+            18
+        ],
+        "lower": [
+            235,
+            0,
+            0
+        ],
+        "upper": [
+            255,
+            80,
+            80
+        ],
+        "count": 400
+    },
     // —— 已翻倍指示（DoubleReward 按钮选中态，模板匹配）——
     "TrialOfSwordmancyIsDoubled": {
         "desc": "[go] 已翻倍指示",
@@ -383,64 +405,107 @@
         ],
         "template": "TrialOfSwordmancy/DoubleRewardSelected.png"
     },
-
-    // —— 手牌 5 槽点数位（模板匹配；Go 运行时把 template override 成 Point1-5.png 取最高分得点数）——
+    // —— 手牌点数识别（模板匹配）——
     "TrialOfSwordmancyHandPoint1": {
-        "desc": "[go] 手牌槽1点数位",
+        "desc": "[go] 手牌点数1",
         "recognition": "TemplateMatch",
         "roi": [
             173,
             123,
-            74,
+            875,
             80
         ],
         "template": "TrialOfSwordmancy/Point1.png"
     },
     "TrialOfSwordmancyHandPoint2": {
-        "desc": "[go] 手牌槽2点数位",
+        "desc": "[go] 手牌点数2",
         "recognition": "TemplateMatch",
+        "roi": [
+            173,
+            123,
+            875,
+            80
+        ],
+        "template": "TrialOfSwordmancy/Point2.png"
+    },
+    "TrialOfSwordmancyHandPoint3": {
+        "desc": "[go] 手牌点数3",
+        "recognition": "TemplateMatch",
+        "roi": [
+            173,
+            123,
+            875,
+            80
+        ],
+        "template": "TrialOfSwordmancy/Point3.png"
+    },
+    "TrialOfSwordmancyHandPoint4": {
+        "desc": "[go] 手牌点数4",
+        "recognition": "TemplateMatch",
+        "roi": [
+            173,
+            123,
+            875,
+            80
+        ],
+        "template": "TrialOfSwordmancy/Point4.png"
+    },
+    "TrialOfSwordmancyHandPoint5": {
+        "desc": "[go] 手牌点数5",
+        "recognition": "TemplateMatch",
+        "roi": [
+            173,
+            123,
+            875,
+            80
+        ],
+        "template": "TrialOfSwordmancy/Point5.png"
+    },
+    "TrialOfSwordmancyHandPosition1": {
+        "desc": "[go] 手牌槽1位置",
+        "roi": [
+            173,
+            123,
+            74,
+            80
+        ]
+    },
+    "TrialOfSwordmancyHandPosition2": {
+        "desc": "[go] 手牌槽2位置",
         "roi": [
             373,
             123,
             74,
             80
-        ],
-        "template": "TrialOfSwordmancy/Point1.png"
+        ]
     },
-    "TrialOfSwordmancyHandPoint3": {
-        "desc": "[go] 手牌槽3点数位",
-        "recognition": "TemplateMatch",
+    "TrialOfSwordmancyHandPosition3": {
+        "desc": "[go] 手牌槽3位置",
         "roi": [
             573,
             123,
             74,
             80
-        ],
-        "template": "TrialOfSwordmancy/Point1.png"
+        ]
     },
-    "TrialOfSwordmancyHandPoint4": {
-        "desc": "[go] 手牌槽4点数位",
-        "recognition": "TemplateMatch",
+    "TrialOfSwordmancyHandPosition4": {
+        "desc": "[go] 手牌槽4位置",
         "roi": [
             773,
             123,
             74,
             80
-        ],
-        "template": "TrialOfSwordmancy/Point1.png"
+        ]
     },
-    "TrialOfSwordmancyHandPoint5": {
-        "desc": "[go] 手牌槽5点数位",
-        "recognition": "TemplateMatch",
+    "TrialOfSwordmancyHandPosition5": {
+        "desc": "[go] 手牌槽5位置",
         "roi": [
             973,
             123,
             74,
             80
-        ],
-        "template": "TrialOfSwordmancy/Point1.png"
+        ]
     },
-
     // —— 溢出叹号（爆表，观测字段）——
     "TrialOfSwordmancyOverflowExclamation": {
         "desc": "[go] 溢出叹号（爆表）",
@@ -452,69 +517,5 @@
             47
         ],
         "template": "TrialOfSwordmancy/OverflowExclamation.png"
-    },
-
-    // ===========================================================================
-    // 探测剩余放弃次数子链（go 经 ctx.RunTask 触发，见 recognition.go 的 probeAband）。
-    // 交互/等待/点击全在此；go 只触发子链 + 在两段之间取一次放弃弹窗 OCR。
-    //
-    // 关键：pipeline 的 next 本身就是带重试的轮询（MaaFramework PipelineTask::run_next：
-    // 截图→识别 next 候选→没中就 sleep rate_limit 重试，直到 timeout）。故「等弹窗出现」「等回抽牌页」
-    // 这类时序等待无需 go 手写循环。rate_limit/timeout 设在「点击」节点上——它同时管「本节点识别命中」
-    // 与「点完后等下一个节点出现」两段轮询（run_next 用当前节点的 timing 去轮询其 next）。
-    // ===========================================================================
-
-    // 子链①：点放弃 → 轮询等放弃确认弹窗出现。命中 CancelButton 后子链结束（空 next），弹窗留在屏上供 go OCR。
-    "TrialOfSwordmancyAbandProbeClickGiveUp": {
-        "desc": "[go] 探测放弃次数①：点放弃按钮（并以其 timing 轮询等弹窗）",
-        "recognition": "And",
-        "all_of": [
-            "TrialOfSwordmancyGiveUp"
-        ],
-        "action": "Click",
-        "timeout": 10000,
-        "rate_limit": 300,
-        "next": [
-            "TrialOfSwordmancyAbandProbeWaitPopup"
-        ]
-    },
-    "TrialOfSwordmancyAbandProbeWaitPopup": {
-        "desc": "[go] 探测放弃次数①：等放弃确认弹窗出现（命中即子链结束，弹窗留屏供 go OCR）",
-        "recognition": "And",
-        "all_of": [
-            "CancelButton"
-        ],
-        "next": []
-    },
-    // 子链②：点取消 → 轮询等回抽牌页（EnemyCard1 在场）→ freeze（roi 沿用抽牌 freeze 的 [62,146,1191,289]）。
-    "TrialOfSwordmancyAbandProbeClickCancel": {
-        "desc": "[go] 探测放弃次数②：点取消按钮（并以其 timing 轮询等回抽牌页）",
-        "recognition": "And",
-        "all_of": [
-            "CancelButton"
-        ],
-        "action": "Click",
-        "timeout": 10000,
-        "rate_limit": 300,
-        "next": [
-            "TrialOfSwordmancyAbandProbeWaitBackFreeze"
-        ]
-    },
-    "TrialOfSwordmancyAbandProbeWaitBackFreeze": {
-        "desc": "[go] 探测放弃次数②：等回抽牌页并 freeze",
-        "recognition": "And",
-        "all_of": [
-            "TrialOfSwordmancyEnemyCard1"
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                62,
-                146,
-                1191,
-                289
-            ]
-        },
-        "next": []
     }
 }
