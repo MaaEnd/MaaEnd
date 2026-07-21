@@ -163,7 +163,7 @@ A missing selling target or failed scan stops the task to avoid selling under th
 
 The task provides a priority-selling switch that is disabled by default. Enabling it expands six priority slots that directly adjust this list. Configured items move ahead of the default order from slot 1 through 6. Items unavailable at the current outpost are skipped, duplicate selections keep only the earliest slot, and all remaining items retain the default order above.
 
-During execution, after entry into each outpost is confirmed, the UI reports that outpost's selling-operator target, post-sale production-assignment target, effective selling order, items excluded because they were already confirmed out of stock during this task, and applicable reserve rules; unlisted items are sold without a reserve. It then reports whether the operator was actually kept or switched, the currently selected goods, and completed trades. When the current outpost newly confirms an out-of-stock item, the UI immediately reports the item and outpost names. For an operator assigned elsewhere, the log reports whether the source outpost is managed by this run; protected candidates also report exclusion and replanning reasons. A new plan produced by a complete scan reports the outpost, purpose, and selected operator. The log also reports an unavailable selling operator, operator-scan failures, and skipped post-sale assignment when no production operator is available. Every UI message in the task uses the current client language.
+During execution, after entry into each outpost is confirmed, the UI reports that outpost's selling-operator target, post-sale production-assignment target, effective selling order, items excluded because they were already confirmed out of stock during this task, items configured by the user as never sell, and applicable reserve rules; unlisted items are sold without a reserve. It then reports whether the operator was actually kept or switched, the currently selected goods, and completed trades. When the current outpost newly confirms an out-of-stock item, the UI immediately reports the item and outpost names. For an operator assigned elsewhere, the log reports whether the source outpost is managed by this run; protected candidates also report exclusion and replanning reasons. A new plan produced by a complete scan reports the outpost, purpose, and selected operator. The log also reports an unavailable selling operator, operator-scan failures, and skipped post-sale assignment when no production operator is available. Every UI message in the task uses the current client language.
 
 Locked goods are absent from the current screen and are skipped naturally. There is no fixed sell-attempt limit. Each round follows this flow:
 
@@ -196,11 +196,12 @@ The loop ends only when:
 
 An empty OCR result does not mean “no remaining goods.” Out-of-stock items remain in the stable recognized set but are no longer candidates. Zero stock, a successful trade, or a reserve-based skip continues to the next round.
 
-Independent reserve rules provide six slots, each keyed by stable `itemId`:
+Independent reserve rules provide six slots. Each stable `itemId` can use either **Keep Specified Quantity** or **Never Sell**:
 
 - Without a matching rule, BetterSliding uses the default sell-all behavior.
-- With a matching rule, `TargetReverse` sells only stock above the reserve.
+- **Keep Specified Quantity** uses `TargetReverse` to sell only stock above the reserve.
 - If stock is not above the reserve, `SellProductSkipToNextSellLoop` skips the trade.
+- **Never Sell** excludes the item during selection, before switching goods, and does not report it as out of stock. Internally it uses quantity `-1`; users do not enter this sentinel value.
 - Later slots override earlier slots for the same item. Quantity `0` means no reserve.
 
 ## Generator

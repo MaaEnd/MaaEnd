@@ -21,6 +21,7 @@ type runtimeLocationPlan struct {
 	RestoreOperator    string
 	Items              []runtimeLocationPlanItem
 	ExcludedOutOfStock []string
+	ExcludedByUser     []string
 }
 
 func printRuntimeLocationEntered(ctx *maa.Context, location string) {
@@ -69,7 +70,7 @@ func buildRuntimeLocationPlan(location string) (runtimeLocationPlan, error) {
 	}
 	groups := prioritizeItemGroups(groupsByLocation[location], priorityItemsSnapshot())
 	reserveRules := reserveRulesSnapshot()
-	items, excludedOutOfStock := buildRuntimeLocationPlanItems(
+	items, excludedOutOfStock, excludedByUser := buildRuntimeLocationPlanItems(
 		groups,
 		reserveRules,
 		priorityOutOfStockSnapshot(),
@@ -79,6 +80,7 @@ func buildRuntimeLocationPlan(location string) (runtimeLocationPlan, error) {
 		LocationName:       runtimeLocationName(location),
 		Items:              items,
 		ExcludedOutOfStock: excludedOutOfStock,
+		ExcludedByUser:     excludedByUser,
 	}
 	if len(targetCandidates) > 0 {
 		plan.TargetOperator = runtimeOperatorName(targetCandidates[0])
@@ -93,10 +95,15 @@ func buildRuntimeLocationPlanItems(
 	groups []itemPriorityGroup,
 	reserveRules map[string]int,
 	outOfStock map[string]struct{},
-) ([]runtimeLocationPlanItem, []string) {
+) ([]runtimeLocationPlanItem, []string, []string) {
 	items := make([]runtimeLocationPlanItem, 0, len(groups))
 	excludedOutOfStock := make([]string, 0, len(outOfStock))
+	excludedByUser := make([]string, 0)
 	for _, group := range groups {
+		if reserveRules[group.ItemID] == reserveBlacklistQuantity {
+			excludedByUser = append(excludedByUser, group.DisplayName)
+			continue
+		}
 		if _, unavailable := outOfStock[group.ItemID]; unavailable {
 			excludedOutOfStock = append(excludedOutOfStock, group.DisplayName)
 			continue
@@ -106,7 +113,7 @@ func buildRuntimeLocationPlanItems(
 			ReserveQuantity: reserveRules[group.ItemID],
 		})
 	}
-	return items, excludedOutOfStock
+	return items, excludedOutOfStock, excludedByUser
 }
 
 func runtimeLocationPlanMessage(plan runtimeLocationPlan) string {
@@ -125,6 +132,7 @@ func runtimeLocationPlanMessage(plan runtimeLocationPlan) string {
 
 	itemOrder := runtimePlanTextOrNone(strings.Join(itemNames, " → "))
 	excludedOutOfStock := runtimePlanTextOrNone(strings.Join(plan.ExcludedOutOfStock, i18n.Separator()))
+	excludedByUser := runtimePlanTextOrNone(strings.Join(plan.ExcludedByUser, i18n.Separator()))
 	reservePlan := i18n.T("sellproduct.runtime.plan.no_reserve")
 	if len(reserveDescriptions) > 0 {
 		reservePlan = strings.Join(reserveDescriptions, i18n.Separator())
@@ -136,6 +144,7 @@ func runtimeLocationPlanMessage(plan runtimeLocationPlan) string {
 		runtimePlanTextOrNone(plan.RestoreOperator),
 		itemOrder,
 		excludedOutOfStock,
+		excludedByUser,
 		reservePlan,
 	)
 }

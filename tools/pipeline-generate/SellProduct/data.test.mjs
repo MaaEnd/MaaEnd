@@ -104,6 +104,12 @@ test("SellProduct templates consume separate minimal projections of the shared l
         "ReserveItemCases4",
         "ReserveItemCases5",
         "ReserveItemCases6",
+        "ReserveModeCases1",
+        "ReserveModeCases2",
+        "ReserveModeCases3",
+        "ReserveModeCases4",
+        "ReserveModeCases5",
+        "ReserveModeCases6",
         "ReserveRuleSwitchCases",
         "SellOptions",
     ]);
@@ -214,17 +220,27 @@ test("SellProduct priority switch expands six direct priority slots", () => {
     }
 });
 
-test("SellProduct concrete reserve rule separates itemId attach from quantity input", () => {
+test("SellProduct concrete reserve rule separates itemId attach from handling mode", () => {
     const itemCase = root.ReserveItemCases1.find((entry) => entry.name === "精选荞愈胶囊");
     assert.ok(itemCase);
-    assert.deepEqual(itemCase.option, ["SellProductReserveItem1Value"]);
+    assert.deepEqual(itemCase.option, ["SellProductReserveItem1Mode"]);
     const registration = itemCase.pipeline_override.SellProductRegisterReserveRule1;
     assert.equal(registration.enabled, undefined);
     assert.ok(registration.attach.item_id.startsWith("item_"));
     assert.equal(registration.custom_action_param, undefined);
 
+    const quantityCase = root.ReserveModeCases1.find((entry) => entry.name === "Quantity");
+    assert.deepEqual(quantityCase.option, ["SellProductReserveItem1Value"]);
+    assert.equal(quantityCase.pipeline_override, undefined);
+    const neverSellCase = root.ReserveModeCases1.find((entry) => entry.name === "NeverSell");
+    assert.deepEqual(neverSellCase.pipeline_override.SellProductRegisterReserveRule1.custom_action_param, {
+        operation: "register",
+        quantity: -1,
+    });
+
     const taskTemplate = readFileSync(new URL("./task-template.jsonc", import.meta.url), "utf8");
     assert.equal((taskTemplate.match(/"quantity": "\{SellProductReserveItem[1-6]Value\}"/g) || []).length, 6);
+    assert.equal((taskTemplate.match(/"default_case": "Quantity"/g) || []).length, 6);
 });
 
 test("SellProduct reserve None case does not register a rule", () => {

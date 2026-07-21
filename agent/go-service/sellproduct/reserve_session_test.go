@@ -44,6 +44,22 @@ func TestReserveSessionZeroMeansSellAll(t *testing.T) {
 	}
 }
 
+func TestReserveSessionBlacklistSnapshot(t *testing.T) {
+	resetReserveSession()
+	registerReserveRule("item_blacklisted", reserveBlacklistQuantity)
+	registerReserveRule("item_reserved", 100)
+
+	blacklisted := reserveBlacklistedItemsSnapshot()
+	if !reflect.DeepEqual(blacklisted, map[string]struct{}{"item_blacklisted": {}}) {
+		t.Fatalf("unexpected blacklist snapshot: %v", blacklisted)
+	}
+	setSelectedReserveItem("item_blacklisted")
+	itemID, quantity, configured := selectedReserveRule()
+	if itemID != "item_blacklisted" || quantity != reserveBlacklistQuantity || configured {
+		t.Fatalf("unexpected selected blacklist rule: item=%q quantity=%d configured=%v", itemID, quantity, configured)
+	}
+}
+
 func TestBuildReserveSlidingOverride(t *testing.T) {
 	withReserve := buildReserveSlidingOverride("Sliding", 88, true)
 	wantWithReserve := map[string]any{
@@ -95,8 +111,11 @@ func TestParseReserveSessionActionParam(t *testing.T) {
 	if _, err := parseReserveSessionActionParam(`{"operation":"select","item_id":"item_a"}`); err != nil {
 		t.Fatalf("valid select params should pass: %v", err)
 	}
-	if _, err := parseReserveSessionActionParam(`{"operation":"register","item_id":"item_a","quantity":-1}`); err == nil {
-		t.Fatal("negative quantity should fail")
+	if _, err := parseReserveSessionActionParam(`{"operation":"register","item_id":"item_a","quantity":-1}`); err != nil {
+		t.Fatalf("blacklist quantity should pass: %v", err)
+	}
+	if _, err := parseReserveSessionActionParam(`{"operation":"register","item_id":"item_a","quantity":-2}`); err == nil {
+		t.Fatal("quantity below blacklist sentinel should fail")
 	}
 	if _, err := parseReserveSessionActionParam(`{"operation":"register","quantity":"19000"}`); err == nil {
 		t.Fatal("string quantity should fail")

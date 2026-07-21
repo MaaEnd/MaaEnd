@@ -74,7 +74,7 @@ function buildReserveItemCases(slot) {
         ...Object.values(ITEMS).map((item) => ({
             name: item.name,
             ...(item.label ? {label: item.label} : {}),
-            option: [`SellProductReserveItem${slot}Value`],
+            option: [`SellProductReserveItem${slot}Mode`],
             pipeline_override: {
                 [`SellProductRegisterReserveRule${slot}`]: {
                     attach: {
@@ -83,6 +83,30 @@ function buildReserveItemCases(slot) {
                 },
             },
         })),
+    ];
+}
+
+// 用户通过显式模式选择保留数量或永不售卖；-1 仅作为内部配置哨兵，
+// 不要求用户理解或手动输入特殊数值。
+function buildReserveModeCases(slot) {
+    return [
+        {
+            name: "Quantity",
+            label: "$task.SellProduct.ReserveModeQuantity",
+            option: [`SellProductReserveItem${slot}Value`],
+        },
+        {
+            name: "NeverSell",
+            label: "$task.SellProduct.ReserveModeNeverSell",
+            pipeline_override: {
+                [`SellProductRegisterReserveRule${slot}`]: {
+                    custom_action_param: {
+                        operation: "register",
+                        quantity: -1,
+                    },
+                },
+            },
+        },
     ];
 }
 
@@ -224,6 +248,12 @@ export const sellProductTaskRows = LOCATIONS.map((loc, index) => {
         ReserveItemCases4: index === 0 ? buildReserveItemCases(4) : [],
         ReserveItemCases5: index === 0 ? buildReserveItemCases(5) : [],
         ReserveItemCases6: index === 0 ? buildReserveItemCases(6) : [],
+        ReserveModeCases1: index === 0 ? buildReserveModeCases(1) : [],
+        ReserveModeCases2: index === 0 ? buildReserveModeCases(2) : [],
+        ReserveModeCases3: index === 0 ? buildReserveModeCases(3) : [],
+        ReserveModeCases4: index === 0 ? buildReserveModeCases(4) : [],
+        ReserveModeCases5: index === 0 ? buildReserveModeCases(5) : [],
+        ReserveModeCases6: index === 0 ? buildReserveModeCases(6) : [],
     };
 });
 

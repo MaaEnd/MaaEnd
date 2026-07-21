@@ -167,13 +167,19 @@
             "default_case": "No",
             "cases": "${ReserveRuleSwitchCases}"
         },
-        // 选中具体货品后才展开对应数量输入。
+        // 选中具体货品后先选择处理方式，仅保留模式展开数量输入。
         "SellProductReserveItem1": {
             "type": "select",
             "label": "$task.SellProduct.ReserveItem1",
             "description": "$task.SellProduct.ReserveDescription",
             "default_case": "None",
             "cases": "${ReserveItemCases1}"
+        },
+        "SellProductReserveItem1Mode": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveMode",
+            "default_case": "Quantity",
+            "cases": "${ReserveModeCases1}"
         },
         "SellProductReserveItem1Value": {
             "type": "input",
@@ -203,6 +209,12 @@
             "default_case": "None",
             "cases": "${ReserveItemCases2}"
         },
+        "SellProductReserveItem2Mode": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveMode",
+            "default_case": "Quantity",
+            "cases": "${ReserveModeCases2}"
+        },
         "SellProductReserveItem2Value": {
             "type": "input",
             "label": "$task.SellProduct.ReserveQuantityInput",
@@ -230,6 +242,12 @@
             "label": "$task.SellProduct.ReserveItem3",
             "default_case": "None",
             "cases": "${ReserveItemCases3}"
+        },
+        "SellProductReserveItem3Mode": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveMode",
+            "default_case": "Quantity",
+            "cases": "${ReserveModeCases3}"
         },
         "SellProductReserveItem3Value": {
             "type": "input",
@@ -259,6 +277,12 @@
             "default_case": "None",
             "cases": "${ReserveItemCases4}"
         },
+        "SellProductReserveItem4Mode": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveMode",
+            "default_case": "Quantity",
+            "cases": "${ReserveModeCases4}"
+        },
         "SellProductReserveItem4Value": {
             "type": "input",
             "label": "$task.SellProduct.ReserveQuantityInput",
@@ -287,6 +311,12 @@
             "default_case": "None",
             "cases": "${ReserveItemCases5}"
         },
+        "SellProductReserveItem5Mode": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveMode",
+            "default_case": "Quantity",
+            "cases": "${ReserveModeCases5}"
+        },
         "SellProductReserveItem5Value": {
             "type": "input",
             "label": "$task.SellProduct.ReserveQuantityInput",
@@ -314,6 +344,12 @@
             "label": "$task.SellProduct.ReserveItem6",
             "default_case": "None",
             "cases": "${ReserveItemCases6}"
+        },
+        "SellProductReserveItem6Mode": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveMode",
+            "default_case": "Quantity",
+            "cases": "${ReserveModeCases6}"
         },
         "SellProductReserveItem6Value": {
             "type": "input",

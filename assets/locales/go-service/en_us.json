@@ -85,7 +85,7 @@
     "autoecofarm.interruptible_sleep_done.completed": "Wait completed",
     "autoecofarm.interruptible_sleep_stopped.message": "Manually stopped by user",
     "sellproduct.runtime.location_entered": "🏭 Entered outpost: %s",
-    "sellproduct.runtime.location_plan": "📋 Current plan for %s\n👤 Selling operator target: %s; post-sale production target: %s\n📦 Selling order: %s\n🚫 Excluded as out of stock: %s\n🧰 Reserve rules: %s",
+    "sellproduct.runtime.location_plan": "📋 Current plan for %s\n👤 Selling operator target: %s; post-sale production target: %s\n📦 Selling order: %s\n🚫 Excluded as out of stock: %s\n⛔ Excluded by user: %s\n🧰 Reserve rules: %s",
     "sellproduct.runtime.plan.reserve_rule": "%s: keep %d",
     "sellproduct.runtime.plan.no_reserve": "None (sell all)",
     "sellproduct.runtime.plan.none": "None",

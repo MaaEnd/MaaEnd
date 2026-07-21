@@ -85,7 +85,7 @@
     "autoecofarm.interruptible_sleep_done.completed": "等待完成",
     "autoecofarm.interruptible_sleep_stopped.message": "用户手动终止",
     "sellproduct.runtime.location_entered": "🏭 已进入据点：%s",
-    "sellproduct.runtime.location_plan": "📋 %s当前计划\n👤 售卖干员目标：%s；售后生产派驻目标：%s\n📦 售卖顺序：%s\n🚫 缺货排除：%s\n🧰 保留规则：%s",
+    "sellproduct.runtime.location_plan": "📋 %s当前计划\n👤 售卖干员目标：%s；售后生产派驻目标：%s\n📦 售卖顺序：%s\n🚫 缺货排除：%s\n⛔ 用户排除：%s\n🧰 保留规则：%s",
     "sellproduct.runtime.plan.reserve_rule": "%s保留 %d",
     "sellproduct.runtime.plan.no_reserve": "无（全部售卖）",
     "sellproduct.runtime.plan.none": "无",
