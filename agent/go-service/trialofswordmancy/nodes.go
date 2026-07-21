@@ -14,8 +14,6 @@ const (
 	decideNode = "TrialOfSwordmancyDecide"
 
 	// 抽牌界面通用识别节点（定义在 TrialOfSwordmancyCommon.json）。
-	nodeRewardMode          = "TrialOfSwordmancyRewardMode"          // 奖励演算模式标志
-	nodeDrawCard            = "TrialOfSwordmancyDrawCard"            // 抽牌按钮
 	nodeDoubleReward        = "TrialOfSwordmancyDoubleReward"        // 翻倍按钮
 	nodeOverflowExclamation = "TrialOfSwordmancyOverflowExclamation" // 溢出（爆表）叹号
 

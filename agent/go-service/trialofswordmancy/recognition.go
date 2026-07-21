@@ -43,7 +43,6 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		return nil, r.recognitionFailed(ctx, "牌库 OCR 失败")
 	}
 
-	onCardScreen := r.detectCardScreen(ctx, arg.Img)
 	overflow := r.detectOverflow(ctx, arg.Img)
 	handCounts, handRaw := r.recognizeHand(ctx, arg.Img)
 
@@ -87,11 +86,10 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		Hand:         handCounts,
 	}
 	gs := GameState{
-		State:        state,
-		Config:       cfg,
-		HandRaw:      handRaw,
-		OnCardScreen: onCardScreen,
-		Overflow:     overflow,
+		State:    state,
+		Config:   cfg,
+		HandRaw:  handRaw,
+		Overflow: overflow,
 	}
 
 	detailBytes, err := json.Marshal(gs)
@@ -108,7 +106,6 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		Bool("isDoubled", state.IsDoubled).
 		Ints("hand", state.Hand[:]).
 		Ints("handRaw", handRaw[:]).
-		Bool("onCardScreen", onCardScreen).
 		Bool("overflow", overflow).
 		Str("overflowMode", cfg.OverflowMode.String()).
 		Msg("game state recognized")
@@ -123,14 +120,6 @@ func (r *Recognition) recognitionFailed(ctx *maa.Context, reason string) bool {
 	log.Warn().Str("component", component).Str("reason", reason).Msg("recognition failed, aborting task")
 	maafocus.Print(ctx, "选剑演武：识别失败")
 	return false
-}
-
-// detectCardScreen 判定是否处于抽牌界面：RewardMode 或 DrawCard 在场。
-func (r *Recognition) detectCardScreen(ctx *maa.Context, img image.Image) bool {
-	if runTemplateHit(ctx, img, nodeRewardMode) {
-		return true
-	}
-	return runTemplateHit(ctx, img, nodeDrawCard)
 }
 
 // detectOverflow 判定是否识别到溢出叹号（爆表）。
