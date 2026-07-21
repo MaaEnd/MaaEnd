@@ -14,35 +14,79 @@
         ]
     },
     "SeizeDeliveryJobsFoundTargetViewLocationClick": {
-        "desc": "点击委托项的查看位置按钮（由 Go 覆写 target）",
+        "desc": "点击委托项的查看位置按钮（由 Go 覆写 target），随后确认地图区域名称",
+        "pre_delay": 0,
         "action": "Click",
         "target": [
             -1,
             -1
         ], // 必须覆写此字段
-        "post_wait_freezes": {
-            "time": 2000,
-            "target": [
-                2,
-                164,
-                264,
-                103
-            ]
-        }, // 等待查看位置的大地图界面弹出
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SeizeDeliveryJobsEndpointFilter"
         ]
     },
     "SeizeDeliveryJobsEndpointFilter": {
-        "desc": "终点筛选入口",
+        "desc": "按照地图区域筛选终点",
         "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsEndpointFilterWulingCity",
+            "SeizeDeliveryJobsEndpointFilterTestArea"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointFilterWulingCity": {
+        "desc": "识别武陵城地图区域名称后等待画面静止",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            250,
+            60
+        ],
+        "expected": [
+            "武陵城"
+        ],
+        "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 500,
+                "target": [
+                    250,
+                    150,
+                    750,
+                    500
+                ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SeizeDeliveryJobsEndpointFilterOwl",
             "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute",
             "SeizeDeliveryJobsEndpointFilterObservatory",
             "SeizeDeliveryJobsEndpointFilterTechProductionOffice",
+            "SeizeDeliveryJobsEndpointNotMatched"
+        ]
+    },
+    "SeizeDeliveryJobsEndpointFilterTestArea": {
+        "desc": "识别试验园区地图区域名称后等待画面静止",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            250,
+            60
+        ],
+        "expected": [
+            "试验园区"
+        ],
+        "pre_delay": 0,
+        "post_wait_freezes": 500,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea",
             "SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea",
             "SeizeDeliveryJobsEndpointFilterJingweiFieldArea",
