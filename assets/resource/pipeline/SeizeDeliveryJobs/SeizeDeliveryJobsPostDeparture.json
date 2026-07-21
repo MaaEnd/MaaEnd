@@ -23,6 +23,15 @@
                 "MapTrackerBigMap_FilterNone"
             ]
         },
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                400,
+                180,
+                160,
+                120
+            ]
+        },
         "anchor": {
             "SeizeDeliveryJobsAfterEnterWulingJobList": "" // 任务结束，置空锚点以防止误用
         },
@@ -35,7 +44,8 @@
         "action": "Custom",
         "custom_action": "SeizeDeliveryJobsDepartureAction",
         "custom_action_param": {
-            "map_name_regex": "map02_lv002|map02_lv005", // 所有可用的送货地图名称（后续增加新地区需要更新此值）
+            "map_name_regex": "^(map02_lv002|map02_lv005)$", // 所有可用的送货地图名称（后续增加新地区需要更新此值）
+            // 更新此值需要同时更新 assets\tasks\SeizeDeliveryJobs.json 中对应的值
             "zipline_policy": "Lazy", // 默认不优先使用滑索（可以覆写为 "Active"）
             "is_retry": false
         },
