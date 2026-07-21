@@ -55,7 +55,7 @@
         }
     },
     "VisitFriendsRecognitionItemWithName": {
-        "desc": "识别进船按钮与对应好友名（含线索锚点，供选友）",
+        "desc": "识别进船按钮与对应好友名（含线索锚点）；box_index=2 返回名字框，供消费性选友",
         "recognition": "And",
         "all_of": [
             "VisitFriendsRecognitionItemEnterButton",
@@ -63,6 +63,20 @@
             "VisitFriendsRecognitionItemNameByEnterButton"
         ],
         "box_index": 2
+    },
+    "VisitFriendsRecognitionItemEnterButtonByName": {
+        "desc": "以选中好友名框为锚向右偏移，识别该行进船（飞船）图标",
+        // 与 NameByEnterButtonForScroll 相对 EnterButton 的 [-1069,-29,218,5] 反向；w/h 略放宽以容 OCR 框抖动
+        "recognition": "TemplateMatch",
+        "roi": "VisitFriendsMenuScanSelectFriendConsumable",
+        "roi_offset": [
+            1069,
+            29,
+            -38,
+            55
+        ],
+        "template": "VisitFriends/EnterButton.png",
+        "threshold": 0.9
     },
     "VisitFriendsRecognitionItemNameByEnterButtonForScroll": {
         "desc": "滚动专用：直接以进船按钮为锚识别好友名，不依赖线索交换图标",

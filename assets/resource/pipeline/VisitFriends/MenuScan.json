@@ -34,10 +34,25 @@
             "Node.Action.Succeeded": "未开启设施助力"
         }
     },
-    "VisitFriendsMenuScanTargetFriendOpen": {
-        "desc": "选择下一个好友（消费性：attach.visited）。优先备注由 Name OCR 的 expected+order_by 独立控制",
+    "VisitFriendsMenuScanSelectFriendConsumable": {
+        "desc": "消费性选友：返回未访问好友的名字框（attach.visited）。优先备注由 Name OCR 的 expected+order_by 独立控制",
         "recognition": "Custom",
-        "custom_recognition": "VisitFriendsSelectFriendRecognition",
+        "custom_recognition": "ExpendableRecognition",
+        "custom_recognition_param": {
+            "candidate": "VisitFriendsRecognitionItemWithName"
+        },
+        "attach": {
+            "visited": []
+        }
+    },
+    "VisitFriendsMenuScanTargetFriendOpen": {
+        "desc": "选友名字框 ∧ 右侧偏移植进船图标；box_index=1 点击飞船按钮",
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsMenuScanSelectFriendConsumable",
+            "VisitFriendsRecognitionItemEnterButtonByName"
+        ],
+        "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": 200,
@@ -45,10 +60,7 @@
         "next": [
             "VisitFriendsCheckAssist",
             "VisitFriendsMenuScanDetailClose"
-        ],
-        "attach": {
-            "visited": []
-        }
+        ]
     },
     "VisitFriendsMenuScanScrollFinish": {
         "desc": "滚动完成,滑动后仍然无其他目标",

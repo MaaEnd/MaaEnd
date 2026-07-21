@@ -303,6 +303,49 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 - 需要重新开始一轮列表扫描时，应清空该 Custom 节点的 `attach.last_text`（例如通过 `PipelineOverride`）。
 - 该识别器只负责“OCR 首尾指纹是否变化”，滑动、点击等流程仍由 Pipeline 组织。
 
+### ExpendableRecognition
+
+`ExpendableRecognition` 实现位于 `agent/go-service/common/expendable`，用于「点过一次就不再点同一目标」的列表消费（如活动中心未读入口、好友列表逐个拜访）。
+
+参数：
+
+- `candidate: string`：必填。外部候选识别节点（`OCR` / `And` / `Or` 等）。会从该节点树自动收集**命名** OCR 子节点，用于注入 `visited` 排除与提取入库 key；命中框即返回给 `Click` 的框。
+
+行为：
+
+1. 读取当前 Custom 节点 `attach.visited`。
+2. 从 `candidate` 树发现 OCR 节点，读取其当前 `expected`（去掉旧的负向前缀后）与 `order_by`，按 `visited` 重新拼负向排除并覆盖回去。
+3. 执行 `candidate`；未命中则失败。
+4. 优先取与命中框一致的 OCR 文案作为 key（通常即 `And.box_index` 指向的文案），写入 `visited`，返回 `candidate` 命中框。
+
+候选结构、点击目标（`And.box_index`）、备注优先（多项 `expected` + `order_by: Expected`）均由 Pipeline 配置；本识别器不解析业务 UI。
+
+示例文件：[`ExpendableRecognition.json`](../../../assets/resource/pipeline/Interface/Example/ExpendableRecognition.json)
+
+```json
+{
+    "recognition": {
+        "type": "Custom",
+        "param": {
+            "custom_recognition": "ExpendableRecognition",
+            "custom_recognition_param": {
+                "candidate": "SomeCandidateAnd"
+            }
+        }
+    },
+    "attach": {
+        "visited": []
+    }
+}
+```
+
+注意事项：
+
+- 状态保存在**当前 Custom 识别节点**的 `attach.visited`。
+- 新一轮扫描前应清空 `attach.visited`（例如任务重入或 `PipelineOverride`）。
+- 发现到的 OCR 节点上的 `expected` 会被整表覆盖为「基模板 + visited 排除」；基模板来自覆盖前节点上的 `expected`（会剥掉上一轮注入的负向前缀）。
+- 候选树中的 OCR 必须是**命名节点引用**；内联 OCR 对象无法按名覆盖 `expected`，会报错。
+
 ### ScheduleRecognition
 
 `ScheduleRecognition` 实现位于 `agent/go-service/common/schedule`，用于按星期几判断当前任务是否应继续执行。它只返回识别是否命中，不在 Go 中直接运行子任务；后续流程应通过 Pipeline 的 `next` 组织。
@@ -335,6 +378,7 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 | 把关键词拼成正则写回 OCR 节点 | `AttachToExpectedRegexAction` |
 | 计算 OCR 数值表达式           | `ExpressionRecognition`       |
 | 判断列表 OCR 文本是否变化     | `ListCompleteRecognition`     |
+| 消费性点选（visited 排除）    | `ExpendableRecognition`       |
 | 按星期几门控后续节点          | `ScheduleRecognition`         |
 | 在指定位置 Alt + 点击         | `AutoAltClickAction`          |
 | Alt + 滑动                    | `AutoAltSwipeAction`          |

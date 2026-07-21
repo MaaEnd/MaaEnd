@@ -25,9 +25,12 @@
         ]
     },
     "DailyEventGoTo": {
-        "desc": "进入未读活动（动态识别入口名）",
+        "desc": "进入未读活动（消费性：attach.visited 排除已点入口）",
         "recognition": "Custom",
-        "custom_recognition": "DailyEventGoToRecognition",
+        "custom_recognition": "ExpendableRecognition",
+        "custom_recognition_param": {
+            "candidate": "DailyEventGoToCandidate"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,

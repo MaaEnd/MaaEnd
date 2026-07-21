@@ -9,10 +9,10 @@
                 "AutoSellPriceCompareRecognition",
                 "AutoSellScanItemRecognition",
                 "AutoStockpile.Recognition",
-                "DailyEventGoToRecognition",
                 "EssenceFilterAfterBattleNthRecognition",
                 "EssenceGridAdvanceRecognition",
                 "EssenceGridPendingRecognition",
+                "ExpendableRecognition",
                 "ExpressionRecognition",
                 "ImageCheckNotPassedRecognition",
                 "ListCompleteRecognition",
@@ -33,7 +33,6 @@
                 "SellProductPriorityItem",
                 "SellProductSelectBestOperator",
                 "TrialOfSwordmancy.Recognize",
-                "VisitFriendsSelectFriendRecognition",
                 "WeaponInventoryScanRecognition",
                 "SeizeDeliveryJobsFindTargetRecognition",
                 "SeizeDeliveryJobsScanTargetRecognition",
@@ -63,6 +62,32 @@
                                 "minLength": 1,
                                 "title": "Node",
                                 "description": "OCR node name, or an And node name whose native box_index target must be OCR. Compared across runs via attach.last_text on the current Custom recognition node."
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "ExpendableRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [ "candidate" ],
+                        "properties": {
+                            "candidate": {
+                                "type": "string",
+                                "minLength": 1,
+                                "title": "Candidate",
+                                "description": "External recognition node to run (OCR / And / Or). Named OCR nodes in its tree are auto-discovered for visited exclusion and key extraction. Its hit box is returned for Click."
                             }
                         }
                     }
