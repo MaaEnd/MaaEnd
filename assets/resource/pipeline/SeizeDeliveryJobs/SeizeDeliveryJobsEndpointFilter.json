@@ -14,79 +14,32 @@
         ]
     },
     "SeizeDeliveryJobsFoundTargetViewLocationClick": {
-        "desc": "点击委托项的查看位置按钮（由 Go 覆写 target），随后确认地图区域名称",
-        "pre_delay": 0,
+        "desc": "点击委托项的查看位置按钮（由 Go 覆写 target）",
         "action": "Click",
         "target": [
             -1,
             -1
         ], // 必须覆写此字段
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SeizeDeliveryJobsEndpointFilter"
         ]
     },
     "SeizeDeliveryJobsEndpointFilter": {
-        "desc": "按照地图区域筛选终点",
+        "desc": "检查地图已打开后，按照地图区域筛选终点",
         "enabled": false,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SeizeDeliveryJobsEndpointFilterWulingCity",
-            "SeizeDeliveryJobsEndpointFilterTestArea"
-        ]
-    },
-    "SeizeDeliveryJobsEndpointFilterWulingCity": {
-        "desc": "识别武陵城地图区域名称后等待画面静止",
-        "recognition": "OCR",
-        "roi": [
-            0,
-            0,
-            250,
-            60
+        "recognition": "Or",
+        "any_of": [
+            "__SeizeDeliveryJobsRecoWulingDepotNode"
         ],
-        "expected": [
-            "武陵城"
-        ],
+        "inverse": true, // 如果*不在*仓储管理页面时，视为地图已经打开
         "pre_delay": 0,
-        "post_wait_freezes": {
-            "time": 500,
-            "target": [
-                250,
-                150,
-                750,
-                500
-            ]
-        },
+        "post_wait_freezes": 500,
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SeizeDeliveryJobsEndpointFilterOwl",
             "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute",
             "SeizeDeliveryJobsEndpointFilterObservatory",
             "SeizeDeliveryJobsEndpointFilterTechProductionOffice",
-            "SeizeDeliveryJobsEndpointNotMatched"
-        ]
-    },
-    "SeizeDeliveryJobsEndpointFilterTestArea": {
-        "desc": "识别试验园区地图区域名称后等待画面静止",
-        "recognition": "OCR",
-        "roi": [
-            0,
-            0,
-            250,
-            60
-        ],
-        "expected": [
-            "试验园区"
-        ],
-        "pre_delay": 0,
-        "post_wait_freezes": 500,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
             "SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea",
             "SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea",
             "SeizeDeliveryJobsEndpointFilterJingweiFieldArea",
