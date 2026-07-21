@@ -1,0 +1,6 @@
+{
+    // ADB 不做画面/颜色检查（滤镜、HDR 等为 PC 侧问题）
+    "__SceneImageCheck": {
+        "enabled": false
+    }
+}
