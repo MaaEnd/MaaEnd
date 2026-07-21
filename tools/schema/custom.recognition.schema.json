@@ -33,6 +33,7 @@
                 "SellProductPriorityItem",
                 "SellProductSelectBestOperator",
                 "TrialOfSwordmancy.Recognize",
+                "TrialOfSwordmancy.RecognizeAband",
                 "VisitFriendsSelectFriendRecognition",
                 "WeaponInventoryScanRecognition",
                 "SeizeDeliveryJobsFindTargetRecognition",

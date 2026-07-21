@@ -4,8 +4,9 @@ package trialofswordmancy
 const (
 	component = "trialofswordmancy"
 
-	recognitionName = "TrialOfSwordmancy.Recognize" // pipeline 节点的 custom_recognition
-	decideName      = "TrialOfSwordmancy.Decide"    // pipeline 节点的 custom_action
+	recognitionName      = "TrialOfSwordmancy.Recognize"      // pipeline 节点的 custom_recognition
+	abandRecognitionName = "TrialOfSwordmancy.RecognizeAband" // 放弃弹窗文本 custom_recognition
+	decideName           = "TrialOfSwordmancy.Decide"         // pipeline 节点的 custom_action
 )
 
 // pipeline 节点名常量。
@@ -27,20 +28,16 @@ const (
 	nodeGiveUp     = "TrialOfSwordmancyDailyGiveUp" // 放弃本局 → 确认 → 重置寻路 → 回主入口
 	nodeStartTrial = "TrialOfSwordmancyStartTrial"  // 开始演算 → 编队 → 战斗 → 领奖
 
-	// 探测剩余放弃次数的两段子链入口（节点定义在 TrialOfSwordmancyCommon.json，go 经 ctx.RunTask 触发）：
-	//   - ClickGiveUp：点放弃 → 轮询等弹窗（弹窗留屏，go 夹在中间读 OCR）。
-	//   - ClickCancel：点取消 → 轮询等回抽牌页 → freeze。
-	nodeAbandProbeClickGiveUp = "TrialOfSwordmancyAbandProbeClickGiveUp"
-	nodeAbandProbeClickCancel = "TrialOfSwordmancyAbandProbeClickCancel"
 )
 
 // go-service 专用识别节点名（定义在 TrialOfSwordmancyCommon.json 的 [go] 区，ROI/模板都在 JSON 里）。
 // Go 经 ctx.RunRecognition 按名调用并解析结果，不硬编码坐标。
 const (
-	nodeRemainCalc   = "TrialOfSwordmancyRemainCalc"   // OCR：本日剩余演算次数
-	nodeRemainDouble = "TrialOfSwordmancyRemainDouble" // OCR：剩余翻倍次数
-	nodeAbandPopup   = "TrialOfSwordmancyAbandPopup"   // OCR：放弃确认弹窗文本
-	nodeIsDoubled    = "TrialOfSwordmancyIsDoubled"    // 模板：已翻倍指示
+	nodeRemainCalc     = "TrialOfSwordmancyRemainCalc"     // OCR：本日剩余演算次数
+	nodeRemainDouble   = "TrialOfSwordmancyRemainDouble"   // OCR：剩余翻倍次数
+	nodeAbandPopup     = "TrialOfSwordmancyAbandPopup"     // OCR：放弃确认弹窗文本
+	nodeAbandExhausted = "TrialOfSwordmancyAbandExhausted" // ColorMatch：放弃次数耗尽时的红色文本
+	nodeIsDoubled      = "TrialOfSwordmancyIsDoubled"      // 模板：已翻倍指示
 
 	nodeDeck               = "TrialOfSwordmancyDeck"         // OCR：牌库整列库存数
 	nodeDeckCountPrefix    = "TrialOfSwordmancyDeckCount"    // + "1".."5"：牌库各点数库存数 OCR

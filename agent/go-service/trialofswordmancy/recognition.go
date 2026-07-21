@@ -17,14 +17,14 @@ var _ maa.CustomRecognitionRunner = &Recognition{}
 // Recognition 是选剑演武总成识别器：取一张截图 arg.Img，识别当前局面的各状态字段，
 // 组装 GameState 后序列化进 CustomRecognitionResult.Detail 交给 Decide 动作。
 //
-// 几乎无状态——除剩余放弃次数外（界面不显示，持久化+探测），其余字段每步都从当前截图重读。
+// 几乎无状态——除剩余放弃次数外（界面不显示，由 RecognizeAband 识别后缓存），其余字段每步都从当前截图重读。
 //
 // 各字段来源（ROI/模板都在 TrialOfSwordmancyCommon.json 的 [go] 节点里，Go 按名调用 maafw）：
 //   - 屏幕态：RewardMode / DrawCard 在场 → 处于抽牌界面。
 //   - Hand：HandPoint1-5 分别整行匹配 Point1-5.png，按 HandPosition1-5 ROI 归槽。
 //   - Deck：牌库「剩余库存」整列 OCR（Deck，按 DeckCount1-5 ROI 分组，抽牌递减）；总牌量 = 剩余 + 手牌。
 //   - RemainCalc / RemainDouble：OCR（RemainCalc / RemainDouble 节点）。
-//   - RemainAband：持久化缓存；未知(-1)时探测（点放弃→OCR 弹窗→取消）。
+//   - RemainAband：RecognizeAband 从放弃弹窗识别后写入的持久化缓存。
 //   - IsDoubled：模板匹配（IsDoubled 节点）。
 //   - Overflow：OverflowExclamation 在场（观测字段，不参与求解）。
 type Recognition struct{}
@@ -63,16 +63,9 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	}
 	isDoubled := recognizeIsDoubled(ctx, arg.Img)
 
-	// 剩余放弃次数：持久化缓存；未知(-1)则探测（有副作用，故放最后）。
-	// 探测失败不在此 return false——否则 Decide 节点的 20s 识别超时内会反复点击放弃/取消；
-	// 改为留 -1 → 求解器判不可达 → Decide 动作 return false（一次性中止，不重试）。
+	// 剩余放弃次数由独立的 RecognizeAband 从放弃弹窗识别并缓存。
+	// 缓存仍未知时保留 -1，交给求解器判不可达并中止，不在总成识别中执行任何界面操作。
 	remainAband := getAband()
-	if remainAband < 0 {
-		if n := r.probeAband(ctx); n >= 0 {
-			remainAband = n
-			setAband(n)
-		}
-	}
 
 	// 屏幕的「本日剩余奖励演算次数」显示的是「当前进行中这局之外的剩余」——进入抽牌界面即扣 1，
 	// 而求解器把进行中这局也算作可用 → solver = OCR + 1（solver 态空间 RemainCalc 1..3，对应 OCR 0..2）。
@@ -115,7 +108,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 
 // recognitionFailed 关键字段识别失败的统一出口：记日志 + focus「识别失败」+ 返回 false。
 // 任一关键字段（牌库/演算次数/翻倍次数）读不到都走这里——读不到就不在错误信息上做决策，让任务中止。
-// （放奔次数探测失败不在此中止，见 Run 内注释。）
+// （放弃次数缓存未知不在此中止，见 Run 内注释。）
 func (r *Recognition) recognitionFailed(ctx *maa.Context, reason string) bool {
 	log.Warn().Str("component", component).Str("reason", reason).Msg("recognition failed, aborting task")
 	maafocus.Print(ctx, "选剑演武：识别失败")
@@ -255,51 +248,6 @@ func recognizeIsDoubled(ctx *maa.Context, img image.Image) bool {
 	return runTemplateHit(ctx, img, nodeIsDoubled)
 }
 
-// probeAband 探测剩余放弃次数：跑两段 pipeline 子链，go 在中间读一次放弃弹窗 OCR。
-//
-// 子链定义在 TrialOfSwordmancyCommon.json（TrialOfSwordmancyAbandProbe*）：
-//   - ① 点放弃 → 轮询等放弃确认弹窗出现（弹窗留在屏上，子链结束）；
-//   - ② 点取消 → 轮询等回抽牌页（EnemyCard1）→ freeze。
-//
-// 交互/等待/点击全在 pipeline 里——pipeline 的 next 本身就是带重试的轮询（MaaFramework
-// PipelineTask::run_next：截图→识别 next 候选→没中就 sleep rate_limit 重试，直到 timeout），
-// 等价于以前 go 手写的两个轮询循环。go 只负责触发子链 + 在两段之间取一次 OCR 文本。
-// 返回读到的次数（0-3），读不到返回 -1。仅在 getAband()<0 时调用一次。
-func (r *Recognition) probeAband(ctx *maa.Context) int {
-	// ① 点放弃 → 等弹窗。RunTask 返回即弹窗已在屏上（WaitPopup 命中 CancelButton 后子链结束、空 next）。
-	if _, err := ctx.RunTask(nodeAbandProbeClickGiveUp); err != nil {
-		log.Warn().Err(err).Str("component", component).Msg("probeAband: 点放弃/等弹窗失败")
-		return -1
-	}
-
-	// go 取 OCR：弹窗在屏上，截一张图跑放弃弹窗 OCR。
-	ctrl := ctx.GetTasker().GetController()
-	if ctrl == nil {
-		log.Warn().Str("component", component).Msg("probeAband: controller 为空")
-		return -1
-	}
-	ctrl.PostScreencap().Wait()
-	img, err := ctrl.CacheImage()
-	if err != nil || img == nil {
-		log.Warn().Err(err).Str("component", component).Msg("probeAband: 截屏失败")
-		return -1
-	}
-	text, _ := ocrNodeText(ctx, img, nodeAbandPopup)
-	count := parseAbandCount(text)
-
-	// ② 点取消 → 等回抽牌页 → freeze。失败只记日志（次数已读到，界面若残留由上游兜底）。
-	if _, err := ctx.RunTask(nodeAbandProbeClickCancel); err != nil {
-		log.Warn().Err(err).Str("component", component).Msg("probeAband: 点取消/等回抽牌页失败，界面可能残留")
-	}
-
-	if count < 0 {
-		log.Warn().Str("component", component).Str("ocr", text).Msg("probeAband: 未能解析放弃次数")
-	} else {
-		log.Info().Str("component", component).Int("aband", count).Str("ocr", text).Msg("probeAband: 探测到剩余放弃次数")
-	}
-	return count
-}
-
 // ocrNodeText 跑一个 OCR 节点，返回该 ROI 内所有识别框文本的拼接。
 // ppocrv5 常把一行文本切成多个识别框（标点、数字往往单独成框），只取 Best 会丢掉关键数字/关键词，
 // 故此处拼接全部框，调用方再自行 parseFirstInt / 子串判断。
@@ -309,33 +257,6 @@ func ocrNodeText(ctx *maa.Context, img image.Image, nodeName string) (string, bo
 		return "", false
 	}
 	return allOCRText(detail)
-}
-
-// 放弃确认弹窗两种形态（原文）：
-//   - 有次数：「本日剩余放弃次数x次，放弃将扣除，但不会扣除奖励演算次数，是否确认放弃？」（x ∈ 1..3）
-//   - 已耗尽：「本日放弃次数已用完，继续放弃将会扣除1次奖励演算次数，是否确认放弃？」
-//
-// 两种都含数字、都含「奖励演算次数」「扣除」「是否确认放弃」——这些词无法区分两态。
-// 只有「用完 / 继续放弃 / 将会扣除」是耗尽态独有，拿来做耗尽判定。
-// 关键陷阱：耗尽态的「1」是「扣除几次奖励演算次数」，不是放弃次数 → 必须先用耗尽标记拦截，
-// 否则 parseFirstInt 会把那个「1」误当放弃次数。
-var abandExhaustedMarkers = []string{"用完", "继续放弃", "将会扣除"}
-
-// parseAbandCount 从放弃弹窗的拼接文本解析剩余次数。
-//   - 耗尽标记命中 → 0
-//   - 否则取首段数字（有次数态的唯一数字即放弃次数 x）
-//   - 无标记也无数字 → 未知 -1（例如有次数态的数字被 OCR 切错）。不臆断为 0/耗尽：
-//     返回 0 会被 setAband 缓存，污染整局决策；返回 -1 由上游留作未知、求解器判不可达中止。
-func parseAbandCount(text string) int {
-	for _, m := range abandExhaustedMarkers {
-		if strings.Contains(text, m) {
-			return 0
-		}
-	}
-	if n, ok := parseFirstInt(text); ok {
-		return n
-	}
-	return -1
 }
 
 // runTemplateHit 跑一个 TemplateMatch 节点，返回是否命中。
