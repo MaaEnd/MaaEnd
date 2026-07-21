@@ -29,32 +29,16 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        // 备注优先独立改 Name OCR：expected 列表顺序 + order_by Expected
-                        "VisitFriendsRecognitionItemNameByEnterButton": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        ".*[（(].*#.*",
-                                        ".*#.*"
-                                    ],
-                                    "order_by": "Expected"
-                                }
-                            }
+                        "VisitFriendsMenuScanSelectFriendRemarkConsumable": {
+                            "enabled": true
                         }
                     }
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "VisitFriendsRecognitionItemNameByEnterButton": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        ".*#.*"
-                                    ],
-                                    "order_by": "Vertical"
-                                }
-                            }
+                        "VisitFriendsMenuScanSelectFriendRemarkConsumable": {
+                            "enabled": false
                         }
                     }
                 }

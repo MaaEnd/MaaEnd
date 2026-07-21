@@ -23,13 +23,5 @@
                 ]
             }
         }
-    },
-    "DailyEventRecognitionNew": {
-        "roi": [
-            21,
-            100,
-            260,
-            530
-        ]
     }
 }

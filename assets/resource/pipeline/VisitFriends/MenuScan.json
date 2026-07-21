@@ -34,22 +34,45 @@
             "Node.Action.Succeeded": "未开启设施助力"
         }
     },
-    "VisitFriendsMenuScanSelectFriendConsumable": {
-        "desc": "消费性选友：返回未访问好友的名字框（attach.visited）。优先备注由 Name OCR 的 expected+order_by 独立控制",
-        "recognition": "Custom",
-        "custom_recognition": "ExpendableRecognition",
-        "custom_recognition_param": {
-            "candidate": "VisitFriendsRecognitionItemWithName"
-        },
+    "VisitFriendsMenuScanVisited": {
+        "desc": "选友共享黑名单（attach.visited）；备注/普通消费节点经 visited_node 共用",
+        "recognition": "DirectHit",
         "attach": {
             "visited": []
         }
+    },
+    "VisitFriendsMenuScanSelectFriendRemarkConsumable": {
+        "desc": "消费性选友（仅备注）：VisitFriendsRemark=Yes 时启用，与普通选友共享 visited",
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "ExpendableRecognition",
+        "custom_recognition_param": {
+            "candidate": "VisitFriendsRecognitionItemWithRemark",
+            "visited_node": "VisitFriendsMenuScanVisited"
+        }
+    },
+    "VisitFriendsMenuScanSelectFriendConsumable": {
+        "desc": "消费性选友（任意好友）：与备注选友共享 visited",
+        "recognition": "Custom",
+        "custom_recognition": "ExpendableRecognition",
+        "custom_recognition_param": {
+            "candidate": "VisitFriendsRecognitionItemWithName",
+            "visited_node": "VisitFriendsMenuScanVisited"
+        }
+    },
+    "VisitFriendsMenuScanSelectFriendOr": {
+        "desc": "优先备注（若启用）否则任意好友；命中框为名字框",
+        "recognition": "Or",
+        "any_of": [
+            "VisitFriendsMenuScanSelectFriendRemarkConsumable",
+            "VisitFriendsMenuScanSelectFriendConsumable"
+        ]
     },
     "VisitFriendsMenuScanTargetFriendOpen": {
         "desc": "选友名字框 ∧ 右侧偏移植进船图标；box_index=1 点击飞船按钮",
         "recognition": "And",
         "all_of": [
-            "VisitFriendsMenuScanSelectFriendConsumable",
+            "VisitFriendsMenuScanSelectFriendOr",
             "VisitFriendsRecognitionItemEnterButtonByName"
         ],
         "box_index": 1,

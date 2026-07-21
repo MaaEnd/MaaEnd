@@ -307,16 +307,17 @@ The `ExpendableRecognition` implementation is located in `agent/go-service/commo
 
 Parameters:
 
-- `candidate: string`: Required. An `OCR` node, an `And` whose `box_index` points at the text OCR, or an `Or` of such `And`s. Only those named `box_index` OCR nodes are patched; the candidate hit box is returned for `Click`.
+- `candidate: string`: Required. An `OCR` node, or an `And` whose `box_index` points at the text OCR. Only that named OCR is patched; the candidate hit box is returned for `Click`.
+- `visited_node: string`: Optional. Read/write `attach.visited` on this node instead of the current Custom node. Multiple consumable nodes can share one blacklist (e.g. remark-first + any-friend).
 
 Behavior:
 
-1. Load `attach.visited` from the current Custom node.
-2. Resolve key OCR nodes from `candidate` (`And.box_index`, or each Or-child And's `box_index`), read their `expected`/`order_by`, rebuild a negative blacklist from `visited`, and override them.
+1. Load `attach.visited` from `visited_node` (or the current Custom node).
+2. Resolve the key OCR from `candidate` (`And.box_index`), read its `expected`, rebuild a negative blacklist from `visited`, and override only `expected` (`order_by` and other fields stay as-is).
 3. Run `candidate`; miss means no match.
-4. Extract OCR text from the hit, append to `visited`, and return the hit box.
+4. Extract OCR text from the hit, append to that node's `attach.visited`, and return the hit box.
 
-Candidate layout, click target, and remark priority (multi `expected` + `order_by: Expected`) stay in Pipeline.
+Candidate layout, click target, and remark priority (multi `expected` + `order_by: Expected`, or two consumable nodes + shared `visited_node`) stay in Pipeline.
 
 Example file: [`ExpendableRecognition.json`](../../../assets/resource/pipeline/Interface/Example/ExpendableRecognition.json)
 
@@ -339,8 +340,8 @@ Example file: [`ExpendableRecognition.json`](../../../assets/resource/pipeline/I
 
 Notes:
 
-- State lives in `attach.visited` on the **current Custom recognition node**.
-- Clear `attach.visited` before a fresh scan (task re-entry or `PipelineOverride`).
+- State lives in `attach.visited` on `visited_node` (default: the current Custom recognition node).
+- Clear that node's `attach.visited` before a fresh scan (task re-entry or `PipelineOverride`).
 - `expected` on key OCR nodes is fully replaced with "base patterns + visited blacklist"; bases come from the node before override (previous exclusion prefixes are stripped).
 - Key OCR leaves must be **named node refs** (`And.box_index` must not point at an inline OCR object).
 

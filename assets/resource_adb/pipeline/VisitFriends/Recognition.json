@@ -19,6 +19,18 @@
             }
         }
     },
+    "VisitFriendsRecognitionItemNameRemarkByEnterButton": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -956,
+                    -24,
+                    259,
+                    5
+                ]
+            }
+        }
+    },
     "VisitFriendsRecognitionItemNameByEnterButtonForScroll": {
         "recognition": {
             "param": {

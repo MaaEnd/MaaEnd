@@ -32,13 +32,17 @@ func TestWithBlacklist(t *testing.T) {
 	}
 }
 
-func TestParseCandidate(t *testing.T) {
+func TestParseParams(t *testing.T) {
 	t.Parallel()
-	got, err := parseCandidate(`{"candidate":"Cand"}`)
-	if err != nil || got != "Cand" {
-		t.Fatalf("got=%q err=%v", got, err)
+	p, err := parseParams(`{"candidate":"Cand"}`)
+	if err != nil || p.Candidate != "Cand" || p.VisitedNode != "" {
+		t.Fatalf("got=%+v err=%v", p, err)
 	}
-	if _, err := parseCandidate(`{}`); err == nil {
+	p2, err := parseParams(`{"candidate":"Cand","visited_node":"Shared"}`)
+	if err != nil || p2.Candidate != "Cand" || p2.VisitedNode != "Shared" {
+		t.Fatalf("got=%+v err=%v", p2, err)
+	}
+	if _, err := parseParams(`{}`); err == nil {
 		t.Fatal("expected error")
 	}
 }

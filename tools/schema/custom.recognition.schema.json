@@ -87,7 +87,13 @@
                                 "type": "string",
                                 "minLength": 1,
                                 "title": "Candidate",
-                                "description": "OCR, And (box_index -> text OCR), or Or(And...). Only named box_index OCR nodes are patched with visited blacklist. Hit box is returned for Click."
+                                "description": "OCR or And (box_index -> text OCR). That named OCR is patched with visited blacklist. Hit box is returned for Click."
+                            },
+                            "visited_node": {
+                                "type": "string",
+                                "minLength": 1,
+                                "title": "Visited Node",
+                                "description": "Optional. Node whose attach.visited is used as the shared blacklist store. Defaults to the current Custom recognition node."
                             }
                         }
                     }

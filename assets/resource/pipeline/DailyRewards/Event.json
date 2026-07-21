@@ -153,19 +153,6 @@
             }
         }
     },
-    "DailyEventRecognitionNew": {
-        "desc": "识别活动界面的新提示",
-        "recognition": "OCR",
-        "roi": [
-            21,
-            100,
-            211,
-            530
-        ],
-        "expected": [
-            "NEW"
-        ]
-    },
     "DailyEventRecognitionItemTextByRedDot": {
         "desc": "红点左侧入口名（至少3字，可由 Go 覆盖 expected）",
         "recognition": {
@@ -185,49 +172,13 @@
             }
         }
     },
-    "DailyEventRecognitionItemTextByNew": {
-        "desc": "NEW左侧入口名（至少3字，可由 Go 覆盖 expected）",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": "DailyEventRecognitionNew",
-                // 避免截取到背景文本
-                "roi_offset": [
-                    -175,
-                    0,
-                    130,
-                    44
-                ],
-                "expected": [
-                    ".{3,}" // 匹配三个及以上字符
-                ]
-            }
-        }
-    },
-    "DailyEventGoToCandidateByRedDot": {
-        "desc": "红点 ∧ 左侧入口名",
+    "DailyEventGoToCandidate": {
+        "desc": "未读活动入口候选：红点 ∧ 左侧入口名",
         "recognition": "And",
         "all_of": [
             "DailyEventRecognitionRedDot",
             "DailyEventRecognitionItemTextByRedDot"
         ],
         "box_index": 1
-    },
-    "DailyEventGoToCandidateByNew": {
-        "desc": "NEW ∧ 左侧入口名",
-        "recognition": "And",
-        "all_of": [
-            "DailyEventRecognitionNew",
-            "DailyEventRecognitionItemTextByNew"
-        ],
-        "box_index": 1
-    },
-    "DailyEventGoToCandidate": {
-        "desc": "未读活动入口候选：红点入口或NEW入口",
-        "recognition": "Or",
-        "any_of": [
-            "DailyEventGoToCandidateByRedDot",
-            "DailyEventGoToCandidateByNew"
-        ]
     }
 }
