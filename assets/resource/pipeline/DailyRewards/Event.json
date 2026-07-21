@@ -127,7 +127,19 @@
         }
     },
     "DailyEventRecognitionRedDot": {
-        "desc": "识别活动界面的红点",
+        "desc": "识别活动界面未读标记：红点或黄色 NEW 标",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "DailyEventRecognitionRedDotColor",
+                    "DailyEventRecognitionYellowNew"
+                ]
+            }
+        }
+    },
+    "DailyEventRecognitionRedDotColor": {
+        "desc": "识别活动界面红点",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -153,8 +165,34 @@
             }
         }
     },
+    "DailyEventRecognitionYellowNew": {
+        "desc": "识别活动列表黄色 NEW 标",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    21,
+                    100,
+                    211,
+                    530
+                ],
+                "lower": [
+                    230,
+                    230,
+                    0
+                ],
+                "upper": [
+                    255,
+                    255,
+                    13
+                ],
+                "connected": true,
+                "count": 50
+            }
+        }
+    },
     "DailyEventRecognitionItemTextByRedDot": {
-        "desc": "红点左侧入口名（至少3字，可由 Go 覆盖 expected）",
+        "desc": "未读标记左侧入口名（至少3字，可由 Go 覆盖 expected）",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -173,7 +211,7 @@
         }
     },
     "DailyEventGoToCandidate": {
-        "desc": "未读活动入口候选：红点 ∧ 左侧入口名",
+        "desc": "未读活动入口候选：（红点 ∨ 黄色 NEW）∧ 左侧入口名",
         "recognition": "And",
         "all_of": [
             "DailyEventRecognitionRedDot",

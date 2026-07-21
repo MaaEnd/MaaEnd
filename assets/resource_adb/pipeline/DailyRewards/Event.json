@@ -12,7 +12,19 @@
             }
         }
     },
-    "DailyEventRecognitionRedDot": {
+    "DailyEventRecognitionRedDotColor": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    21,
+                    100,
+                    260,
+                    530
+                ]
+            }
+        }
+    },
+    "DailyEventRecognitionYellowNew": {
         "recognition": {
             "param": {
                 "roi": [
