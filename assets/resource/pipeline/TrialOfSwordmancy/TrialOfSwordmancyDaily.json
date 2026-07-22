@@ -151,7 +151,15 @@
             "TrialOfSwordmancyEnemyCard1"
         ],
         "pre_delay": 0,
-        "post_wait_freezes": 200,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                62,
+                146,
+                173,
+                289
+            ]
+        },
         "post_delay": 400,
         "next": [
             "TrialOfSwordmancyDecide"
