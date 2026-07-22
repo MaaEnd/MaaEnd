@@ -107,11 +107,7 @@
         "rate_limit": 0,
         "next": [
             "VisitFriendsEnterShipRemark"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "好友有需要的资源",
-            "Node.Recognition.Failed": "好友没有需要的资源"
-        }
+        ]
     },
     "VisitFriendsMenuScanScrollFinish": {
         "desc": "滚动完成,滑动后仍然无其他目标",
@@ -153,10 +149,7 @@
             150
         ],
         "end_hold": 600, // 太短了松开会晃动
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "向下滑动好友列表"
-        }
+        "post_delay": 0
     },
     "VisitFriendsCheckAssist": {
         "desc": "打开好友详情后检查可访问资源（识别②）：线索交换固定开启；助力子节点未勾选时为 OCR a^，勾选后覆盖为 TemplateMatch",
@@ -172,11 +165,7 @@
         "post_delay": 0,
         "next": [
             "VisitFriendsEnterShip"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "好友有需要的资源",
-            "Node.Recognition.Failed": "好友没有需要的资源"
-        }
+        ]
     },
     "VisitFriendsCheckAssistClueExchange": {
         "desc": "检查是否可线索交换（固定开启，不可关闭）",
