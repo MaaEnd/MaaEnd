@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy/solver"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -111,7 +112,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 // （放弃次数缓存未知不在此中止，见 Run 内注释。）
 func (r *Recognition) recognitionFailed(ctx *maa.Context, reason string) bool {
 	log.Warn().Str("component", component).Str("reason", reason).Msg("recognition failed, aborting task")
-	maafocus.Print(ctx, "选剑演武：识别失败")
+	maafocus.Print(ctx, i18n.T("trialofswordmancy.recognition_failed"))
 	return false
 }
 
