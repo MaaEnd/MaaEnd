@@ -163,6 +163,9 @@ func (a *PrioritySessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 			Bool("enabled", param.Enabled).
 			Bool("only_preferred", param.OnlyPreferred).
 			Msg("priority selling configured")
+		if param.Enabled && param.OnlyPreferred {
+			printRuntimeOnlyPreferredEnabled(ctx)
+		}
 		return true
 	case priorityOperationResetItems:
 		resetPreferredPriorityItems(param.Enabled)

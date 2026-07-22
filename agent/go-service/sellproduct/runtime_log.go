@@ -28,6 +28,14 @@ func printRuntimeLocationEntered(ctx *maa.Context, location string) {
 	maafocus.Print(ctx, i18n.T("sellproduct.runtime.location_entered", runtimeLocationName(location)))
 }
 
+func printRuntimeOnlyPreferredEnabled(ctx *maa.Context) {
+	maafocus.Print(ctx, runtimeOnlyPreferredEnabledMessage())
+}
+
+func runtimeOnlyPreferredEnabledMessage() string {
+	return i18n.T("sellproduct.runtime.only_preferred_enabled")
+}
+
 func printRuntimeLocationPlan(ctx *maa.Context, location string) error {
 	plan, err := buildRuntimeLocationPlan(location)
 	if err != nil {

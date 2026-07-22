@@ -85,6 +85,7 @@
     "autoecofarm.interruptible_sleep_done.completed": "待機完了",
     "autoecofarm.interruptible_sleep_stopped.message": "ユーザーが手動停止",
     "sellproduct.runtime.location_entered": "🏭 拠点に入りました：%s",
+    "sellproduct.runtime.only_preferred_enabled": "🔒「優先商品のみ販売」が有効です。優先商品以外は販売しません。この設定は、地域別優先販売を有効にした地域にのみ適用されます。",
     "sellproduct.runtime.location_plan": "📋 %sの現在の計画\n👤 販売オペレーター候補：%s；販売後の生産配置候補：%s\n📦 販売順：%s\n🚫 在庫切れのため除外：%s\n⛔ ユーザー設定で除外：%s\n🧰 確保ルール：%s",
     "sellproduct.runtime.plan.reserve_rule": "%sを%d個確保",
     "sellproduct.runtime.plan.no_reserve": "なし（すべて販売）",

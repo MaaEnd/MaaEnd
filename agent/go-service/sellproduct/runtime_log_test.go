@@ -39,6 +39,11 @@ func TestRuntimeMessagesContainCurrentState(t *testing.T) {
 			expected: []string{"缺货", "test_item", "TestLocation"},
 		},
 		{
+			name:     "仅售卖优先产品",
+			message:  runtimeOnlyPreferredEnabledMessage(),
+			expected: []string{"仅售卖优先产品", "其他产品不会售卖", "已开启地区优先售卖配置"},
+		},
+		{
 			name:     "全量缓存扫描失败",
 			message:  runtimeOperatorScanFailedMessage("global", operatorActionUsageAll),
 			expected: []string{"干员缓存扫描失败"},

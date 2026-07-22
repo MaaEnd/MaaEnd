@@ -85,6 +85,7 @@
     "autoecofarm.interruptible_sleep_done.completed": "等待完成",
     "autoecofarm.interruptible_sleep_stopped.message": "用戶手動終止",
     "sellproduct.runtime.location_entered": "🏭 已進入據點：%s",
+    "sellproduct.runtime.only_preferred_enabled": "🔒 已啟用「僅販售優先產品」：其他產品不會販售。此設定僅對已開啟地區優先販售設定的地區生效。",
     "sellproduct.runtime.location_plan": "📋 %s目前計劃\n👤 售賣幹員目標：%s；售後生產派駐目標：%s\n📦 售賣順序：%s\n🚫 缺貨排除：%s\n⛔ 使用者排除：%s\n🧰 保留規則：%s",
     "sellproduct.runtime.plan.reserve_rule": "%s保留 %d",
     "sellproduct.runtime.plan.no_reserve": "無（全部售賣）",

@@ -85,6 +85,7 @@
     "autoecofarm.interruptible_sleep_done.completed": "대기 완료",
     "autoecofarm.interruptible_sleep_stopped.message": "사용자가 수동 중단",
     "sellproduct.runtime.location_entered": "🏭 거점 진입: %s",
+    "sellproduct.runtime.only_preferred_enabled": "🔒 ‘우선 상품만 판매’가 활성화되었습니다. 다른 상품은 판매하지 않습니다. 이 설정은 지역별 우선 판매를 활성화한 지역에만 적용됩니다.",
     "sellproduct.runtime.location_plan": "📋 %s 현재 계획\n👤 판매 오퍼레이터 목표: %s; 판매 후 생산 배치 목표: %s\n📦 판매 순서: %s\n🚫 품절로 제외: %s\n⛔ 사용자 설정으로 제외: %s\n🧰 보유 규칙: %s",
     "sellproduct.runtime.plan.reserve_rule": "%s %d개 보유",
     "sellproduct.runtime.plan.no_reserve": "없음 (모두 판매)",
