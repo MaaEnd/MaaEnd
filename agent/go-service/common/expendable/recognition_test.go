@@ -9,38 +9,40 @@ import (
 func TestStripBlacklistPrefix(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
-		in, prefix, suffix, want string
+		in                 string
+		allowTrailingNoise bool
+		want               string
 	}{
-		{`.*#.*`, ``, ``, `.*#.*`},
-		{`^(?!(?:foo)$).*#.*`, ``, ``, `.*#.*`},
-		{`^(?!(?:a|b)$).{3,}`, ``, ``, `.{3,}`},
-		{`^(?!(?:Alice\#1001)(?:\D.*)?$).*#.*`, ``, `(?:\D.*)?`, `.*#.*`},
-		{`^(?!.*(?:Alice\#1001)(?:\D.*)?$).*#.*`, `.*`, `(?:\D.*)?`, `.*#.*`},
+		{`.*#.*`, false, `.*#.*`},
+		{`^(?!(?:foo)$).*#.*`, false, `.*#.*`},
+		{`^(?!(?:a|b)$).{3,}`, false, `.{3,}`},
+		{`^(?!(?:小明\(Alice\#1001\))(?:\D.*)?$).*[（(].*#.*`, true, `.*[（(].*#.*`},
+		{`^(?!(?:Alice\#1001)(?:\D.*)?$).*#.*`, true, `.*#.*`},
 	}
 	for _, tc := range cases {
-		if got := stripBlacklistPrefix(tc.in, tc.prefix, tc.suffix); got != tc.want {
-			t.Fatalf("stripBlacklistPrefix(%q, %q, %q)=%q, want %q", tc.in, tc.prefix, tc.suffix, got, tc.want)
+		if got := stripBlacklistPrefix(tc.in, tc.allowTrailingNoise); got != tc.want {
+			t.Fatalf("stripBlacklistPrefix(%q, %v)=%q, want %q", tc.in, tc.allowTrailingNoise, got, tc.want)
 		}
 	}
 }
 
 func TestWithBlacklist(t *testing.T) {
 	t.Parallel()
-	got := withBlacklist([]string{`.*[（(].*#.*`, `.*#.*`}, []string{`备注(张三)#1234`}, "", "")
+	got := withBlacklist([]string{`.*[（(].*#.*`, `.*#.*`}, []string{`备注(张三)#1234`}, false)
 	want0 := `^(?!(?:备注\(张三\)#1234)$).*[（(].*#.*`
 	want1 := `^(?!(?:备注\(张三\)#1234)$).*#.*`
 	if len(got) != 2 || got[0] != want0 || got[1] != want1 {
 		t.Fatalf("got=%q", got)
 	}
-	if got := withBlacklist([]string{`.{3,}`}, nil, "", ""); len(got) != 1 || got[0] != `.{3,}` {
+	if got := withBlacklist([]string{`.{3,}`}, nil, false); len(got) != 1 || got[0] != `.{3,}` {
 		t.Fatalf("empty visited got=%q", got)
 	}
 
-	suffix := `(?:\D.*)?`
-	got2 := withBlacklist([]string{`.*#.*`}, []string{`Alice#1001`}, "", suffix)
+	// 普通 ID：截到 #UID 后，容忍尾噪，且不误伤更长 UID。
+	got2 := withBlacklist([]string{`.*#.*`}, []string{`Alice#1001`}, true)
 	want2 := `^(?!(?:Alice\#1001)(?:\D.*)?$).*#.*`
 	if len(got2) != 1 || got2[0] != want2 {
-		t.Fatalf("suffix got=%q want=%q", got2, want2)
+		t.Fatalf("normal got=%q want=%q", got2, want2)
 	}
 	re, err := regexp.Compile(got2[0])
 	if err != nil {
@@ -54,42 +56,44 @@ func TestWithBlacklist(t *testing.T) {
 	if !re.MatchString(`Alice#10010`) {
 		t.Fatal("should still allow Alice#10010")
 	}
+	if !re.MatchString(`Bob#2002`) {
+		t.Fatal("should allow other friends")
+	}
 
-	// 备注名包裹：key 在中间，需要 blacklist_prefix=.*
-	got3 := withBlacklist([]string{`.*#.*`}, []string{`Alice#1001`}, `.*`, suffix)
-	want3 := `^(?!.*(?:Alice\#1001)(?:\D.*)?$).*#.*`
+	// 备注：截到第一个 ) 后，容忍 ) 后尾噪。
+	got3 := withBlacklist([]string{`.*[（(].*#.*`}, []string{`小明(Alice#1001)`}, true)
+	want3 := `^(?!(?:小明\(Alice\#1001\))(?:\D.*)?$).*[（(].*#.*`
 	if len(got3) != 1 || got3[0] != want3 {
-		t.Fatalf("prefix got=%q want=%q", got3, want3)
+		t.Fatalf("remark got=%q want=%q", got3, want3)
 	}
 	re3, err := regexp.Compile(got3[0])
 	if err != nil {
 		t.Fatalf("compile: %v", err)
 	}
-	for _, s := range []string{`Alice#1001`, `小明(Alice#1001)`, `小明(Alice#1001小)`, `小明(Alice#1001)尾`} {
+	for _, s := range []string{`小明(Alice#1001)`, `小明(Alice#1001)尾`, `小明(Alice#1001)小`} {
 		if re3.MatchString(s) {
 			t.Fatalf("should blacklist %q", s)
 		}
 	}
-	if !re3.MatchString(`小明(Alice#10010)`) {
-		t.Fatal("should still allow longer UID Alice#10010")
-	}
-	if !re3.MatchString(`Bob#2002`) {
-		t.Fatal("should allow other friends")
+	if !re3.MatchString(`小红(Bob#2002)`) {
+		t.Fatal("should allow other remark friends")
 	}
 }
 
 func TestApplyKeyRegex(t *testing.T) {
 	t.Parallel()
-	// 拜访好友：备注 小明(Alice#1001) / 普通 Alice#1001 → 统一抽 Alice#1001
-	friendKey := `\(?([^()]*\#\d+)\)?`
+	remarkKey := `.*?[)）]`
+	normalKey := `.*?\#\d+`
 	cases := []struct {
 		text, keyRegex, want string
 	}{
-		{`Alice#1001`, friendKey, `Alice#1001`},
-		{`Alice#1001小`, friendKey, `Alice#1001`},
-		{`小明(Alice#1001)`, friendKey, `Alice#1001`},
-		{`小明(Alice#1001小)`, friendKey, `Alice#1001`},
-		{`plain`, `.*?\#\d+`, `plain`},
+		{`小明(Alice#1001)`, remarkKey, `小明(Alice#1001)`},
+		{`小明(Alice#1001)尾`, remarkKey, `小明(Alice#1001)`},
+		{`小明(Alice#1001）多余`, remarkKey, `小明(Alice#1001）`},
+		{`Alice#1001`, normalKey, `Alice#1001`},
+		{`Alice#1001小`, normalKey, `Alice#1001`},
+		{`Alice#1001は`, normalKey, `Alice#1001`},
+		{`无括号`, remarkKey, `无括号`},
 		{`Alice#1001`, ``, `Alice#1001`},
 	}
 	for _, tc := range cases {
@@ -103,15 +107,12 @@ func TestApplyKeyRegex(t *testing.T) {
 func TestParseParams(t *testing.T) {
 	t.Parallel()
 	p, err := parseParams(`{"candidate":"Cand"}`)
-	if err != nil || p.Candidate != "Cand" || p.VisitedNode != "" || p.KeyRegex != "" || p.BlacklistPrefix != "" || p.BlacklistSuffix != "" {
+	if err != nil || p.Candidate != "Cand" || p.VisitedNode != "" || p.KeyRegex != "" {
 		t.Fatalf("got=%+v err=%v", p, err)
 	}
-	p2, err := parseParams(`{"candidate":"Cand","visited_node":"Shared","key_regex":"\\(?([^()]*\\#\\d+)\\)?","blacklist_prefix":".*","blacklist_suffix":"(?:\\D.*)?"}`)
-	if err != nil || p2.Candidate != "Cand" || p2.VisitedNode != "Shared" {
+	p2, err := parseParams(`{"candidate":"Cand","visited_node":"Shared","key_regex":".*?[)）]"}`)
+	if err != nil || p2.Candidate != "Cand" || p2.VisitedNode != "Shared" || p2.KeyRegex != `.*?[)）]` {
 		t.Fatalf("got=%+v err=%v", p2, err)
-	}
-	if p2.KeyRegex != `\(?([^()]*\#\d+)\)?` || p2.BlacklistPrefix != `.*` || p2.BlacklistSuffix != `(?:\D.*)?` {
-		t.Fatalf("optional fields: key=%q prefix=%q suffix=%q", p2.KeyRegex, p2.BlacklistPrefix, p2.BlacklistSuffix)
 	}
 	if _, err := parseParams(`{}`); err == nil {
 		t.Fatal("expected error")

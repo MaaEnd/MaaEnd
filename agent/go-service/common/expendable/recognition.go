@@ -14,6 +14,8 @@ import (
 const (
 	componentName = "ExpendableRecognition"
 	attachVisited = "visited"
+	// trailingNoiseSuffix：配置了 key_regex 时，黑名单容忍 key 后的非数字 OCR 尾噪。
+	trailingNoiseSuffix = `(?:\D.*)?`
 )
 
 var _ maa.CustomRecognitionRunner = &Recognition{}
@@ -24,9 +26,7 @@ var _ maa.CustomRecognitionRunner = &Recognition{}
 // candidate 应为 OCR，或 And（box_index 指向文案 OCR）。
 // 只覆盖 box_index 指向的命名 OCR；点击框仍是 candidate 命中框。
 // 可选 visited_node：黑名单读写走该节点的 attach.visited，便于多个消费节点共享。
-//
-// 业务侧 OCR 抖动（尾噪、前缀噪声等）不得写死在本组件内：由 Pipeline 通过
-// key_regex / blacklist_prefix / blacklist_suffix 声明如何从原文得到 visited key、以及黑名单如何匹配。
+// 可选 key_regex：业务自行声明如何从 OCR 原文得到 visited key；未配置则原文精确入库/排除。
 type Recognition struct{}
 
 type params struct {
@@ -34,14 +34,8 @@ type params struct {
 	// VisitedNode 若非空，则从该节点的 attach.visited 读写黑名单；否则用当前 Custom 节点。
 	VisitedNode string `json:"visited_node"`
 	// KeyRegex 可选。对 OCR 原文做匹配，命中后用第 1 捕获组（若有）否则用整段匹配作为
-	// 写入 attach.visited 的 key；未配置则用原文。组件本身不做任何业务文案归一。
+	// 写入 attach.visited 的 key；未配置则用原文。配置后黑名单会额外容忍 key 后的非数字尾噪。
 	KeyRegex string `json:"key_regex"`
-	// BlacklistPrefix 可选。拼进负向黑名单：^(?!<prefix>(?:key1|key2)<suffix>$)。
-	// 默认空串表示 key 从字符串开头匹配；业务若 key 可能出现在中间（如备注名包裹），可传 ".*"。
-	BlacklistPrefix string `json:"blacklist_prefix"`
-	// BlacklistSuffix 可选。拼进负向黑名单：^(?!<prefix>(?:key1|key2)<suffix>$)。
-	// 默认空串即精确到末尾；业务若要容忍 key 后的 OCR 尾噪，自行传入如 "(?:\\D.*)?"。
-	BlacklistSuffix string `json:"blacklist_suffix"`
 }
 
 // Run implements maa.CustomRecognitionRunner.
@@ -77,7 +71,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		log.Error().Err(err).Str("component", componentName).Str("node", visitedOwner).Msg("load visited failed")
 		return nil, false
 	}
-	if err := injectBlacklist(ctx, ocrNode, visited, p.BlacklistPrefix, p.BlacklistSuffix); err != nil {
+	if err := injectBlacklist(ctx, ocrNode, visited, p.KeyRegex != ""); err != nil {
 		log.Error().Err(err).Str("component", componentName).Msg("inject expected blacklist failed")
 		return nil, false
 	}
@@ -151,22 +145,9 @@ func parseParams(raw string) (params, error) {
 	}
 	p.VisitedNode = strings.TrimSpace(p.VisitedNode)
 	p.KeyRegex = strings.TrimSpace(p.KeyRegex)
-	p.BlacklistPrefix = strings.TrimSpace(p.BlacklistPrefix)
-	p.BlacklistSuffix = strings.TrimSpace(p.BlacklistSuffix)
 	if p.KeyRegex != "" {
 		if _, err := regexp.Compile(p.KeyRegex); err != nil {
 			return params{}, fmt.Errorf("key_regex: %w", err)
-		}
-	}
-	if p.BlacklistPrefix != "" {
-		if _, err := regexp.Compile(p.BlacklistPrefix); err != nil {
-			return params{}, fmt.Errorf("blacklist_prefix: %w", err)
-		}
-	}
-	if p.BlacklistSuffix != "" {
-		// 仅校验可作为正则片段嵌入；完整黑名单形如 ^(?!<prefix>(?:a|b)<suffix>$)
-		if _, err := regexp.Compile("^(?:" + p.BlacklistSuffix + ")$"); err != nil {
-			return params{}, fmt.Errorf("blacklist_suffix: %w", err)
 		}
 	}
 	return p, nil
@@ -227,12 +208,12 @@ func namedChild(allOf []json.RawMessage, boxIndex int) (string, error) {
 	return name, nil
 }
 
-func injectBlacklist(ctx *maa.Context, ocrNode string, visited []string, blacklistPrefix, blacklistSuffix string) error {
+func injectBlacklist(ctx *maa.Context, ocrNode string, visited []string, allowTrailingNoise bool) error {
 	raw, err := ctx.GetNodeJSON(ocrNode)
 	if err != nil {
 		return err
 	}
-	base, err := readExpected(raw, blacklistPrefix, blacklistSuffix)
+	base, err := readExpected(raw, allowTrailingNoise)
 	if err != nil {
 		return fmt.Errorf("node %s: %w", ocrNode, err)
 	}
@@ -241,11 +222,11 @@ func injectBlacklist(ctx *maa.Context, ocrNode string, visited []string, blackli
 	}
 	// 只覆盖 expected；order_by 等字段由框架保留原值。
 	return ctx.OverridePipeline(map[string]any{
-		ocrNode: map[string]any{"expected": withBlacklist(base, visited, blacklistPrefix, blacklistSuffix)},
+		ocrNode: map[string]any{"expected": withBlacklist(base, visited, allowTrailingNoise)},
 	})
 }
 
-func readExpected(raw string, blacklistPrefix, blacklistSuffix string) ([]string, error) {
+func readExpected(raw string, allowTrailingNoise bool) ([]string, error) {
 	var node struct {
 		Expected    any             `json:"expected"`
 		Recognition json.RawMessage `json:"recognition"`
@@ -272,7 +253,7 @@ func readExpected(raw string, blacklistPrefix, blacklistSuffix string) ([]string
 		}
 	}
 	for i := range expected {
-		expected[i] = stripBlacklistPrefix(strings.TrimSpace(expected[i]), blacklistPrefix, blacklistSuffix)
+		expected[i] = stripBlacklistPrefix(strings.TrimSpace(expected[i]), allowTrailingNoise)
 	}
 	return expected, nil
 }
@@ -304,18 +285,20 @@ func asStringList(raw any) ([]string, error) {
 	}
 }
 
-func stripBlacklistPrefix(pattern, blacklistPrefix, blacklistSuffix string) string {
-	// 剥掉本组件注入的 ^(?!<prefix>(?:alts)<suffix>$)；prefix/suffix 按字面嵌入（QuoteMeta）。
-	re := regexp.MustCompile(
-		`^\^\(\?!` + regexp.QuoteMeta(blacklistPrefix) + `\(\?:(?:[^\\]|\\.)*?\)` + regexp.QuoteMeta(blacklistSuffix) + `\$\)`,
-	)
+func stripBlacklistPrefix(pattern string, allowTrailingNoise bool) string {
+	suffix := ""
+	if allowTrailingNoise {
+		suffix = trailingNoiseSuffix
+	}
+	// 剥掉 ^(?!(?:alts)<optional trailing>$)
+	re := regexp.MustCompile(`^\^\(\?!\(\?:(?:[^\\]|\\.)*?\)` + regexp.QuoteMeta(suffix) + `\$\)`)
 	if loc := re.FindStringIndex(pattern); loc != nil {
 		return pattern[loc[1]:]
 	}
 	return pattern
 }
 
-func withBlacklist(base, visited []string, blacklistPrefix, blacklistSuffix string) []string {
+func withBlacklist(base, visited []string, allowTrailingNoise bool) []string {
 	escaped := make([]string, 0, len(visited))
 	for _, v := range visited {
 		v = strings.TrimSpace(v)
@@ -325,7 +308,11 @@ func withBlacklist(base, visited []string, blacklistPrefix, blacklistSuffix stri
 	}
 	prefix := ""
 	if len(escaped) > 0 {
-		prefix = fmt.Sprintf("^(?!%s(?:%s)%s$)", blacklistPrefix, strings.Join(escaped, "|"), blacklistSuffix)
+		suffix := ""
+		if allowTrailingNoise {
+			suffix = trailingNoiseSuffix
+		}
+		prefix = fmt.Sprintf("^(?!(?:%s)%s$)", strings.Join(escaped, "|"), suffix)
 	}
 	out := make([]string, 0, len(base))
 	for _, item := range base {

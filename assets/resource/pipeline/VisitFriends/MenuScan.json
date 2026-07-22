@@ -49,10 +49,8 @@
         "custom_recognition_param": {
             "candidate": "VisitFriendsRecognitionItemWithRemark",
             "visited_node": "VisitFriendsMenuScanVisited",
-            // 备注形如 小明(Alice#1001)，普通形如 Alice#1001；捕获组抽出 Name#UID，前后缀容忍括号/尾噪。
-            "key_regex": "\\(?([^()]*\\#\\d+)\\)?",
-            "blacklist_prefix": ".*",
-            "blacklist_suffix": "(?:\\D.*)?"
+            // 备注形如 小明(Alice#1001)；按第一个 )／）截断，去掉 ) 后 OCR 尾噪。
+            "key_regex": ".*?[)）]"
         }
     },
     "VisitFriendsMenuScanSelectFriendConsumable": {
@@ -62,10 +60,8 @@
         "custom_recognition_param": {
             "candidate": "VisitFriendsRecognitionItemWithName",
             "visited_node": "VisitFriendsMenuScanVisited",
-            // 备注形如 小明(Alice#1001)，普通形如 Alice#1001；捕获组抽出 Name#UID，前后缀容忍括号/尾噪。
-            "key_regex": "\\(?([^()]*\\#\\d+)\\)?",
-            "blacklist_prefix": ".*",
-            "blacklist_suffix": "(?:\\D.*)?"
+            // 普通形如 Alice#1001；截到 #数字，去掉 UID 后 OCR 尾噪（Alice#1001小）。
+            "key_regex": ".*?\\#\\d+"
         }
     },
     "VisitFriendsMenuScanTargetFriendOpenRemark": {
