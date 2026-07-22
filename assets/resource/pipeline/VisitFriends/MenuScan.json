@@ -16,7 +16,7 @@
     },
     "VisitFriendsAssistFullInit": {
         "desc": "三舱助力均未勾选时：仅将 AssistCountZero 设为 DirectHit，复用 AssistFull 的关闭/线索模板覆盖",
-        "enabled": true,
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -48,7 +48,11 @@
         "custom_recognition": "ExpendableRecognition",
         "custom_recognition_param": {
             "candidate": "VisitFriendsRecognitionItemWithRemark",
-            "visited_node": "VisitFriendsMenuScanVisited"
+            "visited_node": "VisitFriendsMenuScanVisited",
+            // 备注形如 小明(Alice#1001)，普通形如 Alice#1001；捕获组抽出 Name#UID，前后缀容忍括号/尾噪。
+            "key_regex": "\\(?([^()]*\\#\\d+)\\)?",
+            "blacklist_prefix": ".*",
+            "blacklist_suffix": "(?:\\D.*)?"
         }
     },
     "VisitFriendsMenuScanSelectFriendConsumable": {
@@ -57,7 +61,11 @@
         "custom_recognition": "ExpendableRecognition",
         "custom_recognition_param": {
             "candidate": "VisitFriendsRecognitionItemWithName",
-            "visited_node": "VisitFriendsMenuScanVisited"
+            "visited_node": "VisitFriendsMenuScanVisited",
+            // 备注形如 小明(Alice#1001)，普通形如 Alice#1001；捕获组抽出 Name#UID，前后缀容忍括号/尾噪。
+            "key_regex": "\\(?([^()]*\\#\\d+)\\)?",
+            "blacklist_prefix": ".*",
+            "blacklist_suffix": "(?:\\D.*)?"
         }
     },
     "VisitFriendsMenuScanTargetFriendOpenRemark": {
