@@ -1,0 +1,28 @@
+{
+    "configs": {
+        "name": "(Win32-官服)拜访好友列表选友",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            // 可见名「不想起名字#9203」：备注链路反例；普通选友与滚动名正例
+            "name": "自己：普通选友与滚动名可命中（备注链路不应命中）",
+            "image": "拜访好友_好友列表_自己.png",
+            "hits": [
+                "VisitFriendsMenuScanTargetFriendOpen",
+                "VisitFriendsRecognitionItemWithNameForScroll"
+            ]
+        },
+        {
+            // 可见名「测试(不想起名字#9203)」：备注与普通选友均可；滚动名可命中
+            "name": "自己备注：备注与普通选友均可，滚动名可命中",
+            "image": "拜访好友_好友列表_自己备注.png",
+            "hits": [
+                "VisitFriendsMenuScanTargetFriendOpenRemark",
+                "VisitFriendsMenuScanTargetFriendOpen",
+                "VisitFriendsRecognitionItemWithNameForScroll"
+            ]
+        }
+    ]
+}
