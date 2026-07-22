@@ -314,52 +314,52 @@
             1220,
             116,
             27,
-            227
+            228
         ]
     },
     "TrialOfSwordmancyDeckCount1": {
         "desc": "[go] 牌库点数1库存数",
         "roi": [
-            1220,
-            116,
-            27,
-            33
+            1218,
+            113,
+            31,
+            38
         ]
     },
     "TrialOfSwordmancyDeckCount2": {
         "desc": "[go] 牌库点数2库存数",
         "roi": [
-            1219,
-            168,
-            30,
-            27
+            1218,
+            162,
+            31,
+            38
         ]
     },
     "TrialOfSwordmancyDeckCount3": {
         "desc": "[go] 牌库点数3库存数",
         "roi": [
             1218,
-            215,
-            30,
-            30
+            211,
+            31,
+            38
         ]
     },
     "TrialOfSwordmancyDeckCount4": {
         "desc": "[go] 牌库点数4库存数",
         "roi": [
-            1219,
-            265,
-            30,
-            29
+            1218,
+            260,
+            31,
+            38
         ]
     },
     "TrialOfSwordmancyDeckCount5": {
         "desc": "[go] 牌库点数5库存数",
         "roi": [
-            1219,
-            312,
-            28,
-            31
+            1218,
+            309,
+            31,
+            38
         ]
     },
     "TrialOfSwordmancyAbandPopup": {
