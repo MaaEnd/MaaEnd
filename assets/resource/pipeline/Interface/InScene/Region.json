@@ -283,43 +283,53 @@
             }
         }
     },
+    "CheckMenuListText": {
+        "desc": "检查菜单列表界面 FIELD/ENDFIELD 文字",
+        "recognition": "OCR",
+        "roi": [
+            420,
+            -100,
+            450,
+            100
+        ],
+        "expected": [
+            "FIELD",
+            "ENDFIELD"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckMenuListColor": {
+        "desc": "检查菜单列表界面左上角颜色",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            -200,
+            200,
+            200
+        ],
+        "lower": [
+            90,
+            35,
+            35
+        ],
+        "upper": [
+            191,
+            83,
+            85
+        ],
+        "count": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "InMenuList": {
         "desc": "在菜单列表界面",
         "recognition": "And",
         "all_of": [
-            {
-                "recognition": "OCR",
-                "roi": [
-                    420,
-                    -100,
-                    450,
-                    100
-                ],
-                "expected": [
-                    "FIELD",
-                    "ENDFIELD"
-                ]
-            },
-            {
-                "recognition": "ColorMatch",
-                "roi": [
-                    0,
-                    -200,
-                    200,
-                    200
-                ],
-                "lower": [
-                    90,
-                    35,
-                    35
-                ],
-                "upper": [
-                    191,
-                    83,
-                    85
-                ],
-                "count": 100
-            }
+            "CheckMenuListText",
+            "CheckMenuListColor"
         ]
     },
     "InNoticeRewards": {
