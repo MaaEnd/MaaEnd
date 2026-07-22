@@ -896,12 +896,12 @@
             8.1
         ],
         "MapGoal": [
-            594.4,
-            324.1
+            581.4,
+            305.1
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenRight",
-        "CameraMaxHit": 1,
-        "Heading": 334
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "CameraMaxHit": 4,
+        "Heading": 180
     },
     {
         "MissionId": "m1m70",
