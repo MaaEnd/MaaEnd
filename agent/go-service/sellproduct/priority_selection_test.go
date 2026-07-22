@@ -10,6 +10,7 @@ import (
 // TestPriorityItemRegistrationKeepsFirstSlotAndResetClearsItems 验证优先物品按首次登记顺序保存，重置后全部清空。
 func TestPriorityItemRegistrationKeepsFirstSlotAndResetClearsItems(t *testing.T) {
 	resetPrioritySelectionSession()
+	configurePrioritySession(true)
 	if !registerPriorityItem("item_a") || !registerPriorityItem("item_b") {
 		t.Fatal("新优先物品应登记成功")
 	}
@@ -25,8 +26,52 @@ func TestPriorityItemRegistrationKeepsFirstSlotAndResetClearsItems(t *testing.T)
 	}
 }
 
+// TestPriorityConfigurationAndRegionResetAreIndependent 验证总开关只控制优先表是否生效，
+// 地区切换只清空优先表，不会清除据点尝试状态或任务级缺货记录。
+func TestPriorityConfigurationAndRegionResetAreIndependent(t *testing.T) {
+	resetPrioritySelectionSession()
+	registerPriorityItem("item_a")
+	if got := priorityItemsSnapshot(); len(got) != 0 {
+		t.Fatalf("总开关关闭时不应应用优先物品：%v", got)
+	}
+
+	configurePrioritySession(true)
+	prioritySelectionSetPending("OutpostA", "item_a")
+	if _, ok := prioritySelectionCommit("OutpostA"); !ok {
+		t.Fatal("据点 A 的待选物品应提交成功")
+	}
+	if _, _, ok := prioritySelectionMarkOutOfStock("OutpostA"); !ok {
+		t.Fatal("据点 A 的已提交物品应可标记为缺货")
+	}
+
+	resetPreferredPriorityItems()
+	registerPriorityItem("item_b")
+	if got := priorityItemsSnapshot(); !reflect.DeepEqual(got, []string{"item_b"}) {
+		t.Fatalf("地区切换后的优先物品 = %v，期望 [item_b]", got)
+	}
+	attempted, outOfStock, _ := prioritySelectionSnapshot("OutpostA")
+	if _, ok := attempted["item_a"]; !ok {
+		t.Fatalf("地区切换后丢失据点尝试状态：%v", attempted)
+	}
+	if _, ok := outOfStock["item_a"]; !ok {
+		t.Fatalf("地区切换后丢失任务级缺货状态：%v", outOfStock)
+	}
+}
+
 // TestParsePrioritySessionActionParamByOperation 验证登记、提交和缺货操作分别校验所需参数。
 func TestParsePrioritySessionActionParamByOperation(t *testing.T) {
+	configure, err := parsePrioritySessionActionParam(&maa.CustomActionArg{
+		CustomActionParam: `{"operation":"configure","enabled":true}`,
+	})
+	if err != nil || !configure.Enabled {
+		t.Fatalf("总开关参数 = %+v，错误 = %v", configure, err)
+	}
+	resetItems, err := parsePrioritySessionActionParam(&maa.CustomActionArg{
+		CustomActionParam: `{"operation":"reset_preferred"}`,
+	})
+	if err != nil || resetItems.Operation != priorityOperationResetItems {
+		t.Fatalf("地区切换参数 = %+v，错误 = %v", resetItems, err)
+	}
 	register, err := parsePrioritySessionActionParam(&maa.CustomActionArg{
 		CustomActionParam: `{"operation":"register","item_id":"item_a"}`,
 	})

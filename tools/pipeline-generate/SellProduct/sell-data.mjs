@@ -9,7 +9,7 @@ export const sellProductSellRows = sellProductRegions.map((region) => {
         RegionPrefix: region.RegionPrefix,
         RegionDesc: region.RegionDesc,
         SellNext: [
-            `[Anchor]SellProduct${region.RegionPrefix}PrepareOperatorCache`,
+            `[Anchor]SellProduct${region.RegionPrefix}InitializePrioritySession`,
             ...outpostNext,
         ],
         PrepareNext: [

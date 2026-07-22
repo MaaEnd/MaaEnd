@@ -5,13 +5,7 @@
             "label": "$task.SellProduct.label",
             "entry": "SellProductSchedule",
             "description": "$task.SellProduct.description",
-            "option": [
-                "SellProductSchedule",
-                "SellProductOperatorAutoSwitch",
-                "SellProductPriorityRules",
-                "SellProductItemReserveRules",
-                "${RegionPrefix}Sell"
-            ],
+            "option": "${TaskOptions}",
             "controller": [
                 "Win32-Front",
                 "ADB",
@@ -124,37 +118,44 @@
             "default_case": "No",
             "cases": "${PriorityRuleSwitchCases}"
         },
-        "SellProductPriorityItem1": {
+        "SellProduct${RegionPrefix}PriorityRules": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityRules${RegionPrefix}",
+            "description": "$task.SellProduct.PriorityRegionDescription",
+            "default_case": "No",
+            "cases": "${RegionPriorityRuleSwitchCases}"
+        },
+        "SellProduct${RegionPrefix}PriorityItem1": {
             "type": "select",
             "label": "$task.SellProduct.PriorityItem1",
             "default_case": "None",
             "cases": "${PriorityItemCases1}"
         },
-        "SellProductPriorityItem2": {
+        "SellProduct${RegionPrefix}PriorityItem2": {
             "type": "select",
             "label": "$task.SellProduct.PriorityItem2",
             "default_case": "None",
             "cases": "${PriorityItemCases2}"
         },
-        "SellProductPriorityItem3": {
+        "SellProduct${RegionPrefix}PriorityItem3": {
             "type": "select",
             "label": "$task.SellProduct.PriorityItem3",
             "default_case": "None",
             "cases": "${PriorityItemCases3}"
         },
-        "SellProductPriorityItem4": {
+        "SellProduct${RegionPrefix}PriorityItem4": {
             "type": "select",
             "label": "$task.SellProduct.PriorityItem4",
             "default_case": "None",
             "cases": "${PriorityItemCases4}"
         },
-        "SellProductPriorityItem5": {
+        "SellProduct${RegionPrefix}PriorityItem5": {
             "type": "select",
             "label": "$task.SellProduct.PriorityItem5",
             "default_case": "None",
             "cases": "${PriorityItemCases5}"
         },
-        "SellProductPriorityItem6": {
+        "SellProduct${RegionPrefix}PriorityItem6": {
             "type": "select",
             "label": "$task.SellProduct.PriorityItem6",
             "default_case": "None",

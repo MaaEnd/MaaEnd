@@ -17,6 +17,8 @@ const (
 
 	priorityResultSelect        = "select"
 	priorityResultExhausted     = "exhausted"
+	priorityOperationConfigure  = "configure"
+	priorityOperationResetItems = "reset_preferred"
 	priorityOperationRegister   = "register"
 	priorityOperationCommit     = "commit"
 	priorityOperationOutOfStock = "out_of_stock"
@@ -29,6 +31,7 @@ type priorityItemRecognitionParam struct {
 
 type prioritySessionActionParam struct {
 	Operation string `json:"operation"`
+	Enabled   bool   `json:"enabled,omitempty"`
 	Location  string `json:"location,omitempty"`
 	ItemID    string `json:"item_id,omitempty"`
 }
@@ -39,6 +42,7 @@ type priorityExhaustionObservation struct {
 }
 
 type prioritySelectionSessionState struct {
+	Enabled    bool
 	Preferred  []string
 	Attempted  map[string]map[string]struct{}
 	Pending    map[string]string
@@ -132,8 +136,8 @@ func (r *PriorityItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 	}
 }
 
-// PrioritySessionAction 在初始化阶段登记用户优先级，在 Pipeline 确认换货后提交待选结果，
-// 并在 Pipeline 确认缺货时把当前物品加入本次任务共享的缺货集合。
+// PrioritySessionAction 在初始化阶段配置总开关，进入地区时切换该地区的用户优先级，
+// 在 Pipeline 确认换货后提交待选结果，并在确认缺货时维护任务级共享缺货集合。
 type PrioritySessionAction struct{}
 
 var _ maa.CustomActionRunner = (*PrioritySessionAction)(nil)
@@ -145,6 +149,15 @@ func (a *PrioritySessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		return false
 	}
 	switch param.Operation {
+	case priorityOperationConfigure:
+		configurePrioritySession(param.Enabled)
+		log.Info().Str("component", prioritySessionActionName).
+			Bool("enabled", param.Enabled).
+			Msg("priority selling configured")
+		return true
+	case priorityOperationResetItems:
+		resetPreferredPriorityItems()
+		return true
 	case priorityOperationRegister:
 		if param.ItemID == "" {
 			log.Debug().Str("component", prioritySessionActionName).
@@ -216,6 +229,7 @@ func parsePrioritySessionActionParam(arg *maa.CustomActionArg) (*prioritySession
 	param.Location = strings.TrimSpace(param.Location)
 	param.ItemID = strings.TrimSpace(param.ItemID)
 	switch param.Operation {
+	case priorityOperationConfigure, priorityOperationResetItems:
 	case priorityOperationRegister:
 	case priorityOperationCommit, priorityOperationOutOfStock:
 		if param.Location == "" {
@@ -229,6 +243,7 @@ func parsePrioritySessionActionParam(arg *maa.CustomActionArg) (*prioritySession
 
 func newPrioritySelectionSessionState() prioritySelectionSessionState {
 	return prioritySelectionSessionState{
+		Enabled:    false,
 		Preferred:  []string{},
 		Attempted:  map[string]map[string]struct{}{},
 		Pending:    map[string]string{},
@@ -254,6 +269,9 @@ func registerPriorityItem(itemID string) bool {
 func priorityItemsSnapshot() []string {
 	prioritySelectionMu.Lock()
 	defer prioritySelectionMu.Unlock()
+	if !prioritySelection.Enabled {
+		return nil
+	}
 	return append([]string{}, prioritySelection.Preferred...)
 }
 
@@ -271,6 +289,20 @@ func resetPrioritySelectionSession() {
 	prioritySelectionMu.Lock()
 	defer prioritySelectionMu.Unlock()
 	prioritySelection = newPrioritySelectionSessionState()
+}
+
+func configurePrioritySession(enabled bool) {
+	prioritySelectionMu.Lock()
+	defer prioritySelectionMu.Unlock()
+	prioritySelection.Enabled = enabled
+}
+
+// resetPreferredPriorityItems 只切换当前地区的优先表，保留任务内已尝试物品、
+// 待提交状态和共享缺货集合，避免进入下一个地区时丢失已经确认的运行状态。
+func resetPreferredPriorityItems() {
+	prioritySelectionMu.Lock()
+	defer prioritySelectionMu.Unlock()
+	prioritySelection.Preferred = []string{}
 }
 
 func prioritySelectionSnapshot(location string) (map[string]struct{}, map[string]struct{}, string) {

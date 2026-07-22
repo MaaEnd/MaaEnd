@@ -19,26 +19,30 @@ SellProductSchedule                                  （Task 入口，按星期�
             └─ SellProductCaptureUid                 （捕获哈希 UID，隔离账号缓存）
                  └─ SellProductInitializeReserveSession （清空上次任务的保留/选品状态）
                       └─ SellProductRegisterReserveRule{1..6} （固定串联，空槽位直接跳过）
-                           └─ SellProductRegisterPriorityItem{1..6} （固定串联，空槽位直接跳过）
+                           └─ SellProductConfigurePrioritySession （记录独立的优先售卖总开关）
                                 └─ SellProductInitializeOperatorSession （初始化干员规划与恢复锁）
                                      └─ SellProductRegisterLocation{LocationId} × N （固定串联，非活跃据点直接跳过）
                                           └─ SellProductOperatorSessionReady
                                                └─ SellProductLoop         （进入地区遍历）
 ```
 
-保留规则和优先物品的 12 个注册节点始终启用，并按槽位顺序固定串联。任务选项只覆盖已配置槽位的稳定 `itemId`；未配置槽位保留空 `item_id`，Custom Action 将其作为 no-op 成功跳过。据点注册节点同样固定串联，任务选项只把启用据点的 `active` 参数设为 `true`，非活跃据点直接 no-op。两段初始化流程均无需为任意启用组合维护逐层缩短的 `next` 候选列表。
+6 个保留规则注册节点始终启用，并按槽位顺序固定串联。任务选项只覆盖已配置槽位的稳定 `itemId`；未配置槽位保留空 `item_id`，Custom Action 将其作为 no-op 成功跳过。随后独立记录优先售卖总开关。据点注册节点同样固定串联，任务选项只把启用据点的 `active` 参数设为 `true`，非活跃据点直接 no-op。两段初始化流程均无需为任意启用组合维护逐层缩短的 `next` 候选列表。
 
 `SellProductLoop` 始终按“四号谷地 → 武陵”的固定地区顺序执行；地区内据点也按生成模型中的固定顺序执行。未启用地区或据点由对应入口直接跳过，因此相同的启用组合总会得到相同的售卖顺序。地区入口通过 SceneManager 进入据点管理页，准备干员缓存，再用 `[JumpBack]` 依次执行该地区的据点：
 
 ```text
 SellProductLoop                                      （地区建设主循环）
   ├─ SellProductValleyIVSell                         （进入四号谷地据点管理）
-  │    ├─ [Anchor]SellProductValleyIVPrepareOperatorCache （准备干员缓存）
+  │    ├─ [Anchor]SellProductValleyIVInitializePrioritySession
+  │    │    └─ SellProductValleyIVRegisterPriorityItem{1..6} （切换地区优先表）
+  │    ├─ SellProductValleyIVPrepareOperatorCache    （准备干员缓存）
   │    └─ [JumpBack]SellProductRefugeeCamp → SellProductInfraStation
   │       → SellProductReconstructionHQ
   │         （通过 JumpBack 依次执行三个据点）
   ├─ SellProductWulingSell                           （进入武陵据点管理）
-  │    ├─ [Anchor]SellProductWulingPrepareOperatorCache （准备/复用干员缓存）
+  │    ├─ [Anchor]SellProductWulingInitializePrioritySession
+  │    │    └─ SellProductWulingRegisterPriorityItem{1..6} （切换地区优先表）
+  │    ├─ SellProductWulingPrepareOperatorCache      （准备/复用干员缓存）
   │    └─ [JumpBack]SellProductSkyKingFlatsConstructionSite
   │       → SellProductCardiacRemediationStation → SellProductXiranflowCloudseederStation
   │         （通过 JumpBack 依次执行三个据点）
@@ -161,7 +165,7 @@ SellProduct 缓存统一保存在 `debug/record/SellProductCache.json`，按哈�
 2. 单价降序；
 3. 同值保留数据源中的稳定顺序。
 
-任务配置提供一个默认关闭的优先售卖开关，开启后展开 6 个直接调整该列表的优先级槽位。已配置物品按槽位 1 至 6 移到默认列表最前面；不属于当前据点的物品自动跳过，同一物品重复配置时只保留最靠前的槽位，其余物品继续保持上述默认顺序。
+任务配置提供一个默认关闭、与地区售卖开关互不耦合的优先售卖总开关。开启后展开四号谷地和武陵两个地区优先配置开关；各地区分别展开 6 个槽位，并只列出本地区至少一个据点可售的物品。总开关只决定运行时是否应用这些配置，不清空地区选项，也不启用或停用任何地区的售卖流程。进入地区时，Pipeline 将当前优先表切换为该地区的配置；已配置物品按槽位 1 至 6 移到默认列表最前面，同一物品重复配置时只保留最靠前的槽位，其余物品继续保持上述默认顺序。切换地区不会清空任务级缺货集合或其他据点的已尝试状态。
 
 任务运行期间，确认进入每个据点后，UI 会输出该据点的售卖干员目标、售后生产派驻目标、实际计划售卖顺序、因本次任务已确认缺货而排除的物品、用户配置为永不售卖的物品，以及适用的保留规则；未列出的物品默认全部售卖。随后在状态确认后显示干员实际沿用或切换结果、当前货品和交易完成状态。当前据点新确认物品缺货时，会立即显示物品名与据点名。干员已在其他据点派驻时会显示来源据点是否由本次任务管理；受保护候选被排除并重新规划时也会记录原因。完整扫描产生新方案时显示据点、用途和新干员。售卖干员不可用、干员扫描失败以及售后生产干员不可用并跳过派驻时也会显示对应结果。任务内的 UI 提示均使用当前客户端语言。
 

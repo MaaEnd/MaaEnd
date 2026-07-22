@@ -11,17 +11,128 @@
             ]
         },
         "anchor": {
-            "SellProductValleyIVPrepareOperatorCache": "SellProductValleyIVPrepareOperatorCache"
+            "SellProductValleyIVInitializePrioritySession": "SellProductValleyIVInitializePrioritySession"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]SellProductValleyIVPrepareOperatorCache",
+            "[Anchor]SellProductValleyIVInitializePrioritySession",
             "[JumpBack]SellProductRefugeeCamp",
             "[JumpBack]SellProductInfraStation",
             "[JumpBack]SellProductReconstructionHQ",
             "SellProductLoop",
             "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    },
+    "SellProductValleyIVInitializePrioritySession": {
+        "desc": "切换四号谷地优先售卖配置",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "reset_preferred"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductValleyIVRegisterPriorityItem1"
+        ]
+    },
+    "SellProductValleyIVRegisterPriorityItem1": {
+        "desc": "注册四号谷地第1个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductValleyIVRegisterPriorityItem2"
+        ]
+    },
+    "SellProductValleyIVRegisterPriorityItem2": {
+        "desc": "注册四号谷地第2个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductValleyIVRegisterPriorityItem3"
+        ]
+    },
+    "SellProductValleyIVRegisterPriorityItem3": {
+        "desc": "注册四号谷地第3个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductValleyIVRegisterPriorityItem4"
+        ]
+    },
+    "SellProductValleyIVRegisterPriorityItem4": {
+        "desc": "注册四号谷地第4个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductValleyIVRegisterPriorityItem5"
+        ]
+    },
+    "SellProductValleyIVRegisterPriorityItem5": {
+        "desc": "注册四号谷地第5个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductValleyIVRegisterPriorityItem6"
+        ]
+    },
+    "SellProductValleyIVRegisterPriorityItem6": {
+        "desc": "注册四号谷地第6个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductValleyIVPrepareOperatorCache"
         ]
     },
     "SellProductValleyIVPrepareOperatorCache": {
@@ -58,17 +169,128 @@
             ]
         },
         "anchor": {
-            "SellProductWulingPrepareOperatorCache": "SellProductWulingPrepareOperatorCache"
+            "SellProductWulingInitializePrioritySession": "SellProductWulingInitializePrioritySession"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]SellProductWulingPrepareOperatorCache",
+            "[Anchor]SellProductWulingInitializePrioritySession",
             "[JumpBack]SellProductSkyKingFlatsConstructionSite",
             "[JumpBack]SellProductCardiacRemediationStation",
             "[JumpBack]SellProductXiranflowCloudseederStation",
             "SellProductLoop",
             "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    },
+    "SellProductWulingInitializePrioritySession": {
+        "desc": "切换武陵优先售卖配置",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "reset_preferred"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductWulingRegisterPriorityItem1"
+        ]
+    },
+    "SellProductWulingRegisterPriorityItem1": {
+        "desc": "注册武陵第1个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductWulingRegisterPriorityItem2"
+        ]
+    },
+    "SellProductWulingRegisterPriorityItem2": {
+        "desc": "注册武陵第2个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductWulingRegisterPriorityItem3"
+        ]
+    },
+    "SellProductWulingRegisterPriorityItem3": {
+        "desc": "注册武陵第3个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductWulingRegisterPriorityItem4"
+        ]
+    },
+    "SellProductWulingRegisterPriorityItem4": {
+        "desc": "注册武陵第4个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductWulingRegisterPriorityItem5"
+        ]
+    },
+    "SellProductWulingRegisterPriorityItem5": {
+        "desc": "注册武陵第5个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductWulingRegisterPriorityItem6"
+        ]
+    },
+    "SellProductWulingRegisterPriorityItem6": {
+        "desc": "注册武陵第6个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductWulingPrepareOperatorCache"
         ]
     },
     "SellProductWulingPrepareOperatorCache": {
