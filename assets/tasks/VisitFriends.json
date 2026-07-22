@@ -29,7 +29,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "VisitFriendsMenuScanSelectFriendRemarkConsumable": {
+                        "VisitFriendsMenuScanTargetFriendOpenRemark": {
                             "enabled": true
                         }
                     }
@@ -37,7 +37,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "VisitFriendsMenuScanSelectFriendRemarkConsumable": {
+                        "VisitFriendsMenuScanTargetFriendOpenRemark": {
                             "enabled": false
                         }
                     }

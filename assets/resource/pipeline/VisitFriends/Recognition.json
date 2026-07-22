@@ -93,16 +93,30 @@
         ],
         "box_index": 2
     },
-    "VisitFriendsRecognitionItemEnterButtonByName": {
-        "desc": "以选中好友名框为锚向右偏移，识别该行进船（飞船）图标",
+    "VisitFriendsRecognitionItemEnterButtonByNameRemark": {
+        "desc": "备注选友链路：以备注名框为锚向右偏移，识别该行进船（飞船）图标",
         // 与 NameByEnterButtonForScroll 相对 EnterButton 的 [-1069,-29,218,5] 反向；w/h 略放宽以容 OCR 框抖动
         "recognition": "TemplateMatch",
-        "roi": "VisitFriendsMenuScanSelectFriendOr",
+        "roi": "VisitFriendsMenuScanSelectFriendRemarkConsumable",
         "roi_offset": [
-            1069,
-            29,
-            -38,
-            55
+            956,
+            -18,
+            33,
+            106
+        ],
+        "template": "VisitFriends/EnterButton.png",
+        "threshold": 0.9
+    },
+    "VisitFriendsRecognitionItemEnterButtonByName": {
+        "desc": "普通选友链路：以好友名框为锚向右偏移，识别该行进船（飞船）图标",
+        // 与 NameByEnterButtonForScroll 相对 EnterButton 的 [-1069,-29,218,5] 反向；w/h 略放宽以容 OCR 框抖动
+        "recognition": "TemplateMatch",
+        "roi": "VisitFriendsMenuScanSelectFriendConsumable",
+        "roi_offset": [
+            956,
+            -18,
+            33,
+            106
         ],
         "template": "VisitFriends/EnterButton.png",
         "threshold": 0.9

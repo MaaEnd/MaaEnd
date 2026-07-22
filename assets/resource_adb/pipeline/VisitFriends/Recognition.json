@@ -44,6 +44,15 @@
             }
         }
     },
+    "VisitFriendsRecognitionItemEnterButtonByNameRemark": {
+        // 与 NameByEnterButtonForScroll 相对 EnterButton 的 [-927,-38,261,5] 反向；w/h 略放宽
+        "roi_offset": [
+            927,
+            38,
+            -81,
+            55
+        ]
+    },
     "VisitFriendsRecognitionItemEnterButtonByName": {
         // 与 NameByEnterButtonForScroll 相对 EnterButton 的 [-927,-38,261,5] 反向；w/h 略放宽
         "roi_offset": [
