@@ -63,7 +63,7 @@ SellProduct{LocationId}                              （识别/进入目标据�
                                      └─ [Anchor]SellProductAfterSellOperatorTarget
 ```
 
-据点管理未解锁时，`SellProductOutpostLocked` 返回地区主循环；超出据点可兑换调度券上限时，`SellProductAidQuotaExceededStop` 停止整个任务。超限弹窗不自动确认。
+据点管理未解锁时，SceneManager 会让进入据点管理失败并终止任务；超出据点可兑换调度券上限时，`SellProductAidQuotaExceededStop` 停止整个任务。超限弹窗不自动确认。
 
 ## 自动选择干员规则
 

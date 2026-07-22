@@ -166,10 +166,7 @@ test("SellProduct region entry rows contain every generated location", () => {
             "[JumpBack]SceneEnterMenuRegionalDevelopment",
         );
         assert.deepEqual(row.SellNext, [`SellProduct${region.RegionPrefix}InitializePrioritySession`]);
-        assert.deepEqual(row.PrepareNext, [
-            "SellProductOutpostLocked",
-            ...outpostNext,
-        ]);
+        assert.deepEqual(row.PrepareNext, outpostNext);
     }
 });
 

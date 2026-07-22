@@ -624,7 +624,6 @@
     "task.SellProduct.regionToggleDescription": "启用或停用该地区的售卖任务",
     "task.SellProduct.TaskEnd": "🏁 售卖任务已完成",
     "task.SellProduct.aid_quota_exceeded": "援助物品超出该据点可兑换调度券上限，部分物品仅能兑换援助成果券。请在游戏内调整交易或确认后重试。",
-    "task.SellProduct.outpost_locked": "🔒 据点管理未解锁",
     "task.SellProduct.product_out_of_stock": "📭 当前货品缺货，继续尝试下一货品",
     "task.SellProduct.vouchers_exhausted": "🎫 当前据点调度券不足，结束本据点售卖",
     "task.SellProduct.trade_completed": "✅ 已完成交易",

@@ -140,7 +140,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductOutpostLocked",
             "[JumpBack]SellProductRefugeeCamp",
             "[JumpBack]SellProductInfraStation",
             "[JumpBack]SellProductReconstructionHQ",
@@ -289,7 +288,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductOutpostLocked",
             "[JumpBack]SellProductSkyKingFlatsConstructionSite",
             "[JumpBack]SellProductCardiacRemediationStation",
             "[JumpBack]SellProductXiranflowCloudseederStation",

@@ -63,7 +63,7 @@ SellProduct{LocationId}                              (recognize/enter the target
                                      └─ [Anchor]SellProductAfterSellOperatorTarget
 ```
 
-When outpost management is locked, `SellProductOutpostLocked` returns to the regional loop. If submitted aid exceeds the outpost's voucher exchange limit, `SellProductAidQuotaExceededStop` stops the entire task. The limit dialog is not confirmed automatically.
+When outpost management is locked, SceneManager fails to enter it and stops the task. If submitted aid exceeds the outpost's voucher exchange limit, `SellProductAidQuotaExceededStop` stops the entire task. The limit dialog is not confirmed automatically.
 
 ## Automatic Operator Rules
 

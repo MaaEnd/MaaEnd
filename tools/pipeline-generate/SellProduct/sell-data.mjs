@@ -9,10 +9,7 @@ export const sellProductSellRows = sellProductRegions.map((region) => {
         RegionPrefix: region.RegionPrefix,
         RegionDesc: region.RegionDesc,
         SellNext: [`SellProduct${region.RegionPrefix}InitializePrioritySession`],
-        PrepareNext: [
-            "SellProductOutpostLocked",
-            ...outpostNext,
-        ],
+        PrepareNext: outpostNext,
     };
 });
 

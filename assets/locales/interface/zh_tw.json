@@ -497,7 +497,6 @@
     "task.SellProduct.regionToggleDescription": "啟用或停用此地區的販售任務",
     "task.SellProduct.TaskEnd": "🏁 售賣任務已完成",
     "task.SellProduct.aid_quota_exceeded": "援助物品超出該據點可兌換調度券上限，部分物品僅能兌換援助成果券。請在遊戲內調整交易或確認後重試。",
-    "task.SellProduct.outpost_locked": "🔒 據點管理未解鎖",
     "task.SellProduct.product_out_of_stock": "📭 當前貨品缺貨，繼續嘗試下一貨品",
     "task.SellProduct.vouchers_exhausted": "🎫 當前據點調度券不足，結束本據點售賣",
     "task.SellProduct.trade_completed": "✅ 已完成交易",

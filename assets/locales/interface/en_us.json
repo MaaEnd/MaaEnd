@@ -704,7 +704,6 @@
     "task.SellProduct.regionToggleDescription": "Enable or disable selling tasks in this region.",
     "task.SellProduct.TaskEnd": "🏁 Sell task completed",
     "task.SellProduct.aid_quota_exceeded": "Aid items exceed this outpost's exchangeable procurement voucher limit; some items can only be exchanged for aid result vouchers. Please adjust or confirm the trade in-game, then retry.",
-    "task.SellProduct.outpost_locked": "🔒 Outpost management is not unlocked",
     "task.SellProduct.product_out_of_stock": "📭 Current goods are out of stock; trying the next item",
     "task.SellProduct.vouchers_exhausted": "🎫 This outpost has insufficient procurement vouchers; ending sales here",
     "task.SellProduct.trade_completed": "✅ Trade completed",

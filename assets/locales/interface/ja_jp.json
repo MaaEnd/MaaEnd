@@ -527,7 +527,6 @@
     "task.SellProduct.ReserveQuantityPattern": "0 以上の整数を入力してください。0 は全数販売を表します。",
     "task.SellProduct.TaskEnd": "🏁 販売タスクが完了しました",
     "task.SellProduct.aid_quota_exceeded": "援護物資が拠点の調達券交換上限を超えています。一部は援護成果券のみ交換可能です。ゲーム内で取引内容を調整または確認してから再実行してください。",
-    "task.SellProduct.outpost_locked": "🔒 拠点管理が未解放です",
     "task.SellProduct.product_out_of_stock": "📭 現在の商品は在庫切れです。次の商品を試します",
     "task.SellProduct.vouchers_exhausted": "🎫 この拠点の調達券が不足しているため、ここでの販売を終了します",
     "task.SellProduct.trade_completed": "✅ 取引が完了しました",
