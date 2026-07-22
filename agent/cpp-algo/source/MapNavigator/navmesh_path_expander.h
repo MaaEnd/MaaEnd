@@ -30,8 +30,7 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const NaviParam& param,
     const std::string& locator_zone,
     const navmesh::WorldPoint& start,
-    const navmesh::WorldPoint& goal,
-    const std::vector<uint32_t>& blocked_triangles = {});
+    const navmesh::WorldPoint& goal);
 float NavmeshFloorYForZone(const NaviParam& param, const std::string& locator_zone);
 bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a, const std::string& zone_b);
 

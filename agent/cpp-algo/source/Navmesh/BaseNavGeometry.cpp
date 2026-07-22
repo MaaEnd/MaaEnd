@@ -52,50 +52,6 @@ WorldPoint ClosestPointOnTriangle(const WorldPoint& point, const std::array<Worl
     });
 }
 
-double TriangleHeuristic(const BaseNavTriangle& lhs, const BaseNavTriangle& rhs)
-{
-    return std::hypot(static_cast<double>(lhs.center_u - rhs.center_u), static_cast<double>(lhs.center_v - rhs.center_v));
-}
-
-WorldPoint TriangleCenter(const BaseNavTriangle& triangle)
-{
-    return WorldPoint { .x = triangle.center_u, .y = triangle.center_v };
-}
-
-std::optional<std::array<WorldPoint, 2>>
-    OverlappingSegmentPortal(const WorldPoint& a, const WorldPoint& b, const WorldPoint& c, const WorldPoint& d)
-{
-    constexpr double kEpsilon = 1e-3;
-    const double ab_x = b.x - a.x;
-    const double ab_y = b.y - a.y;
-    const double length_sq = ab_x * ab_x + ab_y * ab_y;
-    if (length_sq <= kEpsilon * kEpsilon) {
-        return std::nullopt;
-    }
-    const double length = std::sqrt(length_sq);
-    const auto line_distance = [&](const WorldPoint& point) {
-        return std::abs(ab_x * (point.y - a.y) - ab_y * (point.x - a.x)) / length;
-    };
-    if (line_distance(c) > kEpsilon || line_distance(d) > kEpsilon) {
-        return std::nullopt;
-    }
-
-    const auto segment_t = [&](const WorldPoint& point) {
-        return ((point.x - a.x) * ab_x + (point.y - a.y) * ab_y) / length_sq;
-    };
-    const double c_t = segment_t(c);
-    const double d_t = segment_t(d);
-    const double overlap_left = std::max(0.0, std::min(c_t, d_t));
-    const double overlap_right = std::min(1.0, std::max(c_t, d_t));
-    if (overlap_right - overlap_left <= kEpsilon) {
-        return std::nullopt;
-    }
-    return std::array {
-        WorldPoint { .x = a.x + ab_x * overlap_left, .y = a.y + ab_y * overlap_left },
-        WorldPoint { .x = a.x + ab_x * overlap_right, .y = a.y + ab_y * overlap_right },
-    };
-}
-
 std::tuple<double, WorldPoint, WorldPoint>
     ClosestSegmentPoints(const WorldPoint& a, const WorldPoint& b, const WorldPoint& c, const WorldPoint& d)
 {
