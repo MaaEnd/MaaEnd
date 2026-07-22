@@ -497,6 +497,8 @@
     "task.SellProduct.ForceRefreshOperatorCacheDescription": "有効にすると、今回のタスクではオペレーター一覧を最後まで確認してから、有効な全拠点の最適なオペレーターを計算します。",
     "task.SellProduct.PrioritySwitch": "優先販売設定を有効化",
     "task.SellProduct.PriorityDescription": "以下の地域別優先販売設定を適用します。無効にしても地域設定は保持され、すべての商品がレア度と単価順で並びます。",
+    "task.SellProduct.OnlyPreferredItems": "優先商品以外を販売しない",
+    "task.SellProduct.OnlyPreferredItemsDescription": "地域別優先販売を有効にした地域のみ、優先度スロットで明示的に設定した商品だけを販売します。地域別優先販売が無効な地域では通常どおり販売します。",
     "task.SellProduct.PriorityRulesValleyIV": "第4谷地の優先販売設定",
     "task.SellProduct.PriorityRulesWuling": "武陵の優先販売設定",
     "task.SellProduct.PriorityRegionDescription": "この地域の優先度 1～6 を有効にします。この地域で販売できる商品のみ表示され、未設定の商品はレア度と単価順を維持します。",

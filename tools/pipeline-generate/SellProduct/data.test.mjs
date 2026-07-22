@@ -98,6 +98,7 @@ test("SellProduct templates consume separate minimal projections of the shared l
     ]);
     assert.deepEqual(sortedKeys(root), [
         "LocationId",
+        "OnlyPreferredSwitchCases",
         "OperatorRefreshModeCases",
         "PriorityItemCases1",
         "PriorityItemCases2",
@@ -195,6 +196,7 @@ test("SellProduct reserve rules only expand independent item slots", () => {
 test("SellProduct 优先总开关展开地区配置且不耦合地区售卖开关", () => {
     const enabledCase = root.PriorityRuleSwitchCases.find((itemCase) => itemCase.name === "Yes");
     assert.deepEqual(enabledCase.option, [
+        "SellProductOnlyPreferredItems",
         "SellProductValleyIVPriorityRules",
         "SellProductWulingPriorityRules",
     ]);
@@ -204,6 +206,13 @@ test("SellProduct 优先总开关展开地区配置且不耦合地区售卖开�
     });
     const disabledCase = root.PriorityRuleSwitchCases.find((itemCase) => itemCase.name === "No");
     assert.equal(disabledCase.option, undefined);
+
+    const onlyPreferredCase = root.OnlyPreferredSwitchCases.find((itemCase) => itemCase.name === "Yes");
+    assert.deepEqual(onlyPreferredCase.pipeline_override.SellProductConfigurePrioritySession.custom_action_param, {
+        operation: "configure",
+        enabled: true,
+        only_preferred: true,
+    });
 
     assert.ok(wulingRoot);
     for (const regionRoot of [
@@ -222,6 +231,14 @@ test("SellProduct 优先总开关展开地区配置且不耦合地区售卖开�
                 5,
                 6,
             ].map((slot) => `SellProduct${regionPrefix}PriorityItem${slot}`),
+        );
+        assert.deepEqual(
+            regionEnabledCase.pipeline_override[`SellProduct${regionPrefix}InitializePrioritySession`]
+                .custom_action_param,
+            {
+                operation: "reset_preferred",
+                enabled: true,
+            },
         );
     }
 
@@ -337,6 +354,7 @@ test("SellProduct 每次进入地区都会切换对应的优先售卖表", () =>
         ];
         assert.deepEqual(pipeline[`SellProduct${region.RegionPrefix}Sell`].next, [chain[0]]);
         assert.equal(pipeline[chain[0]].custom_action_param.operation, "reset_preferred");
+        assert.equal(pipeline[chain[0]].custom_action_param.enabled, false);
         for (let index = 0; index < chain.length - 1; index += 1) {
             assert.deepEqual(pipeline[chain[index]].next, [chain[index + 1]]);
         }

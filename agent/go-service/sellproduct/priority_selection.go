@@ -30,10 +30,16 @@ type priorityItemRecognitionParam struct {
 }
 
 type prioritySessionActionParam struct {
-	Operation string `json:"operation"`
-	Enabled   bool   `json:"enabled,omitempty"`
-	Location  string `json:"location,omitempty"`
-	ItemID    string `json:"item_id,omitempty"`
+	Operation     string `json:"operation"`
+	Enabled       bool   `json:"enabled,omitempty"`
+	OnlyPreferred bool   `json:"only_preferred,omitempty"`
+	Location      string `json:"location,omitempty"`
+	ItemID        string `json:"item_id,omitempty"`
+}
+
+type prioritySelectionPolicy struct {
+	Preferred     []string
+	OnlyPreferred bool
 }
 
 type priorityExhaustionObservation struct {
@@ -42,13 +48,15 @@ type priorityExhaustionObservation struct {
 }
 
 type prioritySelectionSessionState struct {
-	Enabled    bool
-	Preferred  []string
-	Attempted  map[string]map[string]struct{}
-	Pending    map[string]string
-	Current    map[string]string
-	OutOfStock map[string]struct{}
-	Exhaustion map[string]priorityExhaustionObservation
+	Enabled       bool
+	OnlyPreferred bool
+	RegionEnabled bool
+	Preferred     []string
+	Attempted     map[string]map[string]struct{}
+	Pending       map[string]string
+	Current       map[string]string
+	OutOfStock    map[string]struct{}
+	Exhaustion    map[string]priorityExhaustionObservation
 }
 
 var (
@@ -56,7 +64,7 @@ var (
 	prioritySelection   = newPrioritySelectionSessionState()
 )
 
-// PriorityItemRecognition 在选择货品界面中，按稀有度、单价顺序返回下一个未尝试货品。
+// PriorityItemRecognition 在选择货品界面中，按当前优先策略返回下一个未尝试货品。
 // exhausted 需要连续两次观察到相同的“只剩已尝试货品”集合，避免单帧 OCR 波动误判结束。
 type PriorityItemRecognition struct{}
 
@@ -76,8 +84,15 @@ func (r *PriorityItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 		log.Error().Err(err).Str("component", priorityItemRecognitionName).Msg("failed to load item priorities")
 		return nil, false
 	}
-	groups := prioritizeItemGroups(groupsByLocation[param.Location], priorityItemsSnapshot())
+	policy := priorityPolicySnapshot()
+	groups := prioritizeItemGroups(groupsByLocation[param.Location], policy.Preferred, policy.OnlyPreferred)
 	if len(groups) == 0 {
+		if policy.OnlyPreferred && param.Result == priorityResultExhausted {
+			return buildPriorityExhaustedResult(param.Location, nil)
+		}
+		if policy.OnlyPreferred {
+			return nil, false
+		}
 		log.Error().Str("component", priorityItemRecognitionName).Str("location", param.Location).
 			Msg("item priority list is empty")
 		return nil, false
@@ -119,18 +134,11 @@ func (r *PriorityItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 		})
 		return &maa.CustomRecognitionResult{Box: match.box, Detail: string(detailJSON)}, true
 	case priorityResultExhausted:
-		if match != nil || pending != "" || len(recognized) == 0 {
+		if match != nil || pending != "" || (!policy.OnlyPreferred && len(recognized) == 0) {
 			prioritySelectionResetExhaustion(param.Location)
 			return nil, false
 		}
-		if !prioritySelectionObserveExhaustion(param.Location, recognized) {
-			return nil, false
-		}
-		detailJSON, _ := json.Marshal(map[string]any{
-			"location":            param.Location,
-			"recognized_item_ids": recognized,
-		})
-		return &maa.CustomRecognitionResult{Detail: string(detailJSON)}, true
+		return buildPriorityExhaustedResult(param.Location, recognized)
 	default:
 		return nil, false
 	}
@@ -150,13 +158,14 @@ func (a *PrioritySessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 	}
 	switch param.Operation {
 	case priorityOperationConfigure:
-		configurePrioritySession(param.Enabled)
+		configurePrioritySession(param.Enabled, param.OnlyPreferred)
 		log.Info().Str("component", prioritySessionActionName).
 			Bool("enabled", param.Enabled).
+			Bool("only_preferred", param.OnlyPreferred).
 			Msg("priority selling configured")
 		return true
 	case priorityOperationResetItems:
-		resetPreferredPriorityItems()
+		resetPreferredPriorityItems(param.Enabled)
 		return true
 	case priorityOperationRegister:
 		if param.ItemID == "" {
@@ -243,13 +252,15 @@ func parsePrioritySessionActionParam(arg *maa.CustomActionArg) (*prioritySession
 
 func newPrioritySelectionSessionState() prioritySelectionSessionState {
 	return prioritySelectionSessionState{
-		Enabled:    false,
-		Preferred:  []string{},
-		Attempted:  map[string]map[string]struct{}{},
-		Pending:    map[string]string{},
-		Current:    map[string]string{},
-		OutOfStock: map[string]struct{}{},
-		Exhaustion: map[string]priorityExhaustionObservation{},
+		Enabled:       false,
+		OnlyPreferred: false,
+		RegionEnabled: false,
+		Preferred:     []string{},
+		Attempted:     map[string]map[string]struct{}{},
+		Pending:       map[string]string{},
+		Current:       map[string]string{},
+		OutOfStock:    map[string]struct{}{},
+		Exhaustion:    map[string]priorityExhaustionObservation{},
 	}
 }
 
@@ -266,13 +277,16 @@ func registerPriorityItem(itemID string) bool {
 	return true
 }
 
-func priorityItemsSnapshot() []string {
+func priorityPolicySnapshot() prioritySelectionPolicy {
 	prioritySelectionMu.Lock()
 	defer prioritySelectionMu.Unlock()
-	if !prioritySelection.Enabled {
-		return nil
+	if !prioritySelection.Enabled || !prioritySelection.RegionEnabled {
+		return prioritySelectionPolicy{}
 	}
-	return append([]string{}, prioritySelection.Preferred...)
+	return prioritySelectionPolicy{
+		Preferred:     append([]string{}, prioritySelection.Preferred...),
+		OnlyPreferred: prioritySelection.OnlyPreferred,
+	}
 }
 
 func priorityOutOfStockSnapshot() map[string]struct{} {
@@ -291,17 +305,19 @@ func resetPrioritySelectionSession() {
 	prioritySelection = newPrioritySelectionSessionState()
 }
 
-func configurePrioritySession(enabled bool) {
+func configurePrioritySession(enabled, onlyPreferred bool) {
 	prioritySelectionMu.Lock()
 	defer prioritySelectionMu.Unlock()
 	prioritySelection.Enabled = enabled
+	prioritySelection.OnlyPreferred = enabled && onlyPreferred
 }
 
-// resetPreferredPriorityItems 只切换当前地区的优先表，保留任务内已尝试物品、
-// 待提交状态和共享缺货集合，避免进入下一个地区时丢失已经确认的运行状态。
-func resetPreferredPriorityItems() {
+// resetPreferredPriorityItems 切换当前地区是否启用优先配置并清空地区优先表，
+// 同时保留任务内已尝试物品、待提交状态和共享缺货集合。
+func resetPreferredPriorityItems(enabled bool) {
 	prioritySelectionMu.Lock()
 	defer prioritySelectionMu.Unlock()
+	prioritySelection.RegionEnabled = enabled
 	prioritySelection.Preferred = []string{}
 }
 
@@ -360,6 +376,19 @@ func prioritySelectionResetExhaustion(location string) {
 	prioritySelectionMu.Lock()
 	defer prioritySelectionMu.Unlock()
 	delete(prioritySelection.Exhaustion, location)
+}
+
+// buildPriorityExhaustedResult 只在连续两次候选集合一致时确认耗尽。
+// 严格优先模式允许空集合，以便没有适用配置的地区正常结束售卖。
+func buildPriorityExhaustedResult(location string, recognized []string) (*maa.CustomRecognitionResult, bool) {
+	if !prioritySelectionObserveExhaustion(location, recognized) {
+		return nil, false
+	}
+	detailJSON, _ := json.Marshal(map[string]any{
+		"location":            location,
+		"recognized_item_ids": recognized,
+	})
+	return &maa.CustomRecognitionResult{Detail: string(detailJSON)}, true
 }
 
 func prioritySelectionObserveExhaustion(location string, recognized []string) bool {

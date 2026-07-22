@@ -68,7 +68,8 @@ func buildRuntimeLocationPlan(location string) (runtimeLocationPlan, error) {
 	if err != nil {
 		return runtimeLocationPlan{}, fmt.Errorf("load item priorities: %w", err)
 	}
-	groups := prioritizeItemGroups(groupsByLocation[location], priorityItemsSnapshot())
+	policy := priorityPolicySnapshot()
+	groups := prioritizeItemGroups(groupsByLocation[location], policy.Preferred, policy.OnlyPreferred)
 	reserveRules := reserveRulesSnapshot()
 	items, excludedOutOfStock, excludedByUser := buildRuntimeLocationPlanItems(
 		groups,

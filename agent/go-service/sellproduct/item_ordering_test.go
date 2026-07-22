@@ -38,7 +38,7 @@ func TestPrioritizeItemGroupsUsesConfiguredOrderBeforeDefaultOrder(t *testing.T)
 		{ItemID: "d"},
 		{ItemID: "e"},
 	}
-	got := prioritizeItemGroups(original, []string{"d", "missing", "b", "d", "c"})
+	got := prioritizeItemGroups(original, []string{"d", "missing", "b", "d", "c"}, false)
 	want := []itemPriorityGroup{
 		{ItemID: "d"},
 		{ItemID: "b"},
@@ -57,6 +57,24 @@ func TestPrioritizeItemGroupsUsesConfiguredOrderBeforeDefaultOrder(t *testing.T)
 		{ItemID: "e"},
 	}) {
 		t.Fatalf("原始分组被意外修改：%+v", original)
+	}
+}
+
+// TestPrioritizeItemGroupsCanExcludeUnconfiguredItems 验证严格优先模式只保留当前据点可售、
+// 且由用户明确配置的物品。
+func TestPrioritizeItemGroupsCanExcludeUnconfiguredItems(t *testing.T) {
+	original := []itemPriorityGroup{
+		{ItemID: "a"},
+		{ItemID: "b"},
+		{ItemID: "c"},
+	}
+	got := prioritizeItemGroups(original, []string{"c", "missing", "a", "c"}, true)
+	want := []itemPriorityGroup{
+		{ItemID: "c"},
+		{ItemID: "a"},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("严格优先模式排序结果 = %+v，期望 %+v", got, want)
 	}
 }
 

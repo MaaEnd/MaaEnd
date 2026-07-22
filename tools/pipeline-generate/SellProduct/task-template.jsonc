@@ -118,6 +118,13 @@
             "default_case": "No",
             "cases": "${PriorityRuleSwitchCases}"
         },
+        "SellProductOnlyPreferredItems": {
+            "type": "switch",
+            "label": "$task.SellProduct.OnlyPreferredItems",
+            "description": "$task.SellProduct.OnlyPreferredItemsDescription",
+            "default_case": "No",
+            "cases": "${OnlyPreferredSwitchCases}"
+        },
         "SellProduct${RegionPrefix}PriorityRules": {
             "type": "switch",
             "label": "$task.SellProduct.PriorityRules${RegionPrefix}",

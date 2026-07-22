@@ -124,7 +124,8 @@
         "custom_action": "SellProductPrioritySession",
         "custom_action_param": {
             "operation": "configure",
-            "enabled": false
+            "enabled": false,
+            "only_preferred": false
         },
         "post_delay": 0,
         "rate_limit": 0,

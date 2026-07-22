@@ -715,6 +715,8 @@
     "task.SellProduct.ForceRefreshOperatorCacheDescription": "When enabled, this run scans the complete operator list before calculating the best operator for every enabled outpost.",
     "task.SellProduct.PrioritySwitch": "Enable Priority Selling",
     "task.SellProduct.PriorityDescription": "Apply the separate regional priority-selling settings below. Disabling this keeps those settings but sorts all items by rarity and unit price.",
+    "task.SellProduct.OnlyPreferredItems": "Do Not Sell Non-Priority Products",
+    "task.SellProduct.OnlyPreferredItemsDescription": "For regions with priority selling enabled, sell only products explicitly selected in their priority slots. Regions without priority selling enabled continue selling normally.",
     "task.SellProduct.PriorityRulesValleyIV": "Valley IV Priority Selling",
     "task.SellProduct.PriorityRulesWuling": "Wuling Priority Selling",
     "task.SellProduct.PriorityRegionDescription": "Enable priorities 1 through 6 for this region. Only items sold in this region are listed; unconfigured items retain their rarity and unit-price order.",

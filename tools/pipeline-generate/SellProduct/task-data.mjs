@@ -157,12 +157,33 @@ function buildPriorityRuleSwitchCases(regionPrefixes) {
     return [
         {
             name: "Yes",
-            option: regionPrefixes.map((regionPrefix) => `SellProduct${regionPrefix}PriorityRules`),
+            option: [
+                "SellProductOnlyPreferredItems",
+                ...regionPrefixes.map((regionPrefix) => `SellProduct${regionPrefix}PriorityRules`),
+            ],
             pipeline_override: {
                 SellProductConfigurePrioritySession: {
                     custom_action_param: {
                         operation: "configure",
                         enabled: true,
+                    },
+                },
+            },
+        },
+        {name: "No"},
+    ];
+}
+
+function buildOnlyPreferredSwitchCases() {
+    return [
+        {
+            name: "Yes",
+            pipeline_override: {
+                SellProductConfigurePrioritySession: {
+                    custom_action_param: {
+                        operation: "configure",
+                        enabled: true,
+                        only_preferred: true,
                     },
                 },
             },
@@ -183,6 +204,14 @@ function buildRegionPriorityRuleSwitchCases(regionPrefix) {
                 `SellProduct${regionPrefix}PriorityItem5`,
                 `SellProduct${regionPrefix}PriorityItem6`,
             ],
+            pipeline_override: {
+                [`SellProduct${regionPrefix}InitializePrioritySession`]: {
+                    custom_action_param: {
+                        operation: "reset_preferred",
+                        enabled: true,
+                    },
+                },
+            },
         },
         {name: "No"},
     ];
@@ -265,6 +294,7 @@ function buildOperatorRefreshModeCases(locations) {
 
 const OPERATOR_REFRESH_MODE_CASES = buildOperatorRefreshModeCases(LOCATIONS);
 const PRIORITY_RULE_SWITCH_CASES = buildPriorityRuleSwitchCases(REGION_PREFIXES);
+const ONLY_PREFERRED_SWITCH_CASES = buildOnlyPreferredSwitchCases();
 const RESERVE_RULE_SWITCH_CASES = buildReserveRuleSwitchCases();
 
 export const sellProductTaskRows = LOCATIONS.map((loc, index) => {
@@ -274,6 +304,7 @@ export const sellProductTaskRows = LOCATIONS.map((loc, index) => {
         SellOptions: SETTLEMENT_REGION_MAP[loc.RegionPrefix],
         TaskOptions: index === 0 ? TASK_OPTIONS : [],
         LocationId: loc.LocationId,
+        OnlyPreferredSwitchCases: index === 0 ? ONLY_PREFERRED_SWITCH_CASES : [],
         OperatorRefreshModeCases: index === 0 ? OPERATOR_REFRESH_MODE_CASES : [],
         PriorityItemCases1: firstInRegion ? buildPriorityItemCases(loc.RegionPrefix, 1) : [],
         PriorityItemCases2: firstInRegion ? buildPriorityItemCases(loc.RegionPrefix, 2) : [],

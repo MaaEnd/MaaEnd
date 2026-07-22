@@ -504,6 +504,8 @@
     "task.SellProduct.ForceRefreshOperatorCacheDescription": "활성화하면 이번 작업에서 오퍼레이터 목록을 끝까지 확인한 뒤 활성화된 모든 전초기지의 최적 오퍼레이터를 계산합니다.",
     "task.SellProduct.PrioritySwitch": "우선 판매 설정 활성화",
     "task.SellProduct.PriorityDescription": "아래의 지역별 우선 판매 설정을 적용합니다. 비활성화해도 지역 설정은 유지되며 모든 상품은 희귀도와 단가 순서로 정렬됩니다.",
+    "task.SellProduct.OnlyPreferredItems": "우선 상품이 아닌 제품 판매 안 함",
+    "task.SellProduct.OnlyPreferredItemsDescription": "지역별 우선 판매를 활성화한 지역에서만 우선순위 슬롯에 명시적으로 설정한 제품을 판매합니다. 지역별 우선 판매가 비활성화된 지역은 정상적으로 판매합니다.",
     "task.SellProduct.PriorityRulesValleyIV": "제4 계곡 우선 판매 설정",
     "task.SellProduct.PriorityRulesWuling": "무릉 우선 판매 설정",
     "task.SellProduct.PriorityRegionDescription": "이 지역의 우선순위 1~6을 활성화합니다. 이 지역에서 판매할 수 있는 상품만 표시되며, 설정하지 않은 상품은 희귀도와 단가 순서를 유지합니다.",

@@ -35,8 +35,9 @@ func buildItemPriorityGroups(data *sellProductSelectionDataFile) (map[string][]i
 }
 
 // prioritizeItemGroups 将用户指定物品按槽位顺序移到现有动态优先级之前。
-// 不在当前据点的物品会被跳过，其余物品保持原有稀有度、单价排序。
-func prioritizeItemGroups(groups []itemPriorityGroup, preferred []string) []itemPriorityGroup {
+// 不在当前据点的物品会被跳过；onlyPreferred 为 true 时只保留明确配置的物品，
+// 否则其余物品继续保持原有稀有度、单价排序。
+func prioritizeItemGroups(groups []itemPriorityGroup, preferred []string, onlyPreferred bool) []itemPriorityGroup {
 	result := make([]itemPriorityGroup, 0, len(groups))
 	groupsByID := make(map[string]itemPriorityGroup, len(groups))
 	for _, group := range groups {
@@ -53,6 +54,9 @@ func prioritizeItemGroups(groups []itemPriorityGroup, preferred []string) []item
 		}
 		result = append(result, group)
 		added[itemID] = struct{}{}
+	}
+	if onlyPreferred {
+		return result
 	}
 	for _, group := range groups {
 		if _, exists := added[group.ItemID]; exists {
