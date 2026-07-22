@@ -27,7 +27,6 @@ var _ maa.CustomRecognitionRunner = &Recognition{}
 //   - RemainCalc / RemainDouble：OCR（RemainCalc / RemainDouble 节点）。
 //   - RemainAband：RecognizeAband 从放弃弹窗识别后写入的持久化缓存。
 //   - IsDoubled：模板匹配（IsDoubled 节点）。
-//   - Overflow：OverflowExclamation 在场（观测字段，不参与求解）。
 type Recognition struct{}
 
 // Run 执行总成识别。
@@ -44,7 +43,6 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		return nil, r.recognitionFailed(ctx, "牌库 OCR 失败")
 	}
 
-	overflow := r.detectOverflow(ctx, arg.Img)
 	handCounts, handRaw := r.recognizeHand(ctx, arg.Img)
 
 	// 牌库面板显示的是「剩余库存」（抽一张即递减）；求解器的 Deck 是「总牌量」——它自己按 Deck-Hand 推剩余
@@ -80,10 +78,9 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		Hand:         handCounts,
 	}
 	gs := GameState{
-		State:    state,
-		Config:   cfg,
-		HandRaw:  handRaw,
-		Overflow: overflow,
+		State:   state,
+		Config:  cfg,
+		HandRaw: handRaw,
 	}
 
 	detailBytes, err := json.Marshal(gs)
@@ -100,7 +97,6 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		Bool("isDoubled", state.IsDoubled).
 		Ints("hand", state.Hand[:]).
 		Ints("handRaw", handRaw[:]).
-		Bool("overflow", overflow).
 		Str("overflowMode", cfg.OverflowMode.String()).
 		Msg("game state recognized")
 
@@ -114,11 +110,6 @@ func (r *Recognition) recognitionFailed(ctx *maa.Context, reason string) bool {
 	log.Warn().Str("component", component).Str("reason", reason).Msg("recognition failed, aborting task")
 	maafocus.Print(ctx, i18n.T("trialofswordmancy.recognition_failed"))
 	return false
-}
-
-// detectOverflow 判定是否识别到溢出叹号（爆表）。
-func (r *Recognition) detectOverflow(ctx *maa.Context, img image.Image) bool {
-	return runTemplateHit(ctx, img, nodeOverflowExclamation)
 }
 
 // recognizeHand 跑 HandPoint1-5 五个整行模板节点，再按 HandPosition1-5 ROI 筛选各槽点数。

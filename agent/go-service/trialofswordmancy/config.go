@@ -1,8 +1,6 @@
 package trialofswordmancy
 
 import (
-	"sync"
-
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy/solver"
 )
 
@@ -13,19 +11,15 @@ import (
 
 // —— 求解器缓存：按 Config 哈希键，Config 变化才重新 Solve ——
 // 正常一副牌 + 三种溢出模式只产生极少量键；上限兜底，防止牌库 OCR 抖动产生大量误识别键导致常驻内存增长。
+// MaaFramework 保证任务回调单线程同步执行，无需加锁。
 const solverCacheLimit = 16
 
-var (
-	solverCacheMu sync.Mutex
-	solverCache   = map[string]*solver.Solver{}
-)
+var solverCache = map[string]*solver.Solver{}
 
 // solverFor 返回（必要时构造并预求解）给定配置的 *solver.Solver。
 // 每步查询复用同一实例，仅 Config 变化（牌库刷新 / 溢出模式变化）时才重 Solve。
 func solverFor(cfg solver.Config) *solver.Solver {
 	key := solver.ConfigKey(cfg)
-	solverCacheMu.Lock()
-	defer solverCacheMu.Unlock()
 	if s, ok := solverCache[key]; ok {
 		return s
 	}

@@ -11,18 +11,9 @@ const (
 
 // pipeline 节点名常量。
 const (
-	// 决策循环入口：recognition=Recognize、action=Decide；next 由 Decide 运行时 override 到下方执行节点。
-	decideNode = "TrialOfSwordmancyDecide"
-
-	// 抽牌界面通用识别节点（定义在 TrialOfSwordmancyCommon.json）。
-	nodeDoubleReward        = "TrialOfSwordmancyDoubleReward"        // 翻倍按钮
-	nodeOverflowExclamation = "TrialOfSwordmancyOverflowExclamation" // 溢出（爆表）叹号
-
 	// 决策执行节点（节点自行点击按钮 + 等动画，完成后 next 回 Decide）。
-	nodeDoDrawCard            = "TrialOfSwordmancyDoDrawCard"            // 抽一张牌
-	nodeDoDrawCardConfirm     = "TrialOfSwordmancyDoDrawCardConfirm"     // 第三抽「抽取后无法更改翻倍」弹窗
-	nodeDoWaitDrawCardFreezes = "TrialOfSwordmancyDoWaitDrawCardFreezes" // 等抽牌动画结束
-	nodeDoDoubleReward        = "TrialOfSwordmancyDoDoubleReward"        // 选择本局翻倍
+	nodeDoDrawCard     = "TrialOfSwordmancyDoDrawCard"     // 抽一张牌
+	nodeDoDoubleReward = "TrialOfSwordmancyDoDoubleReward" // 选择本局翻倍
 
 	// 既有执行链入口。
 	nodeGiveUp     = "TrialOfSwordmancyDailyGiveUp" // 放弃本局 → 确认 → 重置寻路 → 回主入口
