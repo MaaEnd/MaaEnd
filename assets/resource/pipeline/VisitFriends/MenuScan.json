@@ -16,7 +16,7 @@
     },
     "VisitFriendsAssistFullInit": {
         "desc": "三舱助力均未勾选时：仅将 AssistCountZero 设为 DirectHit，复用 AssistFull 的关闭/线索模板覆盖",
-        "enabled": false,
+        "enabled": true,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,

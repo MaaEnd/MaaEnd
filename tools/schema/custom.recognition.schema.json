@@ -102,6 +102,12 @@
                                 "minLength": 1,
                                 "title": "Visited Node",
                                 "description": "Optional. Node whose attach.visited is used as the shared blacklist store. Defaults to the current Custom recognition node."
+                            },
+                            "key_regex": {
+                                "type": "string",
+                                "minLength": 1,
+                                "title": "Key Regex",
+                                "description": "Optional. Regex applied to OCR text to derive the visited key (capture group 1 if present, otherwise the full match; fall back to raw text on no match). Without it, store/exclude the raw OCR string exactly. With it, the blacklist also tolerates non-digit OCR tail noise after the key. Game-specific truncation (e.g. remark cut at first ')', normal name cut at '#UID') belongs in Pipeline, not in this component."
                             }
                         }
                     }
