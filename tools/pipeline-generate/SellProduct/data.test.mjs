@@ -164,10 +164,7 @@ test("SellProduct region entry rows contain every generated location", () => {
             "SellProductLoop",
             "[JumpBack]SceneEnterMenuRegionalDevelopment",
         );
-        assert.deepEqual(row.SellNext, [
-            `[Anchor]SellProduct${region.RegionPrefix}InitializePrioritySession`,
-            ...outpostNext,
-        ]);
+        assert.deepEqual(row.SellNext, [`SellProduct${region.RegionPrefix}InitializePrioritySession`]);
         assert.deepEqual(row.PrepareNext, [
             "SellProductOutpostLocked",
             ...outpostNext,
@@ -338,7 +335,7 @@ test("SellProduct 每次进入地区都会切换对应的优先售卖表", () =>
             ].map((slot) => `SellProduct${region.RegionPrefix}RegisterPriorityItem${slot}`),
             `SellProduct${region.RegionPrefix}PrepareOperatorCache`,
         ];
-        assert.deepEqual(pipeline[`SellProduct${region.RegionPrefix}Sell`].next[0], `[Anchor]${chain[0]}`);
+        assert.deepEqual(pipeline[`SellProduct${region.RegionPrefix}Sell`].next, [chain[0]]);
         assert.equal(pipeline[chain[0]].custom_action_param.operation, "reset_preferred");
         for (let index = 0; index < chain.length - 1; index += 1) {
             assert.deepEqual(pipeline[chain[index]].next, [chain[index + 1]]);

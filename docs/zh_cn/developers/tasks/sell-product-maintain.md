@@ -33,14 +33,14 @@ SellProductSchedule                                  （Task 入口，按星期�
 ```text
 SellProductLoop                                      （地区建设主循环）
   ├─ SellProductValleyIVSell                         （进入四号谷地据点管理）
-  │    ├─ [Anchor]SellProductValleyIVInitializePrioritySession
+  │    ├─ SellProductValleyIVInitializePrioritySession
   │    │    └─ SellProductValleyIVRegisterPriorityItem{1..6} （切换地区优先表）
   │    ├─ SellProductValleyIVPrepareOperatorCache    （准备干员缓存）
   │    └─ [JumpBack]SellProductRefugeeCamp → SellProductInfraStation
   │       → SellProductReconstructionHQ
   │         （通过 JumpBack 依次执行三个据点）
   ├─ SellProductWulingSell                           （进入武陵据点管理）
-  │    ├─ [Anchor]SellProductWulingInitializePrioritySession
+  │    ├─ SellProductWulingInitializePrioritySession
   │    │    └─ SellProductWulingRegisterPriorityItem{1..6} （切换地区优先表）
   │    ├─ SellProductWulingPrepareOperatorCache      （准备/复用干员缓存）
   │    └─ [JumpBack]SellProductSkyKingFlatsConstructionSite

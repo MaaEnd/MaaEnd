@@ -33,14 +33,14 @@ The six reserve-rule registration nodes are always enabled and form a fixed slot
 ```text
 SellProductLoop                                      (Regional Development main loop)
   ├─ SellProductValleyIVSell                         (enter Valley IV outpost management)
-  │    ├─ [Anchor]SellProductValleyIVInitializePrioritySession
+  │    ├─ SellProductValleyIVInitializePrioritySession
   │    │    └─ SellProductValleyIVRegisterPriorityItem{1..6} (activate regional priority table)
   │    ├─ SellProductValleyIVPrepareOperatorCache    (prepare operator cache)
   │    └─ [JumpBack]SellProductRefugeeCamp → SellProductInfraStation
   │       → SellProductReconstructionHQ
   │         (execute three outposts through JumpBack)
   ├─ SellProductWulingSell                           (enter Wuling outpost management)
-  │    ├─ [Anchor]SellProductWulingInitializePrioritySession
+  │    ├─ SellProductWulingInitializePrioritySession
   │    │    └─ SellProductWulingRegisterPriorityItem{1..6} (activate regional priority table)
   │    ├─ SellProductWulingPrepareOperatorCache      (prepare/reuse operator cache)
   │    └─ [JumpBack]SellProductSkyKingFlatsConstructionSite

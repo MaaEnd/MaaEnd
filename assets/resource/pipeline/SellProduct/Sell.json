@@ -10,18 +10,10 @@
                 "SceneEnterMenuRegionalDevelopmentValleyIVOutpostManagement"
             ]
         },
-        "anchor": {
-            "SellProductValleyIVInitializePrioritySession": "SellProductValleyIVInitializePrioritySession"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]SellProductValleyIVInitializePrioritySession",
-            "[JumpBack]SellProductRefugeeCamp",
-            "[JumpBack]SellProductInfraStation",
-            "[JumpBack]SellProductReconstructionHQ",
-            "SellProductLoop",
-            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+            "SellProductValleyIVInitializePrioritySession"
         ]
     },
     "SellProductValleyIVInitializePrioritySession": {
@@ -168,18 +160,10 @@
                 "SceneEnterMenuRegionalDevelopmentWulingOutpostManagement"
             ]
         },
-        "anchor": {
-            "SellProductWulingInitializePrioritySession": "SellProductWulingInitializePrioritySession"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]SellProductWulingInitializePrioritySession",
-            "[JumpBack]SellProductSkyKingFlatsConstructionSite",
-            "[JumpBack]SellProductCardiacRemediationStation",
-            "[JumpBack]SellProductXiranflowCloudseederStation",
-            "SellProductLoop",
-            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+            "SellProductWulingInitializePrioritySession"
         ]
     },
     "SellProductWulingInitializePrioritySession": {
