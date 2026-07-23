@@ -31,11 +31,32 @@ class LocationService:
         )
 
     def _ensure_initialized(self) -> None:
-        if self._maa_interface is not None:
+        maa = self._maa_interface
+        if (
+            maa is not None
+            and maa.controller is not None
+            and maa.agent_client is not None
+        ):
             return
-        self._maa_interface = MaaInterface()
-        self._maa_interface.init_controller()
-        self._maa_interface.init_agent()
+
+        if maa is not None:
+            try:
+                maa.dispose_agent()
+            except Exception:
+                pass
+            self._maa_interface = None
+
+        maa = MaaInterface()
+        try:
+            maa.init_controller()
+            maa.init_agent()
+        except Exception:
+            try:
+                maa.dispose_agent()
+            except Exception:
+                pass
+            raise
+        self._maa_interface = maa
 
     def infer_once(self, expected_map_name: str) -> MapTrackerInferResult:
         self._ensure_initialized()

@@ -3,6 +3,7 @@ import re
 
 NODE_TYPE_MOVE = "MapTrackerMove"
 NODE_TYPE_ASSERT_LOCATION = "MapTrackerAssertLocation"
+NODE_TYPE_GOAL = "MapTrackerGoal"
 
 
 class PipelineHandler:
@@ -260,6 +261,40 @@ class PipelineHandler:
             "expected": expected,
         }
 
+    @staticmethod
+    def _parse_tracker_goal_fields(node_content: str) -> dict | None:
+        if f'"custom_action": "{NODE_TYPE_GOAL}"' not in node_content:
+            return None
+
+        is_new_structure = re.search(r'"action"\s*:\s*\{', node_content) is not None
+
+        m_match = re.search(r'"map_name"\s*:\s*"([^"]+)"', node_content)
+        map_name = m_match.group(1) if m_match else "Unknown"
+
+        target_range = PipelineHandler._extract_json_array(node_content, "target")
+        if target_range is None:
+            return None
+        try:
+            target = json.loads(target_range[2])
+        except Exception:
+            return None
+        if not isinstance(target, list) or len(target) != 2:
+            return None
+        try:
+            point = [
+                float(target[0]),
+                float(target[1]),
+            ]
+        except (TypeError, ValueError):
+            return None
+
+        return {
+            "node_type": NODE_TYPE_GOAL,
+            "map_name": map_name,
+            "path": [point],
+            "is_new_structure": is_new_structure,
+        }
+
     def read_all_nodes(self) -> None:
         self._load()
         self.nodes.clear()
@@ -268,6 +303,8 @@ class PipelineHandler:
             tracker = self._parse_tracker_move_fields(node_content)
             if tracker is None:
                 tracker = self._parse_assert_location_fields(node_content)
+            if tracker is None:
+                tracker = self._parse_tracker_goal_fields(node_content)
             if tracker is not None:
                 entry.update(tracker)
                 entry["is_tracker"] = True
@@ -392,3 +429,48 @@ class PipelineHandler:
         if node_name in self.nodes:
             self.nodes[node_name]["map_name"] = map_name
             self.nodes[node_name]["target"] = [round(float(v), 1) for v in target]
+
+    def replace_goal_target(
+        self, node_name: str, map_name: str, target: list[float]
+    ) -> None:
+        self._load()
+
+        bounds = self._find_top_level_node_bounds(self._content, node_name)
+        if bounds is None:
+            raise ValueError(f"Node {node_name} not found in file when saving.")
+        _, _, body = bounds
+
+        if len(target) != 2:
+            raise ValueError(f"Invalid goal target for node {node_name}.")
+
+        map_match = re.search(r'"map_name"\s*:\s*"([^"]+)"', body)
+        if not map_match:
+            raise ValueError(f"'map_name' field not found in node {node_name} when saving.")
+        body = body[: map_match.start(1)] + map_name + body[map_match.end(1) :]
+
+        target_range = self._extract_json_array(body, "target")
+        if target_range is None:
+            raise ValueError(f"'target' field not found in node {node_name} when saving.")
+
+        if self.nodes.get(node_name, {}).get("is_new_structure", False):
+            indent = " " * 16
+        else:
+            indent = " " * 12
+        formatted_target = (
+            "[\n"
+            f"{indent}    {float(target[0]):.1f},\n"
+            f"{indent}    {float(target[1]):.1f}\n"
+            f"{indent}]"
+        )
+        new_body = body[: target_range[0]] + formatted_target + body[target_range[1] :]
+        self._replace_node_body(node_name, new_body)
+        self._write()
+
+        if node_name in self.nodes:
+            self.nodes[node_name]["map_name"] = map_name
+            self.nodes[node_name]["path"] = [
+                [
+                    round(float(target[0]), 1),
+                    round(float(target[1]), 1),
+                ]
+            ]

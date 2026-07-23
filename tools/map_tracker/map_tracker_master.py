@@ -37,6 +37,7 @@ from _internal.nav_mesh import NavEdge, NavMeshData, NavMeshFile, NavVertex
 from _internal.nav_mesh_entities import import_entities
 from _internal.pipeline_handler import (
     NODE_TYPE_ASSERT_LOCATION,
+    NODE_TYPE_GOAL,
     NODE_TYPE_MOVE,
     PipelineHandler,
 )
@@ -125,7 +126,11 @@ def _pipeline_files() -> list[dict]:
             content = path.read_text(encoding="utf-8", errors="ignore")
         except OSError:
             continue
-        if NODE_TYPE_MOVE not in content and NODE_TYPE_ASSERT_LOCATION not in content:
+        if (
+            NODE_TYPE_MOVE not in content
+            and NODE_TYPE_ASSERT_LOCATION not in content
+            and NODE_TYPE_GOAL not in content
+        ):
             continue
         try:
             nodes = PipelineHandler(str(path)).read_nodes()
@@ -306,6 +311,16 @@ def save_pipeline_node(payload: dict = Body(...)) -> dict:
                 node_name,
                 str(payload.get("map_name", "")),
                 payload.get("target", []),
+            )
+        elif node_type == NODE_TYPE_GOAL:
+            goal_path = payload.get("path", [])
+            if not isinstance(goal_path, list) or not goal_path:
+                raise HTTPException(422, "Goal node requires a target point")
+            point = goal_path[0]
+            handler.replace_goal_target(
+                node_name,
+                str(payload.get("map_name", "")),
+                point,
             )
         else:
             raise HTTPException(400, "Unsupported MapTracker node type")
