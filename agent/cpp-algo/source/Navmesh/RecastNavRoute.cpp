@@ -157,14 +157,14 @@ std::optional<WindowInfo> buildWindow(
         for (const WorldPoint& bp : blocked_points) {
             const int64_t cgx = static_cast<int64_t>(std::floor((bp.x - x0) / kCS));
             const int64_t cgy = static_cast<int64_t>(std::floor((bp.y - y0) / kCS));
-            for (int64_t gy = std::max<int64_t>(cgy - pr, 0); gy <= std::min<int64_t>(cgy + pr, ny - 1); ++gy) {
-                for (int64_t gx = std::max<int64_t>(cgx - pr, 0); gx <= std::min<int64_t>(cgx + pr, nx - 1); ++gx) {
-                    const double px = x0 + (static_cast<double>(gx) + 0.5) * kCS;
-                    const double py = y0 + (static_cast<double>(gy) + 0.5) * kCS;
+            for (int64_t by = std::max<int64_t>(cgy - pr, 0); by <= std::min<int64_t>(cgy + pr, ny - 1); ++by) {
+                for (int64_t bx = std::max<int64_t>(cgx - pr, 0); bx <= std::min<int64_t>(cgx + pr, nx - 1); ++bx) {
+                    const double px = x0 + (static_cast<double>(bx) + 0.5) * kCS;
+                    const double py = y0 + (static_cast<double>(by) + 0.5) * kCS;
                     if (std::hypot(px - bp.x, py - bp.y) > kBlockedPointRadius) {
                         continue;
                     }
-                    const size_t cell = static_cast<size_t>(gy * nx + gx);
+                    const size_t cell = static_cast<size_t>(by * nx + bx);
                     info.core.v[cell] = 0;
                     info.lay.v[cell] = 0;
                 }

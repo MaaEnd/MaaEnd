@@ -8,7 +8,9 @@
 #include <tuple>
 #include <unordered_map>
 
+#if defined(__clang__)
 #pragma clang fp contract(off)
+#endif
 
 namespace navmesh::recast
 {
