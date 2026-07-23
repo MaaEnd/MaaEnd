@@ -50,7 +50,7 @@
     "autofight.health_dangerous_switch": "%d번 오퍼레이터 체력 위험, %d번 오퍼레이터로 전환합니다",
     "autofight.enemy_accumulating_power": "적이 차징 중",
     "autofight.exit_fight": "전투 장면 이탈",
-    "autofight.capture_slow": "전투 인식 평균 소요 시간 %d ms, GPU 리소스 사용을 줄여 주세요",
+    "autofight.capture_slow": "<span style=\"color: red; font-weight: bold;\">전투 인식 평균 소요 시간 %d ms, 게임 설정에서 화질·해상도를 낮춰 기기 부하를 줄여 주세요</span>",
     "autofight.adjust_view": "시점 조정",
     "autofight.move_back": "적을 오래 찾지 못해 후퇴합니다",
     "autofight.approach_enemy": "적에게 접근",

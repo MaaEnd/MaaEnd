@@ -906,7 +906,7 @@
     "controller.Wlroots.label": "Linux-Wlroots",
     "controller.Wlroots.description": "For Wayland compositors based on wlroots (e.g. Sway).",
     "task.SceneManager.focus.color_match_failed_prefix": "<span style=\"color: red; font-weight: bold;\">Color identification failed. Try disabling filters (e.g. RTX Dynamic Vibrance, GamePP filters, Mechrevo Color Calibration, etc.) or HDR<br/>Note: a system restart is required for the change to take effect after disabling RTX Dynamic Vibrance.</span>",
-    "task.SceneManager.focus.mod_check_failed_prefix": "<span style=\"color: red; font-weight: bold;\">The display is incomplete. Disable mods and try again.</span>",
+    "task.SceneManager.focus.mod_check_failed_prefix": "<span style=\"color: red; font-weight: bold;\">UID display is incomplete. Enabling UID-hiding mods removes text in the upper-left corner of the screen, which affects recognition.</span>",
     "task.SceneManager.focus.language_not_zh_cn": "<span style=\"color: red; font-weight: bold;\">The game language is not Simplified Chinese. Compatibility is limited, and tasks may fail.</span>",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.en_us.md",
     "contact.file": "https://end.maafw.com/CONTACT/CONTACT.en_us.md",

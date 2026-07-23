@@ -906,7 +906,7 @@
     "controller.Wlroots.label": "Linux-Wlroots",
     "controller.Wlroots.description": "wlroots 기반 Wayland 컴포지터(예: Sway)용입니다.",
     "task.SceneManager.focus.color_match_failed_prefix": "<span style=\"color: red; font-weight: bold;\">색상 인식에 실패했습니다. 필터(예: RTX Dynamic Vibrance, GamePP 필터, Mechrevo 색상 보정 등) 또는 HDR을 꺼 보세요<br/>참고: RTX Dynamic Vibrance를 비활성화한 후에는 PC를 재시작해야 적용됩니다.</span>",
-    "task.SceneManager.focus.mod_check_failed_prefix": "<span style=\"color: red; font-weight: bold;\">화면이 올바르게 표시되지 않습니다. MOD를 비활성화한 후 다시 시도하세요.</span>",
+    "task.SceneManager.focus.mod_check_failed_prefix": "<span style=\"color: red; font-weight: bold;\">UID 표시가 불완전합니다. UID 숨김 MOD를 켜면 화면 왼쪽 상단의 문자가 누락되어 인식에 영향을 줍니다.</span>",
     "task.SceneManager.focus.language_not_zh_cn": "<span style=\"color: red; font-weight: bold;\">게임 언어가 간체 중국어가 아닙니다. 호환성이 낮아 작업이 실패할 수 있습니다.</span>",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.ko_kr.md",
     "contact.file": "https://end.maafw.com/CONTACT/CONTACT.ko_kr.md",

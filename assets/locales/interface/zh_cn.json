@@ -906,7 +906,7 @@
     "controller.Wlroots.label": "Linux端-Wlroots",
     "controller.Wlroots.description": "适用于基于 wlroots 的 Wayland 合成器（如 Sway）",
     "task.SceneManager.focus.color_match_failed_prefix": "<span style=\"color: red; font-weight: bold;\">识别颜色失败，请尝试关闭滤镜（例如 RTX 动态亮丽、游戏加加滤镜、机械革命色彩校正等）或 HDR<br/>注意：关闭 RTX 动态亮丽后需重启电脑才能生效</span>",
-    "task.SceneManager.focus.mod_check_failed_prefix": "<span style=\"color: red; font-weight: bold;\">画面显示不完整，请关闭MOD后再试</span>",
+    "task.SceneManager.focus.mod_check_failed_prefix": "<span style=\"color: red; font-weight: bold;\">UID显示不完整，开启UID隐藏MOD会导致画面左上方文字缺失，影响识别</span>",
     "task.SceneManager.focus.language_not_zh_cn": "<span style=\"color: red; font-weight: bold;\">当前游戏语言不是简体中文，兼容性较差，任务可能会失败</span>",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.zh_cn.md",
     "contact.file": "https://end.maafw.com/CONTACT/CONTACT.zh_cn.md",

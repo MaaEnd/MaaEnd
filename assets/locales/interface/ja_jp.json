@@ -906,7 +906,7 @@
     "controller.Wlroots.label": "Linux-Wlroots",
     "controller.Wlroots.description": "wlroots ベースの Wayland コンポジター（例: Sway）向けです。",
     "task.SceneManager.focus.color_match_failed_prefix": "<span style=\"color: red; font-weight: bold;\">色の認識に失敗しました。フィルター（例：RTX Dynamic Vibrance、GamePP フィルター、Mechrevo 色彩補正など）または HDR をオフにしてください<br/>注意：RTX Dynamic Vibrance をオフにした後は、PC の再起動が必要です。</span>",
-    "task.SceneManager.focus.mod_check_failed_prefix": "<span style=\"color: red; font-weight: bold;\">画面が正しく表示されていません。MODを無効にしてから再試行してください。</span>",
+    "task.SceneManager.focus.mod_check_failed_prefix": "<span style=\"color: red; font-weight: bold;\">UIDの表示が不完全です。UID非表示MODを有効にすると、画面左上の文字が欠落し、認識に影響します。</span>",
     "task.SceneManager.focus.language_not_zh_cn": "<span style=\"color: red; font-weight: bold;\">ゲーム言語が簡体字中国語ではありません。互換性が低く、タスクが失敗する可能性があります。</span>",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.ja_jp.md",
     "contact.file": "https://end.maafw.com/CONTACT/CONTACT.ja_jp.md",

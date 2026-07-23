@@ -50,7 +50,7 @@
     "autofight.health_dangerous_switch": "當前 %d 號幹員血量危險，切換到 %d 號幹員",
     "autofight.enemy_accumulating_power": "敵人正在蓄力",
     "autofight.exit_fight": "退出戰鬥場景",
-    "autofight.capture_slow": "戰鬥識別平均耗時 %d ms，請嘗試減少顯示卡資源佔用",
+    "autofight.capture_slow": "<span style=\"color: red; font-weight: bold;\">戰鬥識別平均耗時 %d ms，請在遊戲設定中降低畫質、解析度，減少裝置負載</span>",
     "autofight.adjust_view": "調整視角",
     "autofight.move_back": "長時間找不到敵人，後退",
     "autofight.approach_enemy": "靠近敵人",

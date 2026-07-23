@@ -50,7 +50,7 @@
     "autofight.health_dangerous_switch": "Operator #%d health critical, switching to operator #%d",
     "autofight.enemy_accumulating_power": "Enemy is accumulating power",
     "autofight.exit_fight": "Exiting combat",
-    "autofight.capture_slow": "Combat recognition averages %d ms, please try to reduce GPU resource usage",
+    "autofight.capture_slow": "<span style=\"color: red; font-weight: bold;\">Combat recognition averages %d ms. Lower graphics quality and resolution in game settings to reduce device load.</span>",
     "autofight.adjust_view": "Adjusting view",
     "autofight.move_back": "Enemy not found for a while, moving back",
     "autofight.approach_enemy": "Approaching enemy",

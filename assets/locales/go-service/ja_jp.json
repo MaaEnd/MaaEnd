@@ -50,7 +50,7 @@
     "autofight.health_dangerous_switch": "オペレーター %d 号のHPが危険、%d 号に切り替えます",
     "autofight.enemy_accumulating_power": "敵がチャージ中",
     "autofight.exit_fight": "戦闘シーンを離脱",
-    "autofight.capture_slow": "戦闘認識の平均処理時間が %d ms です。GPU リソースの使用を減らしてください",
+    "autofight.capture_slow": "<span style=\"color: red; font-weight: bold;\">戦闘認識の平均処理時間は %d ms です。ゲーム設定で画質・解像度を下げ、デバイスの負荷を減らしてください</span>",
     "autofight.adjust_view": "視点を調整",
     "autofight.move_back": "敵が長時間見つからないため、後退します",
     "autofight.approach_enemy": "敵に接近",

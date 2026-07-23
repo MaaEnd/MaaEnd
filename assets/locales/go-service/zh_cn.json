@@ -50,7 +50,7 @@
     "autofight.health_dangerous_switch": "当前 %d 号干员血量危险，切换到 %d 号干员",
     "autofight.enemy_accumulating_power": "敌人正在蓄力",
     "autofight.exit_fight": "退出战斗场景",
-    "autofight.capture_slow": "战斗识别平均耗时 %d ms，请尝试减少显卡资源占用",
+    "autofight.capture_slow": "<span style=\"color: red; font-weight: bold;\">战斗识别平均耗时 %d ms，请在游戏设置中降低画质、分辨率，减少设备负载</span>",
     "autofight.adjust_view": "调整视角",
     "autofight.move_back": "长时间找不到敌人，后退",
     "autofight.approach_enemy": "靠近敌人",
