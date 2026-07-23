@@ -15,8 +15,8 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 50,
-            "timeout": 1000
+            "time": 100,
+            "timeout": 2000
         },
         "pre_delay": 0,
         "post_wait_freezes": {

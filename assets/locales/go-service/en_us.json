@@ -217,5 +217,7 @@
     "trialofswordmancy.undoubled": "Not doubled",
     "trialofswordmancy.endgame": "Trial of Swordmancy\nCross-day endgame\n→ Abandon round",
     "trialofswordmancy.legacy_double": "Trial of Swordmancy\nLegacy trial runs consumed today's double uses\n→ Calculate now to restore a valid state",
-    "trialofswordmancy.recognition_failed": "Trial of Swordmancy: recognition failed"
+    "trialofswordmancy.recognition_failed": "Trial of Swordmancy: recognition failed",
+    "autostockpile.qty_min_buy_fallback": "Completed daily minimum purchase",
+    "autostockpile.fallback_purchase": "No goods below price threshold, fallback to cheapest %s (price %d) for daily quest"
 }

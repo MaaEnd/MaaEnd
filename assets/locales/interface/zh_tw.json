@@ -1198,5 +1198,7 @@
     "option.ClientVersion.cases.Bilibili.label": "B服",
     "option.ClientVersion.cases.Global.label": "國際服",
     "option.ClientVersion.cases.VN.label": "越南服",
-    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "每次戰鬥前傳送回復血量"
+    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "每次戰鬥前傳送回復血量",
+    "task.AutoStockpile.option.AutoStockpileMinBuyCount.label": "至少購買一個",
+    "task.AutoStockpile.option.AutoStockpileMinBuyCount.description": "當所有商品價格均高於心理價位時，強制購買一個最便宜的商品，以完成每日任務"
 }

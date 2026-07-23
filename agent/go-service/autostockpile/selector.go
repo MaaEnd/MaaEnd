@@ -75,6 +75,17 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return routeSkipWithAbortReason(ctx, arg.CurrentTaskName, result.AbortReason, nil, i18n.T("autostockpile.recognition_early_end"))
 	}
 
+	// 降级购买后标记跳过下一轮
+	if prev := getDecisionState(); prev != nil && prev.SkipNextRound {
+		log.Info().
+			Str("component", "autostockpile").
+			Msg("skip next round after fallback purchase")
+		if err := overrideSkipBranch(ctx); err != nil {
+			return false
+		}
+		return true
+	}
+
 	data := result.Data
 	region, err := resolveGoodsRegionFromActionArg(arg)
 	if err != nil {
@@ -125,10 +136,37 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Msg("allow all goods mode enabled")
 	}
 
+	// 第一轮：正常选品
+	minBuyFallback := false
 	selection, quantityDecision, err := computeDecision(*data, cfg, bypassThresholdFilter)
 	if err != nil {
 		return stopTaskWithFocus(ctx, mapComputeDecisionErrorToAbortReason(err), err)
 	}
+
+	// 「至少购买一个」：正常选品失败 + 非爆仓 + 四号谷地 → 降级重选
+	if !selection.Selected && attach.MinBuyCount > 0 && region == "ValleyIV" && !bypassThresholdFilter {
+		selection2, _, err2 := computeDecision(*data, cfg, true) // 爆仓模式重跑
+		if err2 != nil {
+			return stopTaskWithFocus(ctx, mapComputeDecisionErrorToAbortReason(err2), err2)
+		}
+		if selection2.Selected {
+			selection = selection2
+			quantityDecision = makeQuantityDecision(
+				quantityModeSwipeSpecificQuantity,
+				attach.MinBuyCount,
+				i18n.T("autostockpile.qty_min_buy_fallback"),
+			)
+			minBuyFallback = true
+			log.Info().
+				Str("component", "autostockpile").
+				Str("fallback_product", selection.ProductName).
+				Int("fallback_price", selection.CurrentPrice).
+				Int("quantity", quantityDecision.Target).
+				Msg("fallback purchase triggered")
+			maafocus.Print(ctx, i18n.T("autostockpile.fallback_purchase", selection.ProductName, selection.CurrentPrice))
+		}
+	}
+
 	if !selection.Selected {
 		log.Info().
 			Str("component", "autostockpile").
@@ -210,6 +248,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Selection:        selection,
 			QuantityDecision: quantityDecision,
 		},
+		SkipNextRound: minBuyFallback && selection.Selected,
 	})
 
 	selectionMode := formatSelectionMode(selection, *data)
@@ -384,4 +423,9 @@ func formatSelectionMode(selection SelectionResult, data RecognitionData) string
 		return i18n.T("autostockpile.mode_overflow")
 	}
 	return i18n.T("autostockpile.mode_low_price")
+}
+
+// makeQuantityDecision creates a quantityDecision. Extracted to avoid variable shadowing in Run().
+func makeQuantityDecision(mode quantityMode, target int, reason string) quantityDecision {
+	return quantityDecision{Mode: mode, Target: target, Reason: reason}
 }

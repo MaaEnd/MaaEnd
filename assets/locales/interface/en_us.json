@@ -1198,5 +1198,7 @@
     "option.ClientVersion.cases.Bilibili.label": "CN (Bilibili)",
     "option.ClientVersion.cases.Global.label": "Global (Gryphline)",
     "option.ClientVersion.cases.VN.label": "Vietnam (Gryphline)",
-    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "Teleport to heal before each battle"
+    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "Teleport to heal before each battle",
+    "task.AutoStockpile.option.AutoStockpileMinBuyCount.label": "Buy At Least One",
+    "task.AutoStockpile.option.AutoStockpileMinBuyCount.description": "When all goods are above the price threshold, force-buy the cheapest item to complete the daily quest"
 }

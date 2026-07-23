@@ -1198,5 +1198,7 @@
     "option.ClientVersion.cases.Bilibili.label": "中国サーバー（ビリビリ）",
     "option.ClientVersion.cases.Global.label": "グローバルサーバー（グリフライン）",
     "option.ClientVersion.cases.VN.label": "ベトナムサーバー（グリフライン）",
-    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "各戦闘前にテレポートしてHP回復"
+    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "各戦闘前にテレポートしてHP回復",
+    "task.AutoStockpile.option.AutoStockpileMinBuyCount.label": "Buy At Least One",
+    "task.AutoStockpile.option.AutoStockpileMinBuyCount.description": "When all goods are above the price threshold, force-buy the cheapest item to complete the daily quest"
 }

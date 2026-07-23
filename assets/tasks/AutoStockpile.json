@@ -18,7 +18,8 @@
                 "AutoStockpileServerTime",
                 "AutoStockpileAllowDataUpload",
                 "AutoStockpileElasticValleyIV",
-                "AutoStockpileElasticWuling"
+                "AutoStockpileElasticWuling",
+                "AutoStockpileMinBuyCount"
             ]
         }
     ],
@@ -148,6 +149,27 @@
                             "enabled": false
                         }
                     }
+                }
+            ]
+        },
+        "AutoStockpileMinBuyCount": {
+            "type": "switch",
+            "label": "$task.AutoStockpile.option.AutoStockpileMinBuyCount.label",
+            "description": "$task.AutoStockpile.option.AutoStockpileMinBuyCount.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoStockpileAttach": {
+                            "attach": {
+                                "min_buy_count": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
                 }
             ]
         }
