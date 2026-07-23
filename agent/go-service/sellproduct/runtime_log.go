@@ -21,6 +21,7 @@ type runtimeLocationPlan struct {
 	RestoreOperator    string
 	Items              []runtimeLocationPlanItem
 	ExcludedOutOfStock []string
+	ReserveSatisfied   []runtimeLocationPlanItem
 	ExcludedByUser     []string
 }
 
@@ -79,16 +80,18 @@ func buildRuntimeLocationPlan(location string) (runtimeLocationPlan, error) {
 	policy := priorityPolicySnapshot()
 	groups := prioritizeItemGroups(groupsByLocation[location], policy.Preferred, policy.OnlyPreferred)
 	reserveRules := reserveRulesSnapshot()
-	items, excludedOutOfStock, excludedByUser := buildRuntimeLocationPlanItems(
+	items, excludedOutOfStock, reserveSatisfied, excludedByUser := buildRuntimeLocationPlanItems(
 		groups,
 		reserveRules,
 		priorityOutOfStockSnapshot(),
+		reserveSatisfiedItemsSnapshot(),
 	)
 
 	plan := runtimeLocationPlan{
 		LocationName:       runtimeLocationName(location),
 		Items:              items,
 		ExcludedOutOfStock: excludedOutOfStock,
+		ReserveSatisfied:   reserveSatisfied,
 		ExcludedByUser:     excludedByUser,
 	}
 	if len(targetCandidates) > 0 {
@@ -104,9 +107,11 @@ func buildRuntimeLocationPlanItems(
 	groups []itemPriorityGroup,
 	reserveRules map[string]int,
 	outOfStock map[string]struct{},
-) ([]runtimeLocationPlanItem, []string, []string) {
+	reserveSatisfied map[string]struct{},
+) ([]runtimeLocationPlanItem, []string, []runtimeLocationPlanItem, []string) {
 	items := make([]runtimeLocationPlanItem, 0, len(groups))
 	excludedOutOfStock := make([]string, 0, len(outOfStock))
+	satisfiedItems := make([]runtimeLocationPlanItem, 0, len(reserveSatisfied))
 	excludedByUser := make([]string, 0)
 	for _, group := range groups {
 		if reserveRules[group.ItemID] == reserveBlacklistQuantity {
@@ -117,12 +122,19 @@ func buildRuntimeLocationPlanItems(
 			excludedOutOfStock = append(excludedOutOfStock, group.DisplayName)
 			continue
 		}
+		if _, satisfied := reserveSatisfied[group.ItemID]; satisfied {
+			satisfiedItems = append(satisfiedItems, runtimeLocationPlanItem{
+				Name:            group.DisplayName,
+				ReserveQuantity: reserveRules[group.ItemID],
+			})
+			continue
+		}
 		items = append(items, runtimeLocationPlanItem{
 			Name:            group.DisplayName,
 			ReserveQuantity: reserveRules[group.ItemID],
 		})
 	}
-	return items, excludedOutOfStock, excludedByUser
+	return items, excludedOutOfStock, satisfiedItems, excludedByUser
 }
 
 func runtimeLocationPlanMessage(plan runtimeLocationPlan) string {
@@ -138,9 +150,21 @@ func runtimeLocationPlanMessage(plan runtimeLocationPlan) string {
 			))
 		}
 	}
+	reserveSatisfiedNames := make([]string, 0, len(plan.ReserveSatisfied))
+	for _, item := range plan.ReserveSatisfied {
+		reserveSatisfiedNames = append(reserveSatisfiedNames, item.Name)
+		if item.ReserveQuantity > 0 {
+			reserveDescriptions = append(reserveDescriptions, i18n.T(
+				"sellproduct.runtime.plan.reserve_rule",
+				item.Name,
+				item.ReserveQuantity,
+			))
+		}
+	}
 
 	itemOrder := runtimePlanTextOrNone(strings.Join(itemNames, " → "))
 	excludedOutOfStock := runtimePlanTextOrNone(strings.Join(plan.ExcludedOutOfStock, i18n.Separator()))
+	reserveSatisfied := runtimePlanTextOrNone(strings.Join(reserveSatisfiedNames, i18n.Separator()))
 	excludedByUser := runtimePlanTextOrNone(strings.Join(plan.ExcludedByUser, i18n.Separator()))
 	reservePlan := i18n.T("sellproduct.runtime.plan.no_reserve")
 	if len(reserveDescriptions) > 0 {
@@ -153,6 +177,7 @@ func runtimeLocationPlanMessage(plan runtimeLocationPlan) string {
 		runtimePlanTextOrNone(plan.RestoreOperator),
 		itemOrder,
 		excludedOutOfStock,
+		reserveSatisfied,
 		excludedByUser,
 		reservePlan,
 	)
@@ -294,6 +319,18 @@ func runtimeItemOutOfStockMessage(location string, itemID string) string {
 		"sellproduct.runtime.item_out_of_stock",
 		runtimeItemName(itemID),
 		runtimeLocationName(location),
+	)
+}
+
+func printRuntimeReserveSatisfied(ctx *maa.Context, itemID string, quantity int) {
+	maafocus.Print(ctx, runtimeReserveSatisfiedMessage(itemID, quantity))
+}
+
+func runtimeReserveSatisfiedMessage(itemID string, quantity int) string {
+	return i18n.T(
+		"sellproduct.runtime.reserve_satisfied",
+		runtimeItemName(itemID),
+		quantity,
 	)
 }
 

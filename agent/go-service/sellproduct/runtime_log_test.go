@@ -39,6 +39,11 @@ func TestRuntimeMessagesContainCurrentState(t *testing.T) {
 			expected: []string{"缺货", "test_item", "TestLocation"},
 		},
 		{
+			name:     "保留量已满足",
+			message:  runtimeReserveSatisfiedMessage("test_item", 1000),
+			expected: []string{"test_item", "保留数量 1000", "后续据点将跳过"},
+		},
+		{
 			name:     "仅售卖优先产品",
 			message:  runtimeOnlyPreferredEnabledMessage(),
 			expected: []string{"仅售卖优先产品", "其他产品不会售卖", "已开启地区优先售卖配置"},
@@ -95,7 +100,10 @@ func TestRuntimeLocationPlanMessage(t *testing.T) {
 			{Name: "物品乙", ReserveQuantity: 10},
 		},
 		ExcludedOutOfStock: []string{"物品丙"},
-		ExcludedByUser:     []string{"物品丁"},
+		ReserveSatisfied: []runtimeLocationPlanItem{
+			{Name: "物品戊", ReserveQuantity: 20},
+		},
+		ExcludedByUser: []string{"物品丁"},
 	})
 
 	for _, expected := range []string{
@@ -104,8 +112,10 @@ func TestRuntimeLocationPlanMessage(t *testing.T) {
 		"恢复干员",
 		"物品甲 → 物品乙",
 		"缺货排除：物品丙",
+		"保留量已满足：物品戊",
 		"用户排除：物品丁",
 		"物品乙保留 10",
+		"物品戊保留 20",
 	} {
 		if !strings.Contains(message, expected) {
 			t.Fatalf("据点计划 %q 不包含 %q", message, expected)
@@ -122,10 +132,11 @@ func TestBuildRuntimeLocationPlanItemsSeparatesOutOfStock(t *testing.T) {
 		{ItemID: "item_a", DisplayName: "物品甲"},
 		{ItemID: "item_b", DisplayName: "物品乙"},
 	}
-	items, excludedOutOfStock, excludedByUser := buildRuntimeLocationPlanItems(
+	items, excludedOutOfStock, reserveSatisfied, excludedByUser := buildRuntimeLocationPlanItems(
 		groups,
 		map[string]int{"item_a": 10, "item_b": 20},
 		map[string]struct{}{"item_b": {}, "other_location_item": {}},
+		nil,
 	)
 	if len(items) != 1 || items[0].Name != "物品甲" || items[0].ReserveQuantity != 10 {
 		t.Fatalf("可售计划 = %+v，期望仅保留物品甲及其保留规则", items)
@@ -136,6 +147,9 @@ func TestBuildRuntimeLocationPlanItemsSeparatesOutOfStock(t *testing.T) {
 	if len(excludedByUser) != 0 {
 		t.Fatalf("用户排除 = %v，期望为空", excludedByUser)
 	}
+	if len(reserveSatisfied) != 0 {
+		t.Fatalf("保留量已满足 = %v，期望为空", reserveSatisfied)
+	}
 }
 
 func TestBuildRuntimeLocationPlanItemsSeparatesBlacklist(t *testing.T) {
@@ -143,10 +157,11 @@ func TestBuildRuntimeLocationPlanItemsSeparatesBlacklist(t *testing.T) {
 		{ItemID: "item_a", DisplayName: "物品甲"},
 		{ItemID: "item_b", DisplayName: "物品乙"},
 	}
-	items, excludedOutOfStock, excludedByUser := buildRuntimeLocationPlanItems(
+	items, excludedOutOfStock, reserveSatisfied, excludedByUser := buildRuntimeLocationPlanItems(
 		groups,
 		map[string]int{"item_a": reserveBlacklistQuantity, "item_b": 20},
 		map[string]struct{}{"item_a": {}},
+		nil,
 	)
 	if len(items) != 1 || items[0].Name != "物品乙" || items[0].ReserveQuantity != 20 {
 		t.Fatalf("可售计划 = %+v，期望仅包含物品乙", items)
@@ -156,6 +171,31 @@ func TestBuildRuntimeLocationPlanItemsSeparatesBlacklist(t *testing.T) {
 	}
 	if !reflect.DeepEqual(excludedByUser, []string{"物品甲"}) {
 		t.Fatalf("用户排除 = %v，期望包含物品甲", excludedByUser)
+	}
+	if len(reserveSatisfied) != 0 {
+		t.Fatalf("用户黑名单物品不应记为已满足保留量：%v", reserveSatisfied)
+	}
+}
+
+func TestBuildRuntimeLocationPlanItemsSeparatesSatisfiedReserve(t *testing.T) {
+	groups := []itemPriorityGroup{
+		{ItemID: "item_a", DisplayName: "物品甲"},
+		{ItemID: "item_b", DisplayName: "物品乙"},
+	}
+	items, excludedOutOfStock, reserveSatisfied, excludedByUser := buildRuntimeLocationPlanItems(
+		groups,
+		map[string]int{"item_a": 10, "item_b": 20},
+		nil,
+		map[string]struct{}{"item_a": {}, "other_location_item": {}},
+	)
+	if len(items) != 1 || items[0].Name != "物品乙" {
+		t.Fatalf("可售计划 = %+v，期望仅包含物品乙", items)
+	}
+	if !reflect.DeepEqual(reserveSatisfied, []runtimeLocationPlanItem{{Name: "物品甲", ReserveQuantity: 10}}) {
+		t.Fatalf("保留量已满足 = %+v，期望包含物品甲及其保留数量", reserveSatisfied)
+	}
+	if len(excludedOutOfStock) != 0 || len(excludedByUser) != 0 {
+		t.Fatalf("已满足保留量不应混入其他排除原因：缺货=%v 用户=%v", excludedOutOfStock, excludedByUser)
 	}
 }
 

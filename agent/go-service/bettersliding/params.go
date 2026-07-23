@@ -9,26 +9,27 @@ import (
 )
 
 type parsedBetterSlidingParams struct {
-	target                  int
-	quantityBox             []int
-	maxTargetBox            []int
-	maxTargetExplicit       bool
-	quantityFilter          *quantityFilterParam
-	maxTargetFilter         *quantityFilterParam
-	quantityOnlyRec         bool
-	maxTargetOnlyRec        bool
-	greenMask               bool
-	direction               string
-	increaseButton          buttonTarget
-	decreaseButton          buttonTarget
-	centerPointOffset       [2]int
-	clampTargetToMax        bool
-	swipeButton             string
-	exceedingOverrideEnable string
-	targetType              string
-	targetReverse           bool
-	swipeOnlyMode           bool
-	finishAfterPreciseClick bool
+	target                      int
+	quantityBox                 []int
+	maxTargetBox                []int
+	maxTargetExplicit           bool
+	quantityFilter              *quantityFilterParam
+	maxTargetFilter             *quantityFilterParam
+	quantityOnlyRec             bool
+	maxTargetOnlyRec            bool
+	greenMask                   bool
+	direction                   string
+	increaseButton              buttonTarget
+	decreaseButton              buttonTarget
+	centerPointOffset           [2]int
+	clampTargetToMax            bool
+	swipeButton                 string
+	exceedingOverrideEnable     string
+	targetReachedOverrideEnable string
+	targetType                  string
+	targetReverse               bool
+	swipeOnlyMode               bool
+	finishAfterPreciseClick     bool
 }
 
 func detectBetterSlidingParamPresence(rawParam string) (betterSlidingParamPresence, error) {
@@ -40,20 +41,21 @@ func detectBetterSlidingParamPresence(rawParam string) (betterSlidingParamPresen
 	_, quantityPresent := rawKeys["Quantity"]
 
 	return betterSlidingParamPresence{
-		Target:                  hasNonNullRawKey(rawKeys, "Target"),
-		Quantity:                quantityPresent,
-		MaxTarget:               hasNonNullRawKey(rawKeys, "MaxTarget"),
-		GreenMask:               hasNonNullRawKey(rawKeys, "GreenMask"),
-		Direction:               hasNonNullRawKey(rawKeys, "Direction"),
-		IncreaseButton:          hasNonNullRawKey(rawKeys, "IncreaseButton"),
-		DecreaseButton:          hasNonNullRawKey(rawKeys, "DecreaseButton"),
-		SwipeButton:             hasNonNullRawKey(rawKeys, "SwipeButton"),
-		ExceedingOverrideEnable: hasNonNullRawKey(rawKeys, "ExceedingOverrideEnable"),
-		TargetType:              hasNonNullRawKey(rawKeys, "TargetType"),
-		TargetReverse:           hasNonNullRawKey(rawKeys, "TargetReverse"),
-		CenterPointOffset:       hasNonNullRawKey(rawKeys, "CenterPointOffset"),
-		ClampTargetToMax:        hasNonNullRawKey(rawKeys, "ClampTargetToMax"),
-		FinishAfterPreciseClick: hasNonNullRawKey(rawKeys, "FinishAfterPreciseClick"),
+		Target:                      hasNonNullRawKey(rawKeys, "Target"),
+		Quantity:                    quantityPresent,
+		MaxTarget:                   hasNonNullRawKey(rawKeys, "MaxTarget"),
+		GreenMask:                   hasNonNullRawKey(rawKeys, "GreenMask"),
+		Direction:                   hasNonNullRawKey(rawKeys, "Direction"),
+		IncreaseButton:              hasNonNullRawKey(rawKeys, "IncreaseButton"),
+		DecreaseButton:              hasNonNullRawKey(rawKeys, "DecreaseButton"),
+		SwipeButton:                 hasNonNullRawKey(rawKeys, "SwipeButton"),
+		ExceedingOverrideEnable:     hasNonNullRawKey(rawKeys, "ExceedingOverrideEnable"),
+		TargetReachedOverrideEnable: hasNonNullRawKey(rawKeys, "TargetReachedOverrideEnable"),
+		TargetType:                  hasNonNullRawKey(rawKeys, "TargetType"),
+		TargetReverse:               hasNonNullRawKey(rawKeys, "TargetReverse"),
+		CenterPointOffset:           hasNonNullRawKey(rawKeys, "CenterPointOffset"),
+		ClampTargetToMax:            hasNonNullRawKey(rawKeys, "ClampTargetToMax"),
+		FinishAfterPreciseClick:     hasNonNullRawKey(rawKeys, "FinishAfterPreciseClick"),
 	}, nil
 }
 
@@ -100,6 +102,13 @@ func (a *BetterSlidingAction) loadActionParams(customActionParam string) bool {
 func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (parsedBetterSlidingParams, bool) {
 	swipeButton := strings.TrimSpace(params.SwipeButton)
 	exceedingOverrideEnable := strings.TrimSpace(params.ExceedingOverrideEnable)
+	targetReachedOverrideEnable := strings.TrimSpace(params.TargetReachedOverrideEnable)
+	if exceedingOverrideEnable != "" && exceedingOverrideEnable == targetReachedOverrideEnable {
+		a.logger.Error().
+			Str("node", exceedingOverrideEnable).
+			Msg("exceeding and target-reached overrides must use different nodes")
+		return parsedBetterSlidingParams{}, false
+	}
 
 	targetType, err := normalizeTargetType(params.TargetType)
 	if err != nil {
@@ -201,26 +210,27 @@ func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (
 	}
 
 	return parsedBetterSlidingParams{
-		target:                  params.Target,
-		quantityBox:             quantityBox,
-		maxTargetBox:            maxTargetBox,
-		maxTargetExplicit:       params.presence.MaxTarget,
-		quantityFilter:          quantityFilter,
-		maxTargetFilter:         maxTargetFilter,
-		quantityOnlyRec:         quantityOnlyRec,
-		maxTargetOnlyRec:        maxTargetOnlyRec,
-		greenMask:               params.GreenMask,
-		direction:               strings.ToLower(strings.TrimSpace(params.Direction)),
-		increaseButton:          increaseButton,
-		decreaseButton:          decreaseButton,
-		centerPointOffset:       centerPointOffset,
-		clampTargetToMax:        params.ClampTargetToMax,
-		swipeButton:             swipeButton,
-		exceedingOverrideEnable: exceedingOverrideEnable,
-		targetType:              targetType,
-		targetReverse:           params.TargetReverse,
-		swipeOnlyMode:           false,
-		finishAfterPreciseClick: params.FinishAfterPreciseClick,
+		target:                      params.Target,
+		quantityBox:                 quantityBox,
+		maxTargetBox:                maxTargetBox,
+		maxTargetExplicit:           params.presence.MaxTarget,
+		quantityFilter:              quantityFilter,
+		maxTargetFilter:             maxTargetFilter,
+		quantityOnlyRec:             quantityOnlyRec,
+		maxTargetOnlyRec:            maxTargetOnlyRec,
+		greenMask:                   params.GreenMask,
+		direction:                   strings.ToLower(strings.TrimSpace(params.Direction)),
+		increaseButton:              increaseButton,
+		decreaseButton:              decreaseButton,
+		centerPointOffset:           centerPointOffset,
+		clampTargetToMax:            params.ClampTargetToMax,
+		swipeButton:                 swipeButton,
+		exceedingOverrideEnable:     exceedingOverrideEnable,
+		targetReachedOverrideEnable: targetReachedOverrideEnable,
+		targetType:                  targetType,
+		targetReverse:               params.TargetReverse,
+		swipeOnlyMode:               false,
+		finishAfterPreciseClick:     params.FinishAfterPreciseClick,
 	}, true
 }
 
@@ -244,6 +254,7 @@ func (a *BetterSlidingAction) applyActionParams(params parsedBetterSlidingParams
 	a.ClampTargetToMax = params.clampTargetToMax
 	a.SwipeButton = params.swipeButton
 	a.ExceedingOverrideEnable = params.exceedingOverrideEnable
+	a.TargetReachedOverrideEnable = params.targetReachedOverrideEnable
 	a.TargetType = params.targetType
 	a.TargetReverse = params.targetReverse
 	a.SwipeOnlyMode = params.swipeOnlyMode
@@ -269,6 +280,7 @@ func (a *BetterSlidingAction) logParsedActionParams() {
 		Bool("finish_after_precise_click", a.FinishAfterPreciseClick).
 		Str("swipe_button", a.SwipeButton).
 		Str("exceeding_override_enable", a.ExceedingOverrideEnable).
+		Str("target_reached_override_enable", a.TargetReachedOverrideEnable).
 		Str("target_type", a.TargetType).
 		Bool("target_reverse", a.TargetReverse).
 		Bool("swipe_only_mode", a.SwipeOnlyMode)

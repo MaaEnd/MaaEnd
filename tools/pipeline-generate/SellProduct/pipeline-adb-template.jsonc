@@ -15,7 +15,8 @@
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
             "IncreaseButton": "SellProduct/IncreaseButton.png",
-            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop",
+            "TargetReachedOverrideEnable": "SellProductReserveTargetReached"
         }
     }
 }

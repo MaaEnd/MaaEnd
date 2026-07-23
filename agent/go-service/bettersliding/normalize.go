@@ -222,6 +222,7 @@ func isSwipeOnlyMode(params betterSlidingParam) bool {
 		!params.presence.IncreaseButton &&
 		!params.presence.DecreaseButton &&
 		!params.presence.ExceedingOverrideEnable &&
+		!params.presence.TargetReachedOverrideEnable &&
 		!params.presence.TargetType &&
 		!params.presence.TargetReverse &&
 		!params.presence.CenterPointOffset &&

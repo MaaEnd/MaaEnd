@@ -60,6 +60,40 @@ func TestReserveSessionBlacklistSnapshot(t *testing.T) {
 	}
 }
 
+func TestReserveSessionSatisfiedItemsAreTaskScoped(t *testing.T) {
+	resetReserveSession()
+	registerReserveRule("item_reserved", 100)
+	setSelectedReserveItem("item_reserved")
+
+	itemID, quantity, marked, ok := markSelectedReserveSatisfied()
+	if itemID != "item_reserved" || quantity != 100 || !marked || !ok {
+		t.Fatalf("unexpected satisfied result: item=%q quantity=%d marked=%v ok=%v", itemID, quantity, marked, ok)
+	}
+	if _, exists := reserveSatisfiedItemsSnapshot()["item_reserved"]; !exists {
+		t.Fatal("satisfied reserve item should remain excluded for the current task")
+	}
+	_, _, marked, ok = markSelectedReserveSatisfied()
+	if marked || !ok {
+		t.Fatalf("repeated satisfaction should be idempotent: marked=%v ok=%v", marked, ok)
+	}
+
+	resetReserveSession()
+	if len(reserveSatisfiedItemsSnapshot()) != 0 {
+		t.Fatal("task reset should clear satisfied reserve items")
+	}
+}
+
+func TestReserveSessionCannotSatisfyInactiveRule(t *testing.T) {
+	for _, quantity := range []int{0, reserveBlacklistQuantity} {
+		resetReserveSession()
+		registerReserveRule("item_inactive", quantity)
+		setSelectedReserveItem("item_inactive")
+		if _, _, _, ok := markSelectedReserveSatisfied(); ok {
+			t.Fatalf("quantity %d should not create a satisfied reserve item", quantity)
+		}
+	}
+}
+
 func TestBuildReserveSlidingOverride(t *testing.T) {
 	withReserve := buildReserveSlidingOverride("Sliding", 88, true)
 	wantWithReserve := map[string]any{
@@ -110,6 +144,9 @@ func TestParseReserveSessionActionParam(t *testing.T) {
 	}
 	if _, err := parseReserveSessionActionParam(`{"operation":"select","item_id":"item_a"}`); err != nil {
 		t.Fatalf("valid select params should pass: %v", err)
+	}
+	if _, err := parseReserveSessionActionParam(`{"operation":"satisfy"}`); err != nil {
+		t.Fatalf("valid satisfy params should pass: %v", err)
 	}
 	if _, err := parseReserveSessionActionParam(`{"operation":"register","item_id":"item_a","quantity":-1}`); err != nil {
 		t.Fatalf("blacklist quantity should pass: %v", err)

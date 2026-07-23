@@ -1187,7 +1187,8 @@
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
             "IncreaseButton": "SellProduct/IncreaseButton.png",
-            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop"
+            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop",
+            "TargetReachedOverrideEnable": "SellProductReserveTargetReached"
         },
         "post_wait_freezes": 80,
         "post_delay": 0,

@@ -507,6 +507,43 @@ test("SellProduct 缺货物品通过据点锚点标记并在本次任务内共�
     }
 });
 
+test("SellProduct 持续售卖到保留量后再进入下一轮选货", () => {
+    const pipeline = readPipeline(
+        new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url),
+    );
+
+    assert.deepEqual(pipeline.SellProductSellCheckThenLoop.next, [
+        "SellProductReserveTargetReached",
+        "[Anchor]SellProductBetterSliding",
+    ]);
+    assert.equal(pipeline.SellProductReserveTargetReached.enabled, false);
+    assert.equal(pipeline.SellProductReserveTargetReached.custom_action, "SellProductReserveSession");
+    assert.deepEqual(pipeline.SellProductReserveTargetReached.custom_action_param, {
+        operation: "satisfy",
+    });
+    assert.deepEqual(pipeline.SellProductReserveTargetReached.next, ["SellProductSellLoop"]);
+    assert.equal(pipeline.SellProductSkipToNextSellLoop.recognition, "DirectHit");
+    assert.equal(pipeline.SellProductSkipToNextSellLoop.custom_action, "SellProductReserveSession");
+    assert.deepEqual(pipeline.SellProductSkipToNextSellLoop.custom_action_param, {
+        operation: "satisfy",
+    });
+    assert.deepEqual(pipeline.SellProductSkipToNextSellLoop.next, ["SellProductSellLoop"]);
+
+    for (const location of sellProductLocations) {
+        const outpost = readPipeline(
+            new URL(
+                `../../../assets/resource/pipeline/SellProduct/Outposts/${location.LocationId}.json`,
+                import.meta.url,
+            ),
+        );
+        assert.equal(
+            outpost[`SellProduct${location.LocationId}BetterSliding`].custom_action_param
+                .TargetReachedOverrideEnable,
+            "SellProductReserveTargetReached",
+        );
+    }
+});
+
 test("SellProduct 按启用据点边界处理已派驻干员冲突", () => {
     const pipelineTemplate = readFileSync(new URL("./pipeline-template.jsonc", import.meta.url), "utf8");
 

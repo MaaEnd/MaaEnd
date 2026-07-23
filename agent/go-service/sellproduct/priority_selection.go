@@ -112,12 +112,14 @@ func (r *PriorityItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 
 	attempted, outOfStock, pending := prioritySelectionSnapshot(param.Location)
 	blacklisted := reserveBlacklistedItemsSnapshot()
+	reserveSatisfied := reserveSatisfiedItemsSnapshot()
 	match, itemID, recognized := findPriorityItemMatch(
 		ocrItems,
 		groups,
 		attempted,
 		outOfStock,
 		blacklisted,
+		reserveSatisfied,
 		pending,
 	)
 	switch param.Result {

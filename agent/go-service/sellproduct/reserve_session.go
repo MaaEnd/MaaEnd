@@ -21,12 +21,14 @@ const (
 	reserveOperationRegister = "register"
 	reserveOperationSelect   = "select"
 	reserveOperationApply    = "apply"
+	reserveOperationSatisfy  = "satisfy"
 )
 
 var (
-	reserveSessionMu sync.Mutex
-	reserveRules     = map[string]int{}
-	reserveSelected  string
+	reserveSessionMu      sync.Mutex
+	reserveRules          = map[string]int{}
+	reserveSatisfiedItems = map[string]struct{}{}
+	reserveSelected       string
 )
 
 type reserveSessionActionParam struct {
@@ -121,6 +123,24 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			Str("sliding_node", param.SlidingNode).
 			Msg("reserve rule applied")
 		return true
+	case reserveOperationSatisfy:
+		itemID, quantity, marked, ok := markSelectedReserveSatisfied()
+		if !ok {
+			log.Error().Str("component", reserveSessionActionName).
+				Str("item_id", itemID).
+				Int("quantity", quantity).
+				Msg("cannot satisfy unconfigured reserve rule")
+			return false
+		}
+		log.Info().Str("component", reserveSessionActionName).
+			Str("item_id", itemID).
+			Int("quantity", quantity).
+			Bool("marked", marked).
+			Msg("reserve target satisfied for current task")
+		if marked {
+			printRuntimeReserveSatisfied(ctx, itemID, quantity)
+		}
+		return true
 	default:
 		return false
 	}
@@ -135,7 +155,7 @@ func parseReserveSessionActionParam(raw string) (*reserveSessionActionParam, err
 	param.ItemID = strings.TrimSpace(param.ItemID)
 	param.SlidingNode = strings.TrimSpace(param.SlidingNode)
 	switch param.Operation {
-	case reserveOperationReset:
+	case reserveOperationReset, reserveOperationSatisfy:
 	case reserveOperationRegister:
 		if param.Quantity < reserveBlacklistQuantity {
 			return nil, fmt.Errorf("quantity must be -1 or greater")
@@ -185,9 +205,37 @@ func parseReserveItemIDAttach(raw string, nodeName string) (string, error) {
 func resetReserveSession() {
 	reserveSessionMu.Lock()
 	reserveRules = map[string]int{}
+	reserveSatisfiedItems = map[string]struct{}{}
 	reserveSelected = ""
 	reserveSessionMu.Unlock()
 	resetPrioritySelectionSession()
+}
+
+// markSelectedReserveSatisfied 在 BetterSliding 确认无需交易，或可达目标的交易成功确认后，
+// 将当前物品标记为本次任务无需再次处理。返回 marked=false 表示该物品此前已标记。
+func markSelectedReserveSatisfied() (itemID string, quantity int, marked bool, ok bool) {
+	reserveSessionMu.Lock()
+	defer reserveSessionMu.Unlock()
+	itemID = reserveSelected
+	quantity, exists := reserveRules[itemID]
+	if itemID == "" || !exists || quantity <= 0 {
+		return itemID, quantity, false, false
+	}
+	_, exists = reserveSatisfiedItems[itemID]
+	reserveSatisfiedItems[itemID] = struct{}{}
+	return itemID, quantity, !exists, true
+}
+
+// reserveSatisfiedItemsSnapshot 返回本次任务已经达到保留目标的物品集合。
+// 该状态与用户黑名单、运行期缺货分别维护，避免混淆排除原因。
+func reserveSatisfiedItemsSnapshot() map[string]struct{} {
+	reserveSessionMu.Lock()
+	defer reserveSessionMu.Unlock()
+	satisfied := make(map[string]struct{}, len(reserveSatisfiedItems))
+	for itemID := range reserveSatisfiedItems {
+		satisfied[itemID] = struct{}{}
+	}
+	return satisfied
 }
 
 // registerReserveRule 返回该物品是否已存在规则。后注册的槽位覆盖先注册的槽位。

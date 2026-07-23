@@ -333,7 +333,7 @@
     },
     // SellProductReserveSession 通过 Pipeline override 动态引用以下按保留数量交易的节点。
     "SellProductSellThenLoop": {
-        "desc": "交易，完成后直接选择下一个优先物品",
+        "desc": "按保留数量交易，完成后继续检查当前物品的剩余库存",
         "recognition": "OCR",
         "roi": [
             975,
@@ -357,7 +357,7 @@
         ]
     },
     "SellProductSellCheckThenLoop": {
-        "desc": "交易后确认，直接选择下一个优先物品",
+        "desc": "交易后确认，继续应用当前物品的保留规则",
         "recognition": "And",
         "all_of": [
             "CloseRewardsButton",
@@ -383,16 +383,39 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSellLoop"
+            "SellProductReserveTargetReached",
+            "[Anchor]SellProductBetterSliding"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.SellProduct.trade_completed"
         }
     },
+    "SellProductReserveTargetReached": {
+        "desc": "本次交易已达到保留目标，将当前物品标记为本次任务无需再次处理",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "satisfy"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSellLoop"
+        ]
+    },
     "SellProductSkipToNextSellLoop": {
         "desc": "保留数量大于等于当前库存，继续选择下一个优先物品",
         "enabled": false,
+        "recognition": "DirectHit",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductReserveSession",
+        "custom_action_param": {
+            "operation": "satisfy"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
