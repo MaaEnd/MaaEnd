@@ -18,12 +18,11 @@
     "VisitFriendsRecognitionItemNameByEnterButton": {
         "recognition": {
             "param": {
-                // 相对 Online；等价于旧 ClueExchange 偏移 [-956,-24,259,5]
                 "roi_offset": [
-                    -8,
-                    -47,
-                    29,
-                    -41
+                    -6,
+                    -76,
+                    236,
+                    19
                 ]
             }
         }
