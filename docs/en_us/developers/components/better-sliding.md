@@ -72,22 +72,36 @@ The following 4 fields are recommended to be passed via the calling node's `atta
 
 In addition to the 4 fields above, all other parameters can only be read from `custom_action_param`:
 
-| Field                     | Type                    | Required | Description                                                                                                                                                                                 |
-| ------------------------- | ----------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Direction`               | `string`                | Yes      | Swipe direction. Specifies "the direction of the maximum value", supports `left` / `right` / `up` / `down`.                                                                                 |
-| `Quantity.Box`            | `int[4]`                | Yes      | OCR region for the current quantity, format `[x, y, w, h]`.                                                                                                                                 |
-| `IncreaseButton`          | `string` or `int[2\|4]` | Yes      | "Increase quantity" button. Template path is recommended (threshold fixed at `0.8`), or coordinates `[x, y]` or `[x, y, w, h]`.                                                             |
-| `DecreaseButton`          | `string` or `int[2\|4]` | Yes      | "Decrease quantity" button. Format same as `IncreaseButton`.                                                                                                                                |
-| `MaxTarget.Box`           | `int[4]`                | No       | OCR region for reading the item's maximum available quantity (e.g., purchasable/sellable quantity), format `[x, y, w, h]`. When missing, the slider's endpoint value is used as a fallback. |
-| `Quantity.Filter`         | `object`                | No       | Color filter parameters for the current quantity OCR, suitable for scenarios where the digit color is stable but background interference is high.                                           |
-| `MaxTarget.Filter`        | `object`                | No       | Color filter parameters for the maximum target quantity OCR. Used only when `MaxTarget` is explicitly provided.                                                                             |
-| `Quantity.OnlyRec`        | `bool`                  | No       | Whether to enable `only_rec` for the quantity OCR node. Default `false`.                                                                                                                    |
-| `MaxTarget.OnlyRec`       | `bool`                  | No       | Whether to enable `only_rec` for the `BetterSlidingGetMaxTarget` OCR node. Used only when `MaxTarget` is explicitly provided.                                                               |
-| `GreenMask`               | `bool`                  | No       | When locating buttons using a template path, whether to enable green mask filtering for template matching. Default `false`. Applies to `IncreaseButton` and `DecreaseButton`.               |
-| `CenterPointOffset`       | `int[2]`                | No       | Click offset relative to the center point of the slider's recognition box `[x, y]`, negative values left/up, positive right/down. Default `[-10, 0]`.                                       |
-| `ClampTargetToMax`        | `bool`                  | No       | When `true`, if the target exceeds `maxQuantity`, it is automatically clamped to `maxQuantity` and execution continues, instead of failing directly. Default `false`.                       |
-| `SwipeButton`             | `string`                | No       | Custom slider template path, overrides the default template of the `BetterSlidingSwipeButton` node. Default `""` (uses the shared default template).                                        |
-| `ExceedingOverrideEnable` | `string`                | No       | When the resolved target exceeds the slidable range, sets the specified Pipeline node's `enabled` to `true`, then returns success. Default `""` (disabled, the action fails directly).      |
+| Field                         | Type                    | Required | Description                                                                                                                                                                                 |
+| ----------------------------- | ----------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Direction`                   | `string`                | Yes      | Swipe direction. Specifies "the direction of the maximum value", supports `left` / `right` / `up` / `down`.                                                                                 |
+| `Quantity.Box`                | `int[4]`                | Yes      | OCR region for the current quantity, format `[x, y, w, h]`.                                                                                                                                 |
+| `IncreaseButton`              | `string` or `int[2\|4]` | Yes      | "Increase quantity" button. Template path is recommended (threshold fixed at `0.8`), or coordinates `[x, y]` or `[x, y, w, h]`.                                                             |
+| `DecreaseButton`              | `string` or `int[2\|4]` | Yes      | "Decrease quantity" button. Format same as `IncreaseButton`.                                                                                                                                |
+| `MaxTarget.Box`               | `int[4]`                | No       | OCR region for reading the item's maximum available quantity (e.g., purchasable/sellable quantity), format `[x, y, w, h]`. When missing, the slider's endpoint value is used as a fallback. |
+| `Quantity.Filter`             | `object`                | No       | Color filter parameters for the current quantity OCR, suitable for scenarios where the digit color is stable but background interference is high.                                           |
+| `MaxTarget.Filter`            | `object`                | No       | Color filter parameters for the maximum target quantity OCR. Used only when `MaxTarget` is explicitly provided.                                                                             |
+| `Quantity.OnlyRec`            | `bool`                  | No       | Whether to enable `only_rec` for the quantity OCR node. Default `false`.                                                                                                                    |
+| `MaxTarget.OnlyRec`           | `bool`                  | No       | Whether to enable `only_rec` for the `BetterSlidingGetMaxTarget` OCR node. Used only when `MaxTarget` is explicitly provided.                                                               |
+| `GreenMask`                   | `bool`                  | No       | When locating buttons using a template path, whether to enable green mask filtering for template matching. Default `false`. Applies to `IncreaseButton` and `DecreaseButton`.               |
+| `CenterPointOffset`           | `int[2]`                | No       | Click offset relative to the center point of the slider's recognition box `[x, y]`, negative values left/up, positive right/down. Default `[-10, 0]`.                                       |
+| `ClampTargetToMax`            | `bool`                  | No       | When `true`, if the target exceeds `maxQuantity`, it is automatically clamped to `maxQuantity` and execution continues, instead of failing directly. Default `false`.                       |
+| `SwipeButton`                 | `string`                | No       | Custom slider template path, overrides the default template of the `BetterSlidingSwipeButton` node. Default `""` (uses the shared default template).                                        |
+| `ExceedingOverrideEnable`     | `string`                | No       | When the resolved target exceeds the slidable range, sets the specified Pipeline node's `enabled` to `true`, then returns success. Default `""` (disabled, the action fails directly).      |
+| `TargetReachedOverrideEnable` | `string`                | No       | When the resolved target needs no clamping and falls within `[1, maxQuantity]`, sets the specified Pipeline node's `enabled` to `true`. Default `""` (does not report this result).         |
+
+### Outcome Node Contract
+
+`ExceedingOverrideEnable` and `TargetReachedOverrideEnable` report the current BetterSliding outcome to the caller. They must reference different nodes, and each outcome node should default to `enabled: false`. When both parameters are configured, their state after each run is:
+
+| Resolved target                                                         | `ExceedingOverrideEnable` | `TargetReachedOverrideEnable` | BetterSliding behavior                                         |
+| ----------------------------------------------------------------------- | ------------------------- | ----------------------------- | -------------------------------------------------------------- |
+| Below 1, above `maxQuantity` without clamping, or maximum quantity is 0 | `true`                    | `false`                       | Returns success without adjusting; caller handles overflow     |
+| Within `[1, maxQuantity]`                                               | `false`                   | `true`                        | Adjusts to the target quantity                                 |
+| Above `maxQuantity` with clamping enabled                               | `false`                   | `false`                       | Adjusts to `maxQuantity`; original target is not yet reachable |
+
+> [!important]
+> `TargetReachedOverrideEnable` only means that the caller's next operation can reach the target; it does not mean that operation has succeeded. Selling, purchasing, and similar flows must still confirm the outer transaction in Pipeline before recording the business target as completed.
 
 ### Example
 
