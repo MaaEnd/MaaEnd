@@ -112,11 +112,15 @@ python tools/map_tracker/map_tracker_tester.py batch_test -i tests/MaaEndTestset
 >
 > 如你所见，测试集位于 Git Submodule `tests/MaaEndTestset` 的 `Win32/Official_CN/map_tracker` 目录。您需要确保该 Submodule 已经被正确拉取到本地。
 
-如果需要采集新的测试样本图，您可以运行下面的脚本来从游戏中实时录制：
+如果需要采集新的测试样本图，请先启动统一 Web 开发工具：
 
 ```bash
-python tools/map_tracker/map_tracker_tester.py collect_data -o your_output_dir
+uv run tools/map_tracker/map_tracker_master.py
 ```
+
+随后打开工具内的“采集测试数据”功能并开始采集，此时页面会持续执行实时推理。您可以手工筛选候选样本，从而把以推理结果标注文件名的 PNG 图片写入到输出目录。
+
+侧边栏的“候选项”和“已有项”Tab 分别用于审核新截图样本和浏览输出目录中已有的样本。您可以在详情表单中修正地图名、坐标和朝向，保存后工具会按照样本文件名格式重命名 PNG。
 
 ## 维护办法
 

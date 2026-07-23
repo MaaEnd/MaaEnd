@@ -45,31 +45,42 @@ description: MaaEnd MapTracker 相关组件编写指南。为 agent/go-service/m
 
 主要的依赖项是 agent/go-service/pkg/minicv 包，提供了定制化的计算机视觉功能，例如模板匹配。
 
-Go 代码的验证主要是通过**编译构建和单元测试**完成的；一般无需使用 pnpm 进行测试（这个是 MaaFW 的测试工具而不是 MapTracker 的）。
-
 ### 工具代码
 
 为了帮助使用者和维护者对地图图片、路线进行快速的操作和可视化，在 tools/map_tracker 目录下提供了一些使用 **Python** 写的工具代码。具体如下：
 
 - \_internal 包：
     - core_utils.py：常用工具函数；
-    - gui_pages.py：提供了 GUI 页面实现；
-    - gui_widgets.py：提供了可复用的 GUI 组件；
     - http_utils.py：下载相关；
     - location_service.py：依赖于 maa_interface.py 提供工具内调用 MapTracker 定位的功能；
     - maa_interface.py：提供了与游戏交互的接口；
     - nav_mesh.py：提供了 NavMesh 数据解析的功能；
     - pipeline_handler.py：提供了 pipeline JSON 解析的功能；
-    - sprite_utils.py：提供了 GUI 中显示图标的能力；
+    - sample_collector.py：提供 Web 工具的测试样本采集服务；
+    - sample_files.py：提供测试样本文件名和坐标索引；
     - zmdmap_schemas.py：提供了 zmdmap 数据解析的功能。
-- map_fetcher.py：提供了从 zmdmap 获取最新地图图片的功能；
-- map_generator.py：提供了基于最新图片来生成优化后的地图图片和数据的功能；
-- map_tracker_editor.py：向用户提供路线编辑等可视化功能；
-- map_tracker_tester.py：提供小地图推理功能的集成测试；
-- nav_mesh_editor.py：向用户提供 NavMesh 编辑等可视化功能。
+- map_fetcher.py：提供了从 zmdmap 获取最新地图图片的功能（常通过 CI 运行）；
+- map_generator.py：提供了基于最新图片来生成优化后的地图图片和数据的功能（常通过 CI 运行）；
+- map_tracker_tester.py：提供 MapTrackerInfer 节点小地图推理功能的集成测试（常通过 CI 运行）；
+- map_tracker_master.py：提供节点编辑、日志分析、NavMesh 编辑和测试数据采集的全能 Web 工具（专给人类用户使用）。
 
-上述工具代码按照功能分类：
+### 其他牵涉的文件
 
-- 用于地图图片和数据的拉取（常通过 CI 运行）：fetcher 和 generator；
-- 提供给人类用户使用的可视化工具：两个 editor；
-- 集成测试工具（常通过 CI 运行）：tester。
+除了上述两种主要的代码类型外，MapTracker 还会涉及到一些其他文件：
+
+- .github/workflows/sync-zmdmap.yml：会调起 map_fetcher.py 和 map_generator.py 来同步最新的地图图片和数据；
+- .github/workflows/test.yml：会调起 map_tracker_tester.py 运行测试；
+- tools/schema/：其中包含有 MapTracker pipeline 节点的 JSON Schema 定义文件以方便 IDE 解析，仅在修改了节点参数定义后需要编辑；
+- 以及我们之前提到的 docs/ 内的两个文档及其英文副本。
+
+## 风格习惯
+
+### 测试
+
+首先，不要滥用测试。主仓库的 pnpm test/check 是给整个项目的 MaaFW 相关功能的测试，与 MapTracker 无关。
+
+MapTracker 的开发过程中一共可能涉及三种测试：
+
+1. Go 组件的编码测试：主要是通过 go build 编译构建和 go 单元测试完成的。
+2. Python 脚本工具和 Web 前端工具的编码测试：主要是通过 python 编译和 pnpm build 构建完成的，工具性代码一般不设单元测试以免增加维护成本。
+3. MapTrackerInfer 节点的集成测试：主要是通过 map_tracker_tester.py 脚本完成的，仅在修改了 CV 或识别算法时需要运行。
