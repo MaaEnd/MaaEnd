@@ -101,7 +101,7 @@
         "box_index": 3
     },
     "VisitFriendsRecognitionItemWithRemark": {
-        "desc": "识别进船按钮与带备注好友名；box_index=3 返回名字框，供备注优先消费性选友",
+        "desc": "识别进船按钮与带备注好友名；box_index=3 返回名字框，供备注选友链路消费",
         "recognition": "And",
         "all_of": [
             "VisitFriendsRecognitionItemEnterButton",

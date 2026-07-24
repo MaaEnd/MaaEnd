@@ -31,6 +31,12 @@
                     "pipeline_override": {
                         "VisitFriendsMenuScanTargetFriendOpenRemark": {
                             "enabled": true
+                        },
+                        "VisitFriendsMenuScanTargetFriendOpen": {
+                            "enabled": false
+                        },
+                        "VisitFriendsMenuScanRemarkFallback": {
+                            "enabled": true
                         }
                     }
                 },
@@ -38,6 +44,12 @@
                     "name": "No",
                     "pipeline_override": {
                         "VisitFriendsMenuScanTargetFriendOpenRemark": {
+                            "enabled": false
+                        },
+                        "VisitFriendsMenuScanTargetFriendOpen": {
+                            "enabled": true
+                        },
+                        "VisitFriendsMenuScanRemarkFallback": {
                             "enabled": false
                         }
                     }
