@@ -91,10 +91,6 @@ var mapTrackerMoveDefaultParam = MapTrackerMoveParam{
 	StuckMitigators:         []string{"MoveOrDeleteDevice", "Jump"},
 }
 
-var mapTrackerInferParamForMove = MapTrackerInferParam{
-	Precision: 0.7,
-	Threshold: 0.3,
-}
 
 // PlayerRotationAdjustmentState keeps track of one rotation adjustment
 type PlayerRotationAdjustmentState struct {
@@ -574,8 +570,8 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 	mapNameRegex := buildMapNameRegex(param.MapNameMatchRule, param.MapName)
 	inferConfig := map[string]any{
 		"map_name_regex": mapNameRegex,
-		"precision":      mapTrackerInferParamForMove.Precision,
-		"threshold":      mapTrackerInferParamForMove.Threshold,
+		"precision":      mapTrackerInferDefaultParam.Precision,
+		"threshold":      mapTrackerInferDefaultParam.Threshold,
 	}
 
 	inferConfigBytes, err := json.Marshal(inferConfig)
