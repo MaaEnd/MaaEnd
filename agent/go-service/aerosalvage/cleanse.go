@@ -7,12 +7,12 @@ import (
 	"slices"
 )
 
-// FamilyGeometry describes whether a line family is axis-aligned or convergent.
+// FamilyGeometry describes whether a line family is parallel or convergent.
 type FamilyGeometry uint8
 
 const (
-	// AxisAlignedGeometry means the family is represented by the exact Hough axis bin.
-	AxisAlignedGeometry FamilyGeometry = iota
+	// ParallelGeometry means the family has a vanishing point at infinity.
+	ParallelGeometry FamilyGeometry = iota
 	// ConvergentGeometry means the family shares a finite vanishing point.
 	ConvergentGeometry
 )
@@ -97,26 +97,26 @@ func cleanseFamily(lines []Line, family LineFamily, roi image.Rectangle, cfg Cle
 	}
 	result.AxisDominance = axisDominance(lines, family)
 	if result.AxisDominance >= cfg.AxisDominanceRatio {
-		return cleanseAxisFamily(result, lines, family, roi, cfg), nil
+		return cleanseAxisDominantFamily(result, lines, family, roi, cfg), nil
 	}
 	result.Geometry = ConvergentGeometry
 	result.Grouped = groupNearbyLines(lines, family, roi, cfg.GroupDistancePixels)
 	if len(result.Grouped) < 2 {
 		if result.AxisDominance >= cfg.AxisDominanceRatio {
-			return cleanseAxisFamily(result, lines, family, roi, cfg), nil
+			return cleanseAxisDominantFamily(result, lines, family, roi, cfg), nil
 		}
 		return result, fmt.Errorf("fewer than two grouped candidates")
 	}
 	point, inliers, iterations, angleLimit, err := refineVanishingPoint(result.Grouped, roi, cfg)
 	if err != nil {
 		if result.AxisDominance >= cfg.AxisDominanceRatio {
-			return cleanseAxisFamily(result, lines, family, roi, cfg), nil
+			return cleanseAxisDominantFamily(result, lines, family, roi, cfg), nil
 		}
 		return result, err
 	}
 	center := floatPoint{X: float64(roi.Min.X+roi.Max.X) / 2, Y: float64(roi.Min.Y+roi.Max.Y) / 2}
 	if math.Hypot(point.X-center.X, point.Y-center.Y) >= cfg.ParallelDistance {
-		return cleanseAxisFamily(result, lines, family, roi, cfg), nil
+		return cleanseParallelFamily(result, inliers, family, roi, cfg), nil
 	}
 	result.VanishingPoint = image.Pt(int(math.Round(point.X)), int(math.Round(point.Y)))
 	result.PreciseVanishingPoint = point
@@ -128,15 +128,22 @@ func cleanseFamily(lines []Line, family LineFamily, roi image.Rectangle, cfg Cle
 	return result, nil
 }
 
-func cleanseAxisFamily(result FamilyCleanseResult, lines []Line, family LineFamily, roi image.Rectangle, cfg CleanseConfig) FamilyCleanseResult {
-	result.Geometry = AxisAlignedGeometry
+func cleanseParallelFamily(result FamilyCleanseResult, lines []Line, family LineFamily, roi image.Rectangle, cfg CleanseConfig) FamilyCleanseResult {
+	result.Geometry = ParallelGeometry
 	result.VanishingPoint = image.Point{}
 	result.PreciseVanishingPoint = Point{}
 	result.AngleLimit = 0
 	result.Iterations = 0
-	result.Inliers, result.Outliers = splitAxisLines(lines, family)
+	result.Inliers = slices.Clone(lines)
 	result.Grouped = groupNearbyLines(result.Inliers, family, roi, cfg.GroupDistancePixels)
-	result.Lines = slices.Clone(result.Grouped)
+	result.Lines = snapLinesToSharedDirection(result.Grouped, family, roi)
+	return result
+}
+
+func cleanseAxisDominantFamily(result FamilyCleanseResult, lines []Line, family LineFamily, roi image.Rectangle, cfg CleanseConfig) FamilyCleanseResult {
+	inliers, outliers := splitAxisLines(lines, family)
+	result = cleanseParallelFamily(result, inliers, family, roi, cfg)
+	result.Outliers = outliers
 	return result
 }
 
@@ -188,6 +195,7 @@ func axisDominance(lines []Line, family LineFamily) float64 {
 }
 
 func splitAxisLines(lines []Line, family LineFamily) (inliers, outliers []Line) {
+	// Exact axis bins are the most reliable observations when the raw family is axis-dominant.
 	for _, line := range lines {
 		if axisAngleDistance(line.Theta, family) < 1e-9 {
 			inliers = append(inliers, line)
@@ -196,6 +204,48 @@ func splitAxisLines(lines []Line, family LineFamily) (inliers, outliers []Line) 
 		}
 	}
 	return inliers, outliers
+}
+
+func snapLinesToSharedDirection(lines []Line, family LineFamily, roi image.Rectangle) []Line {
+	if len(lines) == 0 {
+		return nil
+	}
+	var normalX, normalY, weightSum float64
+	for _, line := range lines {
+		weight := float64(max(line.Votes, 1))
+		normalX += math.Cos(line.Theta) * weight
+		normalY += math.Sin(line.Theta) * weight
+		weightSum += weight
+	}
+	normalLength := math.Hypot(normalX, normalY)
+	if normalLength < 1e-9 || weightSum == 0 {
+		return nil
+	}
+	normalX /= normalLength
+	normalY /= normalLength
+	theta := normalizeTheta(math.Atan2(normalY, normalX))
+	reference := float64(roi.Min.Y+roi.Max.Y) / 2
+	if family == HorizontalFamily {
+		reference = float64(roi.Min.X+roi.Max.X) / 2
+	}
+	snapped := make([]Line, 0, len(lines))
+	for _, line := range lines {
+		position, ok := linePosition(line, family, reference)
+		if !ok {
+			continue
+		}
+		anchor := floatPoint{X: position, Y: reference}
+		if family == HorizontalFamily {
+			anchor = floatPoint{X: reference, Y: position}
+		}
+		snapped = append(snapped, Line{
+			Rho:    anchor.X*normalX + anchor.Y*normalY,
+			Theta:  theta,
+			Votes:  line.Votes,
+			Family: family,
+		})
+	}
+	return snapped
 }
 
 func axisAngleDistance(theta float64, family LineFamily) float64 {

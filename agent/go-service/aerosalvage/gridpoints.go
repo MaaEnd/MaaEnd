@@ -281,14 +281,15 @@ func newProjectiveTransform(cleaned *CleanseResult, roi image.Rectangle) (projec
 	return transform, nil
 }
 
-func homogeneousVanishingPoint(result FamilyCleanseResult, family LineFamily) [3]float64 {
+func homogeneousVanishingPoint(result FamilyCleanseResult, _ LineFamily) [3]float64 {
 	if result.Geometry == ConvergentGeometry {
 		return [3]float64{result.PreciseVanishingPoint.X, result.PreciseVanishingPoint.Y, 1}
 	}
-	if family == HorizontalFamily {
-		return [3]float64{1, 0, 0}
+	if len(result.Lines) == 0 {
+		return [3]float64{}
 	}
-	return [3]float64{0, 1, 0}
+	theta := result.Lines[0].Theta
+	return [3]float64{-math.Sin(theta), math.Cos(theta), 0}
 }
 
 func crossHomogeneous(left, right [3]float64) [3]float64 {
