@@ -159,7 +159,7 @@
                 316
             ]
         },
-        "post_delay": 0,
+        "post_delay": 800, // 真得写这么长
         "next": [
             "AeroSalvageComplete",
             "AeroSalvageGridRecognition"
