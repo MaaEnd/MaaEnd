@@ -53,28 +53,9 @@
             }
         },
         "next": [
-            "CloseFastCollectProductionRewards",
+            "SceneNoticeRewardsConfirm",
             "InDijiangControlNexus"
         ]
-    },
-    "CloseFastCollectProductionRewards": {
-        "desc": "关闭快速收取产物奖励界面",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "CloseRewardsButton",
-                    "CloseRewardsButtonText"
-                ]
-            }
-        },
-        "pre_wait_freezes": 150,
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
     },
     "DijiangRewardsFastCollectClues": {
         "desc": "快速收取线索",
@@ -126,27 +107,8 @@
             }
         },
         "next": [
-            "CloseFastCollectCluesRewards",
+            "SceneNoticeRewardsConfirm",
             "InDijiangControlNexus"
         ]
-    },
-    "CloseFastCollectCluesRewards": {
-        "desc": "关闭快速收取线索奖励界面",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "CloseRewardsButton",
-                    "CloseRewardsButtonText"
-                ]
-            }
-        },
-        "pre_wait_freezes": 150,
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
     }
 }
