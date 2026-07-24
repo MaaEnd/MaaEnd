@@ -13,7 +13,7 @@
     "item.XiraniteGourd": "息壤葫芦",
     "item.XiraniteJadeGourd": "息壤玉葫芦",
     "task.DeliveryJobs.AcceptJobOnly": "已开启仅接取任务模式，停止后续转交流程，请完成送货后再次运行任务",
-    "task.AeroSalvage.label": "浮空回收",
+    "task.AeroSalvage.label": "🎈浮空回收",
     "task.AeroSalvage.description": "自动放置所有气球并保持平衡。请在浮空回收界面内开启任务",
     "task.DeliveryJobs.AcceptJobOnly.label": "仅接取任务",
     "task.DeliveryJobs.AcceptJobOnly.description": "开启后仅会自动接取任务，不会转交；接取完成后会自动停止。",

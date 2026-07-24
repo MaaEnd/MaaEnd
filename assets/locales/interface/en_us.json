@@ -13,7 +13,7 @@
     "item.XiraniteGourd": "Xiranite Gourd",
     "item.XiraniteJadeGourd": "Xiranite Jade Gourd",
     "task.DeliveryJobs.AcceptJobOnly": "Accept-jobs-only mode is enabled. The subsequent transfer flow has been stopped. Please complete the delivery and run the task again.",
-    "task.AeroSalvage.label": "Aerial Salvage",
+    "task.AeroSalvage.label": "🎈Aerial Salvage",
     "task.AeroSalvage.description": "Automatically deploys all balloons and keeps them balanced. Start the task from the Aerial Salvage screen.",
     "task.DeliveryJobs.AcceptJobOnly.label": "Accept Jobs Only",
     "task.DeliveryJobs.AcceptJobOnly.description": "When enabled, it only accepts jobs automatically and does not transfer them; it stops automatically after a job is accepted.",

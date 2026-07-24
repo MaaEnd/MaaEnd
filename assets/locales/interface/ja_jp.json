@@ -13,7 +13,7 @@
     "item.XiraniteGourd": "息壌ひょうたん",
     "item.XiraniteJadeGourd": "息壌玉ひょうたん",
     "task.DeliveryJobs.AcceptJobOnly": "依頼受注のみモードが有効です。以降の転送フローを停止しました。配達を完了してから、もう一度タスクを実行してください。",
-    "task.AeroSalvage.label": "浮遊回収",
+    "task.AeroSalvage.label": "🎈浮遊回収",
     "task.AeroSalvage.description": "すべての気球を自動で配置し、バランスを維持します。浮遊回収画面でタスクを開始してください。",
     "task.DeliveryJobs.AcceptJobOnly.label": "依頼受注のみ",
     "task.DeliveryJobs.AcceptJobOnly.description": "有効にすると依頼の自動受注のみを行い、転送は行いません。依頼受注後に自動で停止します。",
