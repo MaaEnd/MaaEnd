@@ -201,7 +201,8 @@ func (a *BetterSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.Cu
 
 	upperOverflow := a.Target > a.maxQuantity
 	lowerOverflow := a.TargetType == TargetTypeValue && a.TargetReverse && a.Target < 1
-	a.targetReached = a.Target >= 1 && a.Target <= a.maxQuantity
+	// Record reachability before clamping: selecting a clamped maximum does not mean the original target is reachable.
+	a.targetReachable = a.Target >= 1 && a.Target <= a.maxQuantity
 
 	// Clamp upper overflow before any exceeding-override handling so clamp takes priority.
 	if a.ClampTargetToMax && upperOverflow {
@@ -616,13 +617,12 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 	}
 
 	if a.TargetReachedOverrideEnable != "" {
-		targetReached := !a.exceeded && a.targetReached
-		if err := ctx.OverridePipeline(buildNodeEnableOverride(a.TargetReachedOverrideEnable, targetReached)); err != nil {
+		if err := ctx.OverridePipeline(buildNodeEnableOverride(a.TargetReachedOverrideEnable, a.targetReachable)); err != nil {
 			a.logger.Error().
 				Err(err).
 				Str("caller", arg.CurrentTaskName).
 				Str("override_node", a.TargetReachedOverrideEnable).
-				Bool("target_reached", targetReached).
+				Bool("target_reachable", a.targetReachable).
 				Msg("failed to apply target-reached override after internal pipeline")
 			return false
 		}
@@ -678,7 +678,7 @@ func (a *BetterSlidingAction) resetState() {
 	a.maxTarget = 0
 	a.maxTargetResolved = false
 	a.exceeded = false
-	a.targetReached = false
+	a.targetReachable = false
 	a.runtimeTargetResolved = false
 }
 

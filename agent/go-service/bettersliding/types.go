@@ -115,7 +115,7 @@ type BetterSlidingAction struct {
 	maxTarget             int
 	maxTargetResolved     bool
 	exceeded              bool
-	targetReached         bool
+	targetReachable       bool
 	runtimeTargetResolved bool
 	logger                zerolog.Logger
 }
