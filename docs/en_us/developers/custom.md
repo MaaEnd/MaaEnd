@@ -104,6 +104,12 @@ The target position always uses the recognition `box` that triggered this Action
 
 Example file: [`RepeatUntilFoundAction.json`](../../../assets/resource/pipeline/Interface/Example/RepeatUntilFoundAction.json)
 
+### CharacterSearchAction
+
+`CharacterSearchAction` lives in `agent/go-service/common/charactercontroller`. When an interact point cannot be found, it walks a fixed WASD circle to fine-tune position and recognize target nodes. See [CharacterController reference](./components/character-controller.md#action-charactersearchaction) for parameters and path details.
+
+Example file: [`CharacterController.json`](../../../assets/resource/pipeline/Interface/Example/CharacterController.json)
+
 ### PipelineOverride
 
 The `PipelineOverride` implementation is located in `agent/go-service/common/pipelineoverride` and is used at runtime to merge **node-organized partial JSON** into the current Pipeline (`ctx.OverridePipeline`). It is suitable for dynamically toggling node switches or adjusting recognition/action parameters **without changing the static flow topology**.

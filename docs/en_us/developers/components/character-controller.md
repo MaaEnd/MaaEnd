@@ -4,7 +4,7 @@
 
 This document explains how to use nodes related to CharacterController.
 
-**CharacterController** provides a set of custom Actions for **controlling game characters**, including features like rotating the view, moving forward/backward, and automatically moving toward a target. These nodes are often used with MapTracker for more precise character control.
+**CharacterController** provides a set of custom Actions for **controlling game characters**, including features like rotating the view, moving forward/backward, circle-walk search for targets, and automatically moving toward a target. These nodes are often used with MapTracker for more precise character control.
 
 > [!IMPORTANT]
 >
@@ -74,6 +74,29 @@ Each time it is called, one of the following logics is executed based on the cur
 | Target is right of screen center (exceeds `align_threshold`)               | Rotate view right |
 | Target is aligned, but Y-coordinate > 480 (target in lower half, passed)   | Move backward     |
 | Target is aligned, and Y-coordinate ≤ 480 (target in upper half)           | Move forward      |
+
+---
+
+### Action: CharacterSearchAction
+
+🔍 When an interact point cannot be found, walks a fixed WASD circle to fine-tune position and repeatedly recognizes target nodes. Returns success if any `wait_nodes` hits; returns failure after the full path with no hit, or when the task is Stopping. Does not pre-recognize at the starting position.
+
+#### Node Parameters
+
+Required parameters:
+
+- `wait_nodes`: String array. Pipeline node names to search for; any hit means success.
+
+#### Circle Path
+
+Each step is fixed at 100ms (same as `CharacterControllerForwardAxisAction` with `axis: 1`); after every two steps, wait a fixed 1000ms before recognition. Direction mapping: forward/up = W, back/down = S, left = A, right = D.
+
+```text
+F F | L L | S S S S | D D D D | W W W W | A A
+    ^every 2 steps: wait 1000ms → screencap → recognize wait_nodes
+```
+
+18 steps total, up to 9 recognition attempts.
 
 ## Complete Example
 

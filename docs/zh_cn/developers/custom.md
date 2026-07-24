@@ -106,6 +106,12 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 示例文件：[`RepeatUntilFoundAction.json`](../../../assets/resource/pipeline/Interface/Example/RepeatUntilFoundAction.json)
 
+### CharacterSearchAction
+
+`CharacterSearchAction` 实现位于 `agent/go-service/common/charactercontroller`，用于找不到交互点时按固定 WASD 绕圈路径微调位置并识别目标节点。详细参数与路径说明见 [CharacterController 参考文档](./components/character-controller.md#action-charactersearchaction)。
+
+示例文件：[`CharacterController.json`](../../../assets/resource/pipeline/Interface/Example/CharacterController.json)
+
 ### PipelineOverride
 
 `PipelineOverride` 实现位于 `agent/go-service/common/pipelineoverride`，用于在运行时把**按节点组织的局部 JSON** 合并到当前 Pipeline 中（`ctx.OverridePipeline`）。适合在**不改静态流转拓扑**的前提下，动态切换节点开关或调整识别/动作参数。
