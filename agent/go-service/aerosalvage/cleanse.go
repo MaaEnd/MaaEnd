@@ -3,8 +3,6 @@ package aerosalvage
 import (
 	"fmt"
 	"image"
-	"image/color"
-	"image/draw"
 	"math"
 	"slices"
 )
@@ -90,21 +88,6 @@ func CleanseGridLines(result *Result, cfg CleanseConfig) (*CleanseResult, error)
 		cleaned.Families[family] = familyResult
 	}
 	return cleaned, nil
-}
-
-// DrawCleanseOverlay draws only the final cleansed lines.
-func DrawCleanseOverlay(src image.Image, detected *Result, cleaned *CleanseResult) *image.RGBA {
-	bounds := src.Bounds()
-	overlay := image.NewRGBA(image.Rect(0, 0, bounds.Dx(), bounds.Dy()))
-	draw.Draw(overlay, overlay.Bounds(), src, bounds.Min, draw.Src)
-	drawRectangle(overlay, detected.ROI, color.RGBA{R: 255, G: 220, A: 255})
-
-	for _, familyResult := range cleaned.Families {
-		for _, line := range familyResult.Lines {
-			drawInfiniteLine(overlay, line, detected.ROI, color.RGBA{R: 40, G: 255, B: 100, A: 255})
-		}
-	}
-	return overlay
 }
 
 func cleanseFamily(lines []Line, family LineFamily, roi image.Rectangle, cfg CleanseConfig) (FamilyCleanseResult, error) {
@@ -496,16 +479,4 @@ func floatQuantile(ordered []float64, quantile float64) float64 {
 	}
 	index := int(math.Round(float64(len(ordered)-1) * quantile))
 	return ordered[index]
-}
-
-func drawInfiniteLine(dst *image.RGBA, line Line, rect image.Rectangle, c color.RGBA) {
-	if from, to, ok := clipLineToRect(line, rect); ok {
-		drawLine(dst, from, to, c)
-	}
-}
-
-func drawCross(dst *image.RGBA, point image.Point, c color.RGBA) {
-	const radius = 6
-	drawLine(dst, point.Sub(image.Pt(radius, 0)), point.Add(image.Pt(radius, 0)), c)
-	drawLine(dst, point.Sub(image.Pt(0, radius)), point.Add(image.Pt(0, radius)), c)
 }

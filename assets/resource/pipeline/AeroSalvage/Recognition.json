@@ -1,0 +1,69 @@
+{
+    "AeroSalvageRecognition": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "AeroSalvageRecognition",
+                "custom_recognition_param": {
+                    "grid_roi": [
+                        497,
+                        177,
+                        283,
+                        316
+                    ],
+                    "center_roi": [
+                        634,
+                        335,
+                        11,
+                        11
+                    ]
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AeroSalvagePlacementSite": {
+        "desc": "气球放置位置",
+        "recognition": "ColorMatch",
+        "lower": [
+            235,
+            235,
+            125
+        ],
+        "upper": [
+            255,
+            255,
+            145
+        ]
+    },
+    "AeroSalvagePlacementSiteFeature": {
+        "desc": "气球放置位置 (FeatureMatch)",
+        "recognition": "FeatureMatch",
+        "template": "AeroSalvage/PlacementSite1.png",
+        "detector": "AKAZE",
+        "roi": [
+            497,
+            177,
+            283,
+            316
+        ]
+    },
+    "AeroSalvagePlacementSiteTemplate": {
+        "desc": "气球放置位置 (TemplateMatch)",
+        "recognition": "TemplateMatch",
+        "template": [
+            "AeroSalvage/PlacementSite1.png",
+            "AeroSalvage/PlacementSite2.png",
+            "AeroSalvage/PlacementSite3.png"
+        ],
+        "roi": [
+            497,
+            177,
+            283,
+            316
+        ]
+    }
+}

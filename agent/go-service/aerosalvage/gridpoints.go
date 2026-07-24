@@ -3,8 +3,6 @@ package aerosalvage
 import (
 	"fmt"
 	"image"
-	"image/color"
-	"image/draw"
 	"math"
 	"slices"
 )
@@ -99,20 +97,6 @@ func DetectGridPoints(cleaned *CleanseResult, roi image.Rectangle, cfg GridPoint
 	}
 	result.Points = points
 	return result, nil
-}
-
-// DrawGridPoints overlays only the final lattice points on the source image.
-func DrawGridPoints(src image.Image, roi image.Rectangle, result *GridPointResult) *image.RGBA {
-	bounds := src.Bounds()
-	overlay := image.NewRGBA(image.Rect(0, 0, bounds.Dx(), bounds.Dy()))
-	draw.Draw(overlay, overlay.Bounds(), src, bounds.Min, draw.Src)
-	drawRectangle(overlay, roi, color.RGBA{R: 255, G: 220, A: 255})
-	for _, point := range result.Points {
-		center := roundPoint(point.Center)
-		drawCross(overlay, center, color.RGBA{R: 40, G: 255, B: 100, A: 255})
-		drawCircle(overlay, center, 5, color.RGBA{R: 40, G: 255, B: 100, A: 255})
-	}
-	return overlay
 }
 
 type projectiveTransform struct {
@@ -611,27 +595,4 @@ func relativeDifference(first, second float64) float64 {
 
 func roundPoint(point floatPoint) image.Point {
 	return image.Pt(int(math.Round(point.X)), int(math.Round(point.Y)))
-}
-
-func drawCircle(dst *image.RGBA, center image.Point, radius int, c color.RGBA) {
-	x, y := radius, 0
-	errorValue := 1 - x
-	for x >= y {
-		points := [...]image.Point{
-			center.Add(image.Pt(x, y)), center.Add(image.Pt(y, x)), center.Add(image.Pt(-y, x)), center.Add(image.Pt(-x, y)),
-			center.Add(image.Pt(-x, -y)), center.Add(image.Pt(-y, -x)), center.Add(image.Pt(y, -x)), center.Add(image.Pt(x, -y)),
-		}
-		for _, point := range points {
-			if point.In(dst.Bounds()) {
-				dst.SetRGBA(point.X, point.Y, c)
-			}
-		}
-		y++
-		if errorValue < 0 {
-			errorValue += 2*y + 1
-		} else {
-			x--
-			errorValue += 2*(y-x) + 1
-		}
-	}
 }
