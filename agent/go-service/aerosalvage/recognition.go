@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var _ maa.CustomRecognitionRunner = &Recognition{}
+var _ maa.CustomRecognitionRunner = &GridRecognition{}
 
 type gridCoordinate struct {
 	Row    int     `json:"row"`
@@ -27,13 +27,13 @@ type recognitionParam struct {
 	CenterROI [4]int `json:"center_roi"`
 }
 
-// Recognition detects the Aerial Salvage lattice.
-type Recognition struct{}
+// GridRecognition detects the Aerial Salvage lattice.
+type GridRecognition struct{}
 
 // Run returns the 25 row-major grid coordinates in Detail.
-func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+func (r *GridRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if arg == nil || arg.Img == nil {
-		log.Error().Str("component", "AeroSalvageRecognition").Msg("custom recognition arg or image is nil")
+		log.Error().Str("component", "AeroSalvageGridRecognition").Msg("custom recognition arg or image is nil")
 		return nil, false
 	}
 	params, err := parseRecognitionParam(arg.CustomRecognitionParam)
@@ -45,7 +45,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		return recognitionError("detect grid", err)
 	}
 	if len(points) != 25 {
-		log.Warn().Str("component", "AeroSalvageRecognition").Int("grid_points", len(points)).Msg("unexpected grid point count")
+		log.Warn().Str("component", "AeroSalvageGridRecognition").Int("grid_points", len(points)).Msg("unexpected grid point count")
 		return nil, false
 	}
 
@@ -63,7 +63,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	}
 
 	log.Debug().
-		Str("component", "AeroSalvageRecognition").
+		Str("component", "AeroSalvageGridRecognition").
 		Int("grid_points", len(detail.GridPoints)).
 		Msg("aerial salvage recognized")
 	return &maa.CustomRecognitionResult{Box: arg.Roi, Detail: string(detailJSON)}, true
@@ -101,6 +101,6 @@ func rectangle(values [4]int) image.Rectangle {
 }
 
 func recognitionError(step string, err error) (*maa.CustomRecognitionResult, bool) {
-	log.Warn().Err(err).Str("component", "AeroSalvageRecognition").Str("step", step).Msg("recognition failed")
+	log.Warn().Err(err).Str("component", "AeroSalvageGridRecognition").Str("step", step).Msg("recognition failed")
 	return nil, false
 }
