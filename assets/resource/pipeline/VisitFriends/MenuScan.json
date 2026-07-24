@@ -1,6 +1,6 @@
 {
     "VisitFriendsMenuScan": {
-        "desc": "识别当前好友列表；备注优先开启时首轮仅 TargetFriendOpenRemark，到底后 RemarkFallback 重开列表再走任意好友",
+        "desc": "识别当前好友列表",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -65,7 +65,7 @@
         }
     },
     "VisitFriendsMenuScanTargetFriendOpenRemark": {
-        "desc": "备注选友链路：名字框 ∧ 进船图标；VisitFriendsRemark=Yes 时仅走本链路；进船点击走 EnterShipRemark",
+        "desc": "备注选友链路：名字框 ∧ 进船图标；默认启用便于节点测试，VisitFriendsRemark=No 时关闭；进船点击走 EnterShipRemark",
         "enabled": true,
         "recognition": "And",
         "all_of": [
@@ -83,7 +83,7 @@
         ]
     },
     "VisitFriendsMenuScanTargetFriendOpen": {
-        "desc": "普通选友链路：名字框 ∧ 进船图标；box_index=1 点击飞船按钮；VisitFriendsRemark=Yes 首轮关闭，Fallback 后开启",
+        "desc": "普通选友链路：名字框 ∧ 进船图标；box_index=1 点击飞船按钮",
         "recognition": "And",
         "all_of": [
             "VisitFriendsMenuScanSelectFriendConsumable",
@@ -114,74 +114,12 @@
         ]
     },
     "VisitFriendsMenuScanScrollFinish": {
-        "desc": "列表已到底：备注优先时先走 RemarkFallback 重开并切任意好友；否则或已回退过则结束",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "VisitFriendsMenuScanRemarkFallback",
-            "VisitFriendsMenuScanScrollFinishDone"
-        ]
-    },
-    "VisitFriendsMenuScanScrollFinishDone": {
-        "desc": "好友列表已滚动到底部，拜访完成",
+        "desc": "滚动完成,滑动后仍然无其他目标",
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
             "Node.Recognition.Succeeded": "好友列表已滚动到底部，拜访完成"
         }
-    },
-    "VisitFriendsMenuScanRemarkFallback": {
-        "desc": "备注优先回退：首轮仅备注扫到底后，关闭备注选友、开启任意选友，清空 visited/滚动指纹；max_hit=1 只回退一次；VisitFriendsRemark=Yes 时开启",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
-        "custom_action_param": {
-            "patch": {
-                "VisitFriendsMenuScanTargetFriendOpenRemark": {
-                    "enabled": false
-                },
-                "VisitFriendsMenuScanTargetFriendOpen": {
-                    "enabled": true
-                },
-                "VisitFriendsMenuScanVisited": {
-                    "attach": {
-                        "visited": []
-                    }
-                },
-                "VisitFriendsMenuScanScrollList": {
-                    "attach": {
-                        "last_text": "",
-                        "unchanged_count": 0
-                    }
-                }
-            }
-        },
-        "post_delay": 0,
-        "next": [
-            "VisitFriendsMenuScanRemarkFallbackReopen"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "备注好友已扫完，重新打开列表并拜访任意好友"
-        }
-    },
-    "VisitFriendsMenuScanRemarkFallbackReopen": {
-        "desc": "退出至大世界后重新打开好友列表，使列表回到顶部后再进入扫描",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneAnyEnterWorld",
-                "SceneEnterMenuFriendsList"
-            ]
-        },
-        "post_delay": 0,
-        "next": [
-            "VisitFriendsMenu"
-        ]
     },
     "VisitFriendsMenuScanFriendsFull": {
         "desc": "拜访好友已达到上限：助力次数与线索交换次数均归零",
@@ -197,7 +135,7 @@
         }
     },
     "VisitFriendsMenuScanScrollList": {
-        "desc": "好友列表未到底时向下滚动：ListComplete 对比 WithNameForScroll（不检查线索）首尾 OCR 指纹；retry=1 表示指纹不变时再滑一次确认，unchanged_count>retry 才视为到底。attach.last_text / unchanged_count 由 ListCompleteRecognition 运行时维护；备注回退重开前会清空",
+        "desc": "好友列表未到底时向下滚动：ListComplete 对比 WithNameForScroll（不检查线索）首尾 OCR 指纹；retry=1 表示指纹不变时再滑一次确认，unchanged_count>retry 才视为到底。attach.last_text / unchanged_count 由 ListCompleteRecognition 运行时维护",
         "recognition": "Custom",
         "custom_recognition": "ListCompleteRecognition",
         "custom_recognition_param": {
@@ -215,11 +153,7 @@
             150
         ],
         "end_hold": 600, // 太短了松开会晃动
-        "post_delay": 0,
-        "attach": {
-            "last_text": "",
-            "unchanged_count": 0
-        }
+        "post_delay": 0
     },
     "VisitFriendsCheckAssist": {
         "desc": "打开好友详情后检查可访问资源（识别②）：线索交换固定开启；助力子节点未勾选时为 OCR a^，勾选后覆盖为 TemplateMatch",
