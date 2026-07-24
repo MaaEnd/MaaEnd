@@ -435,6 +435,9 @@
                 215
             ]
         },
+        "action": {
+            "type": "Click"
+        },
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000,
@@ -444,9 +447,6 @@
                 192,
                 215
             ]
-        },
-        "action": {
-            "type": "Click"
         },
         "next": [
             "GiftOperatorBranchGift",

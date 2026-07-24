@@ -61,8 +61,7 @@ std::optional<WindowInfo> buildWindow(
     AppendSeamBridge(rcs, nx, ny);
     const SpanTable st = BuildSpans(rcs.cell, rcs.h);
 
-    const auto widx = wo.wallsInBbox(x0 - 4, y0 - 4, x0 + static_cast<double>(nx) * kCS + 4,
-                                     y0 + static_cast<double>(ny) * kCS + 4);
+    const auto widx = wo.wallsInBbox(x0 - 4, y0 - 4, x0 + static_cast<double>(nx) * kCS + 4, y0 + static_cast<double>(ny) * kCS + 4);
     std::vector<WorldPoint> p0;
     std::vector<WorldPoint> p1;
     std::vector<double> hh;
@@ -263,8 +262,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
         const int64_t ca = (*q)[k - 1].y * nx + (*q)[k - 1].x;
         const int64_t cb = (*q)[k].y * nx + (*q)[k].x;
         if (bn.contains(ca * NC + cb)) {
-            dg.xwall.push_back({ x0 + (static_cast<double>((*q)[k].x) + 0.5) * kCS,
-                                 y0 + (static_cast<double>((*q)[k].y) + 0.5) * kCS });
+            dg.xwall.push_back({ x0 + (static_cast<double>((*q)[k].x) + 0.5) * kCS, y0 + (static_cast<double>((*q)[k].y) + 0.5) * kCS });
         }
     }
     if (!dg.xwall.empty()) {
@@ -299,15 +297,16 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
 
     std::vector<uint8_t> grn(q->size());
     for (size_t i = 0; i < q->size(); ++i) {
-        grn[i] = static_cast<uint8_t>(
-            info.dist.at((*q)[i].y, (*q)[i].x) >= prefg.at((*q)[i].y, (*q)[i].x) - 1e-9F);
+        grn[i] = static_cast<uint8_t>(info.dist.at((*q)[i].y, (*q)[i].x) >= prefg.at((*q)[i].y, (*q)[i].x) - 1e-9F);
     }
+
     struct Run
     {
         bool green;
         int64_t i0;
         int64_t i1;
     };
+
     std::vector<Run> runs;
     for (size_t i = 0; i < q->size();) {
         size_t j2 = i;
@@ -330,8 +329,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
         return out;
     };
     for (size_t k = 0; k < runs.size(); ++k) {
-        if (!runs[k].green && static_cast<double>(runs[k].i1 - runs[k].i0) * kCS < 2.0 && k > 0
-            && k < runs.size() - 1) {
+        if (!runs[k].green && static_cast<double>(runs[k].i1 - runs[k].i0) * kCS < 2.0 && k > 0 && k < runs.size() - 1) {
             runs[k].green = true;
         }
     }
@@ -367,8 +365,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
                             const int64_t dy = sgn * sh * ddy;
                             const int64_t dx = sgn * sh * ddx;
                             for (int64_t y = std::max<int64_t>(0, dy); y < ny + std::min<int64_t>(0, dy); ++y) {
-                                for (int64_t x = std::max<int64_t>(0, dx); x < nx + std::min<int64_t>(0, dx);
-                                     ++x) {
+                                for (int64_t x = std::max<int64_t>(0, dx); x < nx + std::min<int64_t>(0, dx); ++x) {
                                     if (pmd.at(y - dy, x - dx) != 0) {
                                         acc.at(y, x) = 1;
                                     }
@@ -382,8 +379,8 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
                 for (int64_t y = 0; y < ny; ++y) {
                     for (int64_t x = 0; x < nx; ++x) {
                         er.at(y, x) = static_cast<uint8_t>(
-                            info.dist.at(y, x) >= pref.at(y, x)
-                            || (info.dist.at(y, x) >= prefg.at(y, x) && pmd.at(y, x) != 0) || pm.at(y, x) != 0);
+                            info.dist.at(y, x) >= pref.at(y, x) || (info.dist.at(y, x) >= prefg.at(y, x) && pmd.at(y, x) != 0)
+                            || pm.at(y, x) != 0);
                     }
                 }
                 const auto q2 = CostAstar(er, cells.front(), cells.back(), ones, &bn, nullptr);
@@ -391,12 +388,12 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
                     double l1 = 0.0;
                     double l2 = 0.0;
                     for (size_t k = 1; k < cells.size(); ++k) {
-                        l1 += std::hypot(static_cast<double>(cells[k].x - cells[k - 1].x),
-                                         static_cast<double>(cells[k].y - cells[k - 1].y));
+                        l1 +=
+                            std::hypot(static_cast<double>(cells[k].x - cells[k - 1].x), static_cast<double>(cells[k].y - cells[k - 1].y));
                     }
                     for (size_t k = 1; k < q2->size(); ++k) {
-                        l2 += std::hypot(static_cast<double>((*q2)[k].x - (*q2)[k - 1].x),
-                                         static_cast<double>((*q2)[k].y - (*q2)[k - 1].y));
+                        l2 +=
+                            std::hypot(static_cast<double>((*q2)[k].x - (*q2)[k - 1].x), static_cast<double>((*q2)[k].y - (*q2)[k - 1].y));
                     }
                     if (l2 <= l1 * 1.2 + 2.0 / kCS) {
                         pp = cen(*q2);
@@ -414,8 +411,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
             }
             pp = StringPull(pp, blk_green.has_value() ? *blk_green : blk_gray);
         }
-        if (!taut.empty() && !pp.empty()
-            && std::hypot(pp.front().x - taut.back().x, pp.front().y - taut.back().y) < 1e-9) {
+        if (!taut.empty() && !pp.empty() && std::hypot(pp.front().x - taut.back().x, pp.front().y - taut.back().y) < 1e-9) {
             pp.erase(pp.begin());
         }
         taut.insert(taut.end(), pp.begin(), pp.end());
@@ -428,8 +424,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
     std::vector<WorldPoint> stripped;
     for (size_t i = 0; i < line.size(); ++i) {
         if (i == 0 || i == line.size() - 1
-            || (std::hypot(line[i].x - s.x, line[i].y - s.y) > 0.4
-                && std::hypot(line[i].x - g.x, line[i].y - g.y) > 0.4)) {
+            || (std::hypot(line[i].x - s.x, line[i].y - s.y) > 0.4 && std::hypot(line[i].x - g.x, line[i].y - g.y) > 0.4)) {
             stripped.push_back(line[i]);
         }
     }
@@ -505,9 +500,8 @@ RecastPlanResult RecastNavEngine::planLocked(
             blocked_local.push_back(static_cast<int32_t>(local));
         }
     }
-    const std::optional<double> sfl = start_floor_y > kBaseNavFloorYValidMin
-        ? std::optional<double>(static_cast<double>(start_floor_y))
-        : std::nullopt;
+    const std::optional<double> sfl =
+        start_floor_y > kBaseNavFloorYValidMin ? std::optional<double>(static_cast<double>(start_floor_y)) : std::nullopt;
     const std::optional<double> gfl =
         goal_floor_y > kBaseNavFloorYValidMin ? std::optional<double>(static_cast<double>(goal_floor_y)) : std::nullopt;
     const auto ss = zc.snap(start, kSnapRadius, sfl);
@@ -544,8 +538,12 @@ RecastPlanResult RecastNavEngine::planLocked(
                 if (std::max(dg.snap_start, dg.snap_goal) > kSnapRadius) {
                     if (mi == 3) {
                         char buf[128];
-                        std::snprintf(buf, sizeof(buf), "端点接不上可走层 (起 %.1fpx / 终 %.1fpx, 疑似不连通)",
-                                      dg.snap_start, dg.snap_goal);
+                        std::snprintf(
+                            buf,
+                            sizeof(buf),
+                            "端点接不上可走层 (起 %.1fpx / 终 %.1fpx, 疑似不连通)",
+                            dg.snap_start,
+                            dg.snap_goal);
                         res.error = buf;
                         return res;
                     }

@@ -80,7 +80,9 @@ public:
 
     // RecastNav 复用
     const std::vector<uint32_t>& adjacencyOffsets() const { return adjacency_offsets_; }
+
     const std::vector<uint32_t>& adjacencyLinks() const { return adjacency_links_; }
+
     bool isSmallIslandTriangle(uint32_t triangle_index) const;
     std::optional<std::array<WorldPoint, 2>> closestEdgeBridgePoints(uint32_t lhs, uint32_t rhs) const;
 

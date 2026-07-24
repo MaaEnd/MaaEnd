@@ -14,7 +14,7 @@ namespace navmesh::recast
 namespace
 {
 
-constexpr double kPortalSamples[5] = { 0.5, 0.25, 0.75, 0.1, 0.9 };  // 共边 hop 的门户采样位
+constexpr double kPortalSamples[5] = { 0.5, 0.25, 0.75, 0.1, 0.9 }; // 共边 hop 的门户采样位
 
 double triHeight(const PolyMesh& mesh, int32_t t)
 {
@@ -79,9 +79,8 @@ void PolyMesh::buildNb()
             const int64_t a = T[static_cast<size_t>(i)][k];
             const int64_t b = T[static_cast<size_t>(i)][(k + 1) % 3];
             const int64_t kr = b * n + a;
-            const size_t pos = std::min(
-                static_cast<size_t>(std::lower_bound(skeys.begin(), skeys.end(), kr) - skeys.begin()),
-                skeys.size() - 1);
+            const size_t pos =
+                std::min(static_cast<size_t>(std::lower_bound(skeys.begin(), skeys.end(), kr) - skeys.begin()), skeys.size() - 1);
             if (skeys[pos] == kr) {
                 NB[static_cast<size_t>(i)][k] = se[pos].second / 3;
             }
@@ -345,10 +344,8 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
     }
     comp_island.resize(static_cast<size_t>(m));
     for (int64_t c = 0; c < m; ++c) {
-        comp_island[static_cast<size_t>(c)] = (n_tot[static_cast<size_t>(c)] == 0
-                                               || n_isl[static_cast<size_t>(c)] * 2 > n_tot[static_cast<size_t>(c)])
-            ? 1
-            : 0;
+        comp_island[static_cast<size_t>(c)] =
+            (n_tot[static_cast<size_t>(c)] == 0 || n_isl[static_cast<size_t>(c)] * 2 > n_tot[static_cast<size_t>(c)]) ? 1 : 0;
     }
 
     // link 层 hop:NB 已邻接跳过;跨分量共焊边 → 门户采样,否则 touch/bridge;
@@ -379,8 +376,7 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
         int ns = 0;
         for (int ka = 0; ka < 3 && ns < 2; ++ka) {
             const int32_t v = T[static_cast<size_t>(ti)][ka];
-            if (v == T[static_cast<size_t>(tj)][0] || v == T[static_cast<size_t>(tj)][1]
-                || v == T[static_cast<size_t>(tj)][2]) {
+            if (v == T[static_cast<size_t>(tj)][0] || v == T[static_cast<size_t>(tj)][1] || v == T[static_cast<size_t>(tj)][2]) {
                 sh[ns++] = v;
             }
         }
@@ -407,8 +403,7 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
             ++n_edge;
         }
         else {
-            const auto br =
-                planner.closestEdgeBridgePoints(static_cast<uint32_t>(lo + i), static_cast<uint32_t>(lo + j));
+            const auto br = planner.closestEdgeBridgePoints(static_cast<uint32_t>(lo + i), static_cast<uint32_t>(lo + j));
             if (!br) {
                 continue;
             }
@@ -457,7 +452,7 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
                 if (nb2 < 0 || seen.contains(nb2)) {
                     continue;
                 }
-                if (nb2 == tb) {  // 目标判定先于出框判定
+                if (nb2 == tb) { // 目标判定先于出框判定
                     hit = true;
                     break;
                 }
@@ -476,8 +471,7 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
             pushPortals(ta, tb);
         }
         else {
-            const auto br =
-                planner.closestEdgeBridgePoints(static_cast<uint32_t>(lo + ta), static_cast<uint32_t>(lo + tb));
+            const auto br = planner.closestEdgeBridgePoints(static_cast<uint32_t>(lo + ta), static_cast<uint32_t>(lo + tb));
             if (!br) {
                 continue;
             }
@@ -498,10 +492,9 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
             ++ncomps;
         }
     }
-    stats = "weld " + std::to_string(n_weld) + "v dup-sever " + std::to_string(n_dup) + ", link-mask cut "
-        + std::to_string(n_cut) + ", comps " + std::to_string(ncomps) + ", hops edge " + std::to_string(n_edge)
-        + " touch " + std::to_string(n_touch) + " bridge " + std::to_string(n_bridge) + " srcadj "
-        + std::to_string(n_srcadj);
+    stats = "weld " + std::to_string(n_weld) + "v dup-sever " + std::to_string(n_dup) + ", link-mask cut " + std::to_string(n_cut)
+            + ", comps " + std::to_string(ncomps) + ", hops edge " + std::to_string(n_edge) + " touch " + std::to_string(n_touch)
+            + " bridge " + std::to_string(n_bridge) + " srcadj " + std::to_string(n_srcadj);
 }
 
 std::vector<int32_t> ZoneClean::batchLocate(const std::vector<WorldPoint>& pts, const std::vector<double>& hints) const
@@ -510,8 +503,7 @@ std::vector<int32_t> ZoneClean::batchLocate(const std::vector<WorldPoint>& pts, 
     for (size_t p = 0; p < pts.size(); ++p) {
         const int64_t gx = static_cast<int64_t>(std::floor(pts[p].x / PolyMesh::kGridCell));
         const int64_t gy = static_cast<int64_t>(std::floor(pts[p].y / PolyMesh::kGridCell));
-        const auto [glo, ghi] =
-            std::equal_range(mesh.gkeys.begin(), mesh.gkeys.end(), gx * PolyMesh::kGridStride + gy);
+        const auto [glo, ghi] = std::equal_range(mesh.gkeys.begin(), mesh.gkeys.end(), gx * PolyMesh::kGridStride + gy);
         double best = 0.0;
         int32_t bt = -1;
         for (auto it = glo; it != ghi; ++it) {
@@ -633,8 +625,7 @@ bool WallOracle::hopNear(int64_t ei, double tol) const
     const int64_t cy1 = static_cast<int64_t>(std::floor((std::max(p0.y, p1.y) + tol) / kHopCell));
     for (int64_t cx = cx0; cx <= cx1; ++cx) {
         for (int64_t cy = cy0; cy <= cy1; ++cy) {
-            const auto it =
-                hop_grid_.find((cx + (int64_t(1) << 30)) * (int64_t(1) << 31) + (cy + (int64_t(1) << 30)));
+            const auto it = hop_grid_.find((cx + (int64_t(1) << 30)) * (int64_t(1) << 31) + (cy + (int64_t(1) << 30)));
             if (it == hop_grid_.end()) {
                 continue;
             }
@@ -672,8 +663,7 @@ void WallOracle::classify(const std::vector<int64_t>& idx)
     }
     const auto tri = zc_.batchLocate(P, hh);
     for (size_t j = 0; j < todo.size(); ++j) {
-        const bool free =
-            tri[j] >= 0 && std::fabs(triHeight(zc_.mesh, tri[j]) - hh[j]) <= kHBand;
+        const bool free = tri[j] >= 0 && std::fabs(triHeight(zc_.mesh, tri[j]) - hh[j]) <= kHBand;
         bool wall = !free;
         if (wall && hopNear(todo[j])) {
             wall = false;
@@ -686,8 +676,8 @@ std::vector<int64_t> WallOracle::wallsInBbox(double x0, double y0, double x1, do
 {
     std::vector<int64_t> idx;
     for (int64_t i = 0; i < static_cast<int64_t>(P0.size()); ++i) {
-        if (hi_[static_cast<size_t>(i)].x >= x0 && lo_[static_cast<size_t>(i)].x <= x1
-            && hi_[static_cast<size_t>(i)].y >= y0 && lo_[static_cast<size_t>(i)].y <= y1) {
+        if (hi_[static_cast<size_t>(i)].x >= x0 && lo_[static_cast<size_t>(i)].x <= x1 && hi_[static_cast<size_t>(i)].y >= y0
+            && lo_[static_cast<size_t>(i)].y <= y1) {
             idx.push_back(i);
         }
     }

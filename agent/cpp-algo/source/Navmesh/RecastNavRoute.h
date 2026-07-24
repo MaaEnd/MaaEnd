@@ -20,8 +20,8 @@ struct RecastPlanResult
     std::vector<WorldPoint> points;
     double length = 0.0;
     std::vector<std::string> warnings;
-    std::vector<WorldPoint> wall_cross;   // 不可避穿墙步的格心
-    double snap_start = 0.0;              // 起/终点到可走格锚点距离 px
+    std::vector<WorldPoint> wall_cross; // 不可避穿墙步的格心
+    double snap_start = 0.0;            // 起/终点到可走格锚点距离 px
     double snap_goal = 0.0;
 };
 

@@ -14,8 +14,8 @@
 namespace navmesh::recast
 {
 
-inline constexpr double kWeldDh = 3.0;                 // 顶点焊接同柱高差容差 px
-inline constexpr double kSnapFallbackRadius = 16.0;    // 吸附兜底半径 px
+inline constexpr double kWeldDh = 3.0;              // 顶点焊接同柱高差容差 px
+inline constexpr double kSnapFallbackRadius = 16.0; // 吸附兜底半径 px
 inline constexpr double kSrcadjMaxGap = 8.0;
 inline constexpr double kSrcadjLocalR = 12.0;
 
@@ -30,7 +30,7 @@ struct PolyMesh
     PolyMesh(std::vector<WorldPoint> v, std::vector<std::array<int32_t, 3>> t, std::vector<double> h);
 
     void buildNb();
-    std::vector<int32_t> trisNear(const WorldPoint& p, double r) const;  // 升序去重
+    std::vector<int32_t> trisNear(const WorldPoint& p, double r) const; // 升序去重
 
     static constexpr double kGridCell = 24.0;
     static constexpr int64_t kGridStride = int64_t(1) << 24;
@@ -73,8 +73,8 @@ public:
     int64_t lo = 0;
     int64_t hi = 0;
     PolyMesh mesh;
-    std::vector<int32_t> comp;          // 三角 → 分量代表(区内最小三角号)
-    std::vector<uint8_t> comp_island;   // 按分量代表值索引
+    std::vector<int32_t> comp;        // 三角 → 分量代表(区内最小三角号)
+    std::vector<uint8_t> comp_island; // 按分量代表值索引
     std::vector<HopPt> hops;
     std::string stats;
 

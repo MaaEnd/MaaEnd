@@ -26,9 +26,14 @@ struct Nb8
 };
 
 const Nb8 kNb8[8] = {
-    { 1, 0, 1.0 },  { -1, 0, 1.0 }, { 0, 1, 1.0 },  { 0, -1, 1.0 },
-    { 1, 1, std::sqrt(2.0) },  { 1, -1, std::sqrt(2.0) },
-    { -1, 1, std::sqrt(2.0) }, { -1, -1, std::sqrt(2.0) },
+    { 1, 0, 1.0 },
+    { -1, 0, 1.0 },
+    { 0, 1, 1.0 },
+    { 0, -1, 1.0 },
+    { 1, 1, std::sqrt(2.0) },
+    { 1, -1, std::sqrt(2.0) },
+    { -1, 1, std::sqrt(2.0) },
+    { -1, -1, std::sqrt(2.0) },
 };
 
 // t[k] = k/(steps-1),末点强制 1.0(np.linspace 语义)
@@ -211,7 +216,7 @@ void AppendSeamBridge(RasterCells& rc, int64_t nx, int64_t ny)
     const auto occAt = [&](int64_t y, int64_t x) {
         return y >= 0 && y < ny && x >= 0 && x < nx && O2[static_cast<size_t>(y * nx + x)] != 0;
     };
-    const int64_t dirs[2][2] = { { 0, 1 }, { 1, 0 } };  // (dy,dx)
+    const int64_t dirs[2][2] = { { 0, 1 }, { 1, 0 } }; // (dy,dx)
     for (const auto& d : dirs) {
         const int64_t dy = d[0], dx = d[1];
         for (int64_t dl = 1; dl <= kb; ++dl) {
@@ -270,7 +275,7 @@ std::vector<uint8_t> Flood(int64_t seed, const SpanTable& st, int64_t nx)
     std::vector<uint8_t> vis(st.sp_h.size(), 0);
     vis[static_cast<size_t>(seed)] = 1;
     std::vector<int64_t> frontier { seed };
-    const int64_t dirs[4][2] = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };  // (dx,dy)
+    const int64_t dirs[4][2] = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }; // (dx,dy)
     while (!frontier.empty()) {
         std::vector<int64_t> next;
         for (const int64_t f : frontier) {
@@ -346,8 +351,7 @@ Grid<float> Clearance(const Mask& mask)
     Grid<float> out(nx, ny, 0.0f);
     for (int64_t i = 0; i < nx * ny; ++i) {
         if (mask.v[static_cast<size_t>(i)]) {
-            out.v[static_cast<size_t>(i)] =
-                std::min(std::sqrt(best.v[static_cast<size_t>(i)]) * 0.25f, 12.0f);
+            out.v[static_cast<size_t>(i)] = std::min(std::sqrt(best.v[static_cast<size_t>(i)]) * 0.25f, 12.0f);
         }
     }
     return out;
@@ -423,13 +427,7 @@ std::vector<uint8_t> WallsAtLayer(
     return keep;
 }
 
-WallCsr BuildWallIndex(
-    const std::vector<WorldPoint>& p0,
-    const std::vector<WorldPoint>& p1,
-    double ox,
-    double oy,
-    int64_t nx,
-    int64_t ny)
+WallCsr BuildWallIndex(const std::vector<WorldPoint>& p0, const std::vector<WorldPoint>& p1, double ox, double oy, int64_t nx, int64_t ny)
 {
     WallCsr csr;
     csr.start.assign(static_cast<size_t>(nx * ny + 1), 0);
@@ -645,13 +643,8 @@ Mask CloseCracks(const Mask& core, const Mask& lay, const Mask* protect)
     return out;
 }
 
-std::optional<std::vector<CellPt>> CostAstar(
-    const Mask& mask,
-    CellPt s,
-    CellPt g,
-    const Grid<float>& mult,
-    const std::unordered_set<int64_t>* banned,
-    const double* bnp)
+std::optional<std::vector<CellPt>>
+    CostAstar(const Mask& mask, CellPt s, CellPt g, const Grid<float>& mult, const std::unordered_set<int64_t>* banned, const double* bnp)
 {
     const int64_t ny = mask.ny, nx = mask.nx;
     if (!mask.at(s.y, s.x) || !mask.at(g.y, g.x)) {
@@ -760,7 +753,7 @@ Grid<float> PrefField(const Grid<float>& dist, bool ridge)
     const auto at = [&](int64_t y, int64_t x) {
         return y >= 0 && y < ny && x >= 0 && x < nx ? dist.at(y, x) : ninf;
     };
-    const int64_t dirs[4][2] = { { 0, 1 }, { 1, 0 }, { 1, 1 }, { 1, -1 } };  // (dy,dx)
+    const int64_t dirs[4][2] = { { 0, 1 }, { 1, 0 }, { 1, 1 }, { 1, -1 } }; // (dy,dx)
     Grid<float> out = pref;
     for (int64_t y = 0; y < ny; ++y) {
         for (int64_t x = 0; x < nx; ++x) {

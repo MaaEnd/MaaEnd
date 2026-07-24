@@ -514,8 +514,8 @@ void LogGeneratedNavmeshPath(
     const auto navmesh_path_points = PathPointsForLog(route_result.path);
     const auto navmesh_segment_breaks = route_result.path.segment_breaks;
     LogInfo << "NAVMESH generated path." << VAR(state.navmesh_zone) << VAR(state.current_zone) << VAR(route_result.cost)
-            << VAR(path_point_count) << VAR(navmesh_start_point) << VAR(navmesh_goal_point)
-            << VAR(navmesh_segment_breaks) << VAR(navmesh_path_points);
+            << VAR(path_point_count) << VAR(navmesh_start_point) << VAR(navmesh_goal_point) << VAR(navmesh_segment_breaks)
+            << VAR(navmesh_path_points);
 }
 
 // Probe from the target back toward the agent; the first reachable probe is the closest connected mesh
@@ -539,9 +539,8 @@ bool AppendBlindTargetFallback(
         return false;
     }
     const double snap_radius = std::max(param.navmesh_snap_radius, kBlindTargetFallbackSnapRadius);
-    const float snap_floor = goal_floor_y > navmesh::kBaseNavFloorYValidMin
-        ? goal_floor_y
-        : navmesh.pack.floorYForZoneName(state.current_zone);
+    const float snap_floor =
+        goal_floor_y > navmesh::kBaseNavFloorYValidMin ? goal_floor_y : navmesh.pack.floorYForZoneName(state.current_zone);
 
     // A probe at distance `offset` from the target snaps to within snap_radius, so its residual gap is at
     // least (offset - snap_radius). Past (kBlindTargetMaxExtension + snap_radius) every probe would fail the
@@ -945,8 +944,7 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshDetourRoute(
                 if (!triangle || triangle == start_triangle || triangle == goal_triangle) {
                     continue;
                 }
-                if (blocked.size() < kDetourBlockedTriangleCount
-                    && std::find(blocked.begin(), blocked.end(), *triangle) == blocked.end()) {
+                if (blocked.size() < kDetourBlockedTriangleCount && std::find(blocked.begin(), blocked.end(), *triangle) == blocked.end()) {
                     blocked.push_back(*triangle);
                 }
             }
@@ -992,8 +990,7 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshDetourRoute(
             }
 
             const double backtrack_penalty = std::max(0.0, std::abs(heading_offset) - 120.0) / 60.0 * kDetourBacktrackPenalty;
-            const double score =
-                route_to_detour->cost + route_to_goal->cost + backtrack_penalty + snapped->distance * kDetourSnapPenalty;
+            const double score = route_to_detour->cost + route_to_goal->cost + backtrack_penalty + snapped->distance * kDetourSnapPenalty;
             if (score < best_score) {
                 best = *route_to_detour;
                 best->cost += route_to_goal->cost;
