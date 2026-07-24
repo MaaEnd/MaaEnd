@@ -29,13 +29,11 @@ type Config struct {
 	HorizontalPeakQuantile     float64
 	VerticalPeakQuantile       float64
 	MinPeakVoteRatio           float64
-	InterferenceMaskRadius     int
 }
 
-// DefaultConfig returns the initial 720p prototype parameters.
-func DefaultConfig() Config {
+func gridLineConfig(roi image.Rectangle) Config {
 	return Config{
-		ROI:                        image.Rect(497, 177, 780, 493),
+		ROI:                        roi,
 		HorizontalGradientQuantile: 0.50,
 		VerticalGradientQuantile:   0.83,
 		ThetaStepDegrees:           0.5,
@@ -43,7 +41,6 @@ func DefaultConfig() Config {
 		HorizontalPeakQuantile:     0.995,
 		VerticalPeakQuantile:       0.995,
 		MinPeakVoteRatio:           1.0,
-		InterferenceMaskRadius:     2,
 	}
 }
 
@@ -56,11 +53,10 @@ type Line struct {
 	Family LineFamily
 }
 
-// Result contains the interference mask and uncleaned Hough line candidates.
+// Result contains uncleaned Hough line candidates.
 type Result struct {
-	ROI              image.Rectangle
-	InterferenceMask *image.Gray
-	Lines            []Line
+	ROI   image.Rectangle
+	Lines []Line
 }
 
 // DetectGridLines preprocesses the configured ROI and returns raw Hough candidates.
@@ -86,15 +82,9 @@ func DetectGridLines(src image.Image, cfg Config) (*Result, error) {
 	if cfg.MinPeakVoteRatio <= 0 || cfg.MinPeakVoteRatio > 1 {
 		return nil, fmt.Errorf("minimum peak vote ratio must be in (0, 1]")
 	}
-	if cfg.InterferenceMaskRadius < 0 {
-		return nil, fmt.Errorf("invalid bright-yellow mask parameters")
-	}
-
 	gray := grayscale(src, cfg.ROI)
 	blurred := blur3x3(gray)
 	gradient, _, directions, horizontalResponses, verticalResponses := sobelMagnitude(blurred)
-	interferenceMask := dilateMask(brightYellowMask(src, cfg.ROI), cfg.InterferenceMaskRadius)
-	applyInterferenceMask(gradient, horizontalResponses, verticalResponses, interferenceMask)
 	_, horizontalCandidates, verticalCandidates, _ := thresholdByFamily(
 		gradient,
 		horizontalResponses,
@@ -105,61 +95,9 @@ func DetectGridLines(src image.Image, cfg Config) (*Result, error) {
 	translateLines(lines, cfg.ROI.Min)
 
 	return &Result{
-		ROI:              cfg.ROI,
-		InterferenceMask: interferenceMask,
-		Lines:            lines,
+		ROI:   cfg.ROI,
+		Lines: lines,
 	}, nil
-}
-
-func brightYellowMask(src image.Image, roi image.Rectangle) *image.Gray {
-	mask := image.NewGray(image.Rect(0, 0, roi.Dx(), roi.Dy()))
-	for y := range roi.Dy() {
-		for x := range roi.Dx() {
-			r, g, b, _ := src.At(roi.Min.X+x, roi.Min.Y+y).RGBA()
-			red, green, blue := int(r>>8), int(g>>8), int(b>>8)
-			if red >= 230 && red <= 255 && green >= 230 && green <= 255 && blue >= 125 && blue <= 145 {
-				mask.SetGray(x, y, color.Gray{Y: 255})
-			}
-		}
-	}
-	return mask
-}
-
-func dilateMask(src *image.Gray, radius int) *image.Gray {
-	if radius <= 0 {
-		return src
-	}
-	dst := image.NewGray(src.Bounds())
-	for y := range src.Rect.Dy() {
-		for x := range src.Rect.Dx() {
-			if src.GrayAt(x, y).Y == 0 {
-				continue
-			}
-			for offsetY := -radius; offsetY <= radius; offsetY++ {
-				for offsetX := -radius; offsetX <= radius; offsetX++ {
-					point := image.Pt(x+offsetX, y+offsetY)
-					if point.In(dst.Bounds()) {
-						dst.SetGray(point.X, point.Y, color.Gray{Y: 255})
-					}
-				}
-			}
-		}
-	}
-	return dst
-}
-
-func applyInterferenceMask(gradient *image.Gray, horizontalResponses, verticalResponses []int, mask *image.Gray) {
-	for y := range mask.Rect.Dy() {
-		for x := range mask.Rect.Dx() {
-			if mask.GrayAt(x, y).Y == 0 {
-				continue
-			}
-			index := y*mask.Rect.Dx() + x
-			horizontalResponses[index] = 0
-			verticalResponses[index] = 0
-			gradient.SetGray(x, y, color.Gray{})
-		}
-	}
 }
 
 func grayscale(src image.Image, roi image.Rectangle) *image.Gray {

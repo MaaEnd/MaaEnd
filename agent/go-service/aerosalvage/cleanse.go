@@ -33,8 +33,7 @@ type CleanseConfig struct {
 	ParallelDistance     float64
 }
 
-// DefaultCleanseConfig returns initial observable parameters for the nine sample states.
-func DefaultCleanseConfig() CleanseConfig {
+func cleanseConfig() CleanseConfig {
 	return CleanseConfig{
 		GroupDistancePixels:  3,
 		AxisDominanceRatio:   2,

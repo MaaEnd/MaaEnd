@@ -24,8 +24,7 @@ type GridPointConfig struct {
 	CenterROI            image.Rectangle
 }
 
-// DefaultGridPointConfig returns initial parameters derived from the observed line spacing.
-func DefaultGridPointConfig() GridPointConfig {
+func gridPointConfig(centerROI image.Rectangle) GridPointConfig {
 	return GridPointConfig{
 		BaseCellWidth:        43,
 		BaseCellHeight:       44,
@@ -37,7 +36,7 @@ func DefaultGridPointConfig() GridPointConfig {
 		MaxHorizontalExcess:  12,
 		MaxOppositeSideRatio: 0.2,
 		CenterMergeDistance:  10,
-		CenterROI:            image.Rect(634, 335, 645, 346),
+		CenterROI:            centerROI,
 	}
 }
 
@@ -209,11 +208,12 @@ func latticeLengthPenalty(grid []GridPoint, cfg GridPointConfig) (float64, bool)
 	}
 	excess := horizontalLength - verticalLength
 	scalePenalty := math.Abs(horizontalLength/cfg.BaseCellWidth-verticalLength/cfg.BaseCellHeight) * 10
-	if math.Abs(excess) <= 3 {
+	if math.Abs(excess) <= cfg.EqualSideTolerance {
 		return math.Abs(excess) + scalePenalty, true
 	}
-	if excess >= 8 && excess <= 12 {
-		return math.Abs(excess-10) + scalePenalty, true
+	if excess >= cfg.MinHorizontalExcess && excess <= cfg.MaxHorizontalExcess {
+		idealExcess := (cfg.MinHorizontalExcess + cfg.MaxHorizontalExcess) / 2
+		return math.Abs(excess-idealExcess) + scalePenalty, true
 	}
 	return 0, false
 }
