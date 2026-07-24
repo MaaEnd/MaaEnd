@@ -6,6 +6,8 @@
         "custom_recognition": {
             "enum": [
                 "AutoFightEntryRecognition",
+                "AeroSalvageGridRecognition",
+                "AeroSalvageInitialStateRecognition",
                 "AutoSellPriceCompareRecognition",
                 "AutoSellScanItemRecognition",
                 "AutoStockpile.Recognition",
@@ -43,6 +45,50 @@
         }
     },
     "allOf": [
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": {
+                    "custom_recognition": {
+                        "enum": [
+                            "AeroSalvageGridRecognition",
+                            "AeroSalvageInitialStateRecognition"
+                        ]
+                    }
+                }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "grid_roi",
+                            "center_roi"
+                        ],
+                        "properties": {
+                            "grid_roi": {
+                                "description": "Grid detection rectangle [x, y, width, height].",
+                                "type": "array",
+                                "items": { "type": "integer" },
+                                "minItems": 4,
+                                "maxItems": 4
+                            },
+                            "center_roi": {
+                                "description": "Center-point detection rectangle [x, y, width, height].",
+                                "type": "array",
+                                "items": { "type": "integer" },
+                                "minItems": 4,
+                                "maxItems": 4
+                            }
+                        }
+                    }
+                }
+            }
+        },
         {
             "if": {
                 "type": "object",
