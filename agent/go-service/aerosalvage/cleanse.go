@@ -107,6 +107,9 @@ func cleanseFamily(lines []Line, family LineFamily, roi image.Rectangle, cfg Cle
 		}
 		return result, fmt.Errorf("fewer than two grouped candidates")
 	}
+	if inliers, ok := parallelLineInliers(result.Grouped, cfg); ok {
+		return cleanseParallelFamily(result, inliers, family, roi, cfg), nil
+	}
 	point, inliers, iterations, angleLimit, err := refineVanishingPoint(result.Grouped, roi, cfg)
 	if err != nil {
 		if result.AxisDominance >= cfg.AxisDominanceRatio {
@@ -204,6 +207,27 @@ func splitAxisLines(lines []Line, family LineFamily) (inliers, outliers []Line) 
 		}
 	}
 	return inliers, outliers
+}
+
+func parallelLineInliers(lines []Line, cfg CleanseConfig) ([]Line, bool) {
+	if len(lines) < 3 {
+		return nil, false
+	}
+	var cosineSum, sineSum float64
+	for _, line := range lines {
+		weight := float64(max(line.Votes, 1))
+		cosineSum += math.Cos(2*line.Theta) * weight
+		sineSum += math.Sin(2*line.Theta) * weight
+	}
+	meanTheta := normalizeTheta(math.Atan2(sineSum, cosineSum) / 2)
+	limit := cfg.MaxAngleResidual * math.Pi / 180
+	inliers := make([]Line, 0, len(lines))
+	for _, line := range lines {
+		if angleDistance(line.Theta, meanTheta) <= limit {
+			inliers = append(inliers, line)
+		}
+	}
+	return inliers, len(inliers)*4 >= len(lines)*3
 }
 
 func snapLinesToSharedDirection(lines []Line, family LineFamily, roi image.Rectangle) []Line {
