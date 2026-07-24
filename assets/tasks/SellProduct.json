@@ -6,6 +6,7 @@
             "entry": "SellProductSchedule",
             "description": "$task.SellProduct.description",
             "option": [
+                "SellProductConfigurationAcknowledgement",
                 "SellProductSchedule",
                 "SellProductOperatorAutoSwitch",
                 "SellProductPriorityRules",
@@ -25,6 +26,25 @@
         }
     ],
     "option": {
+        "SellProductConfigurationAcknowledgement": {
+            "type": "switch",
+            "label": "$task.SellProduct.ConfigurationAcknowledgement.label",
+            "description": "$task.SellProduct.ConfigurationAcknowledgement.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductConfigurationGuard": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Yes"
+                }
+            ]
+        },
         "SellProductSchedule": {
             "type": "checkbox",
             "label": "$option.TaskSchedule.label",

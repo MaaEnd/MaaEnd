@@ -28,6 +28,7 @@ test("SellProduct 保留按星期执行入口与任务选项", () => {
 
     assert.equal(task.task[0].entry, "SellProductSchedule");
     assert.deepEqual(task.task[0].option, [
+        "SellProductConfigurationAcknowledgement",
         "SellProductSchedule",
         "SellProductOperatorAutoSwitch",
         "SellProductPriorityRules",
@@ -37,8 +38,21 @@ test("SellProduct 保留按星期执行入口与任务选项", () => {
     ]);
     assert.equal(task.option.SellProductSchedule.type, "checkbox");
     assert.equal(task.option.SellProductSchedule.cases.length, 7);
+    assert.equal(task.option.SellProductConfigurationAcknowledgement.default_case, "No");
+    assert.equal(
+        task.option.SellProductConfigurationAcknowledgement.cases[0].pipeline_override.SellProductConfigurationGuard
+            .enabled,
+        true,
+    );
     assert.match(taskTemplate, /"entry": "SellProductSchedule"/);
     assert.equal(pipeline.SellProductScheduleEnabled.recognition.param.custom_recognition, "ScheduleRecognition");
+    assert.equal(pipeline.SellProductConfigurationGuard.enabled, false);
+    assert.equal(pipeline.SellProductConfigurationGuard.custom_action, "FalseAction");
+    assert.deepEqual(pipeline.SellProductSchedule.next, [
+        "SellProductConfigurationGuard",
+        "SellProductScheduleEnabled",
+        "SellProductScheduleEnd",
+    ]);
     assert.deepEqual(Object.keys(pipeline.SellProductScheduleEnabled.attach), [
         "monday",
         "tuesday",

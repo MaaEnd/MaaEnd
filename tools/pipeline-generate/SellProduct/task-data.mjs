@@ -73,6 +73,7 @@ const PRIORITY_ITEM_IDS_BY_REGION = sellProductLocations.reduce((acc, location) 
 const LOCATIONS = sellProductLocations;
 const REGION_PREFIXES = Object.keys(SETTLEMENT_REGION_MAP);
 const TASK_OPTIONS = [
+    "SellProductConfigurationAcknowledgement",
     "SellProductSchedule",
     "SellProductOperatorAutoSwitch",
     "SellProductPriorityRules",

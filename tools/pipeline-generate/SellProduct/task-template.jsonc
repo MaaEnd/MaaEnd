@@ -18,6 +18,25 @@
         }
     ],
     "option": {
+        "SellProductConfigurationAcknowledgement": {
+            "type": "switch",
+            "label": "$task.SellProduct.ConfigurationAcknowledgement.label",
+            "description": "$task.SellProduct.ConfigurationAcknowledgement.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductConfigurationGuard": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Yes"
+                }
+            ]
+        },
         // ==== 执行周期 =====
         "SellProductSchedule": {
             "type": "checkbox",
