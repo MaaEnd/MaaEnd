@@ -234,20 +234,18 @@ func snapLinesToSharedDirection(lines []Line, family LineFamily, roi image.Recta
 	if len(lines) == 0 {
 		return nil
 	}
-	var normalX, normalY, weightSum float64
+	var cosineSum, sineSum, weightSum float64
 	for _, line := range lines {
 		weight := float64(max(line.Votes, 1))
-		normalX += math.Cos(line.Theta) * weight
-		normalY += math.Sin(line.Theta) * weight
+		cosineSum += math.Cos(2*line.Theta) * weight
+		sineSum += math.Sin(2*line.Theta) * weight
 		weightSum += weight
 	}
-	normalLength := math.Hypot(normalX, normalY)
-	if normalLength < 1e-9 || weightSum == 0 {
+	if math.Hypot(cosineSum, sineSum) < 1e-9 || weightSum == 0 {
 		return nil
 	}
-	normalX /= normalLength
-	normalY /= normalLength
-	theta := normalizeTheta(math.Atan2(normalY, normalX))
+	theta := normalizeTheta(math.Atan2(sineSum, cosineSum) / 2)
+	normalX, normalY := math.Cos(theta), math.Sin(theta)
 	reference := float64(roi.Min.Y+roi.Max.Y) / 2
 	if family == HorizontalFamily {
 		reference = float64(roi.Min.X+roi.Max.X) / 2
