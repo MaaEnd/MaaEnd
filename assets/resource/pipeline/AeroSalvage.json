@@ -112,10 +112,10 @@
         "custom_recognition": "AeroSalvageGridRecognition",
         "custom_recognition_param": {
             "grid_roi": [
-                497,
-                177,
-                283,
-                316
+                482,
+                167,
+                313,
+                336
             ],
             "center_roi": [
                 634,
