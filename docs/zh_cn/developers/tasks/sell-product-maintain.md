@@ -230,6 +230,7 @@ SellProductSellLoop                                  （不限次数的售卖循
 | `pipeline-template.jsonc`                            | `assets/resource/pipeline/SellProduct/Outposts/*.json`      |
 | `pipeline-adb-template.jsonc`                        | `assets/resource_adb/pipeline/SellProduct/Outposts/*.json`  |
 | `sell-template.jsonc`                                | `assets/resource/pipeline/SellProduct/Sell.json`            |
+| `loop-template.jsonc`                                | `assets/resource/pipeline/SellProduct/Loop.json`            |
 | `session-template.jsonc`                             | `assets/resource/pipeline/SellProduct/OperatorSession.json` |
 | `task-template.jsonc`                                | `assets/tasks/SellProduct.json`                             |
 | `sync-locales.mjs`                                   | 五语言据点名、干员键和缺失的物品键                          |
@@ -238,7 +239,7 @@ SellProductSellLoop                                  （不限次数的售卖循
 
 以下文件由手工维护，生成器不处理：
 
-- `assets/resource/pipeline/SellProduct.json`：任务入口、初始化链与 `SellProductLoop` 地区遍历列表（地区入口节点定义由 `Sell.json` 生成）；
+- `assets/resource/pipeline/SellProduct.json`：任务入口与初始化链（地区入口与主循环节点由生成器产出）；
 - `SellProduct/SellCore.json`、`ChangeGoods.json`：通用售卖与选货流程；
 - `SellProduct/OperatorScan.json`：干员缓存扫描；
 - `SellProduct/ReserveSession.json`：保留规则会话；

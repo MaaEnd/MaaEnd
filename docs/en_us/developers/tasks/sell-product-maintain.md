@@ -230,6 +230,7 @@ The generator lives under `tools/pipeline-generate/SellProduct/`. `model.mjs` de
 | `pipeline-template.jsonc`                            | `assets/resource/pipeline/SellProduct/Outposts/*.json`         |
 | `pipeline-adb-template.jsonc`                        | `assets/resource_adb/pipeline/SellProduct/Outposts/*.json`     |
 | `sell-template.jsonc`                                | `assets/resource/pipeline/SellProduct/Sell.json`               |
+| `loop-template.jsonc`                                | `assets/resource/pipeline/SellProduct/Loop.json`               |
 | `session-template.jsonc`                             | `assets/resource/pipeline/SellProduct/OperatorSession.json`    |
 | `task-template.jsonc`                                | `assets/tasks/SellProduct.json`                                |
 | `sync-locales.mjs`                                   | Five-language outpost and operator keys plus missing item keys |
@@ -238,7 +239,7 @@ The generator lives under `tools/pipeline-generate/SellProduct/`. `model.mjs` de
 
 These files are maintained manually and are outside generator output:
 
-- `assets/resource/pipeline/SellProduct.json`: task entry, initialization chain, and the `SellProductLoop` region list (region entry node definitions are generated into `Sell.json`);
+- `assets/resource/pipeline/SellProduct.json`: task entry and initialization chain (region entry and main-loop nodes are generated);
 - `SellProduct/SellCore.json` and `ChangeGoods.json`: common sell and goods-selection flow;
 - `SellProduct/OperatorScan.json`: operator-cache scan;
 - `SellProduct/ReserveSession.json`: reserve-rule session;
