@@ -682,6 +682,8 @@
     "item.CannedCitromeA": "Canned Citrome [A]",
     "item.CannedCitromeB": "Canned Citrome [B]",
     "item.CannedCitromeC": "Canned Citrome [C]",
+    "item.CopperEnr2Cmpt": "Pyrrolite Part",
+    "item.FilterCore": "Separator Core",
     "option.ItemTransferStashBackpackWhenBothFull.label": "Stash backpack when both warehouses are full",
     "option.ItemTransferStashBackpackWhenBothFull.description": "When **enabled**, make sure **the one-click stash category includes the selected transfer item**.\nWhen disabled, you need to manually clear remaining backpack items.",
     "option.ItemTransferOriginRegion.label": "Source Region (Starting Point)",

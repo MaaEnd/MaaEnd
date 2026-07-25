@@ -711,6 +711,8 @@
     "item.CannedCitromeA": "シトロームの缶詰Ⅲ",
     "item.CannedCitromeB": "シトロームの缶詰Ⅱ",
     "item.CannedCitromeC": "シトロームの缶詰Ⅰ",
+    "item.CopperEnr2Cmpt": "焔銅部品",
+    "item.FilterCore": "分離コア",
     "task.WeaponUpgrade.label": "🔫武器レベルアップ",
     "task.WeaponUpgrade.description": "品質が最も低く、レベルが最も低い武器を自動で1つ選択し、1レベルアップします",
     "task.Crafting.label": "🧪簡易製作",

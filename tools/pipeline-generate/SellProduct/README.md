@@ -6,7 +6,7 @@
 
 - `pipeline-data.mjs`：Win32 Pipeline 据点与识别框；
 - `pipeline-adb-data.mjs`：ADB Pipeline 据点与识别框；
-- `sell-data.mjs`：区域售卖入口与区域内据点列表；
+- `sell-data.mjs`：区域售卖入口（含地区流程入口包装节点）与区域内据点列表；
 - `session-data.mjs`：自动干员会话的据点注册；
 - `task-data.mjs`：Task 中按缓存强制刷新、售卖优先级、保留规则、地区/据点排列的选项；
 - `selection-data.mjs`：把上游贸易数据预计算为 `assets/data/SellProduct/selection_data.json`，供 Go Service 运行时使用。
@@ -20,7 +20,7 @@ pnpm generate:SellProduct
 # 仅更新数据文件
 pnpm fetch:zmdmap
 
-# 使用已缓存的数据补齐五语言据点和干员键
+# 使用已缓存的数据补齐五语言据点、干员键和缺失的物品键
 node tools/pipeline-generate/SellProduct/sync-locales.mjs
 
 # 使用已缓存的数据生成部署所需的最小选品数据

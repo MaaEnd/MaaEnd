@@ -96,36 +96,6 @@
             "SellProductTaskEnd"
         ]
     },
-    "SellProductValleyIV": {
-        "desc": "四号谷地售卖流程入口",
-        "max_hit": 1,
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterMenuRegionalDevelopmentValleyIV"
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": ["SellProductValleyIVSell"]
-    },
-    "SellProductWuling": {
-        "desc": "武陵售卖流程入口",
-        "max_hit": 1,
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterMenuRegionalDevelopmentWuling"
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": ["SellProductWulingSell"]
-    },
     "SellProductTaskEnd": {
         "desc": "任务结束",
         "pre_delay": 0,

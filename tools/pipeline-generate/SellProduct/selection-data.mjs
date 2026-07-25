@@ -2,7 +2,7 @@ import {mkdirSync, writeFileSync} from "node:fs";
 import {dirname, resolve} from "node:path";
 import {fileURLToPath, pathToFileURL} from "node:url";
 
-import {getOperatorCaseName, isAdminOperator, sellProductLocations, settlementData} from "./model.mjs";
+import {getOperatorCaseName, isAdminOperator, sellProductLocations, settlementData, toPascalCase} from "./model.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT_PATH = resolve(__dirname, "../../../assets/data/SellProduct/selection_data.json");
@@ -288,6 +288,13 @@ function buildSelectableItems() {
 }
 
 export const sellProductSelectableItems = buildSelectableItems();
+
+// 国际化同步器消费的物品视图。命名规则与 task-data.mjs 的反查兜底保持一致，
+// 同步后的 item.* 键能被 Task 生成的 `$item.xxx` label 直接引用。
+export const sellProductItemLocaleEntries = sellProductSelectableItems.map(({id}) => ({
+    key: `item.${toPascalCase(id.replace(/^item_/, ""))}`,
+    names: sellProductSelectionData.items[id]?.names || {},
+}));
 
 export function writeSellProductSelectionData() {
     mkdirSync(dirname(OUTPUT_PATH), {recursive: true});

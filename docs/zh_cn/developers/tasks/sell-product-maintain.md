@@ -232,13 +232,13 @@ SellProductSellLoop                                  （不限次数的售卖循
 | `sell-template.jsonc`                                | `assets/resource/pipeline/SellProduct/Sell.json`            |
 | `session-template.jsonc`                             | `assets/resource/pipeline/SellProduct/OperatorSession.json` |
 | `task-template.jsonc`                                | `assets/tasks/SellProduct.json`                             |
-| `sync-locales.mjs`                                   | 五语言据点名和干员键                                        |
+| `sync-locales.mjs`                                   | 五语言据点名、干员键和缺失的物品键                          |
 | `selection-data.mjs`                                 | `assets/data/SellProduct/selection_data.json`               |
 | `tools/pipeline-generate/data/settlement_trade.json` | zmdmap 上游贸易数据源                                       |
 
 以下文件由手工维护，生成器不处理：
 
-- `assets/resource/pipeline/SellProduct.json`：任务入口和地区循环；
+- `assets/resource/pipeline/SellProduct.json`：任务入口、初始化链与 `SellProductLoop` 地区遍历列表（地区入口节点定义由 `Sell.json` 生成）；
 - `SellProduct/SellCore.json`、`ChangeGoods.json`：通用售卖与选货流程；
 - `SellProduct/OperatorScan.json`：干员缓存扫描；
 - `SellProduct/ReserveSession.json`：保留规则会话；
@@ -262,7 +262,7 @@ node tools/pipeline-generate/run-all.mjs SellProduct
 维护时注意：
 
 - 不要手改生成产物；修改对应模板或数据投影后重新生成。
-- 新增货品通常只需更新 zmdmap 缓存；若需要保留规则 label，再补齐五语言 `item.*` 文案。
+- 新增货品通常只需更新 zmdmap 缓存；`sync-locales.mjs` 会为未被既有键覆盖的货品自动补齐五语言 `item.*` 键，中文名与既有键相同的货品直接复用旧键。
 - 新增据点后要检查生成的地区 `next`、SceneManager 入口及 Win/ADB 两套文件。
 - 活动物品临时排除项集中在 `selection-data.mjs`，同时影响 Task 可选项和运行时数据；上游移除活动数据后应清理该过滤项并重新生成。
 - 保留规则的物品 case 通过 `attach` 提供 `item_id`，数量 `input` 通过 `custom_action_param.quantity` 提供整数值。

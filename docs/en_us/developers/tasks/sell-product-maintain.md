@@ -224,21 +224,21 @@ Independent reserve rules provide six slots. Each stable `itemId` can use either
 
 The generator lives under `tools/pipeline-generate/SellProduct/`. `model.mjs` defines outpost IDs, multilingual OCR candidates, task options, and template data from zmdmap. `selection-data.mjs` produces the Go deployment resource at `assets/data/SellProduct/selection_data.json`. `tools/pipeline-generate/data/` is the generator's source-data directory.
 
-| Maintenance entry                                    | Generated artifact                                          |
-| ---------------------------------------------------- | ----------------------------------------------------------- |
-| `model.mjs`                                          | Shared outpost, region, and multilingual OCR model          |
-| `pipeline-template.jsonc`                            | `assets/resource/pipeline/SellProduct/Outposts/*.json`      |
-| `pipeline-adb-template.jsonc`                        | `assets/resource_adb/pipeline/SellProduct/Outposts/*.json`  |
-| `sell-template.jsonc`                                | `assets/resource/pipeline/SellProduct/Sell.json`            |
-| `session-template.jsonc`                             | `assets/resource/pipeline/SellProduct/OperatorSession.json` |
-| `task-template.jsonc`                                | `assets/tasks/SellProduct.json`                             |
-| `sync-locales.mjs`                                   | Five-language outpost and operator keys                     |
-| `selection-data.mjs`                                 | `assets/data/SellProduct/selection_data.json`               |
-| `tools/pipeline-generate/data/settlement_trade.json` | Upstream zmdmap trade data                                  |
+| Maintenance entry                                    | Generated artifact                                             |
+| ---------------------------------------------------- | -------------------------------------------------------------- |
+| `model.mjs`                                          | Shared outpost, region, and multilingual OCR model             |
+| `pipeline-template.jsonc`                            | `assets/resource/pipeline/SellProduct/Outposts/*.json`         |
+| `pipeline-adb-template.jsonc`                        | `assets/resource_adb/pipeline/SellProduct/Outposts/*.json`     |
+| `sell-template.jsonc`                                | `assets/resource/pipeline/SellProduct/Sell.json`               |
+| `session-template.jsonc`                             | `assets/resource/pipeline/SellProduct/OperatorSession.json`    |
+| `task-template.jsonc`                                | `assets/tasks/SellProduct.json`                                |
+| `sync-locales.mjs`                                   | Five-language outpost and operator keys plus missing item keys |
+| `selection-data.mjs`                                 | `assets/data/SellProduct/selection_data.json`                  |
+| `tools/pipeline-generate/data/settlement_trade.json` | Upstream zmdmap trade data                                     |
 
 These files are maintained manually and are outside generator output:
 
-- `assets/resource/pipeline/SellProduct.json`: task entry and region loop;
+- `assets/resource/pipeline/SellProduct.json`: task entry, initialization chain, and the `SellProductLoop` region list (region entry node definitions are generated into `Sell.json`);
 - `SellProduct/SellCore.json` and `ChangeGoods.json`: common sell and goods-selection flow;
 - `SellProduct/OperatorScan.json`: operator-cache scan;
 - `SellProduct/ReserveSession.json`: reserve-rule session;
@@ -262,7 +262,7 @@ node tools/pipeline-generate/run-all.mjs SellProduct
 Maintenance rules:
 
 - Do not edit generated artifacts. Change their template or projection and regenerate.
-- A new item usually only requires a zmdmap cache update. Add five-language `item.*` text when it needs a reserve-rule label.
+- A new item usually only requires a zmdmap cache update. `sync-locales.mjs` adds five-language `item.*` keys for items not covered by an existing key, while items whose Chinese name matches an existing key keep using that key.
 - After adding an outpost, check generated region `next`, the SceneManager entry, and both Win and ADB artifacts.
 - Temporary event-item exclusions are centralized in `selection-data.mjs` and affect both Task choices and runtime data. Remove the filter and regenerate after upstream drops the event data.
 - Reserve-item cases provide `item_id` through `attach`; the quantity `input` provides an integer through `custom_action_param.quantity`.

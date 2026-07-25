@@ -3,10 +3,11 @@ import {dirname, resolve} from "node:path";
 import {fileURLToPath, pathToFileURL} from "node:url";
 
 import {sellProductLocaleEntries, sellProductLocations} from "./model.mjs";
+import {sellProductItemLocaleEntries} from "./selection-data.mjs";
 
 // 根据 zmdmap 的 settlement_trade.json 自动维护 SellProduct 使用的国际化键。
 //
-// 这个脚本负责按数据源顺序同步据点，并补齐 locale 尚未登记的干员：
+// 这个脚本负责按数据源顺序同步据点，并补齐 locale 尚未登记的干员和物品：
 // 1. key 由 model.mjs 统一生成，避免同步脚本和 Pipeline 生成器采用不同命名规则；
 // 2. 据点名始终以 zmdmap 当前五语言文本为准，已有 locale 值也会同步覆盖；
 // 3. 新键插入对应的业务分组，不追加到整个 JSON 的末尾；
@@ -123,6 +124,55 @@ function insertMissingMessages(messages, entries, sourceLocale, insertBeforeKey)
     };
 }
 
+/**
+ * 补齐缺失的物品国际化条目，插在最后一个 `item.*` 键之后，保持物品分组连续。
+ *
+ * `item.*` 键与 ItemTransfer 等任务共享，只做缺失补齐：
+ * 已存在的 key 视为人工维护内容并保留原值；中文名已被其他 `item.*` 键覆盖的物品
+ * 由 task-data.mjs 的中文名反查直接复用既有键，不再重复创建。
+ */
+export function insertMissingItemMessages(messages, entries, fileLocale, existingCNNames) {
+    const missingEntries = entries.filter(
+        ({key, names}) => !Object.hasOwn(messages, key) && !existingCNNames.has(names.zh_cn),
+    );
+    if (missingEntries.length === 0) {
+        return {
+            messages,
+            inserted: 0,
+        };
+    }
+
+    let lastItemKey = null;
+    for (const key of Object.keys(messages)) {
+        if (key.startsWith("item.")) {
+            lastItemKey = key;
+        }
+    }
+    // 物品分组消失通常意味着 locale 结构被重排。此时宁可中止，也不要静默追加到文件末尾。
+    if (lastItemKey === null) {
+        throw new Error("[SellProduct] 未找到 item.* 分组，无法确定物品键插入位置");
+    }
+
+    const syncedMessages = {};
+    for (const [
+        key,
+        value,
+    ] of Object.entries(messages)) {
+        syncedMessages[key] = value;
+        if (key === lastItemKey) {
+            for (const entry of missingEntries) {
+                syncedMessages[entry.key] =
+                    entry.names[fileLocale] || entry.names.zh_cn || entry.names.en_us || entry.key;
+            }
+        }
+    }
+
+    return {
+        messages: syncedMessages,
+        inserted: missingEntries.length,
+    };
+}
+
 // 写入前验证所有当前据点和可选干员均有 key。
 // 此检查覆盖插入遗漏和数据结构未接入同步器两类问题。
 function validateLocaleCatalog(messages, fileLocale) {
@@ -138,6 +188,17 @@ function validateLocaleCatalog(messages, fileLocale) {
 }
 
 export function syncSellProductLocaleCatalogs() {
+    // task-data.mjs 以中文名反查物品键，因此重复判定统一基于简中目录，保证五语言键集合一致。
+    const zhCNMessages = JSON.parse(readFileSync(resolve(LOCALE_DIR, "zh_cn.json"), "utf8"));
+    const existingItemCNNames = new Set(
+        Object.entries(zhCNMessages)
+            .filter(([key]) => key.startsWith("item."))
+            .map(([
+                ,
+                value,
+            ]) => value),
+    );
+
     // 每种语言独立读取和写回，避免某一语言的人工文案被错误复制到其他语言。
     for (const [
         sourceLocale,
@@ -156,15 +217,21 @@ export function syncSellProductLocaleCatalogs() {
             sourceLocale,
             "operator.Endministrator",
         );
-        validateLocaleCatalog(operatorResult.messages, fileLocale);
+        const itemResult = insertMissingItemMessages(
+            operatorResult.messages,
+            sellProductItemLocaleEntries,
+            fileLocale,
+            existingItemCNNames,
+        );
+        validateLocaleCatalog(itemResult.messages, fileLocale);
 
         // 与项目 JSON 约定保持一致：4 空格缩进、文件末尾一个换行。
         // 比较时统一原文件的 CRLF，保证 Windows 下无内容变化时也不会反复重写。
-        const syncedText = `${JSON.stringify(operatorResult.messages, null, 4)}\n`;
+        const syncedText = `${JSON.stringify(itemResult.messages, null, 4)}\n`;
         if (syncedText !== originalText.replace(/\r\n/g, "\n")) {
             writeFileSync(localePath, syncedText, "utf8");
             console.log(
-                `[SellProduct] 已为 ${fileLocale}.json 按据点顺序重排，更新 ${stationResult.updated} 个据点名，清理 ${stationResult.removed} 个旧据点键，补齐 ${stationResult.inserted} 个据点键和 ${operatorResult.inserted} 个干员键。`,
+                `[SellProduct] 已为 ${fileLocale}.json 按据点顺序重排，更新 ${stationResult.updated} 个据点名，清理 ${stationResult.removed} 个旧据点键，补齐 ${stationResult.inserted} 个据点键、${operatorResult.inserted} 个干员键和 ${itemResult.inserted} 个物品键。`,
             );
         }
     }
