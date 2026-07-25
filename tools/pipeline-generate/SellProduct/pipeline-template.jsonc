@@ -106,21 +106,29 @@
     },
     "SellProduct${LocationId}CurrentOperatorUncached": {
         "desc": "${LocationDesc}当前联络干员未缓存，重新扫描干员列表",
-        "recognition": "Custom",
-        "custom_recognition": "SellProductCurrentOperatorUncached",
-        "custom_recognition_param": {
-            "mode": "cache",
-            "usage": "all",
-            "location": "${LocationId}",
-            "roi": "${CurrentOperatorROI}"
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "SellProductCurrentOperatorUncached",
+                "custom_recognition_param": {
+                    "mode": "cache",
+                    "usage": "all",
+                    "location": "${LocationId}",
+                    "roi": "${CurrentOperatorROI}"
+                }
+            }
         },
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SellProductScanOperatorList"
-            ]
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SellProductScanOperatorList"
+                    ]
+                }
+            }
         },
         "post_delay": 0,
         "rate_limit": 0,

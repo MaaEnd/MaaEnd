@@ -29,6 +29,7 @@
                 "ReceptionRoomWaitExchangeKeepAliveDueRecognition",
                 "ScheduleRecognition",
                 "SellProductCurrentBestOperator",
+                "SellProductCurrentOperatorUncached",
                 "SellProductOperatorCacheReady",
                 "SellProductOperatorListBottom",
                 "SellProductOperatorScanOutcome",
