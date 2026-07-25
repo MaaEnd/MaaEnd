@@ -6,7 +6,7 @@
 
 > [!IMPORTANT]
 >
-> `assets/data/SellProduct/selection_data.json`、`assets/tasks/SellProduct.json`、`assets/resource/pipeline/SellProduct/OperatorSession.json`、两套 `Outposts/*.json` 和 `assets/resource/pipeline/SellProduct/Sell.json` 都是生成产物。不要直接修改，应更新 `tools/pipeline-generate/SellProduct/` 下的模型、数据投影或模板后重新生成。
+> `assets/data/SellProduct/selection_data.json`、`assets/tasks/SellProduct.json`、`assets/resource/pipeline/SellProduct/OperatorSession.json`、`Loop.json` 以及两套资源包下按地区分组的 `{地区}/` 文件夹中的全部 JSON 都是生成产物。不要直接修改，应更新 `tools/pipeline-generate/SellProduct/` 下的模型、数据投影或模板后重新生成。
 
 ## 主流程
 
@@ -224,18 +224,18 @@ SellProductSellLoop                                  （不限次数的售卖循
 
 生成器位于 `tools/pipeline-generate/SellProduct/`。`model.mjs` 根据 zmdmap 数据定义据点 ID、多语言 OCR、任务选项和模板数据；`selection-data.mjs` 生成 Go 使用的部署数据 `assets/data/SellProduct/selection_data.json`。`tools/pipeline-generate/data/` 是生成器的数据源目录。
 
-| 维护入口                                             | 生成产物                                                    |
-| ---------------------------------------------------- | ----------------------------------------------------------- |
-| `model.mjs`                                          | 据点、地区、多语言 OCR 的共享模型                           |
-| `pipeline-template.jsonc`                            | `assets/resource/pipeline/SellProduct/Outposts/*.json`      |
-| `pipeline-adb-template.jsonc`                        | `assets/resource_adb/pipeline/SellProduct/Outposts/*.json`  |
-| `sell-template.jsonc`                                | `assets/resource/pipeline/SellProduct/Sell.json`            |
-| `loop-template.jsonc`                                | `assets/resource/pipeline/SellProduct/Loop.json`            |
-| `session-template.jsonc`                             | `assets/resource/pipeline/SellProduct/OperatorSession.json` |
-| `task-template.jsonc`                                | `assets/tasks/SellProduct.json`                             |
-| `sync-locales.mjs`                                   | 五语言据点名、干员键和缺失的物品键                          |
-| `selection-data.mjs`                                 | `assets/data/SellProduct/selection_data.json`               |
-| `tools/pipeline-generate/data/settlement_trade.json` | zmdmap 上游贸易数据源                                       |
+| 维护入口                                             | 生成产物                                                                 |
+| ---------------------------------------------------- | ------------------------------------------------------------------------ |
+| `model.mjs`                                          | 据点、地区、多语言 OCR 的共享模型                                        |
+| `pipeline-template.jsonc`                            | `assets/resource/pipeline/SellProduct/{Region}/{Location}.json`          |
+| `pipeline-adb-template.jsonc`                        | `assets/resource_adb/pipeline/SellProduct/{Region}/{Location}.json`      |
+| `sell-template.jsonc`                                | `assets/resource/pipeline/SellProduct/{Region}/SellProduct{Region}.json` |
+| `loop-template.jsonc`                                | `assets/resource/pipeline/SellProduct/Loop.json`                         |
+| `session-template.jsonc`                             | `assets/resource/pipeline/SellProduct/OperatorSession.json`              |
+| `task-template.jsonc`                                | `assets/tasks/SellProduct.json`                                          |
+| `sync-locales.mjs`                                   | 五语言据点名、干员键和缺失的物品键                                       |
+| `selection-data.mjs`                                 | `assets/data/SellProduct/selection_data.json`                            |
+| `tools/pipeline-generate/data/settlement_trade.json` | zmdmap 上游贸易数据源                                                    |
 
 以下文件由手工维护，生成器不处理：
 
@@ -265,6 +265,7 @@ node tools/pipeline-generate/run-all.mjs SellProduct
 - 不要手改生成产物；修改对应模板或数据投影后重新生成。
 - 新增货品通常只需更新 zmdmap 缓存；`sync-locales.mjs` 会为未被既有键覆盖的货品自动补齐五语言 `item.*` 键，中文名与既有键相同的货品直接复用旧键。
 - 新增据点后要检查生成的地区 `next`、SceneManager 入口及 Win/ADB 两套文件。
+- 新增地区时先在两套资源包的 `SellProduct/` 下创建地区文件夹，再运行生成；生成器只会创建 `outputDir`，不会自动创建地区子目录。
 - 活动物品临时排除项集中在 `selection-data.mjs`，同时影响 Task 可选项和运行时数据；上游移除活动数据后应清理该过滤项并重新生成。
 - 保留规则的物品 case 通过 `attach` 提供 `item_id`，数量 `input` 通过 `custom_action_param.quantity` 提供整数值。
 

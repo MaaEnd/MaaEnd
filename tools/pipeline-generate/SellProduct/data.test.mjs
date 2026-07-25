@@ -92,6 +92,7 @@ test("SellProduct templates consume separate minimal projections of the shared l
         "LocationId",
         "MaxTargetBoxAdb",
         "QuantityBoxAdb",
+        "RegionPrefix",
     ]);
     assert.deepEqual(sortedKeys(sellProductSessionRows[0]), [
         "LocationDesc",
@@ -336,9 +337,13 @@ test("SellProduct registration slots form an always-enabled no-op chain", () => 
 });
 
 test("SellProduct 每次进入地区都会切换对应的优先售卖表", () => {
-    const pipeline = readPipeline(new URL("../../../assets/resource/pipeline/SellProduct/Sell.json", import.meta.url));
-
     for (const region of sellProductRegions) {
+        const pipeline = readPipeline(
+            new URL(
+                `../../../assets/resource/pipeline/SellProduct/${region.RegionPrefix}/SellProduct${region.RegionPrefix}.json`,
+                import.meta.url,
+            ),
+        );
         const chain = [
             `SellProduct${region.RegionPrefix}InitializePrioritySession`,
             ...[
@@ -416,7 +421,7 @@ test("SellProduct operator switching uses shared core dispatch nodes", () => {
     for (const location of sellProductLocations) {
         const pipeline = readPipeline(
             new URL(
-                `../../../assets/resource/pipeline/SellProduct/Outposts/${location.LocationId}.json`,
+                `../../../assets/resource/pipeline/SellProduct/${location.RegionPrefix}/${location.LocationId}.json`,
                 import.meta.url,
             ),
         );
@@ -495,7 +500,7 @@ test("SellProduct 缺货物品通过据点锚点标记并在本次任务内共�
     for (const location of sellProductLocations) {
         const pipeline = readPipeline(
             new URL(
-                `../../../assets/resource/pipeline/SellProduct/Outposts/${location.LocationId}.json`,
+                `../../../assets/resource/pipeline/SellProduct/${location.RegionPrefix}/${location.LocationId}.json`,
                 import.meta.url,
             ),
         );
@@ -534,7 +539,7 @@ test("SellProduct 持续售卖到保留量后再进入下一轮选货", () => {
     for (const location of sellProductLocations) {
         const outpost = readPipeline(
             new URL(
-                `../../../assets/resource/pipeline/SellProduct/Outposts/${location.LocationId}.json`,
+                `../../../assets/resource/pipeline/SellProduct/${location.RegionPrefix}/${location.LocationId}.json`,
                 import.meta.url,
             ),
         );
@@ -575,7 +580,7 @@ test("SellProduct 按启用据点边界处理已派驻干员冲突", () => {
     for (const location of sellProductLocations) {
         const pipeline = readPipeline(
             new URL(
-                `../../../assets/resource/pipeline/SellProduct/Outposts/${location.LocationId}.json`,
+                `../../../assets/resource/pipeline/SellProduct/${location.RegionPrefix}/${location.LocationId}.json`,
                 import.meta.url,
             ),
         );
@@ -653,7 +658,7 @@ test("SellProduct generated outpost nodes report confirmed runtime state changes
     for (const location of sellProductLocations) {
         const pipeline = readPipeline(
             new URL(
-                `../../../assets/resource/pipeline/SellProduct/Outposts/${location.LocationId}.json`,
+                `../../../assets/resource/pipeline/SellProduct/${location.RegionPrefix}/${location.LocationId}.json`,
                 import.meta.url,
             ),
         );
@@ -700,7 +705,7 @@ test("SellProduct UI focus messages use complete interface i18n keys", () => {
         ...sellProductLocations.map(
             (location) =>
                 new URL(
-                    `../../../assets/resource/pipeline/SellProduct/Outposts/${location.LocationId}.json`,
+                    `../../../assets/resource/pipeline/SellProduct/${location.RegionPrefix}/${location.LocationId}.json`,
                     import.meta.url,
                 ),
         ),
