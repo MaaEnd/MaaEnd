@@ -101,6 +101,7 @@
     "sellproduct.runtime.operator_cache_loaded": "👥 已載入幹員列表快取（更新於 %s），將直接進行幹員規劃",
     "sellproduct.runtime.operator_cache_time_unknown": "未知",
     "sellproduct.runtime.operator_cache_scanning": "👥 正在掃描並快取幹員列表，期間會瀏覽完整列表",
+    "sellproduct.runtime.operator_cache_rescan": "🔄 當前派駐幹員 %s 不在幹員快取中，快取可能已過期，將重新掃描幹員列表",
     "sellproduct.runtime.restore_skipped": "⚠️ %s沒有可用的售後生產幹員，跳過派駐",
     "sellproduct.runtime.item_switched": "📦 已切換貨品：%s（%s）",
     "sellproduct.runtime.item_out_of_stock": "🚫 已確認缺貨並排除：%s（%s）",

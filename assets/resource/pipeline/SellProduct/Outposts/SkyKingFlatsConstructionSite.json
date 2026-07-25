@@ -99,8 +99,38 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "SellProductSkyKingFlatsConstructionSiteCurrentOperatorUncached",
             "SellProductSkyKingFlatsConstructionSiteCurrentTargetOperator",
             "SellProductSkyKingFlatsConstructionSiteOpenTargetOperatorList"
+        ]
+    },
+    "SellProductSkyKingFlatsConstructionSiteCurrentOperatorUncached": {
+        "desc": "天王坪援建点当前联络干员未缓存，重新扫描干员列表",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductCurrentOperatorUncached",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "all",
+            "location": "SkyKingFlatsConstructionSite",
+            "roi": [
+                260,
+                568,
+                280,
+                35
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SellProductScanOperatorList"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSkyKingFlatsConstructionSiteBeforeSellOperator"
         ]
     },
     "SellProductSkyKingFlatsConstructionSiteCurrentTargetOperator": {

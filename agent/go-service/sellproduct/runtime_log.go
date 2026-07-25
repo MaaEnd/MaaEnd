@@ -262,6 +262,10 @@ func printRuntimeOperatorCacheStatus(ctx *maa.Context, status operatorCacheStatu
 	maafocus.Print(ctx, runtimeOperatorCacheStatusMessage(status))
 }
 
+func printRuntimeOperatorCacheRescan(ctx *maa.Context, candidate operatorCandidate) {
+	maafocus.Print(ctx, i18n.T("sellproduct.runtime.operator_cache_rescan", runtimeOperatorName(candidate)))
+}
+
 func runtimeOperatorCacheStatusMessage(status operatorCacheStatus) string {
 	if !status.Ready {
 		return i18n.T("sellproduct.runtime.operator_cache_scanning")

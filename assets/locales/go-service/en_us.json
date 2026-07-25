@@ -101,6 +101,7 @@
     "sellproduct.runtime.operator_cache_loaded": "👥 Loaded the operator list cache (updated %s); proceeding directly to operator planning",
     "sellproduct.runtime.operator_cache_time_unknown": "unknown",
     "sellproduct.runtime.operator_cache_scanning": "👥 Scanning and caching the operator list; the full list will be reviewed",
+    "sellproduct.runtime.operator_cache_rescan": "🔄 The currently assigned operator %s is missing from the operator cache. The cache may be outdated; rescanning the operator list",
     "sellproduct.runtime.restore_skipped": "⚠️ %s has no available post-sale production operator; skipping assignment",
     "sellproduct.runtime.item_switched": "📦 Switched goods: %s (%s)",
     "sellproduct.runtime.item_out_of_stock": "🚫 Confirmed out of stock and excluded: %s (%s)",
