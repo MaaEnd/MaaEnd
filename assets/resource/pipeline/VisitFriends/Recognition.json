@@ -35,17 +35,33 @@
         "count": 1,
         "order_by": "Vertical"
     },
+    "VisitFriendsRecognitionItemOnline": {
+        "desc": "识别在线状态",
+        "recognition": "OCR",
+        "roi": "VisitFriendsRecognitionItemClueExchange",
+        "roi_offset": [
+            -1068,
+            34,
+            152,
+            13
+        ],
+        "expected": [
+            "在线",
+            "線上",
+            "Online"
+        ]
+    },
     "VisitFriendsRecognitionItemNameByEnterButton": {
-        "desc": "按进船按钮偏移识别好友名。默认 Vertical；VisitFriendsRemark=Yes 时改为两项 expected + order_by Expected",
+        "desc": "按进船按钮偏移识别好友名（任意含 #）",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "VisitFriendsRecognitionItemClueExchange",
+                "roi": "VisitFriendsRecognitionItemOnline",
                 "roi_offset": [
-                    -1093,
-                    -14,
-                    214,
-                    0
+                    0,
+                    -62,
+                    135,
+                    62
                 ],
                 "expected": [
                     ".*#.*"
@@ -54,15 +70,74 @@
             }
         }
     },
+    "VisitFriendsRecognitionItemNameRemarkByEnterButton": {
+        "desc": "按进船按钮偏移识别带备注好友名（含括号）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "VisitFriendsRecognitionItemOnline",
+                "roi_offset": [
+                    0,
+                    -62,
+                    135,
+                    62
+                ],
+                "expected": [
+                    ".*[（(].*#.*"
+                ],
+                "order_by": "Vertical"
+            }
+        }
+    },
     "VisitFriendsRecognitionItemWithName": {
-        "desc": "识别进船按钮与对应好友名（含线索锚点，供选友）",
+        "desc": "识别进船按钮与对应好友名（含线索锚点）；box_index=3 返回名字框，供普通消费性选友",
         "recognition": "And",
         "all_of": [
             "VisitFriendsRecognitionItemEnterButton",
             "VisitFriendsRecognitionItemClueExchange",
+            "VisitFriendsRecognitionItemOnline",
             "VisitFriendsRecognitionItemNameByEnterButton"
         ],
-        "box_index": 2
+        "box_index": 3
+    },
+    "VisitFriendsRecognitionItemWithRemark": {
+        "desc": "识别进船按钮与带备注好友名；box_index=3 返回名字框，供备注选友链路消费",
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsRecognitionItemEnterButton",
+            "VisitFriendsRecognitionItemClueExchange",
+            "VisitFriendsRecognitionItemOnline",
+            "VisitFriendsRecognitionItemNameRemarkByEnterButton"
+        ],
+        "box_index": 3
+    },
+    "VisitFriendsRecognitionItemEnterButtonByNameRemark": {
+        "desc": "备注选友链路：以备注名框为锚向右偏移，识别该行进船（飞船）图标",
+        // 与 NameByEnterButtonForScroll 相对 EnterButton 的 [-1069,-29,218,5] 反向；w/h 略放宽以容 OCR 框抖动
+        "recognition": "TemplateMatch",
+        "roi": "VisitFriendsMenuScanSelectFriendRemarkConsumable",
+        "roi_offset": [
+            956,
+            -18,
+            33,
+            106
+        ],
+        "template": "VisitFriends/EnterButton.png",
+        "threshold": 0.9
+    },
+    "VisitFriendsRecognitionItemEnterButtonByName": {
+        "desc": "普通选友链路：以好友名框为锚向右偏移，识别该行进船（飞船）图标",
+        // 与 NameByEnterButtonForScroll 相对 EnterButton 的 [-1069,-29,218,5] 反向；w/h 略放宽以容 OCR 框抖动
+        "recognition": "TemplateMatch",
+        "roi": "VisitFriendsMenuScanSelectFriendConsumable",
+        "roi_offset": [
+            956,
+            -18,
+            33,
+            106
+        ],
+        "template": "VisitFriends/EnterButton.png",
+        "threshold": 0.9
     },
     "VisitFriendsRecognitionItemNameByEnterButtonForScroll": {
         "desc": "滚动专用：直接以进船按钮为锚识别好友名，不依赖线索交换图标",

@@ -113,98 +113,19 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRegisterPriorityItem1"
+            "SellProductConfigurePrioritySession"
         ]
     },
-    "SellProductRegisterPriorityItem1": {
-        "desc": "注册第1个优先售卖物品",
+    "SellProductConfigurePrioritySession": {
+        "desc": "配置是否启用优先售卖",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SellProductPrioritySession",
         "custom_action_param": {
-            "operation": "register",
-            "item_id": ""
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductRegisterPriorityItem2"
-        ]
-    },
-    "SellProductRegisterPriorityItem2": {
-        "desc": "注册第2个优先售卖物品",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductPrioritySession",
-        "custom_action_param": {
-            "operation": "register",
-            "item_id": ""
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductRegisterPriorityItem3"
-        ]
-    },
-    "SellProductRegisterPriorityItem3": {
-        "desc": "注册第3个优先售卖物品",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductPrioritySession",
-        "custom_action_param": {
-            "operation": "register",
-            "item_id": ""
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductRegisterPriorityItem4"
-        ]
-    },
-    "SellProductRegisterPriorityItem4": {
-        "desc": "注册第4个优先售卖物品",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductPrioritySession",
-        "custom_action_param": {
-            "operation": "register",
-            "item_id": ""
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductRegisterPriorityItem5"
-        ]
-    },
-    "SellProductRegisterPriorityItem5": {
-        "desc": "注册第5个优先售卖物品",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductPrioritySession",
-        "custom_action_param": {
-            "operation": "register",
-            "item_id": ""
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductRegisterPriorityItem6"
-        ]
-    },
-    "SellProductRegisterPriorityItem6": {
-        "desc": "注册第6个优先售卖物品",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductPrioritySession",
-        "custom_action_param": {
-            "operation": "register",
-            "item_id": ""
+            "operation": "configure",
+            "enabled": false,
+            "only_preferred": false
         },
         "post_delay": 0,
         "rate_limit": 0,

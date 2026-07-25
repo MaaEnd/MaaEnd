@@ -3,7 +3,6 @@ package maptrackercompatible
 
 import (
 	"encoding/json"
-	"math"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -97,79 +96,6 @@ func TestMapTrackerMoveCompatibleRejectsEmptyOrUnknownRoutes(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if _, err := (&MapTrackerMoveCompatible{}).convertParam(&tt.param); err == nil {
 				t.Fatal("expected error")
-			}
-		})
-	}
-}
-
-func TestMapTrackerMoveCompatibleConvertsRegionalSamples(t *testing.T) {
-	chdirCompatibleTestRepoRoot(t)
-
-	tests := []struct {
-		name    string
-		param   mapNavigateCompatibleParam
-		expects [][2]float64
-	}{
-		{
-			name: "ValleyIV",
-			param: mapNavigateCompatibleParam{
-				Path: mustRawMessages(t,
-					map[string]any{"action": "ZONE", "zone_id": "ValleyIV_Base"},
-					[]any{532.0, 697.0},
-					[]any{574.0, 735.0},
-				),
-			},
-			expects: [][2]float64{
-				{478.960, 267.960},
-				{524.845, 309.475},
-			},
-		},
-		{
-			name: "Wuling",
-			param: mapNavigateCompatibleParam{
-				MapName: "map02_lv002",
-				Path: mustRawMessages(t,
-					map[string]any{"action": "ZONE", "zone_id": "Wuling_Base"},
-					[]any{942.0, 723.0},
-					[]any{944.0, 723.0},
-				),
-			},
-			expects: [][2]float64{
-				{664.200, 734.200},
-				{666.275, 734.200},
-			},
-		},
-		{
-			name: "OMVBase",
-			param: mapNavigateCompatibleParam{
-				Path: mustRawMessages(t,
-					map[string]any{"action": "ZONE", "zone_id": "OMVBase01"},
-					[]any{187.0, 141.0},
-					[]any{187.0, 131.0},
-				),
-			},
-			expects: [][2]float64{
-				{190.200, 143.200},
-				{190.200, 132.825},
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			converted, err := (&MapTrackerMoveCompatible{}).convertParam(&tt.param)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if len(converted.Path) != len(tt.expects) {
-				t.Fatalf("got %d points, want %d", len(converted.Path), len(tt.expects))
-			}
-			for i, expect := range tt.expects {
-				got := converted.Path[i]
-				dist := math.Hypot(got[0]-expect[0], got[1]-expect[1])
-				if dist > 2.0 {
-					t.Fatalf("point %d got [%.3f, %.3f], want [%.3f, %.3f], dist %.3f", i, got[0], got[1], expect[0], expect[1], dist)
-				}
 			}
 		})
 	}

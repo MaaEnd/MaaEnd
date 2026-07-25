@@ -381,14 +381,14 @@
         "custom_action_param": {
             "map_name": "map02_lv004",
             "target": [
-                594.4,
-                324.1
+                581.4,
+                305.1
             ],
             "on_finish": {
                 "action": "Custom",
                 "custom_action": "MapTrackerToward",
                 "custom_action_param": {
-                    "angle": 334
+                    "angle": 180
                 }
             }
         },
@@ -413,12 +413,12 @@
     },
     "PoolLotusAdjustCamera": {
         "desc": "小池荷任务中调整朝向",
-        "max_hit": 1,
+        "max_hit": 4,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringSwipeScreenRight"
+            "EnvironmentMonitoringSwipeScreenDown"
         ]
     }
 }

@@ -72,22 +72,36 @@
 
 除上述 4 个字段外，其余参数都只能从 `custom_action_param` 读取：
 
-| 字段                      | 类型                    | 必填 | 说明                                                                                                                          |
-| ------------------------- | ----------------------- | ---- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `Direction`               | `string`                | 是   | 滑动方向。指定"最大值所在方向"，支持 `left` / `right` / `up` / `down`。                                                       |
-| `Quantity.Box`            | `int[4]`                | 是   | 当前数量 OCR 区域，格式 `[x, y, w, h]`。                                                                                      |
-| `IncreaseButton`          | `string` 或 `int[2\|4]` | 是   | "增加数量"按钮。推荐传模板路径（阈值固定 `0.8`），也可传坐标 `[x, y]` 或 `[x, y, w, h]`。                                     |
-| `DecreaseButton`          | `string` 或 `int[2\|4]` | 是   | "减少数量"按钮。格式同 `IncreaseButton`。                                                                                     |
-| `MaxTarget.Box`           | `int[4]`                | 否   | OCR 区域，用于读取物品的最大可用数量（如可购买/可出售数量），格式 `[x, y, w, h]`。缺失时使用滑块终点值作为回退。              |
-| `Quantity.Filter`         | `object`                | 否   | 当前数量 OCR 的颜色过滤参数，适合数字颜色稳定但背景干扰较多的场景。                                                           |
-| `MaxTarget.Filter`        | `object`                | 否   | 最大目标数量 OCR 的颜色过滤参数。仅在显式提供 `MaxTarget` 时使用。                                                            |
-| `Quantity.OnlyRec`        | `bool`                  | 否   | 是否为数量 OCR 节点启用 `only_rec`。默认 `false`。                                                                            |
-| `MaxTarget.OnlyRec`       | `bool`                  | 否   | 是否为 `BetterSlidingGetMaxTarget` 的 OCR 节点启用 `only_rec`。仅在显式提供 `MaxTarget` 时使用。                              |
-| `GreenMask`               | `bool`                  | 否   | 使用模板路径定位按钮时，是否对模板匹配启用绿色掩膜过滤。默认 `false`。对`IncreaseButton`与`DecreaseButton`生效                |
-| `CenterPointOffset`       | `int[2]`                | 否   | 相对滑块识别框中心点的点击偏移 `[x, y]`，负数向左/上，正数向右/下。默认 `[-10, 0]`。                                          |
-| `ClampTargetToMax`        | `bool`                  | 否   | 为 `true` 时，若目标超过 `maxQuantity` 则自动钳制为 `maxQuantity` 继续执行，而非直接失败。默认 `false`。                      |
-| `SwipeButton`             | `string`                | 否   | 自定义滑块模板路径，覆盖 `BetterSlidingSwipeButton` 节点的默认模板。默认 `""`（使用共享默认模板）。                           |
-| `ExceedingOverrideEnable` | `string`                | 否   | 当解析后的目标超出可滑动范围时，将指定 Pipeline 节点的 `enabled` 设为 `true`，然后返回成功。默认 `""`（禁用，动作直接失败）。 |
+| 字段                          | 类型                    | 必填 | 说明                                                                                                                          |
+| ----------------------------- | ----------------------- | ---- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `Direction`                   | `string`                | 是   | 滑动方向。指定"最大值所在方向"，支持 `left` / `right` / `up` / `down`。                                                       |
+| `Quantity.Box`                | `int[4]`                | 是   | 当前数量 OCR 区域，格式 `[x, y, w, h]`。                                                                                      |
+| `IncreaseButton`              | `string` 或 `int[2\|4]` | 是   | "增加数量"按钮。推荐传模板路径（阈值固定 `0.8`），也可传坐标 `[x, y]` 或 `[x, y, w, h]`。                                     |
+| `DecreaseButton`              | `string` 或 `int[2\|4]` | 是   | "减少数量"按钮。格式同 `IncreaseButton`。                                                                                     |
+| `MaxTarget.Box`               | `int[4]`                | 否   | OCR 区域，用于读取物品的最大可用数量（如可购买/可出售数量），格式 `[x, y, w, h]`。缺失时使用滑块终点值作为回退。              |
+| `Quantity.Filter`             | `object`                | 否   | 当前数量 OCR 的颜色过滤参数，适合数字颜色稳定但背景干扰较多的场景。                                                           |
+| `MaxTarget.Filter`            | `object`                | 否   | 最大目标数量 OCR 的颜色过滤参数。仅在显式提供 `MaxTarget` 时使用。                                                            |
+| `Quantity.OnlyRec`            | `bool`                  | 否   | 是否为数量 OCR 节点启用 `only_rec`。默认 `false`。                                                                            |
+| `MaxTarget.OnlyRec`           | `bool`                  | 否   | 是否为 `BetterSlidingGetMaxTarget` 的 OCR 节点启用 `only_rec`。仅在显式提供 `MaxTarget` 时使用。                              |
+| `GreenMask`                   | `bool`                  | 否   | 使用模板路径定位按钮时，是否对模板匹配启用绿色掩膜过滤。默认 `false`。对`IncreaseButton`与`DecreaseButton`生效                |
+| `CenterPointOffset`           | `int[2]`                | 否   | 相对滑块识别框中心点的点击偏移 `[x, y]`，负数向左/上，正数向右/下。默认 `[-10, 0]`。                                          |
+| `ClampTargetToMax`            | `bool`                  | 否   | 为 `true` 时，若目标超过 `maxQuantity` 则自动钳制为 `maxQuantity` 继续执行，而非直接失败。默认 `false`。                      |
+| `SwipeButton`                 | `string`                | 否   | 自定义滑块模板路径，覆盖 `BetterSlidingSwipeButton` 节点的默认模板。默认 `""`（使用共享默认模板）。                           |
+| `ExceedingOverrideEnable`     | `string`                | 否   | 当解析后的目标超出可滑动范围时，将指定 Pipeline 节点的 `enabled` 设为 `true`，然后返回成功。默认 `""`（禁用，动作直接失败）。 |
+| `TargetReachedOverrideEnable` | `string`                | 否   | 当解析后的目标无需钳制且位于 `[1, maxQuantity]` 时，将指定 Pipeline 节点的 `enabled` 设为 `true`。默认 `""`（不输出该结果）。 |
+
+### 结果节点契约
+
+`ExceedingOverrideEnable` 与 `TargetReachedOverrideEnable` 用于把本次 BetterSliding 的判定传回调用方。两个参数必须引用不同节点，且结果节点建议默认设置 `enabled: false`。当两个参数均已配置时，每次执行结束后的状态如下：
+
+| 解析后的目标                                       | `ExceedingOverrideEnable` | `TargetReachedOverrideEnable` | BetterSliding 行为                           |
+| -------------------------------------------------- | ------------------------- | ----------------------------- | -------------------------------------------- |
+| 小于 1、未钳制时大于 `maxQuantity`，或最大数量为 0 | `true`                    | `false`                       | 不调整数量，返回成功，由调用方处理越界结果   |
+| 位于 `[1, maxQuantity]`                            | `false`                   | `true`                        | 调整到目标数量                               |
+| 大于 `maxQuantity` 且启用钳制                      | `false`                   | `false`                       | 调整到 `maxQuantity`，本次尚不能达到原始目标 |
+
+> [!important]
+> `TargetReachedOverrideEnable` 只表示调用方的下一步操作可以达到目标，不表示该操作已经成功。例如售卖、购买等流程仍须在外层 Pipeline 确认交易成功后，才能记录业务目标已完成。
 
 ### 示例
 

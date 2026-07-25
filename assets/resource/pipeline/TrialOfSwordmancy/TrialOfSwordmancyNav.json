@@ -52,7 +52,6 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-
     "TrialOfSwordmancyGotoTrialArenaStart": {
         "desc": "前往演武入口（子任务入口）",
         "pre_delay": 0,
@@ -69,11 +68,11 @@
         ]
     },
     "TrialOfSwordmancyGotoTrialArenaExit": {
-        "desc": "已到达演武入口，进入下一个子任务",
+        "desc": "已到达演武入口，准备点击进入演算",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            //这是个空节点，触发jumpback
+            "TrialOfSwordmancyEnterTrialMenu"
         ]
     },
     "TrialOfSwordmancyInSwordVaultDale": {
@@ -92,7 +91,9 @@
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
-        "next": ["TrialOfSwordmancyGotoTrialArenaCpp"]
+        "next": [
+            "TrialOfSwordmancyGotoTrialArenaCpp"
+        ]
     },
     "TrialOfSwordmancyGotoTrialArenaCpp": {
         "desc": "使用MapNavigator导航前往目标地点",
@@ -211,6 +212,8 @@
             ]
         },
         "post_delay": 0,
-        "next": ["TrialOfSwordmancyGotoTrialArenaExit"]
+        "next": [
+            "TrialOfSwordmancyGotoTrialArenaExit"
+        ]
     }
 }

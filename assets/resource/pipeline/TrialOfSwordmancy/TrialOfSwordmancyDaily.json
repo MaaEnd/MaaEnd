@@ -71,7 +71,6 @@
             "TrialOfSwordmancyEnemyCard1"
         ],
         "pre_delay": 0,
-        "post_delay": 400,
         "post_wait_freezes": {
             "time": 200,
             "target": [
@@ -81,6 +80,7 @@
                 289
             ]
         },
+        "post_delay": 400,
         "next": [
             "TrialOfSwordmancyAbandProbeClickGiveUp"
         ]
@@ -89,12 +89,12 @@
     "TrialOfSwordmancyAbandProbeClickGiveUp": {
         "desc": "探测放弃次数①：点放弃按钮",
         "recognition": "And",
-        "pre_delay": 0,
-        "post_delay": 0,
         "all_of": [
             "TrialOfSwordmancyGiveUp"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
         "next": [
             "TrialOfSwordmancyAbandProbeWaitPopup"
         ]
@@ -102,12 +102,11 @@
     "TrialOfSwordmancyAbandProbeWaitPopup": {
         "desc": "探测放弃次数①：等放弃确认弹窗出现",
         "recognition": "And",
-        "pre_delay": 0,
-        "post_delay": 0,
         "all_of": [
             "CancelButton",
             "YellowConfirmButtonType1"
         ],
+        "pre_delay": 0,
         "post_wait_freezes": {
             "time": 100,
             "target": [
@@ -117,6 +116,7 @@
                 18
             ]
         },
+        "post_delay": 0,
         "next": [
             "TrialOfSwordmancyAbandProbeRecognize"
         ]
@@ -138,8 +138,8 @@
             "CancelButton"
         ],
         "pre_delay": 0,
-        "post_delay": 0,
         "action": "Click",
+        "post_delay": 0,
         "next": [
             "TrialOfSwordmancyAbandProbeWaitBackFreeze"
         ]
@@ -151,8 +151,16 @@
             "TrialOfSwordmancyEnemyCard1"
         ],
         "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                62,
+                146,
+                173,
+                289
+            ]
+        },
         "post_delay": 400,
-        "post_wait_freezes": 200,
         "next": [
             "TrialOfSwordmancyDecide"
         ]

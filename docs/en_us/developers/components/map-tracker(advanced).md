@@ -112,11 +112,15 @@ python tools/map_tracker/map_tracker_tester.py batch_test -i tests/MaaEndTestset
 >
 > As you can see, the test set is located in the `Win32/Official_CN/map_tracker` directory of the Git Submodule `tests/MaaEndTestset`. Make sure this Submodule has been pulled correctly to your local machine.
 
-If you need to collect new test sample images, you can run the following script to record them live from the game:
+If you need to collect new test sample images, first start the unified Web development tool:
 
 ```bash
-python tools/map_tracker/map_tracker_tester.py collect_data -o your_output_dir
+uv run tools/map_tracker/map_tracker_master.py
 ```
+
+Then open the **Collect Test Data** feature in the tool and start collection. The page continuously runs live inference. You can manually review candidate samples and write PNG images whose filenames are annotated from the inference results into the output directory.
+
+The sidebar **Candidates** and **Existing** tabs are used to review new screenshot samples and browse samples already in the output directory. You can correct the map name, coordinates, and heading in the detail form; after saving, the tool renames the PNG according to the sample filename format.
 
 ## Maintenance Methods
 

@@ -126,20 +126,78 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "SellProductPriorityItem1",
-                        "SellProductPriorityItem2",
-                        "SellProductPriorityItem3",
-                        "SellProductPriorityItem4",
-                        "SellProductPriorityItem5",
-                        "SellProductPriorityItem6"
-                    ]
+                        "SellProductOnlyPreferredItems",
+                        "SellProductValleyIVPriorityRules",
+                        "SellProductWulingPriorityRules"
+                    ],
+                    "pipeline_override": {
+                        "SellProductConfigurePrioritySession": {
+                            "custom_action_param": {
+                                "operation": "configure",
+                                "enabled": true
+                            }
+                        }
+                    }
                 },
                 {
                     "name": "No"
                 }
             ]
         },
-        "SellProductPriorityItem1": {
+        "SellProductOnlyPreferredItems": {
+            "type": "switch",
+            "label": "$task.SellProduct.OnlyPreferredItems",
+            "description": "$task.SellProduct.OnlyPreferredItemsDescription",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductConfigurePrioritySession": {
+                            "custom_action_param": {
+                                "operation": "configure",
+                                "enabled": true,
+                                "only_preferred": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "SellProductValleyIVPriorityRules": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityRulesValleyIV",
+            "description": "$task.SellProduct.PriorityRegionDescription",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SellProductValleyIVPriorityItem1",
+                        "SellProductValleyIVPriorityItem2",
+                        "SellProductValleyIVPriorityItem3",
+                        "SellProductValleyIVPriorityItem4",
+                        "SellProductValleyIVPriorityItem5",
+                        "SellProductValleyIVPriorityItem6"
+                    ],
+                    "pipeline_override": {
+                        "SellProductValleyIVInitializePrioritySession": {
+                            "custom_action_param": {
+                                "operation": "reset_preferred",
+                                "enabled": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "SellProductValleyIVPriorityItem1": {
             "type": "select",
             "label": "$task.SellProduct.PriorityItem1",
             "default_case": "None",
@@ -149,152 +207,10 @@
                     "label": "$task.SellProduct.PriorityNone"
                 },
                 {
-                    "name": "低容武陵电池",
-                    "label": "$item.LCWulingBattery",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_proc_battery_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "芽针针剂",
-                    "label": "$item.YazhenSyringeC",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_rec_hp_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤",
-                    "label": "$item.Xiranite",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_xiranite_powder"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "锦草软饮",
-                    "label": "$item.JincaoDrink",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_food_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜零件",
-                    "label": "$item.CupriumPart",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "中容武陵电池",
-                    "label": "$item.SCWulingBattery",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_proc_battery_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赫铜零件",
-                    "label": "$item.HetonitePart",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_enr_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "优质芽针针剂",
-                    "label": "$item.YazhenSyringeA",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_rec_hp_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "重息壤",
-                    "label": "$item.HeavyXiranite",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_xiranite_enr_powder"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "优质锦草软饮",
-                    "label": "$item.JincaoTea",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_food_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "灼铜零件",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_enr2_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "分离芯",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_filter_core"
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "荞愈胶囊",
                     "label": "$item.BuckCapsuleC",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
+                        "SellProductValleyIVRegisterPriorityItem1": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_1"
@@ -306,7 +222,7 @@
                     "name": "紫晶质瓶",
                     "label": "$item.AmethystBottle",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
+                        "SellProductValleyIVRegisterPriorityItem1": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_bottle"
@@ -318,7 +234,7 @@
                     "name": "晶体外壳",
                     "label": "$item.Origocrust",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
+                        "SellProductValleyIVRegisterPriorityItem1": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_crystal_shell"
@@ -330,7 +246,7 @@
                     "name": "紫晶零件",
                     "label": "$item.AmethystPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
+                        "SellProductValleyIVRegisterPriorityItem1": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_cmpt"
@@ -342,7 +258,7 @@
                     "name": "中容谷地电池",
                     "label": "$item.SCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
+                        "SellProductValleyIVRegisterPriorityItem1": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_2"
@@ -354,7 +270,7 @@
                     "name": "优质荞愈胶囊",
                     "label": "$item.BuckCapsuleB",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
+                        "SellProductValleyIVRegisterPriorityItem1": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_2"
@@ -366,7 +282,7 @@
                     "name": "柑实罐头",
                     "label": "$item.CannedCitromeC",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
+                        "SellProductValleyIVRegisterPriorityItem1": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_1"
@@ -378,7 +294,7 @@
                     "name": "精选荞愈胶囊",
                     "label": "$item.BuckCapsuleA",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
+                        "SellProductValleyIVRegisterPriorityItem1": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_3"
@@ -390,7 +306,7 @@
                     "name": "高容谷地电池",
                     "label": "$item.HCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
+                        "SellProductValleyIVRegisterPriorityItem1": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_3"
@@ -402,7 +318,7 @@
                     "name": "优质柑实罐头",
                     "label": "$item.CannedCitromeB",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
+                        "SellProductValleyIVRegisterPriorityItem1": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_2"
@@ -414,7 +330,7 @@
                     "name": "精选柑实罐头",
                     "label": "$item.CannedCitromeA",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
+                        "SellProductValleyIVRegisterPriorityItem1": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_3"
@@ -426,7 +342,7 @@
                     "name": "低容谷地电池",
                     "label": "$item.LCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
+                        "SellProductValleyIVRegisterPriorityItem1": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_1"
@@ -438,7 +354,7 @@
                     "name": "铁制零件",
                     "label": "$item.FerriumPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
+                        "SellProductValleyIVRegisterPriorityItem1": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_cmpt"
@@ -450,7 +366,7 @@
                     "name": "钢制零件",
                     "label": "$item.SteelPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem1": {
+                        "SellProductValleyIVRegisterPriorityItem1": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_enr_cmpt"
@@ -460,7 +376,7 @@
                 }
             ]
         },
-        "SellProductPriorityItem2": {
+        "SellProductValleyIVPriorityItem2": {
             "type": "select",
             "label": "$task.SellProduct.PriorityItem2",
             "default_case": "None",
@@ -470,152 +386,10 @@
                     "label": "$task.SellProduct.PriorityNone"
                 },
                 {
-                    "name": "低容武陵电池",
-                    "label": "$item.LCWulingBattery",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_proc_battery_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "芽针针剂",
-                    "label": "$item.YazhenSyringeC",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_rec_hp_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤",
-                    "label": "$item.Xiranite",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_xiranite_powder"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "锦草软饮",
-                    "label": "$item.JincaoDrink",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_food_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜零件",
-                    "label": "$item.CupriumPart",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "中容武陵电池",
-                    "label": "$item.SCWulingBattery",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_proc_battery_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赫铜零件",
-                    "label": "$item.HetonitePart",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_enr_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "优质芽针针剂",
-                    "label": "$item.YazhenSyringeA",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_rec_hp_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "重息壤",
-                    "label": "$item.HeavyXiranite",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_xiranite_enr_powder"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "优质锦草软饮",
-                    "label": "$item.JincaoTea",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_food_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "灼铜零件",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_enr2_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "分离芯",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_filter_core"
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "荞愈胶囊",
                     "label": "$item.BuckCapsuleC",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
+                        "SellProductValleyIVRegisterPriorityItem2": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_1"
@@ -627,7 +401,7 @@
                     "name": "紫晶质瓶",
                     "label": "$item.AmethystBottle",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
+                        "SellProductValleyIVRegisterPriorityItem2": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_bottle"
@@ -639,7 +413,7 @@
                     "name": "晶体外壳",
                     "label": "$item.Origocrust",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
+                        "SellProductValleyIVRegisterPriorityItem2": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_crystal_shell"
@@ -651,7 +425,7 @@
                     "name": "紫晶零件",
                     "label": "$item.AmethystPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
+                        "SellProductValleyIVRegisterPriorityItem2": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_cmpt"
@@ -663,7 +437,7 @@
                     "name": "中容谷地电池",
                     "label": "$item.SCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
+                        "SellProductValleyIVRegisterPriorityItem2": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_2"
@@ -675,7 +449,7 @@
                     "name": "优质荞愈胶囊",
                     "label": "$item.BuckCapsuleB",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
+                        "SellProductValleyIVRegisterPriorityItem2": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_2"
@@ -687,7 +461,7 @@
                     "name": "柑实罐头",
                     "label": "$item.CannedCitromeC",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
+                        "SellProductValleyIVRegisterPriorityItem2": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_1"
@@ -699,7 +473,7 @@
                     "name": "精选荞愈胶囊",
                     "label": "$item.BuckCapsuleA",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
+                        "SellProductValleyIVRegisterPriorityItem2": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_3"
@@ -711,7 +485,7 @@
                     "name": "高容谷地电池",
                     "label": "$item.HCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
+                        "SellProductValleyIVRegisterPriorityItem2": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_3"
@@ -723,7 +497,7 @@
                     "name": "优质柑实罐头",
                     "label": "$item.CannedCitromeB",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
+                        "SellProductValleyIVRegisterPriorityItem2": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_2"
@@ -735,7 +509,7 @@
                     "name": "精选柑实罐头",
                     "label": "$item.CannedCitromeA",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
+                        "SellProductValleyIVRegisterPriorityItem2": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_3"
@@ -747,7 +521,7 @@
                     "name": "低容谷地电池",
                     "label": "$item.LCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
+                        "SellProductValleyIVRegisterPriorityItem2": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_1"
@@ -759,7 +533,7 @@
                     "name": "铁制零件",
                     "label": "$item.FerriumPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
+                        "SellProductValleyIVRegisterPriorityItem2": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_cmpt"
@@ -771,7 +545,7 @@
                     "name": "钢制零件",
                     "label": "$item.SteelPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem2": {
+                        "SellProductValleyIVRegisterPriorityItem2": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_enr_cmpt"
@@ -781,7 +555,7 @@
                 }
             ]
         },
-        "SellProductPriorityItem3": {
+        "SellProductValleyIVPriorityItem3": {
             "type": "select",
             "label": "$task.SellProduct.PriorityItem3",
             "default_case": "None",
@@ -791,152 +565,10 @@
                     "label": "$task.SellProduct.PriorityNone"
                 },
                 {
-                    "name": "低容武陵电池",
-                    "label": "$item.LCWulingBattery",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_proc_battery_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "芽针针剂",
-                    "label": "$item.YazhenSyringeC",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_rec_hp_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤",
-                    "label": "$item.Xiranite",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_xiranite_powder"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "锦草软饮",
-                    "label": "$item.JincaoDrink",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_food_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜零件",
-                    "label": "$item.CupriumPart",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "中容武陵电池",
-                    "label": "$item.SCWulingBattery",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_proc_battery_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赫铜零件",
-                    "label": "$item.HetonitePart",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_enr_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "优质芽针针剂",
-                    "label": "$item.YazhenSyringeA",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_rec_hp_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "重息壤",
-                    "label": "$item.HeavyXiranite",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_xiranite_enr_powder"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "优质锦草软饮",
-                    "label": "$item.JincaoTea",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_food_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "灼铜零件",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_enr2_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "分离芯",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_filter_core"
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "荞愈胶囊",
                     "label": "$item.BuckCapsuleC",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
+                        "SellProductValleyIVRegisterPriorityItem3": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_1"
@@ -948,7 +580,7 @@
                     "name": "紫晶质瓶",
                     "label": "$item.AmethystBottle",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
+                        "SellProductValleyIVRegisterPriorityItem3": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_bottle"
@@ -960,7 +592,7 @@
                     "name": "晶体外壳",
                     "label": "$item.Origocrust",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
+                        "SellProductValleyIVRegisterPriorityItem3": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_crystal_shell"
@@ -972,7 +604,7 @@
                     "name": "紫晶零件",
                     "label": "$item.AmethystPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
+                        "SellProductValleyIVRegisterPriorityItem3": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_cmpt"
@@ -984,7 +616,7 @@
                     "name": "中容谷地电池",
                     "label": "$item.SCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
+                        "SellProductValleyIVRegisterPriorityItem3": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_2"
@@ -996,7 +628,7 @@
                     "name": "优质荞愈胶囊",
                     "label": "$item.BuckCapsuleB",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
+                        "SellProductValleyIVRegisterPriorityItem3": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_2"
@@ -1008,7 +640,7 @@
                     "name": "柑实罐头",
                     "label": "$item.CannedCitromeC",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
+                        "SellProductValleyIVRegisterPriorityItem3": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_1"
@@ -1020,7 +652,7 @@
                     "name": "精选荞愈胶囊",
                     "label": "$item.BuckCapsuleA",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
+                        "SellProductValleyIVRegisterPriorityItem3": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_3"
@@ -1032,7 +664,7 @@
                     "name": "高容谷地电池",
                     "label": "$item.HCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
+                        "SellProductValleyIVRegisterPriorityItem3": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_3"
@@ -1044,7 +676,7 @@
                     "name": "优质柑实罐头",
                     "label": "$item.CannedCitromeB",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
+                        "SellProductValleyIVRegisterPriorityItem3": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_2"
@@ -1056,7 +688,7 @@
                     "name": "精选柑实罐头",
                     "label": "$item.CannedCitromeA",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
+                        "SellProductValleyIVRegisterPriorityItem3": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_3"
@@ -1068,7 +700,7 @@
                     "name": "低容谷地电池",
                     "label": "$item.LCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
+                        "SellProductValleyIVRegisterPriorityItem3": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_1"
@@ -1080,7 +712,7 @@
                     "name": "铁制零件",
                     "label": "$item.FerriumPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
+                        "SellProductValleyIVRegisterPriorityItem3": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_cmpt"
@@ -1092,7 +724,7 @@
                     "name": "钢制零件",
                     "label": "$item.SteelPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem3": {
+                        "SellProductValleyIVRegisterPriorityItem3": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_enr_cmpt"
@@ -1102,7 +734,7 @@
                 }
             ]
         },
-        "SellProductPriorityItem4": {
+        "SellProductValleyIVPriorityItem4": {
             "type": "select",
             "label": "$task.SellProduct.PriorityItem4",
             "default_case": "None",
@@ -1112,152 +744,10 @@
                     "label": "$task.SellProduct.PriorityNone"
                 },
                 {
-                    "name": "低容武陵电池",
-                    "label": "$item.LCWulingBattery",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_proc_battery_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "芽针针剂",
-                    "label": "$item.YazhenSyringeC",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_rec_hp_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤",
-                    "label": "$item.Xiranite",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_xiranite_powder"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "锦草软饮",
-                    "label": "$item.JincaoDrink",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_food_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜零件",
-                    "label": "$item.CupriumPart",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "中容武陵电池",
-                    "label": "$item.SCWulingBattery",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_proc_battery_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赫铜零件",
-                    "label": "$item.HetonitePart",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_enr_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "优质芽针针剂",
-                    "label": "$item.YazhenSyringeA",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_rec_hp_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "重息壤",
-                    "label": "$item.HeavyXiranite",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_xiranite_enr_powder"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "优质锦草软饮",
-                    "label": "$item.JincaoTea",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_food_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "灼铜零件",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_enr2_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "分离芯",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_filter_core"
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "荞愈胶囊",
                     "label": "$item.BuckCapsuleC",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
+                        "SellProductValleyIVRegisterPriorityItem4": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_1"
@@ -1269,7 +759,7 @@
                     "name": "紫晶质瓶",
                     "label": "$item.AmethystBottle",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
+                        "SellProductValleyIVRegisterPriorityItem4": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_bottle"
@@ -1281,7 +771,7 @@
                     "name": "晶体外壳",
                     "label": "$item.Origocrust",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
+                        "SellProductValleyIVRegisterPriorityItem4": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_crystal_shell"
@@ -1293,7 +783,7 @@
                     "name": "紫晶零件",
                     "label": "$item.AmethystPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
+                        "SellProductValleyIVRegisterPriorityItem4": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_cmpt"
@@ -1305,7 +795,7 @@
                     "name": "中容谷地电池",
                     "label": "$item.SCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
+                        "SellProductValleyIVRegisterPriorityItem4": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_2"
@@ -1317,7 +807,7 @@
                     "name": "优质荞愈胶囊",
                     "label": "$item.BuckCapsuleB",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
+                        "SellProductValleyIVRegisterPriorityItem4": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_2"
@@ -1329,7 +819,7 @@
                     "name": "柑实罐头",
                     "label": "$item.CannedCitromeC",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
+                        "SellProductValleyIVRegisterPriorityItem4": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_1"
@@ -1341,7 +831,7 @@
                     "name": "精选荞愈胶囊",
                     "label": "$item.BuckCapsuleA",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
+                        "SellProductValleyIVRegisterPriorityItem4": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_3"
@@ -1353,7 +843,7 @@
                     "name": "高容谷地电池",
                     "label": "$item.HCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
+                        "SellProductValleyIVRegisterPriorityItem4": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_3"
@@ -1365,7 +855,7 @@
                     "name": "优质柑实罐头",
                     "label": "$item.CannedCitromeB",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
+                        "SellProductValleyIVRegisterPriorityItem4": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_2"
@@ -1377,7 +867,7 @@
                     "name": "精选柑实罐头",
                     "label": "$item.CannedCitromeA",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
+                        "SellProductValleyIVRegisterPriorityItem4": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_3"
@@ -1389,7 +879,7 @@
                     "name": "低容谷地电池",
                     "label": "$item.LCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
+                        "SellProductValleyIVRegisterPriorityItem4": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_1"
@@ -1401,7 +891,7 @@
                     "name": "铁制零件",
                     "label": "$item.FerriumPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
+                        "SellProductValleyIVRegisterPriorityItem4": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_cmpt"
@@ -1413,7 +903,7 @@
                     "name": "钢制零件",
                     "label": "$item.SteelPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem4": {
+                        "SellProductValleyIVRegisterPriorityItem4": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_enr_cmpt"
@@ -1423,7 +913,7 @@
                 }
             ]
         },
-        "SellProductPriorityItem5": {
+        "SellProductValleyIVPriorityItem5": {
             "type": "select",
             "label": "$task.SellProduct.PriorityItem5",
             "default_case": "None",
@@ -1433,152 +923,10 @@
                     "label": "$task.SellProduct.PriorityNone"
                 },
                 {
-                    "name": "低容武陵电池",
-                    "label": "$item.LCWulingBattery",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_proc_battery_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "芽针针剂",
-                    "label": "$item.YazhenSyringeC",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_rec_hp_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤",
-                    "label": "$item.Xiranite",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_xiranite_powder"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "锦草软饮",
-                    "label": "$item.JincaoDrink",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_food_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜零件",
-                    "label": "$item.CupriumPart",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "中容武陵电池",
-                    "label": "$item.SCWulingBattery",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_proc_battery_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赫铜零件",
-                    "label": "$item.HetonitePart",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_enr_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "优质芽针针剂",
-                    "label": "$item.YazhenSyringeA",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_rec_hp_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "重息壤",
-                    "label": "$item.HeavyXiranite",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_xiranite_enr_powder"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "优质锦草软饮",
-                    "label": "$item.JincaoTea",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_food_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "灼铜零件",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_enr2_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "分离芯",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_filter_core"
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "荞愈胶囊",
                     "label": "$item.BuckCapsuleC",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
+                        "SellProductValleyIVRegisterPriorityItem5": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_1"
@@ -1590,7 +938,7 @@
                     "name": "紫晶质瓶",
                     "label": "$item.AmethystBottle",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
+                        "SellProductValleyIVRegisterPriorityItem5": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_bottle"
@@ -1602,7 +950,7 @@
                     "name": "晶体外壳",
                     "label": "$item.Origocrust",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
+                        "SellProductValleyIVRegisterPriorityItem5": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_crystal_shell"
@@ -1614,7 +962,7 @@
                     "name": "紫晶零件",
                     "label": "$item.AmethystPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
+                        "SellProductValleyIVRegisterPriorityItem5": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_cmpt"
@@ -1626,7 +974,7 @@
                     "name": "中容谷地电池",
                     "label": "$item.SCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
+                        "SellProductValleyIVRegisterPriorityItem5": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_2"
@@ -1638,7 +986,7 @@
                     "name": "优质荞愈胶囊",
                     "label": "$item.BuckCapsuleB",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
+                        "SellProductValleyIVRegisterPriorityItem5": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_2"
@@ -1650,7 +998,7 @@
                     "name": "柑实罐头",
                     "label": "$item.CannedCitromeC",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
+                        "SellProductValleyIVRegisterPriorityItem5": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_1"
@@ -1662,7 +1010,7 @@
                     "name": "精选荞愈胶囊",
                     "label": "$item.BuckCapsuleA",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
+                        "SellProductValleyIVRegisterPriorityItem5": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_3"
@@ -1674,7 +1022,7 @@
                     "name": "高容谷地电池",
                     "label": "$item.HCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
+                        "SellProductValleyIVRegisterPriorityItem5": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_3"
@@ -1686,7 +1034,7 @@
                     "name": "优质柑实罐头",
                     "label": "$item.CannedCitromeB",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
+                        "SellProductValleyIVRegisterPriorityItem5": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_2"
@@ -1698,7 +1046,7 @@
                     "name": "精选柑实罐头",
                     "label": "$item.CannedCitromeA",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
+                        "SellProductValleyIVRegisterPriorityItem5": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_3"
@@ -1710,7 +1058,7 @@
                     "name": "低容谷地电池",
                     "label": "$item.LCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
+                        "SellProductValleyIVRegisterPriorityItem5": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_1"
@@ -1722,7 +1070,7 @@
                     "name": "铁制零件",
                     "label": "$item.FerriumPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
+                        "SellProductValleyIVRegisterPriorityItem5": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_cmpt"
@@ -1734,7 +1082,7 @@
                     "name": "钢制零件",
                     "label": "$item.SteelPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem5": {
+                        "SellProductValleyIVRegisterPriorityItem5": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_enr_cmpt"
@@ -1744,7 +1092,7 @@
                 }
             ]
         },
-        "SellProductPriorityItem6": {
+        "SellProductValleyIVPriorityItem6": {
             "type": "select",
             "label": "$task.SellProduct.PriorityItem6",
             "default_case": "None",
@@ -1754,152 +1102,10 @@
                     "label": "$task.SellProduct.PriorityNone"
                 },
                 {
-                    "name": "低容武陵电池",
-                    "label": "$item.LCWulingBattery",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_proc_battery_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "芽针针剂",
-                    "label": "$item.YazhenSyringeC",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_rec_hp_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤",
-                    "label": "$item.Xiranite",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_xiranite_powder"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "锦草软饮",
-                    "label": "$item.JincaoDrink",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_food_4"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜零件",
-                    "label": "$item.CupriumPart",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "中容武陵电池",
-                    "label": "$item.SCWulingBattery",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_proc_battery_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赫铜零件",
-                    "label": "$item.HetonitePart",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_enr_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "优质芽针针剂",
-                    "label": "$item.YazhenSyringeA",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_rec_hp_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "重息壤",
-                    "label": "$item.HeavyXiranite",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_xiranite_enr_powder"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "优质锦草软饮",
-                    "label": "$item.JincaoTea",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_bottled_food_5"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "灼铜零件",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_copper_enr2_cmpt"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "分离芯",
-                    "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_filter_core"
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "荞愈胶囊",
                     "label": "$item.BuckCapsuleC",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
+                        "SellProductValleyIVRegisterPriorityItem6": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_1"
@@ -1911,7 +1117,7 @@
                     "name": "紫晶质瓶",
                     "label": "$item.AmethystBottle",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
+                        "SellProductValleyIVRegisterPriorityItem6": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_bottle"
@@ -1923,7 +1129,7 @@
                     "name": "晶体外壳",
                     "label": "$item.Origocrust",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
+                        "SellProductValleyIVRegisterPriorityItem6": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_crystal_shell"
@@ -1935,7 +1141,7 @@
                     "name": "紫晶零件",
                     "label": "$item.AmethystPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
+                        "SellProductValleyIVRegisterPriorityItem6": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_glass_cmpt"
@@ -1947,7 +1153,7 @@
                     "name": "中容谷地电池",
                     "label": "$item.SCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
+                        "SellProductValleyIVRegisterPriorityItem6": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_2"
@@ -1959,7 +1165,7 @@
                     "name": "优质荞愈胶囊",
                     "label": "$item.BuckCapsuleB",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
+                        "SellProductValleyIVRegisterPriorityItem6": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_2"
@@ -1971,7 +1177,7 @@
                     "name": "柑实罐头",
                     "label": "$item.CannedCitromeC",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
+                        "SellProductValleyIVRegisterPriorityItem6": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_1"
@@ -1983,7 +1189,7 @@
                     "name": "精选荞愈胶囊",
                     "label": "$item.BuckCapsuleA",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
+                        "SellProductValleyIVRegisterPriorityItem6": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_rec_hp_3"
@@ -1995,7 +1201,7 @@
                     "name": "高容谷地电池",
                     "label": "$item.HCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
+                        "SellProductValleyIVRegisterPriorityItem6": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_3"
@@ -2007,7 +1213,7 @@
                     "name": "优质柑实罐头",
                     "label": "$item.CannedCitromeB",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
+                        "SellProductValleyIVRegisterPriorityItem6": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_2"
@@ -2019,7 +1225,7 @@
                     "name": "精选柑实罐头",
                     "label": "$item.CannedCitromeA",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
+                        "SellProductValleyIVRegisterPriorityItem6": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_bottled_food_3"
@@ -2031,7 +1237,7 @@
                     "name": "低容谷地电池",
                     "label": "$item.LCValleyBattery",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
+                        "SellProductValleyIVRegisterPriorityItem6": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_proc_battery_1"
@@ -2043,7 +1249,7 @@
                     "name": "铁制零件",
                     "label": "$item.FerriumPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
+                        "SellProductValleyIVRegisterPriorityItem6": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_cmpt"
@@ -2055,7 +1261,7 @@
                     "name": "钢制零件",
                     "label": "$item.SteelPart",
                     "pipeline_override": {
-                        "SellProductRegisterPriorityItem6": {
+                        "SellProductValleyIVRegisterPriorityItem6": {
                             "custom_action_param": {
                                 "operation": "register",
                                 "item_id": "item_iron_enr_cmpt"
@@ -2101,7 +1307,7 @@
                     "name": "低容武陵电池",
                     "label": "$item.LCWulingBattery",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2115,7 +1321,7 @@
                     "name": "芽针针剂",
                     "label": "$item.YazhenSyringeC",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2129,7 +1335,7 @@
                     "name": "息壤",
                     "label": "$item.Xiranite",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2143,7 +1349,7 @@
                     "name": "锦草软饮",
                     "label": "$item.JincaoDrink",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2157,7 +1363,7 @@
                     "name": "赤铜零件",
                     "label": "$item.CupriumPart",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2171,7 +1377,7 @@
                     "name": "中容武陵电池",
                     "label": "$item.SCWulingBattery",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2185,7 +1391,7 @@
                     "name": "赫铜零件",
                     "label": "$item.HetonitePart",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2199,7 +1405,7 @@
                     "name": "优质芽针针剂",
                     "label": "$item.YazhenSyringeA",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2213,7 +1419,7 @@
                     "name": "重息壤",
                     "label": "$item.HeavyXiranite",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2227,7 +1433,7 @@
                     "name": "优质锦草软饮",
                     "label": "$item.JincaoTea",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2240,7 +1446,7 @@
                 {
                     "name": "灼铜零件",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2253,7 +1459,7 @@
                 {
                     "name": "分离芯",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2267,7 +1473,7 @@
                     "name": "荞愈胶囊",
                     "label": "$item.BuckCapsuleC",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2281,7 +1487,7 @@
                     "name": "紫晶质瓶",
                     "label": "$item.AmethystBottle",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2295,7 +1501,7 @@
                     "name": "晶体外壳",
                     "label": "$item.Origocrust",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2309,7 +1515,7 @@
                     "name": "紫晶零件",
                     "label": "$item.AmethystPart",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2323,7 +1529,7 @@
                     "name": "中容谷地电池",
                     "label": "$item.SCValleyBattery",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2337,7 +1543,7 @@
                     "name": "优质荞愈胶囊",
                     "label": "$item.BuckCapsuleB",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2351,7 +1557,7 @@
                     "name": "柑实罐头",
                     "label": "$item.CannedCitromeC",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2365,7 +1571,7 @@
                     "name": "精选荞愈胶囊",
                     "label": "$item.BuckCapsuleA",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2379,7 +1585,7 @@
                     "name": "高容谷地电池",
                     "label": "$item.HCValleyBattery",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2393,7 +1599,7 @@
                     "name": "优质柑实罐头",
                     "label": "$item.CannedCitromeB",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2407,7 +1613,7 @@
                     "name": "精选柑实罐头",
                     "label": "$item.CannedCitromeA",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2421,7 +1627,7 @@
                     "name": "低容谷地电池",
                     "label": "$item.LCValleyBattery",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2435,7 +1641,7 @@
                     "name": "铁制零件",
                     "label": "$item.FerriumPart",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
@@ -2449,12 +1655,38 @@
                     "name": "钢制零件",
                     "label": "$item.SteelPart",
                     "option": [
-                        "SellProductReserveItem1Value"
+                        "SellProductReserveItem1Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule1": {
                             "attach": {
                                 "item_id": "item_iron_enr_cmpt"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SellProductReserveItem1Mode": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveMode",
+            "default_case": "Quantity",
+            "cases": [
+                {
+                    "name": "Quantity",
+                    "label": "$task.SellProduct.ReserveModeQuantity",
+                    "option": [
+                        "SellProductReserveItem1Value"
+                    ]
+                },
+                {
+                    "name": "NeverSell",
+                    "label": "$task.SellProduct.ReserveModeNeverSell",
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule1": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "quantity": -1
                             }
                         }
                     }
@@ -2496,7 +1728,7 @@
                     "name": "低容武陵电池",
                     "label": "$item.LCWulingBattery",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2510,7 +1742,7 @@
                     "name": "芽针针剂",
                     "label": "$item.YazhenSyringeC",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2524,7 +1756,7 @@
                     "name": "息壤",
                     "label": "$item.Xiranite",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2538,7 +1770,7 @@
                     "name": "锦草软饮",
                     "label": "$item.JincaoDrink",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2552,7 +1784,7 @@
                     "name": "赤铜零件",
                     "label": "$item.CupriumPart",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2566,7 +1798,7 @@
                     "name": "中容武陵电池",
                     "label": "$item.SCWulingBattery",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2580,7 +1812,7 @@
                     "name": "赫铜零件",
                     "label": "$item.HetonitePart",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2594,7 +1826,7 @@
                     "name": "优质芽针针剂",
                     "label": "$item.YazhenSyringeA",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2608,7 +1840,7 @@
                     "name": "重息壤",
                     "label": "$item.HeavyXiranite",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2622,7 +1854,7 @@
                     "name": "优质锦草软饮",
                     "label": "$item.JincaoTea",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2635,7 +1867,7 @@
                 {
                     "name": "灼铜零件",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2648,7 +1880,7 @@
                 {
                     "name": "分离芯",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2662,7 +1894,7 @@
                     "name": "荞愈胶囊",
                     "label": "$item.BuckCapsuleC",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2676,7 +1908,7 @@
                     "name": "紫晶质瓶",
                     "label": "$item.AmethystBottle",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2690,7 +1922,7 @@
                     "name": "晶体外壳",
                     "label": "$item.Origocrust",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2704,7 +1936,7 @@
                     "name": "紫晶零件",
                     "label": "$item.AmethystPart",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2718,7 +1950,7 @@
                     "name": "中容谷地电池",
                     "label": "$item.SCValleyBattery",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2732,7 +1964,7 @@
                     "name": "优质荞愈胶囊",
                     "label": "$item.BuckCapsuleB",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2746,7 +1978,7 @@
                     "name": "柑实罐头",
                     "label": "$item.CannedCitromeC",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2760,7 +1992,7 @@
                     "name": "精选荞愈胶囊",
                     "label": "$item.BuckCapsuleA",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2774,7 +2006,7 @@
                     "name": "高容谷地电池",
                     "label": "$item.HCValleyBattery",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2788,7 +2020,7 @@
                     "name": "优质柑实罐头",
                     "label": "$item.CannedCitromeB",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2802,7 +2034,7 @@
                     "name": "精选柑实罐头",
                     "label": "$item.CannedCitromeA",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2816,7 +2048,7 @@
                     "name": "低容谷地电池",
                     "label": "$item.LCValleyBattery",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2830,7 +2062,7 @@
                     "name": "铁制零件",
                     "label": "$item.FerriumPart",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
@@ -2844,12 +2076,38 @@
                     "name": "钢制零件",
                     "label": "$item.SteelPart",
                     "option": [
-                        "SellProductReserveItem2Value"
+                        "SellProductReserveItem2Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule2": {
                             "attach": {
                                 "item_id": "item_iron_enr_cmpt"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SellProductReserveItem2Mode": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveMode",
+            "default_case": "Quantity",
+            "cases": [
+                {
+                    "name": "Quantity",
+                    "label": "$task.SellProduct.ReserveModeQuantity",
+                    "option": [
+                        "SellProductReserveItem2Value"
+                    ]
+                },
+                {
+                    "name": "NeverSell",
+                    "label": "$task.SellProduct.ReserveModeNeverSell",
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule2": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "quantity": -1
                             }
                         }
                     }
@@ -2891,7 +2149,7 @@
                     "name": "低容武陵电池",
                     "label": "$item.LCWulingBattery",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -2905,7 +2163,7 @@
                     "name": "芽针针剂",
                     "label": "$item.YazhenSyringeC",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -2919,7 +2177,7 @@
                     "name": "息壤",
                     "label": "$item.Xiranite",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -2933,7 +2191,7 @@
                     "name": "锦草软饮",
                     "label": "$item.JincaoDrink",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -2947,7 +2205,7 @@
                     "name": "赤铜零件",
                     "label": "$item.CupriumPart",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -2961,7 +2219,7 @@
                     "name": "中容武陵电池",
                     "label": "$item.SCWulingBattery",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -2975,7 +2233,7 @@
                     "name": "赫铜零件",
                     "label": "$item.HetonitePart",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -2989,7 +2247,7 @@
                     "name": "优质芽针针剂",
                     "label": "$item.YazhenSyringeA",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3003,7 +2261,7 @@
                     "name": "重息壤",
                     "label": "$item.HeavyXiranite",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3017,7 +2275,7 @@
                     "name": "优质锦草软饮",
                     "label": "$item.JincaoTea",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3030,7 +2288,7 @@
                 {
                     "name": "灼铜零件",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3043,7 +2301,7 @@
                 {
                     "name": "分离芯",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3057,7 +2315,7 @@
                     "name": "荞愈胶囊",
                     "label": "$item.BuckCapsuleC",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3071,7 +2329,7 @@
                     "name": "紫晶质瓶",
                     "label": "$item.AmethystBottle",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3085,7 +2343,7 @@
                     "name": "晶体外壳",
                     "label": "$item.Origocrust",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3099,7 +2357,7 @@
                     "name": "紫晶零件",
                     "label": "$item.AmethystPart",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3113,7 +2371,7 @@
                     "name": "中容谷地电池",
                     "label": "$item.SCValleyBattery",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3127,7 +2385,7 @@
                     "name": "优质荞愈胶囊",
                     "label": "$item.BuckCapsuleB",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3141,7 +2399,7 @@
                     "name": "柑实罐头",
                     "label": "$item.CannedCitromeC",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3155,7 +2413,7 @@
                     "name": "精选荞愈胶囊",
                     "label": "$item.BuckCapsuleA",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3169,7 +2427,7 @@
                     "name": "高容谷地电池",
                     "label": "$item.HCValleyBattery",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3183,7 +2441,7 @@
                     "name": "优质柑实罐头",
                     "label": "$item.CannedCitromeB",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3197,7 +2455,7 @@
                     "name": "精选柑实罐头",
                     "label": "$item.CannedCitromeA",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3211,7 +2469,7 @@
                     "name": "低容谷地电池",
                     "label": "$item.LCValleyBattery",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3225,7 +2483,7 @@
                     "name": "铁制零件",
                     "label": "$item.FerriumPart",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
@@ -3239,12 +2497,38 @@
                     "name": "钢制零件",
                     "label": "$item.SteelPart",
                     "option": [
-                        "SellProductReserveItem3Value"
+                        "SellProductReserveItem3Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule3": {
                             "attach": {
                                 "item_id": "item_iron_enr_cmpt"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SellProductReserveItem3Mode": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveMode",
+            "default_case": "Quantity",
+            "cases": [
+                {
+                    "name": "Quantity",
+                    "label": "$task.SellProduct.ReserveModeQuantity",
+                    "option": [
+                        "SellProductReserveItem3Value"
+                    ]
+                },
+                {
+                    "name": "NeverSell",
+                    "label": "$task.SellProduct.ReserveModeNeverSell",
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule3": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "quantity": -1
                             }
                         }
                     }
@@ -3286,7 +2570,7 @@
                     "name": "低容武陵电池",
                     "label": "$item.LCWulingBattery",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3300,7 +2584,7 @@
                     "name": "芽针针剂",
                     "label": "$item.YazhenSyringeC",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3314,7 +2598,7 @@
                     "name": "息壤",
                     "label": "$item.Xiranite",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3328,7 +2612,7 @@
                     "name": "锦草软饮",
                     "label": "$item.JincaoDrink",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3342,7 +2626,7 @@
                     "name": "赤铜零件",
                     "label": "$item.CupriumPart",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3356,7 +2640,7 @@
                     "name": "中容武陵电池",
                     "label": "$item.SCWulingBattery",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3370,7 +2654,7 @@
                     "name": "赫铜零件",
                     "label": "$item.HetonitePart",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3384,7 +2668,7 @@
                     "name": "优质芽针针剂",
                     "label": "$item.YazhenSyringeA",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3398,7 +2682,7 @@
                     "name": "重息壤",
                     "label": "$item.HeavyXiranite",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3412,7 +2696,7 @@
                     "name": "优质锦草软饮",
                     "label": "$item.JincaoTea",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3425,7 +2709,7 @@
                 {
                     "name": "灼铜零件",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3438,7 +2722,7 @@
                 {
                     "name": "分离芯",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3452,7 +2736,7 @@
                     "name": "荞愈胶囊",
                     "label": "$item.BuckCapsuleC",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3466,7 +2750,7 @@
                     "name": "紫晶质瓶",
                     "label": "$item.AmethystBottle",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3480,7 +2764,7 @@
                     "name": "晶体外壳",
                     "label": "$item.Origocrust",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3494,7 +2778,7 @@
                     "name": "紫晶零件",
                     "label": "$item.AmethystPart",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3508,7 +2792,7 @@
                     "name": "中容谷地电池",
                     "label": "$item.SCValleyBattery",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3522,7 +2806,7 @@
                     "name": "优质荞愈胶囊",
                     "label": "$item.BuckCapsuleB",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3536,7 +2820,7 @@
                     "name": "柑实罐头",
                     "label": "$item.CannedCitromeC",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3550,7 +2834,7 @@
                     "name": "精选荞愈胶囊",
                     "label": "$item.BuckCapsuleA",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3564,7 +2848,7 @@
                     "name": "高容谷地电池",
                     "label": "$item.HCValleyBattery",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3578,7 +2862,7 @@
                     "name": "优质柑实罐头",
                     "label": "$item.CannedCitromeB",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3592,7 +2876,7 @@
                     "name": "精选柑实罐头",
                     "label": "$item.CannedCitromeA",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3606,7 +2890,7 @@
                     "name": "低容谷地电池",
                     "label": "$item.LCValleyBattery",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3620,7 +2904,7 @@
                     "name": "铁制零件",
                     "label": "$item.FerriumPart",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
@@ -3634,12 +2918,38 @@
                     "name": "钢制零件",
                     "label": "$item.SteelPart",
                     "option": [
-                        "SellProductReserveItem4Value"
+                        "SellProductReserveItem4Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule4": {
                             "attach": {
                                 "item_id": "item_iron_enr_cmpt"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SellProductReserveItem4Mode": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveMode",
+            "default_case": "Quantity",
+            "cases": [
+                {
+                    "name": "Quantity",
+                    "label": "$task.SellProduct.ReserveModeQuantity",
+                    "option": [
+                        "SellProductReserveItem4Value"
+                    ]
+                },
+                {
+                    "name": "NeverSell",
+                    "label": "$task.SellProduct.ReserveModeNeverSell",
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule4": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "quantity": -1
                             }
                         }
                     }
@@ -3681,7 +2991,7 @@
                     "name": "低容武陵电池",
                     "label": "$item.LCWulingBattery",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3695,7 +3005,7 @@
                     "name": "芽针针剂",
                     "label": "$item.YazhenSyringeC",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3709,7 +3019,7 @@
                     "name": "息壤",
                     "label": "$item.Xiranite",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3723,7 +3033,7 @@
                     "name": "锦草软饮",
                     "label": "$item.JincaoDrink",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3737,7 +3047,7 @@
                     "name": "赤铜零件",
                     "label": "$item.CupriumPart",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3751,7 +3061,7 @@
                     "name": "中容武陵电池",
                     "label": "$item.SCWulingBattery",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3765,7 +3075,7 @@
                     "name": "赫铜零件",
                     "label": "$item.HetonitePart",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3779,7 +3089,7 @@
                     "name": "优质芽针针剂",
                     "label": "$item.YazhenSyringeA",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3793,7 +3103,7 @@
                     "name": "重息壤",
                     "label": "$item.HeavyXiranite",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3807,7 +3117,7 @@
                     "name": "优质锦草软饮",
                     "label": "$item.JincaoTea",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3820,7 +3130,7 @@
                 {
                     "name": "灼铜零件",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3833,7 +3143,7 @@
                 {
                     "name": "分离芯",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3847,7 +3157,7 @@
                     "name": "荞愈胶囊",
                     "label": "$item.BuckCapsuleC",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3861,7 +3171,7 @@
                     "name": "紫晶质瓶",
                     "label": "$item.AmethystBottle",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3875,7 +3185,7 @@
                     "name": "晶体外壳",
                     "label": "$item.Origocrust",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3889,7 +3199,7 @@
                     "name": "紫晶零件",
                     "label": "$item.AmethystPart",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3903,7 +3213,7 @@
                     "name": "中容谷地电池",
                     "label": "$item.SCValleyBattery",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3917,7 +3227,7 @@
                     "name": "优质荞愈胶囊",
                     "label": "$item.BuckCapsuleB",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3931,7 +3241,7 @@
                     "name": "柑实罐头",
                     "label": "$item.CannedCitromeC",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3945,7 +3255,7 @@
                     "name": "精选荞愈胶囊",
                     "label": "$item.BuckCapsuleA",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3959,7 +3269,7 @@
                     "name": "高容谷地电池",
                     "label": "$item.HCValleyBattery",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3973,7 +3283,7 @@
                     "name": "优质柑实罐头",
                     "label": "$item.CannedCitromeB",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -3987,7 +3297,7 @@
                     "name": "精选柑实罐头",
                     "label": "$item.CannedCitromeA",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -4001,7 +3311,7 @@
                     "name": "低容谷地电池",
                     "label": "$item.LCValleyBattery",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -4015,7 +3325,7 @@
                     "name": "铁制零件",
                     "label": "$item.FerriumPart",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
@@ -4029,12 +3339,38 @@
                     "name": "钢制零件",
                     "label": "$item.SteelPart",
                     "option": [
-                        "SellProductReserveItem5Value"
+                        "SellProductReserveItem5Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule5": {
                             "attach": {
                                 "item_id": "item_iron_enr_cmpt"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SellProductReserveItem5Mode": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveMode",
+            "default_case": "Quantity",
+            "cases": [
+                {
+                    "name": "Quantity",
+                    "label": "$task.SellProduct.ReserveModeQuantity",
+                    "option": [
+                        "SellProductReserveItem5Value"
+                    ]
+                },
+                {
+                    "name": "NeverSell",
+                    "label": "$task.SellProduct.ReserveModeNeverSell",
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule5": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "quantity": -1
                             }
                         }
                     }
@@ -4076,7 +3412,7 @@
                     "name": "低容武陵电池",
                     "label": "$item.LCWulingBattery",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4090,7 +3426,7 @@
                     "name": "芽针针剂",
                     "label": "$item.YazhenSyringeC",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4104,7 +3440,7 @@
                     "name": "息壤",
                     "label": "$item.Xiranite",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4118,7 +3454,7 @@
                     "name": "锦草软饮",
                     "label": "$item.JincaoDrink",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4132,7 +3468,7 @@
                     "name": "赤铜零件",
                     "label": "$item.CupriumPart",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4146,7 +3482,7 @@
                     "name": "中容武陵电池",
                     "label": "$item.SCWulingBattery",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4160,7 +3496,7 @@
                     "name": "赫铜零件",
                     "label": "$item.HetonitePart",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4174,7 +3510,7 @@
                     "name": "优质芽针针剂",
                     "label": "$item.YazhenSyringeA",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4188,7 +3524,7 @@
                     "name": "重息壤",
                     "label": "$item.HeavyXiranite",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4202,7 +3538,7 @@
                     "name": "优质锦草软饮",
                     "label": "$item.JincaoTea",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4215,7 +3551,7 @@
                 {
                     "name": "灼铜零件",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4228,7 +3564,7 @@
                 {
                     "name": "分离芯",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4242,7 +3578,7 @@
                     "name": "荞愈胶囊",
                     "label": "$item.BuckCapsuleC",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4256,7 +3592,7 @@
                     "name": "紫晶质瓶",
                     "label": "$item.AmethystBottle",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4270,7 +3606,7 @@
                     "name": "晶体外壳",
                     "label": "$item.Origocrust",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4284,7 +3620,7 @@
                     "name": "紫晶零件",
                     "label": "$item.AmethystPart",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4298,7 +3634,7 @@
                     "name": "中容谷地电池",
                     "label": "$item.SCValleyBattery",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4312,7 +3648,7 @@
                     "name": "优质荞愈胶囊",
                     "label": "$item.BuckCapsuleB",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4326,7 +3662,7 @@
                     "name": "柑实罐头",
                     "label": "$item.CannedCitromeC",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4340,7 +3676,7 @@
                     "name": "精选荞愈胶囊",
                     "label": "$item.BuckCapsuleA",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4354,7 +3690,7 @@
                     "name": "高容谷地电池",
                     "label": "$item.HCValleyBattery",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4368,7 +3704,7 @@
                     "name": "优质柑实罐头",
                     "label": "$item.CannedCitromeB",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4382,7 +3718,7 @@
                     "name": "精选柑实罐头",
                     "label": "$item.CannedCitromeA",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4396,7 +3732,7 @@
                     "name": "低容谷地电池",
                     "label": "$item.LCValleyBattery",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4410,7 +3746,7 @@
                     "name": "铁制零件",
                     "label": "$item.FerriumPart",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
@@ -4424,12 +3760,38 @@
                     "name": "钢制零件",
                     "label": "$item.SteelPart",
                     "option": [
-                        "SellProductReserveItem6Value"
+                        "SellProductReserveItem6Mode"
                     ],
                     "pipeline_override": {
                         "SellProductRegisterReserveRule6": {
                             "attach": {
                                 "item_id": "item_iron_enr_cmpt"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SellProductReserveItem6Mode": {
+            "type": "select",
+            "label": "$task.SellProduct.ReserveMode",
+            "default_case": "Quantity",
+            "cases": [
+                {
+                    "name": "Quantity",
+                    "label": "$task.SellProduct.ReserveModeQuantity",
+                    "option": [
+                        "SellProductReserveItem6Value"
+                    ]
+                },
+                {
+                    "name": "NeverSell",
+                    "label": "$task.SellProduct.ReserveModeNeverSell",
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule6": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "quantity": -1
                             }
                         }
                     }
@@ -5325,6 +4687,954 @@
                     "pipeline_override": {
                         "SellProductReconstructionHQ": {
                             "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "SellProductWulingPriorityRules": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityRulesWuling",
+            "description": "$task.SellProduct.PriorityRegionDescription",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SellProductWulingPriorityItem1",
+                        "SellProductWulingPriorityItem2",
+                        "SellProductWulingPriorityItem3",
+                        "SellProductWulingPriorityItem4",
+                        "SellProductWulingPriorityItem5",
+                        "SellProductWulingPriorityItem6"
+                    ],
+                    "pipeline_override": {
+                        "SellProductWulingInitializePrioritySession": {
+                            "custom_action_param": {
+                                "operation": "reset_preferred",
+                                "enabled": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "SellProductWulingPriorityItem1": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem1",
+            "default_case": "None",
+            "cases": [
+                {
+                    "name": "None",
+                    "label": "$task.SellProduct.PriorityNone"
+                },
+                {
+                    "name": "低容武陵电池",
+                    "label": "$item.LCWulingBattery",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem1": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_proc_battery_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "芽针针剂",
+                    "label": "$item.YazhenSyringeC",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem1": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_rec_hp_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "label": "$item.Xiranite",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem1": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_xiranite_powder"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "锦草软饮",
+                    "label": "$item.JincaoDrink",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem1": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_food_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜零件",
+                    "label": "$item.CupriumPart",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem1": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "label": "$item.SCWulingBattery",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem1": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_proc_battery_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜零件",
+                    "label": "$item.HetonitePart",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem1": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_enr_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "label": "$item.YazhenSyringeA",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem1": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_rec_hp_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "重息壤",
+                    "label": "$item.HeavyXiranite",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem1": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_xiranite_enr_powder"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "label": "$item.JincaoTea",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem1": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_food_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem1": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_enr2_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "分离芯",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem1": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_filter_core"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SellProductWulingPriorityItem2": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem2",
+            "default_case": "None",
+            "cases": [
+                {
+                    "name": "None",
+                    "label": "$task.SellProduct.PriorityNone"
+                },
+                {
+                    "name": "低容武陵电池",
+                    "label": "$item.LCWulingBattery",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem2": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_proc_battery_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "芽针针剂",
+                    "label": "$item.YazhenSyringeC",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem2": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_rec_hp_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "label": "$item.Xiranite",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem2": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_xiranite_powder"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "锦草软饮",
+                    "label": "$item.JincaoDrink",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem2": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_food_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜零件",
+                    "label": "$item.CupriumPart",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem2": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "label": "$item.SCWulingBattery",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem2": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_proc_battery_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜零件",
+                    "label": "$item.HetonitePart",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem2": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_enr_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "label": "$item.YazhenSyringeA",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem2": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_rec_hp_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "重息壤",
+                    "label": "$item.HeavyXiranite",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem2": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_xiranite_enr_powder"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "label": "$item.JincaoTea",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem2": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_food_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem2": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_enr2_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "分离芯",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem2": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_filter_core"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SellProductWulingPriorityItem3": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem3",
+            "default_case": "None",
+            "cases": [
+                {
+                    "name": "None",
+                    "label": "$task.SellProduct.PriorityNone"
+                },
+                {
+                    "name": "低容武陵电池",
+                    "label": "$item.LCWulingBattery",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem3": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_proc_battery_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "芽针针剂",
+                    "label": "$item.YazhenSyringeC",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem3": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_rec_hp_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "label": "$item.Xiranite",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem3": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_xiranite_powder"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "锦草软饮",
+                    "label": "$item.JincaoDrink",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem3": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_food_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜零件",
+                    "label": "$item.CupriumPart",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem3": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "label": "$item.SCWulingBattery",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem3": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_proc_battery_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜零件",
+                    "label": "$item.HetonitePart",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem3": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_enr_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "label": "$item.YazhenSyringeA",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem3": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_rec_hp_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "重息壤",
+                    "label": "$item.HeavyXiranite",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem3": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_xiranite_enr_powder"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "label": "$item.JincaoTea",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem3": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_food_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem3": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_enr2_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "分离芯",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem3": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_filter_core"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SellProductWulingPriorityItem4": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem4",
+            "default_case": "None",
+            "cases": [
+                {
+                    "name": "None",
+                    "label": "$task.SellProduct.PriorityNone"
+                },
+                {
+                    "name": "低容武陵电池",
+                    "label": "$item.LCWulingBattery",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem4": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_proc_battery_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "芽针针剂",
+                    "label": "$item.YazhenSyringeC",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem4": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_rec_hp_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "label": "$item.Xiranite",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem4": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_xiranite_powder"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "锦草软饮",
+                    "label": "$item.JincaoDrink",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem4": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_food_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜零件",
+                    "label": "$item.CupriumPart",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem4": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "label": "$item.SCWulingBattery",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem4": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_proc_battery_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜零件",
+                    "label": "$item.HetonitePart",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem4": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_enr_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "label": "$item.YazhenSyringeA",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem4": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_rec_hp_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "重息壤",
+                    "label": "$item.HeavyXiranite",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem4": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_xiranite_enr_powder"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "label": "$item.JincaoTea",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem4": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_food_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem4": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_enr2_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "分离芯",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem4": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_filter_core"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SellProductWulingPriorityItem5": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem5",
+            "default_case": "None",
+            "cases": [
+                {
+                    "name": "None",
+                    "label": "$task.SellProduct.PriorityNone"
+                },
+                {
+                    "name": "低容武陵电池",
+                    "label": "$item.LCWulingBattery",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem5": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_proc_battery_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "芽针针剂",
+                    "label": "$item.YazhenSyringeC",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem5": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_rec_hp_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "label": "$item.Xiranite",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem5": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_xiranite_powder"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "锦草软饮",
+                    "label": "$item.JincaoDrink",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem5": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_food_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜零件",
+                    "label": "$item.CupriumPart",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem5": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "label": "$item.SCWulingBattery",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem5": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_proc_battery_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜零件",
+                    "label": "$item.HetonitePart",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem5": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_enr_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "label": "$item.YazhenSyringeA",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem5": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_rec_hp_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "重息壤",
+                    "label": "$item.HeavyXiranite",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem5": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_xiranite_enr_powder"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "label": "$item.JincaoTea",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem5": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_food_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem5": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_enr2_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "分离芯",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem5": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_filter_core"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SellProductWulingPriorityItem6": {
+            "type": "select",
+            "label": "$task.SellProduct.PriorityItem6",
+            "default_case": "None",
+            "cases": [
+                {
+                    "name": "None",
+                    "label": "$task.SellProduct.PriorityNone"
+                },
+                {
+                    "name": "低容武陵电池",
+                    "label": "$item.LCWulingBattery",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem6": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_proc_battery_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "芽针针剂",
+                    "label": "$item.YazhenSyringeC",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem6": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_rec_hp_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "label": "$item.Xiranite",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem6": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_xiranite_powder"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "锦草软饮",
+                    "label": "$item.JincaoDrink",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem6": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_food_4"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜零件",
+                    "label": "$item.CupriumPart",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem6": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "label": "$item.SCWulingBattery",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem6": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_proc_battery_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜零件",
+                    "label": "$item.HetonitePart",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem6": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_enr_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "label": "$item.YazhenSyringeA",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem6": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_rec_hp_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "重息壤",
+                    "label": "$item.HeavyXiranite",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem6": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_xiranite_enr_powder"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "label": "$item.JincaoTea",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem6": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_bottled_food_5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem6": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_copper_enr2_cmpt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "分离芯",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem6": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_filter_core"
+                            }
                         }
                     }
                 }

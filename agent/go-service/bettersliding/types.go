@@ -6,38 +6,40 @@ import (
 )
 
 type betterSlidingParam struct {
-	Target                  int                        `json:"Target"`
-	Quantity                quantityParam              `json:"Quantity"`
-	MaxTarget               quantityParam              `json:"MaxTarget"`
-	GreenMask               bool                       `json:"GreenMask"`
-	Direction               string                     `json:"Direction"`
-	IncreaseButton          any                        `json:"IncreaseButton"`
-	DecreaseButton          any                        `json:"DecreaseButton"`
-	SwipeButton             string                     `json:"SwipeButton"`
-	ExceedingOverrideEnable string                     `json:"ExceedingOverrideEnable"`
-	TargetType              string                     `json:"TargetType"`
-	TargetReverse           bool                       `json:"TargetReverse"`
-	CenterPointOffset       any                        `json:"CenterPointOffset"`
-	ClampTargetToMax        bool                       `json:"ClampTargetToMax"`
-	FinishAfterPreciseClick bool                       `json:"FinishAfterPreciseClick"`
-	presence                betterSlidingParamPresence `json:"-"`
+	Target                      int                        `json:"Target"`
+	Quantity                    quantityParam              `json:"Quantity"`
+	MaxTarget                   quantityParam              `json:"MaxTarget"`
+	GreenMask                   bool                       `json:"GreenMask"`
+	Direction                   string                     `json:"Direction"`
+	IncreaseButton              any                        `json:"IncreaseButton"`
+	DecreaseButton              any                        `json:"DecreaseButton"`
+	SwipeButton                 string                     `json:"SwipeButton"`
+	ExceedingOverrideEnable     string                     `json:"ExceedingOverrideEnable"`
+	TargetReachedOverrideEnable string                     `json:"TargetReachedOverrideEnable"`
+	TargetType                  string                     `json:"TargetType"`
+	TargetReverse               bool                       `json:"TargetReverse"`
+	CenterPointOffset           any                        `json:"CenterPointOffset"`
+	ClampTargetToMax            bool                       `json:"ClampTargetToMax"`
+	FinishAfterPreciseClick     bool                       `json:"FinishAfterPreciseClick"`
+	presence                    betterSlidingParamPresence `json:"-"`
 }
 
 type betterSlidingParamPresence struct {
-	Target                  bool
-	Quantity                bool
-	MaxTarget               bool
-	GreenMask               bool
-	Direction               bool
-	IncreaseButton          bool
-	DecreaseButton          bool
-	SwipeButton             bool
-	ExceedingOverrideEnable bool
-	TargetType              bool
-	TargetReverse           bool
-	CenterPointOffset       bool
-	ClampTargetToMax        bool
-	FinishAfterPreciseClick bool
+	Target                      bool
+	Quantity                    bool
+	MaxTarget                   bool
+	GreenMask                   bool
+	Direction                   bool
+	IncreaseButton              bool
+	DecreaseButton              bool
+	SwipeButton                 bool
+	ExceedingOverrideEnable     bool
+	TargetReachedOverrideEnable bool
+	TargetType                  bool
+	TargetReverse               bool
+	CenterPointOffset           bool
+	ClampTargetToMax            bool
+	FinishAfterPreciseClick     bool
 }
 
 type quantityParam struct {
@@ -78,30 +80,34 @@ type quantityFilterParam struct {
 //   - FinishAfterPreciseClick: skip fine-tuning and return success after precise click (default false)
 //   - SwipeButton: custom slider template path overriding BetterSlidingSwipeButton
 //   - ExceedingOverrideEnable: Pipeline node name to enable when target is out of range
+//   - TargetReachedOverrideEnable: Pipeline node name to enable when the resolved target can be
+//     reached without clamping to the maximum selectable quantity. The caller must still confirm
+//     that its outer operation succeeded before treating the target as completed.
 //   - TargetType: TargetTypeValue (default) or TargetTypePercentage
 //   - TargetReverse: reverse target calculation
 type BetterSlidingAction struct {
-	Target                  int
-	QuantityBox             []int
-	MaxTargetBox            []int
-	MaxTargetExplicit       bool
-	QuantityFilter          *quantityFilterParam
-	MaxTargetFilter         *quantityFilterParam
-	QuantityOnlyRec         bool
-	MaxTargetOnlyRec        bool
-	GreenMask               bool
-	Direction               string
-	IncreaseButton          buttonTarget
-	DecreaseButton          buttonTarget
-	CenterPointOffset       [2]int
-	ClampTargetToMax        bool
-	FinishAfterPreciseClick bool
-	SwipeButton             string
-	ExceedingOverrideEnable string
-	TargetType              string
-	TargetReverse           bool
-	SwipeOnlyMode           bool
-	OriginalTarget          int
+	Target                      int
+	QuantityBox                 []int
+	MaxTargetBox                []int
+	MaxTargetExplicit           bool
+	QuantityFilter              *quantityFilterParam
+	MaxTargetFilter             *quantityFilterParam
+	QuantityOnlyRec             bool
+	MaxTargetOnlyRec            bool
+	GreenMask                   bool
+	Direction                   string
+	IncreaseButton              buttonTarget
+	DecreaseButton              buttonTarget
+	CenterPointOffset           [2]int
+	ClampTargetToMax            bool
+	FinishAfterPreciseClick     bool
+	SwipeButton                 string
+	ExceedingOverrideEnable     string
+	TargetReachedOverrideEnable string
+	TargetType                  string
+	TargetReverse               bool
+	SwipeOnlyMode               bool
+	OriginalTarget              int
 
 	startBox              []int
 	endBox                []int
@@ -109,6 +115,7 @@ type BetterSlidingAction struct {
 	maxTarget             int
 	maxTargetResolved     bool
 	exceeded              bool
+	targetReachable       bool
 	runtimeTargetResolved bool
 	logger                zerolog.Logger
 }

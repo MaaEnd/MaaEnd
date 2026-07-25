@@ -296,26 +296,38 @@ export class Renderer {
     this._meshMinHeight = minH === Infinity ? 0 : minH;
     this._meshMaxHeight = maxH === -Infinity ? 0 : maxH;
 
-    // Wireframe line indices; shared edges deduped so they don't double-blend.
-    const seen = new Set();
-    const lineIndices = [];
+    // Boundary edges only: an edge owned by exactly one triangle is a real
+    // walkable-area outline (outer contour, hole ring, plate seam). Interior
+    // shared edges are skipped — the pack's plate re-triangulation covers big
+    // areas with sliver fans whose interior edges render as solid noise.
+    const V = vertexCount;
+    /** @type {Map<number, number>} undirected edge key (min*V+max) -> min endpoint */
+    const once = new Map();
+    /** @type {Set<number>} keys seen at least twice (incl. non-manifold repeats) */
+    const shared = new Set();
+    const addEdge = (a, b) => {
+      const key = a < b ? a * V + b : b * V + a;
+      if (shared.has(key)) return;
+      if (once.has(key)) {
+        once.delete(key);
+        shared.add(key);
+      } else {
+        once.set(key, a < b ? a : b);
+      }
+    };
     for (let i = 0; i < triangleCount; i += 1) {
       const b = i * 3;
-      const v0 = indices[b];
-      const v1 = indices[b + 1];
-      const v2 = indices[b + 2];
-      const addEdge = (a, b) => {
-        const key = a < b ? `${a}_${b}` : `${b}_${a}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          lineIndices.push(a, b);
-        }
-      };
-      addEdge(v0, v1);
-      addEdge(v1, v2);
-      addEdge(v2, v0);
+      addEdge(indices[b], indices[b + 1]);
+      addEdge(indices[b + 1], indices[b + 2]);
+      addEdge(indices[b + 2], indices[b]);
     }
-    const lines = new Uint32Array(lineIndices);
+    const lines = new Uint32Array(once.size * 2);
+    let li = 0;
+    for (const [key, mn] of once) {
+      lines[li] = mn;
+      lines[li + 1] = key - mn * V;
+      li += 2;
+    }
 
     this._deleteMesh();
 
@@ -579,9 +591,10 @@ export class Renderer {
     gl.uniform2f(p.u_offset, ox, oy);
 
     // Opacity follows zoom (power curve, clamped) so the overlay reads at high zoom
-    // without washing out the basemap when zoomed far out.
+    // without washing out the basemap when zoomed far out. Lines are boundary-only
+    // (sparse), so they can afford to be crisp.
     const meshOpacity = Math.max(0.04, Math.min(0.15, 0.04 + Math.pow(viewScale, 1.5) * 0.06));
-    const wireOpacity = Math.max(0.08, Math.min(0.30, 0.08 + Math.pow(viewScale, 1.5) * 0.12));
+    const wireOpacity = Math.max(0.25, Math.min(0.8, 0.25 + Math.pow(viewScale, 1.5) * 0.2));
 
     gl.uniform1f(p.u_use_height, 1.0);
     gl.uniform1f(p.u_min_height, this._meshMinHeight);

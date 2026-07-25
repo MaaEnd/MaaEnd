@@ -175,13 +175,14 @@ class MaaInterface:
             return
 
         try:
-            self._offline_controller = _OfflineController()
-            self._offline_controller.post_connection().wait()
-            self._bind_tasker(self._offline_controller)
+            offline = _OfflineController()
+            offline.post_connection().wait()
+            self._bind_tasker(offline)
         except Exception as e:
             raise MaaInitializationError(
                 "Failed to initialize offline controller"
             ) from e
+        self._offline_controller = offline
 
     def init_controller(self):
         if self.controller is not None:
@@ -190,7 +191,7 @@ class MaaInterface:
         # Init controller
         try:
             window = self._find_win32_window()
-            self.controller = Win32Controller(
+            controller: Controller = Win32Controller(
                 window.hwnd,
                 screencap_method=MaaWin32ScreencapMethodEnum.FramePool,
                 mouse_method=MaaWin32InputMethodEnum.Seize,
@@ -199,19 +200,22 @@ class MaaInterface:
         except Exception as e_win:
             try:
                 adb = self._find_adb_device()
-                self.controller = AdbController(adb.adb_path, adb.address)
+                controller = AdbController(adb.adb_path, adb.address)
             except Exception as e_adb:
                 raise MaaInitializationError(
                     "Failed to initialize any available controller: "
                     f"win32={e_win!r}; adb={e_adb!r}"
-                )
+                ) from e_adb
 
         try:
-            self.controller.post_connection().wait()
+            controller.post_connection().wait()
+            self._bind_tasker(controller)
+        except MaaInitializationError:
+            raise
         except Exception as e:
             raise MaaInitializationError("Failed to connect controller") from e
 
-        self._bind_tasker(self.controller)
+        self.controller = controller
 
     def init_agent(self):
         if self.agent_client is not None:
@@ -226,27 +230,38 @@ class MaaInterface:
             self.init_offline_controller()
         agent_id = f"__MapTrackerEditorAgent-{uuid.uuid4()}"
 
+        process: subprocess.Popen | None = None
+        client: AgentClient | None = None
         try:
-            self.agent_process = subprocess.Popen(
+            process = subprocess.Popen(
                 [self.AGENT_PATH.resolve(), agent_id],
                 cwd=MaaInterface.WORK_DIR,
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
-            self.agent_client = AgentClient(agent_id)
-            self.agent_client.bind(self.resource)
-            self.agent_client.set_timeout(60 * 1000)
-            if not self.agent_client.connect():
-                if self.agent_process.poll() is not None:
+            client = AgentClient(agent_id)
+            client.bind(self.resource)
+            client.set_timeout(60 * 1000)
+            if not client.connect():
+                if process.poll() is not None:
                     raise MaaInitializationError(
-                        f"Agent exited early with code {self.agent_process.returncode}"
+                        f"Agent exited early with code {process.returncode}"
                     )
                 raise MaaInitializationError("Agent client failed to connect")
         except MaaInitializationError:
+            self.agent_process = process
+            self.agent_client = client
+            self.dispose_agent()
             raise
         except Exception as e:
+            self.agent_process = process
+            self.agent_client = client
+            self.dispose_agent()
             raise MaaInitializationError(f"Failed to start agent: {e}") from e
+
+        self.agent_process = process
+        self.agent_client = client
 
     def dispose_agent(self):
         if self.agent_client is not None:

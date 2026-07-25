@@ -38,7 +38,7 @@ func TestPrioritizeItemGroupsUsesConfiguredOrderBeforeDefaultOrder(t *testing.T)
 		{ItemID: "d"},
 		{ItemID: "e"},
 	}
-	got := prioritizeItemGroups(original, []string{"d", "missing", "b", "d", "c"})
+	got := prioritizeItemGroups(original, []string{"d", "missing", "b", "d", "c"}, false)
 	want := []itemPriorityGroup{
 		{ItemID: "d"},
 		{ItemID: "b"},
@@ -60,6 +60,24 @@ func TestPrioritizeItemGroupsUsesConfiguredOrderBeforeDefaultOrder(t *testing.T)
 	}
 }
 
+// TestPrioritizeItemGroupsCanExcludeUnconfiguredItems 验证严格优先模式只保留当前据点可售、
+// 且由用户明确配置的物品。
+func TestPrioritizeItemGroupsCanExcludeUnconfiguredItems(t *testing.T) {
+	original := []itemPriorityGroup{
+		{ItemID: "a"},
+		{ItemID: "b"},
+		{ItemID: "c"},
+	}
+	got := prioritizeItemGroups(original, []string{"c", "missing", "a", "c"}, true)
+	want := []itemPriorityGroup{
+		{ItemID: "c"},
+		{ItemID: "a"},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("严格优先模式排序结果 = %+v，期望 %+v", got, want)
+	}
+}
+
 // TestFindPriorityItemMatchUsesGroupPriorityBeforeScreenOrder 验证选品遵循售卖优先级，而不是画面中的位置顺序。
 func TestFindPriorityItemMatchUsesGroupPriorityBeforeScreenOrder(t *testing.T) {
 	groups := []itemPriorityGroup{
@@ -70,7 +88,7 @@ func TestFindPriorityItemMatchUsesGroupPriorityBeforeScreenOrder(t *testing.T) {
 		{text: "低优先级", box: maa.Rect{100, 100, 120, 40}},
 		{text: "高优先级", box: maa.Rect{100, 300, 120, 40}},
 	}
-	match, itemID, recognized := findPriorityItemMatch(ocrItems, groups, nil, nil, "")
+	match, itemID, recognized := findPriorityItemMatch(ocrItems, groups, nil, nil, nil, nil, "")
 	if match == nil || itemID != "high" {
 		t.Fatalf("应命中高优先级物品，实际匹配 = %+v，物品 = %q", match, itemID)
 	}
@@ -90,15 +108,15 @@ func TestFindPriorityItemMatchSkipsAttemptedAndKeepsPending(t *testing.T) {
 		{text: "低优先级", box: maa.Rect{100, 200, 120, 40}},
 	}
 	attempted := map[string]struct{}{"high": {}}
-	_, itemID, _ := findPriorityItemMatch(ocrItems, groups, attempted, nil, "")
+	_, itemID, _ := findPriorityItemMatch(ocrItems, groups, attempted, nil, nil, nil, "")
 	if itemID != "low" {
 		t.Fatalf("高优先级物品尝试后应选择低优先级物品，实际为 %q", itemID)
 	}
-	_, itemID, _ = findPriorityItemMatch(ocrItems, groups, attempted, nil, "high")
+	_, itemID, _ = findPriorityItemMatch(ocrItems, groups, attempted, nil, nil, nil, "high")
 	if itemID != "high" {
 		t.Fatalf("提交前应保持待选物品不变，实际为 %q", itemID)
 	}
-	_, itemID, _ = findPriorityItemMatch(ocrItems[1:], groups, attempted, nil, "high")
+	_, itemID, _ = findPriorityItemMatch(ocrItems[1:], groups, attempted, nil, nil, nil, "high")
 	if itemID != "" {
 		t.Fatalf("待选物品暂时未识别时不应降级选择，实际为 %q", itemID)
 	}
@@ -115,11 +133,61 @@ func TestFindPriorityItemMatchSkipsOutOfStockAcrossLocations(t *testing.T) {
 		{text: "低优先级", box: maa.Rect{100, 200, 120, 40}},
 	}
 	outOfStock := map[string]struct{}{"high": {}}
-	_, itemID, recognized := findPriorityItemMatch(ocrItems, groups, nil, outOfStock, "")
+	_, itemID, recognized := findPriorityItemMatch(ocrItems, groups, nil, outOfStock, nil, nil, "")
 	if itemID != "low" {
 		t.Fatalf("高优先级物品缺货后应选择低优先级物品，实际为 %q", itemID)
 	}
 	if !reflect.DeepEqual(recognized, []string{"high", "low"}) {
 		t.Fatalf("缺货物品仍应保留在稳定识别集合中，实际为 %v", recognized)
+	}
+}
+
+// TestFindPriorityItemMatchSkipsBlacklisted 验证黑名单物品在点击前被排除，
+// 同时仍参与稳定识别集合，保证只有黑名单货品时可以正常判定候选耗尽。
+func TestFindPriorityItemMatchSkipsBlacklisted(t *testing.T) {
+	groups := []itemPriorityGroup{
+		{ItemID: "high", Candidates: []string{"高优先级"}},
+		{ItemID: "low", Candidates: []string{"低优先级"}},
+	}
+	ocrItems := []ocrItem{
+		{text: "高优先级", box: maa.Rect{100, 100, 120, 40}},
+		{text: "低优先级", box: maa.Rect{100, 200, 120, 40}},
+	}
+	blacklisted := map[string]struct{}{"high": {}}
+	_, itemID, recognized := findPriorityItemMatch(ocrItems, groups, nil, nil, blacklisted, nil, "")
+	if itemID != "low" {
+		t.Fatalf("高优先级物品被列入黑名单后应选择低优先级物品，实际为 %q", itemID)
+	}
+	if !reflect.DeepEqual(recognized, []string{"high", "low"}) {
+		t.Fatalf("黑名单物品仍应保留在稳定识别集合中，实际为 %v", recognized)
+	}
+}
+
+// TestFindPriorityItemMatchSkipsSatisfiedReserveAcrossLocations 验证达到保留量后，
+// 同一物品不会在后续据点再次成为候选。
+func TestFindPriorityItemMatchSkipsSatisfiedReserveAcrossLocations(t *testing.T) {
+	groups := []itemPriorityGroup{
+		{ItemID: "reserved", Candidates: []string{"保留物品"}},
+		{ItemID: "other", Candidates: []string{"其他物品"}},
+	}
+	ocrItems := []ocrItem{
+		{text: "保留物品", box: maa.Rect{100, 100, 120, 40}},
+		{text: "其他物品", box: maa.Rect{100, 200, 120, 40}},
+	}
+	reserveSatisfied := map[string]struct{}{"reserved": {}}
+	_, itemID, recognized := findPriorityItemMatch(
+		ocrItems,
+		groups,
+		nil,
+		nil,
+		nil,
+		reserveSatisfied,
+		"",
+	)
+	if itemID != "other" {
+		t.Fatalf("达到保留量后应选择其他物品，实际为 %q", itemID)
+	}
+	if !reflect.DeepEqual(recognized, []string{"reserved", "other"}) {
+		t.Fatalf("达到保留量的物品仍应保留在稳定识别集合中，实际为 %v", recognized)
 	}
 }

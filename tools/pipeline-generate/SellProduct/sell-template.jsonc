@@ -10,12 +10,121 @@
                 "SceneEnterMenuRegionalDevelopment${RegionPrefix}OutpostManagement"
             ]
         },
-        "anchor": {
-            "SellProduct${RegionPrefix}PrepareOperatorCache": "SellProduct${RegionPrefix}PrepareOperatorCache"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": "${SellNext}"
+    },
+    "SellProduct${RegionPrefix}InitializePrioritySession": {
+        "desc": "切换${RegionDesc}优先售卖配置",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "reset_preferred",
+            "enabled": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${RegionPrefix}RegisterPriorityItem1"
+        ]
+    },
+    "SellProduct${RegionPrefix}RegisterPriorityItem1": {
+        "desc": "注册${RegionDesc}第1个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${RegionPrefix}RegisterPriorityItem2"
+        ]
+    },
+    "SellProduct${RegionPrefix}RegisterPriorityItem2": {
+        "desc": "注册${RegionDesc}第2个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${RegionPrefix}RegisterPriorityItem3"
+        ]
+    },
+    "SellProduct${RegionPrefix}RegisterPriorityItem3": {
+        "desc": "注册${RegionDesc}第3个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${RegionPrefix}RegisterPriorityItem4"
+        ]
+    },
+    "SellProduct${RegionPrefix}RegisterPriorityItem4": {
+        "desc": "注册${RegionDesc}第4个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${RegionPrefix}RegisterPriorityItem5"
+        ]
+    },
+    "SellProduct${RegionPrefix}RegisterPriorityItem5": {
+        "desc": "注册${RegionDesc}第5个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${RegionPrefix}RegisterPriorityItem6"
+        ]
+    },
+    "SellProduct${RegionPrefix}RegisterPriorityItem6": {
+        "desc": "注册${RegionDesc}第6个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${RegionPrefix}PrepareOperatorCache"
+        ]
     },
     "SellProduct${RegionPrefix}PrepareOperatorCache": {
         "desc": "${RegionDesc}售卖前准备联络干员缓存",

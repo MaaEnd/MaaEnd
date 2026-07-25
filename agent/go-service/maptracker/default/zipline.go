@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"time"
 
+	internal "github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/internal"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
@@ -24,7 +25,7 @@ type MapTrackerZiplineParam struct {
 	// MapName has the same definition as [MapTrackerMoveParam.MapName].
 	MapName string `json:"map_name"`
 	// Target is the map coordinate of the destination zipline.
-	Target *[2]float64 `json:"target"`
+	Target *internal.Point `json:"target"`
 	// RotationThreshold is the maximum allowed angle difference to treat the player as
 	// already facing the right direction to the destination zipline.
 	RotationThreshold float64 `json:"rotation_threshold,omitempty"`
@@ -76,12 +77,10 @@ func (a *MapTrackerZipline) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool
 		return false
 	}
 
-	distance := math.Hypot(result.X-param.Target[0], result.Y-param.Target[1])
+	distance := result.Loc.DistanceTo(*param.Target)
 	log.Info().
-		Float64("curX", result.X).
-		Float64("curY", result.Y).
-		Float64("targetX", param.Target[0]).
-		Float64("targetY", param.Target[1]).
+		Object("current", result.Loc).
+		Object("target", param.Target).
 		Float64("distance", distance).
 		Msg("Current location and target for MapTrackerZipline")
 
@@ -162,7 +161,7 @@ func (a *MapTrackerZipline) parseParam(paramStr string) (*MapTrackerZiplineParam
 	if param.Target == nil {
 		return nil, fmt.Errorf("target is required in parameters")
 	}
-	if math.IsNaN(param.Target[0]) || math.IsInf(param.Target[0], 0) || math.IsNaN(param.Target[1]) || math.IsInf(param.Target[1], 0) {
+	if !param.Target.IsValid() {
 		return nil, fmt.Errorf("target contains invalid coordinate")
 	}
 	if param.RotationThreshold == 0 {
@@ -198,8 +197,8 @@ func (a *MapTrackerZipline) rotateTowardTarget(ctx *maa.Context, ctrl *maa.Contr
 			time.Sleep(rotationInterval)
 			continue
 		}
-		targetRot := calcTargetRotation(result.X, result.Y, param.Target[0], param.Target[1])
-		deltaRot := calcDeltaRotation(result.Rot, targetRot)
+		targetRot := int(math.Round(result.Loc.AngleTo(*param.Target)))
+		deltaRot := internal.DeltaRotation(result.Rot, targetRot)
 		absDeltaRot := math.Abs(float64(deltaRot))
 		log.Debug().Int("curRot", result.Rot).Int("targetRot", targetRot).Float64("deltaRot", float64(deltaRot)).Msg("Rotating toward zipline")
 		if absDeltaRot <= param.RotationThreshold {

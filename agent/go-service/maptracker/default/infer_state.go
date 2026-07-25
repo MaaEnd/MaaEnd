@@ -2,9 +2,10 @@
 package maptrackerdefault
 
 import (
-	"math"
 	"sync"
 	"time"
+
+	internal "github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/internal"
 )
 
 // InferLocationHitMode represents the mode of location inference hit
@@ -76,10 +77,9 @@ func (s *InferState) SetPending(loc InferLocationRawResult) {
 }
 
 // UpdatePending updates the pending location and increments hit count
-func (s *InferState) UpdatePending(x, y float64) {
+func (s *InferState) UpdatePending(loc internal.Point) {
 	_ = s.getLockTime()
-	s.pending.X = x
-	s.pending.Y = y
+	s.pending.Loc = loc
 	s.pendingHitCount++
 }
 
@@ -112,9 +112,7 @@ func (s *InferState) IsCloseToConvinced(loc *InferLocationRawResult) bool {
 	if !isMapNameCoreMatch(s.convinced.MapName, loc.MapName) {
 		return false
 	}
-	dx := s.convinced.X - loc.X
-	dy := s.convinced.Y - loc.Y
-	return math.Hypot(dx, dy) < CONVINCED_DISTANCE_THRESHOLD
+	return s.convinced.Loc.DistanceTo(loc.Loc) < CONVINCED_DISTANCE_THRESHOLD
 }
 
 // IsCloseToPending checks if a location is close to the pending location
@@ -122,9 +120,7 @@ func (s *InferState) IsCloseToPending(loc *InferLocationRawResult) bool {
 	if !isMapNameCoreMatch(s.pending.MapName, loc.MapName) {
 		return false
 	}
-	dx := s.pending.X - loc.X
-	dy := s.pending.Y - loc.Y
-	return math.Hypot(dx, dy) < CONVINCED_DISTANCE_THRESHOLD
+	return s.pending.Loc.DistanceTo(loc.Loc) < CONVINCED_DISTANCE_THRESHOLD
 }
 
 // ShouldTakeoverPending checks if pending should be promoted to convinced

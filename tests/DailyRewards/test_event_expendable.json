@@ -1,0 +1,20 @@
+{
+    "configs": {
+        "name": "(Win32-官服)活动中心消费性入口候选",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            // 左侧「每周事务」有橙红点：消费性入口 DailyEventGoToByRedDot 的 candidate 应命中
+            // 不直接测 DailyEventGoToByRedDot：ExpendableRecognition 需 Go Agent，pnpm test 未注册
+            "name": "活动中心：红点消费入口候选可命中",
+            "image": "活动中心_未读红点.png",
+            "hits": [
+                "InEventCenter",
+                "DailyEventRecognitionRedDot",
+                "DailyEventGoToCandidateByRedDot"
+            ]
+        }
+    ]
+}

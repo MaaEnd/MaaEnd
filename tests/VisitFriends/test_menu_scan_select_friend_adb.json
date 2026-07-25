@@ -1,0 +1,19 @@
+{
+    "configs": {
+        "name": "(ADB-官服)拜访好友列表选友",
+        "resource": "官服",
+        "controller": "ADB"
+    },
+    "cases": [
+        {
+            // 合成名含「测试(桃桃#1001)」「备注(青柠#3003)」与普通「星野#2002」「流萤#4004」
+            // 仅测备注 OCR 与通用名 OCR；不测滚动名 / TargetFriendOpen*
+            "name": "合成名：备注与通用名可命中",
+            "image": "拜访好友_好友列表_合成名.png",
+            "hits": [
+                "VisitFriendsRecognitionItemWithRemark",
+                "VisitFriendsRecognitionItemWithName"
+            ]
+        }
+    ]
+}

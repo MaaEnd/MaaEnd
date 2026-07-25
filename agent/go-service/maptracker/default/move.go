@@ -34,7 +34,7 @@ type MapTrackerMoveParam struct {
 	// MapName is the name of the map to navigate (required).
 	MapName string `json:"map_name"`
 	// Path is a sequence of [x, y] coordinate points to follow (required).
-	Path [][2]float64 `json:"path"`
+	Path []internal.Point `json:"path"`
 	// NoPrint controls whether to suppress printing navigation status to the GUI.
 	NoPrint bool `json:"no_print,omitempty"`
 	// PathTrim trims the path to start from the nearest point to the current location when enabled.
@@ -98,11 +98,11 @@ var mapTrackerInferParamForMove = MapTrackerInferParam{
 
 // PlayerRotationAdjustmentState keeps track of one rotation adjustment
 type PlayerRotationAdjustmentState struct {
-	fromPos         [2]float64    // Last position where rotation adjustment started to apply
-	fromRot         int           // Last rotation when rotation adjustment started to apply
-	deltaRot        float64       // Last rotation difference to apply
-	startTime       time.Time     // Last time when rotation adjustment started to apply
-	expectedElapsed time.Duration // Expected time for this rotation adjustment to take effect
+	fromPos         internal.Point // Last position where rotation adjustment started to apply
+	fromRot         int            // Last rotation when rotation adjustment started to apply
+	deltaRot        float64        // Last rotation difference to apply
+	startTime       time.Time      // Last time when rotation adjustment started to apply
+	expectedElapsed time.Duration  // Expected time for this rotation adjustment to take effect
 }
 
 var previewMapCache = struct {
@@ -137,7 +137,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			closestIdx := 0
 			minDist := math.MaxFloat64
 			for i, p := range param.Path {
-				dist := math.Hypot(initRes.X-p[0], initRes.Y-p[1])
+				dist := initRes.Loc.DistanceTo(p)
 				if dist < minDist {
 					minDist = dist
 					closestIdx = i
@@ -169,19 +169,18 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	var rotAdjState, rotAdjStateCache *PlayerRotationAdjustmentState
 
 	// For each target point
-	for i, target := range param.Path {
-		targetX, targetY := target[0], target[1]
+	for i, targetLoc := range param.Path {
 		enableFineApproach := (param.FineApproach == FINE_APPROACH_ALL_TARGETS) ||
 			(param.FineApproach == FINE_APPROACH_FINAL_TARGET && i == len(param.Path)-1)
-		log.Info().Int("index", i).Float64("targetX", targetX).Float64("targetY", targetY).Msg("Navigating to next target point")
+		log.Info().Int("index", i).Interface("target", targetLoc).Msg("Navigating to next target point")
 
 		// Show navigation UI
 		var initRot int
 		if initResult, err := doInfer(ctx, ctrl, param); err == nil && initResult != nil {
-			initRot = calcTargetRotation(initResult.X, initResult.Y, targetX, targetY)
+			initRot = int(initResult.Loc.AngleTo(targetLoc))
 			if !param.NoPrint {
 				maafocus.PrintLargeContentTrimNewline(
-					a.buildNavigationMovingHTML(param, i, initResult.X, initResult.Y, targetX, targetY),
+					a.buildNavigationMovingHTML(param, i, initResult.Loc, targetLoc),
 				)
 			}
 		} else if err != nil {
@@ -192,7 +191,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			lastLoopTime                = time.Time{}
 			lastArrivalTime             = time.Now()
 			prevLocationTime            = time.Time{}
-			prevLocation                *[2]float64
+			prevLocation                *internal.Point
 			fineApproachOngoing         = false
 			fineApproachExpectedEndTime = time.Time{}
 			stuckMitigatorIdx           = 0
@@ -234,21 +233,20 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				ca.SetPlayerMovement(control.MovementStop, control.PolicyDefault)
 				continue
 			}
-			curX, curY := result.X, result.Y
-			rot := result.Rot
+			curLoc := result.Loc
+			curRot := result.Rot
 
 			// Calculate rotation difference
-			targetRot := calcTargetRotation(curX, curY, targetX, targetY)
-			rawDeltaRot := calcDeltaRotation(rot, targetRot)
+			targetRot := int(math.Round(curLoc.AngleTo(targetLoc)))
+			rawDeltaRot := internal.DeltaRotation(curRot, targetRot)
 			absRawDeltaRot := math.Abs(float64(rawDeltaRot))
 
 			// Check arrival
-			finishCurrentTarget := func(curX, curY float64, rot int) {
+			finishCurrentTarget := func(loc internal.Point, rot int) {
 				if i < len(param.Path)-1 {
 					// Foresee rotation adjustment for the next but not final target
-					nextX, nextY := param.Path[i+1][0], param.Path[i+1][1]
-					nextTargetRot := calcTargetRotation(curX, curY, nextX, nextY)
-					nextDeltaRot := calcDeltaRotation(rot, nextTargetRot)
+					nextTargetRot := int(math.Round(loc.AngleTo(param.Path[i+1])))
+					nextDeltaRot := internal.DeltaRotation(rot, nextTargetRot)
 					if math.Abs(float64(nextDeltaRot)) > param.RotationUpperThreshold {
 						ca.SetPlayerMovement(control.MovementWalk, control.PolicyDefault)
 					}
@@ -259,15 +257,15 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				}
 			}
 
-			dist := math.Hypot(curX-targetX, curY-targetY)
+			dist := curLoc.DistanceTo(targetLoc)
 			if fineApproachOngoing {
 				if loopStartTime.After(fineApproachExpectedEndTime) || dist < FINE_APPROACH_COMPLETE_THRESHOLD {
 					log.Info().Int("index", i).Float64("dist", dist).Msg("Target point reached (fine approach)")
-					finishCurrentTarget(curX, curY, rot)
+					finishCurrentTarget(curLoc, curRot)
 					break
-				} else if math.Abs(float64(calcDeltaRotation(targetRot, initRot))) > 90.0 {
+				} else if math.Abs(float64(internal.DeltaRotation(targetRot, initRot))) > 90.0 {
 					log.Info().Int("index", i).Float64("dist", dist).Int("targetRot", targetRot).Int("initRot", initRot).Msg("Target point reached (fine approach, guessed by rotation)")
-					finishCurrentTarget(curX, curY, rot)
+					finishCurrentTarget(curLoc, curRot)
 					break
 				}
 			} else {
@@ -279,21 +277,21 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						ca.SetPlayerMovement(control.MovementWalk, control.PolicyDefault)
 						log.Info().Int("index", i).Float64("dist", dist).Dur("expectedElapsed", fineApproachExpectedElapsed).Msg("Entering fine approach")
 					} else {
-						log.Info().Int("index", i).Float64("x", curX).Float64("y", curY).Msg("Target point reached (ordinary approach)")
-						finishCurrentTarget(curX, curY, rot)
+						log.Info().Int("index", i).Float64("dist", dist).Object("pos", curLoc).Msg("Target point reached (ordinary approach)")
+						finishCurrentTarget(curLoc, curRot)
 						break
 					}
-				} else if math.Abs(float64(calcDeltaRotation(targetRot, initRot))) > 90.0 {
+				} else if math.Abs(float64(internal.DeltaRotation(targetRot, initRot))) > 90.0 {
 					log.Info().Int("index", i).Float64("dist", dist).Int("targetRot", targetRot).Int("initRot", initRot).Msg("Target point reached (ordinary approach, guessed by rotation)")
-					finishCurrentTarget(curX, curY, rot)
+					finishCurrentTarget(curLoc, curRot)
 					break
 				}
 			}
 
-			log.Debug().Float64("curX", curX).Float64("curY", curY).Int("curRot", rot).Float64("dist", dist).Int("targetRot", targetRot).Msg("Navigating to target")
+			log.Debug().Object("cur", curLoc).Int("curRot", curRot).Float64("dist", dist).Int("targetRot", targetRot).Msg("Navigating to target")
 
 			// Check stuck
-			if prevLocation != nil && math.Hypot(prevLocation[0]-curX, prevLocation[1]-curY) < 2.0 {
+			if prevLocation != nil && prevLocation.DistanceTo(curLoc) < 2.0 {
 				deltaLocationMs := loopStartTime.Sub(prevLocationTime).Milliseconds()
 				if deltaLocationMs > param.StuckTimeout {
 					log.Error().Msg("Stuck for too long, stopping task")
@@ -310,7 +308,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					}
 				}
 			} else {
-				prevLocation = &[2]float64{curX, curY}
+				prevLocation = &curLoc
 				prevLocationTime = loopStartTime
 			}
 
@@ -319,10 +317,10 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				// Check if last rotation adjustment is completed
 				if loopStartTime.Sub(rotAdjState.startTime) > rotAdjState.expectedElapsed {
 					// Check if player is moving and rotating sufficiently to trust rotation measurement
-					distTravel := math.Hypot(curX-rotAdjState.fromPos[0], curY-rotAdjState.fromPos[1])
+					distTravel := curLoc.DistanceTo(rotAdjState.fromPos)
 					if distTravel > control.MovementWalk.DistanceDuring(rotAdjState.expectedElapsed) {
 						// Check if rotation difference is sufficient to consider adjusting rotation speed
-						actualDeltaRot := calcDeltaRotation(rotAdjState.fromRot, rot)
+						actualDeltaRot := internal.DeltaRotation(rotAdjState.fromRot, curRot)
 						if math.Abs(float64(actualDeltaRot)) > param.RotationLowerThreshold && math.Abs(rotAdjState.deltaRot) > param.RotationLowerThreshold {
 							idealRotSpeed := rotationSpeed * rotAdjState.deltaRot / (float64(actualDeltaRot) + 1e-6)
 							if idealRotSpeed >= ROTATION_MIN_SPEED && idealRotSpeed <= ROTATION_MAX_SPEED {
@@ -391,8 +389,8 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 					// Update adaptive rotation state
 					rotAdjState = &PlayerRotationAdjustmentState{
-						fromPos:         [2]float64{curX, curY},
-						fromRot:         rot,
+						fromPos:         curLoc,
+						fromRot:         curRot,
 						deltaRot:        finalDeltaRot,
 						startTime:       time.Now(),
 						expectedElapsed: ca.GetPlayerMovement().EtaOfRotation(math.Abs(finalDeltaRot)),
@@ -409,15 +407,15 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	// Show finished UI summary
 	if !param.NoPrint {
-		finishedX, finishedY := 0.0, 0.0
+		finished := internal.Point{X: 0.0, Y: 0.0}
 		if len(param.Path) > 0 {
-			finishedX, finishedY = param.Path[len(param.Path)-1][0], param.Path[len(param.Path)-1][1]
+			finished = param.Path[len(param.Path)-1]
 		}
 		if finalInfer, err := doInfer(ctx, ctrl, param); err == nil && finalInfer != nil {
-			finishedX, finishedY = finalInfer.X, finalInfer.Y
+			finished = finalInfer.Loc
 		}
 		maafocus.PrintLargeContentTrimNewline(
-			a.buildNavigationFinishedHTML(param, finishedX, finishedY),
+			a.buildNavigationFinishedHTML(param, finished),
 		)
 	}
 
@@ -447,8 +445,8 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 	if len(param.Path) == 0 {
 		return nil, fmt.Errorf("path is required in parameters, got empty")
 	}
-	for i, point := range param.Path {
-		if math.IsNaN(point[0]) || math.IsInf(point[0], 0) || math.IsNaN(point[1]) || math.IsInf(point[1], 0) {
+	for i, p := range param.Path {
+		if !p.IsValid() {
 			return nil, fmt.Errorf("path[%d] contains invalid coordinate", i)
 		}
 	}
@@ -661,75 +659,43 @@ func buildMapNameRegex(rule string, mapName string) string {
 	return rule
 }
 
-// calcTargetRotation calculates the angle from (fromX, fromY) to (toX, toY).
-// 0 degrees is North (negative Y), increasing clockwise.
-func calcTargetRotation(fromX, fromY, toX, toY float64) int {
-	dx := toX - fromX
-	dy := toY - fromY
-	angleRad := math.Atan2(dx, -dy)
-	angleDeg := angleRad * 180.0 / math.Pi
-
-	// Normalize to [0, 360)
-	if angleDeg < 0 {
-		angleDeg += 360
-	}
-	return int(math.Round(angleDeg)) % 360
-}
-
-// calcDeltaRotation calculates min difference between two angles [-180, 180]
-func calcDeltaRotation(current, target int) int {
-	diff := target - current
-	for diff > 180 {
-		diff -= 360
-	}
-	for diff < -180 {
-		diff += 360
-	}
-	return diff
-}
-
 func (a *MapTrackerMove) buildNavigationMovingHTML(
-	param *MapTrackerMoveParam,
-	targetIndex int,
-	currentX float64,
-	currentY float64,
-	targetX float64,
-	targetY float64,
+	param *MapTrackerMoveParam, targetIndex int, current internal.Point, target internal.Point,
 ) string {
-	previewImageURL := buildNavigationPreviewDataURL(param.Path, targetIndex, param.MapName, currentX, currentY, targetX, targetY)
+	previewImageURL := buildNavigationPreviewDataURL(param.Path, targetIndex, param.MapName, current, target)
 
 	return i18n.RenderHTML("maptracker.navigation_moving", map[string]any{
 		"CurrentIdx": targetIndex + 1,
 		"Total":      len(param.Path),
-		"CurX":       currentX,
-		"CurY":       currentY,
-		"TgtX":       targetX,
-		"TgtY":       targetY,
+		"CurX":       current.X,
+		"CurY":       current.Y,
+		"TgtX":       target.X,
+		"TgtY":       target.Y,
 		"PreviewURL": previewImageURL,
 	})
 }
 
-func (a *MapTrackerMove) buildNavigationFinishedHTML(param *MapTrackerMoveParam, currentX, currentY float64) string {
-	targetX, targetY := currentX, currentY
+func (a *MapTrackerMove) buildNavigationFinishedHTML(param *MapTrackerMoveParam, current internal.Point) string {
+	target := internal.Point{X: current.X, Y: current.Y}
 	targetIndex := 0
 	if len(param.Path) > 0 {
 		targetIndex = len(param.Path) - 1
-		targetX = param.Path[targetIndex][0]
-		targetY = param.Path[targetIndex][1]
+		target.X = param.Path[targetIndex].X
+		target.Y = param.Path[targetIndex].Y
 	}
 
-	previewImageURL := buildNavigationPreviewDataURL(param.Path, targetIndex, param.MapName, currentX, currentY, targetX, targetY)
+	previewImageURL := buildNavigationPreviewDataURL(param.Path, targetIndex, param.MapName, current, target)
 
 	return i18n.RenderHTML("maptracker.navigation_finished", map[string]any{
 		"CurrentIdx": len(param.Path),
 		"Total":      len(param.Path),
-		"CurX":       currentX,
-		"CurY":       currentY,
+		"CurX":       current.X,
+		"CurY":       current.Y,
 		"PreviewURL": previewImageURL,
 	})
 }
 
-func buildNavigationPreviewDataURL(path [][2]float64, targetIndex int, mapName string, currentX, currentY, targetX, targetY float64) string {
+func buildNavigationPreviewDataURL(path []internal.Point, targetIndex int, mapName string, current, target internal.Point) string {
 	// Prepare map image
 	mapRGBA, err := getCachedPreviewMapRGBA(mapName)
 	if err != nil {
@@ -738,14 +704,14 @@ func buildNavigationPreviewDataURL(path [][2]float64, targetIndex int, mapName s
 	}
 
 	// Prepare points to focus on
-	focusPoints := make([][2]float64, 0, 9)
+	focusPoints := make([]internal.Point, 0, 9)
 	if len(path) > 0 {
 		start := max(0, targetIndex-4)
 		end := min(len(path)-1, targetIndex+4)
 		focusPoints = append(focusPoints, path[start:end+1]...)
 	}
 	if len(focusPoints) == 0 {
-		focusPoints = append(focusPoints, [2]float64{targetX, targetY})
+		focusPoints = append(focusPoints, internal.Point{X: target.X, Y: target.Y})
 	}
 
 	drawPath := path
@@ -756,20 +722,23 @@ func buildNavigationPreviewDataURL(path [][2]float64, targetIndex int, mapName s
 	// Calculate geometry and crop map image
 	const canvasSize = 192
 
-	scale, offsetX, offsetY,
-		currentViewX, currentViewY := calcNavigationPreviewGeometry(focusPoints, currentX, currentY, canvasSize, 96, 192)
-	if scale <= 0 {
-		scale = 1.0
+	viewTransform, currentView := calcNavigationPreviewGeometry(focusPoints, current, canvasSize, 96, 192)
+	if viewTransform.ScaleX <= 0 || viewTransform.ScaleY <= 0 || viewTransform.ScaleX != viewTransform.ScaleY {
+		viewTransform = internal.LinearTransform{ScaleX: 1.0, ScaleY: 1.0}
+		currentView = viewTransform.Apply(current)
 	}
+	scale := viewTransform.ScaleX
 
 	canvas := image.NewRGBA(image.Rect(0, 0, canvasSize, canvasSize))
 	draw.Draw(canvas, canvas.Bounds(), &image.Uniform{C: color.RGBA{0xf7, 0xfb, 0xff, 0xff}}, image.Point{}, draw.Src)
 
 	b := mapRGBA.Bounds()
-	srcMinX := int(math.Floor((-offsetX) / scale))
-	srcMinY := int(math.Floor((-offsetY) / scale))
-	srcMaxX := int(math.Ceil((float64(canvasSize) - offsetX) / scale))
-	srcMaxY := int(math.Ceil((float64(canvasSize) - offsetY) / scale))
+	topLeft := viewTransform.Inverse(internal.Point{X: 0, Y: 0})
+	bottomRight := viewTransform.Inverse(internal.Point{X: canvasSize, Y: canvasSize})
+	srcMinX := int(math.Floor(topLeft.X))
+	srcMinY := int(math.Floor(topLeft.Y))
+	srcMaxX := int(math.Ceil(bottomRight.X))
+	srcMaxY := int(math.Ceil(bottomRight.Y))
 	srcMinX = max(b.Min.X, srcMinX)
 	srcMinY = max(b.Min.Y, srcMinY)
 	srcMaxX = min(b.Max.X, srcMaxX)
@@ -782,8 +751,9 @@ func buildNavigationPreviewDataURL(path [][2]float64, targetIndex int, mapName s
 	srcRect := image.Rect(srcMinX, srcMinY, srcMaxX, srcMaxY)
 	cropped := minicv.ImageCropRect(mapRGBA, srcRect)
 	scaledCrop := minicv.ImageScale(cropped, scale)
-	dstMinX := int(math.Round(offsetX + float64(srcRect.Min.X)*scale))
-	dstMinY := int(math.Round(offsetY + float64(srcRect.Min.Y)*scale))
+	dstMin := viewTransform.Apply(internal.Point{X: float64(srcRect.Min.X), Y: float64(srcRect.Min.Y)})
+	dstMinX := dstMin.IntX()
+	dstMinY := dstMin.IntY()
 	dstRect := image.Rect(dstMinX, dstMinY, dstMinX+scaledCrop.Bounds().Dx(), dstMinY+scaledCrop.Bounds().Dy())
 	draw.Draw(canvas, dstRect, scaledCrop, image.Point{}, draw.Over)
 
@@ -795,26 +765,20 @@ func buildNavigationPreviewDataURL(path [][2]float64, targetIndex int, mapName s
 	)
 
 	for i := 0; i+1 < len(drawPath); i++ {
-		x1 := int(math.Round(drawPath[i][0]*scale + offsetX))
-		y1 := int(math.Round(drawPath[i][1]*scale + offsetY))
-		x2 := int(math.Round(drawPath[i+1][0]*scale + offsetX))
-		y2 := int(math.Round(drawPath[i+1][1]*scale + offsetY))
-		minicv.ImageDrawLine(canvas, x1, y1, x2, y2, colorBlue, 3)
+		p1 := viewTransform.Apply(drawPath[i])
+		p2 := viewTransform.Apply(drawPath[i+1])
+		minicv.ImageDrawLine(canvas, p1.IntX(), p1.IntY(), p2.IntX(), p2.IntY(), colorBlue, 3)
 	}
 
 	for _, p := range drawPath {
-		x := int(math.Round(p[0]*scale + offsetX))
-		y := int(math.Round(p[1]*scale + offsetY))
-		minicv.ImageDrawFilledCircle(canvas, x, y, 4, colorBlue)
+		p_ := viewTransform.Apply(p)
+		minicv.ImageDrawFilledCircle(canvas, p_.IntX(), p_.IntY(), 4, colorBlue)
 	}
 
-	curX := int(math.Round(currentViewX))
-	curY := int(math.Round(currentViewY))
-	tgtX := int(math.Round(targetX*scale + offsetX))
-	tgtY := int(math.Round(targetY*scale + offsetY))
-	minicv.ImageDrawLine(canvas, curX, curY, tgtX, tgtY, colorRed, 3)
-	minicv.ImageDrawFilledCircle(canvas, tgtX, tgtY, 5, colorRed)
-	minicv.ImageDrawFilledCircle(canvas, curX, curY, 5, colorGreen)
+	target_ := viewTransform.Apply(target)
+	minicv.ImageDrawLine(canvas, currentView.IntX(), currentView.IntY(), target_.IntX(), target_.IntY(), colorRed, 3)
+	minicv.ImageDrawFilledCircle(canvas, target_.IntX(), target_.IntY(), 5, colorRed)
+	minicv.ImageDrawFilledCircle(canvas, currentView.IntX(), currentView.IntY(), 5, colorGreen)
 
 	// Return as base64 data URL
 	base64JPEG, err := minicv.ImageToBase64JPEG(canvas, 90)
@@ -859,9 +823,8 @@ func getCachedPreviewMapRGBA(mapName string) (*image.RGBA, error) {
 	return img, nil
 }
 
-func calcNavigationPreviewGeometry(focusPoints [][2]float64, currentX, currentY float64, canvasSize int, minSize int, maxSize int) (
-	scale, offsetX, offsetY,
-	currentViewX, currentViewY float64,
+func calcNavigationPreviewGeometry(focusPoints []internal.Point, current internal.Point, canvasSize int, minSize int, maxSize int) (
+	viewTransform internal.LinearTransform, currentView internal.Point,
 ) {
 	if canvasSize < 1 {
 		canvasSize = 1
@@ -877,21 +840,13 @@ func calcNavigationPreviewGeometry(focusPoints [][2]float64, currentX, currentY 
 	minSpan := float64(minSize)
 	maxSpan := float64(maxSize)
 
-	minX, minY := math.Inf(1), math.Inf(1)
-	maxX, maxY := math.Inf(-1), math.Inf(-1)
-	update := func(x, y float64) {
-		if math.IsNaN(x) || math.IsInf(x, 0) || math.IsNaN(y) || math.IsInf(y, 0) {
-			return
-		}
-		minX = math.Min(minX, x)
-		minY = math.Min(minY, y)
-		maxX = math.Max(maxX, x)
-		maxY = math.Max(maxY, y)
+	minX, minY, maxX, maxY := internal.PathBounds(focusPoints)
+	if current.IsValid() {
+		minX = math.Min(minX, current.X)
+		minY = math.Min(minY, current.Y)
+		maxX = math.Max(maxX, current.X)
+		maxY = math.Max(maxY, current.Y)
 	}
-	for _, p := range focusPoints {
-		update(p[0], p[1])
-	}
-	update(currentX, currentY)
 
 	if math.IsNaN(minX) || math.IsInf(minX, 0) ||
 		math.IsNaN(minY) || math.IsInf(minY, 0) ||
@@ -903,15 +858,14 @@ func calcNavigationPreviewGeometry(focusPoints [][2]float64, currentX, currentY 
 
 	spanX := min(max(maxX-minX, minSpan), maxSpan)
 	spanY := min(max(maxY-minY, minSpan), maxSpan)
-	scale = math.Min(previewSize/spanX, previewSize/spanY)
+	scale := math.Min(previewSize/spanX, previewSize/spanY)
 
 	centerX := (minX + maxX) * 0.5
 	centerY := (minY + maxY) * 0.5
-	offsetX = previewSize*0.5 - centerX*scale
-	offsetY = previewSize*0.5 - centerY*scale
+	offsetX := previewSize*0.5 - centerX*scale
+	offsetY := previewSize*0.5 - centerY*scale
 
-	currentViewX = currentX*scale + offsetX
-	currentViewY = currentY*scale + offsetY
-
+	viewTransform = internal.LinearTransform{ScaleX: scale, ScaleY: scale, OffsetX: offsetX, OffsetY: offsetY}
+	currentView = viewTransform.Apply(current)
 	return
 }

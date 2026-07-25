@@ -19,26 +19,30 @@ SellProductSchedule                                  (Task entry, weekday gate)
             └─ SellProductCaptureUid                 (capture hashed UID for account-scoped cache)
                  └─ SellProductInitializeReserveSession (clear previous reserve/selection state)
                       └─ SellProductRegisterReserveRule{1..6} (fixed chain; skip empty slots)
-                           └─ SellProductRegisterPriorityItem{1..6} (fixed chain; skip empty slots)
+                           └─ SellProductConfigurePrioritySession (record the priority master switch and strict policy)
                                 └─ SellProductInitializeOperatorSession (initialize plans and locks)
                                      └─ SellProductRegisterLocation{LocationId} × N (fixed chain; skip inactive outposts)
                                           └─ SellProductOperatorSessionReady
                                                └─ SellProductLoop         (begin region traversal)
 ```
 
-The twelve reserve-rule and priority-item registration nodes are always enabled and form a fixed slot-order chain. Task options override the stable `itemId` only for configured slots. Unconfigured slots keep an empty `item_id`, which the Custom Action treats as a successful no-op. Outpost registration nodes use the same fixed-chain approach: task options set `active` to `true` only for enabled outposts, while inactive outposts are successful no-ops. Neither initialization stage needs progressively shortened `next` candidate lists for every possible enabled-slot combination.
+The six reserve-rule registration nodes are always enabled and form a fixed slot-order chain. Task options override the stable `itemId` only for configured slots. Unconfigured slots keep an empty `item_id`, which the Custom Action treats as a successful no-op. The next node records the independent priority-selling master switch and whether only preferred products may be sold. Outpost registration nodes use the same fixed-chain approach: task options set `active` to `true` only for enabled outposts, while inactive outposts are successful no-ops. Neither initialization stage needs progressively shortened `next` candidate lists for every possible enabled-slot combination.
 
 `SellProductLoop` always executes regions in the fixed order Valley IV → Wuling. Outposts within each region follow the stable order in the generated model. Disabled regions and outposts are skipped by their entries, so the same enabled set always produces the same selling order. A region entry uses SceneManager to open outpost management, prepares the operator cache, then executes each outpost through `[JumpBack]`:
 
 ```text
 SellProductLoop                                      (Regional Development main loop)
   ├─ SellProductValleyIVSell                         (enter Valley IV outpost management)
-  │    ├─ [Anchor]SellProductValleyIVPrepareOperatorCache (prepare operator cache)
+  │    ├─ SellProductValleyIVInitializePrioritySession
+  │    │    └─ SellProductValleyIVRegisterPriorityItem{1..6} (activate regional priority table)
+  │    ├─ SellProductValleyIVPrepareOperatorCache    (prepare operator cache)
   │    └─ [JumpBack]SellProductRefugeeCamp → SellProductInfraStation
   │       → SellProductReconstructionHQ
   │         (execute three outposts through JumpBack)
   ├─ SellProductWulingSell                           (enter Wuling outpost management)
-  │    ├─ [Anchor]SellProductWulingPrepareOperatorCache (prepare/reuse operator cache)
+  │    ├─ SellProductWulingInitializePrioritySession
+  │    │    └─ SellProductWulingRegisterPriorityItem{1..6} (activate regional priority table)
+  │    ├─ SellProductWulingPrepareOperatorCache      (prepare/reuse operator cache)
   │    └─ [JumpBack]SellProductSkyKingFlatsConstructionSite
   │       → SellProductCardiacRemediationStation → SellProductXiranflowCloudseederStation
   │         (execute three outposts through JumpBack)
@@ -59,7 +63,7 @@ SellProduct{LocationId}                              (recognize/enter the target
                                      └─ [Anchor]SellProductAfterSellOperatorTarget
 ```
 
-When outpost management is locked, `SellProductOutpostLocked` returns to the regional loop. If submitted aid exceeds the outpost's voucher exchange limit, `SellProductAidQuotaExceededStop` stops the entire task. The limit dialog is not confirmed automatically.
+When outpost management is locked, SceneManager fails to enter it and stops the task. If submitted aid exceeds the outpost's voucher exchange limit, `SellProductAidQuotaExceededStop` stops the entire task. The limit dialog is not confirmed automatically.
 
 ## Automatic Operator Rules
 
@@ -161,9 +165,9 @@ A missing selling target or failed scan stops the task to avoid selling under th
 2. Unit price descending;
 3. Stable source order for ties.
 
-The task provides a priority-selling switch that is disabled by default. Enabling it expands six priority slots that directly adjust this list. Configured items move ahead of the default order from slot 1 through 6. Items unavailable at the current outpost are skipped, duplicate selections keep only the earliest slot, and all remaining items retain the default order above.
+The task provides a priority-selling master switch that is disabled by default and independent of the region selling switches. Enabling it expands “Sell Priority Products Only” plus separate Valley IV and Wuling priority switches; each region then exposes six slots listing only items sold by at least one outpost in that region. The master switch only controls whether these settings affect runtime ordering; it neither clears regional selections nor enables or disables selling in any region. On entering a region, Pipeline replaces both the active-region flag and priority table with that region's settings. By default, configured items move ahead of the default order from slot 1 through 6, duplicate selections keep only the earliest slot, and all remaining items retain the default order above. In strict-priority mode, only regions whose regional priority switch is also enabled are restricted to explicitly configured items available at the current outpost; regions without regional priority enabled continue selling in default order. An enabled region with no applicable selections ends normally after two stable empty-candidate observations. Switching regions preserves the task-wide out-of-stock set and each outpost's attempted items.
 
-During execution, after entry into each outpost is confirmed, the UI reports that outpost's selling-operator target, post-sale production-assignment target, effective selling order, items excluded because they were already confirmed out of stock during this task, and applicable reserve rules; unlisted items are sold without a reserve. It then reports whether the operator was actually kept or switched, the currently selected goods, and completed trades. When the current outpost newly confirms an out-of-stock item, the UI immediately reports the item and outpost names. For an operator assigned elsewhere, the log reports whether the source outpost is managed by this run; protected candidates also report exclusion and replanning reasons. A new plan produced by a complete scan reports the outpost, purpose, and selected operator. The log also reports an unavailable selling operator, operator-scan failures, and skipped post-sale assignment when no production operator is available. Every UI message in the task uses the current client language.
+During execution, enabling “Sell Priority Products Only” first makes the UI report that other products will be skipped and that the setting applies only to regions with regional priority selling enabled. After entry into each outpost is confirmed, the UI reports that outpost's selling-operator target, post-sale production-assignment target, effective selling order, items excluded because they were already confirmed out of stock during this task, items configured by the user as never sell, and applicable reserve rules. Unlisted items are sold without a reserve in the default mode or when the current region's priority settings are disabled; they are omitted only when strict-priority mode and the current region's priority settings are both enabled. It then reports whether the operator was actually kept or switched, the currently selected goods, and completed trades. When the current outpost newly confirms an out-of-stock item, the UI immediately reports the item and outpost names. For an operator assigned elsewhere, the log reports whether the source outpost is managed by this run; protected candidates also report exclusion and replanning reasons. A new plan produced by a complete scan reports the outpost, purpose, and selected operator. The log also reports an unavailable selling operator, operator-scan failures, and skipped post-sale assignment when no production operator is available. Every UI message in the task uses the current client language.
 
 Locked goods are absent from the current screen and are skipped naturally. There is no fixed sell-attempt limit. Each round follows this flow:
 
@@ -196,11 +200,12 @@ The loop ends only when:
 
 An empty OCR result does not mean “no remaining goods.” Out-of-stock items remain in the stable recognized set but are no longer candidates. Zero stock, a successful trade, or a reserve-based skip continues to the next round.
 
-Independent reserve rules provide six slots, each keyed by stable `itemId`:
+Independent reserve rules provide six slots. Each stable `itemId` can use either **Keep Specified Quantity** or **Never Sell**:
 
 - Without a matching rule, BetterSliding uses the default sell-all behavior.
-- With a matching rule, `TargetReverse` sells only stock above the reserve.
+- **Keep Specified Quantity** uses `TargetReverse` to sell only stock above the reserve.
 - If stock is not above the reserve, `SellProductSkipToNextSellLoop` skips the trade.
+- **Never Sell** excludes the item during selection, before switching goods, and does not report it as out of stock. Internally it uses quantity `-1`; users do not enter this sentinel value.
 - Later slots override earlier slots for the same item. Quantity `0` means no reserve.
 
 ## Generator

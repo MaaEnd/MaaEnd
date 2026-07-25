@@ -19,15 +19,19 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]DailyEventGoToHongYun", // 宏运连连乐不依赖红点,所以不会进入通用识别中
-            "[JumpBack]DailyEventGoTo",
+            "[JumpBack]DailyEventGoToByRedDot",
+            "[JumpBack]DailyEventGoToByNew",
             "[JumpBack]DailyEventSwipe",
             "DailyEventFinish"
         ]
     },
-    "DailyEventGoTo": {
-        "desc": "进入未读活动（动态识别入口名）",
+    "DailyEventGoToByRedDot": {
+        "desc": "进入未读活动（红点；消费性：attach.visited 排除已点入口）",
         "recognition": "Custom",
-        "custom_recognition": "DailyEventGoToRecognition",
+        "custom_recognition": "ExpendableRecognition",
+        "custom_recognition_param": {
+            "candidate": "DailyEventGoToCandidateByRedDot"
+        },
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -39,23 +43,31 @@
             "visited": []
         }
     },
+    "DailyEventGoToByNew": {
+        "desc": "进入未读活动（NEW；与红点 GoTo 共享 visited）",
+        "recognition": "Custom",
+        "custom_recognition": "ExpendableRecognition",
+        "custom_recognition_param": {
+            "candidate": "DailyEventGoToCandidateByNew",
+            "visited_node": "DailyEventGoToByRedDot"
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DailyEventGoToFinish"
+        ]
+    },
     "DailyEventGoToFinish": {
         "desc": "进入未读活动完成",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "Or",
             "param": {
-                "roi": "DailyEventGoTo",
-                // 注意避免x轴<0越界
-                "roi_offset": [
-                    -20,
-                    -50,
-                    20,
-                    100
-                ],
-                "template": [
-                    "DailyRewards/Event/EventSwitchSuccess.png"
-                ],
-                "threshold": 0.9
+                "any_of": [
+                    "DailyEventGoToFinishByRedDot",
+                    "DailyEventGoToFinishByNew"
+                ]
             }
         },
         "pre_delay": 0,
@@ -80,6 +92,46 @@
             "DailyEventUnreadGiftEvent",
             "DailyEventUnreadUnknown"
         ]
+    },
+    "DailyEventGoToFinishByRedDot": {
+        "desc": "校验红点入口切换成功",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "DailyEventGoToByRedDot",
+                // 注意避免x轴<0越界
+                "roi_offset": [
+                    -20,
+                    -50,
+                    20,
+                    100
+                ],
+                "template": [
+                    "DailyRewards/Event/EventSwitchSuccess.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "DailyEventGoToFinishByNew": {
+        "desc": "校验 NEW 入口切换成功",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "DailyEventGoToByNew",
+                // 注意避免x轴<0越界
+                "roi_offset": [
+                    -20,
+                    -50,
+                    20,
+                    100
+                ],
+                "template": [
+                    "DailyRewards/Event/EventSwitchSuccess.png"
+                ],
+                "threshold": 0.9
+            }
+        }
     },
     "DailyEventSwipe": {
         "desc": "滑动一次",
@@ -124,15 +176,15 @@
         }
     },
     "DailyEventRecognitionRedDot": {
-        "desc": "识别活动界面的红点",
+        "desc": "识别活动界面红点",
         "recognition": {
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    21,
-                    100,
-                    211,
-                    530
+                    171,
+                    78,
+                    61,
+                    627
                 ],
                 "method": 40,
                 "lower": [
@@ -150,18 +202,44 @@
             }
         }
     },
+    "DailyEventRecognitionNewColor": {
+        "desc": "识别活动列表黄色 NEW 标",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    171,
+                    78,
+                    61,
+                    627
+                ],
+                "method": 40,
+                "lower": [
+                    27,
+                    200,
+                    200
+                ],
+                "upper": [
+                    30,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 40
+            }
+        }
+    },
     "DailyEventRecognitionNew": {
-        "desc": "识别活动界面的新提示",
-        "recognition": "OCR",
-        "roi": [
-            21,
-            100,
-            211,
-            530
-        ],
-        "expected": [
-            "NEW"
-        ]
+        "desc": "在黄标上 OCR 识别 NEW",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "DailyEventRecognitionNewColor",
+                "expected": [
+                    "NEW"
+                ]
+            }
+        }
     },
     "DailyEventRecognitionItemTextByRedDot": {
         "desc": "红点左侧入口名（至少3字，可由 Go 覆盖 expected）",
@@ -183,7 +261,7 @@
         }
     },
     "DailyEventRecognitionItemTextByNew": {
-        "desc": "NEW左侧入口名（至少3字，可由 Go 覆盖 expected）",
+        "desc": "NEW 左侧入口名（至少3字，可由 Go 覆盖 expected）",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -202,7 +280,7 @@
         }
     },
     "DailyEventGoToCandidateByRedDot": {
-        "desc": "红点 ∧ 左侧入口名",
+        "desc": "未读活动入口候选：红点 ∧ 左侧入口名",
         "recognition": "And",
         "all_of": [
             "DailyEventRecognitionRedDot",
@@ -211,20 +289,13 @@
         "box_index": 1
     },
     "DailyEventGoToCandidateByNew": {
-        "desc": "NEW ∧ 左侧入口名",
+        "desc": "未读活动入口候选：黄标 ∧ NEW ∧ 左侧入口名",
         "recognition": "And",
         "all_of": [
+            "DailyEventRecognitionNewColor",
             "DailyEventRecognitionNew",
             "DailyEventRecognitionItemTextByNew"
         ],
-        "box_index": 1
-    },
-    "DailyEventGoToCandidate": {
-        "desc": "未读活动入口候选：红点入口或NEW入口",
-        "recognition": "Or",
-        "any_of": [
-            "DailyEventGoToCandidateByRedDot",
-            "DailyEventGoToCandidateByNew"
-        ]
+        "box_index": 2
     }
 }

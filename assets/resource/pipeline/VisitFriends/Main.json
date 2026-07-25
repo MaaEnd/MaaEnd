@@ -54,6 +54,19 @@
         },
         "next": [
             "VisitFriendsFull",
+            "VisitFriendsWaitFriendNameLoaded"
+        ]
+    },
+    "VisitFriendsWaitFriendNameLoaded": {
+        "desc": "等待好友列表项与好友名加载完成（进船按钮 ∧ 含 # 的好友名）后再进入扫描",
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsRecognitionItemWithNameForScroll"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "VisitFriendsMenuScan"
         ]
     },

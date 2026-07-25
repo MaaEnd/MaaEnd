@@ -12,17 +12,23 @@ import (
 
 const reserveSessionActionName = "SellProductReserveSession"
 
+// reserveBlacklistQuantity 是任务配置中“永不售卖”的唯一哨兵值。
+// 仅接受 -1，避免把其他负数静默解释为有效规则。
+const reserveBlacklistQuantity = -1
+
 const (
 	reserveOperationReset    = "reset"
 	reserveOperationRegister = "register"
 	reserveOperationSelect   = "select"
 	reserveOperationApply    = "apply"
+	reserveOperationSatisfy  = "satisfy"
 )
 
 var (
-	reserveSessionMu sync.Mutex
-	reserveRules     = map[string]int{}
-	reserveSelected  string
+	reserveSessionMu      sync.Mutex
+	reserveRules          = map[string]int{}
+	reserveSatisfiedItems = map[string]struct{}{}
+	reserveSelected       string
 )
 
 type reserveSessionActionParam struct {
@@ -95,6 +101,14 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			return false
 		}
 		itemID, quantity, configured := selectedReserveRule()
+		// 黑名单应在选货识别阶段被排除；若仍到达滑块，说明运行期状态违背契约。
+		// 此处宁可停止当前流程，也不能回退到默认“全部售卖”。
+		if quantity == reserveBlacklistQuantity {
+			log.Error().Str("component", reserveSessionActionName).
+				Str("item_id", itemID).
+				Msg("blacklisted item reached reserve rule application")
+			return false
+		}
 		if err := ctx.OverridePipeline(buildReserveSlidingOverride(param.SlidingNode, quantity, configured)); err != nil {
 			log.Error().Err(err).
 				Str("component", reserveSessionActionName).
@@ -108,6 +122,24 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			Bool("configured", configured).
 			Str("sliding_node", param.SlidingNode).
 			Msg("reserve rule applied")
+		return true
+	case reserveOperationSatisfy:
+		itemID, quantity, marked, ok := markSelectedReserveSatisfied()
+		if !ok {
+			log.Error().Str("component", reserveSessionActionName).
+				Str("item_id", itemID).
+				Int("quantity", quantity).
+				Msg("cannot satisfy unconfigured reserve rule")
+			return false
+		}
+		log.Info().Str("component", reserveSessionActionName).
+			Str("item_id", itemID).
+			Int("quantity", quantity).
+			Bool("marked", marked).
+			Msg("reserve target satisfied for current task")
+		if marked {
+			printRuntimeReserveSatisfied(ctx, itemID, quantity)
+		}
 		return true
 	default:
 		return false
@@ -123,10 +155,10 @@ func parseReserveSessionActionParam(raw string) (*reserveSessionActionParam, err
 	param.ItemID = strings.TrimSpace(param.ItemID)
 	param.SlidingNode = strings.TrimSpace(param.SlidingNode)
 	switch param.Operation {
-	case reserveOperationReset:
+	case reserveOperationReset, reserveOperationSatisfy:
 	case reserveOperationRegister:
-		if param.Quantity < 0 {
-			return nil, fmt.Errorf("quantity must not be negative")
+		if param.Quantity < reserveBlacklistQuantity {
+			return nil, fmt.Errorf("quantity must be -1 or greater")
 		}
 	case reserveOperationSelect:
 		if param.ItemID == "" {
@@ -173,9 +205,37 @@ func parseReserveItemIDAttach(raw string, nodeName string) (string, error) {
 func resetReserveSession() {
 	reserveSessionMu.Lock()
 	reserveRules = map[string]int{}
+	reserveSatisfiedItems = map[string]struct{}{}
 	reserveSelected = ""
 	reserveSessionMu.Unlock()
 	resetPrioritySelectionSession()
+}
+
+// markSelectedReserveSatisfied 在 BetterSliding 确认无需交易，或可达目标的交易成功确认后，
+// 将当前物品标记为本次任务无需再次处理。返回 marked=false 表示该物品此前已标记。
+func markSelectedReserveSatisfied() (itemID string, quantity int, marked bool, ok bool) {
+	reserveSessionMu.Lock()
+	defer reserveSessionMu.Unlock()
+	itemID = reserveSelected
+	quantity, exists := reserveRules[itemID]
+	if itemID == "" || !exists || quantity <= 0 {
+		return itemID, quantity, false, false
+	}
+	_, exists = reserveSatisfiedItems[itemID]
+	reserveSatisfiedItems[itemID] = struct{}{}
+	return itemID, quantity, !exists, true
+}
+
+// reserveSatisfiedItemsSnapshot 返回本次任务已经达到保留目标的物品集合。
+// 该状态与用户黑名单、运行期缺货分别维护，避免混淆排除原因。
+func reserveSatisfiedItemsSnapshot() map[string]struct{} {
+	reserveSessionMu.Lock()
+	defer reserveSessionMu.Unlock()
+	satisfied := make(map[string]struct{}, len(reserveSatisfiedItems))
+	for itemID := range reserveSatisfiedItems {
+		satisfied[itemID] = struct{}{}
+	}
+	return satisfied
 }
 
 // registerReserveRule 返回该物品是否已存在规则。后注册的槽位覆盖先注册的槽位。
@@ -195,6 +255,20 @@ func reserveRulesSnapshot() map[string]int {
 		snapshot[itemID] = quantity
 	}
 	return snapshot
+}
+
+// reserveBlacklistedItemsSnapshot 返回本次任务明确配置为永不售卖的物品集合。
+// 黑名单与运行期缺货分别维护，避免用户配置被错误记录为缺货。
+func reserveBlacklistedItemsSnapshot() map[string]struct{} {
+	reserveSessionMu.Lock()
+	defer reserveSessionMu.Unlock()
+	blacklisted := make(map[string]struct{})
+	for itemID, quantity := range reserveRules {
+		if quantity == reserveBlacklistQuantity {
+			blacklisted[itemID] = struct{}{}
+		}
+	}
+	return blacklisted
 }
 
 func setSelectedReserveItem(itemID string) {

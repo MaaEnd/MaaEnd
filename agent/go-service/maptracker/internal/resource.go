@@ -72,6 +72,17 @@ func (m *MapCache) GetIntegralArray() minicv.IntegralArray {
 	return *m.cachedIntegralArray
 }
 
+// PixelTransform returns the coordinate transform that maps map coordinates
+// to pixel positions in the scaled map image at the given scale.
+func (m MapCache) PixelTransform(scale float64) LinearTransform {
+	return LinearTransform{
+		ScaleX:  scale,
+		ScaleY:  scale,
+		OffsetX: -float64(m.OffsetX) * scale,
+		OffsetY: -float64(m.OffsetY) * scale,
+	}
+}
+
 // InitRawMaps initializes global raw maps cache exactly once.
 func (r *MapTrackerResource) InitRawMaps(ctx *maa.Context) {
 	r.RawMapsOnce.Do(func() {

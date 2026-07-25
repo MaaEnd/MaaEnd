@@ -251,7 +251,7 @@ var (
 
 func (a *CharacterMoveToTargetNotFoundAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	targetNotFoundCounter++
-	if targetNotFoundCounter > 15 {
+	if targetNotFoundCounter > 30 {
 		log.Warn().
 			Int("counter", targetNotFoundCounter).
 			Str("component", "CharacterController").

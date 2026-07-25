@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"time"
 
+	internal "github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/internal"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -26,7 +27,7 @@ type MapTrackerTowardParam struct {
 	MapName string `json:"map_name,omitempty"`
 	// Target is the map coordinate the player should face toward.
 	// At least one of Angle and Target must be provided.
-	Target *[2]float64 `json:"target,omitempty"`
+	Target *internal.Point `json:"target,omitempty"`
 	// RotationThreshold is the maximum allowed angle difference in degrees to treat the player as
 	// already facing the target orientation.
 	RotationThreshold float64 `json:"rotation_threshold,omitempty"`
@@ -137,11 +138,11 @@ func (a *MapTrackerToward) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			if param.Angle != nil {
 				targetRot = ((int(math.Round(*param.Angle)) % 360) + 360) % 360
 			} else {
-				targetRot = calcTargetRotation(result.X, result.Y, param.Target[0], param.Target[1])
+				targetRot = int(math.Round(result.Loc.AngleTo(*param.Target)))
 			}
 		}
 
-		deltaRot := calcDeltaRotation(curRot, targetRot)
+		deltaRot := internal.DeltaRotation(curRot, targetRot)
 		absDeltaRot := math.Abs(float64(deltaRot))
 		log.Debug().Int("curRot", curRot).Int("targetRot", targetRot).Float64("deltaRot", float64(deltaRot)).Msg("Adjusting orientation")
 
@@ -188,7 +189,7 @@ func (a *MapTrackerToward) parseParam(paramStr string) (*MapTrackerTowardParam, 
 		return nil, fmt.Errorf("angle contains invalid value")
 	}
 	if param.Target != nil {
-		if math.IsNaN(param.Target[0]) || math.IsInf(param.Target[0], 0) || math.IsNaN(param.Target[1]) || math.IsInf(param.Target[1], 0) {
+		if !param.Target.IsValid() {
 			return nil, fmt.Errorf("target contains invalid coordinate")
 		}
 	}

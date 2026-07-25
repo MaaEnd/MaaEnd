@@ -14,7 +14,7 @@ import re
 import json
 import numpy as np
 from collections import defaultdict
-from _internal.core_utils import _R, _G, _Y, _C, _0, Drawer, MapName, cv2
+from _internal.core_utils import _R, _G, _Y, _C, _0, MapName, alpha_composite, cv2
 from _internal.zmdmap_schemas import (
     EntitiesTable,
     LevelLayoutMetaData,
@@ -731,13 +731,12 @@ def cmd_attach_icons(
         if img.ndim == 2 or img.shape[2] == 3:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2BGRA)
 
-        drawer = Drawer(img)
         map_placed = 0
         for entity in level.categories.get("special", []):
             if entity.key_name != CAMPFIRE_KEY_NAME:
                 continue
             px, py = (int(round(value)) for value in entity.map_location)
-            drawer.paste(icon, (px - iw // 2, py - ih // 2), with_alpha=True)
+            alpha_composite(img, icon, (px - iw // 2, py - ih // 2))
             map_placed += 1
 
         cv2.imwrite(os.path.join(output_dir, fname), img)

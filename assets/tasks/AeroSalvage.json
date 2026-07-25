@@ -1,0 +1,17 @@
+{
+    "task": [
+        {
+            "name": "AeroSalvage",
+            "label": "$task.AeroSalvage.label",
+            "entry": "AeroSalvageMain",
+            "description": "$task.AeroSalvage.description",
+            "controller": [
+                "Win32-Front",
+                "Wlroots"
+            ],
+            "group": [
+                "open_world"
+            ]
+        }
+    ]
+}

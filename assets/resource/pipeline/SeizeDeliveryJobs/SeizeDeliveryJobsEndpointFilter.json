@@ -20,23 +20,20 @@
             -1,
             -1
         ], // 必须覆写此字段
-        "post_wait_freezes": {
-            "time": 2000,
-            "target": [
-                2,
-                164,
-                264,
-                103
-            ]
-        }, // 等待查看位置的大地图界面弹出
         "next": [
             "SeizeDeliveryJobsEndpointFilter"
         ]
     },
     "SeizeDeliveryJobsEndpointFilter": {
-        "desc": "终点筛选入口",
+        "desc": "检查地图已打开后，按照地图区域筛选终点",
         "enabled": false,
+        "recognition": "Or",
+        "any_of": [
+            "__SeizeDeliveryJobsRecoWulingDepotNode"
+        ],
+        "inverse": true, // 如果*不在*仓储管理页面时，视为地图已经打开
         "pre_delay": 0,
+        "post_wait_freezes": 500,
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsEndpointFilterOwl",

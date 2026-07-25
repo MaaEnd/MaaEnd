@@ -35,8 +35,9 @@ func buildItemPriorityGroups(data *sellProductSelectionDataFile) (map[string][]i
 }
 
 // prioritizeItemGroups 将用户指定物品按槽位顺序移到现有动态优先级之前。
-// 不在当前据点的物品会被跳过，其余物品保持原有稀有度、单价排序。
-func prioritizeItemGroups(groups []itemPriorityGroup, preferred []string) []itemPriorityGroup {
+// 不在当前据点的物品会被跳过；onlyPreferred 为 true 时只保留明确配置的物品，
+// 否则其余物品继续保持原有稀有度、单价排序。
+func prioritizeItemGroups(groups []itemPriorityGroup, preferred []string, onlyPreferred bool) []itemPriorityGroup {
 	result := make([]itemPriorityGroup, 0, len(groups))
 	groupsByID := make(map[string]itemPriorityGroup, len(groups))
 	for _, group := range groups {
@@ -54,6 +55,9 @@ func prioritizeItemGroups(groups []itemPriorityGroup, preferred []string) []item
 		result = append(result, group)
 		added[itemID] = struct{}{}
 	}
+	if onlyPreferred {
+		return result
+	}
 	for _, group := range groups {
 		if _, exists := added[group.ItemID]; exists {
 			continue
@@ -64,14 +68,16 @@ func prioritizeItemGroups(groups []itemPriorityGroup, preferred []string) []item
 	return result
 }
 
-// findPriorityItemMatch 先还原尚未提交的 pending 货品，再跳过据点内已尝试和任务内缺货物品，
-// 按 groups 顺序选择最高优先级命中。
+// findPriorityItemMatch 先还原尚未提交的 pending 货品，再跳过据点内已尝试、
+// 任务内缺货、用户黑名单和已满足保留量的物品，按 groups 顺序选择最高优先级命中。
 // recognized 记录本帧稳定识别到的所有已知货品，供耗尽判定使用。
 func findPriorityItemMatch(
 	ocrItems []ocrItem,
 	groups []itemPriorityGroup,
 	attempted map[string]struct{},
 	outOfStock map[string]struct{},
+	blacklisted map[string]struct{},
+	reserveSatisfied map[string]struct{},
 	pending string,
 ) (*matchResult, string, []string) {
 	matches := make(map[string]*matchResult, len(groups))
@@ -97,6 +103,12 @@ func findPriorityItemMatch(
 			continue
 		}
 		if _, unavailable := outOfStock[group.ItemID]; unavailable {
+			continue
+		}
+		if _, excluded := blacklisted[group.ItemID]; excluded {
+			continue
+		}
+		if _, satisfied := reserveSatisfied[group.ItemID]; satisfied {
 			continue
 		}
 		if match := matches[group.ItemID]; match != nil {

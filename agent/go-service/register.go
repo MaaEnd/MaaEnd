@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/accountswitch"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/aerosalvage"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoecofarm"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autosell"
@@ -15,6 +16,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/autoalt"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/charactercontroller"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/clearhitcount"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expendable"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expressionrecognition"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/failurecollector"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/falseaction"
@@ -25,7 +27,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/schedule"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dijiangrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
@@ -42,7 +43,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/processcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/taskfail"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/visitfriends"
 	webevent202605 "github.com/MaaXYZ/MaaEnd/agent/go-service/webevent/202605"
 	"github.com/rs/zerolog/log"
 )
@@ -65,6 +65,7 @@ func registerAll() {
 	pipelineoverride.Register()
 	expressionrecognition.Register()
 	listcomplete.Register()
+	expendable.Register()
 	attachregex.Register()
 	autoalt.Register()
 	charactercontroller.Register()
@@ -75,19 +76,18 @@ func registerAll() {
 
 	// Business Custom
 	accountswitch.Register()
+	aerosalvage.Register()
 	captureuid.Register()
 	autosell.Register()
 	blueprintimport.Register()
 	puzzle.Register()
 	bettersliding.Register()
 	essencefilter.Register()
-	dailyrewards.Register()
 	dijiangrewards.Register()
 	maptracker.Register()
 	batchaddfriends.Register()
 	autoecofarm.Register()
 	autofight.Register()
-	visitfriends.Register()
 	scenemanager.Register()
 	seizedeliveryjobs.Register()
 	autostockstaple.Register()

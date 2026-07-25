@@ -390,7 +390,6 @@ struct NaviParamInput
     std::string nav_file_;
     double navmesh_snap_radius_ = 5.0;
     double snap_radius_ = 5.0;
-    double navmesh_max_cost_ = 0.0;
     NaviActionListInput action_;
     NaviActionListInput actions_;
     double x_ = 0.0;
@@ -423,7 +422,6 @@ struct NaviParamInput
         MEO_OPT MEO_KEY("nav_file") nav_file_,
         MEO_OPT MEO_KEY("navmesh_snap_radius") navmesh_snap_radius_,
         MEO_OPT MEO_KEY("snap_radius") snap_radius_,
-        MEO_OPT MEO_KEY("navmesh_max_cost") navmesh_max_cost_,
         MEO_OPT MEO_KEY("action") action_,
         MEO_OPT MEO_KEY("actions") actions_,
         MEO_OPT MEO_KEY("x") x_,
@@ -501,7 +499,6 @@ NaviParam build_navi_param(const NaviParamInput& input)
     param.arrival_timeout = input.arrival_timeout_;
     param.sprint_threshold = input.sprint_threshold_;
     param.enable_local_driver = input.enable_local_driver_;
-    param.navmesh_max_cost = input.navmesh_max_cost_;
 
     if (input.has_navmesh_file_) {
         param.navmesh_file = input.navmesh_file_;

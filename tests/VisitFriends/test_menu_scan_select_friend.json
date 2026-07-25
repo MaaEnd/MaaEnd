@@ -1,0 +1,29 @@
+{
+    "configs": {
+        "name": "(Win32-官服)拜访好友列表选友",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            // 可见名「不想起名字#9203」：备注 OCR 反例；普通名与滚动名正例
+            // 不测 TargetFriendOpen*：其 And 依赖 ExpendableRecognition，节点测试无 Go Agent
+            "name": "自己：普通名与滚动名可命中（备注名不应命中）",
+            "image": "拜访好友_好友列表_自己.png",
+            "hits": [
+                "VisitFriendsRecognitionItemWithName",
+                "VisitFriendsRecognitionItemWithNameForScroll"
+            ]
+        },
+        {
+            // 可见名「测试(不想起名字#9203)」：备注名与普通名、滚动名均可
+            "name": "自己备注：备注名与普通名、滚动名可命中",
+            "image": "拜访好友_好友列表_自己备注.png",
+            "hits": [
+                "VisitFriendsRecognitionItemWithRemark",
+                "VisitFriendsRecognitionItemWithName",
+                "VisitFriendsRecognitionItemWithNameForScroll"
+            ]
+        }
+    ]
+}

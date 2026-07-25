@@ -180,7 +180,7 @@ func resolveButtonHelperNode(nextNode string) string {
 	}
 }
 
-func buildExceedingOverrideEnable(nodeName string, enabled bool) map[string]any {
+func buildNodeEnableOverride(nodeName string, enabled bool) map[string]any {
 	return map[string]any{
 		nodeName: map[string]any{
 			"enabled": enabled,

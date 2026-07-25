@@ -708,10 +708,8 @@ bool NavigationStateMachine::HandleDynamicReplanRequest(const char* reason)
     if (TryApplyDynamicOverlayToNextAnchor(reason, false)) {
         return true;
     }
-    if (session_->HasCurrentWaypoint() && session_->CurrentWaypoint().action == ActionType::NAVMESH) {
-        return FailNavigation("dynamic_replan_failed", "Dynamic navmesh replan failed on required NAVMESH waypoint.", 0.0, 0.0, 0);
-    }
 
+    // 单次重规划失败不终止导航:退回当前路线继续走,持续无进展由卡死恢复的各级超时收口
     runtime_state_.dynamic_replan_requested = false;
     runtime_state_.route.Reset();
     session_->ResetProgress();

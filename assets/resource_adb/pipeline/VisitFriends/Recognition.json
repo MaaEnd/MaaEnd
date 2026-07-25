@@ -7,14 +7,34 @@
             0
         ]
     },
+    "VisitFriendsRecognitionItemOnline": {
+        "roi_offset": [
+            -948,
+            23,
+            230,
+            46
+        ]
+    },
     "VisitFriendsRecognitionItemNameByEnterButton": {
         "recognition": {
             "param": {
                 "roi_offset": [
-                    -956,
-                    -24,
-                    259,
-                    5
+                    -6,
+                    -76,
+                    236,
+                    19
+                ]
+            }
+        }
+    },
+    "VisitFriendsRecognitionItemNameRemarkByEnterButton": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -6,
+                    -76,
+                    236,
+                    19
                 ]
             }
         }
@@ -31,5 +51,21 @@
                 ]
             }
         }
+    },
+    "VisitFriendsRecognitionItemEnterButtonByNameRemark": {
+        "roi_offset": [
+            802,
+            -8,
+            27,
+            83
+        ]
+    },
+    "VisitFriendsRecognitionItemEnterButtonByName": {
+        "roi_offset": [
+            802,
+            -8,
+            27,
+            83
+        ]
     }
 }

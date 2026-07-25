@@ -1,5 +1,18 @@
 {
-    "DailyEventGoToFinish": {
+    "DailyEventGoToFinishByRedDot": {
+        "recognition": {
+            "param": {
+                // 注意避免x轴<0越界
+                "roi_offset": [
+                    -50,
+                    -50,
+                    20,
+                    100
+                ]
+            }
+        }
+    },
+    "DailyEventGoToFinishByNew": {
         "recognition": {
             "param": {
                 // 注意避免x轴<0越界
@@ -16,20 +29,48 @@
         "recognition": {
             "param": {
                 "roi": [
-                    21,
-                    100,
-                    260,
-                    530
+                    190,
+                    102,
+                    104,
+                    583
                 ]
             }
         }
     },
-    "DailyEventRecognitionNew": {
-        "roi": [
-            21,
-            100,
-            260,
-            530
-        ]
+    "DailyEventRecognitionNewColor": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    190,
+                    102,
+                    104,
+                    583
+                ]
+            }
+        }
+    },
+    "DailyEventRecognitionItemTextByRedDot": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -214,
+                    -2,
+                    202,
+                    59
+                ]
+            }
+        }
+    },
+    "DailyEventRecognitionItemTextByNew": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -214,
+                    -2,
+                    202,
+                    59
+                ]
+            }
+        }
     }
 }

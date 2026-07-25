@@ -67,8 +67,7 @@
                     "收下禮物",
                     "(?i)Accept\\s*gift",
                     "プレゼントを受け取る",
-                    "收下",
-                    "礼物"
+                    "收下"
                 ]
             }
         },
@@ -286,9 +285,9 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "GiftOperatorGiftSelectedLabelColor",
-                    "GiftOperatorGiftSelectedTextColor",
-                    "GiftOperatorGiftSelectedText"
+                    "GiftOperatorGiftSelectedLabelColor"
+                    //"GiftOperatorGiftSelectedTextColor",
+                    //"GiftOperatorGiftSelectedText"
                 ]
             }
         },
@@ -326,7 +325,50 @@
             }
         },
         "next": [
-            "GiftOperatorClickGift"
+            "GiftOperatorClickGift",
+            "GiftOperatorClickGiftFull"
+        ]
+    },
+    "GiftOperatorClickGiftFull": {
+        "desc": "赠送已满",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    971,
+                    540,
+                    309,
+                    180
+                ],
+                "expected": [
+                    "无法赠送",
+                    "無法贈送",
+                    "Cannot Gift",
+                    "贈れません",
+                    "증정 불가"
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorGiftFullLeave"
+        ]
+    },
+    "GiftOperatorGiftFullLeave": {
+        "desc": "赠送已满离开",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "InWorld",
+            "[JumpBack]GiftOperatorLeave"
         ]
     },
     "GiftOperatorReceiveDialog": {
@@ -395,6 +437,16 @@
         },
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000,
+            "target": [
+                977,
+                145,
+                192,
+                215
+            ]
         },
         "next": [
             "GiftOperatorBranchGift",

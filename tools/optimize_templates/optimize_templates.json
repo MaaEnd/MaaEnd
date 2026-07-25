@@ -237,7 +237,6 @@
     "resource/image/DailyRewards/ClaimDeliveryJobsButton": "ce83a5bf90b5ddd9f8390bc77561536ed1bb3b2b227356293dc117ca4649e1ed",
     "resource/image/DailyRewards/EventRedDot4": "9a0274818f0a2f597c678ff1216815b6d5191d16a491d683cf89f0268d42ded8",
     "resource/image/DailyRewards/ProtocolNewSwitch": "04e2d7cab29acd454d5c8bc59ebf4578b7097eebe67d7e3d425233edb8c32868",
-    "resource/image/SellProduct/SellProductDevelopmentLocked": "c38667d5042efff9da0f9289b5358a3b17bac2fe886ad21e3f75cf3c7274e02c",
     "resource/image/Baker/SessionOptions": "e4d61845de87fcb8022bab33c6d649899c40d5b8684c740ccf9dca421f12c6eb",
     "resource/image/Baker/TaskOptions": "467689bde58630609ddfcd67526088687c8ec05b433cef75b031b2fd21115ebf",
     "resource/image/SellProduct/SellProductCheckHeader": "aa653df23a893c52930f7691111b9a9019ed88cd56c10ad6015b641b69186312",
@@ -945,5 +944,12 @@
     "resource/image/MapTracker/map/indie_dg007_tier_337": "a01915aa0dc5946a6af60f6e1cc99e7fc8a725f9e01a37de60b7639efdb8c581",
     "resource/image/MapTracker/map/indie_dg007_tier_338": "95e1f04fd483a0b2d4e70a35f0b995e0bbf8f96500d06c0395965a20e45af78e",
     "resource/image/MapTracker/map/indie_dg007_tier_335": "721fc3ec64aee7e6bcbafe489c7f172e8ea1e9a470f74a5dc78c4819f7385575",
-    "resource/image/SellProduct/OutpostProsperity": "1137c772c0abb607d0dee90195c98d6c8b5b5fae7a2afa82cb96e5f62390e911"
+    "resource/image/SellProduct/OutpostProsperity": "1137c772c0abb607d0dee90195c98d6c8b5b5fae7a2afa82cb96e5f62390e911",
+    "resource/image/AeroSalvage/PlacementSite3": "28663f1338deebbb58962337d66fab227bffcdf657c10e6a553da4970d47b142",
+    "resource/image/AeroSalvage/Reset": "8417162310f12cd213d7da8aad2f621da67547dc888d5ccb8472c19de276abf4",
+    "resource/image/AeroSalvage/PlacementSite2": "14c0609d368b99ba7c7c067ca7a62629382501321e6e872acd5cc9c5099a3f03",
+    "resource/image/AeroSalvage/Salvage": "7037fad99123f817033590a3186d4135a41b715e0bafe7ba536af97c34485ec7",
+    "resource/image/AeroSalvage/Complete": "978630513ae3135b1d672fca52348fe723a7c692f9ec4fb88e1e0b51e312f1f0",
+    "resource/image/AeroSalvage/PlacementSite1": "e001dfecc026f70a878c9ab7f359ccedb00328904edcc6184f82fc9c70a9a99c",
+    "resource/image/DeliveryJobs/Xiranite": "03fb97de39ef4afb97eae60e47d4bfafef5419b3ef3da28ae0b64c16a3bf4733"
 }

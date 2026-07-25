@@ -86,7 +86,7 @@ func (r *MapTrackerAssertLocation) Run(ctx *maa.Context, arg *maa.CustomRecognit
 	for _, condition := range param.Expected {
 		if result.MapName == condition.MapName {
 			x, y, w, h := condition.Target[0], condition.Target[1], condition.Target[2], condition.Target[3]
-			if result.X >= x && result.X < x+w && result.Y >= y && result.Y < y+h {
+			if result.Loc.InRect(x, y, w, h) {
 				log.Info().
 					Interface("condition", condition).
 					Msg("Location assertion satisfied")
@@ -101,14 +101,13 @@ func (r *MapTrackerAssertLocation) Run(ctx *maa.Context, arg *maa.CustomRecognit
 
 	log.Info().
 		Str("mapName", result.MapName).
-		Float64("x", result.X).
-		Float64("y", result.Y).
+		Interface("current", result.Loc).
 		Interface("expected", param.Expected).
 		Msg("Location assertion not satisfied, no conditions met")
 
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
-		Detail: fmt.Sprintf("Expected hit one of %v, but got map_name=%s, x=%.1f, y=%.1f", param.Expected, result.MapName, result.X, result.Y),
+		Detail: fmt.Sprintf("Expected hit one of %v, but got map_name=%s, x=%.1f, y=%.1f", param.Expected, result.MapName, result.Loc.X, result.Loc.Y),
 	}, false
 }
 

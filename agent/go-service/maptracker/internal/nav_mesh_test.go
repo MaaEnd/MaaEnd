@@ -53,17 +53,17 @@ func TestFindPath(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseNavMesh() error = %v", err)
 	}
-	path, err := findTemporaryPath(mesh, [2]float64{-1, 0}, [2]float64{11, 0})
+	path, err := findTemporaryPath(mesh, Point{X: -1, Y: 0}, Point{X: 11, Y: 0})
 	if err != nil {
 		t.Fatalf("FindPath() error = %v", err)
 	}
 	if len(path) < 3 {
 		t.Fatalf("len(path) = %d, path = %+v", len(path), path)
 	}
-	if path[0] != [2]float64{-1, 0} {
+	if path[0] != (Point{X: -1, Y: 0}) {
 		t.Fatalf("path[0] = %+v", path[0])
 	}
-	if path[len(path)-1] != [2]float64{11, 0} {
+	if path[len(path)-1] != (Point{X: 11, Y: 0}) {
 		t.Fatalf("path last = %+v", path[len(path)-1])
 	}
 }
@@ -73,11 +73,11 @@ func TestFindPathUsesTemporaryVertexConnection(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseNavMesh() error = %v", err)
 	}
-	path, err := findTemporaryPath(mesh, [2]float64{0, 0}, [2]float64{5, 5})
+	path, err := findTemporaryPath(mesh, Point{X: 0, Y: 0}, Point{X: 5, Y: 5})
 	if err != nil {
 		t.Fatalf("FindPath() error = %v", err)
 	}
-	assertNavMeshPath(t, path, [][2]float64{{0, 0}, {5, 5}})
+	assertNavMeshPath(t, path, []Point{{X: 0, Y: 0}, {X: 5, Y: 5}})
 }
 
 func TestFindPathRejectsFarConnectPoints(t *testing.T) {
@@ -85,7 +85,7 @@ func TestFindPathRejectsFarConnectPoints(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseNavMesh() error = %v", err)
 	}
-	if _, err := findTemporaryPath(mesh, [2]float64{-100, 0}, [2]float64{11, 0}); err == nil {
+	if _, err := findTemporaryPath(mesh, Point{X: -100, Y: 0}, Point{X: 11, Y: 0}); err == nil {
 		t.Fatalf("FindPath() error = nil")
 	}
 }
@@ -95,8 +95,8 @@ func TestTemporaryVertexIDsAreNegative(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseNavMesh() error = %v", err)
 	}
-	firstID, first := mesh.AddTemporaryVertex(1, 2, 1.05, 20)
-	secondID, second := mesh.AddTemporaryVertex(3, 4, 1.05, 20)
+	firstID, first := mesh.AddTemporaryVertex(Point{X: 1, Y: 2}, 1.05, 20)
+	secondID, second := mesh.AddTemporaryVertex(Point{X: 3, Y: 4}, 1.05, 20)
 	if firstID != -1 || first.ID != -1 || secondID != -2 || second.ID != -2 {
 		t.Fatalf("unexpected temporary vertices: firstID=%d first=%+v secondID=%d second=%+v", firstID, first, secondID, second)
 	}
@@ -111,9 +111,9 @@ func TestPathConnectPlansSupportThreeTemporaryVertices(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseNavMesh() error = %v", err)
 	}
-	mesh.AddTemporaryVertex(0, 0, 1.05, 20)
-	mesh.AddTemporaryVertex(10, 0, 1.05, 20)
-	mesh.AddTemporaryVertex(11, 0, 1.05, 20)
+	mesh.AddTemporaryVertex(Point{X: 0, Y: 0}, 1.05, 20)
+	mesh.AddTemporaryVertex(Point{X: 10, Y: 0}, 1.05, 20)
+	mesh.AddTemporaryVertex(Point{X: 11, Y: 0}, 1.05, 20)
 	plans := mesh.pathConnectPlans()
 	if len(plans) == 0 {
 		t.Fatalf("pathConnectPlans() returned no plans")
@@ -128,8 +128,8 @@ func TestTemporaryEdgeCostUsesMaxCostFactorBetweenTemporaryVertices(t *testing.T
 	if err != nil {
 		t.Fatalf("ParseNavMesh() error = %v", err)
 	}
-	leftID, _ := mesh.AddTemporaryVertex(0, 0, 1.05, 20)
-	rightID, _ := mesh.AddTemporaryVertex(3, 4, 2.0, 20)
+	leftID, _ := mesh.AddTemporaryVertex(Point{X: 0, Y: 0}, 1.05, 20)
+	rightID, _ := mesh.AddTemporaryVertex(Point{X: 3, Y: 4}, 2.0, 20)
 	if cost := mesh.temporaryEdgeCost(leftID, rightID); cost != 10 {
 		t.Fatalf("temporaryEdgeCost() = %v", cost)
 	}
@@ -160,8 +160,8 @@ E3=S3,D4,B1,C10,F()
 	if err != nil {
 		t.Fatalf("ParseNavMesh() error = %v", err)
 	}
-	leftID, _ := mesh.AddRuntimeVertex(0, 0, 0, 0, NavMeshVertexFlagZipline)
-	rightID, _ := mesh.AddRuntimeVertex(30, 0, 0, 0, NavMeshVertexFlagZipline)
+	leftID, _ := mesh.AddRuntimeVertex(Point{X: 0, Y: 0}, 0, 0, NavMeshVertexFlagZipline)
+	rightID, _ := mesh.AddRuntimeVertex(Point{X: 30, Y: 0}, 0, 0, NavMeshVertexFlagZipline)
 	mesh.AddRuntimeEdge(-100, leftID, 1, true, 0.1, 0)
 	mesh.AddRuntimeEdge(-101, rightID, 4, true, 0.1, 0)
 	mesh.AddRuntimeEdge(-102, leftID, rightID, true, 1, NavMeshEdgeFlagZipline)
@@ -189,7 +189,7 @@ func TestDisableRuntimeZiplineVertex(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseNavMesh() error = %v", err)
 	}
-	ziplineID, _ := mesh.AddRuntimeVertex(5, 0, 0, 0, NavMeshVertexFlagZipline)
+	ziplineID, _ := mesh.AddRuntimeVertex(Point{X: 5, Y: 0}, 0, 0, NavMeshVertexFlagZipline)
 	mesh.AddRuntimeEdge(-100, 1, ziplineID, true, 1, 0)
 	mesh.AddRuntimeEdge(-101, ziplineID, 2, true, 1, 0)
 	mesh.DisableVertex(ziplineID)
@@ -229,14 +229,14 @@ func TestParseNavMeshRejectsInvalidData(t *testing.T) {
 	}
 }
 
-func findTemporaryPath(mesh *NavMesh, start [2]float64, target [2]float64) ([][2]float64, error) {
+func findTemporaryPath(mesh *NavMesh, start, target Point) ([]Point, error) {
 	mesh.ClearTemporaryVertex()
-	startID, _ := mesh.AddTemporaryVertex(start[0], start[1], 1.05, 20)
-	targetID, _ := mesh.AddTemporaryVertex(target[0], target[1], 1.05, 20)
+	startID, _ := mesh.AddTemporaryVertex(start, 1.05, 20)
+	targetID, _ := mesh.AddTemporaryVertex(target, 1.05, 20)
 	return mesh.FindPath(startID, targetID)
 }
 
-func assertNavMeshPath(t *testing.T, actual [][2]float64, expected [][2]float64) {
+func assertNavMeshPath(t *testing.T, actual []Point, expected []Point) {
 	t.Helper()
 	if len(actual) != len(expected) {
 		t.Fatalf("len(path) = %d, path = %+v, expected = %+v", len(actual), actual, expected)
@@ -281,7 +281,7 @@ func TestParseRealNavMesh(t *testing.T) {
 	if !ok {
 		t.Fatalf("known entity vertex not found")
 	}
-	path, err := findTemporaryPath(mesh, [2]float64{vertex.X, vertex.Y}, [2]float64{vertex.X + 1, vertex.Y + 1})
+	path, err := findTemporaryPath(mesh, vertex.Pos, Point{X: vertex.Pos.X + 1, Y: vertex.Pos.Y + 1})
 	if err != nil {
 		t.Fatalf("FindPath() on real navmesh error = %v", err)
 	}

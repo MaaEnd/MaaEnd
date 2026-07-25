@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"image/color"
-	"math"
 	"time"
 
 	maptrackerbigmap "github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/bigmap"
@@ -46,9 +45,9 @@ const (
 // MapTrackerGoalParam represents the custom_action_param for MapTrackerGoal.
 type MapTrackerGoalParam struct {
 	MapTrackerMoveParam
-	Target        *[2]float64 `json:"target,omitempty"`
-	EntityID      *int64      `json:"entity_id,omitempty"`
-	ZiplinePolicy string      `json:"zipline_policy,omitempty"`
+	Target        *internal.Point `json:"target,omitempty"`
+	EntityID      *int64          `json:"entity_id,omitempty"`
+	ZiplinePolicy string          `json:"zipline_policy,omitempty"`
 }
 
 type goalContext struct {
@@ -57,7 +56,7 @@ type goalContext struct {
 	param  *MapTrackerGoalParam
 	ctrl   *maa.Controller
 	mesh   *internal.NavMesh
-	target [2]float64
+	target internal.Point
 }
 
 type ziplinePolicy struct {
@@ -147,7 +146,7 @@ func (a *MapTrackerGoal) parseParam(paramStr string) (*MapTrackerGoalParam, erro
 		return nil, fmt.Errorf("entity_id must be positive")
 	}
 	if param.Target != nil {
-		if math.IsNaN(param.Target[0]) || math.IsInf(param.Target[0], 0) || math.IsNaN(param.Target[1]) || math.IsInf(param.Target[1], 0) {
+		if !param.Target.IsValid() {
 			return nil, fmt.Errorf("target contains invalid coordinate")
 		}
 	}
@@ -160,7 +159,7 @@ func (a *MapTrackerGoal) parseParam(paramStr string) (*MapTrackerGoalParam, erro
 	return &param, nil
 }
 
-func (a *MapTrackerGoal) prepare(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerGoalParam) (*MapTrackerInferResult, *internal.NavMesh, [2]float64, error) {
+func (a *MapTrackerGoal) prepare(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerGoalParam) (*MapTrackerInferResult, *internal.NavMesh, internal.Point, error) {
 	inferMoveParam := &MapTrackerMoveParam{
 		MapName:          param.MapName,
 		MapNameMatchRule: param.MapNameMatchRule,
@@ -171,41 +170,41 @@ func (a *MapTrackerGoal) prepare(ctx *maa.Context, ctrl *maa.Controller, param *
 
 	inferResult, err := doInfer(ctx, ctrl, inferMoveParam)
 	if err != nil {
-		return nil, nil, [2]float64{}, fmt.Errorf("failed to infer current location for MapTrackerGoal: %w", err)
+		return nil, nil, internal.Point{}, fmt.Errorf("failed to infer current location for MapTrackerGoal: %w", err)
 	}
 	if !isMapNameCoreMatch(inferResult.MapName, param.MapName) {
-		return nil, nil, [2]float64{}, fmt.Errorf("current map %q does not match target map %q", inferResult.MapName, param.MapName)
+		return nil, nil, internal.Point{}, fmt.Errorf("current map %q does not match target map %q", inferResult.MapName, param.MapName)
 	}
 
 	mesh, err := internal.LoadNavMesh(param.MapName)
 	if err != nil {
-		return nil, nil, [2]float64{}, fmt.Errorf("failed to load NavMesh for MapTrackerGoal: %w", err)
+		return nil, nil, internal.Point{}, fmt.Errorf("failed to load NavMesh for MapTrackerGoal: %w", err)
 	}
 
 	target, err := a.resolveTarget(mesh, param)
 	if err != nil {
-		return nil, nil, [2]float64{}, fmt.Errorf("failed to resolve MapTrackerGoal target: %w", err)
+		return nil, nil, internal.Point{}, fmt.Errorf("failed to resolve MapTrackerGoal target: %w", err)
 	}
 	return inferResult, mesh, target, nil
 }
 
-func (a *MapTrackerGoal) resolveTarget(mesh *internal.NavMesh, param *MapTrackerGoalParam) ([2]float64, error) {
+func (a *MapTrackerGoal) resolveTarget(mesh *internal.NavMesh, param *MapTrackerGoalParam) (internal.Point, error) {
 	if param.Target != nil {
 		return *param.Target, nil
 	}
 	vertex, ok := mesh.FindVertexByEntityID(*param.EntityID)
 	if !ok {
-		return [2]float64{}, fmt.Errorf("entity_id %d not found in NavMesh", *param.EntityID)
+		return internal.Point{}, fmt.Errorf("entity_id %d not found in NavMesh", *param.EntityID)
 	}
-	return [2]float64{vertex.X, vertex.Y}, nil
+	return vertex.Pos, nil
 }
 
 func (a *MapTrackerGoal) runOrdinaryGoal(goalCtx *goalContext, inferResult *MapTrackerInferResult) bool {
 	mesh := goalCtx.mesh
 	mesh.ClearTemporaryVertex()
 	defer mesh.ClearTemporaryVertex()
-	startID, _ := mesh.AddTemporaryVertex(inferResult.X, inferResult.Y, startPointCostFactor, startPointMCD)
-	targetID, _ := mesh.AddTemporaryVertex(goalCtx.target[0], goalCtx.target[1], endPointCostFactor, endPointMCD)
+	startID, _ := mesh.AddTemporaryVertex(inferResult.Loc, startPointCostFactor, startPointMCD)
+	targetID, _ := mesh.AddTemporaryVertex(goalCtx.target, endPointCostFactor, endPointMCD)
 	path, err := mesh.FindPath(startID, targetID)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to find NavMesh path for MapTrackerGoal")
@@ -213,10 +212,8 @@ func (a *MapTrackerGoal) runOrdinaryGoal(goalCtx *goalContext, inferResult *MapT
 	}
 
 	log.Info().Str("map", goalCtx.param.MapName).
-		Float64("startX", inferResult.X).
-		Float64("startY", inferResult.Y).
-		Float64("targetX", goalCtx.target[0]).
-		Float64("targetY", goalCtx.target[1]).
+		Object("start", inferResult.Loc).
+		Object("target", goalCtx.target).
 		Int("pathCount", len(path)).
 		Msg("MapTrackerGoal path generated")
 
@@ -224,11 +221,11 @@ func (a *MapTrackerGoal) runOrdinaryGoal(goalCtx *goalContext, inferResult *MapT
 }
 
 func (a *MapTrackerGoal) runZiplineGoal(goalCtx *goalContext, inferResult *MapTrackerInferResult) bool {
-	ordinaryPath, err := a.findOrdinaryPathFromLocation(goalCtx, inferResult.X, inferResult.Y)
+	ordinaryPath, err := a.findOrdinaryPathFromLocation(goalCtx, inferResult.Loc)
 	var mustSeePoints [][2]int
 	if err != nil {
 		log.Warn().Err(err).Msg("Failed to find ordinary path before zipline search, using fallback must-see points")
-		mustSeePoints = fallbackMustSeePoints([2]float64{inferResult.X, inferResult.Y}, goalCtx.target)
+		mustSeePoints = fallbackMustSeePoints(inferResult.Loc, goalCtx.target)
 	} else {
 		ordinaryDistance := internal.PathTotalDistance(ordinaryPath)
 		policy := mapTrackerGoalZiplinePolicies[goalCtx.param.ZiplinePolicy]
@@ -261,7 +258,7 @@ func (a *MapTrackerGoal) runZiplineGoal(goalCtx *goalContext, inferResult *MapTr
 			return false
 		}
 
-		pathIDs, path, err := a.findPathFromLocation(goalCtx, current.X, current.Y)
+		pathIDs, path, err := a.findPathFromLocation(goalCtx, current.Loc)
 		if err != nil {
 			log.Warn().Err(err).Int("replan", replan).Msg("Zipline-aware path search failed")
 			return false
@@ -311,9 +308,9 @@ func (a *MapTrackerGoal) handlePathWithoutZiplineEdge(
 	goalCtx *goalContext,
 	onZipline *bool,
 	current **MapTrackerInferResult,
-	path [][2]float64,
+	path []internal.Point,
 	replan int,
-) (shouldRunMove bool, movePath [][2]float64) {
+) (shouldRunMove bool, movePath []internal.Point) {
 	if *onZipline {
 		*onZipline = false
 		*current = a.inferAndGetOffZipline(goalCtx, *current)
@@ -336,7 +333,7 @@ func (a *MapTrackerGoal) approachAndMountZipline(
 	destID int,
 ) bool {
 	sourcePoint, _ := goalCtx.mesh.VertexPoint(sourceID)
-	alreadyAtSource := *onZipline && math.Hypot((*current).X-sourcePoint[0], (*current).Y-sourcePoint[1]) <= ZIPLINE_EXPECTED_DISTANCE
+	alreadyAtSource := *onZipline && (*current).Loc.DistanceTo(sourcePoint) <= ZIPLINE_EXPECTED_DISTANCE
 	if alreadyAtSource {
 		_, ok := goalCtx.mesh.IsZiplineEdge(sourceID, destID)
 		if !ok {
@@ -391,15 +388,15 @@ func (a *MapTrackerGoal) validateZiplineArrival(
 	pathIDs []int,
 	ziplineIndex int,
 	destID int,
-	destPoint [2]float64,
+	destPoint internal.Point,
 ) bool {
 	*current = a.inferOrFallback(goalCtx, *current)
-	if math.Hypot((*current).X-destPoint[0], (*current).Y-destPoint[1]) > ZIPLINE_EXPECTED_DISTANCE {
+	if (*current).Loc.DistanceTo(destPoint) > ZIPLINE_EXPECTED_DISTANCE {
 		goalCtx.mesh.DisableVertex(destID)
 		log.Warn().
 			Int("vertex", destID).
-			Float64("curX", (*current).X).Float64("curY", (*current).Y).
-			Float64("targetX", destPoint[0]).Float64("targetY", destPoint[1]).
+			Object("current", (*current).Loc).
+			Object("target", destPoint).
 			Msg("Zipline arrived at unexpected point, disabling expected point")
 		*onZipline = false
 		*current = a.inferAndGetOffZipline(goalCtx, *current)
@@ -419,7 +416,7 @@ func (a *MapTrackerGoal) validateZiplineArrival(
 	return true
 }
 
-func (a *MapTrackerGoal) runZipline(goalCtx *goalContext, target [2]float64) bool {
+func (a *MapTrackerGoal) runZipline(goalCtx *goalContext, target internal.Point) bool {
 	param := MapTrackerZiplineParam{
 		MapName:          goalCtx.param.MapName,
 		Target:           &target,
@@ -440,10 +437,10 @@ func (a *MapTrackerGoal) runZipline(goalCtx *goalContext, target [2]float64) boo
 	})
 }
 
-func (a *MapTrackerGoal) findPathFromLocation(goalCtx *goalContext, x, y float64) ([]int, [][2]float64, error) {
+func (a *MapTrackerGoal) findPathFromLocation(goalCtx *goalContext, loc internal.Point) ([]int, []internal.Point, error) {
 	goalCtx.mesh.ClearTemporaryVertex()
-	startID, _ := goalCtx.mesh.AddTemporaryVertex(x, y, startPointCostFactor, startPointMCD)
-	targetID, _ := goalCtx.mesh.AddTemporaryVertex(goalCtx.target[0], goalCtx.target[1], endPointCostFactor, endPointMCD)
+	startID, _ := goalCtx.mesh.AddTemporaryVertex(loc, startPointCostFactor, startPointMCD)
+	targetID, _ := goalCtx.mesh.AddTemporaryVertex(goalCtx.target, endPointCostFactor, endPointMCD)
 	pathIDs, err := goalCtx.mesh.FindPathIDs(startID, targetID)
 	if err != nil {
 		return nil, nil, err
@@ -455,15 +452,15 @@ func (a *MapTrackerGoal) findPathFromLocation(goalCtx *goalContext, x, y float64
 	return pathIDs, path, nil
 }
 
-func (a *MapTrackerGoal) findOrdinaryPathFromLocation(goalCtx *goalContext, x, y float64) ([][2]float64, error) {
+func (a *MapTrackerGoal) findOrdinaryPathFromLocation(goalCtx *goalContext, loc internal.Point) ([]internal.Point, error) {
 	goalCtx.mesh.ClearTemporaryVertex()
 	defer goalCtx.mesh.ClearTemporaryVertex()
-	startID, _ := goalCtx.mesh.AddTemporaryVertex(x, y, startPointCostFactor, startPointMCD)
-	targetID, _ := goalCtx.mesh.AddTemporaryVertex(goalCtx.target[0], goalCtx.target[1], endPointCostFactor, endPointMCD)
+	startID, _ := goalCtx.mesh.AddTemporaryVertex(loc, startPointCostFactor, startPointMCD)
+	targetID, _ := goalCtx.mesh.AddTemporaryVertex(goalCtx.target, endPointCostFactor, endPointMCD)
 	return goalCtx.mesh.FindPath(startID, targetID)
 }
 
-func (a *MapTrackerGoal) runFinalGoalMove(goalCtx *goalContext, path [][2]float64) bool {
+func (a *MapTrackerGoal) runFinalGoalMove(goalCtx *goalContext, path []internal.Point) bool {
 	moveParam := goalCtx.param.MapTrackerMoveParam
 	moveParam.Path = path
 	moveParam.MapName = goalCtx.param.MapName
@@ -553,7 +550,7 @@ func (a *MapTrackerGoal) loadRuntimeZiplines(goalCtx *goalContext, mustSeePoints
 
 	ids := make([]int, 0, len(matches))
 	for _, match := range matches {
-		id, _ := goalCtx.mesh.AddRuntimeVertex(match.MapX, match.MapY, 0, 0, internal.NavMeshVertexFlagZipline)
+		id, _ := goalCtx.mesh.AddRuntimeVertex(internal.Point{X: match.MapX, Y: match.MapY}, 0, 0, internal.NavMeshVertexFlagZipline)
 		ids = append(ids, id)
 	}
 	policy := mapTrackerGoalZiplinePolicies[goalCtx.param.ZiplinePolicy]
@@ -616,7 +613,7 @@ func (a *MapTrackerGoal) findBigMapZiplines(goalCtx *goalContext, mustSeePoints 
 	return matches, nil
 }
 
-func (a *MapTrackerGoal) saveDebugImage(goalCtx *goalContext, pathIDs []int, path [][2]float64, ziplineIDs []int, current *MapTrackerInferResult, replan int) {
+func (a *MapTrackerGoal) saveDebugImage(goalCtx *goalContext, pathIDs []int, path []internal.Point, ziplineIDs []int, current *MapTrackerInferResult, replan int) {
 	mapRGBA, err := getCachedPreviewMapRGBA(goalCtx.param.MapName)
 	if err != nil {
 		log.Debug().Err(err).Str("map", goalCtx.param.MapName).Msg("Failed to load map image for MapTrackerGoal debug image")
@@ -632,20 +629,14 @@ func (a *MapTrackerGoal) saveDebugImage(goalCtx *goalContext, pathIDs []int, pat
 	colorCurrent := color.RGBA{0x27, 0xce, 0x60, 0xff}
 	colorTarget := color.RGBA{0xdb, 0x39, 0x2b, 0xff}
 
-	toPixel := func(point [2]float64) (int, int) {
-		return int(math.Round(point[0])), int(math.Round(point[1]))
-	}
-
 	for i := 0; i+1 < len(path); i++ {
-		x1, y1 := toPixel(path[i])
-		x2, y2 := toPixel(path[i+1])
 		lineColor := colorPath
 		if i+1 < len(pathIDs) {
 			if _, ok := goalCtx.mesh.IsZiplineEdge(pathIDs[i], pathIDs[i+1]); ok {
 				lineColor = colorPathZipline
 			}
 		}
-		minicv.ImageDrawLine(canvas, x1, y1, x2, y2, lineColor, 3)
+		minicv.ImageDrawLine(canvas, path[i].IntX(), path[i].IntY(), path[i+1].IntX(), path[i+1].IntY(), lineColor, 3)
 	}
 
 	for _, id := range ziplineIDs {
@@ -656,21 +647,17 @@ func (a *MapTrackerGoal) saveDebugImage(goalCtx *goalContext, pathIDs []int, pat
 		if !ok {
 			continue
 		}
-		x, y := toPixel(point)
-		minicv.ImageDrawFilledCircle(canvas, x, y, 5, colorZipline)
+		minicv.ImageDrawFilledCircle(canvas, point.IntX(), point.IntY(), 5, colorZipline)
 	}
 
 	for _, point := range path {
-		x, y := toPixel(point)
-		minicv.ImageDrawFilledCircle(canvas, x, y, 3, colorPoint)
+		minicv.ImageDrawFilledCircle(canvas, point.IntX(), point.IntY(), 3, colorPoint)
 	}
 
 	if current != nil {
-		x, y := toPixel([2]float64{current.X, current.Y})
-		minicv.ImageDrawFilledCircle(canvas, x, y, 6, colorCurrent)
+		minicv.ImageDrawFilledCircle(canvas, current.Loc.IntX(), current.Loc.IntY(), 6, colorCurrent)
 	}
-	targetX, targetY := toPixel(goalCtx.target)
-	minicv.ImageDrawFilledCircle(canvas, targetX, targetY, 6, colorTarget)
+	minicv.ImageDrawFilledCircle(canvas, goalCtx.target.IntX(), goalCtx.target.IntY(), 6, colorTarget)
 
 	if err := minicv.ImageSaveDebug(canvas, mapTrackerGoalDebugDir, "MapTrackerGoal", 4); err != nil {
 		log.Debug().Err(err).Str("path", mapTrackerGoalDebugDir).Msg("Failed to save MapTrackerGoal debug image")
@@ -679,15 +666,15 @@ func (a *MapTrackerGoal) saveDebugImage(goalCtx *goalContext, pathIDs []int, pat
 	log.Debug().Int("replan", replan).Str("path", mapTrackerGoalDebugDir).Msg("MapTrackerGoal debug image saved")
 }
 
-func fallbackMustSeePoints(start, target [2]float64) [][2]int {
-	mid := [2]float64{(start[0] + target[0]) / 2, (start[1] + target[1]) / 2}
-	return pathToMustSeePoints([][2]float64{start, mid, target})
+func fallbackMustSeePoints(start, target internal.Point) [][2]int {
+	mid := internal.Point{X: (start.X + target.X) / 2, Y: (start.Y + target.Y) / 2}
+	return pathToMustSeePoints([]internal.Point{start, mid, target})
 }
 
-func pathToMustSeePoints(path [][2]float64) [][2]int {
+func pathToMustSeePoints(path []internal.Point) [][2]int {
 	points := make([][2]int, 0, len(path))
 	for _, point := range path {
-		converted := [2]int{int(math.Round(point[0])), int(math.Round(point[1]))}
+		converted := [2]int{point.IntX(), point.IntY()}
 		if len(points) > 0 && points[len(points)-1] == converted {
 			continue
 		}
@@ -718,7 +705,7 @@ func connectRuntimeZiplines(mesh *internal.NavMesh, ziplineIDs []int, firstEdgeI
 			if vertex.Flags&internal.NavMeshVertexFlagHidden != 0 {
 				continue
 			}
-			dist := math.Hypot(vertex.X-ziplinePoint[0], vertex.Y-ziplinePoint[1])
+			dist := ziplinePoint.DistanceTo(vertex.Pos)
 			if dist < ziplineConnectDistance {
 				mesh.AddRuntimeEdge(nextID(), id, ziplineID, false, factors.ToVertex*dist, 0)
 				mesh.AddRuntimeEdge(nextID(), ziplineID, id, false, factors.FromVertex*dist, 0)
@@ -729,7 +716,7 @@ func connectRuntimeZiplines(mesh *internal.NavMesh, ziplineIDs []int, firstEdgeI
 		left, _ := mesh.VertexPoint(ziplineIDs[i])
 		for j := i + 1; j < len(ziplineIDs); j++ {
 			right, _ := mesh.VertexPoint(ziplineIDs[j])
-			dist := math.Hypot(left[0]-right[0], left[1]-right[1])
+			dist := left.DistanceTo(right)
 			if dist <= ziplineMaxDistance {
 				mesh.AddRuntimeEdge(nextID(), ziplineIDs[i], ziplineIDs[j], true, factors.BetweenVertex*dist, internal.NavMeshEdgeFlagZipline)
 			}

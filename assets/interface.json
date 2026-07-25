@@ -164,6 +164,7 @@
         "tasks/PuzzleSolver.json",
         "tasks/SwitchTeam.json",
         "tasks/ImportBluePrints.json",
+        "tasks/AeroSalvage.json",
         // group: sanity_sink
         "tasks/AutoUseSpMedication.json",
         "tasks/AutoEssence.json",

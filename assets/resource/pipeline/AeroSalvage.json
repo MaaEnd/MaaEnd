@@ -1,0 +1,305 @@
+{
+    "AeroSalvageMain": {
+        "desc": "浮空回收入口",
+        "recognition": "TemplateMatch",
+        "roi": [
+            942,
+            134,
+            120,
+            119
+        ],
+        "template": "AeroSalvage/Salvage.png",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AeroSalvageResetState"
+        ]
+    },
+    "AeroSalvageResetState": {
+        "desc": "重置",
+        "recognition": "TemplateMatch",
+        "roi": [
+            2,
+            590,
+            135,
+            130
+        ],
+        "template": "AeroSalvage/Reset.png",
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1000,
+            "target": [
+                497,
+                177,
+                283,
+                316
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "AeroSalvageResetConfirm",
+            "AeroSalvageMainLoop"
+        ]
+    },
+    "AeroSalvageResetConfirm": {
+        "desc": "确认重置",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1",
+            "CancelButton"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                497,
+                177,
+                283,
+                316
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "AeroSalvageMainLoop"
+        ]
+    },
+    "AeroSalvageMainLoop": {
+        "desc": "浮空回收主循环",
+        "recognition": "TemplateMatch",
+        "roi": [
+            942,
+            134,
+            120,
+            119
+        ],
+        "template": "AeroSalvage/Salvage.png",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AeroSalvageInitialStateRecognition"
+        ]
+    },
+    "AeroSalvageInitialStateRecognition": {
+        "desc": "在初始平衡状态进行识别",
+        "recognition": "Custom",
+        "custom_recognition": "AeroSalvageInitialStateRecognition",
+        "custom_recognition_param": {
+            "grid_roi": [
+                497,
+                177,
+                283,
+                316
+            ],
+            "center_roi": [
+                634,
+                335,
+                11,
+                11
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AeroSalvageGridRecognition"
+        ]
+    },
+    "AeroSalvageGridRecognition": {
+        "desc": "识别格点",
+        "recognition": "Custom",
+        "custom_recognition": "AeroSalvageGridRecognition",
+        "custom_recognition_param": {
+            "grid_roi": [
+                497,
+                177,
+                283,
+                316
+            ],
+            "center_roi": [
+                634,
+                335,
+                11,
+                11
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AeroSalvageConfigureSwipeAction",
+        "post_delay": 0,
+        "next": [
+            "AeroSalvageSwipeBalloon"
+        ]
+    },
+    "AeroSalvageSwipeBalloon": {
+        "desc": "将气球拖动至格点",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": "AeroSalvageBalloonCount1", // 由 GO 侧求解器覆写
+        "begin_offset": [
+            -27,
+            -23,
+            1,
+            1
+        ],
+        "end": [
+            // 由 GO 侧求解器覆写
+            0,
+            0,
+            0,
+            0
+        ],
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                497,
+                177,
+                283,
+                316
+            ]
+        },
+        "post_delay": 800, // 真得写这么长
+        "next": [
+            "AeroSalvageComplete",
+            "AeroSalvageGridRecognition"
+        ]
+    },
+    "AeroSalvageComplete": {
+        "desc": "本轮已完成",
+        "recognition": "Or",
+        "any_of": [
+            "YellowConfirmButtonType1",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    1161,
+                    600,
+                    119,
+                    120
+                ],
+                "template": "AeroSalvage/Complete.png"
+            }
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "AeroSalvageCompleteConfirm"
+        ]
+    },
+    "AeroSalvageCompleteConfirm": {
+        "desc": "点击屏幕继续",
+        "recognition": "OCR",
+        "roi": [
+            557,
+            101,
+            165,
+            33
+        ],
+        "expected": "回收条件达成",
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "InWorld",
+            "AeroSalvageMainLoop"
+        ]
+    },
+    // 识别节点
+    "AeroSalvagePlacementSiteTemplate": {
+        "desc": "气球放置位置 (TemplateMatch)",
+        "recognition": "TemplateMatch",
+        "roi": [
+            497,
+            177,
+            283,
+            316
+        ],
+        "template": [
+            "AeroSalvage/PlacementSite1.png",
+            "AeroSalvage/PlacementSite2.png",
+            "AeroSalvage/PlacementSite3.png"
+        ]
+    },
+    "AeroSalvageBalloonCount1": {
+        "desc": "气球1数量",
+        "recognition": "OCR",
+        "roi": [
+            1066,
+            262,
+            13,
+            15
+        ]
+    },
+    "AeroSalvageBalloonCount2": {
+        "desc": "气球2数量",
+        "recognition": "OCR",
+        "roi": [
+            1066,
+            331,
+            13,
+            15
+        ]
+    },
+    "AeroSalvageBalloonCount3": {
+        "desc": "气球3数量",
+        "recognition": "OCR",
+        "roi": [
+            1066,
+            399,
+            13,
+            15
+        ]
+    },
+    "AeroSalvageBalloonCount4": {
+        "desc": "气球4数量",
+        "recognition": "OCR",
+        "roi": [
+            1066,
+            468,
+            13,
+            15
+        ]
+    },
+    "AeroSalvageBalloonText1": {
+        "desc": "气球1文本",
+        "recognition": "OCR",
+        "roi": [
+            1096,
+            229,
+            164,
+            24
+        ]
+    },
+    "AeroSalvageBalloonText2": {
+        "desc": "气球2文本",
+        "recognition": "OCR",
+        "roi": [
+            1096,
+            297,
+            164,
+            24
+        ]
+    },
+    "AeroSalvageBalloonText3": {
+        "desc": "气球3文本",
+        "recognition": "OCR",
+        "roi": [
+            1096,
+            365,
+            164,
+            24
+        ]
+    },
+    "AeroSalvageBalloonText4": {
+        "desc": "气球4文本",
+        "recognition": "OCR",
+        "roi": [
+            1096,
+            433,
+            164,
+            24
+        ]
+    }
+}

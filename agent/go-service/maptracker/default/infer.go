@@ -20,16 +20,17 @@ import (
 
 // MapTrackerInferResult represents the result of map tracking inference
 type MapTrackerInferResult struct {
-	MapName     string  `json:"mapName"`     // Map name
-	X           float64 `json:"x"`           // X coordinate on the map
-	Y           float64 `json:"y"`           // Y coordinate on the map
-	Rot         int     `json:"rot"`         // Rotation angle (0-359 degrees)
-	LocConf     float64 `json:"locConf"`     // Location confidence
-	RotConf     float64 `json:"rotConf"`     // Rotation confidence
-	LocTimeMs   int64   `json:"locTimeMs"`   // Location inference time in ms
-	RotTimeMs   int64   `json:"rotTimeMs"`   // Rotation inference time in ms
-	InferMode   string  `json:"inferMode"`   // Inference mode ("FullSearchHit", "FastSearchHit")
-	InferTimeMs int64   `json:"inferTimeMs"` // Total inference time in ms
+	MapName     string         `json:"mapName"`     // Map name
+	X           float64        `json:"x"`           // X coordinate on the map (backward capability)
+	Y           float64        `json:"y"`           // Y coordinate on the map (backward capability)
+	Loc         internal.Point `json:"point"`       // Point struct for X/Y coordinates
+	Rot         int            `json:"rot"`         // Rotation angle (0-359 degrees)
+	LocConf     float64        `json:"locConf"`     // Location confidence
+	RotConf     float64        `json:"rotConf"`     // Rotation confidence
+	LocTimeMs   int64          `json:"locTimeMs"`   // Location inference time in ms
+	RotTimeMs   int64          `json:"rotTimeMs"`   // Rotation inference time in ms
+	InferMode   string         `json:"inferMode"`   // Inference mode ("FullSearchHit", "FastSearchHit")
+	InferTimeMs int64          `json:"inferTimeMs"` // Total inference time in ms
 }
 
 // MapTrackerInferParam represents the custom_recognition_param for MapTrackerInfer
@@ -67,8 +68,7 @@ type MapTrackerInfer struct {
 // InferLocationRawResult represents the raw result of location inference
 type InferLocationRawResult struct {
 	MapName       string
-	X             float64
-	Y             float64
+	Loc           internal.Point
 	Conf          float64
 	Source        InferLocationHitMode
 	ElapsedTimeMs int64
@@ -143,7 +143,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 
 		} else if globalInferState.IsCloseToPending(loc) {
 			// This hit is close to the pending location
-			globalInferState.UpdatePending(loc.X, loc.Y)
+			globalInferState.UpdatePending(loc.Loc)
 
 			if globalInferState.ShouldTakeoverPending() {
 				// Do takeover (replace convinced with pending)
@@ -193,8 +193,9 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	// Build hit result
 	result := MapTrackerInferResult{
 		MapName:     finalLoc.MapName,
-		X:           finalLoc.X,
-		Y:           finalLoc.Y,
+		X:           finalLoc.Loc.X,
+		Y:           finalLoc.Loc.Y,
+		Loc:         finalLoc.Loc,
 		Rot:         finalRot.Rot,
 		LocConf:     finalLoc.Conf,
 		RotConf:     finalRot.Conf,
@@ -214,7 +215,8 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	log.Info().Str("InferMode", result.InferMode).
 		Int64("InferTimeMs", result.InferTimeMs).
 		Str("MapName", result.MapName).
-		Float64("X", result.X).Float64("Y", result.Y).
+		Float64("X", result.Loc.X).Float64("Y", result.Loc.Y). // Reserved for backward compatibility
+		Object("LOC", result.Loc).
 		Int("Rot", result.Rot).
 		Float64("LocConf", result.LocConf).
 		Float64("RotConf", result.RotConf).
@@ -314,8 +316,7 @@ func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, 
 	globalInferState.Lock()
 
 	stableConvincedMapName := globalInferState.convinced.MapName
-	stableLocX := globalInferState.convinced.X
-	stableLocY := globalInferState.convinced.Y
+	stableLoc := globalInferState.convinced.Loc
 	isInTime := globalInferState.IsConvincedValid()
 
 	globalInferState.Unlock()
@@ -335,7 +336,7 @@ func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, 
 	// Try fast search if stable
 	if param.AllowedModes&INFER_MODE_FAST_SEARCH != 0 && isStable() {
 		fastBestVal := -1.0
-		fastBestX, fastBestY := 0.0, 0.0
+		fastBestLoc := internal.Point{}
 		fastBestMapName := ""
 
 		for idx := range scaledMaps {
@@ -344,8 +345,9 @@ func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, 
 				continue
 			}
 
-			expectedCenterX := int(math.Round((stableLocX - float64(mapData.OffsetX)) * scale))
-			expectedCenterY := int(math.Round((stableLocY - float64(mapData.OffsetY)) * scale))
+			expectedCenter := mapData.PixelTransform(scale).Apply(stableLoc)
+			expectedCenterX := expectedCenter.IntX()
+			expectedCenterY := expectedCenter.IntY()
 			searchRadius := max(int(float64(CONVINCED_DISTANCE_THRESHOLD)*scale), 1)
 			searchArea := [4]int{
 				expectedCenterX - searchRadius,
@@ -358,8 +360,12 @@ func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, 
 
 			if matchVal > fastBestVal {
 				fastBestVal = matchVal
-				fastBestX = roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(mapData.OffsetX))
-				fastBestY = roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(mapData.OffsetY))
+				pixel := internal.Point{X: matchX + miniMapHalfW, Y: matchY + miniMapHalfH}
+				loc := mapData.PixelTransform(scale).Inverse(pixel)
+				fastBestLoc = internal.Point{
+					X: roundTo1Decimal(loc.X),
+					Y: roundTo1Decimal(loc.Y),
+				}
 				fastBestMapName = mapData.Name
 			}
 		}
@@ -368,15 +374,14 @@ func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, 
 			elapsedTimeMs := time.Since(t0).Milliseconds()
 			log.Debug().Float64("conf", fastBestVal).
 				Str("map", fastBestMapName).
-				Float64("X", fastBestX).
-				Float64("Y", fastBestY).
+				Float64("X", fastBestLoc.X).
+				Float64("Y", fastBestLoc.Y).
 				Int64("elapsedTimeMs", elapsedTimeMs).
 				Msg("Internal fast search location inference completed")
 
 			return &InferLocationRawResult{
 				MapName:       fastBestMapName,
-				X:             fastBestX,
-				Y:             fastBestY,
+				Loc:           fastBestLoc,
 				Conf:          fastBestVal,
 				Source:        FAST_SEARCH_HIT,
 				ElapsedTimeMs: elapsedTimeMs,
@@ -389,12 +394,12 @@ func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, 
 	// Match against all maps in parallel
 	type mapResult struct {
 		val     float64
-		x, y    float64
+		loc     internal.Point
 		mapName string
 	}
 
 	bestVal := -1.0
-	bestX, bestY := 0.0, 0.0
+	bestLoc := internal.Point{}
 	bestMapName := ""
 	triedCount := 0
 
@@ -415,8 +420,12 @@ func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, 
 	if singleMapToTry != nil {
 		matchX, matchY, matchVal := minicv.MatchTemplate(singleMapToTry.Img, singleMapToTry.GetIntegralArray(), miniMap, miniStats)
 		bestVal = matchVal
-		bestX = roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(singleMapToTry.OffsetX))
-		bestY = roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(singleMapToTry.OffsetY))
+		pixel := internal.Point{X: matchX + miniMapHalfW, Y: matchY + miniMapHalfH}
+		loc := singleMapToTry.PixelTransform(scale).Inverse(pixel)
+		bestLoc = internal.Point{
+			X: roundTo1Decimal(loc.X),
+			Y: roundTo1Decimal(loc.Y),
+		}
 		bestMapName = singleMapToTry.Name
 	} else if triedCount > 1 {
 		resChan := make(chan mapResult, triedCount)
@@ -432,9 +441,16 @@ func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, 
 			go func(m *internal.MapCache) {
 				defer wg.Done()
 				matchX, matchY, matchVal := minicv.MatchTemplate(m.Img, m.GetIntegralArray(), miniMap, miniStats)
-				mx := roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(m.OffsetX))
-				my := roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(m.OffsetY))
-				resChan <- mapResult{matchVal, mx, my, m.Name}
+				pixel := internal.Point{X: matchX + miniMapHalfW, Y: matchY + miniMapHalfH}
+				loc := m.PixelTransform(scale).Inverse(pixel)
+				resChan <- mapResult{
+					val: matchVal,
+					loc: internal.Point{
+						X: roundTo1Decimal(loc.X),
+						Y: roundTo1Decimal(loc.Y),
+					},
+					mapName: m.Name,
+				}
 			}(mapData)
 		}
 
@@ -446,8 +462,7 @@ func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, 
 		for res := range resChan {
 			if res.val > bestVal {
 				bestVal = res.val
-				bestX = res.x
-				bestY = res.y
+				bestLoc = res.loc
 				bestMapName = res.mapName
 			}
 		}
@@ -461,15 +476,14 @@ func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, 
 	log.Debug().Int("triedMaps", triedCount).
 		Float64("bestConf", bestVal).
 		Str("bestMap", bestMapName).
-		Float64("X", bestX).
-		Float64("Y", bestY).
+		Float64("X", bestLoc.X).
+		Float64("Y", bestLoc.Y).
 		Int64("elapsedTimeMs", elapsedTimeMs).
 		Msg("Internal location inference completed")
 
 	return &InferLocationRawResult{
 		MapName:       bestMapName,
-		X:             bestX,
-		Y:             bestY,
+		Loc:           bestLoc,
 		Conf:          bestVal,
 		Source:        FULL_SEARCH_HIT,
 		ElapsedTimeMs: time.Since(t0).Milliseconds(),

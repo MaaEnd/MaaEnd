@@ -69,8 +69,7 @@ type NavMeshMeta struct {
 // NavMeshVertex represents a vertex in a MapTracker NavMesh.
 type NavMeshVertex struct {
 	ID       int
-	X        float64
-	Y        float64
+	Pos      Point
 	TierID   int
 	EntityID int64
 	Flags    int
@@ -89,8 +88,7 @@ type NavMeshEdge struct {
 // NavMeshTemporaryVertex represents a runtime-only vertex injected into a NavMesh.
 type NavMeshTemporaryVertex struct {
 	ID                 int
-	X                  float64
-	Y                  float64
+	Pos                Point
 	CostFactor         float64
 	MaxConnectDistance float64
 }
@@ -241,7 +239,7 @@ func ParseNavMesh(r io.Reader) (*NavMesh, error) {
 }
 
 // AddTemporaryVertex injects a runtime-only vertex with a negative ID.
-func (m *NavMesh) AddTemporaryVertex(x, y, costFactor, maxConnectDistance float64) (int, NavMeshTemporaryVertex) {
+func (m *NavMesh) AddTemporaryVertex(pos Point, costFactor, maxConnectDistance float64) (int, NavMeshTemporaryVertex) {
 	if m.TemporaryVertices == nil {
 		m.TemporaryVertices = map[int]NavMeshTemporaryVertex{}
 	}
@@ -252,7 +250,7 @@ func (m *NavMesh) AddTemporaryVertex(x, y, costFactor, maxConnectDistance float6
 		}
 		id += navMeshTemporaryIDOffset
 	}
-	vertex := NavMeshTemporaryVertex{ID: id, X: x, Y: y, CostFactor: costFactor, MaxConnectDistance: maxConnectDistance}
+	vertex := NavMeshTemporaryVertex{ID: id, Pos: pos, CostFactor: costFactor, MaxConnectDistance: maxConnectDistance}
 	m.TemporaryVertices[id] = vertex
 	return id, vertex
 }
@@ -263,7 +261,7 @@ func (m *NavMesh) ClearTemporaryVertex() {
 }
 
 // AddRuntimeVertex injects a runtime-only graph vertex with a negative ID.
-func (m *NavMesh) AddRuntimeVertex(x, y float64, tierID int, entityID int64, flags int) (int, NavMeshVertex) {
+func (m *NavMesh) AddRuntimeVertex(pos Point, tierID int, entityID int64, flags int) (int, NavMeshVertex) {
 	if m.RuntimeVertices == nil {
 		m.RuntimeVertices = map[int]NavMeshVertex{}
 	}
@@ -274,7 +272,7 @@ func (m *NavMesh) AddRuntimeVertex(x, y float64, tierID int, entityID int64, fla
 		}
 		id += navMeshRuntimeIDOffset
 	}
-	vertex := NavMeshVertex{ID: id, X: roundNavMeshCoord(x), Y: roundNavMeshCoord(y), TierID: tierID, EntityID: entityID, Flags: flags}
+	vertex := NavMeshVertex{ID: id, Pos: Point{X: roundNavMeshCoord(pos.X), Y: roundNavMeshCoord(pos.Y)}, TierID: tierID, EntityID: entityID, Flags: flags}
 	m.RuntimeVertices[id] = vertex
 	return id, vertex
 }
@@ -334,19 +332,19 @@ func (m *NavMesh) IsZiplineEdge(fromID, toID int) (NavMeshEdge, bool) {
 }
 
 // VertexPoint returns a vertex coordinate by ID.
-func (m *NavMesh) VertexPoint(id int) ([2]float64, bool) {
+func (m *NavMesh) VertexPoint(id int) (Point, bool) {
 	vertex, ok := m.vertexByID(id)
 	if ok {
-		return [2]float64{vertex.X, vertex.Y}, true
+		return vertex.Pos, true
 	}
 	if temporary, ok := m.TemporaryVertices[id]; ok {
-		return [2]float64{temporary.X, temporary.Y}, true
+		return temporary.Pos, true
 	}
-	return [2]float64{}, false
+	return Point{}, false
 }
 
 // FindPath finds a coordinate path between vertices through this NavMesh.
-func (m *NavMesh) FindPath(startID, targetID int) ([][2]float64, error) {
+func (m *NavMesh) FindPath(startID, targetID int) ([]Point, error) {
 	pathIDs, err := m.FindPathIDs(startID, targetID)
 	if err != nil {
 		return nil, err
@@ -389,17 +387,17 @@ func (m *NavMesh) FindPathIDs(startID, targetID int) ([]int, error) {
 }
 
 // PathIDsToPoints converts a vertex ID path to a coordinate path.
-func (m *NavMesh) PathIDsToPoints(pathIDs []int) ([][2]float64, error) {
+func (m *NavMesh) PathIDsToPoints(pathIDs []int) ([]Point, error) {
 	if len(pathIDs) == 0 {
 		return nil, fmt.Errorf("path is empty")
 	}
-	path := make([][2]float64, 0, len(pathIDs))
+	path := make([]Point, 0, len(pathIDs))
 	for _, id := range pathIDs {
 		point, ok := m.VertexPoint(id)
 		if !ok {
 			return nil, fmt.Errorf("path vertex %d not found", id)
 		}
-		if len(path) > 0 && math.Hypot(path[len(path)-1][0]-point[0], path[len(path)-1][1]-point[1]) < 1e-6 {
+		if len(path) > 0 && path[len(path)-1].DistanceTo(point) < 1e-6 {
 			continue
 		}
 		path = append(path, point)
@@ -554,7 +552,7 @@ func parseNavMeshVertex(line string) (NavMeshVertex, error) {
 		return NavMeshVertex{}, err
 	}
 
-	return NavMeshVertex{ID: id, X: roundNavMeshCoord(x), Y: roundNavMeshCoord(y), TierID: tierID, EntityID: entityID, Flags: flags}, nil
+	return NavMeshVertex{ID: id, Pos: Point{X: roundNavMeshCoord(x), Y: roundNavMeshCoord(y)}, TierID: tierID, EntityID: entityID, Flags: flags}, nil
 }
 
 func parseNavMeshEdge(line string) (NavMeshEdge, error) {
@@ -629,30 +627,30 @@ func roundNavMeshCoord(value float64) float64 {
 	return math.Round(value*1000) / 1000
 }
 
-func (m *NavMesh) buildPathGraph() (map[int]algoPoint, map[int][]algoEdge) {
-	points := map[int]algoPoint{}
+func (m *NavMesh) buildPathGraph() (map[int]Point, map[int][]algoEdge) {
+	points := map[int]Point{}
 	adjacency := map[int][]algoEdge{}
 	for id, vertex := range m.Vertices {
 		if m.DisabledVertices[id] || vertex.Flags&NavMeshVertexFlagHidden != 0 {
 			continue
 		}
-		points[id] = algoPoint{x: vertex.X, y: vertex.Y}
+		points[id] = vertex.Pos
 	}
 	for id, vertex := range m.RuntimeVertices {
 		if m.DisabledVertices[id] || vertex.Flags&NavMeshVertexFlagHidden != 0 {
 			continue
 		}
-		points[id] = algoPoint{x: vertex.X, y: vertex.Y}
+		points[id] = vertex.Pos
 	}
 	for id, vertex := range m.TemporaryVertices {
-		points[id] = algoPoint{x: vertex.X, y: vertex.Y}
+		points[id] = vertex.Pos
 	}
 	m.appendPathGraphEdges(points, adjacency, m.Edges)
 	m.appendPathGraphEdges(points, adjacency, m.RuntimeEdges)
 	return points, adjacency
 }
 
-func (m *NavMesh) appendPathGraphEdges(points map[int]algoPoint, adjacency map[int][]algoEdge, edges map[int]NavMeshEdge) {
+func (m *NavMesh) appendPathGraphEdges(points map[int]Point, adjacency map[int][]algoEdge, edges map[int]NavMeshEdge) {
 	for _, edge := range edges {
 		if m.DisabledEdges[edge.ID] || m.DisabledVertices[edge.SourceID] || m.DisabledVertices[edge.DestinationID] {
 			continue
@@ -724,7 +722,7 @@ func (m *NavMesh) appendPathConnectCandidates(candidates *[]navMeshConnectCandid
 		if m.DisabledVertices[id] || vertex.Flags&NavMeshVertexFlagHidden != 0 {
 			continue
 		}
-		dist := math.Hypot(vertex.X-temporaryVertex.X, vertex.Y-temporaryVertex.Y)
+		dist := temporaryVertex.Pos.DistanceTo(vertex.Pos)
 		if dist < temporaryVertex.MaxConnectDistance {
 			*candidates = append(*candidates, navMeshConnectCandidate{id: id, dist: dist, cost: temporaryVertex.CostFactor * dist})
 		}
@@ -748,21 +746,21 @@ func (m *NavMesh) temporaryEdgeCost(fromID, toID int) float64 {
 	fromTemporary, fromOK := m.TemporaryVertices[fromID]
 	toTemporary, toOK := m.TemporaryVertices[toID]
 	if fromOK && toOK {
-		return math.Max(fromTemporary.CostFactor, toTemporary.CostFactor) * math.Hypot(fromTemporary.X-toTemporary.X, fromTemporary.Y-toTemporary.Y)
+		return math.Max(fromTemporary.CostFactor, toTemporary.CostFactor) * fromTemporary.Pos.DistanceTo(toTemporary.Pos)
 	}
 	if fromOK {
 		vertex, ok := m.vertexByID(toID)
 		if !ok {
 			return 0
 		}
-		return fromTemporary.CostFactor * math.Hypot(fromTemporary.X-vertex.X, fromTemporary.Y-vertex.Y)
+		return fromTemporary.CostFactor * fromTemporary.Pos.DistanceTo(vertex.Pos)
 	}
 	if toOK {
 		vertex, ok := m.vertexByID(fromID)
 		if !ok {
 			return 0
 		}
-		return toTemporary.CostFactor * math.Hypot(toTemporary.X-vertex.X, toTemporary.Y-vertex.Y)
+		return toTemporary.CostFactor * toTemporary.Pos.DistanceTo(vertex.Pos)
 	}
 	return 0
 }

@@ -109,10 +109,7 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "SellProductOutpostLocked",
-            "SellProductValleyIVSell"
-        ]
+        "next": ["SellProductValleyIVSell"]
     },
     "SellProductWuling": {
         "desc": "武陵售卖流程入口",
@@ -127,32 +124,7 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "SellProductOutpostLocked",
-            "SellProductWulingSell"
-        ]
-    },
-    "SellProductOutpostLocked": {
-        "desc": "据点管理未解锁",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1178,
-            185,
-            35,
-            48
-        ],
-        "template": [
-            "SellProduct/SellProductDevelopmentLocked.png"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductLoop"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.SellProduct.outpost_locked"
-        }
+        "next": ["SellProductWulingSell"]
     },
     "SellProductTaskEnd": {
         "desc": "任务结束",

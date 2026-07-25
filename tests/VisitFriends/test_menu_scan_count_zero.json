@@ -1,0 +1,38 @@
+{
+    "configs": {
+        "name": "(Win32-官服)拜访好友列表次数归零",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            // 右上角助力为 0、线索非 0：仅 AssistCountZero 应命中
+            "name": "助力次数0：仅助力归零可命中",
+            "image": "拜访好友_好友列表_助力次数0.png",
+            "hits": [
+                "VisitFriendsAssistCountZero"
+            ]
+        },
+        {
+            // 右上角助力与线索均为 0：Assist / Clue / Full 均应命中
+            "name": "次数都为0：助力和线索归零均可命中",
+            "image": "拜访好友_好友列表_次数都为0.png",
+            "hits": [
+                "VisitFriendsAssistCountZero",
+                "VisitFriendsClueExchangeCountZero",
+                "VisitFriendsFull"
+            ]
+        },
+        {
+            // 右上角 5/5：次数归零节点不应命中（同文件节点宇宙）
+            "name": "自己：次数未归零",
+            "image": "拜访好友_好友列表_自己.png",
+            "hits": []
+        },
+        {
+            "name": "自己备注：次数未归零",
+            "image": "拜访好友_好友列表_自己备注.png",
+            "hits": []
+        }
+    ]
+}

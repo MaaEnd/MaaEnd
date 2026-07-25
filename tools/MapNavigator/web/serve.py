@@ -12,19 +12,14 @@
 # ///
 """MapNavigator Web 后端 (FastAPI, 仅监听 127.0.0.1)。
 
-架构 PIVOT (见 web/DESIGN.md 顶部横幅):
-  - 路线计算 = 纯 Python, 进程内 `import basenav_preview`; 无 cpp-algo 子进程, 无 navmesh_client.py。
-  - 网格渲染 = serve.py 直接把已加载的 BaseNavField 几何序列化成 NMSH 二进制缓冲 (见 DESIGN §2.4)。
-  - 录制 = 复用未改动的 recording_service.py / connectors.py, 通过 WebSocket 桥接。
-
-本文件是 web 迁移唯一的 Python 后端交付物。前端 (web/static/*) 通过下列 HTTP/WS 端点访问:
+前端 (web/static/*) 通过下列 HTTP/WS 端点访问:
   GET  /api/zones             -> 区表 (base 几何区 + tier 叠加区)
   GET  /api/load-status       -> navmesh 后台加载进度 (非阻塞)
   GET  /basemap/{path}        -> assets/resource/image/ 下的底图 PNG (防 .. 穿越)
   GET  /basemap-by-zone       -> 任意 zone 字符串 -> 解析后的底图 PNG (resolve_zone_image)
   GET  /api/zone-ids          -> assert 模式 zone 下拉可选值 (list_available_zone_ids)
   GET  /mesh/{zone_id}        -> 某几何区的 NMSH 二进制网格缓冲 (application/octet-stream)
-  POST /api/route             -> A* 预览路线 (basenav_preview.find_route); 起点/终点离网时镜像运行时的盲走补全
+  POST /api/route             -> 栅格路线 (RecastEngine); 诊断在 recast 键
   GET  /api/settings          -> 读取 ~/.maaend/mapnavigator.json
   PUT  /api/settings          -> 写入 ~/.maaend/mapnavigator.json
   GET  /api/adb/devices       -> adb devices -l 枚举 (容错)
@@ -42,7 +37,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import math
 import os
 import socket
 import struct
@@ -77,6 +71,7 @@ from connection_models import (  # noqa: E402
 )
 from connectors import build_recording_connector, find_game_window, list_adb_devices, resolve_adb_path  # noqa: E402
 from model import normalize_zone_id, resolve_zone_image  # noqa: E402
+from recastnav_route import RecastEngine  # noqa: E402
 from recording_service import RecordingService  # noqa: E402
 from runtime import (  # noqa: E402
     AGENT_DIR,
@@ -111,12 +106,9 @@ NAVMESH_GZ = NAVMESH_DIR / "base.nav.gz"
 NAVMESH_RAW = NAVMESH_DIR / "base.nav"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
-# 起点/终点不在可走网格上时,运行时会盲走一段直线补上 (cpp-algo navmesh_path_expander.cpp 的同名常量)。
+# cpp-algo navmesh_path_expander.cpp 同名常量
 START_RECOVERY_MAX_BLIND_WALK = 32.0
-WAYPOINT_ARRIVAL_SLACK = 0.5
-BLIND_TARGET_FALLBACK_SNAP = 12.0
 BLIND_TARGET_MAX_EXTENSION = 30.0
-BLIND_TARGET_PROBE_STEP = 2.0
 
 # NMSH 二进制网格缓冲 (小端), 见 DESIGN §2.4
 NMSH_MAGIC = b"NMSH"
@@ -272,6 +264,46 @@ def _serialize_zone_mesh(field: Any, zone: Any) -> bytes:
 
 
 field_manager = FieldManager(NAVMESH_GZ, NAVMESH_RAW)
+
+
+# --- 路线引擎 ----------
+_recast_engine: RecastEngine | None = None
+_recast_engine_lock = threading.Lock()
+
+
+def get_recast_engine(field: Any) -> RecastEngine:
+    global _recast_engine
+    with _recast_engine_lock:
+        if _recast_engine is None:
+            _recast_engine = RecastEngine(field)
+        return _recast_engine
+
+
+_prewarm_started: set[int] = set()
+_prewarm_lock = threading.Lock()
+
+
+def _prewarm_recast(zone_id: int) -> None:
+    try:
+        field = field_manager.get()
+        geom_id = int(field.geometry_zone_id(zone_id))
+        zone = field.zone_by_id.get(geom_id)
+        if zone is None or zone.triangle_count <= 0:
+            return
+        get_recast_engine(field).warm(zone.name)
+    except Exception as exc:  # noqa: BLE001
+        with _prewarm_lock:
+            _prewarm_started.discard(zone_id)
+        _log(f"路线引擎预热失败(下次拉取该区网格时重试): {exc}")
+
+
+def prewarm_recast_in_background(zone_id: int) -> None:
+    """前端拉走某区网格时预热该区路线引擎, 区准备与用户看图的时间重叠。"""
+    with _prewarm_lock:
+        if zone_id in _prewarm_started:
+            return
+        _prewarm_started.add(zone_id)
+    threading.Thread(target=_prewarm_recast, args=(zone_id,), name="recast-prewarm", daemon=True).start()
 
 
 # --- maafw 运行时 (惰性加载, 仅录制需要) ----------------------------------------------
@@ -454,43 +486,8 @@ async def api_mesh(zone_id: int) -> Response:
         raise HTTPException(status_code=503, detail=str(exc))
     if data is None:
         raise HTTPException(status_code=404, detail="该区无三角面 (tier 叠加区或未知区)")
+    prewarm_recast_in_background(zone_id)
     return Response(content=data, media_type="application/octet-stream")
-
-
-def _blind_target_fallback(
-    field: Any,
-    geom_zone_id: int,
-    start: tuple[float, float],
-    goal: tuple[float, float],
-    floor_y: float | None,
-) -> tuple[Any, dict[str, Any]] | None:
-    """终点不在可走网格上时,运行时怎么走 (cpp-algo AppendBlindTargetFallback,即 #3505)。
-
-    从终点沿直线往起点方向逐点回探,第一个能规划到的点就是最近的连通网格点:规划到那里,剩下
-    的一小段直线盲走过去。残差超上限就放弃。
-    """
-    total = math.hypot(goal[0] - start[0], goal[1] - start[1])
-    if total < 1e-6:
-        return None
-
-    probe_limit = min(total, BLIND_TARGET_MAX_EXTENSION + BLIND_TARGET_FALLBACK_SNAP)
-    offset = 0.0
-    while offset <= probe_limit + 1e-6:
-        t = min(offset / total, 1.0)
-        probe = (goal[0] + (start[0] - goal[0]) * t, goal[1] + (start[1] - goal[1]) * t)
-        offset += BLIND_TARGET_PROBE_STEP
-        try:
-            route = field.find_route(geom_zone_id, start, probe, BLIND_TARGET_FALLBACK_SNAP, floor_y)
-        except ValueError:
-            continue
-        if not len(route.points):
-            continue
-        reached = route.points[-1]
-        gap = math.hypot(goal[0] - reached[0], goal[1] - reached[1])
-        if gap > BLIND_TARGET_MAX_EXTENSION:
-            return None
-        return route, {"gap": float(gap), "reached": [float(reached[0]), float(reached[1])]}
-    return None
 
 
 def _offmesh_probe(
@@ -519,15 +516,6 @@ def _offmesh_probe(
         "nearest": [float(nearest.point[0]), float(nearest.point[1])],
         "budget": budget,
     }
-
-
-def _blind_walk_reason(field: Any, geom_zone_id: int, point: tuple[float, float]) -> str:
-    """运行时为什么非盲走不可:点压根不在网格上,还是点脚下有网格、但那一块跟目的地连不过去?
-
-    两种毛病差得很远(一个是点标错地方,一个是网格本身碎成了互不连通的块),提示里不能混为一谈。
-    这里判"脚下有没有三角面"用纯几何的 _point_on_mesh:不带半径、不做小岛降权,问的就是这一件事。
-    """
-    return "off_mesh" if not field._point_on_mesh(geom_zone_id, point) else "disconnected"
 
 
 class OffMeshProbeRequest(BaseModel):
@@ -566,6 +554,8 @@ async def api_offmesh_probe(req: OffMeshProbeRequest) -> dict[str, Any]:
 
 @app.post("/api/route")
 async def api_route(req: RouteRequest) -> dict[str, Any]:
+    """栅格路线; snap_radius 请求参数被忽略 (引擎定死 8.0), blind_* 恒 null, 诊断在 `recast` 键。"""
+
     def _compute() -> dict[str, Any]:
         try:
             field = field_manager.get()
@@ -576,69 +566,48 @@ async def api_route(req: RouteRequest) -> dict[str, Any]:
             return {"ok": False, "error": "start/goal 需为 [x, y]"}
 
         geom_zone_id = int(field.geometry_zone_id(req.zone_id))
+        zone = field.zone_by_id.get(geom_zone_id)
+        if zone is None:
+            return {"ok": False, "error": f"未知 zone: {req.zone_id}"}
         start = (float(req.start[0]), float(req.start[1]))
         goal = (float(req.goal[0]), float(req.goal[1]))
 
-        blind_start: dict[str, Any] | None = None
-        blind_target: dict[str, Any] | None = None
-        route: Any = None
-        plan_start = start
         try:
-            route = field.find_route(geom_zone_id, start, goal, req.snap_radius, req.floor_y)
-        except ValueError as exc:
-            error = str(exc)
-            entry = field.snap(geom_zone_id, start, START_RECOVERY_MAX_BLIND_WALK, req.floor_y)
-            if entry is not None and entry.distance > WAYPOINT_ARRIVAL_SLACK:
-                plan_start = (float(entry.point[0]), float(entry.point[1]))
-                blind_start = {"entry": [plan_start[0], plan_start[1]], "distance": float(entry.distance)}
-                try:
-                    route = field.find_route(geom_zone_id, plan_start, goal, req.snap_radius, req.floor_y)
-                except ValueError as exc2:
-                    error = str(exc2)
-            if route is None:
-                fallback = _blind_target_fallback(field, geom_zone_id, plan_start, goal, req.floor_y)
-                if fallback is None:
-                    # 规划失败时把起终点的离网情况一并带回去 —— 不然前端只有一句"寻路失败",
-                    # 看不出到底是点掉在网格外, 还是两点根本不连通。
-                    return {
-                        "ok": False,
-                        "error": error,
-                        "off_mesh": {
-                            "start": _offmesh_probe(
-                                field, geom_zone_id, start, req.snap_radius, req.floor_y,
-                                budget=START_RECOVERY_MAX_BLIND_WALK,
-                            ),
-                            "goal": _offmesh_probe(
-                                field, geom_zone_id, goal, req.snap_radius, req.floor_y,
-                                budget=BLIND_TARGET_MAX_EXTENSION,
-                            ),
-                        },
-                    }
-                route, blind_target = fallback
-
-        # 盲走确实会发生, 但成因有两种(点离网 / 网格不连通)。前端要照实说, 所以这里分清楚。
-        if blind_start is not None:
-            blind_start["reason"] = _blind_walk_reason(field, geom_zone_id, start)
-        if blind_target is not None:
-            blind_target["reason"] = _blind_walk_reason(field, geom_zone_id, goal)
-
-        points = [[float(p[0]), float(p[1])] for p in route.points]
-        breaks = [int(b) for b in (route.segment_breaks or [])]
-        if blind_start is not None:
-            # 盲走段插在最前面,故所有 break 下标 +1。points[0] 仍是本段请求的起点,前端的
-            # 多段合并(丢掉后续段的首点)因此照常成立。
-            points.insert(0, [float(req.start[0]), float(req.start[1])])
-            breaks = [b + 1 for b in breaks]
-        if blind_target is not None and blind_target["gap"] > WAYPOINT_ARRIVAL_SLACK:
-            points.append([goal[0], goal[1]])
+            plan = get_recast_engine(field).plan(zone.name, start, goal, req.floor_y)
+        except (ValueError, FileNotFoundError) as exc:
+            # 失败时带上起终点离网探针, 前端才能标出是哪个点掉在网格外。
+            return {
+                "ok": False,
+                "error": str(exc),
+                "off_mesh": {
+                    "start": _offmesh_probe(
+                        field, geom_zone_id, start, req.snap_radius, req.floor_y,
+                        budget=START_RECOVERY_MAX_BLIND_WALK,
+                    ),
+                    "goal": _offmesh_probe(
+                        field, geom_zone_id, goal, req.snap_radius, req.floor_y,
+                        budget=BLIND_TARGET_MAX_EXTENSION,
+                    ),
+                },
+            }
 
         return {
             "ok": True,
-            "points": points,
-            "segment_breaks": breaks,
-            "cost": float(route.cost),
-            "blind_start": blind_start,
-            "blind_target": blind_target,
+            "points": [[float(x), float(y)] for x, y in plan["points"]],
+            "segment_breaks": [],
+            "cost": float(plan["length"]),
+            "blind_start": None,
+            "blind_target": None,
+            "recast": {
+                "warn": plan["warn"],
+                "wall_cross": plan["wall_cross"],
+                "offmesh_walk": plan["offmesh_walk"],
+                "offmesh_lay": plan["offmesh_lay"],
+                "metrics": plan["metrics"],
+                "snap": plan["snap"],
+                "window": plan["window"],
+                "timing": plan["timing"],
+            },
         }
 
     return await run_in_threadpool(_compute)
@@ -1317,7 +1286,7 @@ app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
 
 # --- 启动: 端口选取 / 浏览器 -----------------------------------------------------------
 # 端口的唯一 owner 是本文件: 由本文件 bind、由本文件宣告 URL。main.py 只是 runpy 壳,
-# 不再自行猜端口 —— 否则端口顺延后浏览器会开到错误的地址。
+# 不自行猜端口 —— 否则端口顺延后浏览器会开到错误的地址。
 
 
 def _preferred_port() -> int:

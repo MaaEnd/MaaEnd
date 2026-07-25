@@ -1,0 +1,64 @@
+{
+    "ExpendableRecognitionExamplePick": {
+        "desc": "ExpendableRecognition 示例：命中后写入 attach.visited，下次不再点同一项",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpendableRecognition",
+                "custom_recognition_param": {
+                    "candidate": "ExpendableRecognitionSampleCandidate"
+                }
+            }
+        },
+        "action": "Click",
+        "next": [
+            "ExpendableRecognitionPass"
+        ],
+        "attach": {
+            "visited": []
+        }
+    },
+    "ExpendableRecognitionSampleCandidate": {
+        "desc": "候选 And：box_index 指向文案 OCR（visited key 与点击框）；Marker 仅作筛选条件",
+        "recognition": "And",
+        "all_of": [
+            "ExpendableRecognitionSampleMarker",
+            "ExpendableRecognitionSampleOCR"
+        ],
+        "box_index": 1,
+        "next": []
+    },
+    "ExpendableRecognitionSampleMarker": {
+        "desc": "标记筛选示意（可换成 TemplateMatch / ColorMatch；不必作点击框）",
+        "recognition": "OCR",
+        "roi": [
+            480,
+            160,
+            80,
+            40
+        ],
+        "expected": ".+",
+        "next": []
+    },
+    "ExpendableRecognitionSampleOCR": {
+        "desc": "列表项文案 OCR（And.box_index 目标）；expected / order_by 由业务配置，识别器只注入 visited 排除",
+        "recognition": "OCR",
+        "roi": [
+            560,
+            160,
+            240,
+            40
+        ],
+        "expected": [
+            ".{3,}"
+        ],
+        "order_by": "Vertical",
+        "next": []
+    },
+    "ExpendableRecognitionPass": {
+        "desc": "点选成功后的后续流程",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": []
+    }
+}
