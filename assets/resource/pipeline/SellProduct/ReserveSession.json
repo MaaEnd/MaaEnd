@@ -111,10 +111,7 @@
             "quantity": 0
         },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductConfigurePrioritySession"
-        ]
+        "rate_limit": 0
     },
     "SellProductConfigurePrioritySession": {
         "desc": "配置是否启用优先售卖",
@@ -128,9 +125,6 @@
             "only_preferred": false
         },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductInitializeOperatorSession"
-        ]
+        "rate_limit": 0
     }
 }

@@ -20,10 +20,7 @@
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductLoop"
-        ]
+        "rate_limit": 0
     },
     "SellProductScanOperatorList": {
         "desc": "扫描联络干员列表",

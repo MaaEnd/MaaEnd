@@ -324,8 +324,6 @@ test("SellProduct registration slots form an always-enabled no-op chain", () => 
         "SellProductRegisterReserveRule4",
         "SellProductRegisterReserveRule5",
         "SellProductRegisterReserveRule6",
-        "SellProductConfigurePrioritySession",
-        "SellProductInitializeOperatorSession",
     ];
 
     for (let index = 0; index < chain.length - 1; index += 1) {
@@ -334,6 +332,18 @@ test("SellProduct registration slots form an always-enabled no-op chain", () => 
         assert.equal(node.enabled, undefined);
         assert.deepEqual(node.next, [chain[index + 1]]);
     }
+
+    // 保留规则链终止于 Rule6；优先售卖与干员会话作为并行子任务由 SellProductPrepareSession 调度。
+    assert.equal(pipeline.SellProductRegisterReserveRule6.next, undefined);
+    assert.equal(pipeline.SellProductConfigurePrioritySession.enabled, undefined);
+    assert.equal(pipeline.SellProductConfigurePrioritySession.next, undefined);
+
+    const entry = readPipeline(new URL("../../../assets/resource/pipeline/SellProduct.json", import.meta.url));
+    assert.deepEqual(entry.SellProductPrepareSession.custom_action_param.sub, [
+        "SellProductInitializeReserveSession",
+        "SellProductConfigurePrioritySession",
+        "SellProductInitializeOperatorSession",
+    ]);
 });
 
 test("SellProduct 每次进入地区都会切换对应的优先售卖表", () => {
