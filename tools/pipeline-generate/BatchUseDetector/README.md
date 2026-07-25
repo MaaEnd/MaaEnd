@@ -6,7 +6,7 @@
 
 ```bash
 cd tools/pipeline-generate/BatchUseDetector
-npx @joebao/maa-pipeline-generate --config BatchUseDetector-config.json
+pnpm exec maa-pipeline-generate --config BatchUseDetector-config.json
 
 ## 新增/更新地区探测器和罗盘
 

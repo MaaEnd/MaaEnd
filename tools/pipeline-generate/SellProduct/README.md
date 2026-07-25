@@ -28,12 +28,12 @@ node tools/pipeline-generate/SellProduct/sync-locales.mjs
 node tools/pipeline-generate/SellProduct/selection-data.mjs
 
 # 等价于在当前目录运行
-npx @joebao/maa-pipeline-generate --config pipeline-config.json
-npx @joebao/maa-pipeline-generate --config sell-config.json
-npx @joebao/maa-pipeline-generate --config session-config.json
-npx @joebao/maa-pipeline-generate --config task-config.json
+pnpm exec maa-pipeline-generate --config pipeline-config.json
+pnpm exec maa-pipeline-generate --config sell-config.json
+pnpm exec maa-pipeline-generate --config session-config.json
+pnpm exec maa-pipeline-generate --config task-config.json
 # 需要生成安卓端（ADB）专用流水线时使用
-npx @joebao/maa-pipeline-generate --config pipeline-adb-config.json
+pnpm exec maa-pipeline-generate --config pipeline-adb-config.json
 ```
 
 `pnpm generate:SellProduct` 会在渲染前根据 `settlement_trade.json` 按游戏据点顺序重排五语言 locale 的据点键，据点名始终覆盖为 zmdmap 当前官方译文，并补齐缺失的据点和干员键；随后生成随应用发布的 `selection_data.json`。

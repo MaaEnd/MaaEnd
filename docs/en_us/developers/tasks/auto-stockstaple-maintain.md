@@ -125,9 +125,9 @@ Matched when `limit <= current_held_quantity`:
 2.  Re-generate (in repository root directory):
 
 ```bash
-npx @joebao/maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-config.json
-npx @joebao/maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-count-validate-config.json
-npx @joebao/maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/quantity-control-config.json
+pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-config.json
+pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-count-validate-config.json
+pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/quantity-control-config.json
 ```
 
 1.  `assets/tasks/AutoStockStaple.json` (checkbox case + limit override)

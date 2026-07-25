@@ -211,10 +211,10 @@ pnpm fetch:zmdmap
 node sync-routes.mjs
 
 # 1) 渲染所有观察点 Pipeline
-npx @joebao/maa-pipeline-generate
+pnpm exec maa-pipeline-generate
 
 # 2) 渲染终端入口
-npx @joebao/maa-pipeline-generate --config terminals-config.json
+pnpm exec maa-pipeline-generate --config terminals-config.json
 ```
 
 > [!NOTE]
@@ -342,8 +342,8 @@ pnpm generate:EnvironmentMonitoring
 # 或在生成器目录分别执行
 cd tools/pipeline-generate/EnvironmentMonitoring/generator
 node sync-routes.mjs
-npx @joebao/maa-pipeline-generate
-npx @joebao/maa-pipeline-generate --config terminals-config.json
+pnpm exec maa-pipeline-generate
+pnpm exec maa-pipeline-generate --config terminals-config.json
 ```
 
 确认生成出的两类文件：
@@ -358,7 +358,7 @@ npx @joebao/maa-pipeline-generate --config terminals-config.json
 只调整路线/朝向（不变更英文名）：
 
 1. 改 `tools/pipeline-generate/EnvironmentMonitoring/routes.json` 里对应条目。
-2. 重新生成。常规情况下可直接在仓库根目录运行 `pnpm generate:EnvironmentMonitoring`；如果确认终端列表未变化，也可以只在 `tools/pipeline-generate/EnvironmentMonitoring/generator/` 目录运行 `node sync-routes.mjs && npx @joebao/maa-pipeline-generate`，无需重新生成 `Terminals.json`。
+2. 重新生成。常规情况下可直接在仓库根目录运行 `pnpm generate:EnvironmentMonitoring`；如果确认终端列表未变化，也可以只在 `tools/pipeline-generate/EnvironmentMonitoring/generator/` 目录运行 `node sync-routes.mjs && pnpm exec maa-pipeline-generate`，无需重新生成 `Terminals.json`。
 3. 提交 `routes.json` 与重生成的 `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`。
 
 如果观察点的官方英文名变了，生成出的 `Id` / 文件名也会跟着变；重新生成后 `routes.json` 里的 `Id` 会同步刷新成新的最终模板 ID。

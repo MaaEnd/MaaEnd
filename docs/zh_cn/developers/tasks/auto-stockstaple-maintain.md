@@ -125,9 +125,9 @@ Exclude 分支（物品已达标或券不足被剔除）也会触发重新初始
 2. 重新生成（仓库根目录）：
 
 ```bash
-npx @joebao/maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-config.json
-npx @joebao/maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-count-validate-config.json
-npx @joebao/maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/quantity-control-config.json
+pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-config.json
+pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-count-validate-config.json
+pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/quantity-control-config.json
 ```
 
 1. `assets/tasks/AutoStockStaple.json`（勾选 case + 上限 override）

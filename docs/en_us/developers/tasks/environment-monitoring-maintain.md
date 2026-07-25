@@ -199,10 +199,10 @@ pnpm fetch:zmdmap
 node sync-routes.mjs
 
 # 1) Render all observation point Pipelines
-npx @joebao/maa-pipeline-generate
+pnpm exec maa-pipeline-generate
 
 # 2) Render terminal entries
-npx @joebao/maa-pipeline-generate --config terminals-config.json
+pnpm exec maa-pipeline-generate --config terminals-config.json
 ```
 
 > [!NOTE]
@@ -333,8 +333,8 @@ pnpm generate:EnvironmentMonitoring
 # Or execute separately in the generator directory
 cd tools/pipeline-generate/EnvironmentMonitoring/generator
 node sync-routes.mjs
-npx @joebao/maa-pipeline-generate
-npx @joebao/maa-pipeline-generate --config terminals-config.json
+pnpm exec maa-pipeline-generate
+pnpm exec maa-pipeline-generate --config terminals-config.json
 ```
 
 Confirm the generation of the two types of files:
@@ -349,7 +349,7 @@ Here `{Id}` is the node ID in the generation result. Usually, you can confirm by
 Only adjust the route/orientation (without changing the English name):
 
 1. Modify the corresponding entry in `tools/pipeline-generate/EnvironmentMonitoring/routes.json`.
-2. Regenerate. In normal cases, you can run `pnpm generate:EnvironmentMonitoring` directly in the repository root; if you confirm the terminal list has not changed, you can also run `node sync-routes.mjs && npx @joebao/maa-pipeline-generate` only in the `tools/pipeline-generate/EnvironmentMonitoring/generator/` directory, without regenerating `Terminals.json`.
+2. Regenerate. In normal cases, you can run `pnpm generate:EnvironmentMonitoring` directly in the repository root; if you confirm the terminal list has not changed, you can also run `node sync-routes.mjs && pnpm exec maa-pipeline-generate` only in the `tools/pipeline-generate/EnvironmentMonitoring/generator/` directory, without regenerating `Terminals.json`.
 3. Commit `routes.json` and the regenerated `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`.
 
 If the official English name of the observation point changes, the generated `Id` / file name will also change; after regeneration, the `Id` in `routes.json` will be synced to the new final template ID.

@@ -155,8 +155,8 @@ pnpm generate:EnvironmentMonitoring
 
 ```bash
 node sync-routes.mjs
-npx @joebao/maa-pipeline-generate
-npx @joebao/maa-pipeline-generate --config terminals-config.json
+pnpm exec maa-pipeline-generate
+pnpm exec maa-pipeline-generate --config terminals-config.json
 ```
 
 随后运行：
