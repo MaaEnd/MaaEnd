@@ -1,4 +1,17 @@
 {
+    // ===== 地区据点锚点（锚定该地区第一个据点的标签页文本） =====
+    "SellProductInValleyIVOutpost": {
+        "desc": "在四号谷地据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost",
+            "SellProductCheckRefugeeCampTabText"
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "SellProductValleyIV": {
         "desc": "四号谷地售卖流程入口",
         "max_hit": 1,

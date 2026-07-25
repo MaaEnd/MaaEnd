@@ -6,7 +6,7 @@
 
 - `pipeline-data.mjs`：Win32 Pipeline 据点与识别框；
 - `pipeline-adb-data.mjs`：ADB Pipeline 据点与识别框；
-- `sell-data.mjs`：区域售卖入口（含地区流程入口包装节点）与区域内据点列表；
+- `sell-data.mjs`：区域售卖入口（含地区流程入口包装节点与地区据点锚点 `SellProductIn{RegionPrefix}Outpost`）与区域内据点列表；
 - `loop-data.mjs`：主循环的地区遍历列表；
 - `session-data.mjs`：自动干员会话的据点注册；
 - `task-data.mjs`：Task 中按缓存强制刷新、售卖优先级、保留规则、地区/据点排列的选项；

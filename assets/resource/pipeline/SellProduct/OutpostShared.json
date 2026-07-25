@@ -11,30 +11,6 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "SellProductInValleyIVOutpost": {
-        "desc": "在四号谷地据点",
-        "recognition": "And",
-        "all_of": [
-            "SellProductInOutpost",
-            "SellProductCheckRefugeeCampTabText"
-        ],
-        "pre_wait_freezes": 80,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "SellProductInWulingOutpost": {
-        "desc": "在武陵据点",
-        "recognition": "And",
-        "all_of": [
-            "SellProductInOutpost",
-            "SellProductCheckSkyKingFlatsConstructionSiteTabText"
-        ],
-        "pre_wait_freezes": 80,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "SellProductCheckOutpostText": {
         "desc": "检查左上角据点文本",
         "recognition": "OCR",
