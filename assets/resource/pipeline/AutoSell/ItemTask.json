@@ -4,6 +4,10 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
+        "anchor": {
+            "AutoSellStockRedistributionItemFailedToValleyIVAnchor": "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToValleyIV",
+            "AutoSellStockRedistributionItemFailedToWulingAnchor": "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToWuling"
+        },
         "next": [
             "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentValleyIV",
             "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentWuling",
@@ -152,7 +156,7 @@
         "next": [
             "AutoSellTicketValleyIVOverflow",
             "AutoSellStockRedistributionItemOpenInFriends",
-            "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToValleyIV"
+            "[Anchor]AutoSellStockRedistributionItemFailedToValleyIVAnchor"
         ]
     },
     "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchWuling": {
@@ -177,7 +181,7 @@
         "next": [
             "AutoSellTicketWulingOverflow",
             "AutoSellStockRedistributionItemOpenInFriends",
-            "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToWuling"
+            "[Anchor]AutoSellStockRedistributionItemFailedToWulingAnchor"
         ]
     },
     "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToValleyIV": {
@@ -608,6 +612,10 @@
             "フレン",
             "친구"
         ],
+        "anchor": {
+            "AutoSellStockRedistributionItemFailedToValleyIVAnchor": "",
+            "AutoSellStockRedistributionItemFailedToWulingAnchor": ""
+        }, // 下一个好友一定能找到，找不到是识别问题，任务失败查看截图内容
         "pre_wait_freezes": 100,
         "pre_delay": 0,
         "action": "Click",
