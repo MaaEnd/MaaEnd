@@ -30,7 +30,7 @@
                 },
                 "interval_ms": {
                     "title": "Interval Ms",
-                    "description": "Wait after each attempt before recognition (ms). Omit or 0 defaults to 1000.",
+                    "description": "Wait after each attempt before recognition (ms). Omit or 0 defaults to 3000.",
                     "type": "integer",
                     "minimum": 0
                 }

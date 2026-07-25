@@ -94,7 +94,7 @@ Both are implemented in `agent/go-service/common/repeataction`. They repeatedly 
     - `custom_action?: string`: Registered custom action name (e.g. `AutoAltClickAction`). Mutually exclusive with `action`.
     - `custom_action_param?: object`: Forwarded to the nested custom action.
     - `repeat_count?: int`: Maximum attempts. Defaults to `3` when omitted or `<= 0`.
-    - `interval_ms?: int`: Wait after each attempt before recognition, in milliseconds. Defaults to `1000` when omitted or `0`. Negative values are invalid.
+    - `interval_ms?: int`: Wait after each attempt before recognition, in milliseconds. Defaults to `3000` when omitted or `0`. Negative values are invalid.
 - `RepeatUntilFoundAction` extra:
     - `wait_nodes: string[]`: Pipeline node names to wait for. Required.
 - `RepeatUntilNotFoundAction` extra:
