@@ -71,6 +71,17 @@
         "rate_limit": 0
     },
     "__CloseRewardsButtonStable": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__ColoseRewardsButtonTemplate",
+                    "__CloseRewardsButtonColor"
+                ]
+            }
+        }
+    },
+    "__ColoseRewardsButtonTemplate": {
         "desc": "奖励关闭按钮常态模板，在界面中下部固定区域优先匹配",
         "recognition": {
             "type": "TemplateMatch",
@@ -91,6 +102,23 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "__CloseRewardsButtonColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "__ColoseRewardsButtonTemplate",
+                "method": 6,
+                "lower": [
+                    250
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 200,
+                "connected": true
+            }
+        }
     },
     "__CloseRewardsButtonHover": {
         "desc": "奖励关闭按钮悬停态模板，在常态未命中时作为回退匹配",
