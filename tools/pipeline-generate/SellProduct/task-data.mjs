@@ -297,6 +297,23 @@ const PRIORITY_RULE_SWITCH_CASES = buildPriorityRuleSwitchCases(REGION_PREFIXES)
 const ONLY_PREFERRED_SWITCH_CASES = buildOnlyPreferredSwitchCases();
 const RESERVE_RULE_SWITCH_CASES = buildReserveRuleSwitchCases();
 
+const SLOT_NUMBERS = [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+];
+
+// 槽位选项按编号展开为模板占位字段；未启用行提供空数组，由任务合并去重保留首个非空版本。
+function spreadSlotCases(prefix, enabled, build) {
+    return Object.fromEntries(SLOT_NUMBERS.map((slot) => [
+        `${prefix}${slot}`,
+        enabled ? build(slot) : [],
+    ]));
+}
+
 export const sellProductTaskRows = LOCATIONS.map((loc, index) => {
     const firstInRegion = LOCATIONS.findIndex((entry) => entry.RegionPrefix === loc.RegionPrefix) === index;
     return {
@@ -306,27 +323,14 @@ export const sellProductTaskRows = LOCATIONS.map((loc, index) => {
         LocationId: loc.LocationId,
         OnlyPreferredSwitchCases: index === 0 ? ONLY_PREFERRED_SWITCH_CASES : [],
         OperatorRefreshModeCases: index === 0 ? OPERATOR_REFRESH_MODE_CASES : [],
-        PriorityItemCases1: firstInRegion ? buildPriorityItemCases(loc.RegionPrefix, 1) : [],
-        PriorityItemCases2: firstInRegion ? buildPriorityItemCases(loc.RegionPrefix, 2) : [],
-        PriorityItemCases3: firstInRegion ? buildPriorityItemCases(loc.RegionPrefix, 3) : [],
-        PriorityItemCases4: firstInRegion ? buildPriorityItemCases(loc.RegionPrefix, 4) : [],
-        PriorityItemCases5: firstInRegion ? buildPriorityItemCases(loc.RegionPrefix, 5) : [],
-        PriorityItemCases6: firstInRegion ? buildPriorityItemCases(loc.RegionPrefix, 6) : [],
+        ...spreadSlotCases("PriorityItemCases", firstInRegion, (slot) =>
+            buildPriorityItemCases(loc.RegionPrefix, slot),
+        ),
         PriorityRuleSwitchCases: index === 0 ? PRIORITY_RULE_SWITCH_CASES : [],
         RegionPriorityRuleSwitchCases: firstInRegion ? buildRegionPriorityRuleSwitchCases(loc.RegionPrefix) : [],
         ReserveRuleSwitchCases: index === 0 ? RESERVE_RULE_SWITCH_CASES : [],
-        ReserveItemCases1: index === 0 ? buildReserveItemCases(1) : [],
-        ReserveItemCases2: index === 0 ? buildReserveItemCases(2) : [],
-        ReserveItemCases3: index === 0 ? buildReserveItemCases(3) : [],
-        ReserveItemCases4: index === 0 ? buildReserveItemCases(4) : [],
-        ReserveItemCases5: index === 0 ? buildReserveItemCases(5) : [],
-        ReserveItemCases6: index === 0 ? buildReserveItemCases(6) : [],
-        ReserveModeCases1: index === 0 ? buildReserveModeCases(1) : [],
-        ReserveModeCases2: index === 0 ? buildReserveModeCases(2) : [],
-        ReserveModeCases3: index === 0 ? buildReserveModeCases(3) : [],
-        ReserveModeCases4: index === 0 ? buildReserveModeCases(4) : [],
-        ReserveModeCases5: index === 0 ? buildReserveModeCases(5) : [],
-        ReserveModeCases6: index === 0 ? buildReserveModeCases(6) : [],
+        ...spreadSlotCases("ReserveItemCases", index === 0, buildReserveItemCases),
+        ...spreadSlotCases("ReserveModeCases", index === 0, buildReserveModeCases),
     };
 });
 

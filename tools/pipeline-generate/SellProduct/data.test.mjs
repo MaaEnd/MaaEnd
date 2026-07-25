@@ -51,16 +51,18 @@ test("SellProduct 保留按星期执行入口与任务选项", () => {
 });
 
 test("SellProduct 按固定地区顺序售卖且不再使用自动起始地区", () => {
-    const pipeline = readPipeline(new URL("../../../assets/resource/pipeline/SellProduct.json", import.meta.url));
+    const loop = readPipeline(new URL("../../../assets/resource/pipeline/SellProduct/Loop.json", import.meta.url));
+    const entry = readPipeline(new URL("../../../assets/resource/pipeline/SellProduct.json", import.meta.url));
 
-    assert.deepEqual(pipeline.SellProductLoop.next, [
+    assert.deepEqual(loop.SellProductLoop.next, [
         "SellProductValleyIV",
         "SellProductWuling",
         "SellProductTaskEnd",
     ]);
-    assert.equal(pipeline.SellProductAuto, undefined);
-    assert.equal(pipeline.SellProductAutoValleyIV, undefined);
-    assert.equal(pipeline.SellProductAutoWuling, undefined);
+    assert.equal(entry.SellProductLoop, undefined);
+    assert.equal(entry.SellProductAuto, undefined);
+    assert.equal(entry.SellProductAutoValleyIV, undefined);
+    assert.equal(entry.SellProductAutoWuling, undefined);
 });
 
 test("SellProduct templates consume separate minimal projections of the shared location model", () => {

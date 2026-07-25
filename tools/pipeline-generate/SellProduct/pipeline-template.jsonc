@@ -973,26 +973,6 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "SellProduct${LocationId}RestoreOperatorNotFound": {
-        "desc": "${LocationDesc}联络干员列表已到底，未找到配置的恢复干员",
-        "recognition": "Custom",
-        "custom_recognition": "SellProductOperatorListBottom",
-        "custom_recognition_param": {
-            "mode": "cache",
-            "usage": "restore",
-            "location": "${LocationId}",
-            "roi": [
-                164,
-                121,
-                700,
-                430
-            ]
-        },
-        "pre_delay": 0,
-        "action": "StopTask",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "SellProduct${LocationId}CloseRestoreOperatorLiaisonAfterNotFound": {
         "desc": "${LocationDesc}未找到可用的恢复干员，关闭派驻列表并继续",
         "recognition": "And",
