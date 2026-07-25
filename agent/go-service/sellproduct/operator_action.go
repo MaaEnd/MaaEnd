@@ -6,6 +6,7 @@ import (
 	"image"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -34,12 +35,28 @@ type OperatorListBottomRecognition struct{}
 // 它与 retry 节点放在同一个 next 列表中，避免同一心跳重复推进到底判定状态。
 type OperatorScanOutcomeRecognition struct{}
 
+type currentOperatorOCRCacheKey struct {
+	taskID   int64
+	location string
+	roi      [4]int
+}
+
+type currentOperatorOCRCacheEntry struct {
+	key   currentOperatorOCRCacheKey
+	items []ocrItem
+}
+
 var _ maa.CustomRecognitionRunner = (*SelectBestOperatorRecognition)(nil)
 var _ maa.CustomRecognitionRunner = (*CurrentBestOperatorRecognition)(nil)
 var _ maa.CustomRecognitionRunner = (*CurrentOperatorUncachedRecognition)(nil)
 var _ maa.CustomRecognitionRunner = (*OperatorCacheReadyRecognition)(nil)
 var _ maa.CustomRecognitionRunner = (*OperatorListBottomRecognition)(nil)
 var _ maa.CustomRecognitionRunner = (*OperatorScanOutcomeRecognition)(nil)
+
+var currentOperatorOCRCache = struct {
+	sync.Mutex
+	entry *currentOperatorOCRCacheEntry
+}{}
 
 // Run 从当前画面的 OCR 结果中返回第一个可见的最优候选。
 // 完整选择顺序由 candidatesForCurrentSelection 预先确定，因此这里无需再次计算权重。
@@ -124,7 +141,7 @@ func (r *CurrentBestOperatorRecognition) Run(
 	}
 	setPlannedRestoreCandidate(selectionParam, candidates)
 
-	items, err := recognizeOperatorList(ctx, arg.Img, p.ROI)
+	items, err := recognizeCurrentOperatorList(ctx, arg, p, true)
 	if err != nil {
 		log.Error().Err(err).Str("component", currentBestOperatorRecognitionName).Msg("recognize current operator failed")
 		return nil, false
@@ -171,7 +188,7 @@ func (r *CurrentOperatorUncachedRecognition) Run(
 		log.Error().Err(err).Str("component", currentOperatorUncachedRecognitionName).Msg("owned operators unavailable")
 		return nil, false
 	}
-	items, err := recognizeOperatorList(ctx, arg.Img, p.ROI)
+	items, err := recognizeCurrentOperatorList(ctx, arg, p, false)
 	if err != nil {
 		log.Error().Err(err).Str("component", currentOperatorUncachedRecognitionName).Msg("recognize current operator failed")
 		return nil, false
@@ -696,6 +713,62 @@ func recognizeOperatorList(ctx *maa.Context, img image.Image, roi []int) ([]ocrI
 		return nil, err
 	}
 	return collectOCRResults(detail), nil
+}
+
+// recognizeCurrentOperatorList 让相邻的当前干员判断复用同一截图、同一 ROI 的 OCR 结果。
+// uncached 节点先写入一次性缓存；紧随其后的 best 节点按任务、据点和 ROI 读取并消费。
+func recognizeCurrentOperatorList(
+	ctx *maa.Context,
+	arg *maa.CustomRecognitionArg,
+	p *operatorActionParam,
+	reuse bool,
+) ([]ocrItem, error) {
+	key := makeCurrentOperatorOCRCacheKey(arg, p)
+	if reuse {
+		if items, ok := takeCurrentOperatorOCRCache(key); ok {
+			return items, nil
+		}
+	}
+
+	items, err := recognizeOperatorList(ctx, arg.Img, p.ROI)
+	if err != nil {
+		return nil, err
+	}
+	if !reuse {
+		storeCurrentOperatorOCRCache(key, items)
+	}
+	return items, nil
+}
+
+func makeCurrentOperatorOCRCacheKey(
+	arg *maa.CustomRecognitionArg,
+	p *operatorActionParam,
+) currentOperatorOCRCacheKey {
+	return currentOperatorOCRCacheKey{
+		taskID:   arg.TaskID,
+		location: p.Location,
+		roi:      [4]int{p.ROI[0], p.ROI[1], p.ROI[2], p.ROI[3]},
+	}
+}
+
+func storeCurrentOperatorOCRCache(key currentOperatorOCRCacheKey, items []ocrItem) {
+	currentOperatorOCRCache.Lock()
+	defer currentOperatorOCRCache.Unlock()
+	currentOperatorOCRCache.entry = &currentOperatorOCRCacheEntry{
+		key:   key,
+		items: append([]ocrItem(nil), items...),
+	}
+}
+
+func takeCurrentOperatorOCRCache(key currentOperatorOCRCacheKey) ([]ocrItem, bool) {
+	currentOperatorOCRCache.Lock()
+	defer currentOperatorOCRCache.Unlock()
+	entry := currentOperatorOCRCache.entry
+	currentOperatorOCRCache.entry = nil
+	if entry == nil || entry.key != key {
+		return nil, false
+	}
+	return append([]ocrItem(nil), entry.items...), true
 }
 
 // operatorListStateFor 获取现有扫描状态，或根据磁盘缓存初始化新的扫描会话。
