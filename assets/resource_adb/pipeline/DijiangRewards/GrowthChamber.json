@@ -1,12 +1,4 @@
 {
-    "GrowthChamberBackExtract": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 4
-            }
-        }
-    },
     "GrowthChamberTargetNotFound": {
         "action": {
             "type": "Swipe",

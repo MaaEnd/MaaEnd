@@ -23,13 +23,5 @@
                 ]
             }
         }
-    },
-    "CloseButtonDijiang": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 4
-            }
-        }
     }
 }

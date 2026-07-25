@@ -1,9 +1,12 @@
 {
     "__ScenePrivateLoginCloseDialog": {
         "action": {
-            "type": "ClickKey",
+            "type": "Click",
             "param": {
-                "key": 4 // ESC
+                "target": [
+                    1,
+                    1
+                ]
             }
         }
     }
