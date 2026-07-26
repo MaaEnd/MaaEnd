@@ -67,7 +67,7 @@
                     45
                 ],
                 "connected": true,
-                "count": 200
+                "count": 150
             }
         ],
         "pre_delay": 0,
@@ -103,7 +103,7 @@
                     255
                 ],
                 "connected": true,
-                "count": 200
+                "count": 150
             }
         ],
         "pre_delay": 0,

@@ -99,8 +99,46 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "SellProductCardiacRemediationStationCurrentOperatorUncached",
             "SellProductCardiacRemediationStationCurrentTargetOperator",
             "SellProductCardiacRemediationStationOpenTargetOperatorList"
+        ]
+    },
+    "SellProductCardiacRemediationStationCurrentOperatorUncached": {
+        "desc": "心脏修缮站当前联络干员未缓存，重新扫描干员列表",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "SellProductCurrentOperatorUncached",
+                "custom_recognition_param": {
+                    "mode": "cache",
+                    "usage": "all",
+                    "location": "CardiacRemediationStation",
+                    "roi": [
+                        260,
+                        568,
+                        280,
+                        35
+                    ]
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SellProductScanOperatorList"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationBeforeSellOperator"
         ]
     },
     "SellProductCardiacRemediationStationCurrentTargetOperator": {
@@ -938,26 +976,6 @@
             "usage": "restore",
             "location": "CardiacRemediationStation",
             "result": "error",
-            "roi": [
-                164,
-                121,
-                700,
-                430
-            ]
-        },
-        "pre_delay": 0,
-        "action": "StopTask",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "SellProductCardiacRemediationStationRestoreOperatorNotFound": {
-        "desc": "心脏修缮站联络干员列表已到底，未找到配置的恢复干员",
-        "recognition": "Custom",
-        "custom_recognition": "SellProductOperatorListBottom",
-        "custom_recognition_param": {
-            "mode": "cache",
-            "usage": "restore",
-            "location": "CardiacRemediationStation",
             "roi": [
                 164,
                 121,

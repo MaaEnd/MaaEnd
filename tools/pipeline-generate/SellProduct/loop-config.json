@@ -1,0 +1,8 @@
+{
+    "template": "loop-template.jsonc",
+    "data": "loop-data.mjs",
+    "outputDir": "../../../assets/resource/pipeline/SellProduct",
+    "outputPattern": "Loop.json",
+    "format": true,
+    "merged": false
+}

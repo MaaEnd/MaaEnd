@@ -36,6 +36,19 @@
 
 基准分辨率为 720p（1280×720），坐标与 ROI 均按此设计。
 
+## `EssenceGridAdvance.attach`
+
+背包网格扫描配置统一放在 `EssenceGridAdvance` 的 `attach` 中。C++ 会读取 MaaFramework 解析、合并后的节点数据，因此控制器资源包可以只覆盖发生差异的字段；`custom_recognition_param` 仅保留为旧调用兼容入口，且同名字段以 `attach` 为准。
+
+- `template_path`：网格单元分类模板。
+- `thumb_discard_template_path`：已废弃缩略图模板。
+- `thumb_lock_template_paths`：已锁定缩略图模板列表。
+- `roi`、`normalized_size`：网格扫描区域及其基准分辨率。
+- 其余 `row_threshold_ratio`、`col_threshold_ratio`、`min_score` 等字段用于调整 `RecoGrid`。
+- `flawless_essence`、`pure_essence`、`skip_thumb_lock`、`skip_thumb_discard` 为筛选选项。
+
+模板路径应同时适用于安装目录和源码目录。例如桌面资源使用 `resource/image/EssenceFilter/EssenceGeneral.png`；若 ADB 需要独立模板，可在 `resource_adb` 的同名节点中覆盖为 `resource_adb/image/EssenceFilter/EssenceGeneral.png`。
+
 ## 开发说明
 
 - 新增/修改 CustomAction 后需在 `register.go` 中注册。

@@ -1,150 +1,32 @@
 {
-    "SellProductValleyIVSell": {
-        "desc": "在四号谷地售卖",
+    // ===== 地区据点锚点（锚定该地区第一个据点的标签页文本） =====
+    "SellProductInWulingOutpost": {
+        "desc": "在武陵据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost",
+            "SellProductCheckSkyKingFlatsConstructionSiteTabText"
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProductWuling": {
+        "desc": "武陵售卖流程入口",
         "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterMenuRegionalDevelopmentValleyIVOutpostManagement"
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": ["SellProductValleyIVInitializePrioritySession"]
-    },
-    "SellProductValleyIVInitializePrioritySession": {
-        "desc": "切换四号谷地优先售卖配置",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductPrioritySession",
-        "custom_action_param": {
-            "operation": "reset_preferred",
-            "enabled": false
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductValleyIVRegisterPriorityItem1"
-        ]
-    },
-    "SellProductValleyIVRegisterPriorityItem1": {
-        "desc": "注册四号谷地第1个优先售卖物品",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductPrioritySession",
-        "custom_action_param": {
-            "operation": "register",
-            "item_id": ""
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductValleyIVRegisterPriorityItem2"
-        ]
-    },
-    "SellProductValleyIVRegisterPriorityItem2": {
-        "desc": "注册四号谷地第2个优先售卖物品",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductPrioritySession",
-        "custom_action_param": {
-            "operation": "register",
-            "item_id": ""
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductValleyIVRegisterPriorityItem3"
-        ]
-    },
-    "SellProductValleyIVRegisterPriorityItem3": {
-        "desc": "注册四号谷地第3个优先售卖物品",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductPrioritySession",
-        "custom_action_param": {
-            "operation": "register",
-            "item_id": ""
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductValleyIVRegisterPriorityItem4"
-        ]
-    },
-    "SellProductValleyIVRegisterPriorityItem4": {
-        "desc": "注册四号谷地第4个优先售卖物品",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductPrioritySession",
-        "custom_action_param": {
-            "operation": "register",
-            "item_id": ""
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductValleyIVRegisterPriorityItem5"
-        ]
-    },
-    "SellProductValleyIVRegisterPriorityItem5": {
-        "desc": "注册四号谷地第5个优先售卖物品",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductPrioritySession",
-        "custom_action_param": {
-            "operation": "register",
-            "item_id": ""
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductValleyIVRegisterPriorityItem6"
-        ]
-    },
-    "SellProductValleyIVRegisterPriorityItem6": {
-        "desc": "注册四号谷地第6个优先售卖物品",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SellProductPrioritySession",
-        "custom_action_param": {
-            "operation": "register",
-            "item_id": ""
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SellProductValleyIVPrepareOperatorCache"
-        ]
-    },
-    "SellProductValleyIVPrepareOperatorCache": {
-        "desc": "四号谷地售卖前准备联络干员缓存",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SellProductScanOperatorList"
+                "SceneEnterMenuRegionalDevelopmentWuling"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]SellProductRefugeeCamp",
-            "[JumpBack]SellProductInfraStation",
-            "[JumpBack]SellProductReconstructionHQ",
-            "SellProductLoop",
-            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+            "SellProductWulingSell"
         ]
     },
     "SellProductWulingSell": {
@@ -160,7 +42,9 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "next": ["SellProductWulingInitializePrioritySession"]
+        "next": [
+            "SellProductWulingInitializePrioritySession"
+        ]
     },
     "SellProductWulingInitializePrioritySession": {
         "desc": "切换武陵优先售卖配置",

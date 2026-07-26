@@ -17,8 +17,8 @@ pnpm fetch:zmdmap
 # 如果已经更新过 zmdmap 缓存，也可以在生成器目录单独渲染
 cd tools/pipeline-generate/EnvironmentMonitoring/generator
 node sync-routes.mjs
-npx @joebao/maa-pipeline-generate
-npx @joebao/maa-pipeline-generate --config terminals-config.json
+pnpm exec maa-pipeline-generate
+pnpm exec maa-pipeline-generate --config terminals-config.json
 ```
 
 ## 新增/更新观察点

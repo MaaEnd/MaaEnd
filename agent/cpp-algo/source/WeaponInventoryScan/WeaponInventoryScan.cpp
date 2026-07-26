@@ -165,14 +165,21 @@ void WriteSummaryDetail(MaaStringBuffer* outDetail, const recogrid::GridScanResu
     detail["page_cols"] = result.cols;
     detail["new_cells"] = static_cast<int>(result.newCellIndices.size());
     detail["row_offset"] = result.rowOffset;
+    detail["raw_alignment_offset"] = result.rawAlignmentOffset;
+    detail["adjusted_alignment_offset"] = result.adjustedAlignmentOffset;
+    detail["support_rows"] = result.supportRows;
+    detail["alignment_status"] = result.alignmentStatus;
     detail["delta_reliable"] = result.deltaReliable;
-    detail["pending_stored"] = result.pendingStored;
-    detail["pending_resolved"] = result.pendingResolved;
+    detail["fallback_used"] = result.fallbackUsed;
+    detail["fallback_streak"] = result.fallbackStreak;
     detail["has_progress"] = result.hasProgress;
     detail["reached_end"] = result.reachedEnd;
     detail["matched_cells"] = result.matchedCells;
     detail["compared_cells"] = result.comparedCells;
     detail["match_ratio"] = result.matchRatio;
+    detail["average_distance"] = result.averageDistance;
+    detail["delta_score"] = result.deltaScore;
+    detail["unresolved_reason"] = result.unresolvedReason;
     if (!result.success) {
         detail["message"] = result.message;
     }
@@ -268,13 +275,20 @@ MaaBool MAA_CALL WeaponInventoryScanRecognitionRun(
             LogInfo << "WeaponInventoryScan cumulative grid" << VAR(cumulativeGrid) << VAR(unknown) << VAR(rows) << VAR(cols)
                     << VAR(pageGrid) << VAR(newCells);
             LogInfo << "WeaponInventoryScan scan delta" << VAR(result.deltaReliable) << VAR(result.hasProgress) << VAR(result.reachedEnd)
-                    << VAR(result.rowOffset) << VAR(result.matchedCells) << VAR(result.comparedCells) << VAR(result.matchRatio)
-                    << VAR(result.averageDistance) << VAR(result.deltaScore);
+                    << VAR(result.rowOffset) << VAR(result.rawAlignmentOffset) << VAR(result.adjustedAlignmentOffset)
+                    << VAR(result.supportRows) << VAR(result.alignmentStatus) << VAR(result.matchedCells)
+                    << VAR(result.comparedCells) << VAR(result.matchRatio) << VAR(result.averageDistance) << VAR(result.deltaScore)
+                    << VAR(result.fallbackUsed) << VAR(result.fallbackStreak);
             const char* nextNode = result.reachedEnd ? "WeaponInventoryScanFinish" : "WeaponInventoryScanSwipeNext";
             LogInfo << "WeaponInventoryScan override next" << VAR(nextNode);
             if (!OverrideNext(context, node_name, nextNode)) {
                 LogWarn << "WeaponInventoryScan override next failed" << VAR(result.reachedEnd);
             }
+        }
+        else {
+            LogWarn << "WeaponInventoryScan scan miss" << VAR(result.message) << VAR(result.alignmentStatus)
+                    << VAR(result.rawAlignmentOffset) << VAR(result.adjustedAlignmentOffset) << VAR(result.supportRows)
+                    << VAR(result.matchRatio) << VAR(result.fallbackStreak) << VAR(result.unresolvedReason);
         }
         WriteSummaryDetail(out_detail, result);
 

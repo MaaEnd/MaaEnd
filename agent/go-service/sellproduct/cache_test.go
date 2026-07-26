@@ -502,6 +502,46 @@ func TestUpdateLocationsPreservesOperatorSnapshots(t *testing.T) {
 	}
 }
 
+func TestInvalidateOperatorSnapshotPreservesLocations(t *testing.T) {
+	path := filepath.Join(t.TempDir(), sellProductCacheFileName)
+	if err := writeSellProductCache(path, sellProductCache{
+		Accounts: map[string]sellProductCacheAccount{
+			testCacheUID: {
+				Operators: testOperatorSnapshot("Wulfgard"),
+				Locations: map[string]bool{"RefugeeCamp": true},
+			},
+			testOtherCacheUID: {Operators: testOperatorSnapshot("Akekuri")},
+		},
+	}); err != nil {
+		t.Fatalf("准备干员缓存失败：%v", err)
+	}
+
+	if err := invalidateOperatorSnapshotForUID(path, testCacheUID); err != nil {
+		t.Fatalf("使干员快照失效失败：%v", err)
+	}
+	cache, err := readSellProductCache(path)
+	if err != nil {
+		t.Fatalf("读取失效后的缓存失败：%v", err)
+	}
+	if sellProductCacheHasOperatorSnapshot(cache, testCacheUID) {
+		t.Fatal("失效后不应再存在干员快照")
+	}
+	if got := cache.Accounts[testCacheUID].Locations["RefugeeCamp"]; !got {
+		t.Fatal("失效干员快照不应丢失据点状态")
+	}
+	if want := []string{"Akekuri"}; !reflect.DeepEqual(cache.Accounts[testOtherCacheUID].Operators.IDs, want) {
+		t.Fatalf("其他账号干员快照 = %#v，期望 %#v", cache.Accounts[testOtherCacheUID].Operators.IDs, want)
+	}
+
+	// 对没有快照的账号重复调用应为无操作。
+	if err := invalidateOperatorSnapshotForUID(path, testCacheUID); err != nil {
+		t.Fatalf("重复失效应为无操作：%v", err)
+	}
+	if err := invalidateOperatorSnapshotForUID(path, "unknown"); err != nil {
+		t.Fatalf("不存在的账号失效应为无操作：%v", err)
+	}
+}
+
 func TestMergeOperatorCachePreservesLocations(t *testing.T) {
 	cache := sellProductCache{
 		Accounts: map[string]sellProductCacheAccount{

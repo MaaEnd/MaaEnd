@@ -99,8 +99,41 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "SellProduct${LocationId}CurrentOperatorUncached",
             "SellProduct${LocationId}CurrentTargetOperator",
             "SellProduct${LocationId}OpenTargetOperatorList"
+        ]
+    },
+    "SellProduct${LocationId}CurrentOperatorUncached": {
+        "desc": "${LocationDesc}当前联络干员未缓存，重新扫描干员列表",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "SellProductCurrentOperatorUncached",
+                "custom_recognition_param": {
+                    "mode": "cache",
+                    "usage": "all",
+                    "location": "${LocationId}",
+                    "roi": "${CurrentOperatorROI}"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SellProductScanOperatorList"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${LocationId}BeforeSellOperator"
         ]
     },
     "SellProduct${LocationId}CurrentTargetOperator": {
@@ -928,26 +961,6 @@
             "usage": "restore",
             "location": "${LocationId}",
             "result": "error",
-            "roi": [
-                164,
-                121,
-                700,
-                430
-            ]
-        },
-        "pre_delay": 0,
-        "action": "StopTask",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "SellProduct${LocationId}RestoreOperatorNotFound": {
-        "desc": "${LocationDesc}联络干员列表已到底，未找到配置的恢复干员",
-        "recognition": "Custom",
-        "custom_recognition": "SellProductOperatorListBottom",
-        "custom_recognition_param": {
-            "mode": "cache",
-            "usage": "restore",
-            "location": "${LocationId}",
             "roi": [
                 164,
                 121,

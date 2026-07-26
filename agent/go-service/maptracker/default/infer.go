@@ -52,7 +52,7 @@ const (
 
 var mapTrackerInferDefaultParam = MapTrackerInferParam{
 	MapNameRegex: "^[a-z]+\\d*_[a-z]+\\d+$",
-	Precision:    0.5,
+	Precision:    0.7,
 	Threshold:    0.4,
 	AllowedModes: INFER_MODE_FULL_SEARCH | INFER_MODE_FAST_SEARCH,
 }

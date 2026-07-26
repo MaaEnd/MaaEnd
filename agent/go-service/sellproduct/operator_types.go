@@ -9,13 +9,14 @@ import (
 
 const (
 	// 以下名称必须与 Pipeline 中 custom_recognition 对应的组件名保持一致。
-	selectBestOperatorRecognitionName  = "SellProductSelectBestOperator"
-	currentBestOperatorRecognitionName = "SellProductCurrentBestOperator"
-	operatorCacheReadyRecognitionName  = "SellProductOperatorCacheReady"
-	operatorListBottomRecognitionName  = "SellProductOperatorListBottom"
-	operatorScanOutcomeRecognitionName = "SellProductOperatorScanOutcome"
-	operatorConflictRecognitionName    = "SellProductOperatorConflict"
-	operatorSessionActionName          = "SellProductOperatorSession"
+	selectBestOperatorRecognitionName      = "SellProductSelectBestOperator"
+	currentBestOperatorRecognitionName     = "SellProductCurrentBestOperator"
+	currentOperatorUncachedRecognitionName = "SellProductCurrentOperatorUncached"
+	operatorCacheReadyRecognitionName      = "SellProductOperatorCacheReady"
+	operatorListBottomRecognitionName      = "SellProductOperatorListBottom"
+	operatorScanOutcomeRecognitionName     = "SellProductOperatorScanOutcome"
+	operatorConflictRecognitionName        = "SellProductOperatorConflict"
+	operatorSessionActionName              = "SellProductOperatorSession"
 
 	// cache 仅复用完整本地快照，缺失时先扫描；refresh 强制先完整扫描一次干员列表。
 	operatorCacheModeCache   = "cache"

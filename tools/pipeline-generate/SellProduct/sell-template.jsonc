@@ -1,4 +1,34 @@
 {
+    // ===== 地区据点锚点（锚定该地区第一个据点的标签页文本） =====
+    "SellProductIn${RegionPrefix}Outpost": {
+        "desc": "在${RegionDesc}据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost",
+            "SellProductCheck${AnchorLocationId}TabText"
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProduct${RegionPrefix}": {
+        "desc": "${RegionDesc}售卖流程入口",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopment${RegionPrefix}"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProduct${RegionPrefix}Sell"
+        ]
+    },
     "SellProduct${RegionPrefix}Sell": {
         "desc": "在${RegionDesc}售卖",
         "max_hit": 1,

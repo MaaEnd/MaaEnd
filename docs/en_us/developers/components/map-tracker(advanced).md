@@ -38,7 +38,7 @@ Optional Parameters:
     - `^map01_lv001$`: Only matches "map01_lv001" (Valley IV - The Hub).
     - `^map01_lv\\d+$`: Matches all sub-regions of "map01" (Valley IV).
 
-- `precision`: A real number in the range $(0, 1]$, default `0.5`. Controls the matching precision. Larger values are stricter about matching map features, but may slow down matching; smaller values greatly improve matching speed, but may lead to incorrect results. When the number of maps to match is small (for example, matching only one map), a larger value is recommended for more accurate results.
+- `precision`: A real number in the range $(0, 1]$, default `0.7`. Controls the matching precision. Larger values are stricter about matching map features, but may slow down matching; smaller values greatly improve matching speed, but may lead to incorrect results. When the number of maps to match is small (for example, matching only one map), a larger value is recommended for more accurate results.
 
 - `threshold`: A real number in the range $(0, 1]$, default `0.4`. Controls the confidence threshold for matching. Match results below this value will not hit the recognition.
 

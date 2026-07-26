@@ -7,6 +7,7 @@ func Register() {
 	maa.AgentServerRegisterCustomRecognition(priorityItemRecognitionName, &PriorityItemRecognition{})
 	maa.AgentServerRegisterCustomRecognition(selectBestOperatorRecognitionName, &SelectBestOperatorRecognition{})
 	maa.AgentServerRegisterCustomRecognition(currentBestOperatorRecognitionName, &CurrentBestOperatorRecognition{})
+	maa.AgentServerRegisterCustomRecognition(currentOperatorUncachedRecognitionName, &CurrentOperatorUncachedRecognition{})
 	maa.AgentServerRegisterCustomRecognition(operatorCacheReadyRecognitionName, &OperatorCacheReadyRecognition{})
 	maa.AgentServerRegisterCustomRecognition(operatorListBottomRecognitionName, &OperatorListBottomRecognition{})
 	maa.AgentServerRegisterCustomRecognition(operatorScanOutcomeRecognitionName, &OperatorScanOutcomeRecognition{})

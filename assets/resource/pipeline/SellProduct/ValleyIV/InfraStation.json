@@ -1,48 +1,48 @@
 {
     // ===== 售卖点顶层节点 =====
-    "SellProductXiranflowCloudseederStation": {
-        "desc": "盈天台建设站售卖",
+    "SellProductInfraStation": {
+        "desc": "基建前站售卖",
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "SellProductCheckXiranflowCloudseederStationTabText"
+            "SellProductCheckInfraStationTabText"
         ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationSell",
-            "[JumpBack]SellProductGoToXiranflowCloudseederStation"
+            "SellProductInfraStationSell",
+            "[JumpBack]SellProductGoToInfraStation"
         ]
     },
     // ===== 售卖锚点节点 =====
-    "SellProductXiranflowCloudseederStationSell": {
-        "desc": "盈天台建设站售卖",
+    "SellProductInfraStationSell": {
+        "desc": "基建前站售卖",
         "recognition": "And",
         "all_of": [
-            "SellProductInXiranflowCloudseederStation"
+            "SellProductInInfraStation"
         ],
         "pre_delay": 0,
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
-            "SellProductSelectPriorityItem": "SellProductXiranflowCloudseederStationSelectPriorityItem",
-            "SellProductPriorityItemsExhausted": "SellProductXiranflowCloudseederStationPriorityItemsExhausted",
-            "SellProductCommitPriorityItem": "SellProductXiranflowCloudseederStationCommitPriorityItem",
-            "SellProductMarkOutOfStock": "SellProductXiranflowCloudseederStationMarkOutOfStock",
-            "SellProductBetterSliding": "SellProductXiranflowCloudseederStationApplyReserve"
+            "SellProductSelectPriorityItem": "SellProductInfraStationSelectPriorityItem",
+            "SellProductPriorityItemsExhausted": "SellProductInfraStationPriorityItemsExhausted",
+            "SellProductCommitPriorityItem": "SellProductInfraStationCommitPriorityItem",
+            "SellProductMarkOutOfStock": "SellProductInfraStationMarkOutOfStock",
+            "SellProductBetterSliding": "SellProductInfraStationApplyReserve"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationOutpostProsperityAvailable",
-            "SellProductXiranflowCloudseederStationOutpostProsperityMax"
+            "SellProductInfraStationOutpostProsperityAvailable",
+            "SellProductInfraStationOutpostProsperityMax"
         ]
     },
-    "SellProductXiranflowCloudseederStationOutpostProsperityAvailable": {
-        "desc": "盈天台建设站据点发展值未达上限",
+    "SellProductInfraStationOutpostProsperityAvailable": {
+        "desc": "基建前站据点发展值未达上限",
         "recognition": "And",
         "all_of": [
-            "SellProductInXiranflowCloudseederStation",
+            "SellProductInInfraStation",
             "SellProductOutpostProsperityAvailable"
         ],
         "pre_delay": 0,
@@ -50,41 +50,41 @@
         "custom_action": "SellProductOperatorSession",
         "custom_action_param": {
             "operation": "enter_location",
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "outpost_prosperity_max": false
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationSetOperatorAnchors"
+            "SellProductInfraStationSetOperatorAnchors"
         ]
     },
-    "SellProductXiranflowCloudseederStationOutpostProsperityMax": {
-        "desc": "盈天台建设站据点发展值已达上限",
+    "SellProductInfraStationOutpostProsperityMax": {
+        "desc": "基建前站据点发展值已达上限",
         "recognition": "And",
         "all_of": [
-            "SellProductInXiranflowCloudseederStation"
+            "SellProductInInfraStation"
         ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SellProductOperatorSession",
         "custom_action_param": {
             "operation": "enter_location",
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "outpost_prosperity_max": true
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationSetOperatorAnchors"
+            "SellProductInfraStationSetOperatorAnchors"
         ]
     },
-    "SellProductXiranflowCloudseederStationSetOperatorAnchors": {
-        "desc": "盈天台建设站设置联络干员流程锚点",
+    "SellProductInfraStationSetOperatorAnchors": {
+        "desc": "基建前站设置联络干员流程锚点",
         "pre_delay": 0,
         "anchor": {
-            "SellProductBeforeSellOperatorTarget": "SellProductXiranflowCloudseederStationBeforeSellOperator",
-            "SellProductAfterSellOperatorTarget": "SellProductXiranflowCloudseederStationAfterSellOperator"
+            "SellProductBeforeSellOperatorTarget": "SellProductInfraStationBeforeSellOperator",
+            "SellProductAfterSellOperatorTarget": "SellProductInfraStationAfterSellOperator"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -93,24 +93,62 @@
         ]
     },
     // ===== 售卖前联络干员切换 =====
-    "SellProductXiranflowCloudseederStationBeforeSellOperator": {
-        "desc": "盈天台建设站售卖前检查并切换联络干员",
+    "SellProductInfraStationBeforeSellOperator": {
+        "desc": "基建前站售卖前检查并切换联络干员",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationCurrentTargetOperator",
-            "SellProductXiranflowCloudseederStationOpenTargetOperatorList"
+            "SellProductInfraStationCurrentOperatorUncached",
+            "SellProductInfraStationCurrentTargetOperator",
+            "SellProductInfraStationOpenTargetOperatorList"
         ]
     },
-    "SellProductXiranflowCloudseederStationCurrentTargetOperator": {
-        "desc": "盈天台建设站当前联络干员已是售卖用干员",
+    "SellProductInfraStationCurrentOperatorUncached": {
+        "desc": "基建前站当前联络干员未缓存，重新扫描干员列表",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "SellProductCurrentOperatorUncached",
+                "custom_recognition_param": {
+                    "mode": "cache",
+                    "usage": "all",
+                    "location": "InfraStation",
+                    "roi": [
+                        260,
+                        568,
+                        280,
+                        35
+                    ]
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SellProductScanOperatorList"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductInfraStationBeforeSellOperator"
+        ]
+    },
+    "SellProductInfraStationCurrentTargetOperator": {
+        "desc": "基建前站当前联络干员已是售卖用干员",
         "recognition": "Custom",
         "custom_recognition": "SellProductCurrentBestOperator",
         "custom_recognition_param": {
             "mode": "cache",
             "usage": "target",
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "roi": [
                 260,
                 568,
@@ -123,7 +161,7 @@
         "custom_action": "SellProductOperatorSession",
         "custom_action_param": {
             "operation": "complete_target",
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "changed": false
         },
         "post_delay": 0,
@@ -132,23 +170,23 @@
             "SellProductSellLoop"
         ]
     },
-    "SellProductXiranflowCloudseederStationOpenTargetOperatorList": {
-        "desc": "盈天台建设站打开联络干员列表以切换售卖用干员",
+    "SellProductInfraStationOpenTargetOperatorList": {
+        "desc": "基建前站打开联络干员列表以切换售卖用干员",
         "recognition": "And",
         "all_of": [
             "SellProductOpenOperatorLiaisonButton",
-            "SellProductInXiranflowCloudseederStation"
+            "SellProductInInfraStation"
         ],
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationInTargetOperatorList"
+            "SellProductInfraStationInTargetOperatorList"
         ]
     },
-    "SellProductXiranflowCloudseederStationInTargetOperatorList": {
-        "desc": "盈天台建设站已打开联络干员列表，选择售卖用干员",
+    "SellProductInfraStationInTargetOperatorList": {
+        "desc": "基建前站已打开联络干员列表，选择售卖用干员",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison"
@@ -166,21 +204,21 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationSelectTargetOperator",
-            "SellProductXiranflowCloudseederStationRetryTargetOperatorAfterScan",
-            "SellProductXiranflowCloudseederStationTargetOperatorNotFound",
-            "SellProductXiranflowCloudseederStationTargetOperatorScanFailed",
-            "SellProductXiranflowCloudseederStationSwipeTargetOperatorList"
+            "SellProductInfraStationSelectTargetOperator",
+            "SellProductInfraStationRetryTargetOperatorAfterScan",
+            "SellProductInfraStationTargetOperatorNotFound",
+            "SellProductInfraStationTargetOperatorScanFailed",
+            "SellProductInfraStationSwipeTargetOperatorList"
         ]
     },
-    "SellProductXiranflowCloudseederStationSelectTargetOperator": {
-        "desc": "盈天台建设站在联络干员列表中选择售卖用干员",
+    "SellProductInfraStationSelectTargetOperator": {
+        "desc": "基建前站在联络干员列表中选择售卖用干员",
         "recognition": "Custom",
         "custom_recognition": "SellProductSelectBestOperator",
         "custom_recognition_param": {
             "mode": "cache",
             "usage": "target",
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "roi": [
                 164,
                 121,
@@ -193,11 +231,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationConfirmTargetOperator"
+            "SellProductInfraStationConfirmTargetOperator"
         ]
     },
-    "SellProductXiranflowCloudseederStationConfirmTargetOperator": {
-        "desc": "盈天台建设站点击派驻确认售卖用干员",
+    "SellProductInfraStationConfirmTargetOperator": {
+        "desc": "基建前站点击派驻确认售卖用干员",
         "recognition": "And",
         "all_of": [
             "SellProductCheckAssignText",
@@ -218,13 +256,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationTargetOperatorManagedConflict",
-            "SellProductXiranflowCloudseederStationTargetOperatorProtectedConflict",
-            "SellProductXiranflowCloudseederStationCloseTargetOperatorLiaison"
+            "SellProductInfraStationTargetOperatorManagedConflict",
+            "SellProductInfraStationTargetOperatorProtectedConflict",
+            "SellProductInfraStationCloseTargetOperatorLiaison"
         ]
     },
-    "SellProductXiranflowCloudseederStationTargetOperatorManagedConflict": {
-        "desc": "盈天台建设站售卖用干员来自本次启用据点，确认调至当前据点",
+    "SellProductInfraStationTargetOperatorManagedConflict": {
+        "desc": "基建前站售卖用干员来自本次启用据点，确认调至当前据点",
         "recognition": "And",
         "all_of": [
             "SellProductOperatorAlreadyAssignedPrompt",
@@ -234,7 +272,7 @@
                 "custom_recognition_param": {
                     "result": "managed",
                     "usage": "target",
-                    "location": "XiranflowCloudseederStation"
+                    "location": "InfraStation"
                 },
                 "roi": [
                     240,
@@ -260,11 +298,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationCloseTargetOperatorLiaison"
+            "SellProductInfraStationCloseTargetOperatorLiaison"
         ]
     },
-    "SellProductXiranflowCloudseederStationTargetOperatorProtectedConflict": {
-        "desc": "盈天台建设站售卖用干员来自未启用据点，临时排除并重新规划",
+    "SellProductInfraStationTargetOperatorProtectedConflict": {
+        "desc": "基建前站售卖用干员来自未启用据点，临时排除并重新规划",
         "recognition": "And",
         "all_of": [
             "SellProductOperatorAlreadyAssignedPrompt",
@@ -274,7 +312,7 @@
                 "custom_recognition_param": {
                     "result": "protected",
                     "usage": "target",
-                    "location": "XiranflowCloudseederStation"
+                    "location": "InfraStation"
                 },
                 "roi": [
                     240,
@@ -291,16 +329,16 @@
         "custom_action_param": {
             "operation": "exclude_selected",
             "usage": "target",
-            "location": "XiranflowCloudseederStation"
+            "location": "InfraStation"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationCancelTargetOperatorAlreadyAssigned"
+            "SellProductInfraStationCancelTargetOperatorAlreadyAssigned"
         ]
     },
-    "SellProductXiranflowCloudseederStationCancelTargetOperatorAlreadyAssigned": {
-        "desc": "盈天台建设站取消抢占其他据点的售卖用干员",
+    "SellProductInfraStationCancelTargetOperatorAlreadyAssigned": {
+        "desc": "基建前站取消抢占其他据点的售卖用干员",
         "recognition": "And",
         "all_of": [
             "SellProductOperatorAlreadyAssignedPrompt",
@@ -321,11 +359,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationCloseTargetOperatorLiaisonAfterAlreadyAssigned"
+            "SellProductInfraStationCloseTargetOperatorLiaisonAfterAlreadyAssigned"
         ]
     },
-    "SellProductXiranflowCloudseederStationCloseTargetOperatorLiaisonAfterAlreadyAssigned": {
-        "desc": "盈天台建设站关闭联络干员列表并从顶部重新选择售卖用干员",
+    "SellProductInfraStationCloseTargetOperatorLiaisonAfterAlreadyAssigned": {
+        "desc": "基建前站关闭联络干员列表并从顶部重新选择售卖用干员",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison",
@@ -346,11 +384,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationBeforeSellOperator"
+            "SellProductInfraStationBeforeSellOperator"
         ]
     },
-    "SellProductXiranflowCloudseederStationCloseTargetOperatorLiaison": {
-        "desc": "盈天台建设站关闭售卖用联络干员列表",
+    "SellProductInfraStationCloseTargetOperatorLiaison": {
+        "desc": "基建前站关闭售卖用联络干员列表",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison",
@@ -372,21 +410,21 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationTargetOperatorDone"
+            "SellProductInfraStationTargetOperatorDone"
         ]
     },
-    "SellProductXiranflowCloudseederStationTargetOperatorDone": {
-        "desc": "盈天台建设站售卖用干员派驻完成，回到售卖循环",
+    "SellProductInfraStationTargetOperatorDone": {
+        "desc": "基建前站售卖用干员派驻完成，回到售卖循环",
         "recognition": "And",
         "all_of": [
-            "SellProductInXiranflowCloudseederStation"
+            "SellProductInInfraStation"
         ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SellProductOperatorSession",
         "custom_action_param": {
             "operation": "complete_target",
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "changed": true
         },
         "post_delay": 0,
@@ -395,8 +433,8 @@
             "SellProductSellLoop"
         ]
     },
-    "SellProductXiranflowCloudseederStationSwipeTargetOperatorList": {
-        "desc": "盈天台建设站在联络干员列表中向下滑动查找售卖用干员",
+    "SellProductInfraStationSwipeTargetOperatorList": {
+        "desc": "基建前站在联络干员列表中向下滑动查找售卖用干员",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison"
@@ -430,17 +468,17 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationInTargetOperatorList"
+            "SellProductInfraStationInTargetOperatorList"
         ]
     },
-    "SellProductXiranflowCloudseederStationRetryTargetOperatorAfterScan": {
-        "desc": "盈天台建设站完整扫描后存在新的售卖用干员方案",
+    "SellProductInfraStationRetryTargetOperatorAfterScan": {
+        "desc": "基建前站完整扫描后存在新的售卖用干员方案",
         "recognition": "Custom",
         "custom_recognition": "SellProductOperatorListBottom",
         "custom_recognition_param": {
             "mode": "cache",
             "usage": "target",
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "result": "retry",
             "roi": [
                 164,
@@ -453,11 +491,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationCloseTargetOperatorLiaisonAfterScan"
+            "SellProductInfraStationCloseTargetOperatorLiaisonAfterScan"
         ]
     },
-    "SellProductXiranflowCloudseederStationCloseTargetOperatorLiaisonAfterScan": {
-        "desc": "盈天台建设站刷新缓存后关闭售卖用干员列表",
+    "SellProductInfraStationCloseTargetOperatorLiaisonAfterScan": {
+        "desc": "基建前站刷新缓存后关闭售卖用干员列表",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison",
@@ -478,17 +516,17 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationOpenTargetOperatorList"
+            "SellProductInfraStationOpenTargetOperatorList"
         ]
     },
-    "SellProductXiranflowCloudseederStationTargetOperatorScanFailed": {
-        "desc": "盈天台建设站售卖用干员列表扫描失败",
+    "SellProductInfraStationTargetOperatorScanFailed": {
+        "desc": "基建前站售卖用干员列表扫描失败",
         "recognition": "Custom",
         "custom_recognition": "SellProductOperatorScanOutcome",
         "custom_recognition_param": {
             "mode": "cache",
             "usage": "target",
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "result": "error",
             "roi": [
                 164,
@@ -502,14 +540,14 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "SellProductXiranflowCloudseederStationTargetOperatorNotFound": {
-        "desc": "盈天台建设站联络干员列表已到底，未找到配置的售卖用干员",
+    "SellProductInfraStationTargetOperatorNotFound": {
+        "desc": "基建前站联络干员列表已到底，未找到配置的售卖用干员",
         "recognition": "Custom",
         "custom_recognition": "SellProductOperatorScanOutcome",
         "custom_recognition_param": {
             "mode": "cache",
             "usage": "target",
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "result": "not_found",
             "roi": [
                 164,
@@ -524,24 +562,24 @@
         "rate_limit": 0
     },
     // ===== 售卖后联络干员恢复 =====
-    "SellProductXiranflowCloudseederStationAfterSellOperator": {
-        "desc": "盈天台建设站售卖后恢复联络干员",
+    "SellProductInfraStationAfterSellOperator": {
+        "desc": "基建前站售卖后恢复联络干员",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationCurrentRestoreOperator",
-            "SellProductXiranflowCloudseederStationOpenRestoreOperatorList"
+            "SellProductInfraStationCurrentRestoreOperator",
+            "SellProductInfraStationOpenRestoreOperatorList"
         ]
     },
-    "SellProductXiranflowCloudseederStationCurrentRestoreOperator": {
-        "desc": "盈天台建设站当前联络干员已是恢复目标",
+    "SellProductInfraStationCurrentRestoreOperator": {
+        "desc": "基建前站当前联络干员已是恢复目标",
         "recognition": "Custom",
         "custom_recognition": "SellProductCurrentBestOperator",
         "custom_recognition_param": {
             "mode": "cache",
             "usage": "restore",
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "roi": [
                 260,
                 568,
@@ -554,29 +592,29 @@
         "custom_action": "SellProductOperatorSession",
         "custom_action_param": {
             "operation": "complete_restore",
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "changed": false
         },
         "post_delay": 0,
         "rate_limit": 0
     },
-    "SellProductXiranflowCloudseederStationOpenRestoreOperatorList": {
-        "desc": "盈天台建设站打开联络干员列表以恢复干员",
+    "SellProductInfraStationOpenRestoreOperatorList": {
+        "desc": "基建前站打开联络干员列表以恢复干员",
         "recognition": "And",
         "all_of": [
             "SellProductOpenOperatorLiaisonButton",
-            "SellProductInXiranflowCloudseederStation"
+            "SellProductInInfraStation"
         ],
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationInRestoreOperatorList"
+            "SellProductInfraStationInRestoreOperatorList"
         ]
     },
-    "SellProductXiranflowCloudseederStationInRestoreOperatorList": {
-        "desc": "盈天台建设站已打开联络干员列表，选择恢复干员",
+    "SellProductInfraStationInRestoreOperatorList": {
+        "desc": "基建前站已打开联络干员列表，选择恢复干员",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison"
@@ -594,21 +632,21 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationSelectRestoreOperator",
-            "SellProductXiranflowCloudseederStationRetryRestoreOperatorAfterScan",
-            "SellProductXiranflowCloudseederStationRestoreOperatorNotFoundAtBottom",
-            "SellProductXiranflowCloudseederStationRestoreOperatorScanFailed",
-            "SellProductXiranflowCloudseederStationSwipeRestoreOperatorList"
+            "SellProductInfraStationSelectRestoreOperator",
+            "SellProductInfraStationRetryRestoreOperatorAfterScan",
+            "SellProductInfraStationRestoreOperatorNotFoundAtBottom",
+            "SellProductInfraStationRestoreOperatorScanFailed",
+            "SellProductInfraStationSwipeRestoreOperatorList"
         ]
     },
-    "SellProductXiranflowCloudseederStationRestoreOperatorNotFoundAtBottom": {
-        "desc": "盈天台建设站联络干员列表已到底，未找到可用的恢复干员",
+    "SellProductInfraStationRestoreOperatorNotFoundAtBottom": {
+        "desc": "基建前站联络干员列表已到底，未找到可用的恢复干员",
         "recognition": "Custom",
         "custom_recognition": "SellProductOperatorScanOutcome",
         "custom_recognition_param": {
             "mode": "cache",
             "usage": "restore",
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "result": "not_found",
             "roi": [
                 164,
@@ -621,17 +659,17 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationCloseRestoreOperatorLiaisonAfterNotFound"
+            "SellProductInfraStationCloseRestoreOperatorLiaisonAfterNotFound"
         ]
     },
-    "SellProductXiranflowCloudseederStationSelectRestoreOperator": {
-        "desc": "盈天台建设站在联络干员列表中选择恢复干员",
+    "SellProductInfraStationSelectRestoreOperator": {
+        "desc": "基建前站在联络干员列表中选择恢复干员",
         "recognition": "Custom",
         "custom_recognition": "SellProductSelectBestOperator",
         "custom_recognition_param": {
             "mode": "cache",
             "usage": "restore",
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "roi": [
                 164,
                 121,
@@ -644,11 +682,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationConfirmRestoreOperator"
+            "SellProductInfraStationConfirmRestoreOperator"
         ]
     },
-    "SellProductXiranflowCloudseederStationConfirmRestoreOperator": {
-        "desc": "盈天台建设站点击派驻确认恢复干员",
+    "SellProductInfraStationConfirmRestoreOperator": {
+        "desc": "基建前站点击派驻确认恢复干员",
         "recognition": "And",
         "all_of": [
             "SellProductCheckAssignText",
@@ -669,13 +707,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationRestoreOperatorManagedConflict",
-            "SellProductXiranflowCloudseederStationRestoreOperatorProtectedConflict",
-            "SellProductXiranflowCloudseederStationCloseRestoreOperatorLiaison"
+            "SellProductInfraStationRestoreOperatorManagedConflict",
+            "SellProductInfraStationRestoreOperatorProtectedConflict",
+            "SellProductInfraStationCloseRestoreOperatorLiaison"
         ]
     },
-    "SellProductXiranflowCloudseederStationRestoreOperatorManagedConflict": {
-        "desc": "盈天台建设站恢复干员来自本次启用据点，确认调至当前据点",
+    "SellProductInfraStationRestoreOperatorManagedConflict": {
+        "desc": "基建前站恢复干员来自本次启用据点，确认调至当前据点",
         "recognition": "And",
         "all_of": [
             "SellProductOperatorAlreadyAssignedPrompt",
@@ -685,7 +723,7 @@
                 "custom_recognition_param": {
                     "result": "managed",
                     "usage": "restore",
-                    "location": "XiranflowCloudseederStation"
+                    "location": "InfraStation"
                 },
                 "roi": [
                     240,
@@ -711,11 +749,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationCloseRestoreOperatorLiaison"
+            "SellProductInfraStationCloseRestoreOperatorLiaison"
         ]
     },
-    "SellProductXiranflowCloudseederStationRestoreOperatorProtectedConflict": {
-        "desc": "盈天台建设站恢复干员来自未启用据点，临时排除并重新规划",
+    "SellProductInfraStationRestoreOperatorProtectedConflict": {
+        "desc": "基建前站恢复干员来自未启用据点，临时排除并重新规划",
         "recognition": "And",
         "all_of": [
             "SellProductOperatorAlreadyAssignedPrompt",
@@ -725,7 +763,7 @@
                 "custom_recognition_param": {
                     "result": "protected",
                     "usage": "restore",
-                    "location": "XiranflowCloudseederStation"
+                    "location": "InfraStation"
                 },
                 "roi": [
                     240,
@@ -742,16 +780,16 @@
         "custom_action_param": {
             "operation": "exclude_selected",
             "usage": "restore",
-            "location": "XiranflowCloudseederStation"
+            "location": "InfraStation"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationCancelRestoreOperatorAlreadyAssigned"
+            "SellProductInfraStationCancelRestoreOperatorAlreadyAssigned"
         ]
     },
-    "SellProductXiranflowCloudseederStationCancelRestoreOperatorAlreadyAssigned": {
-        "desc": "盈天台建设站取消抢占其他据点的恢复干员",
+    "SellProductInfraStationCancelRestoreOperatorAlreadyAssigned": {
+        "desc": "基建前站取消抢占其他据点的恢复干员",
         "recognition": "And",
         "all_of": [
             "SellProductOperatorAlreadyAssignedPrompt",
@@ -772,11 +810,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationCloseRestoreOperatorLiaisonAfterAlreadyAssigned"
+            "SellProductInfraStationCloseRestoreOperatorLiaisonAfterAlreadyAssigned"
         ]
     },
-    "SellProductXiranflowCloudseederStationCloseRestoreOperatorLiaisonAfterAlreadyAssigned": {
-        "desc": "盈天台建设站关闭联络干员列表并从顶部重新选择恢复干员",
+    "SellProductInfraStationCloseRestoreOperatorLiaisonAfterAlreadyAssigned": {
+        "desc": "基建前站关闭联络干员列表并从顶部重新选择恢复干员",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison",
@@ -797,11 +835,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationAfterSellOperator"
+            "SellProductInfraStationAfterSellOperator"
         ]
     },
-    "SellProductXiranflowCloudseederStationCloseRestoreOperatorLiaison": {
-        "desc": "盈天台建设站关闭恢复干员联络干员列表",
+    "SellProductInfraStationCloseRestoreOperatorLiaison": {
+        "desc": "基建前站关闭恢复干员联络干员列表",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison",
@@ -823,28 +861,28 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationRestoreOperatorDone"
+            "SellProductInfraStationRestoreOperatorDone"
         ]
     },
-    "SellProductXiranflowCloudseederStationRestoreOperatorDone": {
-        "desc": "盈天台建设站恢复干员派驻完成",
+    "SellProductInfraStationRestoreOperatorDone": {
+        "desc": "基建前站恢复干员派驻完成",
         "recognition": "And",
         "all_of": [
-            "SellProductInXiranflowCloudseederStation"
+            "SellProductInInfraStation"
         ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SellProductOperatorSession",
         "custom_action_param": {
             "operation": "complete_restore",
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "changed": true
         },
         "post_delay": 0,
         "rate_limit": 0
     },
-    "SellProductXiranflowCloudseederStationSwipeRestoreOperatorList": {
-        "desc": "盈天台建设站在联络干员列表中向下滑动查找恢复干员",
+    "SellProductInfraStationSwipeRestoreOperatorList": {
+        "desc": "基建前站在联络干员列表中向下滑动查找恢复干员",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison"
@@ -878,17 +916,17 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationInRestoreOperatorList"
+            "SellProductInfraStationInRestoreOperatorList"
         ]
     },
-    "SellProductXiranflowCloudseederStationRetryRestoreOperatorAfterScan": {
-        "desc": "盈天台建设站完整扫描后存在新的恢复干员方案",
+    "SellProductInfraStationRetryRestoreOperatorAfterScan": {
+        "desc": "基建前站完整扫描后存在新的恢复干员方案",
         "recognition": "Custom",
         "custom_recognition": "SellProductOperatorListBottom",
         "custom_recognition_param": {
             "mode": "cache",
             "usage": "restore",
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "result": "retry",
             "roi": [
                 164,
@@ -901,11 +939,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationCloseRestoreOperatorLiaisonAfterScan"
+            "SellProductInfraStationCloseRestoreOperatorLiaisonAfterScan"
         ]
     },
-    "SellProductXiranflowCloudseederStationCloseRestoreOperatorLiaisonAfterScan": {
-        "desc": "盈天台建设站刷新缓存后关闭恢复干员列表",
+    "SellProductInfraStationCloseRestoreOperatorLiaisonAfterScan": {
+        "desc": "基建前站刷新缓存后关闭恢复干员列表",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison",
@@ -926,17 +964,17 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationOpenRestoreOperatorList"
+            "SellProductInfraStationOpenRestoreOperatorList"
         ]
     },
-    "SellProductXiranflowCloudseederStationRestoreOperatorScanFailed": {
-        "desc": "盈天台建设站恢复干员列表扫描失败",
+    "SellProductInfraStationRestoreOperatorScanFailed": {
+        "desc": "基建前站恢复干员列表扫描失败",
         "recognition": "Custom",
         "custom_recognition": "SellProductOperatorScanOutcome",
         "custom_recognition_param": {
             "mode": "cache",
             "usage": "restore",
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "result": "error",
             "roi": [
                 164,
@@ -950,28 +988,8 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "SellProductXiranflowCloudseederStationRestoreOperatorNotFound": {
-        "desc": "盈天台建设站联络干员列表已到底，未找到配置的恢复干员",
-        "recognition": "Custom",
-        "custom_recognition": "SellProductOperatorListBottom",
-        "custom_recognition_param": {
-            "mode": "cache",
-            "usage": "restore",
-            "location": "XiranflowCloudseederStation",
-            "roi": [
-                164,
-                121,
-                700,
-                430
-            ]
-        },
-        "pre_delay": 0,
-        "action": "StopTask",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "SellProductXiranflowCloudseederStationCloseRestoreOperatorLiaisonAfterNotFound": {
-        "desc": "盈天台建设站未找到可用的恢复干员，关闭派驻列表并继续",
+    "SellProductInfraStationCloseRestoreOperatorLiaisonAfterNotFound": {
+        "desc": "基建前站未找到可用的恢复干员，关闭派驻列表并继续",
         "recognition": "And",
         "all_of": [
             "SellProductInOperatorLiaison",
@@ -992,28 +1010,28 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationSkipRestoreOperatorDone"
+            "SellProductInfraStationSkipRestoreOperatorDone"
         ]
     },
-    "SellProductXiranflowCloudseederStationSkipRestoreOperatorDone": {
-        "desc": "盈天台建设站记录本次任务跳过售后生产干员派驻",
+    "SellProductInfraStationSkipRestoreOperatorDone": {
+        "desc": "基建前站记录本次任务跳过售后生产干员派驻",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SellProductOperatorSession",
         "custom_action_param": {
             "operation": "skip_restore",
-            "location": "XiranflowCloudseederStation"
+            "location": "InfraStation"
         },
         "post_delay": 0,
         "rate_limit": 0
     },
     // ===== 在指定据点的识别节点 =====
-    "SellProductInXiranflowCloudseederStation": {
-        "desc": "在盈天台建设站",
+    "SellProductInInfraStation": {
+        "desc": "在基建前站",
         "recognition": "And",
         "all_of": [
-            "SellProductCheckXiranflowCloudseederStationText",
+            "SellProductCheckInfraStationText",
             "SellProductInOutpost"
         ],
         "pre_delay": 0,
@@ -1021,12 +1039,12 @@
         "rate_limit": 0
     },
     // ===== 前往据点导航节点 =====
-    "SellProductGoToXiranflowCloudseederStation": {
-        "desc": "前往盈天台建设站据点",
+    "SellProductGoToInfraStation": {
+        "desc": "前往基建前站据点",
         "recognition": "And",
         "all_of": [
-            "SellProductInWulingOutpost",
-            "SellProductCheckXiranflowCloudseederStationTabText"
+            "SellProductInValleyIVOutpost",
+            "SellProductCheckInfraStationTabText"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -1034,12 +1052,12 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductInXiranflowCloudseederStation"
+            "SellProductInInfraStation"
         ]
     },
     // ===== 标签页文本检查（小文本） =====
-    "SellProductCheckXiranflowCloudseederStationTabText": {
-        "desc": "检查盈天台建设站文本",
+    "SellProductCheckInfraStationTabText": {
+        "desc": "检查基建前站文本",
         "recognition": "OCR",
         "roi": [
             0,
@@ -1048,19 +1066,18 @@
             160
         ],
         "expected": [
-            "盈天台建设站",
-            "盈天台建設站",
-            "満天台建設基地",
-            "영천대 건설 기지",
-            "(?i)^Xiranflow\\s*Cloudseeder\\s*Station$"
+            "基建前站",
+            "建設基地",
+            "기초 건설 주둔지",
+            "(?i)^Infra\\s*-\\s*Station$"
         ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     },
     // ===== 据点内大字文本检查 =====
-    "SellProductCheckXiranflowCloudseederStationText": {
-        "desc": "检查盈天台建设站大字文本",
+    "SellProductCheckInfraStationText": {
+        "desc": "检查基建前站大字文本",
         "recognition": "OCR",
         "roi": [
             198,
@@ -1069,23 +1086,22 @@
             127
         ],
         "expected": [
-            "盈天台建设站",
-            "盈天台建設站",
-            "満天台建設基地",
-            "영천대 건설 기지",
-            "(?i)^Xiranflow\\s*Cloudseeder\\s*Station$"
+            "基建前站",
+            "建設基地",
+            "기초 건설 주둔지",
+            "(?i)^Infra\\s*-\\s*Station$"
         ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     },
     // ===== 动态优先级售卖循环 =====
-    "SellProductXiranflowCloudseederStationSelectPriorityItem": {
-        "desc": "盈天台建设站按价值优先级选择下一个未尝试货品",
+    "SellProductInfraStationSelectPriorityItem": {
+        "desc": "基建前站按价值优先级选择下一个未尝试货品",
         "recognition": "Custom",
         "custom_recognition": "SellProductPriorityItem",
         "custom_recognition_param": {
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "result": "select"
         },
         "roi": [
@@ -1102,12 +1118,12 @@
             "SellProductSelectNewGoodConfirm"
         ]
     },
-    "SellProductXiranflowCloudseederStationPriorityItemsExhausted": {
-        "desc": "盈天台建设站稳定确认没有剩余可售物品",
+    "SellProductInfraStationPriorityItemsExhausted": {
+        "desc": "基建前站稳定确认没有剩余可售物品",
         "recognition": "Custom",
         "custom_recognition": "SellProductPriorityItem",
         "custom_recognition_param": {
-            "location": "XiranflowCloudseederStation",
+            "location": "InfraStation",
             "result": "exhausted"
         },
         "roi": [
@@ -1123,8 +1139,8 @@
             "SellProductCloseGoodsAfterExhausted"
         ]
     },
-    "SellProductXiranflowCloudseederStationCommitPriorityItem": {
-        "desc": "盈天台建设站确认已返回售卖界面，再提交已选择的优先物品",
+    "SellProductInfraStationCommitPriorityItem": {
+        "desc": "基建前站确认已返回售卖界面，再提交已选择的优先物品",
         "recognition": "And",
         "all_of": [
             "SellProductInOutpost"
@@ -1134,7 +1150,7 @@
         "custom_action": "SellProductPrioritySession",
         "custom_action_param": {
             "operation": "commit",
-            "location": "XiranflowCloudseederStation"
+            "location": "InfraStation"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1142,14 +1158,14 @@
             "SellProductAtSell"
         ]
     },
-    "SellProductXiranflowCloudseederStationMarkOutOfStock": {
-        "desc": "盈天台建设站标记当前货品在本次任务中缺货",
+    "SellProductInfraStationMarkOutOfStock": {
+        "desc": "基建前站标记当前货品在本次任务中缺货",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SellProductPrioritySession",
         "custom_action_param": {
             "operation": "out_of_stock",
-            "location": "XiranflowCloudseederStation"
+            "location": "InfraStation"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1157,8 +1173,8 @@
             "SellProductSellLoop"
         ]
     },
-    "SellProductXiranflowCloudseederStationBetterSliding": {
-        "desc": "盈天台建设站使用 BetterSliding 设置售卖数量",
+    "SellProductInfraStationBetterSliding": {
+        "desc": "基建前站使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
@@ -1197,20 +1213,20 @@
             "SellProductSell"
         ]
     },
-    "SellProductXiranflowCloudseederStationApplyReserve": {
-        "desc": "盈天台建设站应用当前货品的独立保留规则",
+    "SellProductInfraStationApplyReserve": {
+        "desc": "基建前站应用当前货品的独立保留规则",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SellProductReserveSession",
         "custom_action_param": {
             "operation": "apply",
-            "sliding_node": "SellProductXiranflowCloudseederStationBetterSliding"
+            "sliding_node": "SellProductInfraStationBetterSliding"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationBetterSliding"
+            "SellProductInfraStationBetterSliding"
         ]
     }
 }

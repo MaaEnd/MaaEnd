@@ -1,8 +1,8 @@
 # RecoGrid Developer Notes
 
-RecoGrid is the grid-recognition and stateful-scroll scan code used by
-`WeaponInventoryScan`. It also provides the generic Maa custom recognition entry
-registered as `RecoGridRecognition`.
+RecoGrid is the grid-recognition and stateful-scroll scan code shared by
+`WeaponInventoryScan` and `EssenceGridScan`. It also provides the generic Maa
+custom recognition entry registered as `RecoGridRecognition`.
 
 ## Runtime Entry Points
 
@@ -13,6 +13,9 @@ registered as `RecoGridRecognition`.
   `GridScanOptions`, loads weapon icon templates from `data/WeaponIcon/iconbig`
   or `assets/data/WeaponIcon/iconbig`, calls `RecoGridEngine::Scan`, and
   overrides the next pipeline node to swipe or finish.
+- `EssenceGridScanRecognitionRun`: essence inventory scanner. It uses the same
+  engine for grid transition and placement, then adds essence-specific
+  click/inspection state outside RecoGrid.
 - `RecoGridEngine`: reusable stateful scan engine. Public API is in
   `RecoGridEngine.h`; keep `GridScanOptions`, `GridScanCell`,
   `GridScanResult`, and method signatures stable unless all callers are updated.
@@ -35,15 +38,25 @@ The engine scans one visible grid page at a time and accumulates a session.
 6. Placement is a pure projection step. It consumes the resolved viewport start
    row and maps local grid cells to global `(row, col)` cells; it does not score
    offsets or choose between candidates.
-7. If a delta is unreliable, the engine stores one pending frame as evidence and
-   emits no dispatchable cells. A later frame may resolve the pending evidence
-   by producing a reliable offset chain; otherwise the committed session is kept.
-8. End detection is deliberately conservative. A zero-offset match must be
-   strong, compare enough cells, and repeat across consecutive confirmations
-   before `reachedEnd` is reported. This avoids treating visually similar icon
-   pages as a real scroll boundary.
-9. The session stores global `(row, col)` cells. If a later visible cell is a
-   better classification for the same key, it replaces the old one.
+7. Row alignment evaluates both positive and negative offsets, requires at
+   least two overlapping rows, and keeps the globally best supported candidate.
+   A negative winner or tied forward/backward evidence is a direction error; the
+   engine never substitutes a weaker positive candidate.
+8. An unaccepted transition returns failure without changing the committed
+   snapshot, viewport, cells, or end confirmations. The wrapper must leave the
+   recognition node on its normal next-list retry path, so Maa rechecks the same
+   screen without swiping.
+9. The first failed transition stores only a same-screen verification snapshot.
+   If the next frame is strongly identical to that snapshot, has the same shape,
+   and has at least two rows of support, the engine may commit once with the last
+   visually confirmed positive offset. This fallback does not update the trusted
+   offset and cannot be used again until a new positive transition is confirmed.
+10. End detection is deliberately conservative. A zero-offset match must be
+    strong, compare enough cells, and repeat across consecutive confirmations
+    before `reachedEnd` is reported. This avoids treating visually similar icon
+    pages as a real scroll boundary.
+11. The session stores global `(row, col)` cells. If a later visible cell is a
+    better classification for the same key, it replaces the old one.
 
 Totals must come from detected visible cells plus session merge. Do not add OCR
 total padding/trimming or hard total compensation.
@@ -68,15 +81,15 @@ total padding/trimming or hard total compensation.
 - `RecoGridEngine.*`: public engine methods, template loading, session map, and
   top-level `Scan` orchestration.
 - `RecoGridEngineTypes.h`: public scan structs included by `RecoGridEngine.h`.
-- `RecoGridSession.*`: committed session state, pending evidence,
-  merge/replace rules, visible-cell hiding, sorted output, counts, and
-  partial-row detection.
+- `RecoGridSession.*`: committed session state, same-screen verification
+  evidence, trusted positive-offset fallback state, merge/replace rules,
+  visible-cell hiding, sorted output, counts, and partial-row detection.
 - `RecoGridScanCells.*`: occupied-cell detection, scan-cell construction,
   classification application, cell indices, and leading partial-row delta
   adjustment.
 - `RecoGridPlacement.*`: pure local-to-global cell projection.
-- `RecoGridTransition.*`: offset-only state transition, pending resolver, and
-  end detection.
+- `RecoGridTransition.*`: direction-aware transition acceptance, bounded
+  last-positive-offset fallback, and end detection.
 
 ## WeaponInventoryScan Defaults
 
@@ -102,7 +115,12 @@ aligned between production code and any temporary debugging runner.
 - Do not merge small split row segments when the merged segment touches the ROI
   boundary; that would restore trailing partial rows as full page rows.
 - If `page_rows` flips between 5 and 6, inspect `GridDetector` segment filtering
-  before changing beam scoring.
+  before changing alignment thresholds.
+- Alignment requires at least two overlapping rows. A one-row match is
+  diagnostic evidence only and must never advance the committed viewport.
+- Production scrolling is forward-only. Negative alignment is an impossible
+  workflow event and must fail for same-screen re-recognition, not be clamped,
+  absolutized, or replaced with a weaker positive candidate.
 - Repeated or settling frames can produce zero new cells. Do not add a blanket
   "zero growth is illegal" rule; fix detection or placement evidence instead.
 - `GridMatcher.cpp` and `GridClassifier.cpp` both score hue, but for different
@@ -125,10 +143,16 @@ aligned between production code and any temporary debugging runner.
 Pipeline flow should remain state-driven:
 
 - recognize current page,
-- engine chooses `WeaponInventoryScanSwipeNext` or `WeaponInventoryScanFinish`,
+- an accepted scan lets the engine choose `WeaponInventoryScanSwipeNext` or
+  `WeaponInventoryScanFinish`,
 - swipe,
 - wait for grid freeze,
 - recognize again.
+
+If transition recognition fails, the wrapper must not override the next node to
+the swipe action. Maa then retries the recognition node from its next list on a
+new screenshot. This same-screen retry is part of transition validation, not a
+second scrolling engine.
 
 Avoid hard delays unless there is a confirmed reason; prefer freeze waits and
 recognition validation.
@@ -147,17 +171,36 @@ Useful detail fields returned to Maa:
 
 - `page_grid`, `cumulative_grid`, `unknown`
 - `rows`, `cols`, `page_rows`, `page_cols`
-- `new_cells`, `row_offset`
-- `delta_reliable`, `resolved_row_offset`, `current_viewport_start_row`
-- `pending_stored`, `pending_resolved`, `unresolved_reason`
+- `new_cells`, `row_offset`, `current_viewport_start_row`
+- `raw_alignment_offset`, `adjusted_alignment_offset`, `support_rows`
+- `alignment_status`, `fallback_used`, `fallback_streak`
+- `delta_reliable`, `unresolved_reason`
 - `dispatchableCells`: committed cells with current-frame coordinates for
   clicking or sampling
 - `has_progress`, `reached_end`
 - `matched_cells`, `compared_cells`, `match_ratio`
 
-If totals are wrong, inspect per-page `page_rows`, `row_offset`,
-`delta_reliable`, viewport start rows, `pending_*`, and `unknown`. Production
-placement is offset-only; do not reintroduce candidate scoring for global rows.
+`row_offset` is zero unless the frame was committed; it never exposes a rejected
+negative candidate. Use `raw_alignment_offset` and
+`adjusted_alignment_offset` to diagnose rejected alignment, and use
+`support_rows` plus `alignment_status` to understand why it was rejected.
+Stable `alignment_status` values are:
+
+- non-rejection states: `not_applicable`, `accepted`, `fallback_accepted`,
+  `end_confirmation`, and `reached_end`;
+- rejection states: `grid_missing`, `shape_rejected`, `insufficient_support`,
+  `direction_ambiguous`, `direction_violation`, `low_confidence`,
+  `zero_unconfirmed`, `no_progress`, `fallback_unavailable`, and
+  `fallback_limit_reached`.
+
+Every rejection enters same-screen verification. Because the frame was not
+committed, `row_offset` remains zero and the wrapper must not advance to Swipe.
+Use `unresolved_reason` for any additional failure detail.
+
+If totals are wrong, inspect per-page `page_rows`, accepted `row_offset`,
+alignment diagnostics, viewport start rows, fallback state, and `unknown`.
+Production placement is offset-only; do not reintroduce candidate scoring for
+global rows.
 
 ## Validation
 

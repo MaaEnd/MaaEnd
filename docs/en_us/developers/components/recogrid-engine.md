@@ -2,7 +2,7 @@
 
 `RecoGrid` is a general-purpose grid recognition and rolling cumulative scanning engine in `cpp-algo`, with source code located at `agent/cpp-algo/source/RecoGrid/`. It is suitable for scenarios where "a list is composed of regular grid cells, each containing an icon, and the list requires scrolling down to be fully scanned."
 
-The existing production instance is `agent/cpp-algo/source/WeaponInventoryScan/WeaponInventoryScan.cpp`. When developing a new instance, do not copy parameters directly. The correct process is: first use screenshots to confirm the grid can be stably detected, then adjust template classification, and finally connect the rolling cumulative scanning and Pipeline.
+Existing production integrations include `WeaponInventoryScan` and `EssenceGridScan`. When developing a new integration, do not copy parameters directly. First use screenshots to confirm stable grid detection, then adjust template classification, and finally integrate rolling accumulation and Pipeline.
 
 ## First Determine if it Can Be Used
 
@@ -63,22 +63,24 @@ Input:
 
 Output `GridScanResult`:
 
-| Field                               | Meaning                                                                       | How to View During Debugging                                     |
-| ----------------------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `success` / `message`               | Whether this frame scanned successfully, and the reason for failure           | For failure, first check empty image, template directory, ROI    |
-| `rows` / `cols`                     | Rows and columns detected on the current visible page                         | Determine if grid detection is stable                            |
-| `totalCells`                        | Number of valid cells on current page, not just `rows * cols`                 | Affected by empty cell filtering                                 |
-| `sessionRows` / `sessionCols`       | Rows and columns of the accumulated session                                   | Determine the shape of the accumulated list                      |
-| `sessionTotalCells`                 | Accumulated number of valid cells                                             | Usually the primary concern for business                         |
-| `knownCells` / `unknownCells`       | Accumulated count of classified / unclassified                                | Determine template classification quality                        |
-| `rowOffset`                         | Number of rows advanced relative to the previous state                        | Determine if scrolling is stable                                 |
-| `deltaReliable`                     | Whether pHash alignment between current page and historical pages is reliable | Prioritize checking this when rolling accumulation is incorrect  |
-| `hasProgress`                       | Whether this frame brought new cells                                          | Should usually be true for middle pages                          |
-| `reachedEnd`                        | Whether it is determined that the end has been reached                        | Used to decide whether to continue scrolling or stop             |
-| `pendingStored` / `pendingResolved` | Pending / beam status                                                         | Appears when scrolling is not stable                             |
-| `matchRatio` / `averageDistance`    | Page overlap matching quality                                                 | Check these two when adjusting scroll parameters                 |
-| `newCellIndices`                    | Indices of new cells on the current page                                      | Can be used to determine how many new contents this frame added  |
-| `cells`                             | Sorted list of accumulated cells                                              | Not recommended to write completely into `out_detail` by default |
+| Field                                            | Meaning                                                                    | How to View During Debugging                                |
+| ------------------------------------------------ | -------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `success` / `message`                            | Whether this frame was accepted, and the reason for failure                | Check the image, templates, ROI, and alignment state        |
+| `rows` / `cols`                                  | Rows and columns detected on the current visible page                      | Determine if grid detection is stable                       |
+| `totalCells`                                     | Number of valid cells on current page, not just `rows * cols`              | Affected by empty cell filtering                            |
+| `sessionRows` / `sessionCols`                    | Rows and columns of the accumulated session                                | Determine the shape of the accumulated list                 |
+| `sessionTotalCells`                              | Accumulated number of valid cells                                          | Usually the primary concern for business                    |
+| `knownCells` / `unknownCells`                    | Accumulated count of classified / unclassified cells                       | Determine template classification quality                   |
+| `rowOffset`                                      | Accepted non-negative progress; always `0` when the frame is not committed | Determine whether this frame actually advanced the viewport |
+| `rawAlignmentOffset` / `adjustedAlignmentOffset` | Raw alignment / candidate after leading-partial adjustment                 | Inspect rejected negative or unstable candidates            |
+| `supportRows` / `alignmentStatus`                | Candidate overlap rows / alignment decision state                          | Check the two-row minimum and rejection reason              |
+| `fallbackUsed` / `fallbackStreak`                | Whether trusted historical progress was used / consecutive fallback count  | The consecutive value must not exceed `1`                   |
+| `deltaReliable`                                  | Whether alignment between the current and committed pages is reliable      | Prioritize this when rolling accumulation is incorrect      |
+| `hasProgress`                                    | Whether this frame brought new cells                                       | Should usually be true for middle pages                     |
+| `reachedEnd`                                     | Whether the end has been confirmed                                         | Used to decide whether to continue scrolling or stop        |
+| `matchRatio` / `averageDistance`                 | Page overlap matching quality                                              | Check these when adjusting scroll parameters                |
+| `newCellIndices`                                 | Indices of new cells on the current page                                   | Shows how much content this frame added                     |
+| `cells`                                          | Sorted list of accumulated cells                                           | Do not write the complete list to `out_detail` by default   |
 
 Common fields for each `GridScanCell` in `cells`:
 
@@ -332,7 +334,6 @@ Scrolling-related parameters:
 options.incremental = true;
 options.matchDistanceThreshold = 12;
 options.minMatchRatio = 0.5;
-options.weakMinMatchRatio = 0.3;
 options.endMinMatchRatio = 0.95;
 ```
 
@@ -343,31 +344,49 @@ These parameters look at "how many cells' pHash can match between adjacent pages
 | `incremental`            | Whether to enable session accumulation            | Usually keep `true`                                                                      | `false` only scans current page                                                |
 | `matchDistanceThreshold` | Maximum pHash distance for two cells to match     | Easier to consider same cell match, delta more reliable, but higher risk of misalignment | Stricter, less misalignment, but slight changes during scrolling may not match |
 | `minMatchRatio`          | Matching ratio required for delta reliability     | More conservative, reduces misaligned accumulation                                       | More aggressive, reduces sticking, but may misalign                            |
-| `weakMinMatchRatio`      | Ratio for accepting weak progress in pending/beam | More conservative                                                                        | Easier to advance                                                              |
 | `endMinMatchRatio`       | Ratio for judging repeated pages to determine end | Less likely to end prematurely, but may scroll a few extra times                         | Easier to end, but may stop prematurely                                        |
+
+Alignment still evaluates both forward and backward candidates, but only the globally best candidate with at least two valid overlap rows is eligible. A negative winner, or equal forward/backward evidence, is a direction error in the forward-only workflow. The engine never applies an absolute value, clamps it to zero, or promotes a weaker positive candidate.
+
+A reliable positive offset commits immediately. A strong zero offset must be confirmed twice before the engine reports the end. Every other result returns `success = false` without changing the committed snapshot, viewport, cells, or end-confirmation count. The wrapper must not override next to Swipe in this case; MaaFW re-enters the recognition node through its next list and captures the same screen again.
+
+The first failure stores only a same-screen verification snapshot; failed evidence is never carried across another swipe. The next frame must be a strong zero-offset match against that snapshot, have the same shape, and have at least two support rows. If the session already has a trusted `lastPositiveRowOffset`, the engine may use it for one fallback commit. A fallback does not update the trusted offset, and a new visually confirmed positive transition is required before fallback becomes eligible again. Without trusted history, or when a second consecutive fallback would be required, recognition keeps retrying the same screen until the existing recognition window expires.
 
 Observe `out_detail`:
 
-| Field              | How to View                                                                  |
-| ------------------ | ---------------------------------------------------------------------------- |
-| `row_offset`       | How many rows approximately advanced per scroll, should be relatively stable |
-| `delta_reliable`   | Should often be `true` on normal middle pages                                |
-| `match_ratio`      | Higher means page overlap is more obvious                                    |
-| `new_cells`        | Should be > 0 on middle pages; may be 0 on repeated pages or at the end      |
-| `pending_stored`   | Current candidate stored for confirmation in next frame                      |
-| `pending_resolved` | Previous frame candidate confirmed                                           |
-| `has_progress`     | Whether new content was actually added                                       |
-| `reached_end`      | Whether the list end is determined                                           |
+| Field                       | How to View                                                                  |
+| --------------------------- | ---------------------------------------------------------------------------- |
+| `row_offset`                | Only accepted non-negative progress; `0` when the frame was not committed    |
+| `raw_alignment_offset`      | Raw globally best candidate; a negative value diagnoses a direction error    |
+| `adjusted_alignment_offset` | Candidate after the leading-partial-row adjustment                           |
+| `support_rows`              | Valid overlap rows; an accepted candidate requires at least `2`              |
+| `alignment_status`          | Commit, end confirmation, or a specific rejection state                      |
+| `fallback_used`             | Whether same-screen verification used the trusted historical positive offset |
+| `fallback_streak`           | Consecutive fallback count; production flow must not exceed `1`              |
+| `delta_reliable`            | Should often be `true` on normal middle pages                                |
+| `match_ratio`               | Higher means page overlap is more obvious                                    |
+| `new_cells`                 | Should be > 0 on middle pages; may be 0 on repeated pages or at the end      |
+| `has_progress`              | Whether new content was actually added                                       |
+| `reached_end`               | Whether the list end is determined                                           |
+
+Stable `alignment_status` values are:
+
+- Non-rejection states: `not_applicable`, `accepted`, `fallback_accepted`, `end_confirmation`, and `reached_end`.
+- Rejection states: `grid_missing`, `shape_rejected`, `insufficient_support`, `direction_ambiguous`, `direction_violation`, `low_confidence`, `zero_unconfirmed`, `no_progress`, `fallback_unavailable`, and `fallback_limit_reached`.
+
+Every rejection enters same-screen verification. Because the current frame was not committed, `row_offset` remains `0` and the wrapper must not advance to Swipe. Use `unresolved_reason` for additional failure details.
 
 Common issues:
 
-| Phenomenon                                  | First Check                                                  | Adjustment Direction                                                                                                |
-| ------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| No accumulation growth after scrolling      | `row_offset <= 0`, `delta_reliable = false`                  | Decrease `minMatchRatio`, or increase `matchDistanceThreshold`; also check if page actually changed after scrolling |
-| Accumulation skips rows or repeats          | `row_offset` fluctuates wildly                               | First check if `page_rows/page_cols` is stable, then increase `minMatchRatio`                                       |
-| Ends prematurely                            | `reached_end = true` but not at the bottom visually          | Increase `endMinMatchRatio`, or increase single scroll distance to avoid repeated frames                            |
-| Keeps scrolling at the bottom               | Low `match_ratio` at the end page                            | Decrease `endMinMatchRatio`, or ensure the waiting area is stable after scrolling                                   |
-| Middle pages often pending but not resolved | Large changes in consecutive screenshots or unstable waiting | Pipeline adds `post_wait_freezes`, do not add hard delays                                                           |
+| Phenomenon                             | First Check                                                           | Adjustment Direction                                                                                              |
+| -------------------------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| No accumulation growth after scrolling | `alignment_status`, `raw_alignment_offset`, `support_rows`            | Confirm whether this is a direction error or insufficient support, then check actual motion and the freeze region |
+| Accumulation skips rows or repeats     | Accepted `row_offset`, `adjusted_alignment_offset`, `fallback_streak` | Check stable `page_rows/page_cols`, then inspect partial-row adjustment and alignment thresholds                  |
+| Recognition failure still swipes       | The wrapper's next-node override                                      | Never override to Swipe on failure; let MaaFW recognize the same screen again                                     |
+| Repeated direction errors              | `raw_alignment_offset < 0`, `match_ratio`, `support_rows`             | Check repetitive icons, scroll direction, and stability; never use abs or a weaker positive candidate             |
+| The next page also needs fallback      | `fallback_used`, `fallback_streak`                                    | Require a new reliable positive transition; reject a second consecutive fallback                                  |
+| Ends prematurely                       | `reached_end = true`, `match_ratio`, `support_rows`                   | Increase `endMinMatchRatio`, or adjust scroll distance to avoid duplicate middle pages                            |
+| Keeps scrolling at the bottom          | End-page `match_ratio`, `alignment_status`                            | Decrease `endMinMatchRatio`, or ensure the waiting area is stable after scrolling                                 |
 
 First ensure screenshots are stable after scrolling before adjusting these parameters. Unfinished scroll animation frames will make pHash delta appear random, and parameters will be unreliable no matter how adjusted.
 
@@ -381,7 +400,8 @@ The business wrapper's responsibilities:
 - Reset session at new task start.
 - Call `Scan()`.
 - Write `GridScanResult` as `out_detail`.
-- Override the next Pipeline node based on `reachedEnd`.
+- Only when `success = true`, override the next Pipeline node based on
+  `reachedEnd`; preserve same-screen recognition retry on failure.
 
 Minimum structure:
 
@@ -433,7 +453,6 @@ void ApplyScanDefaults(recogrid::GridScanOptions& options)
     options.incremental = true;
     options.matchDistanceThreshold = 12;
     options.minMatchRatio = 0.5;
-    options.weakMinMatchRatio = 0.3;
     options.endMinMatchRatio = 0.95;
 }
 
@@ -480,9 +499,13 @@ Recommended fields:
     "cols": 6,
     "new_cells": 12,
     "row_offset": 2,
+    "raw_alignment_offset": 2,
+    "adjusted_alignment_offset": 2,
+    "support_rows": 3,
+    "alignment_status": "accepted",
     "delta_reliable": true,
-    "pending_stored": false,
-    "pending_resolved": true,
+    "fallback_used": false,
+    "fallback_streak": 0,
     "has_progress": true,
     "reached_end": false,
     "matched_cells": 24,
@@ -495,19 +518,25 @@ Recommended fields:
 
 Field meanings:
 
-| Field                 | Source                           | Purpose                                  |
-| --------------------- | -------------------------------- | ---------------------------------------- |
-| `page_grid`           | `result.totalCells`              | Number of valid cells on current page    |
-| `cumulative_grid`     | `result.sessionTotalCells`       | Accumulated cell count                   |
-| `known`               | `result.knownCells`              | Number classified                        |
-| `unknown`             | `result.unknownCells`            | Number unclassified                      |
-| `page_rows/page_cols` | `result.rows/cols`               | Current page detected rows/columns       |
-| `rows/cols`           | `result.sessionRows/sessionCols` | Accumulated session rows/columns         |
-| `new_cells`           | `result.newCellIndices.size()`   | New cells in this frame                  |
-| `row_offset`          | `result.rowOffset`               | Rows advanced relative to previous state |
-| `delta_reliable`      | `result.deltaReliable`           | Whether alignment is reliable            |
-| `reached_end`         | `result.reachedEnd`              | Whether at list end                      |
-| `match_ratio`         | `result.matchRatio`              | Page overlap matching ratio              |
+| Field                       | Source                           | Purpose                                                |
+| --------------------------- | -------------------------------- | ------------------------------------------------------ |
+| `page_grid`                 | `result.totalCells`              | Number of valid cells on current page                  |
+| `cumulative_grid`           | `result.sessionTotalCells`       | Accumulated cell count                                 |
+| `known`                     | `result.knownCells`              | Number classified                                      |
+| `unknown`                   | `result.unknownCells`            | Number unclassified                                    |
+| `page_rows/page_cols`       | `result.rows/cols`               | Current page detected rows/columns                     |
+| `rows/cols`                 | `result.sessionRows/sessionCols` | Accumulated session rows/columns                       |
+| `new_cells`                 | `result.newCellIndices.size()`   | New cells in this frame                                |
+| `row_offset`                | `result.rowOffset`               | Accepted non-negative progress; `0` when not committed |
+| `raw_alignment_offset`      | `result.rawAlignmentOffset`      | Raw globally best alignment candidate                  |
+| `adjusted_alignment_offset` | `result.adjustedAlignmentOffset` | Candidate after leading-partial adjustment             |
+| `support_rows`              | `result.supportRows`             | Number of valid candidate overlap rows                 |
+| `alignment_status`          | `result.alignmentStatus`         | Reason the alignment was accepted or rejected          |
+| `fallback_used`             | `result.fallbackUsed`            | Whether the trusted historical offset was used         |
+| `fallback_streak`           | `result.fallbackStreak`          | Consecutive fallback count                             |
+| `delta_reliable`            | `result.deltaReliable`           | Whether alignment is reliable                          |
+| `reached_end`               | `result.reachedEnd`              | Whether at list end                                    |
+| `match_ratio`               | `result.matchRatio`              | Page overlap matching ratio                            |
 
 When exporting the complete result is needed, a business switch can be added, e.g., `return_cells`, to output only during debugging or when there is a consumer:
 
@@ -535,9 +564,10 @@ Recommended flow:
 2.  Recognize title, tab, or other stable elements to confirm you are in the target list.
 3.  `pre_wait_freezes` to wait for the grid area to stabilize.
 4.  Call business `Custom Recognition` to scan the current page.
-5.  C++ wrapper overrides the next node based on `reachedEnd`:
+5.  Only when `success = true`, the C++ wrapper overrides the next node based on `reachedEnd`:
     - Not at end: `YourScanSwipeNext`
     - At end: `YourScanFinish`
+    - Failure: do not override to Swipe; let the current Custom Recognition retry through its next list
 6.  Scroll.
 7.  Move mouse/touch point away to avoid hover or finger occlusion.
 8.  `post_wait_freezes` to wait for the grid area to stabilize.
@@ -696,17 +726,18 @@ Scan-specific fields, such as `incremental`, `end_min_match_ratio`, and occupanc
 
 ## Quick Troubleshooting Table
 
-| Problem                                      | First Check                                 | Common Fix                                                                           |
-| -------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Complete recognition failure on current page | `success/message`, `roi`                    | Check if ROI is within the screenshot, if the screenshot is empty                    |
-| Unstable row/column count                    | `page_rows/page_cols`                       | Adjust `roi`, `rowThresholdRatio`, `colThresholdRatio`, `minKeptSegmentRatio`        |
-| Many empty cells                             | `page_grid` too large                       | Adjust occupancy filtering and mask                                                  |
-| Items missed                                 | `page_grid` too small                       | Decrease occupancy filtering thresholds, check if mask occludes main body            |
-| Many unknowns                                | `unknown`, classification scores            | Adjust templates, mask, `maxPhashDistance`, `minScore`                               |
-| Many misclassifications                      | `score/templateScore/hueScore`              | Increase `minScore`, decrease `maxPhashDistance`, adjust `hueWeight`                 |
-| No growth after scrolling                    | `row_offset`, `delta_reliable`, `new_cells` | Wait for stability before scanning; adjust `matchDistanceThreshold`, `minMatchRatio` |
-| Ends prematurely                             | `reached_end`, `match_ratio`                | Increase `endMinMatchRatio`, check scroll distance                                   |
-| Does not stop at the end                     | `match_ratio` on end page                   | Decrease `endMinMatchRatio`, ensure end repeated page is stable                      |
+| Problem                                      | First Check                                                             | Common Fix                                                                            |
+| -------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Complete recognition failure on current page | `success/message`, `alignment_status`, `unresolved_reason`, `roi`       | Check ROI and empty input, then whether alignment requested a same-screen recheck     |
+| Unstable row/column count                    | `page_rows/page_cols`                                                   | Adjust `roi`, `rowThresholdRatio`, `colThresholdRatio`, `minKeptSegmentRatio`         |
+| Many empty cells                             | `page_grid` too large                                                   | Adjust occupancy filtering and mask                                                   |
+| Items missed                                 | `page_grid` too small                                                   | Decrease occupancy filtering thresholds, check if mask occludes main body             |
+| Many unknowns                                | `unknown`, classification scores                                        | Adjust templates, mask, `maxPhashDistance`, `minScore`                                |
+| Many misclassifications                      | `score/templateScore/hueScore`                                          | Increase `minScore`, decrease `maxPhashDistance`, adjust `hueWeight`                  |
+| No growth after scrolling                    | `raw_alignment_offset`, `support_rows`, `alignment_status`, `new_cells` | Recheck after stability; inspect scroll direction, support rows, and match thresholds |
+| Failure still advances to Swipe              | The wrapper's next-node override                                        | Never override to Swipe on failure                                                    |
+| Ends prematurely                             | `reached_end`, `match_ratio`, `support_rows`                            | Increase `endMinMatchRatio`, check scroll distance                                    |
+| Does not stop at the end                     | End-page `match_ratio`, `alignment_status`                              | Decrease `endMinMatchRatio`, ensure end repeated page is stable                       |
 
 ## Build and Check
 

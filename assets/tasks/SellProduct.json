@@ -1445,6 +1445,7 @@
                 },
                 {
                     "name": "灼铜零件",
+                    "label": "$item.CopperEnr2Cmpt",
                     "option": [
                         "SellProductReserveItem1Mode"
                     ],
@@ -1458,6 +1459,7 @@
                 },
                 {
                     "name": "分离芯",
+                    "label": "$item.FilterCore",
                     "option": [
                         "SellProductReserveItem1Mode"
                     ],
@@ -1866,6 +1868,7 @@
                 },
                 {
                     "name": "灼铜零件",
+                    "label": "$item.CopperEnr2Cmpt",
                     "option": [
                         "SellProductReserveItem2Mode"
                     ],
@@ -1879,6 +1882,7 @@
                 },
                 {
                     "name": "分离芯",
+                    "label": "$item.FilterCore",
                     "option": [
                         "SellProductReserveItem2Mode"
                     ],
@@ -2287,6 +2291,7 @@
                 },
                 {
                     "name": "灼铜零件",
+                    "label": "$item.CopperEnr2Cmpt",
                     "option": [
                         "SellProductReserveItem3Mode"
                     ],
@@ -2300,6 +2305,7 @@
                 },
                 {
                     "name": "分离芯",
+                    "label": "$item.FilterCore",
                     "option": [
                         "SellProductReserveItem3Mode"
                     ],
@@ -2708,6 +2714,7 @@
                 },
                 {
                     "name": "灼铜零件",
+                    "label": "$item.CopperEnr2Cmpt",
                     "option": [
                         "SellProductReserveItem4Mode"
                     ],
@@ -2721,6 +2728,7 @@
                 },
                 {
                     "name": "分离芯",
+                    "label": "$item.FilterCore",
                     "option": [
                         "SellProductReserveItem4Mode"
                     ],
@@ -3129,6 +3137,7 @@
                 },
                 {
                     "name": "灼铜零件",
+                    "label": "$item.CopperEnr2Cmpt",
                     "option": [
                         "SellProductReserveItem5Mode"
                     ],
@@ -3142,6 +3151,7 @@
                 },
                 {
                     "name": "分离芯",
+                    "label": "$item.FilterCore",
                     "option": [
                         "SellProductReserveItem5Mode"
                     ],
@@ -3550,6 +3560,7 @@
                 },
                 {
                     "name": "灼铜零件",
+                    "label": "$item.CopperEnr2Cmpt",
                     "option": [
                         "SellProductReserveItem6Mode"
                     ],
@@ -3563,6 +3574,7 @@
                 },
                 {
                     "name": "分离芯",
+                    "label": "$item.FilterCore",
                     "option": [
                         "SellProductReserveItem6Mode"
                     ],
@@ -4853,6 +4865,7 @@
                 },
                 {
                     "name": "灼铜零件",
+                    "label": "$item.CopperEnr2Cmpt",
                     "pipeline_override": {
                         "SellProductWulingRegisterPriorityItem1": {
                             "custom_action_param": {
@@ -4864,6 +4877,7 @@
                 },
                 {
                     "name": "分离芯",
+                    "label": "$item.FilterCore",
                     "pipeline_override": {
                         "SellProductWulingRegisterPriorityItem1": {
                             "custom_action_param": {
@@ -5006,6 +5020,7 @@
                 },
                 {
                     "name": "灼铜零件",
+                    "label": "$item.CopperEnr2Cmpt",
                     "pipeline_override": {
                         "SellProductWulingRegisterPriorityItem2": {
                             "custom_action_param": {
@@ -5017,6 +5032,7 @@
                 },
                 {
                     "name": "分离芯",
+                    "label": "$item.FilterCore",
                     "pipeline_override": {
                         "SellProductWulingRegisterPriorityItem2": {
                             "custom_action_param": {
@@ -5159,6 +5175,7 @@
                 },
                 {
                     "name": "灼铜零件",
+                    "label": "$item.CopperEnr2Cmpt",
                     "pipeline_override": {
                         "SellProductWulingRegisterPriorityItem3": {
                             "custom_action_param": {
@@ -5170,6 +5187,7 @@
                 },
                 {
                     "name": "分离芯",
+                    "label": "$item.FilterCore",
                     "pipeline_override": {
                         "SellProductWulingRegisterPriorityItem3": {
                             "custom_action_param": {
@@ -5312,6 +5330,7 @@
                 },
                 {
                     "name": "灼铜零件",
+                    "label": "$item.CopperEnr2Cmpt",
                     "pipeline_override": {
                         "SellProductWulingRegisterPriorityItem4": {
                             "custom_action_param": {
@@ -5323,6 +5342,7 @@
                 },
                 {
                     "name": "分离芯",
+                    "label": "$item.FilterCore",
                     "pipeline_override": {
                         "SellProductWulingRegisterPriorityItem4": {
                             "custom_action_param": {
@@ -5465,6 +5485,7 @@
                 },
                 {
                     "name": "灼铜零件",
+                    "label": "$item.CopperEnr2Cmpt",
                     "pipeline_override": {
                         "SellProductWulingRegisterPriorityItem5": {
                             "custom_action_param": {
@@ -5476,6 +5497,7 @@
                 },
                 {
                     "name": "分离芯",
+                    "label": "$item.FilterCore",
                     "pipeline_override": {
                         "SellProductWulingRegisterPriorityItem5": {
                             "custom_action_param": {
@@ -5618,6 +5640,7 @@
                 },
                 {
                     "name": "灼铜零件",
+                    "label": "$item.CopperEnr2Cmpt",
                     "pipeline_override": {
                         "SellProductWulingRegisterPriorityItem6": {
                             "custom_action_param": {
@@ -5629,6 +5652,7 @@
                 },
                 {
                     "name": "分离芯",
+                    "label": "$item.FilterCore",
                     "pipeline_override": {
                         "SellProductWulingRegisterPriorityItem6": {
                             "custom_action_param": {

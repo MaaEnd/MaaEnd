@@ -2,7 +2,7 @@
     "template": "sell-template.jsonc",
     "data": "sell-data.mjs",
     "outputDir": "../../../assets/resource/pipeline/SellProduct",
-    "outputFile": "Sell.json",
+    "outputPattern": "${RegionPrefix}/SellProduct${RegionPrefix}.json",
     "format": true,
-    "merged": true
+    "merged": false
 }

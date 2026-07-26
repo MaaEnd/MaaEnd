@@ -10,6 +10,47 @@ import (
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
+func TestCurrentOperatorOCRCacheConsumesMatchingResultOnce(t *testing.T) {
+	resetCurrentOperatorOCRCacheForTest(t)
+	arg := &maa.CustomRecognitionArg{TaskID: 42}
+	param := &operatorActionParam{
+		Location: "CardiacRemediationStation",
+		ROI:      []int{260, 568, 280, 35},
+	}
+	key := makeCurrentOperatorOCRCacheKey(arg, param)
+	want := []ocrItem{{text: "佩丽卡", box: maa.Rect{260, 568, 80, 20}}}
+	storeCurrentOperatorOCRCache(key, want)
+
+	got, err := recognizeCurrentOperatorList(nil, arg, param, true)
+	if err != nil || len(got) != 1 || got[0] != want[0] {
+		t.Fatalf("cached OCR result = %#v, error = %v, want %#v", got, err, want)
+	}
+	if _, ok := takeCurrentOperatorOCRCache(key); ok {
+		t.Fatal("current operator OCR cache must be consumed only once")
+	}
+}
+
+func TestCurrentOperatorOCRCacheRejectsDifferentLocation(t *testing.T) {
+	resetCurrentOperatorOCRCacheForTest(t)
+	arg := &maa.CustomRecognitionArg{TaskID: 42}
+	storeCurrentOperatorOCRCache(
+		makeCurrentOperatorOCRCacheKey(arg, &operatorActionParam{
+			Location: "CardiacRemediationStation",
+			ROI:      []int{260, 568, 280, 35},
+		}),
+		[]ocrItem{{text: "佩丽卡"}},
+	)
+
+	if _, ok := takeCurrentOperatorOCRCache(
+		makeCurrentOperatorOCRCacheKey(arg, &operatorActionParam{
+			Location: "RefugeeCamp",
+			ROI:      []int{260, 568, 280, 35},
+		}),
+	); ok {
+		t.Fatal("different location must not reuse current operator OCR results")
+	}
+}
+
 func TestOperatorListSignatureIgnoresOperatorOrder(t *testing.T) {
 	a := []string{"陈千语", "佩丽卡"}
 	b := []string{"佩丽卡", "陈千语"}
@@ -172,6 +213,38 @@ func TestFindCurrentBestOperatorRejectsAmbiguousLongerKnownName(t *testing.T) {
 
 	if _, match, ok := findCurrentBestOperator([]operatorCandidate{target}, knownOperators, items); ok || match != nil {
 		t.Fatalf("存在更长已知名称时不应按短名称前缀命中，实际结果 = %+v", match)
+	}
+}
+
+func TestFindUncachedCurrentOperatorDetectsKnownOperatorMissingFromCache(t *testing.T) {
+	knownOperators := []operatorCandidate{
+		{Name: "Perlica", Expected: []string{"佩丽卡"}, Priority: 0},
+		{Name: "Avywenna", Expected: []string{"陈千语"}, Priority: 1},
+	}
+	items := []ocrItem{{text: "陈千语", box: maa.Rect{100, 100, 80, 20}}}
+
+	candidate, match, ok := findUncachedCurrentOperator(knownOperators, operatorOwnership{
+		Operators: operatorIDSet([]string{"Perlica"}),
+	}, items)
+	if !ok {
+		t.Fatal("expected uncached current operator to be detected")
+	}
+	if candidate.Name != "Avywenna" {
+		t.Fatalf("candidate = %q, want Avywenna", candidate.Name)
+	}
+	if match.ocrText != "陈千语" {
+		t.Fatalf("ocr text = %q, want 陈千语", match.ocrText)
+	}
+
+	if _, _, ok := findUncachedCurrentOperator(knownOperators, operatorOwnership{
+		Operators: operatorIDSet([]string{"Perlica", "Avywenna"}),
+	}, items); ok {
+		t.Fatal("cached current operator must not trigger a rescan")
+	}
+
+	unknownItems := []ocrItem{{text: "未知干员", box: maa.Rect{100, 100, 80, 20}}}
+	if _, _, ok := findUncachedCurrentOperator(knownOperators, operatorOwnership{}, unknownItems); ok {
+		t.Fatal("unrecognized current operator should not trigger a rescan")
 	}
 }
 
@@ -567,6 +640,19 @@ func resetOperatorSessionForTest(t *testing.T, mode string) {
 		operatorListScanStates = previousStates
 		operatorStateMu.Unlock()
 		resolveSellProductCachePathFunc = previousCachePath
+	})
+}
+
+func resetCurrentOperatorOCRCacheForTest(t *testing.T) {
+	t.Helper()
+	currentOperatorOCRCache.Lock()
+	previous := currentOperatorOCRCache.entry
+	currentOperatorOCRCache.entry = nil
+	currentOperatorOCRCache.Unlock()
+	t.Cleanup(func() {
+		currentOperatorOCRCache.Lock()
+		currentOperatorOCRCache.entry = previous
+		currentOperatorOCRCache.Unlock()
 	})
 }
 

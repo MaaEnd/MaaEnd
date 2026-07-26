@@ -274,6 +274,21 @@ func TestOperatorSessionAllowsOneRetryPerSelection(t *testing.T) {
 	}
 }
 
+func TestOperatorSessionAllowsOneCacheRescan(t *testing.T) {
+	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	if !operatorSessionClaimCacheRescan() {
+		t.Fatal("first cache rescan should be allowed")
+	}
+	if operatorSessionClaimCacheRescan() {
+		t.Fatal("second cache rescan in the same task should be rejected")
+	}
+
+	operatorSessionReset(operatorCacheModeCache)
+	if !operatorSessionClaimCacheRescan() {
+		t.Fatal("new task should allow a cache rescan again")
+	}
+}
+
 func TestOperatorSessionPrintsCacheNoticeOnce(t *testing.T) {
 	resetOperatorSessionForTest(t, operatorCacheModeCache)
 	if !operatorSessionClaimCacheNotice() {

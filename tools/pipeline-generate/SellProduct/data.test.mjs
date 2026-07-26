@@ -11,7 +11,6 @@ import sellProductSessionRows from "./session-data.mjs";
 import {sellProductTaskRows} from "./task-data.mjs";
 
 const root = sellProductTaskRows[0];
-const wulingRoot = sellProductTaskRows.find((row) => row.RegionPrefix === "Wuling");
 
 function sortedKeys(value) {
     return Object.keys(value).sort();
@@ -32,8 +31,7 @@ test("SellProduct 保留按星期执行入口与任务选项", () => {
         "SellProductOperatorAutoSwitch",
         "SellProductPriorityRules",
         "SellProductItemReserveRules",
-        "ValleyIVSell",
-        "WulingSell",
+        ...sellProductRegions.map((region) => `${region.RegionPrefix}Sell`),
     ]);
     assert.equal(task.option.SellProductSchedule.type, "checkbox");
     assert.equal(task.option.SellProductSchedule.cases.length, 7);
@@ -51,16 +49,18 @@ test("SellProduct 保留按星期执行入口与任务选项", () => {
 });
 
 test("SellProduct 按固定地区顺序售卖且不再使用自动起始地区", () => {
-    const pipeline = readPipeline(new URL("../../../assets/resource/pipeline/SellProduct.json", import.meta.url));
+    const loop = readPipeline(new URL("../../../assets/resource/pipeline/SellProduct/Loop.json", import.meta.url));
+    const entry = readPipeline(new URL("../../../assets/resource/pipeline/SellProduct.json", import.meta.url));
 
-    assert.deepEqual(pipeline.SellProductLoop.next, [
-        "SellProductValleyIV",
-        "SellProductWuling",
+    assert.deepEqual(loop.SellProductLoop.next, [
+        ...sellProductRegions.map((region) => `SellProduct${region.RegionPrefix}`),
         "SellProductTaskEnd",
     ]);
-    assert.equal(pipeline.SellProductAuto, undefined);
-    assert.equal(pipeline.SellProductAutoValleyIV, undefined);
-    assert.equal(pipeline.SellProductAutoWuling, undefined);
+    assert.equal(entry.SellProductLoop, undefined);
+    assert.deepEqual(
+        Object.keys(entry).filter((nodeName) => nodeName.startsWith("SellProductAuto")),
+        [],
+    );
 });
 
 test("SellProduct templates consume separate minimal projections of the shared location model", () => {
@@ -90,6 +90,7 @@ test("SellProduct templates consume separate minimal projections of the shared l
         "LocationId",
         "MaxTargetBoxAdb",
         "QuantityBoxAdb",
+        "RegionPrefix",
     ]);
     assert.deepEqual(sortedKeys(sellProductSessionRows[0]), [
         "LocationDesc",
@@ -194,8 +195,7 @@ test("SellProduct 优先总开关展开地区配置且不耦合地区售卖开�
     const enabledCase = root.PriorityRuleSwitchCases.find((itemCase) => itemCase.name === "Yes");
     assert.deepEqual(enabledCase.option, [
         "SellProductOnlyPreferredItems",
-        "SellProductValleyIVPriorityRules",
-        "SellProductWulingPriorityRules",
+        ...sellProductRegions.map((region) => `SellProduct${region.RegionPrefix}PriorityRules`),
     ]);
     assert.deepEqual(enabledCase.pipeline_override.SellProductConfigurePrioritySession.custom_action_param, {
         operation: "configure",
@@ -211,12 +211,10 @@ test("SellProduct 优先总开关展开地区配置且不耦合地区售卖开�
         only_preferred: true,
     });
 
-    assert.ok(wulingRoot);
-    for (const regionRoot of [
-        root,
-        wulingRoot,
-    ]) {
-        const regionPrefix = regionRoot.RegionPrefix;
+    for (const region of sellProductRegions) {
+        const regionPrefix = region.RegionPrefix;
+        const regionRoot = sellProductTaskRows.find((row) => row.RegionPrefix === regionPrefix);
+        assert.ok(regionRoot, `missing task row for region ${regionPrefix}`);
         const regionEnabledCase = regionRoot.RegionPriorityRuleSwitchCases.find((itemCase) => itemCase.name === "Yes");
         assert.deepEqual(
             regionEnabledCase.option,
@@ -237,51 +235,41 @@ test("SellProduct 优先总开关展开地区配置且不耦合地区售卖开�
                 enabled: true,
             },
         );
-    }
 
-    for (const slot of [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-    ]) {
-        const cases = root[`PriorityItemCases${slot}`];
-        const noneCase = cases.find((entry) => entry.name === "None");
-        assert.ok(noneCase);
-        assert.equal(noneCase.pipeline_override, undefined);
+        const regionItemIDs = new Set(
+            sellProductLocations
+                .filter((location) => location.RegionPrefix === regionPrefix)
+                .flatMap((location) => sellProductSelectionData.locations[location.LocationId].item_order),
+        );
+        for (const slot of [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+        ]) {
+            const cases = regionRoot[`PriorityItemCases${slot}`];
+            const noneCase = cases.find((entry) => entry.name === "None");
+            assert.ok(noneCase, `${regionPrefix} slot ${slot} missing None case`);
+            assert.equal(noneCase.pipeline_override, undefined);
 
-        const itemCase = cases.find((entry) => entry.name !== "None");
-        assert.ok(itemCase);
-        const registration = itemCase.pipeline_override[`SellProductValleyIVRegisterPriorityItem${slot}`];
-        assert.equal(registration.enabled, undefined);
-        assert.equal(registration.custom_action_param.operation, "register");
-        assert.ok(registration.custom_action_param.item_id.startsWith("item_"));
-    }
-
-    const valleyItemIDs = new Set(
-        sellProductLocations
-            .filter((location) => location.RegionPrefix === "ValleyIV")
-            .flatMap((location) => sellProductSelectionData.locations[location.LocationId].item_order),
-    );
-    const wulingItemIDs = new Set(
-        sellProductLocations
-            .filter((location) => location.RegionPrefix === "Wuling")
-            .flatMap((location) => sellProductSelectionData.locations[location.LocationId].item_order),
-    );
-    for (const itemCase of root.PriorityItemCases1.filter((entry) => entry.name !== "None")) {
-        const itemID = itemCase.pipeline_override.SellProductValleyIVRegisterPriorityItem1.custom_action_param.item_id;
-        assert.ok(valleyItemIDs.has(itemID));
-    }
-    for (const itemCase of wulingRoot.PriorityItemCases1.filter((entry) => entry.name !== "None")) {
-        const itemID = itemCase.pipeline_override.SellProductWulingRegisterPriorityItem1.custom_action_param.item_id;
-        assert.ok(wulingItemIDs.has(itemID));
+            const itemCases = cases.filter((entry) => entry.name !== "None");
+            assert.ok(itemCases.length > 0, `${regionPrefix} slot ${slot} has no selectable items`);
+            for (const itemCase of itemCases) {
+                const registration =
+                    itemCase.pipeline_override[`SellProduct${regionPrefix}RegisterPriorityItem${slot}`];
+                assert.equal(registration.enabled, undefined);
+                assert.equal(registration.custom_action_param.operation, "register");
+                assert.ok(registration.custom_action_param.item_id.startsWith("item_"));
+                assert.ok(regionItemIDs.has(registration.custom_action_param.item_id));
+            }
+        }
     }
 });
 
 test("SellProduct concrete reserve rule separates itemId attach from handling mode", () => {
-    const itemCase = root.ReserveItemCases1.find((entry) => entry.name === "精选荞愈胶囊");
+    const itemCase = root.ReserveItemCases1.find((entry) => entry.name !== "None");
     assert.ok(itemCase);
     assert.deepEqual(itemCase.option, ["SellProductReserveItem1Mode"]);
     const registration = itemCase.pipeline_override.SellProductRegisterReserveRule1;
@@ -321,8 +309,6 @@ test("SellProduct registration slots form an always-enabled no-op chain", () => 
         "SellProductRegisterReserveRule4",
         "SellProductRegisterReserveRule5",
         "SellProductRegisterReserveRule6",
-        "SellProductConfigurePrioritySession",
-        "SellProductInitializeOperatorSession",
     ];
 
     for (let index = 0; index < chain.length - 1; index += 1) {
@@ -331,12 +317,28 @@ test("SellProduct registration slots form an always-enabled no-op chain", () => 
         assert.equal(node.enabled, undefined);
         assert.deepEqual(node.next, [chain[index + 1]]);
     }
+
+    // 保留规则链终止于 Rule6；优先售卖与干员会话作为并行子任务由 SellProductPrepareSession 调度。
+    assert.equal(pipeline.SellProductRegisterReserveRule6.next, undefined);
+    assert.equal(pipeline.SellProductConfigurePrioritySession.enabled, undefined);
+    assert.equal(pipeline.SellProductConfigurePrioritySession.next, undefined);
+
+    const entry = readPipeline(new URL("../../../assets/resource/pipeline/SellProduct.json", import.meta.url));
+    assert.deepEqual(entry.SellProductPrepareSession.custom_action_param.sub, [
+        "SellProductInitializeReserveSession",
+        "SellProductConfigurePrioritySession",
+        "SellProductInitializeOperatorSession",
+    ]);
 });
 
 test("SellProduct 每次进入地区都会切换对应的优先售卖表", () => {
-    const pipeline = readPipeline(new URL("../../../assets/resource/pipeline/SellProduct/Sell.json", import.meta.url));
-
     for (const region of sellProductRegions) {
+        const pipeline = readPipeline(
+            new URL(
+                `../../../assets/resource/pipeline/SellProduct/${region.RegionPrefix}/SellProduct${region.RegionPrefix}.json`,
+                import.meta.url,
+            ),
+        );
         const chain = [
             `SellProduct${region.RegionPrefix}InitializePrioritySession`,
             ...[
@@ -414,7 +416,7 @@ test("SellProduct operator switching uses shared core dispatch nodes", () => {
     for (const location of sellProductLocations) {
         const pipeline = readPipeline(
             new URL(
-                `../../../assets/resource/pipeline/SellProduct/Outposts/${location.LocationId}.json`,
+                `../../../assets/resource/pipeline/SellProduct/${location.RegionPrefix}/${location.LocationId}.json`,
                 import.meta.url,
             ),
         );
@@ -493,7 +495,7 @@ test("SellProduct 缺货物品通过据点锚点标记并在本次任务内共�
     for (const location of sellProductLocations) {
         const pipeline = readPipeline(
             new URL(
-                `../../../assets/resource/pipeline/SellProduct/Outposts/${location.LocationId}.json`,
+                `../../../assets/resource/pipeline/SellProduct/${location.RegionPrefix}/${location.LocationId}.json`,
                 import.meta.url,
             ),
         );
@@ -532,13 +534,12 @@ test("SellProduct 持续售卖到保留量后再进入下一轮选货", () => {
     for (const location of sellProductLocations) {
         const outpost = readPipeline(
             new URL(
-                `../../../assets/resource/pipeline/SellProduct/Outposts/${location.LocationId}.json`,
+                `../../../assets/resource/pipeline/SellProduct/${location.RegionPrefix}/${location.LocationId}.json`,
                 import.meta.url,
             ),
         );
         assert.equal(
-            outpost[`SellProduct${location.LocationId}BetterSliding`].custom_action_param
-                .TargetReachedOverrideEnable,
+            outpost[`SellProduct${location.LocationId}BetterSliding`].custom_action_param.TargetReachedOverrideEnable,
             "SellProductReserveTargetReached",
         );
     }
@@ -573,7 +574,7 @@ test("SellProduct 按启用据点边界处理已派驻干员冲突", () => {
     for (const location of sellProductLocations) {
         const pipeline = readPipeline(
             new URL(
-                `../../../assets/resource/pipeline/SellProduct/Outposts/${location.LocationId}.json`,
+                `../../../assets/resource/pipeline/SellProduct/${location.RegionPrefix}/${location.LocationId}.json`,
                 import.meta.url,
             ),
         );
@@ -651,7 +652,7 @@ test("SellProduct generated outpost nodes report confirmed runtime state changes
     for (const location of sellProductLocations) {
         const pipeline = readPipeline(
             new URL(
-                `../../../assets/resource/pipeline/SellProduct/Outposts/${location.LocationId}.json`,
+                `../../../assets/resource/pipeline/SellProduct/${location.RegionPrefix}/${location.LocationId}.json`,
                 import.meta.url,
             ),
         );
@@ -698,7 +699,7 @@ test("SellProduct UI focus messages use complete interface i18n keys", () => {
         ...sellProductLocations.map(
             (location) =>
                 new URL(
-                    `../../../assets/resource/pipeline/SellProduct/Outposts/${location.LocationId}.json`,
+                    `../../../assets/resource/pipeline/SellProduct/${location.RegionPrefix}/${location.LocationId}.json`,
                     import.meta.url,
                 ),
         ),

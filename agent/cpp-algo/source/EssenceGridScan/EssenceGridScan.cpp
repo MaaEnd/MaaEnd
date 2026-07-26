@@ -33,19 +33,16 @@ namespace essencegridscan
 namespace
 {
 
-constexpr const char* kRuntimeTemplateDir = "resource/image/EssenceFilter";
-constexpr const char* kSourceTemplateDir = "assets/resource/image/EssenceFilter";
-constexpr const char* kEssenceGeneralTemplate = "EssenceGeneral.png";
-constexpr const char* kThumbDiscardTemplate = "ThumbDiscard.png";
-constexpr const char* kThumbLockTemplate = "ThumbLock.png";
-constexpr const char* kThumbLockPurpleTemplate = "LockPurple.png";
+constexpr const char* kDefaultEssenceGeneralTemplatePath = "resource/image/EssenceFilter/EssenceGeneral.png";
+constexpr const char* kDefaultThumbDiscardTemplatePath = "resource/image/EssenceFilter/ThumbDiscard.png";
+constexpr const char* kDefaultThumbLockTemplatePath = "resource/image/EssenceFilter/ThumbLock.png";
+constexpr const char* kDefaultThumbLockPurpleTemplatePath = "resource/image/EssenceFilter/LockPurple.png";
 constexpr const char* kSessionId = "EssenceGridScan";
 constexpr const char* kClickNextNode = "EssenceGridClickPending";
 constexpr const char* kSwipeNextNode = "EssenceGridSwipeNext";
 constexpr const char* kFinishNode = "EssenceFilterFinish";
 
 recogrid::RecoGridEngine g_engine;
-bool g_loaded = false;
 MaaTaskId g_lastTaskId = MaaInvalidId;
 std::set<std::pair<int, int>> g_issuedCellKeys;
 std::set<std::pair<int, int>> g_seenCellKeys;
@@ -76,6 +73,20 @@ struct EssenceScanDefaults
     double endMinMatchRatio = 0.0;
 };
 
+struct EssenceTemplateConfig
+{
+    std::string essenceGeneralTemplatePath = kDefaultEssenceGeneralTemplatePath;
+    std::string thumbDiscardTemplatePath = kDefaultThumbDiscardTemplatePath;
+    std::vector<std::string> thumbLockTemplatePaths = {
+        kDefaultThumbLockTemplatePath,
+        kDefaultThumbLockPurpleTemplatePath,
+    };
+
+    bool operator==(const EssenceTemplateConfig&) const = default;
+};
+
+std::optional<EssenceTemplateConfig> g_loadedTemplateConfig;
+
 const EssenceScanDefaults kEssenceScanDefaults {
     { 18, 72, 956, 570 }, { 1280, 720 }, 0.2, 0.4, 10, 0.9, 10, 0, 0.35, 0.4, true, 0.95,
 };
@@ -96,42 +107,68 @@ constexpr int kQualityDominanceRatio = 2;
 constexpr int kThumbSearchWidthPercent = 20;
 constexpr int kThumbSearchHeightPercent = 20;
 constexpr double kThumbLockMatchThreshold = 0.7;
-constexpr double kThumbDiscardMatchThreshold = 0.9;
+constexpr double kThumbDiscardMatchThreshold = 0.75;
 
-std::filesystem::path ResolveEssenceImagePath(const char* filename)
+std::filesystem::path ResolveEssenceImagePath(const std::string& configuredPath)
 {
-    for (const char* directory : { kRuntimeTemplateDir, kSourceTemplateDir }) {
-        const std::filesystem::path path = std::filesystem::path(directory) / filename;
+    if (configuredPath.empty()) {
+        throw std::invalid_argument("Essence image path cannot be empty");
+    }
+
+    const std::filesystem::path configured(configuredPath);
+    const std::filesystem::path executableDir = get_exe_dir();
+    const std::vector<std::filesystem::path> candidates = {
+        configured,
+        std::filesystem::path("assets") / configured,
+        std::filesystem::path("resource/image") / configured,
+        std::filesystem::path("assets/resource/image") / configured,
+        executableDir / configured,
+        executableDir.parent_path() / configured,
+        executableDir.parent_path() / "resource/image" / configured,
+    };
+
+    for (const std::filesystem::path& path : candidates) {
         std::error_code ec;
         if (std::filesystem::exists(path, ec) && std::filesystem::is_regular_file(path, ec)) {
             return path;
         }
     }
-    throw std::runtime_error(std::string("Essence image not found: ") + filename);
+    throw std::runtime_error("Essence image not found: " + configuredPath);
 }
 
-void EnsureLoaded()
+void EnsureLoaded(const EssenceTemplateConfig& config)
 {
-    if (g_loaded) {
+    if (g_loadedTemplateConfig && *g_loadedTemplateConfig == config) {
         return;
     }
 
-    const std::filesystem::path path = ResolveEssenceImagePath(kEssenceGeneralTemplate);
+    const std::filesystem::path path = ResolveEssenceImagePath(config.essenceGeneralTemplatePath);
     cv::Mat image = MAA_NS::imread(path, cv::IMREAD_UNCHANGED);
     if (image.empty()) {
         throw std::runtime_error("Essence grid template image cannot be loaded: " + path.string());
     }
-    g_thumbDiscardTemplate = MAA_NS::imread(ResolveEssenceImagePath(kThumbDiscardTemplate), cv::IMREAD_UNCHANGED);
-    g_thumbLockTemplates.clear();
-    g_thumbLockTemplates.emplace_back(MAA_NS::imread(ResolveEssenceImagePath(kThumbLockTemplate), cv::IMREAD_UNCHANGED));
-    g_thumbLockTemplates.emplace_back(MAA_NS::imread(ResolveEssenceImagePath(kThumbLockPurpleTemplate), cv::IMREAD_UNCHANGED));
+
+    cv::Mat thumbDiscardTemplate =
+        MAA_NS::imread(ResolveEssenceImagePath(config.thumbDiscardTemplatePath), cv::IMREAD_UNCHANGED);
+    std::vector<cv::Mat> thumbLockTemplates;
+    thumbLockTemplates.reserve(config.thumbLockTemplatePaths.size());
+    for (const std::string& templatePath : config.thumbLockTemplatePaths) {
+        thumbLockTemplates.emplace_back(MAA_NS::imread(ResolveEssenceImagePath(templatePath), cv::IMREAD_UNCHANGED));
+    }
     const bool lockTemplateMissing =
-        std::any_of(g_thumbLockTemplates.begin(), g_thumbLockTemplates.end(), [](const cv::Mat& templ) { return templ.empty(); });
-    if (g_thumbDiscardTemplate.empty() || lockTemplateMissing) {
+        thumbLockTemplates.empty()
+        || std::any_of(thumbLockTemplates.begin(), thumbLockTemplates.end(), [](const cv::Mat& templ) { return templ.empty(); });
+    if (thumbDiscardTemplate.empty() || lockTemplateMissing) {
         throw std::runtime_error("Essence thumb templates cannot be loaded");
     }
+
     g_engine.SetTemplates({ { "essence_general", std::move(image) } });
-    g_loaded = true;
+    g_thumbDiscardTemplate = std::move(thumbDiscardTemplate);
+    g_thumbLockTemplates = std::move(thumbLockTemplates);
+    g_loadedTemplateConfig = config;
+    g_lastTaskId = MaaInvalidId;
+    LogInfo << "EssenceGridScan templates loaded" << VAR(config.essenceGeneralTemplatePath)
+            << VAR(config.thumbDiscardTemplatePath) << VAR(config.thumbLockTemplatePaths);
 }
 
 void ApplyEssenceScanDefaults(recogrid::GridScanOptions& options)
@@ -150,39 +187,103 @@ void ApplyEssenceScanDefaults(recogrid::GridScanOptions& options)
     options.endMinMatchRatio = kEssenceScanDefaults.endMinMatchRatio;
 }
 
-bool ReadBooleanOption(const char* raw, const char* key, bool defaultValue)
+json::object ReadEssenceGridConfig(MaaContext* context, const char* nodeName, const char* fallbackRaw)
 {
-    if (raw == nullptr || std::strlen(raw) == 0 || key == nullptr || std::strlen(key) == 0) {
-        return defaultValue;
+    json::object config;
+    if (fallbackRaw != nullptr && std::strlen(fallbackRaw) > 0) {
+        const std::string fallback(fallbackRaw);
+        const std::size_t first = fallback.find_first_not_of(" \t\r\n");
+        const std::size_t last = fallback.find_last_not_of(" \t\r\n");
+        const bool hasValue = first != std::string::npos;
+        const bool isNull = hasValue && fallback.substr(first, last - first + 1) == "null";
+        if (hasValue && !isNull) {
+            const auto parsed = json::parse(fallback);
+            if (!parsed) {
+                throw std::invalid_argument("custom_recognition_param must be valid JSON");
+            }
+            if (!parsed->is_object()) {
+                throw std::invalid_argument("custom_recognition_param must be a JSON object");
+            }
+            config = parsed->as_object();
+        }
     }
+
+    if (context == nullptr || nodeName == nullptr) {
+        return config;
+    }
+
+    ScopedStringBuffer buffer;
+    if (buffer.Get() == nullptr || !MaaContextGetNodeData(context, nodeName, buffer.Get())) {
+        LogWarn << "EssenceGridScan node data failed" << VAR(nodeName);
+        return config;
+    }
+
+    const char* raw = MaaStringBufferGet(buffer.Get());
+    if (raw == nullptr || std::strlen(raw) == 0) {
+        LogWarn << "EssenceGridScan node data empty" << VAR(nodeName);
+        return config;
+    }
+
     const auto parsed = json::parse(raw);
     if (!parsed || !parsed->is_object()) {
-        return defaultValue;
+        LogWarn << "EssenceGridScan node JSON invalid" << VAR(nodeName);
+        return config;
     }
-    const auto& object = parsed->as_object();
+
+    const json::object& node = parsed->as_object();
+    if (!node.contains("attach") || !node.at("attach").is_object()) {
+        return config;
+    }
+
+    for (const auto& [key, value] : node.at("attach").as_object()) {
+        config[key] = value;
+    }
+    return config;
+}
+
+bool ReadBooleanOption(const json::object& object, const char* key, bool defaultValue)
+{
     if (!object.contains(key) || !object.at(key).is_boolean()) {
         return defaultValue;
     }
     return object.at(key).as_boolean();
 }
 
-double ReadDoubleOption(const char* raw, const char* key, double defaultValue)
+double ReadDoubleOption(const json::object& object, const char* key, double defaultValue)
 {
-    if (raw == nullptr || std::strlen(raw) == 0 || key == nullptr || std::strlen(key) == 0) {
-        return defaultValue;
-    }
-    const auto parsed = json::parse(raw);
-    if (!parsed || !parsed->is_object()) {
-        return defaultValue;
-    }
-    const auto& object = parsed->as_object();
     if (!object.contains(key) || !object.at(key).is_number()) {
         return defaultValue;
     }
     return object.at(key).as_double();
 }
 
-recogrid::GridRecognitionRequest ParseEssenceRecognitionRequest(const char* raw, const recogrid::GridRecognitionOptions& defaults)
+std::string ReadStringOption(const json::object& object, const char* key, std::string defaultValue)
+{
+    if (!object.contains(key) || !object.at(key).is_string()) {
+        return defaultValue;
+    }
+    return object.at(key).as_string();
+}
+
+std::vector<std::string>
+    ReadStringArrayOption(const json::object& object, const char* key, std::vector<std::string> defaultValue)
+{
+    if (!object.contains(key) || !object.at(key).is_array()) {
+        return defaultValue;
+    }
+
+    std::vector<std::string> values;
+    for (const json::value& item : object.at(key).as_array()) {
+        if (!item.is_string()) {
+            return defaultValue;
+        }
+        values.push_back(item.as_string());
+    }
+    return values.empty() ? defaultValue : values;
+}
+
+recogrid::GridRecognitionRequest
+    ParseEssenceRecognitionRequest(const json::object& config, const recogrid::GridRecognitionOptions& defaults)
 {
     recogrid::GridRecognitionRequest request;
     request.options = defaults;
@@ -191,18 +292,24 @@ recogrid::GridRecognitionRequest ParseEssenceRecognitionRequest(const char* raw,
     request.classify.hueWeight = defaults.hueWeight;
     request.classify.maxRankedCandidates = defaults.maxRankedCandidates;
 
-    if (raw == nullptr || std::strlen(raw) == 0) {
-        return request;
-    }
-
-    const auto parsed = json::parse(raw);
-    if (!parsed || !parsed->is_object()) {
-        throw std::invalid_argument("custom_recognition_param must be a JSON object");
-    }
-    if (!request.from_json(*parsed)) {
-        throw std::invalid_argument("custom_recognition_param cannot be converted to GridRecognitionRequest");
+    if (!request.from_json(json::value(config))) {
+        throw std::invalid_argument("Essence grid config cannot be converted to GridRecognitionRequest");
     }
     return request;
+}
+
+EssenceTemplateConfig
+    ParseEssenceTemplateConfig(const json::object& config, const recogrid::GridRecognitionRequest& recognitionRequest)
+{
+    EssenceTemplateConfig output;
+    if (!recognitionRequest.templatePath.empty()) {
+        output.essenceGeneralTemplatePath = recognitionRequest.templatePath;
+    }
+    output.thumbDiscardTemplatePath =
+        ReadStringOption(config, "thumb_discard_template_path", output.thumbDiscardTemplatePath);
+    output.thumbLockTemplatePaths =
+        ReadStringArrayOption(config, "thumb_lock_template_paths", std::move(output.thumbLockTemplatePaths));
+    return output;
 }
 
 void ResetSessionForNewTask(MaaTaskId taskId)
@@ -433,19 +540,9 @@ ThumbDetection DetectCellThumbState(const cv::Mat& image, const cv::Rect& screen
     return detection;
 }
 
-QualityFilter ParseQualityFilter(const char* raw)
+QualityFilter ParseQualityFilter(const json::object& object)
 {
     QualityFilter filter;
-    if (raw == nullptr || std::strlen(raw) == 0) {
-        return filter;
-    }
-
-    const auto parsed = json::parse(raw);
-    if (!parsed || !parsed->is_object()) {
-        return filter;
-    }
-
-    const auto& object = parsed->as_object();
     const bool hasFlawless = object.contains("flawless_essence") && object.at("flawless_essence").is_boolean();
     const bool hasPure = object.contains("pure_essence") && object.at("pure_essence").is_boolean();
     filter.hasExplicitSelection = hasFlawless || hasPure;
@@ -461,51 +558,6 @@ QualityFilter ParseQualityFilter(const char* raw)
     if (object.contains("skip_thumb_discard") && object.at("skip_thumb_discard").is_boolean()) {
         filter.skipThumbDiscard = object.at("skip_thumb_discard").as_boolean();
     }
-    return filter;
-}
-
-QualityFilter ReadQualityFilter(MaaContext* context, const char* nodeName, const char* fallbackRaw)
-{
-    QualityFilter filter = ParseQualityFilter(fallbackRaw);
-    if (context == nullptr || nodeName == nullptr) {
-        return filter;
-    }
-
-    MaaStringBuffer* buffer = MaaStringBufferCreate();
-    if (buffer == nullptr) {
-        LogWarn << "EssenceGridScan quality filter buffer create failed" << VAR(nodeName);
-        return filter;
-    }
-
-    do {
-        if (!MaaContextGetNodeData(context, nodeName, buffer)) {
-            LogWarn << "EssenceGridScan quality filter node data failed" << VAR(nodeName);
-            break;
-        }
-
-        const char* raw = MaaStringBufferGet(buffer);
-        if (raw == nullptr || std::strlen(raw) == 0) {
-            LogWarn << "EssenceGridScan quality filter node data empty" << VAR(nodeName);
-            break;
-        }
-
-        const auto parsed = json::parse(raw);
-        if (!parsed || !parsed->is_object()) {
-            LogWarn << "EssenceGridScan quality filter node JSON invalid" << VAR(nodeName);
-            break;
-        }
-
-        const auto& object = parsed->as_object();
-        if (!object.contains("attach") || !object.at("attach").is_object()) {
-            break;
-        }
-
-        const json::value attachValue(object.at("attach"));
-        const std::string attachRaw = attachValue.dumps();
-        filter = ParseQualityFilter(attachRaw.c_str());
-    } while (0);
-
-    MaaStringBufferDestroy(buffer);
     return filter;
 }
 
@@ -592,22 +644,22 @@ void WriteAdvanceDetail(
     detail["reached_end"] = result.reachedEnd;
     detail["has_progress"] = result.hasProgress;
     detail["row_offset"] = result.rowOffset;
+    detail["raw_alignment_offset"] = result.rawAlignmentOffset;
+    detail["adjusted_alignment_offset"] = result.adjustedAlignmentOffset;
+    detail["support_rows"] = result.supportRows;
+    detail["alignment_status"] = result.alignmentStatus;
+    detail["delta_reliable"] = result.deltaReliable;
+    detail["matched_cells"] = result.matchedCells;
+    detail["compared_cells"] = result.comparedCells;
+    detail["average_distance"] = result.averageDistance;
+    detail["delta_score"] = result.deltaScore;
     detail["match_ratio"] = result.matchRatio;
-    detail["transition_row_offset"] = result.transitionRowOffset;
-    detail["transition_match_ratio"] = result.transitionMatchRatio;
-    detail["transition_average_distance"] = result.transitionAverageDistance;
-    detail["transition_reliable"] = result.transitionReliable;
-    detail["transition_has_progress"] = result.transitionHasProgress;
     detail["previous_viewport_start_row"] = result.previousViewportStartRow;
     detail["current_viewport_start_row"] = result.currentViewportStartRow;
-    detail["resolved_row_offset"] = result.resolvedRowOffset;
-    detail["resolver_used"] = result.resolverUsed;
-    detail["resolver_success"] = result.resolverSuccess;
     detail["fallback_used"] = result.fallbackUsed;
+    detail["fallback_streak"] = result.fallbackStreak;
     detail["end_confirmations"] = result.endConfirmations;
     detail["unresolved_reason"] = result.unresolvedReason;
-    detail["pending_stored"] = result.pendingStored;
-    detail["pending_resolved"] = result.pendingResolved;
 
     json::object retainedQualityCounts;
     retainedQualityCounts["flawless_gold"] = 0;
@@ -801,22 +853,22 @@ MaaBool MAA_CALL EssenceGridAdvanceRecognitionRun(
     }
 
     try {
-        EnsureLoaded();
-        ResetSessionForNewTask(task_id);
-
         recogrid::GridScanOptions options;
         ApplyEssenceScanDefaults(options);
 
-        recogrid::GridRecognitionRequest request = ParseEssenceRecognitionRequest(custom_recognition_param, options.recognition);
-        if ((custom_recognition_param == nullptr || std::strlen(custom_recognition_param) == 0) && roi != nullptr && roi->width > 0
-            && roi->height > 0) {
+        const json::object config = ReadEssenceGridConfig(context, node_name, custom_recognition_param);
+        recogrid::GridRecognitionRequest request = ParseEssenceRecognitionRequest(config, options.recognition);
+        if (!config.contains("roi") && roi != nullptr && roi->width > 0 && roi->height > 0) {
             request = recogrid::ApplyRoiOverride(request, { roi->x, roi->y, roi->width, roi->height });
         }
 
+        EnsureLoaded(ParseEssenceTemplateConfig(config, request));
+        ResetSessionForNewTask(task_id);
+
         options.recognition = request.options;
-        options.incremental = ReadBooleanOption(custom_recognition_param, "incremental", options.incremental);
-        options.endMinMatchRatio = ReadDoubleOption(custom_recognition_param, "end_min_match_ratio", options.endMinMatchRatio);
-        const QualityFilter qualityFilter = ReadQualityFilter(context, node_name, custom_recognition_param);
+        options.incremental = ReadBooleanOption(config, "incremental", options.incremental);
+        options.endMinMatchRatio = ReadDoubleOption(config, "end_min_match_ratio", options.endMinMatchRatio);
+        const QualityFilter qualityFilter = ParseQualityFilter(config);
 
         std::optional<recogrid::GridScanCell> selected = SelectNextQueuedCell();
         recogrid::GridScanResult result = g_lastScanResult.value_or(recogrid::GridScanResult {});
@@ -836,7 +888,9 @@ MaaBool MAA_CALL EssenceGridAdvanceRecognitionRun(
                 g_scanRequired = true;
                 g_pendingCell.reset();
                 WriteAdvanceDetail(out_detail, result, std::nullopt, qualityFilter);
-                LogWarn << "EssenceGridScan scan miss" << VAR(result.message);
+                LogWarn << "EssenceGridScan scan miss" << VAR(result.message) << VAR(result.alignmentStatus)
+                        << VAR(result.rawAlignmentOffset) << VAR(result.adjustedAlignmentOffset) << VAR(result.supportRows)
+                        << VAR(result.matchRatio) << VAR(result.fallbackStreak) << VAR(result.unresolvedReason);
                 return MAA_FALSE;
             }
 
@@ -866,7 +920,9 @@ MaaBool MAA_CALL EssenceGridAdvanceRecognitionRun(
 
         LogInfo << "EssenceGridScan advance" << VAR(nextNode) << VAR(result.sessionTotalCells) << VAR(g_issuedCellKeys.size())
                 << VAR(g_currentPageQueue.size()) << VAR(g_currentPageQueueIndex) << VAR(g_scanRequired) << VAR(result.reachedEnd)
-                << VAR(result.hasProgress) << VAR(result.rowOffset) << VAR(result.matchRatio);
+                << VAR(result.hasProgress) << VAR(result.rowOffset) << VAR(result.rawAlignmentOffset)
+                << VAR(result.adjustedAlignmentOffset) << VAR(result.supportRows) << VAR(result.alignmentStatus)
+                << VAR(result.matchRatio) << VAR(result.fallbackUsed) << VAR(result.fallbackStreak);
         if (!OverrideNext(context, node_name, nextNode)) {
             LogWarn << "EssenceGridScan override next failed" << VAR(nextNode);
         }

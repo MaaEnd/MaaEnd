@@ -15,6 +15,7 @@ const MAX_QUANTITY_BOX_ADB = [
 ];
 
 export default sellProductLocations.map((location) => ({
+    RegionPrefix: location.RegionPrefix,
     LocationId: location.LocationId,
     QuantityBoxAdb: QUANTITY_BOX_ADB,
     MaxTargetBoxAdb: MAX_QUANTITY_BOX_ADB,

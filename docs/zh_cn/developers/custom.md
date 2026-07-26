@@ -96,7 +96,7 @@ Action 节点用于执行自定义动作。常见写法如下：
     - `custom_action?: string`：已注册的自定义动作名（如 `AutoAltClickAction`），与 `action` 二选一。
     - `custom_action_param?: object`：透传给内层自定义动作的参数。
     - `repeat_count?: int`：最大尝试次数；省略或 `<= 0` 时默认 `3`。
-    - `interval_ms?: int`：每次尝试后、识别前的等待（毫秒）；省略或 `0` 时默认 `1000`；负值非法。
+    - `interval_ms?: int`：每次尝试后、识别前的等待（毫秒）；省略或 `0` 时默认 `3000`；负值非法。
 - `RepeatUntilFoundAction` 额外参数：
     - `wait_nodes: string[]`：等待出现的 Pipeline 节点名列表，必填。
 - `RepeatUntilNotFoundAction` 额外参数：

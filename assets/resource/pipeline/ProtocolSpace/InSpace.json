@@ -770,7 +770,7 @@
         ],
         "action": "Click",
         "next": [
-            "[JumpBack]SceneWaitLoadingExit",
+            "[JumpBack]SceneWaitBlackScreenLoadingExit",
             "ProtocolSpaceEnterSpaceSuccess",
             "ProtocolSpaceRewardClaimSuccessSanityLowDialog"
         ],

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {sellProductLocaleEntries} from "./model.mjs";
-import {rebuildSettlementMessages} from "./sync-locales.mjs";
+import {insertMissingItemMessages, rebuildSettlementMessages} from "./sync-locales.mjs";
 
 test("SellProduct locale settlement keys are rebuilt in game order", () => {
     const expectedKeys = sellProductLocaleEntries.settlements.map(({key}) => key);
@@ -24,4 +24,53 @@ test("SellProduct locale settlement keys are rebuilt in game order", () => {
     assert.equal(result.removed, 1);
     assert.equal(result.inserted, expectedKeys.length - 3);
     assert.equal(result.updated, 3);
+});
+
+test("SellProduct locale item keys are inserted after the last item key", () => {
+    const entries = [
+        {key: "item.NewItemA", names: {zh_cn: "新物品甲", en_us: "New Item A"}},
+        // 中文名已被既有 item.* 键覆盖，不再重复创建。
+        {key: "item.NewItemB", names: {zh_cn: "共享物品", en_us: "Shared Item"}},
+    ];
+    const messages = {
+        "item.Existing": "既有物品",
+        "item.Shared": "共享物品",
+        "task.Other.label": "其他任务",
+    };
+
+    const result = insertMissingItemMessages(messages, entries, "en_us", new Set(["共享物品"]));
+
+    assert.deepEqual(Object.keys(result.messages), [
+        "item.Existing",
+        "item.Shared",
+        "item.NewItemA",
+        "task.Other.label",
+    ]);
+    assert.equal(result.messages["item.NewItemA"], "New Item A");
+    assert.equal(result.inserted, 1);
+});
+
+test("SellProduct locale item sync keeps existing keys and falls back to Chinese names", () => {
+    const entries = [
+        {key: "item.Existing", names: {zh_cn: "既有物品"}},
+        {key: "item.NewItem", names: {zh_cn: "新物品"}},
+    ];
+    const messages = {
+        "item.Existing": "人工维护的物品名",
+        "task.Other.label": "其他任务",
+    };
+
+    const result = insertMissingItemMessages(messages, entries, "ja_jp", new Set());
+
+    assert.equal(result.messages["item.Existing"], "人工维护的物品名");
+    assert.equal(result.messages["item.NewItem"], "新物品");
+    assert.equal(result.inserted, 1);
+});
+
+test("SellProduct locale item sync requires an existing item group", () => {
+    const entries = [{key: "item.NewItem", names: {zh_cn: "新物品"}}];
+    assert.throws(
+        () => insertMissingItemMessages({"task.Other.label": "其他任务"}, entries, "zh_cn", new Set()),
+        /item\.\*/,
+    );
 });

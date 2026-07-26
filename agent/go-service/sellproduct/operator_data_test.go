@@ -1,6 +1,9 @@
 package sellproduct
 
-import "testing"
+import (
+	"slices"
+	"testing"
+)
 
 func TestBuildOperatorSelectionDataUsesGeneratedOrder(t *testing.T) {
 	got, err := buildOperatorSelectionData(testSellProductSelectionData())
@@ -39,21 +42,26 @@ func TestBuildOperatorSelectionDataRejectsUnknownOperator(t *testing.T) {
 }
 
 func TestLoadOperatorSelectionData(t *testing.T) {
+	source, err := loadSellProductSelectionData()
+	if err != nil {
+		t.Fatalf("loadSellProductSelectionData: %v", err)
+	}
 	got, err := loadOperatorSelectionData()
 	if err != nil {
 		t.Fatalf("loadOperatorSelectionData: %v", err)
 	}
-	locations := []string{
-		"RefugeeCamp",
-		"InfraStation",
-		"ReconstructionHQ",
-		"SkyKingFlatsConstructionSite",
-		"CardiacRemediationStation",
-		"XiranflowCloudseederStation",
+	if !slices.Equal(got.LocationOrder, source.LocationOrder) {
+		t.Fatalf("location order = %#v, want generated order %#v", got.LocationOrder, source.LocationOrder)
 	}
-	for _, location := range locations {
+	if len(got.TargetCandidates) != len(source.LocationOrder) {
+		t.Fatalf("target candidate locations = %d, want %d", len(got.TargetCandidates), len(source.LocationOrder))
+	}
+	for _, location := range source.LocationOrder {
 		if len(got.TargetCandidates[location]) == 0 {
 			t.Errorf("%s target candidates should not be empty", location)
+		}
+		if got.LocationNames[location] == "" {
+			t.Errorf("%s display name should not be empty", location)
 		}
 	}
 	if len(got.RestoreGroups) == 0 {

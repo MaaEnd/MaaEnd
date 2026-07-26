@@ -1,0 +1,110 @@
+{
+    "EssenceFilterCheckItemSlot1": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    912,
+                    292,
+                    274,
+                    53
+                ]
+            }
+        },
+        "next": [
+            "EssenceFilterCheckItemSlot1Level"
+        ],
+        "on_error": [
+            "EssenceFilterCheckItemOCRFallback"
+        ]
+    },
+    "EssenceFilterCheckItemSlot1Level": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    1197,
+                    311,
+                    35,
+                    35
+                ]
+            }
+        },
+        "next": [
+            "EssenceFilterCheckItemSlot2"
+        ],
+        "on_error": [
+            "EssenceFilterCheckItemOCRFallback"
+        ]
+    },
+    "EssenceFilterCheckItemSlot2": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    912,
+                    340,
+                    274,
+                    53
+                ]
+            }
+        },
+        "next": [
+            "EssenceFilterCheckItemSlot2Level"
+        ],
+        "on_error": [
+            "EssenceFilterCheckItemOCRFallback"
+        ]
+    },
+    "EssenceFilterCheckItemSlot2Level": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    1199,
+                    363,
+                    35,
+                    35
+                ]
+            }
+        },
+        "next": [
+            "EssenceFilterCheckItemSlot3"
+        ],
+        "on_error": [
+            "EssenceFilterCheckItemOCRFallback"
+        ]
+    },
+    "EssenceFilterCheckItemSlot3": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    912,
+                    389,
+                    274,
+                    53
+                ]
+            }
+        },
+        "next": [
+            "EssenceFilterCheckItemSlot3Level"
+        ],
+        "on_error": [
+            "EssenceFilterCheckItemOCRFallback"
+        ]
+    },
+    "EssenceFilterCheckItemSlot3Level": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    1199,
+                    404,
+                    35,
+                    35
+                ]
+            }
+        },
+        "next": [
+            "EssenceFilterSkillDecision"
+        ],
+        "on_error": [
+            "EssenceFilterCheckItemOCRFallback"
+        ]
+    }
+}

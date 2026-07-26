@@ -13,8 +13,8 @@
             ],
             // 可选，最大尝试次数；省略或 <= 0 时默认 3
             "repeat_count": 3,
-            // 可选，每次尝试后、识别前的等待（毫秒）；省略或 0 时默认 1000
-            "interval_ms": 1000
+            // 可选，每次尝试后、识别前的等待（毫秒）；省略或 0 时默认 3000
+            "interval_ms": 3000
         },
         "next": []
     },
@@ -45,7 +45,7 @@
                 "RepeatUntilFoundActionExampleReady"
             ],
             "repeat_count": 3,
-            "interval_ms": 1000
+            "interval_ms": 3000
         },
         "next": []
     }

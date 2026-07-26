@@ -808,6 +808,8 @@
     "item.CannedCitromeA": "精選柑實罐頭",
     "item.CannedCitromeB": "優質柑實罐頭",
     "item.CannedCitromeC": "柑實罐頭",
+    "item.CopperEnr2Cmpt": "灼銅零件",
+    "item.FilterCore": "分離芯",
     "option.ItemTransferStashBackpackWhenBothFull.label": "兩側倉庫均滿時存放背包",
     "option.ItemTransferStashBackpackWhenBothFull.description": "**開啟**後需保證**一鍵存放類別包含所選搬運物品**。\n關閉後需要手動清理背包內剩餘物品。",
     "option.ItemTransferOriginRegion.label": "來源區域 (起點)",

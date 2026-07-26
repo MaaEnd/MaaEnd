@@ -345,6 +345,11 @@ func operatorSessionClaimRetry(usage string, location string) bool {
 	return true
 }
 
+// operatorSessionClaimCacheRescan 保证一次任务中最多因当前派驻干员未缓存触发一次完整重扫。
+func operatorSessionClaimCacheRescan() bool {
+	return operatorSessionClaimRetry(operatorActionUsageAll, "global")
+}
+
 // 保证缓存加载或扫描提示在一次任务中只输出一次，避免识别节点重试时重复刷屏。
 func operatorSessionClaimCacheNotice() bool {
 	operatorStateMu.Lock()

@@ -63,15 +63,16 @@ GridScanResult MakeFailure(std::string message)
     return result;
 }
 
-void UsePreviousSession(GridScanResult& result, const SessionState& session)
+void FillSessionResult(GridScanResult& result, const SessionState& session)
 {
     result.incrementalUsed = true;
     result.sessionCols = session.cols;
+    result.previousViewportStartRow = session.viewportStartRow;
+    result.currentViewportStartRow = session.viewportStartRow;
+    result.endConfirmations = session.endConfirmations;
+    result.fallbackStreak = session.fallbackStreak;
     result.cells = ToSortedCells(session.cells);
     FinalizeCounts(result);
-    result.rows = result.sessionRows;
-    result.cols = result.sessionCols;
-    result.totalCells = result.sessionTotalCells;
 }
 
 } // namespace
@@ -189,18 +190,18 @@ GridScanResult RecoGridEngine::Scan(const std::string& sessionId, const cv::Mat&
         result.detectedTotalCells = result.totalCells;
         if (result.totalCells <= 0) {
             result.message = recognition.message.empty() ? "Grid detected no cells" : recognition.message;
+            result.alignmentStatus = "grid_missing";
+            result.unresolvedReason = result.message;
             if (options.incremental && hasSession) {
-                result.success = true;
-                UsePreviousSession(result, sessionIt->second);
-                return result;
+                FillSessionResult(result, sessionIt->second);
             }
-            sessions_.erase(sessionId);
             return result;
         }
         if (options.incremental && hasSession && sessionIt->second.cols > 0 && result.cols != sessionIt->second.cols) {
-            result.success = true;
             result.message = "Grid shape rejected; kept previous scan session";
-            UsePreviousSession(result, sessionIt->second);
+            result.alignmentStatus = "shape_rejected";
+            result.unresolvedReason = result.message;
+            FillSessionResult(result, sessionIt->second);
             return result;
         }
 
@@ -209,8 +210,15 @@ GridScanResult RecoGridEngine::Scan(const std::string& sessionId, const cv::Mat&
         const GridClassifyOptions classifyOptions = ToClassifyOptions(effectiveOptions.recognition);
         GridDeltaResult delta;
         if (options.incremental && hasSession && sessionIt->second.cols == result.cols) {
-            delta =
-                ComputeGridDelta(sessionIt->second.snapshot, currentSnapshot, { options.matchDistanceThreshold, options.minMatchRatio });
+            delta = ComputeGridDelta(
+                sessionIt->second.snapshot,
+                currentSnapshot,
+                {
+                    options.matchDistanceThreshold,
+                    options.minMatchRatio,
+                    2,
+                });
+            result.rawAlignmentOffset = delta.rowOffset;
             AdjustLeadingPartialRowsForDelta(
                 delta,
                 recognition,
@@ -218,21 +226,20 @@ GridScanResult RecoGridEngine::Scan(const std::string& sessionId, const cv::Mat&
                 imageSize,
                 sessionIt->second.viewportStartRow,
                 &sessionIt->second.cells);
+            result.adjustedAlignmentOffset = delta.rowOffset;
         }
 
         result.deltaReliable = delta.reliable;
-        result.rowOffset = delta.rowOffset;
+        result.supportRows = delta.supportRows;
         result.matchedCells = delta.matchedCells;
         result.comparedCells = delta.comparedCells;
         result.totalDistance = delta.totalDistance;
         result.averageDistance = delta.averageDistance;
         result.deltaScore = delta.score;
         result.matchRatio = delta.matchRatio;
-        result.newCellIndices = delta.newCellIndices;
-        result.hasProgress = delta.hasProgress;
 
         if (options.incremental && hasSession && sessionIt->second.cols == result.cols) {
-            HandleBeamTransition(
+            HandleGridTransition(
                 sessionIt->second,
                 result,
                 recognition,
@@ -251,7 +258,6 @@ GridScanResult RecoGridEngine::Scan(const std::string& sessionId, const cv::Mat&
         session.cols = result.cols;
         session.lockedRowHeight = ModalSegmentLength(recognition.grid.rows);
         session.lockedColWidth = ModalSegmentLength(recognition.grid.cols);
-        session.pending.reset();
         std::vector<GridScanCell> currentCells = MakeUnknownCells(
             0,
             result.rows,

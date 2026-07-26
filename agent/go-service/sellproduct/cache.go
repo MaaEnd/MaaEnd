@@ -213,6 +213,24 @@ func mergeOperatorSnapshot(
 	return withOperatorSnapshot(cache, uid, operatorSet, now)
 }
 
+// invalidateOperatorSnapshotForUID 移除指定账号的干员快照并保留据点状态。
+// 当前派驻干员不在快照中时说明快照已过期，移除后既有扫描流程会重新完整扫描。
+func invalidateOperatorSnapshotForUID(path string, uid string) error {
+	sellProductCacheMu.Lock()
+	defer sellProductCacheMu.Unlock()
+	cache, err := readSellProductCache(path)
+	if err != nil {
+		return err
+	}
+	account, ok := cache.Accounts[uid]
+	if !ok || account.Operators == nil {
+		return nil
+	}
+	account.Operators = nil
+	cache.Accounts[uid] = account
+	return writeSellProductCache(path, cache)
+}
+
 // sellProductCacheHasOperatorSnapshot 判断指定账号是否建立过完整干员快照。
 // Operators 为 nil 表示只有据点状态；非 nil 且 IDs 为空表示完整扫描后没有相关干员。
 func sellProductCacheHasOperatorSnapshot(cache sellProductCache, uid string) bool {

@@ -9,7 +9,7 @@
 namespace recogrid
 {
 
-void HandleBeamTransition(
+void HandleGridTransition(
     SessionState& session,
     GridScanResult& result,
     const GridRecognitionResult& recognition,

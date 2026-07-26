@@ -101,6 +101,7 @@
     "sellproduct.runtime.operator_cache_loaded": "👥 オペレーター一覧のキャッシュを読み込みました（更新日時：%s）。すぐに配置計画を開始します",
     "sellproduct.runtime.operator_cache_time_unknown": "不明",
     "sellproduct.runtime.operator_cache_scanning": "👥 オペレーター一覧をスキャンしてキャッシュしています。一覧全体を確認します",
+    "sellproduct.runtime.operator_cache_rescan": "🔄 現在配置中のオペレーター %s がキャッシュに存在しません。キャッシュが古い可能性があるため、オペレーター一覧を再スキャンします",
     "sellproduct.runtime.restore_skipped": "⚠️ %sで利用可能な販売後の生産オペレーターがいないため、配置をスキップします",
     "sellproduct.runtime.item_switched": "📦 商品を切り替えました：%s（%s）",
     "sellproduct.runtime.item_out_of_stock": "🚫 在庫切れを確認して除外：%s（%s）",
