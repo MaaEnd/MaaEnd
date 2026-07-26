@@ -521,8 +521,8 @@ test("SellProduct 交易完成后重复点击直到获得物品界面消失", ()
         assert.deepEqual(node.custom_action_param, {
             action: "Click",
             wait_node: "SellProductCheckHeader",
-            repeat_count: 6,
-            interval_ms: 500,
+            repeat_count: 10,
+            interval_ms: 200,
         });
         assert.deepEqual(
             node.target,

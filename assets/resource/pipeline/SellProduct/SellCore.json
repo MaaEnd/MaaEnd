@@ -319,8 +319,8 @@
         "custom_action_param": {
             "action": "Click",
             "wait_node": "SellProductCheckHeader",
-            "repeat_count": 6,
-            "interval_ms": 500
+            "repeat_count": 10,
+            "interval_ms": 200
         },
         "target": [
             35,
@@ -377,8 +377,8 @@
         "custom_action_param": {
             "action": "Click",
             "wait_node": "SellProductCheckHeader",
-            "repeat_count": 6,
-            "interval_ms": 500
+            "repeat_count": 10,
+            "interval_ms": 200
         },
         "target": [
             35,
