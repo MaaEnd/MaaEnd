@@ -297,7 +297,7 @@
             577,
             10,
             138,
-            118
+            479
         ],
         "template": [
             "SellProduct/SellProductCheckHeader.png"
@@ -311,25 +311,23 @@
         "desc": "交易后确认",
         "recognition": "And",
         "all_of": [
-            "CloseRewardsButton",
             "SellProductCheckHeader"
         ],
-        "pre_wait_freezes": {
-            "time": 200,
-            "target": [
-                357,
-                283,
-                577,
-                163
-            ]
-        },
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "wait_node": "SellProductCheckHeader"
+            "wait_node": "SellProductCheckHeader",
+            "repeat_count": 6,
+            "interval_ms": 500
         },
+        "target": [
+            35,
+            611,
+            58,
+            57
+        ],
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoney"
         },
@@ -371,17 +369,23 @@
         "desc": "交易后确认，继续应用当前物品的保留规则",
         "recognition": "And",
         "all_of": [
-            "CloseRewardsButton",
             "SellProductCheckHeader"
         ],
-        "pre_wait_freezes": 80,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "wait_node": "SellProductCheckHeader"
+            "wait_node": "SellProductCheckHeader",
+            "repeat_count": 6,
+            "interval_ms": 500
         },
+        "target": [
+            35,
+            611,
+            58,
+            57
+        ],
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoney"
         },

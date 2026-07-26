@@ -500,21 +500,39 @@ test("SellProduct 交易完成后重复点击直到获得物品界面消失", ()
     assert.deepEqual(pipeline.SellProductCheckHeader.template, [
         "SellProduct/SellProductCheckHeader.png",
     ]);
+    assert.deepEqual(
+        pipeline.SellProductCheckHeader.roi,
+        [
+            577,
+            10,
+            138,
+            479,
+        ],
+    );
 
     for (const nodeName of [
         "SellProductSellCheck",
         "SellProductSellCheckThenLoop",
     ]) {
         const node = pipeline[nodeName];
-        assert.deepEqual(node.all_of, [
-            "CloseRewardsButton",
-            "SellProductCheckHeader",
-        ]);
+        assert.deepEqual(node.all_of, ["SellProductCheckHeader"]);
+        assert.equal(node.pre_wait_freezes, undefined);
         assert.equal(node.custom_action, "RepeatUntilNotFoundAction");
         assert.deepEqual(node.custom_action_param, {
             action: "Click",
             wait_node: "SellProductCheckHeader",
+            repeat_count: 6,
+            interval_ms: 500,
         });
+        assert.deepEqual(
+            node.target,
+            [
+                35,
+                611,
+                58,
+                57,
+            ],
+        );
     }
 });
 
