@@ -1206,5 +1206,6 @@
     "option.ClientVersion.cases.Bilibili.label": "CN (Bilibili)",
     "option.ClientVersion.cases.Global.label": "Global (Gryphline)",
     "option.ClientVersion.cases.VN.label": "Vietnam (Gryphline)",
+    "option.ClientVersion.cases.Cloud.label": "Cloud Endfield",
     "option.TrialOfSwordmancyRecoverBeforeBattle.label": "Teleport to heal before each battle"
 }

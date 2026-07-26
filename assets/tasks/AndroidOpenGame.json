@@ -90,6 +90,22 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "Cloud",
+                    "label": "$option.ClientVersion.cases.Cloud.label",
+                    "pipeline_override": {
+                        "AndroidOpenGame": {
+                            "next": [
+                                "AndroidOpenGame_Cloud"
+                            ]
+                        },
+                        "CloseGame": {
+                            "next": [
+                                "CloseGame_Cloud"
+                            ]
+                        }
+                    }
                 }
             ]
         }

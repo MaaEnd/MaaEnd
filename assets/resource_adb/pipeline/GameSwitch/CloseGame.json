@@ -30,5 +30,13 @@
                 "package": "com.gryphline.endfield.gp.vn"
             }
         }
+    },
+    "CloseGame_Cloud": {
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.hypergryph.cloud.endfield"
+            }
+        }
     }
 }

@@ -1206,5 +1206,6 @@
     "option.ClientVersion.cases.Bilibili.label": "B服",
     "option.ClientVersion.cases.Global.label": "国际服",
     "option.ClientVersion.cases.VN.label": "越南服",
+    "option.ClientVersion.cases.Cloud.label": "云终末地",
     "option.TrialOfSwordmancyRecoverBeforeBattle.label": "每次战斗前传送回复血量"
 }
