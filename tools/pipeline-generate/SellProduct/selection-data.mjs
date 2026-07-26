@@ -2,7 +2,14 @@ import {mkdirSync, writeFileSync} from "node:fs";
 import {dirname, resolve} from "node:path";
 import {fileURLToPath, pathToFileURL} from "node:url";
 
-import {getOperatorCaseName, isAdminOperator, sellProductLocations, settlementData, toPascalCase} from "./model.mjs";
+import {
+    getOperatorCaseName,
+    isAdminOperator,
+    sellProductLocations,
+    sellProductLocationsNewestFirst,
+    settlementData,
+    toPascalCase,
+} from "./model.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT_PATH = resolve(__dirname, "../../../assets/data/SellProduct/selection_data.json");
@@ -252,7 +259,7 @@ export function buildSellProductSelectionData() {
     return {
         items: itemData.items,
         operators,
-        location_order: sellProductLocations.map((location) => location.LocationId),
+        location_order: sellProductLocationsNewestFirst.map((location) => location.LocationId),
         locations,
     };
 }

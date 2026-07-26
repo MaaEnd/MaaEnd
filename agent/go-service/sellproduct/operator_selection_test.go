@@ -734,7 +734,7 @@ func orderedEnabledLocations(t *testing.T, gameOrder []string, enabled ...string
 }
 
 // TestPlanningMatches20260719LogSnapshot 使用 MaaEnd-logs-v0.1.0-20260719-094957
-// 中的完整拥有干员快照，验证六据点固定顺序下的售卖与恢复规划。
+// 中的完整拥有干员快照，验证六据点按新地区优先顺序的售卖与恢复规划。
 func TestPlanningMatches20260719LogSnapshot(t *testing.T) {
 	resetOperatorSessionForTest(t, operatorCacheModeCache)
 	data, err := loadOperatorSelectionData()
@@ -743,12 +743,12 @@ func TestPlanningMatches20260719LogSnapshot(t *testing.T) {
 	}
 
 	expectedLocationOrder := []string{
-		"RefugeeCamp",
-		"InfraStation",
-		"ReconstructionHQ",
 		"SkyKingFlatsConstructionSite",
 		"CardiacRemediationStation",
 		"XiranflowCloudseederStation",
+		"RefugeeCamp",
+		"InfraStation",
+		"ReconstructionHQ",
 	}
 	locationOrder := orderedEnabledLocations(t, data.LocationOrder, expectedLocationOrder...)
 	if !slices.Equal(locationOrder, expectedLocationOrder) {
@@ -832,6 +832,120 @@ func TestPlanningMatches20260719LogSnapshot(t *testing.T) {
 	active := operatorSessionSnapshot().ActiveLocations
 	if !operatorConflictSourceManaged("ReconstructionHQ", true, active) {
 		t.Fatal("日志中的重建指挥部已启用，莱万汀冲突应允许调至难民暂居处")
+	}
+}
+
+// TestPlanningPrioritizesWulingWith20260725Issue4514Snapshot 使用 Issue #4514
+// 的完整拥有干员快照，验证共享的陈千语优先派驻武陵盈天台；谷地基建前站
+// 没有其他恢复候选时保留售卖干员赛希。
+func TestPlanningPrioritizesWulingWith20260725Issue4514Snapshot(t *testing.T) {
+	resetOperatorSessionForTest(t, operatorCacheModeCache)
+	data, err := loadOperatorSelectionData()
+	if err != nil {
+		t.Fatalf("加载 SellProduct 干员数据失败：%v", err)
+	}
+	locationOrder := orderedEnabledLocations(t, data.LocationOrder,
+		"RefugeeCamp",
+		"InfraStation",
+		"ReconstructionHQ",
+		"SkyKingFlatsConstructionSite",
+		"CardiacRemediationStation",
+		"XiranflowCloudseederStation",
+	)
+	expectedLocationOrder := []string{
+		"SkyKingFlatsConstructionSite",
+		"CardiacRemediationStation",
+		"XiranflowCloudseederStation",
+		"RefugeeCamp",
+		"InfraStation",
+		"ReconstructionHQ",
+	}
+	if !slices.Equal(locationOrder, expectedLocationOrder) {
+		t.Fatalf("据点售卖顺序 = %#v，期望新地区优先顺序 %#v", locationOrder, expectedLocationOrder)
+	}
+	for _, location := range locationOrder {
+		operatorSessionRegisterLocation(location)
+		operatorSessionSetOutpostProsperityMax(location, true)
+	}
+
+	// 来源：MaaEnd-logs-v2.21.0-20260725-225531/record/SellProductCache.json。
+	owned := operatorIDSet([]string{
+		"Akekuri",
+		"Alesh",
+		"Antal",
+		"Arclight",
+		"Ardelia",
+		"Avywenna",
+		"Catcher",
+		"ChenQianyu",
+		"DaPan",
+		"Estella",
+		"Fluorite",
+		"Gilberta",
+		"Lifeng",
+		"Perlica",
+		"Pogranichnik",
+		"Rossi",
+		"Snowshine",
+		"Tangtang",
+		"Wulfgard",
+		"Xaihi",
+		"ZhuangFangyi",
+	})
+	expectedTarget := map[string]string{
+		"SkyKingFlatsConstructionSite": "Tangtang",
+		"CardiacRemediationStation":    "ZhuangFangyi",
+		"XiranflowCloudseederStation":  "Lifeng",
+		"RefugeeCamp":                  "Antal",
+		"InfraStation":                 "Xaihi",
+		"ReconstructionHQ":             "Gilberta",
+	}
+	expectedRestore := map[string]string{
+		"SkyKingFlatsConstructionSite": "Tangtang",
+		"CardiacRemediationStation":    "ZhuangFangyi",
+		"XiranflowCloudseederStation":  "ChenQianyu",
+		"RefugeeCamp":                  "Antal",
+		"InfraStation":                 "",
+		"ReconstructionHQ":             "Gilberta",
+	}
+
+	for _, location := range locationOrder {
+		targetSelection, resolveErr := resolveOperatorSelectionParam(&operatorActionParam{
+			Usage:    operatorActionUsageTarget,
+			Location: location,
+		})
+		if resolveErr != nil {
+			t.Fatalf("解析 %s 售卖参数失败：%v", location, resolveErr)
+		}
+		target := candidatesForCurrentSelection(targetSelection, owned)
+		if len(target) != 1 || target[0].Name != expectedTarget[location] {
+			t.Fatalf("%s 售卖干员 = %#v，期望 %s", location, target, expectedTarget[location])
+		}
+		operatorSessionSetTargetAssignment(location, target[0])
+
+		restoreSelection, resolveErr := resolveOperatorSelectionParam(&operatorActionParam{
+			Usage:    operatorActionUsageRestore,
+			Location: location,
+		})
+		if resolveErr != nil {
+			t.Fatalf("解析 %s 售后生产派驻参数失败：%v", location, resolveErr)
+		}
+		restore := candidatesForCurrentSelection(restoreSelection, owned)
+		wantRestore := expectedRestore[location]
+		if wantRestore == "" {
+			if len(restore) != 0 {
+				t.Fatalf("%s 售后生产派驻干员 = %#v，期望无候选并保留售卖干员", location, restore)
+			}
+			operatorSessionSkipRestore(location)
+			continue
+		}
+		if len(restore) != 1 || restore[0].Name != wantRestore {
+			t.Fatalf("%s 售后生产派驻干员 = %#v，期望 %s", location, restore, wantRestore)
+		}
+		operatorSessionSetPlannedRestore(location, restore[0], true)
+		if _, ok := operatorSessionCompleteRestore(location); !ok {
+			t.Fatalf("%s 售后生产派驻结果无法锁定", location)
+		}
 	}
 }
 

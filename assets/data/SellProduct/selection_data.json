@@ -508,12 +508,12 @@
         }
     },
     "location_order": [
-        "RefugeeCamp",
-        "InfraStation",
-        "ReconstructionHQ",
         "SkyKingFlatsConstructionSite",
         "CardiacRemediationStation",
-        "XiranflowCloudseederStation"
+        "XiranflowCloudseederStation",
+        "RefugeeCamp",
+        "InfraStation",
+        "ReconstructionHQ"
     ],
     "locations": {
         "RefugeeCamp": {

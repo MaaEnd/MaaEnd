@@ -2,7 +2,14 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 
-import {sellProductLocations, sellProductRegions, settlementData, toPascalCase} from "./model.mjs";
+import {
+    sellProductLocations,
+    sellProductLocationsNewestFirst,
+    sellProductRegions,
+    sellProductRegionsNewestFirst,
+    settlementData,
+    toPascalCase,
+} from "./model.mjs";
 import sellProductAdbRows from "./pipeline-adb-data.mjs";
 import sellProductPipelineRows from "./pipeline-data.mjs";
 import sellProductSellRows from "./sell-data.mjs";
@@ -53,7 +60,7 @@ test("SellProduct 按固定地区顺序售卖且不再使用自动起始地区",
     const entry = readPipeline(new URL("../../../assets/resource/pipeline/SellProduct.json", import.meta.url));
 
     assert.deepEqual(loop.SellProductLoop.next, [
-        ...sellProductRegions.map((region) => `SellProduct${region.RegionPrefix}`),
+        ...sellProductRegionsNewestFirst.map((region) => `SellProduct${region.RegionPrefix}`),
         "SellProductTaskEnd",
     ]);
     assert.equal(entry.SellProductLoop, undefined);
@@ -61,6 +68,21 @@ test("SellProduct 按固定地区顺序售卖且不再使用自动起始地区",
         Object.keys(entry).filter((nodeName) => nodeName.startsWith("SellProductAuto")),
         [],
     );
+});
+
+test("SellProduct 优先售卖新地区且地区内保持游戏顺序", () => {
+    assert.deepEqual(sellProductRegionsNewestFirst, [...sellProductRegions].reverse());
+    for (const region of sellProductRegionsNewestFirst) {
+        assert.deepEqual(
+            sellProductLocationsNewestFirst
+                .filter((location) => location.RegionPrefix === region.RegionPrefix)
+                .map((location) => location.LocationId),
+            region.LocationIds,
+        );
+    }
+
+    const regionOrder = sellProductRegionsNewestFirst.map((region) => region.RegionPrefix);
+    assert.ok(regionOrder.indexOf("Wuling") < regionOrder.indexOf("ValleyIV"));
 });
 
 test("SellProduct templates consume separate minimal projections of the shared location model", () => {

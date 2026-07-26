@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 
-import {sellProductLocations} from "./model.mjs";
+import {sellProductLocationsNewestFirst} from "./model.mjs";
 import {
     buildLocationOperatorOrder,
     buildSelectionItems,
@@ -23,7 +23,7 @@ test("SellProduct selection data contains only valid stable references", () => {
     const data = sellProductSelectionData;
     assert.deepEqual(
         data.location_order,
-        sellProductLocations.map((location) => location.LocationId),
+        sellProductLocationsNewestFirst.map((location) => location.LocationId),
     );
     for (const item of Object.values(data.items)) {
         assert.deepEqual(Object.keys(item.names), [
