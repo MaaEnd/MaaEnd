@@ -16,7 +16,7 @@ using SessionCells = std::map<std::pair<int, int>, GridScanCell>;
 
 struct SessionState
 {
-    struct PendingState
+    struct RecheckState
     {
         GridHashSnapshot snapshot;
     };
@@ -25,11 +25,12 @@ struct SessionState
     int viewportStartRow = 0;
     int cols = 0;
     int lastPositiveRowOffset = 0;
+    int fallbackStreak = 0;
     int endConfirmations = 0;
     int lockedRowHeight = 0;
     int lockedColWidth = 0;
     SessionCells cells;
-    std::optional<PendingState> pending;
+    std::optional<RecheckState> recheck;
 };
 
 void FinalizeCounts(GridScanResult& result);

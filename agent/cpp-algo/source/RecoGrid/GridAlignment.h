@@ -23,6 +23,7 @@ struct Snapshot
 struct AlignmentResult
 {
     int rowOffset = 0;
+    int supportRows = 0;
     int comparedCells = 0;
     int matchedCells = 0;
     int totalDistance = 0;
@@ -42,17 +43,21 @@ struct GridDeltaOptions
 {
     int matchDistanceThreshold = 12;
     double minMatchRatio = 0.6;
+    int minOverlapRows = 2;
 };
 
 struct GridDeltaResult
 {
     int rowOffset = 0;
+    int supportRows = 0;
     int comparedCells = 0;
     int matchedCells = 0;
     int totalDistance = 0;
     double averageDistance = 0.0;
     double score = 0.0;
     double matchRatio = 0.0;
+    bool hasSufficientOverlap = false;
+    bool directionAmbiguous = false;
     bool reliable = false;
     bool hasProgress = false;
     std::vector<std::size_t> newCellIndices;

@@ -2,7 +2,7 @@
 
 `RecoGrid` 是 `cpp-algo` 里的通用网格识别与滚动累计扫描引擎，源码在 `agent/cpp-algo/source/RecoGrid/`。它适合“一个列表由规则格子组成，每个格子里有图标，列表需要向下滚动才能扫完”的场景。
 
-现有生产实例是 `agent/cpp-algo/source/WeaponInventoryScan/WeaponInventoryScan.cpp`。开发新实例时，不要直接复制参数。正确流程是：先用截图确认网格能稳定检测，再调模板分类，最后接滚动累计和 Pipeline。
+现有生产实例包括 `WeaponInventoryScan` 和 `EssenceGridScan`。开发新实例时，不要直接复制参数。正确流程是：先用截图确认网格能稳定检测，再调模板分类，最后接滚动累计和 Pipeline。
 
 ## 先判断能不能用
 
@@ -63,22 +63,24 @@ GridScanResult Scan(
 
 输出 `GridScanResult`：
 
-| 字段                                | 含义                                        | 调试时怎么看                    |
-| ----------------------------------- | ------------------------------------------- | ------------------------------- |
-| `success` / `message`               | 本帧是否扫描成功，以及失败原因              | 失败先看空图、模板目录、ROI     |
-| `rows` / `cols`                     | 当前可见页检测到的行列                      | 判断网格检测是否稳定            |
-| `totalCells`                        | 当前页有效格子数，不是 `rows * cols` 的裸乘 | 受空格子过滤影响                |
-| `sessionRows` / `sessionCols`       | 累计 session 的行列                         | 判断累计列表形状                |
-| `sessionTotalCells`                 | 累计有效格子数                              | 业务通常最关心这个              |
-| `knownCells` / `unknownCells`       | 已分类 / 未分类累计数量                     | 判断模板分类质量                |
-| `rowOffset`                         | 当前页相对上一状态推进行数                  | 判断滑动是否稳定                |
-| `deltaReliable`                     | 当前页和历史页的 pHash 对齐是否可靠         | 滚动累计不对时优先看它          |
-| `hasProgress`                       | 本帧是否带来新格子                          | 中间页通常应为 true             |
-| `reachedEnd`                        | 是否判断已经到末尾                          | 用来决定继续滑动还是结束        |
-| `pendingStored` / `pendingResolved` | pending / beam 状态                         | 滚动未稳定时会出现 pending      |
-| `matchRatio` / `averageDistance`    | 页面重叠匹配质量                            | 调滚动参数时看这两个            |
-| `newCellIndices`                    | 当前页新增 cell index                       | 可用于判断本帧新增多少内容      |
-| `cells`                             | 已排序的累计 cell 列表                      | 默认不建议完整写入 `out_detail` |
+| 字段                                             | 含义                                            | 调试时怎么看                          |
+| ------------------------------------------------ | ----------------------------------------------- | ------------------------------------- |
+| `success` / `message`                            | 本帧是否被接受，以及失败原因                    | 失败先看空图、模板目录、ROI、对齐状态 |
+| `rows` / `cols`                                  | 当前可见页检测到的行列                          | 判断网格检测是否稳定                  |
+| `totalCells`                                     | 当前页有效格子数，不是 `rows * cols` 的裸乘     | 受空格子过滤影响                      |
+| `sessionRows` / `sessionCols`                    | 累计 session 的行列                             | 判断累计列表形状                      |
+| `sessionTotalCells`                              | 累计有效格子数                                  | 业务通常最关心这个                    |
+| `knownCells` / `unknownCells`                    | 已分类 / 未分类累计数量                         | 判断模板分类质量                      |
+| `rowOffset`                                      | 已提交的非负推进行数；未提交时固定为 `0`        | 判断本帧是否真正推进 viewport         |
+| `rawAlignmentOffset` / `adjustedAlignmentOffset` | 原始对齐位移 / leading-partial 修正后的候选位移 | 查看被拒绝的负向或不稳定候选          |
+| `supportRows` / `alignmentStatus`                | 候选重叠支撑行数 / 对齐判定状态                 | 判断是否满足至少两行支撑及拒绝原因    |
+| `fallbackUsed` / `fallbackStreak`                | 是否使用可信历史位移兜底 / 连续兜底次数         | 连续值最多为 `1`                      |
+| `deltaReliable`                                  | 当前页和历史页的对齐是否可靠                    | 滚动累计不对时优先看它                |
+| `hasProgress`                                    | 本帧是否带来新格子                              | 中间页通常应为 true                   |
+| `reachedEnd`                                     | 是否判断已经到末尾                              | 用来决定继续滑动还是结束              |
+| `matchRatio` / `averageDistance`                 | 页面重叠匹配质量                                | 调滚动参数时看这两个                  |
+| `newCellIndices`                                 | 当前页新增 cell index                           | 可用于判断本帧新增多少内容            |
+| `cells`                                          | 已排序的累计 cell 列表                          | 默认不建议完整写入 `out_detail`       |
 
 `cells` 中每个 `GridScanCell` 的常用字段：
 
@@ -332,7 +334,6 @@ g_engine.ResetSession(kSessionId);
 options.incremental = true;
 options.matchDistanceThreshold = 12;
 options.minMatchRatio = 0.5;
-options.weakMinMatchRatio = 0.3;
 options.endMinMatchRatio = 0.95;
 ```
 
@@ -343,31 +344,49 @@ options.endMinMatchRatio = 0.95;
 | `incremental`            | 是否启用 session 累计             | 通常保持 `true`                                          | `false` 只扫当前页                           |
 | `matchDistanceThreshold` | 两个 cell 算匹配的最大 pHash 距离 | 更容易认为同一格匹配，delta 更容易可靠，但误对齐风险变高 | 更严格，误对齐少，但滚动中轻微变化可能对不上 |
 | `minMatchRatio`          | delta 可靠所需匹配比例            | 更保守，减少错位累计                                     | 更激进，减少卡住，但可能错位                 |
-| `weakMinMatchRatio`      | pending / beam 接受弱进展的比例   | 更保守                                                   | 更容易推进                                   |
 | `endMinMatchRatio`       | 判断到末尾的重复页比例            | 不容易提前结束，但可能多滑几次                           | 容易结束，但可能提前停                       |
+
+对齐会同时评估正向和负向候选，但只有满足至少两行有效重叠的全局最佳候选才进入判定。最佳候选为负数，或正反方向证据相等时，属于单向滚动工作流中的方向异常；引擎不会取绝对值、钳制为零，也不会改用较弱的正向候选。
+
+可靠正位移会直接提交。强零位移需要连续确认两次才判定末尾。其他结果返回 `success = false`，且不修改已提交的 snapshot、viewport、cells 或末尾确认计数。wrapper 此时不得把 next override 到 Swipe；MaaFW 会按识别节点的 next-list 在同一画面重新截图并识别。
+
+第一次异常只保留一张“同屏复核快照”，不会把失败证据带到下一次滑动。下一帧必须与该复核快照呈强零位移、行列一致且有至少两行支撑，才能确认设备没有继续移动。如果 session 已有可信的 `lastPositiveRowOffset`，引擎可用它兜底提交一次；兜底不会更新可信位移，而且下一页必须重新获得可靠正位移后才能再次兜底。首次滑动没有可信历史位移，或连续第二次需要兜底时，会继续同屏重识别直至任务的既有识别窗口超时。
 
 观察 `out_detail`：
 
-| 字段               | 该怎么看                             |
-| ------------------ | ------------------------------------ |
-| `row_offset`       | 一次滑动大约推进几行，应相对稳定     |
-| `delta_reliable`   | 正常中间页应经常为 `true`            |
-| `match_ratio`      | 越高说明页面重叠越明显               |
-| `new_cells`        | 中间页应大于 0；重复页或末尾可能为 0 |
-| `pending_stored`   | 当前候选先存起来等下一帧确认         |
-| `pending_resolved` | 上一帧候选被确认                     |
-| `has_progress`     | 是否真的增加了新内容                 |
-| `reached_end`      | 是否判断列表结束                     |
+| 字段                        | 该怎么看                                     |
+| --------------------------- | -------------------------------------------- |
+| `row_offset`                | 仅表示已经提交的非负推进；未提交时为 `0`     |
+| `raw_alignment_offset`      | 未修正的全局最佳候选，负数可用于定位方向异常 |
+| `adjusted_alignment_offset` | leading-partial 修正后的候选位移             |
+| `support_rows`              | 对齐有效重叠行数，接受候选至少需要 `2`       |
+| `alignment_status`          | 提交、末页确认或具体拒绝原因的判定状态       |
+| `fallback_used`             | 本帧是否在同屏复核后使用可信历史正位移       |
+| `fallback_streak`           | 连续兜底次数；生产流程不应超过 `1`           |
+| `delta_reliable`            | 正常中间页应经常为 `true`                    |
+| `match_ratio`               | 越高说明页面重叠越明显                       |
+| `new_cells`                 | 中间页应大于 0；重复页或末尾可能为 0         |
+| `has_progress`              | 是否真的增加了新内容                         |
+| `reached_end`               | 是否判断列表结束                             |
+
+`alignment_status` 的稳定值分为：
+
+- 非拒绝状态：`not_applicable`、`accepted`、`fallback_accepted`、`end_confirmation`、`reached_end`。
+- 拒绝状态：`grid_missing`、`shape_rejected`、`insufficient_support`、`direction_ambiguous`、`direction_violation`、`low_confidence`、`zero_unconfirmed`、`no_progress`、`fallback_unavailable`、`fallback_limit_reached`。
+
+所有拒绝状态都会进入同屏复核。因为当前帧没有提交，`row_offset` 保持 `0`，wrapper 不得跳转到 Swipe。额外的失败细节看 `unresolved_reason`。
 
 常见问题：
 
-| 现象                            | 先查什么                                    | 调整方向                                                                          |
-| ------------------------------- | ------------------------------------------- | --------------------------------------------------------------------------------- |
-| 滚动后累计不增长                | `row_offset <= 0`、`delta_reliable = false` | 降低 `minMatchRatio`，或提高 `matchDistanceThreshold`；同时检查滑动后是否真的换页 |
-| 累计跳行或重复                  | `row_offset` 忽大忽小                       | 先检查 `page_rows/page_cols` 是否稳定，再提高 `minMatchRatio`                     |
-| 很快提前结束                    | `reached_end = true` 但肉眼未到底           | 提高 `endMinMatchRatio`，或增大单次滑动距离避免重复帧                             |
-| 到底后不停滑                    | 到底时 `match_ratio` 低                     | 降低 `endMinMatchRatio`，或让滑动后等待区域稳定                                   |
-| 中间页经常 pending 但不 resolve | 连续截图变化太大或等待不稳                  | Pipeline 增加 `post_wait_freezes`，不要加硬延迟                                   |
+| 现象                 | 先查什么                                                              | 调整方向                                                                       |
+| -------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| 滚动后累计不增长     | `alignment_status`、`raw_alignment_offset`、`support_rows`            | 先确认是否方向异常或支撑不足，再检查滑动后是否真的换页与 freeze 区域           |
+| 累计跳行或重复       | 已提交的 `row_offset`、`adjusted_alignment_offset`、`fallback_streak` | 先检查 `page_rows/page_cols` 是否稳定，再检查 leading-partial 修正和匹配阈值   |
+| 识别失败后仍继续滑动 | wrapper 的 next override                                              | 失败时不得 override 到 Swipe；应让 MaaFW 在同屏重新识别                        |
+| 反复方向异常         | `raw_alignment_offset < 0`、`match_ratio`、`support_rows`             | 检查重复图标导致的歧义、滑动方向及等待稳定性；不要把负数改成绝对值或次优正候选 |
+| 兜底后下一页仍需兜底 | `fallback_used`、`fallback_streak`                                    | 必须等待新的可靠正位移重置资格；连续第二次兜底应保持失败                       |
+| 很快提前结束         | `reached_end = true` 但肉眼未到底                                     | 提高 `endMinMatchRatio`，或调整单次滑动距离避免中间页重复                      |
+| 到底后不停滑         | 到底时 `match_ratio`、`support_rows`                                  | 降低 `endMinMatchRatio`，或让滑动后等待区域稳定                                |
 
 先保证滑动后截图稳定，再调这些参数。滚动未结束的动画帧会让 pHash delta 看起来随机，参数再怎么调也不可靠。
 
@@ -381,7 +400,7 @@ options.endMinMatchRatio = 0.95;
 - 新任务开始时 reset session。
 - 调 `Scan()`。
 - 把 `GridScanResult` 写成 `out_detail`。
-- 根据 `reachedEnd` 覆盖下一 Pipeline 节点。
+- 仅在 `success = true` 时，根据 `reachedEnd` 覆盖下一 Pipeline 节点；失败时保留同屏识别重试。
 
 最小结构：
 
@@ -433,7 +452,6 @@ void ApplyScanDefaults(recogrid::GridScanOptions& options)
     options.incremental = true;
     options.matchDistanceThreshold = 12;
     options.minMatchRatio = 0.5;
-    options.weakMinMatchRatio = 0.3;
     options.endMinMatchRatio = 0.95;
 }
 
@@ -480,9 +498,13 @@ MaaAgentServerRegisterCustomRecognition("YourScanRecognition", yourscan::YourSca
     "cols": 6,
     "new_cells": 12,
     "row_offset": 2,
+    "raw_alignment_offset": 2,
+    "adjusted_alignment_offset": 2,
+    "support_rows": 3,
+    "alignment_status": "accepted",
     "delta_reliable": true,
-    "pending_stored": false,
-    "pending_resolved": true,
+    "fallback_used": false,
+    "fallback_streak": 0,
     "has_progress": true,
     "reached_end": false,
     "matched_cells": 24,
@@ -495,19 +517,25 @@ MaaAgentServerRegisterCustomRecognition("YourScanRecognition", yourscan::YourSca
 
 字段含义：
 
-| 字段                  | 来源                             | 用途                       |
-| --------------------- | -------------------------------- | -------------------------- |
-| `page_grid`           | `result.totalCells`              | 当前页有效格子数           |
-| `cumulative_grid`     | `result.sessionTotalCells`       | 累计格子数                 |
-| `known`               | `result.knownCells`              | 已分类数量                 |
-| `unknown`             | `result.unknownCells`            | 未分类数量                 |
-| `page_rows/page_cols` | `result.rows/cols`               | 当前页检测行列             |
-| `rows/cols`           | `result.sessionRows/sessionCols` | 累计 session 行列          |
-| `new_cells`           | `result.newCellIndices.size()`   | 本帧新增 cell              |
-| `row_offset`          | `result.rowOffset`               | 当前页相对上一状态推进行数 |
-| `delta_reliable`      | `result.deltaReliable`           | 对齐是否可靠               |
-| `reached_end`         | `result.reachedEnd`              | 是否到列表末尾             |
-| `match_ratio`         | `result.matchRatio`              | 页面重叠匹配比例           |
+| 字段                        | 来源                             | 用途                                 |
+| --------------------------- | -------------------------------- | ------------------------------------ |
+| `page_grid`                 | `result.totalCells`              | 当前页有效格子数                     |
+| `cumulative_grid`           | `result.sessionTotalCells`       | 累计格子数                           |
+| `known`                     | `result.knownCells`              | 已分类数量                           |
+| `unknown`                   | `result.unknownCells`            | 未分类数量                           |
+| `page_rows/page_cols`       | `result.rows/cols`               | 当前页检测行列                       |
+| `rows/cols`                 | `result.sessionRows/sessionCols` | 累计 session 行列                    |
+| `new_cells`                 | `result.newCellIndices.size()`   | 本帧新增 cell                        |
+| `row_offset`                | `result.rowOffset`               | 已提交的非负推进行数；未提交时为 `0` |
+| `raw_alignment_offset`      | `result.rawAlignmentOffset`      | 原始全局最佳对齐候选                 |
+| `adjusted_alignment_offset` | `result.adjustedAlignmentOffset` | leading-partial 修正后的候选         |
+| `support_rows`              | `result.supportRows`             | 候选的有效重叠行数                   |
+| `alignment_status`          | `result.alignmentStatus`         | 对齐接受或拒绝的原因                 |
+| `fallback_used`             | `result.fallbackUsed`            | 是否使用可信历史位移兜底             |
+| `fallback_streak`           | `result.fallbackStreak`          | 连续兜底次数                         |
+| `delta_reliable`            | `result.deltaReliable`           | 对齐是否可靠                         |
+| `reached_end`               | `result.reachedEnd`              | 是否到列表末尾                       |
+| `match_ratio`               | `result.matchRatio`              | 页面重叠匹配比例                     |
 
 需要导出完整结果时，可以加一个业务开关，例如 `return_cells`，只在调试或确实有消费方时输出：
 
@@ -535,9 +563,10 @@ Pipeline 仍然要遵守“识别 -> 操作 -> 再识别”。RecoGrid 不负责
 2. 识别标题、Tab 或其他稳定元素，确认已在目标列表。
 3. `pre_wait_freezes` 等网格区域稳定。
 4. 调业务 `Custom Recognition` 扫当前页。
-5. C++ wrapper 根据 `reachedEnd` 覆盖下一节点：
+5. C++ wrapper 仅在 `success = true` 时根据 `reachedEnd` 覆盖下一节点：
     - 未到底：`YourScanSwipeNext`
     - 到底：`YourScanFinish`
+    - 失败：不 override 到 Swipe，让当前 Custom Recognition 按 next-list 同屏重试
 6. 滑动。
 7. 移开鼠标/触点，避免 hover 或手指遮挡。
 8. `post_wait_freezes` 等网格区域稳定。
@@ -696,17 +725,18 @@ scan 独有字段，例如 `incremental`、`end_min_match_ratio`、占用过滤�
 
 ## 快速排错表
 
-| 问题               | 优先看                                      | 常见修法                                                                  |
-| ------------------ | ------------------------------------------- | ------------------------------------------------------------------------- |
-| 当前页完全识别失败 | `success/message`、`roi`                    | 检查 ROI 是否在截图内，截图是否为空                                       |
-| 行列数不稳定       | `page_rows/page_cols`                       | 调 `roi`、`rowThresholdRatio`、`colThresholdRatio`、`minKeptSegmentRatio` |
-| 空格子很多         | `page_grid` 偏大                            | 调占用过滤和 mask                                                         |
-| 物品被漏掉         | `page_grid` 偏小                            | 降低占用过滤阈值，检查 mask 是否遮掉主体                                  |
-| unknown 多         | `unknown`、分类分数                         | 调模板、mask、`maxPhashDistance`、`minScore`                              |
-| 误分类多           | `score/templateScore/hueScore`              | 提高 `minScore`，降低 `maxPhashDistance`，调整 `hueWeight`                |
-| 滚动后不增长       | `row_offset`、`delta_reliable`、`new_cells` | 等稳定后再扫；调 `matchDistanceThreshold`、`minMatchRatio`                |
-| 提前结束           | `reached_end`、`match_ratio`                | 提高 `endMinMatchRatio`，检查滑动距离                                     |
-| 到底不停           | 末尾页 `match_ratio`                        | 降低 `endMinMatchRatio`，确保末尾重复页稳定                               |
+| 问题               | 优先看                                                                  | 常见修法                                                                  |
+| ------------------ | ----------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| 当前页完全识别失败 | `success/message`、`alignment_status`、`unresolved_reason`、`roi`       | 检查 ROI、空截图，以及失败是否来自对齐复核                                |
+| 行列数不稳定       | `page_rows/page_cols`                                                   | 调 `roi`、`rowThresholdRatio`、`colThresholdRatio`、`minKeptSegmentRatio` |
+| 空格子很多         | `page_grid` 偏大                                                        | 调占用过滤和 mask                                                         |
+| 物品被漏掉         | `page_grid` 偏小                                                        | 降低占用过滤阈值，检查 mask 是否遮掉主体                                  |
+| unknown 多         | `unknown`、分类分数                                                     | 调模板、mask、`maxPhashDistance`、`minScore`                              |
+| 误分类多           | `score/templateScore/hueScore`                                          | 提高 `minScore`，降低 `maxPhashDistance`，调整 `hueWeight`                |
+| 滚动后不增长       | `raw_alignment_offset`、`support_rows`、`alignment_status`、`new_cells` | 等稳定后同屏复核；检查滑动方向、支撑行数和匹配阈值                        |
+| 失败后仍继续滑动   | wrapper 的 next override                                                | 失败时不得 override 到 Swipe                                              |
+| 提前结束           | `reached_end`、`match_ratio`、`support_rows`                            | 提高 `endMinMatchRatio`，检查滑动距离                                     |
+| 到底不停           | 末尾页 `match_ratio`、`alignment_status`                                | 降低 `endMinMatchRatio`，确保末尾重复页稳定                               |
 
 ## 构建与检查
 

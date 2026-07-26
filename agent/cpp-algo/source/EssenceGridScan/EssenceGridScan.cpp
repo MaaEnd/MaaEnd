@@ -644,22 +644,22 @@ void WriteAdvanceDetail(
     detail["reached_end"] = result.reachedEnd;
     detail["has_progress"] = result.hasProgress;
     detail["row_offset"] = result.rowOffset;
+    detail["raw_alignment_offset"] = result.rawAlignmentOffset;
+    detail["adjusted_alignment_offset"] = result.adjustedAlignmentOffset;
+    detail["support_rows"] = result.supportRows;
+    detail["alignment_status"] = result.alignmentStatus;
+    detail["delta_reliable"] = result.deltaReliable;
+    detail["matched_cells"] = result.matchedCells;
+    detail["compared_cells"] = result.comparedCells;
+    detail["average_distance"] = result.averageDistance;
+    detail["delta_score"] = result.deltaScore;
     detail["match_ratio"] = result.matchRatio;
-    detail["transition_row_offset"] = result.transitionRowOffset;
-    detail["transition_match_ratio"] = result.transitionMatchRatio;
-    detail["transition_average_distance"] = result.transitionAverageDistance;
-    detail["transition_reliable"] = result.transitionReliable;
-    detail["transition_has_progress"] = result.transitionHasProgress;
     detail["previous_viewport_start_row"] = result.previousViewportStartRow;
     detail["current_viewport_start_row"] = result.currentViewportStartRow;
-    detail["resolved_row_offset"] = result.resolvedRowOffset;
-    detail["resolver_used"] = result.resolverUsed;
-    detail["resolver_success"] = result.resolverSuccess;
     detail["fallback_used"] = result.fallbackUsed;
+    detail["fallback_streak"] = result.fallbackStreak;
     detail["end_confirmations"] = result.endConfirmations;
     detail["unresolved_reason"] = result.unresolvedReason;
-    detail["pending_stored"] = result.pendingStored;
-    detail["pending_resolved"] = result.pendingResolved;
 
     json::object retainedQualityCounts;
     retainedQualityCounts["flawless_gold"] = 0;
@@ -888,7 +888,9 @@ MaaBool MAA_CALL EssenceGridAdvanceRecognitionRun(
                 g_scanRequired = true;
                 g_pendingCell.reset();
                 WriteAdvanceDetail(out_detail, result, std::nullopt, qualityFilter);
-                LogWarn << "EssenceGridScan scan miss" << VAR(result.message);
+                LogWarn << "EssenceGridScan scan miss" << VAR(result.message) << VAR(result.alignmentStatus)
+                        << VAR(result.rawAlignmentOffset) << VAR(result.adjustedAlignmentOffset) << VAR(result.supportRows)
+                        << VAR(result.matchRatio) << VAR(result.fallbackStreak) << VAR(result.unresolvedReason);
                 return MAA_FALSE;
             }
 
@@ -918,7 +920,9 @@ MaaBool MAA_CALL EssenceGridAdvanceRecognitionRun(
 
         LogInfo << "EssenceGridScan advance" << VAR(nextNode) << VAR(result.sessionTotalCells) << VAR(g_issuedCellKeys.size())
                 << VAR(g_currentPageQueue.size()) << VAR(g_currentPageQueueIndex) << VAR(g_scanRequired) << VAR(result.reachedEnd)
-                << VAR(result.hasProgress) << VAR(result.rowOffset) << VAR(result.matchRatio);
+                << VAR(result.hasProgress) << VAR(result.rowOffset) << VAR(result.rawAlignmentOffset)
+                << VAR(result.adjustedAlignmentOffset) << VAR(result.supportRows) << VAR(result.alignmentStatus)
+                << VAR(result.matchRatio) << VAR(result.fallbackUsed) << VAR(result.fallbackStreak);
         if (!OverrideNext(context, node_name, nextNode)) {
             LogWarn << "EssenceGridScan override next failed" << VAR(nextNode);
         }
