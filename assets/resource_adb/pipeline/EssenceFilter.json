@@ -1,0 +1,58 @@
+{
+    "EssenceFilterInitNormalize": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    0,
+                    44,
+                    97,
+                    532
+                ]
+            }
+        }
+    },
+    "EssenceFilterSwitchToWeapon": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    0,
+                    44,
+                    97,
+                    532
+                ]
+            }
+        },
+        "action": {
+            "param": {
+                "target_offset": [
+                    36,
+                    38,
+                    -72,
+                    -75
+                ]
+            }
+        }
+    },
+    "EssenceFilterSwitchTab": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    0,
+                    44,
+                    97,
+                    532
+                ]
+            }
+        },
+        "action": {
+            "param": {
+                "target_offset": [
+                    37,
+                    38,
+                    -73,
+                    -76
+                ]
+            }
+        }
+    }
+}

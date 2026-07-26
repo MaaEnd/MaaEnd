@@ -1,0 +1,14 @@
+{
+    "EssenceFilterCheckInInventory": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    0,
+                    44,
+                    97,
+                    532
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,60 @@
+{
+    "EssenceGridAdvance": {
+        "pre_wait_freezes": {
+            "target": [
+                89,
+                86,
+                808,
+                531
+            ]
+        },
+        "attach": {
+            "thumb_discard_template_path": "resource_adb/image/EssenceFilter/ThumbDiscard.png",
+            "thumb_lock_template_paths": [
+                "resource_adb/image/EssenceFilter/ThumbLock.png",
+                "resource/image/EssenceFilter/LockPurple.png"
+            ],
+            "roi": [
+                89,
+                86,
+                808,
+                531
+            ]
+        }
+    },
+    "EssenceGridClickPending": {
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                912,
+                210,
+                334,
+                232
+            ]
+        }
+    },
+    "EssenceGridSwipeNext": {
+        "action": {
+            "param": {
+                "begin": [
+                    475,
+                    503
+                ],
+                "end": [
+                    477,
+                    403
+                ],
+                "end_hold": 800,
+                "duration": 500
+            }
+        },
+        "post_wait_freezes": {
+            "target": [
+                89,
+                86,
+                808,
+                531
+            ]
+        }
+    }
+}

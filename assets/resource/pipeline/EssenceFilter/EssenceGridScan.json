@@ -4,29 +4,7 @@
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "EssenceGridAdvanceRecognition",
-                "custom_recognition_param": {
-                    "roi": [
-                        18,
-                        72,
-                        956,
-                        570
-                    ],
-                    "normalized_size": [
-                        1280,
-                        720
-                    ],
-                    "row_threshold_ratio": 0.2,
-                    "col_threshold_ratio": 0.4,
-                    "min_raw_segment_length": 10,
-                    "min_kept_segment_ratio": 0.9,
-                    "max_phash_distance": 10,
-                    "max_ranked_candidates": 0,
-                    "min_score": 0.35,
-                    "hue_weight": 0.4,
-                    "incremental": true,
-                    "end_min_match_ratio": 0.95
-                }
+                "custom_recognition": "EssenceGridAdvanceRecognition"
             }
         },
         "pre_wait_freezes": {
@@ -45,6 +23,32 @@
             "EssenceFilterFinish"
         ],
         "attach": {
+            "template_path": "resource/image/EssenceFilter/EssenceGeneral.png",
+            "thumb_discard_template_path": "resource/image/EssenceFilter/ThumbDiscard.png",
+            "thumb_lock_template_paths": [
+                "resource/image/EssenceFilter/ThumbLock.png",
+                "resource/image/EssenceFilter/LockPurple.png"
+            ],
+            "roi": [
+                18,
+                72,
+                956,
+                570
+            ],
+            "normalized_size": [
+                1280,
+                720
+            ],
+            "row_threshold_ratio": 0.2,
+            "col_threshold_ratio": 0.4,
+            "min_raw_segment_length": 10,
+            "min_kept_segment_ratio": 0.9,
+            "max_phash_distance": 10,
+            "max_ranked_candidates": 0,
+            "min_score": 0.35,
+            "hue_weight": 0.4,
+            "incremental": true,
+            "end_min_match_ratio": 0.95,
             "flawless_essence": true,
             "pure_essence": false,
             "skip_thumb_lock": true,
