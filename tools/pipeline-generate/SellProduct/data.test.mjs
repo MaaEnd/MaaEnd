@@ -491,6 +491,33 @@ test("SellProduct 每轮换货前优先检查调度券不足", () => {
     ]);
 });
 
+test("SellProduct 交易完成后重复点击直到获得物品界面消失", () => {
+    const pipeline = readPipeline(
+        new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url),
+    );
+
+    assert.equal(pipeline.SellProductCheckHeader.recognition, "TemplateMatch");
+    assert.deepEqual(pipeline.SellProductCheckHeader.template, [
+        "SellProduct/SellProductCheckHeader.png",
+    ]);
+
+    for (const nodeName of [
+        "SellProductSellCheck",
+        "SellProductSellCheckThenLoop",
+    ]) {
+        const node = pipeline[nodeName];
+        assert.deepEqual(node.all_of, [
+            "CloseRewardsButton",
+            "SellProductCheckHeader",
+        ]);
+        assert.equal(node.custom_action, "RepeatUntilNotFoundAction");
+        assert.deepEqual(node.custom_action_param, {
+            action: "Click",
+            wait_node: "SellProductCheckHeader",
+        });
+    }
+});
+
 test("SellProduct 缺货物品通过据点锚点标记并在本次任务内共享", () => {
     for (const location of sellProductLocations) {
         const pipeline = readPipeline(
