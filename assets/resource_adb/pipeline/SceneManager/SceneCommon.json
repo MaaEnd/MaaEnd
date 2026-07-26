@@ -19,7 +19,16 @@
         },
         "pre_delay": 0,
         "action": {
-            "type": "Click"
+            "type": "Click",
+            "param": {
+                // CloseButton 系列最大模板为 Type3 的 31x31；点击其下半部分，避免点到偏上区域
+                "target_offset": [
+                    0,
+                    16,
+                    0,
+                    -16
+                ]
+            }
         },
         "post_delay": 600
     }
