@@ -6,6 +6,56 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SwitchTeamCombatEscape",
+            "SwitchTeamEnterMenu"
+        ]
+    },
+    "SwitchTeamCombatEscape": {
+        "desc": "大世界战斗状态，传送到四号谷地枢纽区脱战",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    60,
+                    60
+                ],
+                "template": [
+                    "SceneManager/WorldFactoryDisable.png"
+                ]
+            },
+            "InWorld"
+        ],
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVTheHub1"
+            ]
+        },
+        "next": [
+            "SwitchTeamEnterMenu"
+        ]
+    },
+    "SwitchTeamEnterMenu": {
+        "desc": "进入编队菜单",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
                 "SceneEnterMenuTeam"
             ]
         },

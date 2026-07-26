@@ -2,12 +2,12 @@
     "AutoSellStockRedistributionItemOpenPrepare": {
         "desc": "准备售卖物资",
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "anchor": {
             "AutoSellStockRedistributionItemFailedToValleyIVAnchor": "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToValleyIV",
             "AutoSellStockRedistributionItemFailedToWulingAnchor": "AutoSellStockRedistributionItemOpenPrepareFriendsFailedToWuling"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentValleyIV",
             "AutoSellStockRedistributionItemOpenPrepareRegionalDevelopmentWuling",
@@ -612,13 +612,13 @@
             "フレン",
             "친구"
         ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
         "anchor": {
             "AutoSellStockRedistributionItemFailedToValleyIVAnchor": "",
             "AutoSellStockRedistributionItemFailedToWulingAnchor": ""
         }, // 下一个好友一定能找到，找不到是识别问题，任务失败查看截图内容
-        "pre_wait_freezes": 100,
-        "pre_delay": 0,
-        "action": "Click",
         "post_delay": 3000, // 快速关闭当前打开的界面，可能会误判到当前在售卖界面
         "rate_limit": 0,
         "next": [
