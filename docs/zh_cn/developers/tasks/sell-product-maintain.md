@@ -189,16 +189,16 @@ SellProductSellLoop                                  （不限次数的售卖循
                                  ├─ SellProductSell → SellProductSellCheck
                                  │      （无保留规则，全部售出）
                                  ├─ SellProductSellThenLoop → SellProductSellCheckThenLoop
-                                 │      （按保留数量交易；未达保留目标时回到 BetterSliding
-                                 │        继续售卖当前货品，达到后经 SellProductReserveTargetReached
-                                 │        标记本次任务已满足）
+                                 │      （按保留数量交易；交易后先检查调度券，不足则结束；
+                                 │        充足时，达到保留目标则经 SellProductReserveTargetReached
+                                 │        标记本次任务已满足，否则回到 BetterSliding 继续售卖）
                                  └─ SellProductSkipToNextSellLoop
                                       （库存不高于保留量，标记已满足并跳过）
                                      └─ SellProductSellLoop
                                           （继续下一候选，直到满足结束条件）
 ```
 
-每轮选择货品前都会先检查调度券。换货后再次检查时，调度券不足的判断仍优先于当前货品缺货，避免调度券耗尽后继续遍历后续优先物品。首次进入据点即发现不足时显示提示；已有交易完成后则静默结束该据点售卖循环。
+每轮选择货品前都会先检查调度券。换货后再次检查时，调度券不足的判断仍优先于当前货品缺货，避免调度券耗尽后继续遍历后续优先物品。按保留数量完成一笔交易后，也会先检查调度券，再判断保留目标是否达到或重新进入 BetterSliding。首次进入据点即发现不足时显示提示；已有交易完成后则静默结束该据点售卖循环。
 
 `SellProductPriorityItem` 自定义识别器只在识别阶段把选中的货品记录为待提交。Pipeline 点击并确认货品、重新识别到据点售卖界面后，`SellProductPrioritySession` 才把该货品标记为已尝试。点击失败或单帧 OCR 波动不会跳过高优先级货品。
 

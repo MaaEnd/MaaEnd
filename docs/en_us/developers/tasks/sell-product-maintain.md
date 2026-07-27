@@ -189,16 +189,17 @@ SellProductSellLoop                                  (unbounded selling loop)
                                  ├─ SellProductSell → SellProductSellCheck
                                  │      (no reserve rule; sell all)
                                  ├─ SellProductSellThenLoop → SellProductSellCheckThenLoop
-                                 │      (sell with a reserve; below the target, return to BetterSliding
-                                 │        and keep selling the current item; on reaching it, mark the
-                                 │        item satisfied via SellProductReserveTargetReached)
+                                 │      (sell with a reserve; after the trade, check vouchers first and
+                                 │        end if exhausted; otherwise mark the item satisfied via
+                                 │        SellProductReserveTargetReached when the reserve is reached,
+                                 │        or return to BetterSliding and continue selling)
                                  └─ SellProductSkipToNextSellLoop
                                       (stock not above the reserve; mark satisfied and skip)
                                      └─ SellProductSellLoop
                                           (continue until an exit condition is met)
 ```
 
-Each round checks the voucher balance before selecting goods. After a goods change, the insufficient-voucher check still takes precedence over an out-of-stock item, preventing traversal of later priority items once vouchers are exhausted. Insufficient vouchers on initial entry produce a notice; after a completed trade, the outpost selling loop ends silently.
+Each round checks the voucher balance before selecting goods. After a goods change, the insufficient-voucher check still takes precedence over an out-of-stock item, preventing traversal of later priority items once vouchers are exhausted. After a reserve-based trade completes, the flow also checks vouchers before deciding whether the reserve has been reached or running BetterSliding again. Insufficient vouchers on initial entry produce a notice; after a completed trade, the outpost selling loop ends silently.
 
 `SellProductPriorityItem` Custom Recognition only records the selected item as pending during recognition. After Pipeline clicks and confirms it and recognizes the outpost sell screen again, `SellProductPrioritySession` marks it attempted. A failed click or one-frame OCR fluctuation cannot skip a higher-priority item.
 

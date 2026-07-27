@@ -494,7 +494,7 @@ test("SellProduct pipeline templates use one dynamic priority loop instead of fi
     assert.match(adbTemplate, /SellProduct\$\{LocationId\}BetterSliding/);
 });
 
-test("SellProduct 每轮换货前优先检查调度券不足", () => {
+test("SellProduct 每轮选货及保留交易后优先检查调度券不足", () => {
     const pipeline = readPipeline(
         new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url),
     );
@@ -508,6 +508,11 @@ test("SellProduct 每轮换货前优先检查调度券不足", () => {
         "SellProductZeroProductAfterChangeStillEmpty",
     ]);
     assert.equal(pipeline.SellProductSellCheckThenLoop.anchor.SellProductZeroMoneyHandler, "SellProductZeroMoney");
+    assert.deepEqual(pipeline.SellProductSellCheckThenLoop.next, [
+        "[Anchor]SellProductZeroMoneyHandler",
+        "SellProductReserveTargetReached",
+        "[Anchor]SellProductBetterSliding",
+    ]);
     assert.deepEqual(pipeline.SellProductZeroProductAfterChangeStillEmpty.next, [
         "[Anchor]SellProductMarkOutOfStock",
     ]);
@@ -581,10 +586,6 @@ test("SellProduct 持续售卖到保留量后再进入下一轮选货", () => {
         new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url),
     );
 
-    assert.deepEqual(pipeline.SellProductSellCheckThenLoop.next, [
-        "SellProductReserveTargetReached",
-        "[Anchor]SellProductBetterSliding",
-    ]);
     assert.equal(pipeline.SellProductReserveTargetReached.enabled, false);
     assert.equal(pipeline.SellProductReserveTargetReached.custom_action, "SellProductReserveSession");
     assert.deepEqual(pipeline.SellProductReserveTargetReached.custom_action_param, {
