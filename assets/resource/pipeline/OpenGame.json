@@ -19,6 +19,8 @@
         "next": [
             "EnterGame",
             "[JumpBack]CloudEndfieldStartGame",
+            "[JumpBack]CloudEndfieldWaitStartGame",
+            "[JumpBack]CloudEndfieldRetry",
             "[JumpBack]ClickContinue",
             "[JumpBack]CheckIn",
             "[JumpBack]CollectRewards",
@@ -69,6 +71,28 @@
                     "游戏启动中"
                 ]
             }
+        }
+    },
+    "CloudEndfieldRetry": {
+        "desc": "云终末地重试",
+        "max_hit": 20,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    350,
+                    233,
+                    572,
+                    346
+                ],
+                "expected": [
+                    "知道了"
+                ]
+            }
+        },
+        "post_delay": 5000,
+        "action": {
+            "type": "Click"
         }
     },
     "WaitBlackScreen": {
