@@ -907,6 +907,8 @@
     "controller.Win32-Window-Background.description": "因游戏更新导致无法继续适配，后台控制器已弃用，并将在后续版本中移除。",
     "controller.ADB.label": "安卓端",
     "controller.ADB.description": "支持安卓模拟器和实体安卓设备",
+    "controller.CloudADB.label": "云终末地(ADB)",
+    "controller.CloudADB.description": "用于云终末地客户端，通过安卓 ADB 连接",
     "controller.Wlroots.label": "Linux端-Wlroots",
     "controller.Wlroots.description": "适用于基于 wlroots 的 Wayland 合成器（如 Sway）",
     "task.SceneManager.focus.color_match_failed_prefix": "<span style=\"color: red; font-weight: bold;\">识别颜色失败，请尝试关闭滤镜（例如 RTX 动态亮丽、游戏加加滤镜、机械革命色彩校正等）或 HDR<br/>注意：关闭 RTX 动态亮丽后需重启电脑才能生效</span>",

@@ -907,6 +907,8 @@
     "controller.Win32-Window-Background.description": "Due to game updates, it can no longer be adapted. The background controller has been deprecated and will be removed in a future version.",
     "controller.ADB.label": "Android",
     "controller.ADB.description": "Supports Android emulators and physical Android devices.",
+    "controller.CloudADB.label": "Cloud Endfield (ADB)",
+    "controller.CloudADB.description": "For the Cloud Endfield client over Android ADB.",
     "controller.Wlroots.label": "Linux-Wlroots",
     "controller.Wlroots.description": "For Wayland compositors based on wlroots (e.g. Sway).",
     "task.SceneManager.focus.color_match_failed_prefix": "<span style=\"color: red; font-weight: bold;\">Color identification failed. Try disabling filters (e.g. RTX Dynamic Vibrance, GamePP filters, Mechrevo Color Calibration, etc.) or HDR<br/>Note: a system restart is required for the change to take effect after disabling RTX Dynamic Vibrance.</span>",

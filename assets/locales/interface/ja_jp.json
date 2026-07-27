@@ -907,6 +907,8 @@
     "controller.Win32-Window-Background.description": "ゲームの更新により適応を継続できなくなりました。バックグラウンドコントローラーは非推奨となり、今後のバージョンで削除される予定です。",
     "controller.ADB.label": "Android",
     "controller.ADB.description": "Androidエミュレーターおよび実機Androidデバイスに対応しています。",
+    "controller.CloudADB.label": "クラウド終末地(ADB)",
+    "controller.CloudADB.description": "クラウド終末地クライアント向け。Android ADB で接続します。",
     "controller.Wlroots.label": "Linux-Wlroots",
     "controller.Wlroots.description": "wlroots ベースの Wayland コンポジター（例: Sway）向けです。",
     "task.SceneManager.focus.color_match_failed_prefix": "<span style=\"color: red; font-weight: bold;\">色の認識に失敗しました。フィルター（例：RTX Dynamic Vibrance、GamePP フィルター、Mechrevo 色彩補正など）または HDR をオフにしてください<br/>注意：RTX Dynamic Vibrance をオフにした後は、PC の再起動が必要です。</span>",

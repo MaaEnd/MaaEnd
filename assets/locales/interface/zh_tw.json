@@ -698,6 +698,8 @@
     "controller.Win32-Window-Background.description": "因遊戲更新導致無法繼續適配，後台控制器已棄用，並將在後續版本中移除。",
     "controller.ADB.label": "安卓端",
     "controller.ADB.description": "支援安卓模擬器及實體安卓裝置",
+    "controller.CloudADB.label": "雲終末地(ADB)",
+    "controller.CloudADB.description": "用於雲終末地客戶端，透過安卓 ADB 連線",
     "controller.Wlroots.label": "Linux端-Wlroots",
     "controller.Wlroots.description": "適用於基於 wlroots 的 Wayland 合成器（如 Sway）",
     "task.ItemTransfer.label": "🐌庫存轉移",

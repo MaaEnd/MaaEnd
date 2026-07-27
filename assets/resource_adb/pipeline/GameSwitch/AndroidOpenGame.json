@@ -42,16 +42,5 @@
         "next": [
             "OpenGame"
         ]
-    },
-    "AndroidOpenGame_Cloud": {
-        "action": {
-            "type": "StartApp",
-            "param": {
-                "package": "com.hypergryph.cloud.endfield"
-            }
-        },
-        "next": [
-            "OpenGame"
-        ]
     }
 }

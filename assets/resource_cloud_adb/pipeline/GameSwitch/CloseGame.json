@@ -1,0 +1,10 @@
+{
+    "CloseGame_Cloud": {
+        "action": {
+            "type": "StopApp",
+            "param": {
+                "package": "com.hypergryph.cloud.endfield"
+            }
+        }
+    }
+}
