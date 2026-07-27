@@ -1,16 +1,16 @@
 {
     // 通用返回按钮。目前仅有常态模板，无 Hover 变体。
-    // ROI 参考帝江/贵重品等界面右上角返回键常见落点；若某界面位置不同，请在任务侧覆盖 roi。
+    // ROI：[1092, 0, 188, 187]；若某界面位置不同，请在任务侧覆盖 roi。
     "BackButton": {
         "desc": "通用返回按钮：右上角白色圆形左箭头",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    1146,
+                    1092,
                     0,
-                    134,
-                    112
+                    188,
+                    187
                 ],
                 "template": [
                     "Common/Button/BackButton.png"
