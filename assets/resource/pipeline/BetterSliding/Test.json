@@ -49,7 +49,7 @@
                         20,
                         10
                     ],
-                    "Quantity": {
+                    "SliderQuantity": {
                         "Box": [
                             1090,
                             535,
@@ -57,7 +57,7 @@
                             30
                         ]
                     },
-                    "Target": 325
+                    "TargetQuantity": 325
                 }
             }
         },
@@ -109,7 +109,7 @@
                         20,
                         10
                     ],
-                    "Quantity": {
+                    "SliderQuantity": {
                         "Box": [
                             1090,
                             535,
@@ -117,8 +117,8 @@
                             30
                         ]
                     },
-                    "Target": 325,
-                    "TargetReverse": true
+                    "TargetQuantity": 325,
+                    "ReverseTarget": true
                 }
             }
         },
@@ -151,7 +151,7 @@
                         20,
                         10
                     ],
-                    "Quantity": {
+                    "SliderQuantity": {
                         "Box": [
                             1090,
                             535,
@@ -159,8 +159,8 @@
                             30
                         ]
                     },
-                    "Target": 10,
-                    "TargetType": "Percentage"
+                    "TargetQuantity": 10,
+                    "TargetQuantityType": "Percentage"
                 }
             }
         },
@@ -193,7 +193,7 @@
                         20,
                         10
                     ],
-                    "Quantity": {
+                    "SliderQuantity": {
                         "Box": [
                             1090,
                             535,
@@ -201,9 +201,9 @@
                             30
                         ]
                     },
-                    "Target": 10,
-                    "TargetType": "Percentage",
-                    "TargetReverse": true
+                    "TargetQuantity": 10,
+                    "TargetQuantityType": "Percentage",
+                    "ReverseTarget": true
                 }
             }
         },
@@ -236,7 +236,7 @@
                         20,
                         10
                     ],
-                    "Quantity": {
+                    "SliderQuantity": {
                         "Box": [
                             1090,
                             535,
@@ -244,9 +244,9 @@
                             30
                         ]
                     },
-                    "Target": 10000,
-                    "ExceedingOverrideEnable": "__BS-T-4",
-                    "TargetReverse": true
+                    "TargetQuantity": 10000,
+                    "OutOfRangeOverrideEnable": "__BS-T-4",
+                    "ReverseTarget": true
                 }
             }
         },
@@ -287,7 +287,7 @@
                         20,
                         10
                     ],
-                    "Quantity": {
+                    "SliderQuantity": {
                         "Box": [
                             1090,
                             535,
@@ -295,7 +295,7 @@
                             30
                         ]
                     },
-                    "Target": 325
+                    "TargetQuantity": 325
                 }
             }
         },

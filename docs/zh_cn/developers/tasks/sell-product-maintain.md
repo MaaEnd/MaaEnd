@@ -189,10 +189,10 @@ SellProductSellLoop                                  （不限次数的售卖循
                                  ├─ SellProductSell → SellProductSellCheck
                                  │      （无保留规则，全部售出）
                                  ├─ SellProductSellThenLoop → SellProductSellCheckThenLoop
-                                 │      （按保留数量交易；未达保留目标时回到 BetterSliding
-                                 │        继续售卖当前货品，达到后经 SellProductReserveTargetReached
+                                 │      （按保留数量交易；未达保留数量时回到 BetterSliding
+                                 │        继续售卖当前货品，达到后经 SellProductReserveQuantityReached
                                  │        标记本次任务已满足）
-                                 └─ SellProductSkipToNextSellLoop
+                                 └─ SellProductReserveAlreadySatisfied
                                       （库存不高于保留量，标记已满足并跳过）
                                      └─ SellProductSellLoop
                                           （继续下一候选，直到满足结束条件）
@@ -210,14 +210,14 @@ SellProductSellLoop                                  （不限次数的售卖循
 - 当前可见的已知货品全部不可成为候选（已尝试、已缺货、已达保留量或配置为永不售卖），且连续两次识别到相同集合；
 - 超出兑换上限时由 `SellProductAidQuotaExceededStop` 停止整个任务。
 
-空 OCR 结果不会被当作“无剩余货品”。缺货物品仍保留在稳定识别集合中，但不会再次成为候选；缺货、交易完成、达到保留目标或因保留量跳过都会继续下一轮。
+空 OCR 结果不会被当作“无剩余货品”。缺货物品仍保留在稳定识别集合中，但不会再次成为候选；缺货、交易完成、达到保留数量或因保留量跳过都会继续下一轮。
 
 独立保留规则提供六个槽位，每个槽位按稳定 `itemId` 选择“保留指定数量”或“永不售卖”：
 
 - 未命中规则时，BetterSliding 使用默认“全部售出”。
-- “保留指定数量”使用 `TargetReverse` 只售卖高于保留量的部分。
-- 单次交易达到保留目标时，交易确认成功后经 `SellProductReserveTargetReached` 把该物品标记为本次任务已满足；未达到目标时回到数量滑块继续售卖当前货品。
-- 当前库存不高于保留量时，通过 `SellProductSkipToNextSellLoop` 跳过交易，同样把该物品标记为本次任务已满足。
+- “保留指定数量”使用 `ReverseTarget` 只售卖高于保留量的部分。
+- 单次交易达到保留数量时，交易确认成功后经 `SellProductReserveQuantityReached` 把该物品标记为本次任务已满足；未达到保留数量时回到数量滑块继续售卖当前货品。
+- 当前库存不高于保留量时，通过 `SellProductReserveAlreadySatisfied` 跳过交易，同样把该物品标记为本次任务已满足。
 - 已满足的物品在后续据点的选品阶段直接跳过，并在首次标记时输出提示。
 - “永不售卖”在选货识别阶段直接排除物品，不切换货品，也不会记为缺货；内部以数量 `-1` 表示，用户界面不要求输入该哨兵值。
 - 同一物品重复配置时，后面的槽位覆盖前面的槽位；数量 `0` 等价于不保留。

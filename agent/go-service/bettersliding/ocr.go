@@ -38,7 +38,7 @@ func readQuantityText(detail *maa.RecognitionDetail) string {
 		return ""
 	}
 
-	candidate := findRecognitionDetailByName(detail, nodeBetterSlidingGetQuantity)
+	candidate := findRecognitionDetailByName(detail, nodeBetterSlidingGetSliderQuantity)
 	if candidate == nil {
 		candidate = detail
 	}

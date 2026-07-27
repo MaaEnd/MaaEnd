@@ -98,7 +98,7 @@ Exclude 分支（物品已达标或券不足被剔除）也会触发重新初始
 读取弹窗右上角当前持有数量 OCR，与用户配置的上限做表达式比较（`上限 > 当前持有量` 时命中）：
 
 1. Go 动作计算 `需购数量 = 上限 − 当前持有量`。
-2. 将结果写入 BetterSliding 的 `Target`，平滑调节购买数量滑条。
+2. 将结果写入 BetterSliding 的 `TargetQuantity`，平滑调节购买数量滑条。
 3. 点击确认购买，关闭奖励弹窗，回到列表继续扫描。
 
 #### 分支 3：持有量已达上限，排除
@@ -250,7 +250,7 @@ Exclude: {ValleyEngravingPermitLimit} <= {AutoStockStapleGoodsCountValidate}
 2. 对当前截图运行数量 OCR，得到 **当前持有数量**。
 3. 计算 `target = 目标上限 - 当前持有数量`。
 4. 若 `target <= 0`，跳过滑动（禁用 `AutoStockStapleBetterSliding`）。
-5. 否则通过 `OverridePipeline` 启用 `AutoStockStapleBetterSliding`，并将 `target` 写入其 `attach.Target`。
+5. 否则通过 `OverridePipeline` 启用 `AutoStockStapleBetterSliding`，并将 `target` 写入其 `attach.TargetQuantity`。
 
 Go **不再** `RunTask` 执行滑动；数量调节由低代码分支完成：
 
@@ -262,7 +262,7 @@ Go **不再** `RunTask` 执行滑动；数量调节由低代码分支完成：
   → AutoStockStapleQuantityControlConfirmBuy
 ```
 
-`AutoStockStapleBetterSliding` 定义在 `General/Item.json`，默认 `enabled: false`，仅在 Go override 后启用；`attach.Target` 的默认值只是占位。
+`AutoStockStapleBetterSliding` 定义在 `General/Item.json`，默认 `enabled: false`，仅在 Go override 后启用；`attach.TargetQuantity` 的默认值只是占位。
 
 购买数量调节完成后，`next` 进入 `AutoStockStapleQuantityControlConfirmBuy` 点击黄色确认按钮，再关闭奖励弹窗回到列表。
 
@@ -282,11 +282,11 @@ Exclude 分支 **不会** 购买，仅把“已达标”的物品从本轮扫描
 
 本任务有两类运行时 override，维护时不要混淆：
 
-| 动作                                   | 触发位置                                          | 作用                                                      |
-| -------------------------------------- | ------------------------------------------------- | --------------------------------------------------------- |
-| `AttachToExpectedRegexAction`          | `AutoStockStapleMain` 入口；Exclude 后 Reset 节点 | 合并 attach 关键词 → OCR 白名单正则                       |
-| `PipelineOverrideAction`               | 各物品 `{Item}RemoveFilter`                       | 将指定 attach 键设为 `false`，排除该物品                  |
-| `AutoStockStapleQuantityControlAction` | 各物品 `{Item}Buy`                                | 计算差值并 override BetterSliding 的 `Target` / `enabled` |
+| 动作                                   | 触发位置                                          | 作用                                                              |
+| -------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------- |
+| `AttachToExpectedRegexAction`          | `AutoStockStapleMain` 入口；Exclude 后 Reset 节点 | 合并 attach 关键词 → OCR 白名单正则                               |
+| `PipelineOverrideAction`               | 各物品 `{Item}RemoveFilter`                       | 将指定 attach 键设为 `false`，排除该物品                          |
+| `AutoStockStapleQuantityControlAction` | 各物品 `{Item}Buy`                                | 计算差值并 override BetterSliding 的 `TargetQuantity` / `enabled` |
 
 `attach` 语义（见 `attachregex/action.go`）：
 

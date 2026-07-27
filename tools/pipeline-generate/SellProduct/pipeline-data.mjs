@@ -29,6 +29,6 @@ export default sellProductLocations.map((location) => ({
     LocationDesc: location.LocationDesc,
     TextExpected: location.TextExpected,
     CurrentOperatorROI: CURRENT_OPERATOR_ROI,
-    QuantityBox: QUANTITY_BOX,
-    MaxTargetBox: MAX_QUANTITY_BOX,
+    SliderQuantityBox: QUANTITY_BOX,
+    AvailableQuantityBox: MAX_QUANTITY_BOX,
 }));

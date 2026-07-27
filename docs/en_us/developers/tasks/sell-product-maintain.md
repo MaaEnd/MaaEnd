@@ -191,8 +191,8 @@ SellProductSellLoop                                  (unbounded selling loop)
                                  ├─ SellProductSellThenLoop → SellProductSellCheckThenLoop
                                  │      (sell with a reserve; below the target, return to BetterSliding
                                  │        and keep selling the current item; on reaching it, mark the
-                                 │        item satisfied via SellProductReserveTargetReached)
-                                 └─ SellProductSkipToNextSellLoop
+                                 │        item satisfied via SellProductReserveQuantityReached)
+                                 └─ SellProductReserveAlreadySatisfied
                                       (stock not above the reserve; mark satisfied and skip)
                                      └─ SellProductSellLoop
                                           (continue until an exit condition is met)
@@ -210,14 +210,14 @@ The loop ends only when:
 - Every known visible item is unavailable as a candidate (attempted, out of stock, reserve-satisfied, or never-sell), and the same set is recognized twice consecutively;
 - `SellProductAidQuotaExceededStop` stops the task because the exchange limit was exceeded.
 
-An empty OCR result does not mean “no remaining goods.” Out-of-stock items remain in the stable recognized set but are no longer candidates. Zero stock, a completed trade, reaching the reserve target, or a reserve-based skip continues to the next round.
+An empty OCR result does not mean “no remaining goods.” Out-of-stock items remain in the stable recognized set but are no longer candidates. Zero stock, a completed trade, reaching the reserve quantity, or a reserve-based skip continues to the next round.
 
 Independent reserve rules provide six slots. Each stable `itemId` can use either **Keep Specified Quantity** or **Never Sell**:
 
 - Without a matching rule, BetterSliding uses the default sell-all behavior.
-- **Keep Specified Quantity** uses `TargetReverse` to sell only stock above the reserve.
-- When a single trade reaches the reserve target, the trade confirmation marks the item as satisfied for this task via `SellProductReserveTargetReached`; below the target, the flow returns to the quantity slider and keeps selling the current item.
-- If stock is not above the reserve, `SellProductSkipToNextSellLoop` skips the trade and likewise marks the item as satisfied for this task.
+- **Keep Specified Quantity** uses `ReverseTarget` to sell only stock above the reserve.
+- When a single trade reaches the reserve quantity, the trade confirmation marks the item as satisfied for this task via `SellProductReserveQuantityReached`; below the reserve quantity, the flow returns to the quantity slider and keeps selling the current item.
+- If stock is not above the reserve, `SellProductReserveAlreadySatisfied` skips the trade and likewise marks the item as satisfied for this task.
 - Satisfied items are skipped during goods selection at later outposts, with a runtime notice on the first mark.
 - **Never Sell** excludes the item during selection, before switching goods, and does not report it as out of stock. Internally it uses quantity `-1`; users do not enter this sentinel value.
 - Later slots override earlier slots for the same item. Quantity `0` means no reserve.

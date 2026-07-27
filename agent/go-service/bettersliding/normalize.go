@@ -149,82 +149,93 @@ func centerPoint(rect []int, offset [2]int) (int, int) {
 	return rect[0] + rect[2]/2 + offset[0], rect[1] + rect[3]/2 + offset[1]
 }
 
-// normalizeTargetType normalizes a TargetType string, returning the canonical
-// form (TargetTypeValue or TargetTypePercentage). An empty string defaults to TargetTypeValue.
-func normalizeTargetType(raw string) (string, error) {
+// normalizeTargetQuantityType normalizes a TargetQuantityType string, returning the canonical
+// form. An empty string defaults to TargetQuantityTypeValue.
+func normalizeTargetQuantityType(raw string) (string, error) {
 	s := strings.TrimSpace(raw)
 	if s == "" {
-		return TargetTypeValue, nil
+		return TargetQuantityTypeValue, nil
 	}
 
 	switch strings.ToLower(s) {
 	case "value":
-		return TargetTypeValue, nil
+		return TargetQuantityTypeValue, nil
 	case "percentage":
-		return TargetTypePercentage, nil
+		return TargetQuantityTypePercentage, nil
 	default:
-		return "", fmt.Errorf("invalid TargetType %q, expected %q or %q", raw, TargetTypeValue, TargetTypePercentage)
+		return "", fmt.Errorf(
+			"invalid TargetQuantityType %q, expected %q or %q",
+			raw,
+			TargetQuantityTypeValue,
+			TargetQuantityTypePercentage,
+		)
 	}
 }
 
-// resolveTarget computes the effective discrete target from TargetType and TargetReverse.
+// resolveTargetQuantity computes the effective slider quantity using the available quantity as
+// the reference for percentage and reverse calculations.
 //
-//	TargetTypeValue + !Reverse → target unchanged.
-//	TargetTypeValue + Reverse  → maxQuantity - target (may be < 1 for upper-layer handling).
-//	TargetTypePercentage + !Reverse → round(maxQuantity * target / 100), clamped to [1, maxQuantity].
-//	TargetTypePercentage + Reverse  → round(maxQuantity * (100-target) / 100), clamped to [1, maxQuantity].
-func resolveTarget(target int, targetType string, targetReverse bool, maxQuantity int) (int, error) {
-	switch targetType {
-	case TargetTypeValue:
-		if !targetReverse {
-			return target, nil
+//	Value + !Reverse → targetQuantity unchanged.
+//	Value + Reverse  → availableQuantity - targetQuantity (may be < 1).
+//	Percentage + !Reverse → round(availableQuantity * targetQuantity / 100), clamped.
+//	Percentage + Reverse  → round(availableQuantity * (100-targetQuantity) / 100), clamped.
+func resolveTargetQuantity(
+	targetQuantity int,
+	targetQuantityType string,
+	reverseTarget bool,
+	availableQuantity int,
+) (int, error) {
+	switch targetQuantityType {
+	case TargetQuantityTypeValue:
+		if !reverseTarget {
+			return targetQuantity, nil
 		}
 
-		return maxQuantity - target, nil
+		return availableQuantity - targetQuantity, nil
 
-	case TargetTypePercentage:
-		if target == 0 {
+	case TargetQuantityTypePercentage:
+		if targetQuantity == 0 {
 			return 0, fmt.Errorf("percentage target must be greater than 0")
 		}
 
-		if target > 100 {
-			return 0, fmt.Errorf("percentage target must be at most 100, got %d", target)
+		if targetQuantity > 100 {
+			return 0, fmt.Errorf("percentage target must be at most 100, got %d", targetQuantity)
 		}
 
 		var factor float64
-		if !targetReverse {
-			factor = float64(target) / 100.0
+		if !reverseTarget {
+			factor = float64(targetQuantity) / 100.0
 		} else {
-			factor = float64(100-target) / 100.0
+			factor = float64(100-targetQuantity) / 100.0
 		}
 
-		resolved := int(math.Round(float64(maxQuantity) * factor))
+		resolved := int(math.Round(float64(availableQuantity) * factor))
 		if resolved < 1 {
 			resolved = 1
 		}
 
-		if resolved > maxQuantity {
-			resolved = maxQuantity
+		if resolved > availableQuantity {
+			resolved = availableQuantity
 		}
 
 		return resolved, nil
 
 	default:
-		return 0, fmt.Errorf("invalid target type %q", targetType)
+		return 0, fmt.Errorf("invalid target quantity type %q", targetQuantityType)
 	}
 }
 
 func isSwipeOnlyMode(params betterSlidingParam) bool {
-	return !params.presence.Target &&
-		!params.presence.Quantity &&
-		!params.presence.MaxTarget &&
+	return !params.presence.TargetQuantity &&
+		!params.presence.SliderQuantity &&
+		!params.presence.AvailableQuantity &&
 		!params.presence.GreenMask &&
 		!params.presence.IncreaseButton &&
 		!params.presence.DecreaseButton &&
-		!params.presence.ExceedingOverrideEnable &&
-		!params.presence.TargetReachedOverrideEnable &&
-		!params.presence.TargetType &&
-		!params.presence.TargetReverse &&
+		!params.presence.OutOfRangeOverrideEnable &&
+		!params.presence.TargetReachableOverrideEnable &&
+		!params.presence.TargetQuantityType &&
+		!params.presence.ReverseTarget &&
 		!params.presence.CenterPointOffset &&
-		!params.presence.ClampTargetToMax
+		!params.presence.ClampTargetToSliderMax
 }

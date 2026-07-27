@@ -98,10 +98,10 @@ func TestBuildReserveSlidingOverride(t *testing.T) {
 	withReserve := buildReserveSlidingOverride("Sliding", 88, true)
 	wantWithReserve := map[string]any{
 		"Sliding": map[string]any{
-			"next": []string{"SellProductSkipToNextSellLoop", "SellProductSellThenLoop"},
+			"next": []string{"SellProductReserveAlreadySatisfied", "SellProductSellThenLoop"},
 			"attach": map[string]any{
-				"Target":        88,
-				"TargetReverse": true,
+				"TargetQuantity": 88,
+				"ReverseTarget":  true,
 			},
 		},
 	}
@@ -114,8 +114,8 @@ func TestBuildReserveSlidingOverride(t *testing.T) {
 		"Sliding": map[string]any{
 			"next": []string{"SellProductSell"},
 			"attach": map[string]any{
-				"Target":        999999,
-				"TargetReverse": false,
+				"TargetQuantity": 999999,
+				"ReverseTarget":  false,
 			},
 		},
 	}

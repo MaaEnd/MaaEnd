@@ -39,7 +39,7 @@ func buildSwipeSpecificQuantityOverride(target int) map[string]any {
 	return map[string]any{
 		"enabled": true,
 		"attach": map[string]any{
-			"Target": target,
+			"TargetQuantity": target,
 		},
 	}
 }

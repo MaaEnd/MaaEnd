@@ -243,12 +243,12 @@
             "param": {
                 "custom_action": "BetterSliding",
                 "custom_action_param": {
-                    "ClampTargetToMax": true,
+                    "ClampTargetToSliderMax": true,
                     "DecreaseButton": "AutoStockpile/DecreaseButton.png",
                     "Direction": "right",
                     "IncreaseButton": "AutoStockpile/IncreaseButton.png",
                     "GreenMask": true,
-                    "Quantity": {
+                    "SliderQuantity": {
                         "Box": [
                             375,
                             508,
@@ -257,7 +257,7 @@
                         ],
                         "OnlyRec": true
                     }
-                    //"Quantity": {
+                    //"SliderQuantity": {
                     //    "Box": [
                     //        375,
                     //        508,
@@ -291,7 +291,7 @@
             "Node.Action.Failed": "$task.AutoStockStaple.focus.quantity_control.better_sliding_failed"
         },
         "attach": {
-            "Target": 10 //这里会被custom程序覆盖后运行
+            "TargetQuantity": 10 //这里会被 custom 程序覆盖后运行
         }
     }
 }

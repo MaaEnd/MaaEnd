@@ -392,15 +392,15 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReserveTargetReached",
+            "SellProductReserveQuantityReached",
             "[Anchor]SellProductBetterSliding"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.SellProduct.trade_completed"
         }
     },
-    "SellProductReserveTargetReached": {
-        "desc": "本次交易已达到保留目标，将当前物品标记为本次任务无需再次处理",
+    "SellProductReserveQuantityReached": {
+        "desc": "本次交易已达到保留数量，将当前物品标记为本次任务无需再次处理",
         "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -415,7 +415,7 @@
             "SellProductSellLoop"
         ]
     },
-    "SellProductSkipToNextSellLoop": {
+    "SellProductReserveAlreadySatisfied": {
         "desc": "保留数量大于等于当前库存，继续选择下一个优先物品",
         "enabled": false,
         "recognition": "DirectHit",

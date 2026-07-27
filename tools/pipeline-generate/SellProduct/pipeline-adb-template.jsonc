@@ -2,21 +2,21 @@
     "SellProduct${LocationId}BetterSliding": {
         "custom_action_param": {
             "GreenMask": true,
-            "Target": 999999,
-            "ClampTargetToMax": true,
-            "MaxTarget": {
-                "Box": "${MaxTargetBoxAdb}",
+            "TargetQuantity": 999999,
+            "ClampTargetToSliderMax": true,
+            "AvailableQuantity": {
+                "Box": "${AvailableQuantityBoxAdb}",
                 "OnlyRec": true
             },
-            "Quantity": {
-                "Box": "${QuantityBoxAdb}",
+            "SliderQuantity": {
+                "Box": "${SliderQuantityBoxAdb}",
                 "OnlyRec": true
             },
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
             "IncreaseButton": "SellProduct/IncreaseButton.png",
-            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop",
-            "TargetReachedOverrideEnable": "SellProductReserveTargetReached"
+            "OutOfRangeOverrideEnable": "SellProductReserveAlreadySatisfied",
+            "TargetReachableOverrideEnable": "SellProductReserveQuantityReached"
         }
     }
 }

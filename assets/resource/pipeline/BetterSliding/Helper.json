@@ -53,7 +53,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "BetterSlidingGetQuantity": {
+    "BetterSlidingGetSliderQuantity": {
         "desc": "识别当前选择的数量",
         "recognition": {
             "type": "OCR",
@@ -75,8 +75,8 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "BetterSlidingQuantityFilter": {
-        "desc": "辅助GetQuantity节点进行OCR",
+    "BetterSlidingSliderQuantityFilter": {
+        "desc": "辅助 GetSliderQuantity 节点进行 OCR",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -98,8 +98,8 @@
             }
         }
     },
-    "BetterSlidingMaxTargetFilter": {
-        "desc": "辅助GetMaxTarget节点进行OCR",
+    "BetterSlidingAvailableQuantityFilter": {
+        "desc": "辅助 GetAvailableQuantity 节点进行 OCR",
         "recognition": {
             "type": "ColorMatch",
             "param": {

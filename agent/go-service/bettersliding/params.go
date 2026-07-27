@@ -9,27 +9,27 @@ import (
 )
 
 type parsedBetterSlidingParams struct {
-	target                      int
-	quantityBox                 []int
-	maxTargetBox                []int
-	maxTargetExplicit           bool
-	quantityFilter              *quantityFilterParam
-	maxTargetFilter             *quantityFilterParam
-	quantityOnlyRec             bool
-	maxTargetOnlyRec            bool
-	greenMask                   bool
-	direction                   string
-	increaseButton              buttonTarget
-	decreaseButton              buttonTarget
-	centerPointOffset           [2]int
-	clampTargetToMax            bool
-	swipeButton                 string
-	exceedingOverrideEnable     string
-	targetReachedOverrideEnable string
-	targetType                  string
-	targetReverse               bool
-	swipeOnlyMode               bool
-	finishAfterPreciseClick     bool
+	targetQuantity                int
+	sliderQuantityBox             []int
+	availableQuantityBox          []int
+	availableQuantityExplicit     bool
+	sliderQuantityFilter          *quantityFilterParam
+	availableQuantityFilter       *quantityFilterParam
+	sliderQuantityOnlyRec         bool
+	availableQuantityOnlyRec      bool
+	greenMask                     bool
+	direction                     string
+	increaseButton                buttonTarget
+	decreaseButton                buttonTarget
+	centerPointOffset             [2]int
+	clampTargetToSliderMax        bool
+	swipeButton                   string
+	outOfRangeOverrideEnable      string
+	targetReachableOverrideEnable string
+	targetQuantityType            string
+	reverseTarget                 bool
+	swipeOnlyMode                 bool
+	finishAfterPreciseClick       bool
 }
 
 func detectBetterSlidingParamPresence(rawParam string) (betterSlidingParamPresence, error) {
@@ -38,30 +38,47 @@ func detectBetterSlidingParamPresence(rawParam string) (betterSlidingParamPresen
 		return betterSlidingParamPresence{}, err
 	}
 
-	_, quantityPresent := rawKeys["Quantity"]
+	_, sliderQuantityPresent := rawKeys["SliderQuantity"]
 
 	return betterSlidingParamPresence{
-		Target:                      hasNonNullRawKey(rawKeys, "Target"),
-		Quantity:                    quantityPresent,
-		MaxTarget:                   hasNonNullRawKey(rawKeys, "MaxTarget"),
-		GreenMask:                   hasNonNullRawKey(rawKeys, "GreenMask"),
-		Direction:                   hasNonNullRawKey(rawKeys, "Direction"),
-		IncreaseButton:              hasNonNullRawKey(rawKeys, "IncreaseButton"),
-		DecreaseButton:              hasNonNullRawKey(rawKeys, "DecreaseButton"),
-		SwipeButton:                 hasNonNullRawKey(rawKeys, "SwipeButton"),
-		ExceedingOverrideEnable:     hasNonNullRawKey(rawKeys, "ExceedingOverrideEnable"),
-		TargetReachedOverrideEnable: hasNonNullRawKey(rawKeys, "TargetReachedOverrideEnable"),
-		TargetType:                  hasNonNullRawKey(rawKeys, "TargetType"),
-		TargetReverse:               hasNonNullRawKey(rawKeys, "TargetReverse"),
-		CenterPointOffset:           hasNonNullRawKey(rawKeys, "CenterPointOffset"),
-		ClampTargetToMax:            hasNonNullRawKey(rawKeys, "ClampTargetToMax"),
-		FinishAfterPreciseClick:     hasNonNullRawKey(rawKeys, "FinishAfterPreciseClick"),
+		TargetQuantity:                hasNonNullRawKey(rawKeys, "TargetQuantity"),
+		SliderQuantity:                sliderQuantityPresent,
+		AvailableQuantity:             hasNonNullRawKey(rawKeys, "AvailableQuantity"),
+		GreenMask:                     hasNonNullRawKey(rawKeys, "GreenMask"),
+		Direction:                     hasNonNullRawKey(rawKeys, "Direction"),
+		IncreaseButton:                hasNonNullRawKey(rawKeys, "IncreaseButton"),
+		DecreaseButton:                hasNonNullRawKey(rawKeys, "DecreaseButton"),
+		SwipeButton:                   hasNonNullRawKey(rawKeys, "SwipeButton"),
+		OutOfRangeOverrideEnable:      hasNonNullRawKey(rawKeys, "OutOfRangeOverrideEnable"),
+		TargetReachableOverrideEnable: hasNonNullRawKey(rawKeys, "TargetReachableOverrideEnable"),
+		TargetQuantityType:            hasNonNullRawKey(rawKeys, "TargetQuantityType"),
+		ReverseTarget:                 hasNonNullRawKey(rawKeys, "ReverseTarget"),
+		CenterPointOffset:             hasNonNullRawKey(rawKeys, "CenterPointOffset"),
+		ClampTargetToSliderMax:        hasNonNullRawKey(rawKeys, "ClampTargetToSliderMax"),
+		FinishAfterPreciseClick:       hasNonNullRawKey(rawKeys, "FinishAfterPreciseClick"),
 	}, nil
 }
 
 func hasNonNullRawKey(rawKeys map[string]json.RawMessage, key string) bool {
 	raw, ok := rawKeys[key]
 	return ok && len(raw) > 0 && string(raw) != "null"
+}
+
+func (a *BetterSlidingAction) validateOutcomeOverrideNodes(nodes ...string) bool {
+	seen := make(map[string]struct{}, len(nodes))
+	for _, node := range nodes {
+		if node == "" {
+			continue
+		}
+		if _, exists := seen[node]; exists {
+			a.logger.Error().
+				Str("node", node).
+				Msg("BetterSliding outcome overrides must use different nodes")
+			return false
+		}
+		seen[node] = struct{}{}
+	}
+	return true
 }
 
 func parseBetterSlidingParam(customActionParam string) (betterSlidingParam, error) {
@@ -101,21 +118,21 @@ func (a *BetterSlidingAction) loadActionParams(customActionParam string) bool {
 
 func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (parsedBetterSlidingParams, bool) {
 	swipeButton := strings.TrimSpace(params.SwipeButton)
-	exceedingOverrideEnable := strings.TrimSpace(params.ExceedingOverrideEnable)
-	targetReachedOverrideEnable := strings.TrimSpace(params.TargetReachedOverrideEnable)
-	if exceedingOverrideEnable != "" && exceedingOverrideEnable == targetReachedOverrideEnable {
-		a.logger.Error().
-			Str("node", exceedingOverrideEnable).
-			Msg("exceeding and target-reached overrides must use different nodes")
+	outOfRangeOverrideEnable := strings.TrimSpace(params.OutOfRangeOverrideEnable)
+	targetReachableOverrideEnable := strings.TrimSpace(params.TargetReachableOverrideEnable)
+	if !a.validateOutcomeOverrideNodes(
+		outOfRangeOverrideEnable,
+		targetReachableOverrideEnable,
+	) {
 		return parsedBetterSlidingParams{}, false
 	}
 
-	targetType, err := normalizeTargetType(params.TargetType)
+	targetQuantityType, err := normalizeTargetQuantityType(params.TargetQuantityType)
 	if err != nil {
 		a.logger.Error().
 			Err(err).
-			Str("target_type", params.TargetType).
-			Msg("invalid TargetType")
+			Str("target_quantity_type", params.TargetQuantityType).
+			Msg("invalid TargetQuantityType")
 		return parsedBetterSlidingParams{}, false
 	}
 
@@ -131,33 +148,34 @@ func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (
 		}
 
 		return parsedBetterSlidingParams{
-			target:                  0,
-			quantityBox:             nil,
-			maxTargetBox:            nil,
-			maxTargetExplicit:       false,
-			quantityFilter:          nil,
-			maxTargetFilter:         nil,
-			quantityOnlyRec:         false,
-			maxTargetOnlyRec:        false,
-			greenMask:               params.GreenMask,
-			direction:               direction,
-			increaseButton:          buttonTarget{},
-			decreaseButton:          buttonTarget{},
-			centerPointOffset:       defaultCenterPointOffset,
-			clampTargetToMax:        params.ClampTargetToMax,
-			swipeButton:             swipeButton,
-			exceedingOverrideEnable: exceedingOverrideEnable,
-			targetType:              targetType,
-			targetReverse:           params.TargetReverse,
-			swipeOnlyMode:           true,
-			finishAfterPreciseClick: false,
+			targetQuantity:                0,
+			sliderQuantityBox:             nil,
+			availableQuantityBox:          nil,
+			availableQuantityExplicit:     false,
+			sliderQuantityFilter:          nil,
+			availableQuantityFilter:       nil,
+			sliderQuantityOnlyRec:         false,
+			availableQuantityOnlyRec:      false,
+			greenMask:                     params.GreenMask,
+			direction:                     direction,
+			increaseButton:                buttonTarget{},
+			decreaseButton:                buttonTarget{},
+			centerPointOffset:             defaultCenterPointOffset,
+			clampTargetToSliderMax:        params.ClampTargetToSliderMax,
+			swipeButton:                   swipeButton,
+			outOfRangeOverrideEnable:      outOfRangeOverrideEnable,
+			targetReachableOverrideEnable: targetReachableOverrideEnable,
+			targetQuantityType:            targetQuantityType,
+			reverseTarget:                 params.ReverseTarget,
+			swipeOnlyMode:                 true,
+			finishAfterPreciseClick:       false,
 		}, true
 	}
 
-	if params.Target <= 0 {
+	if params.TargetQuantity <= 0 {
 		a.logger.Error().
-			Int("target", params.Target).
-			Msg("invalid target, must be greater than 0")
+			Int("target_quantity", params.TargetQuantity).
+			Msg("invalid target quantity, must be greater than 0")
 		return parsedBetterSlidingParams{}, false
 	}
 
@@ -185,122 +203,125 @@ func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (
 		return parsedBetterSlidingParams{}, false
 	}
 
-	quantityFilter, err := normalizeQuantityFilter("Quantity.Filter", params.Quantity.Filter)
+	sliderQuantityFilter, err := normalizeQuantityFilter("SliderQuantity.Filter", params.SliderQuantity.Filter)
 	if err != nil {
 		a.logger.Error().
 			Err(err).
-			Msg("failed to normalize quantity filter")
+			Msg("failed to normalize slider quantity filter")
 		return parsedBetterSlidingParams{}, false
 	}
 
-	quantityBox, quantityOnlyRec := normalizeQuantityParam(params.Quantity)
+	sliderQuantityBox, sliderQuantityOnlyRec := normalizeQuantityParam(params.SliderQuantity)
 
-	var maxTargetFilter *quantityFilterParam
-	maxTargetBox := []int(nil)
-	maxTargetOnlyRec := false
-	if params.presence.MaxTarget {
-		maxTargetFilter, err = normalizeQuantityFilter("MaxTarget.Filter", params.MaxTarget.Filter)
+	var availableQuantityFilter *quantityFilterParam
+	availableQuantityBox := []int(nil)
+	availableQuantityOnlyRec := false
+	if params.presence.AvailableQuantity {
+		availableQuantityFilter, err = normalizeQuantityFilter(
+			"AvailableQuantity.Filter",
+			params.AvailableQuantity.Filter,
+		)
 		if err != nil {
 			a.logger.Error().
 				Err(err).
-				Msg("failed to normalize max target filter")
+				Msg("failed to normalize available quantity filter")
 			return parsedBetterSlidingParams{}, false
 		}
-		maxTargetBox, maxTargetOnlyRec = normalizeQuantityParam(params.MaxTarget)
+		availableQuantityBox, availableQuantityOnlyRec = normalizeQuantityParam(params.AvailableQuantity)
 	}
 
 	return parsedBetterSlidingParams{
-		target:                      params.Target,
-		quantityBox:                 quantityBox,
-		maxTargetBox:                maxTargetBox,
-		maxTargetExplicit:           params.presence.MaxTarget,
-		quantityFilter:              quantityFilter,
-		maxTargetFilter:             maxTargetFilter,
-		quantityOnlyRec:             quantityOnlyRec,
-		maxTargetOnlyRec:            maxTargetOnlyRec,
-		greenMask:                   params.GreenMask,
-		direction:                   strings.ToLower(strings.TrimSpace(params.Direction)),
-		increaseButton:              increaseButton,
-		decreaseButton:              decreaseButton,
-		centerPointOffset:           centerPointOffset,
-		clampTargetToMax:            params.ClampTargetToMax,
-		swipeButton:                 swipeButton,
-		exceedingOverrideEnable:     exceedingOverrideEnable,
-		targetReachedOverrideEnable: targetReachedOverrideEnable,
-		targetType:                  targetType,
-		targetReverse:               params.TargetReverse,
-		swipeOnlyMode:               false,
-		finishAfterPreciseClick:     params.FinishAfterPreciseClick,
+		targetQuantity:                params.TargetQuantity,
+		sliderQuantityBox:             sliderQuantityBox,
+		availableQuantityBox:          availableQuantityBox,
+		availableQuantityExplicit:     params.presence.AvailableQuantity,
+		sliderQuantityFilter:          sliderQuantityFilter,
+		availableQuantityFilter:       availableQuantityFilter,
+		sliderQuantityOnlyRec:         sliderQuantityOnlyRec,
+		availableQuantityOnlyRec:      availableQuantityOnlyRec,
+		greenMask:                     params.GreenMask,
+		direction:                     strings.ToLower(strings.TrimSpace(params.Direction)),
+		increaseButton:                increaseButton,
+		decreaseButton:                decreaseButton,
+		centerPointOffset:             centerPointOffset,
+		clampTargetToSliderMax:        params.ClampTargetToSliderMax,
+		swipeButton:                   swipeButton,
+		outOfRangeOverrideEnable:      outOfRangeOverrideEnable,
+		targetReachableOverrideEnable: targetReachableOverrideEnable,
+		targetQuantityType:            targetQuantityType,
+		reverseTarget:                 params.ReverseTarget,
+		swipeOnlyMode:                 false,
+		finishAfterPreciseClick:       params.FinishAfterPreciseClick,
 	}, true
 }
 
 func (a *BetterSlidingAction) applyActionParams(params parsedBetterSlidingParams) {
-	a.OriginalTarget = params.target
+	a.OriginalTargetQuantity = params.targetQuantity
 	if !a.runtimeTargetResolved {
-		a.Target = params.target
+		a.TargetQuantity = params.targetQuantity
 	}
-	a.QuantityBox = params.quantityBox
-	a.MaxTargetBox = params.maxTargetBox
-	a.MaxTargetExplicit = params.maxTargetExplicit
-	a.QuantityFilter = params.quantityFilter
-	a.MaxTargetFilter = params.maxTargetFilter
-	a.QuantityOnlyRec = params.quantityOnlyRec
-	a.MaxTargetOnlyRec = params.maxTargetOnlyRec
+	a.SliderQuantityBox = params.sliderQuantityBox
+	a.AvailableQuantityBox = params.availableQuantityBox
+	a.AvailableQuantityExplicit = params.availableQuantityExplicit
+	a.SliderQuantityFilter = params.sliderQuantityFilter
+	a.AvailableQuantityFilter = params.availableQuantityFilter
+	a.SliderQuantityOnlyRec = params.sliderQuantityOnlyRec
+	a.AvailableQuantityOnlyRec = params.availableQuantityOnlyRec
 	a.GreenMask = params.greenMask
 	a.Direction = params.direction
 	a.IncreaseButton = params.increaseButton
 	a.DecreaseButton = params.decreaseButton
 	a.CenterPointOffset = params.centerPointOffset
-	a.ClampTargetToMax = params.clampTargetToMax
+	a.ClampTargetToSliderMax = params.clampTargetToSliderMax
 	a.SwipeButton = params.swipeButton
-	a.ExceedingOverrideEnable = params.exceedingOverrideEnable
-	a.TargetReachedOverrideEnable = params.targetReachedOverrideEnable
-	a.TargetType = params.targetType
-	a.TargetReverse = params.targetReverse
+	a.OutOfRangeOverrideEnable = params.outOfRangeOverrideEnable
+	a.TargetReachableOverrideEnable = params.targetReachableOverrideEnable
+	a.TargetQuantityType = params.targetQuantityType
+	a.ReverseTarget = params.reverseTarget
 	a.SwipeOnlyMode = params.swipeOnlyMode
 	a.FinishAfterPreciseClick = params.finishAfterPreciseClick
 }
 
 func (a *BetterSlidingAction) logParsedActionParams() {
 	parseLog := a.logger.Info().
-		Int("target", a.OriginalTarget).
-		Ints("quantity_box", a.QuantityBox).
-		Ints("max_target_box", a.MaxTargetBox).
-		Bool("max_target_explicit", a.MaxTargetExplicit).
+		Int("target_quantity", a.OriginalTargetQuantity).
+		Ints("slider_quantity_box", a.SliderQuantityBox).
+		Ints("available_quantity_box", a.AvailableQuantityBox).
+		Bool("available_quantity_explicit", a.AvailableQuantityExplicit).
 		Str("direction", a.Direction).
 		Interface("increase_button", a.IncreaseButton.logValue()).
 		Interface("decrease_button", a.DecreaseButton.logValue()).
 		Bool("green_mask", a.GreenMask).
-		Bool("quantity_filter_enabled", a.QuantityFilter != nil).
-		Bool("max_target_filter_enabled", a.MaxTargetFilter != nil).
-		Bool("quantity_only_rec", a.QuantityOnlyRec).
-		Bool("max_target_only_rec", a.MaxTargetOnlyRec).
+		Bool("slider_quantity_filter_enabled", a.SliderQuantityFilter != nil).
+		Bool("available_quantity_filter_enabled", a.AvailableQuantityFilter != nil).
+		Bool("slider_quantity_only_rec", a.SliderQuantityOnlyRec).
+		Bool("available_quantity_only_rec", a.AvailableQuantityOnlyRec).
 		Ints("center_point_offset", []int{a.CenterPointOffset[0], a.CenterPointOffset[1]}).
-		Bool("clamp_target_to_max", a.ClampTargetToMax).
+		Bool("clamp_target_to_slider_max", a.ClampTargetToSliderMax).
 		Bool("finish_after_precise_click", a.FinishAfterPreciseClick).
 		Str("swipe_button", a.SwipeButton).
-		Str("exceeding_override_enable", a.ExceedingOverrideEnable).
-		Str("target_reached_override_enable", a.TargetReachedOverrideEnable).
-		Str("target_type", a.TargetType).
-		Bool("target_reverse", a.TargetReverse).
+		Str("out_of_range_override_enable", a.OutOfRangeOverrideEnable).
+		Str("target_reachable_override_enable", a.TargetReachableOverrideEnable).
+		Str("target_quantity_type", a.TargetQuantityType).
+		Bool("reverse_target", a.ReverseTarget).
 		Bool("swipe_only_mode", a.SwipeOnlyMode)
 
 	if a.runtimeTargetResolved {
-		parseLog = parseLog.Int("runtime_target", a.Target)
+		parseLog = parseLog.Int("runtime_target_quantity", a.TargetQuantity)
 	}
 
-	if a.QuantityFilter != nil {
+	if a.SliderQuantityFilter != nil {
 		parseLog = parseLog.
-			Int("quantity_filter_method", a.QuantityFilter.Method).
-			Ints("quantity_filter_lower", a.QuantityFilter.Lower).
-			Ints("quantity_filter_upper", a.QuantityFilter.Upper)
+			Int("slider_quantity_filter_method", a.SliderQuantityFilter.Method).
+			Ints("slider_quantity_filter_lower", a.SliderQuantityFilter.Lower).
+			Ints("slider_quantity_filter_upper", a.SliderQuantityFilter.Upper)
 	}
 
-	if a.MaxTargetFilter != nil {
+	if a.AvailableQuantityFilter != nil {
 		parseLog = parseLog.
-			Int("max_target_filter_method", a.MaxTargetFilter.Method).
-			Ints("max_target_filter_lower", a.MaxTargetFilter.Lower).
-			Ints("max_target_filter_upper", a.MaxTargetFilter.Upper)
+			Int("available_quantity_filter_method", a.AvailableQuantityFilter.Method).
+			Ints("available_quantity_filter_lower", a.AvailableQuantityFilter.Lower).
+			Ints("available_quantity_filter_upper", a.AvailableQuantityFilter.Upper)
 	}
 
 	parseLog.Msg("parsed custom action parameters")
@@ -314,7 +335,8 @@ func (a *BetterSlidingAction) initLogger(taskName string) {
 }
 
 // mergeAttachParams reads the attach block from the caller pipeline node and merges
-// Target, TargetType, TargetReverse, and FinishAfterPreciseClick into the customActionParam JSON.
+// TargetQuantity, TargetQuantityType, ReverseTarget, and FinishAfterPreciseClick into
+// the customActionParam JSON.
 // On any error, the original customActionParam string is returned unchanged.
 func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionParam string) string {
 	if ctx == nil || callerNodeName == "" {
@@ -368,43 +390,43 @@ func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionPara
 		return customActionParam
 	}
 
-	if targetRaw, has := attachKeys["Target"]; has {
+	if targetRaw, has := attachKeys["TargetQuantity"]; has {
 		var target int
 		if err := json.Unmarshal(targetRaw, &target); err == nil {
-			paramMap["Target"] = float64(target)
+			paramMap["TargetQuantity"] = float64(target)
 		} else {
 			logger.Warn().
 				Err(err).
 				Str("node", callerNodeName).
-				Str("field", "attach.Target").
+				Str("field", "attach.TargetQuantity").
 				Str("value", string(targetRaw)).
 				Msg("failed to parse attach field")
 		}
 	}
 
-	if ttRaw, has := attachKeys["TargetType"]; has {
+	if ttRaw, has := attachKeys["TargetQuantityType"]; has {
 		var tt string
 		if err := json.Unmarshal(ttRaw, &tt); err == nil {
-			paramMap["TargetType"] = tt
+			paramMap["TargetQuantityType"] = tt
 		} else {
 			logger.Warn().
 				Err(err).
 				Str("node", callerNodeName).
-				Str("field", "attach.TargetType").
+				Str("field", "attach.TargetQuantityType").
 				Str("value", string(ttRaw)).
 				Msg("failed to parse attach field")
 		}
 	}
 
-	if trRaw, has := attachKeys["TargetReverse"]; has {
+	if trRaw, has := attachKeys["ReverseTarget"]; has {
 		var tr bool
 		if err := json.Unmarshal(trRaw, &tr); err == nil {
-			paramMap["TargetReverse"] = tr
+			paramMap["ReverseTarget"] = tr
 		} else {
 			logger.Warn().
 				Err(err).
 				Str("node", callerNodeName).
-				Str("field", "attach.TargetReverse").
+				Str("field", "attach.ReverseTarget").
 				Str("value", string(trRaw)).
 				Msg("failed to parse attach field")
 		}

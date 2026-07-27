@@ -98,7 +98,7 @@ When the bottom red "Insufficient Dispatch Tickets" prompt is identified in the 
 Read the OCR of the current held quantity in the top-right corner of the popup, and compare it using an expression with the user-configured limit (matched when `limit > current held quantity`):
 
 1.  The Go action calculates `quantity_to_buy = limit - current_held_quantity`.
-2.  Write the result into BetterSliding's `Target` to smoothly adjust the purchase quantity slider.
+2.  Write the result into BetterSliding's `TargetQuantity` to smoothly adjust the purchase quantity slider.
 3.  Click confirm purchase, close the reward popup, and return to the list to continue scanning.
 
 #### Branch 3: Held Quantity Reaches or Exceeds Limit, Exclude
@@ -250,7 +250,7 @@ Action logic:
 2.  Run quantity OCR on the current screenshot to get the **current held quantity**.
 3.  Calculate `target = target_limit - current_held_quantity`.
 4.  If `target <= 0`, skip sliding (disable `AutoStockStapleBetterSliding`).
-5.  Otherwise, enable `AutoStockStapleBetterSliding` via `OverridePipeline` and write `target` into its `attach.Target`.
+5.  Otherwise, enable `AutoStockStapleBetterSliding` via `OverridePipeline` and write `target` into its `attach.TargetQuantity`.
 
 Go **no longer** executes `RunTask` to perform sliding; quantity adjustment is completed by the low-code branch:
 
@@ -282,11 +282,11 @@ The Exclude branch **does not** purchase; it only removes "reached target" items
 
 This task has two types of runtime overrides; do not confuse them during maintenance:
 
-| Action                                 | Trigger Location                                  | Purpose                                                                |
-| -------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------- |
-| `AttachToExpectedRegexAction`          | `AutoStockStapleMain` entry; Exclude → Reset node | Merge attach keywords → OCR whitelist regex                            |
-| `PipelineOverrideAction`               | Each item's `{Item}RemoveFilter`                  | Set specified attach key to `false`, excluding the item                |
-| `AutoStockStapleQuantityControlAction` | Each item's `{Item}Buy`                           | Calculate difference and override BetterSliding's `Target` / `enabled` |
+| Action                                 | Trigger Location                                  | Purpose                                                                        |
+| -------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `AttachToExpectedRegexAction`          | `AutoStockStapleMain` entry; Exclude → Reset node | Merge attach keywords → OCR whitelist regex                                    |
+| `PipelineOverrideAction`               | Each item's `{Item}RemoveFilter`                  | Set specified attach key to `false`, excluding the item                        |
+| `AutoStockStapleQuantityControlAction` | Each item's `{Item}Buy`                           | Calculate difference and override BetterSliding's `TargetQuantity` / `enabled` |
 
 `attach` semantics (see `attachregex/action.go`):
 

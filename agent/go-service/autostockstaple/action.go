@@ -41,7 +41,7 @@ type quantityValidatorNode struct {
 }
 
 // QuantityControlAction calculates the purchase quantity for an AutoStockStaple item
-// from its validator expression and overrides BetterSliding attach.Target via pipeline.
+// from its validator expression and overrides BetterSliding attach.TargetQuantity via pipeline.
 // Sliding itself is executed by the sibling CheckSliding / BetterSliding branch after Buy.
 type QuantityControlAction struct{}
 
@@ -151,7 +151,7 @@ func buildQuantityControlOverride(slidingNode string, target int) map[string]any
 		slidingNode: map[string]any{
 			"enabled": target > 0,
 			"attach": map[string]any{
-				"Target": target,
+				"TargetQuantity": target,
 			},
 		},
 	}

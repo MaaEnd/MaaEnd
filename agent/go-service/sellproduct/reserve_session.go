@@ -136,7 +136,7 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			Str("item_id", itemID).
 			Int("quantity", quantity).
 			Bool("marked", marked).
-			Msg("reserve target satisfied for current task")
+			Msg("reserve quantity satisfied for current task")
 		if marked {
 			printRuntimeReserveSatisfied(ctx, itemID, quantity)
 		}
@@ -226,7 +226,7 @@ func markSelectedReserveSatisfied() (itemID string, quantity int, marked bool, o
 	return itemID, quantity, !exists, true
 }
 
-// reserveSatisfiedItemsSnapshot 返回本次任务已经达到保留目标的物品集合。
+// reserveSatisfiedItemsSnapshot 返回本次任务已经达到保留数量的物品集合。
 // 该状态与用户黑名单、运行期缺货分别维护，避免混淆排除原因。
 func reserveSatisfiedItemsSnapshot() map[string]struct{} {
 	reserveSessionMu.Lock()
@@ -292,12 +292,12 @@ func buildReserveSlidingOverride(slidingNode string, quantity int, configured bo
 		return map[string]any{
 			slidingNode: map[string]any{
 				"next": []string{
-					"SellProductSkipToNextSellLoop",
+					"SellProductReserveAlreadySatisfied",
 					"SellProductSellThenLoop",
 				},
 				"attach": map[string]any{
-					"Target":        quantity,
-					"TargetReverse": true,
+					"TargetQuantity": quantity,
+					"ReverseTarget":  true,
 				},
 			},
 		}
@@ -306,8 +306,8 @@ func buildReserveSlidingOverride(slidingNode string, quantity int, configured bo
 		slidingNode: map[string]any{
 			"next": []string{"SellProductSell"},
 			"attach": map[string]any{
-				"Target":        999999,
-				"TargetReverse": false,
+				"TargetQuantity": 999999,
+				"ReverseTarget":  false,
 			},
 		},
 	}

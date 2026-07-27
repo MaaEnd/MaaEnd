@@ -2,9 +2,9 @@
     "SellProductSkyKingFlatsConstructionSiteBetterSliding": {
         "custom_action_param": {
             "GreenMask": true,
-            "Target": 999999,
-            "ClampTargetToMax": true,
-            "MaxTarget": {
+            "TargetQuantity": 999999,
+            "ClampTargetToSliderMax": true,
+            "AvailableQuantity": {
                 "Box": [
                     1041,
                     239,
@@ -13,7 +13,7 @@
                 ],
                 "OnlyRec": true
             },
-            "Quantity": {
+            "SliderQuantity": {
                 "Box": [
                     1065,
                     499,
@@ -25,8 +25,8 @@
             "Direction": "right",
             "DecreaseButton": "SellProduct/DecreaseButton.png",
             "IncreaseButton": "SellProduct/IncreaseButton.png",
-            "ExceedingOverrideEnable": "SellProductSkipToNextSellLoop",
-            "TargetReachedOverrideEnable": "SellProductReserveTargetReached"
+            "OutOfRangeOverrideEnable": "SellProductReserveAlreadySatisfied",
+            "TargetReachableOverrideEnable": "SellProductReserveQuantityReached"
         }
     }
 }

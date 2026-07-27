@@ -100,19 +100,19 @@ test("SellProduct templates consume separate minimal projections of the shared l
     }
 
     assert.deepEqual(sortedKeys(sellProductPipelineRows[0]), [
+        "AvailableQuantityBox",
         "CurrentOperatorROI",
         "LocationDesc",
         "LocationId",
-        "MaxTargetBox",
-        "QuantityBox",
         "RegionPrefix",
+        "SliderQuantityBox",
         "TextExpected",
     ]);
     assert.deepEqual(sortedKeys(sellProductAdbRows[0]), [
+        "AvailableQuantityBoxAdb",
         "LocationId",
-        "MaxTargetBoxAdb",
-        "QuantityBoxAdb",
         "RegionPrefix",
+        "SliderQuantityBoxAdb",
     ]);
     assert.deepEqual(sortedKeys(sellProductSessionRows[0]), [
         "LocationDesc",
@@ -582,21 +582,21 @@ test("SellProduct 持续售卖到保留量后再进入下一轮选货", () => {
     );
 
     assert.deepEqual(pipeline.SellProductSellCheckThenLoop.next, [
-        "SellProductReserveTargetReached",
+        "SellProductReserveQuantityReached",
         "[Anchor]SellProductBetterSliding",
     ]);
-    assert.equal(pipeline.SellProductReserveTargetReached.enabled, false);
-    assert.equal(pipeline.SellProductReserveTargetReached.custom_action, "SellProductReserveSession");
-    assert.deepEqual(pipeline.SellProductReserveTargetReached.custom_action_param, {
+    assert.equal(pipeline.SellProductReserveQuantityReached.enabled, false);
+    assert.equal(pipeline.SellProductReserveQuantityReached.custom_action, "SellProductReserveSession");
+    assert.deepEqual(pipeline.SellProductReserveQuantityReached.custom_action_param, {
         operation: "satisfy",
     });
-    assert.deepEqual(pipeline.SellProductReserveTargetReached.next, ["SellProductSellLoop"]);
-    assert.equal(pipeline.SellProductSkipToNextSellLoop.recognition, "DirectHit");
-    assert.equal(pipeline.SellProductSkipToNextSellLoop.custom_action, "SellProductReserveSession");
-    assert.deepEqual(pipeline.SellProductSkipToNextSellLoop.custom_action_param, {
+    assert.deepEqual(pipeline.SellProductReserveQuantityReached.next, ["SellProductSellLoop"]);
+    assert.equal(pipeline.SellProductReserveAlreadySatisfied.recognition, "DirectHit");
+    assert.equal(pipeline.SellProductReserveAlreadySatisfied.custom_action, "SellProductReserveSession");
+    assert.deepEqual(pipeline.SellProductReserveAlreadySatisfied.custom_action_param, {
         operation: "satisfy",
     });
-    assert.deepEqual(pipeline.SellProductSkipToNextSellLoop.next, ["SellProductSellLoop"]);
+    assert.deepEqual(pipeline.SellProductReserveAlreadySatisfied.next, ["SellProductSellLoop"]);
 
     for (const location of sellProductLocations) {
         const outpost = readPipeline(
@@ -606,8 +606,9 @@ test("SellProduct 持续售卖到保留量后再进入下一轮选货", () => {
             ),
         );
         assert.equal(
-            outpost[`SellProduct${location.LocationId}BetterSliding`].custom_action_param.TargetReachedOverrideEnable,
-            "SellProductReserveTargetReached",
+            outpost[`SellProduct${location.LocationId}BetterSliding`].custom_action_param
+                .TargetReachableOverrideEnable,
+            "SellProductReserveQuantityReached",
         );
     }
 });

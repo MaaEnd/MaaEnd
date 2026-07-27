@@ -82,8 +82,8 @@
                     "Direction": "right",
                     "IncreaseButton": "AutoStockpile/IncreaseButton.png",
                     "GreenMask": true,
-                    "Target": 1,
-                    "Quantity": {
+                    "TargetQuantity": 1,
+                    "SliderQuantity": {
                         "Box": [
                             360,
                             480,
@@ -104,7 +104,7 @@
                             "method": 40
                         }
                     },
-                    "ClampTargetToMax": true
+                    "ClampTargetToSliderMax": true
                 }
             }
         },

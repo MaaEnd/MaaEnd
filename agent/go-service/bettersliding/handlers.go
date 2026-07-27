@@ -36,10 +36,10 @@ func (a *BetterSlidingAction) dispatchActionNode(ctx *maa.Context, arg *maa.Cust
 		return a.handleMain(ctx, arg)
 	case nodeBetterSlidingFindStart:
 		return a.handleFindStart(ctx, arg)
-	case nodeBetterSlidingGetMaxQuantity:
-		return a.handleGetMaxQuantity(ctx, arg)
-	case nodeBetterSlidingGetMaxTarget:
-		return a.handleGetMaxTarget(ctx, arg)
+	case nodeBetterSlidingGetSliderMaxQuantity:
+		return a.handleGetSliderMaxQuantity(ctx, arg)
+	case nodeBetterSlidingGetAvailableQuantity:
+		return a.handleGetAvailableQuantity(ctx, arg)
 	case nodeBetterSlidingFindEnd:
 		return a.handleFindEnd(ctx, arg)
 	case nodeBetterSlidingCheckQuantity:
@@ -60,16 +60,16 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		return false
 	}
 
-	if !a.SwipeOnlyMode && len(a.QuantityBox) != 4 {
+	if !a.SwipeOnlyMode && len(a.SliderQuantityBox) != 4 {
 		a.logger.Error().
-			Ints("quantity_box", a.QuantityBox).
-			Msg("invalid quantity box, expected [x,y,w,h]")
+			Ints("slider_quantity_box", a.SliderQuantityBox).
+			Msg("invalid slider quantity box, expected [x,y,w,h]")
 		return false
 	}
-	if a.MaxTargetExplicit && len(a.MaxTargetBox) != 4 {
+	if a.AvailableQuantityExplicit && len(a.AvailableQuantityBox) != 4 {
 		a.logger.Error().
-			Ints("max_target_box", a.MaxTargetBox).
-			Msg("invalid max target box, expected [x,y,w,h]")
+			Ints("available_quantity_box", a.AvailableQuantityBox).
+			Msg("invalid available quantity box, expected [x,y,w,h]")
 		return false
 	}
 
@@ -84,13 +84,13 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 
 	override := buildMainInitializationOverride(
 		end,
-		a.QuantityBox,
-		a.MaxTargetBox,
-		a.MaxTargetExplicit,
-		a.QuantityFilter,
-		a.MaxTargetFilter,
-		a.QuantityOnlyRec,
-		a.MaxTargetOnlyRec,
+		a.SliderQuantityBox,
+		a.AvailableQuantityBox,
+		a.AvailableQuantityExplicit,
+		a.SliderQuantityFilter,
+		a.AvailableQuantityFilter,
+		a.SliderQuantityOnlyRec,
+		a.AvailableQuantityOnlyRec,
 		a.SwipeButton,
 		a.GreenMask,
 	)
@@ -111,28 +111,28 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 	initializationLog := a.logger.Info().
 		Str("direction", a.Direction).
 		Ints("end", end).
-		Ints("quantity_roi", a.QuantityBox).
-		Ints("max_target_roi", a.MaxTargetBox).
-		Bool("max_target_explicit", a.MaxTargetExplicit).
+		Ints("slider_quantity_roi", a.SliderQuantityBox).
+		Ints("available_quantity_roi", a.AvailableQuantityBox).
+		Bool("available_quantity_explicit", a.AvailableQuantityExplicit).
 		Bool("green_mask", a.GreenMask).
-		Bool("quantity_filter_enabled", a.QuantityFilter != nil).
-		Bool("max_target_filter_enabled", a.MaxTargetFilter != nil).
-		Bool("quantity_only_rec", a.QuantityOnlyRec).
-		Bool("max_target_only_rec", a.MaxTargetOnlyRec).
+		Bool("slider_quantity_filter_enabled", a.SliderQuantityFilter != nil).
+		Bool("available_quantity_filter_enabled", a.AvailableQuantityFilter != nil).
+		Bool("slider_quantity_only_rec", a.SliderQuantityOnlyRec).
+		Bool("available_quantity_only_rec", a.AvailableQuantityOnlyRec).
 		Bool("swipe_only_mode", a.SwipeOnlyMode)
 
-	if a.QuantityFilter != nil {
+	if a.SliderQuantityFilter != nil {
 		initializationLog = initializationLog.
-			Int("quantity_filter_method", a.QuantityFilter.Method).
-			Ints("quantity_filter_lower", a.QuantityFilter.Lower).
-			Ints("quantity_filter_upper", a.QuantityFilter.Upper)
+			Int("slider_quantity_filter_method", a.SliderQuantityFilter.Method).
+			Ints("slider_quantity_filter_lower", a.SliderQuantityFilter.Lower).
+			Ints("slider_quantity_filter_upper", a.SliderQuantityFilter.Upper)
 	}
 
-	if a.MaxTargetFilter != nil {
+	if a.AvailableQuantityFilter != nil {
 		initializationLog = initializationLog.
-			Int("max_target_filter_method", a.MaxTargetFilter.Method).
-			Ints("max_target_filter_lower", a.MaxTargetFilter.Lower).
-			Ints("max_target_filter_upper", a.MaxTargetFilter.Upper)
+			Int("available_quantity_filter_method", a.AvailableQuantityFilter.Method).
+			Ints("available_quantity_filter_lower", a.AvailableQuantityFilter.Lower).
+			Ints("available_quantity_filter_upper", a.AvailableQuantityFilter.Upper)
 	}
 
 	initializationLog.Msg("main initialization completed with pipeline overrides")
@@ -156,7 +156,7 @@ func (a *BetterSlidingAction) handleFindStart(_ *maa.Context, arg *maa.CustomAct
 	return true
 }
 
-func (a *BetterSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *BetterSlidingAction) handleGetSliderMaxQuantity(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if ctx == nil {
 		a.logger.Error().Msg("context is nil")
 		return false
@@ -166,116 +166,129 @@ func (a *BetterSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.Cu
 		return false
 	}
 
-	maxQuantity, err := readQuantityValue(arg.RecognitionDetail)
+	sliderMaxQuantity, err := readQuantityValue(arg.RecognitionDetail)
 	if err != nil {
-		a.logger.Error().Err(err).Msg("failed to parse max quantity from ocr")
+		a.logger.Error().Err(err).Msg("failed to parse slider max quantity from ocr")
 		return false
 	}
 
-	a.maxQuantity = maxQuantity
+	a.sliderMaxQuantity = sliderMaxQuantity
 
-	if !a.maxTargetResolved {
-		resolved, resolveErr := resolveTarget(a.OriginalTarget, a.TargetType, a.TargetReverse, a.maxQuantity)
+	if !a.availableQuantityResolved {
+		resolved, resolveErr := resolveTargetQuantity(
+			a.OriginalTargetQuantity,
+			a.TargetQuantityType,
+			a.ReverseTarget,
+			a.sliderMaxQuantity,
+		)
 		if resolveErr != nil {
 			a.logger.Error().
 				Err(resolveErr).
-				Int("target", a.OriginalTarget).
-				Str("target_type", a.TargetType).
-				Bool("target_reverse", a.TargetReverse).
-				Msg("failed to resolve target")
+				Int("target_quantity", a.OriginalTargetQuantity).
+				Str("target_quantity_type", a.TargetQuantityType).
+				Bool("reverse_target", a.ReverseTarget).
+				Msg("failed to resolve target quantity")
 			return false
 		}
 
-		if resolved != a.OriginalTarget {
+		if resolved != a.OriginalTargetQuantity {
 			a.logger.Info().
-				Int("original_target", a.OriginalTarget).
-				Int("resolved_target", resolved).
-				Str("target_type", a.TargetType).
-				Bool("target_reverse", a.TargetReverse).
-				Int("max_quantity", a.maxQuantity).
-				Msg("target resolved")
+				Int("original_target_quantity", a.OriginalTargetQuantity).
+				Int("resolved_target_quantity", resolved).
+				Str("target_quantity_type", a.TargetQuantityType).
+				Bool("reverse_target", a.ReverseTarget).
+				Int("slider_max_quantity", a.sliderMaxQuantity).
+				Msg("target quantity resolved")
 		}
-		a.Target = resolved
+		a.TargetQuantity = resolved
 		a.runtimeTargetResolved = true
 	}
 
-	upperOverflow := a.Target > a.maxQuantity
-	lowerOverflow := a.TargetType == TargetTypeValue && a.TargetReverse && a.Target < 1
+	upperOverflow := a.TargetQuantity > a.sliderMaxQuantity
+	lowerOverflow := a.TargetQuantityType == TargetQuantityTypeValue &&
+		a.ReverseTarget &&
+		a.TargetQuantity < 1
 	// Record reachability before clamping: selecting a clamped maximum does not mean the original target is reachable.
-	a.targetReachable = a.Target >= 1 && a.Target <= a.maxQuantity
+	a.targetReachable = a.TargetQuantity >= 1 && a.TargetQuantity <= a.sliderMaxQuantity
 
-	// Clamp upper overflow before any exceeding-override handling so clamp takes priority.
-	if a.ClampTargetToMax && upperOverflow {
-		originalTarget := a.Target
-		a.Target = a.maxQuantity
+	// Clamp upper overflow before out-of-range handling so clamping takes priority.
+	if a.ClampTargetToSliderMax && upperOverflow {
+		originalTargetQuantity := a.TargetQuantity
+		a.TargetQuantity = a.sliderMaxQuantity
 		a.logger.Warn().
-			Int("original_target", originalTarget).
-			Int("clamped_target", a.Target).
-			Int("max_quantity", a.maxQuantity).
-			Msg("target clamped to max quantity")
+			Int("original_target_quantity", originalTargetQuantity).
+			Int("clamped_target_quantity", a.TargetQuantity).
+			Int("slider_max_quantity", a.sliderMaxQuantity).
+			Msg("target quantity clamped to slider max quantity")
 		upperOverflow = false
 	}
 
-	a.exceeded = false
-	if a.ExceedingOverrideEnable != "" {
-		if upperOverflow || lowerOverflow || a.maxQuantity == 0 {
-			a.exceeded = true
-			if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDone, buttonTarget{}, 0, a.GreenMask); err != nil {
+	a.outOfRange = false
+	if a.OutOfRangeOverrideEnable != "" {
+		if upperOverflow || lowerOverflow || a.sliderMaxQuantity == 0 {
+			a.outOfRange = true
+			if err := overrideCheckQuantityBranch(
+				ctx,
+				arg.CurrentTaskName,
+				nodeBetterSlidingDone,
+				buttonTarget{},
+				0,
+				a.GreenMask,
+			); err != nil {
 				logEvent := a.logger.Error().
 					Err(err).
-					Int("max_quantity", a.maxQuantity).
-					Int("target", a.Target).
+					Int("slider_max_quantity", a.sliderMaxQuantity).
+					Int("target_quantity", a.TargetQuantity).
 					Str("next", nodeBetterSlidingDone)
 				if errors.Is(err, errCheckQuantityBranchNextOverride) {
-					logEvent.Msg("failed to override next for exceeding branch")
+					logEvent.Msg("failed to override next for out-of-range branch")
 				} else {
-					logEvent.Msg("failed to override pipeline for exceeding branch")
+					logEvent.Msg("failed to override pipeline for out-of-range branch")
 				}
-
 				return false
 			}
 
 			logEvent := a.logger.Warn().
-				Int("original_target", a.OriginalTarget).
-				Int("resolved_target", a.Target).
-				Int("max_quantity", a.maxQuantity).
-				Str("override_node", a.ExceedingOverrideEnable)
-			if a.maxQuantity == 0 {
-				logEvent.Msg("max quantity is zero, skipping via exceeding override")
+				Int("original_target_quantity", a.OriginalTargetQuantity).
+				Int("resolved_target_quantity", a.TargetQuantity).
+				Int("slider_max_quantity", a.sliderMaxQuantity).
+				Str("override_node", a.OutOfRangeOverrideEnable)
+			if a.sliderMaxQuantity == 0 {
+				logEvent.Msg("slider max quantity is zero, skipping via out-of-range override")
 			} else {
-				logEvent.Msg("target out of range: exceeding override scheduled, branching to done")
+				logEvent.Msg("target quantity out of range; caller outcome scheduled")
 			}
 			return true
 		}
 
-		if err := ctx.OverridePipeline(buildNodeEnableOverride(a.ExceedingOverrideEnable, false)); err != nil {
+		if err := ctx.OverridePipeline(buildNodeEnableOverride(a.OutOfRangeOverrideEnable, false)); err != nil {
 			a.logger.Error().Err(err).
-				Str("override_node", a.ExceedingOverrideEnable).
-				Msg("failed to override exceeding disable state")
+				Str("override_node", a.OutOfRangeOverrideEnable).
+				Msg("failed to disable out-of-range override")
 			return false
 		}
 	} else if lowerOverflow || upperOverflow {
 		a.logger.Error().
-			Int("resolved_target", a.Target).
-			Int("max_quantity", a.maxQuantity).
-			Msg("target out of range and no exceeding override configured")
+			Int("resolved_target_quantity", a.TargetQuantity).
+			Int("slider_max_quantity", a.sliderMaxQuantity).
+			Msg("target quantity out of range and no override configured")
 		return false
 	}
 
-	nextNode, err := resolveMaxQuantityNext(a.maxQuantity, a.Target)
+	nextNode, err := resolveSliderMaxQuantityNext(a.sliderMaxQuantity, a.TargetQuantity)
 	if err != nil {
 		a.logger.Error().
-			Int("max_quantity", a.maxQuantity).
-			Int("target", a.Target).
-			Msg("max quantity lower than target")
+			Int("slider_max_quantity", a.sliderMaxQuantity).
+			Int("target_quantity", a.TargetQuantity).
+			Msg("slider max quantity lower than target quantity")
 		return false
 	}
 	if nextNode != "" {
 		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nextNode, buttonTarget{}, 0, a.GreenMask); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
-				Int("max_quantity", a.maxQuantity).
-				Int("target", a.Target).
+				Int("slider_max_quantity", a.sliderMaxQuantity).
+				Int("target_quantity", a.TargetQuantity).
 				Str("next", nextNode)
 			if errors.Is(err, errCheckQuantityBranchNextOverride) {
 				logEvent.Msg("failed to override next for direct-done branch")
@@ -286,21 +299,21 @@ func (a *BetterSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.Cu
 		}
 
 		a.logger.Info().
-			Int("max_quantity", a.maxQuantity).
-			Int("target", a.Target).
+			Int("slider_max_quantity", a.sliderMaxQuantity).
+			Int("target_quantity", a.TargetQuantity).
 			Str("next", nextNode).
-			Msg("max quantity already satisfies target, branch to done")
+			Msg("slider max quantity already matches target quantity, branch to done")
 		return true
 	}
 
 	a.logger.Info().
-		Int("max_quantity", a.maxQuantity).
-		Int("target", a.Target).
-		Msg("max quantity parsed")
+		Int("slider_max_quantity", a.sliderMaxQuantity).
+		Int("target_quantity", a.TargetQuantity).
+		Msg("slider max quantity parsed")
 	return true
 }
 
-func (a *BetterSlidingAction) handleGetMaxTarget(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *BetterSlidingAction) handleGetAvailableQuantity(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if ctx == nil {
 		a.logger.Error().Msg("context is nil")
 		return false
@@ -310,42 +323,47 @@ func (a *BetterSlidingAction) handleGetMaxTarget(ctx *maa.Context, arg *maa.Cust
 		return false
 	}
 
-	maxTarget, err := readQuantityValue(arg.RecognitionDetail)
+	availableQuantity, err := readQuantityValue(arg.RecognitionDetail)
 	if err != nil {
-		a.logger.Error().Err(err).Msg("failed to parse max target from ocr")
+		a.logger.Error().Err(err).Msg("failed to parse available quantity from ocr")
 		return false
 	}
 
-	a.maxTarget = maxTarget
+	a.availableQuantity = availableQuantity
 
-	resolved, resolveErr := resolveTarget(a.OriginalTarget, a.TargetType, a.TargetReverse, a.maxTarget)
+	resolved, resolveErr := resolveTargetQuantity(
+		a.OriginalTargetQuantity,
+		a.TargetQuantityType,
+		a.ReverseTarget,
+		a.availableQuantity,
+	)
 	if resolveErr != nil {
 		a.logger.Error().
 			Err(resolveErr).
-			Int("target", a.OriginalTarget).
-			Str("target_type", a.TargetType).
-			Bool("target_reverse", a.TargetReverse).
-			Msg("failed to resolve target from max target")
+			Int("target_quantity", a.OriginalTargetQuantity).
+			Str("target_quantity_type", a.TargetQuantityType).
+			Bool("reverse_target", a.ReverseTarget).
+			Msg("failed to resolve target quantity from available quantity")
 		return false
 	}
 
-	if resolved != a.OriginalTarget {
+	if resolved != a.OriginalTargetQuantity {
 		a.logger.Info().
-			Int("original_target", a.OriginalTarget).
-			Int("resolved_target", resolved).
-			Str("target_type", a.TargetType).
-			Bool("target_reverse", a.TargetReverse).
-			Int("max_target", a.maxTarget).
-			Msg("target resolved from max target")
+			Int("original_target_quantity", a.OriginalTargetQuantity).
+			Int("resolved_target_quantity", resolved).
+			Str("target_quantity_type", a.TargetQuantityType).
+			Bool("reverse_target", a.ReverseTarget).
+			Int("available_quantity", a.availableQuantity).
+			Msg("target quantity resolved from available quantity")
 	}
-	a.Target = resolved
+	a.TargetQuantity = resolved
 	a.runtimeTargetResolved = true
-	a.maxTargetResolved = true
+	a.availableQuantityResolved = true
 
 	a.logger.Info().
-		Int("max_target", a.maxTarget).
-		Int("resolved_target", a.Target).
-		Msg("max target parsed")
+		Int("available_quantity", a.availableQuantity).
+		Int("resolved_target_quantity", a.TargetQuantity).
+		Msg("available quantity parsed")
 	return true
 }
 
@@ -358,10 +376,10 @@ func (a *BetterSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.CustomAct
 		a.logger.Error().Msg("recognition detail is nil")
 		return false
 	}
-	if a.maxQuantity < 1 {
+	if a.sliderMaxQuantity < 1 {
 		a.logger.Error().
-			Int("max_quantity", a.maxQuantity).
-			Msg("invalid max quantity for precise click calculation")
+			Int("slider_max_quantity", a.sliderMaxQuantity).
+			Msg("invalid slider max quantity for precise click calculation")
 		return false
 	}
 
@@ -388,11 +406,11 @@ func (a *BetterSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.CustomAct
 	startX, startY := centerPoint(a.startBox, a.CenterPointOffset)
 	endX, endY := centerPoint(a.endBox, a.CenterPointOffset)
 
-	numerator := a.Target - 1
-	denominator := a.maxQuantity - 1
+	numerator := a.TargetQuantity - 1
+	denominator := a.sliderMaxQuantity - 1
 	if denominator == 0 {
 		a.logger.Error().
-			Int("max_quantity", a.maxQuantity).
+			Int("slider_max_quantity", a.sliderMaxQuantity).
 			Msg("denominator is zero in precise click calculation")
 		return false
 	}
@@ -416,8 +434,8 @@ func (a *BetterSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.CustomAct
 	a.logger.Info().
 		Ints("start_box", a.startBox).
 		Ints("end_box", a.endBox).
-		Int("target", a.Target).
-		Int("max_quantity", a.maxQuantity).
+		Int("target_quantity", a.TargetQuantity).
+		Int("slider_max_quantity", a.sliderMaxQuantity).
 		Int("click_x", clickX).
 		Int("click_y", clickY).
 		Msg("precise click calculated")
@@ -457,12 +475,12 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 	}
 
 	switch {
-	case currentQuantity == a.Target:
+	case currentQuantity == a.TargetQuantity:
 		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDone, buttonTarget{}, 0, a.GreenMask); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
-				Int("target", a.Target)
+				Int("target_quantity", a.TargetQuantity)
 			if errors.Is(err, errCheckQuantityBranchNextOverride) {
 				logEvent.Msg("failed to override next to done")
 			} else {
@@ -473,18 +491,18 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 
 		a.logger.Info().
 			Int("current_quantity", currentQuantity).
-			Int("target", a.Target).
+			Int("target_quantity", a.TargetQuantity).
 			Str("next", nodeBetterSlidingDone).
 			Msg("quantity matched target")
 		return true
-	case currentQuantity < a.Target:
-		diff := a.Target - currentQuantity
+	case currentQuantity < a.TargetQuantity:
+		diff := a.TargetQuantity - currentQuantity
 		repeat := clampClickRepeat(diff)
 		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingIncreaseQuantity, a.IncreaseButton, repeat, a.GreenMask); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
-				Int("target", a.Target).
+				Int("target_quantity", a.TargetQuantity).
 				Int("diff", diff).
 				Int("repeat", repeat).
 				Interface("increase_button", a.IncreaseButton.logValue())
@@ -498,7 +516,7 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 
 		a.logger.Info().
 			Int("current_quantity", currentQuantity).
-			Int("target", a.Target).
+			Int("target_quantity", a.TargetQuantity).
 			Int("diff", diff).
 			Int("repeat", repeat).
 			Interface("button", a.IncreaseButton.logValue()).
@@ -506,13 +524,13 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 			Msg("quantity below target, branch to increase")
 		return true
 	default:
-		diff := currentQuantity - a.Target
+		diff := currentQuantity - a.TargetQuantity
 		repeat := clampClickRepeat(diff)
 		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDecreaseQuantity, a.DecreaseButton, repeat, a.GreenMask); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
-				Int("target", a.Target).
+				Int("target_quantity", a.TargetQuantity).
 				Int("diff", diff).
 				Int("repeat", repeat).
 				Interface("decrease_button", a.DecreaseButton.logValue())
@@ -526,7 +544,7 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 
 		a.logger.Info().
 			Int("current_quantity", currentQuantity).
-			Int("target", a.Target).
+			Int("target_quantity", a.TargetQuantity).
 			Int("diff", diff).
 			Int("repeat", repeat).
 			Interface("button", a.DecreaseButton.logValue()).
@@ -538,7 +556,7 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 
 func (a *BetterSlidingAction) handleDone(_ *maa.Context, _ *maa.CustomActionArg) bool {
 	a.logger.Info().
-		Int("target", a.Target).
+		Int("target_quantity", a.TargetQuantity).
 		Msg("quantity adjustment completed")
 	return true
 }
@@ -600,30 +618,30 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 		return false
 	}
 
-	if a.exceeded && a.ExceedingOverrideEnable != "" {
-		if err := ctx.OverridePipeline(buildNodeEnableOverride(a.ExceedingOverrideEnable, true)); err != nil {
+	if a.outOfRange && a.OutOfRangeOverrideEnable != "" {
+		if err := ctx.OverridePipeline(buildNodeEnableOverride(a.OutOfRangeOverrideEnable, true)); err != nil {
 			a.logger.Error().
 				Err(err).
 				Str("caller", arg.CurrentTaskName).
-				Str("override_node", a.ExceedingOverrideEnable).
-				Msg("failed to apply exceeding override after internal pipeline")
+				Str("override_node", a.OutOfRangeOverrideEnable).
+				Msg("failed to apply out-of-range override after internal pipeline")
 			return false
 		}
 
 		a.logger.Info().
 			Str("caller", arg.CurrentTaskName).
-			Str("override_node", a.ExceedingOverrideEnable).
-			Msg("applied exceeding override after internal pipeline")
+			Str("override_node", a.OutOfRangeOverrideEnable).
+			Msg("applied out-of-range override after internal pipeline")
 	}
 
-	if a.TargetReachedOverrideEnable != "" {
-		if err := ctx.OverridePipeline(buildNodeEnableOverride(a.TargetReachedOverrideEnable, a.targetReachable)); err != nil {
+	if a.TargetReachableOverrideEnable != "" {
+		if err := ctx.OverridePipeline(buildNodeEnableOverride(a.TargetReachableOverrideEnable, a.targetReachable)); err != nil {
 			a.logger.Error().
 				Err(err).
 				Str("caller", arg.CurrentTaskName).
-				Str("override_node", a.TargetReachedOverrideEnable).
-				Bool("target_reachable", a.targetReachable).
-				Msg("failed to apply target-reached override after internal pipeline")
+				Str("override_node", a.TargetReachableOverrideEnable).
+				Bool("target_quantity_reachable", a.targetReachable).
+				Msg("failed to apply target-reachable override after internal pipeline")
 			return false
 		}
 	}
@@ -636,9 +654,9 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 			Bool("swipe_only_mode", true).
 			Msg("internal BetterSliding pipeline finished (swipe-only)")
 
-		if !a.exceeded && a.ExceedingOverrideEnable != "" {
-			if err := ctx.OverridePipeline(buildNodeEnableOverride(a.ExceedingOverrideEnable, false)); err != nil {
-				a.logger.Error().Err(err).Msg("failed to apply exceeding override after swipe-only")
+		if !a.outOfRange && a.OutOfRangeOverrideEnable != "" {
+			if err := ctx.OverridePipeline(buildNodeEnableOverride(a.OutOfRangeOverrideEnable, false)); err != nil {
+				a.logger.Error().Err(err).Msg("failed to apply out-of-range override after swipe-only")
 				return false
 			}
 		}
@@ -646,9 +664,9 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 		return true
 	}
 
-	if !a.exceeded && a.ExceedingOverrideEnable != "" {
-		if err := ctx.OverridePipeline(buildNodeEnableOverride(a.ExceedingOverrideEnable, false)); err != nil {
-			a.logger.Error().Err(err).Msg("failed to apply exceeding override after internal pipeline")
+	if !a.outOfRange && a.OutOfRangeOverrideEnable != "" {
+		if err := ctx.OverridePipeline(buildNodeEnableOverride(a.OutOfRangeOverrideEnable, false)); err != nil {
+			a.logger.Error().Err(err).Msg("failed to apply out-of-range override after internal pipeline")
 			return false
 		}
 	}
@@ -674,22 +692,26 @@ func isBetterSlidingActionNode(taskName string) bool {
 func (a *BetterSlidingAction) resetState() {
 	a.startBox = nil
 	a.endBox = nil
-	a.maxQuantity = 0
-	a.maxTarget = 0
-	a.maxTargetResolved = false
-	a.exceeded = false
+	a.sliderMaxQuantity = 0
+	a.availableQuantity = 0
+	a.availableQuantityResolved = false
+	a.outOfRange = false
 	a.targetReachable = false
 	a.runtimeTargetResolved = false
 }
 
-func resolveMaxQuantityNext(maxQuantity int, target int) (string, error) {
-	if maxQuantity == target {
+func resolveSliderMaxQuantityNext(sliderMaxQuantity int, targetQuantity int) (string, error) {
+	if sliderMaxQuantity == targetQuantity {
 		return nodeBetterSlidingDone, nil
 	}
-	if maxQuantity < target {
-		return "", fmt.Errorf("max quantity %d lower than target %d", maxQuantity, target)
+	if sliderMaxQuantity < targetQuantity {
+		return "", fmt.Errorf(
+			"slider max quantity %d lower than target quantity %d",
+			sliderMaxQuantity,
+			targetQuantity,
+		)
 	}
-	if maxQuantity == 1 && target == 1 {
+	if sliderMaxQuantity == 1 && targetQuantity == 1 {
 		return nodeBetterSlidingDone, nil
 	}
 

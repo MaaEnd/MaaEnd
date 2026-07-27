@@ -17,12 +17,12 @@
             "param": {
                 "custom_action": "BetterSliding",
                 "custom_action_param": {
-                    "ClampTargetToMax": true,
+                    "ClampTargetToSliderMax": true,
                     "DecreaseButton": "AutoStockpile/DecreaseButton.png",
                     "Direction": "right",
                     "GreenMask": true,
                     "IncreaseButton": "AutoStockpile/IncreaseButton.png",
-                    "Quantity": {
+                    "SliderQuantity": {
                         "Box": [
                             303,
                             516,
@@ -43,7 +43,7 @@
                             "method": 40
                         }
                     },
-                    "Target": 1
+                    "TargetQuantity": 1
                 }
             }
         }
