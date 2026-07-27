@@ -739,7 +739,18 @@
         },
         "next": [
             "GiftOperatorSkipDialog",
+            "[JumpBack]GiftOperatorBack",
             "GiftOperatorWaitChat" //防止干员突然走过来导致选项位置变化点击丢失
         ]
+    },
+    "GiftOperatorBack": {
+        "desc": "向后走一步",
+        "max_hit": 1,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 83
+            }
+        }
     }
 }

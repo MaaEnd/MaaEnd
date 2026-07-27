@@ -133,6 +133,12 @@
                         },
                         "AutoEssenceClickDiscardButton": {
                             "enabled": true
+                        },
+                        "AutoEssenceDismissWarningSanityLowExit": {
+                            "enabled": false
+                        },
+                        "AutoEssenceDismissWarningSanityLowContinue": {
+                            "enabled": true
                         }
                     }
                 },
@@ -147,6 +153,12 @@
                             "enabled": false
                         },
                         "AutoEssenceChooseScaling2": {
+                            "enabled": false
+                        },
+                        "AutoEssenceDismissWarningSanityLowExit": {
+                            "enabled": true
+                        },
+                        "AutoEssenceDismissWarningSanityLowContinue": {
                             "enabled": false
                         }
                     },
@@ -167,6 +179,12 @@
                         },
                         "AutoEssenceChooseScaling2": {
                             "enabled": true
+                        },
+                        "AutoEssenceDismissWarningSanityLowExit": {
+                            "enabled": true
+                        },
+                        "AutoEssenceDismissWarningSanityLowContinue": {
+                            "enabled": false
                         }
                     },
                     "option": [

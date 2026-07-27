@@ -69,11 +69,8 @@ int CellDistance(const GridHashSnapshot& first, std::size_t firstIndex, const Gr
     return HammingDistance(first.hashes[firstIndex], second.hashes[secondIndex]);
 }
 
-AlignmentSearchResult EstimateRowOffsetCore(
-    const GridHashSnapshot& first,
-    const GridHashSnapshot& second,
-    int matchDistanceThreshold,
-    int minOverlapRows)
+AlignmentSearchResult
+    EstimateRowOffsetCore(const GridHashSnapshot& first, const GridHashSnapshot& second, int matchDistanceThreshold, int minOverlapRows)
 {
     if (first.rows == 0 || second.rows == 0 || first.cols == 0 || second.cols == 0) {
         throw std::invalid_argument("Cannot align empty grids");
@@ -176,18 +173,18 @@ Snapshot BuildSnapshot(const cv::Mat& image, const GridDetectOptions& options, c
 AlignmentResult EstimateRowOffset(const Snapshot& first, const Snapshot& second, int matchDistanceThreshold)
 {
     return EstimateRowOffsetCore(
-        MakeGridHashSnapshot(
-            static_cast<int>(first.grid.rows.size()),
-            static_cast<int>(first.grid.cols.size()),
-            first.hashes,
-            first.features),
-        MakeGridHashSnapshot(
-            static_cast<int>(second.grid.rows.size()),
-            static_cast<int>(second.grid.cols.size()),
-            second.hashes,
-            second.features),
-        matchDistanceThreshold,
-        2)
+               MakeGridHashSnapshot(
+                   static_cast<int>(first.grid.rows.size()),
+                   static_cast<int>(first.grid.cols.size()),
+                   first.hashes,
+                   first.features),
+               MakeGridHashSnapshot(
+                   static_cast<int>(second.grid.rows.size()),
+                   static_cast<int>(second.grid.cols.size()),
+                   second.hashes,
+                   second.features),
+               matchDistanceThreshold,
+               2)
         .best;
 }
 
@@ -207,8 +204,7 @@ GridDeltaResult ComputeGridDelta(const GridHashSnapshot& previous, const GridHas
     const int minOverlapRows = std::max(2, options.minOverlapRows);
     const AlignmentSearchResult search =
         EstimateRowOffsetCore(previous, current, std::max(0, options.matchDistanceThreshold), minOverlapRows);
-    const AlignmentResult alignment =
-        search.best.comparedCells > 0 ? search.best : search.bestWithoutOverlapConstraint;
+    const AlignmentResult alignment = search.best.comparedCells > 0 ? search.best : search.bestWithoutOverlapConstraint;
     result.rowOffset = alignment.rowOffset;
     result.supportRows = alignment.supportRows;
     result.comparedCells = alignment.comparedCells;
@@ -222,8 +218,8 @@ GridDeltaResult ComputeGridDelta(const GridHashSnapshot& previous, const GridHas
 
     result.hasSufficientOverlap = result.supportRows >= minOverlapRows;
     result.directionAmbiguous = search.directionAmbiguous;
-    result.reliable = result.hasSufficientOverlap && !result.directionAmbiguous
-                      && result.matchRatio >= std::clamp(options.minMatchRatio, 0.0, 1.0);
+    result.reliable =
+        result.hasSufficientOverlap && !result.directionAmbiguous && result.matchRatio >= std::clamp(options.minMatchRatio, 0.0, 1.0);
     if (!result.reliable || result.rowOffset <= 0 || current.rows <= 0 || current.cols <= 0) {
         return result;
     }

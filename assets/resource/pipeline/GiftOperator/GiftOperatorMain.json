@@ -112,7 +112,8 @@
                 "GiftOperatorMoveLocation2Move",
                 "GiftOperatorMoveLocation1",
                 "GiftOperatorMoveLocation1Move",
-                "GiftOperatorGoAheadContact"
+                "GiftOperatorGoAheadContact",
+                "GiftOperatorBack"
             ]
         },
         "post_delay": 0,

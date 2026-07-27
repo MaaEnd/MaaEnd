@@ -227,7 +227,8 @@
         "post_delay": 1000,
         "next": [
             "[JumpBack]AutoEssenceDismissWarningPreEngrave",
-            "AutoEssenceDismissWarningSanityLow",
+            "[JumpBack]AutoEssenceDismissWarningSanityLowContinue",
+            "AutoEssenceDismissWarningSanityLowExit",
             "AutoEssenceChallengeEnter"
         ],
         "focus": {
@@ -283,8 +284,9 @@
             "Node.Action.Starting": "👷无视预刻写警告，继续刷取"
         }
     },
-    "AutoEssenceDismissWarningSanityLow": {
-        "desc": "识别开始挑战时无体力警告弹窗并退出",
+    "AutoEssenceDismissWarningSanityLowExit": {
+        "desc": "识别开始挑战时无体力警告弹窗并退出（领取模式）",
+        "enabled": true,
         "recognition": "And",
         "all_of": [
             "YellowConfirmButtonType1",
@@ -307,6 +309,36 @@
         "next": [
             "AutoEssenceLowSpStop"
         ]
+    },
+    "AutoEssenceDismissWarningSanityLowContinue": {
+        "desc": "识别并关闭开始挑战时无体力警告弹窗，继续刷取",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    250,
+                    1280,
+                    200
+                ],
+                // @i18n-skip
+                "expected": [
+                    "当前理智不足",
+                    "目前理智不足"
+                ]
+            }
+        ],
+        "box_index": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 1000,
+        "focus": {
+            "Node.Action.Starting": "👷理智不足，继续刷取"
+        }
     },
     "__AutoEssenceRecoEssenceOngoing": {
         "desc": "寻找挑战进行中的状态（仅识别）",

@@ -494,7 +494,7 @@ test("SellProduct pipeline templates use one dynamic priority loop instead of fi
     assert.match(adbTemplate, /SellProduct\$\{LocationId\}BetterSliding/);
 });
 
-test("SellProduct 每轮换货前优先检查调度券不足", () => {
+test("SellProduct 每轮选货及保留交易后优先检查调度券不足", () => {
     const pipeline = readPipeline(
         new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url),
     );
@@ -508,8 +508,29 @@ test("SellProduct 每轮换货前优先检查调度券不足", () => {
         "SellProductZeroProductAfterChangeStillEmpty",
     ]);
     assert.equal(pipeline.SellProductSellCheckThenLoop.anchor.SellProductZeroMoneyHandler, "SellProductZeroMoney");
+    assert.deepEqual(pipeline.SellProductSellCheckThenLoop.next, [
+        "[Anchor]SellProductZeroMoneyHandler",
+        "SellProductReserveQuantityReached",
+        "[Anchor]SellProductBetterSliding",
+    ]);
     assert.deepEqual(pipeline.SellProductZeroProductAfterChangeStillEmpty.next, [
         "[Anchor]SellProductMarkOutOfStock",
+    ]);
+});
+
+test("SellProduct 调度券不足使用完整多语言文案并保留关键词兜底", () => {
+    const pipeline = readPipeline(
+        new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url),
+    );
+
+    assert.deepEqual(pipeline.SellProductZeroMoney.expected, [
+        "当前据点调度券储量不足",
+        "目前據點調度券存量不足",
+        "Insufficient stock bills in current outpost",
+        "(?i)Insufficient",
+        "拠点取引券が不足しています",
+        "거점 관리권 보유량 부족",
+        "不足",
     ]);
 });
 
@@ -582,6 +603,7 @@ test("SellProduct 持续售卖到保留量后再进入下一轮选货", () => {
     );
 
     assert.deepEqual(pipeline.SellProductSellCheckThenLoop.next, [
+        "[Anchor]SellProductZeroMoneyHandler",
         "SellProductReserveQuantityReached",
         "[Anchor]SellProductBetterSliding",
     ]);
@@ -606,8 +628,7 @@ test("SellProduct 持续售卖到保留量后再进入下一轮选货", () => {
             ),
         );
         assert.equal(
-            outpost[`SellProduct${location.LocationId}BetterSliding`].custom_action_param
-                .TargetReachableOverrideEnable,
+            outpost[`SellProduct${location.LocationId}BetterSliding`].custom_action_param.TargetReachableOverrideEnable,
             "SellProductReserveQuantityReached",
         );
     }
