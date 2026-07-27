@@ -676,7 +676,9 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
         runtime_state_.route.startup_motion_confirmed = true;
     }
     runtime_state_.dynamic_replan_requested = false;
-    LogInfo << "Dynamic navmesh overlay selected." << VAR(reason) << VAR(use_detour) << VAR(continue_index) << VAR(generated_count);
+    const size_t planned_points = route->path.points.size();
+    LogInfo << "Dynamic navmesh overlay selected." << VAR(reason) << VAR(use_detour) << VAR(continue_index) << VAR(generated_count)
+            << VAR(planned_points) << VAR(detour_vertex.x) << VAR(detour_vertex.y) << VAR(anchor.x) << VAR(anchor.y);
     return true;
 }
 
@@ -845,6 +847,13 @@ bool NavigationStateMachine::ExecutePhysicalUnstick(double stuck_heading)
 
 bool NavigationStateMachine::TickNavigate()
 {
+    const auto tick_started_at = std::chrono::steady_clock::now();
+    const int64_t tick_gap_ms =
+        runtime_state_.flow.last_tick_started_at.time_since_epoch().count() > 0
+            ? std::chrono::duration_cast<std::chrono::milliseconds>(tick_started_at - runtime_state_.flow.last_tick_started_at).count()
+            : 0;
+    runtime_state_.flow.last_tick_started_at = tick_started_at;
+
     if (!session_->HasCurrentWaypoint()) {
         session_->NoteRouteTailConsumed(*position_, "route_tail_consumed");
         return true;
@@ -870,7 +879,11 @@ bool NavigationStateMachine::TickNavigate()
         return true;
     }
 
-    if (!CaptureCurrentPosition(false)) {
+    const auto capture_started_at = std::chrono::steady_clock::now();
+    const bool position_captured = CaptureCurrentPosition(false);
+    const int64_t capture_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - capture_started_at).count();
+    if (!position_captured) {
         return HandleLocalizationLoss();
     }
     {
@@ -935,6 +948,13 @@ bool NavigationStateMachine::TickNavigate()
     const double current_heading = NaviMath::NormalizeAngle(position_->angle);
     const bool degraded_fix =
         position_provider_->LastCaptureWasHeld() || position_provider_->LastCaptureWasBlackScreen() || !position_->valid;
+    // Gap between the screencap this tick's fix came from and the decision below: the locate itself plus the work
+    // in between. Every successful capture restamps, held ones included, so how stale the coordinates themselves
+    // are is held_fix_streak, not this.
+    const int64_t fix_age_ms = position_->timestamp.time_since_epoch().count() > 0
+                                   ? std::chrono::duration_cast<std::chrono::milliseconds>(now - position_->timestamp).count()
+                                   : 0;
+    const int held_fix_streak = position_provider_->HeldFixStreak();
 
     const size_t node_idx_before_tracking = session_->current_node_idx();
     RouteTrackingState route = RouteTracker::Update(session_, &runtime_state_.route, *position_);
@@ -1312,6 +1332,19 @@ bool NavigationStateMachine::TickNavigate()
 
     const double effective_route_heading = nav_run_result.has_corridor_heading ? nav_run_result.corridor_heading : route.route_heading;
 
+    // Heading observed to have moved since the last turn was sent, and how far that lands from the commanded
+    // delta. It is the whole observed change, not the turn in isolation: forward motion and camera follow are in
+    // there too. Only ticks that really send a turn stamp the reference below, so on a tick that sends nothing
+    // these keep reporting the previous command as it settles — the elapsed field tells the two apart.
+    double turn_achieved_deg = 0.0;
+    double turn_residual_deg = 0.0;
+    int64_t turn_elapsed_ms = 0;
+    if (runtime_state_.steering_rate.has_cmd) {
+        turn_achieved_deg = NaviMath::NormalizeAngle(current_heading - runtime_state_.steering_rate.cmd_heading_deg);
+        turn_residual_deg = NaviMath::NormalizeAngle(turn_achieved_deg - runtime_state_.steering_rate.cmd_delta_deg);
+        turn_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.steering_rate.cmd_at).count();
+    }
+
     double heading_rate_deg = 0.0;
     double heading_rate_raw_delta_deg = 0.0;
     int64_t heading_rate_gap_ms = 0;
@@ -1346,11 +1379,30 @@ bool NavigationStateMachine::TickNavigate()
             issued_delta_deg = steering_result.issued_delta_degrees;
         }
     }
+    if (issued_delta_deg != 0.0) {
+        runtime_state_.steering_rate.cmd_heading_deg = current_heading;
+        runtime_state_.steering_rate.cmd_delta_deg = issued_delta_deg;
+        runtime_state_.steering_rate.cmd_at = now;
+        runtime_state_.steering_rate.has_cmd = true;
+    }
 
+    const double lookahead_x = nav_run_result.lookahead_point.x;
+    const double lookahead_y = nav_run_result.lookahead_point.y;
+    const int nav_run_replan_reason = static_cast<int>(nav_run_result.replanned_with);
+    LogDebug << "TickNavigate corridor target." << VAR(session_->current_node_idx()) << VAR(waypoint.x) << VAR(waypoint.y)
+             << VAR(waypoint.RequiresStrictArrival()) << VAR(lookahead_x) << VAR(lookahead_y) << VAR(nav_run_result.remaining_to_anchor)
+             << VAR(nav_run_result.passed_run_waypoints) << VAR(nav_run_replan_reason) << VAR(route.along_track_remaining)
+             << VAR(route.cross_track) << VAR(route.projection_anchor) << VAR(arrival_distance) << VAR(position_->zone_id)
+             << VAR(stalled_ms);
+
+    const int64_t tick_compute_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - tick_started_at).count();
     LogDebug << "TickNavigate steering decision." << VAR(current_heading) << VAR(route.route_heading) << VAR(effective_route_heading)
              << VAR(nav_run_result.has_corridor_heading) << VAR(nav_run_result.cross_track) << VAR(nav_run_result.upcoming_turn_deg)
              << VAR(heading_rate_deg) << VAR(heading_rate_raw_delta_deg) << VAR(heading_rate_gap_ms) << VAR(heading_error)
-             << VAR(steering.yaw_delta_deg) << VAR(issued_delta_deg) << VAR(route.waypoint_distance) << VAR(route.on_route);
+             << VAR(steering.yaw_delta_deg) << VAR(issued_delta_deg) << VAR(turn_achieved_deg) << VAR(turn_residual_deg)
+             << VAR(turn_elapsed_ms) << VAR(route.waypoint_distance) << VAR(route.on_route) << VAR(degraded_fix) << VAR(held_fix_streak)
+             << VAR(capture_ms) << VAR(fix_age_ms) << VAR(tick_gap_ms) << VAR(tick_compute_ms);
 
     // Collect routes: keep sprint for travel but drop to walking speed once near a COLLECT point (cancels any
     // active sprint), so the detection-stop can land before we overrun the collectible. No-op off collect

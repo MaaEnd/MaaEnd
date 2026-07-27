@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cmath>
 #include <condition_variable>
 #include <cstddef>
@@ -480,25 +481,31 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
     }
 
     const std::filesystem::path navmesh_path = ResolveNavmeshFile(param.navmesh_file);
+    const auto load_started_at = std::chrono::steady_clock::now();
     const auto navmesh = LoadCachedNavmesh(navmesh_path, navmesh_zone);
+    const int64_t navmesh_load_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - load_started_at).count();
     if (!navmesh) {
         return std::nullopt;
     }
 
     const bool detour_probe = !blocked_triangles.empty() || !blocked_points.empty();
     const auto request = BuildRouteRequest(navmesh->pack, locator_zone, navmesh_zone, start, goal, blocked_triangles, blocked_points);
+    const auto plan_started_at = std::chrono::steady_clock::now();
     const auto route_result = PlanCorridorRoute(*navmesh, request);
+    const int64_t plan_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - plan_started_at).count();
     if (!route_result.ok()) {
         if (!detour_probe) {
             LogWarn << "Failed to plan NAVMESH route." << VAR(navmesh_zone) << VAR(locator_zone) << VAR(start.x) << VAR(start.y)
-                    << VAR(goal.x) << VAR(goal.y) << VAR(navmesh::ToString(route_result.status));
+                    << VAR(goal.x) << VAR(goal.y) << VAR(navmesh::ToString(route_result.status)) << VAR(plan_ms);
         }
         return std::nullopt;
     }
 
     if (!detour_probe) {
         LogInfo << "NAVMESH route planned." << VAR(navmesh_zone) << VAR(locator_zone) << VAR(route_result.cost)
-                << VAR(route_result.path.points.size());
+                << VAR(route_result.path.points.size()) << VAR(plan_ms) << VAR(navmesh_load_ms);
     }
     return route_result;
 }
@@ -633,14 +640,20 @@ bool AppendNavmeshWaypoint(
     NavmeshExpansionState& state,
     std::vector<Waypoint>& out_path)
 {
+    const auto expand_started_at = std::chrono::steady_clock::now();
     const ProjectedTarget target = ResolveProjectedTarget(navmesh.pack, waypoint);
     navmesh::BaseNavRouteRequest request =
         BuildRouteRequest(navmesh.pack, state.current_zone, state.navmesh_zone, state.route_start, target.point, {}, {}, target.floor_y);
+    const auto plan_started_at = std::chrono::steady_clock::now();
     auto route_result = PlanCorridorRoute(navmesh, request);
+    bool start_recovered = false;
     if (!route_result.ok() && AppendStartRecovery(param, navmesh, request, state, out_path)) {
         request.start = state.route_start;
         route_result = PlanCorridorRoute(navmesh, request);
+        start_recovered = true;
     }
+    const int64_t plan_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - plan_started_at).count();
     if (!route_result.ok()) {
         LogWarn << "NAVMESH waypoint not directly reachable; attempting blind-target fallback." << VAR(state.navmesh_zone)
                 << VAR(state.current_zone) << VAR(target.point.x) << VAR(target.point.y) << VAR(navmesh::ToString(route_result.status));
@@ -653,6 +666,7 @@ bool AppendNavmeshWaypoint(
     }
 
     LogGeneratedNavmeshPath(state, request, route_result);
+    const size_t insert_index = out_path.size();
     if (!AppendGeneratedNavmeshWaypoints(route_result.path, out_path, true, false, &navmesh.planner, route_result.path.zone_id)) {
         LogError << "NAVMESH planning returned an empty path." << VAR(state.navmesh_zone);
         return false;
@@ -660,7 +674,13 @@ bool AppendNavmeshWaypoint(
 
     state.route_start = route_result.path.points.back();
     const size_t path_point_count = route_result.path.points.size();
-    LogInfo << "Expanded NAVMESH waypoint." << VAR(state.navmesh_zone) << VAR(state.current_zone) << VAR(path_point_count);
+    const size_t appended_waypoints = out_path.size() - insert_index;
+    const size_t route_waypoints = out_path.size();
+    const int64_t expand_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - expand_started_at).count();
+    LogInfo << "Expanded NAVMESH waypoint." << VAR(state.navmesh_zone) << VAR(state.current_zone) << VAR(path_point_count)
+            << VAR(insert_index) << VAR(appended_waypoints) << VAR(route_waypoints) << VAR(start_recovered) << VAR(plan_ms)
+            << VAR(expand_ms);
     return true;
 }
 
@@ -770,7 +790,10 @@ bool ExpandNavmeshWaypoints(const NaviParam& param, const NaviPosition& initial_
     }
 
     const std::filesystem::path navmesh_path = ResolveNavmeshFile(param.navmesh_file);
+    const auto expand_started_at = std::chrono::steady_clock::now();
     const auto navmesh = LoadCachedNavmesh(navmesh_path, state->navmesh_zone);
+    const int64_t navmesh_load_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - expand_started_at).count();
     if (!navmesh) {
         return false;
     }
@@ -791,6 +814,12 @@ bool ExpandNavmeshWaypoints(const NaviParam& param, const NaviPosition& initial_
             return false;
         }
     }
+    const int64_t expand_total_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - expand_started_at).count();
+    const size_t authored_waypoints = param.path.size();
+    const size_t expanded_waypoints = out_path.size();
+    LogInfo << "NAVMESH route expansion finished." << VAR(state->navmesh_zone) << VAR(authored_waypoints) << VAR(expanded_waypoints)
+            << VAR(navmesh_load_ms) << VAR(expand_total_ms);
     return true;
 }
 

@@ -43,6 +43,10 @@ struct FlowState
 {
     std::chrono::steady_clock::time_point navigate_started_at {};
     std::chrono::steady_clock::time_point last_auto_sprint_time {};
+    // Entry stamp of the previous navigate tick, so the tick log can report the real loop period. Stamped on
+    // every entry including the ones that bail out early, and only ever reported from the steering tick, so a
+    // large gap means the ticks in between returned early rather than that this one ran long.
+    std::chrono::steady_clock::time_point last_tick_started_at {};
 };
 
 struct SemanticState
@@ -144,17 +148,27 @@ struct LateralBypassState
 // Previous-tick heading, used to estimate the agent's own turn rate for the steering damping term. Only the
 // physical heading is tracked here; the rate is gated at the call site on the elapsed gap and on plausibility,
 // so a stale entry after a recovery / relocation pause simply yields a zero rate that tick rather than a spike.
+// The cmd_* fields are diagnostic only: they hold the last turn actually sent to the controller so a later tick
+// can report how much heading the turn really produced. Nothing steers off them.
 struct SteeringRateState
 {
     double prev_heading_deg = 0.0;
     bool has_prev = false;
     std::chrono::steady_clock::time_point at {};
+    double cmd_heading_deg = 0.0;
+    double cmd_delta_deg = 0.0;
+    bool has_cmd = false;
+    std::chrono::steady_clock::time_point cmd_at {};
 
     void Reset()
     {
         prev_heading_deg = 0.0;
         has_prev = false;
         at = {};
+        cmd_heading_deg = 0.0;
+        cmd_delta_deg = 0.0;
+        has_cmd = false;
+        cmd_at = {};
     }
 };
 
@@ -247,6 +261,7 @@ struct NavigationRuntimeState
         nav_run_dirty = true;
         flow.navigate_started_at = now;
         flow.last_auto_sprint_time = {};
+        flow.last_tick_started_at = {};
     }
 
     void OnWaypointAdvance()
