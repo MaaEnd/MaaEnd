@@ -58,5 +58,25 @@
                 ]
             }
         }
+    },
+    // MapTracker ADB 摇杆：中心 (195, 551)，步行后退偏移 +15Y → (195, 566)
+    "GiftOperatorBack": {
+        "desc": "向后走一步（ADB 虚拟摇杆下推）",
+        "max_hit": 1,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    195,
+                    551
+                ],
+                "end": [
+                    195,
+                    566
+                ],
+                "duration": 50,
+                "end_hold": 100
+            }
+        }
     }
 }

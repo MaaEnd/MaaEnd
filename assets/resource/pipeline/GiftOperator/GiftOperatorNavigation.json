@@ -1,6 +1,9 @@
 {
     "GiftOperatorMoveAhead": {
         "desc": "移动尝试接触到干员",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "recognition": {
             "type": "Custom",
             "param": {
@@ -32,6 +35,9 @@
     },
     "GiftOperatorMoveFail": {
         "desc": "移动未能接触到干员，炸掉程序",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": "Custom",
         "custom_action": "ERROR", //引发一个错误来结束当前任务并留下截图
         "focus": {
@@ -41,6 +47,9 @@
     "GiftOperatorMoveLocation1": {
         "desc": "转向270度(正西)尝试接触到干员(预设位置1)",
         "max_hit": 2,
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -55,8 +64,7 @@
                     ]
                 }
             }
-        },
-        "post_delay": 1000 //需要等待角色彻底停下
+        }
     },
     "GiftOperatorMoveLocation1Move": {
         "desc": "移动尝试接触到干员(预设位置1)",
@@ -86,11 +94,13 @@
                 121
             ],
             "timeout": 2000
-        },
-        "post_delay": 1000 //需要等待角色彻底停下
+        }
     },
     "GiftOperatorMoveLocation2": {
         "desc": "转向345度(北偏西15度)尝试接触到干员(预设位置2)",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "max_hit": 2,
         "action": {
             "type": "Custom",
@@ -106,8 +116,7 @@
                     ]
                 }
             }
-        },
-        "post_delay": 1000 //需要等待角色彻底停下
+        }
     },
     "GiftOperatorMoveLocation2Move": {
         "desc": "移动尝试接触到干员(预设位置2)",
@@ -137,11 +146,13 @@
                 121
             ],
             "timeout": 2000
-        },
-        "post_delay": 1000 //需要等待角色彻底停下
+        }
     },
     "GiftOperatorMoveLocation3": {
         "desc": "转向90度(正东)尝试接触到干员(预设位置3)",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "max_hit": 2,
         "action": {
             "type": "Custom",
@@ -157,8 +168,7 @@
                     ]
                 }
             }
-        },
-        "post_delay": 1000 //需要等待角色彻底停下
+        }
     },
     "GiftOperatorMoveLocation3Move": {
         "desc": "移动尝试接触到干员(预设位置3)",
@@ -188,8 +198,7 @@
                 121
             ],
             "timeout": 2000
-        },
-        "post_delay": 1000 //需要等待角色彻底停下
+        }
     },
     "GiftOperatorMoveMapTracker": {
         "desc": "使用 MapTracker 识别寻路走到干员联络台",
@@ -241,8 +250,7 @@
                     ]
                 }
             }
-        },
-        "post_delay": 1000 //需要等待角色彻底停下
+        }
     },
     "GiftOperatorMoveMapTrackerSC": {
         "desc": "使用 MapTracker 识别寻路走到干员联络台",
