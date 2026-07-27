@@ -775,6 +775,16 @@ Grid<float> PrefField(const Grid<float>& dist, bool ridge)
     return out;
 }
 
+Grid<float> TargetField(const Grid<float>& dist)
+{
+    const Grid<float> locw = LocalMax(dist, static_cast<int64_t>(std::ceil(kR / kCS)));
+    Grid<float> tgt(dist.nx, dist.ny, 0.0f);
+    for (size_t i = 0; i < tgt.v.size(); ++i) {
+        tgt.v[i] = std::max(std::min(static_cast<float>(kGeoR), locw.v[i]), 0.25f);
+    }
+    return tgt;
+}
+
 namespace
 {
 
@@ -1018,22 +1028,94 @@ bool Blockers::offMask(const WorldPoint& p, const WorldPoint& q) const
     return false;
 }
 
-std::vector<WorldPoint> StringPull(const std::vector<WorldPoint>& pts, const Blockers& blk)
+float ClearanceFloor::seg(const WorldPoint& p, const WorldPoint& q) const
+{
+    const double L = std::hypot(q.x - p.x, q.y - p.y);
+    const int64_t n = static_cast<int64_t>(L / (cs_ * 0.5)) + 2;
+    const double step = 1.0 / static_cast<double>(n - 1);
+    float m = std::numeric_limits<float>::infinity();
+    for (int64_t i = 0; i < n; ++i) {
+        const double t = i == n - 1 ? 1.0 : static_cast<double>(i) * step;
+        int64_t gx = static_cast<int64_t>((p.x + (q.x - p.x) * t - x0_) / cs_);
+        int64_t gy = static_cast<int64_t>((p.y + (q.y - p.y) * t - y0_) / cs_);
+        gx = std::max<int64_t>(0, std::min<int64_t>(cf_->nx - 1, gx));
+        gy = std::max<int64_t>(0, std::min<int64_t>(cf_->ny - 1, gy));
+        m = std::min(m, cf_->at(gy, gx));
+    }
+    return m;
+}
+
+double ClearanceFloor::cost(const WorldPoint& p, const WorldPoint& q) const
+{
+    const double L = std::hypot(q.x - p.x, q.y - p.y);
+    const int64_t n = std::max<int64_t>(static_cast<int64_t>(std::ceil(L / (cs_ * 0.5))), 1);
+    double acc = 0.0;
+    for (int64_t i = 0; i < n; ++i) {
+        const double t = (static_cast<double>(i) + 0.5) / static_cast<double>(n);
+        int64_t gx = static_cast<int64_t>((p.x + (q.x - p.x) * t - x0_) / cs_);
+        int64_t gy = static_cast<int64_t>((p.y + (q.y - p.y) * t - y0_) / cs_);
+        gx = std::max<int64_t>(0, std::min<int64_t>(mg_->nx - 1, gx));
+        gy = std::max<int64_t>(0, std::min<int64_t>(mg_->ny - 1, gy));
+        acc += static_cast<double>(mg_->at(gy, gx));
+    }
+    return L * (acc / static_cast<double>(n));
+}
+
+std::vector<WorldPoint> StringPull(const std::vector<WorldPoint>& pts, const Blockers& blk, const ClearanceFloor* cfl)
 {
     std::vector<WorldPoint> P = pts;
+    // 跨点连线须同时不低于被跳过子路径的净空地板、不高于其代价泛函(与几何重寻同口径),
+    // 相邻点连线无条件保留
+    std::vector<float> seg;
+    std::vector<double> cst;
+    if (cfl != nullptr && P.size() > 1) {
+        seg.reserve(P.size() - 1);
+        cst.reserve(P.size() - 1);
+        for (size_t k = 0; k + 1 < P.size(); ++k) {
+            seg.push_back(cfl->seg(P[k], P[k + 1]));
+            cst.push_back(cfl->cost(P[k], P[k + 1]));
+        }
+    }
+    const bool guard = !seg.empty();
+    std::vector<size_t> idx(P.size());
+    for (size_t k = 0; k < idx.size(); ++k) {
+        idx[k] = k;
+    }
+    std::vector<float> acc;
+    std::vector<double> ac2;
     for (int round = 0; round < 6; ++round) {
         std::vector<WorldPoint> out { P[0] };
+        std::vector<size_t> oid { idx[0] };
         size_t i = 0;
         while (i < P.size() - 1) {
+            if (guard) {
+                acc.assign(seg.begin() + static_cast<int64_t>(idx[i]), seg.end());
+                for (size_t k = 1; k < acc.size(); ++k) {
+                    acc[k] = std::min(acc[k], acc[k - 1]);
+                }
+                ac2.assign(cst.begin() + static_cast<int64_t>(idx[i]), cst.end());
+                for (size_t k = 1; k < ac2.size(); ++k) {
+                    ac2[k] += ac2[k - 1];
+                }
+            }
             size_t j = P.size() - 1;
-            while (j > i + 1 && blk.blocked(P[i], P[j])) {
+            while (j > i + 1) {
+                const size_t k = idx[j] - idx[i] - 1;
+                if (!blk.blocked(P[i], P[j])
+                    && (!guard
+                        || (static_cast<double>(cfl->seg(P[i], P[j])) >= static_cast<double>(acc[k]) - kClrTol
+                            && cfl->cost(P[i], P[j]) <= ac2[k] * (1.0 + kCostTol)))) {
+                    break;
+                }
                 --j;
             }
             out.push_back(P[j]);
+            oid.push_back(idx[j]);
             i = j;
         }
         const bool changed = out.size() != P.size();
         P = std::move(out);
+        idx = std::move(oid);
         if (!changed) {
             break;
         }
@@ -1041,7 +1123,7 @@ std::vector<WorldPoint> StringPull(const std::vector<WorldPoint>& pts, const Blo
     return P;
 }
 
-std::vector<WorldPoint> Slim(const std::vector<WorldPoint>& pts, const Blockers& blk, double eps)
+std::vector<WorldPoint> Slim(const std::vector<WorldPoint>& pts, const Blockers& blk, double eps, const ClearanceFloor* cfl)
 {
     std::vector<WorldPoint> P = pts;
     bool ch = true;
@@ -1054,7 +1136,10 @@ std::vector<WorldPoint> Slim(const std::vector<WorldPoint>& pts, const Blockers&
             const double L2 = ux * ux + uy * uy;
             const double t = L2 == 0.0 ? 0.0 : std::max(0.0, std::min(1.0, ((b.x - a.x) * ux + (b.y - a.y) * uy) / L2));
             const double d = std::hypot(b.x - a.x - t * ux, b.y - a.y - t * uy);
-            if (d <= eps && !blk.blocked(a, c)) {
+            if (d <= eps && !blk.blocked(a, c)
+                && (cfl == nullptr
+                    || static_cast<double>(cfl->seg(a, c))
+                        >= std::min(static_cast<double>(cfl->seg(a, b)), static_cast<double>(cfl->seg(b, c))))) {
                 P.erase(P.begin() + static_cast<int64_t>(i));
                 ch = true;
             }

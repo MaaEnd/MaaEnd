@@ -137,6 +137,14 @@ def route(info, s, g):
     pref = rc.pref_field(dist)
     mult = 1.0 + LAM * np.clip((pref - dist) / pref, 0.0, 1.0)
     prefg = rc.pref_field(dist, ridge=True)
+    # 几何口径的净空: 掩膜距离场对跨越约束的墙无感, 取真墙距离的下确界补上
+    ws = info["wstart"]
+    wcell = (ws[1:] > ws[:-1]).reshape(ny, nx)
+    dg = np.minimum(dist, rc.clearance(~wcell))
+    # 几何口径的余量目标: 通道半宽封顶 GEO_R, 供绿段重寻与拉直判定
+    tgt = rc.target_field(dg)
+    multg = 1.0 + LAM * np.clip((tgt - dg) / tgt, 0.0, 1.0)
+    cfl = rc.ClearanceFloor(np.minimum(dg, tgt), multg, x0, y0, CS)
 
     sc = (int((s[0] - x0) / CS), int((s[1] - y0) / CS))
     gc = (int((g[0] - x0) / CS), int((g[1] - y0) / CS))
@@ -167,9 +175,11 @@ def route(info, s, g):
         return None, {"err": "不连通", "warn": warn}
     t_as = time.time() - t0
     xw = []
+    bad = []
     for k in range(1, len(q)):
         if (q[k - 1][1] * nx + q[k - 1][0],
                 q[k][1] * nx + q[k][0]) in bn:
+            bad.append(k)
             xw.append((x0 + (q[k][0] + 0.5) * CS,
                        y0 + (q[k][1] + 0.5) * CS))
     if xw:
@@ -214,7 +224,6 @@ def route(info, s, g):
         if r_[0] and (r_[2] - r_[1]) * CS < 1.5:
             r_[0] = False
     mg = merge(runs)
-    ones = np.ones_like(mult)
     taut = []
     for isg, i0, i1 in mg:
         cells = q[i0:min(i1 + 1, len(q) - 1) + 1]
@@ -235,7 +244,18 @@ def route(info, s, g):
                         acc |= rc._sh(pmd, -i_ * dy, -i_ * dx)
                     pmd = acc
                 er = (dist >= pref) | ((dist >= prefg) & pmd) | pm
-                q2 = rc.cost_astar(er, cells[0], cells[-1], ones, bn, None)
+                # 重寻硬禁穿墙步,不可避穿墙处切开逐子段重寻,原步原样保留
+                cuts = [k - i0 for k in bad if i0 < k <= i0 + len(cells) - 1]
+                q2, a2 = [], 0
+                for c2 in cuts + [len(cells)]:
+                    b2 = c2 - 1
+                    r2 = ([cells[a2]] if a2 == b2 else
+                          rc.cost_astar(er, cells[a2], cells[b2], multg, bn, None))
+                    if r2 is None:
+                        q2 = None
+                        break
+                    q2.extend(r2)
+                    a2 = c2
                 if q2 is not None:
                     l2 = sum(math.dist(q2[k - 1], q2[k])
                              for k in range(1, len(q2)))
@@ -248,7 +268,7 @@ def route(info, s, g):
                 blk = rc.Blockers(
                     [w(P) for P in lp] + [w(P) for P in loops_c],
                     extra=wseg, on=onm)
-            pp = [tuple(p) for p in rc.string_pull(pp, blk)]
+            pp = [tuple(p) for p in rc.string_pull(pp, blk, cfl=cfl)]
         if taut and pp and math.dist(pp[0], taut[-1]) < 1e-9:
             pp = pp[1:]
         taut.extend(pp)
@@ -263,7 +283,7 @@ def route(info, s, g):
             ded.append(p)
     line = rc.drop_loops(ded)
     if SLIMEPS > 0 and len(line) > 2:
-        line = rc.slim(line, blk_gray, SLIMEPS)
+        line = rc.slim(line, blk_gray, SLIMEPS, cfl)
     return line, {"warn": warn, "snapd": (dsa, dga),
                   "t_as": t_as, "t_sp": t_sp, "xwall": xw}
 

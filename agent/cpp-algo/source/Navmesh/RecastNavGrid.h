@@ -16,11 +16,14 @@ inline constexpr double kClimb = 3.0;              // 相邻格可连通最大�
 inline constexpr double kMergeH = 1.0;             // 同列 span 合并容差 px
 inline constexpr double kEdtCap = 12.0;            // 距离场截断 px
 inline constexpr double kR = 1.75;                 // 期望余量上限 px
+inline constexpr double kGeoR = 3.5;               // 几何口径舒适余量上限 px
 inline constexpr double kRel = 0.6;                // 期望余量 = min(R, REL×局部净空)
 inline constexpr double kLam = 1.5;                // 满亏欠一步加价倍数
 inline constexpr double kRidgeFloor = 0.5;         // 脊线保底余量地板 px
 inline constexpr double kMaxErr = 0.5;             // 轮廓 DP 容差 px
 inline constexpr double kSlimEps = 0.5;            // 终线共线剔除容差 px
+inline constexpr double kClrTol = 0.125;           // 拉直允许的净空退让 px, 取半格即采样步长
+inline constexpr double kCostTol = 1e-9;           // 代价判据相对容差, 容纳共线子路径的浮点求和差
 inline constexpr double kMcHBand = 8.0;            // 层高度带(墙筛/盖章)px
 inline constexpr double kHBand = 6.0;              // 真墙探针高度带 px
 inline constexpr double kEpsProbe = 0.75;          // 真墙探针距离 px
@@ -144,6 +147,8 @@ std::optional<std::vector<CellPt>>
 
 Grid<float> PrefField(const Grid<float>& dist, bool ridge);
 
+Grid<float> TargetField(const Grid<float>& dist);
+
 std::vector<std::vector<WorldPoint>> TraceContours(const Mask& mask);
 
 std::vector<WorldPoint> SimplifyLoop(const std::vector<WorldPoint>& P, double max_err);
@@ -178,9 +183,34 @@ private:
     std::optional<OnMask> on_;
 };
 
-std::vector<WorldPoint> StringPull(const std::vector<WorldPoint>& pts, const Blockers& blk);
+// 沿弦按半格步长采样: seg 取 min(净空, 目标余量) 的下确界, cost 取代价泛函积分
+class ClearanceFloor
+{
+public:
+    ClearanceFloor(const Grid<float>* cf, const Grid<float>* mg, double x0, double y0, double cs)
+        : cf_(cf)
+        , mg_(mg)
+        , x0_(x0)
+        , y0_(y0)
+        , cs_(cs)
+    {
+    }
 
-std::vector<WorldPoint> Slim(const std::vector<WorldPoint>& pts, const Blockers& blk, double eps);
+    float seg(const WorldPoint& p, const WorldPoint& q) const;
+
+    double cost(const WorldPoint& p, const WorldPoint& q) const;
+
+private:
+    const Grid<float>* cf_ = nullptr;
+    const Grid<float>* mg_ = nullptr;
+    double x0_ = 0.0;
+    double y0_ = 0.0;
+    double cs_ = kCS;
+};
+
+std::vector<WorldPoint> StringPull(const std::vector<WorldPoint>& pts, const Blockers& blk, const ClearanceFloor* cfl);
+
+std::vector<WorldPoint> Slim(const std::vector<WorldPoint>& pts, const Blockers& blk, double eps, const ClearanceFloor* cfl);
 
 std::vector<WorldPoint> DropLoops(const std::vector<WorldPoint>& pts);
 

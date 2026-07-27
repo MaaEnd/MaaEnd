@@ -10,11 +10,14 @@ CLIMB = 3.0        # 相邻格可连通最大高差 px
 MERGE_H = 1.0      # 同列 span 合并容差 px
 EDT_CAP = 12.0     # 距离场截断 px
 R = 1.75           # 期望余量上限 px
+GEO_R = 3.5        # 几何口径舒适余量上限 px
 REL = 0.6          # 期望余量 = min(R, REL×局部净空)
 LAM = 1.5          # 满亏欠一步加价倍数
 RIDGEF = 0.5       # 脊线保底余量地板 px
 MAXERR = 0.5       # 轮廓 DP 容差 px
 SLIMEPS = 0.5      # 终线共线剔除容差 px
+CLRTOL = 0.125     # 拉直允许的净空退让 px, 取半格即采样步长
+COSTTOL = 1e-9     # 代价判据相对容差, 容纳共线子路径的浮点求和差
 TAU = 1.0          # 贴墙诊断阈 px
 CAP = 12.0         # wall_dist 截断 px
 MC_HBAND = 8.0     # 层高度带(墙筛/盖章)px
@@ -517,7 +520,12 @@ def pref_field(dist, ridge=False):
     return np.where(rg, np.minimum(pref, dist), pref)
 
 
-def slim(pts, blk, eps=SLIMEPS):
+def target_field(dist):
+    locw = local_max(dist, int(math.ceil(R / CS)))
+    return np.maximum(np.minimum(GEO_R, locw), 0.25)
+
+
+def slim(pts, blk, eps=SLIMEPS, cfl=None):
     P = [tuple(p) for p in pts]
     ch = True
     while ch:
@@ -530,7 +538,9 @@ def slim(pts, blk, eps=SLIMEPS):
             t = 0.0 if L2 == 0 else max(0.0, min(1.0, (
                 (b[0] - a[0]) * ux + (b[1] - a[1]) * uy) / L2))
             d = math.hypot(b[0] - a[0] - t * ux, b[1] - a[1] - t * uy)
-            if d <= eps and not blk.blocked(a, c):
+            if d <= eps and not blk.blocked(a, c) and (
+                    cfl is None
+                    or cfl.seg(a, c) >= min(cfl.seg(a, b), cfl.seg(b, c))):
                 P.pop(i)
                 ch = True
             else:
@@ -685,19 +695,68 @@ class Blockers:
         return not bool(msk[gy, gx].all())
 
 
-def string_pull(pts, blk, rounds=6):
+# 沿弦按半格步长采样: seg 取 min(净空, 目标余量) 的下确界, cost 取代价泛函积分
+class ClearanceFloor:
+    def __init__(self, cf, mg, x0, y0, cs=CS):
+        self.cf = cf
+        self.mg = mg
+        self.x0 = x0
+        self.y0 = y0
+        self.cs = cs
+
+    def _cells(self, p, q, t):
+        gx = ((p[0] + (q[0] - p[0]) * t - self.x0) / self.cs).astype(np.int64)
+        gy = ((p[1] + (q[1] - p[1]) * t - self.y0) / self.cs).astype(np.int64)
+        return (np.clip(gy, 0, self.cf.shape[0] - 1),
+                np.clip(gx, 0, self.cf.shape[1] - 1))
+
+    def seg(self, p, q):
+        L = float(np.hypot(q[0] - p[0], q[1] - p[1]))
+        gy, gx = self._cells(p, q, np.linspace(0.0, 1.0,
+                                               int(L / (self.cs * 0.5)) + 2))
+        return float(self.cf[gy, gx].min())
+
+    def cost(self, p, q):
+        L = float(np.hypot(q[0] - p[0], q[1] - p[1]))
+        n = max(int(math.ceil(L / (self.cs * 0.5))), 1)
+        gy, gx = self._cells(p, q, (np.arange(n) + 0.5) / n)
+        return L * float(self.mg[gy, gx].mean(dtype=np.float64))
+
+
+def string_pull(pts, blk, rounds=6, cfl=None):
     P = [tuple(map(float, p)) for p in pts]
+    # 跨点连线须同时不低于被跳过子路径的净空地板、不高于其代价泛函(与几何重寻同口径),
+    # 相邻点连线无条件保留
+    seg = cst = None
+    if cfl is not None and len(P) > 1:
+        seg = np.array([cfl.seg(P[k], P[k + 1]) for k in range(len(P) - 1)],
+                       dtype=np.float64)
+        cst = np.array([cfl.cost(P[k], P[k + 1]) for k in range(len(P) - 1)],
+                       dtype=np.float64)
+    idx = list(range(len(P)))
     for _ in range(rounds):
         out = [P[0]]
+        oid = [idx[0]]
         i = 0
         while i < len(P) - 1:
+            acc = None if seg is None else np.minimum.accumulate(seg[idx[i]:])
+            ac2 = None if cst is None else np.cumsum(cst[idx[i]:])
             j = len(P) - 1
-            while j > i + 1 and blk.blocked(P[i], P[j]):
+            while j > i + 1:
+                k = idx[j] - idx[i] - 1
+                if not blk.blocked(P[i], P[j]) and (
+                        acc is None
+                        or (cfl.seg(P[i], P[j]) >= float(acc[k]) - CLRTOL
+                            and cfl.cost(P[i], P[j])
+                            <= float(ac2[k]) * (1.0 + COSTTOL))):
+                    break
                 j -= 1
             out.append(P[j])
+            oid.append(idx[j])
             i = j
         changed = len(out) != len(P)
         P = out
+        idx = oid
         if not changed:
             break
     return P

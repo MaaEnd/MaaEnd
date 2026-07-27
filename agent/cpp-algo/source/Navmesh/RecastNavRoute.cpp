@@ -202,6 +202,26 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
         const float c = std::min(std::max((pref.v[i] - info.dist.v[i]) / pref.v[i], 0.0F), 1.0F);
         mult.v[i] = 1.0F + static_cast<float>(kLam) * c;
     }
+    // 几何口径的净空: 掩膜距离场对跨越约束的墙无感, 取真墙距离的下确界补上
+    Mask wfree(nx, ny, 0);
+    for (size_t i = 0; i < wfree.v.size(); ++i) {
+        wfree.v[i] = info.wcsr.start[i + 1] > info.wcsr.start[i] ? 0 : 1;
+    }
+    const Grid<float> wdist = Clearance(wfree);
+    Grid<float> dgeo(nx, ny, 0.0F);
+    for (size_t i = 0; i < dgeo.v.size(); ++i) {
+        dgeo.v[i] = std::min(info.dist.v[i], wdist.v[i]);
+    }
+    // 几何口径的余量目标: 通道半宽封顶 kGeoR, 供绿段重寻与拉直判定
+    const Grid<float> tgt = TargetField(dgeo);
+    Grid<float> multg(nx, ny, 0.0F);
+    Grid<float> cf(nx, ny, 0.0F);
+    for (size_t i = 0; i < multg.v.size(); ++i) {
+        const float c = std::min(std::max((tgt.v[i] - dgeo.v[i]) / tgt.v[i], 0.0F), 1.0F);
+        multg.v[i] = 1.0F + static_cast<float>(kLam) * c;
+        cf.v[i] = std::min(dgeo.v[i], tgt.v[i]);
+    }
+    const ClearanceFloor cfl(&cf, &multg, x0, y0, kCS);
 
     const CellPt sc { static_cast<int64_t>((s.x - x0) / kCS), static_cast<int64_t>((s.y - y0) / kCS) };
     const CellPt gc { static_cast<int64_t>((g.x - x0) / kCS), static_cast<int64_t>((g.y - y0) / kCS) };
@@ -258,10 +278,12 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
         return std::nullopt;
     }
     const int64_t NC = nx * ny;
+    std::vector<size_t> bad;
     for (size_t k = 1; k < q->size(); ++k) {
         const int64_t ca = (*q)[k - 1].y * nx + (*q)[k - 1].x;
         const int64_t cb = (*q)[k].y * nx + (*q)[k].x;
         if (bn.contains(ca * NC + cb)) {
+            bad.push_back(k);
             dg.xwall.push_back({ x0 + (static_cast<double>((*q)[k].x) + 0.5) * kCS, y0 + (static_cast<double>((*q)[k].y) + 0.5) * kCS });
         }
     }
@@ -341,7 +363,6 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
     }
     const std::vector<Run> mg = merge(runs);
 
-    const Grid<float> ones(nx, ny, 1.0F);
     std::vector<WorldPoint> taut;
     for (const auto& run : mg) {
         const int64_t iend = std::min(run.i1 + 1, static_cast<int64_t>(q->size()) - 1);
@@ -383,7 +404,31 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
                             || pm.at(y, x) != 0);
                     }
                 }
-                const auto q2 = CostAstar(er, cells.front(), cells.back(), ones, &bn, nullptr);
+                // 重寻硬禁穿墙步,不可避穿墙处切开逐子段重寻,原步原样保留
+                std::vector<size_t> cuts;
+                for (const size_t k : bad) {
+                    if (k > static_cast<size_t>(run.i0) && k <= static_cast<size_t>(run.i0) + cells.size() - 1) {
+                        cuts.push_back(k - static_cast<size_t>(run.i0));
+                    }
+                }
+                cuts.push_back(cells.size());
+                std::optional<std::vector<CellPt>> q2 = std::vector<CellPt> {};
+                size_t a2 = 0;
+                for (const size_t c2 : cuts) {
+                    const size_t b2 = c2 - 1;
+                    if (a2 == b2) {
+                        q2->push_back(cells[a2]);
+                    }
+                    else {
+                        const auto r2 = CostAstar(er, cells[a2], cells[b2], multg, &bn, nullptr);
+                        if (!r2.has_value()) {
+                            q2.reset();
+                            break;
+                        }
+                        q2->insert(q2->end(), r2->begin(), r2->end());
+                    }
+                    a2 = c2;
+                }
                 if (q2.has_value()) {
                     double l1 = 0.0;
                     double l2 = 0.0;
@@ -409,7 +454,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
                 lw.insert(lw.end(), loops_core.begin(), loops_core.end());
                 blk_green.emplace(lw, &info.wP0, &info.wP1, onm);
             }
-            pp = StringPull(pp, blk_green.has_value() ? *blk_green : blk_gray);
+            pp = StringPull(pp, blk_green.has_value() ? *blk_green : blk_gray, &cfl);
         }
         if (!taut.empty() && !pp.empty() && std::hypot(pp.front().x - taut.back().x, pp.front().y - taut.back().y) < 1e-9) {
             pp.erase(pp.begin());
@@ -436,7 +481,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
     }
     std::vector<WorldPoint> out = DropLoops(ded);
     if (kSlimEps > 0 && out.size() > 2) {
-        out = Slim(out, blk_gray, kSlimEps);
+        out = Slim(out, blk_gray, kSlimEps, &cfl);
     }
     return out;
 }
