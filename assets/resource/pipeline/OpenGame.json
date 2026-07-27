@@ -18,6 +18,7 @@
         "post_delay": 0,
         "next": [
             "EnterGame",
+            "[JumpBack]CloudEndfieldStartGame",
             "[JumpBack]ClickContinue",
             "[JumpBack]CheckIn",
             "[JumpBack]CollectRewards",
@@ -31,6 +32,25 @@
             "[JumpBack]WaitLoadingText",
             "[JumpBack]WaitBlackScreen"
         ]
+    },
+    "CloudEndfieldStartGame": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    887,
+                    522,
+                    393,
+                    198
+                ],
+                "expected": [
+                    "开始游戏"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "WaitBlackScreen": {
         "recognition": {
