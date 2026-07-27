@@ -58,6 +58,10 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 1000
+        },
         "next": [
             "[JumpBack]GrowthChamberClaimReward",
             "[JumpBack]GrowthChamberGrow",
