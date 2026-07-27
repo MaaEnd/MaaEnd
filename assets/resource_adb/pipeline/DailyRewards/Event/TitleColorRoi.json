@@ -1,0 +1,59 @@
+{
+    // ADB：事件详情标题黄字区域 ROI 高度 200 -> 250
+    "DailyEventUnreadWeeklyRoutineColor": {
+        "roi": [
+            -200,
+            0,
+            200,
+            250
+        ]
+    },
+    "DailyEventUnreadGiftEventColor": {
+        "roi": [
+            -200,
+            0,
+            200,
+            250
+        ]
+    },
+    "DailyEventUnreadLimitedTimeSigninColor": {
+        "roi": [
+            -200,
+            0,
+            200,
+            250
+        ]
+    },
+    "DailyEventUnreadSpaceExplorationEventColor": {
+        "roi": [
+            -200,
+            0,
+            200,
+            250
+        ]
+    },
+    "DailyEventUnreadLimitedTimeEventColor": {
+        "roi": [
+            -200,
+            0,
+            200,
+            250
+        ]
+    },
+    "DailyEventUnreadGuideEventColor": {
+        "roi": [
+            -200,
+            0,
+            200,
+            250
+        ]
+    },
+    "DailyEventUnreadChallengeEventColor": {
+        "roi": [
+            -200,
+            0,
+            200,
+            250
+        ]
+    }
+}
