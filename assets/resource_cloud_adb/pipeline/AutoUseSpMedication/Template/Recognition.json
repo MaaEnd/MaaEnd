@@ -1,0 +1,24 @@
+{
+    "ColorRecognitionEmergencySanityBoosterDeadline": {
+        "desc": "颜色识别,确认是时限应急理智加强剂(绿色或红色时限)",
+        // 云终末地：当前仅有绿色时限 HSV；红色仍缺，待补测后追加
+        "lower": [
+            // 绿色
+            [
+                65,
+                120,
+                89
+            ]
+            // TODO: 红色
+        ],
+        "upper": [
+            // 绿色
+            [
+                75,
+                255,
+                247
+            ]
+            // TODO: 红色
+        ]
+    }
+}
