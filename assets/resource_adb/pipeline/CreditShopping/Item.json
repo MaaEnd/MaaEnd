@@ -17,10 +17,10 @@
     },
     "CanAfford": {
         "roi_offset": [
-            124,
-            165,
-            -124,
-            -181
+            149,
+            170,
+            -157,
+            -192
         ]
     },
     "BuyFirstOCR_CanNotAfford": {
