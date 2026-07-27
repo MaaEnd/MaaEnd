@@ -311,7 +311,7 @@
         ]
     },
     "AutoEssenceDismissWarningSanityLowContinue": {
-        "desc": "识别并关闭开始挑战时无体力警告弹窗，继续刷取（不领取模式）",
+        "desc": "识别并关闭开始挑战时无体力警告弹窗，继续刷取",
         "enabled": false,
         "recognition": "And",
         "all_of": [
@@ -337,7 +337,7 @@
         },
         "post_delay": 1000,
         "focus": {
-            "Node.Action.Starting": "👷理智不足，继续刷取（不领取奖励）"
+            "Node.Action.Starting": "👷理智不足，继续刷取"
         }
     },
     "__AutoEssenceRecoEssenceOngoing": {
