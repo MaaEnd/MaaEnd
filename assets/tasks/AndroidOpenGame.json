@@ -7,13 +7,15 @@
             "description": "$task.AndroidOpenGame.description",
             "controller": [
                 "ADB",
+                "CloudADB",
                 "PlayCover"
             ],
             "group": [
                 "other_menu"
             ],
             "option": [
-                "ClientVersion"
+                "ClientVersion",
+                "ClientVersionCloudLocked"
             ]
         }
     ],
@@ -90,7 +92,18 @@
                             ]
                         }
                     }
-                },
+                }
+            ]
+        },
+        "ClientVersionCloudLocked": {
+            "type": "select",
+            "controller": [
+                "CloudADB"
+            ],
+            "label": "$option.ClientVersionCloudLocked.label",
+            "description": "$option.ClientVersionCloudLocked.description",
+            "default_case": "Cloud",
+            "cases": [
                 {
                     "name": "Cloud",
                     "label": "$option.ClientVersion.cases.Cloud.label",

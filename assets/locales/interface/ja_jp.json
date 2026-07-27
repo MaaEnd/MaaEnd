@@ -555,6 +555,8 @@
     "task.CloseGame.label": "❌ ゲーム終了（Android）",
     "task.CloseGame.description": "ゲームを自動終了します。",
     "option.ClientVersion.label": "クライアントバージョン",
+    "option.ClientVersionCloudLocked.label": "クライアントバージョン",
+    "option.ClientVersionCloudLocked.description": "クラウド終末地(ADB) コントローラーではクラウド終末地クライアントに固定され、変更できません。",
     "task.SeizeDeliveryJobs.label": "🏍️依頼受注と配送",
     "task.SeizeDeliveryJobs.description": "武陵城倉庫ノードの配送依頼を自動で受注します",
     "task.SeizeDeliveryJobsCommissionSource.label": "依頼荷受場所",

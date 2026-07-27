@@ -768,6 +768,8 @@
     "task.CloseGame.label": "❌ Close Game (Android)",
     "task.CloseGame.description": "Automatically close the game.",
     "option.ClientVersion.label": "Client Version",
+    "option.ClientVersionCloudLocked.label": "Client Version",
+    "option.ClientVersionCloudLocked.description": "Locked to Cloud Endfield when using the Cloud Endfield (ADB) controller; cannot be changed.",
     "task.SeizeDeliveryJobs.label": "🏍️Accept Commission & Delivery",
     "task.SeizeDeliveryJobs.description": "Automatically snatch delivery commissions at Wuling City depot nodes",
     "task.SeizeDeliveryJobsCommissionSource.label": "Commission Destination",

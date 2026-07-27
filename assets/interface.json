@@ -64,6 +64,9 @@
             "attach_resource_path": [
                 "./resource_adb",
                 "./resource_cloud_adb"
+            ],
+            "option": [
+                "ClientVersionCloudLocked"
             ]
         },
         {

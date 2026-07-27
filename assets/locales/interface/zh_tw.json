@@ -559,6 +559,8 @@
     "task.CloseGame.label": "❌關閉遊戲（安卓端）",
     "task.CloseGame.description": "自動關閉遊戲",
     "option.ClientVersion.label": "客戶端版本",
+    "option.ClientVersionCloudLocked.label": "客戶端版本",
+    "option.ClientVersionCloudLocked.description": "雲終末地(ADB) 控制器下鎖定為雲終末地客戶端，不可更改",
     "task.SeizeDeliveryJobs.label": "🏍️搶委託與送貨",
     "task.SeizeDeliveryJobs.description": "自動搶武陵城倉儲節點送貨委託",
     "task.SeizeDeliveryJobsCommissionSource.label": "委託接收點",

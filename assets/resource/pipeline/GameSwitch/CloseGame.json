@@ -1,6 +1,6 @@
 {
     "CloseGame": {
-        "desc": "关闭游戏,该节点由 ClientVersion 选项覆盖next"
+        "desc": "关闭游戏,该节点由 ClientVersion / ClientVersionCloudLocked 选项覆盖next"
     },
     // 以下节点由其他资源覆盖
     "CloseGame_CN": {},

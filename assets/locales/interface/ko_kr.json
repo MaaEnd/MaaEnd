@@ -555,6 +555,8 @@
     "task.CloseGame.label": "❌ 게임 종료 (Android)",
     "task.CloseGame.description": "게임을 자동으로 종료합니다.",
     "option.ClientVersion.label": "클라이언트 버전",
+    "option.ClientVersionCloudLocked.label": "클라이언트 버전",
+    "option.ClientVersionCloudLocked.description": "클라우드 종말지(ADB) 컨트롤러에서는 클라우드 종말지 클라이언트로 고정되며 변경할 수 없습니다.",
     "task.SeizeDeliveryJobs.label": "🏍️의뢰 수락 및 배달",
     "task.SeizeDeliveryJobs.description": "무릉성 창고 노드의 배달 의뢰를 자동으로 수락합니다",
     "task.SeizeDeliveryJobsCommissionSource.label": "의뢰 수령 지점",
