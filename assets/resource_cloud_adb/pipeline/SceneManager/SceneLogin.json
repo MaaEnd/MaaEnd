@@ -1,7 +1,7 @@
 {
-    // 云终末地登录界面用 Setting 图标识别（非 PC/普通 ADB 的 LoginExit）
+    // 云终末地登录界面用 News / NewsWithRedDot 识别（非 PC/普通 ADB 的 LoginExit）
     "__ScenePrivateLogin": {
-        "desc": "处理登录界面（云终末地：Setting 图标）",
+        "desc": "处理登录界面（云终末地：News / NewsWithRedDot）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -12,7 +12,8 @@
                     276
                 ],
                 "template": [
-                    "SceneManager/Setting.png"
+                    "SceneManager/News.png",
+                    "SceneManager/NewsWithRedDot.png"
                 ]
             }
         }

@@ -34,6 +34,7 @@
         ]
     },
     "CloudEndfieldStartGame": {
+        "desc": "云终末地开始游戏",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -50,6 +51,24 @@
         },
         "action": {
             "type": "Click"
+        }
+    },
+    "CloudEndfieldWaitStartGame": {
+        "desc": "云终末地等待开始游戏",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    350,
+                    233,
+                    572,
+                    346
+                ],
+                "expected": [
+                    "检查网络环境",
+                    "游戏启动中"
+                ]
+            }
         }
     },
     "WaitBlackScreen": {
