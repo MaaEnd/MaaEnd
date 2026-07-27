@@ -204,75 +204,73 @@ func (a *BetterSlidingAction) handleGetSliderMaxQuantity(ctx *maa.Context, arg *
 		a.runtimeTargetResolved = true
 	}
 
-	upperOverflow := a.TargetQuantity > a.sliderMaxQuantity
-	lowerOverflow := a.TargetQuantityType == TargetQuantityTypeValue &&
-		a.ReverseTarget &&
-		a.TargetQuantity < 1
-	// Record reachability before clamping: selecting a clamped maximum does not mean the original target is reachable.
-	a.targetReachable = a.TargetQuantity >= 1 && a.TargetQuantity <= a.sliderMaxQuantity
+	originalResolvedTargetQuantity := a.TargetQuantity
+	resolvedTargetQuantity, outcome := resolveSliderQuantityOutcome(
+		a.TargetQuantity,
+		a.sliderMaxQuantity,
+		a.ClampTargetToSliderMax,
+	)
+	a.TargetQuantity = resolvedTargetQuantity
+	a.outOfRange = outcome == sliderQuantityOutcomeOutOfRange
+	a.targetReachable = outcome == sliderQuantityOutcomeTargetReachable
 
-	// Clamp upper overflow before out-of-range handling so clamping takes priority.
-	if a.ClampTargetToSliderMax && upperOverflow {
-		originalTargetQuantity := a.TargetQuantity
-		a.TargetQuantity = a.sliderMaxQuantity
+	if outcome == sliderQuantityOutcomeClamped {
 		a.logger.Warn().
-			Int("original_target_quantity", originalTargetQuantity).
+			Int("original_target_quantity", originalResolvedTargetQuantity).
 			Int("clamped_target_quantity", a.TargetQuantity).
 			Int("slider_max_quantity", a.sliderMaxQuantity).
 			Msg("target quantity clamped to slider max quantity")
-		upperOverflow = false
 	}
 
-	a.outOfRange = false
-	if a.OutOfRangeOverrideEnable != "" {
-		if upperOverflow || lowerOverflow || a.sliderMaxQuantity == 0 {
-			a.outOfRange = true
-			if err := overrideCheckQuantityBranch(
-				ctx,
-				arg.CurrentTaskName,
-				nodeBetterSlidingDone,
-				buttonTarget{},
-				0,
-				a.GreenMask,
-			); err != nil {
-				logEvent := a.logger.Error().
-					Err(err).
-					Int("slider_max_quantity", a.sliderMaxQuantity).
-					Int("target_quantity", a.TargetQuantity).
-					Str("next", nodeBetterSlidingDone)
-				if errors.Is(err, errCheckQuantityBranchNextOverride) {
-					logEvent.Msg("failed to override next for out-of-range branch")
-				} else {
-					logEvent.Msg("failed to override pipeline for out-of-range branch")
-				}
-				return false
-			}
-
-			logEvent := a.logger.Warn().
-				Int("original_target_quantity", a.OriginalTargetQuantity).
+	if a.outOfRange {
+		if a.OutOfRangeOverrideEnable == "" {
+			a.logger.Error().
+				Str("outcome", "out-of-range").
 				Int("resolved_target_quantity", a.TargetQuantity).
 				Int("slider_max_quantity", a.sliderMaxQuantity).
-				Str("override_node", a.OutOfRangeOverrideEnable)
-			if a.sliderMaxQuantity == 0 {
-				logEvent.Msg("slider max quantity is zero, skipping via out-of-range override")
-			} else {
-				logEvent.Msg("target quantity out of range; caller outcome scheduled")
-			}
-			return true
+				Msg("quantity outcome has no override configured")
+			return false
 		}
 
+		if err := overrideCheckQuantityBranch(
+			ctx,
+			arg.CurrentTaskName,
+			nodeBetterSlidingDone,
+			buttonTarget{},
+			0,
+			a.GreenMask,
+		); err != nil {
+			logEvent := a.logger.Error().
+				Err(err).
+				Str("outcome", "out-of-range").
+				Int("slider_max_quantity", a.sliderMaxQuantity).
+				Int("target_quantity", a.TargetQuantity).
+				Str("next", nodeBetterSlidingDone)
+			if errors.Is(err, errCheckQuantityBranchNextOverride) {
+				logEvent.Msg("failed to override next for quantity outcome branch")
+			} else {
+				logEvent.Msg("failed to override pipeline for quantity outcome branch")
+			}
+			return false
+		}
+
+		a.logger.Warn().
+			Str("outcome", "out-of-range").
+			Int("original_target_quantity", a.OriginalTargetQuantity).
+			Int("resolved_target_quantity", a.TargetQuantity).
+			Int("slider_max_quantity", a.sliderMaxQuantity).
+			Str("override_node", a.OutOfRangeOverrideEnable).
+			Msg("quantity adjustment skipped; caller outcome scheduled")
+		return true
+	}
+
+	if a.OutOfRangeOverrideEnable != "" {
 		if err := ctx.OverridePipeline(buildNodeEnableOverride(a.OutOfRangeOverrideEnable, false)); err != nil {
 			a.logger.Error().Err(err).
 				Str("override_node", a.OutOfRangeOverrideEnable).
-				Msg("failed to disable out-of-range override")
+				Msg("failed to disable quantity outcome override")
 			return false
 		}
-	} else if lowerOverflow || upperOverflow {
-		a.logger.Error().
-			Int("resolved_target_quantity", a.TargetQuantity).
-			Int("slider_max_quantity", a.sliderMaxQuantity).
-			Msg("target quantity out of range and no override configured")
-		return false
 	}
 
 	nextNode, err := resolveSliderMaxQuantityNext(a.sliderMaxQuantity, a.TargetQuantity)
@@ -618,32 +616,8 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 		return false
 	}
 
-	if a.outOfRange && a.OutOfRangeOverrideEnable != "" {
-		if err := ctx.OverridePipeline(buildNodeEnableOverride(a.OutOfRangeOverrideEnable, true)); err != nil {
-			a.logger.Error().
-				Err(err).
-				Str("caller", arg.CurrentTaskName).
-				Str("override_node", a.OutOfRangeOverrideEnable).
-				Msg("failed to apply out-of-range override after internal pipeline")
-			return false
-		}
-
-		a.logger.Info().
-			Str("caller", arg.CurrentTaskName).
-			Str("override_node", a.OutOfRangeOverrideEnable).
-			Msg("applied out-of-range override after internal pipeline")
-	}
-
-	if a.TargetReachableOverrideEnable != "" {
-		if err := ctx.OverridePipeline(buildNodeEnableOverride(a.TargetReachableOverrideEnable, a.targetReachable)); err != nil {
-			a.logger.Error().
-				Err(err).
-				Str("caller", arg.CurrentTaskName).
-				Str("override_node", a.TargetReachableOverrideEnable).
-				Bool("target_quantity_reachable", a.targetReachable).
-				Msg("failed to apply target-reachable override after internal pipeline")
-			return false
-		}
+	if !a.applyOutcomeOverrides(ctx, arg.CurrentTaskName) {
+		return false
 	}
 
 	if a.SwipeOnlyMode {
@@ -653,22 +627,7 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 			Str("subtask_status", detail.Status.String()).
 			Bool("swipe_only_mode", true).
 			Msg("internal BetterSliding pipeline finished (swipe-only)")
-
-		if !a.outOfRange && a.OutOfRangeOverrideEnable != "" {
-			if err := ctx.OverridePipeline(buildNodeEnableOverride(a.OutOfRangeOverrideEnable, false)); err != nil {
-				a.logger.Error().Err(err).Msg("failed to apply out-of-range override after swipe-only")
-				return false
-			}
-		}
-
 		return true
-	}
-
-	if !a.outOfRange && a.OutOfRangeOverrideEnable != "" {
-		if err := ctx.OverridePipeline(buildNodeEnableOverride(a.OutOfRangeOverrideEnable, false)); err != nil {
-			a.logger.Error().Err(err).Msg("failed to apply out-of-range override after internal pipeline")
-			return false
-		}
 	}
 
 	a.logger.Info().
@@ -676,6 +635,44 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 		Int64("subtask_id", detail.ID).
 		Str("subtask_status", detail.Status.String()).
 		Msg("internal BetterSliding pipeline completed")
+	return true
+}
+
+// applyOutcomeOverrides 在内部流水线结束后，将调用方结果节点的开关统一同步为本次判定结果，
+// 保证命中的结果节点被启用、未命中的被禁用。新增结果时只需在此追加一项。
+func (a *BetterSlidingAction) applyOutcomeOverrides(ctx *maa.Context, caller string) bool {
+	outcomes := []struct {
+		name    string
+		node    string
+		enabled bool
+	}{
+		{"out-of-range", a.OutOfRangeOverrideEnable, a.outOfRange},
+		{"target-reachable", a.TargetReachableOverrideEnable, a.targetReachable},
+	}
+
+	for _, outcome := range outcomes {
+		if outcome.node == "" {
+			continue
+		}
+		if err := ctx.OverridePipeline(buildNodeEnableOverride(outcome.node, outcome.enabled)); err != nil {
+			a.logger.Error().
+				Err(err).
+				Str("caller", caller).
+				Str("outcome", outcome.name).
+				Str("override_node", outcome.node).
+				Bool("enabled", outcome.enabled).
+				Msg("failed to apply outcome override after internal pipeline")
+			return false
+		}
+		if outcome.enabled {
+			a.logger.Info().
+				Str("caller", caller).
+				Str("outcome", outcome.name).
+				Str("override_node", outcome.node).
+				Msg("applied outcome override after internal pipeline")
+		}
+	}
+
 	return true
 }
 
@@ -698,6 +695,50 @@ func (a *BetterSlidingAction) resetState() {
 	a.outOfRange = false
 	a.targetReachable = false
 	a.runtimeTargetResolved = false
+}
+
+// sliderQuantityOutcome 描述目标数量相对滑条最大数量的判定结果。
+type sliderQuantityOutcome uint8
+
+const (
+	// sliderQuantityOutcomeOutOfRange 表示目标小于 1、滑条最大数量为 0，
+	// 或在未启用钳制时超过滑条最大数量。
+	sliderQuantityOutcomeOutOfRange sliderQuantityOutcome = iota
+	// sliderQuantityOutcomeTargetReachable 表示目标位于滑条可选范围内，无需钳制即可达到。
+	sliderQuantityOutcomeTargetReachable
+	// sliderQuantityOutcomeClamped 表示目标超过滑条最大数量，已钳制到该最大数量。
+	sliderQuantityOutcomeClamped
+)
+
+// resolveSliderQuantityOutcome 根据解析后的目标数量与滑条最大可选数量，
+// 返回本次实际使用的目标数量及其判定结果。
+//
+// 判定按以下优先级依次短路，三种结果互斥：
+//
+//  1. targetQuantity < 1 或 sliderMaxQuantity == 0 → OutOfRange：没有可选的有效目标。
+//  2. targetQuantity > sliderMaxQuantity：启用 clampTargetToSliderMax 时将目标下调到
+//     滑条上限并返回 Clamped（目标数量被替换为 sliderMaxQuantity，属部分达成，
+//     因此不算 TargetReachable）；未启用钳制时返回 OutOfRange，由调用方决定如何处理。
+//  3. 其余情况 → TargetReachable：目标在 [1, sliderMaxQuantity] 内，无需钳制即可达成。
+//
+// 除 Clamped 外，返回的目标数量均为入参原值。判定结果最终通过
+// applyOutcomeOverrides 映射到调用方的结果节点开关（Clamped 不启用任何结果节点）。
+func resolveSliderQuantityOutcome(
+	targetQuantity int,
+	sliderMaxQuantity int,
+	clampTargetToSliderMax bool,
+) (int, sliderQuantityOutcome) {
+	if targetQuantity < 1 || sliderMaxQuantity == 0 {
+		return targetQuantity, sliderQuantityOutcomeOutOfRange
+	}
+	if targetQuantity > sliderMaxQuantity {
+		if clampTargetToSliderMax {
+			return sliderMaxQuantity, sliderQuantityOutcomeClamped
+		}
+		return targetQuantity, sliderQuantityOutcomeOutOfRange
+	}
+
+	return targetQuantity, sliderQuantityOutcomeTargetReachable
 }
 
 func resolveSliderMaxQuantityNext(sliderMaxQuantity int, targetQuantity int) (string, error) {

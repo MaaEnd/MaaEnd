@@ -94,11 +94,13 @@ In addition to the 4 fields above, all other parameters can only be read from `c
 
 `OutOfRangeOverrideEnable` and `TargetReachableOverrideEnable` report the current BetterSliding outcome to the caller. They must reference different nodes, and each outcome node should default to `enabled: false`.
 
-| Resolved target                                                             | `OutOfRangeOverrideEnable` | `TargetReachableOverrideEnable` | BetterSliding behavior                                               |
-| --------------------------------------------------------------------------- | -------------------------- | ------------------------------- | -------------------------------------------------------------------- |
-| Below 1, above `sliderMaxQuantity` without clamping, or slider maximum is 0 | `true`                     | `false`                         | Returns success without adjustment; the caller handles the outcome   |
-| Within `[1, sliderMaxQuantity]`                                             | `false`                    | `true`                          | Adjusts to the target quantity                                       |
-| Above `sliderMaxQuantity` with clamping enabled                             | `false`                    | `false`                         | Adjusts to `sliderMaxQuantity`; original target is not yet reachable |
+| Resolved target                                                                  | `OutOfRangeOverrideEnable` | `TargetReachableOverrideEnable` | BetterSliding behavior                                               |
+| -------------------------------------------------------------------------------- | -------------------------- | ------------------------------- | -------------------------------------------------------------------- |
+| Below 1, zero `sliderMaxQuantity`, or above `sliderMaxQuantity` without clamping | `true`                     | `false`                         | Returns success without adjustment; the caller handles the outcome   |
+| Within `[1, sliderMaxQuantity]`                                                  | `false`                    | `true`                          | Adjusts to the target quantity                                       |
+| Above `sliderMaxQuantity` with clamping enabled                                  | `false`                    | `false`                         | Adjusts to `sliderMaxQuantity`; original target is not yet reachable |
+
+`sliderMaxQuantity == 0` only means that no positive target is currently selectable. BetterSliding does not infer business causes such as insufficient balance, insufficient stock, or a disabled control. Callers that need to distinguish those states should recognize the corresponding UI in Pipeline.
 
 > [!important]
 > `TargetReachableOverrideEnable` only means that the caller's next operation can reach the target; it does not mean that operation has succeeded. Selling, purchasing, and similar flows must still confirm the outer transaction in Pipeline before recording the business target as completed.

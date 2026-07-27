@@ -96,9 +96,11 @@
 
 | 解析后的目标                                                 | `OutOfRangeOverrideEnable` | `TargetReachableOverrideEnable` | BetterSliding 行为                             |
 | ------------------------------------------------------------ | -------------------------- | ------------------------------- | ---------------------------------------------- |
-| 小于 1、未钳制时大于 `sliderMaxQuantity`，或滑条最大数量为 0 | `true`                     | `false`                         | 不调整数量，返回成功，由调用方处理越界结果     |
+| 小于 1、`sliderMaxQuantity` 为 0，或未钳制时大于滑条最大数量 | `true`                     | `false`                         | 不调整数量，返回成功，由调用方处理越界结果     |
 | 位于 `[1, sliderMaxQuantity]`                                | `false`                    | `true`                          | 调整到目标数量                                 |
 | 大于 `sliderMaxQuantity` 且启用钳制                          | `false`                    | `false`                         | 调整到 `sliderMaxQuantity`，尚不能达到原始目标 |
+
+`sliderMaxQuantity == 0` 只表示当前没有可选的正数目标，BetterSliding 不推断余额不足、库存不足或控件不可用等业务原因。调用方如需区分具体状态，应在 Pipeline 中识别对应界面。
 
 > [!important]
 > `TargetReachableOverrideEnable` 只表示调用方的下一步操作可以达到目标，不表示该操作已经成功。例如售卖、购买等流程仍须在外层 Pipeline 确认交易成功后，才能记录业务目标已完成。
