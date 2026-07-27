@@ -185,13 +185,16 @@
             350,
             77
         ],
+        // 完整文案：当前据点调度券储量不足 / 目前據點調度券存量不足 / Insufficient stock bills in current outpost / 拠点取引券が不足しています / 거점 관리권 보유량 부족
         "expected": [
-            "肥料数量不足",
-            "肥料數量不足",
+            // @i18n-skip
+            "当前据点调度券储量不足",
+            "目前據點調度券存量不足",
+            "Insufficient stock bills in current outpost",
             "(?i)Insufficient",
-            "肥料が足りません",
-            "不足",
-            "거점 관리권 보유량 부족"
+            "拠点取引券が不足しています",
+            "거점 관리권 보유량 부족",
+            "不足"
         ],
         "pre_delay": 0,
         "post_delay": 0,

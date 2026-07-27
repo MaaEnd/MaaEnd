@@ -1,0 +1,24 @@
+{
+    "configs": {
+        "name": "一键售卖产品，测试调度券不足",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "武陵_地区建设_据点_调度券不足.png",
+            "hits": [
+                "SellProductZeroMoney"
+            ]
+        },
+        {
+            "image": "四号谷地_地区建设_据点_调度券不足.png",
+            "hits": [
+                "SellProductZeroMoney"
+            ]
+        }
+    ]
+}

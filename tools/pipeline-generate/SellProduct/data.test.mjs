@@ -518,6 +518,22 @@ test("SellProduct 每轮选货及保留交易后优先检查调度券不足", ()
     ]);
 });
 
+test("SellProduct 调度券不足使用完整多语言文案并保留关键词兜底", () => {
+    const pipeline = readPipeline(
+        new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url),
+    );
+
+    assert.deepEqual(pipeline.SellProductZeroMoney.expected, [
+        "当前据点调度券储量不足",
+        "目前據點調度券存量不足",
+        "Insufficient stock bills in current outpost",
+        "(?i)Insufficient",
+        "拠点取引券が不足しています",
+        "거점 관리권 보유량 부족",
+        "不足",
+    ]);
+});
+
 test("SellProduct 交易完成后重复点击直到获得物品界面消失", () => {
     const pipeline = readPipeline(
         new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url),
