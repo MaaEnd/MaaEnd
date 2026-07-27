@@ -5,13 +5,13 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    1067,
                     0,
-                    213,
-                    276
+                    -100,
+                    100,
+                    100
                 ],
                 "template": [
-                    "SceneManager/Setting.png"
+                    "SceneManager/LoginExit.png"
                 ]
             }
         },
