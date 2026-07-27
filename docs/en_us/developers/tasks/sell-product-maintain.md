@@ -28,23 +28,23 @@ SellProductSchedule                                  (Task entry, weekday gate)
 
 The six reserve-rule registration nodes are always enabled and form a fixed slot-order chain. Task options override the stable `itemId` only for configured slots. Unconfigured slots keep an empty `item_id`, which the Custom Action treats as a successful no-op. The next node records the independent priority-selling master switch and whether only preferred products may be sold. Outpost registration nodes use the same fixed-chain approach: task options set `active` to `true` only for enabled outposts, while inactive outposts are successful no-ops. Neither initialization stage needs progressively shortened `next` candidate lists for every possible enabled-slot combination.
 
-`SellProductLoop` always executes regions in the fixed order Valley IV → Wuling. Outposts within each region follow the stable order in the generated model. Disabled regions and outposts are skipped by their entries, so the same enabled set always produces the same selling order. A region entry uses SceneManager to open outpost management, prepares the operator cache, then executes each outpost through `[JumpBack]`:
+`SellProductLoop` always executes regions in reverse order so that newer regions are processed first. Outposts within each region still follow the stable order in the generated model. Disabled regions and outposts are skipped by their entries, so the same enabled set always produces the same selling order. A region entry uses SceneManager to open outpost management, prepares the operator cache, then executes each outpost through `[JumpBack]`:
 
 ```text
 SellProductLoop                                      (Regional Development main loop)
-  ├─ SellProductValleyIVSell                         (enter Valley IV outpost management)
-  │    ├─ SellProductValleyIVInitializePrioritySession
-  │    │    └─ SellProductValleyIVRegisterPriorityItem{1..6} (activate regional priority table)
-  │    ├─ SellProductValleyIVPrepareOperatorCache    (prepare operator cache)
-  │    └─ [JumpBack]SellProductRefugeeCamp → SellProductInfraStation
-  │       → SellProductReconstructionHQ
-  │         (execute three outposts through JumpBack)
   ├─ SellProductWulingSell                           (enter Wuling outpost management)
   │    ├─ SellProductWulingInitializePrioritySession
   │    │    └─ SellProductWulingRegisterPriorityItem{1..6} (activate regional priority table)
   │    ├─ SellProductWulingPrepareOperatorCache      (prepare/reuse operator cache)
   │    └─ [JumpBack]SellProductSkyKingFlatsConstructionSite
   │       → SellProductCardiacRemediationStation → SellProductXiranflowCloudseederStation
+  │         (execute three outposts through JumpBack)
+  ├─ SellProductValleyIVSell                         (enter Valley IV outpost management)
+  │    ├─ SellProductValleyIVInitializePrioritySession
+  │    │    └─ SellProductValleyIVRegisterPriorityItem{1..6} (activate regional priority table)
+  │    ├─ SellProductValleyIVPrepareOperatorCache    (prepare operator cache)
+  │    └─ [JumpBack]SellProductRefugeeCamp → SellProductInfraStation
+  │       → SellProductReconstructionHQ
   │         (execute three outposts through JumpBack)
   └─ SellProductTaskEnd                              (all enabled regions are complete)
 ```
@@ -156,8 +156,10 @@ Post-sale production assignment must prevent one operator from occupying multipl
 1. Maximize the number of outposts that can be restored;
 2. With equal coverage, keep the selling operator already assigned before selling whenever possible to avoid unnecessary switches;
 3. With the same number of kept operators, maximize final assignments in each outpost's highest bonus tier (perfect for both selling and restoration) so later runs need no switch;
-4. With the same number of reusable assignments, choose the plan with the smaller total candidate `Priority`;
+4. With the same number of reusable assignments, choose the plan with the smaller total candidate `Priority` when both plans cover the same outpost set; when they cover different outposts, preserve the newer-region-first order;
 5. Lock each confirmed `location -> operator` assignment so later outposts cannot reuse it.
+
+Regional selling uses the same newer-region-first order, while outposts within each region remain in game order. This lets completed assignments in newer regions be locked first, preventing older regions from taking those operators later.
 
 A missing selling target or failed scan stops the task to avoid selling with the wrong operator. An unavailable restoration target is recorded as skipped so the current outpost can finish and the task continues.
 
@@ -187,16 +189,17 @@ SellProductSellLoop                                  (unbounded selling loop)
                                  ├─ SellProductSell → SellProductSellCheck
                                  │      (no reserve rule; sell all)
                                  ├─ SellProductSellThenLoop → SellProductSellCheckThenLoop
-                                 │      (sell with a reserve; below the target, return to BetterSliding
-                                 │        and keep selling the current item; on reaching it, mark the
-                                 │        item satisfied via SellProductReserveTargetReached)
+                                 │      (sell with a reserve; after the trade, check vouchers first and
+                                 │        end if exhausted; otherwise mark the item satisfied via
+                                 │        SellProductReserveTargetReached when the reserve is reached,
+                                 │        or return to BetterSliding and continue selling)
                                  └─ SellProductSkipToNextSellLoop
                                       (stock not above the reserve; mark satisfied and skip)
                                      └─ SellProductSellLoop
                                           (continue until an exit condition is met)
 ```
 
-Each round checks the voucher balance before selecting goods. After a goods change, the insufficient-voucher check still takes precedence over an out-of-stock item, preventing traversal of later priority items once vouchers are exhausted. Insufficient vouchers on initial entry produce a notice; after a completed trade, the outpost selling loop ends silently.
+Each round checks the voucher balance before selecting goods. After a goods change, the insufficient-voucher check still takes precedence over an out-of-stock item, preventing traversal of later priority items once vouchers are exhausted. After a reserve-based trade completes, the flow also checks vouchers before deciding whether the reserve has been reached or running BetterSliding again. Insufficient vouchers on initial entry produce a notice; after a completed trade, the outpost selling loop ends silently.
 
 `SellProductPriorityItem` Custom Recognition only records the selected item as pending during recognition. After Pipeline clicks and confirms it and recognizes the outpost sell screen again, `SellProductPrioritySession` marks it attempted. A failed click or one-frame OCR fluctuation cannot skip a higher-priority item.
 

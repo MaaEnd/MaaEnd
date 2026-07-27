@@ -276,9 +276,9 @@ MaaBool MAA_CALL WeaponInventoryScanRecognitionRun(
                     << VAR(pageGrid) << VAR(newCells);
             LogInfo << "WeaponInventoryScan scan delta" << VAR(result.deltaReliable) << VAR(result.hasProgress) << VAR(result.reachedEnd)
                     << VAR(result.rowOffset) << VAR(result.rawAlignmentOffset) << VAR(result.adjustedAlignmentOffset)
-                    << VAR(result.supportRows) << VAR(result.alignmentStatus) << VAR(result.matchedCells)
-                    << VAR(result.comparedCells) << VAR(result.matchRatio) << VAR(result.averageDistance) << VAR(result.deltaScore)
-                    << VAR(result.fallbackUsed) << VAR(result.fallbackStreak);
+                    << VAR(result.supportRows) << VAR(result.alignmentStatus) << VAR(result.matchedCells) << VAR(result.comparedCells)
+                    << VAR(result.matchRatio) << VAR(result.averageDistance) << VAR(result.deltaScore) << VAR(result.fallbackUsed)
+                    << VAR(result.fallbackStreak);
             const char* nextNode = result.reachedEnd ? "WeaponInventoryScanFinish" : "WeaponInventoryScanSwipeNext";
             LogInfo << "WeaponInventoryScan override next" << VAR(nextNode);
             if (!OverrideNext(context, node_name, nextNode)) {

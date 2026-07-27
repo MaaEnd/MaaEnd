@@ -185,13 +185,16 @@
             350,
             77
         ],
+        // 完整文案：当前据点调度券储量不足 / 目前據點調度券存量不足 / Insufficient stock bills in current outpost / 拠点取引券が不足しています / 거점 관리권 보유량 부족
         "expected": [
-            "肥料数量不足",
-            "肥料數量不足",
+            // @i18n-skip
+            "当前据点调度券储量不足",
+            "目前據點調度券存量不足",
+            "Insufficient stock bills in current outpost",
             "(?i)Insufficient",
-            "肥料が足りません",
-            "不足",
-            "거점 관리권 보유량 부족"
+            "拠点取引券が不足しています",
+            "거점 관리권 보유량 부족",
+            "不足"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -290,35 +293,44 @@
             "Node.Recognition.Succeeded": "$task.SellProduct.aid_quota_exceeded"
         }
     },
+    "SellProductCheckHeader": {
+        "desc": "交易完成后的获得物品界面页头",
+        "recognition": "TemplateMatch",
+        "roi": [
+            577,
+            10,
+            138,
+            479
+        ],
+        "template": [
+            "SellProduct/SellProductCheckHeader.png"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "SellProductSellCheck": {
         "desc": "交易后确认",
         "recognition": "And",
         "all_of": [
-            "CloseRewardsButton",
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    577,
-                    10,
-                    138,
-                    118
-                ],
-                "template": [
-                    "SellProduct/SellProductCheckHeader.png"
-                ]
-            }
+            "SellProductCheckHeader"
         ],
-        "pre_wait_freezes": {
-            "time": 200,
-            "target": [
-                357,
-                283,
-                577,
-                163
-            ]
-        },
         "pre_delay": 0,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "SellProductCheckHeader",
+            "repeat_count": 10,
+            "interval_ms": 200
+        },
+        "target": [
+            35,
+            611,
+            58,
+            57
+        ],
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoney"
         },
@@ -360,29 +372,30 @@
         "desc": "交易后确认，继续应用当前物品的保留规则",
         "recognition": "And",
         "all_of": [
-            "CloseRewardsButton",
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    577,
-                    10,
-                    138,
-                    118
-                ],
-                "template": [
-                    "SellProduct/SellProductCheckHeader.png"
-                ]
-            }
+            "SellProductCheckHeader"
         ],
-        "pre_wait_freezes": 80,
         "pre_delay": 0,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "SellProductCheckHeader",
+            "repeat_count": 10,
+            "interval_ms": 200
+        },
+        "target": [
+            35,
+            611,
+            58,
+            57
+        ],
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoney"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[Anchor]SellProductZeroMoneyHandler",
             "SellProductReserveTargetReached",
             "[Anchor]SellProductBetterSliding"
         ],

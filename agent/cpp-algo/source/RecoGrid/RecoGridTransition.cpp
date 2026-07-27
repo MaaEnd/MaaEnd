@@ -57,11 +57,7 @@ void KeepSessionResult(
     FillSessionResult(result, session);
 }
 
-void RejectCurrentFrame(
-    GridScanResult& result,
-    const SessionState& session,
-    std::string alignmentStatus,
-    std::string reason)
+void RejectCurrentFrame(GridScanResult& result, const SessionState& session, std::string alignmentStatus, std::string reason)
 {
     result.success = false;
     result.message = "Grid transition requires another screenshot";
@@ -164,16 +160,12 @@ void CommitCurrentFrame(
 
 bool IsStrongZeroOffset(const GridDeltaResult& delta, int cols, const GridScanOptions& options)
 {
-    return delta.reliable && delta.rowOffset == 0 && delta.hasSufficientOverlap && delta.supportRows >= 2
-           && delta.comparedCells >= cols * 2
+    return delta.reliable && delta.rowOffset == 0 && delta.hasSufficientOverlap && delta.supportRows >= 2 && delta.comparedCells >= cols * 2
            && delta.averageDistance <= static_cast<double>(options.matchDistanceThreshold)
            && delta.matchRatio >= std::clamp(options.endMinMatchRatio, 0.0, 1.0);
 }
 
-bool IsStableRecheck(
-    const SessionState::RecheckState& recheck,
-    const GridHashSnapshot& currentSnapshot,
-    const GridScanOptions& options)
+bool IsStableRecheck(const SessionState::RecheckState& recheck, const GridHashSnapshot& currentSnapshot, const GridScanOptions& options)
 {
     if (recheck.snapshot.rows != currentSnapshot.rows || recheck.snapshot.cols != currentSnapshot.cols) {
         return false;

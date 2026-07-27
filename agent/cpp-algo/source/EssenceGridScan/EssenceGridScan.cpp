@@ -148,8 +148,7 @@ void EnsureLoaded(const EssenceTemplateConfig& config)
         throw std::runtime_error("Essence grid template image cannot be loaded: " + path.string());
     }
 
-    cv::Mat thumbDiscardTemplate =
-        MAA_NS::imread(ResolveEssenceImagePath(config.thumbDiscardTemplatePath), cv::IMREAD_UNCHANGED);
+    cv::Mat thumbDiscardTemplate = MAA_NS::imread(ResolveEssenceImagePath(config.thumbDiscardTemplatePath), cv::IMREAD_UNCHANGED);
     std::vector<cv::Mat> thumbLockTemplates;
     thumbLockTemplates.reserve(config.thumbLockTemplatePaths.size());
     for (const std::string& templatePath : config.thumbLockTemplatePaths) {
@@ -167,8 +166,8 @@ void EnsureLoaded(const EssenceTemplateConfig& config)
     g_thumbLockTemplates = std::move(thumbLockTemplates);
     g_loadedTemplateConfig = config;
     g_lastTaskId = MaaInvalidId;
-    LogInfo << "EssenceGridScan templates loaded" << VAR(config.essenceGeneralTemplatePath)
-            << VAR(config.thumbDiscardTemplatePath) << VAR(config.thumbLockTemplatePaths);
+    LogInfo << "EssenceGridScan templates loaded" << VAR(config.essenceGeneralTemplatePath) << VAR(config.thumbDiscardTemplatePath)
+            << VAR(config.thumbLockTemplatePaths);
 }
 
 void ApplyEssenceScanDefaults(recogrid::GridScanOptions& options)
@@ -265,8 +264,7 @@ std::string ReadStringOption(const json::object& object, const char* key, std::s
     return object.at(key).as_string();
 }
 
-std::vector<std::string>
-    ReadStringArrayOption(const json::object& object, const char* key, std::vector<std::string> defaultValue)
+std::vector<std::string> ReadStringArrayOption(const json::object& object, const char* key, std::vector<std::string> defaultValue)
 {
     if (!object.contains(key) || !object.at(key).is_array()) {
         return defaultValue;
@@ -298,17 +296,14 @@ recogrid::GridRecognitionRequest
     return request;
 }
 
-EssenceTemplateConfig
-    ParseEssenceTemplateConfig(const json::object& config, const recogrid::GridRecognitionRequest& recognitionRequest)
+EssenceTemplateConfig ParseEssenceTemplateConfig(const json::object& config, const recogrid::GridRecognitionRequest& recognitionRequest)
 {
     EssenceTemplateConfig output;
     if (!recognitionRequest.templatePath.empty()) {
         output.essenceGeneralTemplatePath = recognitionRequest.templatePath;
     }
-    output.thumbDiscardTemplatePath =
-        ReadStringOption(config, "thumb_discard_template_path", output.thumbDiscardTemplatePath);
-    output.thumbLockTemplatePaths =
-        ReadStringArrayOption(config, "thumb_lock_template_paths", std::move(output.thumbLockTemplatePaths));
+    output.thumbDiscardTemplatePath = ReadStringOption(config, "thumb_discard_template_path", output.thumbDiscardTemplatePath);
+    output.thumbLockTemplatePaths = ReadStringArrayOption(config, "thumb_lock_template_paths", std::move(output.thumbLockTemplatePaths));
     return output;
 }
 
@@ -920,9 +915,9 @@ MaaBool MAA_CALL EssenceGridAdvanceRecognitionRun(
 
         LogInfo << "EssenceGridScan advance" << VAR(nextNode) << VAR(result.sessionTotalCells) << VAR(g_issuedCellKeys.size())
                 << VAR(g_currentPageQueue.size()) << VAR(g_currentPageQueueIndex) << VAR(g_scanRequired) << VAR(result.reachedEnd)
-                << VAR(result.hasProgress) << VAR(result.rowOffset) << VAR(result.rawAlignmentOffset)
-                << VAR(result.adjustedAlignmentOffset) << VAR(result.supportRows) << VAR(result.alignmentStatus)
-                << VAR(result.matchRatio) << VAR(result.fallbackUsed) << VAR(result.fallbackStreak);
+                << VAR(result.hasProgress) << VAR(result.rowOffset) << VAR(result.rawAlignmentOffset) << VAR(result.adjustedAlignmentOffset)
+                << VAR(result.supportRows) << VAR(result.alignmentStatus) << VAR(result.matchRatio) << VAR(result.fallbackUsed)
+                << VAR(result.fallbackStreak);
         if (!OverrideNext(context, node_name, nextNode)) {
             LogWarn << "EssenceGridScan override next failed" << VAR(nextNode);
         }

@@ -28,23 +28,23 @@ SellProductSchedule                                  （Task 入口，按星期�
 
 6 个保留规则注册节点始终启用，并按槽位顺序固定串联。任务选项只覆盖已配置槽位的稳定 `itemId`；未配置槽位保留空 `item_id`，Custom Action 将其作为 no-op 成功跳过。随后独立记录优先售卖总开关与是否只售卖优先产品。据点注册节点同样固定串联，任务选项只把启用据点的 `active` 参数设为 `true`，非活跃据点直接 no-op。两段初始化流程均无需为任意启用组合维护逐层缩短的 `next` 候选列表。
 
-`SellProductLoop` 始终按“四号谷地 → 武陵”的固定地区顺序执行；地区内据点也按生成模型中的固定顺序执行。未启用地区或据点由对应入口直接跳过，因此相同的启用组合总会得到相同的售卖顺序。地区入口通过 SceneManager 进入据点管理页，准备干员缓存，再用 `[JumpBack]` 依次执行该地区的据点：
+`SellProductLoop` 始终按新地区优先的倒序执行；地区内据点仍按生成模型中的固定顺序执行。未启用地区或据点由对应入口直接跳过，因此相同的启用组合总会得到相同的售卖顺序。地区入口通过 SceneManager 进入据点管理页，准备干员缓存，再用 `[JumpBack]` 依次执行该地区的据点：
 
 ```text
 SellProductLoop                                      （地区建设主循环）
-  ├─ SellProductValleyIVSell                         （进入四号谷地据点管理）
-  │    ├─ SellProductValleyIVInitializePrioritySession
-  │    │    └─ SellProductValleyIVRegisterPriorityItem{1..6} （切换地区优先表）
-  │    ├─ SellProductValleyIVPrepareOperatorCache    （准备干员缓存）
-  │    └─ [JumpBack]SellProductRefugeeCamp → SellProductInfraStation
-  │       → SellProductReconstructionHQ
-  │         （通过 JumpBack 依次执行三个据点）
   ├─ SellProductWulingSell                           （进入武陵据点管理）
   │    ├─ SellProductWulingInitializePrioritySession
   │    │    └─ SellProductWulingRegisterPriorityItem{1..6} （切换地区优先表）
   │    ├─ SellProductWulingPrepareOperatorCache      （准备/复用干员缓存）
   │    └─ [JumpBack]SellProductSkyKingFlatsConstructionSite
   │       → SellProductCardiacRemediationStation → SellProductXiranflowCloudseederStation
+  │         （通过 JumpBack 依次执行三个据点）
+  ├─ SellProductValleyIVSell                         （进入四号谷地据点管理）
+  │    ├─ SellProductValleyIVInitializePrioritySession
+  │    │    └─ SellProductValleyIVRegisterPriorityItem{1..6} （切换地区优先表）
+  │    ├─ SellProductValleyIVPrepareOperatorCache    （准备干员缓存）
+  │    └─ [JumpBack]SellProductRefugeeCamp → SellProductInfraStation
+  │       → SellProductReconstructionHQ
   │         （通过 JumpBack 依次执行三个据点）
   └─ SellProductTaskEnd                              （所有启用地区处理完成）
 ```
@@ -156,8 +156,10 @@ SellProduct 缓存统一保存在 `debug/record/SellProductCache.json`，按哈�
 1. 最大化能够恢复的据点数量；
 2. 覆盖数相同时，尽量保留各据点售前已经派驻的售卖干员，减少无意义切换；
 3. 沿用数量也相同时，尽量让最终派驻仍属于对应据点的最高加成档（同时满足售卖与恢复），使后续任务无需再次切换；
-4. 后续可沿用数量也相同时，选择候选 `Priority` 总和更小的方案；
+4. 后续可沿用数量也相同时，若方案覆盖相同的据点集合，选择候选 `Priority` 总和更小的方案；若覆盖不同据点，则保留新地区优先顺序；
 5. 已确认的 `location -> operator` 立即锁定，后续据点不能重复分配该干员。
+
+地区售卖同样按新地区优先执行；地区内据点仍保持游戏顺序。这样新地区完成的恢复结果会先锁定，后续旧地区不能再次调走对应干员。
 
 售卖目标找不到或扫描失败会停止任务，避免带着错误的干员继续交易；恢复目标不可用时记录跳过，完成当前据点后继续任务。
 
@@ -187,16 +189,16 @@ SellProductSellLoop                                  （不限次数的售卖循
                                  ├─ SellProductSell → SellProductSellCheck
                                  │      （无保留规则，全部售出）
                                  ├─ SellProductSellThenLoop → SellProductSellCheckThenLoop
-                                 │      （按保留数量交易；未达保留目标时回到 BetterSliding
-                                 │        继续售卖当前货品，达到后经 SellProductReserveTargetReached
-                                 │        标记本次任务已满足）
+                                 │      （按保留数量交易；交易后先检查调度券，不足则结束；
+                                 │        充足时，达到保留目标则经 SellProductReserveTargetReached
+                                 │        标记本次任务已满足，否则回到 BetterSliding 继续售卖）
                                  └─ SellProductSkipToNextSellLoop
                                       （库存不高于保留量，标记已满足并跳过）
                                      └─ SellProductSellLoop
                                           （继续下一候选，直到满足结束条件）
 ```
 
-每轮选择货品前都会先检查调度券。换货后再次检查时，调度券不足的判断仍优先于当前货品缺货，避免调度券耗尽后继续遍历后续优先物品。首次进入据点即发现不足时显示提示；已有交易完成后则静默结束该据点售卖循环。
+每轮选择货品前都会先检查调度券。换货后再次检查时，调度券不足的判断仍优先于当前货品缺货，避免调度券耗尽后继续遍历后续优先物品。按保留数量完成一笔交易后，也会先检查调度券，再判断保留目标是否达到或重新进入 BetterSliding。首次进入据点即发现不足时显示提示；已有交易完成后则静默结束该据点售卖循环。
 
 `SellProductPriorityItem` 自定义识别器只在识别阶段把选中的货品记录为待提交。Pipeline 点击并确认货品、重新识别到据点售卖界面后，`SellProductPrioritySession` 才把该货品标记为已尝试。点击失败或单帧 OCR 波动不会跳过高优先级货品。
 

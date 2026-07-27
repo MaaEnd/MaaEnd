@@ -137,7 +137,12 @@ func runRepeatUntil(
 
 		if _, err := ctx.RunAction(innerActionEntry, arg.Box, "", map[string]any{
 			innerActionEntry: map[string]any{
-				"action": actionNode,
+				// 临时节点只执行一次动作，显式清零 Framework 的节点级默认等待，
+				// 使 intervalMs 成为动作完成后、重新识别前唯一的主动等待。
+				"pre_delay":  0,
+				"post_delay": 0,
+				"rate_limit": 0,
+				"action":     actionNode,
 			},
 		}); err != nil {
 			log.Warn().Err(err).Str("component", component).Int("attempt", i+1).Msg("inner action failed")

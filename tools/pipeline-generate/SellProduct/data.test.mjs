@@ -2,7 +2,14 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 
-import {sellProductLocations, sellProductRegions, settlementData, toPascalCase} from "./model.mjs";
+import {
+    sellProductLocations,
+    sellProductLocationsNewestFirst,
+    sellProductRegions,
+    sellProductRegionsNewestFirst,
+    settlementData,
+    toPascalCase,
+} from "./model.mjs";
 import sellProductAdbRows from "./pipeline-adb-data.mjs";
 import sellProductPipelineRows from "./pipeline-data.mjs";
 import sellProductSellRows from "./sell-data.mjs";
@@ -53,7 +60,7 @@ test("SellProduct 按固定地区顺序售卖且不再使用自动起始地区",
     const entry = readPipeline(new URL("../../../assets/resource/pipeline/SellProduct.json", import.meta.url));
 
     assert.deepEqual(loop.SellProductLoop.next, [
-        ...sellProductRegions.map((region) => `SellProduct${region.RegionPrefix}`),
+        ...sellProductRegionsNewestFirst.map((region) => `SellProduct${region.RegionPrefix}`),
         "SellProductTaskEnd",
     ]);
     assert.equal(entry.SellProductLoop, undefined);
@@ -61,6 +68,21 @@ test("SellProduct 按固定地区顺序售卖且不再使用自动起始地区",
         Object.keys(entry).filter((nodeName) => nodeName.startsWith("SellProductAuto")),
         [],
     );
+});
+
+test("SellProduct 优先售卖新地区且地区内保持游戏顺序", () => {
+    assert.deepEqual(sellProductRegionsNewestFirst, [...sellProductRegions].reverse());
+    for (const region of sellProductRegionsNewestFirst) {
+        assert.deepEqual(
+            sellProductLocationsNewestFirst
+                .filter((location) => location.RegionPrefix === region.RegionPrefix)
+                .map((location) => location.LocationId),
+            region.LocationIds,
+        );
+    }
+
+    const regionOrder = sellProductRegionsNewestFirst.map((region) => region.RegionPrefix);
+    assert.ok(regionOrder.indexOf("Wuling") < regionOrder.indexOf("ValleyIV"));
 });
 
 test("SellProduct templates consume separate minimal projections of the shared location model", () => {
@@ -472,7 +494,7 @@ test("SellProduct pipeline templates use one dynamic priority loop instead of fi
     assert.match(adbTemplate, /SellProduct\$\{LocationId\}BetterSliding/);
 });
 
-test("SellProduct 每轮换货前优先检查调度券不足", () => {
+test("SellProduct 每轮选货及保留交易后优先检查调度券不足", () => {
     const pipeline = readPipeline(
         new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url),
     );
@@ -486,9 +508,75 @@ test("SellProduct 每轮换货前优先检查调度券不足", () => {
         "SellProductZeroProductAfterChangeStillEmpty",
     ]);
     assert.equal(pipeline.SellProductSellCheckThenLoop.anchor.SellProductZeroMoneyHandler, "SellProductZeroMoney");
+    assert.deepEqual(pipeline.SellProductSellCheckThenLoop.next, [
+        "[Anchor]SellProductZeroMoneyHandler",
+        "SellProductReserveTargetReached",
+        "[Anchor]SellProductBetterSliding",
+    ]);
     assert.deepEqual(pipeline.SellProductZeroProductAfterChangeStillEmpty.next, [
         "[Anchor]SellProductMarkOutOfStock",
     ]);
+});
+
+test("SellProduct 调度券不足使用完整多语言文案并保留关键词兜底", () => {
+    const pipeline = readPipeline(
+        new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url),
+    );
+
+    assert.deepEqual(pipeline.SellProductZeroMoney.expected, [
+        "当前据点调度券储量不足",
+        "目前據點調度券存量不足",
+        "Insufficient stock bills in current outpost",
+        "(?i)Insufficient",
+        "拠点取引券が不足しています",
+        "거점 관리권 보유량 부족",
+        "不足",
+    ]);
+});
+
+test("SellProduct 交易完成后重复点击直到获得物品界面消失", () => {
+    const pipeline = readPipeline(
+        new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url),
+    );
+
+    assert.equal(pipeline.SellProductCheckHeader.recognition, "TemplateMatch");
+    assert.deepEqual(pipeline.SellProductCheckHeader.template, [
+        "SellProduct/SellProductCheckHeader.png",
+    ]);
+    assert.deepEqual(
+        pipeline.SellProductCheckHeader.roi,
+        [
+            577,
+            10,
+            138,
+            479,
+        ],
+    );
+
+    for (const nodeName of [
+        "SellProductSellCheck",
+        "SellProductSellCheckThenLoop",
+    ]) {
+        const node = pipeline[nodeName];
+        assert.deepEqual(node.all_of, ["SellProductCheckHeader"]);
+        assert.equal(node.pre_wait_freezes, undefined);
+        assert.equal(node.custom_action, "RepeatUntilNotFoundAction");
+        assert.deepEqual(node.custom_action_param, {
+            action: "Click",
+            wait_node: "SellProductCheckHeader",
+            repeat_count: 10,
+            interval_ms: 200,
+        });
+        assert.deepEqual(
+            node.target,
+            [
+                35,
+                611,
+                58,
+                57,
+            ],
+        );
+    }
 });
 
 test("SellProduct 缺货物品通过据点锚点标记并在本次任务内共享", () => {
@@ -514,10 +602,6 @@ test("SellProduct 持续售卖到保留量后再进入下一轮选货", () => {
         new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url),
     );
 
-    assert.deepEqual(pipeline.SellProductSellCheckThenLoop.next, [
-        "SellProductReserveTargetReached",
-        "[Anchor]SellProductBetterSliding",
-    ]);
     assert.equal(pipeline.SellProductReserveTargetReached.enabled, false);
     assert.equal(pipeline.SellProductReserveTargetReached.custom_action, "SellProductReserveSession");
     assert.deepEqual(pipeline.SellProductReserveTargetReached.custom_action_param, {

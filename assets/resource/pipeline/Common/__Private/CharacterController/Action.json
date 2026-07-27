@@ -59,5 +59,21 @@
         "duration": 100,
         "key": 83, // S
         "post_delay": 0
+    },
+    "__CharacterControllerAxisLongPressLeftAction": {
+        "desc": "轴向左长按",
+        "pre_delay": 0,
+        "action": "LongPressKey",
+        "duration": 100,
+        "key": 65, // A
+        "post_delay": 0
+    },
+    "__CharacterControllerAxisLongPressRightAction": {
+        "desc": "轴向右长按",
+        "pre_delay": 0,
+        "action": "LongPressKey",
+        "duration": 100,
+        "key": 68, // D
+        "post_delay": 0
     }
 }

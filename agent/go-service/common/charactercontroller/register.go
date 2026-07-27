@@ -10,4 +10,5 @@ func Register() {
 	maa.AgentServerRegisterCustomAction("CharacterControllerRelativeMoveAction", &CharacterControllerRelativeMoveAction{})
 	maa.AgentServerRegisterCustomAction("CharacterMoveToTargetAction", &CharacterMoveToTargetAction{})
 	maa.AgentServerRegisterCustomAction("CharacterMoveToTargetNotFoundAction", &CharacterMoveToTargetNotFoundAction{})
+	maa.AgentServerRegisterCustomAction("CharacterSearchAction", &CharacterSearchAction{})
 }

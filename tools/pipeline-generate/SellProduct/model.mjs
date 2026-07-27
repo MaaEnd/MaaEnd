@@ -138,6 +138,13 @@ export const sellProductRegions = Object.values(
     }, {}),
 );
 
+// 实际售卖与恢复规划优先处理较新的地区，地区内仍保持游戏据点顺序。
+export const sellProductRegionsNewestFirst = [...sellProductRegions].reverse();
+const sellProductLocationById = new Map(sellProductLocations.map((location) => [location.LocationId, location]));
+export const sellProductLocationsNewestFirst = sellProductRegionsNewestFirst.flatMap((region) =>
+    region.LocationIds.map((locationId) => sellProductLocationById.get(locationId)),
+);
+
 // 国际化同步器消费的最小数据视图。命名规则与所有模板共享同一模型。
 export const sellProductLocaleEntries = {
     operators: Object.values(settlementData.operators || {})

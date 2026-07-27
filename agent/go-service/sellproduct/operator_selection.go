@@ -159,13 +159,7 @@ func selectTargetCandidateForRestorePlan(
 	bestPlan := restorePlanForTargetCandidate(p, owned, bestCandidate)
 	for _, candidate := range candidates[1:] {
 		plan := restorePlanForTargetCandidate(p, owned, candidate)
-		if isBetterRestorePlan(
-			plan.Assigned,
-			plan.KeptTargets,
-			plan.ReusableTargets,
-			plan.TotalCost,
-			bestPlan,
-		) {
+		if isBetterRestorePlan(plan, bestPlan) {
 			bestCandidate = candidate
 			bestPlan = plan
 		}
@@ -342,20 +336,22 @@ func buildRestoreAssignmentPlanWithPreferencesAndTargets(
 	var walk func(index int, assigned int, keptTargets int, reusableCount int, totalCost int)
 	walk = func(index int, assigned int, keptTargets int, reusableCount int, totalCost int) {
 		if index >= len(groups) {
-			if isBetterRestorePlan(assigned, keptTargets, reusableCount, totalCost, best) {
-				best.Assigned = assigned
-				best.KeptTargets = keptTargets
-				best.ReusableTargets = reusableCount
-				best.TotalCost = totalCost
-				best.Assignments = cloneRestoreAssignments(current)
+			candidate := restoreAssignmentPlan{
+				Assignments:     current,
+				Assigned:        assigned,
+				KeptTargets:     keptTargets,
+				ReusableTargets: reusableCount,
+				TotalCost:       totalCost,
+			}
+			if isBetterRestorePlan(candidate, best) {
+				candidate.Assignments = cloneRestoreAssignments(current)
+				best = candidate
 			}
 			return
 		}
 
 		group := groups[index]
-		// 先探索跳过该据点的分支，保证资源不足时仍能覆盖部分据点。
-		walk(index+1, assigned, keptTargets, reusableCount, totalCost)
-
+		// 先探索当前据点的候选，使完全等价的方案保留生成数据中的新地区优先顺序。
 		for _, candidate := range filterOwnedCandidates(group.Candidates, owned) {
 			if _, ok := used[candidate.Name]; ok {
 				continue
@@ -379,30 +375,43 @@ func buildRestoreAssignmentPlanWithPreferencesAndTargets(
 			delete(current, group.Location)
 			delete(used, candidate.Name)
 		}
+
+		// 没有候选或把干员留给后续据点时，继续探索跳过当前据点的分支。
+		walk(index+1, assigned, keptTargets, reusableCount, totalCost)
 	}
 	walk(0, 0, 0, 0, 0)
 	return best
 }
 
 // 按“覆盖数、本次保持人数、下次可沿用人数、候选成本”的字典序比较方案。
-// 全部相等时返回 false，保留先找到的稳定方案。
-func isBetterRestorePlan(
-	assigned int,
-	keptTargets int,
-	reusableTargets int,
-	totalCost int,
-	best restoreAssignmentPlan,
-) bool {
-	if assigned != best.Assigned {
-		return assigned > best.Assigned
+// 候选成本只在分配据点集合相同时可比；据点集合不同时保留 DFS 先找到的新地区优先方案。
+func isBetterRestorePlan(candidate restoreAssignmentPlan, best restoreAssignmentPlan) bool {
+	if candidate.Assigned != best.Assigned {
+		return candidate.Assigned > best.Assigned
 	}
-	if keptTargets != best.KeptTargets {
-		return keptTargets > best.KeptTargets
+	if candidate.KeptTargets != best.KeptTargets {
+		return candidate.KeptTargets > best.KeptTargets
 	}
-	if reusableTargets != best.ReusableTargets {
-		return reusableTargets > best.ReusableTargets
+	if candidate.ReusableTargets != best.ReusableTargets {
+		return candidate.ReusableTargets > best.ReusableTargets
 	}
-	return totalCost < best.TotalCost
+	if !sameAssignedLocations(candidate.Assignments, best.Assignments) {
+		return false
+	}
+	return candidate.TotalCost < best.TotalCost
+}
+
+// 判断两个方案是否覆盖完全相同的据点；不同据点候选列表的 Priority 不可横向比较。
+func sameAssignedLocations(a map[string]operatorCandidate, b map[string]operatorCandidate) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for location := range a {
+		if _, ok := b[location]; !ok {
+			return false
+		}
+	}
+	return true
 }
 
 // 复制分配表，避免回溯改写已保存的最优解。

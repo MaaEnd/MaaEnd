@@ -226,7 +226,8 @@
         },
         "post_delay": 1000,
         "next": [
-            "AutoEssenceDismissWarning1",
+            "[JumpBack]AutoEssenceDismissWarningPreEngrave",
+            "AutoEssenceDismissWarningSanityLow",
             "AutoEssenceChallengeEnter"
         ],
         "focus": {
@@ -253,56 +254,59 @@
             }
         }
     },
-    "AutoEssenceDismissWarning1": {
-        "desc": "识别并关闭开始挑战时的第一个警告弹窗",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
+    "AutoEssenceDismissWarningPreEngrave": {
+        "desc": "识别并关闭开始挑战时预刻写警告弹窗",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1",
+            {
+                "recognition": "OCR",
                 "roi": [
-                    730,
-                    390,
-                    200,
-                    150
+                    0,
+                    250,
+                    1280,
+                    200
                 ],
-                "template": "Common/Button/YellowConfirmButtonType1.png"
+                "expected": [
+                    // @i18n-skip
+                    "当前未进行基质预刻写",
+                    "目前未預刻寫基質"
+                ]
             }
-        },
+        ],
+        "box_index": 0,
         "action": {
             "type": "Click"
         },
         "post_delay": 1000,
-        "next": [
-            "AutoEssenceDismissWarning2",
-            "AutoEssenceChallengeEnter"
-        ],
         "focus": {
-            "Node.Action.Starting": "👷无视风险，继续刷取"
+            "Node.Action.Starting": "👷无视预刻写警告，继续刷取"
         }
     },
-    "AutoEssenceDismissWarning2": {
-        "desc": "识别并关闭开始挑战时的第二个警告弹窗",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
+    "AutoEssenceDismissWarningSanityLow": {
+        "desc": "识别开始挑战时无体力警告弹窗并退出",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1",
+            {
+                "recognition": "OCR",
                 "roi": [
-                    730,
-                    390,
-                    200,
-                    150
+                    0,
+                    250,
+                    1280,
+                    200
                 ],
-                "template": "Common/Button/YellowConfirmButtonType1.png"
+                // @i18n-skip
+                "expected": [
+                    "当前理智不足",
+                    "目前理智不足"
+                ]
             }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 1000,
-        "next": [
-            "AutoEssenceChallengeEnter"
         ],
-        "focus": {
-            "Node.Action.Starting": "👷无视风险，继续刷取"
-        }
+        "box_index": 0,
+        "next": [
+            "AutoEssenceLowSpStop"
+        ]
     },
     "__AutoEssenceRecoEssenceOngoing": {
         "desc": "寻找挑战进行中的状态（仅识别）",

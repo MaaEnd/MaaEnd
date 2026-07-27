@@ -13,6 +13,7 @@ description: 为 MaaEnd 添加、导入或补充节点识别测试截图，并�
 - 图片位于 `tests/MaaEndTestset/<controller>/<resource>/`；
 - 对应 `tests/**/test_*.json` 使用正确的 `controller`、`resource`、图片文件名和 `hits`；
 - JSON、图片引用、`pnpm check` 和 `pnpm test` 通过；
+- 需要提交时，测试图片提交到 `tests/MaaEndTestset` 子模块的 `main` 分支，主仓库再记录该提交指针；
 - 不改动无关图片、用例或用户已有工作。
 
 本技能适用于已有固定 ROI 的 `ADB` 和 `Win32`。`PlayCover` 或新分辨率没有可靠遮盖坐标时，先向用户确认脱敏规则，不要套用其它平台坐标。
@@ -21,8 +22,9 @@ description: 为 MaaEnd 添加、导入或补充节点识别测试截图，并�
 
 1. 定位 MaaEnd 根目录；应同时存在 `maatools.config.mts`、`tests/MaaEndTestset/`、`tests/scripts/loader.mts` 和 `assets/resource/model/ocr/`。
 2. 运行 `git status --short`，记录已有修改和未跟踪文件。它们属于用户，不要批量处理测试截图。
-3. 阅读 `docs/zh_cn/developers/node-testing.md`，再查看语义最接近的图片和 `tests/**/test_*.json`。以当前文档、schema 和 `maatools.config.mts` 为准，不沿用旧测试集格式。
-4. 从用户输入或目标路径确定：
+3. 运行 `git -C tests/MaaEndTestset status --short` 和 `git -C tests/MaaEndTestset branch --show-current`，分别记录测试集子模块的已有修改和当前分支。需要提交测试图片时，提交前必须让子模块位于 `main`，不要在 detached HEAD 上创建提交。
+4. 阅读 `docs/zh_cn/developers/node-testing.md`，再查看语义最接近的图片和 `tests/**/test_*.json`。以当前文档、schema 和 `maatools.config.mts` 为准，不沿用旧测试集格式。
+5. 从用户输入或目标路径确定：
     - 原始截图路径；
     - `controller`：`ADB` 或 `Win32`；
     - `resource`：当前官服目录为 `Official_CN`，测试配置写 `官服`；
@@ -199,6 +201,32 @@ pnpm test
 - 图片路径、矩阵或配置错误：修正测试定义；
 - `hits` 与实际画面不符：依据真实测试目的修正，不能为了变绿而删除必要断言；
 - MaaEnd 节点本身识别失败：报告节点、ROI 或模板问题。除非用户同时要求修改 Pipeline，否则不要扩大范围。
+
+## 提交测试图
+
+`tests/MaaEndTestset` 是独立 Git 子模块。用户要求提交时，按以下顺序处理，确保图片提交可由主仓库引用并能正常推送：
+
+1. 提交图片前确认子模块处于 `main`：
+
+    ```powershell
+    git -C tests/MaaEndTestset switch main
+    git -C tests/MaaEndTestset branch --show-current
+    ```
+
+    第二条命令必须输出 `main`。若切换因已有修改或分支分歧失败，保留现场并报告，不要丢弃用户改动。
+
+2. 只在子模块中暂存并提交本次脱敏测试图，使用中文约定式提交信息；提交后确认 `main` 指向新提交且子模块工作区干净。
+3. 回到 MaaEnd 主仓库，暂存测试定义、相关代码和 `tests/MaaEndTestset` 子模块指针，再创建主仓库提交。不要只提交主仓库测试定义而遗漏子模块指针。
+4. 若用户还要求推送，先推送子模块 `main`，确认远端已包含图片提交后，再推送主仓库分支。未获得推送授权时不要推送。
+
+如果误在 detached HEAD 上创建了提交，先记录提交哈希，再将 `main` 快进到该提交；只有确认 `main` 是其祖先时才使用 `--ff-only`：
+
+```powershell
+git -C tests/MaaEndTestset switch main
+git -C tests/MaaEndTestset merge --ff-only <detached-commit>
+```
+
+随后确认 `git -C tests/MaaEndTestset branch --show-current` 输出 `main`，且主仓库记录的子模块指针与该提交一致。
 
 ## 交付
 
