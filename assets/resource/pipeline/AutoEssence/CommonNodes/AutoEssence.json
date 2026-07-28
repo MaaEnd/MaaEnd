@@ -78,28 +78,6 @@
             "Node.Action.Starting": "🧠正在判断当前状态"
         }
     },
-    "AutoEssenceSearchTriggerPoint": {
-        "desc": "到达激发点附近后，WASD 绕圈微调并查找交互/领取相关节点",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "CharacterSearchAction",
-                "custom_action_param": {
-                    "wait_nodes": [
-                        "AutoEssenceClickTriggerButton",
-                        "AutoEssenceClickObtainButton",
-                        "AutoEssenceClickDiscardButton",
-                        "AutoEssenceInObtain"
-                    ]
-                }
-            }
-        },
-        "post_delay": 0,
-        "next": [
-            "AutoEssenceDispatcher"
-        ]
-    },
     "__AutoEssenceBackToWorldOnce": {
         "desc": "仅一次，万能跳转回到大世界（需 jumpback 调用）",
         "max_hit": 1,
