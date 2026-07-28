@@ -78,6 +78,16 @@
             },
             "problemMatcher": [],
             "group": "build"
+        },
+        {
+            "label": "Format: All",
+            "type": "shell",
+            "command": "pnpm format:all",
+            "runOptions": {
+                "instanceLimit": 1
+            },
+            "problemMatcher": [],
+            "group": "none"
         }
     ]
 }

@@ -1,0 +1,9 @@
+node_modules/
+agent/go-service/vendor/
+agent/cpp-algo/MaaUtils/
+assets/resource/model/
+tests/MaaEndTestset/
+deps/
+install/
+3rdparty/
+.claude/
