@@ -89,6 +89,57 @@ cv::Mat GenerateMinimapMask(const cv::Mat& minimap, const ImageProcessingConfig&
     return baseMask;
 }
 
+namespace
+{
+
+bool EstimateArrowForward(const std::vector<cv::Point>& contour, const cv::Point2f& centroid, cv::Point2f* outForward)
+{
+    if (outForward == nullptr) {
+        return false;
+    }
+
+    std::vector<cv::Point> hullPts;
+    cv::convexHull(contour, hullPts);
+
+    const double cornerEps[] = { 0.05, 0.04, 0.06, 0.03, 0.08, 0.02, 0.10 };
+    const double peri = cv::arcLength(hullPts, true);
+    std::vector<cv::Point> corners;
+    for (double eps : cornerEps) {
+        std::vector<cv::Point> approx;
+        cv::approxPolyDP(hullPts, approx, eps * peri, true);
+        if (approx.size() == 3) {
+            corners = std::move(approx);
+            break;
+        }
+    }
+    if (corners.size() != 3) {
+        return false;
+    }
+
+    int sharpest = -1;
+    double maxCos = -2.0;
+    for (int i = 0; i < 3; ++i) {
+        cv::Point2f v1((float)(corners[(i + 2) % 3].x - corners[i].x), (float)(corners[(i + 2) % 3].y - corners[i].y));
+        cv::Point2f v2((float)(corners[(i + 1) % 3].x - corners[i].x), (float)(corners[(i + 1) % 3].y - corners[i].y));
+        double n = std::sqrt(((double)v1.x * v1.x + (double)v1.y * v1.y) * ((double)v2.x * v2.x + (double)v2.y * v2.y));
+        double c = (n < 1e-9) ? -1.0 : ((double)v1.x * v2.x + (double)v1.y * v2.y) / n;
+        if (c > maxCos) {
+            maxCos = c;
+            sharpest = i;
+        }
+    }
+
+    cv::Point2f fwd((float)corners[sharpest].x - centroid.x, (float)corners[sharpest].y - centroid.y);
+    double n = std::sqrt((double)fwd.x * fwd.x + (double)fwd.y * fwd.y);
+    if (n < 1e-6) {
+        return false;
+    }
+    *outForward = cv::Point2f((float)(fwd.x / n), (float)(fwd.y / n));
+    return true;
+}
+
+} // namespace
+
 double InferYellowArrowRotation(const cv::Mat& minimap)
 {
     if (minimap.empty()) {
@@ -190,14 +241,28 @@ double InferYellowArrowRotation(const cv::Mat& minimap)
     }
 
     int tipIdx = 0;
-    double maxDistSq = -1.0;
-    // 找出三角形中离质心最远的顶点：等腰三角形顶点到重心的距离恒大于底角到重心的距离，该顶点即为指向的真实玩家方向
-    for (int i = 0; i < 3; ++i) {
-        double distSq =
-            (triangle[i].x - centroid.x) * (triangle[i].x - centroid.x) + (triangle[i].y - centroid.y) * (triangle[i].y - centroid.y);
-        if (distSq > maxDistSq) {
-            maxDistSq = distSq;
-            tipIdx = i;
+    cv::Point2f forward;
+    if (EstimateArrowForward(hrContours[hrBestIdx], centroid, &forward)) {
+        double maxDot = -2.0;
+        for (int i = 0; i < 3; ++i) {
+            cv::Point2f d = triangle[i] - centroid;
+            double n = std::sqrt((double)d.x * d.x + (double)d.y * d.y);
+            double s = (n < 1e-9) ? -1.0 : ((double)d.x * forward.x + (double)d.y * forward.y) / n;
+            if (s > maxDot) {
+                maxDot = s;
+                tipIdx = i;
+            }
+        }
+    }
+    else {
+        double maxDistSq = -1.0;
+        for (int i = 0; i < 3; ++i) {
+            double distSq =
+                (triangle[i].x - centroid.x) * (triangle[i].x - centroid.x) + (triangle[i].y - centroid.y) * (triangle[i].y - centroid.y);
+            if (distSq > maxDistSq) {
+                maxDistSq = distSq;
+                tipIdx = i;
+            }
         }
     }
 
