@@ -2,6 +2,7 @@
 package control
 
 import (
+	"math"
 	"time"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -177,6 +178,47 @@ func (aca *ADBControlAdaptor) SetPlayerDirection(direction PlayerDirection) {
 	}
 }
 
+func (aca *ADBControlAdaptor) PlayerPulseMove(forward, right time.Duration, movement PlayerMovement) {
+	forwardDirection, forwardOn := adbAxisPulse(forward, DirectionF, DirectionB)
+	rightDirection, rightOn := adbAxisPulse(right, DirectionR, DirectionL)
+	if forwardOn <= 0 && rightOn <= 0 {
+		return
+	}
+
+	magnitude := -JOYSTICK_WALK_DY
+	if movement.speed >= MovementRun.speed {
+		magnitude = -JOYSTICK_RUN_DY
+	}
+
+	// Actuate both axes together for the shorter on-time, then keep only the dominant axis.
+	dominantDirection := forwardDirection
+	if rightOn > forwardOn {
+		dominantDirection = rightDirection
+	}
+	bothOn := min(forwardOn, rightOn)
+	dominantOn := max(forwardOn, rightOn)
+
+	if bothOn > 0 {
+		// Keep the diagonal magnitude equal to the cardinal one,
+		// so that the resulting speed matches the requested movement state.
+		diagonal := int(math.Round(float64(magnitude) / math.Sqrt2))
+		fx, fy := joystickOffset(forwardDirection, diagonal)
+		rx, ry := joystickOffset(rightDirection, diagonal)
+		aca.TouchDown(joystickContact, JOYSTICK_CENTER_X+fx+rx, JOYSTICK_CENTER_Y+fy+ry, 0)
+		time.Sleep(bothOn)
+	}
+	dx, dy := joystickOffset(dominantDirection, magnitude)
+	aca.TouchDown(joystickContact, JOYSTICK_CENTER_X+dx, JOYSTICK_CENTER_Y+dy, 0)
+	time.Sleep(dominantOn - bothOn)
+	aca.TouchUp(joystickContact, 0)
+
+	// The impulse released the joystick, so the player is stopped now.
+	// Restore the forward direction so that a following continuous movement goes forward.
+	aca.pm = MovementStop
+	aca.lastDirection = DirectionF
+	aca.lastMotionIsWalk = movement.speed < MovementRun.speed
+}
+
 func (aca *ADBControlAdaptor) PlayerJump() {
 	aca.TouchClick(jumpButtonContact, JUMP_BUTTON_X, JUMP_BUTTON_Y, defaultTouchActionDelayMillis*4, 0)
 }
@@ -187,6 +229,13 @@ func (aca *ADBControlAdaptor) ResetCursor(_ CursorResetPolicy) {
 
 func (aca *ADBControlAdaptor) AggressivelyResetPlayerMovement() {
 	// ADB has no need to reset player movement aggressively
+}
+
+func adbAxisPulse(on time.Duration, positive, negative PlayerDirection) (PlayerDirection, time.Duration) {
+	if on < 0 {
+		return negative, -on
+	}
+	return positive, on
 }
 
 func joystickOffset(direction PlayerDirection, magnitude int) (dx, dy int) {

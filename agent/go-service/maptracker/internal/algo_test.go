@@ -2,6 +2,7 @@
 package maptrackerinternal
 
 import (
+	"math"
 	"os"
 	"path/filepath"
 	"sort"
@@ -16,6 +17,64 @@ type benchmarkPathPair struct {
 }
 
 var benchmarkPathLengthSink int
+
+func TestRotateToLocalFrame(t *testing.T) {
+	// A delta pointing north (negative Y) in the map frame.
+	north := Point{X: 0, Y: -10}
+
+	cases := []struct {
+		name        string
+		delta       Point
+		headingDeg  float64
+		wantForward float64
+		wantRight   float64
+	}{
+		{"north delta facing north", north, 0, 10, 0},
+		{"north delta facing east", north, 90, 0, -10},
+		{"north delta facing south", north, 180, -10, 0},
+		{"north delta facing west", north, 270, 0, 10},
+		{"east delta facing north", Point{X: 10, Y: 0}, 0, 0, 10},
+		{"south delta facing north", Point{X: 0, Y: 10}, 0, -10, 0},
+		{"north delta facing northeast", north, 45, 7.0710678, -7.0710678},
+		{"diagonal delta facing northeast", Point{X: 10, Y: -10}, 45, 14.1421356, 0},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			forward, right := RotateToLocalFrame(tc.delta, tc.headingDeg)
+			if math.Abs(forward-tc.wantForward) > 1e-6 {
+				t.Errorf("forward = %v, want %v", forward, tc.wantForward)
+			}
+			if math.Abs(right-tc.wantRight) > 1e-6 {
+				t.Errorf("right = %v, want %v", right, tc.wantRight)
+			}
+		})
+	}
+}
+
+func TestRotateToLocalFramePreservesMagnitudeAndInvertsAngleTo(t *testing.T) {
+	origin := Point{X: 100, Y: 200}
+	target := Point{X: 137.5, Y: 163.25}
+	delta := Point{X: target.X - origin.X, Y: target.Y - origin.Y}
+
+	// Facing straight at the target must yield a purely forward component.
+	heading := origin.AngleTo(target)
+	forward, right := RotateToLocalFrame(delta, heading)
+	if math.Abs(forward-origin.DistanceTo(target)) > 1e-6 {
+		t.Errorf("forward = %v, want %v", forward, origin.DistanceTo(target))
+	}
+	if math.Abs(right) > 1e-6 {
+		t.Errorf("right = %v, want 0", right)
+	}
+
+	// Any heading must preserve the length of the delta.
+	for _, heading := range []float64{0, 23.5, 90, 187.25, 359} {
+		forward, right := RotateToLocalFrame(delta, heading)
+		if got, want := math.Hypot(forward, right), math.Hypot(delta.X, delta.Y); math.Abs(got-want) > 1e-6 {
+			t.Errorf("heading %v: magnitude = %v, want %v", heading, got, want)
+		}
+	}
+}
 
 func TestDijkstraPathChoosesLowerCostPath(t *testing.T) {
 	adjacency := map[int][]algoEdge{

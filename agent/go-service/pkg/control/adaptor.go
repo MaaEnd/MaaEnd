@@ -60,6 +60,13 @@ type ControlAdaptor interface {
 	// to the new direction immediately; otherwise the direction takes effect on the next move.
 	SetPlayerDirection(direction PlayerDirection)
 
+	// PlayerPulseMove performs one movement impulse with the given per-axis on-times
+	// and blocks until it completes, leaving the player stationary.
+	//
+	// The movement speed state is applied without starting a continuous movement,
+	// and the player is left stopped once the impulse ends.
+	PlayerPulseMove(forward, right time.Duration, movement PlayerMovement)
+
 	// PlayerJump performs the player jump action once.
 	// This will not change the player movement state.
 	PlayerJump()
@@ -135,8 +142,8 @@ func (pm PlayerMovement) RotationDuring(duration time.Duration) float64 {
 
 var (
 	MovementStop   = PlayerMovement{0.0, 0.0}
-	MovementWalk   = PlayerMovement{2.0, 270.0}
-	MovementRun    = PlayerMovement{8.0, 540.0}
+	MovementWalk   = PlayerMovement{1.2, 270.0}
+	MovementRun    = PlayerMovement{7.2, 540.0}
 	MovementSprint = PlayerMovement{12.0, 1080.0}
 )
 

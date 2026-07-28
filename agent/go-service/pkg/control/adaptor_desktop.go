@@ -181,6 +181,46 @@ func (dca *desktopControlAdaptor) SetPlayerDirection(direction PlayerDirection) 
 	dca.lastDirection = direction
 }
 
+func (dca *desktopControlAdaptor) PlayerPulseMove(forward, right time.Duration, movement PlayerMovement) {
+	forwardKey, forwardOn := dca.axisPulse(forward, DirectionF, DirectionB)
+	rightKey, rightOn := dca.axisPulse(right, DirectionR, DirectionL)
+	if forwardOn <= 0 && rightOn <= 0 {
+		return
+	}
+
+	// Ensure the player is stopped, then apply the speed state
+	// without starting a continuous movement.
+	dca.SetPlayerMovement(MovementStop, PolicyLazy)
+	dca.SetPlayerMovement(movement, PolicyLazy)
+
+	// Hold both axes together for the shorter on-time, then keep only the dominant axis.
+	dominantKey, shorterKey := forwardKey, rightKey
+	if rightOn > forwardOn {
+		dominantKey, shorterKey = rightKey, forwardKey
+	}
+	bothOn := min(forwardOn, rightOn)
+	dominantOn := max(forwardOn, rightOn)
+
+	if forwardOn > 0 {
+		dca.KeyDown(forwardKey, 0)
+	}
+	if rightOn > 0 {
+		dca.KeyDown(rightKey, 0)
+	}
+	if bothOn > 0 {
+		time.Sleep(bothOn)
+		dca.KeyUp(shorterKey, 0)
+	}
+	time.Sleep(dominantOn - bothOn)
+	dca.KeyUp(dominantKey, 0)
+
+	// The impulse released every direction key, so the player is stopped now.
+	// Keep the walk/run modifier state so that a following movement does not need to re-toggle it,
+	// and restore the forward direction so that a following continuous movement goes forward.
+	dca.pm = MovementStop
+	dca.lastDirection = DirectionF
+}
+
 func (dca *desktopControlAdaptor) PlayerJump() {
 	dca.KeyType(dca.keys.Space, defaultDesktopKeyActionDelayMillis*4)
 }
@@ -231,6 +271,14 @@ const defaultDesktopKeyActionDelayMillis = 30
 
 // cursorResetMaxInterval is the maximum time a lazy cursor reset may be deferred.
 const cursorResetMaxInterval = 2 * time.Second
+
+// axisPulse resolves the key and the non-negative on-time of one pulse axis.
+func (dca *desktopControlAdaptor) axisPulse(on time.Duration, positive, negative PlayerDirection) (int, time.Duration) {
+	if on < 0 {
+		return dca.directionKey(negative), -on
+	}
+	return dca.directionKey(positive), on
+}
 
 // directionKey returns the virtual-key code for the given movement direction.
 func (dca *desktopControlAdaptor) directionKey(direction PlayerDirection) int {

@@ -91,6 +91,20 @@ func (p Point) AngleTo(other Point) float64 {
 	return angle
 }
 
+// RotateToLocalFrame projects a map-frame delta into a local frame whose forward axis points
+// along headingDeg, using the same convention as [Point.AngleTo]: 0° is up (negative Y) and
+// angles increase clockwise. The returned forward is the component along the heading and
+// right is the component 90° clockwise from it.
+func RotateToLocalFrame(delta Point, headingDeg float64) (forward, right float64) {
+	rad := headingDeg * math.Pi / 180
+	sin, cos := math.Sin(rad), math.Cos(rad)
+
+	// Forward is (sin, -cos) and right is (cos, sin) in map coordinates.
+	forward = delta.X*sin - delta.Y*cos
+	right = delta.X*cos + delta.Y*sin
+	return
+}
+
 /* ******** Linear Transformation ******** */
 
 type LinearTransform struct {
