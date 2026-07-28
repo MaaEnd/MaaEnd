@@ -17,6 +17,11 @@
         "ja_jp": "locales/interface/ja_jp.json",
         "ko_kr": "locales/interface/ko_kr.json"
     },
+    "telemetry": {
+        "sentry": {
+            "dsn": "https://bd7fd739c3764eb264d3bfbb298cb56b@o4511806947065856.ingest.us.sentry.io/4511806958665728"
+        }
+    },
     "controller": [
         {
             "name": "Win32-Front",
