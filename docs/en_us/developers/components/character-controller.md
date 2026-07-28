@@ -80,7 +80,7 @@ Each time it is called, one of the following logics is executed based on the cur
 
 ### Action: CharacterSearchAction
 
-🔍 When an interact point cannot be found, walks a fixed circle path to fine-tune position and repeatedly recognizes target nodes. Returns success if any `wait_nodes` hits; returns failure after the full path with no hit, or when the task is Stopping. Does not pre-recognize at the starting position.
+🔍 When an interact point cannot be found, walks a fixed circle path to fine-tune position and repeatedly recognizes target nodes. Returns success if any `wait_nodes` hits; returns failure after the full path with no hit, or when the task is Stopping. **Recognizes once at the starting position first**, then enters the move → wait → recognize loop.
 
 Each step runs `__CharacterControllerAxisLongPress*Action`: default resource uses WASD `LongPressKey`; the ADB resource remaps them to virtual-joystick `LongPress` (see IMPORTANT above).
 
@@ -92,14 +92,14 @@ Required parameters:
 
 #### Circle Path
 
-Each step is fixed at 100ms (same as `CharacterControllerForwardAxisAction` with `axis: 1`); after every two steps, wait a fixed 1000ms before recognition. Direction mapping: forward/up = W (or joystick up), back/down = S (or joystick down), left = A (or joystick left), right = D (or joystick right).
+Each step is fixed at 100ms (same as `CharacterControllerForwardAxisAction` with `axis: 1`); after every step, wait then recognize. Direction mapping: forward/up = W (or joystick up), back/down = S (or joystick down), left = A (or joystick left), right = D (or joystick right).
 
 ```text
-F F | L L | S S S S | D D D D | W W W W | A A
-    ^every 2 steps: wait 1000ms → screencap → recognize wait_nodes
+start recognize → F F | L L | S S S S | D D D D | W W W W | A A
+                        ^after each step: wait → screencap → recognize wait_nodes
 ```
 
-18 steps total, up to 9 recognition attempts.
+18 move steps total, up to 19 recognition attempts (including the start).
 
 ## Complete Example
 

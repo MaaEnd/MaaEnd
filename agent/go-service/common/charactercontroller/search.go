@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	searchInterval = 1000 * time.Millisecond
+	searchInterval = 1500 * time.Millisecond
 	searchStepMs   = 100
 
 	axisForward  = "__CharacterControllerAxisLongPressForwardAction"
@@ -19,7 +19,7 @@ const (
 )
 
 // Fixed circle path: forward 2, left 2, down 4, right 4, up 4, left 2.
-// Recognition runs after every two steps.
+// Recognition runs at the start and after every step.
 var characterSearchPath = []string{
 	axisForward, axisForward,
 	axisLeft, axisLeft,
@@ -57,6 +57,10 @@ func (a *CharacterSearchAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 
 	ctrl := ctx.GetTasker().GetController()
 
+	if recognizeWaitNodes(ctx, ctrl, p.WaitNodes, 0) {
+		return true
+	}
+
 	for i, entry := range characterSearchPath {
 		if ctx.GetTasker().Stopping() {
 			return false
@@ -69,35 +73,9 @@ func (a *CharacterSearchAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		}
 		ctx.RunAction(entry, maa.Rect{0, 0, 0, 0}, "", override)
 
-		if (i+1)%2 != 0 {
-			continue
-		}
-
 		time.Sleep(searchInterval)
 
-		ctrl.PostScreencap().Wait()
-		img, err := ctrl.CacheImage()
-		if err != nil || img == nil {
-			log.Warn().
-				Err(err).
-				Str("component", "CharacterSearchAction").
-				Int("step", i+1).
-				Msg("cache image failed")
-			continue
-		}
-
-		found := false
-		for _, node := range p.WaitNodes {
-			if detail, err := ctx.RunRecognition(node, img); err == nil && detail != nil && detail.Hit {
-				found = true
-				break
-			}
-		}
-		if found {
-			log.Info().
-				Str("component", "CharacterSearchAction").
-				Int("step", i+1).
-				Msg("target found")
+		if recognizeWaitNodes(ctx, ctrl, p.WaitNodes, i+1) {
 			return true
 		}
 	}
@@ -105,5 +83,32 @@ func (a *CharacterSearchAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 	log.Info().
 		Str("component", "CharacterSearchAction").
 		Msg("target not found after circle search")
+	return false
+}
+
+// recognizeWaitNodes screencaps and runs recognition on wait_nodes.
+// step 0 means the initial position before any movement.
+func recognizeWaitNodes(ctx *maa.Context, ctrl *maa.Controller, waitNodes []string, step int) bool {
+	ctrl.PostScreencap().Wait()
+	img, err := ctrl.CacheImage()
+	if err != nil || img == nil {
+		log.Warn().
+			Err(err).
+			Str("component", "CharacterSearchAction").
+			Int("step", step).
+			Msg("cache image failed")
+		return false
+	}
+
+	for _, node := range waitNodes {
+		if detail, err := ctx.RunRecognition(node, img); err == nil && detail != nil && detail.Hit {
+			log.Info().
+				Str("component", "CharacterSearchAction").
+				Int("step", step).
+				Str("node", node).
+				Msg("target found")
+			return true
+		}
+	}
 	return false
 }

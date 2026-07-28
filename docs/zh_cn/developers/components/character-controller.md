@@ -80,7 +80,7 @@
 
 ### Action: CharacterSearchAction
 
-🔍 找不到交互点时，按固定绕圈路径微调位置并反复识别目标节点。任一 `wait_nodes` 命中即返回成功；走完整圈仍未命中或任务 Stopping 时返回失败。起点不预识别。
+🔍 找不到交互点时，按固定绕圈路径微调位置并反复识别目标节点。任一 `wait_nodes` 命中即返回成功；走完整圈仍未命中或任务 Stopping 时返回失败。**起点先识别一次**，未命中后再进入「移动 → 等待 → 识别」循环。
 
 底层通过 `__CharacterControllerAxisLongPress*Action` 执行单步移动：默认资源为 WASD `LongPressKey`；ADB 资源覆盖为虚拟摇杆 `LongPress`（见上文 IMPORTANT）。
 
@@ -92,14 +92,14 @@
 
 #### 绕圈路径
 
-一步固定 100ms（与 `CharacterControllerForwardAxisAction` 的 `axis: 1` 一致）；每两步后固定等待 1000ms 再识别。方向映射：前/上 = W（或摇杆上），后/下 = S（或摇杆下），左 = A（或摇杆左），右 = D（或摇杆右）。
+一步固定 100ms（与 `CharacterControllerForwardAxisAction` 的 `axis: 1` 一致）；每步后固定等待再识别。方向映射：前/上 = W（或摇杆上），后/下 = S（或摇杆下），左 = A（或摇杆左），右 = D（或摇杆右）。
 
 ```text
-前 前 | 左 左 | 下 下 下 下 | 右 右 右 右 | 上 上 上 上 | 左 左
-      ^每累计 2 步：等待 1000ms → 截图 → 识别 wait_nodes
+起点识别 → 前 前 | 左 左 | 下 下 下 下 | 右 右 右 右 | 上 上 上 上 | 左 左
+                 ^每步后：等待 → 截图 → 识别 wait_nodes
 ```
 
-共 18 步、最多 9 次查找。
+共 18 步移动，最多 19 次查找（含起点）。
 
 ## 完整示例
 
