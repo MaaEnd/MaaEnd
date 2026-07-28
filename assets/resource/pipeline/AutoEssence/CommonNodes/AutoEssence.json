@@ -80,6 +80,7 @@
     },
     "AutoEssenceSearchTriggerPoint": {
         "desc": "到达激发点附近后，WASD 绕圈微调并查找交互/领取相关节点",
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -94,15 +95,10 @@
                 }
             }
         },
+        "post_delay": 0,
         "next": [
             "AutoEssenceDispatcher"
-        ],
-        "on_error": [
-            "AutoEssenceDispatcher"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🔍微调位置寻找激发点"
-        }
+        ]
     },
     "__AutoEssenceBackToWorldOnce": {
         "desc": "仅一次，万能跳转回到大世界（需 jumpback 调用）",
