@@ -1,4 +1,4 @@
-{
+﻿{
     "OpenGame": {
         "desc": "打开游戏",
         "max_hit": 2,
@@ -212,23 +212,53 @@
     "CloudEndfieldRetry": {
         "desc": "云终末地重试",
         "max_hit": 20,
+        "post_delay": 5000,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloudEndfieldRetryText",
+                    "CloudEndfieldRetryButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "CloudEndfieldRetryText": {
+        "desc": "云终末地重试文本",
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
-                    350,
-                    233,
-                    572,
-                    346
+                    410,
+                    227,
+                    459,
+                    262
+                ],
+                "expected": [
+                    "您上次游戏的数据正在火速处理中"
+                ]
+            }
+        }
+    },
+    "CloudEndfieldRetryButton": {
+        "desc": "云终末地重试按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    410,
+                    227,
+                    459,
+                    262
                 ],
                 "expected": [
                     "知道了"
                 ]
             }
-        },
-        "post_delay": 5000,
-        "action": {
-            "type": "Click"
         }
     },
     "CloseGame": {
