@@ -12,7 +12,7 @@ from recastnav import (CAP, CS, LAM, MARGIN, MAX_CELLS, MAXERR, MC_HBAND, R,
 from recastnav_zone import CleanNav, WallOracle
 
 
-def build(zc, wo, s, h0, x0, y0, x1, y1):
+def build(zc, wo, s, s_snap, h0, x0, y0, x1, y1):
     nx = int(np.ceil((x1 - x0) / CS))
     ny = int(np.ceil((y1 - y0) / CS))
     m = zc.mesh
@@ -35,6 +35,10 @@ def build(zc, wo, s, h0, x0, y0, x1, y1):
 
     gx = int((s[0] - x0) / CS); gy = int((s[1] - y0) / CS)
     j = int(np.searchsorted(occ, gy * nx + gx))
+    if j >= len(occ) or occ[j] != gy * nx + gx:
+        # 起点离网时其所在格无体素,退用按楼层吸附过的起点定种子
+        gx = int((s_snap[0] - x0) / CS); gy = int((s_snap[1] - y0) / CS)
+        j = int(np.searchsorted(occ, gy * nx + gx))
     if j >= len(occ) or occ[j] != gy * nx + gx:
         return None, f"起点格无体素 (gx={gx},gy={gy})"
     cand = IK[j][IK[j] >= 0]
@@ -354,7 +358,7 @@ class RecastEngine:
             ny = int(np.ceil((y1 - y0) / CS))
             if nx * ny > MAX_CELLS:
                 raise ValueError(f"窗口过大 ({nx}×{ny} 格)")
-            info, err = build(zc, wo, s, h0, x0, y0, x1, y1)
+            info, err = build(zc, wo, s, ss[1], h0, x0, y0, x1, y1)
             if err is None:
                 line, dg = route(info, s, g)
                 if line is not None:

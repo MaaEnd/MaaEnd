@@ -46,6 +46,7 @@ std::optional<WindowInfo> buildWindow(
     const ZoneClean& zc,
     WallOracle& wo,
     const WorldPoint& s,
+    const WorldPoint& s_snap,
     double h0,
     double x0,
     double y0,
@@ -72,10 +73,17 @@ std::optional<WindowInfo> buildWindow(
     }
     const std::vector<uint8_t> dead = StampWalls(p0, p1, hh, x0, y0, nx, ny, st);
 
-    const int64_t gx = static_cast<int64_t>((s.x - x0) / kCS);
-    const int64_t gy = static_cast<int64_t>((s.y - y0) / kCS);
-    const int64_t cell0 = gy * nx + gx;
-    const auto occ_it = std::lower_bound(st.occ.begin(), st.occ.end(), cell0);
+    int64_t gx = static_cast<int64_t>((s.x - x0) / kCS);
+    int64_t gy = static_cast<int64_t>((s.y - y0) / kCS);
+    int64_t cell0 = gy * nx + gx;
+    auto occ_it = std::lower_bound(st.occ.begin(), st.occ.end(), cell0);
+    if (occ_it == st.occ.end() || *occ_it != cell0) {
+        // 起点离网时其所在格无体素,退用按楼层吸附过的起点定种子
+        gx = static_cast<int64_t>((s_snap.x - x0) / kCS);
+        gy = static_cast<int64_t>((s_snap.y - y0) / kCS);
+        cell0 = gy * nx + gx;
+        occ_it = std::lower_bound(st.occ.begin(), st.occ.end(), cell0);
+    }
     if (occ_it == st.occ.end() || *occ_it != cell0) {
         err = "起点格无体素 (gx=" + std::to_string(gx) + ",gy=" + std::to_string(gy) + ")";
         return std::nullopt;
@@ -574,7 +582,7 @@ RecastPlanResult RecastNavEngine::planLocked(
             return res;
         }
         std::string err;
-        const auto info = buildWindow(zc, wo, start, h0, x0, y0, x1, y1, blocked_local, blocked_points, err);
+        const auto info = buildWindow(zc, wo, start, ss->point, h0, x0, y0, x1, y1, blocked_local, blocked_points, err);
         if (info.has_value()) {
             RouteDiag dg;
             const auto line = routeWindow(*info, start, goal, dg);
