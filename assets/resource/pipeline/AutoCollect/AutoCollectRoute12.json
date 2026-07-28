@@ -79,26 +79,12 @@
     "AutoCollectRoute12GotoFindLine1": {
         "desc": "前往中红柱状菌采集点",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv004",
-            "path": [
-                [
-                    607.5,
-                    326.3
-                ],
-                [
-                    635.0,
-                    323.8
-                ],
-                [
-                    641.0,
-                    342.1
-                ],
-                [
-                    633.8,
-                    348.8
-                ]
+            "target": [
+                633.8,
+                348.8
             ]
         }
     },
