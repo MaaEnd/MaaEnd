@@ -46,6 +46,8 @@ Optional parameters:
     | `"AllTargets"`  | Enable fine approach at every target point                    | When extremely high precision is required for transit points (e.g., crossing narrow bridges) |
     | `"Never"`       | Disable fine approach                                         | /                                                                                            |
 
+    The fine approach first brings the player to a stop, then repeats the process of "recognize the location → perform one short displacement along the camera's forward/backward/left/right axes" until the player is close enough to the target point. The camera is never rotated during this process, so the player's orientation is undetermined when it ends. If a specific orientation is needed, use `on_finish` together with [MapTrackerToward](#action-maptrackertoward) to adjust it.
+
 - `on_finish`: Pipeline node object, defaults to not filled. Executes this Pipeline node once after successful pathfinding. For an example, refer to the Tip section of [MapTrackerToward](#action-maptrackertoward). The `pre_delay` and `post_delay` of the filled node default to `0` milliseconds if omitted.
 
 <details>

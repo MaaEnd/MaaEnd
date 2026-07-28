@@ -49,6 +49,8 @@
     | `"AllTargets"`  | 在每一个目标点都启用精细进近           | 对途径点的精度要求极高时（例如经过狭窄桥梁时） |
     | `"Never"`       | 不启用精细进近                         | /                                              |
 
+    精细进近会先让玩家停下，随后重复“识别位置 → 沿着视角的前后左右方向做一次短促位移”的过程，直到玩家足够接近目标点。这一过程中不会转动视角，因此结束时玩家的朝向是不确定的，如有需要请使用 `on_finish` 配合 [MapTrackerToward](#action-maptrackertoward) 来调整朝向。
+
 - `on_finish`: Pipeline 节点对象，默认不填。寻路成功后执行一次该 Pipeline 节点。有关示例可参见 [MapTrackerToward](#action-maptrackertoward) 的 Tip 部分。所填节点的 `pre_delay` 和 `post_delay` 在缺省时默认为 `0` 毫秒。
 
 <details>
