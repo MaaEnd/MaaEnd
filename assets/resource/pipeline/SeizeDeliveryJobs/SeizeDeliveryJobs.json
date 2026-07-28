@@ -185,7 +185,7 @@
             "SeizeDeliveryJobsRefresh"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.wulingCityFound"
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.orderFound"
         }
     },
     "SeizeDeliveryJobsIsSeizeSuccess": {
