@@ -1,5 +1,7 @@
 ﻿{
     "OpenGame": {
+        "desc": "打开游戏",
+        "max_hit": 2,
         "timeout": 45000,
         "next": [
             "EnterGame",
@@ -8,8 +10,51 @@
             "[JumpBack]CloudEndfieldStartGame",
             "[JumpBack]CloudEndfieldWaitStartGame",
             "[JumpBack]CloudEndfieldRetry",
-            "[JumpBack]StartUpGame"
+            "[JumpBack]StartUpGame",
+            "StuckRepairAction"
         ]
+    },
+    "StuckRepairAction": {
+        "desc": "尝试修复卡死",
+        "focus": {
+            "Node.Action.Starting": "$task.OpenGame.focus.stuck_repair"
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "CloseGame",
+                        "ResetStartUpGame"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "OpenGame",
+            "StartUpGameFailed"
+        ]
+    },
+    "ResetStartUpGame": {
+        "desc": "重置启动游戏",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "StartUpGame"
+                    ]
+                }
+            }
+        }
+    },
+    "StartUpGameFailed": {
+        "desc": "启动游戏失败",
+        "focus": {
+            "Node.Action.Starting": "$task.OpenGame.focus.start_up_game_failed"
+        }
     },
     "EnterGameResourceInitializeComplete": {
         "desc": "识别资源初始化完成",

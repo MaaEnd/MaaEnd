@@ -765,6 +765,8 @@
     "task.SimpleProductionBatch.error_not_found": "**Please select the items to craft on the Simple Crafting page before starting the script**.",
     "task.AndroidOpenGame.label": "🎮 Launch Game (Android)",
     "task.AndroidOpenGame.description": "Launch the game on Android. Please open the emulator manually first.",
+    "task.OpenGame.focus.stuck_repair": "Attempting to recover from a stuck state",
+    "task.OpenGame.focus.start_up_game_failed": "Failed to start the game",
     "task.CloseGame.label": "❌ Close Game (Android)",
     "task.CloseGame.description": "Automatically close the game.",
     "option.ClientVersion.label": "Client Version",

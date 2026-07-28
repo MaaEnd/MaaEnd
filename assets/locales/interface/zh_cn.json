@@ -685,6 +685,8 @@
     "task.SimpleProductionBatch.error_not_found": "**请在简易制作页面中先选好要制作的道具再启动脚本**",
     "task.AndroidOpenGame.label": "🎮打开游戏",
     "task.AndroidOpenGame.description": "安卓端打开游戏，需先手动打开模拟器",
+    "task.OpenGame.focus.stuck_repair": "尝试修复卡死",
+    "task.OpenGame.focus.start_up_game_failed": "启动游戏失败",
     "task.CloseGame.label": "❌关闭游戏（安卓端）",
     "task.CloseGame.description": "自动关闭游戏",
     "option.ClientVersion.label": "客户端版本",
