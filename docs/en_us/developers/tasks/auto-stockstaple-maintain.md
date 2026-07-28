@@ -262,7 +262,7 @@ Go **no longer** executes `RunTask` to perform sliding; quantity adjustment is c
   -> AutoStockStapleQuantityControlConfirmBuy
 ```
 
-`AutoStockStapleBetterSliding` is defined in `General/Item.json`, with `enabled: false` by default; it is only enabled after Go override; the default value of `attach.Target` is just a placeholder.
+`AutoStockStapleBetterSliding` is defined in `General/Item.json`, with `enabled: false` by default; it is only enabled after Go override; the default value of `attach.TargetQuantity` is just a placeholder.
 
 After the purchase quantity adjustment is complete, `next` enters `AutoStockStapleQuantityControlConfirmBuy` to click the yellow confirm button, then closes the reward popup and returns to the list.
 
