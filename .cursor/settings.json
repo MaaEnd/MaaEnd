@@ -1,7 +1,0 @@
-{
-  "plugins": {
-    "sentry": {
-      "enabled": true
-    }
-  }
-}
