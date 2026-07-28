@@ -142,7 +142,8 @@
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsIsCarryingGoods",
-            "[Anchor]SeizeDeliveryJobsWalkToDepotNode", // 没有携带货物，则正常去走到仓储节点
+            "SeizeDeliveryJobsPrepareFetchGoods", // 全自动送货模式下，先取消任务追踪再前往仓储节点
+            "[Anchor]SeizeDeliveryJobsWalkToDepotNode", // 其他模式下，直接前往仓储节点
             "SeizeDeliveryJobsFatalCannotDetermineDestination" // 兜底报错回显，以防 Anchor 未被赋值
         ]
     },
@@ -264,7 +265,44 @@
             "Node.Recognition.Succeeded": "正在重新走到试验园区仓储节点"
         }
     },
-    // ===== 接取货物的收尾流程 =====
+    // ===== 接取货物流程 =====
+    "SeizeDeliveryJobsPrepareFetchGoods": {
+        "desc": "自动接取货物前的准备入口，先进入当前任务地图取消任务追踪（此节点默认关闭）",
+        "enabled": false,
+        "pre_delay": 0,
+        "anchor": {
+            "SeizeDeliveryJobsAfterEnterDestinationMap": "SeizeDeliveryJobsCancelTrackingBeforeFetch"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsEnterDestinationMap"
+        ],
+        "focus": {
+            "Node.Action.Starting": "准备取消任务追踪后接取货物"
+        }
+    },
+    "SeizeDeliveryJobsCancelTrackingBeforeFetch": {
+        "desc": "在当前任务地图取消任务追踪，返回大世界后再前往仓储节点接取货物",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SeizeDeliveryJobsCancelTracking",
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]SeizeDeliveryJobsWalkToDepotNode",
+            "SeizeDeliveryJobsFatalCannotDetermineDestination"
+        ],
+        "focus": {
+            "Node.Action.Starting": "取消任务追踪后返回大世界"
+        }
+    },
     "SeizeDeliveryJobsFetchGoods": {
         "desc": "在任意仓储节点面前，接取货物",
         "recognition": "TemplateMatch",

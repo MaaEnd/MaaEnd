@@ -57,7 +57,7 @@
         ]
     },
     "SeizeDeliveryJobsCancelTracking": {
-        "desc": "在目的地地图界面，取消任务追踪以防止追踪标志干扰后续识别",
+        "desc": "在当前任务地图界面，取消任务追踪以防止追踪标志干扰后续识别",
         "enabled": true,
         "recognition": "TemplateMatch",
         "roi": [
@@ -74,7 +74,7 @@
             // 后续由 Go 内部逻辑来进行后续流程控制
         ],
         "focus": {
-            "Node.Action.Starting": "成功识别目的地位置"
+            "Node.Action.Starting": "取消任务追踪"
         }
     },
     "SeizeDeliveryJobsSubmitEntry": {

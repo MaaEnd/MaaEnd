@@ -303,6 +303,9 @@
                         "SeizeDeliveryJobsPostProcessingEntry": {
                             "enabled": true
                         },
+                        "SeizeDeliveryJobsPrepareFetchGoods": {
+                            "enabled": true
+                        },
                         "SeizeDeliveryJobsPostDepartureEntry": {
                             "enabled": true
                         }
