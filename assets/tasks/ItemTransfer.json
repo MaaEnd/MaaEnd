@@ -1086,6 +1086,53 @@
                     }
                 },
                 {
+                    "name": "分离芯",
+                    "label": "$item.FilterCore",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "分离芯",
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "分离芯",
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "分离芯",
+                                "max_distance": 1
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "壤晶",
                     "label": "$item.Xircon",
                     "pipeline_override": {
@@ -1211,6 +1258,53 @@
                         "ItemTransferFindItemFallbackBagReturn": {
                             "custom_action_param": {
                                 "target_class": 41
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐",
+                    "label": "$item.CupriumCanister",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "赤铜耐压罐",
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "赤铜耐压罐",
+                                "max_distance": 1
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "赤铜耐压罐",
+                                "max_distance": 1
                             }
                         }
                     }
@@ -2388,6 +2482,57 @@
                     }
                 },
                 {
+                    "name": "灼铜装备原件",
+                    "label": "$item.PyrroliteComponent",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferClickSortDescending": {
+                            "next": [
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "灼铜装备原件",
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "灼铜装备原件"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "灼铜装备原件"
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "赫铜装备原件",
                     "label": "$item.HetoniteComponent",
                     "pipeline_override": {
@@ -2659,6 +2804,57 @@
                         "ItemTransferFindItemFallbackBagReturn": {
                             "custom_action_param": {
                                 "target_class": 106
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "label": "$item.CopperEnr2Cmpt",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferClickSortDescending": {
+                            "next": [
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "灼铜零件",
+                                "descending": true
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "灼铜零件"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "灼铜零件"
                             }
                         }
                     }
