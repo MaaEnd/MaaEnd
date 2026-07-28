@@ -166,7 +166,10 @@
     "StartUpGame": {
         "max_hit": 20,
         "post_delay": 3000,
-        "desc": "启动游戏,由ADB端option进行覆盖"
+        "desc": "启动游戏,由ADB端option进行覆盖",
+        "focus": {
+            "Node.Action.Failed": "$task.OpenGame.focus.start_app_failed" //多半是Client选错了
+        }
     },
     "CloudEndfieldStartGame": {
         "desc": "云终末地开始游戏",

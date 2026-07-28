@@ -558,6 +558,7 @@
     "task.AndroidOpenGame.description": "安卓端打開遊戲，需先手動打開模擬器",
     "task.OpenGame.focus.stuck_repair": "嘗試修復卡死",
     "task.OpenGame.focus.start_up_game_failed": "啟動遊戲失敗",
+    "task.OpenGame.focus.start_app_failed": "應用程式啟動失敗",
     "task.CloseGame.label": "❌關閉遊戲（安卓端）",
     "task.CloseGame.description": "自動關閉遊戲",
     "option.ClientVersion.label": "客戶端版本",

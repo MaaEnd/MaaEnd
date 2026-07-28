@@ -767,6 +767,7 @@
     "task.AndroidOpenGame.description": "Launch the game on Android. Please open the emulator manually first.",
     "task.OpenGame.focus.stuck_repair": "Attempting to recover from a stuck state",
     "task.OpenGame.focus.start_up_game_failed": "Failed to start the game",
+    "task.OpenGame.focus.start_app_failed": "Failed to launch the app",
     "task.CloseGame.label": "❌ Close Game (Android)",
     "task.CloseGame.description": "Automatically close the game.",
     "option.ClientVersion.label": "Client Version",

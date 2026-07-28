@@ -554,6 +554,7 @@
     "task.AndroidOpenGame.description": "Androidでゲームを起動します。事前にエミュレーターを手動で起動してください。",
     "task.OpenGame.focus.stuck_repair": "フリーズ修復を試行しています",
     "task.OpenGame.focus.start_up_game_failed": "ゲームの起動に失敗しました",
+    "task.OpenGame.focus.start_app_failed": "アプリの起動に失敗しました",
     "task.CloseGame.label": "❌ ゲーム終了（Android）",
     "task.CloseGame.description": "ゲームを自動終了します。",
     "option.ClientVersion.label": "クライアントバージョン",

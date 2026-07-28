@@ -554,6 +554,7 @@
     "task.AndroidOpenGame.description": "Android에서 게임을 실행합니다. 먼저 에뮬레이터를 수동으로 실행해 주세요.",
     "task.OpenGame.focus.stuck_repair": "멈춤 상태 복구를 시도합니다",
     "task.OpenGame.focus.start_up_game_failed": "게임 시작에 실패했습니다",
+    "task.OpenGame.focus.start_app_failed": "앱 실행에 실패했습니다",
     "task.CloseGame.label": "❌ 게임 종료 (Android)",
     "task.CloseGame.description": "게임을 자동으로 종료합니다.",
     "option.ClientVersion.label": "클라이언트 버전",
