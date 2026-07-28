@@ -8,7 +8,8 @@ This document explains how to use nodes related to CharacterController.
 
 > [!IMPORTANT]
 >
-> All CharacterController nodes depend on keyboard/mouse input and **must run in the foreground mode (Seize)**, otherwise input events cannot be correctly delivered to the game. Ensure the controller uses the `Seize` connection method in `interface.json` or user configuration.
+> Camera/view nodes (Yaw / Pitch / MoveToTarget, etc.) depend on keyboard/mouse input and **must run in the foreground mode (Seize)**, otherwise input events cannot be correctly delivered to the game.  
+> Axis movement nodes (`CharacterControllerForwardAxisAction` and the `__CharacterControllerAxisLongPress*Action` nodes used by `CharacterSearchAction`) work on **ADB** via joystick `LongPress` overrides in [`resource_adb/.../CharacterController/Action.json`](../../../assets/resource_adb/pipeline/Common/__Private/CharacterController/Action.json); Seize is not required for those.
 
 ## Node Descriptions
 
@@ -79,7 +80,9 @@ Each time it is called, one of the following logics is executed based on the cur
 
 ### Action: CharacterSearchAction
 
-🔍 When an interact point cannot be found, walks a fixed WASD circle to fine-tune position and repeatedly recognizes target nodes. Returns success if any `wait_nodes` hits; returns failure after the full path with no hit, or when the task is Stopping. Does not pre-recognize at the starting position.
+🔍 When an interact point cannot be found, walks a fixed circle path to fine-tune position and repeatedly recognizes target nodes. Returns success if any `wait_nodes` hits; returns failure after the full path with no hit, or when the task is Stopping. Does not pre-recognize at the starting position.
+
+Each step runs `__CharacterControllerAxisLongPress*Action`: default resource uses WASD `LongPressKey`; the ADB resource remaps them to virtual-joystick `LongPress` (see IMPORTANT above).
 
 #### Node Parameters
 
@@ -89,7 +92,7 @@ Required parameters:
 
 #### Circle Path
 
-Each step is fixed at 100ms (same as `CharacterControllerForwardAxisAction` with `axis: 1`); after every two steps, wait a fixed 1000ms before recognition. Direction mapping: forward/up = W, back/down = S, left = A, right = D.
+Each step is fixed at 100ms (same as `CharacterControllerForwardAxisAction` with `axis: 1`); after every two steps, wait a fixed 1000ms before recognition. Direction mapping: forward/up = W (or joystick up), back/down = S (or joystick down), left = A (or joystick left), right = D (or joystick right).
 
 ```text
 F F | L L | S S S S | D D D D | W W W W | A A

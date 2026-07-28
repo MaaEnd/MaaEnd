@@ -1,0 +1,60 @@
+{
+    // ADB: 将 WASD LongPressKey 映射为虚拟摇杆 LongPress
+    // 坐标对齐 ADBControlAdaptor walk 摇杆（中心 195,551，偏移 15）
+    "__CharacterControllerAxisLongPressForwardAction": {
+        "desc": "ADB 摇杆向前",
+        "pre_delay": 0,
+        "action": "LongPress",
+        "target": [
+            195,
+            536,
+            1,
+            1
+        ],
+        "duration": 100,
+        "contact": 0,
+        "post_delay": 0
+    },
+    "__CharacterControllerAxisLongPressBackwardAction": {
+        "desc": "ADB 摇杆向后",
+        "pre_delay": 0,
+        "action": "LongPress",
+        "target": [
+            195,
+            566,
+            1,
+            1
+        ],
+        "duration": 100,
+        "contact": 0,
+        "post_delay": 0
+    },
+    "__CharacterControllerAxisLongPressLeftAction": {
+        "desc": "ADB 摇杆向左",
+        "pre_delay": 0,
+        "action": "LongPress",
+        "target": [
+            180,
+            551,
+            1,
+            1
+        ],
+        "duration": 100,
+        "contact": 0,
+        "post_delay": 0
+    },
+    "__CharacterControllerAxisLongPressRightAction": {
+        "desc": "ADB 摇杆向右",
+        "pre_delay": 0,
+        "action": "LongPress",
+        "target": [
+            210,
+            551,
+            1,
+            1
+        ],
+        "duration": 100,
+        "contact": 0,
+        "post_delay": 0
+    }
+}
