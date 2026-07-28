@@ -1186,6 +1186,50 @@
                     }
                 },
                 {
+                    "name": "灼铜块",
+                    "label": "$item.Pyrrolite",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/Product.png",
+                            "next": [
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemWithOCR"
+                            ]
+                        },
+                        "ItemTransferBagToRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBag"
+                            ]
+                        },
+                        "ItemTransferBagToOriginRepo": {
+                            "next": [
+                                "ItemTransferFindItemWithOCRBagReturn"
+                            ]
+                        },
+                        "ItemTransferFindItemWithOCR": {
+                            "custom_action_param": {
+                                "item_name": "灼铜块"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBag": {
+                            "custom_action_param": {
+                                "item_name": "灼铜块"
+                            }
+                        },
+                        "ItemTransferFindItemWithOCRBagReturn": {
+                            "custom_action_param": {
+                                "item_name": "灼铜块"
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "重息壤",
                     "label": "$item.HeavyXiranite",
                     "pipeline_override": {
