@@ -153,6 +153,20 @@
 		{
 			"if": {
 				"properties": {
+					"custom_action": { "const": "SellProductPrioritySession" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/sell_product.schema.json#/$defs/PrioritySessionParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
 					"custom_action": { "const": "RepeatUntilFoundAction" }
 				},
 				"required": [ "custom_action" ]

@@ -76,6 +76,129 @@
                 }
             ]
         },
+        "PrioritySessionParam": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "operation"
+                    ],
+                    "properties": {
+                        "operation": {
+                            "const": "configure"
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "only_preferred": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "operation",
+                        "strategy"
+                    ],
+                    "properties": {
+                        "operation": {
+                            "const": "configure_strategy"
+                        },
+                        "strategy": {
+                            "enum": [
+                                "rarity",
+                                "price"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "operation",
+                        "strategy"
+                    ],
+                    "properties": {
+                        "operation": {
+                            "const": "configure_strategy"
+                        },
+                        "strategy": {
+                            "const": "stock"
+                        },
+                        "minimum_unit_price": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "operation"
+                    ],
+                    "properties": {
+                        "operation": {
+                            "const": "reset_preferred"
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "operation"
+                    ],
+                    "properties": {
+                        "operation": {
+                            "const": "reset_goods_selection"
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "operation"
+                    ],
+                    "properties": {
+                        "operation": {
+                            "const": "register"
+                        },
+                        "item_id": {
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "operation",
+                        "location"
+                    ],
+                    "properties": {
+                        "operation": {
+                            "enum": [
+                                "commit",
+                                "out_of_stock"
+                            ]
+                        },
+                        "location": {
+                            "type": "string",
+                            "pattern": "\\S"
+                        }
+                    }
+                }
+            ]
+        },
         "LocationPlanParam": {
             "type": "object",
             "additionalProperties": false,
