@@ -1,0 +1,61 @@
+{
+    "ADVANCED_COGNITIVE_CARRIER": {
+        "desc": "IMS 物品:高级认知载体(And；box_index 指向数量节点 ADVANCED_COGNITIVE_CARRIER 作为物品 ID)",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "IMSItemColorYellow",
+                    "__ADVANCED_COGNITIVE_CARRIER_TEMPLATE",
+                    "ADVANCED_COGNITIVE_CARRIER_COUNT"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ADVANCED_COGNITIVE_CARRIER_TEMPLATE": {
+        "desc": "IMS:高级认知载体模版匹配(培养素材页列表区域)",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "IMSItemColorYellow",
+                "roi_offset": [
+                    0,
+                    -93,
+                    0,
+                    93
+                ],
+                "template": [
+                    "IMS/item/ADVANCED_COGNITIVE_CARRIER_TEMPLATE.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ADVANCED_COGNITIVE_CARRIER_COUNT": {
+        "desc": "IMS:高级认知载体数量 OCR（物品 ID）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__ADVANCED_COGNITIVE_CARRIER_TEMPLATE",
+                "roi_offset": [
+                    0,
+                    62,
+                    0,
+                    -34
+                ],
+                "expected": [
+                    "\\d+"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

@@ -84,6 +84,7 @@ Consult as needed. Only required when using the corresponding component.
 | [MapLocator](./components/map-locator.md) | AI + CV based minimap positioning system, outputs region, coordinates, and orientation |
 | [MapTracker](./components/map-tracker.md) | Computer vision based minimap tracking and path movement |
 | [MapNavigator](./components/map-navigator.md) | Path navigation Action, supports record-free target-based pathfinding and GUI recording |
+| [IMS](./components/ims.md) | In-process cultivation-item cache and `ItemDataReady` readiness gate |
 
 ### Task Maintenance Documents (`tasks/`)
 

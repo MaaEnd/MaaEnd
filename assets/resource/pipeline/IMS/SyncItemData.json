@@ -1,0 +1,58 @@
+{
+    "SyncItemData": {
+        "desc": "IMS A2 入口：从任意位置进入贵重品库培养素材页，再执行一次缓存更新。业务侧只需调用本节点",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncItemDataInProgressionTab",
+            "[JumpBack]SceneEnterMenuValuablesProgressionTab"
+        ],
+        "focus": {
+            "Node.Action.Starting": "即将进入贵重品库培养素材页并同步物品数据"
+        }
+    },
+    "SyncItemDataInProgressionTab": {
+        "desc": "确认已在培养素材页，执行缓存更新",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashProgressionTab"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncItemDataRun"
+        ]
+    },
+    "SyncItemDataRun": {
+        "desc": "IMS A2：依次跑 items 中的 And 识别器，box_index 数量节点名作为物品 ID；page_dedup=true 时覆盖已有数量",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SyncItemData",
+                "custom_action_param": {
+                    "items": [
+                        "ADVANCED_COGNITIVE_CARRIER_Item"
+                    ],
+                    "page_dedup": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [],
+        "focus": {
+            "Node.Action.Succeeded": "物品数据同步完成",
+            "Node.Action.Failed": "物品数据同步失败"
+        }
+    }
+}

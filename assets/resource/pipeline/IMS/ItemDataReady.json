@@ -1,0 +1,44 @@
+{
+    "EnsureItemDataReadyMain": {
+        "desc": "确保物品数据就绪：已就绪则直接通过；否则调用 SyncItemData（A2）",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EnsureItemDataReadyAlreadyOk",
+            "SyncItemData"
+        ]
+    },
+    "EnsureItemDataReadyAlreadyOk": {
+        "desc": "库存缓存已就绪，无需扫描",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ItemDataReady"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "ItemDataReady": {
+        "desc": "IMS：库存缓存是否就绪（无数据或超过 refresh_days 则未命中；0=永不因过期失效）",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemDataReady",
+                "custom_recognition_param": {
+                    "refresh_days": 7
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

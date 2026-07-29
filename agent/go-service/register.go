@@ -29,6 +29,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dijiangrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/ims"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
@@ -92,6 +93,7 @@ func registerAll() {
 	seizedeliveryjobs.Register()
 	autostockstaple.Register()
 	autostockpile.Register()
+	ims.Register()
 	itemtransfer.Register()
 	sellproduct.Register()
 	creditshopping.Register()

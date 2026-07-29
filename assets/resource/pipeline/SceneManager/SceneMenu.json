@@ -919,6 +919,48 @@
         "pre_delay": 0,
         "post_delay": 0
     },
+    "__ScenePrivateMenuValuablesEnterProgressionTab": {
+        "desc": "切换到培养素材标签页",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    357,
+                    0,
+                    510,
+                    74
+                ],
+                "template": "SceneManager/ProgressionTabNotChoose.png"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "__ScenePrivateAnyEnterProgressionTabSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterProgressionTabSuccess": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashProgressionTab"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "target": [
+                0,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "__ScenePrivateWorldEnterMenuOperationalManual": {
         "desc": "从大世界进入行动手册菜单",
         "recognition": {

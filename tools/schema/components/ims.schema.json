@@ -1,0 +1,54 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "IMS Component Schema",
+    "description": "Parameter definitions for IMS (Item Management System) custom recognitions/actions. Referenced by custom.recognition.schema.json / custom.action.schema.json.",
+    "$defs": {
+        "ItemDataReadyParam": {
+            "type": "object",
+            "title": "ItemDataReady Param",
+            "description": "Parameters for ItemDataReady recognition. Reports whether the in-process inventory cache is ready (has a successful sync and is within TTL).",
+            "additionalProperties": false,
+            "properties": {
+                "refresh_days": {
+                    "title": "Refresh Days",
+                    "description": "Cache TTL in days after a successful sync. 1 / 7 / 30 expire after that many days; 0 means never expire due to age (still requires hasData). Omit to default to 7.",
+                    "type": "integer",
+                    "enum": [
+                        0,
+                        1,
+                        7,
+                        30
+                    ],
+                    "default": 7
+                }
+            }
+        },
+        "SyncItemDataParam": {
+            "type": "object",
+            "title": "SyncItemData Param",
+            "description": "Scan And recognizers on the current screen. Each item is an And node; box_index points at the quantity OCR node whose name is the item ID. Results are written to debug/record/IMS.json with updated_at.",
+            "additionalProperties": false,
+            "required": [
+                "items"
+            ],
+            "properties": {
+                "items": {
+                    "title": "Items",
+                    "description": "Ordered list of And recognition node names to run. The box_index child node name is used as the item ID; its OCR text is the quantity.",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "page_dedup": {
+                    "title": "Page Dedup",
+                    "description": "When false (default), rebuild the item map from this scan only (create). When true, merge into existing cache/file and overwrite quantities for hit IDs (used after paging).",
+                    "type": "boolean",
+                    "default": false
+                }
+            }
+        }
+    }
+}

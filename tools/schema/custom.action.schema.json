@@ -84,6 +84,7 @@
                 "RepeatUntilNotFoundAction",
                 "SceneManagerMenuListClickItemAction",
                 "SubTask",
+                "SyncItemData",
                 "TrialOfSwordmancy.Decide",
                 "WebEvent202605Action",
                 "autoEcoFarmInterruptibleSleep",
@@ -93,6 +94,20 @@
         }
     },
 	"allOf": [
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "SyncItemData" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/ims.schema.json#/$defs/SyncItemDataParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
 		{
 			"if": {
 				"properties": {

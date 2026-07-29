@@ -17,6 +17,7 @@
                 "ExpendableRecognition",
                 "ExpressionRecognition",
                 "ImageCheckNotPassedRecognition",
+                "ItemDataReady",
                 "ListCompleteRecognition",
                 "MapLocateAssertLocation",
                 "MapTrackerAssertLocation",
@@ -86,6 +87,21 @@
                                 "maxItems": 4
                             }
                         }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "ItemDataReady" } }
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "custom_recognition_param": {
+                        "$ref": "./components/ims.schema.json#/$defs/ItemDataReadyParam"
                     }
                 }
             }
