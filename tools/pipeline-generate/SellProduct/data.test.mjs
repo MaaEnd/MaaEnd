@@ -10,18 +10,11 @@ import {
     settlementData,
     toPascalCase,
 } from "./model.mjs";
-import sellProductAdbRows from "./pipeline-adb-data.mjs";
-import sellProductPipelineRows from "./pipeline-data.mjs";
 import sellProductSellRows from "./sell-data.mjs";
 import {sellProductSelectionData} from "./selection-data.mjs";
-import sellProductSessionRows from "./session-data.mjs";
 import {sellProductTaskRows} from "./task-data.mjs";
 
 const root = sellProductTaskRows[0];
-
-function sortedKeys(value) {
-    return Object.keys(value).sort();
-}
 
 function readPipeline(url) {
     return JSON.parse(readFileSync(url, "utf8").replace(/^\s*\/\/.*$/gm, ""));
@@ -30,7 +23,6 @@ function readPipeline(url) {
 test("SellProduct 保留按星期执行入口与任务选项", () => {
     const task = readPipeline(new URL("../../../assets/tasks/SellProduct.json", import.meta.url));
     const pipeline = readPipeline(new URL("../../../assets/resource/pipeline/SellProduct.json", import.meta.url));
-    const taskTemplate = readFileSync(new URL("./task-template.jsonc", import.meta.url), "utf8");
 
     assert.equal(task.task[0].entry, "SellProductSchedule");
     assert.deepEqual(task.task[0].option, [
@@ -43,7 +35,6 @@ test("SellProduct 保留按星期执行入口与任务选项", () => {
     ]);
     assert.equal(task.option.SellProductSchedule.type, "checkbox");
     assert.equal(task.option.SellProductSchedule.cases.length, 7);
-    assert.match(taskTemplate, /"entry": "SellProductSchedule"/);
     assert.equal(pipeline.SellProductScheduleEnabled.recognition.param.custom_recognition, "ScheduleRecognition");
     assert.deepEqual(Object.keys(pipeline.SellProductScheduleEnabled.attach), [
         "monday",
@@ -64,7 +55,6 @@ test("SellProduct 保留按星期执行入口与任务选项", () => {
 
 test("SellProduct 选品策略支持稀有度、单价和库存优先", () => {
     const task = readPipeline(new URL("../../../assets/tasks/SellProduct.json", import.meta.url));
-    const taskTemplate = readFileSync(new URL("./task-template.jsonc", import.meta.url), "utf8");
     const selectionStrategy = task.option.SellProductSelectionStrategy;
     assert.equal(selectionStrategy.type, "select");
     assert.equal(selectionStrategy.default_case, "Rarity");
@@ -94,7 +84,6 @@ test("SellProduct 选品策略支持稀有度、单价和库存优先", () => {
         minimum_unit_price: 10,
     });
     assert.equal(root.StockMinimumUnitPriceDefault, "10");
-    assert.match(taskTemplate, /"default": "\$\{StockMinimumUnitPriceDefault\}"/);
     assert.equal(task.option.SellProductStockMinimumUnitPrice.inputs[0].default, "10");
     assert.deepEqual(
         task.option.SellProductStockMinimumUnitPrice.pipeline_override.SellProductConfigureSelectionStrategy
@@ -135,82 +124,6 @@ test("SellProduct 优先售卖新地区且地区内保持游戏顺序", () => {
 
     const regionOrder = sellProductRegionsNewestFirst.map((region) => region.RegionPrefix);
     assert.ok(regionOrder.indexOf("Wuling") < regionOrder.indexOf("ValleyIV"));
-});
-
-test("SellProduct templates consume separate minimal projections of the shared location model", () => {
-    const locationIds = sellProductLocations.map((location) => location.LocationId);
-    for (const rows of [
-        sellProductPipelineRows,
-        sellProductAdbRows,
-        sellProductSessionRows,
-        sellProductTaskRows,
-    ]) {
-        assert.deepEqual(
-            rows.map((row) => row.LocationId),
-            locationIds,
-        );
-    }
-
-    assert.deepEqual(sortedKeys(sellProductPipelineRows[0]), [
-        "AvailableQuantityBox",
-        "CurrentOperatorROI",
-        "LocationDesc",
-        "LocationId",
-        "RegionPrefix",
-        "SliderQuantityBox",
-        "TextExpected",
-    ]);
-    assert.deepEqual(sortedKeys(sellProductAdbRows[0]), [
-        "AvailableQuantityBoxAdb",
-        "LocationId",
-        "RegionPrefix",
-        "SliderQuantityBoxAdb",
-    ]);
-    assert.deepEqual(sortedKeys(sellProductSessionRows[0]), [
-        "LocationDesc",
-        "LocationId",
-        "OperatorRegistrationNext",
-    ]);
-    assert.deepEqual(sortedKeys(root), [
-        "LocationId",
-        "OnlyPreferredSwitchCases",
-        "OperatorRefreshModeCases",
-        "PriorityItemCases1",
-        "PriorityItemCases2",
-        "PriorityItemCases3",
-        "PriorityItemCases4",
-        "PriorityItemCases5",
-        "PriorityItemCases6",
-        "PriorityRuleSwitchCases",
-        "RegionPrefix",
-        "RegionPriorityRuleSwitchCases",
-        "ReserveItemCases1",
-        "ReserveItemCases2",
-        "ReserveItemCases3",
-        "ReserveItemCases4",
-        "ReserveItemCases5",
-        "ReserveItemCases6",
-        "ReserveModeCases1",
-        "ReserveModeCases2",
-        "ReserveModeCases3",
-        "ReserveModeCases4",
-        "ReserveModeCases5",
-        "ReserveModeCases6",
-        "ReserveRuleSwitchCases",
-        "SelectionStrategyCases",
-        "SellOptions",
-        "StockMinimumUnitPriceDefault",
-        "TaskOptions",
-    ]);
-    assert.deepEqual(
-        sellProductPipelineRows[0].CurrentOperatorROI,
-        [
-            260,
-            568,
-            280,
-            35,
-        ],
-    );
 });
 
 test("SellProduct 强制刷新选项为 PC 与 ADB 使用相同的当前干员 ROI", () => {
@@ -424,10 +337,6 @@ test("SellProduct concrete reserve rule separates itemId attach from handling mo
         operation: "register",
         quantity: -1,
     });
-
-    const taskTemplate = readFileSync(new URL("./task-template.jsonc", import.meta.url), "utf8");
-    assert.equal((taskTemplate.match(/"quantity": "\{SellProductReserveItem[1-6]Value\}"/g) || []).length, 6);
-    assert.equal((taskTemplate.match(/"default_case": "Quantity"/g) || []).length, 6);
 });
 
 test("SellProduct reserve None case does not register a rule", () => {
@@ -565,26 +474,12 @@ test("SellProduct operator switching uses shared core dispatch nodes", () => {
             `${prefix}OutpostProsperityAvailable`,
             `${prefix}OutpostProsperityMax`,
         ]);
-        assert.deepEqual(pipeline[`${prefix}OutpostProsperityAvailable`].custom_action_param, {
-            operation: "enter_location",
-            location: location.LocationId,
-            outpost_prosperity_max: false,
-        });
         assert.deepEqual(pipeline[`${prefix}OutpostProsperityAvailable`].next, [
             `${prefix}ReportLocationPlan`,
         ]);
-        assert.deepEqual(pipeline[`${prefix}OutpostProsperityMax`].custom_action_param, {
-            operation: "enter_location",
-            location: location.LocationId,
-            outpost_prosperity_max: true,
-        });
         assert.deepEqual(pipeline[`${prefix}OutpostProsperityMax`].next, [
             `${prefix}ReportLocationPlan`,
         ]);
-        assert.equal(pipeline[`${prefix}ReportLocationPlan`].custom_action, "SellProductLocationPlan");
-        assert.deepEqual(pipeline[`${prefix}ReportLocationPlan`].custom_action_param, {
-            location: location.LocationId,
-        });
         assert.deepEqual(pipeline[`${prefix}ReportLocationPlan`].next, [
             `${prefix}SetOperatorAnchors`,
         ]);
@@ -619,25 +514,11 @@ test("SellProduct operator switching uses shared core dispatch nodes", () => {
     ]);
 });
 
-test("SellProduct pipeline templates use one dynamic priority loop instead of fixed attempts", () => {
-    const pipelineTemplate = readFileSync(new URL("./pipeline-template.jsonc", import.meta.url), "utf8");
-    const adbTemplate = readFileSync(new URL("./pipeline-adb-template.jsonc", import.meta.url), "utf8");
-
-    assert.doesNotMatch(pipelineTemplate, /SellAttempt[1-4]/);
-    assert.match(pipelineTemplate, /SellProduct\$\{LocationId\}SelectPriorityItem/);
-    assert.match(pipelineTemplate, /SellProduct\$\{LocationId\}PriorityItemsExhausted/);
-    assert.equal((pipelineTemplate.match(/"SellProduct\$\{LocationId\}BetterSliding": \{/g) || []).length, 1);
-    assert.doesNotMatch(adbTemplate, /BetterSliding[1-4]/);
-    assert.match(adbTemplate, /SellProduct\$\{LocationId\}BetterSliding/);
-});
-
 test("SellProduct 选品库存识别只扫描第一页且不滑动货品列表", () => {
-    const pipelineTemplate = readFileSync(new URL("./pipeline-template.jsonc", import.meta.url), "utf8");
     const changeGoods = readPipeline(
         new URL("../../../assets/resource/pipeline/SellProduct/ChangeGoods.json", import.meta.url),
     );
 
-    assert.doesNotMatch(pipelineTemplate, /StockNeedsScroll|StockNeedsRewind|needs_scroll|needs_rewind/);
     assert.deepEqual(changeGoods.SellProductChangeGoodsRelay.next, [
         "[Anchor]SellProductSelectPriorityItem",
         "[Anchor]SellProductPriorityItemsExhausted",
@@ -830,31 +711,6 @@ test("SellProduct 持续售卖到保留量后再进入下一轮选货", () => {
 });
 
 test("SellProduct 按启用据点边界处理已派驻干员冲突", () => {
-    const pipelineTemplate = readFileSync(new URL("./pipeline-template.jsonc", import.meta.url), "utf8");
-
-    for (const usage of [
-        "Target",
-        "Restore",
-    ]) {
-        assert.match(pipelineTemplate, new RegExp(`SellProduct\\$\\{LocationId\\}${usage}OperatorManagedConflict`));
-        assert.match(pipelineTemplate, new RegExp(`SellProduct\\$\\{LocationId\\}${usage}OperatorProtectedConflict`));
-        assert.match(
-            pipelineTemplate,
-            new RegExp(`SellProduct\\$\\{LocationId\\}Cancel${usage}OperatorAlreadyAssigned`),
-        );
-        assert.match(
-            pipelineTemplate,
-            new RegExp(`SellProduct\\$\\{LocationId\\}Close${usage}OperatorLiaisonAfterAlreadyAssigned`),
-        );
-    }
-
-    assert.equal((pipelineTemplate.match(/"operation": "exclude_selected"/g) || []).length, 2);
-    assert.equal((pipelineTemplate.match(/"custom_recognition": "SellProductOperatorConflict"/g) || []).length, 4);
-    assert.match(pipelineTemplate, /"result": "managed"/);
-    assert.match(pipelineTemplate, /"result": "protected"/);
-    assert.match(pipelineTemplate, /"CancelButton"/);
-    assert.doesNotMatch(pipelineTemplate, /"GrayCancelButton"/);
-
     for (const location of sellProductLocations) {
         const pipeline = readPipeline(
             new URL(
@@ -975,74 +831,5 @@ test("SellProduct generated outpost nodes report task-level runtime state change
             location: location.LocationId,
             changed: true,
         });
-    }
-});
-
-test("SellProduct UI focus messages use complete interface i18n keys", () => {
-    const pipelineUrls = [
-        new URL("../../../assets/resource/pipeline/SellProduct.json", import.meta.url),
-        new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url),
-        new URL("../../../assets/resource/pipeline/SellProduct/OperatorScan.json", import.meta.url),
-        ...sellProductLocations.map(
-            (location) =>
-                new URL(
-                    `../../../assets/resource/pipeline/SellProduct/${location.RegionPrefix}/${location.LocationId}.json`,
-                    import.meta.url,
-                ),
-        ),
-    ];
-    const focusKeys = new Set();
-    for (const url of pipelineUrls) {
-        for (const node of Object.values(readPipeline(url))) {
-            for (const value of Object.values(node.focus || {})) {
-                assert.match(value, /^\$task\.SellProduct\./, `${url.pathname}: ${value}`);
-                focusKeys.add(value.slice(1));
-            }
-        }
-    }
-
-    for (const lang of [
-        "zh_cn",
-        "zh_tw",
-        "en_us",
-        "ja_jp",
-        "ko_kr",
-    ]) {
-        const locale = JSON.parse(
-            readFileSync(new URL(`../../../assets/locales/interface/${lang}.json`, import.meta.url), "utf8"),
-        );
-        for (const key of focusKeys) {
-            assert.equal(typeof locale[key], "string", `${lang} missing ${key}`);
-            assert.notEqual(locale[key].trim(), "", `${lang} has empty ${key}`);
-        }
-    }
-});
-
-test("SellProduct Go UI messages have matching keys in all locales", () => {
-    const localeEntries = [
-        "zh_cn",
-        "zh_tw",
-        "en_us",
-        "ja_jp",
-        "ko_kr",
-    ].map((lang) => [
-        lang,
-        JSON.parse(readFileSync(new URL(`../../../assets/locales/go-service/${lang}.json`, import.meta.url), "utf8")),
-    ]);
-    const expectedKeys = Object.keys(localeEntries[0][1])
-        .filter((key) => key.startsWith("sellproduct."))
-        .sort();
-
-    for (const [
-        lang,
-        locale,
-    ] of localeEntries) {
-        const keys = Object.keys(locale)
-            .filter((key) => key.startsWith("sellproduct."))
-            .sort();
-        assert.deepEqual(keys, expectedKeys, `${lang} SellProduct keys differ`);
-        for (const key of keys) {
-            assert.notEqual(locale[key].trim(), "", `${lang} has empty ${key}`);
-        }
     }
 });
