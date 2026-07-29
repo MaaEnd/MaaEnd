@@ -212,8 +212,9 @@ func TestPrioritySelectionOutOfStockSharedAndReset(t *testing.T) {
 func TestZeroStockObservationMarksTaskOutOfStock(t *testing.T) {
 	resetPrioritySelectionSession()
 	prioritySelectionMarkScannedOutOfStock([]stockPageItem{
-		{ItemID: "zero", Quantity: 0},
-		{ItemID: "available", Quantity: 10},
+		{ItemID: "zero", Quantity: 0, StockKnown: true},
+		{ItemID: "available", Quantity: 10, StockKnown: true},
+		{ItemID: "unknown"},
 	})
 
 	if excluded := priorityOutOfStockSnapshot(); !reflect.DeepEqual(excluded, map[string]struct{}{"zero": {}}) {

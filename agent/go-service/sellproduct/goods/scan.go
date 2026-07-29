@@ -28,10 +28,11 @@ var (
 )
 
 type stockPageItem struct {
-	ItemID   string
-	StockBox maa.Rect
-	ClickBox maa.Rect
-	Quantity int64
+	ItemID     string
+	StockBox   maa.Rect
+	ClickBox   maa.Rect
+	Quantity   int64
+	StockKnown bool
 }
 
 type stockPageScan struct {
@@ -97,8 +98,9 @@ func buildStockPageItems(
 		return nil, fmt.Errorf("item name count %d is smaller than anchor count %d", len(nameMatches), len(anchorBoxes))
 	}
 
-	items := make([]stockPageItem, 0, len(anchorBoxes))
+	items := make([]stockPageItem, 0, len(nameMatches))
 	usedNames := make(map[string]struct{}, len(anchorBoxes))
+	lowestCompleteNameBottom := 0
 	for _, anchorBox := range anchorBoxes {
 		nameBox := stockCellBox(anchorBox, offsets.Name, bounds)
 		nameMatch, ok := findStockNameForAnchor(nameMatches, usedNames, nameBox)
@@ -106,6 +108,7 @@ func buildStockPageItems(
 			return nil, fmt.Errorf("no item name found in %v for anchor %v", nameBox, anchorBox)
 		}
 		usedNames[nameMatch.itemID] = struct{}{}
+		lowestCompleteNameBottom = max(lowestCompleteNameBottom, nameMatch.box.Y()+nameMatch.box.Height())
 		stockBox := stockCellBox(anchorBox, offsets.Quantity, bounds)
 		raw := collectStockQuantityText(ocrItems, stockBox)
 		quantity, ok := parseStockQuantity(raw)
@@ -120,13 +123,50 @@ func buildStockPageItems(
 			Interface("anchor_box", anchorBox).
 			Msg("goods cell stock recognized")
 		items = append(items, stockPageItem{
-			ItemID:   nameMatch.itemID,
-			StockBox: stockBox,
-			ClickBox: stockCellBox(anchorBox, offsets.Click, bounds),
-			Quantity: quantity,
+			ItemID:     nameMatch.itemID,
+			StockBox:   stockBox,
+			ClickBox:   stockCellBox(anchorBox, offsets.Click, bounds),
+			Quantity:   quantity,
+			StockKnown: true,
+		})
+	}
+
+	// 列表底部可能只露出下一行名称。它没有完整格子锚点和库存区域，
+	// 但稀有度、单价策略仍可使用名称框安全点击。
+	for _, nameMatch := range nameMatches {
+		if _, used := usedNames[nameMatch.itemID]; used {
+			continue
+		}
+		if nameMatch.box.Y() < lowestCompleteNameBottom ||
+			!stockNameWithinAnchorColumns(nameMatch.box, anchorBoxes, offsets.Name, bounds) {
+			continue
+		}
+		items = append(items, stockPageItem{
+			ItemID:     nameMatch.itemID,
+			ClickBox:   nameMatch.box,
+			StockKnown: false,
 		})
 	}
 	return items, nil
+}
+
+func stockNameWithinAnchorColumns(
+	nameBox maa.Rect,
+	anchorBoxes []maa.Rect,
+	nameOffset maa.Rect,
+	bounds image.Rectangle,
+) bool {
+	if len(anchorBoxes) == 0 {
+		return false
+	}
+	left := bounds.Max.X
+	right := bounds.Min.X
+	for _, anchorBox := range anchorBoxes {
+		box := stockCellBox(anchorBox, nameOffset, bounds)
+		left = min(left, box.X())
+		right = max(right, box.X()+box.Width())
+	}
+	return nameBox.X() < right && nameBox.X()+nameBox.Width() > left
 }
 
 func matchStockPageNames(ocrItems []ocrmatch.Item, groups []itemPriorityGroup) []stockNameMatch {

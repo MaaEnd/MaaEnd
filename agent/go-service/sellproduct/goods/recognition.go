@@ -82,8 +82,8 @@ func parsePriorityItemRecognitionParam(raw string) (*priorityItemRecognitionPara
 	return &param, nil
 }
 
-// runGoodsSelectionRecognition 只扫描第一页完整可见的货品格子。
-// 所有模式用库存排除零库存商品，再由当前策略选择第一页候选。
+// runGoodsSelectionRecognition 扫描第一页货品；稀有度和单价策略也接纳底部仅露出名称的货品。
+// 已知零库存货品会被公共过滤，库存策略还会排除库存未知的候选。
 func runGoodsSelectionRecognition(
 	ctx *maa.Context,
 	arg *maa.CustomRecognitionArg,
@@ -130,11 +130,15 @@ func runGoodsSelectionRecognition(
 }
 
 func buildGoodsSelectionResult(item stockPageItem, scannedItemCount int) *maa.CustomRecognitionResult {
-	detailJSON, _ := json.Marshal(map[string]any{
+	detail := map[string]any{
 		"item_id":            item.ItemID,
-		"stock_quantity":     item.Quantity,
-		"stock_box":          item.StockBox,
+		"stock_known":        item.StockKnown,
 		"scanned_item_count": scannedItemCount,
-	})
+	}
+	if item.StockKnown {
+		detail["stock_quantity"] = item.Quantity
+		detail["stock_box"] = item.StockBox
+	}
+	detailJSON, _ := json.Marshal(detail)
 	return &maa.CustomRecognitionResult{Box: item.ClickBox, Detail: string(detailJSON)}
 }

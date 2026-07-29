@@ -175,12 +175,12 @@ The default Rarity Priority strategy compares:
 
 Unit Price Priority swaps the first two fields: unit price descending, then rarity descending, with stable source order for ties.
 
-The goods recognizer always scans only fully visible cells on the first page. It detects known product names and the details icon at the lower-right of each complete cell. The Win32 and ADB Pipelines independently provide `stock_name_offset`, `stock_quantity_offset`, and `stock_click_offset` relative to that anchor for name association, stock OCR, and safe selection. Go consumes the regions from the active resource pack instead of hard-coding platform layout.
+The goods recognizer scans only the first page. It detects known product names and the details icon at the lower-right of each complete cell, then builds complete cells from those anchors. The Win32 and ADB Pipelines independently provide `stock_name_offset`, `stock_quantity_offset`, and `stock_click_offset` relative to that anchor for name association, stock OCR, and safe selection. Go consumes the regions from the active resource pack instead of hard-coding platform layout.
 
-- When there are at least as many names as details icons, only the products paired with complete icons, up to the first nine, are read. Names from partially visible cells at the bottom are ignored.
+- When there are at least as many names as details icons, complete cells are paired first. Products below the last complete row with only their names visible are retained with unknown stock.
 - When there are fewer names than details icons, product-name OCR missed a cell, so the same screen is recognized again without selecting.
 
-Every selection strategy first excludes zero-stock, already attempted, confirmed out-of-stock, never-sell, and reserve-satisfied products. The Selection Strategy option defaults to Rarity Priority and can be changed to Unit Price Priority or Stock Priority. Stock Priority additionally excludes products below the configured minimum unit price, then compares local stock, unit price, rarity, and stable source order. Lower-tier products on the second page do not participate in any strategy, and Pipeline does not scroll to read them. The details icon is used only as a cell anchor; selection clicks a safe name area inside the cell rather than the icon that opens product details. Stock parsing supports integers and the compact `K`, `M`, `万`, `萬`, and `만` suffixes.
+Every selection strategy first excludes products explicitly recognized with zero stock, as well as already attempted, confirmed out-of-stock, never-sell, and reserve-satisfied products. The Selection Strategy option defaults to Rarity Priority and can be changed to Unit Price Priority or Stock Priority. Rarity Priority and Unit Price Priority may select a bottom product whose name is visible but whose stock is unknown. Stock Priority requires recognized stock, additionally excludes products below the configured minimum unit price, then compares local stock, unit price, rarity, and stable source order. Lower-tier products on the second page do not participate in any strategy, and Pipeline does not scroll to read them. For complete cells, the details icon is used only as an anchor and selection clicks the safe name area configured by Pipeline. A partially visible bottom cell is clicked through its OCR name box. Neither path clicks the icon that opens product details. Stock parsing supports integers and the compact `K`, `M`, `万`, `萬`, and `만` suffixes.
 
 The task provides a priority-selling master switch that is disabled by default and independent of the region selling switches. Enabling it expands “Sell Priority Products Only” plus separate Valley IV and Wuling priority switches; each region then exposes six slots listing only items sold by at least one outpost in that region. The master switch only controls whether these settings affect runtime ordering; it neither clears regional selections nor enables or disables selling in any region. On entering a region, Pipeline replaces both the active-region flag and priority table with that region's settings. The runtime tries configured items from slot 1 through 6 when they are eligible under the current strategy; the Stock Priority minimum unit price also applies to preferred items. If no preferred item is available, the current strategy selects from the remaining candidates. Duplicate selections keep only the earliest slot. In strict-priority mode, only regions whose regional priority switch is also enabled are restricted to explicitly configured items available at the current outpost; regions without regional priority enabled continue under the selected strategy. An enabled region with no applicable selections ends normally after two consecutive stable empty-candidate observations. Switching regions preserves the task-wide out-of-stock set and each outpost's attempted items.
 
@@ -238,18 +238,18 @@ Independent reserve rules provide six slots. Each stable `itemId` can use either
 
 The generator lives under `tools/pipeline-generate/SellProduct/`. `model.mjs` defines outpost IDs, multilingual OCR candidates, task options, and template data from zmdmap. `selection-data.mjs` produces the Go deployment resource at `assets/data/SellProduct/selection_data.json`. `tools/pipeline-generate/data/` is the generator's source-data directory.
 
-| Maintenance entry | Generated artifact |
+| Maintenance entry                                    | Generated artifact                                                       |
 | ---------------------------------------------------- | ------------------------------------------------------------------------ |
-| `model.mjs` | Shared outpost, region, and multilingual OCR model |
-| `pipeline-template.jsonc` | `assets/resource/pipeline/SellProduct/{Region}/{Location}.json` |
-| `pipeline-adb-template.jsonc` | `assets/resource_adb/pipeline/SellProduct/{Region}/{Location}.json` |
-| `sell-template.jsonc` | `assets/resource/pipeline/SellProduct/{Region}/SellProduct{Region}.json` |
-| `loop-template.jsonc` | `assets/resource/pipeline/SellProduct/Loop.json` |
-| `session-template.jsonc` | `assets/resource/pipeline/SellProduct/OperatorSession.json` |
-| `task-template.jsonc` | `assets/tasks/SellProduct.json` |
-| `sync-locales.mjs` | Five-language outpost and operator keys plus missing item keys |
-| `selection-data.mjs` | `assets/data/SellProduct/selection_data.json` |
-| `tools/pipeline-generate/data/settlement_trade.json` | Upstream zmdmap trade data |
+| `model.mjs`                                          | Shared outpost, region, and multilingual OCR model                       |
+| `pipeline-template.jsonc`                            | `assets/resource/pipeline/SellProduct/{Region}/{Location}.json`          |
+| `pipeline-adb-template.jsonc`                        | `assets/resource_adb/pipeline/SellProduct/{Region}/{Location}.json`      |
+| `sell-template.jsonc`                                | `assets/resource/pipeline/SellProduct/{Region}/SellProduct{Region}.json` |
+| `loop-template.jsonc`                                | `assets/resource/pipeline/SellProduct/Loop.json`                         |
+| `session-template.jsonc`                             | `assets/resource/pipeline/SellProduct/OperatorSession.json`              |
+| `task-template.jsonc`                                | `assets/tasks/SellProduct.json`                                          |
+| `sync-locales.mjs`                                   | Five-language outpost and operator keys plus missing item keys           |
+| `selection-data.mjs`                                 | `assets/data/SellProduct/selection_data.json`                            |
+| `tools/pipeline-generate/data/settlement_trade.json` | Upstream zmdmap trade data                                               |
 
 These files are maintained manually and are outside generator output:
 

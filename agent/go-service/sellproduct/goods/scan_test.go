@@ -87,20 +87,60 @@ func TestBuildStockPageItemsAssociatesOneOCRResultSetByAnchor(t *testing.T) {
 	}
 	want := []stockPageItem{
 		{
-			ItemID:   "item_a",
-			StockBox: maa.Rect{282, 231, 100, 40},
-			ClickBox: maa.Rect{282, 177, 100, 34},
-			Quantity: 4803,
+			ItemID:     "item_a",
+			StockBox:   maa.Rect{282, 231, 100, 40},
+			ClickBox:   maa.Rect{282, 177, 100, 34},
+			Quantity:   4803,
+			StockKnown: true,
 		},
 		{
-			ItemID:   "item_b",
-			StockBox: maa.Rect{592, 231, 100, 40},
-			ClickBox: maa.Rect{592, 177, 100, 34},
-			Quantity: 14700,
+			ItemID:     "item_b",
+			StockBox:   maa.Rect{592, 231, 100, 40},
+			ClickBox:   maa.Rect{592, 177, 100, 34},
+			Quantity:   14700,
+			StockKnown: true,
 		},
 	}
 	if !reflect.DeepEqual(items, want) {
 		t.Fatalf("stock page items = %#v, want %#v", items, want)
+	}
+}
+
+func TestBuildStockPageItemsKeepsNameOnlyItemBelowCompleteRows(t *testing.T) {
+	anchors := []maa.Rect{
+		{240, 235, 40, 40},
+		{550, 235, 40, 40},
+	}
+	nameOnlyBox := maa.Rect{290, 330, 120, 30}
+	ocrItems := []ocrmatch.Item{
+		{Text: "物品甲", Box: maa.Rect{290, 190, 120, 30}},
+		{Text: "4803", Box: maa.Rect{290, 240, 70, 25}},
+		{Text: "物品乙", Box: maa.Rect{600, 190, 120, 30}},
+		{Text: "14700", Box: maa.Rect{600, 240, 70, 25}},
+		{Text: "物品丙", Box: nameOnlyBox},
+	}
+	groups := []itemPriorityGroup{
+		{ItemID: "item_a", Candidates: []string{"物品甲"}},
+		{ItemID: "item_b", Candidates: []string{"物品乙"}},
+		{ItemID: "item_c", Candidates: []string{"物品丙"}},
+	}
+	offsets := stockCellOffsets{
+		Name:     maa.Rect{42, -60, 100, 40},
+		Quantity: maa.Rect{42, -4, 100, 40},
+		Click:    maa.Rect{42, -58, 100, 34},
+	}
+
+	items, err := buildStockPageItems(ocrItems, anchors, groups, offsets, image.Rect(0, 0, 1280, 720))
+	if err != nil {
+		t.Fatalf("buildStockPageItems: %v", err)
+	}
+	if len(items) != 3 {
+		t.Fatalf("stock page item count = %d, want 3: %+v", len(items), items)
+	}
+	nameOnly := items[2]
+	if nameOnly.ItemID != "item_c" || nameOnly.StockKnown || nameOnly.Quantity != 0 ||
+		nameOnly.StockBox != (maa.Rect{}) || nameOnly.ClickBox != nameOnlyBox {
+		t.Fatalf("name-only item = %+v", nameOnly)
 	}
 }
 

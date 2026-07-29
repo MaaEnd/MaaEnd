@@ -64,9 +64,9 @@ func TestSelectGoodsTargetAppliesMinimumPriceAndExistingExclusions(t *testing.T)
 		{ItemID: "eligible", UnitPrice: 30},
 	}
 	observations := map[string]sellstrategy.Candidate{
-		"cheap":    {ItemID: "cheap", Stock: 99999, UnitPrice: 2},
-		"blocked":  {ItemID: "blocked", Stock: 88888, UnitPrice: 70},
-		"eligible": {ItemID: "eligible", Stock: 100, UnitPrice: 30},
+		"cheap":    {ItemID: "cheap", Stock: 99999, StockKnown: true, UnitPrice: 2},
+		"blocked":  {ItemID: "blocked", Stock: 88888, StockKnown: true, UnitPrice: 70},
+		"eligible": {ItemID: "eligible", Stock: 100, StockKnown: true, UnitPrice: 30},
 	}
 	registerReserveRule("blocked", reserveBlacklistQuantity)
 	itemID, recognized := selectGoodsTarget(
@@ -95,10 +95,10 @@ func TestSelectGoodsTargetStaticModesUseConfiguredOrderAndSkipZeroStock(t *testi
 		{ItemID: "more_stock", Rarity: 3, UnitPrice: 10},
 	}
 	observations := map[string]sellstrategy.Candidate{
-		"zero":          {ItemID: "zero", Stock: 0, Rarity: 5, UnitPrice: 70},
-		"low_expensive": {ItemID: "low_expensive", Stock: 100, Rarity: 2, UnitPrice: 100},
-		"high":          {ItemID: "high", Stock: 10, Rarity: 3, UnitPrice: 30},
-		"more_stock":    {ItemID: "more_stock", Stock: 99999, Rarity: 3, UnitPrice: 10},
+		"zero":          {ItemID: "zero", Stock: 0, StockKnown: true, Rarity: 5, UnitPrice: 70},
+		"low_expensive": {ItemID: "low_expensive", Stock: 100, StockKnown: true, Rarity: 2, UnitPrice: 100},
+		"high":          {ItemID: "high", Stock: 10, StockKnown: true, Rarity: 3, UnitPrice: 30},
+		"more_stock":    {ItemID: "more_stock", Stock: 99999, StockKnown: true, Rarity: 3, UnitPrice: 10},
 	}
 	tests := []struct {
 		kind sellstrategy.Kind
@@ -106,6 +106,37 @@ func TestSelectGoodsTargetStaticModesUseConfiguredOrderAndSkipZeroStock(t *testi
 	}{
 		{kind: sellstrategy.KindRarity, want: "high"},
 		{kind: sellstrategy.KindPrice, want: "low_expensive"},
+	}
+	for _, test := range tests {
+		itemID, _ := selectGoodsTarget(
+			"Outpost",
+			groups,
+			prioritySelectionPolicy{Strategy: test.kind},
+			observations,
+		)
+		if itemID != test.want {
+			t.Fatalf("%s mode target = %q, want %q", test.kind, itemID, test.want)
+		}
+	}
+}
+
+func TestSelectGoodsTargetKeepsNameOnlyItemForStaticStrategies(t *testing.T) {
+	resetReserveSession()
+	groups := []itemPriorityGroup{
+		{ItemID: "known", Rarity: 2, UnitPrice: 30},
+		{ItemID: "name_only", Rarity: 4, UnitPrice: 100},
+	}
+	observations := map[string]sellstrategy.Candidate{
+		"known":     {ItemID: "known", Stock: 100, StockKnown: true, Rarity: 2, UnitPrice: 30},
+		"name_only": {ItemID: "name_only", Rarity: 4, UnitPrice: 100},
+	}
+	tests := []struct {
+		kind sellstrategy.Kind
+		want string
+	}{
+		{kind: sellstrategy.KindRarity, want: "name_only"},
+		{kind: sellstrategy.KindPrice, want: "name_only"},
+		{kind: sellstrategy.KindStock, want: "known"},
 	}
 	for _, test := range tests {
 		itemID, _ := selectGoodsTarget(
@@ -128,9 +159,9 @@ func TestSelectGoodsTargetUsesEligibleManualPriorityBeforeStrategy(t *testing.T)
 		{ItemID: "preferred", Rarity: 2, UnitPrice: 20},
 	}
 	observations := map[string]sellstrategy.Candidate{
-		"other":     {ItemID: "other", Stock: 99999, Rarity: 3, UnitPrice: 70},
-		"cheap":     {ItemID: "cheap", Stock: 1000, Rarity: 2, UnitPrice: 2},
-		"preferred": {ItemID: "preferred", Stock: 10, Rarity: 2, UnitPrice: 20},
+		"other":     {ItemID: "other", Stock: 99999, StockKnown: true, Rarity: 3, UnitPrice: 70},
+		"cheap":     {ItemID: "cheap", Stock: 1000, StockKnown: true, Rarity: 2, UnitPrice: 2},
+		"preferred": {ItemID: "preferred", Stock: 10, StockKnown: true, Rarity: 2, UnitPrice: 20},
 	}
 	itemID, _ := selectGoodsTarget(
 		"Outpost",
@@ -157,7 +188,7 @@ func TestSelectGoodsTargetKeepsExistingExclusions(t *testing.T) {
 	}
 	observations := map[string]sellstrategy.Candidate{}
 	for _, group := range groups {
-		observations[group.ItemID] = sellstrategy.Candidate{ItemID: group.ItemID, Stock: 100}
+		observations[group.ItemID] = sellstrategy.Candidate{ItemID: group.ItemID, Stock: 100, StockKnown: true}
 	}
 	prioritySelectionMu.Lock()
 	prioritySelection.Attempted["Outpost"] = map[string]struct{}{"attempted": {}}
@@ -188,8 +219,8 @@ func TestSelectGoodsTargetDoesNotReplacePendingItemOnZeroOCR(t *testing.T) {
 	prioritySelectionMu.Unlock()
 	groups := []itemPriorityGroup{{ItemID: "pending"}, {ItemID: "fallback"}}
 	observations := map[string]sellstrategy.Candidate{
-		"pending":  {ItemID: "pending", Stock: 0},
-		"fallback": {ItemID: "fallback", Stock: 100},
+		"pending":  {ItemID: "pending", Stock: 0, StockKnown: true},
+		"fallback": {ItemID: "fallback", Stock: 100, StockKnown: true},
 	}
 
 	itemID, _ := selectGoodsTarget(
@@ -205,14 +236,14 @@ func TestSelectGoodsTargetDoesNotReplacePendingItemOnZeroOCR(t *testing.T) {
 
 func TestBuildStockObservationsOnlyIncludesVisiblePageItems(t *testing.T) {
 	observations := buildStockObservations(
-		[]stockPageItem{{ItemID: "visible", Quantity: 100}},
+		[]stockPageItem{{ItemID: "visible", Quantity: 100, StockKnown: true}},
 		[]itemPriorityGroup{
 			{ItemID: "visible", Rarity: 3, UnitPrice: 10},
 			{ItemID: "second_page", UnitPrice: 70},
 		},
 	)
 	if !reflect.DeepEqual(observations, map[string]sellstrategy.Candidate{
-		"visible": {ItemID: "visible", Stock: 100, Rarity: 3, UnitPrice: 10},
+		"visible": {ItemID: "visible", Stock: 100, StockKnown: true, Rarity: 3, UnitPrice: 10},
 	}) {
 		t.Fatalf("first-page observations = %+v", observations)
 	}

@@ -32,8 +32,8 @@ func TestNewBuildsConfiguredSelectors(t *testing.T) {
 		t.Fatal("stock selector should be created")
 	}
 	selected, ok = stock.Select([]Candidate{
-		{ItemID: "cheap", Stock: 1000, UnitPrice: 2},
-		{ItemID: "eligible", Stock: 100, UnitPrice: 10},
+		{ItemID: "cheap", Stock: 1000, StockKnown: true, UnitPrice: 2},
+		{ItemID: "eligible", Stock: 100, StockKnown: true, UnitPrice: 10},
 	})
 	if !ok || selected.ItemID != "eligible" {
 		t.Fatalf("stock selector result = %+v, %v", selected, ok)

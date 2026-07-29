@@ -54,9 +54,15 @@ func selectGoodsTarget(
 		recognized = append(recognized, itemID)
 	}
 	sort.Strings(recognized)
+	selector, ok := sellstrategy.New(policy.Strategy, policy.StrategyConfig)
+	if !ok {
+		return "", recognized
+	}
 	if pending != "" {
-		if observation, ok := observations[pending]; ok && observation.Stock > 0 {
-			return pending, recognized
+		if observation, visible := observations[pending]; visible && stockCandidateAvailable(observation) {
+			if _, selectable := selector.Select([]sellstrategy.Candidate{observation}); selectable {
+				return pending, recognized
+			}
 		}
 		return "", recognized
 	}
@@ -64,7 +70,7 @@ func selectGoodsTarget(
 	candidates := make([]sellstrategy.Candidate, 0, len(groups))
 	for _, group := range groups {
 		observation, ok := observations[group.ItemID]
-		if !ok || observation.Stock <= 0 {
+		if !ok || !stockCandidateAvailable(observation) {
 			continue
 		}
 		if _, done := attempted[group.ItemID]; done {
@@ -82,15 +88,15 @@ func selectGoodsTarget(
 		candidates = append(candidates, observation)
 	}
 
-	selector, ok := sellstrategy.New(policy.Strategy, policy.StrategyConfig)
-	if !ok {
-		return "", recognized
-	}
 	selected, ok := selectGoodsCandidate(selector, candidates, policy.Preferred)
 	if !ok {
 		return "", recognized
 	}
 	return selected.ItemID, recognized
+}
+
+func stockCandidateAvailable(candidate sellstrategy.Candidate) bool {
+	return !candidate.StockKnown || candidate.Stock > 0
 }
 
 // selectGoodsCandidate 先按用户配置顺序尝试策略允许的优先货品，
@@ -128,10 +134,11 @@ func buildStockObservations(
 	for _, item := range items {
 		group := groupsByID[item.ItemID]
 		observations[item.ItemID] = sellstrategy.Candidate{
-			ItemID:    item.ItemID,
-			Stock:     item.Quantity,
-			Rarity:    group.Rarity,
-			UnitPrice: group.UnitPrice,
+			ItemID:     item.ItemID,
+			Stock:      item.Quantity,
+			StockKnown: item.StockKnown,
+			Rarity:     group.Rarity,
+			UnitPrice:  group.UnitPrice,
 		}
 	}
 	return observations

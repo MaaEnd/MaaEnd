@@ -283,7 +283,7 @@ func prioritySelectionMarkScannedOutOfStock(items []stockPageItem) {
 	prioritySelectionMu.Lock()
 	defer prioritySelectionMu.Unlock()
 	for _, item := range items {
-		if item.Quantity > 0 {
+		if !item.StockKnown || item.Quantity > 0 {
 			continue
 		}
 		prioritySelection.OutOfStock[item.ItemID] = struct{}{}

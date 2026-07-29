@@ -175,12 +175,12 @@ SellProduct 缓存统一保存在 `debug/record/SellProductCache.json`，按哈�
 
 “单价优先”交换前两个比较字段，先按单价降序，再按稀有度降序，同值仍保留稳定来源顺序。
 
-选货识别器始终只扫描第一页完整可见的商品格子：先在当前画面同时识别已知商品名和每个完整格子右下角的详情图标，再按图标锚点生成格子。Win32 与 ADB Pipeline 分别通过 `stock_name_offset`、`stock_quantity_offset` 和 `stock_click_offset` 配置相对锚点的名称归属区、库存 OCR 区与安全点击区；Go 只按当前资源包传入的区域完成识别和选择，不硬编码平台布局。
+选货识别器只扫描第一页：先在当前画面同时识别已知商品名和每个完整格子右下角的详情图标，再按图标锚点生成完整格子。Win32 与 ADB Pipeline 分别通过 `stock_name_offset`、`stock_quantity_offset` 和 `stock_click_offset` 配置相对锚点的名称归属区、库存 OCR 区与安全点击区；Go 只按当前资源包传入的区域完成识别和选择，不硬编码平台布局。
 
-- 名称数不少于详情图标数时，只读取与完整图标一一对应的前九个以内商品；底部只露出名称的半截格子直接忽略；
+- 名称数不少于详情图标数时，先读取与详情图标一一对应的完整格子；位于最后一行完整格子下方、只露出名称的货品会记录为库存未知；
 - 名称数少于详情图标数时，说明商品名 OCR 漏识，保持当前画面重新识别，不进行选择。
 
-所有选品策略都会先排除零库存、已尝试、已确认缺货、永不售卖和已满足保留量的商品。任务通过“选品策略”单选使用默认的“稀有度优先”，或切换为“单价优先”和“库存优先”；库存优先额外排除低于用户最低单价的商品，并依次比较本地仓储数量、单价、稀有度和稳定来源顺序。第二页低等级商品不参与任何策略的选择，也不会为了读取它们而滑动列表。详情图标只用于建立格子坐标；最终点击格子内的安全名称区域，不点击会打开详情的图标本身。库存显示支持整数以及 `K`、`M`、`万`、`萬`、`만` 缩写。
+所有选品策略都会先排除已明确识别为零库存、已尝试、已确认缺货、永不售卖和已满足保留量的商品。任务通过“选品策略”单选使用默认的“稀有度优先”，或切换为“单价优先”和“库存优先”；稀有度优先和单价优先允许选择底部库存未知但名称可见的货品，库存优先则要求库存已识别，并额外排除低于用户最低单价的商品，再依次比较本地仓储数量、单价、稀有度和稳定来源顺序。第二页低等级商品不参与任何策略的选择，也不会为了读取它们而滑动列表。完整格子的详情图标只用于建立格子坐标，最终点击 Pipeline 配置的安全名称区域；底部半截格子直接点击名称 OCR 区域，均不点击会打开详情的图标本身。库存显示支持整数以及 `K`、`M`、`万`、`萬`、`만` 缩写。
 
 任务配置提供一个默认关闭、与地区售卖开关互不耦合的优先售卖总开关。开启后展开“仅售卖优先产品”以及四号谷地、武陵两个地区优先配置开关；各地区分别展开 6 个槽位，只列出本地区至少在一个据点可售的物品。总开关只决定运行时是否应用这些配置，不清空地区选项，也不启用或停用任何地区的售卖流程。进入地区时，Pipeline 将当前地区优先配置的启用状态和优先表一并切换。策略会按槽位 1 至 6 依次尝试当前策略允许的优先物品；库存优先的最低单价同样约束优先物品。没有可用优先物品时，再由当前选品策略处理其余候选；同一物品重复配置时只保留最靠前的槽位。开启严格优先模式后，仅在同时开启地区优先配置的地区保留明确配置且当前据点可售的物品；未开启地区优先配置的地区仍按所选策略正常售卖，已开启但没有适用物品的地区会在连续两次稳定识别到空候选后正常结束售卖。切换地区不会清空任务级缺货集合或其他据点的已尝试状态。
 
@@ -237,18 +237,18 @@ SellProductSellLoop                                  （不限次数的售卖循
 
 生成器位于 `tools/pipeline-generate/SellProduct/`。`model.mjs` 根据 zmdmap 数据定义据点 ID、多语言 OCR、任务选项和模板数据；`selection-data.mjs` 生成 Go 使用的部署数据 `assets/data/SellProduct/selection_data.json`。`tools/pipeline-generate/data/` 是生成器的数据源目录。
 
-| 维护入口 | 生成产物 |
+| 维护入口                                             | 生成产物                                                                 |
 | ---------------------------------------------------- | ------------------------------------------------------------------------ |
-| `model.mjs` | 据点、地区、多语言 OCR 的共享模型 |
-| `pipeline-template.jsonc` | `assets/resource/pipeline/SellProduct/{Region}/{Location}.json` |
-| `pipeline-adb-template.jsonc` | `assets/resource_adb/pipeline/SellProduct/{Region}/{Location}.json` |
-| `sell-template.jsonc` | `assets/resource/pipeline/SellProduct/{Region}/SellProduct{Region}.json` |
-| `loop-template.jsonc` | `assets/resource/pipeline/SellProduct/Loop.json` |
-| `session-template.jsonc` | `assets/resource/pipeline/SellProduct/OperatorSession.json` |
-| `task-template.jsonc` | `assets/tasks/SellProduct.json` |
-| `sync-locales.mjs` | 五语言据点名、干员键和缺失的物品键 |
-| `selection-data.mjs` | `assets/data/SellProduct/selection_data.json` |
-| `tools/pipeline-generate/data/settlement_trade.json` | zmdmap 上游贸易数据源 |
+| `model.mjs`                                          | 据点、地区、多语言 OCR 的共享模型                                        |
+| `pipeline-template.jsonc`                            | `assets/resource/pipeline/SellProduct/{Region}/{Location}.json`          |
+| `pipeline-adb-template.jsonc`                        | `assets/resource_adb/pipeline/SellProduct/{Region}/{Location}.json`      |
+| `sell-template.jsonc`                                | `assets/resource/pipeline/SellProduct/{Region}/SellProduct{Region}.json` |
+| `loop-template.jsonc`                                | `assets/resource/pipeline/SellProduct/Loop.json`                         |
+| `session-template.jsonc`                             | `assets/resource/pipeline/SellProduct/OperatorSession.json`              |
+| `task-template.jsonc`                                | `assets/tasks/SellProduct.json`                                          |
+| `sync-locales.mjs`                                   | 五语言据点名、干员键和缺失的物品键                                       |
+| `selection-data.mjs`                                 | `assets/data/SellProduct/selection_data.json`                            |
+| `tools/pipeline-generate/data/settlement_trade.json` | zmdmap 上游贸易数据源                                                    |
 
 以下文件由手工维护，生成器不处理：
 

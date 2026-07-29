@@ -22,10 +22,11 @@ type Config struct {
 // Candidate 表示已经通过公共过滤、等待策略选择的第一页货品。
 // 输入顺序仅用于业务字段完全相同时的稳定兜底。
 type Candidate struct {
-	ItemID    string
-	Stock     int64
-	Rarity    int
-	UnitPrice int
+	ItemID     string
+	Stock      int64
+	StockKnown bool
+	Rarity     int
+	UnitPrice  int
 }
 
 // Selector 从候选中选择一个货品，不得修改输入切片。

@@ -11,7 +11,7 @@ var _ Selector = Stock{}
 func (s Stock) Select(candidates []Candidate) (Candidate, bool) {
 	bestIndex := -1
 	for index, candidate := range candidates {
-		if candidate.UnitPrice < s.MinimumUnitPrice {
+		if !candidate.StockKnown || candidate.UnitPrice < s.MinimumUnitPrice {
 			continue
 		}
 		if bestIndex < 0 || betterStockCandidate(candidate, candidates[bestIndex]) {
