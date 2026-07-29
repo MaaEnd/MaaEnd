@@ -36,6 +36,7 @@ test("SellProduct 保留按星期执行入口与任务选项", () => {
     assert.deepEqual(task.task[0].option, [
         "SellProductSchedule",
         "SellProductOperatorAutoSwitch",
+        "SellProductSelectionStrategy",
         "SellProductPriorityRules",
         "SellProductItemReserveRules",
         ...sellProductRegions.map((region) => `${region.RegionPrefix}Sell`),
@@ -53,6 +54,57 @@ test("SellProduct 保留按星期执行入口与任务选项", () => {
         "saturday",
         "sunday",
     ]);
+    assert.deepEqual(pipeline.SellProductPrepareSession.custom_action_param.sub, [
+        "SellProductInitializeReserveSession",
+        "SellProductConfigurePrioritySession",
+        "SellProductConfigureSelectionStrategy",
+        "SellProductInitializeOperatorSession",
+    ]);
+});
+
+test("SellProduct 选品策略支持稀有度、单价和库存优先", () => {
+    const task = readPipeline(new URL("../../../assets/tasks/SellProduct.json", import.meta.url));
+    const taskTemplate = readFileSync(new URL("./task-template.jsonc", import.meta.url), "utf8");
+    const selectionStrategy = task.option.SellProductSelectionStrategy;
+    assert.equal(selectionStrategy.type, "select");
+    assert.equal(selectionStrategy.default_case, "Rarity");
+    assert.deepEqual(
+        selectionStrategy.cases.map((itemCase) => itemCase.name),
+        [
+            "Rarity",
+            "Price",
+            "Stock",
+        ],
+    );
+    const rarity = selectionStrategy.cases.find((itemCase) => itemCase.name === "Rarity");
+    assert.deepEqual(rarity.pipeline_override.SellProductConfigureSelectionStrategy.custom_action_param, {
+        operation: "configure_strategy",
+        strategy: "rarity",
+    });
+    const price = selectionStrategy.cases.find((itemCase) => itemCase.name === "Price");
+    assert.deepEqual(price.pipeline_override.SellProductConfigureSelectionStrategy.custom_action_param, {
+        operation: "configure_strategy",
+        strategy: "price",
+    });
+    const stock = selectionStrategy.cases.find((itemCase) => itemCase.name === "Stock");
+    assert.deepEqual(stock.option, ["SellProductStockMinimumUnitPrice"]);
+    assert.deepEqual(stock.pipeline_override.SellProductConfigureSelectionStrategy.custom_action_param, {
+        operation: "configure_strategy",
+        strategy: "stock",
+        minimum_unit_price: 10,
+    });
+    assert.equal(root.StockMinimumUnitPriceDefault, "10");
+    assert.match(taskTemplate, /"default": "\$\{StockMinimumUnitPriceDefault\}"/);
+    assert.equal(task.option.SellProductStockMinimumUnitPrice.inputs[0].default, "10");
+    assert.deepEqual(
+        task.option.SellProductStockMinimumUnitPrice.pipeline_override.SellProductConfigureSelectionStrategy
+            .custom_action_param,
+        {
+            operation: "configure_strategy",
+            strategy: "stock",
+            minimum_unit_price: "{SellProductStockMinimumUnitPrice}",
+        },
+    );
 });
 
 test("SellProduct 按固定地区顺序售卖且不再使用自动起始地区", () => {
@@ -145,7 +197,9 @@ test("SellProduct templates consume separate minimal projections of the shared l
         "ReserveModeCases5",
         "ReserveModeCases6",
         "ReserveRuleSwitchCases",
+        "SelectionStrategyCases",
         "SellOptions",
+        "StockMinimumUnitPriceDefault",
         "TaskOptions",
     ]);
     assert.deepEqual(
@@ -258,11 +312,14 @@ test("SellProduct 优先总开关展开地区配置且不耦合地区售卖开�
             },
         );
 
-        const regionItemIDs = new Set(
-            sellProductLocations
-                .filter((location) => location.RegionPrefix === regionPrefix)
-                .flatMap((location) => sellProductSelectionData.locations[location.LocationId].item_order),
-        );
+        const regionItems = sellProductLocations
+            .filter((location) => location.RegionPrefix === regionPrefix)
+            .flatMap((location) => sellProductSelectionData.locations[location.LocationId].items);
+        const regionItemIDs = new Set(regionItems.map((item) => item.item_id));
+        const priceByItemID = new Map();
+        for (const item of regionItems) {
+            priceByItemID.set(item.item_id, Math.max(priceByItemID.get(item.item_id) ?? 0, item.unit_price));
+        }
         for (const slot of [
             1,
             2,
@@ -278,6 +335,16 @@ test("SellProduct 优先总开关展开地区配置且不耦合地区售卖开�
 
             const itemCases = cases.filter((entry) => entry.name !== "None");
             assert.ok(itemCases.length > 0, `${regionPrefix} slot ${slot} has no selectable items`);
+            const itemPrices = itemCases.map((itemCase) => {
+                const registration =
+                    itemCase.pipeline_override[`SellProduct${regionPrefix}RegisterPriorityItem${slot}`];
+                return priceByItemID.get(registration.custom_action_param.item_id);
+            });
+            assert.deepEqual(
+                itemPrices,
+                [...itemPrices].sort((left, right) => right - left),
+                `${regionPrefix} slot ${slot} items are not sorted by unit price descending`,
+            );
             for (const itemCase of itemCases) {
                 const registration =
                     itemCase.pipeline_override[`SellProduct${regionPrefix}RegisterPriorityItem${slot}`];
@@ -287,6 +354,56 @@ test("SellProduct 优先总开关展开地区配置且不耦合地区售卖开�
                 assert.ok(regionItemIDs.has(registration.custom_action_param.item_id));
             }
         }
+    }
+});
+
+test("SellProduct 武陵优先物品顺序与游戏货架一致", () => {
+    const regionPrefix = "Wuling";
+    const regionRoot = sellProductTaskRows.find((row) => row.RegionPrefix === regionPrefix);
+    const itemIDs = regionRoot.PriorityItemCases1.filter((entry) => entry.name !== "None").map(
+        (entry) => entry.pipeline_override.SellProductWulingRegisterPriorityItem1.custom_action_param.item_id,
+    );
+    const observedSkyKingOrder = [
+        "item_proc_battery_5",
+        "item_copper_enr_cmpt",
+        "item_xiranite_enr_powder",
+        "item_proc_battery_4",
+        "item_bottled_rec_hp_5",
+        "item_bottled_food_5",
+        "item_bottled_food_4",
+    ];
+    const observedItems = new Set(observedSkyKingOrder);
+    assert.deepEqual(
+        itemIDs.filter((itemID) => observedItems.has(itemID)),
+        observedSkyKingOrder,
+    );
+});
+
+test("SellProduct 保留物品按游戏货架单价降序排列", () => {
+    const priceByItemID = new Map();
+    for (const location of Object.values(sellProductSelectionData.locations)) {
+        for (const item of location.items) {
+            priceByItemID.set(item.item_id, Math.max(priceByItemID.get(item.item_id) ?? 0, item.unit_price));
+        }
+    }
+    for (const slot of [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+    ]) {
+        const itemCases = root[`ReserveItemCases${slot}`].filter((entry) => entry.name !== "None");
+        const itemPrices = itemCases.map((itemCase) => {
+            const registration = itemCase.pipeline_override[`SellProductRegisterReserveRule${slot}`];
+            return priceByItemID.get(registration.attach.item_id);
+        });
+        assert.deepEqual(
+            itemPrices,
+            [...itemPrices].sort((left, right) => right - left),
+            `reserve slot ${slot} items are not sorted by unit price descending`,
+        );
     }
 });
 
@@ -340,7 +457,7 @@ test("SellProduct registration slots form an always-enabled no-op chain", () => 
         assert.deepEqual(node.next, [chain[index + 1]]);
     }
 
-    // 保留规则链终止于 Rule6；优先售卖与干员会话作为并行子任务由 SellProductPrepareSession 调度。
+    // 保留规则链终止于 Rule6；选品策略与干员会话作为并行子任务由 SellProductPrepareSession 调度。
     assert.equal(pipeline.SellProductRegisterReserveRule6.next, undefined);
     assert.equal(pipeline.SellProductConfigurePrioritySession.enabled, undefined);
     assert.equal(pipeline.SellProductConfigurePrioritySession.next, undefined);
@@ -349,6 +466,7 @@ test("SellProduct registration slots form an always-enabled no-op chain", () => 
     assert.deepEqual(entry.SellProductPrepareSession.custom_action_param.sub, [
         "SellProductInitializeReserveSession",
         "SellProductConfigurePrioritySession",
+        "SellProductConfigureSelectionStrategy",
         "SellProductInitializeOperatorSession",
     ]);
 });
@@ -452,11 +570,30 @@ test("SellProduct operator switching uses shared core dispatch nodes", () => {
             location: location.LocationId,
             outpost_prosperity_max: false,
         });
+        assert.deepEqual(pipeline[`${prefix}OutpostProsperityAvailable`].next, [
+            `${prefix}ReportLocationPlan`,
+        ]);
         assert.deepEqual(pipeline[`${prefix}OutpostProsperityMax`].custom_action_param, {
             operation: "enter_location",
             location: location.LocationId,
             outpost_prosperity_max: true,
         });
+        assert.deepEqual(pipeline[`${prefix}OutpostProsperityMax`].next, [
+            `${prefix}ReportLocationPlan`,
+        ]);
+        assert.equal(pipeline[`${prefix}ReportLocationPlan`].custom_action, "SellProductLocationPlan");
+        assert.deepEqual(pipeline[`${prefix}ReportLocationPlan`].custom_action_param, {
+            location: location.LocationId,
+        });
+        assert.deepEqual(pipeline[`${prefix}ReportLocationPlan`].next, [
+            `${prefix}SetOperatorAnchors`,
+        ]);
+        assert.deepEqual(pipeline[`${prefix}SelectPriorityItem`].next, [
+            "SellProductSelectNewGoodConfirm",
+        ]);
+        assert.deepEqual(pipeline[`${prefix}PriorityItemsExhausted`].next, [
+            "SellProductCloseGoodsAfterExhausted",
+        ]);
         assert.deepEqual(pipeline[`${prefix}SetOperatorAnchors`].anchor, {
             SellProductBeforeSellOperatorTarget: `${prefix}BeforeSellOperator`,
             SellProductAfterSellOperatorTarget: `${prefix}AfterSellOperator`,
@@ -492,6 +629,64 @@ test("SellProduct pipeline templates use one dynamic priority loop instead of fi
     assert.equal((pipelineTemplate.match(/"SellProduct\$\{LocationId\}BetterSliding": \{/g) || []).length, 1);
     assert.doesNotMatch(adbTemplate, /BetterSliding[1-4]/);
     assert.match(adbTemplate, /SellProduct\$\{LocationId\}BetterSliding/);
+});
+
+test("SellProduct 选品库存识别只扫描第一页且不滑动货品列表", () => {
+    const pipelineTemplate = readFileSync(new URL("./pipeline-template.jsonc", import.meta.url), "utf8");
+    const changeGoods = readPipeline(
+        new URL("../../../assets/resource/pipeline/SellProduct/ChangeGoods.json", import.meta.url),
+    );
+
+    assert.doesNotMatch(pipelineTemplate, /StockNeedsScroll|StockNeedsRewind|needs_scroll|needs_rewind/);
+    assert.deepEqual(changeGoods.SellProductChangeGoodsRelay.next, [
+        "[Anchor]SellProductSelectPriorityItem",
+        "[Anchor]SellProductPriorityItemsExhausted",
+    ]);
+    assert.equal(changeGoods.SellProductCheckGoodsCellAnchor.recognition, "TemplateMatch");
+    assert.deepEqual(changeGoods.SellProductGoodsCellAnchor.all_of, [
+        "SellProductCheckSelectGoodsText",
+        "SellProductCheckGoodsCellAnchor",
+    ]);
+    assert.equal(changeGoods.SellProductGoodsCellAnchor.box_index, 1);
+});
+
+test("SellProduct 各平台通过 Pipeline 配置货品名称、库存和点击区域", () => {
+    const win32 = readPipeline(
+        new URL("../../../assets/resource/pipeline/SellProduct/ValleyIV/RefugeeCamp.json", import.meta.url),
+    ).SellProductRefugeeCampSelectPriorityItem.custom_recognition_param;
+    const adb = readPipeline(
+        new URL("../../../assets/resource_adb/pipeline/SellProduct/ValleyIV/RefugeeCamp.json", import.meta.url),
+    ).SellProductRefugeeCampSelectPriorityItem.custom_recognition_param;
+
+    for (const [
+        platform,
+        params,
+    ] of [
+        [
+            "Win32",
+            win32,
+        ],
+        [
+            "ADB",
+            adb,
+        ],
+    ]) {
+        assert.equal(params.location, "RefugeeCamp");
+        assert.equal(params.result, "select");
+
+        for (const name of [
+            "stock_name_offset",
+            "stock_quantity_offset",
+            "stock_click_offset",
+        ]) {
+            const offset = params[name];
+            assert.ok(Array.isArray(offset), `${platform} ${name} 应为数组`);
+            assert.equal(offset.length, 4, `${platform} ${name} 应包含 4 个坐标值`);
+            assert.ok(offset.every(Number.isInteger), `${platform} ${name} 应只包含整数`);
+            assert.ok(offset[2] > 0, `${platform} ${name} 宽度应大于 0`);
+            assert.ok(offset[3] > 0, `${platform} ${name} 高度应大于 0`);
+        }
+    }
 });
 
 test("SellProduct 每轮选货及保留交易后优先检查调度券不足", () => {
@@ -737,7 +932,7 @@ test("SellProduct 按启用据点边界处理已派驻干员冲突", () => {
     }
 });
 
-test("SellProduct generated outpost nodes report confirmed runtime state changes", () => {
+test("SellProduct generated outpost nodes report task-level runtime state changes", () => {
     for (const location of sellProductLocations) {
         const pipeline = readPipeline(
             new URL(
@@ -756,6 +951,9 @@ test("SellProduct generated outpost nodes report confirmed runtime state changes
             operation: "enter_location",
             location: location.LocationId,
             outpost_prosperity_max: true,
+        });
+        assert.deepEqual(pipeline[`${prefix}ReportLocationPlan`].custom_action_param, {
+            location: location.LocationId,
         });
         assert.deepEqual(pipeline[`${prefix}CurrentTargetOperator`].custom_action_param, {
             operation: "complete_target",

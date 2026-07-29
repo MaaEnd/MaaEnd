@@ -56,7 +56,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductCardiacRemediationStationSetOperatorAnchors"
+            "SellProductCardiacRemediationStationReportLocationPlan"
         ]
     },
     "SellProductCardiacRemediationStationOutpostProsperityMax": {
@@ -72,6 +72,21 @@
             "operation": "enter_location",
             "location": "CardiacRemediationStation",
             "outpost_prosperity_max": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductCardiacRemediationStationReportLocationPlan"
+        ]
+    },
+    "SellProductCardiacRemediationStationReportLocationPlan": {
+        "desc": "心脏修缮站输出完整售卖计划",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductLocationPlan",
+        "custom_action_param": {
+            "location": "CardiacRemediationStation"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1099,12 +1114,30 @@
     },
     // ===== 动态优先级售卖循环 =====
     "SellProductCardiacRemediationStationSelectPriorityItem": {
-        "desc": "心脏修缮站按价值优先级选择下一个未尝试货品",
+        "desc": "心脏修缮站按当前策略选择下一个未尝试货品",
         "recognition": "Custom",
         "custom_recognition": "SellProductPriorityItem",
         "custom_recognition_param": {
             "location": "CardiacRemediationStation",
-            "result": "select"
+            "result": "select",
+            "stock_name_offset": [
+                34,
+                -59,
+                164,
+                16
+            ],
+            "stock_quantity_offset": [
+                33,
+                -6,
+                80,
+                7
+            ],
+            "stock_click_offset": [
+                42,
+                -58,
+                100,
+                34
+            ]
         },
         "roi": [
             145,

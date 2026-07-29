@@ -524,18 +524,62 @@
                 "ja_jp": "仮設居住地",
                 "ko_kr": "유랑자 임시 거주지"
             },
-            "item_order": [
-                "item_bottled_rec_hp_3",
-                "item_proc_battery_3",
-                "item_bottled_food_3",
-                "item_proc_battery_2",
-                "item_bottled_rec_hp_2",
-                "item_bottled_food_2",
-                "item_bottled_rec_hp_1",
-                "item_bottled_food_1",
-                "item_glass_bottle",
-                "item_crystal_shell",
-                "item_glass_cmpt"
+            "items": [
+                {
+                    "item_id": "item_bottled_rec_hp_1",
+                    "rarity": 3,
+                    "unit_price": 10
+                },
+                {
+                    "item_id": "item_glass_bottle",
+                    "rarity": 2,
+                    "unit_price": 2
+                },
+                {
+                    "item_id": "item_crystal_shell",
+                    "rarity": 2,
+                    "unit_price": 1
+                },
+                {
+                    "item_id": "item_glass_cmpt",
+                    "rarity": 2,
+                    "unit_price": 1
+                },
+                {
+                    "item_id": "item_proc_battery_2",
+                    "rarity": 3,
+                    "unit_price": 30
+                },
+                {
+                    "item_id": "item_bottled_rec_hp_2",
+                    "rarity": 3,
+                    "unit_price": 27
+                },
+                {
+                    "item_id": "item_bottled_food_1",
+                    "rarity": 3,
+                    "unit_price": 10
+                },
+                {
+                    "item_id": "item_bottled_rec_hp_3",
+                    "rarity": 4,
+                    "unit_price": 70
+                },
+                {
+                    "item_id": "item_proc_battery_3",
+                    "rarity": 4,
+                    "unit_price": 70
+                },
+                {
+                    "item_id": "item_bottled_food_2",
+                    "rarity": 3,
+                    "unit_price": 27
+                },
+                {
+                    "item_id": "item_bottled_food_3",
+                    "rarity": 4,
+                    "unit_price": 70
+                }
             ],
             "target_operators": [
                 {
@@ -609,16 +653,52 @@
                 "ja_jp": "建設基地",
                 "ko_kr": "기초 건설 주둔지"
             },
-            "item_order": [
-                "item_bottled_rec_hp_3",
-                "item_proc_battery_3",
-                "item_bottled_food_3",
-                "item_proc_battery_2",
-                "item_bottled_rec_hp_2",
-                "item_bottled_food_2",
-                "item_proc_battery_1",
-                "item_bottled_food_1",
-                "item_iron_cmpt"
+            "items": [
+                {
+                    "item_id": "item_proc_battery_1",
+                    "rarity": 3,
+                    "unit_price": 16
+                },
+                {
+                    "item_id": "item_iron_cmpt",
+                    "rarity": 2,
+                    "unit_price": 1
+                },
+                {
+                    "item_id": "item_proc_battery_2",
+                    "rarity": 3,
+                    "unit_price": 30
+                },
+                {
+                    "item_id": "item_bottled_rec_hp_2",
+                    "rarity": 3,
+                    "unit_price": 27
+                },
+                {
+                    "item_id": "item_bottled_rec_hp_3",
+                    "rarity": 4,
+                    "unit_price": 70
+                },
+                {
+                    "item_id": "item_proc_battery_3",
+                    "rarity": 4,
+                    "unit_price": 70
+                },
+                {
+                    "item_id": "item_bottled_food_3",
+                    "rarity": 4,
+                    "unit_price": 70
+                },
+                {
+                    "item_id": "item_bottled_food_2",
+                    "rarity": 3,
+                    "unit_price": 27
+                },
+                {
+                    "item_id": "item_bottled_food_1",
+                    "rarity": 3,
+                    "unit_price": 10
+                }
             ],
             "target_operators": [
                 {
@@ -705,15 +785,47 @@
                 "ja_jp": "再建管理本部",
                 "ko_kr": "재건 지휘부"
             },
-            "item_order": [
-                "item_bottled_rec_hp_3",
-                "item_proc_battery_3",
-                "item_bottled_food_3",
-                "item_proc_battery_2",
-                "item_bottled_rec_hp_2",
-                "item_bottled_food_2",
-                "item_bottled_food_1",
-                "item_iron_enr_cmpt"
+            "items": [
+                {
+                    "item_id": "item_proc_battery_2",
+                    "rarity": 3,
+                    "unit_price": 30
+                },
+                {
+                    "item_id": "item_bottled_rec_hp_2",
+                    "rarity": 3,
+                    "unit_price": 27
+                },
+                {
+                    "item_id": "item_iron_enr_cmpt",
+                    "rarity": 3,
+                    "unit_price": 3
+                },
+                {
+                    "item_id": "item_bottled_rec_hp_3",
+                    "rarity": 4,
+                    "unit_price": 70
+                },
+                {
+                    "item_id": "item_proc_battery_3",
+                    "rarity": 4,
+                    "unit_price": 70
+                },
+                {
+                    "item_id": "item_bottled_food_3",
+                    "rarity": 4,
+                    "unit_price": 70
+                },
+                {
+                    "item_id": "item_bottled_food_2",
+                    "rarity": 3,
+                    "unit_price": 27
+                },
+                {
+                    "item_id": "item_bottled_food_1",
+                    "rarity": 3,
+                    "unit_price": 10
+                }
             ],
             "target_operators": [
                 {
@@ -771,17 +883,57 @@
                 "ja_jp": "天王原建設支援拠点",
                 "ko_kr": "천왕 평지 건설 지원소"
             },
-            "item_order": [
-                "item_proc_battery_5",
-                "item_copper_enr_cmpt",
-                "item_proc_battery_4",
-                "item_bottled_rec_hp_5",
-                "item_bottled_food_5",
-                "item_xiranite_enr_powder",
-                "item_bottled_rec_hp_4",
-                "item_bottled_food_4",
-                "item_copper_cmpt",
-                "item_xiranite_powder"
+            "items": [
+                {
+                    "item_id": "item_proc_battery_4",
+                    "rarity": 4,
+                    "unit_price": 25
+                },
+                {
+                    "item_id": "item_bottled_rec_hp_4",
+                    "rarity": 3,
+                    "unit_price": 16
+                },
+                {
+                    "item_id": "item_xiranite_powder",
+                    "rarity": 2,
+                    "unit_price": 1
+                },
+                {
+                    "item_id": "item_bottled_food_4",
+                    "rarity": 3,
+                    "unit_price": 16
+                },
+                {
+                    "item_id": "item_copper_cmpt",
+                    "rarity": 3,
+                    "unit_price": 1
+                },
+                {
+                    "item_id": "item_proc_battery_5",
+                    "rarity": 4,
+                    "unit_price": 54
+                },
+                {
+                    "item_id": "item_copper_enr_cmpt",
+                    "rarity": 4,
+                    "unit_price": 48
+                },
+                {
+                    "item_id": "item_bottled_rec_hp_5",
+                    "rarity": 4,
+                    "unit_price": 22
+                },
+                {
+                    "item_id": "item_xiranite_enr_powder",
+                    "rarity": 3,
+                    "unit_price": 27
+                },
+                {
+                    "item_id": "item_bottled_food_5",
+                    "rarity": 4,
+                    "unit_price": 22
+                }
             ],
             "target_operators": [
                 {
@@ -852,15 +1004,47 @@
                 "ja_jp": "心臓修復施設",
                 "ko_kr": "심장 수복실"
             },
-            "item_order": [
-                "item_copper_enr2_cmpt",
-                "item_proc_battery_5",
-                "item_copper_enr_cmpt",
-                "item_proc_battery_4",
-                "item_bottled_food_5",
-                "item_bottled_rec_hp_5",
-                "item_xiranite_enr_powder",
-                "item_xiranite_powder"
+            "items": [
+                {
+                    "item_id": "item_xiranite_enr_powder",
+                    "rarity": 3,
+                    "unit_price": 27
+                },
+                {
+                    "item_id": "item_proc_battery_4",
+                    "rarity": 4,
+                    "unit_price": 25
+                },
+                {
+                    "item_id": "item_bottled_food_5",
+                    "rarity": 4,
+                    "unit_price": 22
+                },
+                {
+                    "item_id": "item_bottled_rec_hp_5",
+                    "rarity": 4,
+                    "unit_price": 22
+                },
+                {
+                    "item_id": "item_xiranite_powder",
+                    "rarity": 2,
+                    "unit_price": 1
+                },
+                {
+                    "item_id": "item_proc_battery_5",
+                    "rarity": 4,
+                    "unit_price": 54
+                },
+                {
+                    "item_id": "item_copper_enr_cmpt",
+                    "rarity": 4,
+                    "unit_price": 48
+                },
+                {
+                    "item_id": "item_copper_enr2_cmpt",
+                    "rarity": 4,
+                    "unit_price": 70
+                }
             ],
             "target_operators": [
                 {
@@ -930,14 +1114,42 @@
                 "ja_jp": "満天台建設基地",
                 "ko_kr": "영천대 건설 기지"
             },
-            "item_order": [
-                "item_copper_enr2_cmpt",
-                "item_proc_battery_5",
-                "item_bottled_food_5",
-                "item_bottled_rec_hp_5",
-                "item_xiranite_enr_powder",
-                "item_filter_core",
-                "item_xiranite_powder"
+            "items": [
+                {
+                    "item_id": "item_copper_enr2_cmpt",
+                    "rarity": 4,
+                    "unit_price": 70
+                },
+                {
+                    "item_id": "item_proc_battery_5",
+                    "rarity": 4,
+                    "unit_price": 54
+                },
+                {
+                    "item_id": "item_xiranite_enr_powder",
+                    "rarity": 3,
+                    "unit_price": 27
+                },
+                {
+                    "item_id": "item_bottled_food_5",
+                    "rarity": 4,
+                    "unit_price": 22
+                },
+                {
+                    "item_id": "item_bottled_rec_hp_5",
+                    "rarity": 4,
+                    "unit_price": 22
+                },
+                {
+                    "item_id": "item_filter_core",
+                    "rarity": 3,
+                    "unit_price": 1
+                },
+                {
+                    "item_id": "item_xiranite_powder",
+                    "rarity": 2,
+                    "unit_price": 1
+                }
             ],
             "target_operators": [
                 {

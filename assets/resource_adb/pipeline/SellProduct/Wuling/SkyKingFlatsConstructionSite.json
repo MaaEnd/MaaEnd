@@ -1,4 +1,28 @@
 {
+    "SellProductSkyKingFlatsConstructionSiteSelectPriorityItem": {
+        "custom_recognition_param": {
+            "location": "SkyKingFlatsConstructionSite",
+            "result": "select",
+            "stock_name_offset": [
+                46,
+                -67,
+                208,
+                10
+            ],
+            "stock_quantity_offset": [
+                40,
+                -6,
+                103,
+                7
+            ],
+            "stock_click_offset": [
+                42,
+                -58,
+                130,
+                34
+            ]
+        }
+    },
     "SellProductSkyKingFlatsConstructionSiteBetterSliding": {
         "custom_action_param": {
             "GreenMask": true,

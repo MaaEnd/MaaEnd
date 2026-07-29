@@ -1,4 +1,28 @@
 {
+    "SellProductXiranflowCloudseederStationSelectPriorityItem": {
+        "custom_recognition_param": {
+            "location": "XiranflowCloudseederStation",
+            "result": "select",
+            "stock_name_offset": [
+                46,
+                -67,
+                208,
+                10
+            ],
+            "stock_quantity_offset": [
+                40,
+                -6,
+                103,
+                7
+            ],
+            "stock_click_offset": [
+                42,
+                -58,
+                130,
+                34
+            ]
+        }
+    },
     "SellProductXiranflowCloudseederStationBetterSliding": {
         "custom_action_param": {
             "GreenMask": true,
