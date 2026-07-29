@@ -143,8 +143,8 @@ func (pm PlayerMovement) RotationDuring(duration time.Duration) float64 {
 var (
 	MovementStop   = PlayerMovement{0.0, 0.0}
 	MovementWalk   = PlayerMovement{1.2, 270.0}
-	MovementRun    = PlayerMovement{7.2, 540.0}
-	MovementSprint = PlayerMovement{12.0, 1080.0}
+	MovementRun    = PlayerMovement{7.2, 480.0}
+	MovementSprint = PlayerMovement{12.0, 960.0}
 )
 
 /* ******** Player Direction Enumeration ******** */
