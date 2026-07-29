@@ -240,21 +240,6 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			absRawDeltaRot := math.Abs(float64(rawDeltaRot))
 
 			// Check arrival
-			finishCurrentTarget := func(loc internal.Point, rot int) {
-				if i < len(param.Path)-1 {
-					// Foresee rotation adjustment for the next but not final target
-					nextTargetRot := int(math.Round(loc.AngleTo(param.Path[i+1])))
-					nextDeltaRot := internal.DeltaRotation(rot, nextTargetRot)
-					if math.Abs(float64(nextDeltaRot)) > param.RotationUpperThreshold {
-						ca.SetPlayerMovement(control.MovementWalk, control.PolicyDefault)
-					}
-					log.Debug().Float64("nextDeltaRot", float64(nextDeltaRot)).Msg("Finishing target, foreseeing rotation adjustment for next target")
-					augNextDeltaRot := float64(nextDeltaRot) * 0.618
-					ca.RotateCamera(int(augNextDeltaRot*rotationSpeed), 0)
-					ca.ResetCursor(control.CursorResetLazy)
-				}
-			}
-
 			dist := curLoc.DistanceTo(targetLoc)
 			reachedByRotation := math.Abs(float64(internal.DeltaRotation(targetRot, initRot))) > 90.0
 			if dist < param.ArrivalThreshold || reachedByRotation {
@@ -265,17 +250,9 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				}
 
 				if enableFineApproach {
-					_, fineResult := runFineApproach(ctx, ctrl, ca, param, targetLoc, curRot)
-					// Fine approach will leave the player facing an arbitrary direction,
-					// so the rotation has to be measured again afterwards.
-					if fineResult != nil {
-						curLoc, curRot = fineResult.Loc, fineResult.Rot
-					} else if finalResult, err := doInfer(ctx, ctrl, param); err == nil {
-						curLoc, curRot = finalResult.Loc, finalResult.Rot
-					}
+					runFineApproach(ctx, ctrl, ca, param, targetLoc, curRot)
 				}
 
-				finishCurrentTarget(curLoc, curRot)
 				break
 			}
 
