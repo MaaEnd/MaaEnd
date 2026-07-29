@@ -291,7 +291,7 @@
         "custom_action": "ClearHitCount",
         "custom_action_param": {
             "nodes": [
-                "TrialOfSwordmancyGotoTrialArenaCpp"
+                "TrialOfSwordmancyGotoTrialArenaStart"
             ]
         },
         "post_wait_freezes": 200,

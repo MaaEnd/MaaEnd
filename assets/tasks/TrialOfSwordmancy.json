@@ -154,19 +154,15 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "TrialOfSwordmancyDailyAutoFightResetState": {
-                            "enabled": true
-                        },
-                        "TrialOfSwordmancyDailyAutoFightRearmResetState": {
-                            "enabled": true
-                        },
                         "TrialOfSwordmancyDailyMain": {
                             "next": [
-                                "TrialOfSwordmancyDailyAutoFightResetState",
+                                "[JumpBack]TrialOfSwordmancyGotoTrialArenaStart",
                                 "TrialOfSwordmancyDailyCheckRewardMode",
-                                "[JumpBack]TrialOfSwordmancyEnterTrialMenu",
-                                "[JumpBack]TrialOfSwordmancyGotoTrialArenaStart"
+                                "[JumpBack]TrialOfSwordmancyEnterTrialMenu"
                             ]
+                        },
+                        "TrialOfSwordmancyAutoFightResetNavigator": {
+                            "enabled": true
                         }
                     }
                 }
