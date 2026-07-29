@@ -72,6 +72,7 @@
         "desc": "已到达演武入口，准备点击进入演算",
         "pre_delay": 0,
         "post_delay": 0,
+        "timeout": 5000,
         "next": [
             "TrialOfSwordmancyEnterTrialMenu"
         ]
