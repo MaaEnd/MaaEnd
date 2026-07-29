@@ -233,14 +233,6 @@ func goodsSelectionExhaustedItemsSnapshot(location string) []string {
 	return append([]string{}, prioritySelection.GoodsSelection.ExhaustedItemIDs...)
 }
 
-func buildGoodsSelectionExhaustedResult(location string) (*maa.CustomRecognitionResult, bool) {
-	itemIDs := goodsSelectionExhaustedItemsSnapshot(location)
-	if len(itemIDs) == 0 {
-		return nil, false
-	}
-	return buildPriorityExhaustedResult(location, itemIDs)
-}
-
 // registerPriorityItem 返回是否成功登记。重复物品保留首次出现的槽位顺序。
 func registerPriorityItem(itemID string) bool {
 	prioritySelectionMu.Lock()
@@ -374,19 +366,6 @@ func prioritySelectionResetExhaustion(location string) {
 	prioritySelectionMu.Lock()
 	defer prioritySelectionMu.Unlock()
 	delete(prioritySelection.Exhaustion, location)
-}
-
-// buildPriorityExhaustedResult 只在连续两次候选集合一致时确认耗尽。
-// 严格优先模式允许空集合，以便没有适用配置的地区正常结束售卖。
-func buildPriorityExhaustedResult(location string, recognized []string) (*maa.CustomRecognitionResult, bool) {
-	if !prioritySelectionObserveExhaustion(location, recognized) {
-		return nil, false
-	}
-	detailJSON, _ := json.Marshal(map[string]any{
-		"location":            location,
-		"recognized_item_ids": recognized,
-	})
-	return &maa.CustomRecognitionResult{Detail: string(detailJSON)}, true
 }
 
 func prioritySelectionObserveExhaustion(location string, recognized []string) bool {

@@ -33,6 +33,9 @@ func (r *PriorityItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 		log.Error().Err(err).Str("component", priorityItemRecognitionName).Msg("invalid params")
 		return nil, false
 	}
+
+	// 静态数据提供当前据点可售物品及其 OCR 名称、稀有度和单价，
+	// 会话策略再决定是否只保留用户为当前地区配置的优先物品。
 	groupsByLocation, err := loadItemPriorityGroupsFunc()
 	if err != nil {
 		log.Error().Err(err).Str("component", priorityItemRecognitionName).Msg("failed to load item priorities")
@@ -42,6 +45,7 @@ func (r *PriorityItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 	allGroups := groupsByLocation[param.Location]
 	groups := prioritizeItemGroups(allGroups, policy.Preferred, policy.OnlyPreferred)
 	if len(groups) == 0 {
+		// 严格优先模式允许当前据点没有适用配置，但仍需连续两帧确认后再结束。
 		if policy.OnlyPreferred && param.Result == priorityResultExhausted {
 			return buildPriorityExhaustedResult(param.Location, nil)
 		}
@@ -52,7 +56,61 @@ func (r *PriorityItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 			Msg("item priority list is empty")
 		return nil, false
 	}
-	return runGoodsSelectionRecognition(ctx, arg, param, allGroups, groups, policy)
+	if param.Result == priorityResultExhausted {
+		// select 分支先保存本帧识别集合；exhausted 分支只负责确认该集合是否连续稳定。
+		itemIDs := goodsSelectionExhaustedItemsSnapshot(param.Location)
+		if len(itemIDs) == 0 {
+			return nil, false
+		}
+		return buildPriorityExhaustedResult(param.Location, itemIDs)
+	}
+
+	// 每轮 select 都重新扫描第一页。完整格子读取名称和库存，底部半截格子只保留名称；
+	// 稀有度和单价策略可以选择后者，库存策略会将其排除。
+	beginGoodsSelection(param.Location)
+	page, err := recognizeStockPage(ctx, arg, allGroups, param.stockCellOffsets)
+	if err != nil {
+		log.Warn().Err(err).
+			Str("component", priorityItemRecognitionName).
+			Str("location", param.Location).
+			Str("result", param.Result).
+			Msg("stock page recognition failed")
+		return nil, false
+	}
+
+	// 已知零库存会进入任务级缺货集合，其余画面结果再结合已尝试、保留规则和当前策略过滤。
+	prioritySelectionMarkScannedOutOfStock(page.Items)
+	observations := buildStockObservations(page.Items, allGroups)
+	targetItemID, recognized := selectGoodsTarget(param.Location, groups, policy, observations)
+	if targetItemID == "" {
+		// pending 表示上次点击尚未确认，不能改选其他物品或误判耗尽；
+		// 没有 pending 时保存本帧集合，交给下一个 exhausted 节点做稳定确认。
+		_, _, pending := prioritySelectionSnapshot(param.Location)
+		if pending != "" {
+			return nil, false
+		}
+		setGoodsSelectionExhaustedItems(param.Location, recognized)
+		return nil, false
+	}
+	prioritySelectionResetExhaustion(param.Location)
+	item, visible := findStockPageItem(page.Items, targetItemID)
+	if !visible {
+		return nil, false
+	}
+
+	// 先记为 pending，只有 Pipeline 确认返回据点界面后才会提交为已尝试物品。
+	prioritySelectionSetPending(param.Location, targetItemID)
+	detail := map[string]any{
+		"item_id":            item.ItemID,
+		"stock_known":        item.StockKnown,
+		"scanned_item_count": len(observations),
+	}
+	if item.StockKnown {
+		detail["stock_quantity"] = item.Quantity
+		detail["stock_box"] = item.StockBox
+	}
+	detailJSON, _ := json.Marshal(detail)
+	return &maa.CustomRecognitionResult{Box: item.ClickBox, Detail: string(detailJSON)}, true
 }
 
 func parsePriorityItemRecognitionParam(raw string) (*priorityItemRecognitionParam, error) {
@@ -82,63 +140,15 @@ func parsePriorityItemRecognitionParam(raw string) (*priorityItemRecognitionPara
 	return &param, nil
 }
 
-// runGoodsSelectionRecognition 扫描第一页货品；稀有度和单价策略也接纳底部仅露出名称的货品。
-// 已知零库存货品会被公共过滤，库存策略还会排除库存未知的候选。
-func runGoodsSelectionRecognition(
-	ctx *maa.Context,
-	arg *maa.CustomRecognitionArg,
-	param *priorityItemRecognitionParam,
-	allGroups []itemPriorityGroup,
-	candidateGroups []itemPriorityGroup,
-	policy prioritySelectionPolicy,
-) (*maa.CustomRecognitionResult, bool) {
-	if param.Result == priorityResultExhausted {
-		return buildGoodsSelectionExhaustedResult(param.Location)
-	}
-	if param.Result != priorityResultSelect {
+// buildPriorityExhaustedResult 只在连续两次候选集合一致时确认耗尽。
+// 严格优先模式允许空集合，以便没有适用配置的地区正常结束售卖。
+func buildPriorityExhaustedResult(location string, recognized []string) (*maa.CustomRecognitionResult, bool) {
+	if !prioritySelectionObserveExhaustion(location, recognized) {
 		return nil, false
 	}
-	beginGoodsSelection(param.Location)
-
-	page, err := recognizeStockPage(ctx, arg, allGroups, param.stockCellOffsets)
-	if err != nil {
-		log.Warn().Err(err).
-			Str("component", priorityItemRecognitionName).
-			Str("location", param.Location).
-			Str("result", param.Result).
-			Msg("stock page recognition failed")
-		return nil, false
-	}
-	prioritySelectionMarkScannedOutOfStock(page.Items)
-	observations := buildStockObservations(page.Items, allGroups)
-	targetItemID, recognized := selectGoodsTarget(param.Location, candidateGroups, policy, observations)
-	if targetItemID == "" {
-		_, _, pending := prioritySelectionSnapshot(param.Location)
-		if pending != "" {
-			return nil, false
-		}
-		setGoodsSelectionExhaustedItems(param.Location, recognized)
-		return nil, false
-	}
-	prioritySelectionResetExhaustion(param.Location)
-	item, visible := findStockPageItem(page.Items, targetItemID)
-	if !visible {
-		return nil, false
-	}
-	prioritySelectionSetPending(param.Location, targetItemID)
-	return buildGoodsSelectionResult(item, len(observations)), true
-}
-
-func buildGoodsSelectionResult(item stockPageItem, scannedItemCount int) *maa.CustomRecognitionResult {
-	detail := map[string]any{
-		"item_id":            item.ItemID,
-		"stock_known":        item.StockKnown,
-		"scanned_item_count": scannedItemCount,
-	}
-	if item.StockKnown {
-		detail["stock_quantity"] = item.Quantity
-		detail["stock_box"] = item.StockBox
-	}
-	detailJSON, _ := json.Marshal(detail)
-	return &maa.CustomRecognitionResult{Box: item.ClickBox, Detail: string(detailJSON)}
+	detailJSON, _ := json.Marshal(map[string]any{
+		"location":            location,
+		"recognized_item_ids": recognized,
+	})
+	return &maa.CustomRecognitionResult{Detail: string(detailJSON)}, true
 }
