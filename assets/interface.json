@@ -96,6 +96,34 @@
             "wlroots": {
                 "use_win32_vk_code": true
             }
+        },
+        {
+            "name": "MacOS-Front",
+            "label": "$controller.MacOS-Front.label",
+            "description": "$controller.MacOS-Front.description",
+            "type": "MacOS",
+            "macos": {
+                "title_regex": "Endfield",
+                "screencap": "ScreenCaptureKit",
+                "input": "GlobalEvent"
+            },
+            "attach_resource_path": [
+                "./resource_macos"
+            ]
+        },
+        {
+            "name": "MacOS-Background",
+            "label": "$controller.MacOS-Background.label",
+            "description": "$controller.MacOS-Background.description",
+            "type": "MacOS",
+            "macos": {
+                "title_regex": "Endfield",
+                "screencap": "ScreenCaptureKit",
+                "input": "PostToPid"
+            },
+            "attach_resource_path": [
+                "./resource_macos"
+            ]
         }
     ],
     "resource": [

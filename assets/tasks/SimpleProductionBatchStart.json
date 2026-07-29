@@ -6,9 +6,11 @@
             "entry": "SimpleProductionBatchStart",
             "description": "$task.SimpleProductionBatch.description",
             "controller": [
-                "Win32-Front",
                 "ADB",
+                "MacOS-Background",
+                "MacOS-Front",
                 "PlayCover",
+                "Win32-Front",
                 "Wlroots"
             ],
             "group": [

@@ -6,9 +6,11 @@
             "entry": "WikiReadAll",
             "description": "$task.ReadAllWiki.description",
             "controller": [
-                "Win32-Front",
                 "ADB",
+                "MacOS-Background",
+                "MacOS-Front",
                 "PlayCover",
+                "Win32-Front",
                 "Wlroots"
             ],
             "group": [

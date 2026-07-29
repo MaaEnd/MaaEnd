@@ -6,10 +6,12 @@
             "label": "$task.AutoUseSpMedication.label",
             "name": "AutoUseSpMedication",
             "controller": [
-                "Win32-Front",
-                "Wlroots",
                 "ADB",
-                "CloudADB"
+                "CloudADB",
+                "MacOS-Background",
+                "MacOS-Front",
+                "Win32-Front",
+                "Wlroots"
             ],
             "group": [
                 "sanity_sink"

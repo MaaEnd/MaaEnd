@@ -14,6 +14,7 @@ import (
 
 const (
 	CONTROL_TYPE_WIN32   = "win32"
+	CONTROL_TYPE_MACOS   = "macos"
 	CONTROL_TYPE_WLROOTS = "wlroots"
 	CONTROL_TYPE_ADB     = "adb"
 )
@@ -43,6 +44,9 @@ func GetControlType(ctrl *maa.Controller) (string, error) {
 		if strings.Contains(infoStr, CONTROL_TYPE_WIN32) {
 			return CONTROL_TYPE_WIN32, nil
 		}
+		if strings.Contains(infoStr, CONTROL_TYPE_MACOS) {
+			return CONTROL_TYPE_MACOS, nil
+		}
 		if strings.Contains(infoStr, CONTROL_TYPE_WLROOTS) {
 			return CONTROL_TYPE_WLROOTS, nil
 		}
@@ -57,6 +61,9 @@ func GetControlType(ctrl *maa.Controller) (string, error) {
 
 	if info.Type == CONTROL_TYPE_WIN32 {
 		return CONTROL_TYPE_WIN32, nil
+	}
+	if info.Type == CONTROL_TYPE_MACOS {
+		return CONTROL_TYPE_MACOS, nil
 	}
 	if info.Type == CONTROL_TYPE_WLROOTS {
 		return CONTROL_TYPE_WLROOTS, nil
