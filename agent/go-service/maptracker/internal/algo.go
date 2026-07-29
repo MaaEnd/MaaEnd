@@ -128,6 +128,25 @@ func (lt LinearTransform) Inverse(p Point) Point {
 	}
 }
 
+/* ******** Interpolation algorithms ******** */
+
+// Lerp returns the linear interpolation between a and b at parameter t.
+// Callers that need a unit ramp should use [UnitRamp] first.
+func Lerp(a, b, t float64) float64 {
+	return a + (b-a)*t
+}
+
+// UnitRamp maps x from the interval [lo, hi] onto [0, 1], clamping outside.
+func UnitRamp(x, lo, hi float64) float64 {
+	if x <= lo {
+		return 0
+	}
+	if x >= hi {
+		return 1
+	}
+	return (x - lo) / (hi - lo)
+}
+
 /* ******** Misc ******** */
 
 // PathBounds returns the min and max X/Y of all valid points in path.
@@ -156,8 +175,8 @@ func PathTotalDistance(path []Point) float64 {
 	return distance
 }
 
-// DeltaRotation returns the minimum signed angle difference from current to target in [-180, 180].
-func DeltaRotation(current, target int) int {
+// DeltaRotation returns the minimum signed angle difference from current to target in [-180.0, 180.0].
+func DeltaRotation(current, target int) float64 {
 	diff := target - current
 	for diff > 180 {
 		diff -= 360
@@ -165,7 +184,7 @@ func DeltaRotation(current, target int) int {
 	for diff < -180 {
 		diff += 360
 	}
-	return diff
+	return float64(diff)
 }
 
 /* ******** Graph searching algorithms ******** */
