@@ -81,22 +81,32 @@ func TestBuildStockPageItemsAssociatesOneOCRResultSetByAnchor(t *testing.T) {
 		Click:    maa.Rect{42, -58, 100, 34},
 	}
 
-	items, err := buildStockPageItems(ocrItems, anchors, groups, offsets, image.Rect(0, 0, 1280, 720))
+	items, err := buildStockPageItems(
+		ocrItems,
+		anchors,
+		groups,
+		offsets,
+		image.Rect(0, 0, 1280, 720),
+		func(stockBox maa.Rect) (string, error) {
+			t.Fatalf("complete page OCR unexpectedly used fallback for %v", stockBox)
+			return "", nil
+		},
+	)
 	if err != nil {
 		t.Fatalf("buildStockPageItems: %v", err)
 	}
 	want := []stockPageItem{
 		{
 			ItemID:     "item_a",
-			StockBox:   maa.Rect{282, 231, 100, 40},
-			ClickBox:   maa.Rect{282, 177, 100, 34},
+			StockBox:   maa.Rect{282, 231, 140, 80},
+			ClickBox:   maa.Rect{282, 177, 140, 74},
 			Quantity:   4803,
 			StockKnown: true,
 		},
 		{
 			ItemID:     "item_b",
-			StockBox:   maa.Rect{592, 231, 100, 40},
-			ClickBox:   maa.Rect{592, 177, 100, 34},
+			StockBox:   maa.Rect{592, 231, 140, 80},
+			ClickBox:   maa.Rect{592, 177, 140, 74},
 			Quantity:   14700,
 			StockKnown: true,
 		},
@@ -130,7 +140,7 @@ func TestBuildStockPageItemsKeepsNameOnlyItemBelowCompleteRows(t *testing.T) {
 		Click:    maa.Rect{42, -58, 100, 34},
 	}
 
-	items, err := buildStockPageItems(ocrItems, anchors, groups, offsets, image.Rect(0, 0, 1280, 720))
+	items, err := buildStockPageItems(ocrItems, anchors, groups, offsets, image.Rect(0, 0, 1280, 720), nil)
 	if err != nil {
 		t.Fatalf("buildStockPageItems: %v", err)
 	}
@@ -161,29 +171,29 @@ func TestSortRectsByGridKeepsRowsBeforeColumns(t *testing.T) {
 	}
 }
 
-func TestStockCellBoxUsesPipelineOffset(t *testing.T) {
+func TestStockCellBoxAddsPipelineOffsetToAnchor(t *testing.T) {
 	box := stockCellBox(
-		maa.Rect{240, 235, 40, 40},
-		maa.Rect{42, -60, 100, 40},
+		maa.Rect{155, 491, 17, 17},
+		maa.Rect{40, -6, 103, 7},
 		image.Rect(0, 0, 1280, 720),
 	)
-	if want := (maa.Rect{282, 175, 100, 40}); box != want {
+	if want := (maa.Rect{195, 485, 120, 24}); box != want {
 		t.Fatalf("stock cell box = %v, want %v", box, want)
 	}
 }
 
 func TestBuildStockPageItemsRejectsUnitPriceWhenStockOCRIsMissing(t *testing.T) {
-	anchors := []maa.Rect{{240, 235, 40, 40}}
+	anchors := []maa.Rect{{155, 219, 17, 17}}
 	ocrItems := []ocrmatch.Item{
-		{Text: "物品甲", Box: maa.Rect{290, 190, 120, 30}},
-		// 单价框位于 Pipeline 配置的库存框右侧，不得作为库存兜底。
-		{Text: "70", Box: maa.Rect{390, 232, 30, 25}},
+		{Text: "物品甲", Box: maa.Rect{205, 154, 120, 24}},
+		// 单价框与库存框边缘重叠，但并未完整位于库存列内，不得作为库存兜底。
+		{Text: "70", Box: maa.Rect{314, 214, 58, 21}},
 	}
 	groups := []itemPriorityGroup{{ItemID: "item_a", Candidates: []string{"物品甲"}}}
 	offsets := stockCellOffsets{
-		Name:     maa.Rect{42, -60, 100, 40},
-		Quantity: maa.Rect{42, -4, 100, 40},
-		Click:    maa.Rect{42, -58, 100, 34},
+		Name:     maa.Rect{46, -67, 208, 10},
+		Quantity: maa.Rect{40, -6, 103, 7},
+		Click:    maa.Rect{42, -58, 130, 34},
 	}
 
 	if _, err := buildStockPageItems(
@@ -192,8 +202,98 @@ func TestBuildStockPageItemsRejectsUnitPriceWhenStockOCRIsMissing(t *testing.T) 
 		groups,
 		offsets,
 		image.Rect(0, 0, 1280, 720),
+		nil,
 	); err == nil {
 		t.Fatal("missing stock OCR must fail instead of using the unit price")
+	}
+}
+
+func TestBuildStockPageItemsFallsBackToOnlyRecForMissingStock(t *testing.T) {
+	anchors := []maa.Rect{{155, 491, 17, 17}}
+	ocrItems := []ocrmatch.Item{
+		{Text: "芽针针剂", Box: maa.Rect{204, 425, 93, 26}},
+		{Text: "16", Box: maa.Rect{315, 486, 55, 22}},
+	}
+	groups := []itemPriorityGroup{{ItemID: "item_bottled_rec_hp_4", Candidates: []string{"芽针针剂"}}}
+	offsets := stockCellOffsets{
+		Name:     maa.Rect{46, -67, 208, 10},
+		Quantity: maa.Rect{40, -6, 103, 7},
+		Click:    maa.Rect{42, -58, 130, 34},
+	}
+	wantStockBox := maa.Rect{195, 485, 120, 24}
+	fallbackCalls := 0
+
+	items, err := buildStockPageItems(
+		ocrItems,
+		anchors,
+		groups,
+		offsets,
+		image.Rect(0, 0, 1280, 720),
+		func(stockBox maa.Rect) (string, error) {
+			fallbackCalls++
+			if stockBox != wantStockBox {
+				t.Fatalf("fallback stock box = %v, want %v", stockBox, wantStockBox)
+			}
+			return "3.15万", nil
+		},
+	)
+	if err != nil {
+		t.Fatalf("buildStockPageItems: %v", err)
+	}
+	if fallbackCalls != 1 {
+		t.Fatalf("fallback calls = %d, want 1", fallbackCalls)
+	}
+	if len(items) != 1 || items[0].Quantity != 31500 || !items[0].StockKnown || items[0].StockBox != wantStockBox {
+		t.Fatalf("fallback stock item = %+v, want quantity 31500 in %v", items, wantStockBox)
+	}
+}
+
+func TestBuildStockPageItemsDoesNotBorrowStockAcrossAnchors(t *testing.T) {
+	anchors := []maa.Rect{
+		{155, 219, 17, 17},
+		{543, 219, 17, 17},
+	}
+	ocrItems := []ocrmatch.Item{
+		{Text: "物品甲", Box: maa.Rect{205, 154, 120, 24}},
+		{Text: "70", Box: maa.Rect{314, 214, 58, 21}},
+		{Text: "物品乙", Box: maa.Rect{594, 153, 92, 25}},
+		{Text: "1051", Box: maa.Rect{592, 215, 41, 19}},
+	}
+	groups := []itemPriorityGroup{
+		{ItemID: "item_a", Candidates: []string{"物品甲"}},
+		{ItemID: "item_b", Candidates: []string{"物品乙"}},
+	}
+	offsets := stockCellOffsets{
+		Name:     maa.Rect{46, -67, 208, 10},
+		Quantity: maa.Rect{40, -6, 103, 7},
+		Click:    maa.Rect{42, -58, 130, 34},
+	}
+	leftStockBox := maa.Rect{195, 213, 120, 24}
+	fallbackCalls := 0
+
+	items, err := buildStockPageItems(
+		ocrItems,
+		anchors,
+		groups,
+		offsets,
+		image.Rect(0, 0, 1280, 720),
+		func(stockBox maa.Rect) (string, error) {
+			fallbackCalls++
+			if stockBox != leftStockBox {
+				t.Fatalf("fallback stock box = %v, want only left anchor box %v", stockBox, leftStockBox)
+			}
+			return "42", nil
+		},
+	)
+	if err != nil {
+		t.Fatalf("buildStockPageItems: %v", err)
+	}
+	if fallbackCalls != 1 {
+		t.Fatalf("fallback calls = %d, want 1", fallbackCalls)
+	}
+	if len(items) != 2 || items[0].ItemID != "item_a" || items[0].Quantity != 42 ||
+		items[1].ItemID != "item_b" || items[1].Quantity != 1051 {
+		t.Fatalf("anchor stock assignments = %+v", items)
 	}
 }
 

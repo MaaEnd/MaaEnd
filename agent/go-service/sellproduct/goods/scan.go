@@ -52,6 +52,8 @@ type stockNameMatch struct {
 	box    maa.Rect
 }
 
+type stockQuantityFallback func(maa.Rect) (string, error)
+
 func recognizeStockPage(
 	ctx *maa.Context,
 	arg *maa.CustomRecognitionArg,
@@ -78,6 +80,9 @@ func recognizeStockPage(
 		groups,
 		offsets,
 		arg.Img.Bounds(),
+		func(stockBox maa.Rect) (string, error) {
+			return recognizeStockQuantityOnlyRec(ctx, arg.Img, stockBox)
+		},
 	)
 	if err != nil {
 		return nil, err
@@ -92,6 +97,7 @@ func buildStockPageItems(
 	groups []itemPriorityGroup,
 	offsets stockCellOffsets,
 	bounds image.Rectangle,
+	fallback stockQuantityFallback,
 ) ([]stockPageItem, error) {
 	nameMatches := matchStockPageNames(ocrItems, groups)
 	if len(nameMatches) < len(anchorBoxes) {
@@ -112,6 +118,17 @@ func buildStockPageItems(
 		stockBox := stockCellBox(anchorBox, offsets.Quantity, bounds)
 		raw := collectStockQuantityText(ocrItems, stockBox)
 		quantity, ok := parseStockQuantity(raw)
+		source := "page_ocr"
+		// 全页 OCR 的检测阶段可能漏掉较小的库存数字；只对缺失格子在同一帧精确识别一次。
+		if !ok && fallback != nil {
+			fallbackRaw, err := fallback(stockBox)
+			if err != nil {
+				return nil, fmt.Errorf("item %q stock fallback failed in %v: %w", nameMatch.itemID, stockBox, err)
+			}
+			raw = fallbackRaw
+			quantity, ok = parseStockQuantity(raw)
+			source = "only_rec_fallback"
+		}
 		if !ok {
 			return nil, fmt.Errorf("item %q stock text %q is invalid in %v", nameMatch.itemID, raw, stockBox)
 		}
@@ -119,8 +136,11 @@ func buildStockPageItems(
 			Str("component", priorityItemRecognitionName).
 			Str("item_id", nameMatch.itemID).
 			Str("stock_ocr", raw).
+			Str("stock_ocr_source", source).
 			Int64("stock_quantity", quantity).
 			Interface("anchor_box", anchorBox).
+			Interface("name_box", nameMatch.box).
+			Interface("stock_box", stockBox).
 			Msg("goods cell stock recognized")
 		items = append(items, stockPageItem{
 			ItemID:     nameMatch.itemID,
@@ -148,6 +168,25 @@ func buildStockPageItems(
 		})
 	}
 	return items, nil
+}
+
+func recognizeStockQuantityOnlyRec(ctx *maa.Context, img image.Image, roi maa.Rect) (string, error) {
+	detail, err := ctx.RunRecognitionDirect(maa.RecognitionTypeOCR, maa.OCRParam{
+		ROI:     maa.NewTargetRect(roi),
+		OnlyRec: true,
+	}, img)
+	if err != nil {
+		return "", fmt.Errorf("recognize stock quantity: %w", err)
+	}
+	if detail == nil {
+		return "", fmt.Errorf("recognize stock quantity returned no detail")
+	}
+	for _, item := range ocrmatch.CollectResults(detail) {
+		if _, ok := parseStockQuantity(item.Text); ok {
+			return item.Text, nil
+		}
+	}
+	return "", fmt.Errorf("no stock quantity recognized")
 }
 
 func stockNameWithinAnchorColumns(
@@ -236,7 +275,7 @@ func templateMatchResults(detail *maa.RecognitionDetail) []*maa.RecognitionResul
 func collectStockQuantityText(items []ocrmatch.Item, roi maa.Rect) string {
 	matched := make([]ocrmatch.Item, 0, len(items))
 	for _, item := range items {
-		if rectsOverlap(item.Box, roi) {
+		if rectContains(roi, item.Box) {
 			matched = append(matched, item)
 		}
 	}
@@ -335,11 +374,12 @@ func parseStockCellOffset(field string, value []int) (maa.Rect, error) {
 }
 
 func stockCellBox(anchor, offset maa.Rect, bounds image.Rectangle) maa.Rect {
+	// 与 MaaFramework roi_offset 一致：x/y 平移基准框，width/height 在基准尺寸上增减。
 	return clipMaaRect(maa.Rect{
 		anchor.X() + offset.X(),
 		anchor.Y() + offset.Y(),
-		offset.Width(),
-		offset.Height(),
+		anchor.Width() + offset.Width(),
+		anchor.Height() + offset.Height(),
 	}, bounds)
 }
 
@@ -358,6 +398,13 @@ func rectsOverlap(left, right maa.Rect) bool {
 		right.X() < left.X()+left.Width() &&
 		left.Y() < right.Y()+right.Height() &&
 		right.Y() < left.Y()+left.Height()
+}
+
+func rectContains(outer, inner maa.Rect) bool {
+	return inner.X() >= outer.X() &&
+		inner.Y() >= outer.Y() &&
+		inner.X()+inner.Width() <= outer.X()+outer.Width() &&
+		inner.Y()+inner.Height() <= outer.Y()+outer.Height()
 }
 
 func sortStockNameMatchesByGrid(matches []stockNameMatch) {
