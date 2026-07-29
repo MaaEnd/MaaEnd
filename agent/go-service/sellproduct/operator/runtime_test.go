@@ -10,7 +10,7 @@ import (
 
 func TestRuntimeMessagesContainCurrentState(t *testing.T) {
 	i18n.Init()
-	candidate := operatorCandidate{DisplayName: "测试干员"}
+	candidate := operatorCandidate{Name: "测试干员"}
 
 	tests := []struct {
 		name     string

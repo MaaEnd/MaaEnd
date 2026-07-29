@@ -196,18 +196,14 @@ func newPrioritySelectionSessionState() prioritySelectionSessionState {
 		Current:        map[string]string{},
 		OutOfStock:     map[string]struct{}{},
 		Exhaustion:     map[string]priorityExhaustionObservation{},
-		GoodsSelection: newGoodsSelectionSessionState(),
+		GoodsSelection: goodsSelectionSessionState{},
 	}
-}
-
-func newGoodsSelectionSessionState() goodsSelectionSessionState {
-	return goodsSelectionSessionState{}
 }
 
 func resetGoodsSelection() {
 	prioritySelectionMu.Lock()
 	defer prioritySelectionMu.Unlock()
-	prioritySelection.GoodsSelection = newGoodsSelectionSessionState()
+	prioritySelection.GoodsSelection = goodsSelectionSessionState{}
 }
 
 func beginGoodsSelection(location string) {

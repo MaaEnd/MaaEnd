@@ -31,6 +31,27 @@ func TestLoad(t *testing.T) {
 	}
 }
 
+func TestLocationNameFallsBackToStableID(t *testing.T) {
+	const location = "UnknownLocation"
+	if got := LocationName(location); got != location {
+		t.Fatalf("location name = %q, want %q", got, location)
+	}
+}
+
+func TestItemNameFallsBackToStableID(t *testing.T) {
+	const itemID = "UnknownItem"
+	if got := ItemName(itemID); got != itemID {
+		t.Fatalf("item name = %q, want %q", got, itemID)
+	}
+}
+
+func TestOperatorNameFallsBackToStableID(t *testing.T) {
+	const operator = "UnknownOperator"
+	if got := OperatorName(operator); got != operator {
+		t.Fatalf("operator name = %q, want %q", got, operator)
+	}
+}
+
 func TestDomainValidationIsIndependent(t *testing.T) {
 	base := File{
 		LocationOrder: []string{"Outpost"},

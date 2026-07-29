@@ -74,6 +74,25 @@ type operatorScanOutcomeDetail struct {
 // operatorListScanStates 仅保存当前进程内的短期扫描状态，键中包含 UID 和选择参数。
 var operatorListScanStates = map[string]operatorListScanState{}
 
+func operatorListStateGet(key string) (operatorListScanState, bool) {
+	operatorStateMu.Lock()
+	defer operatorStateMu.Unlock()
+	state, ok := operatorListScanStates[key]
+	return state, ok
+}
+
+func operatorListStateSet(state operatorListScanState) {
+	operatorStateMu.Lock()
+	defer operatorStateMu.Unlock()
+	operatorListScanStates[state.Key] = state
+}
+
+func operatorListStateDelete(key string) {
+	operatorStateMu.Lock()
+	defer operatorStateMu.Unlock()
+	delete(operatorListScanStates, key)
+}
+
 // loadOperatorOwnershipForSelection 读取当前账号完整快照中的拥有干员集合。
 func loadOperatorOwnershipForSelection() (operatorOwnership, error) {
 	uid := currentSellProductCacheUID()

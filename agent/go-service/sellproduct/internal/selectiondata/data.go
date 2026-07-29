@@ -156,6 +156,39 @@ func LocalizedName(names map[string]string, fallback string) string {
 	return strings.TrimSpace(fallback)
 }
 
+// LocationName 返回当前语言的据点名称；数据不可用或据点不存在时回退到稳定 ID。
+func LocationName(location string) string {
+	data, err := LoadCached()
+	if err == nil {
+		if entry, ok := data.Locations[location]; ok {
+			return LocalizedName(entry.Names, location)
+		}
+	}
+	return strings.TrimSpace(location)
+}
+
+// ItemName 返回当前语言的货品名称；数据不可用或货品不存在时回退到稳定 ID。
+func ItemName(itemID string) string {
+	data, err := LoadCached()
+	if err == nil {
+		if entry, ok := data.Items[itemID]; ok {
+			return LocalizedName(entry.Names, itemID)
+		}
+	}
+	return strings.TrimSpace(itemID)
+}
+
+// OperatorName 返回当前语言的干员名称；数据不可用或干员不存在时回退到稳定 ID。
+func OperatorName(operator string) string {
+	data, err := LoadCached()
+	if err == nil {
+		if entry, ok := data.Operators[operator]; ok {
+			return LocalizedName(entry.Names, operator)
+		}
+	}
+	return strings.TrimSpace(operator)
+}
+
 // ExpectedNames 按仓库语言顺序返回去重后的 OCR 候选名称。
 func ExpectedNames(names map[string]string) []string {
 	return uniqueNonEmptyStrings([]string{

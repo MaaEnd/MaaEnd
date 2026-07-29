@@ -411,22 +411,3 @@ func cloneStringSet(src map[string]struct{}) map[string]struct{} {
 	}
 	return dst
 }
-
-func operatorListStateGet(key string) (operatorListScanState, bool) {
-	operatorStateMu.Lock()
-	defer operatorStateMu.Unlock()
-	state, ok := operatorListScanStates[key]
-	return state, ok
-}
-
-func operatorListStateSet(state operatorListScanState) {
-	operatorStateMu.Lock()
-	defer operatorStateMu.Unlock()
-	operatorListScanStates[state.Key] = state
-}
-
-func operatorListStateDelete(key string) {
-	operatorStateMu.Lock()
-	defer operatorStateMu.Unlock()
-	delete(operatorListScanStates, key)
-}

@@ -37,7 +37,10 @@ func (a *LocationPlanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 			Str("component", locationPlanActionName).
 			Str("location", param.Location).
 			Msg("failed to print outpost plan")
-		printRuntimeLocationEntered(ctx, param.Location)
+		maafocus.Print(ctx, i18n.T(
+			"sellproduct.runtime.location_entered",
+			selectiondata.LocationName(param.Location),
+		))
 	}
 	return true
 }
@@ -89,20 +92,6 @@ func printRuntimeLocationPlan(ctx *maa.Context, location string) error {
 	}
 	maafocus.Print(ctx, runtimeLocationPlanMessage(plan))
 	return nil
-}
-
-func printRuntimeLocationEntered(ctx *maa.Context, location string) {
-	maafocus.Print(ctx, i18n.T("sellproduct.runtime.location_entered", runtimeLocationName(location)))
-}
-
-func runtimeLocationName(location string) string {
-	data, err := selectiondata.LoadCached()
-	if err == nil {
-		if entry, ok := data.Locations[location]; ok {
-			return selectiondata.LocalizedName(entry.Names, location)
-		}
-	}
-	return location
 }
 
 func runtimeLocationPlanMessage(plan runtimeLocationPlan) string {

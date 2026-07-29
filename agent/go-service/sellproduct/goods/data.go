@@ -17,11 +17,10 @@ var (
 
 // itemPriorityGroup 是一个据点内的可售物品及其价值属性。
 type itemPriorityGroup struct {
-	ItemID      string
-	DisplayName string
-	Candidates  []string
-	Rarity      int
-	UnitPrice   int
+	ItemID     string
+	Candidates []string
+	Rarity     int
+	UnitPrice  int
 }
 
 func loadItemPriorityGroups() (map[string][]itemPriorityGroup, error) {
@@ -82,10 +81,9 @@ func itemPriorityGroupFromData(
 		return itemPriorityGroup{}, fmt.Errorf("item %q expected names are empty", itemID)
 	}
 	return itemPriorityGroup{
-		ItemID:      itemID,
-		DisplayName: selectiondata.LocalizedName(item.Names, itemID),
-		Candidates:  candidates,
-		Rarity:      locationItem.Rarity,
-		UnitPrice:   locationItem.UnitPrice,
+		ItemID:     itemID,
+		Candidates: candidates,
+		Rarity:     locationItem.Rarity,
+		UnitPrice:  locationItem.UnitPrice,
 	}, nil
 }

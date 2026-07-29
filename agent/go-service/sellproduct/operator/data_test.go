@@ -85,9 +85,6 @@ func TestLoadOperatorSelectionData(t *testing.T) {
 		if len(got.TargetCandidates[location]) == 0 {
 			t.Errorf("%s target candidates should not be empty", location)
 		}
-		if got.LocationNames[location] == "" {
-			t.Errorf("%s display name should not be empty", location)
-		}
 	}
 	if len(got.RestoreGroups) == 0 {
 		t.Fatal("restore groups should not be empty")

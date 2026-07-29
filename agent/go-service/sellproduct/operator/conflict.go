@@ -166,13 +166,9 @@ func findOperatorConflictSource(
 			}
 		}
 	}
-	return "", firstOperatorConflictPromptText(items), false
-}
-
-func firstOperatorConflictPromptText(items []ocrmatch.Item) string {
 	items = ocrmatch.SortItemsByPosition(items)
 	if len(items) == 0 {
-		return ""
+		return "", "", false
 	}
-	return items[0].Text
+	return "", items[0].Text, false
 }

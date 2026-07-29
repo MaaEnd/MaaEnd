@@ -23,14 +23,12 @@ type operatorSelectionData struct {
 	RestoreGroups    []operatorCandidateGroup
 	KnownOperators   []operatorCandidate
 	LocationOrder    []string
-	LocationNames    map[string]string
 }
 
 // operatorCandidate 描述一个可供自动选择的干员。
 // Priority 的数值越小优先级越高；Expected 保存各语言 OCR 可能识别出的完整名称。
 type operatorCandidate struct {
 	Name                          string   `json:"name"`
-	DisplayName                   string   `json:"display_name"`
 	Expected                      []string `json:"expected"`
 	Priority                      int      `json:"priority"`
 	BonusTier                     int      `json:"bonus_tier"`
@@ -79,7 +77,6 @@ func buildOperatorSelectionData(data *selectiondata.File) (*operatorSelectionDat
 		RestoreGroups:    make([]operatorCandidateGroup, 0, len(data.LocationOrder)),
 		KnownOperators:   make([]operatorCandidate, 0, len(data.Operators)),
 		LocationOrder:    append([]string(nil), data.LocationOrder...),
-		LocationNames:    make(map[string]string, len(data.LocationOrder)),
 	}
 
 	operatorNames := make([]string, 0, len(data.Operators))
@@ -99,7 +96,6 @@ func buildOperatorSelectionData(data *selectiondata.File) (*operatorSelectionDat
 		if !ok {
 			return nil, fmt.Errorf("location %q not found", locationName)
 		}
-		result.LocationNames[locationName] = selectiondata.LocalizedName(location.Names, locationName)
 		targetCandidates, err := buildTargetSelectionOperatorCandidates(data, location.TargetOperators)
 		if err != nil {
 			return nil, fmt.Errorf("location %q target operators: %w", locationName, err)
@@ -171,7 +167,6 @@ func operatorCandidateFromData(
 	}
 	candidate := operatorCandidate{
 		Name:                          name,
-		DisplayName:                   selectiondata.LocalizedName(entry.Names, name),
 		Expected:                      selectiondata.ExpectedNames(entry.Names),
 		Priority:                      priority,
 		BonusTier:                     bonusTier,
@@ -191,7 +186,6 @@ func normalizeOperatorCandidates(candidates []operatorCandidate) []operatorCandi
 	seen := make(map[string]struct{}, len(candidates))
 	for _, candidate := range candidates {
 		candidate.Name = strings.TrimSpace(candidate.Name)
-		candidate.DisplayName = strings.TrimSpace(candidate.DisplayName)
 		candidate.Expected = uniqueNonEmptyStrings(candidate.Expected)
 		if candidate.Name == "" || len(candidate.Expected) == 0 {
 			continue

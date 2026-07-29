@@ -2,11 +2,11 @@ package operator
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/sellproduct/internal/selectiondata"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
@@ -46,13 +46,13 @@ func BuildLocationPlan(location string) (LocationPlan, error) {
 	restoreCandidates := candidatesForOwnership(restoreSelection, ownership)
 
 	plan := LocationPlan{
-		LocationName: runtimeLocationName(location),
+		LocationName: selectiondata.LocationName(location),
 	}
 	if len(targetCandidates) > 0 {
-		plan.TargetOperator = runtimeOperatorName(targetCandidates[0])
+		plan.TargetOperator = selectiondata.OperatorName(targetCandidates[0].Name)
 	}
 	if len(restoreCandidates) > 0 {
-		plan.RestoreOperator = runtimeOperatorName(restoreCandidates[0])
+		plan.RestoreOperator = selectiondata.OperatorName(restoreCandidates[0].Name)
 	}
 	return plan, nil
 }
@@ -80,8 +80,8 @@ func runtimeOperatorAssignmentMessage(
 	return i18n.T(
 		key,
 		runtimeUsageName(usage),
-		runtimeOperatorName(candidate),
-		runtimeLocationName(location),
+		selectiondata.OperatorName(candidate.Name),
+		selectiondata.LocationName(location),
 	)
 }
 
@@ -93,9 +93,9 @@ func printRuntimeOperatorConflict(
 ) {
 	maafocus.Print(ctx, i18n.T(
 		"sellproduct.runtime.operator_conflict",
-		runtimeOperatorName(candidate),
+		selectiondata.OperatorName(candidate.Name),
 		runtimeUsageName(usage),
-		runtimeLocationName(location),
+		selectiondata.LocationName(location),
 	))
 }
 
@@ -112,15 +112,15 @@ func runtimeOperatorReplannedMessage(location string, usage string, candidate op
 	return i18n.T(
 		"sellproduct.runtime.operator_replanned",
 		runtimeUsageName(usage),
-		runtimeLocationName(location),
-		runtimeOperatorName(candidate),
+		selectiondata.LocationName(location),
+		selectiondata.OperatorName(candidate.Name),
 	)
 }
 
 func printRuntimeOperatorUnavailable(ctx *maa.Context, location string, usage string) {
 	maafocus.Print(ctx, i18n.T(
 		"sellproduct.runtime.operator_unavailable",
-		runtimeLocationName(location),
+		selectiondata.LocationName(location),
 		runtimeUsageName(usage),
 	))
 }
@@ -130,7 +130,10 @@ func printRuntimeOperatorCacheStatus(ctx *maa.Context, status operatorCacheStatu
 }
 
 func printRuntimeOperatorCacheRescan(ctx *maa.Context, candidate operatorCandidate) {
-	maafocus.Print(ctx, i18n.T("sellproduct.runtime.operator_cache_rescan", runtimeOperatorName(candidate)))
+	maafocus.Print(ctx, i18n.T(
+		"sellproduct.runtime.operator_cache_rescan",
+		selectiondata.OperatorName(candidate.Name),
+	))
 }
 
 func runtimeOperatorCacheStatusMessage(status operatorCacheStatus) string {
@@ -160,29 +163,15 @@ func runtimeOperatorScanFailedMessage(location string, usage string) string {
 	}
 	return i18n.T(
 		"sellproduct.runtime.operator_scan_failed",
-		runtimeLocationName(location),
+		selectiondata.LocationName(location),
 		runtimeUsageName(usage),
 	)
 }
 
 func printRuntimeRestoreSkipped(ctx *maa.Context, location string) {
-	maafocus.Print(ctx, i18n.T("sellproduct.runtime.restore_skipped", runtimeLocationName(location)))
+	maafocus.Print(ctx, i18n.T("sellproduct.runtime.restore_skipped", selectiondata.LocationName(location)))
 }
 
 func runtimeUsageName(usage string) string {
 	return i18n.T("sellproduct.runtime.usage." + usage)
-}
-
-func runtimeOperatorName(candidate operatorCandidate) string {
-	return candidate.DisplayName
-}
-
-func runtimeLocationName(location string) string {
-	data, err := loadOperatorSelectionDataFunc()
-	if err == nil {
-		if name := strings.TrimSpace(data.LocationNames[location]); name != "" {
-			return name
-		}
-	}
-	return location
 }

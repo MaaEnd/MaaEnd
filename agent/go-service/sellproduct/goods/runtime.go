@@ -90,23 +90,24 @@ func buildRuntimeLocationPlanItems(
 	satisfiedItems := make([]LocationPlanItem, 0, len(reserveSatisfied))
 	excludedByUser := make([]string, 0)
 	for _, group := range groups {
+		itemName := selectiondata.ItemName(group.ItemID)
 		if reserveRules[group.ItemID] == reserveBlacklistQuantity {
-			excludedByUser = append(excludedByUser, group.DisplayName)
+			excludedByUser = append(excludedByUser, itemName)
 			continue
 		}
 		if _, unavailable := outOfStock[group.ItemID]; unavailable {
-			excludedOutOfStock = append(excludedOutOfStock, group.DisplayName)
+			excludedOutOfStock = append(excludedOutOfStock, itemName)
 			continue
 		}
 		if _, satisfied := reserveSatisfied[group.ItemID]; satisfied {
 			satisfiedItems = append(satisfiedItems, LocationPlanItem{
-				Name:            group.DisplayName,
+				Name:            itemName,
 				ReserveQuantity: reserveRules[group.ItemID],
 			})
 			continue
 		}
 		items = append(items, LocationPlanItem{
-			Name:            group.DisplayName,
+			Name:            itemName,
 			ReserveQuantity: reserveRules[group.ItemID],
 		})
 	}
@@ -136,8 +137,8 @@ func printRuntimeItemSwitched(ctx *maa.Context, location string, itemID string) 
 func runtimeItemSwitchedMessage(location string, itemID string) string {
 	return i18n.T(
 		"sellproduct.runtime.item_switched",
-		runtimeItemName(itemID),
-		runtimeLocationName(location),
+		selectiondata.ItemName(itemID),
+		selectiondata.LocationName(location),
 	)
 }
 
@@ -148,8 +149,8 @@ func printRuntimeItemOutOfStock(ctx *maa.Context, location string, itemID string
 func runtimeItemOutOfStockMessage(location string, itemID string) string {
 	return i18n.T(
 		"sellproduct.runtime.item_out_of_stock",
-		runtimeItemName(itemID),
-		runtimeLocationName(location),
+		selectiondata.ItemName(itemID),
+		selectiondata.LocationName(location),
 	)
 }
 
@@ -160,27 +161,7 @@ func printRuntimeReserveSatisfied(ctx *maa.Context, itemID string, quantity int)
 func runtimeReserveSatisfiedMessage(itemID string, quantity int) string {
 	return i18n.T(
 		"sellproduct.runtime.reserve_satisfied",
-		runtimeItemName(itemID),
+		selectiondata.ItemName(itemID),
 		quantity,
 	)
-}
-
-func runtimeLocationName(location string) string {
-	data, err := selectiondata.LoadCached()
-	if err == nil {
-		if entry, ok := data.Locations[location]; ok {
-			return selectiondata.LocalizedName(entry.Names, location)
-		}
-	}
-	return location
-}
-
-func runtimeItemName(itemID string) string {
-	data, err := selectiondata.LoadCached()
-	if err == nil {
-		if entry, ok := data.Items[itemID]; ok {
-			return selectiondata.LocalizedName(entry.Names, itemID)
-		}
-	}
-	return itemID
 }
