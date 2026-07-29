@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/recogtarget"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/sellproduct/internal/ocrmatch"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
@@ -317,35 +316,5 @@ func TestParseStockCellOffsetsValidatesPipelineGeometry(t *testing.T) {
 		[]int{42, -58, 100, 34},
 	); err == nil {
 		t.Fatal("zero-width stock name offset must be rejected")
-	}
-}
-
-func TestGoodsCellAnchorUsesAndBoxIndexInsteadOfFirstOCRChild(t *testing.T) {
-	ocrResult := new(maa.RecognitionResult)
-	templateResult := new(maa.RecognitionResult)
-	detail := &maa.RecognitionDetail{
-		Algorithm: string(maa.RecognitionTypeAnd),
-		CombinedResult: []*maa.RecognitionDetail{
-			{
-				Algorithm: string(maa.RecognitionTypeOCR),
-				Results:   &maa.RecognitionResults{Filtered: []*maa.RecognitionResult{ocrResult}},
-			},
-			{
-				Algorithm: string(maa.RecognitionTypeTemplateMatch),
-				Results:   &maa.RecognitionResults{Filtered: []*maa.RecognitionResult{templateResult}},
-			},
-		},
-	}
-	selected, err := recogtarget.SelectDetailFromJSON([]byte(`{
-        "recognition": "And",
-        "all_of": ["SellProductCheckSelectGoodsText", "SellProductCheckGoodsCellAnchor"],
-        "box_index": 1
-    }`), detail)
-	if err != nil {
-		t.Fatalf("select template child: %v", err)
-	}
-	results := templateMatchResults(selected)
-	if len(results) != 1 || results[0] != templateResult {
-		t.Fatalf("template results = %v, want the box_index child", results)
 	}
 }

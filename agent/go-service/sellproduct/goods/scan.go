@@ -9,14 +9,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/recogtarget"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/sellproduct/internal/ocrmatch"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 const (
-	stockCellAnchorNodeName       = "SellProductGoodsCellAnchor"
+	stockCellAnchorNodeName       = "SellProductCheckGoodsCellAnchor"
 	stockQuantityFragmentMaxGapX  = 16
 	stockGridRowToleranceY        = 32
 	stockAnchorDedupToleranceAxis = 8
@@ -239,14 +238,13 @@ func findStockNameForAnchor(
 
 func recognizeStockCellAnchors(ctx *maa.Context, img image.Image) ([]maa.Rect, error) {
 	detail, err := ctx.RunRecognition(stockCellAnchorNodeName, img, nil)
-	if err != nil || detail == nil {
+	if err != nil {
 		return nil, fmt.Errorf("recognize goods cell anchors: %w", err)
 	}
-	selected, err := recogtarget.SelectDetail(ctx, stockCellAnchorNodeName, detail)
-	if err != nil {
-		return nil, fmt.Errorf("select goods cell anchor result: %w", err)
+	if detail == nil {
+		return nil, fmt.Errorf("recognize goods cell anchors returned no detail")
 	}
-	results := templateMatchResults(selected)
+	results := templateMatchResults(detail)
 	boxes := make([]maa.Rect, 0, len(results))
 	for _, result := range results {
 		if result == nil {
