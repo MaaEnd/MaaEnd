@@ -3,14 +3,14 @@
 IMS（Item Management System）在 go-service 进程内维护培养道具数量缓存，供任务启动门禁与数量判断使用。流程编排仍由 Pipeline 负责。
 
 > [!NOTE]
-> 当前已落地：`ItemDataReady`（R2）、`ItemQuantitySatisfied`（R1）、`UpdateItemQuantity`（A1）、`SyncItemData`（A2）。
+> 当前已落地：`ItemDataReady`（R2）、`ItemQuantitySatisfied`（R1）、`UpdateItemQuantity`（A1）、`SyncItemData`（A2）、`AddItemData`（A3）。
 
 ## 实现位置
 
 | 路径 | 说明 |
 | --- | --- |
 | `agent/go-service/ims/` | Custom 组件与缓存 |
-| `assets/resource/pipeline/IMS/` | Pipeline：四接口分文件 |
+| `assets/resource/pipeline/IMS/` | Pipeline：接口分文件 |
 | `tools/schema/components/ims.schema.json` | 参数 JSON Schema |
 | `tools/schema/custom.recognition.schema.json` | 注册 Recognition 并引用上述 Schema |
 | `tools/schema/custom.action.schema.json` | 注册 Action 并引用上述 Schema |
@@ -23,6 +23,7 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 | `ItemQuantitySatisfied.json` | R1 `ItemQuantitySatisfied`（调用方覆盖 `item` / `quantity`） |
 | `UpdateItemQuantity.json` | A1 `UpdateItemQuantity`（调用方覆盖 `item` / `delta`） |
 | `SyncItemData.json` | A2 入口 `SyncItemData`（任意位置 → 培养素材页 → 扫描） |
+| `AddItemData.json` | A3 最佳实践：`CloseRewardsButton` 下累加识别数量 → 关闭奖励 |
 | `common.json` | 通用品质色（黄等）ColorMatch |
 | `item/*.json` | 各培养道具识别节点 |
 
@@ -175,7 +176,53 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 `EnsureItemDataReadyMain` 未就绪时直接 `next` 到 `SyncItemData`。
 
 > [!NOTE]
-> `SyncItemDataRun.items` 示例：`{"ADVANCED_COGNITIVE_CARRIER": "ADVANCED_COGNITIVE_CARRIER_Item"}`。切换未选中培养页依赖 `SceneManager/ProgressionTabNotChoose.png`。
+> `SyncItemDataRun.items` 示例：`{"ADVANCED_COGNITIVE_CARRIER": "ADVANCED_COGNITIVE_CARRIER"}`。切换未选中培养页依赖 `SceneManager/ProgressionTabNotChoose.png`。
+
+## A3：`AddItemData`
+
+在**当前画面**依次跑 `items` 中的识别节点，把 OCR 到的数量作为**正增量**写入缓存（等同多次 `UpdateItemQuantity` 的 `+n`）。**不改变就绪状态**。
+
+与 A2 区别：A2 是培养素材页整表绝对值同步并置就绪；A3 是把识别结果累加进库存（典型场景：领奖弹窗）。
+
+### Action 参数
+
+| 字段 | 类型 | 默认 | 说明 |
+| --- | --- | --- | --- |
+| `items` | `object` | 必填 | 字典：键=物品 ID，值=识别节点名（按键名排序执行） |
+
+未命中或数量 `<= 0` 的项跳过。命中时 Focus：`ims.add_item_found`（名、增量、累加后库存）。
+
+> [!IMPORTANT]
+> 培养素材页的 `IMS/item/*` 节点 ROI 可能不适用于奖励界面。业务侧应传入**适配当前画面**的识别节点。
+
+### 最佳实践
+
+在 `CloseRewardsButton` 可见时执行累加，再 `next` 点击关闭：
+
+```json
+"AddItemDataOnRewards": {
+    "recognition": {
+        "type": "And",
+        "param": {
+            "all_of": ["CloseRewardsButton"]
+        }
+    },
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "AddItemData",
+            "custom_action_param": {
+                "items": {
+                    "PROTODISK": "PROTODISK"
+                }
+            }
+        }
+    },
+    "next": ["AddItemDataCloseRewards"]
+}
+```
+
+可直接参考 Pipeline 节点 `AddItemDataOnRewards` / `AddItemDataCloseRewards`。
 
 ### 与业务数量判断配合
 

@@ -222,6 +222,7 @@
     "trialofswordmancy.legacy_double": "选剑演武\n识别到有之前遗留的演算奖励次数消耗了当日的双倍次数\n→ 直接开始演算以回归正确状态",
     "trialofswordmancy.recognition_failed": "选剑演武：识别失败",
     "ims.sync_item_found": "识别到 %s：%d",
+    "ims.add_item_found": "累加 %s：+%d → %d",
     "ims.item.ADVANCED_COGNITIVE_CARRIER": "高级认知载体",
     "ims.item.ELEMENTARY_COGNITIVE_CARRIER": "初级认知载体",
     "ims.item.ADVANCED_COMBAT_RECORD": "高级作战记录",

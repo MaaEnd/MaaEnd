@@ -3,7 +3,7 @@
 IMS keeps an in-process cache of cultivation-item counts for task gates and quantity checks. Pipeline still owns flow control.
 
 > [!NOTE]
-> Shipped today: `ItemDataReady` (R2), `ItemQuantitySatisfied` (R1), `UpdateItemQuantity` (A1), and `SyncItemData` (A2).
+> Shipped today: `ItemDataReady` (R2), `ItemQuantitySatisfied` (R1), `UpdateItemQuantity` (A1), `SyncItemData` (A2), and `AddItemData` (A3).
 
 ## Locations
 
@@ -23,6 +23,7 @@ IMS keeps an in-process cache of cultivation-item counts for task gates and quan
 | `ItemQuantitySatisfied.json` | R1 `ItemQuantitySatisfied` (override `item` / `quantity`) |
 | `UpdateItemQuantity.json` | A1 `UpdateItemQuantity` (override `item` / `delta`) |
 | `SyncItemData.json` | A2 entry `SyncItemData` (any screen → Progression tab → scan) |
+| `AddItemData.json` | A3 best practice: add under `CloseRewardsButton`, then close rewards |
 | `common.json` | Shared rarity ColorMatch nodes |
 | `item/*.json` | Per-item recognition nodes |
 
@@ -165,6 +166,52 @@ After swipe: page_dedup=true
 
 > [!NOTE]
 > Example `SyncItemDataRun.items`: `{"ADVANCED_COGNITIVE_CARRIER": "ADVANCED_COGNITIVE_CARRIER"}`. Unselected Progression tab switching needs `SceneManager/ProgressionTabNotChoose.png`.
+
+## A3: `AddItemData`
+
+On the **current screen**, run each recognition node in `items` and **add** the OCR quantity into the cache (same as repeated `UpdateItemQuantity` with `+n`). **Does not change readiness**.
+
+Unlike A2 (absolute stash sync + mark ready), A3 accumulates recognized amounts (typical: reward popup).
+
+### Action parameters
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `items` | `object` | required | Map: item ID → recognition node name (sorted key order) |
+
+Misses and quantities `<= 0` are skipped. On hit, Focus uses `ims.add_item_found` (name, delta, new total).
+
+> [!IMPORTANT]
+> `IMS/item/*` nodes for the Progression tab may not fit the rewards UI. Pass recognition nodes that match the current screen.
+
+### Best practice
+
+Run under `CloseRewardsButton`, then `next` to click-close:
+
+```json
+"AddItemDataOnRewards": {
+    "recognition": {
+        "type": "And",
+        "param": {
+            "all_of": ["CloseRewardsButton"]
+        }
+    },
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "AddItemData",
+            "custom_action_param": {
+                "items": {
+                    "PROTODISK": "PROTODISK"
+                }
+            }
+        }
+    },
+    "next": ["AddItemDataCloseRewards"]
+}
+```
+
+See Pipeline nodes `AddItemDataOnRewards` / `AddItemDataCloseRewards`.
 
 ### Combined with quantity checks
 

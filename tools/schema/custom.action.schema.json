@@ -7,6 +7,7 @@
             "enum": [
                 "325",
                 "AccountSwitchWindowAction",
+                "AddItemData",
                 "AeroSalvageConfigureSwipeAction",
                 "AttachToExpectedRegexAction",
                 "AutoAltClickAction",
@@ -95,6 +96,20 @@
         }
     },
 	"allOf": [
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "AddItemData" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/ims.schema.json#/$defs/AddItemDataParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
 		{
 			"if": {
 				"properties": {

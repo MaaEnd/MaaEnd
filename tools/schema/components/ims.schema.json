@@ -3,6 +3,31 @@
     "title": "IMS Component Schema",
     "description": "Parameter definitions for IMS (Item Management System) custom recognitions/actions. Referenced by custom.recognition.schema.json / custom.action.schema.json.",
     "$defs": {
+        "AddItemDataParam": {
+            "type": "object",
+            "title": "AddItemData Param",
+            "description": "Parameters for AddItemData action (A3). Sequentially runs recognition nodes and adds OCR quantities into the IMS cache as positive deltas. Does not change readiness / last_sync. Misses and non-positive quantities are skipped. Best practice: use under CloseRewardsButton recognition, then next to click-close the rewards UI.",
+            "additionalProperties": false,
+            "required": [
+                "items"
+            ],
+            "properties": {
+                "items": {
+                    "title": "Items",
+                    "description": "Map of item ID -> recognition node name. Keys are cache IDs; values are run in sorted key order. Quantity comes from each node's box_index OCR result and is added to cache.",
+                    "type": "object",
+                    "minProperties": 1,
+                    "additionalProperties": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "propertyNames": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                }
+            }
+        },
         "ItemDataReadyParam": {
             "type": "object",
             "title": "ItemDataReady Param",

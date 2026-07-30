@@ -1,0 +1,48 @@
+{
+    "AddItemDataOnRewards": {
+        "desc": "IMS A3 最佳实践模板：在奖励关闭按钮可见时累加识别到的物品数量，再关闭奖励界面。业务侧请覆盖 items，并按需替换识别节点（奖励界面 ROI 可能与培养素材页不同）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AddItemData",
+                "custom_action_param": {
+                    "items": {
+                        "PROTODISK": "PROTODISK"
+                    }
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AddItemDataCloseRewards"
+        ]
+    },
+    "AddItemDataCloseRewards": {
+        "desc": "关闭奖励界面（Click CloseRewardsButton）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    }
+}
