@@ -89,9 +89,9 @@
         "custom_action_param": {
             "sub": [
                 "SellProductInitializeReserveSession",
+                "SellProductInitializeOperatorSession",
                 "SellProductConfigurePrioritySession",
-                "SellProductConfigureSelectionStrategy",
-                "SellProductInitializeOperatorSession"
+                "SellProductConfigureSelectionStrategy"
             ]
         },
         "post_delay": 0,
