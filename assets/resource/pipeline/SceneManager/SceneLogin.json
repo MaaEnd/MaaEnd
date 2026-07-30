@@ -163,7 +163,14 @@
         },
         "pre_delay": 1200, // 3d移动，pre_wait_freeze不生效
         "action": {
-            "type": "Click"
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilNotFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_node": "__ScenePrivateLoginMonthlyPassConfirm"
+                }
+            }
         }
     },
     "__ScenePrivateLoginCompanionGiftConfirm": {
@@ -185,7 +192,14 @@
         },
         "pre_delay": 1200, // 3d移动，pre_wait_freeze不生效
         "action": {
-            "type": "Click"
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilNotFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_node": "__ScenePrivateLoginCompanionGiftConfirm"
+                }
+            }
         }
     },
     "__ScenePrivateLoginPristineMonthlyPassConfirm": {
@@ -211,7 +225,14 @@
         },
         "pre_wait_freezes": 200,
         "action": {
-            "type": "Click"
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilNotFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_node": "__ScenePrivateLoginPristineMonthlyPassConfirm"
+                }
+            }
         },
         "next": [
             "SceneNoticeRewardsConfirm"
