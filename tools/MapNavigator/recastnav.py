@@ -7,6 +7,7 @@ import numpy as np
 
 CS = 0.25          # 体素边长 px
 CLIMB = 3.0        # 相邻格可连通最大高差 px
+STEP = 0.5         # 相邻格可直接迈上的最大高差 px, 超出即立面, 只能绕行
 MERGE_H = 1.0      # 同列 span 合并容差 px
 EDT_CAP = 12.0     # 距离场截断 px
 R = 1.75           # 期望余量上限 px
@@ -220,6 +221,71 @@ def flood(seed, sp_h, occ, HK, IK, sp_ci, nx, climb=CLIMB):
                 nxt.append(cand)
         F = np.concatenate(nxt) if nxt else np.zeros(0, np.int64)
     return vis
+
+
+def _step_heights(occ, HK, IK, vis, lay, nx, ny):
+    HV = np.where((IK >= 0) & vis[np.maximum(IK, 0)], HK, np.inf)
+    T = np.full((nx * ny, HV.shape[1]), np.inf, np.float32)
+    T[occ] = np.sort(HV, axis=1)
+    ghost = lay.ravel() & ~np.isfinite(T[:, 0])
+    if ghost.any():
+        gm = ghost.reshape(ny, nx)
+        g = T[:, 0].reshape(ny, nx).copy()
+        for _ in range(int(np.ceil(np.sqrt(HOLE_MAX))) + 1):
+            p = g
+            n = g
+            for dy, dx in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+                s = np.full_like(g, np.inf)
+                s[max(dy, 0):ny + min(dy, 0), max(dx, 0):nx + min(dx, 0)] = \
+                    g[-min(dy, 0):ny - max(dy, 0) or None,
+                      -min(dx, 0):nx - max(dx, 0) or None]
+                n = np.minimum(n, s)
+            g = np.where(gm, n, p)
+            if np.array_equal(g, p):
+                break
+        T[ghost, 0] = g.ravel()[ghost]
+    return T
+
+
+def step_breaks(occ, HK, IK, vis, lay, nx, ny, ox, oy, cs=CS, step=STEP):
+    out = set()
+    src = np.nonzero(lay.ravel())[0]
+    if not len(src) or not np.isfinite(step):
+        return out, (np.zeros((0, 2)), np.zeros((0, 2)))
+    T = _step_heights(occ, HK, IK, vis, lay, nx, ny)
+    K = T.shape[1]
+    src = src[np.isfinite(T[src, 0])]
+    ea, eb = [], []
+    gx, gy = src % nx, src // nx
+    for dx, dy in ((1, 0), (0, 1), (1, 1), (1, -1)):
+        ax, ay = gx + dx, gy + dy
+        m = (ax >= 0) & (ax < nx) & (ay >= 0) & (ay < ny)
+        nb = np.where(m, ay * nx + ax, 0)
+        m &= np.isfinite(T[nb, 0])
+        if not m.any():
+            continue
+        a, b = src[m], nb[m]
+        A, B = T[a], T[b]
+        with np.errstate(invalid="ignore"):
+            d = np.abs(A[:, :, None] - B[:, None, :])
+        d = np.where(np.isfinite(d), d, np.inf).reshape(len(a), -1)
+        k = d.argmin(1)
+        r = np.arange(len(a))
+        bad = d[r, k] > step
+        if not bad.any():
+            continue
+        a, b = a[bad], b[bad]
+        up = B[r[bad], k[bad] % K] > A[r[bad], k[bad] // K]
+        out.update(zip(np.where(up, a, b).tolist(), np.where(up, b, a).tolist()))
+        if dx and dy:
+            continue
+        px = ox + (a % nx + dx) * cs
+        py = oy + (a // nx + dy) * cs
+        ea.append(np.column_stack([px, py]))
+        eb.append(np.column_stack([px + dy * cs, py + dx * cs]))
+    if not ea:
+        return out, (np.zeros((0, 2)), np.zeros((0, 2)))
+    return out, (np.vstack(ea), np.vstack(eb))
 
 
 def clearance(mask, cs=CS, cap=EDT_CAP):

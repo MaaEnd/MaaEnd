@@ -66,6 +66,8 @@ def build(zc, wo, s, s_snap, h0, x0, y0, x1, y1):
                          protect=wallcell.reshape(ny, nx))
     core = rc.close_cracks(core, lay, protect=wallcell.reshape(ny, nx))
 
+    sev, sseg = rc.step_breaks(occ, HK, IK, vis, lay, nx, ny, x0, y0)
+
     keep = rc.walls_at_layer(wo.P0[widx], wo.P1[widx], wo.HH[widx], lh,
                              x0, y0, nx, ny, hband=MC_HBAND)
     wP0, wP1 = wo.P0[widx][keep], wo.P1[widx][keep]
@@ -77,7 +79,8 @@ def build(zc, wo, s, s_snap, h0, x0, y0, x1, y1):
 
     info = dict(x0=x0, y0=y0, nx=nx, ny=ny, lay=lay, lh=lh, dist=dist,
                 core=core, t_vox=t_vox, t_fl=t_fl, t_edt=t_edt,
-                wP0=wP0, wP1=wP1, wid=wid, wstart=wstart)
+                wP0=wP0, wP1=wP1, wid=wid, wstart=wstart,
+                sev=sev, sseg=sseg)
     return info, None
 
 
@@ -137,6 +140,7 @@ def route(info, s, g):
     walk = core & lay
     bn = rc.banned_steps(lay, info["wid"], info["wstart"],
                          info["wP0"], info["wP1"], x0, y0, nx)
+    blocked = bn | info["sev"]
     # 亏欠越多单价越高;脊线保底只进几何口径 prefg,禁入 mult
     pref = rc.pref_field(dist)
     mult = 1.0 + LAM * np.clip((pref - dist) / pref, 0.0, 1.0)
@@ -169,10 +173,10 @@ def route(info, s, g):
     BIGP = nx * ny * CS * (1.0 + LAM)
     t0 = time.time()
     used = walk
-    q = rc.cost_astar(walk, as_, ag_, mult, bn, BIGP) if as_ != ag_ else [as_]
+    q = rc.cost_astar(walk, as_, ag_, mult, blocked, BIGP) if as_ != ag_ else [as_]
     if q is None:
         used = core
-        q = rc.cost_astar(core, as_, ag_, mult, bn, BIGP)
+        q = rc.cost_astar(core, as_, ag_, mult, blocked, BIGP)
         if q is not None:
             warn.append("walk 断开→退回 core")
     if q is None:
@@ -181,13 +185,17 @@ def route(info, s, g):
     xw = []
     bad = []
     for k in range(1, len(q)):
-        if (q[k - 1][1] * nx + q[k - 1][0],
-                q[k][1] * nx + q[k][0]) in bn:
-            bad.append(k)
+        e = (q[k - 1][1] * nx + q[k - 1][0], q[k][1] * nx + q[k][0])
+        if e not in blocked:
+            continue
+        bad.append(k)
+        if e in bn:
             xw.append((x0 + (q[k][0] + 0.5) * CS,
                        y0 + (q[k][1] + 0.5) * CS))
     if xw:
         warn.append(f"不可避穿墙 {len(xw)} 步")
+    if len(bad) > len(xw):
+        warn.append(f"不可避立面 {len(bad) - len(xw)} 步")
 
     def cen(P):
         return [(x0 + (a + 0.5) * CS, y0 + (b + 0.5) * CS) for a, b in P]
@@ -198,7 +206,8 @@ def route(info, s, g):
     def w(P):
         return np.column_stack([x0 + P[:, 0] * CS, y0 + P[:, 1] * CS])
 
-    wseg = (info["wP0"], info["wP1"])
+    wseg = (np.vstack([info["wP0"], info["sseg"][0]]),
+            np.vstack([info["wP1"], info["sseg"][1]]))
     onm = (used, x0, y0, CS)
     blk_gray = rc.Blockers([w(P) for P in loops_c], extra=wseg, on=onm)
     grn = [bool(dist[b, a] >= prefg[b, a] - 1e-9) for a, b in q]
@@ -254,7 +263,8 @@ def route(info, s, g):
                 for c2 in cuts + [len(cells)]:
                     b2 = c2 - 1
                     r2 = ([cells[a2]] if a2 == b2 else
-                          rc.cost_astar(er, cells[a2], cells[b2], multg, bn, None))
+                          rc.cost_astar(er, cells[a2], cells[b2], multg,
+                                        blocked, None))
                     if r2 is None:
                         q2 = None
                         break
