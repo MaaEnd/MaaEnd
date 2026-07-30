@@ -107,7 +107,8 @@
                     "custom_action": "AutoAltClickAction",
                     "wait_nodes": [
                         "__ScenePrivateAnyEnterMenuListSuccess"
-                    ]
+                    ],
+                    "interval_ms": 6000
                 },
                 "target_offset": [
                     5,
