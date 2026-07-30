@@ -247,5 +247,6 @@
     "ims.item.HEAVY_CAST_DIE": "重型强固模具",
     "ims.item.CAST_DIE": "强固模具",
     "ims.item.COOLANT_GEL": "冷却脂",
-    "ims.item.WULING_ARTIFICING_CATALYST": "武陵精锻助剂"
+    "ims.item.WULING_ARTIFICING_CATALYST": "武陵精锻助剂",
+    "ims.item.T_CREDS": "折金票"
 }

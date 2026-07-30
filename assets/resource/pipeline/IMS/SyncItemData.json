@@ -55,6 +55,7 @@
                         "METADIASTIMA_PHOTOEMISSION_TUBE": "METADIASTIMA_PHOTOEMISSION_TUBE",
                         "PROTOHEDRON": "PROTOHEDRON",
                         "PROTOPRISM": "PROTOPRISM",
+                        "T_CREDS": "T_CREDS_NUMBER",
                         "ARMS_INSP_SET": "ARMS_INSP_SET",
                         "ARMS_INSP_KIT": "ARMS_INSP_KIT",
                         "ARMS_INSPECTOR": "ARMS_INSPECTOR",
