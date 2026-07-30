@@ -21,7 +21,7 @@ var _ maa.CustomActionRunner = &SyncItemData{}
 
 // syncItemDataParam is custom_action_param for SyncItemData.
 //
-// items: 字典，键为物品 ID，值为 And 识别节点名；依次执行节点，从 box_index 子结果读数量。
+// items: 字典，键为物品 ID，值为 And 识别节点名；依次执行节点，沿 box_index 链取 OCR 数量。
 // page_dedup: 翻页去重。false=本轮结果整表创建；true=在已有缓存上按 ID 覆盖数量。
 type syncItemDataParam struct {
 	Items     map[string]string `json:"items"`

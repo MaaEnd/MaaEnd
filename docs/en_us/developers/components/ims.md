@@ -25,7 +25,7 @@ IMS keeps an in-process cache of cultivation-item counts for task gates and quan
 | `SyncItemData.json` | A2 entry `SyncItemData` (any screen → Progression tab → scan) |
 | `AddItemData.json` | A3 best practice: add under `CloseRewardsButton`, then close rewards |
 | `common.json` | Shared rarity ColorMatch nodes |
-| `item/*.json` | Per-item recognition nodes |
+| `item/*.json` | Per-item: rarity color → template → count (grey text And OCR) |
 
 ## Recognition: `ItemDataReady`
 
@@ -149,7 +149,7 @@ Callers only need Pipeline node **`SyncItemData`**: any screen → Progression t
 | `items` | `object` | required | Map: item ID → And recognition node name (run in sorted key order) |
 | `page_dedup` | `bool` | `false` | `false`: rebuild map from this scan (create); `true`: merge into existing cache and **overwrite** quantities for hit IDs (after paging) |
 
-Quantity = OCR at the node’s `box_index` child. Item ID comes from the `items` key, not the quantity child node name.
+Quantity = OCR at the end of the node’s `box_index` chain (item And → shared count And → OCR). Item ID comes from the `items` key.
 
 On hit, Focus prints the localized item name and quantity (`ims.sync_item_found` + `ims.item.<ID>`).
 

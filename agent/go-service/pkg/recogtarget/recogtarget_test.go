@@ -309,6 +309,46 @@ func TestSelectDetailFromJSON(t *testing.T) {
 	}
 }
 
+func TestSelectDetail_NestedAndNodeNameChain(t *testing.T) {
+	t.Parallel()
+
+	nodes := stubNodeJSON{
+		"Item": `{
+			"recognition":{"type":"And","param":{"all_of":["Color","Count","Template"],"box_index":1}}
+		}`,
+		"Count": `{
+			"recognition":{"type":"And","param":{"all_of":["TextColor","OCR"],"box_index":1}}
+		}`,
+		"OCR": `{"recognition":{"type":"OCR","param":{"expected":["^\\d+$"]}}}`,
+		"Color": `{"recognition":{"type":"ColorMatch"}}`,
+		"TextColor": `{"recognition":{"type":"ColorMatch"}}`,
+		"Template": `{"recognition":{"type":"TemplateMatch"}}`,
+	}
+
+	ocrDetail := &maa.RecognitionDetail{Box: maa.Rect{10, 20, 30, 40}}
+	countDetail := &maa.RecognitionDetail{
+		CombinedResult: []*maa.RecognitionDetail{
+			{Box: maa.Rect{1, 1, 1, 1}},
+			ocrDetail,
+		},
+	}
+	itemDetail := &maa.RecognitionDetail{
+		CombinedResult: []*maa.RecognitionDetail{
+			{Box: maa.Rect{2, 2, 2, 2}},
+			countDetail,
+			{Box: maa.Rect{3, 3, 3, 3}},
+		},
+	}
+
+	got, err := selectDetail(nodes, "Item", itemDetail, map[string]struct{}{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got != ocrDetail {
+		t.Fatalf("got box=%v, want OCR detail box=%v", got.Box, ocrDetail.Box)
+	}
+}
+
 func TestEffectiveTypeFromJSON(t *testing.T) {
 	t.Parallel()
 

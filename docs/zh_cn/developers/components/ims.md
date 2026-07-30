@@ -24,8 +24,8 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 | `UpdateItemQuantity.json` | A1 `UpdateItemQuantity`（调用方覆盖 `item` / `delta`） |
 | `SyncItemData.json` | A2 入口 `SyncItemData`（任意位置 → 培养素材页 → 扫描） |
 | `AddItemData.json` | A3 最佳实践：`CloseRewardsButton` 下累加识别数量 → 关闭奖励 |
-| `common.json` | 通用品质色（黄等）ColorMatch |
-| `item/*.json` | 各培养道具识别节点 |
+| `common.json` | 通用品质色 ColorMatch |
+| `item/*.json` | 各培养道具：品质色 → 模板 → 数量（灰色文字 And OCR） |
 
 ## Recognition：`ItemDataReady`
 
@@ -149,7 +149,7 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 | `items` | `object` | 必填 | 字典：键=物品 ID，值=And 识别节点名（按键名排序执行） |
 | `page_dedup` | `bool` | `false` | `false`：本轮结果整表创建；`true`：翻页去重，在已有缓存上按 ID **覆盖**数量 |
 
-数量 = 识别节点 `box_index` 指向的 OCR 子结果。物品 ID 取自 `items` 的键。
+数量 = 识别节点 `box_index` 链最终指向的 OCR 子结果（物品 And → 通用数量 And → OCR）。物品 ID 取自 `items` 的键。
 
 命中时 Focus 输出本地化物品名与数量（`ims.sync_item_found` + `ims.item.<ID>`）。
 

@@ -58,7 +58,8 @@ func ResolveAndBoxIndex(raw string) (int, bool, error) {
 }
 
 // SelectDetail 根据节点定义从识别结果中选取目标子结果。
-// 非 And 返回 detail 本身；And 则按原生 box_index 取 CombinedResult 子项。
+// 非 And 返回 detail 本身；And 则按原生 box_index 取 CombinedResult 子项，
+// 若该子项仍是 And 节点名引用，则沿 box_index 链继续下钻（与 EffectiveType 一致）。
 func SelectDetail(ctx *maa.Context, nodeName string, detail *maa.RecognitionDetail) (*maa.RecognitionDetail, error) {
 	if detail == nil {
 		return nil, fmt.Errorf("recognition detail is empty")
@@ -71,7 +72,20 @@ func SelectDetail(ctx *maa.Context, nodeName string, detail *maa.RecognitionDeta
 		return nil, fmt.Errorf("context is nil")
 	}
 
-	raw, err := ctx.GetNodeJSON(nodeName)
+	return selectDetail(ctx, nodeName, detail, map[string]struct{}{})
+}
+
+func selectDetail(src nodeJSONSource, nodeName string, detail *maa.RecognitionDetail, visiting map[string]struct{}) (*maa.RecognitionDetail, error) {
+	nodeName = strings.TrimSpace(nodeName)
+	if nodeName == "" {
+		return nil, fmt.Errorf("node name is empty")
+	}
+	if _, seen := visiting[nodeName]; seen {
+		return nil, fmt.Errorf("node %s has cyclic and references", nodeName)
+	}
+	visiting[nodeName] = struct{}{}
+
+	raw, err := src.GetNodeJSON(nodeName)
 	if err != nil {
 		return nil, fmt.Errorf("get node %s json: %w", nodeName, err)
 	}
@@ -79,10 +93,45 @@ func SelectDetail(ctx *maa.Context, nodeName string, detail *maa.RecognitionDeta
 		return nil, fmt.Errorf("node %s json is empty", nodeName)
 	}
 
-	return SelectDetailFromJSON([]byte(raw), detail)
+	fields, err := ParseNodeJSON([]byte(raw))
+	if err != nil {
+		return nil, err
+	}
+	if fields.Type != "And" {
+		return detail, nil
+	}
+
+	selected, err := SelectDetailFromFields(fields, detail)
+	if err != nil {
+		return nil, err
+	}
+
+	var refName string
+	if err := json.Unmarshal(fields.AllOf[fields.BoxIndex], &refName); err != nil {
+		// Inline all_of child: stop at this CombinedResult entry.
+		return selected, nil
+	}
+	refName = strings.TrimSpace(refName)
+	if refName == "" {
+		return selected, nil
+	}
+
+	childRaw, err := src.GetNodeJSON(refName)
+	if err != nil {
+		return nil, fmt.Errorf("get node %s json: %w", refName, err)
+	}
+	childFields, err := ParseNodeJSON([]byte(childRaw))
+	if err != nil {
+		return nil, err
+	}
+	if childFields.Type != "And" {
+		return selected, nil
+	}
+	return selectDetail(src, refName, selected, visiting)
 }
 
 // SelectDetailFromJSON 在已有节点 JSON 时选取目标子结果。
+// 注意：仅处理当前层；嵌套 And 名引用请用 SelectDetail。
 func SelectDetailFromJSON(raw []byte, detail *maa.RecognitionDetail) (*maa.RecognitionDetail, error) {
 	if detail == nil {
 		return nil, fmt.Errorf("recognition detail is empty")

@@ -1,6 +1,6 @@
 {
     "PROTOHEDRON": {
-        "desc": "IMS 物品:协议棱柱组(And；紫色品质；box_index 指向数量 OCR)",
+        "desc": "IMS 物品:协议棱柱组(And；紫色品质；品质色 → 模板 → 数量；box_index 指向数量 And)",
         "recognition": {
             "type": "And",
             "param": {
@@ -17,15 +17,15 @@
         "rate_limit": 0
     },
     "__PROTOHEDRON_TEMPLATE": {
-        "desc": "IMS:协议棱柱组模版匹配(培养素材页列表区域)",
+        "desc": "IMS:协议棱柱组模版匹配(roi 基于品质色)",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": "IMSItemColorPurple",
                 "roi_offset": [
-                    -5,
+                    -60,
                     -100,
-                    10,
+                    120,
                     100
                 ],
                 "template": [
@@ -40,16 +40,62 @@
         "rate_limit": 0
     },
     "PROTOHEDRON_COUNT": {
-        "desc": "IMS:协议棱柱组数量 OCR",
+        "desc": "IMS:协议棱柱组数量(灰色文字 And OCR；box_index 指向 OCR)",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__PROTOHEDRON_COUNT_TEXT_COLOR",
+                    "PROTOHEDRON_COUNT_OCR"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__PROTOHEDRON_COUNT_TEXT_COLOR": {
+        "desc": "IMS:协议棱柱组数量灰色文字(roi 基于模板)",
+        "recognition": {
+            "type": "ColorMatch",
             "param": {
                 "roi": "__PROTOHEDRON_TEMPLATE",
                 "roi_offset": [
                     0,
-                    62,
+                    78,
                     0,
-                    -34
+                    -64
+                ],
+                "method": 4,
+                "lower": [
+                    74,
+                    74,
+                    74
+                ],
+                "upper": [
+                    119,
+                    112,
+                    107
+                ],
+                "count": 10
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "PROTOHEDRON_COUNT_OCR": {
+        "desc": "IMS:协议棱柱组数量 OCR（纯数字）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__PROTOHEDRON_COUNT_TEXT_COLOR",
+                "roi_offset": [
+                    -1,
+                    -1,
+                    2,
+                    2
                 ],
                 "expected": [
                     "^\\d+$"
