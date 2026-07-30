@@ -1214,5 +1214,9 @@
     "option.ClientVersion.cases.Global.label": "国际服",
     "option.ClientVersion.cases.VN.label": "越南服",
     "option.ClientVersion.cases.Cloud.label": "云终末地",
-    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "每次战斗前传送回复血量"
+    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "每次战斗前传送回复血量",
+    "controller.MacOS-Front.label": "macOS 前台窗口（测试版）",
+    "controller.MacOS-Front.description": "使用 ScreenCaptureKit 截图和 GlobalEvent 输入。需要授予屏幕录制与辅助功能权限。暂不支持依赖自动寻路或相对视角移动的任务。",
+    "controller.MacOS-Background.label": "macOS 后台窗口（测试版）",
+    "controller.MacOS-Background.description": "使用 ScreenCaptureKit 截图和 PostToPid 后台输入。需要授予屏幕录制与辅助功能权限。暂不支持依赖自动寻路或相对视角移动的任务。"
 }

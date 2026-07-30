@@ -1214,5 +1214,9 @@
     "option.ClientVersion.cases.Global.label": "グローバルサーバー（グリフライン）",
     "option.ClientVersion.cases.VN.label": "ベトナムサーバー（グリフライン）",
     "option.ClientVersion.cases.Cloud.label": "クラウド終末地",
-    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "各戦闘前にテレポートしてHP回復"
+    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "各戦闘前にテレポートしてHP回復",
+    "controller.MacOS-Front.label": "macOS 前面ウィンドウ（ベータ版）",
+    "controller.MacOS-Front.description": "ScreenCaptureKit によるキャプチャと GlobalEvent による入力を使用します。画面収録とアクセシビリティの権限が必要です。自動経路探索または相対視点移動に依存するタスクは現在サポートされていません。",
+    "controller.MacOS-Background.label": "macOS バックグラウンドウィンドウ（ベータ版）",
+    "controller.MacOS-Background.description": "ScreenCaptureKit によるキャプチャと PostToPid によるバックグラウンド入力を使用します。画面収録とアクセシビリティの権限が必要です。自動経路探索または相対視点移動に依存するタスクは現在サポートされていません。"
 }

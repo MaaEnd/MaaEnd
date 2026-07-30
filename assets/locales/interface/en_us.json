@@ -1214,5 +1214,9 @@
     "option.ClientVersion.cases.Global.label": "Global (Gryphline)",
     "option.ClientVersion.cases.VN.label": "Vietnam (Gryphline)",
     "option.ClientVersion.cases.Cloud.label": "Cloud Endfield",
-    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "Teleport to heal before each battle"
+    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "Teleport to heal before each battle",
+    "controller.MacOS-Front.label": "macOS Foreground Window (Beta)",
+    "controller.MacOS-Front.description": "Uses ScreenCaptureKit for capture and GlobalEvent for input. Screen Recording and Accessibility permissions are required. Tasks that depend on automatic navigation or relative camera movement are not currently supported.",
+    "controller.MacOS-Background.label": "macOS Background Window (Beta)",
+    "controller.MacOS-Background.description": "Uses ScreenCaptureKit for capture and PostToPid background input. Screen Recording and Accessibility permissions are required. Tasks that depend on automatic navigation or relative camera movement are not currently supported."
 }
