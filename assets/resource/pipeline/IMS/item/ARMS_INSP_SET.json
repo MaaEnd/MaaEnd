@@ -30,7 +30,8 @@
                 ],
                 "template": [
                     "IMS/item/ARMS_INSP_SET_TEMPLATE.png"
-                ]
+                ],
+                "order_by": "Score"
             }
         },
         "pre_delay": 0,
@@ -50,7 +51,7 @@
                     -34
                 ],
                 "expected": [
-                    "\\d+"
+                    "^\\d+$"
                 ]
             }
         },
