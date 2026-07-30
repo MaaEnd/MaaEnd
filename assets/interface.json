@@ -201,7 +201,7 @@
         "tasks/TrialOfSwordmancy.json",
         "tasks/CreditShopping.json",
         "tasks/AccountSwitch.json",
-        "tasks/WebEvent202605.json",
+        // "tasks/WebEvent202605.json", // 该活动已关闭
         "tasks/AndroidOpenGame.json",
         "tasks/CloseGame.json",
         // group: realtime
