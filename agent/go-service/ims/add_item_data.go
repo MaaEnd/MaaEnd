@@ -62,6 +62,14 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
+	if err := ensureHydrated(); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", componentAddItemData).
+			Msg("failed to hydrate ims cache")
+		return false
+	}
+
 	tasker := ctx.GetTasker()
 	if tasker == nil || tasker.GetController() == nil {
 		log.Error().

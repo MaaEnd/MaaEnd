@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -22,6 +24,9 @@ type recordFile struct {
 var (
 	recordPathFunc = defaultRecordPath
 	recordMu       sync.Mutex
+	// hydrated is true after a successful one-shot disk→memory load, an intentional
+	// ClearCache, or a successful persist. Subsequent reads use memory only.
+	hydrated bool
 )
 
 func defaultRecordPath() string {
@@ -88,6 +93,35 @@ func saveRecord(rec recordFile) error {
 	return nil
 }
 
+// ensureHydrated loads debug/record/IMS.json into memory at most once per process
+// (until ClearCache). Hot-path reads stay in memory afterwards.
+func ensureHydrated() error {
+	recordMu.Lock()
+	defer recordMu.Unlock()
+	if hydrated {
+		return nil
+	}
+
+	rec, err := loadRecord()
+	if err != nil {
+		return err
+	}
+	if !rec.UpdatedAt.IsZero() {
+		globalCache.markSynced(rec.UpdatedAt, rec.Items)
+		log.Info().
+			Time("updated_at", rec.UpdatedAt.UTC()).
+			Int("item_count", len(rec.Items)).
+			Msg("ims cache hydrated from disk")
+	} else if len(rec.Items) > 0 {
+		globalCache.setItemsOnly(rec.Items)
+		log.Info().
+			Int("item_count", len(rec.Items)).
+			Msg("ims item quantities hydrated from disk without sync timestamp")
+	}
+	hydrated = true
+	return nil
+}
+
 // persistSynced writes debug/record/IMS.json and updates the in-process cache.
 func persistSynced(at time.Time, items map[string]int) error {
 	recordMu.Lock()
@@ -101,5 +135,6 @@ func persistSynced(at time.Time, items map[string]int) error {
 		return err
 	}
 	MarkSynced(at, copied)
+	hydrated = true
 	return nil
 }

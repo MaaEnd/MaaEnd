@@ -56,6 +56,14 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
+	if err := ensureHydrated(); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", componentSyncItemData).
+			Msg("failed to hydrate ims cache")
+		return false
+	}
+
 	tasker := ctx.GetTasker()
 	if tasker == nil || tasker.GetController() == nil {
 		log.Error().
@@ -172,15 +180,8 @@ func baseItemsForSync(pageDedup bool) (map[string]int, error) {
 	if !pageDedup {
 		return map[string]int{}, nil
 	}
-	items := ItemsSnapshot()
-	if len(items) > 0 {
-		return items, nil
-	}
-	rec, err := loadRecord()
-	if err != nil {
-		return nil, err
-	}
-	return rec.Items, nil
+	// Caller must ensureHydrated first; memory is the session source of truth.
+	return ItemsSnapshot(), nil
 }
 
 func recognizeItemQuantity(ctx *maa.Context, andNode string, img image.Image) (qty int, hit bool, err error) {

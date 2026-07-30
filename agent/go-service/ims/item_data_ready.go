@@ -57,6 +57,14 @@ func (r *ItemDataReady) Run(_ *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		return nil, false
 	}
 
+	if err := ensureHydrated(); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", componentItemDataReady).
+			Msg("failed to hydrate ims cache")
+		return nil, false
+	}
+
 	hasData, lastSync := globalCache.snapshot()
 	ready, reason := evaluateReady(hasData, lastSync, refreshDays, time.Now())
 	if !ready {

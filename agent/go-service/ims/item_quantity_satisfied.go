@@ -42,6 +42,14 @@ func (r *ItemQuantitySatisfied) Run(_ *maa.Context, arg *maa.CustomRecognitionAr
 		return nil, false
 	}
 
+	if err := ensureHydrated(); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", componentItemQuantitySatisfied).
+			Msg("failed to hydrate ims cache")
+		return nil, false
+	}
+
 	current := globalCache.quantity(params.Item)
 	if current < params.Quantity {
 		log.Info().

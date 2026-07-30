@@ -29,7 +29,7 @@ IMS keeps an in-process cache of cultivation-item counts for task gates and quan
 
 ## Recognition: `ItemDataReady`
 
-Reports whether the inventory cache is usable. Read-only; no side effects.
+Reports whether the inventory cache is usable. Read-only for callers; the first cold-start access may hydrate memory from disk once.
 
 ### Hit conditions
 
@@ -69,7 +69,7 @@ See `EnsureItemDataReadyMain` for the entry gate.
 
 ## Recognition: `ItemQuantitySatisfied`
 
-Reports whether the cached quantity for one item meets the requirement. Read-only; no side effects. **Does not check readiness** (missing item counts as 0). For “ready **and** enough”, use `And` with `ItemDataReady`.
+Reports whether the cached quantity for one item meets the requirement. Read-only for callers (cold start may hydrate). **Does not check readiness** (missing item counts as 0). For “ready **and** enough”, use `And` with `ItemDataReady`.
 
 ### Hit conditions
 
@@ -224,7 +224,10 @@ Run `EnsureItemDataReadyMain` at task entry, or call `SyncItemData` directly whe
 
 ## Cache conventions (decided)
 
-- In-process memory only; restart clears readiness until the next sync.
+- In-session, process memory is the source of truth; hot-path reads do not hit disk repeatedly.
+- After a cold start, the first IMS access **lazy-hydrates** `debug/record/IMS.json` into memory once; later access stays in memory.
+- Successful A2 / A1 / A3 writes also persist to disk for the next cold start.
+- `ClearCache` (tests / account switch) clears memory as an intentional empty state and does **not** reload from disk.
 - “Never refresh” ≠ never scan: missing data still triggers a scan.
 - Small drift is acceptable; periodic sync corrects it.
 - IMS does not attribute writers; debug via caller logs.
@@ -234,5 +237,5 @@ Run `EnsureItemDataReadyMain` at task entry, or call `SyncItemData` directly whe
 | Function | Description |
 | --- | --- |
 | `ims.MarkSynced(at, items)` | Record a successful sync (`hasData`, timestamp, item map) |
-| `ims.ClearCache()` | Clear cache (tests / account switch, etc.) |
+| `ims.ClearCache()` | Clear cache (tests / account switch); does not reload from disk |
 | `ims.ItemsSnapshot()` | Copy of cached item quantities |

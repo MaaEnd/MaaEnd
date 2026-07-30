@@ -29,7 +29,7 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 
 ## Recognition：`ItemDataReady`
 
-判断库存缓存是否可用。只读、无副作用。
+判断库存缓存是否可用。业务上只读；冷启动首次访问可能一次性从磁盘 hydrate 到内存。
 
 ### 命中条件
 
@@ -69,7 +69,7 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 
 ## Recognition：`ItemQuantitySatisfied`
 
-判断缓存中指定物品数量是否满足要求。只读、无副作用；**不检查就绪**（未同步时缺失物品按 0）。需要「数据就绪且数量满足」时，用 `And` 同时引用 `ItemDataReady` 与本识别。
+判断缓存中指定物品数量是否满足要求。业务上只读（冷启动可 hydrate）；**不检查就绪**（未同步时缺失物品按 0）。需要「数据就绪且数量满足」时，用 `And` 同时引用 `ItemDataReady` 与本识别。
 
 ### 命中条件
 
@@ -235,7 +235,10 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 
 ## 缓存约定（已定）
 
-- 仅进程内内存；进程重启后视为无数据，需再次同步。
+- 会话内以进程内存为权威数据源；读写热路径不反复读盘。
+- 进程冷启动后，首次 IMS 访问会把 `debug/record/IMS.json` **lazy hydrate** 进内存一次；之后仍只走内存。
+- A2 / A1 / A3 成功写入时同步落盘，供下次冷启动恢复。
+- `ClearCache`（测试 / 账号切换）清空内存并视为故意无数据，**不会**再从磁盘灌回。
 - 「永不更新」≠ 永不扫描：无数据时仍会触发扫描。
 - 缓存允许小幅偏差，靠周期同步纠偏。
 - IMS 不区分写入来源；异常靠调用方日志排查。
@@ -245,6 +248,6 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 | 函数 | 说明 |
 | --- | --- |
 | `ims.MarkSynced(at, items)` | 标记一次成功同步（置 `hasData`、更新时间戳与物品表） |
-| `ims.ClearCache()` | 清空缓存（测试 / 账号切换等） |
+| `ims.ClearCache()` | 清空缓存（测试 / 账号切换等）；不会从磁盘重新加载 |
 | `ims.ItemsSnapshot()` | 返回缓存物品数量副本 |
 

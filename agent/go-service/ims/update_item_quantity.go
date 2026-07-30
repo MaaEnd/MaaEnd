@@ -43,6 +43,14 @@ func (a *UpdateItemQuantity) Run(_ *maa.Context, arg *maa.CustomActionArg) bool 
 		return false
 	}
 
+	if err := ensureHydrated(); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", componentUpdateItemQuantity).
+			Msg("failed to hydrate ims cache")
+		return false
+	}
+
 	before, after, clamped, items, lastSync, hasData := globalCache.applyDelta(params.Item, params.Delta)
 	if err := persistItemsPreserveSync(items, lastSync, hasData); err != nil {
 		log.Error().
@@ -101,5 +109,9 @@ func persistItemsPreserveSync(items map[string]int, lastSync time.Time, hasData 
 	for k, v := range items {
 		copied[k] = v
 	}
-	return saveRecord(recordFile{UpdatedAt: updatedAt.UTC(), Items: copied})
+	if err := saveRecord(recordFile{UpdatedAt: updatedAt.UTC(), Items: copied}); err != nil {
+		return err
+	}
+	hydrated = true
+	return nil
 }

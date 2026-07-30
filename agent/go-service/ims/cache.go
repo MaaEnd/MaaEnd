@@ -81,6 +81,16 @@ func (c *cache) applyDelta(item string, delta int) (before, after int, clamped b
 	return before, after, clamped, items, c.lastSync, c.hasData
 }
 
+// setItemsOnly replaces item quantities without changing hasData / lastSync.
+func (c *cache) setItemsOnly(items map[string]int) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.items = make(map[string]int, len(items))
+	for name, qty := range items {
+		c.items[name] = qty
+	}
+}
+
 // MarkSynced records a successful inventory sync for later A2 use.
 func MarkSynced(at time.Time, items map[string]int) {
 	globalCache.markSynced(at, items)
@@ -91,7 +101,11 @@ func ItemsSnapshot() map[string]int {
 	return globalCache.itemsCopy()
 }
 
-// ClearCache clears IMS cache state (tests / future account switch).
+// ClearCache clears IMS cache state (tests / account switch).
+// Marks hydrate complete so the empty state is intentional and disk is not reloaded.
 func ClearCache() {
+	recordMu.Lock()
+	defer recordMu.Unlock()
 	globalCache.clear()
+	hydrated = true
 }
