@@ -31,6 +31,7 @@
                 "template": [
                     "IMS/item/ARMS_INSP_SET_TEMPLATE.png"
                 ],
+                "threshold": 0.85,
                 "order_by": "Score"
             }
         },

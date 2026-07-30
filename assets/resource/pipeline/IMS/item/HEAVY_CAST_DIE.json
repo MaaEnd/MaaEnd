@@ -31,6 +31,7 @@
                 "template": [
                     "IMS/item/HEAVY_CAST_DIE_TEMPLATE.png"
                 ],
+                "threshold": 0.85,
                 "order_by": "Score"
             }
         },
