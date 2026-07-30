@@ -524,11 +524,6 @@ test("SellProduct 选品库存识别只扫描第一页且不滑动货品列表",
         "[Anchor]SellProductPriorityItemsExhausted",
     ]);
     assert.equal(changeGoods.SellProductCheckGoodsCellAnchor.recognition, "TemplateMatch");
-    assert.deepEqual(changeGoods.SellProductGoodsCellAnchor.all_of, [
-        "SellProductCheckSelectGoodsText",
-        "SellProductCheckGoodsCellAnchor",
-    ]);
-    assert.equal(changeGoods.SellProductGoodsCellAnchor.box_index, 1);
 });
 
 test("SellProduct 各平台通过 Pipeline 配置货品名称、库存和点击区域", () => {

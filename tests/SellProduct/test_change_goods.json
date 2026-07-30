@@ -20,7 +20,7 @@
                 "SellProductCheckSelectGoodsText",
                 "SellProductSelectNewGoodConfirm",
                 {
-                    "node": "SellProductGoodsCellAnchor",
+                    "node": "SellProductCheckGoodsCellAnchor",
                     "box": {
                         "Win32": [
                             238,
@@ -44,7 +44,7 @@
                 "SellProductCheckSelectGoodsText",
                 "SellProductSelectNewGoodConfirm",
                 {
-                    "node": "SellProductGoodsCellAnchor",
+                    "node": "SellProductCheckGoodsCellAnchor",
                     "box": {
                         "Win32": [
                             238,
