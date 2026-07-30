@@ -133,6 +133,7 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		lastSync     time.Time
 		hasData      bool
 	)
+	summaryParts := make([]string, 0, len(hits))
 	for _, h := range hits {
 		before, after, _, items, syncAt, ready := globalCache.applyDelta(h.itemID, h.qty)
 		persistItems = items
@@ -140,7 +141,8 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		hasData = ready
 		addedTotal += h.qty
 		displayName := itemDisplayName(h.itemID)
-		maafocus.Print(ctx, i18n.T("ims.add_item_found", displayName, h.qty, after))
+		summaryParts = append(summaryParts, i18n.T("ims.add_item_entry", displayName, h.qty))
+		maafocus.Print(ctx, i18n.T("ims.add_item_found", displayName, h.qty))
 		log.Info().
 			Str("component", componentAddItemData).
 			Str("item_id", h.itemID).
@@ -160,6 +162,9 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				Msg("failed to persist item quantities")
 			return false
 		}
+		maafocus.Print(ctx, i18n.T("ims.add_item_summary", len(hits), strings.Join(summaryParts, i18n.Separator())))
+	} else {
+		maafocus.Print(ctx, i18n.T("ims.add_item_none"))
 	}
 
 	log.Info().

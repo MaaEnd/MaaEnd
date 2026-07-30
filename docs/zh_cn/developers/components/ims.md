@@ -190,7 +190,10 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 | --- | --- | --- | --- |
 | `items` | `object` | 必填 | 字典：键=物品 ID，值=识别节点名（按键名排序执行） |
 
-未命中或数量 `<= 0` 的项跳过。命中时 Focus：`ims.add_item_found`（名、增量、累加后库存）。
+未命中或数量 `<= 0` 的项跳过。对外 Focus：
+
+- 每种命中：`ims.add_item_found`（物品名 × 数量）
+- 全部结束后汇总：`ims.add_item_summary`（种类数 + 列表）；无命中则 `ims.add_item_none`
 
 > [!IMPORTANT]
 > 培养素材页的 `IMS/item/*` 节点 ROI 可能不适用于奖励界面。业务侧应传入**适配当前画面**的识别节点。

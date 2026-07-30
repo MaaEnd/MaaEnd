@@ -25,7 +25,11 @@
         "rate_limit": 0,
         "next": [
             "AddItemDataCloseRewards"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "正在识别奖励物品并累加库存",
+            "Node.Action.Succeeded": "奖励物品累加完成"
+        }
     },
     "AddItemDataCloseRewards": {
         "desc": "关闭奖励界面（Click CloseRewardsButton）",
@@ -43,6 +47,9 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": []
+        "next": [],
+        "focus": {
+            "Node.Action.Starting": "关闭奖励界面"
+        }
     }
 }

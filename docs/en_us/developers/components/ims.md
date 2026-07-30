@@ -179,7 +179,10 @@ Unlike A2 (absolute stash sync + mark ready), A3 accumulates recognized amounts 
 | --- | --- | --- | --- |
 | `items` | `object` | required | Map: item ID → recognition node name (sorted key order) |
 
-Misses and quantities `<= 0` are skipped. On hit, Focus uses `ims.add_item_found` (name, delta, new total).
+Misses and quantities `<= 0` are skipped. Outward Focus:
+
+- Each hit: `ims.add_item_found` (item name × quantity)
+- After all hits: `ims.add_item_summary` (type count + list); if none: `ims.add_item_none`
 
 > [!IMPORTANT]
 > `IMS/item/*` nodes for the Progression tab may not fit the rewards UI. Pass recognition nodes that match the current screen.
