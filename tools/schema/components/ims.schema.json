@@ -26,7 +26,7 @@
         "SyncItemDataParam": {
             "type": "object",
             "title": "SyncItemData Param",
-            "description": "Scan And recognizers on the current screen. Each item is an And node; box_index points at the quantity OCR node whose name is the item ID. Results are written to debug/record/IMS.json with updated_at.",
+            "description": "Scan And recognizers on the current screen. items maps item ID to recognition node name; quantity is read from that node's box_index OCR child. Results are written to debug/record/IMS.json with updated_at.",
             "additionalProperties": false,
             "required": [
                 "items"
@@ -34,10 +34,14 @@
             "properties": {
                 "items": {
                     "title": "Items",
-                    "description": "Ordered list of And recognition node names to run. The box_index child node name is used as the item ID; its OCR text is the quantity.",
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
+                    "description": "Map of item ID -> And recognition node name. Keys are stored as cache IDs; values are run in sorted key order. Quantity comes from each node's box_index OCR result.",
+                    "type": "object",
+                    "minProperties": 1,
+                    "additionalProperties": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "propertyNames": {
                         "type": "string",
                         "minLength": 1
                     }

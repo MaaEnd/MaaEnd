@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
+	"sort"
 	"strings"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/recogtarget"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -18,11 +21,11 @@ var _ maa.CustomActionRunner = &SyncItemData{}
 
 // syncItemDataParam is custom_action_param for SyncItemData.
 //
-// items: And 识别节点名列表，依次执行；box_index 指向的数量子节点名即物品 ID。
+// items: 字典，键为物品 ID，值为 And 识别节点名；依次执行节点，从 box_index 子结果读数量。
 // page_dedup: 翻页去重。false=本轮结果整表创建；true=在已有缓存上按 ID 覆盖数量。
 type syncItemDataParam struct {
-	Items     []string `json:"items"`
-	PageDedup bool     `json:"page_dedup"`
+	Items     map[string]string `json:"items"`
+	PageDedup bool              `json:"page_dedup"`
 }
 
 // SyncItemData scans configured item recognizers on the current screen and persists quantities.
@@ -78,21 +81,31 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
+	itemIDs := make([]string, 0, len(params.Items))
+	for itemID := range params.Items {
+		itemIDs = append(itemIDs, itemID)
+	}
+	sort.Strings(itemIDs)
+
 	hitCount := 0
-	for _, nodeName := range params.Items {
-		nodeName = strings.TrimSpace(nodeName)
-		if nodeName == "" {
+	for _, itemID := range itemIDs {
+		nodeName := strings.TrimSpace(params.Items[itemID])
+		itemID = strings.TrimSpace(itemID)
+		if itemID == "" || nodeName == "" {
 			log.Error().
 				Str("component", componentSyncItemData).
-				Msg("items contains empty node name")
+				Str("item_id", itemID).
+				Str("node", nodeName).
+				Msg("items contains empty item id or node name")
 			return false
 		}
 
-		itemID, qty, ok, err := recognizeItemQuantity(ctx, nodeName, img)
+		qty, ok, err := recognizeItemQuantity(ctx, nodeName, img)
 		if err != nil {
 			log.Error().
 				Err(err).
 				Str("component", componentSyncItemData).
+				Str("item_id", itemID).
 				Str("node", nodeName).
 				Msg("failed to recognize item")
 			return false
@@ -100,6 +113,7 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		if !ok {
 			log.Info().
 				Str("component", componentSyncItemData).
+				Str("item_id", itemID).
 				Str("node", nodeName).
 				Bool("page_dedup", params.PageDedup).
 				Msg("item recognizer not hit, skip")
@@ -109,10 +123,13 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		prev, existed := merged[itemID]
 		merged[itemID] = qty
 		hitCount++
+		displayName := itemDisplayName(itemID)
+		maafocus.Print(ctx, i18n.T("ims.sync_item_found", displayName, qty))
 		log.Info().
 			Str("component", componentSyncItemData).
-			Str("node", nodeName).
 			Str("item_id", itemID).
+			Str("item_name", displayName).
+			Str("node", nodeName).
 			Int("quantity", qty).
 			Int("previous", prev).
 			Bool("overwrote", existed).
@@ -166,62 +183,31 @@ func baseItemsForSync(pageDedup bool) (map[string]int, error) {
 	return rec.Items, nil
 }
 
-func recognizeItemQuantity(ctx *maa.Context, andNode string, img image.Image) (itemID string, qty int, hit bool, err error) {
-	itemID, err = resolveQuantityNodeName(ctx, andNode)
-	if err != nil {
-		return "", 0, false, err
-	}
-
+func recognizeItemQuantity(ctx *maa.Context, andNode string, img image.Image) (qty int, hit bool, err error) {
 	detail, err := ctx.RunRecognition(andNode, img)
 	if err != nil {
-		return "", 0, false, fmt.Errorf("run recognition %s: %w", andNode, err)
+		return 0, false, fmt.Errorf("run recognition %s: %w", andNode, err)
 	}
 	if detail == nil || !detail.Hit {
-		return itemID, 0, false, nil
+		return 0, false, nil
 	}
 
 	selected, err := recogtarget.SelectDetail(ctx, andNode, detail)
 	if err != nil {
-		return "", 0, false, fmt.Errorf("select box_index detail: %w", err)
+		return 0, false, fmt.Errorf("select box_index detail: %w", err)
 	}
 	qty, err = extractOCRQuantity(selected)
 	if err != nil {
-		return "", 0, false, fmt.Errorf("parse quantity for %s: %w", itemID, err)
+		return 0, false, fmt.Errorf("parse quantity from %s: %w", andNode, err)
 	}
-	return itemID, qty, true, nil
+	return qty, true, nil
 }
 
-// resolveQuantityNodeName returns the And.box_index child node name used as item ID.
-func resolveQuantityNodeName(ctx *maa.Context, andNode string) (string, error) {
-	raw, err := ctx.GetNodeJSON(andNode)
-	if err != nil {
-		return "", fmt.Errorf("get node %s json: %w", andNode, err)
+func itemDisplayName(itemID string) string {
+	key := "ims.item." + itemID
+	name := i18n.T(key)
+	if name == key || strings.TrimSpace(name) == "" {
+		return itemID
 	}
-	return resolveQuantityNodeNameFromJSON(andNode, []byte(raw))
-}
-
-func resolveQuantityNodeNameFromJSON(andNode string, raw []byte) (string, error) {
-	fields, err := recogtarget.ParseNodeJSON(raw)
-	if err != nil {
-		return "", fmt.Errorf("parse node %s: %w", andNode, err)
-	}
-	if fields.Type != "And" {
-		return "", fmt.Errorf("node %s must be And, got %s", andNode, fields.Type)
-	}
-	if len(fields.AllOf) == 0 {
-		return "", fmt.Errorf("node %s all_of is empty", andNode)
-	}
-	if fields.BoxIndex < 0 || fields.BoxIndex >= len(fields.AllOf) {
-		return "", fmt.Errorf("node %s box_index %d out of range", andNode, fields.BoxIndex)
-	}
-	child := fields.AllOf[fields.BoxIndex]
-	var name string
-	if err := json.Unmarshal(child, &name); err != nil {
-		return "", fmt.Errorf("node %s box_index target must be a named node reference", andNode)
-	}
-	name = strings.TrimSpace(name)
-	if name == "" {
-		return "", fmt.Errorf("node %s box_index target name is empty", andNode)
-	}
-	return name, nil
+	return name
 }

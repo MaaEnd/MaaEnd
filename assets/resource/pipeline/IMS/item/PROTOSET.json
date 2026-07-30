@@ -1,0 +1,61 @@
+{
+    "PROTOSET": {
+        "desc": "IMS 物品:协议圆盘组(And；紫色品质；box_index 指向数量 OCR)",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "IMSItemColorPurple",
+                    "__PROTOSET_TEMPLATE",
+                    "PROTOSET_COUNT"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__PROTOSET_TEMPLATE": {
+        "desc": "IMS:协议圆盘组模版匹配(培养素材页列表区域)",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "IMSItemColorPurple",
+                "roi_offset": [
+                    0,
+                    -93,
+                    0,
+                    93
+                ],
+                "template": [
+                    "IMS/item/PROTOSET_TEMPLATE.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "PROTOSET_COUNT": {
+        "desc": "IMS:协议圆盘组数量 OCR",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__PROTOSET_TEMPLATE",
+                "roi_offset": [
+                    0,
+                    62,
+                    0,
+                    -34
+                ],
+                "expected": [
+                    "\\d+"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

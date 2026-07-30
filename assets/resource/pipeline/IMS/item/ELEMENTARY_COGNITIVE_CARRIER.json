@@ -1,0 +1,61 @@
+{
+    "ELEMENTARY_COGNITIVE_CARRIER": {
+        "desc": "IMS 物品:初级认知载体(And；紫色品质；box_index 指向数量 OCR)",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "IMSItemColorPurple",
+                    "__ELEMENTARY_COGNITIVE_CARRIER_TEMPLATE",
+                    "ELEMENTARY_COGNITIVE_CARRIER_COUNT"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ELEMENTARY_COGNITIVE_CARRIER_TEMPLATE": {
+        "desc": "IMS:初级认知载体模版匹配(培养素材页列表区域)",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "IMSItemColorPurple",
+                "roi_offset": [
+                    0,
+                    -93,
+                    0,
+                    93
+                ],
+                "template": [
+                    "IMS/item/ELEMENTARY_COGNITIVE_CARRIER_TEMPLATE.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ELEMENTARY_COGNITIVE_CARRIER_COUNT": {
+        "desc": "IMS:初级认知载体数量 OCR",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__ELEMENTARY_COGNITIVE_CARRIER_TEMPLATE",
+                "roi_offset": [
+                    0,
+                    62,
+                    0,
+                    -34
+                ],
+                "expected": [
+                    "\\d+"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

@@ -1,0 +1,61 @@
+{
+    "PROTODISK": {
+        "desc": "IMS 物品:协议圆盘(And；蓝色品质；box_index 指向数量 OCR)",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "IMSItemColorBlue",
+                    "__PROTODISK_TEMPLATE",
+                    "PROTODISK_COUNT"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__PROTODISK_TEMPLATE": {
+        "desc": "IMS:协议圆盘模版匹配(培养素材页列表区域)",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "IMSItemColorBlue",
+                "roi_offset": [
+                    0,
+                    -93,
+                    0,
+                    93
+                ],
+                "template": [
+                    "IMS/item/PROTODISK_TEMPLATE.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "PROTODISK_COUNT": {
+        "desc": "IMS:协议圆盘数量 OCR",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__PROTODISK_TEMPLATE",
+                "roi_offset": [
+                    0,
+                    62,
+                    0,
+                    -34
+                ],
+                "expected": [
+                    "\\d+"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

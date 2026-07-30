@@ -73,10 +73,12 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 
 | 字段 | 类型 | 默认 | 说明 |
 | --- | --- | --- | --- |
-| `items` | `string[]` | 必填 | And 识别节点名，按顺序执行 |
+| `items` | `object` | 必填 | 字典：键=物品 ID，值=And 识别节点名（按键名排序执行） |
 | `page_dedup` | `bool` | `false` | `false`：本轮结果整表创建；`true`：翻页去重，在已有缓存上按 ID **覆盖**数量 |
 
-物品 ID = 该 And 节点 `box_index` 指向的**数量子节点名**；数量 = 该子结果 OCR。
+数量 = 识别节点 `box_index` 指向的 OCR 子结果。物品 ID 取自 `items` 的键。
+
+命中时 Focus 输出本地化物品名与数量（`ims.sync_item_found` + `ims.item.<ID>`）。
 
 未命中的 item 跳过（`page_dedup=true` 时保留旧值）。全部跑完后写入 `debug/record/IMS.json`（含 `updated_at`）并更新内存缓存。
 
@@ -93,7 +95,7 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 {
     "updated_at": "2026-07-29T12:00:00Z",
     "items": {
-        "SomeQtyNode": 12
+        "ADVANCED_COGNITIVE_CARRIER": 12
     }
 }
 ```
@@ -101,7 +103,7 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 `EnsureItemDataReadyMain` 未就绪时直接 `next` 到 `SyncItemData`。
 
 > [!NOTE]
-> `SyncItemDataRun` 里 `items` 需填入实际 And 节点名（或由任务 PipelineOverride 注入）。切换未选中培养页依赖 `SceneManager/ProgressionTabNotChoose.png`。
+> `SyncItemDataRun.items` 示例：`{"ADVANCED_COGNITIVE_CARRIER": "ADVANCED_COGNITIVE_CARRIER_Item"}`。切换未选中培养页依赖 `SceneManager/ProgressionTabNotChoose.png`。
 
 ### 与业务数量判断配合
 

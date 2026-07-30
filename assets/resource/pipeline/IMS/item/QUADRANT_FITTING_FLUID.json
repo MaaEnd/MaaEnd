@@ -1,0 +1,61 @@
+{
+    "QUADRANT_FITTING_FLUID": {
+        "desc": "IMS 物品:象限拟合液(And；黄色品质；box_index 指向数量 OCR)",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "IMSItemColorYellow",
+                    "__QUADRANT_FITTING_FLUID_TEMPLATE",
+                    "QUADRANT_FITTING_FLUID_COUNT"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__QUADRANT_FITTING_FLUID_TEMPLATE": {
+        "desc": "IMS:象限拟合液模版匹配(培养素材页列表区域)",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "IMSItemColorYellow",
+                "roi_offset": [
+                    0,
+                    -93,
+                    0,
+                    93
+                ],
+                "template": [
+                    "IMS/item/QUADRANT_FITTING_FLUID_TEMPLATE.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "QUADRANT_FITTING_FLUID_COUNT": {
+        "desc": "IMS:象限拟合液数量 OCR",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__QUADRANT_FITTING_FLUID_TEMPLATE",
+                "roi_offset": [
+                    0,
+                    62,
+                    0,
+                    -34
+                ],
+                "expected": [
+                    "\\d+"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

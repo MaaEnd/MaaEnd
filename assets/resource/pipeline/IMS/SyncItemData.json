@@ -32,16 +32,37 @@
         ]
     },
     "SyncItemDataRun": {
-        "desc": "IMS A2：依次跑 items 中的 And 识别器，box_index 数量节点名作为物品 ID；page_dedup=true 时覆盖已有数量",
+        "desc": "IMS A2：items 为字典（键=物品 ID，值=And 识别节点）；page_dedup=true 时覆盖已有数量",
         "recognition": "DirectHit",
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "SyncItemData",
                 "custom_action_param": {
-                    "items": [
-                        "ADVANCED_COGNITIVE_CARRIER_Item"
-                    ],
+                    "items": {
+                        "ADVANCED_COGNITIVE_CARRIER": "ADVANCED_COGNITIVE_CARRIER",
+                        "ELEMENTARY_COGNITIVE_CARRIER": "ELEMENTARY_COGNITIVE_CARRIER",
+                        "ADVANCED_COMBAT_RECORD": "ADVANCED_COMBAT_RECORD",
+                        "INTERMEDIATE_COMBAT_RECORD": "INTERMEDIATE_COMBAT_RECORD",
+                        "ELEMENTARY_COMBAT_RECORD": "ELEMENTARY_COMBAT_RECORD",
+                        "MARK_OF_PERSEVERANCE": "MARK_OF_PERSEVERANCE",
+                        "PROTOSET": "PROTOSET",
+                        "PROTODISK": "PROTODISK",
+                        "TRIPHASIC_NANOFLAKE": "TRIPHASIC_NANOFLAKE",
+                        "QUADRANT_FITTING_FLUID": "QUADRANT_FITTING_FLUID",
+                        "TACHYON_SCREENING_LATTICE": "TACHYON_SCREENING_LATTICE",
+                        "D96_STEEL_SAMPLE_4": "D96_STEEL_SAMPLE_4",
+                        "METADIASTIMA_PHOTOEMISSION_TUBE": "METADIASTIMA_PHOTOEMISSION_TUBE",
+                        "PROTOHEDRON": "PROTOHEDRON",
+                        "PROTOPRISM": "PROTOPRISM",
+                        "ARMS_INSP_SET": "ARMS_INSP_SET",
+                        "ARMS_INSP_KIT": "ARMS_INSP_KIT",
+                        "ARMS_INSPECTOR": "ARMS_INSPECTOR",
+                        "HEAVY_CAST_DIE": "HEAVY_CAST_DIE",
+                        "CAST_DIE": "CAST_DIE",
+                        "COOLANT_GEL": "COOLANT_GEL",
+                        "WULING_ARTIFICING_CATALYST": "WULING_ARTIFICING_CATALYST"
+                    },
                     "page_dedup": false
                 }
             }

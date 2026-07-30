@@ -71,10 +71,10 @@ Callers only need Pipeline node **`SyncItemData`**: any screen → Progression t
 
 | Field | Type | Default | Description |
 | --- | --- | --- | --- |
-| `items` | `string[]` | required | And recognition node names, run in order |
+| `items` | `object` | required | Map: item ID → And recognition node name (run in sorted key order) |
 | `page_dedup` | `bool` | `false` | `false`: rebuild map from this scan (create); `true`: merge into existing cache and **overwrite** quantities for hit IDs (after paging) |
 
-Item ID = name of the And node’s `box_index` quantity child; quantity = that child’s OCR.
+Quantity = OCR at the node’s `box_index` child. Item ID comes from the `items` key, not the quantity child node name.
 
 Misses are skipped (with `page_dedup=true`, previous values kept). After all items, writes `debug/record/IMS.json` (with `updated_at`) and updates the in-process cache.
 
@@ -88,7 +88,7 @@ After swipe: page_dedup=true
 `EnsureItemDataReadyMain` jumps to `SyncItemData` when not ready.
 
 > [!NOTE]
-> Fill real And node names into `SyncItemDataRun.items` (or inject via PipelineOverride). Unselected Progression tab switching needs `SceneManager/ProgressionTabNotChoose.png`.
+> Example `SyncItemDataRun.items`: `{"ADVANCED_COGNITIVE_CARRIER": "ADVANCED_COGNITIVE_CARRIER_Item"}`. Unselected Progression tab switching needs `SceneManager/ProgressionTabNotChoose.png`.
 
 ### Combined with quantity checks
 

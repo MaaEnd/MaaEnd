@@ -7,44 +7,34 @@ import (
 	"time"
 )
 
-func TestResolveQuantityNodeNameFromJSON(t *testing.T) {
-	raw := []byte(`{
-		"recognition": {
-			"type": "And",
-			"param": {
-				"all_of": ["IconNode", "QtyNode"],
-				"box_index": 1
-			}
-		}
-	}`)
-	got, err := resolveQuantityNodeNameFromJSON("ItemAnd", raw)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got != "QtyNode" {
-		t.Fatalf("got %q, want QtyNode", got)
-	}
-}
-
-func TestResolveQuantityNodeNameRejectsInline(t *testing.T) {
-	raw := []byte(`{
-		"recognition": {
-			"type": "And",
-			"param": {
-				"all_of": ["IconNode", {"type":"OCR","roi":[0,0,1,1]}],
-				"box_index": 1
-			}
-		}
-	}`)
-	if _, err := resolveQuantityNodeNameFromJSON("ItemAnd", raw); err == nil {
-		t.Fatal("expected error for inline box_index target")
-	}
-}
-
 func TestParseOCRNumericValue(t *testing.T) {
 	got, err := parseOCRNumericValue("x12")
 	if err != nil || got != 12 {
 		t.Fatalf("got=%d err=%v", got, err)
+	}
+}
+
+func TestParseSyncItemDataParamMap(t *testing.T) {
+	params, err := parseSyncItemDataParam(`{
+		"items": {
+			"ADVANCED_COGNITIVE_CARRIER": "ADVANCED_COGNITIVE_CARRIER"
+		},
+		"page_dedup": true
+	}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !params.PageDedup {
+		t.Fatal("expected page_dedup true")
+	}
+	if params.Items["ADVANCED_COGNITIVE_CARRIER"] != "ADVANCED_COGNITIVE_CARRIER" {
+		t.Fatalf("items=%v", params.Items)
+	}
+}
+
+func TestItemDisplayNameFallback(t *testing.T) {
+	if got := itemDisplayName("UNKNOWN_ITEM_XYZ"); got != "UNKNOWN_ITEM_XYZ" {
+		t.Fatalf("got %q", got)
 	}
 }
 

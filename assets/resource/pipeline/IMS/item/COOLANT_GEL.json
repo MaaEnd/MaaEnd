@@ -1,0 +1,61 @@
+{
+    "COOLANT_GEL": {
+        "desc": "IMS 物品:冷却脂(And；黄色品质；box_index 指向数量 OCR)",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "IMSItemColorYellow",
+                    "__COOLANT_GEL_TEMPLATE",
+                    "COOLANT_GEL_COUNT"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__COOLANT_GEL_TEMPLATE": {
+        "desc": "IMS:冷却脂模版匹配(培养素材页列表区域)",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "IMSItemColorYellow",
+                "roi_offset": [
+                    0,
+                    -93,
+                    0,
+                    93
+                ],
+                "template": [
+                    "IMS/item/COOLANT_GEL_TEMPLATE.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "COOLANT_GEL_COUNT": {
+        "desc": "IMS:冷却脂数量 OCR",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__COOLANT_GEL_TEMPLATE",
+                "roi_offset": [
+                    0,
+                    62,
+                    0,
+                    -34
+                ],
+                "expected": [
+                    "\\d+"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}
