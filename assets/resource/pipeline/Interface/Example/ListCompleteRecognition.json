@@ -1,6 +1,6 @@
 {
     "ListCompleteRecognitionExampleGate": {
-        "desc": "ListCompleteRecognition 示例：首次截取 roi 模板并返回 true；之后模板相似度 >= threshold 视为到底返回 false，低于阈值则重新截图覆盖模板并返回 true",
+        "desc": "ListCompleteRecognition 示例：首次截取 roi 模板并返回 true；之后模板相似度 >= threshold 视为到底返回 false，低于阈值则重新截图覆盖模板并返回 true。滑动后必须 post_wait_freezes 等画面静止，再进入下一轮识别",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -18,7 +18,17 @@
                 }
             }
         },
-        "action": "DoNothing",
+        "action": "Swipe",
+        "begin": [
+            650,
+            470
+        ],
+        "end": [
+            650,
+            150
+        ],
+        // 识别依赖静止画面；滑动惯性未停会被当成区域变化而持续滑动
+        "post_wait_freezes": 200,
         "next": [
             "ListCompleteRecognitionPass"
         ],

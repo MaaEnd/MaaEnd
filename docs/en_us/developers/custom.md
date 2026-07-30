@@ -297,6 +297,10 @@ Example file: [`ListCompleteRecognition.json`](../../../assets/resource/pipeline
             }
         }
     },
+    "action": "Swipe",
+    "begin": [650, 470],
+    "end": [650, 150],
+    "post_wait_freezes": 200,
     "attach": {
         "ready": false
     }
@@ -305,6 +309,7 @@ Example file: [`ListCompleteRecognition.json`](../../../assets/resource/pipeline
 
 Notes:
 
+- **The screen must already be still when recognition runs.** This recognizer compares the current frame with the template captured on the previous round. If inertia, bounce, or transition animation is still running when the next recognition starts, the region keeps changing, so the recognizer keeps returning a match and the list keeps scrolling. Put `post_wait_freezes` on the **same swipe node** (optionally with a `target` ROI over the list area) so the frame freezes before returning to scan/recognition.
 - State is stored in `attach.ready` on the **current Custom recognition node**; the runtime template is kept by `OverrideImage` and is not written to disk.
 - To restart a list scan, set that Custom node's `attach.ready` to `false` (for example via `PipelineOverride`).
 - This recognizer only answers "did the given region change"; scrolling/clicking still belong in Pipeline.

@@ -299,6 +299,10 @@ Recognition 节点用于执行自定义识别。常见写法如下：
             }
         }
     },
+    "action": "Swipe",
+    "begin": [650, 470],
+    "end": [650, 150],
+    "post_wait_freezes": 200,
     "attach": {
         "ready": false
     }
@@ -307,6 +311,7 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 
 注意事项：
 
+- **识别时画面必须已经静止。** 本识别器比较的是「当前帧」与「上一轮截取的模板」；若滑动惯性、回弹或过渡动画尚未结束就进入下一轮识别，区域会持续变化，识别器会一直返回命中并持续滑动。请在**同一滑动节点**上配置 `post_wait_freezes`（必要时可带 `target` 限定列表区域），等画面冻结后再回到扫描/识别。
 - 状态保存在**当前 Custom 识别节点**的 `attach.ready`；运行时模板通过 `OverrideImage` 覆盖，不落盘。
 - 需要重新开始一轮列表扫描时，应将 `attach.ready` 置 `false`（例如通过 `PipelineOverride`）。
 - 该识别器只负责“指定区域画面是否变化”，滑动、点击等流程仍由 Pipeline 组织。

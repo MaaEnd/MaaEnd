@@ -117,7 +117,7 @@
                                 "maximum": 1,
                                 "default": 0.9,
                                 "title": "Threshold",
-                                "description": "TemplateMatch threshold. Score >= threshold means the region is unchanged (list complete, return false). Below threshold recaptures OverrideImage and returns true. Default 0.9."
+                                "description": "TemplateMatch threshold. Score >= threshold means the region is unchanged (list complete, return false). Below threshold recaptures OverrideImage and returns true. Default 0.9. Callers must use post_wait_freezes on the swipe so recognition runs only after the screen is still; otherwise inertia keeps looking like change and scrolling never stops."
                             }
                         }
                     }

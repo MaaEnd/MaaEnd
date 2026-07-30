@@ -28,6 +28,9 @@ var _ nodeStore = (*maa.Context)(nil)
 // 相似度 >= threshold（默认 0.9）视为画面未变、列表到底，返回 false；
 // 低于阈值则重新截取并 OverrideImage，返回 true（仍可继续滑动）。
 //
+// 调用方必须保证识别时画面已静止：滑动节点应配置 post_wait_freezes，否则惯性/回弹
+// 会被当成区域变化而持续滑动。
+//
 // roi / threshold 均可在 custom_recognition_param 中传入；roi 缺省为全屏。
 type Recognition struct{}
 
