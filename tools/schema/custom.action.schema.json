@@ -86,6 +86,7 @@
                 "SubTask",
                 "SyncItemData",
                 "TrialOfSwordmancy.Decide",
+                "UpdateItemQuantity",
                 "WebEvent202605Action",
                 "autoEcoFarmInterruptibleSleep",
                 "autoEcoFarmOverrideTargetTemplate",
@@ -104,6 +105,20 @@
 			"then": {
 				"properties": {
 					"custom_action_param": { "$ref": "./components/ims.schema.json#/$defs/SyncItemDataParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "UpdateItemQuantity" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/ims.schema.json#/$defs/UpdateItemQuantityParam" }
 				},
 				"required": [ "custom_action_param" ]
 			}

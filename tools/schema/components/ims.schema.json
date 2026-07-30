@@ -23,6 +23,53 @@
                 }
             }
         },
+        "ItemQuantitySatisfiedParam": {
+            "type": "object",
+            "title": "ItemQuantitySatisfied Param",
+            "description": "Parameters for ItemQuantitySatisfied recognition (R1). Hits when cached quantity for item is >= quantity. Does not check readiness; combine with ItemDataReady via And when needed. Missing item counts as 0.",
+            "additionalProperties": false,
+            "required": [
+                "item",
+                "quantity"
+            ],
+            "properties": {
+                "item": {
+                    "title": "Item",
+                    "description": "Item ID (same keys as SyncItemData items / IMS.json).",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "quantity": {
+                    "title": "Quantity",
+                    "description": "Required minimum cached quantity (inclusive).",
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
+        "UpdateItemQuantityParam": {
+            "type": "object",
+            "title": "UpdateItemQuantity Param",
+            "description": "Parameters for UpdateItemQuantity action (A1). Applies a signed delta to one cached item; result is clamped to >= 0. Persists IMS.json but does not change readiness / last_sync (only SyncItemData marks sync).",
+            "additionalProperties": false,
+            "required": [
+                "item",
+                "delta"
+            ],
+            "properties": {
+                "item": {
+                    "title": "Item",
+                    "description": "Item ID (same keys as SyncItemData items / IMS.json).",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "delta": {
+                    "title": "Delta",
+                    "description": "Signed quantity change (positive gain, negative spend).",
+                    "type": "integer"
+                }
+            }
+        },
         "SyncItemDataParam": {
             "type": "object",
             "title": "SyncItemData Param",

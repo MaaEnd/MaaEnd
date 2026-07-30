@@ -3,7 +3,7 @@
 IMS（Item Management System）在 go-service 进程内维护培养道具数量缓存，供任务启动门禁与数量判断使用。流程编排仍由 Pipeline 负责。
 
 > [!NOTE]
-> 当前已落地：`ItemDataReady`（R2）、`SyncItemData`（A2）。数量增减（A1）、数量是否满足（R1）待后续接入。
+> 当前已落地：`ItemDataReady`（R2）、`ItemQuantitySatisfied`（R1）、`UpdateItemQuantity`（A1）、`SyncItemData`（A2）。
 
 ## 实现位置
 
@@ -12,15 +12,16 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 | `agent/go-service/ims/` | Custom 组件与缓存 |
 | `assets/resource/pipeline/IMS/` | Pipeline：四接口分文件 |
 | `tools/schema/components/ims.schema.json` | 参数 JSON Schema |
-| `tools/schema/custom.recognition.schema.json` | 注册 `ItemDataReady` 并引用上述 Schema |
+| `tools/schema/custom.recognition.schema.json` | 注册 Recognition 并引用上述 Schema |
+| `tools/schema/custom.action.schema.json` | 注册 Action 并引用上述 Schema |
 
 ### Pipeline 文件划分
 
 | 文件 | 内容 |
 | --- | --- |
 | `ItemDataReady.json` | R2 `ItemDataReady` + `EnsureItemDataReady*`（未就绪时调 `SyncItemData`） |
-| `ItemQuantitySatisfied.json` | R1 占位 |
-| `UpdateItemQuantity.json` | A1 占位 |
+| `ItemQuantitySatisfied.json` | R1 `ItemQuantitySatisfied`（调用方覆盖 `item` / `quantity`） |
+| `UpdateItemQuantity.json` | A1 `UpdateItemQuantity`（调用方覆盖 `item` / `delta`） |
 | `SyncItemData.json` | A2 入口 `SyncItemData`（任意位置 → 培养素材页 → 扫描） |
 | `common.json` | 通用品质色（黄等）ColorMatch |
 | `item/*.json` | 各培养道具识别节点 |
@@ -65,6 +66,77 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 
 入口检查可参考 `EnsureItemDataReadyMain`。
 
+## Recognition：`ItemQuantitySatisfied`
+
+判断缓存中指定物品数量是否满足要求。只读、无副作用；**不检查就绪**（未同步时缺失物品按 0）。需要「数据就绪且数量满足」时，用 `And` 同时引用 `ItemDataReady` 与本识别。
+
+### 命中条件
+
+缓存数量 `>= quantity`。未命中原因（日志 `reason`）：`insufficient`。
+
+### 参数
+
+| 字段 | 类型 | 默认 | 说明 |
+| --- | --- | --- | --- |
+| `item` | `string` | 必填 | 物品 ID（与 `SyncItemData.items` / `IMS.json` 键一致） |
+| `quantity` | `integer` | 必填 | 要求的最小数量（含等号）；`>= 0` |
+
+### Pipeline 示例
+
+```json
+"MyItemEnough": {
+    "recognition": {
+        "type": "Custom",
+        "param": {
+            "custom_recognition": "ItemQuantitySatisfied",
+            "custom_recognition_param": {
+                "item": "PROTODISK",
+                "quantity": 10
+            }
+        }
+    },
+    "pre_delay": 0,
+    "post_delay": 0,
+    "rate_limit": 0
+}
+```
+
+也可直接覆盖节点 `ItemQuantitySatisfied` 的 `custom_recognition_param`。
+
+## Action：`UpdateItemQuantity`
+
+在已知获得/消耗后，对缓存做增量修正，避免立刻整表重扫。**不改变就绪状态**（`hasData` / `last_sync` 仅由 A2 更新）；结果下限为 `0`。
+
+### 参数
+
+| 字段 | 类型 | 默认 | 说明 |
+| --- | --- | --- | --- |
+| `item` | `string` | 必填 | 物品 ID |
+| `delta` | `integer` | 必填 | 有符号变化量（正数增加、负数减少） |
+
+成功后写回内存并更新 `debug/record/IMS.json` 中的 `items`（保留原同步时间戳）。
+
+### Pipeline 示例
+
+```json
+"GainOneProtoDisk": {
+    "recognition": "DirectHit",
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "UpdateItemQuantity",
+            "custom_action_param": {
+                "item": "PROTODISK",
+                "delta": 1
+            }
+        }
+    },
+    "pre_delay": 0,
+    "post_delay": 0,
+    "rate_limit": 0
+}
+```
+
 ## A2：`SyncItemData`
 
 业务侧**只调用** Pipeline 节点 `SyncItemData`：任意界面 → 培养素材页 → Custom Action `SyncItemData`。
@@ -107,7 +179,7 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 
 ### 与业务数量判断配合
 
-需要「数据就绪且数量满足」时，用 `And` 同时引用 `ItemDataReady` 与后续 R1，避免把「未就绪」当成「数量不足去刷」。
+需要「数据就绪且数量满足」时，用 `And` 同时引用 `ItemDataReady` 与 `ItemQuantitySatisfied`，避免把「未就绪」当成「数量不足去刷」。
 
 任务入口可跑 `EnsureItemDataReadyMain`，或在需要强制刷新时直接调 `SyncItemData`。
 
@@ -118,18 +190,11 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 - 缓存允许小幅偏差，靠周期同步纠偏。
 - IMS 不区分写入来源；异常靠调用方日志排查。
 
-## Go 辅助 API（给后续 A2 / 测试）
+## Go 辅助 API（测试）
 
 | 函数 | 说明 |
 | --- | --- |
 | `ims.MarkSynced(at, items)` | 标记一次成功同步（置 `hasData`、更新时间戳与物品表） |
 | `ims.ClearCache()` | 清空缓存（测试 / 账号切换等） |
+| `ims.ItemsSnapshot()` | 返回缓存物品数量副本 |
 
-## 规划中的接口
-
-| 类型 | 名称 | Pipeline 文件 | 作用 |
-| --- | --- | --- | --- |
-| Action | `UpdateItemQuantity` | `UpdateItemQuantity.json` | 按物品名增量改缓存（占位） |
-| Action | `SyncItemData` | `SyncItemData.json` | 进培养素材页并扫描写入 `IMS.json` |
-| Recognition | `ItemQuantitySatisfied` | `ItemQuantitySatisfied.json` | 只读比较缓存数量与要求值（占位） |
-| Recognition | `ItemDataReady` | `ItemDataReady.json` | 缓存是否就绪 |

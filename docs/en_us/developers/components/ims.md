@@ -3,7 +3,7 @@
 IMS keeps an in-process cache of cultivation-item counts for task gates and quantity checks. Pipeline still owns flow control.
 
 > [!NOTE]
-> Shipped today: `ItemDataReady` (R2) and `SyncItemData` (A2). Quantity adjust (A1) and quantity-met recognition (R1) are planned.
+> Shipped today: `ItemDataReady` (R2), `ItemQuantitySatisfied` (R1), `UpdateItemQuantity` (A1), and `SyncItemData` (A2).
 
 ## Locations
 
@@ -12,16 +12,19 @@ IMS keeps an in-process cache of cultivation-item counts for task gates and quan
 | `agent/go-service/ims/` | Custom components and cache |
 | `assets/resource/pipeline/IMS/` | Pipeline: one file per API |
 | `tools/schema/components/ims.schema.json` | Parameter JSON Schema |
-| `tools/schema/custom.recognition.schema.json` | Registers `ItemDataReady` and refs the schema |
+| `tools/schema/custom.recognition.schema.json` | Registers recognitions and refs the schema |
+| `tools/schema/custom.action.schema.json` | Registers actions and refs the schema |
 
 ### Pipeline layout
 
 | File | Contents |
 | --- | --- |
 | `ItemDataReady.json` | R2 `ItemDataReady` + `EnsureItemDataReady*` (calls `SyncItemData` when not ready) |
-| `ItemQuantitySatisfied.json` | R1 stub |
-| `UpdateItemQuantity.json` | A1 stub |
+| `ItemQuantitySatisfied.json` | R1 `ItemQuantitySatisfied` (override `item` / `quantity`) |
+| `UpdateItemQuantity.json` | A1 `UpdateItemQuantity` (override `item` / `delta`) |
 | `SyncItemData.json` | A2 entry `SyncItemData` (any screen → Progression tab → scan) |
+| `common.json` | Shared rarity ColorMatch nodes |
+| `item/*.json` | Per-item recognition nodes |
 
 ## Recognition: `ItemDataReady`
 
@@ -29,7 +32,7 @@ Reports whether the inventory cache is usable. Read-only; no side effects.
 
 ### Hit conditions
 
-1. At least one successful sync (`hasData`; written by A2 later).
+1. At least one successful sync (`hasData`; written by A2).
 2. Within the TTL from `refresh_days`. `0` means never expire due to age once data exists; missing data still misses.
 
 Miss reasons (log `reason`): `no_data` / `stale`.
@@ -63,6 +66,77 @@ Omitting `custom_recognition_param` or the field defaults to `7`.
 
 See `EnsureItemDataReadyMain` for the entry gate.
 
+## Recognition: `ItemQuantitySatisfied`
+
+Reports whether the cached quantity for one item meets the requirement. Read-only; no side effects. **Does not check readiness** (missing item counts as 0). For “ready **and** enough”, use `And` with `ItemDataReady`.
+
+### Hit conditions
+
+Cached quantity `>= quantity`. Miss reason (log `reason`): `insufficient`.
+
+### Parameters
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `item` | `string` | required | Item ID (same keys as `SyncItemData.items` / `IMS.json`) |
+| `quantity` | `integer` | required | Minimum required count (inclusive); `>= 0` |
+
+### Pipeline example
+
+```json
+"MyItemEnough": {
+    "recognition": {
+        "type": "Custom",
+        "param": {
+            "custom_recognition": "ItemQuantitySatisfied",
+            "custom_recognition_param": {
+                "item": "PROTODISK",
+                "quantity": 10
+            }
+        }
+    },
+    "pre_delay": 0,
+    "post_delay": 0,
+    "rate_limit": 0
+}
+```
+
+You may also override `ItemQuantitySatisfied`’s `custom_recognition_param`.
+
+## Action: `UpdateItemQuantity`
+
+After a known gain/spend, adjust the cache by a signed delta without a full rescan. **Does not change readiness** (`hasData` / `last_sync` are updated only by A2). Result is clamped to `>= 0`.
+
+### Parameters
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `item` | `string` | required | Item ID |
+| `delta` | `integer` | required | Signed change (positive gain, negative spend) |
+
+On success, updates in-memory items and rewrites `items` in `debug/record/IMS.json` (keeps the previous sync timestamp).
+
+### Pipeline example
+
+```json
+"GainOneProtoDisk": {
+    "recognition": "DirectHit",
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "UpdateItemQuantity",
+            "custom_action_param": {
+                "item": "PROTODISK",
+                "delta": 1
+            }
+        }
+    },
+    "pre_delay": 0,
+    "post_delay": 0,
+    "rate_limit": 0
+}
+```
+
 ## A2: `SyncItemData`
 
 Callers only need Pipeline node **`SyncItemData`**: any screen → Progression tab → Custom Action `SyncItemData`.
@@ -76,6 +150,8 @@ Callers only need Pipeline node **`SyncItemData`**: any screen → Progression t
 
 Quantity = OCR at the node’s `box_index` child. Item ID comes from the `items` key, not the quantity child node name.
 
+On hit, Focus prints the localized item name and quantity (`ims.sync_item_found` + `ims.item.<ID>`).
+
 Misses are skipped (with `page_dedup=true`, previous values kept). After all items, writes `debug/record/IMS.json` (with `updated_at`) and updates the in-process cache.
 
 ### Paging
@@ -88,11 +164,11 @@ After swipe: page_dedup=true
 `EnsureItemDataReadyMain` jumps to `SyncItemData` when not ready.
 
 > [!NOTE]
-> Example `SyncItemDataRun.items`: `{"ADVANCED_COGNITIVE_CARRIER": "ADVANCED_COGNITIVE_CARRIER_Item"}`. Unselected Progression tab switching needs `SceneManager/ProgressionTabNotChoose.png`.
+> Example `SyncItemDataRun.items`: `{"ADVANCED_COGNITIVE_CARRIER": "ADVANCED_COGNITIVE_CARRIER"}`. Unselected Progression tab switching needs `SceneManager/ProgressionTabNotChoose.png`.
 
 ### Combined with quantity checks
 
-For “ready **and** enough”, use `And` with `ItemDataReady` and the future R1 so “not ready” is not treated as “need to farm”.
+For “ready **and** enough”, use `And` with `ItemDataReady` and `ItemQuantitySatisfied` so “not ready” is not treated as “need to farm”.
 
 Run `EnsureItemDataReadyMain` at task entry, or call `SyncItemData` directly when a forced refresh is needed.
 
@@ -103,18 +179,10 @@ Run `EnsureItemDataReadyMain` at task entry, or call `SyncItemData` directly whe
 - Small drift is acceptable; periodic sync corrects it.
 - IMS does not attribute writers; debug via caller logs.
 
-## Go helpers (for A2 / tests)
+## Go helpers (tests)
 
 | Function | Description |
 | --- | --- |
 | `ims.MarkSynced(at, items)` | Record a successful sync (`hasData`, timestamp, item map) |
 | `ims.ClearCache()` | Clear cache (tests / account switch, etc.) |
-
-## Planned APIs
-
-| Kind | Name | Pipeline file | Role |
-| --- | --- | --- | --- |
-| Action | `UpdateItemQuantity` | `UpdateItemQuantity.json` | Adjust cached count by item name (stub) |
-| Action | `SyncItemData` | `SyncItemData.json` | Scan Valuables and sync cache (stub) |
-| Recognition | `ItemQuantitySatisfied` | `ItemQuantitySatisfied.json` | Read-only compare cache vs required amount (stub) |
-| Recognition | `ItemDataReady` | `ItemDataReady.json` | Whether cache is ready |
+| `ims.ItemsSnapshot()` | Copy of cached item quantities |

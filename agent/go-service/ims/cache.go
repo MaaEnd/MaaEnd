@@ -6,7 +6,8 @@ import (
 )
 
 // cache holds in-process item inventory metadata used by IMS recognitions/actions.
-// Only a successful inventory sync (A2) should call markSynced.
+// Only a successful inventory sync (A2 / markSynced) flips hasData and lastSync.
+// A1 may adjust item quantities without changing readiness.
 type cache struct {
 	mu       sync.Mutex
 	hasData  bool
@@ -52,6 +53,32 @@ func (c *cache) itemsCopy() map[string]int {
 		out[k] = v
 	}
 	return out
+}
+
+// quantity returns cached count for item; missing item is 0.
+func (c *cache) quantity(item string) int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.items[item]
+}
+
+// applyDelta adds delta to item quantity and clamps the result to >= 0.
+// Does not change hasData / lastSync. Returns a copy of all items after update.
+func (c *cache) applyDelta(item string, delta int) (before, after int, clamped bool, items map[string]int, lastSync time.Time, hasData bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	before = c.items[item]
+	after = before + delta
+	if after < 0 {
+		after = 0
+		clamped = true
+	}
+	c.items[item] = after
+	items = make(map[string]int, len(c.items))
+	for k, v := range c.items {
+		items[k] = v
+	}
+	return before, after, clamped, items, c.lastSync, c.hasData
 }
 
 // MarkSynced records a successful inventory sync for later A2 use.

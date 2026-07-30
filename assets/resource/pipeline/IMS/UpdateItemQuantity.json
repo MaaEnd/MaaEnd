@@ -1,14 +1,20 @@
 {
     "UpdateItemQuantity": {
-        "desc": "IMS：按物品名对缓存数量做 +/-（A1，Custom Action 待接入）",
+        "desc": "IMS：按物品 ID 对缓存数量做 +/-（A1；调用方请覆盖 custom_action_param.item / delta；不改变就绪状态）",
         "recognition": "DirectHit",
-        "action": "DoNothing",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "UpdateItemQuantity",
+                "custom_action_param": {
+                    "item": "PROTODISK",
+                    "delta": 1
+                }
+            }
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [],
-        "focus": {
-            "Node.Action.Succeeded": "UpdateItemQuantity 占位：待接入 Custom Action"
-        }
+        "next": []
     }
 }

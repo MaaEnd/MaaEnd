@@ -23,10 +23,10 @@
             "param": {
                 "roi": "IMSItemColorYellow",
                 "roi_offset": [
-                    0,
-                    -93,
-                    0,
-                    93
+                    -5,
+                    -100,
+                    10,
+                    100
                 ],
                 "template": [
                     "IMS/item/COOLANT_GEL_TEMPLATE.png"

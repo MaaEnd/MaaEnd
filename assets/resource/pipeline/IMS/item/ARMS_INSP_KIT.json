@@ -23,10 +23,10 @@
             "param": {
                 "roi": "IMSItemColorBlue",
                 "roi_offset": [
-                    0,
-                    -93,
-                    0,
-                    93
+                    -5,
+                    -100,
+                    10,
+                    100
                 ],
                 "template": [
                     "IMS/item/ARMS_INSP_KIT_TEMPLATE.png"

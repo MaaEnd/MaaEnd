@@ -23,10 +23,10 @@
             "param": {
                 "roi": "IMSItemColorGreen",
                 "roi_offset": [
-                    0,
-                    -93,
-                    0,
-                    93
+                    -5,
+                    -100,
+                    10,
+                    100
                 ],
                 "template": [
                     "IMS/item/INTERMEDIATE_COMBAT_RECORD_TEMPLATE.png"

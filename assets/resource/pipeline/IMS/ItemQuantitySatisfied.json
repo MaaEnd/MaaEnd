@@ -1,14 +1,18 @@
 {
     "ItemQuantitySatisfied": {
-        "desc": "IMS：指定物品缓存数量是否满足要求（R1，Custom Recognition 待接入）",
-        "recognition": "DirectHit",
-        "action": "DoNothing",
+        "desc": "IMS：指定物品缓存数量是否 >= quantity（R1；只读。调用方请覆盖 custom_recognition_param.item / quantity；与 ItemDataReady 组合请用 And）",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "PROTODISK",
+                    "quantity": 1
+                }
+            }
+        },
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [],
-        "focus": {
-            "Node.Action.Succeeded": "ItemQuantitySatisfied 占位：待接入 Custom Recognition"
-        }
+        "rate_limit": 0
     }
 }
