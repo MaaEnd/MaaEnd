@@ -1,0 +1,58 @@
+{
+    "task": [
+        {
+            "name": "IMSItemQuantitySatisfied",
+            "label": "[测试] IMS R1 数量是否满足",
+            "entry": "IMSItemQuantitySatisfiedMain",
+            "description": "测试 ItemQuantitySatisfied：检查缓存中指定物品数量是否 >= 要求值。不检查就绪，请先跑 R2/A2。",
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
+            "group": [
+                "other_menu"
+            ],
+            "option": [
+                "IMSItemQuantitySatisfiedParams"
+            ]
+        }
+    ],
+    "option": {
+        "IMSItemQuantitySatisfiedParams": {
+            "type": "input",
+            "label": "R1 参数",
+            "description": "物品 ID 与要求数量（缓存数量 >= 该值则判定满足）",
+            "inputs": [
+                {
+                    "name": "IMSItemId",
+                    "label": "物品 ID",
+                    "description": "如 PROTODISK、ARMS_INSP_SET",
+                    "pipeline_type": "string",
+                    "default": "PROTODISK"
+                },
+                {
+                    "name": "IMSRequiredQuantity",
+                    "label": "要求数量",
+                    "description": "最小数量（含等号）",
+                    "pipeline_type": "int",
+                    "default": "1",
+                    "verify": "^\\d+$"
+                }
+            ],
+            "pipeline_override": {
+                "ItemQuantitySatisfied": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "item": "{IMSItemId}",
+                                "quantity": "{IMSRequiredQuantity}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

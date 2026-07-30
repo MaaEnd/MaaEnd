@@ -1,0 +1,19 @@
+{
+    "task": [
+        {
+            "name": "IMSSyncItemData",
+            "label": "[测试] IMS A2 同步培养素材",
+            "entry": "SyncItemData",
+            "description": "测试 SyncItemData：从任意界面进入贵重品库培养素材页，扫描并写入库存缓存。",
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
+            "group": [
+                "other_menu"
+            ]
+        }
+    ]
+}

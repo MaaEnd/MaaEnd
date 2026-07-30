@@ -1,0 +1,19 @@
+{
+    "task": [
+        {
+            "name": "IMSAddItemData",
+            "label": "[测试] IMS A3 奖励界面累加",
+            "entry": "AddItemDataOnRewards",
+            "description": "测试 AddItemData：请先打开奖励结算界面（CloseRewardsButton 可见）。识别到的物品数量会累加进缓存，然后关闭奖励。",
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
+            "group": [
+                "other_menu"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,92 @@
+{
+    "task": [
+        {
+            "name": "IMSItemDataReady",
+            "label": "[测试] IMS R2 确保数据就绪",
+            "entry": "EnsureItemDataReadyMain",
+            "description": "测试 ItemDataReady：已就绪则直接通过；未就绪则调用 SyncItemData 同步培养素材页。",
+            "controller": [
+                "Win32-Front",
+                "ADB",
+                "PlayCover",
+                "Wlroots"
+            ],
+            "group": [
+                "other_menu"
+            ],
+            "option": [
+                "IMSItemDataReadyRefreshDays"
+            ]
+        }
+    ],
+    "option": {
+        "IMSItemDataReadyRefreshDays": {
+            "type": "select",
+            "label": "缓存有效期",
+            "description": "距上次同步超过该天数则视为未就绪；0=有数据后不因过期失效",
+            "default_case": "Days7",
+            "cases": [
+                {
+                    "name": "Days7",
+                    "label": "7 天",
+                    "pipeline_override": {
+                        "ItemDataReady": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "refresh_days": 7
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Days1",
+                    "label": "1 天",
+                    "pipeline_override": {
+                        "ItemDataReady": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "refresh_days": 1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Days30",
+                    "label": "30 天",
+                    "pipeline_override": {
+                        "ItemDataReady": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "refresh_days": 30
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "NeverExpire",
+                    "label": "永不因过期失效",
+                    "pipeline_override": {
+                        "ItemDataReady": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "refresh_days": 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
