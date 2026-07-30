@@ -3,63 +3,39 @@ package listcomplete
 import (
 	"encoding/json"
 	"fmt"
-	"sort"
+	"image"
 	"strings"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/recogtarget"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 const (
-	componentName        = "ListCompleteRecognition"
-	attachLastText       = "last_text"
-	attachUnchangedCount = "unchanged_count"
-	// fingerprintSep 拼接整屏 OCR 文本；选不会出现在好友名中的分隔符。
-	fingerprintSep = "\n"
+	componentName    = "ListCompleteRecognition"
+	attachReady      = "ready"
+	defaultThreshold = 0.9
+	templateNameFmt  = "ListCompleteRecognition/%s.png"
 )
 
 var _ maa.CustomRecognitionRunner = &Recognition{}
 var _ nodeStore = (*maa.Context)(nil)
 
-// Recognition 是通用的列表完成识别器：通过 OCR 指纹是否变化判断列表是否仍在滚动/更新。
+// Recognition 是通用的列表完成识别器：通过指定区域的模板相似度判断列表是否仍在滚动。
 //
-// 指纹取自目标 OCR 节点命中（优先 Filtered，否则 All）：按纵向（再按横向）排序后
-// 只取首尾两条用换行拼接（仅一条时用该条）。比只用 Best 更能发现「顶不变、底已滚」；
-// 比整屏 join 更耐中间项 OCR 抖动。
+// 首次命中（当前节点 attach.ready 为空/false）时直接返回 true，截取 roi 区域并通过
+// OverrideImage 写入运行时模板；之后用 TemplateMatch 对比当前画面与模板：
+// 相似度 >= threshold（默认 0.9）视为画面未变、列表到底，返回 false；
+// 低于阈值则重新截取并 OverrideImage，返回 true（仍可继续滑动）。
 //
-// 首次命中（当前节点 attach.last_text 为空）时，只要能抽出指纹即返回 true，并写入指纹与框；
-// 之后若指纹与 attach.last_text 不一致则更新 attach、清零 unchanged_count 并返回 true；
-// 若一致则累加 unchanged_count：当 unchanged_count > retry（默认 0）时返回 false（视为到底），
-// 否则仍返回 true（确认重试，便于 Pipeline 再滑一次）。
-//
-// node 可为 OCR 节点，或 And 节点。对 And 节点，按节点自身 box_index（默认 0）
-// 从 CombinedResult 中选取子识别结果，再从该结果提取 OCR——目标解析复用 recogtarget。
+// roi / threshold 均可在 custom_recognition_param 中传入；roi 缺省为全屏。
 type Recognition struct{}
 
 type params struct {
-	// Node 为 OCR 节点名，或内部必须包含 OCR 的 And 节点名。
-	Node string `json:"node"`
-	// Retry 为指纹判定相等后仍返回 true 的次数；超过该次数才返回 false。默认 0（不重试）。
-	Retry int `json:"retry"`
-}
-
-type ocrHit struct {
-	Text string
-	Box  maa.Rect
-}
-
-type attachState struct {
-	LastText       string
-	UnchangedCount int
-}
-
-// listCompleteOutcome 是指纹对比后的判定结果（不含框，框由 OCR 命中提供）。
-type listCompleteOutcome struct {
-	Next           attachState
-	Hit            bool
-	UnchangedRetry bool
-	Detail         map[string]any
+	// ROI 为识别区域 [x, y, w, h]，基于 720p；缺省为全屏。
+	ROI []int `json:"roi"`
+	// Threshold 为模板匹配阈值，默认 0.9；命中（>= 阈值）视为列表到底。
+	Threshold float64 `json:"threshold"`
 }
 
 // nodeStore 抽象 attach 读写，便于单测用 fake 跨多次调用保留状态。
@@ -68,82 +44,12 @@ type nodeStore interface {
 	OverridePipeline(pipelineOverride any) error
 }
 
-// evaluateListComplete 根据上次指纹与 retry 判定是否继续命中。
-func evaluateListComplete(
-	state attachState,
-	fingerprint string,
-	currentNode string,
-	targetNode string,
-	retry int,
-) listCompleteOutcome {
-	if state.LastText != "" && state.LastText == fingerprint {
-		unchanged := state.UnchangedCount + 1
-		next := attachState{
-			LastText:       fingerprint,
-			UnchangedCount: unchanged,
-		}
-		if unchanged > retry {
-			return listCompleteOutcome{Next: next, Hit: false}
-		}
-		return listCompleteOutcome{
-			Next:           next,
-			Hit:            true,
-			UnchangedRetry: true,
-			Detail: map[string]any{
-				"node":            currentNode,
-				"target_node":     targetNode,
-				"text":            fingerprint,
-				"last_text":       state.LastText,
-				"unchanged_count": unchanged,
-				"retry":           retry,
-				"unchanged_retry": true,
-			},
-		}
-	}
-
-	return listCompleteOutcome{
-		Next: attachState{
-			LastText:       fingerprint,
-			UnchangedCount: 0,
-		},
-		Hit: true,
-		Detail: map[string]any{
-			"node":            currentNode,
-			"target_node":     targetNode,
-			"text":            fingerprint,
-			"last_text":       state.LastText,
-			"first_run":       state.LastText == "",
-			"unchanged_count": 0,
-			"retry":           retry,
-		},
-	}
-}
-
-// applyFingerprint 加载 attach → 判定 → 写回，模拟 Run 中与 Context OCR 无关的重试核心。
-func applyFingerprint(
-	store nodeStore,
-	currentNode string,
-	targetNode string,
-	fingerprint string,
-	retry int,
-) (listCompleteOutcome, error) {
-	state, err := loadAttachState(store, currentNode)
-	if err != nil {
-		return listCompleteOutcome{}, err
-	}
-	outcome := evaluateListComplete(state, fingerprint, currentNode, targetNode, retry)
-	if err := saveAttachState(store, currentNode, outcome.Next); err != nil {
-		return listCompleteOutcome{}, err
-	}
-	return outcome, nil
-}
-
 // Run implements maa.CustomRecognitionRunner.
 func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	if ctx == nil || arg == nil {
+	if ctx == nil || arg == nil || arg.Img == nil {
 		log.Error().
 			Str("component", componentName).
-			Msg("nil context or arg")
+			Msg("nil context, arg or image")
 		return nil, false
 	}
 
@@ -165,274 +71,239 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		return nil, false
 	}
 
-	if err := ensureNodeContainsOCR(ctx, p.Node); err != nil {
-		log.Error().
-			Err(err).
-			Str("component", componentName).
-			Str("node", currentNode).
-			Str("target_node", p.Node).
-			Msg("node must be OCR or And whose box_index target contains OCR")
-		return nil, false
-	}
-
-	detail, err := ctx.RunRecognition(p.Node, arg.Img)
+	roi, err := resolveROI(arg.Img, p.ROI)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", componentName).
 			Str("node", currentNode).
-			Str("target_node", p.Node).
-			Msg("RunRecognition failed")
-		return nil, false
-	}
-	if detail == nil || !detail.Hit {
-		log.Debug().
-			Str("component", componentName).
-			Str("node", currentNode).
-			Str("target_node", p.Node).
-			Msg("OCR/And recognition missed")
+			Ints("roi", p.ROI).
+			Msg("invalid roi")
 		return nil, false
 	}
 
-	hit, err := extractOCRFingerprintFromNode(ctx, p.Node, detail)
+	ready, err := loadReady(ctx, currentNode)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", componentName).
 			Str("node", currentNode).
-			Str("target_node", p.Node).
-			Msg("failed to extract OCR fingerprint from recognition result")
+			Msg("failed to load attach.ready")
 		return nil, false
 	}
 
-	state, err := loadAttachState(ctx, currentNode)
+	templateName := fmt.Sprintf(templateNameFmt, currentNode)
+	box := maa.Rect{roi[0], roi[1], roi[2], roi[3]}
+
+	if !ready {
+		if err := captureAndOverride(ctx, arg.Img, roi, templateName); err != nil {
+			log.Error().
+				Err(err).
+				Str("component", componentName).
+				Str("node", currentNode).
+				Str("template", templateName).
+				Msg("failed to capture template on first run")
+			return nil, false
+		}
+		if err := saveReady(ctx, currentNode, true); err != nil {
+			log.Error().
+				Err(err).
+				Str("component", componentName).
+				Str("node", currentNode).
+				Msg("failed to save attach.ready")
+			return nil, false
+		}
+		log.Info().
+			Str("component", componentName).
+			Str("node", currentNode).
+			Str("template", templateName).
+			Ints("roi", []int{roi[0], roi[1], roi[2], roi[3]}).
+			Float64("threshold", p.Threshold).
+			Msg("first run: template captured")
+		return &maa.CustomRecognitionResult{
+			Box: box,
+			Detail: marshalDetail(map[string]any{
+				"node":      currentNode,
+				"template":  templateName,
+				"roi":       []int{roi[0], roi[1], roi[2], roi[3]},
+				"threshold": p.Threshold,
+				"first_run": true,
+				"ready":     true,
+			}),
+		}, true
+	}
+
+	matched, score, err := matchTemplate(ctx, arg.Img, roi, templateName, p.Threshold)
 	if err != nil {
+		log.Warn().
+			Err(err).
+			Str("component", componentName).
+			Str("node", currentNode).
+			Str("template", templateName).
+			Msg("template match failed, recapturing")
+		matched = false
+		score = 0
+	}
+
+	if matched {
+		log.Info().
+			Str("component", componentName).
+			Str("node", currentNode).
+			Str("template", templateName).
+			Float64("score", score).
+			Float64("threshold", p.Threshold).
+			Msg("template matched, list complete")
+		return nil, false
+	}
+
+	if err := captureAndOverride(ctx, arg.Img, roi, templateName); err != nil {
 		log.Error().
 			Err(err).
 			Str("component", componentName).
 			Str("node", currentNode).
-			Str("target_node", p.Node).
-			Msg("failed to load attach state")
+			Str("template", templateName).
+			Msg("failed to recapture template")
 		return nil, false
 	}
 
-	outcome := evaluateListComplete(state, hit.Text, currentNode, p.Node, p.Retry)
-	if err := saveAttachState(ctx, currentNode, outcome.Next); err != nil {
-		log.Error().
-			Err(err).
-			Str("component", componentName).
-			Str("node", currentNode).
-			Str("target_node", p.Node).
-			Str("text", hit.Text).
-			Int("unchanged_count", outcome.Next.UnchangedCount).
-			Msg("failed to save attach state")
-		return nil, false
-	}
-
-	if !outcome.Hit {
-		log.Info().
-			Str("component", componentName).
-			Str("node", currentNode).
-			Str("target_node", p.Node).
-			Str("text", hit.Text).
-			Int("unchanged_count", outcome.Next.UnchangedCount).
-			Int("retry", p.Retry).
-			Msg("OCR fingerprint unchanged, list complete")
-		return nil, false
-	}
-
-	if outcome.UnchangedRetry {
-		log.Info().
-			Str("component", componentName).
-			Str("node", currentNode).
-			Str("target_node", p.Node).
-			Str("text", hit.Text).
-			Int("unchanged_count", outcome.Next.UnchangedCount).
-			Int("retry", p.Retry).
-			Msg("OCR fingerprint unchanged, retrying")
-	} else {
-		log.Info().
-			Str("component", componentName).
-			Str("node", currentNode).
-			Str("target_node", p.Node).
-			Str("text", hit.Text).
-			Str("last_text", state.LastText).
-			Bool("first_run", state.LastText == "").
-			Msg("OCR fingerprint accepted")
-	}
-
+	log.Info().
+		Str("component", componentName).
+		Str("node", currentNode).
+		Str("template", templateName).
+		Float64("score", score).
+		Float64("threshold", p.Threshold).
+		Msg("template changed, recaptured")
 	return &maa.CustomRecognitionResult{
-		Box:    hit.Box,
-		Detail: marshalDetail(outcome.Detail),
+		Box: box,
+		Detail: marshalDetail(map[string]any{
+			"node":      currentNode,
+			"template":  templateName,
+			"roi":       []int{roi[0], roi[1], roi[2], roi[3]},
+			"threshold": p.Threshold,
+			"score":     score,
+			"first_run": false,
+			"ready":     true,
+		}),
 	}, true
 }
 
 func parseParams(raw string) (*params, error) {
+	p := &params{Threshold: defaultThreshold}
 	if strings.TrimSpace(raw) == "" {
-		return nil, fmt.Errorf("node is required")
+		return p, nil
 	}
-
-	var p params
-	if err := json.Unmarshal([]byte(raw), &p); err != nil {
+	if err := json.Unmarshal([]byte(raw), p); err != nil {
 		return nil, err
 	}
-	p.Node = strings.TrimSpace(p.Node)
-	if p.Node == "" {
-		return nil, fmt.Errorf("node is required")
+	if p.Threshold == 0 {
+		p.Threshold = defaultThreshold
 	}
-	if p.Retry < 0 {
-		return nil, fmt.Errorf("retry must be >= 0")
+	if p.Threshold <= 0 || p.Threshold > 1 {
+		return nil, fmt.Errorf("threshold must be in (0, 1], got %v", p.Threshold)
 	}
-	return &p, nil
+	if len(p.ROI) != 0 && len(p.ROI) != 4 {
+		return nil, fmt.Errorf("roi must be [x, y, w, h], got %v", p.ROI)
+	}
+	if len(p.ROI) == 4 && (p.ROI[2] <= 0 || p.ROI[3] <= 0) {
+		return nil, fmt.Errorf("roi width/height must be > 0, got %v", p.ROI)
+	}
+	return p, nil
 }
 
-// marshalDetail 序列化识别 Detail；失败时记日志并以空串继续，不影响命中判定。
-func marshalDetail(payload map[string]any) string {
-	detailJSON, err := json.Marshal(payload)
+// resolveROI 将参数 roi 规范化为落在图像范围内的 [x,y,w,h]；空 roi 表示全屏。
+func resolveROI(img image.Image, roi []int) (maa.Rect, error) {
+	bounds := img.Bounds()
+	full := maa.Rect{bounds.Min.X, bounds.Min.Y, bounds.Dx(), bounds.Dy()}
+	if len(roi) == 0 {
+		if full[2] <= 0 || full[3] <= 0 {
+			return maa.Rect{}, fmt.Errorf("image has empty bounds")
+		}
+		return full, nil
+	}
+	x, y, w, h := roi[0], roi[1], roi[2], roi[3]
+	rect := image.Rect(x, y, x+w, y+h).Intersect(bounds)
+	if rect.Empty() {
+		return maa.Rect{}, fmt.Errorf("roi %v is outside image bounds %v", roi, bounds)
+	}
+	return maa.Rect{rect.Min.X, rect.Min.Y, rect.Dx(), rect.Dy()}, nil
+}
+
+func captureAndOverride(ctx *maa.Context, img image.Image, roi maa.Rect, templateName string) error {
+	cropped := cropROI(img, roi)
+	if cropped == nil || cropped.Bounds().Empty() {
+		return fmt.Errorf("cropped template is empty")
+	}
+	return ctx.OverrideImage(templateName, cropped)
+}
+
+func cropROI(img image.Image, roi maa.Rect) *image.RGBA {
+	rgba := minicv.ImageConvertRGBA(img)
+	return minicv.ImageCropRect(rgba, image.Rect(roi[0], roi[1], roi[0]+roi[2], roi[1]+roi[3]))
+}
+
+func matchTemplate(
+	ctx *maa.Context,
+	img image.Image,
+	roi maa.Rect,
+	templateName string,
+	threshold float64,
+) (bool, float64, error) {
+	detail, err := ctx.RunRecognitionDirect(
+		maa.RecognitionTypeTemplateMatch,
+		&maa.TemplateMatchParam{
+			ROI:       maa.NewTargetRect(roi),
+			Template:  []string{templateName},
+			Threshold: []float64{threshold},
+		},
+		img,
+	)
 	if err != nil {
-		log.Error().
-			Err(err).
-			Str("component", componentName).
-			Interface("payload", payload).
-			Msg("failed to marshal recognition detail")
-		return ""
+		return false, 0, err
 	}
-	return string(detailJSON)
+	if detail == nil || !detail.Hit {
+		score := bestTemplateScore(detail)
+		return false, score, nil
+	}
+	return true, bestTemplateScore(detail), nil
 }
 
-func ensureNodeContainsOCR(ctx *maa.Context, nodeName string) error {
-	effectiveType, err := recogtarget.EffectiveType(ctx, nodeName)
-	if err != nil {
-		return err
+func bestTemplateScore(detail *maa.RecognitionDetail) float64 {
+	if detail == nil || detail.Results == nil || detail.Results.Best == nil {
+		return 0
 	}
-	if effectiveType != "OCR" {
-		return fmt.Errorf("node %s effective recognition type is %q, want OCR", nodeName, effectiveType)
+	tm, ok := detail.Results.Best.AsTemplateMatch()
+	if !ok || tm == nil {
+		return 0
 	}
-	return nil
+	return tm.Score
 }
 
-// extractOCRFingerprintFromNode 先用 recogtarget 按 box_index 选中目标子结果，
-// 再收集整屏 OCR 命中并生成指纹（纵向排序后 join）。
-func extractOCRFingerprintFromNode(ctx *maa.Context, nodeName string, detail *maa.RecognitionDetail) (ocrHit, error) {
-	selected, err := recogtarget.SelectDetail(ctx, nodeName, detail)
-	if err != nil {
-		return ocrHit{}, err
-	}
-	hit, ok := fingerprintFromOCRResults(selected)
-	if !ok {
-		return ocrHit{}, fmt.Errorf("no ocr result found")
-	}
-	return hit, nil
-}
-
-// fingerprintFromOCRResults 收集 Filtered（空则 All）中 OCR 命中，
-// 按 box 纵向再横向排序后取首尾生成指纹；Box 取最上方一条。
-func fingerprintFromOCRResults(detail *maa.RecognitionDetail) (ocrHit, bool) {
-	hits := collectOCRHits(detail)
-	if len(hits) == 0 {
-		return ocrHit{}, false
-	}
-	return buildFingerprint(hits), true
-}
-
-func collectOCRHits(detail *maa.RecognitionDetail) []ocrHit {
-	if detail == nil || detail.Results == nil {
-		return nil
-	}
-
-	results := detail.Results.Filtered
-	if len(results) == 0 {
-		results = detail.Results.All
-	}
-
-	hits := make([]ocrHit, 0, len(results))
-	for _, result := range results {
-		if result == nil {
-			continue
-		}
-		ocrResult, ok := result.AsOCR()
-		if !ok {
-			continue
-		}
-		text := strings.TrimSpace(ocrResult.Text)
-		if text == "" {
-			continue
-		}
-		box := ocrResult.Box
-		if !rectValid(box) && rectValid(detail.Box) {
-			box = detail.Box
-		}
-		if !rectValid(box) {
-			continue
-		}
-		hits = append(hits, ocrHit{Text: text, Box: box})
-	}
-	return hits
-}
-
-func buildFingerprint(hits []ocrHit) ocrHit {
-	sorted := append([]ocrHit(nil), hits...)
-	sort.SliceStable(sorted, func(i, j int) bool {
-		yi := sorted[i].Box[1]
-		yj := sorted[j].Box[1]
-		if yi != yj {
-			return yi < yj
-		}
-		return sorted[i].Box[0] < sorted[j].Box[0]
-	})
-
-	// 只取首尾：中间漏检/多检不影响；底部换人仍能与 Best-only 区分开。
-	texts := []string{sorted[0].Text}
-	if last := sorted[len(sorted)-1]; len(sorted) > 1 {
-		texts = append(texts, last.Text)
-	}
-	return ocrHit{
-		Text: strings.Join(texts, fingerprintSep),
-		Box:  sorted[0].Box,
-	}
-}
-
-func rectValid(box maa.Rect) bool {
-	return box[2] > 0 && box[3] > 0
-}
-
-func loadAttachState(store nodeStore, nodeName string) (attachState, error) {
+func loadReady(store nodeStore, nodeName string) (bool, error) {
 	raw, err := store.GetNodeJSON(nodeName)
 	if err != nil {
-		return attachState{}, err
+		return false, err
 	}
 	var wrapper struct {
 		Attach map[string]json.RawMessage `json:"attach"`
 	}
 	if err := json.Unmarshal([]byte(raw), &wrapper); err != nil {
-		return attachState{}, err
+		return false, err
 	}
 	if wrapper.Attach == nil {
-		return attachState{}, nil
+		return false, nil
 	}
-
-	var state attachState
-	if rawText, ok := wrapper.Attach[attachLastText]; ok && len(rawText) > 0 && string(rawText) != "null" {
-		var text string
-		if err := json.Unmarshal(rawText, &text); err != nil {
-			return attachState{}, fmt.Errorf("attach.%s must be string: %w", attachLastText, err)
-		}
-		state.LastText = strings.TrimSpace(text)
+	rawReady, ok := wrapper.Attach[attachReady]
+	if !ok || len(rawReady) == 0 || string(rawReady) == "null" {
+		return false, nil
 	}
-	if rawCount, ok := wrapper.Attach[attachUnchangedCount]; ok && len(rawCount) > 0 && string(rawCount) != "null" {
-		var count int
-		if err := json.Unmarshal(rawCount, &count); err != nil {
-			return attachState{}, fmt.Errorf("attach.%s must be int: %w", attachUnchangedCount, err)
-		}
-		if count < 0 {
-			count = 0
-		}
-		state.UnchangedCount = count
+	var ready bool
+	if err := json.Unmarshal(rawReady, &ready); err != nil {
+		return false, fmt.Errorf("attach.%s must be bool: %w", attachReady, err)
 	}
-	return state, nil
+	return ready, nil
 }
 
-func saveAttachState(store nodeStore, nodeName string, state attachState) error {
+func saveReady(store nodeStore, nodeName string, ready bool) error {
 	raw, err := store.GetNodeJSON(nodeName)
 	if err != nil {
 		return err
@@ -447,12 +318,25 @@ func saveAttachState(store nodeStore, nodeName string, state attachState) error 
 	if wrapper.Attach == nil {
 		wrapper.Attach = make(map[string]any)
 	}
-	wrapper.Attach[attachLastText] = state.LastText
-	wrapper.Attach[attachUnchangedCount] = state.UnchangedCount
+	wrapper.Attach[attachReady] = ready
 
 	return store.OverridePipeline(map[string]any{
 		nodeName: map[string]any{
 			"attach": wrapper.Attach,
 		},
 	})
+}
+
+// marshalDetail 序列化识别 Detail；失败时记日志并以空串继续，不影响命中判定。
+func marshalDetail(payload map[string]any) string {
+	detailJSON, err := json.Marshal(payload)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("component", componentName).
+			Interface("payload", payload).
+			Msg("failed to marshal recognition detail")
+		return ""
+	}
+	return string(detailJSON)
 }

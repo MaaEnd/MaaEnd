@@ -1,7 +1,7 @@
 // Package recogtarget 提供 Pipeline 识别节点的目标解析：
 // 兼容扁平 / v2 节点写法，并按 And 原生 box_index 从 CombinedResult 选取子结果。
 //
-// ExpressionRecognition、ListCompleteRecognition 等需要「OCR 或 And→OCR」语义的组件应复用本包，
+// ExpressionRecognition 等需要「OCR 或 And→OCR」语义的组件应复用本包，
 // 业务侧只负责从选中结果中提取数字、文本等。
 package recogtarget
 

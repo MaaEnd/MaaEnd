@@ -1,15 +1,20 @@
 {
     "ListCompleteRecognitionExampleGate": {
-        "desc": "ListCompleteRecognition 示例：OCR 首尾指纹首次命中或发生变化时返回 true；指纹不变时默认立即 false，retry>0 时可再命中若干次",
+        "desc": "ListCompleteRecognition 示例：首次截取 roi 模板并返回 true；之后模板相似度 >= threshold 视为到底返回 false，低于阈值则重新截图覆盖模板并返回 true",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ListCompleteRecognition",
                 "custom_recognition_param": {
-                    // 可传 OCR 节点，或 And 节点（按其原生 box_index 取 OCR 子结果）
-                    "node": "ListCompleteRecognitionSampleAnd",
-                    // 相等后仍返回 true 的次数；默认 0（不重试）
-                    "retry": 0
+                    // 可选；缺省全屏 [0,0,1280,720]
+                    "roi": [
+                        480,
+                        160,
+                        320,
+                        400
+                    ],
+                    // 可选；缺省 0.9。命中（相似度 >= 阈值）视为列表到底
+                    "threshold": 0.9
                 }
             }
         },
@@ -18,43 +23,8 @@
             "ListCompleteRecognitionPass"
         ],
         "attach": {
-            "last_text": "",
-            "unchanged_count": 0
+            "ready": false
         }
-    },
-    "ListCompleteRecognitionSampleAnd": {
-        "desc": "And 示例：box_index=1 指向 OCR 子节点，对齐 ExpressionRecognition 取值方式",
-        "recognition": "And",
-        "all_of": [
-            "ListCompleteRecognitionSampleMarker",
-            "ListCompleteRecognitionSampleOCR"
-        ],
-        "box_index": 1,
-        "next": []
-    },
-    "ListCompleteRecognitionSampleMarker": {
-        "desc": "列表区域辅助识别（示意，可换成 TemplateMatch 等）",
-        "recognition": "OCR",
-        "roi": [
-            480,
-            160,
-            320,
-            40
-        ],
-        "expected": ".+",
-        "next": []
-    },
-    "ListCompleteRecognitionSampleOCR": {
-        "desc": "列表锚点 OCR 节点（应返回可用于对比变化的文本）；被 And.box_index 选中",
-        "recognition": "OCR",
-        "roi": [
-            480,
-            200,
-            320,
-            80
-        ],
-        "expected": ".+",
-        "next": []
     },
     "ListCompleteRecognitionPass": {
         "desc": "列表仍有变化时的后续流程（例如继续滑动）",
