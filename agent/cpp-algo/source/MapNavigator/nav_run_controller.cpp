@@ -28,6 +28,8 @@ struct CorridorProjection
     double t = 0.0;
     navmesh::WorldPoint point {};
     double cross_track = std::numeric_limits<double>::infinity();
+    bool before_window = false;
+    bool after_window = false;
 };
 
 bool CanUseNavRunSteering(const Waypoint& waypoint)
@@ -65,6 +67,8 @@ std::optional<CorridorProjection> ProjectOntoCorridor(const navmesh::WorldPath& 
                 .t = t,
                 .point = { .x = px, .y = py },
                 .cross_track = cross,
+                .before_window = edge == start_edge && raw_t < 0.0,
+                .after_window = edge + 1 == num_edges && raw_t > 1.0,
             };
         }
     }
@@ -494,7 +498,16 @@ NavRunTickResult NavRunController::tick(
     const double character_arc = CorridorArcLengthTo(plan_.path, plan_.corridor_arc_prefix, *projection);
     const size_t corridor_passed =
         CountCorridorPassedRunWaypoints(*session, plan_.path, plan_.corridor_arc_prefix, anchor_index, character_arc);
-    if (route.startup_motion_confirmed) {
+    const bool clamped_without_passage =
+        projection->before_window || (projection->after_window && projection->cross_track > kNavRunCrossTrackWarnM);
+    if (clamped_without_passage) {
+        if (corridor_passed > 0) {
+            LogDebug << "Corridor passed advance suppressed; corridor projection clamped outside the window." << VAR(corridor_passed)
+                     << VAR(session->current_node_idx()) << VAR(projection->before_window) << VAR(projection->after_window)
+                     << VAR(projection->cross_track);
+        }
+    }
+    else if (route.startup_motion_confirmed) {
         result.passed_run_waypoints = corridor_passed;
     }
     else if (corridor_passed > 0) {
