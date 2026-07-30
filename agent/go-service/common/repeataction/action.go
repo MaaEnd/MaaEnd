@@ -11,7 +11,7 @@ import (
 
 const (
 	defaultRepeatCount = 3
-	defaultIntervalMs  = 3000
+	defaultIntervalMs  = 10000
 	innerActionEntry   = "__RepeatUntilActionInner"
 )
 
