@@ -11,6 +11,8 @@ IMS keeps an in-process cache of cultivation-item counts for task gates and quan
 | --- | --- |
 | `agent/go-service/ims/` | Custom components and cache |
 | `assets/resource/pipeline/IMS/` | Pipeline: one file per API |
+| `assets/resource/image/IMS/item/` | Item template images (`*_TEMPLATE.png`) |
+| `tools/SupplyPlan/mask_ims_item_corner.py` | Top-left green mask tool (Protocol Space reward badge) |
 | `tools/schema/components/ims.schema.json` | Parameter JSON Schema |
 | `tools/schema/custom.recognition.schema.json` | Registers recognitions and refs the schema |
 | `tools/schema/custom.action.schema.json` | Registers actions and refs the schema |
@@ -25,7 +27,21 @@ IMS keeps an in-process cache of cultivation-item counts for task gates and quan
 | `SyncItemData.json` | A2 entry `SyncItemData` (any screen → Progression tab → scan) |
 | `AddItemData.json` | A3 best practice: add under `CloseRewardsButton`, then close rewards |
 | `common.json` | Shared rarity ColorMatch nodes |
-| `item/*.json` | Per-item: rarity color → template → count (grey text And OCR) |
+| `item/*.json` | Per-item: rarity color → template → count (grey text And OCR); templates use `green_mask` |
+
+## Item template green mask
+
+Protocol Space reward icons often have a top-left badge that breaks matching against Progression-tab crops. Therefore:
+
+1. Paint a **31×18** RGB `(0, 255, 0)` rectangle on the top-left of each `assets/resource/image/IMS/item/*_TEMPLATE.png`.
+2. Enable `"green_mask": true` on the matching `__*_TEMPLATE` TemplateMatch nodes so green pixels are ignored.
+
+```bash
+python tools/SupplyPlan/mask_ims_item_corner.py
+# preview: python tools/SupplyPlan/mask_ims_item_corner.py --dry-run
+```
+
+Run this tool before committing new item templates, and keep `green_mask` on TemplateMatch.
 
 ## Recognition: `ItemDataReady`
 

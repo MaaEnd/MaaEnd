@@ -11,6 +11,8 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 | --- | --- |
 | `agent/go-service/ims/` | Custom 组件与缓存 |
 | `assets/resource/pipeline/IMS/` | Pipeline：接口分文件 |
+| `assets/resource/image/IMS/item/` | 物品模板图（`*_TEMPLATE.png`） |
+| `tools/SupplyPlan/mask_ims_item_corner.py` | 模板左上角涂绿工具（协议空间奖励角标） |
 | `tools/schema/components/ims.schema.json` | 参数 JSON Schema |
 | `tools/schema/custom.recognition.schema.json` | 注册 Recognition 并引用上述 Schema |
 | `tools/schema/custom.action.schema.json` | 注册 Action 并引用上述 Schema |
@@ -25,7 +27,21 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 | `SyncItemData.json` | A2 入口 `SyncItemData`（任意位置 → 培养素材页 → 扫描） |
 | `AddItemData.json` | A3 最佳实践：`CloseRewardsButton` 下累加识别数量 → 关闭奖励 |
 | `common.json` | 通用品质色 ColorMatch |
-| `item/*.json` | 各培养道具：品质色 → 模板 → 数量（灰色文字 And OCR） |
+| `item/*.json` | 各培养道具：品质色 → 模板 → 数量（灰色文字 And OCR）；模板匹配开启 `green_mask` |
+
+## 物品模板绿幕
+
+协议空间奖励界面物品图标左上角常有角标，会干扰培养素材页裁出的模板匹配。因此：
+
+1. 用工具把 `assets/resource/image/IMS/item/*_TEMPLATE.png` **左上角 31×18** 涂为 RGB `(0, 255, 0)`。
+2. 对应 `__*_TEMPLATE` 节点开启 `"green_mask": true`，匹配时跳过绿色区域。
+
+```bash
+python tools/SupplyPlan/mask_ims_item_corner.py
+# 预览：python tools/SupplyPlan/mask_ims_item_corner.py --dry-run
+```
+
+新增物品模板入库前应先跑该工具，并在 TemplateMatch 上保留 `green_mask`。
 
 ## Recognition：`ItemDataReady`
 

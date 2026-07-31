@@ -31,6 +31,7 @@
                 "template": [
                     "IMS/item/COOLANT_GEL_TEMPLATE.png"
                 ],
+                "green_mask": true,
                 "threshold": 0.85,
                 "order_by": "Score"
             }
