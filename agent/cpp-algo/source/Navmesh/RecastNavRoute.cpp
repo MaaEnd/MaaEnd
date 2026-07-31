@@ -31,6 +31,9 @@ struct WindowInfo
     std::vector<WorldPoint> wP0;
     std::vector<WorldPoint> wP1;
     WallCsr wcsr;
+    StepBarrier sev;
+    std::vector<WorldPoint> segA;
+    std::vector<WorldPoint> segB;
 };
 
 struct RouteDiag
@@ -179,6 +182,8 @@ std::optional<WindowInfo> buildWindow(
         }
     }
 
+    info.sev = StepBreaks(st, vis, info.lay, x0, y0);
+
     const std::vector<uint8_t> keep = WallsAtLayer(p0, p1, hh, info.lh, x0, y0);
     for (size_t i = 0; i < keep.size(); ++i) {
         if (keep[i] != 0) {
@@ -187,6 +192,10 @@ std::optional<WindowInfo> buildWindow(
         }
     }
     info.wcsr = BuildWallIndex(info.wP0, info.wP1, x0, y0, nx, ny);
+    info.segA = info.wP0;
+    info.segA.insert(info.segA.end(), info.sev.p0.begin(), info.sev.p0.end());
+    info.segB = info.wP1;
+    info.segB.insert(info.segB.end(), info.sev.p1.begin(), info.sev.p1.end());
     info.dist = Clearance(info.core);
     return info;
 }
@@ -202,6 +211,8 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
         walk.v[i] = static_cast<uint8_t>(info.core.v[i] != 0 && info.lay.v[i] != 0);
     }
     const auto bn = BannedSteps(info.lay, info.wcsr, info.wP0, info.wP1, x0, y0);
+    std::unordered_set<int64_t> blocked_steps = bn;
+    blocked_steps.insert(info.sev.steps.begin(), info.sev.steps.end());
     // 亏欠越多单价越高;脊线保底只进几何口径 prefg,禁入 mult
     const Grid<float> pref = PrefField(info.dist, false);
     const Grid<float> prefg = PrefField(info.dist, true);
@@ -272,11 +283,11 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
         q = std::vector<CellPt> { *as_ };
     }
     else {
-        q = CostAstar(walk, *as_, *ag_, mult, &bn, &BIGP);
+        q = CostAstar(walk, *as_, *ag_, mult, &blocked_steps, &BIGP);
     }
     if (!q.has_value()) {
         used = &info.core;
-        q = CostAstar(info.core, *as_, *ag_, mult, &bn, &BIGP);
+        q = CostAstar(info.core, *as_, *ag_, mult, &blocked_steps, &BIGP);
         if (q.has_value()) {
             dg.warn.push_back("walk 断开→退回 core");
         }
@@ -290,13 +301,19 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
     for (size_t k = 1; k < q->size(); ++k) {
         const int64_t ca = (*q)[k - 1].y * nx + (*q)[k - 1].x;
         const int64_t cb = (*q)[k].y * nx + (*q)[k].x;
+        if (!blocked_steps.contains(ca * NC + cb)) {
+            continue;
+        }
+        bad.push_back(k);
         if (bn.contains(ca * NC + cb)) {
-            bad.push_back(k);
             dg.xwall.push_back({ x0 + (static_cast<double>((*q)[k].x) + 0.5) * kCS, y0 + (static_cast<double>((*q)[k].y) + 0.5) * kCS });
         }
     }
     if (!dg.xwall.empty()) {
         dg.warn.push_back("不可避穿墙 " + std::to_string(dg.xwall.size()) + " 步");
+    }
+    if (bad.size() > dg.xwall.size()) {
+        dg.warn.push_back("不可避立面 " + std::to_string(bad.size() - dg.xwall.size()) + " 步");
     }
 
     const auto cen = [&](const std::vector<CellPt>& P) {
@@ -323,7 +340,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
 
     const auto loops_core = toWorld(TraceContours(info.core));
     const Blockers::OnMask onm { used, x0, y0, kCS };
-    const Blockers blk_gray(loops_core, &info.wP0, &info.wP1, onm);
+    const Blockers blk_gray(loops_core, &info.segA, &info.segB, onm);
 
     std::vector<uint8_t> grn(q->size());
     for (size_t i = 0; i < q->size(); ++i) {
@@ -428,7 +445,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
                         q2->push_back(cells[a2]);
                     }
                     else {
-                        const auto r2 = CostAstar(er, cells[a2], cells[b2], multg, &bn, nullptr);
+                        const auto r2 = CostAstar(er, cells[a2], cells[b2], multg, &blocked_steps, nullptr);
                         if (!r2.has_value()) {
                             q2.reset();
                             break;
@@ -460,7 +477,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(const WindowInfo& info, const
                 }
                 auto lw = toWorld(lp);
                 lw.insert(lw.end(), loops_core.begin(), loops_core.end());
-                blk_green.emplace(lw, &info.wP0, &info.wP1, onm);
+                blk_green.emplace(lw, &info.segA, &info.segB, onm);
             }
             pp = StringPull(pp, blk_green.has_value() ? *blk_green : blk_gray, &cfl);
         }

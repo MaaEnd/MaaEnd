@@ -2,7 +2,6 @@ package repeataction
 
 import (
 	"encoding/json"
-	"image"
 	"time"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -12,7 +11,9 @@ import (
 const (
 	defaultRepeatCount = 3
 	defaultIntervalMs  = 3000
-	innerActionEntry   = "__RepeatUntilActionInner"
+	// pollIntervalMs is the recognition cadence inside each interval_ms wait window.
+	pollIntervalMs   = 500
+	innerActionEntry = "__RepeatUntilActionInner"
 )
 
 type repeatUntilFoundParam struct {
@@ -128,7 +129,7 @@ func runRepeatUntil(
 	}
 
 	ctrl := ctx.GetTasker().GetController()
-	interval := time.Duration(intervalMs) * time.Millisecond
+	poll := time.Duration(pollIntervalMs) * time.Millisecond
 
 	for i := 0; i < repeatCount; i++ {
 		if ctx.GetTasker().Stopping() {
@@ -138,7 +139,7 @@ func runRepeatUntil(
 		if _, err := ctx.RunAction(innerActionEntry, arg.Box, "", map[string]any{
 			innerActionEntry: map[string]any{
 				// 临时节点只执行一次动作，显式清零 Framework 的节点级默认等待，
-				// 使 intervalMs 成为动作完成后、重新识别前唯一的主动等待。
+				// 使 intervalMs 成为动作完成后、轮询识别前唯一的主动等待窗口。
 				"pre_delay":  0,
 				"post_delay": 0,
 				"rate_limit": 0,
@@ -148,29 +149,49 @@ func runRepeatUntil(
 			log.Warn().Err(err).Str("component", component).Int("attempt", i+1).Msg("inner action failed")
 		}
 
-		// Wait after the action so UI transitions can settle before recognition.
-		time.Sleep(interval)
+		// Within intervalMs, poll recognition every pollIntervalMs so a fast UI
+		// transition can succeed without waiting out the full window.
+		deadline := time.Now().Add(time.Duration(intervalMs) * time.Millisecond)
+		for {
+			if ctx.GetTasker().Stopping() {
+				return false
+			}
 
-		ctrl.PostScreencap().Wait()
-		img, err := ctrl.CacheImage()
-		if err != nil || img == nil {
-			log.Warn().Err(err).Str("component", component).Msg("cache image failed")
-		} else if waitConditionMet(ctx, img, waitNodes, untilFound) {
-			return true
+			remaining := time.Until(deadline)
+			if remaining <= 0 {
+				break
+			}
+
+			sleep := poll
+			if sleep > remaining {
+				sleep = remaining
+			}
+			time.Sleep(sleep)
+
+			if ctx.GetTasker().Stopping() {
+				return false
+			}
+
+			ctrl.PostScreencap().Wait()
+			img, err := ctrl.CacheImage()
+			if err != nil || img == nil {
+				log.Warn().Err(err).Str("component", component).Msg("cache image failed")
+				continue
+			}
+
+			if untilFound {
+				for _, node := range waitNodes {
+					if detail, err := ctx.RunRecognition(node, img); err == nil && detail != nil && detail.Hit {
+						return true
+					}
+				}
+			} else {
+				detail, err := ctx.RunRecognition(waitNodes[0], img)
+				if err != nil || detail == nil || !detail.Hit {
+					return true
+				}
+			}
 		}
 	}
 	return false
-}
-
-func waitConditionMet(ctx *maa.Context, img image.Image, nodes []string, untilFound bool) bool {
-	if untilFound {
-		for _, node := range nodes {
-			if detail, err := ctx.RunRecognition(node, img); err == nil && detail != nil && detail.Hit {
-				return true
-			}
-		}
-		return false
-	}
-	detail, err := ctx.RunRecognition(nodes[0], img)
-	return err != nil || detail == nil || !detail.Hit
 }

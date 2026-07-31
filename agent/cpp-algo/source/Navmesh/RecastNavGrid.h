@@ -13,6 +13,7 @@ namespace navmesh::recast
 
 inline constexpr double kCS = 0.25;                // 体素边长 px
 inline constexpr double kClimb = 3.0;              // 相邻格可连通最大高差 px
+inline constexpr double kStep = 0.5;               // 相邻格可直接迈上的最大高差 px, 超出即立面
 inline constexpr double kMergeH = 1.0;             // 同列 span 合并容差 px
 inline constexpr double kEdtCap = 12.0;            // 距离场截断 px
 inline constexpr double kR = 1.75;                 // 期望余量上限 px
@@ -135,6 +136,15 @@ std::unordered_set<int64_t> BannedSteps(
     const std::vector<WorldPoint>& p1,
     double ox,
     double oy);
+
+struct StepBarrier
+{
+    std::unordered_set<int64_t> steps;
+    std::vector<WorldPoint> p0;
+    std::vector<WorldPoint> p1;
+};
+
+StepBarrier StepBreaks(const SpanTable& st, const std::vector<uint8_t>& vis, const Mask& lay, double ox, double oy);
 
 std::vector<int64_t> Comps4(const Mask& mask);
 

@@ -89,8 +89,9 @@
         "custom_action_param": {
             "sub": [
                 "SellProductInitializeReserveSession",
+                "SellProductInitializeOperatorSession",
                 "SellProductConfigurePrioritySession",
-                "SellProductInitializeOperatorSession"
+                "SellProductConfigureSelectionStrategy"
             ]
         },
         "post_delay": 0,
@@ -98,6 +99,19 @@
         "next": [
             "SellProductLoop"
         ]
+    },
+    "SellProductConfigureSelectionStrategy": {
+        "desc": "配置选品策略",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "configure_strategy",
+            "strategy": "rarity"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductTaskEnd": {
         "desc": "任务结束",

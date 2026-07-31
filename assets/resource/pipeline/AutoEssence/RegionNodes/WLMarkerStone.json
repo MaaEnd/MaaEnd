@@ -3,7 +3,7 @@
         "enabled": false,
         "pre_delay": 0,
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_WLMarkerStone",
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointGoal_WLMarkerStone",
             "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLMarkerStone"
         },
         "post_delay": 0,
@@ -32,10 +32,10 @@
                             // 淤积点附近
                             "map_name": "map02_lv004",
                             "target": [
-                                272.8,
-                                355.6,
-                                106.9,
-                                102.5
+                                288.6,
+                                367.0,
+                                72.6,
+                                73.9
                             ]
                         }
                     ]
@@ -45,7 +45,7 @@
         "inverse": true,
         "next": [
             "[JumpBack]__GotoTriggerPointTeleportOnce_WLMarkerStone",
-            "GotoTriggerPointMove_WLMarkerStone"
+            "GotoTriggerPointGoal_WLMarkerStone"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
@@ -59,103 +59,18 @@
             "SceneEnterWorldWulingMarkerStone2"
         ]
     },
-    "GotoTriggerPointMove_WLMarkerStone": {
-        "desc": "导航入口：已在淤积点附近则只走末段，否则走含圈完整路径",
-        "next": [
-            "GotoTriggerPointMoveNearTrigger_WLMarkerStone",
-            "GotoTriggerPointMoveMain_WLMarkerStone"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在前往激发点附近"
-        }
-    },
-    "GotoTriggerPointMoveNearTrigger_WLMarkerStone": {
-        "desc": "已在淤积点/激发点区域，跳过圈路径",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            "map_name": "map02_lv004",
-                            "target": [
-                                287.2,
-                                365.1,
-                                79.8,
-                                85.8
-                            ]
-                        }
-                    ]
-                }
-            }
-        },
-        "next": [
-            "GotoTriggerPointMoveExact_WLMarkerStone"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在前往激发点"
-        }
-    },
-    "GotoTriggerPointMoveMain_WLMarkerStone": {
-        "desc": "从锚点侧经圈路径接近激发点",
+    "GotoTriggerPointGoal_WLMarkerStone": {
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapTrackerGoal",
                 "custom_action_param": {
                     "map_name": "map02_lv004",
-                    "path": [
-                        [
-                            418.8,
-                            321.4
-                        ],
-                        [
-                            418.8,
-                            327.6
-                        ],
-                        [
-                            415.0,
-                            327.6
-                        ],
-                        [
-                            415.0,
-                            321.3
-                        ],
-                        [
-                            323.8,
-                            321.3
-                        ]
+                    "target": [
+                        324.5,
+                        405.5
                     ],
-                    "no_ensure_initial_movement_state": true
-                }
-            }
-        },
-        "next": [
-            "GotoTriggerPointMoveExact_WLMarkerStone"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在前往激发点附近"
-        }
-    },
-    "GotoTriggerPointMoveExact_WLMarkerStone": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map02_lv004",
-                    "path": [
-                        [
-                            323.2,
-                            394.0
-                        ],
-                        [
-                            324.6,
-                            403.5
-                        ]
-                    ],
-                    "no_ensure_initial_movement_state": true
+                    "no_ensure_initial_movement_state": true // 由于该区域传送点附近是水域，禁用此设置以免掉落
                 }
             }
         },

@@ -242,23 +242,25 @@ class ZoneClean:
                     & (ring1 >= 0)[:, :, None]).any((1, 2))
             LOCAL_R = 12.0
             Ccent = mesh.V[T].mean(1)
+            NBL = NB.tolist()
+            CcX = Ccent[:, 0].tolist()
+            CcY = Ccent[:, 1].tolist()
             for r in np.nonzero(~near)[0]:
                 ta_, tb_ = int(iaS[r]), int(ibS[r])
-                mx = (Ccent[ta_] + Ccent[tb_]) * 0.5
+                mxx = (CcX[ta_] + CcX[tb_]) * 0.5
+                mxy = (CcY[ta_] + CcY[tb_]) * 0.5
                 seen = {ta_}
                 dq2 = deque([ta_])
                 hit = False
                 while dq2 and not hit:
-                    t2 = dq2.popleft()
-                    for nb2 in NB[t2]:
-                        nb2 = int(nb2)
+                    for nb2 in NBL[dq2.popleft()]:
                         if nb2 < 0 or nb2 in seen:
                             continue
                         if nb2 == tb_:
                             hit = True
                             break
-                        if abs(Ccent[nb2, 0] - mx[0]) > LOCAL_R \
-                                or abs(Ccent[nb2, 1] - mx[1]) > LOCAL_R:
+                        if abs(CcX[nb2] - mxx) > LOCAL_R \
+                                or abs(CcY[nb2] - mxy) > LOCAL_R:
                             continue
                         seen.add(nb2)
                         dq2.append(nb2)

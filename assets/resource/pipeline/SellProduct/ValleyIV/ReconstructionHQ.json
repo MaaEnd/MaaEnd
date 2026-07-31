@@ -56,7 +56,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionHQSetOperatorAnchors"
+            "SellProductReconstructionHQReportLocationPlan"
         ]
     },
     "SellProductReconstructionHQOutpostProsperityMax": {
@@ -72,6 +72,21 @@
             "operation": "enter_location",
             "location": "ReconstructionHQ",
             "outpost_prosperity_max": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductReconstructionHQReportLocationPlan"
+        ]
+    },
+    "SellProductReconstructionHQReportLocationPlan": {
+        "desc": "重建指挥部输出完整售卖计划",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductLocationPlan",
+        "custom_action_param": {
+            "location": "ReconstructionHQ"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1101,12 +1116,30 @@
     },
     // ===== 动态优先级售卖循环 =====
     "SellProductReconstructionHQSelectPriorityItem": {
-        "desc": "重建指挥部按价值优先级选择下一个未尝试货品",
+        "desc": "重建指挥部按当前策略选择下一个未尝试货品",
         "recognition": "Custom",
         "custom_recognition": "SellProductPriorityItem",
         "custom_recognition_param": {
             "location": "ReconstructionHQ",
-            "result": "select"
+            "result": "select",
+            "stock_name_offset": [
+                34,
+                -59,
+                164,
+                16
+            ],
+            "stock_quantity_offset": [
+                33,
+                -6,
+                80,
+                7
+            ],
+            "stock_click_offset": [
+                42,
+                -58,
+                100,
+                34
+            ]
         },
         "roi": [
             145,

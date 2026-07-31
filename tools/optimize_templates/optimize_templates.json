@@ -954,5 +954,7 @@
     "resource/image/DeliveryJobs/Xiranite": "03fb97de39ef4afb97eae60e47d4bfafef5419b3ef3da28ae0b64c16a3bf4733",
     "resource/image/SceneManager/News": "bdd85445385b4ba092b5a4ef0d3708ea2278df07d8285e6735a9cb4f4d843e0f",
     "resource/image/SceneManager/NewsWithRedDot": "05c63391364606725143057d0c0f1aaacf2659e105db3f48458c958a971f9ba0",
-    "resource/image/Common/Button/BackButton": "5048b6f1b53da0771688ff8f9977085f12055bd86f72d8974d5c1b3215b675c9"
+    "resource/image/Common/Button/BackButton": "5048b6f1b53da0771688ff8f9977085f12055bd86f72d8974d5c1b3215b675c9",
+    "resource/image/SellProduct/GoodsCellAnchor": "0767f23cf97ffdcd3b23fc09f3d7fd629d63d6bd12ad42b867a9084b947446a9",
+    "resource/image/SceneManager/MapWuling/MarkerStone4Bottom": "b0f54cf5f597d5a6e192222a47344cc823165ef110424791903cacc37e205293"
 }

@@ -6,6 +6,8 @@
             "description": "$task.ClaimSimulationRewards.description",
             "entry": "SimSpaceEntry",
             "controller": [
+                "MacOS-Background",
+                "MacOS-Front",
                 "Win32-Front",
                 "Wlroots"
             ],

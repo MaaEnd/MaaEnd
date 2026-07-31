@@ -1,8 +1,13 @@
 import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
 import test from "node:test";
 
-import {sellProductLocaleEntries} from "./model.mjs";
+import {sellProductLocaleEntries, sellProductLocations} from "./model.mjs";
 import {insertMissingItemMessages, rebuildSettlementMessages} from "./sync-locales.mjs";
+
+function readPipeline(url) {
+    return JSON.parse(readFileSync(url, "utf8").replace(/^\s*\/\/.*$/gm, ""));
+}
 
 test("SellProduct locale settlement keys are rebuilt in game order", () => {
     const expectedKeys = sellProductLocaleEntries.settlements.map(({key}) => key);
@@ -73,4 +78,73 @@ test("SellProduct locale item sync requires an existing item group", () => {
         () => insertMissingItemMessages({"task.Other.label": "其他任务"}, entries, "zh_cn", new Set()),
         /item\.\*/,
     );
+});
+
+test("SellProduct UI focus messages use complete interface i18n keys", () => {
+    const pipelineUrls = [
+        new URL("../../../assets/resource/pipeline/SellProduct.json", import.meta.url),
+        new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url),
+        new URL("../../../assets/resource/pipeline/SellProduct/OperatorScan.json", import.meta.url),
+        ...sellProductLocations.map(
+            (location) =>
+                new URL(
+                    `../../../assets/resource/pipeline/SellProduct/${location.RegionPrefix}/${location.LocationId}.json`,
+                    import.meta.url,
+                ),
+        ),
+    ];
+    const focusKeys = new Set();
+    for (const url of pipelineUrls) {
+        for (const node of Object.values(readPipeline(url))) {
+            for (const value of Object.values(node.focus || {})) {
+                assert.match(value, /^\$task\.SellProduct\./, `${url.pathname}: ${value}`);
+                focusKeys.add(value.slice(1));
+            }
+        }
+    }
+
+    for (const lang of [
+        "zh_cn",
+        "zh_tw",
+        "en_us",
+        "ja_jp",
+        "ko_kr",
+    ]) {
+        const locale = JSON.parse(
+            readFileSync(new URL(`../../../assets/locales/interface/${lang}.json`, import.meta.url), "utf8"),
+        );
+        for (const key of focusKeys) {
+            assert.equal(typeof locale[key], "string", `${lang} missing ${key}`);
+            assert.notEqual(locale[key].trim(), "", `${lang} has empty ${key}`);
+        }
+    }
+});
+
+test("SellProduct Go UI messages have matching keys in all locales", () => {
+    const localeEntries = [
+        "zh_cn",
+        "zh_tw",
+        "en_us",
+        "ja_jp",
+        "ko_kr",
+    ].map((lang) => [
+        lang,
+        JSON.parse(readFileSync(new URL(`../../../assets/locales/go-service/${lang}.json`, import.meta.url), "utf8")),
+    ]);
+    const expectedKeys = Object.keys(localeEntries[0][1])
+        .filter((key) => key.startsWith("sellproduct."))
+        .sort();
+
+    for (const [
+        lang,
+        locale,
+    ] of localeEntries) {
+        const keys = Object.keys(locale)
+            .filter((key) => key.startsWith("sellproduct."))
+            .sort();
+        assert.deepEqual(keys, expectedKeys, `${lang} SellProduct keys differ`);
+        for (const key of keys) {
+            assert.notEqual(locale[key].trim(), "", `${lang} has empty ${key}`);
+        }
+    }
 });

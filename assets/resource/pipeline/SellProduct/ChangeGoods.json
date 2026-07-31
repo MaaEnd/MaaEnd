@@ -32,6 +32,21 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "SellProductResetGoodsSelection"
+        ]
+    },
+    "SellProductResetGoodsSelection": {
+        "desc": "打开选货列表后重置本轮选品状态",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "reset_goods_selection"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "SellProductChangeGoodsRelay"
         ]
     },
@@ -114,6 +129,21 @@
             "取引商品を選択",
             "거래할 상품 선택"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SellProductCheckGoodsCellAnchor": {
+        "desc": "识别完整可见货品格子中的详情图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            130,
+            150,
+            1000,
+            380
+        ],
+        "template": "SellProduct/GoodsCellAnchor.png",
+        "threshold": 0.85,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0

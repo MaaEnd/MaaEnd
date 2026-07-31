@@ -10,10 +10,12 @@
                 "GearAssemblySortOrder"
             ],
             "controller": [
-                "Win32-Front",
                 "ADB",
                 "CloudADB",
+                "MacOS-Background",
+                "MacOS-Front",
                 "PlayCover",
+                "Win32-Front",
                 "Wlroots"
             ],
             "group": [

@@ -9,6 +9,8 @@
                 "ImportBluePrints"
             ],
             "controller": [
+                "MacOS-Background",
+                "MacOS-Front",
                 "Win32-Front",
                 "Wlroots"
             ],

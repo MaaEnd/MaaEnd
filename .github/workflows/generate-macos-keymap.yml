@@ -1,0 +1,54 @@
+name: Generate MacOS Keymap
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 16,22 * * *" # UTC+8 0:00, 06:00
+
+jobs:
+  generate:
+    if: ${{ github.repository_owner == 'MaaEnd' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate MaaEndBot GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
+          permission-contents: write
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          show-progress: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate macOS key map
+        run: pnpm generate:MacOS
+
+      - name: Commit and push changes
+        uses: actions-js/push@master
+        with:
+          author_name: "maaendbotapp[bot]"
+          author_email: "305547419+maaendbotapp[bot]@users.noreply.github.com"
+          rebase: true
+          branch: ${{ github.ref }}
+          message: "chore: generate MacOS keymap
+
+            Triggered by ${{ github.sha }}
+
+            [skip changelog]"
+          github_token: ${{ steps.app-token.outputs.token }}

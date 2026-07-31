@@ -34,7 +34,7 @@
         "rate_limit": 0
     },
     "SellProductSellLoop": {
-        "desc": "售卖循环，先检查调度券再按价值优先级选择下一个可售物品",
+        "desc": "售卖循环，先检查调度券再按当前选品策略选择下一个可售物品",
         "recognition": "And",
         "all_of": [
             "SellProductInOutpost"

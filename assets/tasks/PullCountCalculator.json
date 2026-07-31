@@ -7,6 +7,8 @@
             "description": "$task.PullCountCalculator.description",
             "controller": [
                 "ADB",
+                "MacOS-Background",
+                "MacOS-Front",
                 "PlayCover",
                 "Win32-Front",
                 "Wlroots"

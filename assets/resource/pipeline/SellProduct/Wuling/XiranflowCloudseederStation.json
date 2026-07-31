@@ -56,7 +56,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductXiranflowCloudseederStationSetOperatorAnchors"
+            "SellProductXiranflowCloudseederStationReportLocationPlan"
         ]
     },
     "SellProductXiranflowCloudseederStationOutpostProsperityMax": {
@@ -72,6 +72,21 @@
             "operation": "enter_location",
             "location": "XiranflowCloudseederStation",
             "outpost_prosperity_max": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductXiranflowCloudseederStationReportLocationPlan"
+        ]
+    },
+    "SellProductXiranflowCloudseederStationReportLocationPlan": {
+        "desc": "盈天台建设站输出完整售卖计划",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductLocationPlan",
+        "custom_action_param": {
+            "location": "XiranflowCloudseederStation"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1099,12 +1114,30 @@
     },
     // ===== 动态优先级售卖循环 =====
     "SellProductXiranflowCloudseederStationSelectPriorityItem": {
-        "desc": "盈天台建设站按价值优先级选择下一个未尝试货品",
+        "desc": "盈天台建设站按当前策略选择下一个未尝试货品",
         "recognition": "Custom",
         "custom_recognition": "SellProductPriorityItem",
         "custom_recognition_param": {
             "location": "XiranflowCloudseederStation",
-            "result": "select"
+            "result": "select",
+            "stock_name_offset": [
+                34,
+                -59,
+                164,
+                16
+            ],
+            "stock_quantity_offset": [
+                33,
+                -6,
+                80,
+                7
+            ],
+            "stock_click_offset": [
+                42,
+                -58,
+                100,
+                34
+            ]
         },
         "roi": [
             145,

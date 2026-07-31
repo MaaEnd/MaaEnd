@@ -14,10 +14,12 @@
                 "SkipThumbDiscard"
             ],
             "controller": [
-                "Win32-Front",
-                "Wlroots",
                 "ADB",
-                "PlayCover"
+                "MacOS-Background",
+                "MacOS-Front",
+                "PlayCover",
+                "Win32-Front",
+                "Wlroots"
             ],
             "group": [
                 "valuables_vault"

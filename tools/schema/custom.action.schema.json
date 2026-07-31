@@ -76,6 +76,7 @@
                 "SeizeDeliveryJobsDepartureAction",
                 "SeizeDeliveryJobsResetScanStateAction",
                 "SeizeDeliveryJobsScanTargetAction",
+                "SellProductLocationPlan",
                 "SellProductOperatorSession",
                 "SellProductPrioritySession",
                 "SellProductReserveSession",
@@ -131,6 +132,34 @@
 			"then": {
 				"properties": {
 					"custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/FinishParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "SellProductLocationPlan" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/sell_product.schema.json#/$defs/LocationPlanParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "SellProductPrioritySession" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/sell_product.schema.json#/$defs/PrioritySessionParam" }
 				},
 				"required": [ "custom_action_param" ]
 			}

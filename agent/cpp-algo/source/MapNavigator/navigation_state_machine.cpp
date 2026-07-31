@@ -298,6 +298,7 @@ std::optional<DynamicAnchor>
     std::optional<DynamicAnchor> best_anchor;
     double best_cost = std::numeric_limits<double>::infinity();
     int planned_count = 0;
+    int skipped_count = 0;
 
     for (size_t index = std::min(start_index, path_size); index < path_size; ++index) {
         const Waypoint& waypoint = session->CurrentPathAt(index);
@@ -323,13 +324,18 @@ std::optional<DynamicAnchor>
 
         const navmesh::WorldPoint start { .x = position.x, .y = position.y };
         const navmesh::WorldPoint goal { .x = waypoint.x, .y = waypoint.y };
-        const auto route = PlanNavmeshRoute(param, position.zone_id, start, goal);
-        if (route) {
-            ++planned_count;
-            if (route->cost < best_cost) {
-                best_cost = route->cost;
-                best_anchor = { *canonical_index, waypoint };
+        if (std::hypot(goal.x - start.x, goal.y - start.y) < best_cost) {
+            const auto route = PlanNavmeshRoute(param, position.zone_id, start, goal);
+            if (route) {
+                ++planned_count;
+                if (route->cost < best_cost) {
+                    best_cost = route->cost;
+                    best_anchor = { *canonical_index, waypoint };
+                }
             }
+        }
+        else {
+            ++skipped_count;
         }
         if (IsRequiredSemanticAnchor(waypoint)) {
             break;
@@ -338,7 +344,7 @@ std::optional<DynamicAnchor>
 
     if (best_anchor) {
         LogInfo << "Bootstrap navmesh anchor selected." << VAR(best_anchor->first) << VAR(best_cost) << VAR(planned_count)
-                << VAR(start_index);
+                << VAR(skipped_count) << VAR(start_index);
     }
     return best_anchor;
 }

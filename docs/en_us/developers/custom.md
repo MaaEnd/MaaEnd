@@ -84,7 +84,7 @@ The `FalseAction` implementation is located in `agent/go-service/common/falseact
 
 ### RepeatUntilFoundAction / RepeatUntilNotFoundAction
 
-Both are implemented in `agent/go-service/common/repeataction`. They repeatedly run a built-in or custom action, wait, then check recognition. They succeed when the wait condition is met, and fail after `repeat_count` attempts without success.
+Both are implemented in `agent/go-service/common/repeataction`. They repeatedly run a built-in or custom action, then poll recognition inside a wait window. They succeed when the wait condition is met, and fail after `repeat_count` attempts without success.
 
 - `RepeatUntilFoundAction`: succeeds when **any** `wait_nodes` entry hits.
 - `RepeatUntilNotFoundAction`: succeeds when `wait_node` misses.
@@ -94,7 +94,7 @@ Both are implemented in `agent/go-service/common/repeataction`. They repeatedly 
     - `custom_action?: string`: Registered custom action name (e.g. `AutoAltClickAction`). Mutually exclusive with `action`.
     - `custom_action_param?: object`: Forwarded to the nested custom action.
     - `repeat_count?: int`: Maximum attempts. Defaults to `3` when omitted or `<= 0`.
-    - `interval_ms?: int`: Wait after each attempt before recognition, in milliseconds. Defaults to `3000` when omitted or `0`. Negative values are invalid.
+    - `interval_ms?: int`: Wait window after each action, in milliseconds. Within the window, screencap/recognize every `500ms` and succeed early on a hit. Defaults to `3000` when omitted or `0`. Negative values are invalid.
 - `RepeatUntilFoundAction` extra:
     - `wait_nodes: string[]`: Pipeline node names to wait for. Required.
 - `RepeatUntilNotFoundAction` extra:

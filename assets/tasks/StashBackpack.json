@@ -5,6 +5,8 @@
             "label": "$task.StashBackpack.label",
             "entry": "StashBackpackMain",
             "controller": [
+                "MacOS-Background",
+                "MacOS-Front",
                 "Win32-Front",
                 "Wlroots"
             ],

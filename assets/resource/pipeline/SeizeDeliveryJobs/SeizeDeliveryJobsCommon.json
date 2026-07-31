@@ -68,20 +68,22 @@
         "rate_limit": 500, // 加速等待运送委托列表加载完成
         "next": [
             "__SeizeDeliveryJobsInJobList",
-            "[JumpBack]__SeizeDeliveryJobsEnterJobList"
+            "__SeizeDeliveryJobsEnterJobList"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "已位于武陵仓储管理"
         }
     },
     "__SeizeDeliveryJobsEnterJobList": {
-        "desc": "在任意地区仓储管理页面，进入运送委托列表（需 jumpback 调用）",
-        "max_hit": 10,
+        "desc": "在任意地区仓储管理页面，进入运送委托列表",
         "recognition": "And",
         "all_of": [
             "__SeizeDeliveryJobsRecoJobList"
         ],
         "action": "Click",
+        "next": [
+            "__SeizeDeliveryJobsInJobList"
+        ],
         "focus": {
             "Node.Action.Starting": "点击运送委托列表"
         }

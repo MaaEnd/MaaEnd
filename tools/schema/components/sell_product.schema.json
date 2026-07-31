@@ -1,0 +1,216 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "SellProduct Custom Action Schema",
+    "description": "SellProduct custom action parameter definitions. Referenced by custom.action.schema.json.",
+    "$defs": {
+        "RelativeRect": {
+            "description": "Rectangle relative to a goods-cell anchor: [offset_x, offset_y, width, height].",
+            "type": "array",
+            "prefixItems": [
+                {
+                    "type": "integer"
+                },
+                {
+                    "type": "integer"
+                },
+                {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            ],
+            "items": false,
+            "minItems": 4,
+            "maxItems": 4
+        },
+        "PriorityItemRecognitionParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "location",
+                "result"
+            ],
+            "properties": {
+                "location": {
+                    "type": "string",
+                    "pattern": "\\S"
+                },
+                "result": {
+                    "enum": [
+                        "select",
+                        "exhausted"
+                    ]
+                },
+                "stock_name_offset": {
+                    "$ref": "#/$defs/RelativeRect"
+                },
+                "stock_quantity_offset": {
+                    "$ref": "#/$defs/RelativeRect"
+                },
+                "stock_click_offset": {
+                    "$ref": "#/$defs/RelativeRect"
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "result": {
+                                "const": "select"
+                            }
+                        },
+                        "required": [
+                            "result"
+                        ]
+                    },
+                    "then": {
+                        "required": [
+                            "stock_name_offset",
+                            "stock_quantity_offset",
+                            "stock_click_offset"
+                        ]
+                    }
+                }
+            ]
+        },
+        "PrioritySessionParam": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "operation"
+                    ],
+                    "properties": {
+                        "operation": {
+                            "const": "configure"
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "only_preferred": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "operation",
+                        "strategy"
+                    ],
+                    "properties": {
+                        "operation": {
+                            "const": "configure_strategy"
+                        },
+                        "strategy": {
+                            "enum": [
+                                "rarity",
+                                "price"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "operation",
+                        "strategy"
+                    ],
+                    "properties": {
+                        "operation": {
+                            "const": "configure_strategy"
+                        },
+                        "strategy": {
+                            "const": "stock"
+                        },
+                        "minimum_unit_price": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "operation"
+                    ],
+                    "properties": {
+                        "operation": {
+                            "const": "reset_preferred"
+                        },
+                        "enabled": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "operation"
+                    ],
+                    "properties": {
+                        "operation": {
+                            "const": "reset_goods_selection"
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "operation"
+                    ],
+                    "properties": {
+                        "operation": {
+                            "const": "register"
+                        },
+                        "item_id": {
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "operation",
+                        "location"
+                    ],
+                    "properties": {
+                        "operation": {
+                            "enum": [
+                                "commit",
+                                "out_of_stock"
+                            ]
+                        },
+                        "location": {
+                            "type": "string",
+                            "pattern": "\\S"
+                        }
+                    }
+                }
+            ]
+        },
+        "LocationPlanParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "location"
+            ],
+            "properties": {
+                "location": {
+                    "type": "string",
+                    "pattern": "\\S"
+                }
+            }
+        }
+    }
+}
