@@ -73,6 +73,7 @@ type ziplinePolicy struct {
 	ToZiplineEdgeCostFactor      float64
 	FromZiplineEdgeCostFactor    float64
 	BetweenZiplineEdgeCostFactor float64
+	DeleteSharedZiplines         bool
 }
 
 type ziplineEdgeCostFactors struct {
@@ -99,12 +100,14 @@ var mapTrackerGoalZiplinePolicies = map[string]ziplinePolicy{
 		ToZiplineEdgeCostFactor:      8,
 		FromZiplineEdgeCostFactor:    4,
 		BetweenZiplineEdgeCostFactor: 0.5,
+		DeleteSharedZiplines:         true,
 	},
 	ZIPLINE_POLICY_AGGRESSIVE: {
 		MinNeedZiplineDistance:       15,
 		ToZiplineEdgeCostFactor:      1,
 		FromZiplineEdgeCostFactor:    1,
 		BetweenZiplineEdgeCostFactor: 0.25,
+		DeleteSharedZiplines:         true,
 	},
 }
 
@@ -552,13 +555,21 @@ func (a *MapTrackerGoal) loadRuntimeZiplines(goalCtx *goalContext, mustSeePoints
 		return nil, fmt.Errorf("failed to filter ziplines on big map: %w", err)
 	}
 
-	if err := a.clearSharedBigMapZiplines(goalCtx, mustSeePoints); err != nil {
-		return nil, fmt.Errorf("failed to delete shared ziplines: %w", err)
+	policy := mapTrackerGoalZiplinePolicies[goalCtx.param.ZiplinePolicy]
+	ownedScanZoomValue := ziplineScanZoomValue
+	if policy.DeleteSharedZiplines {
+		if err := a.clearSharedBigMapZiplines(goalCtx, mustSeePoints); err != nil {
+			return nil, fmt.Errorf("failed to delete shared ziplines: %w", err)
+		}
+		// Shared-zipline scanning has already established the desired map scale.
+		ownedScanZoomValue = 0
+	} else {
+		log.Info().
+			Str("ziplinePolicy", goalCtx.param.ZiplinePolicy).
+			Msg("Shared zipline cleanup skipped for zipline policy")
 	}
 
-	// Selecting and deleting a shared zipline does not change map zoom. FindImage uses
-	// zero here to preserve the 0.6 scale established by the shared-zipline scan.
-	matches, err := a.findBigMapZiplineIcons(goalCtx, mustSeePoints, ownedZiplineTemplate, 0, 0, 0)
+	matches, err := a.findBigMapZiplineIcons(goalCtx, mustSeePoints, ownedZiplineTemplate, ownedScanZoomValue, 0, 0)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find owned ziplines: %w", err)
 	}
@@ -568,7 +579,6 @@ func (a *MapTrackerGoal) loadRuntimeZiplines(goalCtx *goalContext, mustSeePoints
 		id, _ := goalCtx.mesh.AddRuntimeVertex(internal.Point{X: match.MapX, Y: match.MapY}, 0, 0, internal.NavMeshVertexFlagZipline)
 		ids = append(ids, id)
 	}
-	policy := mapTrackerGoalZiplinePolicies[goalCtx.param.ZiplinePolicy]
 	factors := ziplineEdgeCostFactors{
 		ToVertex:      policy.ToZiplineEdgeCostFactor,
 		FromVertex:    policy.FromZiplineEdgeCostFactor,
@@ -741,6 +751,11 @@ func (a *MapTrackerGoal) findBigMapZiplineIcons(
 	threshold float64,
 	maxMatches int,
 ) ([]maptrackerbigmap.MapTrackerBigMapFindImageMatch, error) {
+	mapNameMatchRule := goalCtx.param.MapNameMatchRule
+	if mapNameMatchRule == "" {
+		mapNameMatchRule = mapTrackerMoveDefaultParam.MapNameMatchRule
+	}
+
 	goalCtx.ctrl.PostScreencap().Wait()
 	img, err := goalCtx.ctrl.CacheImage()
 	if err != nil {
@@ -757,6 +772,7 @@ func (a *MapTrackerGoal) findBigMapZiplineIcons(
 		WithRotation  bool     `json:"with_rotation,omitempty"`
 		ZoomValue     float64  `json:"zoom_value,omitempty"`
 		MaxMatches    int      `json:"max_matches,omitempty"`
+		MapNameRegex  string   `json:"map_name_regex,omitempty"`
 		MustSeePoints [][2]int `json:"must_see_points,omitempty"`
 	}{
 		Template:      template,
@@ -766,6 +782,7 @@ func (a *MapTrackerGoal) findBigMapZiplineIcons(
 		WithRotation:  false,
 		ZoomValue:     zoomValue,
 		MaxMatches:    maxMatches,
+		MapNameRegex:  buildMapNameRegex(mapNameMatchRule, goalCtx.param.MapName),
 		MustSeePoints: mustSeePoints,
 	}
 	paramBytes, err := json.Marshal(param)

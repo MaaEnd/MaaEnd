@@ -11,6 +11,27 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 )
 
+func TestZiplinePolicySharedDeletion(t *testing.T) {
+	tests := []struct {
+		policy string
+		want   bool
+	}{
+		{policy: ZIPLINE_POLICY_NEVER, want: false},
+		{policy: ZIPLINE_POLICY_LAZY, want: false},
+		{policy: ZIPLINE_POLICY_ACTIVE, want: true},
+		{policy: ZIPLINE_POLICY_AGGRESSIVE, want: true},
+	}
+
+	for _, test := range tests {
+		t.Run(test.policy, func(t *testing.T) {
+			got := mapTrackerGoalZiplinePolicies[test.policy].DeleteSharedZiplines
+			if got != test.want {
+				t.Fatalf("DeleteSharedZiplines = %v, want %v", got, test.want)
+			}
+		})
+	}
+}
+
 func TestZiplineTemplatesDistinguishOwnership(t *testing.T) {
 	owned := loadZiplineTemplate(t, "Zipline.png")
 	shared := loadZiplineTemplate(t, "SharedZipline.png")

@@ -121,11 +121,15 @@ func (e mapTrackerBigMapFindImageExpected) isSatisfied(mapName string, matches [
 	case findImageExpectedModeCount:
 		return len(matches) == e.count
 	case findImageExpectedModeLocation:
-		if mapName != e.mapName {
-			return false
-		}
 		x, y, w, h := e.target[0], e.target[1], e.target[2], e.target[3]
 		for _, match := range matches {
+			matchMapName := match.MapName
+			if matchMapName == "" {
+				matchMapName = mapName
+			}
+			if matchMapName != e.mapName {
+				continue
+			}
 			if match.MapX >= x && match.MapX < x+w && match.MapY >= y && match.MapY < y+h {
 				return true
 			}
@@ -259,7 +263,7 @@ func (r *MapTrackerBigMapFindImage) runSingleViewportSearch(
 		return nil, false
 	}
 
-	result := r.matchTemplate(cropped, tpl, param, viewport)
+	result := r.matchTemplate(cropped, tpl, param, viewport, inferRes.MapName)
 	saveFindImageDebug(inferRes.MapName, tpl, result)
 	return r.buildResult(arg, param, inferRes.MapName, result, "Big-map FindImage completed")
 }
@@ -303,7 +307,7 @@ func (r *MapTrackerBigMapFindImage) runMultiViewportSearch(
 		return nil, false
 	}
 	remaining = filterPointsInView(remaining, &inferRes.ViewPort)
-	r.matchCurrentViewport(tpl, param, &inferRes.ViewPort, img, &allMatches)
+	r.matchCurrentViewport(tpl, param, inferRes.MapName, &inferRes.ViewPort, img, &allMatches)
 
 	for len(remaining) > 0 {
 		if ctx.GetTasker().Stopping() {
@@ -349,7 +353,7 @@ func (r *MapTrackerBigMapFindImage) runMultiViewportSearch(
 		}
 
 		remaining = filterPointsInView(remaining, &inferRes.ViewPort)
-		r.matchCurrentViewport(tpl, param, &inferRes.ViewPort, img, &allMatches)
+		r.matchCurrentViewport(tpl, param, inferRes.MapName, &inferRes.ViewPort, img, &allMatches)
 		log.Info().Int("remaining", len(remaining)).Int("totalMatches", len(allMatches)).Msg("Multi-viewport search progress")
 	}
 
@@ -372,19 +376,19 @@ func (r *MapTrackerBigMapFindImage) buildResult(
 	matches []MapTrackerBigMapFindImageMatch,
 	message string,
 ) (*maa.CustomRecognitionResult, bool) {
+	// Single-viewport and legacy callers may still return an unnamed match. Never
+	// overwrite a map name captured from an earlier viewport.
+	backfillMatchMapNames(matches, mapName)
+
 	for _, m := range matches {
 		log.Debug().
 			Str("template", param.Template).
+			Str("map", m.MapName).
 			Float64("vx", m.ScreenX).
 			Float64("vy", m.ScreenY).
 			Float64("conf", m.Conf).
 			Float64("rot", m.Rotation).
 			Msg("FindImage match")
-	}
-
-	// Backfill the inferred map name into each match for downstream consumers.
-	for i := range matches {
-		matches[i].MapName = mapName
 	}
 
 	detailJSON, err := json.Marshal(matches)
@@ -455,7 +459,14 @@ func filterPointsInView(points [][2]int, viewport *BigMapViewport) [][2]int {
 	return remaining
 }
 
-func (r *MapTrackerBigMapFindImage) matchCurrentViewport(tpl *minicv.Template, param *MapTrackerBigMapFindImageParam, viewport *BigMapViewport, img any, result *[]MapTrackerBigMapFindImageMatch) {
+func (r *MapTrackerBigMapFindImage) matchCurrentViewport(
+	tpl *minicv.Template,
+	param *MapTrackerBigMapFindImageParam,
+	mapName string,
+	viewport *BigMapViewport,
+	img any,
+	result *[]MapTrackerBigMapFindImageMatch,
+) {
 	screenImg := minicv.ImageConvertRGBA(img.(image.Image))
 	cropped, _, _, ok := cropBigMapTemplate(screenImg)
 	screenImg = nil // Release full-screen RGBA immediately.
@@ -464,13 +475,16 @@ func (r *MapTrackerBigMapFindImage) matchCurrentViewport(tpl *minicv.Template, p
 		return
 	}
 
-	matches := r.matchTemplate(cropped, tpl, param, viewport)
+	matches := r.matchTemplate(cropped, tpl, param, viewport, mapName)
 
 	// Deduplicate by map coordinates against previously accumulated results.
 	var newMatches []MapTrackerBigMapFindImageMatch
 	for _, m := range matches {
 		isDup := false
 		for _, existing := range *result {
+			if m.MapName != existing.MapName {
+				continue
+			}
 			dx := m.MapX - existing.MapX
 			dy := m.MapY - existing.MapY
 			if dx*dx+dy*dy < NMS_MIN_DISTANCE*NMS_MIN_DISTANCE {
@@ -491,6 +505,7 @@ func (r *MapTrackerBigMapFindImage) matchTemplate(
 	tpl *minicv.Template,
 	param *MapTrackerBigMapFindImageParam,
 	viewport *BigMapViewport,
+	mapName string,
 ) []MapTrackerBigMapFindImageMatch {
 	tplImg := tpl.Image
 	tplStats := tpl.Stats
@@ -507,6 +522,7 @@ func (r *MapTrackerBigMapFindImage) matchTemplate(
 			return newFindImageMatch(viewport, vx, vy, score, 0)
 		})
 	}
+	backfillMatchMapNames(allMatches, mapName)
 
 	sort.Slice(allMatches, func(i, j int) bool {
 		return allMatches[i].Conf > allMatches[j].Conf
@@ -520,6 +536,14 @@ func (r *MapTrackerBigMapFindImage) matchTemplate(
 	}
 
 	return allMatches
+}
+
+func backfillMatchMapNames(matches []MapTrackerBigMapFindImageMatch, mapName string) {
+	for i := range matches {
+		if matches[i].MapName == "" {
+			matches[i].MapName = mapName
+		}
+	}
 }
 
 func matchFindImageWithRotation(
@@ -646,6 +670,9 @@ func deduplicateMatches(matches []MapTrackerBigMapFindImageMatch) []MapTrackerBi
 		}
 		for j := i + 1; j < len(matches); j++ {
 			if !keep[j] {
+				continue
+			}
+			if matches[i].MapName != matches[j].MapName {
 				continue
 			}
 			dx := matches[i].ScreenX - matches[j].ScreenX
