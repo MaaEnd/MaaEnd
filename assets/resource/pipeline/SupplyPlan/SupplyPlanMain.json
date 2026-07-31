@@ -139,6 +139,13 @@
                             "expected": [
                                 "B"
                             ]
+                        },
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 4
+                                }
+                            }
                         }
                     },
                     "allow_next": true
@@ -234,6 +241,13 @@
                             "expected": [
                                 "A"
                             ]
+                        },
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 4
+                                }
+                            }
                         }
                     },
                     "allow_next": true
@@ -329,6 +343,13 @@
                             "expected": [
                                 "A"
                             ]
+                        },
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 4
+                                }
+                            }
                         }
                     },
                     "allow_next": true
@@ -424,6 +445,13 @@
                             "expected": [
                                 "B"
                             ]
+                        },
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 4
+                                }
+                            }
                         }
                     },
                     "allow_next": true
@@ -519,6 +547,13 @@
                             "expected": [
                                 "A"
                             ]
+                        },
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 4
+                                }
+                            }
                         }
                     },
                     "allow_next": true
@@ -606,6 +641,13 @@
                             "next": [
                                 "SupplyPlanMain"
                             ]
+                        },
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 4
+                                }
+                            }
                         }
                     },
                     "allow_next": true
@@ -701,6 +743,13 @@
                             "expected": [
                                 "B"
                             ]
+                        },
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 4
+                                }
+                            }
                         }
                     },
                     "allow_next": true
@@ -796,6 +845,13 @@
                             "expected": [
                                 "A"
                             ]
+                        },
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 4
+                                }
+                            }
                         }
                     },
                     "allow_next": true
@@ -886,6 +942,13 @@
                             "next": [
                                 "SupplyPlanMain"
                             ]
+                        },
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 4
+                                }
+                            }
                         }
                     },
                     "allow_next": true
@@ -976,6 +1039,13 @@
                             "next": [
                                 "SupplyPlanMain"
                             ]
+                        },
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 4
+                                }
+                            }
                         }
                     },
                     "allow_next": true
@@ -1074,6 +1144,13 @@
                             "expected": [
                                 "B"
                             ]
+                        },
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 4
+                                }
+                            }
                         }
                     },
                     "allow_next": true
@@ -1172,6 +1249,13 @@
                             "expected": [
                                 "A"
                             ]
+                        },
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 4
+                                }
+                            }
                         }
                     },
                     "allow_next": true
