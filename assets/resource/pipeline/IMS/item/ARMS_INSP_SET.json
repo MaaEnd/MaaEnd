@@ -23,9 +23,9 @@
             "param": {
                 "roi": "IMSItemColorPurple",
                 "roi_offset": [
-                    -60,
+                    -30,
                     -100,
-                    120,
+                    60,
                     100
                 ],
                 "template": [

@@ -80,7 +80,7 @@
             "SupplyPlanOverride_ADVANCED_COMBAT_RECORD"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "ADVANCED_COMBAT_RECORD 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "高级作战记录 未达标，准备刷取协议空间"
         }
     },
     "SupplyPlanOverride_ADVANCED_COMBAT_RECORD": {
@@ -151,7 +151,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "ADVANCED_COMBAT_RECORD 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "高级作战记录 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_ADVANCED_COGNITIVE_CARRIER": {
@@ -175,7 +175,7 @@
             "SupplyPlanOverride_ADVANCED_COGNITIVE_CARRIER"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "ADVANCED_COGNITIVE_CARRIER 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "高级认知载体 未达标，准备刷取协议空间"
         }
     },
     "SupplyPlanOverride_ADVANCED_COGNITIVE_CARRIER": {
@@ -246,7 +246,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "ADVANCED_COGNITIVE_CARRIER 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "高级认知载体 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_ELEMENTARY_COGNITIVE_CARRIER": {
@@ -270,7 +270,7 @@
             "SupplyPlanOverride_ELEMENTARY_COGNITIVE_CARRIER"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "ELEMENTARY_COGNITIVE_CARRIER 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "初级认知载体 未达标，准备刷取协议空间"
         }
     },
     "SupplyPlanOverride_ELEMENTARY_COGNITIVE_CARRIER": {
@@ -341,7 +341,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "ELEMENTARY_COGNITIVE_CARRIER 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "初级认知载体 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_PROTODISK": {
@@ -365,7 +365,7 @@
             "SupplyPlanOverride_PROTODISK"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "PROTODISK 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "协议圆盘 未达标，准备刷取协议空间"
         }
     },
     "SupplyPlanOverride_PROTODISK": {
@@ -436,7 +436,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "PROTODISK 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "协议圆盘 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_PROTOSET": {
@@ -460,7 +460,7 @@
             "SupplyPlanOverride_PROTOSET"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "PROTOSET 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "协议圆盘组 未达标，准备刷取协议空间"
         }
     },
     "SupplyPlanOverride_PROTOSET": {
@@ -531,7 +531,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "PROTOSET 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "协议圆盘组 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_T_CREDS": {
@@ -555,7 +555,7 @@
             "SupplyPlanOverride_T_CREDS"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "T_CREDS 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "折金票 未达标，准备刷取协议空间"
         }
     },
     "SupplyPlanOverride_T_CREDS": {
@@ -618,7 +618,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "T_CREDS 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "折金票 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_PROTOPRISM": {
@@ -642,7 +642,7 @@
             "SupplyPlanOverride_PROTOPRISM"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "PROTOPRISM 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "协议棱柱 未达标，准备刷取协议空间"
         }
     },
     "SupplyPlanOverride_PROTOPRISM": {
@@ -713,7 +713,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "PROTOPRISM 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "协议棱柱 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_PROTOHEDRON": {
@@ -737,7 +737,7 @@
             "SupplyPlanOverride_PROTOHEDRON"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "PROTOHEDRON 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "协议棱柱组 未达标，准备刷取协议空间"
         }
     },
     "SupplyPlanOverride_PROTOHEDRON": {
@@ -808,7 +808,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "PROTOHEDRON 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "协议棱柱组 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_ARMS_INSP_SET": {
@@ -832,7 +832,7 @@
             "SupplyPlanOverride_ARMS_INSP_SET"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "ARMS_INSP_SET 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "武器检查套组 未达标，准备刷取协议空间"
         }
     },
     "SupplyPlanOverride_ARMS_INSP_SET": {
@@ -898,7 +898,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "ARMS_INSP_SET 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "武器检查套组 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_ARMS_INSP_KIT": {
@@ -922,7 +922,7 @@
             "SupplyPlanOverride_ARMS_INSP_KIT"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "ARMS_INSP_KIT 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "武器检查装置 未达标，准备刷取协议空间"
         }
     },
     "SupplyPlanOverride_ARMS_INSP_KIT": {
@@ -988,7 +988,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "ARMS_INSP_KIT 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "武器检查装置 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_CAST_DIE": {
@@ -1012,7 +1012,7 @@
             "SupplyPlanOverride_CAST_DIE"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "CAST_DIE 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "强固模具 未达标，准备刷取协议空间"
         }
     },
     "SupplyPlanOverride_CAST_DIE": {
@@ -1086,7 +1086,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "CAST_DIE 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "强固模具 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_HEAVY_CAST_DIE": {
@@ -1110,7 +1110,7 @@
             "SupplyPlanOverride_HEAVY_CAST_DIE"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "HEAVY_CAST_DIE 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "重型强固模具 未达标，准备刷取协议空间"
         }
     },
     "SupplyPlanOverride_HEAVY_CAST_DIE": {
@@ -1184,7 +1184,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "HEAVY_CAST_DIE 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "重型强固模具 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_D96_STEEL_SAMPLE_4": {
@@ -1208,7 +1208,7 @@
             "SupplyPlanOverride_D96_STEEL_SAMPLE_4"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "D96_STEEL_SAMPLE_4 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "D96钢样品四 未达标，准备刷取协议空间"
         }
     },
     "SupplyPlanOverride_D96_STEEL_SAMPLE_4": {
@@ -1274,7 +1274,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "D96_STEEL_SAMPLE_4 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "D96钢样品四 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_METADIASTIMA_PHOTOEMISSION_TUBE": {
@@ -1298,7 +1298,7 @@
             "SupplyPlanOverride_METADIASTIMA_PHOTOEMISSION_TUBE"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "METADIASTIMA_PHOTOEMISSION_TUBE 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "超距辉映管 未达标，准备刷取协议空间"
         }
     },
     "SupplyPlanOverride_METADIASTIMA_PHOTOEMISSION_TUBE": {
@@ -1364,7 +1364,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "METADIASTIMA_PHOTOEMISSION_TUBE 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "超距辉映管 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_TACHYON_SCREENING_LATTICE": {
@@ -1388,7 +1388,7 @@
             "SupplyPlanOverride_TACHYON_SCREENING_LATTICE"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "TACHYON_SCREENING_LATTICE 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "快子遴捡晶格 未达标，准备刷取协议空间"
         }
     },
     "SupplyPlanOverride_TACHYON_SCREENING_LATTICE": {
@@ -1454,7 +1454,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "TACHYON_SCREENING_LATTICE 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "快子遴捡晶格 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_QUADRANT_FITTING_FLUID": {
@@ -1478,7 +1478,7 @@
             "SupplyPlanOverride_QUADRANT_FITTING_FLUID"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "QUADRANT_FITTING_FLUID 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "象限拟合液 未达标，准备刷取协议空间"
         }
     },
     "SupplyPlanOverride_QUADRANT_FITTING_FLUID": {
@@ -1544,7 +1544,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "QUADRANT_FITTING_FLUID 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "象限拟合液 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_TRIPHASIC_NANOFLAKE": {
@@ -1568,7 +1568,7 @@
             "SupplyPlanOverride_TRIPHASIC_NANOFLAKE"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "TRIPHASIC_NANOFLAKE 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "三相纳米片 未达标，准备刷取协议空间"
         }
     },
     "SupplyPlanOverride_TRIPHASIC_NANOFLAKE": {
@@ -1634,7 +1634,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "TRIPHASIC_NANOFLAKE 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "三相纳米片 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanEssenceFallback": {
