@@ -433,34 +433,14 @@
         "MissionId": "m1m57",
         "Name": "环形瀑布",
         "Id": "AnnularWaterfall",
-        "EnterMap": "SceneEnterWorldWulingQingboStockade3",
-        "MapName": "map02_lv003",
-        "MapAssert": [
-            496.1,
-            360.1,
-            19.3,
-            14.3
+        "QuickTeleport": true,
+        "MapName": "Wuling_Base",
+        "MapTarget": [
+            1364.14,
+            2147.09
         ],
-        "MapPath": [
-            [
-                498.8,
-                360.5
-            ],
-            [
-                501.1,
-                347.9
-            ],
-            [
-                506.4,
-                334
-            ],
-            [
-                507.4,
-                330.5
-            ]
-        ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "Heading": 15
+        "Heading": 15,
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
     },
     {
         "MissionId": "m1m58",
