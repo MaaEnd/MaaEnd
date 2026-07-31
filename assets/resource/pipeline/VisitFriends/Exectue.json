@@ -680,6 +680,27 @@
         "key": 27, // ESC
         "post_delay": 0,
         "next": [
+            "VisitFriendsClearListCompleteAfterShipExit"
+        ]
+    },
+    "VisitFriendsClearListCompleteAfterShipExit": {
+        "desc": "离开飞船回到列表前清空 ListComplete 状态：出船后列表必不在尽头，避免沿用旧模板误判到底",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "VisitFriendsMenuScanScrollFinish": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "VisitFriendsEnterFriendsListSuccess"
         ]
     },
