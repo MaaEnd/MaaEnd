@@ -27,6 +27,10 @@ type addItemDataParam struct {
 // AddItemData recognizes configured items on the current screen and adds their
 // OCR quantities into the IMS cache (A3). Does not change readiness / last_sync.
 //
+// If IMS has never been initialized (hasData=false, no successful A2 / no disk
+// sync timestamp), AddItemData does nothing and still returns success so the
+// Pipeline can continue (e.g. closing the rewards UI).
+//
 // Best practice: run as the action of a node that recognizes CloseRewardsButton,
 // then next to a Click node that closes the rewards UI.
 type AddItemData struct{}
@@ -39,10 +43,10 @@ type recognizedItemAdd struct {
 
 // Run implements maa.CustomActionRunner.
 func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	if ctx == nil || arg == nil {
+	if arg == nil {
 		log.Error().
 			Str("component", componentAddItemData).
-			Msg("nil context or arg")
+			Msg("nil custom action arg")
 		return false
 	}
 
@@ -67,6 +71,20 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Err(err).
 			Str("component", componentAddItemData).
 			Msg("failed to hydrate ims cache")
+		return false
+	}
+
+	if ready, _ := globalCache.snapshot(); !ready {
+		log.Info().
+			Str("component", componentAddItemData).
+			Msg("ims data not initialized, skip add and return success")
+		return true
+	}
+
+	if ctx == nil {
+		log.Error().
+			Str("component", componentAddItemData).
+			Msg("nil context")
 		return false
 	}
 

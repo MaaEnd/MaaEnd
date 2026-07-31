@@ -14,6 +14,8 @@
             "option": [
                 "SupplyPlanRefreshDays",
                 "SupplyPlanLimits",
+                "ProtocolSpaceTeamChoose",
+                "ProtocolSpaceUsePermit",
                 "SupplyPlanEssenceLocation",
                 "AutoEssenceObtainMode",
                 "AutoFightSettingFull"
