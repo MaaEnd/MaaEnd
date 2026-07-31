@@ -114,10 +114,18 @@
         ]
     },
     "VisitFriendsMenuScanScrollFinish": {
-        "desc": "列表已到底：ListComplete 命中（区域与上一帧静止模板相似度 >= 0.9）后走备注回退或结束。attach.ready 由 ListCompleteRecognition 维护；备注回退重开前会清空。识别前须由滑动节点 post_wait_freezes 保证画面静止",
+        "desc": "列表已到底：ListComplete 命中（好友列表区域与上一帧静止模板相似度 >= 0.95）后走备注回退或结束。attach.ready 由 ListCompleteRecognition 维护；备注回退重开前会清空。识别前须由滑动节点 post_wait_freezes 保证画面静止",
         "recognition": "Custom",
         "custom_recognition": "ListCompleteRecognition",
-        "custom_recognition_param": {},
+        "custom_recognition_param": {
+            "threshold": 0.95
+        },
+        "roi": [
+            30,
+            110,
+            1215,
+            520
+        ],
         "pre_delay": 0,
         "post_delay": 0,
         "attach": {
