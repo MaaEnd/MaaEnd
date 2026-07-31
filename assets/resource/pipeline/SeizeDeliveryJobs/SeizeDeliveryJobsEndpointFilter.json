@@ -57,7 +57,7 @@
             83
         ],
         "template": "SeizeDeliveryJobs/Destinations/Owl.png",
-        "threshold": 0.9,
+        "threshold": 0.85,
         "next": [
             "SeizeDeliveryJobsEndpointMatched"
         ],

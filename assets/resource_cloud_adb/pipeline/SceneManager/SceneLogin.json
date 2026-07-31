@@ -1,0 +1,32 @@
+{
+    // 云终末地登录界面用 News / NewsWithRedDot 识别（非 PC/普通 ADB 的 LoginExit）
+    "__ScenePrivateLogin": {
+        "desc": "处理登录界面（云终末地：News / NewsWithRedDot）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1067,
+                    0,
+                    213,
+                    276
+                ],
+                "template": [
+                    "SceneManager/News.png",
+                    "SceneManager/NewsWithRedDot.png"
+                ]
+            }
+        }
+    },
+    "__ScenePrivateLoginCloseDialog": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    1,
+                    1
+                ]
+            }
+        }
+    }
+}

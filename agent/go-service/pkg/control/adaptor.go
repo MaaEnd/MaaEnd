@@ -92,6 +92,8 @@ func NewControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int) (Contro
 	switch controlType {
 	case CONTROL_TYPE_WIN32:
 		return newDefaultDesktopControlAdaptor(ctx, ctrl, w, h), nil
+	case CONTROL_TYPE_MACOS:
+		return newMacOSControlAdaptor(ctx, ctrl, w, h), nil
 	case CONTROL_TYPE_WLROOTS:
 		return newWlrootsControlAdaptor(ctx, ctrl, w, h), nil
 	case CONTROL_TYPE_ADB:
@@ -143,8 +145,8 @@ func (pm PlayerMovement) RotationDuring(duration time.Duration) float64 {
 var (
 	MovementStop   = PlayerMovement{0.0, 0.0}
 	MovementWalk   = PlayerMovement{1.2, 270.0}
-	MovementRun    = PlayerMovement{7.2, 540.0}
-	MovementSprint = PlayerMovement{12.0, 1080.0}
+	MovementRun    = PlayerMovement{7.2, 480.0}
+	MovementSprint = PlayerMovement{12.0, 960.0}
 )
 
 /* ******** Player Direction Enumeration ******** */

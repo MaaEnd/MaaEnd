@@ -1,0 +1,35 @@
+{
+    // 云终末地不接受 BACK 键（ADB 控制器默认把 ESC 重映射成 key=4）。
+    //
+    // 这里与 PlayCover 相同：用「标准返回键」的纯触摸点击替代按键——识别到其中之一即点击。
+    //   - CloseButtonType1：右上角两种 X（普通面板 X + 圆形菜单 X，已聚合 5 种变体），优先
+    //   - ProtosyncMenuButton：大世界右上角「手表」（协议同步器），大世界叠加态下的兜底返回入口
+    // 仅复用上述节点的识别框；它们各自的 action / next（含 Alt+点击链）不会被执行。
+    "__ScenePrivateAnyExit": {
+        "desc": "云终末地触摸版退出场景：识别右上角 X 或大世界手表并点击（不接受 BACK 按键）",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "CloseButtonType1",
+                    "ProtosyncMenuButton",
+                    "BackButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                // CloseButton 系列最大模板为 Type3 的 31x31；点击其下半部分，避免点到偏上区域
+                "target_offset": [
+                    0,
+                    16,
+                    0,
+                    -16
+                ]
+            }
+        },
+        "post_delay": 600
+    }
+}

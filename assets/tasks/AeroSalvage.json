@@ -6,6 +6,8 @@
             "entry": "AeroSalvageMain",
             "description": "$task.AeroSalvage.description",
             "controller": [
+                "MacOS-Background",
+                "MacOS-Front",
                 "Win32-Front",
                 "Wlroots"
             ],

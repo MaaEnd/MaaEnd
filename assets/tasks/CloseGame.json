@@ -9,10 +9,12 @@
                 "other_menu"
             ],
             "option": [
-                "ClientVersion"
+                "ClientVersion",
+                "ClientVersionCloudLocked"
             ],
             "controller": [
-                "ADB"
+                "ADB",
+                "CloudADB"
             ]
         }
     ]

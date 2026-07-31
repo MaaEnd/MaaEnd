@@ -6,9 +6,11 @@
             "entry": "ProdManualStart",
             "description": "$task.ReceiveProdManual.description",
             "controller": [
-                "Win32-Front",
                 "ADB",
+                "MacOS-Background",
+                "MacOS-Front",
                 "PlayCover",
+                "Win32-Front",
                 "Wlroots"
             ],
             "group": [

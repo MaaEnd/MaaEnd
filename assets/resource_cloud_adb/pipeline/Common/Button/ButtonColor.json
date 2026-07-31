@@ -1,0 +1,14 @@
+{
+    // 云终末地：黄色按钮背景 HSV 上界略放宽（H upper 29 -> 30）
+    "YellowButtonBackground": {
+        "recognition": {
+            "param": {
+                "upper": [
+                    30,
+                    255,
+                    255
+                ]
+            }
+        }
+    }
+}

@@ -147,6 +147,15 @@ constexpr double kNavRunLookaheadSprintM = 5.5;
 constexpr double kNavRunLookaheadSharpTurnM = 2.5;
 constexpr double kNavRunSharpTurnDeg = 55.0;
 constexpr double kNavRunUpcomingTurnLookaheadM = 8.0;
+// The lookahead point is measured forward along the corridor, but the agent then drives straight at it.
+// Once that chord spans a corridor vertex it cuts the corner, by an amount set only by the lookahead
+// distance and the turn angle. Cap the distance so the chord stays within this much of the corridor
+// polyline. Measured tracking error runs about 1.7x this value; the rest is follower lag.
+constexpr double kNavRunLookaheadPathSlackM = 0.5;
+// Floor for the capped distance. Authored waypoint lines are recorded at whole-pixel granularity, so
+// their vertices zigzag within the slack and the cap would otherwise collapse to nothing; a steering
+// target that close sits level with the agent and the follower oscillates in place instead of advancing.
+constexpr double kNavRunLookaheadMinM = 2.0;
 constexpr double kNavRunCrossTrackWarnM = 2.2;
 constexpr double kNavRunCrossTrackFailM = 4.0;
 constexpr double kNavRunProgressReplanMinCrossTrackM = 1.25;

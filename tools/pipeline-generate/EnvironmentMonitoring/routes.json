@@ -701,62 +701,15 @@
         "MissionId": "m1m65",
         "Name": "彩虹",
         "Id": "Rainbow",
-        "EnterMap": "SceneEnterWorldWulingMarkerStone4",
-        "MapName": "map02_lv004_tier_328",
-        "MapAssert": [
-            508.2,
-            663,
-            18.1,
-            15.6
+        "QuickTeleport": true,
+        "MapName": "map02_lv004",
+        "MapGoal": [
+            477.1,
+            603.3
         ],
-        "MapPath": [
-            [
-                520.2,
-                672.8
-            ],
-            [
-                522.8,
-                664
-            ],
-            [
-                507.3,
-                648.5
-            ],
-            [
-                506,
-                623.9
-            ],
-            [
-                516.4,
-                603.9
-            ],
-            [
-                504,
-                591.6
-            ],
-            [
-                500.1,
-                591.6
-            ],
-            [
-                497.9,
-                592.8
-            ],
-            [
-                492.8,
-                603.9
-            ],
-            [
-                489,
-                606.4
-            ],
-            [
-                477.1,
-                603.3
-            ]
-        ],
+        "Heading": 260,
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
-        "Heading": 260
+        "CameraMaxHit": 1
     },
     {
         "MissionId": "m1m66",

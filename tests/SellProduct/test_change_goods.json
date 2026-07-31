@@ -18,14 +18,48 @@
             "image": "四号谷地_地区建设_据点_选择交易货品.png",
             "hits": [
                 "SellProductCheckSelectGoodsText",
-                "SellProductSelectNewGoodConfirm"
+                "SellProductSelectNewGoodConfirm",
+                {
+                    "node": "SellProductCheckGoodsCellAnchor",
+                    "box": {
+                        "Win32": [
+                            238,
+                            233,
+                            40,
+                            40
+                        ],
+                        "ADB": [
+                            146,
+                            209,
+                            36,
+                            36
+                        ]
+                    }
+                }
             ]
         },
         {
             "image": "武陵_地区建设_据点_选择交易货品.png",
             "hits": [
                 "SellProductCheckSelectGoodsText",
-                "SellProductSelectNewGoodConfirm"
+                "SellProductSelectNewGoodConfirm",
+                {
+                    "node": "SellProductCheckGoodsCellAnchor",
+                    "box": {
+                        "Win32": [
+                            238,
+                            233,
+                            40,
+                            40
+                        ],
+                        "ADB": [
+                            146,
+                            209,
+                            36,
+                            36
+                        ]
+                    }
+                }
             ]
         }
     ]

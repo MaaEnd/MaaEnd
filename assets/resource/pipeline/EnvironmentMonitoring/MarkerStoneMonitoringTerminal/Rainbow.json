@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToRainbow"
+            "RainbowInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedRainbow": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToRainbow"
+            "RainbowOpenTrackedMissionMap"
         ]
     },
     "RainbowOpenTrackedMissionMap": {
@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToRainbowStartPos"
+            "GoToRainbowMove"
         ]
     },
     "RainbowNotAdapted": {
@@ -340,12 +340,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv004_tier_328",
+                    "map_name": "map02_lv004",
                     "target": [
-                        508.2,
-                        663,
-                        18.1,
-                        15.6
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
@@ -358,73 +358,31 @@
         ]
     },
     "GoToRainbowNotAtStartPos": {
-        "desc": "不在彩虹任务开始位置附近，先传送再检查落点",
+        "desc": "不在彩虹任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStone4"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToRainbowStartPos"
+            "GoToRainbowMove"
         ]
     },
     "GoToRainbowMove": {
         "desc": "自动寻路前往彩虹",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
-            "map_name": "map02_lv004_tier_328",
-            "path": [
-                [
-                    520.2,
-                    672.8
-                ],
-                [
-                    522.8,
-                    664
-                ],
-                [
-                    507.3,
-                    648.5
-                ],
-                [
-                    506,
-                    623.9
-                ],
-                [
-                    516.4,
-                    603.9
-                ],
-                [
-                    504,
-                    591.6
-                ],
-                [
-                    500.1,
-                    591.6
-                ],
-                [
-                    497.9,
-                    592.8
-                ],
-                [
-                    492.8,
-                    603.9
-                ],
-                [
-                    489,
-                    606.4
-                ],
-                [
-                    477.1,
-                    603.3
-                ]
+            "map_name": "map02_lv004",
+            "target": [
+                477.1,
+                603.3
             ],
             "on_finish": {
                 "action": "Custom",
@@ -455,7 +413,7 @@
     },
     "RainbowAdjustCamera": {
         "desc": "彩虹任务中调整朝向",
-        "max_hit": 2,
+        "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

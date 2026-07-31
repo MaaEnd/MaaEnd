@@ -1,0 +1,8 @@
+{
+    // ADB 不做菜单列表颜色检查，仅依赖 FIELD/ENDFIELD 文字
+    "InMenuList": {
+        "all_of": [
+            "CheckMenuListText"
+        ]
+    }
+}

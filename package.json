@@ -12,6 +12,7 @@
         "check": "maa-tools check",
         "test": "maa-tools test",
         "fetch:zmdmap": "node tools/pipeline-generate/fetch-data.mjs",
+        "generate:MacOS": "node tools/pipeline-generate/macos-keymap.mjs",
         "generate:BatchUseDetector": "node tools/pipeline-generate/run-all.mjs BatchUseDetector",
         "generate:EnvironmentMonitoring": "node tools/pipeline-generate/fetch-data.mjs && node tools/pipeline-generate/EnvironmentMonitoring/generator/sync-routes.mjs && node tools/pipeline-generate/run-all.mjs EnvironmentMonitoring",
         "generate:SellProduct": "node tools/pipeline-generate/fetch-data.mjs && node tools/pipeline-generate/SellProduct/sync-locales.mjs && node tools/pipeline-generate/SellProduct/selection-data.mjs && node tools/pipeline-generate/run-all.mjs SellProduct"
@@ -21,6 +22,7 @@
         "@nekosu/maa-tools": "1.0.22",
         "@nekosu/prettier-plugin-maafw-sort": "1.0.4",
         "@types/node": "^24.11.0",
+        "jsonc-parser": "^3.3.1",
         "markdownlint-cli": "^0.49.1",
         "prettier": "3.8.3",
         "prettier-plugin-multiline-arrays": "4.1.4"

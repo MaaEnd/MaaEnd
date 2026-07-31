@@ -1,0 +1,37 @@
+{
+    // 通用返回按钮。目前仅有常态模板，无 Hover 变体。
+    // ROI：[1092, 0, 188, 187]；若某界面位置不同，请在任务侧覆盖 roi。
+    "BackButton": {
+        "desc": "通用返回按钮：右上角白色圆形左箭头",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1092,
+                    0,
+                    188,
+                    187
+                ],
+                "template": [
+                    "Common/Button/BackButton.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

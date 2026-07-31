@@ -18,6 +18,37 @@ type benchmarkPathPair struct {
 
 var benchmarkPathLengthSink int
 
+func TestLerp(t *testing.T) {
+	if got := Lerp(10, 20, 0); got != 10 {
+		t.Errorf("Lerp(10, 20, 0) = %v, want 10", got)
+	}
+	if got := Lerp(10, 20, 1); got != 20 {
+		t.Errorf("Lerp(10, 20, 1) = %v, want 20", got)
+	}
+	if got := Lerp(10, 20, 0.5); math.Abs(got-15) > 1e-12 {
+		t.Errorf("Lerp(10, 20, 0.5) = %v, want 15", got)
+	}
+}
+
+func TestUnitRamp(t *testing.T) {
+	cases := []struct {
+		x, lo, hi, want float64
+	}{
+		{0, 30, 60, 0},
+		{30, 30, 60, 0},
+		{45, 30, 60, 0.5},
+		{60, 30, 60, 1},
+		{90, 30, 60, 1},
+		{10, 10, 10, 0},
+		{11, 10, 10, 1},
+	}
+	for _, tc := range cases {
+		if got := UnitRamp(tc.x, tc.lo, tc.hi); math.Abs(got-tc.want) > 1e-12 {
+			t.Errorf("UnitRamp(%v, %v, %v) = %v, want %v", tc.x, tc.lo, tc.hi, got, tc.want)
+		}
+	}
+}
+
 func TestRotateToLocalFrame(t *testing.T) {
 	// A delta pointing north (negative Y) in the map frame.
 	north := Point{X: 0, Y: -10}

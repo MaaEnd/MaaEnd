@@ -86,7 +86,7 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 ### RepeatUntilFoundAction / RepeatUntilNotFoundAction
 
-二者实现均位于 `agent/go-service/common/repeataction`，用于反复执行一次内置或自定义动作，每次执行后等待再识别；条件满足即成功，耗尽次数仍不满足则失败。
+二者实现均位于 `agent/go-service/common/repeataction`，用于反复执行一次内置或自定义动作，每次执行后在等待窗口内轮询识别；条件满足即成功，耗尽次数仍不满足则失败。
 
 - `RepeatUntilFoundAction`：`wait_nodes` 中**任一命中**即成功。
 - `RepeatUntilNotFoundAction`：`wait_node` **未命中**即成功。
@@ -96,7 +96,7 @@ Action 节点用于执行自定义动作。常见写法如下：
     - `custom_action?: string`：已注册的自定义动作名（如 `AutoAltClickAction`），与 `action` 二选一。
     - `custom_action_param?: object`：透传给内层自定义动作的参数。
     - `repeat_count?: int`：最大尝试次数；省略或 `<= 0` 时默认 `3`。
-    - `interval_ms?: int`：每次尝试后、识别前的等待（毫秒）；省略或 `0` 时默认 `3000`；负值非法。
+    - `interval_ms?: int`：每次动作后的等待窗口（毫秒）；窗口内每 `500ms` 截图识别一次，命中则提前成功；省略或 `0` 时默认 `3000`；负值非法。
 - `RepeatUntilFoundAction` 额外参数：
     - `wait_nodes: string[]`：等待出现的 Pipeline 节点名列表，必填。
 - `RepeatUntilNotFoundAction` 额外参数：

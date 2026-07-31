@@ -26,6 +26,7 @@ test("SellProduct selection data contains only valid stable references", () => {
         sellProductLocationsNewestFirst.map((location) => location.LocationId),
     );
     for (const item of Object.values(data.items)) {
+        assert.equal("unit_price" in item, false);
         assert.deepEqual(Object.keys(item.names), [
             "zh_cn",
             "zh_tw",
@@ -54,8 +55,10 @@ test("SellProduct selection data contains only valid stable references", () => {
             "ja_jp",
             "ko_kr",
         ]);
-        for (const itemID of location.item_order) {
-            assert.ok(data.items[itemID], `${locationName} references missing item ${itemID}`);
+        for (const item of location.items) {
+            assert.ok(data.items[item.item_id], `${locationName} references missing item ${item.item_id}`);
+            assert.ok(item.rarity > 0, `${locationName} item ${item.item_id} has invalid rarity`);
+            assert.ok(item.unit_price > 0, `${locationName} item ${item.item_id} has invalid unit price`);
         }
         for (const operatorName of [
             ...location.target_operators.map((operator) => operator.name),
@@ -76,12 +79,15 @@ test("SellProduct temporary activity items stay recognizable but are not selecta
         assert.ok(sellProductSelectionData.items[itemID]);
         assert.equal(selectableIDs.has(itemID), false);
         for (const location of Object.values(sellProductSelectionData.locations)) {
-            assert.equal(location.item_order.includes(itemID), false);
+            assert.equal(
+                location.items.some((item) => item.item_id === itemID),
+                false,
+            );
         }
     }
 });
 
-test("SellProduct generated item order merges prosperity levels and sorts by rarity then price", () => {
+test("SellProduct generated location items merge prosperity levels without applying a strategy order", () => {
     const data = {
         settlements: {
             test: {
@@ -104,10 +110,10 @@ test("SellProduct generated item order merges prosperity levels and sorts by rar
         },
     };
     const result = buildSelectionItems(data, [{SettlementId: "test", LocationId: "Test"}]);
-    assert.deepEqual(result.locationItemOrder.Test, [
-        "high_expensive",
-        "high_cheap",
-        "low",
+    assert.deepEqual(result.locationItems.Test, [
+        {item_id: "low", rarity: 2, unit_price: 110},
+        {item_id: "high_cheap", rarity: 3, unit_price: 80},
+        {item_id: "high_expensive", rarity: 3, unit_price: 120},
     ]);
     assert.deepEqual(result.items.low.names, {
         zh_cn: "低级",

@@ -28,6 +28,8 @@ struct CorridorProjection
     double t = 0.0;
     navmesh::WorldPoint point {};
     double cross_track = std::numeric_limits<double>::infinity();
+    bool before_window = false;
+    bool after_window = false;
 };
 
 bool CanUseNavRunSteering(const Waypoint& waypoint)
@@ -65,6 +67,8 @@ std::optional<CorridorProjection> ProjectOntoCorridor(const navmesh::WorldPath& 
                 .t = t,
                 .point = { .x = px, .y = py },
                 .cross_track = cross,
+                .before_window = edge == start_edge && raw_t < 0.0,
+                .after_window = edge + 1 == num_edges && raw_t > 1.0,
             };
         }
     }
@@ -194,6 +198,57 @@ navmesh::WorldPoint LookaheadOnCorridor(const navmesh::WorldPath& path, const Co
         distance -= len;
     }
     return path.points.back();
+}
+
+double PointToSegmentDistance(const navmesh::WorldPoint& point, const navmesh::WorldPoint& a, const navmesh::WorldPoint& b)
+{
+    const double dx = b.x - a.x;
+    const double dy = b.y - a.y;
+    const double len_sq = dx * dx + dy * dy;
+    if (len_sq <= std::numeric_limits<double>::epsilon()) {
+        return std::hypot(point.x - a.x, point.y - a.y);
+    }
+    const double t = std::clamp(((point.x - a.x) * dx + (point.y - a.y) * dy) / len_sq, 0.0, 1.0);
+    return std::hypot(point.x - (a.x + t * dx), point.y - (a.y + t * dy));
+}
+
+// Longest arc the lookahead may be pushed forward before the straight chord from the projection to
+// that point leaves the corridor polyline by more than `slack`. Evaluated per tick at vertex
+// granularity: the chord to a candidate vertex is admissible only while every corridor vertex it
+// spans stays within slack of it, so the lookahead comes to rest on the corner instead of past it.
+double ClampLookaheadToPathSlack(const navmesh::WorldPath& path, const CorridorProjection& projection, double distance, double slack)
+{
+    if (path.points.size() < 2 || projection.edge_idx + 1 >= path.points.size() || slack <= 0.0) {
+        return distance;
+    }
+
+    const navmesh::WorldPoint& origin = projection.point;
+    navmesh::WorldPoint previous = origin;
+    double arc = 0.0;
+    double admissible = 0.0;
+
+    for (size_t vertex_idx = projection.edge_idx + 1; vertex_idx < path.points.size(); ++vertex_idx) {
+        const navmesh::WorldPoint& vertex = path.points[vertex_idx];
+        const double arc_to_vertex = arc + std::hypot(vertex.x - previous.x, vertex.y - previous.y);
+        double deviation = 0.0;
+        for (size_t spanned = projection.edge_idx + 1; spanned < vertex_idx && deviation <= slack; ++spanned) {
+            deviation = std::max(deviation, PointToSegmentDistance(path.points[spanned], origin, vertex));
+        }
+        if (deviation > slack) {
+            break;
+        }
+        admissible = arc_to_vertex;
+        if (arc_to_vertex >= distance) {
+            return distance;
+        }
+        arc = arc_to_vertex;
+        previous = vertex;
+    }
+
+    if (admissible <= 0.0) {
+        return distance;
+    }
+    return std::max(kNavRunLookaheadMinM, std::min(distance, admissible));
 }
 
 double UpcomingCorridorTurnDeg(const navmesh::WorldPath& path, const CorridorProjection& projection, double lookahead_distance)
@@ -426,7 +481,11 @@ NavRunTickResult NavRunController::tick(
     }
 
     const double upcoming_turn = UpcomingCorridorTurnDeg(plan_.path, *projection, kNavRunUpcomingTurnLookaheadM);
-    const double lookahead_distance = chooseLookaheadDistance(route, sprint_active, upcoming_turn);
+    const double lookahead_distance = ClampLookaheadToPathSlack(
+        plan_.path,
+        *projection,
+        chooseLookaheadDistance(route, sprint_active, upcoming_turn),
+        kNavRunLookaheadPathSlackM);
     const navmesh::WorldPoint lookahead = LookaheadOnCorridor(plan_.path, *projection, lookahead_distance);
     const double corridor_heading = NaviMath::CalcTargetRotation(position.x, position.y, lookahead.x, lookahead.y);
 
@@ -439,7 +498,16 @@ NavRunTickResult NavRunController::tick(
     const double character_arc = CorridorArcLengthTo(plan_.path, plan_.corridor_arc_prefix, *projection);
     const size_t corridor_passed =
         CountCorridorPassedRunWaypoints(*session, plan_.path, plan_.corridor_arc_prefix, anchor_index, character_arc);
-    if (route.startup_motion_confirmed) {
+    const bool clamped_without_passage =
+        projection->before_window || (projection->after_window && projection->cross_track > kNavRunCrossTrackWarnM);
+    if (clamped_without_passage) {
+        if (corridor_passed > 0) {
+            LogDebug << "Corridor passed advance suppressed; corridor projection clamped outside the window." << VAR(corridor_passed)
+                     << VAR(session->current_node_idx()) << VAR(projection->before_window) << VAR(projection->after_window)
+                     << VAR(projection->cross_track);
+        }
+    }
+    else if (route.startup_motion_confirmed) {
         result.passed_run_waypoints = corridor_passed;
     }
     else if (corridor_passed > 0) {

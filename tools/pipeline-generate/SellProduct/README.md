@@ -1,21 +1,35 @@
-# 售卖产品
+# 售卖产品生成器
 
-据点数据通过 zmdmap API 获取，存储在 `tools/pipeline-generate/data/` 目录。
+从 zmdmap 数据生成 SellProduct 任务的 Pipeline、Task 选项与部署数据。任务流程、选品/干员规则和缓存语义见[开发手册 - SellProduct](../../../docs/zh_cn/developers/tasks/sell-product-maintain.md)，本文只讲生成器本身。
 
-`model.mjs` 统一维护据点命名和国际化键；生成器各自消费最小数据投影：
+## 数据流
 
-- `pipeline-data.mjs`：Win32 Pipeline 据点与识别框；
-- `pipeline-adb-data.mjs`：ADB Pipeline 据点与识别框；
-- `sell-data.mjs`：区域售卖入口（含地区流程入口包装节点与地区据点锚点 `SellProductIn{RegionPrefix}Outpost`）与区域内据点列表；
-- `loop-data.mjs`：主循环的地区遍历列表；
-- `session-data.mjs`：自动干员会话的据点注册；
-- `task-data.mjs`：Task 中按缓存强制刷新、售卖优先级、保留规则、地区/据点排列的选项；
-- `selection-data.mjs`：把上游贸易数据预计算为 `assets/data/SellProduct/selection_data.json`，供 Go Service 运行时使用。
+```text
+zmdmap API → tools/pipeline-generate/data/settlement_trade.json（本地缓存）
+           → 本目录生成器 → assets/ 下的生成产物（不要手改）
+```
 
-据点 `LocationId` 由 zmdmap 英文名称自动派生；只有存在实际 OCR 误识证据时才在 `model.mjs` 追加识别候选。某个模板独有的参数留在对应投影文件中。
+## 文件职责
+
+- `model.mjs`：共享模型，统一定义据点/地区、多语言键和稳定顺序。据点 `LocationId` 由 zmdmap 英文名称派生；只有存在实际 OCR 误识证据时才追加识别候选。地区顺序在这里定义，生成器按 `sellProductRegionsNewestFirst`（新地区优先）输出主循环遍历列表，地区内据点保持模型顺序。
+- 每个模板对应一组「投影 + 模板 + 配置」三件套，投影只提供该模板需要的最小数据；某个模板独有的参数留在对应投影文件，不要塞进共享模型：
+
+| 投影 | 生成产物 |
+| ----------------------- | ------------------------------------------------------------- |
+| `pipeline-data.mjs` | Win32 据点 Pipeline（`{Region}/{Location}.json`） |
+| `pipeline-adb-data.mjs` | ADB 据点 Pipeline |
+| `sell-data.mjs` | 地区售卖入口（含地区据点锚点 `SellProductIn{Region}Outpost`） |
+| `loop-data.mjs` | 主循环 `Loop.json` 的地区遍历列表 |
+| `session-data.mjs` | `OperatorSession.json` 的据点注册链 |
+| `task-data.mjs` | `assets/tasks/SellProduct.json` 的任务选项 |
+
+- `selection-data.mjs`：把上游贸易数据预计算为 `assets/data/SellProduct/selection_data.json`（Go 运行时数据）；活动物品临时排除项集中在这里，上游移除活动数据后应清理并重新生成。
+- `sync-locales.mjs`：同步五语言 locale——按游戏据点顺序重排据点键、据点名始终覆盖为 zmdmap 当前官方译文、补齐缺失的据点/干员/物品键（中文名与既有键相同的货品复用旧键）。
+
+## 命令
 
 ```shell
-# 在仓库根目录运行（自动拉取最新数据并生成）
+# 在仓库根目录运行（自动拉取最新数据并完整生成）
 pnpm generate:SellProduct
 
 # 仅更新数据文件
@@ -36,21 +50,13 @@ pnpm exec maa-pipeline-generate --config task-config.json
 pnpm exec maa-pipeline-generate --config pipeline-adb-config.json
 ```
 
-`pnpm generate:SellProduct` 会在渲染前根据 `settlement_trade.json` 按游戏据点顺序重排五语言 locale 的据点键，据点名始终覆盖为 zmdmap 当前官方译文，并补齐缺失的据点和干员键；随后生成随应用发布的 `selection_data.json`。
+## 维护注意
 
-`task-template.jsonc` 的任务选项依次为启用干员自动切换、独立的优先售卖总开关、物品保留规则和地区/据点售卖开关。启用干员自动切换默认开启，关闭后跳过售前切换、售后生产派驻与缓存扫描，售卖本身不受影响；强制刷新干员缓存作为其子选项，仅在开启时出现。售后会为所有启用据点重新计算生产干员分配。优先售卖总开关开启后展开“仅售卖优先产品”以及四号谷地、武陵两个地区配置；每个地区分别提供独立开关与 6 个槽位，且只列出本地区可售物品。该总开关只决定运行时是否应用自定义优先级，不改变任何地区售卖开关。默认模式下，用户指定的物品按槽位 1 至 6 排在该地区默认顺序之前，重复配置采用最靠前的槽位，未配置物品继续按稀有度、单价降序；开启严格优先模式后，仅在同时开启地区优先配置的地区保留明确配置且当前据点可售的物品，未开启地区优先配置的地区仍按默认顺序正常售卖，并在任务初始化时输出一次作用范围提示。若已开启地区优先配置但没有适用物品，则稳定确认两次空候选后正常结束该地区售卖。进入新地区时 Pipeline 会同时切换地区优先配置的启用状态和优先表，任务级缺货集合和据点级已尝试状态继续保留。Pipeline 持续回环，直到据点券耗尽或没有剩余候选；某据点确认物品缺货后，会通过据点锚点把该 `itemId` 标记为本次任务全局缺货，使后续据点直接跳过，下一次任务初始化时自动清空。
-
-干员缓存按 UID 保存完整扫描快照。当前 UID 没有快照时，Pipeline 会先扫描 `operators` 中的全部干员，再开始售卖；存在快照时直接使用。启用强制刷新后，本次任务始终重新扫描完整干员表。只有首次建立或主动强制刷新的全局扫描可以写入缓存；据点内找人的局部扫描只服务于当次流程，不会覆盖已有快照。售卖前若识别到当前派驻干员是已知干员却不在快照中，Go 会使快照失效并触发一次完整重扫（一次任务最多一次），避免过期快照导致错误的干员规划。
-
-`SellProductCache.json` 在每个 UID 的账号分区中同时保存 `operators` 和 `locations`，两者都使用 `selection_data.json` 中的稳定 ID。账号键直接使用 CaptureUID 已生成的 16 位小写十六进制加盐哈希，未捕获时使用 `unknown`，SellProduct 不再做可能发生碰撞的二次规范化。`operators` 是由 `updated_at` 与 `ids` 组成的完整扫描快照：字段缺失或为 `null` 表示尚未完整扫描，`ids` 为空数组才表示完整扫描后没有相关干员。干员扫描时间只随完整快照刷新，不会被 `locations` 的据点发展值更新改写。缓存不设置格式版本，也不迁移旧版 `SellProductOwnedOperators.json`、扁平干员数组或旧中文缓存；JSON 损坏、顶层结构不兼容或顶层包含未知字段时整份缓存视为不存在，顶层结构正常时则只丢弃 UID、账号字段、时间或 ID 不合法的账号分区，其他账号缓存继续使用。任务初始化时会加载上次确认的 `locations`，使第一个据点开始规划时便能为后续未满据点预留发展值加成干员；未缓存的据点按未满处理。每次进入据点仍以右下角图标的最新识别结果为准，状态变化会立即更新当前会话和缓存，后续尚未完成的据点自动按新状态重新规划，已经完成的售后生产派驻保持锁定。
-
-物品保留规则提供 6 个独立槽位，每个槽位选择具体货品和最低保留数量。物品 case 通过 `attach` 提供 `item_id`，数量 input 通过 `custom_action_param.quantity` 提供整数。动态选品确认成功后记录实际 `itemId`，保留规则据此生效；数量 `0` 表示全部可售，同一物品重复配置时后面的槽位覆盖前面的槽位。
-
-`selection_data.json` 的 `names` 映射提供五语言 OCR 候选和 UI 展示名，Go 按固定语言顺序展开并去重 OCR 候选。售卖候选同时保留据点发展值（Outpost Prosperity）未满和已满时的两套加成档位。Pipeline 通过右下角据点发展值图标判断当前据点仍可获得发展值：未满时优先同时具备发展值与交易收益加成的干员；只有单一有效词条时，发展值加成优先于交易收益加成。已满时忽略发展值加成，只比较交易收益。“最高加成档”再与当前据点的售后生产候选取交集形成完美候选，因此据点发展值已满时，具备交易收益和售后生产两个有效词条的干员也属于完美匹配。账号存在完美候选时只从该集合规划，没有时才回退到当前据点的最高加成档。同档候选优先沿用当前派驻，需要更换时由全局生产分配方案决定，并优先形成后续任务可直接沿用的稳定派驻。
-
-运行期 UI 日志在任务复用完整干员缓存时输出该账号缓存的本地更新时间；确认进入据点时输出当前据点的售卖干员与售后生产派驻目标、货品顺序和保留规则，随后在状态确认节点输出干员实际沿用或切换、货品切换、交易完成、派驻冲突后的重新规划、完整扫描后的新干员方案、售后派驻跳过和关键扫描失败。Pipeline 的固定提示引用 interface i18n，Go Service 根据 `selection_data.json` 和 go-service i18n 输出当前语言的据点、干员、货品及动态状态。
-
-据点开关同时控制 `SellProductRegisterLocation{LocationId}`，启用据点构成自动恢复分配和派驻冲突接管的规划范围。售卖始终按“四号谷地 → 武陵”以及各地区内生成模型的固定据点顺序进行。完美候选被其他启用据点占用时会确认调至当前据点；被未启用据点占用或来源无法识别时会取消切换并临时排除，避免干扰用户自己的派驻。自动干员选择和售卖后恢复由“启用干员自动切换”任务开关控制，默认开启。
+- 不要手改生成产物；修改对应模板或数据投影后重新生成。
+- 新增货品通常只需更新 zmdmap 缓存，`sync-locales.mjs` 会自动补齐五语言 `item.*` 键。
+- 新增据点后检查生成的地区 `next`、SceneManager 入口及 Win/ADB 两套产物。
+- 新增地区时先在两套资源包的 `SellProduct/` 下手动创建地区子目录再运行生成（生成器只创建 `outputDir`）。
+- 提交前运行 `node --test` 本目录的三个 `*.test.mjs`。
 
 ## 致谢
 

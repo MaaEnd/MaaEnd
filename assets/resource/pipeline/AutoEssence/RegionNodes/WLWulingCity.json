@@ -3,7 +3,7 @@
         "enabled": false,
         "pre_delay": 0,
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_WLWulingCity",
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointGoal_WLWulingCity",
             "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLWulingCity"
         },
         "post_delay": 0,
@@ -45,7 +45,7 @@
         "inverse": true,
         "next": [
             "[JumpBack]__GotoTriggerPointTeleportOnce_WLWulingCity",
-            "GotoTriggerPointMove_WLWulingCity"
+            "GotoTriggerPointGoal_WLWulingCity"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
@@ -59,120 +59,17 @@
             "SceneEnterWorldWulingWulingCity0"
         ]
     },
-    "GotoTriggerPointMove_WLWulingCity": {
+    "GotoTriggerPointGoal_WLWulingCity": {
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapTrackerGoal",
                 "custom_action_param": {
                     "map_name": "map02_lv002",
-                    "path": [
-                        [
-                            638.3,
-                            265.7
-                        ],
-                        [
-                            639.4,
-                            280.7
-                        ],
-                        [
-                            639.6,
-                            298.6
-                        ],
-                        [
-                            636.1,
-                            301.2
-                        ],
-                        [
-                            627.6,
-                            301.4
-                        ],
-                        [
-                            624.8,
-                            303.7
-                        ],
-                        [
-                            624.8,
-                            306.3
-                        ],
-                        [
-                            627.3,
-                            310.0
-                        ],
-                        [
-                            631.1,
-                            311.3
-                        ],
-                        [
-                            633.6,
-                            313.6
-                        ],
-                        [
-                            638.3,
-                            313.9
-                        ],
-                        [
-                            643.4,
-                            315.2
-                        ],
-                        [
-                            654.6,
-                            317.7
-                        ],
-                        [
-                            683.8,
-                            318.5
-                        ],
-                        [
-                            685.9,
-                            318.9
-                        ],
-                        [
-                            686.2,
-                            322.5
-                        ],
-                        [
-                            687.0,
-                            326.3
-                        ],
-                        [
-                            684.9,
-                            329.9
-                        ],
-                        [
-                            681.3,
-                            336.0
-                        ],
-                        [
-                            690.0,
-                            340.9
-                        ]
-                    ],
-                    "path_trim": true
-                }
-            }
-        },
-        "next": [
-            "GotoTriggerPointMoveExact_WLWulingCity"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在前往激发点附近"
-        }
-    },
-    "GotoTriggerPointMoveExact_WLWulingCity": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map02_lv002",
-                    "path": [
-                        [
-                            680.9,
-                            350.9
-                        ]
-                    ],
-                    "no_ensure_initial_movement_state": true
+                    "target": [
+                        680.9,
+                        350.9
+                    ]
                 }
             }
         },

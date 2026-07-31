@@ -1,0 +1,29 @@
+{
+    "DailyEventRecognitionRedDot": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                // ROI 沿用 resource_adb；HSV 为云终末地红点实测值
+                "roi": [
+                    190,
+                    102,
+                    104,
+                    583
+                ],
+                "method": 40,
+                "lower": [
+                    13,
+                    217,
+                    222
+                ],
+                "upper": [
+                    14,
+                    255,
+                    247
+                ],
+                "connected": true,
+                "count": 40
+            }
+        }
+    }
+}

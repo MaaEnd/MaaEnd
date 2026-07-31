@@ -118,6 +118,36 @@
             "default_case": "No",
             "cases": "${PriorityRuleSwitchCases}"
         },
+        "SellProductSelectionStrategy": {
+            "type": "select",
+            "label": "$task.SellProduct.SelectionStrategy",
+            "description": "$task.SellProduct.SelectionStrategyDescription",
+            "default_case": "Rarity",
+            "cases": "${SelectionStrategyCases}"
+        },
+        "SellProductStockMinimumUnitPrice": {
+            "type": "input",
+            "label": "$task.SellProduct.StockMinimumUnitPriceInput",
+            "inputs": [
+                {
+                    "name": "SellProductStockMinimumUnitPrice",
+                    "label": "$task.SellProduct.StockMinimumUnitPrice",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "${StockMinimumUnitPriceDefault}",
+                    "pattern_msg": "$task.SellProduct.StockMinimumUnitPricePattern"
+                }
+            ],
+            "pipeline_override": {
+                "SellProductConfigureSelectionStrategy": {
+                    "custom_action_param": {
+                        "operation": "configure_strategy",
+                        "strategy": "stock",
+                        "minimum_unit_price": "{SellProductStockMinimumUnitPrice}"
+                    }
+                }
+            }
+        },
         "SellProductOnlyPreferredItems": {
             "type": "switch",
             "label": "$task.SellProduct.OnlyPreferredItems",

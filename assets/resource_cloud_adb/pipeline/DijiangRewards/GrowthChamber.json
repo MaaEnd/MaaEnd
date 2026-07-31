@@ -1,0 +1,25 @@
+{
+    // resource_adb 用 BACK(key=4) 覆盖返回；云终末地不接受 BACK，改为触摸退出
+    "GrowthChamberBackExtract": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "CloseButtonType1",
+                    "ProtosyncMenuButton"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    0,
+                    16,
+                    0,
+                    -16
+                ]
+            }
+        }
+    }
+}

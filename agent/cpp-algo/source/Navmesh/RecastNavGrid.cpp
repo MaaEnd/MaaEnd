@@ -517,6 +517,122 @@ std::unordered_set<int64_t> BannedSteps(
     return out;
 }
 
+StepBarrier StepBreaks(const SpanTable& st, const std::vector<uint8_t>& vis, const Mask& lay, double ox, double oy)
+{
+    StepBarrier out;
+    const int64_t nx = lay.nx, ny = lay.ny, NC = nx * ny, K = st.K;
+    if (K <= 0) {
+        return out;
+    }
+    constexpr float kInf = std::numeric_limits<float>::infinity();
+    std::vector<float> T(static_cast<size_t>(NC * K), kInf);
+    for (size_t j = 0; j < st.occ.size(); ++j) {
+        float* row = &T[static_cast<size_t>(st.occ[j] * K)];
+        int64_t n = 0;
+        for (int64_t k = 0; k < K; ++k) {
+            const int64_t sid = st.IK[j * static_cast<size_t>(K) + static_cast<size_t>(k)];
+            if (sid >= 0 && vis[static_cast<size_t>(sid)] != 0) {
+                row[n++] = st.sp_h[static_cast<size_t>(sid)];
+            }
+        }
+    }
+
+    std::vector<uint8_t> ghost(static_cast<size_t>(NC), 0);
+    bool any_ghost = false;
+    for (int64_t c = 0; c < NC; ++c) {
+        if (lay.v[static_cast<size_t>(c)] != 0 && !std::isfinite(T[static_cast<size_t>(c * K)])) {
+            ghost[static_cast<size_t>(c)] = 1;
+            any_ghost = true;
+        }
+    }
+    if (any_ghost) {
+        std::vector<float> g(static_cast<size_t>(NC));
+        for (int64_t c = 0; c < NC; ++c) {
+            g[static_cast<size_t>(c)] = T[static_cast<size_t>(c * K)];
+        }
+        const int64_t rounds = static_cast<int64_t>(std::ceil(std::sqrt(static_cast<double>(kHoleMaxCells)))) + 1;
+        for (int64_t it = 0; it < rounds; ++it) {
+            std::vector<float> nv = g;
+            for (int64_t y = 0; y < ny; ++y) {
+                for (int64_t x = 0; x < nx; ++x) {
+                    const size_t c = static_cast<size_t>(y * nx + x);
+                    if (ghost[c] == 0) {
+                        continue;
+                    }
+                    float m = g[c];
+                    if (x + 1 < nx) {
+                        m = std::min(m, g[c + 1]);
+                    }
+                    if (x > 0) {
+                        m = std::min(m, g[c - 1]);
+                    }
+                    if (y + 1 < ny) {
+                        m = std::min(m, g[c + static_cast<size_t>(nx)]);
+                    }
+                    if (y > 0) {
+                        m = std::min(m, g[c - static_cast<size_t>(nx)]);
+                    }
+                    nv[c] = m;
+                }
+            }
+            const bool same = nv == g;
+            g.swap(nv);
+            if (same) {
+                break;
+            }
+        }
+        for (int64_t c = 0; c < NC; ++c) {
+            if (ghost[static_cast<size_t>(c)] != 0) {
+                T[static_cast<size_t>(c * K)] = g[static_cast<size_t>(c)];
+            }
+        }
+    }
+
+    static constexpr std::array<std::array<int64_t, 2>, 4> kDirs { { { 1, 0 }, { 0, 1 }, { 1, 1 }, { 1, -1 } } };
+    for (const auto& d : kDirs) {
+        const int64_t dx = d[0], dy = d[1];
+        for (int64_t c = 0; c < NC; ++c) {
+            if (lay.v[static_cast<size_t>(c)] == 0 || !std::isfinite(T[static_cast<size_t>(c * K)])) {
+                continue;
+            }
+            const int64_t ax = c % nx + dx, ay = c / nx + dy;
+            if (ax < 0 || ax >= nx || ay < 0 || ay >= ny) {
+                continue;
+            }
+            const int64_t b = ay * nx + ax;
+            if (!std::isfinite(T[static_cast<size_t>(b * K)])) {
+                continue;
+            }
+            float best = kInf;
+            int64_t bka = 0, bkb = 0;
+            for (int64_t ka = 0; ka < K; ++ka) {
+                for (int64_t kb = 0; kb < K; ++kb) {
+                    const float raw = std::fabs(T[static_cast<size_t>(c * K + ka)] - T[static_cast<size_t>(b * K + kb)]);
+                    const float dd = std::isfinite(raw) ? raw : kInf;
+                    if (dd < best) {
+                        best = dd;
+                        bka = ka;
+                        bkb = kb;
+                    }
+                }
+            }
+            if (!(static_cast<double>(best) > kStep)) {
+                continue;
+            }
+            const bool up = T[static_cast<size_t>(b * K + bkb)] > T[static_cast<size_t>(c * K + bka)];
+            out.steps.insert(up ? c * NC + b : b * NC + c);
+            if (dx != 0 && dy != 0) {
+                continue;
+            }
+            const double px = ox + static_cast<double>(c % nx + dx) * kCS;
+            const double py = oy + static_cast<double>(c / nx + dy) * kCS;
+            out.p0.push_back({ px, py });
+            out.p1.push_back({ px + static_cast<double>(dy) * kCS, py + static_cast<double>(dx) * kCS });
+        }
+    }
+    return out;
+}
+
 std::vector<int64_t> Comps4(const Mask& mask)
 {
     const int64_t ny = mask.ny, nx = mask.nx, NC = nx * ny;

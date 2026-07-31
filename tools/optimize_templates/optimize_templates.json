@@ -552,7 +552,7 @@
     "resource/image/VisitFriends/TerminalMFGCabin": "0f9b624f9c34c3a572a98663222fd72ec0bcd1775e89c1f9f738c27e32f88f9e",
     "resource/image/VisitFriends/TerminalNotice": "3cdd2d7b22eeb3b7f64398b81743be96c3f13c18c559d4c4849bc97868fca022",
     "resource/image/VisitFriends/TerminalControlNexus": "205733cb805b3b47d587011ab047054c3a2fbc716af5c6a394c4e7f510e28537",
-    "resource/image/VisitFriends/TerminalGrowthChamber": "71480500443962f9c74714fbfa259a54d5968b1c734ec322923c67aaee667ba0",
+    "resource/image/VisitFriends/TerminalGrowthChamber": "f41e64b9dcf4a3bf0a87667eabf7216306c3e4b3eda48509a87b54d02f61aace",
     "resource/image/VisitFriends/EnterButton": "c4d78df14a5092e27d612028eea582980467f70a6e8867f626b537a303983df7",
     "resource/image/VisitFriends/ShipEscButton": "4c4bb533f29382bc591b20a90ad41bae4679b385998734e0f3c2b9d18f4b815d",
     "resource/image/EssenceFilter/ThumbLock": "7cabefcdc366420b523f44ea133992adb8c93f2940b8b695ab1366c2dfb0124e",
@@ -951,5 +951,10 @@
     "resource/image/AeroSalvage/Salvage": "7037fad99123f817033590a3186d4135a41b715e0bafe7ba536af97c34485ec7",
     "resource/image/AeroSalvage/Complete": "978630513ae3135b1d672fca52348fe723a7c692f9ec4fb88e1e0b51e312f1f0",
     "resource/image/AeroSalvage/PlacementSite1": "e001dfecc026f70a878c9ab7f359ccedb00328904edcc6184f82fc9c70a9a99c",
-    "resource/image/DeliveryJobs/Xiranite": "03fb97de39ef4afb97eae60e47d4bfafef5419b3ef3da28ae0b64c16a3bf4733"
+    "resource/image/DeliveryJobs/Xiranite": "03fb97de39ef4afb97eae60e47d4bfafef5419b3ef3da28ae0b64c16a3bf4733",
+    "resource/image/SceneManager/News": "bdd85445385b4ba092b5a4ef0d3708ea2278df07d8285e6735a9cb4f4d843e0f",
+    "resource/image/SceneManager/NewsWithRedDot": "05c63391364606725143057d0c0f1aaacf2659e105db3f48458c958a971f9ba0",
+    "resource/image/Common/Button/BackButton": "5048b6f1b53da0771688ff8f9977085f12055bd86f72d8974d5c1b3215b675c9",
+    "resource/image/SellProduct/GoodsCellAnchor": "0767f23cf97ffdcd3b23fc09f3d7fd629d63d6bd12ad42b867a9084b947446a9",
+    "resource/image/SceneManager/MapWuling/MarkerStone4Bottom": "b0f54cf5f597d5a6e192222a47344cc823165ef110424791903cacc37e205293"
 }

@@ -143,8 +143,8 @@ func (a *MapTrackerToward) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		}
 
 		deltaRot := internal.DeltaRotation(curRot, targetRot)
-		absDeltaRot := math.Abs(float64(deltaRot))
-		log.Debug().Int("curRot", curRot).Int("targetRot", targetRot).Float64("deltaRot", float64(deltaRot)).Msg("Adjusting orientation")
+		absDeltaRot := math.Abs(deltaRot)
+		log.Debug().Int("curRot", curRot).Int("targetRot", targetRot).Float64("deltaRot", deltaRot).Msg("Adjusting orientation")
 
 		// Check if already facing the target orientation
 		if absDeltaRot <= param.RotationThreshold {
@@ -153,7 +153,7 @@ func (a *MapTrackerToward) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		}
 
 		// Rotate the camera while the player is still.
-		ca.RotateCamera(int(float64(deltaRot)*ROTATION_DEFAULT_SPEED), 0)
+		ca.RotateCamera(int(deltaRot*ROTATION_DEFAULT_SPEED), 0)
 		ca.ResetCursor(control.CursorResetLazy)
 
 		// Snap the body orientation to the new camera facing by briefly walking backward

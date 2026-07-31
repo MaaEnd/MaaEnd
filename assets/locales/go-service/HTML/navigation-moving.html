@@ -1,9 +1,9 @@
 <div class="maptracker-internal-message-navigation-moving" style="background:#ffffff; color:#222222; padding:12px; border-radius:8px; border:1px solid #e6f9ff; max-width:560px;">
   <style>
-    div:has(.maptracker-internal-message-navigation-moving):has(~ div .maptracker-internal-message-navigation-moving) {
+    #logs-panel > .overflow-y-auto > div:has(.maptracker-internal-message-navigation-moving):has(+ div[aria-hidden="true"] + div .maptracker-internal-message-navigation-moving) {
       display: none !important;
     }
-    div:has(.maptracker-internal-message-navigation-moving):has(~ div .maptracker-internal-message-navigation-finished) {
+    #logs-panel > .overflow-y-auto > div:has(.maptracker-internal-message-navigation-moving):has(+ div[aria-hidden="true"] + div .maptracker-internal-message-navigation-finished) {
       display: none !important;
     }
   </style>
