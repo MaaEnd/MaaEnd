@@ -1,0 +1,166 @@
+{
+    "WLMarkerStoneShip2_Entry": {
+        "desc": "从任意界面通过首墩【湖心岛】宏2摆渡船前往【栖云林地】西侧港口（调用方需设置 Anchor WLMarkerStoneShip2_AfterArrival 控制下一步）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__WLMarkerStoneShip2_Teleport"
+        ]
+    },
+    "__WLMarkerStoneShip2_Teleport": {
+        "desc": "传送到首墩湖心岛",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingMarkerStone2"
+            ]
+        },
+        "next": [
+            "__WLMarkerStoneShip2_TeleportSuccess"
+        ]
+    },
+    "__WLMarkerStoneShip2_TeleportSuccess": {
+        "desc": "断言传送后的位置正确",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv004",
+                    "target": [
+                        408.9,
+                        307.8,
+                        18.3,
+                        20.4
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "__WLMarkerStoneShip2_ShipCheckIn"
+        ]
+    },
+    "__WLMarkerStoneShip2_ShipCheckIn": {
+        "desc": "走到船只停靠处，随后寻找交互按钮（如果没找到则重头来过）",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [
+                    419.3,
+                    319.3
+                ],
+                [
+                    423.1,
+                    317.6
+                ]
+            ],
+            "rotation_lower_threshold": 3,
+            "rotation_upper_threshold": 15,
+            "no_ensure_initial_movement_state": true,
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 0 // 面向正北
+                }
+            }
+        },
+        "post_delay": 1500, // 等待玩家止步
+        "timeout": 4000, // 随后要求在 4 秒内找到 ShipDeparture 节点中的按钮
+        "rate_limit": 500, // 每 0.5 秒尝试找一次
+        "next": [
+            "__WLMarkerStoneShip2_ShipDeparture"
+        ],
+        "on_error": [
+            "__WLMarkerStoneShip2_ShipDepartureFailure"
+        ]
+    },
+    "__WLMarkerStoneShip2_ShipDeparture": {
+        "desc": "点击交互按钮，随后等待离港成功（如果点到呼叫船只按钮而非下一站按钮，则会离港失败，此时重头来过）",
+        "recognition": "TemplateMatch",
+        "template": "MapTracker/StuckMitigator/InteractButton.png",
+        "roi": [
+            760,
+            330,
+            170,
+            310
+        ],
+        "order_by": "Score",
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
+        "timeout": 6000, // 随后要求在 6 秒内离港成功
+        "rate_limit": 1000, // 每 1 秒判断一次离港状态
+        "next": [
+            "__WLMarkerStoneShip2_ShipDepartureSuccess"
+        ],
+        "on_error": [
+            "__WLMarkerStoneShip2_ShipDepartureFailure"
+        ]
+    },
+    "__WLMarkerStoneShip2_ShipDepartureSuccess": {
+        "desc": "判断是否离港成功，随后等待到站",
+        "recognition": "And",
+        "all_of": [
+            "__WLMarkerStoneShip2_TeleportSuccess"
+        ],
+        "inverse": true, // 反转表示离开了传送点范围
+        "timeout": 50000, // 随后要求在 50 秒内到站
+        "rate_limit": 2000, // 每 2 秒判断一次到站状态
+        "next": [
+            "__WLMarkerStoneShip2_ShipArrival"
+        ]
+    },
+    "__WLMarkerStoneShip2_ShipDepartureFailure": {
+        "desc": "登船或离港失败，尝试重新走一边流程",
+        "max_hit": 5, // 最多重试 5 次
+        "next": [
+            "__WLMarkerStoneShip2_Teleport"
+        ]
+    },
+    "__WLMarkerStoneShip2_ShipArrival": {
+        "desc": "判断是否到站，随后走到下船位置",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv004",
+                    "target": [
+                        384.2,
+                        445.6,
+                        8.5,
+                        12.5
+                    ]
+                }
+            ]
+        },
+        "post_delay": 1500, // 等待船只停稳
+        "next": [
+            "__WLMarkerStoneShip2_ShipGetOff"
+        ]
+    },
+    "__WLMarkerStoneShip2_ShipGetOff": {
+        "desc": "走到下船位置，最后调用 Anchor 节点",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "path": [
+                [
+                    390.9,
+                    454.3
+                ]
+            ],
+            "rotation_lower_threshold": 3,
+            "rotation_upper_threshold": 15,
+            "no_ensure_initial_movement_state": true,
+            "stuck_threshold": 6000
+        },
+        "next": [
+            "[Anchor]WLMarkerStoneShip2_After"
+        ]
+    }
+}
