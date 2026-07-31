@@ -252,5 +252,6 @@
     "ims.item.WULING_ARTIFICING_CATALYST": "Wuling Artificing Catalyst",
     "ims.item.T_CREDS": "T-Creds",
     "ims.quantity_ok": "%s: stock %d / target %d (met)",
-    "ims.quantity_short": "%s: stock %d / target %d (short)"
+    "ims.quantity_short": "%s: stock %d / target %d (short)",
+    "ims.add_item_skip_persist": "IMS not initialized: rewards recognized but cache not updated"
 }

@@ -24,7 +24,7 @@ func TestParseAddItemDataParam(t *testing.T) {
 	}
 }
 
-func TestAddItemDataSkipsWhenNotInitialized(t *testing.T) {
+func TestAddItemDataNeedsContextWhenNotInitialized(t *testing.T) {
 	ClearCache()
 	t.Cleanup(ClearCache)
 
@@ -32,10 +32,11 @@ func TestAddItemDataSkipsWhenNotInitialized(t *testing.T) {
 	arg := &maa.CustomActionArg{
 		CustomActionParam: `{"items":{"PROTODISK":"PROTODISK"}}`,
 	}
-	if !a.Run(nil, arg) {
-		t.Fatal("expected success when ims data is not initialized")
+	// Uninitialized cache still runs recognition; nil context cannot capture image.
+	if a.Run(nil, arg) {
+		t.Fatal("expected failure without context when recognition is required")
 	}
 	if got := globalCache.quantity("PROTODISK"); got != 0 {
-		t.Fatalf("quantity=%d, want 0 (no add without init)", got)
+		t.Fatalf("quantity=%d, want 0", got)
 	}
 }

@@ -27,9 +27,9 @@ type addItemDataParam struct {
 // AddItemData recognizes configured items on the current screen and adds their
 // OCR quantities into the IMS cache (A3). Does not change readiness / last_sync.
 //
-// If IMS has never been initialized (hasData=false, no successful A2 / no disk
-// sync timestamp), AddItemData does nothing and still returns success so the
-// Pipeline can continue (e.g. closing the rewards UI).
+// If IMS has never been initialized (hasData=false), recognition and UI Focus
+// still run; cache write is skipped and the action returns success so Pipeline
+// can continue (e.g. closing the rewards UI).
 //
 // Best practice: run as the action of a node that recognizes CloseRewardsButton,
 // then next to a Click node that closes the rewards UI.
@@ -74,11 +74,11 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	if ready, _ := globalCache.snapshot(); !ready {
+	cacheReady, _ := globalCache.snapshot()
+	if !cacheReady {
 		log.Info().
 			Str("component", componentAddItemData).
-			Msg("ims data not initialized, skip add and return success")
-		return true
+			Msg("ims data not initialized, recognize and focus only, skip cache write")
 	}
 
 	if ctx == nil {
@@ -161,14 +161,27 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	)
 	summaryParts := make([]string, 0, len(hits))
 	for _, h := range hits {
+		displayName := itemDisplayName(h.itemID)
+		summaryParts = append(summaryParts, i18n.T("ims.add_item_entry", displayName, h.qty))
+		maafocus.Print(ctx, i18n.T("ims.add_item_found", displayName, h.qty))
+		addedTotal += h.qty
+
+		if !cacheReady {
+			log.Info().
+				Str("component", componentAddItemData).
+				Str("item_id", h.itemID).
+				Str("item_name", displayName).
+				Str("node", h.node).
+				Int("delta", h.qty).
+				Bool("cache_ready", false).
+				Msg("item recognized, skip cache write")
+			continue
+		}
+
 		before, after, _, items, syncAt, ready := globalCache.applyDelta(h.itemID, h.qty)
 		persistItems = items
 		lastSync = syncAt
 		hasData = ready
-		addedTotal += h.qty
-		displayName := itemDisplayName(h.itemID)
-		summaryParts = append(summaryParts, i18n.T("ims.add_item_entry", displayName, h.qty))
-		maafocus.Print(ctx, i18n.T("ims.add_item_found", displayName, h.qty))
 		log.Info().
 			Str("component", componentAddItemData).
 			Str("item_id", h.itemID).
@@ -181,12 +194,16 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	if len(hits) > 0 {
-		if err := persistItemsPreserveSync(persistItems, lastSync, hasData); err != nil {
-			log.Error().
-				Err(err).
-				Str("component", componentAddItemData).
-				Msg("failed to persist item quantities")
-			return false
+		if cacheReady {
+			if err := persistItemsPreserveSync(persistItems, lastSync, hasData); err != nil {
+				log.Error().
+					Err(err).
+					Str("component", componentAddItemData).
+					Msg("failed to persist item quantities")
+				return false
+			}
+		} else {
+			maafocus.Print(ctx, i18n.T("ims.add_item_skip_persist"))
 		}
 		maafocus.Print(ctx, i18n.T("ims.add_item_summary", len(hits), strings.Join(summaryParts, i18n.Separator())))
 	} else {
@@ -198,6 +215,7 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		Int("item_param_count", len(params.Items)).
 		Int("hit_count", len(hits)).
 		Int("added_total", addedTotal).
+		Bool("cache_ready", cacheReady).
 		Msg("add item data finished")
 	return true
 }

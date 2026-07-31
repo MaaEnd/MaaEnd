@@ -192,7 +192,7 @@ On the **current screen**, run each recognition node in `items` and **add** the 
 Unlike A2 (absolute stash sync + mark ready), A3 accumulates recognized amounts (typical: reward popup).
 
 > [!NOTE]
-> If IMS has never been initialized (`hasData=false`: no successful A2 / no sync timestamp on disk), A3 **adds nothing**, still returns success, and logs the skip so reward-close and other Pipeline steps are not blocked.
+> If IMS has never been initialized (`hasData=false`: no successful A2 / no sync timestamp on disk), A3 **still recognizes rewards and prints UI Focus**, but **does not write the cache**, and still returns success so reward-close and other Pipeline steps are not blocked.
 
 ### Action parameters
 

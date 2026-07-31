@@ -252,5 +252,6 @@
     "ims.item.WULING_ARTIFICING_CATALYST": "武陵精鍛助劑",
     "ims.item.T_CREDS": "折金票",
     "ims.quantity_ok": "%s：庫存 %d / 目標 %d（已達標）",
-    "ims.quantity_short": "%s：庫存 %d / 目標 %d（未達標）"
+    "ims.quantity_short": "%s：庫存 %d / 目標 %d（未達標）",
+    "ims.add_item_skip_persist": "IMS 未初始化，已識別獎勵但不寫入快取"
 }
