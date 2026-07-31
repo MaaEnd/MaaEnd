@@ -250,5 +250,7 @@
     "ims.item.CAST_DIE": "모형 틀",
     "ims.item.COOLANT_GEL": "냉각제",
     "ims.item.WULING_ARTIFICING_CATALYST": "무릉 정밀 단조제",
-    "ims.item.T_CREDS": "탈로시안 화폐"
+    "ims.item.T_CREDS": "탈로시안 화폐",
+    "ims.quantity_ok": "%s: 재고 %d / 목표 %d (충족)",
+    "ims.quantity_short": "%s: 재고 %d / 목표 %d (부족)"
 }

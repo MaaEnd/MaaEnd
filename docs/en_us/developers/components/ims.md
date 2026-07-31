@@ -91,6 +91,8 @@ Reports whether the cached quantity for one item meets the requirement. Read-onl
 
 Cached quantity `>= quantity`. Miss reason (log `reason`): `insufficient`.
 
+On each comparison, UI Focus shows current stock vs target (`ims.quantity_ok` / `ims.quantity_short`), throttled ~10s for identical lines to avoid dispatch scan spam.
+
 ### Parameters
 
 | Field | Type | Default | Description |

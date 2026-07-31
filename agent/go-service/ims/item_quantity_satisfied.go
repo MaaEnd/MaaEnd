@@ -4,12 +4,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
-const componentItemQuantitySatisfied = "ItemQuantitySatisfied"
+const (
+	componentItemQuantitySatisfied = "ItemQuantitySatisfied"
+	// Avoid flooding the UI when Pipeline scans many ItemQuantitySatisfied
+	// nodes in one dispatch next-list; identical lines share a throttle window.
+	itemQuantityFocusThrottle = 10 * time.Second
+)
 
 var _ maa.CustomRecognitionRunner = &ItemQuantitySatisfied{}
 
@@ -24,7 +32,7 @@ type itemQuantitySatisfiedParam struct {
 type ItemQuantitySatisfied struct{}
 
 // Run implements maa.CustomRecognitionRunner.
-func (r *ItemQuantitySatisfied) Run(_ *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+func (r *ItemQuantitySatisfied) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if arg == nil {
 		log.Error().
 			Str("component", componentItemQuantitySatisfied).
@@ -51,6 +59,17 @@ func (r *ItemQuantitySatisfied) Run(_ *maa.Context, arg *maa.CustomRecognitionAr
 	}
 
 	current := globalCache.quantity(params.Item)
+	displayName := itemDisplayName(params.Item)
+	focusKey := "ims.quantity_ok"
+	if current < params.Quantity {
+		focusKey = "ims.quantity_short"
+	}
+	maafocus.PrintThrottle(
+		ctx,
+		itemQuantityFocusThrottle,
+		i18n.T(focusKey, displayName, current, params.Quantity),
+	)
+
 	if current < params.Quantity {
 		log.Info().
 			Str("component", componentItemQuantitySatisfied).
@@ -62,12 +81,19 @@ func (r *ItemQuantitySatisfied) Run(_ *maa.Context, arg *maa.CustomRecognitionAr
 		return nil, false
 	}
 
-	detailJSON, _ := json.Marshal(map[string]any{
+	detailJSON, err := json.Marshal(map[string]any{
 		"satisfied": true,
 		"item":      params.Item,
 		"current":   current,
 		"required":  params.Quantity,
 	})
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("component", componentItemQuantitySatisfied).
+			Msg("failed to marshal detail")
+		return nil, false
+	}
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
 		Detail: string(detailJSON),

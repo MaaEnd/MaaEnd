@@ -250,5 +250,7 @@
     "ims.item.CAST_DIE": "Cast Die",
     "ims.item.COOLANT_GEL": "Coolant Gel",
     "ims.item.WULING_ARTIFICING_CATALYST": "Wuling Artificing Catalyst",
-    "ims.item.T_CREDS": "T-Creds"
+    "ims.item.T_CREDS": "T-Creds",
+    "ims.quantity_ok": "%s: stock %d / target %d (met)",
+    "ims.quantity_short": "%s: stock %d / target %d (short)"
 }

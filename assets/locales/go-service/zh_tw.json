@@ -250,5 +250,7 @@
     "ims.item.CAST_DIE": "強固模具",
     "ims.item.COOLANT_GEL": "冷卻脂",
     "ims.item.WULING_ARTIFICING_CATALYST": "武陵精鍛助劑",
-    "ims.item.T_CREDS": "折金票"
+    "ims.item.T_CREDS": "折金票",
+    "ims.quantity_ok": "%s：庫存 %d / 目標 %d（已達標）",
+    "ims.quantity_short": "%s：庫存 %d / 目標 %d（未達標）"
 }

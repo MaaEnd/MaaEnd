@@ -91,6 +91,8 @@ python tools/SupplyPlan/mask_ims_item_corner.py
 
 缓存数量 `>= quantity`。未命中原因（日志 `reason`）：`insufficient`。
 
+对比时会向 UI Focus 输出当前库存与目标（`ims.quantity_ok` / `ims.quantity_short`），相同文案约 10 秒内节流，避免调度扫描刷屏。
+
 ### 参数
 
 | 字段 | 类型 | 默认 | 说明 |

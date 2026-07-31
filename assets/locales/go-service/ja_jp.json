@@ -250,5 +250,7 @@
     "ims.item.CAST_DIE": "硬質金型",
     "ims.item.COOLANT_GEL": "冷却グリース",
     "ims.item.WULING_ARTIFICING_CATALYST": "武陵加工強化剤",
-    "ims.item.T_CREDS": "折金券"
+    "ims.item.T_CREDS": "折金券",
+    "ims.quantity_ok": "%s：在庫 %d / 目標 %d（達成）",
+    "ims.quantity_short": "%s：在庫 %d / 目標 %d（不足）"
 }
