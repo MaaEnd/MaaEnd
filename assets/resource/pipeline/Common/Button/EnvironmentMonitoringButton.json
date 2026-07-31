@@ -11,6 +11,7 @@
         "template": "Common/Button/EnvironmentMonitoringButton.png",
         "method": 10001,
         "threshold": 0.9,
+        "order_by": "Score",
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {
