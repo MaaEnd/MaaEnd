@@ -160,10 +160,12 @@ SpanTable BuildSpans(const std::vector<int64_t>& cell, const std::vector<float>&
     });
     double acc = 0.0;
     int64_t cnt = 0;
+    float anchor = 0.0F;
     for (int64_t i = 0; i < n; ++i) {
         const int64_t c = cell[ord[i]];
         const float hv = h[ord[i]];
-        const bool fresh = i == 0 || c != cell[ord[i - 1]] || (hv - h[ord[i - 1]]) > 1.0f;
+        const bool fresh =
+            i == 0 || c != cell[ord[i - 1]] || (static_cast<double>(hv) - static_cast<double>(anchor)) > kMergeH;
         if (fresh) {
             if (cnt) {
                 st.sp_h.push_back(static_cast<float>(acc / static_cast<double>(cnt)));
@@ -171,13 +173,40 @@ SpanTable BuildSpans(const std::vector<int64_t>& cell, const std::vector<float>&
             st.sp_cell.push_back(c);
             acc = 0.0;
             cnt = 0;
+            anchor = hv;
         }
         acc += static_cast<double>(hv);
         ++cnt;
     }
     st.sp_h.push_back(static_cast<float>(acc / static_cast<double>(cnt)));
+    return PackSpans(std::move(st.sp_cell), std::move(st.sp_h));
+}
 
-    const int64_t n_span = static_cast<int64_t>(st.sp_cell.size());
+SpanTable PackSpans(std::vector<int64_t> cell, std::vector<float> h, std::vector<uint8_t>* flags)
+{
+    SpanTable st;
+    const int64_t n_span = static_cast<int64_t>(cell.size());
+    if (n_span == 0) {
+        return st;
+    }
+    std::vector<int64_t> ord(static_cast<size_t>(n_span));
+    std::iota(ord.begin(), ord.end(), 0);
+    std::stable_sort(ord.begin(), ord.end(), [&](int64_t a, int64_t b) {
+        return cell[a] < cell[b] || (cell[a] == cell[b] && h[a] < h[b]);
+    });
+    st.sp_cell.resize(static_cast<size_t>(n_span));
+    st.sp_h.resize(static_cast<size_t>(n_span));
+    for (int64_t i = 0; i < n_span; ++i) {
+        st.sp_cell[i] = cell[ord[i]];
+        st.sp_h[i] = h[ord[i]];
+    }
+    if (flags != nullptr) {
+        std::vector<uint8_t> fo(static_cast<size_t>(n_span));
+        for (int64_t i = 0; i < n_span; ++i) {
+            fo[i] = (*flags)[ord[i]];
+        }
+        flags->swap(fo);
+    }
     for (int64_t i = 0; i < n_span; ++i) {
         if (i == 0 || st.sp_cell[i] != st.sp_cell[i - 1]) {
             st.occ.push_back(st.sp_cell[i]);
@@ -190,7 +219,7 @@ SpanTable BuildSpans(const std::vector<int64_t>& cell, const std::vector<float>&
     const int64_t n_occ = static_cast<int64_t>(st.occ.size());
     st.HK.assign(static_cast<size_t>(n_occ * st.K), std::numeric_limits<float>::infinity());
     st.IK.assign(static_cast<size_t>(n_occ * st.K), -1);
-    st.sp_ci.resize(n_span);
+    st.sp_ci.resize(static_cast<size_t>(n_span));
     for (int64_t ci = 0, si = 0; ci < n_occ; ++ci) {
         for (int64_t r = 0; r < st.ccnt[ci]; ++r, ++si) {
             st.HK[ci * st.K + r] = st.sp_h[si];
@@ -296,6 +325,46 @@ std::vector<uint8_t> Flood(int64_t seed, const SpanTable& st, int64_t nx)
                     }
                     const int64_t cand = st.IK[j * st.K + slot];
                     if (cand >= 0 && !vis[static_cast<size_t>(cand)]) {
+                        vis[static_cast<size_t>(cand)] = 1;
+                        next.push_back(cand);
+                    }
+                }
+            }
+        }
+        frontier = std::move(next);
+    }
+    return vis;
+}
+
+std::vector<uint8_t> SpanReach(int64_t seed, const SpanTable& st, const std::vector<uint8_t>& ok, int64_t nx, int64_t ny)
+{
+    std::vector<uint8_t> vis(st.sp_h.size(), 0);
+    if (seed < 0 || ok[static_cast<size_t>(seed)] == 0) {
+        return vis;
+    }
+    vis[static_cast<size_t>(seed)] = 1;
+    std::vector<int64_t> frontier { seed };
+    while (!frontier.empty()) {
+        std::vector<int64_t> next;
+        for (const int64_t f : frontier) {
+            const int64_t cid = st.occ[st.sp_ci[f]];
+            const int64_t gx = cid % nx, gy = cid / nx;
+            for (const auto& d : kNb8) {
+                const int64_t ax = gx + d.dx, ay = gy + d.dy;
+                if (ax < 0 || ax >= nx || ay < 0 || ay >= ny) {
+                    continue;
+                }
+                const int64_t j = occFind(st.occ, ay * nx + ax);
+                if (j < 0) {
+                    continue;
+                }
+                for (int64_t slot = 0; slot < st.K; ++slot) {
+                    const float dh = st.HK[j * st.K + slot] - st.sp_h[f];
+                    if (!(static_cast<double>(dh) <= kUp * d.w) || !(dh >= -static_cast<float>(kClimb))) {
+                        continue;
+                    }
+                    const int64_t cand = st.IK[j * st.K + slot];
+                    if (cand >= 0 && ok[static_cast<size_t>(cand)] != 0 && !vis[static_cast<size_t>(cand)]) {
                         vis[static_cast<size_t>(cand)] = 1;
                         next.push_back(cand);
                     }
@@ -587,6 +656,10 @@ StepBarrier StepBreaks(const SpanTable& st, const std::vector<uint8_t>& vis, con
             }
         }
     }
+    out.t0.resize(static_cast<size_t>(NC));
+    for (int64_t c = 0; c < NC; ++c) {
+        out.t0[static_cast<size_t>(c)] = T[static_cast<size_t>(c * K)];
+    }
 
     static constexpr std::array<std::array<int64_t, 2>, 4> kDirs { { { 1, 0 }, { 0, 1 }, { 1, 1 }, { 1, -1 } } };
     for (const auto& d : kDirs) {
@@ -616,7 +689,7 @@ StepBarrier StepBreaks(const SpanTable& st, const std::vector<uint8_t>& vis, con
                     }
                 }
             }
-            if (!(static_cast<double>(best) > kStep)) {
+            if (!(static_cast<double>(best) > kSlope * std::hypot(static_cast<double>(dx), static_cast<double>(dy)) * kCS)) {
                 continue;
             }
             const bool up = T[static_cast<size_t>(b * K + bkb)] > T[static_cast<size_t>(c * K + bka)];
@@ -759,8 +832,14 @@ Mask CloseCracks(const Mask& core, const Mask& lay, const Mask* protect)
     return out;
 }
 
-std::optional<std::vector<CellPt>>
-    CostAstar(const Mask& mask, CellPt s, CellPt g, const Grid<float>& mult, const std::unordered_set<int64_t>* banned, const double* bnp)
+std::optional<std::vector<CellPt>> CostAstar(
+    const Mask& mask,
+    CellPt s,
+    CellPt g,
+    const Grid<float>& mult,
+    const std::unordered_set<int64_t>* banned,
+    const double* bnp,
+    const std::unordered_set<int64_t>* forbidden)
 {
     const int64_t ny = mask.ny, nx = mask.nx;
     if (!mask.at(s.y, s.x) || !mask.at(g.y, g.x)) {
@@ -792,8 +871,12 @@ std::optional<std::vector<CellPt>>
             if (d.dx != 0 && d.dy != 0 && !(mask.at(y, a) && mask.at(b, x))) {
                 continue;
             }
+            const int64_t eid = (y * nx + x) * NC + (b * nx + a);
+            if (forbidden != nullptr && forbidden->contains(eid)) {
+                continue;
+            }
             double pen = 0.0;
-            if (banned != nullptr && banned->contains((y * nx + x) * NC + (b * nx + a))) {
+            if (banned != nullptr && banned->contains(eid)) {
                 if (bnp == nullptr) {
                     continue;
                 }
@@ -819,6 +902,103 @@ std::optional<std::vector<CellPt>>
         x = p % nx;
         y = p / nx;
         out.push_back({ x, y });
+    }
+    std::reverse(out.begin(), out.end());
+    return out;
+}
+
+std::optional<std::vector<int64_t>> SpanAstar(
+    const SpanTable& st,
+    const std::vector<uint8_t>& ok,
+    const std::vector<int64_t>& cidx,
+    const Mask& ok2,
+    int64_t s,
+    const std::vector<int64_t>& gset,
+    const Grid<float>& mult,
+    const std::unordered_set<int64_t>* banned,
+    const double* bnp,
+    const std::unordered_set<int64_t>* forbidden)
+{
+    if (s < 0 || ok[static_cast<size_t>(s)] == 0 || gset.empty()) {
+        return std::nullopt;
+    }
+    const int64_t nx = ok2.nx, ny = ok2.ny, NC = nx * ny, K = st.K;
+    const int64_t gc = st.occ[st.sp_ci[static_cast<size_t>(gset.front())]];
+    const int64_t gxx = gc % nx, gyy = gc / nx;
+    std::vector<double> dist(st.sp_h.size(), std::numeric_limits<double>::infinity());
+    std::vector<int64_t> prev(st.sp_h.size(), -1);
+    dist[static_cast<size_t>(s)] = 0.0;
+    using Node = std::tuple<double, int64_t>;
+    std::priority_queue<Node, std::vector<Node>, std::greater<Node>> pq;
+    pq.emplace(0.0, s);
+    int64_t hit = -1;
+    while (!pq.empty()) {
+        const auto [f, u] = pq.top();
+        pq.pop();
+        const double d0 = dist[static_cast<size_t>(u)];
+        const int64_t cu = st.occ[st.sp_ci[static_cast<size_t>(u)]];
+        const int64_t x = cu % nx, y = cu / nx;
+        if (f > d0 + std::hypot(static_cast<double>(gxx - x), static_cast<double>(gyy - y)) + 1e-9) {
+            continue;
+        }
+        if (std::find(gset.begin(), gset.end(), u) != gset.end()) {
+            hit = u;
+            break;
+        }
+        const float hu = st.sp_h[static_cast<size_t>(u)];
+        const float m0 = mult.v[static_cast<size_t>(cu)];
+        for (const auto& d : kNb8) {
+            const int64_t a = x + d.dx, b = y + d.dy;
+            if (a < 0 || a >= nx || b < 0 || b >= ny) {
+                continue;
+            }
+            const int64_t cv = b * nx + a;
+            if (ok2.v[static_cast<size_t>(cv)] == 0) {
+                continue;
+            }
+            if (d.dx != 0 && d.dy != 0 && !(ok2.at(y, a) && ok2.at(b, x))) {
+                continue;
+            }
+            const int64_t j = cidx[static_cast<size_t>(cv)];
+            if (j < 0) {
+                continue;
+            }
+            const int64_t eid = cu * NC + cv;
+            if (forbidden != nullptr && forbidden->contains(eid)) {
+                continue;
+            }
+            double pen = 0.0;
+            if (banned != nullptr && banned->contains(eid)) {
+                if (bnp == nullptr) {
+                    continue;
+                }
+                pen = *bnp;
+            }
+            const float step = static_cast<float>(d.w * 0.5) * (m0 + mult.v[static_cast<size_t>(cv)]);
+            const double nd = d0 + static_cast<double>(step) + pen;
+            for (int64_t k = 0; k < K; ++k) {
+                const int64_t v = st.IK[j * K + k];
+                if (v < 0 || ok[static_cast<size_t>(v)] == 0) {
+                    continue;
+                }
+                const float dh = st.HK[j * K + k] - hu;
+                if (static_cast<double>(dh) > kUp * d.w || dh < -static_cast<float>(kClimb)) {
+                    continue;
+                }
+                if (nd < dist[static_cast<size_t>(v)] - 1e-12) {
+                    dist[static_cast<size_t>(v)] = nd;
+                    prev[static_cast<size_t>(v)] = u;
+                    pq.emplace(nd + std::hypot(static_cast<double>(gxx - a), static_cast<double>(gyy - b)), v);
+                }
+            }
+        }
+    }
+    if (hit < 0) {
+        return std::nullopt;
+    }
+    std::vector<int64_t> out { hit };
+    while (out.back() != s) {
+        out.push_back(prev[static_cast<size_t>(out.back())]);
     }
     std::reverse(out.begin(), out.end());
     return out;
@@ -1177,11 +1357,82 @@ double ClearanceFloor::cost(const WorldPoint& p, const WorldPoint& q) const
     return L * (acc / static_cast<double>(n));
 }
 
-std::vector<WorldPoint> StringPull(const std::vector<WorldPoint>& pts, const Blockers& blk, const ClearanceFloor* cfl)
+std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint>& pts, float h) const
+{
+    std::vector<CellPt> cells;
+    for (size_t i = 1; i < pts.size(); ++i) {
+        const int64_t ax = static_cast<int64_t>((pts[i - 1].x - x0_) / kCS);
+        const int64_t ay = static_cast<int64_t>((pts[i - 1].y - y0_) / kCS);
+        const int64_t bx = static_cast<int64_t>((pts[i].x - x0_) / kCS);
+        const int64_t by = static_cast<int64_t>((pts[i].y - y0_) / kCS);
+        const int64_t n = std::max<int64_t>(std::max(std::abs(bx - ax), std::abs(by - ay)), 1);
+        for (int64_t k = 0; k <= n; ++k) {
+            const CellPt c { ax + static_cast<int64_t>(std::nearbyint(static_cast<double>(bx - ax) * static_cast<double>(k)
+                                                                     / static_cast<double>(n))),
+                             ay + static_cast<int64_t>(std::nearbyint(static_cast<double>(by - ay) * static_cast<double>(k)
+                                                                     / static_cast<double>(n))) };
+            if (cells.empty() || !(cells.back() == c)) {
+                cells.push_back(c);
+            }
+        }
+    }
+    std::erase_if(cells, [&](const CellPt& c) { return c.x < 0 || c.x >= nx_ || c.y < 0 || c.y >= ny_; });
+    std::vector<float> cur { h };
+    std::vector<float> nb;
+    std::vector<float> nxt;
+    CellPt pc = cells.empty() ? CellPt {} : cells[0];
+    for (size_t i = 1; i < cells.size(); ++i) {
+        const int64_t j = (*cidx_)[static_cast<size_t>(cells[i].y * nx_ + cells[i].x)];
+        if (j < 0) {
+            continue;
+        }
+        nb.clear();
+        for (int64_t k = 0; k < st_->K; ++k) {
+            if (st_->IK[j * st_->K + k] >= 0) {
+                nb.push_back(st_->HK[j * st_->K + k]);
+            }
+        }
+        if (nb.empty()) {
+            continue;
+        }
+        nxt.clear();
+        const double up = kSlope
+            * std::hypot(static_cast<double>(cells[i].x - pc.x), static_cast<double>(cells[i].y - pc.y)) * kCS;
+        for (const float t : nb) {
+            for (const float c : cur) {
+                const float dh = t - c;
+                if (static_cast<double>(dh) <= up && dh >= -static_cast<float>(kClimb)) {
+                    nxt.push_back(t);
+                    break;
+                }
+            }
+        }
+        if (nxt.empty()) {
+            return std::nullopt;
+        }
+        cur = nxt;
+        pc = cells[i];
+    }
+    return cur;
+}
+
+bool LayerOracle::ok(const WorldPoint& p, const WorldPoint& q, float h, float hq) const
+{
+    const auto cur = walk({ p, q }, h);
+    if (!cur.has_value()) {
+        return false;
+    }
+    return std::any_of(cur->begin(), cur->end(), [&](float v) { return std::fabs(v - hq) <= 1e-3F; });
+}
+
+std::vector<WorldPoint> StringPull(
+    const std::vector<WorldPoint>& pts,
+    const Blockers& blk,
+    const ClearanceFloor* cfl,
+    const LayerOracle* lyo,
+    const std::vector<float>* hs)
 {
     std::vector<WorldPoint> P = pts;
-    // 跨点连线须同时不低于被跳过子路径的净空地板、不高于其代价泛函(与几何重寻同口径),
-    // 相邻点连线无条件保留
     std::vector<float> seg;
     std::vector<double> cst;
     if (cfl != nullptr && P.size() > 1) {
@@ -1220,7 +1471,8 @@ std::vector<WorldPoint> StringPull(const std::vector<WorldPoint>& pts, const Blo
                 if (!blk.blocked(P[i], P[j])
                     && (!guard
                         || (static_cast<double>(cfl->seg(P[i], P[j])) >= static_cast<double>(acc[k]) - kClrTol
-                            && cfl->cost(P[i], P[j]) <= ac2[k] * (1.0 + kCostTol)))) {
+                            && cfl->cost(P[i], P[j]) <= ac2[k] * (1.0 + kCostTol)))
+                    && (lyo == nullptr || lyo->ok(P[i], P[j], (*hs)[idx[i]], (*hs)[idx[j]]))) {
                     break;
                 }
                 --j;

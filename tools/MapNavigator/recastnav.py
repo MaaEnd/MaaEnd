@@ -7,13 +7,14 @@ import numpy as np
 
 CS = 0.25          # 体素边长 px
 CLIMB = 3.0        # 相邻格可连通最大高差 px
-STEP = 0.5         # 相邻格可直接迈上的最大高差 px, 超出即立面, 只能绕行
-MERGE_H = 1.0      # 同列 span 合并容差 px
+SLOPE = 1.0        # 可攀爬坡度上限 tanθ, 抬升超过水平位移的这个倍数即立面, 只能绕行
+UP = SLOPE * CS    # 正交相邻格允许的抬升 px, 斜向按实际水平位移等比放大
+MERGE_H = UP       # 同列 span 合并容差 px, 取 UP 使同层内处处可一步跨到
 EDT_CAP = 12.0     # 距离场截断 px
 R = 1.75           # 期望余量上限 px
 GEO_R = 3.5        # 几何口径舒适余量上限 px
 REL = 0.6          # 期望余量 = min(R, REL×局部净空)
-LAM = 1.5          # 满亏欠一步加价倍数
+LAM = 4.0          # 满亏欠一步加价倍数
 RIDGEF = 0.5       # 脊线保底余量地板 px
 MAXERR = 0.5       # 轮廓 DP 容差 px
 SLIMEPS = 0.5      # 终线共线剔除容差 px
@@ -120,7 +121,20 @@ def spans(cell, hz, merge_h=MERGE_H):
     o = np.lexsort((hz, cell))
     cell = cell[o]; hz = hz[o]
     new = np.empty(len(cell), bool); new[0] = True
-    new[1:] = (cell[1:] != cell[:-1]) | (hz[1:] - hz[:-1] > merge_h)
+    new[1:] = cell[1:] != cell[:-1]
+    head = np.flatnonzero(new)
+    cnt = np.diff(np.append(head, len(cell)))
+    anc = hz[head].astype(np.float64)
+    for r in range(1, int(cnt.max()) if len(cnt) else 1):
+        sel = np.flatnonzero(cnt > r)
+        if not len(sel):
+            break
+        idx = head[sel] + r
+        over = hz[idx] - anc[sel] > merge_h
+        if not over.any():
+            continue
+        new[idx[over]] = True
+        anc[sel[over]] = hz[idx[over]]
     sid = np.cumsum(new) - 1
     n = int(sid[-1]) + 1
     cntv = np.bincount(sid, minlength=n)
@@ -223,6 +237,164 @@ def flood(seed, sp_h, occ, HK, IK, sp_ci, nx, climb=CLIMB):
     return vis
 
 
+def span_reach(seed, sp_h, occ, HK, IK, sp_ci, ok, nx, ny,
+               up=UP, climb=CLIMB):
+    vis = np.zeros(len(sp_h), bool)
+    if not ok[seed]:
+        return vis
+    vis[seed] = True
+    F = np.array([seed], np.int64)
+    while len(F):
+        nxt = []
+        cid = occ[sp_ci[F]]
+        gx, gy = cid % nx, cid // nx
+        for dx, dy, w in _NB8:
+            ax, ay = gx + dx, gy + dy
+            good = (ax >= 0) & (ax < nx) & (ay >= 0) & (ay < ny)
+            tgt = np.where(good, ay * nx + ax, 0)
+            j = np.searchsorted(occ, tgt)
+            good &= j < len(occ)
+            jj = np.where(good, np.minimum(j, len(occ) - 1), 0)
+            good &= occ[jj] == tgt
+            if not good.any():
+                continue
+            src = F[good]
+            jj = jj[good]
+            with np.errstate(invalid="ignore"):
+                dh = HK[jj] - sp_h[src][:, None]
+                m = (dh <= up * w) & (dh >= -climb)
+            cand = IK[jj][m]
+            cand = cand[cand >= 0]
+            cand = cand[ok[cand] & ~vis[cand]]
+            if len(cand):
+                cand = np.unique(cand)
+                vis[cand] = True
+                nxt.append(cand)
+        F = np.concatenate(nxt) if nxt else np.zeros(0, np.int64)
+    return vis
+
+
+def span_astar(ok, sp_h, occ, HK, IK, sp_ci, cidx, ok2, s, gset, mult, nx, ny,
+               banned=None, bnp=None, forbidden=None, up=UP, climb=CLIMB):
+    if not ok[s] or not gset:
+        return None
+    K = HK.shape[1]
+    bn = banned or ()
+    fb = forbidden or ()
+    mf = mult.ravel()
+    gc = int(occ[sp_ci[next(iter(gset))]])
+    gxx, gyy = gc % nx, gc // nx
+    dist = np.full(len(sp_h), np.inf)
+    prev = np.full(len(sp_h), -1, np.int64)
+    dist[s] = 0.0
+    pq = [(0.0, s)]
+    hit = -1
+    while pq:
+        f, u = heapq.heappop(pq)
+        d0 = dist[u]
+        cu = int(occ[sp_ci[u]])
+        x, y = cu % nx, cu // nx
+        if f > d0 + math.hypot(gxx - x, gyy - y) + 1e-9:
+            continue
+        if u in gset:
+            hit = u
+            break
+        hu = sp_h[u]
+        m0 = mf[cu]
+        for dx, dy, w in _NB8:
+            a, b = x + dx, y + dy
+            if not (0 <= a < nx and 0 <= b < ny):
+                continue
+            cv = b * nx + a
+            if not ok2[cv]:
+                continue
+            if dx and dy and not (ok2[y * nx + a] and ok2[b * nx + x]):
+                continue
+            j = cidx[cv]
+            if j < 0:
+                continue
+            e = (cu, cv)
+            if e in fb:
+                continue
+            pen = 0.0
+            if e in bn:
+                if bnp is None:
+                    continue
+                pen = bnp
+            nd = d0 + w * 0.5 * (m0 + mf[cv]) + pen
+            for k in range(K):
+                v = int(IK[j, k])
+                if v < 0 or not ok[v]:
+                    continue
+                dh = HK[j, k] - hu
+                if dh > up * w or dh < -climb:
+                    continue
+                if nd < dist[v] - 1e-12:
+                    dist[v] = nd
+                    prev[v] = u
+                    heapq.heappush(pq, (nd + math.hypot(gxx - a, gyy - b), v))
+    if hit < 0:
+        return None
+    out = [hit]
+    while out[-1] != s:
+        out.append(int(prev[out[-1]]))
+    return out[::-1]
+
+
+class LayerOracle:
+    def __init__(self, HK, IK, cidx, nx, ny, x0, y0, cs=CS,
+                 slope=SLOPE, climb=CLIMB):
+        self.HK = HK
+        self.IK = IK
+        self.cidx = cidx
+        self.nx = nx
+        self.ny = ny
+        self.x0 = x0
+        self.y0 = y0
+        self.cs = cs
+        self.slope = slope
+        self.climb = climb
+
+    def walk(self, pts, h):
+        cs, nx, ny = self.cs, self.nx, self.ny
+        cells = []
+        for i in range(1, len(pts)):
+            ax = int((pts[i - 1][0] - self.x0) / cs)
+            ay = int((pts[i - 1][1] - self.y0) / cs)
+            bx = int((pts[i][0] - self.x0) / cs)
+            by = int((pts[i][1] - self.y0) / cs)
+            n = max(abs(bx - ax), abs(by - ay)) or 1
+            for k in range(n + 1):
+                c = (ax + round((bx - ax) * k / n),
+                     ay + round((by - ay) * k / n))
+                if not cells or cells[-1] != c:
+                    cells.append(c)
+        cells = [c for c in cells if 0 <= c[0] < nx and 0 <= c[1] < ny]
+        cur = np.array([h], np.float32)
+        pc = cells[0] if cells else None
+        for c in cells[1:]:
+            j = int(self.cidx[c[1] * nx + c[0]])
+            if j < 0:
+                continue
+            nb = self.HK[j][self.IK[j] >= 0]
+            if not len(nb):
+                continue
+            up = self.slope * math.hypot(c[0] - pc[0], c[1] - pc[1]) * cs
+            d = nb[None, :] - cur[:, None]
+            m = (d <= up) & (d >= -self.climb)
+            if not m.any():
+                return None
+            cur = nb[m.any(0)]
+            pc = c
+        return cur
+
+    def ok(self, p, q, h, hq=None):
+        cur = self.walk((p, q), h)
+        if cur is None:
+            return False
+        return hq is None or bool((np.abs(cur - hq) <= 1e-3).any())
+
+
 def _step_heights(occ, HK, IK, vis, lay, nx, ny):
     HV = np.where((IK >= 0) & vis[np.maximum(IK, 0)], HK, np.inf)
     T = np.full((nx * ny, HV.shape[1]), np.inf, np.float32)
@@ -247,10 +419,10 @@ def _step_heights(occ, HK, IK, vis, lay, nx, ny):
     return T
 
 
-def step_breaks(occ, HK, IK, vis, lay, nx, ny, ox, oy, cs=CS, step=STEP):
+def step_breaks(occ, HK, IK, vis, lay, nx, ny, ox, oy, cs=CS, slope=SLOPE):
     out = set()
     src = np.nonzero(lay.ravel())[0]
-    if not len(src) or not np.isfinite(step):
+    if not len(src) or not np.isfinite(slope):
         return out, (np.zeros((0, 2)), np.zeros((0, 2)))
     T = _step_heights(occ, HK, IK, vis, lay, nx, ny)
     K = T.shape[1]
@@ -271,7 +443,7 @@ def step_breaks(occ, HK, IK, vis, lay, nx, ny, ox, oy, cs=CS, step=STEP):
         d = np.where(np.isfinite(d), d, np.inf).reshape(len(a), -1)
         k = d.argmin(1)
         r = np.arange(len(a))
-        bad = d[r, k] > step
+        bad = d[r, k] > slope * math.hypot(dx, dy) * cs
         if not bad.any():
             continue
         a, b = a[bad], b[bad]
@@ -499,11 +671,12 @@ def close_cracks(core, lay, protect=None):
     return out
 
 
-def cost_astar(mask, s, g, mult, banned=None, bnp=None):
+def cost_astar(mask, s, g, mult, banned=None, bnp=None, forbidden=None):
     ny, nx = mask.shape
     if not mask[s[1], s[0]] or not mask[g[1], g[0]]:
         return None
     bn = banned or ()
+    fb = forbidden or ()
     dist = np.full(mask.shape, np.inf)
     prev = np.full(mask.shape, -1, np.int64)
     dist[s[1], s[0]] = 0.0
@@ -522,8 +695,11 @@ def cost_astar(mask, s, g, mult, banned=None, bnp=None):
                 continue
             if dx and dy and not (mask[y, a] and mask[b, x]):
                 continue
+            e = (y * nx + x, b * nx + a)
+            if e in fb:
+                continue
             pen = 0.0
-            if (y * nx + x, b * nx + a) in bn:
+            if e in bn:
                 if bnp is None:
                     continue
                 pen = bnp
@@ -789,10 +965,8 @@ class ClearanceFloor:
         return L * float(self.mg[gy, gx].mean(dtype=np.float64))
 
 
-def string_pull(pts, blk, rounds=6, cfl=None):
+def string_pull(pts, blk, rounds=6, cfl=None, lyo=None, hs=None):
     P = [tuple(map(float, p)) for p in pts]
-    # 跨点连线须同时不低于被跳过子路径的净空地板、不高于其代价泛函(与几何重寻同口径),
-    # 相邻点连线无条件保留
     seg = cst = None
     if cfl is not None and len(P) > 1:
         seg = np.array([cfl.seg(P[k], P[k + 1]) for k in range(len(P) - 1)],
@@ -810,11 +984,13 @@ def string_pull(pts, blk, rounds=6, cfl=None):
             j = len(P) - 1
             while j > i + 1:
                 k = idx[j] - idx[i] - 1
-                if not blk.blocked(P[i], P[j]) and (
-                        acc is None
-                        or (cfl.seg(P[i], P[j]) >= float(acc[k]) - CLRTOL
-                            and cfl.cost(P[i], P[j])
-                            <= float(ac2[k]) * (1.0 + COSTTOL))):
+                if (not blk.blocked(P[i], P[j])
+                        and (acc is None
+                             or (cfl.seg(P[i], P[j]) >= float(acc[k]) - CLRTOL
+                                 and cfl.cost(P[i], P[j])
+                                 <= float(ac2[k]) * (1.0 + COSTTOL)))
+                        and (lyo is None
+                             or lyo.ok(P[i], P[j], hs[idx[i]], hs[idx[j]]))):
                     break
                 j -= 1
             out.append(P[j])

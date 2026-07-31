@@ -462,6 +462,7 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(const CachedNavmesh& navmesh, cons
     result.path.zone_id = zone->zone_id;
     result.path.zone_name = request.zone_name;
     result.path.points = std::move(plan.points);
+    result.path.clearance = std::move(plan.clearance);
     result.cost = plan.length;
     return result;
 }
@@ -1013,8 +1014,11 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshDetourRoute(
                 continue;
             }
             const auto route_to_detour = PlanNavmeshRouteImpl(param, position.zone_id, start, snapped->point, blocked, blocked_points);
+            if (!route_to_detour) {
+                continue;
+            }
             const auto route_to_goal = PlanNavmeshRouteImpl(param, position.zone_id, snapped->point, goal, blocked, blocked_points);
-            if (!route_to_detour || !route_to_goal) {
+            if (!route_to_goal) {
                 continue;
             }
 
@@ -1113,12 +1117,16 @@ bool AppendGeneratedNavmeshWaypoints(
     const std::unordered_set<size_t> segment_breaks(world_path.segment_breaks.begin(), world_path.segment_breaks.end());
     const size_t total = world_path.points.size();
     const size_t loop_end = include_goal ? total : (total > 0 ? total - 1 : 0);
+    const auto clearance_at = [&](size_t index) {
+        return index < world_path.clearance.size() ? world_path.clearance[index] : 0.0;
+    };
 
     if (emit_interior_corners) {
         for (size_t index = 1; index < loop_end; ++index) {
             const navmesh::WorldPoint& point = world_path.points[index];
             out_path.emplace_back(point.x, point.y, ActionType::RUN);
             out_path.back().strict_arrival = false;
+            out_path.back().corridor_clearance = clearance_at(index);
         }
         if (include_goal && total >= 2) {
             const navmesh::WorldPoint& goal = world_path.points[total - 1];
@@ -1137,12 +1145,14 @@ bool AppendGeneratedNavmeshWaypoints(
         for (size_t corner = prev + 1; corner < anchor; ++corner) {
             out_path.emplace_back(world_path.points[corner].x, world_path.points[corner].y, ActionType::RUN);
             out_path.back().strict_arrival = false;
+            out_path.back().corridor_clearance = clearance_at(corner);
         }
     };
     const auto flush_leg_to = [&](size_t anchor, bool strict_arrival) {
         restore_corners_to(anchor);
         out_path.emplace_back(world_path.points[anchor].x, world_path.points[anchor].y, ActionType::RUN);
         out_path.back().strict_arrival = strict_arrival;
+        out_path.back().corridor_clearance = clearance_at(anchor);
         prev = anchor;
     };
 

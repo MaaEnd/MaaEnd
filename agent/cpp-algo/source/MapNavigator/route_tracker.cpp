@@ -129,12 +129,13 @@ bool TryAdvancePassedRunWaypoints(
         }
 
         const Waypoint& next_waypoint = session->CurrentPathAt(segment->to_idx);
-        const double next_arrival_band = next_waypoint.GetLookahead() + kWaypointArrivalSlack + position_quantum;
+        const double next_arrival_band = next_waypoint.ArrivalBand(position_quantum);
+        const bool near_next_waypoint = segment->next_distance <= next_arrival_band;
         const bool projection_growing =
             state->best_projection_on_segment >= 0.55 && segment->clamped_projection + 0.05 >= state->best_projection_on_segment;
         const bool route_fact_passed =
             segment->next_distance + position_quantum < segment->current_distance || segment->turn_back_yaw >= 110.0;
-        const bool hard_pass_evidence = route_fact_passed || segment->raw_projection >= 1.05 || segment->next_distance <= next_arrival_band;
+        const bool hard_pass_evidence = route_fact_passed || segment->raw_projection >= 1.05 || near_next_waypoint;
         const bool should_latch =
             !state->passed_waypoint_latched && segment->raw_projection >= 0.40
             && (((segment->cross_track_distance <= kSerialRouteDeviationThreshold) && hard_pass_evidence)
@@ -153,7 +154,7 @@ bool TryAdvancePassedRunWaypoints(
         }
 
         const bool entered_next_segment = segment->raw_projection >= 1.05;
-        if (segment->clamped_projection < 0.90 && segment->next_distance > next_arrival_band && !entered_next_segment) {
+        if (segment->clamped_projection < 0.90 && !near_next_waypoint && !entered_next_segment) {
             break;
         }
 
@@ -204,8 +205,7 @@ RouteTrackingState RouteTracker::Update(NavigationSession* session, RouteTracker
     }
 
     tracking.valid = true;
-    tracking.arrival_band = waypoint.RequiresStrictArrival() ? waypoint.GetLookahead() + PositionQuantum()
-                                                             : waypoint.GetLookahead() + kWaypointArrivalSlack + PositionQuantum();
+    tracking.arrival_band = waypoint.ArrivalBand(PositionQuantum());
     tracking.waypoint_distance = std::hypot(waypoint.x - position.x, waypoint.y - position.y);
     tracking.progress_distance = tracking.waypoint_distance;
     tracking.waypoint_heading = NaviMath::CalcTargetRotation(position.x, position.y, waypoint.x, waypoint.y);

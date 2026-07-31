@@ -70,7 +70,6 @@ public:
         const NaviParam& param,
         size_t anchor_index,
         const Waypoint& anchor,
-        bool sprint_active,
         std::chrono::steady_clock::time_point now);
 
     void invalidate();
@@ -89,7 +88,7 @@ private:
 
     NavRunReplanReason detectReplanTrigger(const RouteTrackingState& route, std::chrono::steady_clock::time_point now) const;
 
-    double chooseLookaheadDistance(const RouteTrackingState& route, bool sprint_active, double upcoming_turn_deg) const;
+    double chooseLookaheadDistance(const RouteTrackingState& route) const;
 
     NavRunPlan plan_;
     std::chrono::steady_clock::time_point last_progress_seen_ {};

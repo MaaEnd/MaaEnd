@@ -18,6 +18,7 @@ struct RecastPlanResult
     bool ok = false;
     std::string error;
     std::vector<WorldPoint> points;
+    std::vector<double> clearance; // 逐点通道半宽 px
     double length = 0.0;
     std::vector<std::string> warnings;
     std::vector<WorldPoint> wall_cross; // 不可避穿墙步的格心

@@ -290,11 +290,11 @@ double NavigationSession::best_distance_to_target() const
     return best_distance_to_target_;
 }
 
-void NavigationSession::ObserveHardProgress(size_t waypoint_idx, double actual_distance, const std::chrono::steady_clock::time_point& now)
+void NavigationSession::ObserveHardProgress(size_t target_key, double actual_distance, const std::chrono::steady_clock::time_point& now)
 {
     const double progress_epsilon = std::max(kNoProgressDistanceEpsilon, kMeasurementDefaultPositionQuantum);
-    if (!hard_progress_initialized_ || hard_progress_waypoint_idx_ != waypoint_idx) {
-        hard_progress_waypoint_idx_ = waypoint_idx;
+    if (!hard_progress_initialized_ || hard_progress_target_key_ != target_key) {
+        hard_progress_target_key_ = target_key;
         hard_best_distance_ = actual_distance;
         hard_last_progress_time_ = now;
         hard_progress_initialized_ = true;
@@ -317,19 +317,16 @@ int64_t NavigationSession::HardStalledMs(const std::chrono::steady_clock::time_p
 
 void NavigationSession::ResetHardProgress()
 {
-    hard_progress_waypoint_idx_ = std::numeric_limits<size_t>::max();
+    hard_progress_target_key_ = std::numeric_limits<size_t>::max();
     hard_best_distance_ = std::numeric_limits<double>::max();
     hard_last_progress_time_ = {};
     hard_progress_initialized_ = false;
 }
 
-void NavigationSession::ApplyDynamicOverlay(
-    std::vector<Waypoint> generated_prefix,
-    size_t continue_index,
-    const NaviPosition& pos,
-    bool reset_hard_progress)
+void NavigationSession::ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos)
 {
     assert(continue_index <= original_path_.size() && "Dynamic overlay continue index is out of range.");
+    const bool retargeted = continue_index != path_origin_index_;
     current_path_ = std::move(generated_prefix);
     const size_t generated_count = current_path_.size();
     current_path_.insert(current_path_.end(), original_path_.begin() + static_cast<std::ptrdiff_t>(continue_index), original_path_.end());
@@ -339,10 +336,7 @@ void NavigationSession::ApplyDynamicOverlay(
     current_node_idx_ = 0;
     current_zone_id_ = pos.zone_id;
     ResetProgress();
-    // Skipped by the unstick replan: it re-applies to the SAME waypoint every recovery retry, so clearing the
-    // hard clock here would keep re-arming it and defeat the recovery timeout. A genuine waypoint change is
-    // re-baselined by ObserveHardProgress on its own, so the clock still tracks real progress either way.
-    if (reset_hard_progress) {
+    if (retargeted) {
         ResetHardProgress();
     }
     LogInfo << "Dynamic route overlay applied." << VAR(generated_count) << VAR(continue_index) << VAR(current_path_.size()) << VAR(pos.x)

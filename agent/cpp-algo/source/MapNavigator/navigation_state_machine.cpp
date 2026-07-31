@@ -622,6 +622,7 @@ bool NavigationStateMachine::ArmRiverFallRecoveryIfBlackScreenLoss(const char* v
     // River-fall owns the recovery: the pre-fall dynamic-recovery anchor is stale after the teleport, and a live
     // recovery's escaped-obstacle check (runs before the river-fall block) would otherwise pre-empt the about-face.
     runtime_state_.recovery.Reset();
+    session_->ResetHardProgress();
     LogInfo << "River-fall recovery armed (black-screen loss recovered)." << VAR(via) << VAR(position_->x) << VAR(position_->y)
             << VAR(runtime_state_.river_fall.water_heading);
     return true;
@@ -633,8 +634,7 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
     const Waypoint& anchor,
     bool use_detour,
     double route_heading,
-    bool emit_interior_corners,
-    bool reset_hard_progress)
+    bool emit_interior_corners)
 {
     if (!anchor.HasPosition()) {
         LogWarn << "Dynamic navmesh overlay skipped: anchor has no position." << VAR(reason) << VAR(continue_index);
@@ -673,7 +673,7 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
                 << VAR(position_->x) << VAR(position_->y);
     }
     const size_t generated_count = generated_prefix.size();
-    session_->ApplyDynamicOverlay(std::move(generated_prefix), continue_index, *position_, reset_hard_progress);
+    session_->ApplyDynamicOverlay(std::move(generated_prefix), continue_index, *position_);
     runtime_state_.route.Reset();
     runtime_state_.nav_run_dirty = true;
     if (generated_count == 0 && std::hypot(anchor.x - position_->x, anchor.y - position_->y) <= ArrivalBandForStartupBypass(anchor)) {
@@ -688,11 +688,7 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
     return true;
 }
 
-bool NavigationStateMachine::TryApplyDynamicOverlayToNextAnchor(
-    const char* reason,
-    bool use_detour,
-    double route_heading,
-    bool reset_hard_progress)
+bool NavigationStateMachine::TryApplyDynamicOverlayToNextAnchor(const char* reason, bool use_detour, double route_heading)
 {
     const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(session_, *position_);
     if (!anchor) {
@@ -707,8 +703,7 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToNextAnchor(
         anchor->second,
         use_detour,
         route_heading,
-        /*emit_interior_corners=*/false,
-        reset_hard_progress);
+        /*emit_interior_corners=*/false);
 }
 
 bool NavigationStateMachine::HandleDynamicReplanRequest(const char* reason)
@@ -779,6 +774,7 @@ bool NavigationStateMachine::TryEnterCrossTierEscape()
     }
     runtime_state_.cross_tier_escape.active = true;
     runtime_state_.cross_tier_escape.anchor_zone = position_->zone_id;
+    session_->ResetHardProgress();
     LogInfo << "Cross-tier escape engaged: routing out of a wrong tier via navmesh." << VAR(position_->zone_id) << VAR(position_->x)
             << VAR(position_->y) << VAR(runtime_state_.cross_tier_escape.goal_x) << VAR(runtime_state_.cross_tier_escape.goal_y);
     return true;
@@ -836,9 +832,7 @@ bool NavigationStateMachine::ExecutePhysicalUnstick(double stuck_heading)
     LogInfo << "Physical unstick step executed." << VAR(distance) << VAR(moved) << VAR(dislodged) << VAR(unstick.count)
             << VAR(target_heading) << VAR(target->x) << VAR(target->y);
 
-    // Refresh the route from the new spot but keep the hard-progress clock: this replan re-fires every recovery
-    // retry while stuck, and resetting the clock each time would defeat the 30s recovery timeout (livelock).
-    if (TryApplyDynamicOverlayToNextAnchor("recovery_unstick_replan", false, 0.0, /*reset_hard_progress=*/false)) {
+    if (TryApplyDynamicOverlayToNextAnchor("recovery_unstick_replan", false)) {
         session_->ResetProgress();
         SelectPhaseForCurrentWaypoint("recovery_unstick_replan");
         return true;
@@ -969,6 +963,7 @@ bool NavigationStateMachine::TickNavigate()
     }
 
     NavRunTickResult nav_run_result;
+    std::optional<size_t> nav_run_anchor_index;
     if (route.valid && session_->HasCurrentWaypoint()) {
         const Waypoint& current_waypoint = session_->CurrentWaypoint();
         if (current_waypoint.HasPosition() && current_waypoint.action == ActionType::RUN) {
@@ -983,8 +978,7 @@ bool NavigationStateMachine::TickNavigate()
                 nav_run_anchor = ResolveCurrentAnchor(session_, *position_);
             }
             if (nav_run_anchor) {
-                const bool sprint_proxy = route.startup_motion_confirmed && param_.sprint_threshold > 0.0
-                                          && route.along_track_remaining > param_.sprint_threshold;
+                nav_run_anchor_index = nav_run_anchor->first;
                 nav_run_result = nav_run_controller_.tick(
                     session_,
                     &runtime_state_,
@@ -993,7 +987,6 @@ bool NavigationStateMachine::TickNavigate()
                     param_,
                     nav_run_anchor->first,
                     nav_run_anchor->second,
-                    sprint_proxy,
                     now);
             }
         }
@@ -1038,10 +1031,22 @@ bool NavigationStateMachine::TickNavigate()
     if (route.valid) {
         const double effective_progress =
             nav_run_result.has_corridor_heading ? nav_run_result.remaining_to_anchor : route.progress_distance;
+        if (runtime_state_.progress_from_corridor != nav_run_result.has_corridor_heading) {
+            runtime_state_.progress_from_corridor = nav_run_result.has_corridor_heading;
+            if (runtime_state_.progress_source_reset_idx != session_->current_node_idx()) {
+                runtime_state_.progress_source_reset_idx = session_->current_node_idx();
+                session_->ResetProgress();
+                session_->ResetHardProgress();
+            }
+        }
         session_->ObserveProgress(session_->current_node_idx(), effective_progress, now);
         // Feed the same signal to the hard watchdog, which recovery escapes can never reset (they only clear
         // the ordinary ObserveProgress clock). This is what lets the recovery timeout below actually fire.
-        session_->ObserveHardProgress(session_->current_node_idx(), effective_progress, now);
+        constexpr size_t kSerialProgressKeyBias = std::numeric_limits<size_t>::max() / 2;
+        const size_t hard_progress_key = nav_run_result.has_corridor_heading && nav_run_anchor_index
+                                             ? *nav_run_anchor_index
+                                             : kSerialProgressKeyBias + session_->current_node_idx();
+        session_->ObserveHardProgress(hard_progress_key, effective_progress, now);
     }
     // Cross-tier escape: follow the ONE planned corridor (arrival above is the success exit). Fast-fail when the
     // corridor makes no genuine progress for too long. Keys on the hard-progress clock, which the escape's own

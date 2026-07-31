@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <chrono>
 #include <string>
 
@@ -55,6 +56,8 @@ struct Waypoint
     ActionType action;
     bool has_position;
     bool strict_arrival;
+    // 该点处的通道半宽 px, 0 = 未知(非 navmesh 规划的点)
+    double corridor_clearance;
     bool heading_uses_target;
     double heading_angle;
     std::string zone_id;
@@ -73,6 +76,19 @@ struct Waypoint
             return kStrictArrivalLookaheadRadius;
         }
         return kLookaheadRadius;
+    }
+
+    // 到点判定圈半径, 通道比判定圈还窄时按通道收紧, 否则角色会提前弃点直奔下一点, 抄出撞墙的弦
+    double ArrivalBand(double position_quantum) const
+    {
+        if (RequiresStrictArrival()) {
+            return GetLookahead() + position_quantum;
+        }
+        const double band = GetLookahead() + kWaypointArrivalSlack + position_quantum;
+        if (corridor_clearance <= 0.0) {
+            return band;
+        }
+        return std::min(band, std::max(corridor_clearance, kMinArrivalBand));
     }
 
     bool RequiresStrictArrival() const
@@ -99,6 +115,7 @@ struct Waypoint
         , action(ActionType::RUN)
         , has_position(true)
         , strict_arrival(false)
+        , corridor_clearance(0.0)
         , heading_uses_target(false)
         , heading_angle(0.0)
         , zone_id()
@@ -111,6 +128,7 @@ struct Waypoint
         , action(waypoint_action)
         , has_position(true)
         , strict_arrival(false)
+        , corridor_clearance(0.0)
         , heading_uses_target(false)
         , heading_angle(0.0)
         , zone_id()

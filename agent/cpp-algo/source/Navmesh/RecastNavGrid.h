@@ -13,13 +13,14 @@ namespace navmesh::recast
 
 inline constexpr double kCS = 0.25;                // 体素边长 px
 inline constexpr double kClimb = 3.0;              // 相邻格可连通最大高差 px
-inline constexpr double kStep = 0.5;               // 相邻格可直接迈上的最大高差 px, 超出即立面
-inline constexpr double kMergeH = 1.0;             // 同列 span 合并容差 px
+inline constexpr double kSlope = 1.0;              // 可攀爬坡度上限 tanθ, 抬升超过水平位移的这个倍数即立面
+inline constexpr double kUp = kSlope * kCS;        // 正交相邻格允许的抬升 px, 斜向按实际水平位移等比放大
+inline constexpr double kMergeH = kUp;             // 同列 span 合并容差 px, 取 kUp 使同层内处处可一步跨到
 inline constexpr double kEdtCap = 12.0;            // 距离场截断 px
 inline constexpr double kR = 1.75;                 // 期望余量上限 px
 inline constexpr double kGeoR = 3.5;               // 几何口径舒适余量上限 px
 inline constexpr double kRel = 0.6;                // 期望余量 = min(R, REL×局部净空)
-inline constexpr double kLam = 1.5;                // 满亏欠一步加价倍数
+inline constexpr double kLam = 4.0;                // 满亏欠一步加价倍数
 inline constexpr double kRidgeFloor = 0.5;         // 脊线保底余量地板 px
 inline constexpr double kMaxErr = 0.5;             // 轮廓 DP 容差 px
 inline constexpr double kSlimEps = 0.5;            // 终线共线剔除容差 px
@@ -105,7 +106,11 @@ void AppendSeamBridge(RasterCells& rc, int64_t nx, int64_t ny);
 
 SpanTable BuildSpans(const std::vector<int64_t>& cell, const std::vector<float>& h);
 
+SpanTable PackSpans(std::vector<int64_t> cell, std::vector<float> h, std::vector<uint8_t>* flags = nullptr);
+
 std::vector<uint8_t> Flood(int64_t seed, const SpanTable& st, int64_t nx);
+
+std::vector<uint8_t> SpanReach(int64_t seed, const SpanTable& st, const std::vector<uint8_t>& ok, int64_t nx, int64_t ny);
 
 Grid<float> Clearance(const Mask& mask);
 
@@ -142,6 +147,7 @@ struct StepBarrier
     std::unordered_set<int64_t> steps;
     std::vector<WorldPoint> p0;
     std::vector<WorldPoint> p1;
+    std::vector<float> t0;
 };
 
 StepBarrier StepBreaks(const SpanTable& st, const std::vector<uint8_t>& vis, const Mask& lay, double ox, double oy);
@@ -152,8 +158,26 @@ Mask FillHoles(const Mask& mask, int64_t max_cells, const Mask* protect);
 
 Mask CloseCracks(const Mask& core, const Mask& lay, const Mask* protect);
 
-std::optional<std::vector<CellPt>>
-    CostAstar(const Mask& mask, CellPt s, CellPt g, const Grid<float>& mult, const std::unordered_set<int64_t>* banned, const double* bnp);
+std::optional<std::vector<CellPt>> CostAstar(
+    const Mask& mask,
+    CellPt s,
+    CellPt g,
+    const Grid<float>& mult,
+    const std::unordered_set<int64_t>* banned,
+    const double* bnp,
+    const std::unordered_set<int64_t>* forbidden = nullptr);
+
+std::optional<std::vector<int64_t>> SpanAstar(
+    const SpanTable& st,
+    const std::vector<uint8_t>& ok,
+    const std::vector<int64_t>& cidx,
+    const Mask& ok2,
+    int64_t s,
+    const std::vector<int64_t>& gset,
+    const Grid<float>& mult,
+    const std::unordered_set<int64_t>* banned,
+    const double* bnp,
+    const std::unordered_set<int64_t>* forbidden = nullptr);
 
 Grid<float> PrefField(const Grid<float>& dist, bool ridge);
 
@@ -218,7 +242,38 @@ private:
     double cs_ = kCS;
 };
 
-std::vector<WorldPoint> StringPull(const std::vector<WorldPoint>& pts, const Blockers& blk, const ClearanceFloor* cfl);
+class LayerOracle
+{
+public:
+    LayerOracle(const SpanTable* st, const std::vector<int64_t>* cidx, int64_t nx, int64_t ny, double x0, double y0)
+        : st_(st)
+        , cidx_(cidx)
+        , nx_(nx)
+        , ny_(ny)
+        , x0_(x0)
+        , y0_(y0)
+    {
+    }
+
+    std::optional<std::vector<float>> walk(const std::vector<WorldPoint>& pts, float h) const;
+
+    bool ok(const WorldPoint& p, const WorldPoint& q, float h, float hq) const;
+
+private:
+    const SpanTable* st_ = nullptr;
+    const std::vector<int64_t>* cidx_ = nullptr;
+    int64_t nx_ = 0;
+    int64_t ny_ = 0;
+    double x0_ = 0.0;
+    double y0_ = 0.0;
+};
+
+std::vector<WorldPoint> StringPull(
+    const std::vector<WorldPoint>& pts,
+    const Blockers& blk,
+    const ClearanceFloor* cfl,
+    const LayerOracle* lyo = nullptr,
+    const std::vector<float>* hs = nullptr);
 
 std::vector<WorldPoint> Slim(const std::vector<WorldPoint>& pts, const Blockers& blk, double eps, const ClearanceFloor* cfl);
 

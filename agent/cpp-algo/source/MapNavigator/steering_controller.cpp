@@ -11,10 +11,10 @@ namespace mapnavigator
 namespace
 {
 
-constexpr double kHeadingDeadband = 2.6;
+constexpr double kHeadingDeadband = 6.6;
 constexpr double kMovingMaxCmd = 90.0;
 constexpr double kTurningMaxCmd = 70.0;
-constexpr double kKp = 0.3;
+constexpr double kKp = 0.6;
 constexpr double kHeadingRateDampingGain = 0.5;
 constexpr double kHeadingRateDeadbandDeg = 3.0;
 constexpr double kHeadingRatePlausibleMaxDeg = 60.0;

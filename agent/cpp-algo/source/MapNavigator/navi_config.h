@@ -86,6 +86,8 @@ constexpr double kSerialRouteDeviationThreshold = 1.5;
 constexpr double kSerialRouteDeviationFailThreshold = 3.0;
 constexpr double kSerialRouteCompensationMinDistance = 1.0;
 constexpr double kWaypointArrivalSlack = 0.5;
+// 判定圈按通道半宽收紧后的下限, 低于此值定位量化误差会让路点吃不掉
+constexpr double kMinArrivalBand = 1.0;
 constexpr int32_t kObstacleRecoveryMinTriggerMs = 3500;
 constexpr int32_t kDynamicRecoveryRetryIntervalMs = kObstacleRecoveryMinTriggerMs;
 constexpr int32_t kDynamicRecoveryTotalTimeoutMs = 30000;
@@ -142,20 +144,11 @@ constexpr int32_t kLocalizationThrashFailCount = 5;
 
 // --- NavRunController (RUN corridor follower) ---
 constexpr double kNavRunLookaheadLowSpeedM = 2.5;
-constexpr double kNavRunLookaheadWalkM = 4.0;
-constexpr double kNavRunLookaheadSprintM = 5.5;
-constexpr double kNavRunLookaheadSharpTurnM = 2.5;
-constexpr double kNavRunSharpTurnDeg = 55.0;
+// The lookahead point is measured forward along the corridor and the agent drives straight at it, so
+// this distance is the whole turn anticipation budget: the steering target only starts rotating once
+// the corner is inside it. It must cover the time a turn takes at the observed 5-8 px/s travel speed.
+constexpr double kNavRunLookaheadWalkM = 6.0;
 constexpr double kNavRunUpcomingTurnLookaheadM = 8.0;
-// The lookahead point is measured forward along the corridor, but the agent then drives straight at it.
-// Once that chord spans a corridor vertex it cuts the corner, by an amount set only by the lookahead
-// distance and the turn angle. Cap the distance so the chord stays within this much of the corridor
-// polyline. Measured tracking error runs about 1.7x this value; the rest is follower lag.
-constexpr double kNavRunLookaheadPathSlackM = 0.5;
-// Floor for the capped distance. Authored waypoint lines are recorded at whole-pixel granularity, so
-// their vertices zigzag within the slack and the cap would otherwise collapse to nothing; a steering
-// target that close sits level with the agent and the follower oscillates in place instead of advancing.
-constexpr double kNavRunLookaheadMinM = 2.0;
 constexpr double kNavRunCrossTrackWarnM = 2.2;
 constexpr double kNavRunCrossTrackFailM = 4.0;
 constexpr double kNavRunProgressReplanMinCrossTrackM = 1.25;

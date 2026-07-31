@@ -68,6 +68,29 @@ def build(zc, wo, s, s_snap, h0, x0, y0, x1, y1):
 
     sev, sseg = rc.step_breaks(occ, HK, IK, vis, lay, nx, ny, x0, y0)
 
+    spC, spH, spV = sp_cell, sp_h, vis
+    spOcc, spHK, spIK, spCi = occ, HK, IK, sp_ci
+    have = np.zeros(ny * nx, bool)
+    have[sp_cell[vis]] = True
+    gh = np.nonzero(lay.ravel() & ~have)[0]
+    if len(gh):
+        T0 = rc._step_heights(occ, HK, IK, vis, lay, nx, ny)[:, 0]
+        gh = gh[np.isfinite(T0[gh])]
+    if len(gh):
+        spC = np.concatenate([sp_cell, gh])
+        spH = np.concatenate([sp_h, T0[gh].astype(np.float32)])
+        spV = np.concatenate([vis, np.ones(len(gh), bool)])
+        o = np.lexsort((spH, spC))
+        spC, spH, spV = spC[o], spH[o], spV[o]
+        spOcc, cst, cct = np.unique(spC, return_index=True, return_counts=True)
+        spHK, spIK, spCi = rc.dense_k(spH, spOcc, cst, cct)
+    cidx = np.full(ny * nx, -1, np.int32)
+    cidx[spOcc] = np.arange(len(spOcc), dtype=np.int32)
+    sj = int(cidx[gy * nx + gx])
+    cd = spIK[sj][spIK[sj] >= 0]
+    seedN = int(cd[int(np.argmin(np.abs(spH[cd] - h0)))])
+    reachN = rc.span_reach(seedN, spH, spOcc, spHK, spIK, spCi, spV, nx, ny)
+
     keep = rc.walls_at_layer(wo.P0[widx], wo.P1[widx], wo.HH[widx], lh,
                              x0, y0, nx, ny, hband=MC_HBAND)
     wP0, wP1 = wo.P0[widx][keep], wo.P1[widx][keep]
@@ -80,7 +103,9 @@ def build(zc, wo, s, s_snap, h0, x0, y0, x1, y1):
     info = dict(x0=x0, y0=y0, nx=nx, ny=ny, lay=lay, lh=lh, dist=dist,
                 core=core, t_vox=t_vox, t_fl=t_fl, t_edt=t_edt,
                 wP0=wP0, wP1=wP1, wid=wid, wstart=wstart,
-                sev=sev, sseg=sseg)
+                sev=sev, sseg=sseg, h0=h0,
+                spC=spC, spH=spH, spOcc=spOcc, spHK=spHK, spIK=spIK,
+                spCi=spCi, cidx=cidx, reachN=reachN)
     return info, None
 
 
@@ -134,25 +159,43 @@ def metrics(wo, P, h0, info, step=0.25):
             hug / tot * 100 if tot else 0.0)
 
 
-def route(info, s, g):
+def route(info, s, g, climb_faces=False):
     lay, dist, core = info["lay"], info["dist"], info["core"]
     x0, y0, nx, ny = info["x0"], info["y0"], info["nx"], info["ny"]
     walk = core & lay
     bn = rc.banned_steps(lay, info["wid"], info["wstart"],
                          info["wP0"], info["wP1"], x0, y0, nx)
     blocked = bn | info["sev"]
+    # 掩膜距离场对跨越约束的墙无感, 取真墙距离的下确界补上
+    ws = info["wstart"]
+    wcell = (ws[1:] > ws[:-1]).reshape(ny, nx)
+    dist = np.minimum(dist, rc.clearance(~wcell))
     # 亏欠越多单价越高;脊线保底只进几何口径 prefg,禁入 mult
     pref = rc.pref_field(dist)
     mult = 1.0 + LAM * np.clip((pref - dist) / pref, 0.0, 1.0)
     prefg = rc.pref_field(dist, ridge=True)
-    # 几何口径的净空: 掩膜距离场对跨越约束的墙无感, 取真墙距离的下确界补上
-    ws = info["wstart"]
-    wcell = (ws[1:] > ws[:-1]).reshape(ny, nx)
-    dg = np.minimum(dist, rc.clearance(~wcell))
     # 几何口径的余量目标: 通道半宽封顶 GEO_R, 供绿段重寻与拉直判定
-    tgt = rc.target_field(dg)
-    multg = 1.0 + LAM * np.clip((tgt - dg) / tgt, 0.0, 1.0)
-    cfl = rc.ClearanceFloor(np.minimum(dg, tgt), multg, x0, y0, CS)
+    tgt = rc.target_field(dist)
+    multg = 1.0 + LAM * np.clip((tgt - dist) / tgt, 0.0, 1.0)
+    cfl = rc.ClearanceFloor(np.minimum(dist, tgt), multg, x0, y0, CS)
+
+    spC, spH, spOcc = info["spC"], info["spH"], info["spOcc"]
+    spHK, spIK, spCi = info["spHK"], info["spIK"], info["spCi"]
+    cidx, reachN = info["cidx"], info["reachN"]
+    lyo = rc.LayerOracle(spHK, spIK, cidx, nx, ny, x0, y0)
+
+    def mk(m2):
+        u = reachN & m2.ravel()[spC]
+        c3 = np.zeros(ny * nx, bool)
+        c3[spC[u]] = True
+        return u, c3
+
+    useW, cw3 = mk(walk)
+    useC, cc3 = mk(core)
+
+    def pick(c, use):
+        j = int(cidx[c[1] * nx + c[0]])
+        return [int(v) for v in spIK[j] if v >= 0 and use[v]] if j >= 0 else []
 
     sc = (int((s[0] - x0) / CS), int((s[1] - y0) / CS))
     gc = (int((g[0] - x0) / CS), int((g[1] - y0) / CS))
@@ -166,21 +209,51 @@ def route(info, s, g):
         return (int(xs[i]), int(ys[i])), float(np.sqrt(d[i])) * CS
 
     warn = []
-    as_, dsa = near(walk, sc)
-    ag_, dga = near(walk, gc)
+    as_, dsa = near(cw3.reshape(ny, nx), sc)
+    ag_, dga = near(cw3.reshape(ny, nx), gc)
     if as_ is None:
         return None, {"err": "walk 掩膜为空"}
     BIGP = nx * ny * CS * (1.0 + LAM)
+    faces = None if climb_faces else info["sev"]
+    soft = blocked if climb_faces else bn
     t0 = time.time()
-    used = walk
-    q = rc.cost_astar(walk, as_, ag_, mult, blocked, BIGP) if as_ != ag_ else [as_]
-    if q is None:
-        used = core
-        q = rc.cost_astar(core, as_, ag_, mult, blocked, BIGP)
-        if q is not None:
+    on3 = cw3
+    ss = pick(as_, useW)
+    s0 = int(min(ss, key=lambda v: abs(spH[v] - info["h0"])))
+    qs = (rc.span_astar(useW, spH, spOcc, spHK, spIK, spCi, cidx, cw3,
+                        s0, set(pick(ag_, useW)), mult, nx, ny,
+                        soft, BIGP, faces)
+          if as_ != ag_ else [s0])
+    if qs is None:
+        ac_, dc_ = near(cc3.reshape(ny, nx), sc)
+        ag2, dg2 = near(cc3.reshape(ny, nx), gc)
+        if ac_ is not None and ag2 is not None:
+            s0 = int(min(pick(ac_, useC),
+                         key=lambda v: abs(spH[v] - info["h0"])))
+            qs = (rc.span_astar(useC, spH, spOcc, spHK, spIK, spCi, cidx, cc3,
+                                s0, set(pick(ag2, useC)), mult, nx, ny,
+                                soft, BIGP, faces)
+                  if ac_ != ag2 else [s0])
+        if qs is not None:
+            on3 = cc3
+            as_, dsa, ag_, dga = ac_, dc_, ag2, dg2
             warn.append("walk 断开→退回 core")
-    if q is None:
-        return None, {"err": "不连通", "warn": warn}
+    if qs is not None:
+        q = [(int(c % nx), int(c // nx)) for c in spC[qs]]
+    else:
+        as_, dsa = near(walk, sc)
+        ag_, dga = near(walk, gc)
+        on3 = walk.ravel()
+        q = (rc.cost_astar(walk, as_, ag_, mult, soft, BIGP, faces)
+             if as_ != ag_ else [as_])
+        if q is None:
+            on3 = core.ravel()
+            q = rc.cost_astar(core, as_, ag_, mult, soft, BIGP, faces)
+            if q is not None:
+                warn.append("walk 断开→退回 core")
+        if q is None:
+            return None, {"err": "不连通", "warn": warn}
+        warn.append("层不连通→退回格级")
     t_as = time.time() - t0
     xw = []
     bad = []
@@ -208,7 +281,7 @@ def route(info, s, g):
 
     wseg = (np.vstack([info["wP0"], info["sseg"][0]]),
             np.vstack([info["wP1"], info["sseg"][1]]))
-    onm = (used, x0, y0, CS)
+    onm = (on3.reshape(ny, nx), x0, y0, CS)
     blk_gray = rc.Blockers([w(P) for P in loops_c], extra=wseg, on=onm)
     grn = [bool(dist[b, a] >= prefg[b, a] - 1e-9) for a, b in q]
     runs, i = [], 0
@@ -239,8 +312,11 @@ def route(info, s, g):
     mg = merge(runs)
     taut = []
     for isg, i0, i1 in mg:
-        cells = q[i0:min(i1 + 1, len(q) - 1) + 1]
+        j1 = min(i1 + 1, len(q) - 1) + 1
+        cells = q[i0:j1]
+        sub = qs[i0:j1] if qs is not None else None
         pp = cen(cells)
+        hs = None if sub is None else [float(spH[v]) for v in sub]
         if len(cells) >= 2:
             blk = blk_gray
             if isg:
@@ -257,18 +333,33 @@ def route(info, s, g):
                         acc |= rc._sh(pmd, -i_ * dy, -i_ * dx)
                     pmd = acc
                 er = (dist >= pref) | ((dist >= prefg) & pmd) | pm
+                ue, ce = mk(er)
                 # 重寻硬禁穿墙步,不可避穿墙处切开逐子段重寻,原步原样保留
                 cuts = [k - i0 for k in bad if i0 < k <= i0 + len(cells) - 1]
-                q2, a2 = [], 0
+                q2, h2, a2 = [], [], 0
                 for c2 in cuts + [len(cells)]:
                     b2 = c2 - 1
-                    r2 = ([cells[a2]] if a2 == b2 else
-                          rc.cost_astar(er, cells[a2], cells[b2], multg,
-                                        blocked, None))
+                    if a2 == b2:
+                        r2 = [cells[a2]]
+                        r2h = [hs[a2]] if hs is not None else None
+                    elif sub is None:
+                        r2 = rc.cost_astar(er, cells[a2], cells[b2], multg,
+                                           blocked, None)
+                        r2h = None
+                    else:
+                        r2s = rc.span_astar(ue, spH, spOcc, spHK, spIK, spCi,
+                                            cidx, ce, sub[a2], {sub[b2]},
+                                            multg, nx, ny, blocked, None)
+                        r2 = (None if r2s is None else
+                              [(int(c % nx), int(c // nx)) for c in spC[r2s]])
+                        r2h = None if r2s is None else [float(spH[v])
+                                                       for v in r2s]
                     if r2 is None:
                         q2 = None
                         break
                     q2.extend(r2)
+                    if r2h is not None:
+                        h2.extend(r2h)
                     a2 = c2
                 if q2 is not None:
                     l2 = sum(math.dist(q2[k - 1], q2[k])
@@ -277,12 +368,15 @@ def route(info, s, g):
                              for k in range(1, len(cells)))
                     if l2 <= l1 * 1.2 + 2.0 / CS:
                         pp = cen(q2)
+                        hs = h2 if sub is not None else None
                 lp = [rc.simplify_loop(P, MAXERR / CS) for P in
                       rc.trace_contours(er)]
                 blk = rc.Blockers(
                     [w(P) for P in lp] + [w(P) for P in loops_c],
                     extra=wseg, on=onm)
-            pp = [tuple(p) for p in rc.string_pull(pp, blk, cfl=cfl)]
+            pp = [tuple(p) for p in
+                  rc.string_pull(pp, blk, cfl=cfl,
+                                 lyo=lyo if hs is not None else None, hs=hs)]
         if taut and pp and math.dist(pp[0], taut[-1]) < 1e-9:
             pp = pp[1:]
         taut.extend(pp)
@@ -297,8 +391,15 @@ def route(info, s, g):
             ded.append(p)
     line = rc.drop_loops(ded)
     if SLIMEPS > 0 and len(line) > 2:
-        line = rc.slim(line, blk_gray, SLIMEPS, cfl)
-    return line, {"warn": warn, "snapd": (dsa, dga),
+        sl = rc.slim(line, blk_gray, SLIMEPS, cfl)
+        if qs is None or lyo.walk(sl, float(spH[qs[0]])) is not None:
+            line = sl
+    clr = []
+    for px, py in line:
+        a = min(max(int(math.floor((px - x0) / CS)), 0), nx - 1)
+        b = min(max(int(math.floor((py - y0) / CS)), 0), ny - 1)
+        clr.append(float(dist[b, a]))
+    return line, {"warn": warn, "snapd": (dsa, dga), "clr": clr,
                   "t_as": t_as, "t_sp": t_sp, "xwall": xw}
 
 
@@ -361,7 +462,8 @@ class RecastEngine:
         margins = [MARGIN, MARGIN * 2, MARGIN * 4, MARGIN * 8]
         info = line = dg = None
         last_err = None
-        for i, margin in enumerate(margins):
+        for p in range(len(margins) * 2):
+            i, margin = p % len(margins), margins[p % len(margins)]
             x0 = min(s[0], g[0]) - margin; y0 = min(s[1], g[1]) - margin
             x1 = max(s[0], g[0]) + margin; y1 = max(s[1], g[1]) + margin
             nx = int(np.ceil((x1 - x0) / CS))
@@ -370,7 +472,7 @@ class RecastEngine:
                 raise ValueError(f"窗口过大 ({nx}×{ny} 格)")
             info, err = build(zc, wo, s, ss[1], h0, x0, y0, x1, y1)
             if err is None:
-                line, dg = route(info, s, g)
+                line, dg = route(info, s, g, p >= len(margins))
                 if line is not None:
                     P = np.asarray(line, float)
                     pad = 2.0
@@ -400,6 +502,7 @@ class RecastEngine:
         ow, ol = offmesh(line, info)
         return {
             "points": [(float(x), float(y)) for x, y in line],
+            "clearance": list(dg["clr"]),
             "length": L,
             "warn": list(dg["warn"]),
             "wall_cross": [(float(x), float(y)) for x, y in dg["xwall"]],

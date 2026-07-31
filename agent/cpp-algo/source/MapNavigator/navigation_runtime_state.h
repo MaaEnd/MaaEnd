@@ -234,6 +234,8 @@ struct NavigationRuntimeState
     int global_reacquire_streak = 0;
     bool dynamic_replan_requested = false;
     bool nav_run_dirty = true;
+    bool progress_from_corridor = false;
+    size_t progress_source_reset_idx = std::numeric_limits<size_t>::max();
 
     void ResetNavigationAssistState()
     {
