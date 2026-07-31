@@ -233,11 +233,6 @@
         // "tasks/WebEvent202605.json", // 该活动已关闭
         "tasks/AndroidOpenGame.json",
         "tasks/CloseGame.json",
-        "tasks/IMSItemDataReady.json",
-        "tasks/IMSItemQuantitySatisfied.json",
-        "tasks/IMSUpdateItemQuantity.json",
-        "tasks/IMSSyncItemData.json",
-        "tasks/IMSAddItemData.json",
         // group: realtime
         "tasks/RealTimeTask.json",
         // group: backpack
