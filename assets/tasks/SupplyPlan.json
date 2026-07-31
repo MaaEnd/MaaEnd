@@ -190,7 +190,7 @@
                     "name": "SupplyPlanLimit_ADVANCED_COGNITIVE_CARRIER",
                     "label": "$option.SupplyPlanLimits.inputs.ADVANCED_COGNITIVE_CARRIER.label",
                     "pipeline_type": "int",
-                    "default": "0",
+                    "default": "210",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -198,7 +198,7 @@
                     "name": "SupplyPlanLimit_ELEMENTARY_COGNITIVE_CARRIER",
                     "label": "$option.SupplyPlanLimits.inputs.ELEMENTARY_COGNITIVE_CARRIER.label",
                     "pipeline_type": "int",
-                    "default": "0",
+                    "default": "12",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -206,31 +206,7 @@
                     "name": "SupplyPlanLimit_ADVANCED_COMBAT_RECORD",
                     "label": "$option.SupplyPlanLimits.inputs.ADVANCED_COMBAT_RECORD.label",
                     "pipeline_type": "int",
-                    "default": "0",
-                    "verify": "^\\d+$",
-                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
-                },
-                {
-                    "name": "SupplyPlanLimit_INTERMEDIATE_COMBAT_RECORD",
-                    "label": "$option.SupplyPlanLimits.inputs.INTERMEDIATE_COMBAT_RECORD.label",
-                    "pipeline_type": "int",
-                    "default": "0",
-                    "verify": "^\\d+$",
-                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
-                },
-                {
-                    "name": "SupplyPlanLimit_ELEMENTARY_COMBAT_RECORD",
-                    "label": "$option.SupplyPlanLimits.inputs.ELEMENTARY_COMBAT_RECORD.label",
-                    "pipeline_type": "int",
-                    "default": "0",
-                    "verify": "^\\d+$",
-                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
-                },
-                {
-                    "name": "SupplyPlanLimit_MARK_OF_PERSEVERANCE",
-                    "label": "$option.SupplyPlanLimits.inputs.MARK_OF_PERSEVERANCE.label",
-                    "pipeline_type": "int",
-                    "default": "0",
+                    "default": "150",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -238,7 +214,7 @@
                     "name": "SupplyPlanLimit_PROTOSET",
                     "label": "$option.SupplyPlanLimits.inputs.PROTOSET.label",
                     "pipeline_type": "int",
-                    "default": "0",
+                    "default": "120",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -246,7 +222,7 @@
                     "name": "SupplyPlanLimit_PROTODISK",
                     "label": "$option.SupplyPlanLimits.inputs.PROTODISK.label",
                     "pipeline_type": "int",
-                    "default": "0",
+                    "default": "65",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -254,7 +230,7 @@
                     "name": "SupplyPlanLimit_TRIPHASIC_NANOFLAKE",
                     "label": "$option.SupplyPlanLimits.inputs.TRIPHASIC_NANOFLAKE.label",
                     "pipeline_type": "int",
-                    "default": "0",
+                    "default": "260",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -262,7 +238,7 @@
                     "name": "SupplyPlanLimit_QUADRANT_FITTING_FLUID",
                     "label": "$option.SupplyPlanLimits.inputs.QUADRANT_FITTING_FLUID.label",
                     "pipeline_type": "int",
-                    "default": "0",
+                    "default": "260",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -270,7 +246,7 @@
                     "name": "SupplyPlanLimit_TACHYON_SCREENING_LATTICE",
                     "label": "$option.SupplyPlanLimits.inputs.TACHYON_SCREENING_LATTICE.label",
                     "pipeline_type": "int",
-                    "default": "0",
+                    "default": "260",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -278,7 +254,7 @@
                     "name": "SupplyPlanLimit_D96_STEEL_SAMPLE_4",
                     "label": "$option.SupplyPlanLimits.inputs.D96_STEEL_SAMPLE_4.label",
                     "pipeline_type": "int",
-                    "default": "0",
+                    "default": "260",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -286,7 +262,7 @@
                     "name": "SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE",
                     "label": "$option.SupplyPlanLimits.inputs.METADIASTIMA_PHOTOEMISSION_TUBE.label",
                     "pipeline_type": "int",
-                    "default": "0",
+                    "default": "40",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -294,7 +270,7 @@
                     "name": "SupplyPlanLimit_PROTOHEDRON",
                     "label": "$option.SupplyPlanLimits.inputs.PROTOHEDRON.label",
                     "pipeline_type": "int",
-                    "default": "0",
+                    "default": "1100",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -302,7 +278,7 @@
                     "name": "SupplyPlanLimit_PROTOPRISM",
                     "label": "$option.SupplyPlanLimits.inputs.PROTOPRISM.label",
                     "pipeline_type": "int",
-                    "default": "0",
+                    "default": "920",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -310,7 +286,7 @@
                     "name": "SupplyPlanLimit_T_CREDS",
                     "label": "$option.SupplyPlanLimits.inputs.T_CREDS.label",
                     "pipeline_type": "int",
-                    "default": "0",
+                    "default": "3580000",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -318,7 +294,7 @@
                     "name": "SupplyPlanLimit_ARMS_INSP_SET",
                     "label": "$option.SupplyPlanLimits.inputs.ARMS_INSP_SET.label",
                     "pipeline_type": "int",
-                    "default": "0",
+                    "default": "500",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -326,15 +302,7 @@
                     "name": "SupplyPlanLimit_ARMS_INSP_KIT",
                     "label": "$option.SupplyPlanLimits.inputs.ARMS_INSP_KIT.label",
                     "pipeline_type": "int",
-                    "default": "0",
-                    "verify": "^\\d+$",
-                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
-                },
-                {
-                    "name": "SupplyPlanLimit_ARMS_INSPECTOR",
-                    "label": "$option.SupplyPlanLimits.inputs.ARMS_INSPECTOR.label",
-                    "pipeline_type": "int",
-                    "default": "0",
+                    "default": "45",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -342,7 +310,7 @@
                     "name": "SupplyPlanLimit_HEAVY_CAST_DIE",
                     "label": "$option.SupplyPlanLimits.inputs.HEAVY_CAST_DIE.label",
                     "pipeline_type": "int",
-                    "default": "0",
+                    "default": "100",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -350,23 +318,7 @@
                     "name": "SupplyPlanLimit_CAST_DIE",
                     "label": "$option.SupplyPlanLimits.inputs.CAST_DIE.label",
                     "pipeline_type": "int",
-                    "default": "0",
-                    "verify": "^\\d+$",
-                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
-                },
-                {
-                    "name": "SupplyPlanLimit_COOLANT_GEL",
-                    "label": "$option.SupplyPlanLimits.inputs.COOLANT_GEL.label",
-                    "pipeline_type": "int",
-                    "default": "0",
-                    "verify": "^\\d+$",
-                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
-                },
-                {
-                    "name": "SupplyPlanLimit_WULING_ARTIFICING_CATALYST",
-                    "label": "$option.SupplyPlanLimits.inputs.WULING_ARTIFICING_CATALYST.label",
-                    "pipeline_type": "int",
-                    "default": "0",
+                    "default": "45",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 }
@@ -518,16 +470,6 @@
                             "custom_recognition_param": {
                                 "item": "ARMS_INSP_KIT",
                                 "quantity": "{SupplyPlanLimit_ARMS_INSP_KIT}"
-                            }
-                        }
-                    }
-                },
-                "SupplyPlanInsufficient_ARMS_INSPECTOR": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "item": "ARMS_INSPECTOR",
-                                "quantity": "{SupplyPlanLimit_ARMS_INSPECTOR}"
                             }
                         }
                     }
