@@ -172,15 +172,10 @@
     },
     "__SeizeDeliveryJobsViewDestinationMap": {
         "desc": "在任务详情页面，点击定位按钮，打开大地图查看目的地",
-        "recognition": "TemplateMatch",
-        "roi": [
-            940,
-            580,
-            150,
-            130
+        "recognition": "And",
+        "all_of": [
+            "TrackedMissionMapButton"
         ],
-        "template": "SeizeDeliveryJobs/TrackTaskButton.png",
-        "order_by": "Score",
         "action": "Click",
         "rate_limit": 500, // 加速等待大地图弹出
         "next": [

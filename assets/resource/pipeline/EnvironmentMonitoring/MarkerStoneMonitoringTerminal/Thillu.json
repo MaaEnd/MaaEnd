@@ -237,7 +237,7 @@
         "desc": "表象任务已在追踪中，点击定位按钮进入任务地图",
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringTrackedMissionMapButton",
+            "TrackedMissionMapButton",
             "InThilluMission"
         ],
         "box_index": 0,

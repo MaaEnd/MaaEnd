@@ -237,7 +237,7 @@
         "desc": "水竹铃任务已在追踪中，点击定位按钮进入任务地图",
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringTrackedMissionMapButton",
+            "TrackedMissionMapButton",
             "InBambooWaterChimesMission"
         ],
         "box_index": 0,

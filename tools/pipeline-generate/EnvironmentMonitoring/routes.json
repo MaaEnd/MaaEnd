@@ -279,26 +279,10 @@
         "MissionId": "m1m36",
         "Name": "东张西望的黑腹雉羽兽",
         "Id": "ObservantSableChestedFowlbeast",
-        "EnterMap": "SceneEnterWorldWulingJingyuValley0",
-        "MapName": "map02_lv001",
-        "MapAssert": [
-            342.2,
-            124.2,
-            4,
-            4
-        ],
-        "MapPath": [
-            [
-                349.9,
-                128
-            ],
-            [
-                373.3,
-                135.6
-            ]
-        ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
-        "Heading": 105
+        "QuickTeleport": true,
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenRight",
+        "Heading": 0,
+        "CameraMaxHit": 3
     },
     {
         "MissionId": "m1m37",

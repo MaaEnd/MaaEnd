@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToObservantSableChestedFowlbeast"
+            "ObservantSableChestedFowlbeastInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedObservantSableChestedFowlbeast": {
@@ -230,14 +230,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToObservantSableChestedFowlbeast"
+            "ObservantSableChestedFowlbeastOpenTrackedMissionMap"
         ]
     },
     "ObservantSableChestedFowlbeastOpenTrackedMissionMap": {
         "desc": "东张西望的黑腹雉羽兽任务已在追踪中，点击定位按钮进入任务地图",
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringTrackedMissionMapButton",
+            "TrackedMissionMapButton",
             "InObservantSableChestedFowlbeastMission"
         ],
         "box_index": 0,
@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToObservantSableChestedFowlbeastStartPos"
+            "GoToObservantSableChestedFowlbeastMove"
         ]
     },
     "ObservantSableChestedFowlbeastNotAdapted": {
@@ -340,12 +340,12 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001",
+                    "map_name": "^map\\d+_lv\\d+$",
                     "target": [
-                        342.2,
-                        124.2,
-                        4,
-                        4
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
@@ -358,45 +358,28 @@
         ]
     },
     "GoToObservantSableChestedFowlbeastNotAtStartPos": {
-        "desc": "不在东张西望的黑腹雉羽兽任务开始位置附近，先传送再检查落点",
+        "desc": "前往东张西望的黑腹雉羽兽传送点，传送后调整朝向并拍照",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValley0"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToObservantSableChestedFowlbeastStartPos"
+            "GoToObservantSableChestedFowlbeastMove"
         ]
     },
     "GoToObservantSableChestedFowlbeastMove": {
-        "desc": "自动寻路前往东张西望的黑腹雉羽兽",
+        "desc": "在东张西望的黑腹雉羽兽传送点调整拍照朝向",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerToward",
         "custom_action_param": {
-            "map_name": "map02_lv001",
-            "path": [
-                [
-                    349.9,
-                    128
-                ],
-                [
-                    373.3,
-                    135.6
-                ]
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
-                    "angle": 105
-                }
-            }
+            "angle": 0
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -419,12 +402,12 @@
     },
     "ObservantSableChestedFowlbeastAdjustCamera": {
         "desc": "东张西望的黑腹雉羽兽任务中调整朝向",
-        "max_hit": 2,
+        "max_hit": 3,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringSwipeScreenDown"
+            "EnvironmentMonitoringSwipeScreenRight"
         ]
     }
 }
