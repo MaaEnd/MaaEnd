@@ -1,6 +1,13 @@
 {
+    "ListCompleteRecognitionExampleScan": {
+        "desc": "示例扫描入口：先判到底（ListComplete 命中=已到底），未命中再滑动。滑动须 post_wait_freezes",
+        "next": [
+            "ListCompleteRecognitionExampleGate",
+            "[JumpBack]ListCompleteRecognitionExampleScroll"
+        ]
+    },
     "ListCompleteRecognitionExampleGate": {
-        "desc": "ListCompleteRecognition 示例：首次截取原生 roi 模板并返回 true；之后模板相似度 >= threshold 视为到底返回 false，低于阈值则重新截图覆盖模板并返回 true。滑动后必须 post_wait_freezes 等画面静止，再进入下一轮识别",
+        "desc": "ListCompleteRecognition：命中表示列表已到底；首次只建模板并返回未命中。滑动后须静止再识别",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -18,6 +25,17 @@
                 ]
             }
         },
+        "action": "DoNothing",
+        "next": [
+            "ListCompleteRecognitionPass"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
+    "ListCompleteRecognitionExampleScroll": {
+        "desc": "未到底时滑动；post_wait_freezes 后再回到扫描识别",
+        "recognition": "DirectHit",
         "action": "Swipe",
         "begin": [
             650,
@@ -27,17 +45,10 @@
             650,
             150
         ],
-        // 识别依赖静止画面；滑动惯性未停会被当成区域变化而持续滑动
-        "post_wait_freezes": 200,
-        "next": [
-            "ListCompleteRecognitionPass"
-        ],
-        "attach": {
-            "ready": false
-        }
+        "post_wait_freezes": 200
     },
     "ListCompleteRecognitionPass": {
-        "desc": "列表仍有变化时的后续流程（例如继续滑动）",
+        "desc": "列表已到底后的后续流程",
         "recognition": "DirectHit",
         "action": "DoNothing",
         "next": []

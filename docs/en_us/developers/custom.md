@@ -268,51 +268,68 @@ Important Notes:
 
 ### ListCompleteRecognition
 
-The `ListCompleteRecognition` implementation is located in `agent/go-service/common/listcomplete`. It detects whether a list is still updating by comparing template similarity in a given region (commonly used to detect when a scrollable list has reached the end).
+The `ListCompleteRecognition` implementation is located in `agent/go-service/common/listcomplete`. It detects whether a list has **already reached the end** by comparing template similarity in a given region.
+
+**Hit semantics: `true` = list complete; `false` = not complete yet (keep scrolling).**
 
 Parameters:
 
 - Native `roi: [x, y, w, h]`: Optional. Recognition region at 720p; defaults to fullscreen. In V2, put it inside `recognition.param` alongside `custom_recognition` (not inside `custom_recognition_param`).
-- `custom_recognition_param.threshold: number`: Optional, default `0.9`. TemplateMatch threshold; score `>= threshold` means the region is unchanged (list complete).
+- `custom_recognition_param.threshold: number`: Optional, default `0.9`. TemplateMatch threshold; score `>= threshold` means the region is unchanged (list complete) and the recognition hits.
 
 Behavior:
 
 1. Read `attach.ready` from the current custom recognition node.
-2. If `ready` is false (first run): crop the native `roi`, write it via `OverrideImage` as `ListCompleteRecognition/<current-node>.png`, set `attach.ready` to `true`, and return a match.
+2. If `ready` is false (first run): crop the native `roi`, write it via `OverrideImage` as `ListCompleteRecognition/<current-node>.png`, set `attach.ready` to `true`, and return **no match** (cannot decide complete yet).
 3. If already ready: run `TemplateMatch` against that template inside the same `roi`.
-4. Score `>= threshold`: treat the list as complete and return no match.
-5. Score below threshold: recapture and `OverrideImage`, then return a match (keep scrolling).
+4. Score `>= threshold`: treat the list as complete and return a **match**.
+5. Score below threshold: recapture and `OverrideImage`, then return **no match** (keep scrolling).
+
+Pipeline layout: place this recognition **before** the swipe node; on hit take the "complete" branch, on miss fall through to swipe. The swipe node must set `post_wait_freezes`.
 
 Example file: [`ListCompleteRecognition.json`](../../../assets/resource/pipeline/Interface/Example/ListCompleteRecognition.json)
 
 ```json
 {
-    "recognition": {
-        "type": "Custom",
-        "param": {
-            "custom_recognition": "ListCompleteRecognition",
-            "custom_recognition_param": {
-                "threshold": 0.9
-            },
-            "roi": [480, 160, 320, 400]
-        }
+    "ExampleScan": {
+        "next": [
+            "ExampleComplete",
+            "[JumpBack]ExampleScroll"
+        ]
     },
-    "action": "Swipe",
-    "begin": [650, 470],
-    "end": [650, 150],
-    "post_wait_freezes": 200,
-    "attach": {
-        "ready": false
+    "ExampleComplete": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "custom_recognition_param": {
+                    "threshold": 0.9
+                },
+                "roi": [480, 160, 320, 400]
+            }
+        },
+        "action": "DoNothing",
+        "attach": {
+            "ready": false
+        },
+        "next": ["ExampleDone"]
+    },
+    "ExampleScroll": {
+        "recognition": "DirectHit",
+        "action": "Swipe",
+        "begin": [650, 470],
+        "end": [650, 150],
+        "post_wait_freezes": 200
     }
 }
 ```
 
 Notes:
 
-- **The screen must already be still when recognition runs.** This recognizer compares the current frame with the template captured on the previous round. If inertia, bounce, or transition animation is still running when the next recognition starts, the region keeps changing, so the recognizer keeps returning a match and the list keeps scrolling. Put `post_wait_freezes` on the **same swipe node** (optionally with a `target` ROI over the list area) so the frame freezes before returning to scan/recognition.
+- **The screen must already be still when recognition runs.** This recognizer compares the current frame with the template captured on the previous round. If inertia, bounce, or transition animation is still running when the next recognition starts, the region keeps changing, so completion cannot be decided and scrolling continues. Put `post_wait_freezes` on the **swipe node** (optionally with a `target` ROI over the list area) so the frame freezes before returning to scan/recognition.
 - State is stored in `attach.ready` on the **current Custom recognition node**; the runtime template is kept by `OverrideImage` and is not written to disk.
 - To restart a list scan, set that Custom node's `attach.ready` to `false` (for example via `PipelineOverride`).
-- This recognizer only answers "did the given region change"; scrolling/clicking still belong in Pipeline.
+- This recognizer only answers "is the list complete"; scrolling/clicking still belong in Pipeline.
 
 ### ExpendableRecognition
 
@@ -392,7 +409,7 @@ When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe
 | Change node parameters at runtime | `PipelineOverride` |
 | Write keywords as regex back to OCR node | `AttachToExpectedRegexAction` |
 | Evaluate OCR numerical expressions | `ExpressionRecognition` |
-| Detect whether a list region image changed | `ListCompleteRecognition` |
+| Detect whether a list has reached the end | `ListCompleteRecognition` |
 | Consumable pick (visited exclusion) | `ExpendableRecognition` |
 | Gate subsequent nodes by day of week | `ScheduleRecognition` |
 | Alt + Click at specified position | `AutoAltClickAction` |

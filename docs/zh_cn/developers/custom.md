@@ -270,51 +270,68 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 
 ### ListCompleteRecognition
 
-`ListCompleteRecognition` 实现位于 `agent/go-service/common/listcomplete`，用于通过指定区域的模板相似度判断列表是否仍在更新（常见于滑动列表到底检测）。
+`ListCompleteRecognition` 实现位于 `agent/go-service/common/listcomplete`，用于通过指定区域的模板相似度判断列表是否**已经到底**。
+
+**命中语义：`true` = 已到底；`false` = 尚未到底（应继续滑动）。**
 
 参数：
 
 - 节点原生 `roi: [x, y, w, h]`：可选。识别区域，基于 720p；缺省为全屏。V2 写在 `recognition.param` 内，与 `custom_recognition` 同级（不是 `custom_recognition_param`）。
-- `custom_recognition_param.threshold: number`：可选，默认 `0.9`。模板匹配阈值；相似度 `>= threshold` 视为画面未变（列表到底）。
+- `custom_recognition_param.threshold: number`：可选，默认 `0.9`。模板匹配阈值；相似度 `>= threshold` 视为画面未变（列表到底）并命中。
 
 行为：
 
 1. 读取当前自定义识别节点自身的 `attach.ready`。
-2. 若 `ready` 为假（首次）：按节点原生 `roi` 截取区域，经 `OverrideImage` 写入运行时模板 `ListCompleteRecognition/<当前节点名>.png`，将 `attach.ready` 置 `true`，返回命中。
+2. 若 `ready` 为假（首次）：按节点原生 `roi` 截取区域，经 `OverrideImage` 写入运行时模板 `ListCompleteRecognition/<当前节点名>.png`，将 `attach.ready` 置 `true`，返回**未命中**（尚不能判定到底）。
 3. 若已就绪：在该 `roi` 内对模板做 `TemplateMatch`。
-4. 相似度 `>= threshold`：视为列表到底，返回未命中。
-5. 相似度低于阈值：重新截取并 `OverrideImage`，返回命中（仍可继续滑动）。
+4. 相似度 `>= threshold`：视为列表到底，返回**命中**。
+5. 相似度低于阈值：重新截取并 `OverrideImage`，返回**未命中**（仍应继续滑动）。
+
+Pipeline 组织：把本识别放在滑动节点**之前**；命中走「到底」分支，未命中再落到滑动节点。滑动节点须配置 `post_wait_freezes`。
 
 示例文件：[`ListCompleteRecognition.json`](../../../assets/resource/pipeline/Interface/Example/ListCompleteRecognition.json)
 
 ```json
 {
-    "recognition": {
-        "type": "Custom",
-        "param": {
-            "custom_recognition": "ListCompleteRecognition",
-            "custom_recognition_param": {
-                "threshold": 0.9
-            },
-            "roi": [480, 160, 320, 400]
-        }
+    "ExampleScan": {
+        "next": [
+            "ExampleComplete",
+            "[JumpBack]ExampleScroll"
+        ]
     },
-    "action": "Swipe",
-    "begin": [650, 470],
-    "end": [650, 150],
-    "post_wait_freezes": 200,
-    "attach": {
-        "ready": false
+    "ExampleComplete": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "custom_recognition_param": {
+                    "threshold": 0.9
+                },
+                "roi": [480, 160, 320, 400]
+            }
+        },
+        "action": "DoNothing",
+        "attach": {
+            "ready": false
+        },
+        "next": ["ExampleDone"]
+    },
+    "ExampleScroll": {
+        "recognition": "DirectHit",
+        "action": "Swipe",
+        "begin": [650, 470],
+        "end": [650, 150],
+        "post_wait_freezes": 200
     }
 }
 ```
 
 注意事项：
 
-- **识别时画面必须已经静止。** 本识别器比较的是「当前帧」与「上一轮截取的模板」；若滑动惯性、回弹或过渡动画尚未结束就进入下一轮识别，区域会持续变化，识别器会一直返回命中并持续滑动。请在**同一滑动节点**上配置 `post_wait_freezes`（必要时可带 `target` 限定列表区域），等画面冻结后再回到扫描/识别。
+- **识别时画面必须已经静止。** 本识别器比较的是「当前帧」与「上一轮截取的模板」；若滑动惯性、回弹或过渡动画尚未结束就进入下一轮识别，区域会持续变化，无法判定到底并会一直滑动。请在**滑动节点**上配置 `post_wait_freezes`（必要时可带 `target` 限定列表区域），等画面冻结后再回到扫描/识别。
 - 状态保存在**当前 Custom 识别节点**的 `attach.ready`；运行时模板通过 `OverrideImage` 覆盖，不落盘。
 - 需要重新开始一轮列表扫描时，应将 `attach.ready` 置 `false`（例如通过 `PipelineOverride`）。
-- 该识别器只负责“指定区域画面是否变化”，滑动、点击等流程仍由 Pipeline 组织。
+- 该识别器只负责“是否已到底”，滑动、点击等流程仍由 Pipeline 组织。
 
 ### ExpendableRecognition
 
@@ -394,7 +411,7 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 | 运行时改节点参数 | `PipelineOverride` |
 | 把关键词拼成正则写回 OCR 节点 | `AttachToExpectedRegexAction` |
 | 计算 OCR 数值表达式 | `ExpressionRecognition` |
-| 判断列表区域画面是否变化 | `ListCompleteRecognition` |
+| 判断列表是否已到底 | `ListCompleteRecognition` |
 | 消费性点选（visited 排除） | `ExpendableRecognition` |
 | 按星期几门控后续节点 | `ScheduleRecognition` |
 | 在指定位置 Alt + 点击 | `AutoAltClickAction` |

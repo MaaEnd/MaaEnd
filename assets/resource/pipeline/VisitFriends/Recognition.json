@@ -160,7 +160,7 @@
         }
     },
     "VisitFriendsRecognitionItemWithNameForScroll": {
-        "desc": "滚动专用 And：进船按钮 ∧ 好友名，不检查线索交换（供 ListComplete）",
+        "desc": "滚动专用 And：进船按钮 ∧ 好友名，不检查线索交换",
         "recognition": "And",
         "all_of": [
             "VisitFriendsRecognitionItemEnterButton",

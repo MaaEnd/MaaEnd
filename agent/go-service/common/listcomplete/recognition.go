@@ -21,22 +21,25 @@ const (
 var _ maa.CustomRecognitionRunner = &Recognition{}
 var _ nodeStore = (*maa.Context)(nil)
 
-// Recognition 是通用的列表完成识别器：通过指定区域的模板相似度判断列表是否仍在滚动。
+// Recognition 是通用的列表完成识别器：通过指定区域的模板相似度判断列表是否已到底。
 //
-// 首次命中（当前节点 attach.ready 为空/false）时直接返回 true，截取 roi 区域并通过
-// OverrideImage 写入运行时模板；之后用 TemplateMatch 对比当前画面与模板：
-// 相似度 >= threshold（默认 0.9）视为画面未变、列表到底，返回 false；
-// 低于阈值则重新截取并 OverrideImage，返回 true（仍可继续滑动）。
+// 返回 true 表示列表已到底；返回 false 表示尚未到底（仍应继续滑动）。
 //
+// 首次调用（当前节点 attach.ready 为空/false）时截取 roi 经 OverrideImage 写入运行时模板，
+// 将 ready 置 true，并返回 false（尚不能判定到底）。之后用 TemplateMatch 对比：
+// 相似度 >= threshold（默认 0.9）视为画面未变、列表到底，返回 true；
+// 低于阈值则重新截取并 OverrideImage，返回 false。
+//
+// Pipeline 用法：将本识别放在滑动节点之前；命中则走「到底」分支，未命中再落到滑动节点。
 // 调用方必须保证识别时画面已静止：滑动节点应配置 post_wait_freezes，否则惯性/回弹
-// 会被当成区域变化而持续滑动。
+// 会被当成区域变化而无法判定到底。
 //
 // 识别区域使用节点原生 roi（V2：recognition.param.roi，与 custom_recognition 同级；经 arg.Roi 传入）；缺省为全屏。
 // threshold 可在 custom_recognition_param 中传入，默认 0.9。
 type Recognition struct{}
 
 type params struct {
-	// Threshold 为模板匹配阈值，默认 0.9；命中（>= 阈值）视为列表到底。
+	// Threshold 为模板匹配阈值，默认 0.9；命中（>= 阈值）视为列表到底并返回 true。
 	Threshold float64 `json:"threshold"`
 }
 
@@ -121,18 +124,8 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 			Str("template", templateName).
 			Ints("roi", []int{roi[0], roi[1], roi[2], roi[3]}).
 			Float64("threshold", p.Threshold).
-			Msg("first run: template captured")
-		return &maa.CustomRecognitionResult{
-			Box: box,
-			Detail: marshalDetail(map[string]any{
-				"node":      currentNode,
-				"template":  templateName,
-				"roi":       []int{roi[0], roi[1], roi[2], roi[3]},
-				"threshold": p.Threshold,
-				"first_run": true,
-				"ready":     true,
-			}),
-		}, true
+			Msg("first run: template captured, not complete yet")
+		return nil, false
 	}
 
 	matched, score, err := matchTemplate(ctx, arg.Img, roi, templateName, p.Threshold)
@@ -155,7 +148,19 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 			Float64("score", score).
 			Float64("threshold", p.Threshold).
 			Msg("template matched, list complete")
-		return nil, false
+		return &maa.CustomRecognitionResult{
+			Box: box,
+			Detail: marshalDetail(map[string]any{
+				"node":      currentNode,
+				"template":  templateName,
+				"roi":       []int{roi[0], roi[1], roi[2], roi[3]},
+				"threshold": p.Threshold,
+				"score":     score,
+				"first_run": false,
+				"ready":     true,
+				"complete":  true,
+			}),
+		}, true
 	}
 
 	if err := captureAndOverride(ctx, arg.Img, roi, templateName); err != nil {
@@ -174,19 +179,8 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		Str("template", templateName).
 		Float64("score", score).
 		Float64("threshold", p.Threshold).
-		Msg("template changed, recaptured")
-	return &maa.CustomRecognitionResult{
-		Box: box,
-		Detail: marshalDetail(map[string]any{
-			"node":      currentNode,
-			"template":  templateName,
-			"roi":       []int{roi[0], roi[1], roi[2], roi[3]},
-			"threshold": p.Threshold,
-			"score":     score,
-			"first_run": false,
-			"ready":     true,
-		}),
-	}, true
+		Msg("template changed, recaptured, not complete")
+	return nil, false
 }
 
 func parseParams(raw string) (*params, error) {

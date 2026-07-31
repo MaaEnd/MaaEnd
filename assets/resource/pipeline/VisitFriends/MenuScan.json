@@ -10,8 +10,8 @@
             "VisitFriendsMenuScanFriendsFull",
             "[JumpBack]VisitFriendsMenuScanTargetFriendOpenRemark",
             "[JumpBack]VisitFriendsMenuScanTargetFriendOpen",
-            "[JumpBack]VisitFriendsMenuScanScrollList",
-            "VisitFriendsMenuScanScrollFinish"
+            "VisitFriendsMenuScanScrollFinish",
+            "[JumpBack]VisitFriendsMenuScanScrollList"
         ]
     },
     "VisitFriendsAssistFullInit": {
@@ -114,9 +114,15 @@
         ]
     },
     "VisitFriendsMenuScanScrollFinish": {
-        "desc": "列表已到底：备注优先时先走 RemarkFallback 重开并切任意好友；否则或已回退过则结束",
+        "desc": "列表已到底：ListComplete 命中（区域与上一帧静止模板相似度 >= 0.9）后走备注回退或结束。attach.ready 由 ListCompleteRecognition 维护；备注回退重开前会清空。识别前须由滑动节点 post_wait_freezes 保证画面静止",
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {},
         "pre_delay": 0,
         "post_delay": 0,
+        "attach": {
+            "ready": false
+        },
         "next": [
             "VisitFriendsMenuScanRemarkFallback",
             "VisitFriendsMenuScanScrollFinishDone"
@@ -131,7 +137,7 @@
         }
     },
     "VisitFriendsMenuScanRemarkFallback": {
-        "desc": "备注优先回退：首轮仅备注扫到底后，关闭备注选友、开启任意选友，清空 visited/滚动指纹；max_hit=1 只回退一次；VisitFriendsRemark=Yes 时开启",
+        "desc": "备注优先回退：首轮仅备注扫到底后，关闭备注选友、开启任意选友，清空 visited/滚动模板；max_hit=1 只回退一次；VisitFriendsRemark=Yes 时开启",
         "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
@@ -151,7 +157,7 @@
                         "visited": []
                     }
                 },
-                "VisitFriendsMenuScanScrollList": {
+                "VisitFriendsMenuScanScrollFinish": {
                     "attach": {
                         "ready": false
                     }
@@ -196,10 +202,8 @@
         }
     },
     "VisitFriendsMenuScanScrollList": {
-        "desc": "好友列表未到底时向下滚动：ListComplete 截取全屏模板，相似度 >= 0.9 视为到底；低于阈值则重新截图并继续滑。滑动后 post_wait_freezes 等列表静止再识别，否则惯性滚动会被当成画面变化而持续滑动。attach.ready 由 ListCompleteRecognition 运行时维护；备注回退重开前会清空",
-        "recognition": "Custom",
-        "custom_recognition": "ListCompleteRecognition",
-        "custom_recognition_param": {},
+        "desc": "列表未到底时向下滚动：ListComplete 未命中时落到本节点。滑动后 post_wait_freezes 等列表静止再回到扫描，否则惯性会被当成画面变化而无法判定到底",
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Swipe",
         "begin": [
@@ -212,10 +216,7 @@
         ],
         "end_hold": 600, // 太短了松开会晃动
         "post_wait_freezes": 200,
-        "post_delay": 0,
-        "attach": {
-            "ready": false
-        }
+        "post_delay": 0
     },
     "VisitFriendsCheckAssist": {
         "desc": "打开好友详情后检查可访问资源（识别②）：线索交换固定开启；助力子节点未勾选时为 OCR a^，勾选后覆盖为 TemplateMatch",
