@@ -205,6 +205,7 @@ Misses and quantities `<= 0` are skipped. Outward Focus:
 
 > [!IMPORTANT]
 > `IMS/item/*` nodes for the Progression tab may not fit the rewards UI. Pass recognition nodes that match the current screen.
+> Reward popups often animate in: wait with `pre_wait_freezes` on the reward-item ROI before A3 (see `ProtocolSpaceRewardAddItemData`).
 
 ### Best practice
 

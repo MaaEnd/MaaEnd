@@ -216,6 +216,7 @@ python tools/SupplyPlan/mask_ims_item_corner.py
 
 > [!IMPORTANT]
 > 培养素材页的 `IMS/item/*` 节点 ROI 可能不适用于奖励界面。业务侧应传入**适配当前画面**的识别节点。
+> 奖励界面弹出常有入场动画：调用 A3 前应对奖励物品区域使用 `pre_wait_freezes`（协议空间见 `ProtocolSpaceRewardAddItemData`）。
 
 ### 最佳实践
 

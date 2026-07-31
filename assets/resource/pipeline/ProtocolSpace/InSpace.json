@@ -764,8 +764,17 @@
         ]
     },
     "ProtocolSpaceRewardAddItemData": {
-        "desc": "协议空间领取奖励后：IMS A3 累加当前奖励界面识别到的培养道具数量",
+        "desc": "协议空间领取奖励后：等奖励区静止（弹出动画结束），再 IMS A3 累加培养道具数量",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "target": [
+                300,
+                250,
+                750,
+                200
+            ],
+            "time": 300
+        },
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "AddItemData",
