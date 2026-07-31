@@ -81,7 +81,7 @@ With your support, MaaEnd continues to grow and improve. ❤️
 
 Come hang out and chat with everyone:
 
-- 💬 **User QQ Group**: [1103911816](https://qm.qq.com/q/YLkMv83h0Q)  
+- 💬 **User QQ Group**: [1078075580](https://qm.qq.com/q/Rz8HYYvCMY)  
   For usage questions, feature requests, and casual chatting.
 - 👨‍💻 **Developer QQ Group**: [1072587329](https://qm.qq.com/q/EyirQpBiW4)  
   Dedicated to development discussion. (For general usage questions, please go to the user group above.)
