@@ -1,21 +1,21 @@
 {
     "ListCompleteRecognitionExampleGate": {
-        "desc": "ListCompleteRecognition 示例：首次截取 roi 模板并返回 true；之后模板相似度 >= threshold 视为到底返回 false，低于阈值则重新截图覆盖模板并返回 true。滑动后必须 post_wait_freezes 等画面静止，再进入下一轮识别",
+        "desc": "ListCompleteRecognition 示例：首次截取原生 roi 模板并返回 true；之后模板相似度 >= threshold 视为到底返回 false，低于阈值则重新截图覆盖模板并返回 true。滑动后必须 post_wait_freezes 等画面静止，再进入下一轮识别",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ListCompleteRecognition",
                 "custom_recognition_param": {
-                    // 可选；缺省全屏 [0,0,1280,720]
-                    "roi": [
-                        480,
-                        160,
-                        320,
-                        400
-                    ],
                     // 可选；缺省 0.9。命中（相似度 >= 阈值）视为列表到底
                     "threshold": 0.9
-                }
+                },
+                // 识别区域用原生 roi（与 custom_recognition 同级）；省略则为全屏
+                "roi": [
+                    480,
+                    160,
+                    320,
+                    400
+                ]
             }
         },
         "action": "Swipe",

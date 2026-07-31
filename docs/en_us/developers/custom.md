@@ -272,14 +272,14 @@ The `ListCompleteRecognition` implementation is located in `agent/go-service/com
 
 Parameters:
 
-- `roi: [x, y, w, h]`: Optional. Recognition region at 720p; defaults to fullscreen.
-- `threshold: number`: Optional, default `0.9`. TemplateMatch threshold; score `>= threshold` means the region is unchanged (list complete).
+- Native `roi: [x, y, w, h]`: Optional. Recognition region at 720p; defaults to fullscreen. In V2, put it inside `recognition.param` alongside `custom_recognition` (not inside `custom_recognition_param`).
+- `custom_recognition_param.threshold: number`: Optional, default `0.9`. TemplateMatch threshold; score `>= threshold` means the region is unchanged (list complete).
 
 Behavior:
 
 1. Read `attach.ready` from the current custom recognition node.
-2. If `ready` is false (first run): crop `roi`, write it via `OverrideImage` as `ListCompleteRecognition/<current-node>.png`, set `attach.ready` to `true`, and return a match.
-3. If already ready: run `TemplateMatch` against that template inside `roi`.
+2. If `ready` is false (first run): crop the native `roi`, write it via `OverrideImage` as `ListCompleteRecognition/<current-node>.png`, set `attach.ready` to `true`, and return a match.
+3. If already ready: run `TemplateMatch` against that template inside the same `roi`.
 4. Score `>= threshold`: treat the list as complete and return no match.
 5. Score below threshold: recapture and `OverrideImage`, then return a match (keep scrolling).
 
@@ -292,9 +292,9 @@ Example file: [`ListCompleteRecognition.json`](../../../assets/resource/pipeline
         "param": {
             "custom_recognition": "ListCompleteRecognition",
             "custom_recognition_param": {
-                "roi": [480, 160, 320, 400],
                 "threshold": 0.9
-            }
+            },
+            "roi": [480, 160, 320, 400]
         }
     },
     "action": "Swipe",

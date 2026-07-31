@@ -274,14 +274,14 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 
 参数：
 
-- `roi: [x, y, w, h]`：可选。识别区域，基于 720p；缺省为全屏。
-- `threshold: number`：可选，默认 `0.9`。模板匹配阈值；相似度 `>= threshold` 视为画面未变（列表到底）。
+- 节点原生 `roi: [x, y, w, h]`：可选。识别区域，基于 720p；缺省为全屏。V2 写在 `recognition.param` 内，与 `custom_recognition` 同级（不是 `custom_recognition_param`）。
+- `custom_recognition_param.threshold: number`：可选，默认 `0.9`。模板匹配阈值；相似度 `>= threshold` 视为画面未变（列表到底）。
 
 行为：
 
 1. 读取当前自定义识别节点自身的 `attach.ready`。
-2. 若 `ready` 为假（首次）：截取 `roi` 区域，经 `OverrideImage` 写入运行时模板 `ListCompleteRecognition/<当前节点名>.png`，将 `attach.ready` 置 `true`，返回命中。
-3. 若已就绪：在 `roi` 内对该模板做 `TemplateMatch`。
+2. 若 `ready` 为假（首次）：按节点原生 `roi` 截取区域，经 `OverrideImage` 写入运行时模板 `ListCompleteRecognition/<当前节点名>.png`，将 `attach.ready` 置 `true`，返回命中。
+3. 若已就绪：在该 `roi` 内对模板做 `TemplateMatch`。
 4. 相似度 `>= threshold`：视为列表到底，返回未命中。
 5. 相似度低于阈值：重新截取并 `OverrideImage`，返回命中（仍可继续滑动）。
 
@@ -294,9 +294,9 @@ Recognition 节点用于执行自定义识别。常见写法如下：
         "param": {
             "custom_recognition": "ListCompleteRecognition",
             "custom_recognition_param": {
-                "roi": [480, 160, 320, 400],
                 "threshold": 0.9
-            }
+            },
+            "roi": [480, 160, 320, 400]
         }
     },
     "action": "Swipe",

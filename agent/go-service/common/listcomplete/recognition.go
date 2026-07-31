@@ -31,12 +31,11 @@ var _ nodeStore = (*maa.Context)(nil)
 // 调用方必须保证识别时画面已静止：滑动节点应配置 post_wait_freezes，否则惯性/回弹
 // 会被当成区域变化而持续滑动。
 //
-// roi / threshold 均可在 custom_recognition_param 中传入；roi 缺省为全屏。
+// 识别区域使用节点原生 roi（V2：recognition.param.roi，与 custom_recognition 同级；经 arg.Roi 传入）；缺省为全屏。
+// threshold 可在 custom_recognition_param 中传入，默认 0.9。
 type Recognition struct{}
 
 type params struct {
-	// ROI 为识别区域 [x, y, w, h]，基于 720p；缺省为全屏。
-	ROI []int `json:"roi"`
 	// Threshold 为模板匹配阈值，默认 0.9；命中（>= 阈值）视为列表到底。
 	Threshold float64 `json:"threshold"`
 }
@@ -74,13 +73,13 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		return nil, false
 	}
 
-	roi, err := resolveROI(arg.Img, p.ROI)
+	roi, err := resolveROI(arg.Img, arg.Roi)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", componentName).
 			Str("node", currentNode).
-			Ints("roi", p.ROI).
+			Ints("roi", []int{arg.Roi[0], arg.Roi[1], arg.Roi[2], arg.Roi[3]}).
 			Msg("invalid roi")
 		return nil, false
 	}
@@ -204,27 +203,21 @@ func parseParams(raw string) (*params, error) {
 	if p.Threshold <= 0 || p.Threshold > 1 {
 		return nil, fmt.Errorf("threshold must be in (0, 1], got %v", p.Threshold)
 	}
-	if len(p.ROI) != 0 && len(p.ROI) != 4 {
-		return nil, fmt.Errorf("roi must be [x, y, w, h], got %v", p.ROI)
-	}
-	if len(p.ROI) == 4 && (p.ROI[2] <= 0 || p.ROI[3] <= 0) {
-		return nil, fmt.Errorf("roi width/height must be > 0, got %v", p.ROI)
-	}
 	return p, nil
 }
 
-// resolveROI 将参数 roi 规范化为落在图像范围内的 [x,y,w,h]；空 roi 表示全屏。
-func resolveROI(img image.Image, roi []int) (maa.Rect, error) {
+// resolveROI 将节点原生 roi（arg.Roi）规范化为落在图像范围内的 [x,y,w,h]；
+// 宽高无效时回退全屏。
+func resolveROI(img image.Image, roi maa.Rect) (maa.Rect, error) {
 	bounds := img.Bounds()
 	full := maa.Rect{bounds.Min.X, bounds.Min.Y, bounds.Dx(), bounds.Dy()}
-	if len(roi) == 0 {
-		if full[2] <= 0 || full[3] <= 0 {
-			return maa.Rect{}, fmt.Errorf("image has empty bounds")
-		}
+	if full[2] <= 0 || full[3] <= 0 {
+		return maa.Rect{}, fmt.Errorf("image has empty bounds")
+	}
+	if roi[2] <= 0 || roi[3] <= 0 {
 		return full, nil
 	}
-	x, y, w, h := roi[0], roi[1], roi[2], roi[3]
-	rect := image.Rect(x, y, x+w, y+h).Intersect(bounds)
+	rect := image.Rect(roi[0], roi[1], roi[0]+roi[2], roi[1]+roi[3]).Intersect(bounds)
 	if rect.Empty() {
 		return maa.Rect{}, fmt.Errorf("roi %v is outside image bounds %v", roi, bounds)
 	}

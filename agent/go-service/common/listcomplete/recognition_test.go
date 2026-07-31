@@ -20,9 +20,6 @@ func TestParseParamsDefaults(t *testing.T) {
 	if p.Threshold != defaultThreshold {
 		t.Fatalf("threshold = %v, want %v", p.Threshold, defaultThreshold)
 	}
-	if len(p.ROI) != 0 {
-		t.Fatalf("roi = %v, want empty (fullscreen)", p.ROI)
-	}
 
 	p, err = parseParams(`{}`)
 	if err != nil {
@@ -32,15 +29,12 @@ func TestParseParamsDefaults(t *testing.T) {
 		t.Fatalf("threshold = %v, want %v", p.Threshold, defaultThreshold)
 	}
 
-	p, err = parseParams(`{"roi":[100,200,300,400],"threshold":0.8}`)
+	p, err = parseParams(`{"threshold":0.8}`)
 	if err != nil {
 		t.Fatalf("custom param: %v", err)
 	}
 	if p.Threshold != 0.8 {
 		t.Fatalf("threshold = %v, want 0.8", p.Threshold)
-	}
-	if len(p.ROI) != 4 || p.ROI[0] != 100 || p.ROI[3] != 400 {
-		t.Fatalf("roi = %v, want [100,200,300,400]", p.ROI)
 	}
 
 	p, err = parseParams(`{"threshold":0}`)
@@ -54,27 +48,21 @@ func TestParseParamsDefaults(t *testing.T) {
 	if _, err := parseParams(`{"threshold":1.5}`); err == nil {
 		t.Fatal("expected error for threshold > 1")
 	}
-	if _, err := parseParams(`{"roi":[1,2,3]}`); err == nil {
-		t.Fatal("expected error for invalid roi length")
-	}
-	if _, err := parseParams(`{"roi":[0,0,0,10]}`); err == nil {
-		t.Fatal("expected error for non-positive roi size")
-	}
 }
 
 func TestResolveROIFullscreenAndClip(t *testing.T) {
 	t.Parallel()
 
 	img := image.NewRGBA(image.Rect(0, 0, 1280, 720))
-	full, err := resolveROI(img, nil)
+	full, err := resolveROI(img, maa.Rect{})
 	if err != nil {
-		t.Fatalf("fullscreen: %v", err)
+		t.Fatalf("empty native roi: %v", err)
 	}
 	if full != (maa.Rect{0, 0, 1280, 720}) {
 		t.Fatalf("fullscreen = %v, want [0,0,1280,720]", full)
 	}
 
-	clipped, err := resolveROI(img, []int{1200, 700, 200, 100})
+	clipped, err := resolveROI(img, maa.Rect{1200, 700, 200, 100})
 	if err != nil {
 		t.Fatalf("clip: %v", err)
 	}
@@ -82,8 +70,17 @@ func TestResolveROIFullscreenAndClip(t *testing.T) {
 		t.Fatalf("clipped = %v, want [1200,700,80,20]", clipped)
 	}
 
-	if _, err := resolveROI(img, []int{2000, 2000, 10, 10}); err == nil {
+	if _, err := resolveROI(img, maa.Rect{2000, 2000, 10, 10}); err == nil {
 		t.Fatal("expected error for roi outside image")
+	}
+}
+
+func TestResolveROIEmptyImage(t *testing.T) {
+	t.Parallel()
+
+	img := image.NewRGBA(image.Rect(0, 0, 0, 0))
+	if _, err := resolveROI(img, maa.Rect{}); err == nil {
+		t.Fatal("expected error for empty image bounds")
 	}
 }
 
