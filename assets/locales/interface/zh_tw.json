@@ -1199,7 +1199,7 @@
     "task.ResourceRecycleStation.focus.Found": "發現資源回收站",
     "task.ResourceRecycleStation.focus.Empty": "該地區暫無可收取資源",
     "task.AccountSwitch.label": "自動切換帳號",
-    "task.AccountSwitch.description": "自動登出當前帳號並切換到指定帳號的後四位",
+    "task.AccountSwitch.description": "自動登出當前帳號並切換到指定帳號的後四位\n**請將終末地設定中的幀率改為60幀，且畫質提升選項改為TAAU**",
     "option.AccountSwitchLastFourDigits.label": "目標帳號後四位",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "輸入帳號後四位",
     "task.TrialOfSwordmancy.label": "🗡️選劍演武",
