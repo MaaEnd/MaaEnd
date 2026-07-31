@@ -38,6 +38,15 @@ const (
 
 	ziplineMaxDistance     = 85.0
 	ziplineConnectDistance = 20.0
+	ziplineScanZoomValue   = 0.6
+
+	ownedZiplineTemplate         = "image/MapTracker/BigMapIcons/Zipline.png"
+	sharedZiplineTemplate        = "image/MapTracker/BigMapIcons/SharedZipline.png"
+	sharedZiplineThreshold       = 0.75
+	sharedZiplineMaxMatches      = 128
+	sharedZiplineMaxDeletePasses = 8
+	deleteSharedZiplineTaskName  = "MapTrackerBigMap_DeleteSelectedSharedZipline"
+	deleteSharedZiplineNodeName  = "__MapTrackerBigMap_ClickDeleteSelectedSharedZipline"
 
 	mapTrackerGoalDebugDir = "debug/vision"
 )
@@ -543,9 +552,15 @@ func (a *MapTrackerGoal) loadRuntimeZiplines(goalCtx *goalContext, mustSeePoints
 		return nil, fmt.Errorf("failed to filter ziplines on big map: %w", err)
 	}
 
-	matches, err := a.findBigMapZiplines(goalCtx, mustSeePoints)
+	if err := a.clearSharedBigMapZiplines(goalCtx, mustSeePoints); err != nil {
+		return nil, fmt.Errorf("failed to delete shared ziplines: %w", err)
+	}
+
+	// Selecting and deleting a shared zipline does not change map zoom. FindImage uses
+	// zero here to preserve the 0.6 scale established by the shared-zipline scan.
+	matches, err := a.findBigMapZiplineIcons(goalCtx, mustSeePoints, ownedZiplineTemplate, 0, 0, 0)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to find owned ziplines: %w", err)
 	}
 
 	ids := make([]int, 0, len(matches))
@@ -564,7 +579,168 @@ func (a *MapTrackerGoal) loadRuntimeZiplines(goalCtx *goalContext, mustSeePoints
 	return ids, nil
 }
 
-func (a *MapTrackerGoal) findBigMapZiplines(goalCtx *goalContext, mustSeePoints [][2]int) ([]maptrackerbigmap.MapTrackerBigMapFindImageMatch, error) {
+func (a *MapTrackerGoal) clearSharedBigMapZiplines(goalCtx *goalContext, mustSeePoints [][2]int) error {
+	totalDeleted := 0
+	// Rescan after each batch because nearby shared icons can be deduplicated or
+	// obscured until the foreground icon is removed. The cap prevents a stale UI
+	// from causing an unbounded cleanup loop.
+	for pass := 1; ; pass++ {
+		zoomValue := 0.0
+		if pass == 1 {
+			zoomValue = ziplineScanZoomValue
+		}
+		matches, err := a.findBigMapZiplineIcons(
+			goalCtx,
+			mustSeePoints,
+			sharedZiplineTemplate,
+			zoomValue,
+			sharedZiplineThreshold,
+			sharedZiplineMaxMatches,
+		)
+		if err != nil {
+			return fmt.Errorf("failed to find shared ziplines on pass %d: %w", pass, err)
+		}
+		if len(matches) == 0 {
+			log.Info().
+				Int("deletePasses", pass-1).
+				Int("deletedSharedZiplines", totalDeleted).
+				Msg("Shared zipline cleanup completed")
+			return nil
+		}
+		if pass > sharedZiplineMaxDeletePasses {
+			return fmt.Errorf(
+				"shared ziplines remain after %d delete passes: %d matches",
+				sharedZiplineMaxDeletePasses,
+				len(matches),
+			)
+		}
+
+		log.Info().
+			Int("pass", pass).
+			Int("sharedZiplineCount", len(matches)).
+			Msg("Shared ziplines found in big-map search area")
+		deleted, stopped, err := a.deleteSharedBigMapZiplineMatches(goalCtx, matches)
+		if err != nil {
+			return fmt.Errorf("failed to delete shared ziplines on pass %d: %w", pass, err)
+		}
+		totalDeleted += deleted
+		if stopped {
+			log.Warn().
+				Int("deletePasses", pass).
+				Int("deletedSharedZiplines", totalDeleted).
+				Msg("Shared zipline cleanup stopped after a non-zipline candidate")
+			return nil
+		}
+	}
+}
+
+func (a *MapTrackerGoal) deleteSharedBigMapZiplineMatches(
+	goalCtx *goalContext,
+	matches []maptrackerbigmap.MapTrackerBigMapFindImageMatch,
+) (deleted int, stopped bool, err error) {
+	if len(matches) == 0 {
+		return 0, false, nil
+	}
+
+	picker := &maptrackerbigmap.MapTrackerBigMapPick{}
+	keepCurrentZoom := 0.0
+	for index, match := range matches {
+		if goalCtx.ctx.GetTasker().Stopping() {
+			return deleted, false, fmt.Errorf("task is stopping")
+		}
+
+		mapName := match.MapName
+		if mapName == "" {
+			mapName = goalCtx.param.MapName
+		}
+		pickParam := maptrackerbigmap.MapTrackerBigMapPickParam{
+			MapName:   mapName,
+			Target:    [2]float64{match.MapX, match.MapY},
+			OnFind:    maptrackerbigmap.ON_FIND_CLICK,
+			ZoomValue: &keepCurrentZoom,
+		}
+		pickParamBytes, err := json.Marshal(pickParam)
+		if err != nil {
+			return deleted, false, fmt.Errorf("failed to marshal shared zipline pick parameters: %w", err)
+		}
+
+		// A literal zero disables MapTrackerBigMapPick's zoom adjustment; it does not
+		// move the slider to zero. The scan has already placed the slider at 0.6.
+		if !picker.Run(goalCtx.ctx, &maa.CustomActionArg{
+			TaskID:            goalCtx.arg.TaskID,
+			CurrentTaskName:   goalCtx.arg.CurrentTaskName,
+			CustomActionName:  "MapTrackerBigMapPick",
+			CustomActionParam: string(pickParamBytes),
+			RecognitionDetail: goalCtx.arg.RecognitionDetail,
+			Box:               goalCtx.arg.Box,
+		}) {
+			return deleted, false, fmt.Errorf("failed to select shared zipline at (%.1f, %.1f)", match.MapX, match.MapY)
+		}
+
+		detail, err := goalCtx.ctx.RunTask(deleteSharedZiplineTaskName)
+		if err != nil {
+			return deleted, false, fmt.Errorf("failed to run shared zipline deletion task at (%.1f, %.1f): %w", match.MapX, match.MapY, err)
+		}
+		if detail == nil || !detail.Status.Success() {
+			if detail == nil {
+				return deleted, false, fmt.Errorf("shared zipline deletion returned no task detail at (%.1f, %.1f)", match.MapX, match.MapY)
+			}
+			return deleted, false, fmt.Errorf(
+				"shared zipline deletion failed at (%.1f, %.1f): subtask %d status %s",
+				match.MapX,
+				match.MapY,
+				detail.ID,
+				detail.Status.String(),
+			)
+		}
+		deleteButtonMatched, err := taskRanNode(detail, deleteSharedZiplineNodeName)
+		if err != nil {
+			return deleted, false, fmt.Errorf("failed to inspect shared zipline deletion result at (%.1f, %.1f): %w", match.MapX, match.MapY, err)
+		}
+		if !deleteButtonMatched {
+			log.Warn().
+				Int("index", index+1).
+				Int("total", len(matches)).
+				Str("map", mapName).
+				Float64("mapX", match.MapX).
+				Float64("mapY", match.MapY).
+				Msg("Shared zipline candidate did not expose a delete button")
+			return deleted, true, nil
+		}
+
+		log.Info().
+			Int("index", index+1).
+			Int("total", len(matches)).
+			Str("map", mapName).
+			Float64("mapX", match.MapX).
+			Float64("mapY", match.MapY).
+			Msg("Shared zipline deleted from big map")
+		deleted++
+	}
+	return deleted, false, nil
+}
+
+func taskRanNode(detail *maa.TaskDetail, nodeName string) (bool, error) {
+	for _, nodeRef := range detail.Nodes {
+		nodeDetail, err := nodeRef.GetDetail()
+		if err != nil {
+			return false, err
+		}
+		if nodeDetail.Name == nodeName {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func (a *MapTrackerGoal) findBigMapZiplineIcons(
+	goalCtx *goalContext,
+	mustSeePoints [][2]int,
+	template string,
+	zoomValue float64,
+	threshold float64,
+	maxMatches int,
+) ([]maptrackerbigmap.MapTrackerBigMapFindImageMatch, error) {
 	goalCtx.ctrl.PostScreencap().Wait()
 	img, err := goalCtx.ctrl.CacheImage()
 	if err != nil {
@@ -576,23 +752,27 @@ func (a *MapTrackerGoal) findBigMapZiplines(goalCtx *goalContext, mustSeePoints 
 	param := struct {
 		Template      string   `json:"template"`
 		Expected      bool     `json:"expected"`
+		Threshold     float64  `json:"threshold,omitempty"`
 		GreenMask     bool     `json:"green_mask,omitempty"`
 		WithRotation  bool     `json:"with_rotation,omitempty"`
 		ZoomValue     float64  `json:"zoom_value,omitempty"`
+		MaxMatches    int      `json:"max_matches,omitempty"`
 		MustSeePoints [][2]int `json:"must_see_points,omitempty"`
 	}{
-		Template:      "image/MapTracker/BigMapIcons/Zipline.png",
+		Template:      template,
 		Expected:      true,
+		Threshold:     threshold,
 		GreenMask:     true,
 		WithRotation:  false,
-		ZoomValue:     0.6,
+		ZoomValue:     zoomValue,
+		MaxMatches:    maxMatches,
 		MustSeePoints: mustSeePoints,
 	}
 	paramBytes, err := json.Marshal(param)
 	if err != nil {
 		return nil, err
 	}
-	result, hit := (&maptrackerbigmap.MapTrackerBigMapFindImage{}).Run(goalCtx.ctx, &maa.CustomRecognitionArg{
+	result, _ := (&maptrackerbigmap.MapTrackerBigMapFindImage{}).Run(goalCtx.ctx, &maa.CustomRecognitionArg{
 		TaskID:                 goalCtx.arg.TaskID,
 		CurrentTaskName:        goalCtx.arg.CurrentTaskName,
 		CustomRecognitionName:  "MapTrackerBigMapFindImage",
@@ -600,11 +780,11 @@ func (a *MapTrackerGoal) findBigMapZiplines(goalCtx *goalContext, mustSeePoints 
 		Img:                    img,
 		Roi:                    maa.Rect{0, 0, img.Bounds().Dx(), img.Bounds().Dy()},
 	})
-	if result == nil || result.Detail == "" {
-		if !hit {
-			return nil, nil
-		}
-		return nil, fmt.Errorf("MapTrackerBigMapFindImage returned empty detail")
+	if result == nil {
+		return nil, fmt.Errorf("MapTrackerBigMapFindImage returned no result for template %q", template)
+	}
+	if result.Detail == "" {
+		return nil, fmt.Errorf("MapTrackerBigMapFindImage returned empty detail for template %q", template)
 	}
 	var matches []maptrackerbigmap.MapTrackerBigMapFindImageMatch
 	if err := json.Unmarshal([]byte(result.Detail), &matches); err != nil {

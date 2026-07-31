@@ -40,6 +40,112 @@
             "__MapTrackerBigMap_InFiltersDialog"
         ]
     },
+    "MapTrackerBigMap_DeleteSelectedSharedZipline": {
+        "desc": "等待候选点交互稳定；存在删除按钮时删除，否则视为非滑索并结束共享滑索清理",
+        "pre_wait_freezes": {
+            "target": [
+                930,
+                0,
+                350,
+                720
+            ],
+            "time": 200,
+            "timeout": 5000
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "__MapTrackerBigMap_ClickDeleteSelectedSharedZipline",
+            "__MapTrackerBigMap_HandleNonZiplineCandidate"
+        ]
+    },
+    "__MapTrackerBigMap_ClickDeleteSelectedSharedZipline": {
+        "desc": "点击已选中共享滑索架的删除按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    960,
+                    610,
+                    180,
+                    100
+                ],
+                "template": "MapTracker/BigMap/DeleteSharedZiplineButton.png",
+                "green_mask": true,
+                "threshold": 0.7,
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "target": [
+                1060,
+                640,
+                50,
+                50
+            ],
+            "time": 200,
+            "timeout": 5000
+        },
+        "timeout": 5000,
+        "next": [
+            "__MapTrackerBigMap_AfterHandleSharedZiplineCandidate"
+        ]
+    },
+    "__MapTrackerBigMap_HandleNonZiplineCandidate": {
+        "desc": "画面稳定后未识别到删除按钮，关闭当前非滑索交互",
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        },
+        "post_wait_freezes": {
+            "target": [
+                930,
+                0,
+                350,
+                720
+            ],
+            "time": 200,
+            "timeout": 5000
+        },
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "__MapTrackerBigMap_AfterHandleSharedZiplineCandidate"
+        ]
+    },
+    "__MapTrackerBigMap_AfterHandleSharedZiplineCandidate": {
+        "desc": "确认共享滑索架详情或非滑索交互已关闭并回到大地图",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1210,
+                    160,
+                    70,
+                    400
+                ],
+                "template": [
+                    "MapTracker/BigMapZoomIn.png",
+                    "MapTracker/BigMapZoomOut.png"
+                ],
+                "threshold": 0.75,
+                "order_by": "Score"
+            }
+        },
+        "timeout": 5000
+    },
     "__MapTrackerBigMap_OpenFiltersDialog": {
         "recognition": {
             "type": "TemplateMatch",

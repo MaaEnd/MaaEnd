@@ -118,7 +118,7 @@ Optional parameters:
 
 This node first identifies the player's current location, then reads the NavMesh road network data, temporarily connects the current location and the target point to the road network, plans a path using the Dijkstra algorithm, and finally delegates execution to [MapTrackerMove](#action-maptrackermove).
 
-If a zipline policy is actively specified, it will also automatically scan for zipline points on the major map before pathfinding and incorporate ziplines into the pathfinding consideration.
+If a zipline policy is actively specified, it will also scan the big map before pathfinding. Within the route-covered area, the scan first deletes blue shared zipline stands, then adds only white player-owned zipline stands to the runtime graph.
 
 #### Node Parameters
 
