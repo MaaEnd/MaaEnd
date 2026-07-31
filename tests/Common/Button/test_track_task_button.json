@@ -1,0 +1,18 @@
+{
+    "configs": {
+        "name": "通用按钮，测试已追踪任务地图按钮",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "四号谷地_地区建设_仓储节点_送货任务_转交运送委托.png",
+            "hits": [
+                "TrackedMissionMapButton"
+            ]
+        }
+    ]
+}
