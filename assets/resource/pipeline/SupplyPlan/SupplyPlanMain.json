@@ -1,6 +1,6 @@
 {
     "SupplyPlanMain": {
-        "desc": "Supply Plan 入口：确保 IMS 数据就绪后进入调度",
+        "desc": "补给计划入口：确保培养道具缓存就绪后进入调度",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -59,112 +59,8 @@
             "SupplyPlanAllTargetsMet"
         ]
     },
-    "SupplyPlanInsufficient_ADVANCED_COMBAT_RECORD": {
-        "desc": "ADVANCED_COMBAT_RECORD 库存未达目标则进入对应协议空间刷取",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "item": "ADVANCED_COMBAT_RECORD",
-                    "quantity": 0
-                }
-            }
-        },
-        "inverse": true,
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SupplyPlanOverride_ADVANCED_COMBAT_RECORD"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "高级作战记录 未达标，准备刷取协议空间"
-        }
-    },
-    "SupplyPlanOverride_ADVANCED_COMBAT_RECORD": {
-        "desc": "PipelineOverride 后直接 next 进入 ProtocolSpaceEntry（刷 ADVANCED_COMBAT_RECORD）",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
-                            "expected": [
-                                "员养成",
-                                "Operator Progression"
-                            ],
-                            "anchor": {
-                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable",
-                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable"
-                            }
-                        },
-                        "ProtocolSpaceOperationalManualScrollEnd": {
-                            "template": "ProtocolSpace/SkillUp.png"
-                        },
-                        "ProtocolSpaceFindTargetRecognition": {
-                            "template": [
-                                "ProtocolSpace/OperatorEXP.png",
-                                "ProtocolSpace/OperatorEXPLow.png"
-                            ]
-                        },
-                        "ProtocolSpaceRewardSelectClaim": {
-                            "enabled": true
-                        },
-                        "ProtocolSpaceRewardSelectNoClaim": {
-                            "enabled": false
-                        },
-                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
-                            "enabled": true
-                        },
-                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
-                            "enabled": false
-                        },
-                        "ProtocolSpaceOperationExitToWorld": {
-                            "next": [
-                                "SupplyPlanDispatch"
-                            ]
-                        },
-                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
-                            "expected": [
-                                "B"
-                            ]
-                        },
-                        "ProtocolSpaceLevelChoose": {
-                            "recognition": {
-                                "param": {
-                                    "index": 4
-                                }
-                            }
-                        },
-                        "ProtocolSpaceRewardAddItemData": {
-                            "next": [
-                                "SupplyPlanRewardItemMet_ADVANCED_COMBAT_RECORD",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
-                            ]
-                        }
-                    },
-                    "allow_next": true
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "ProtocolSpaceEntry"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "高级作战记录 协议空间目标已切换，开始刷取"
-        }
-    },
     "SupplyPlanInsufficient_ADVANCED_COGNITIVE_CARRIER": {
-        "desc": "ADVANCED_COGNITIVE_CARRIER 库存未达目标则进入对应协议空间刷取",
+        "desc": "高级认知载体 库存未达目标则进入对应协议空间刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -188,7 +84,7 @@
         }
     },
     "SupplyPlanOverride_ADVANCED_COGNITIVE_CARRIER": {
-        "desc": "PipelineOverride 后直接 next 进入 ProtocolSpaceEntry（刷 ADVANCED_COGNITIVE_CARRIER）",
+        "desc": "覆盖协议空间配置后进入刷取（高级认知载体）",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -268,7 +164,7 @@
         }
     },
     "SupplyPlanInsufficient_ELEMENTARY_COGNITIVE_CARRIER": {
-        "desc": "ELEMENTARY_COGNITIVE_CARRIER 库存未达目标则进入对应协议空间刷取",
+        "desc": "初级认知载体 库存未达目标则进入对应协议空间刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -292,7 +188,7 @@
         }
     },
     "SupplyPlanOverride_ELEMENTARY_COGNITIVE_CARRIER": {
-        "desc": "PipelineOverride 后直接 next 进入 ProtocolSpaceEntry（刷 ELEMENTARY_COGNITIVE_CARRIER）",
+        "desc": "覆盖协议空间配置后进入刷取（初级认知载体）",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -371,14 +267,14 @@
             "Node.Action.Succeeded": "初级认知载体 协议空间目标已切换，开始刷取"
         }
     },
-    "SupplyPlanInsufficient_PROTODISK": {
-        "desc": "PROTODISK 库存未达目标则进入对应协议空间刷取",
+    "SupplyPlanInsufficient_ADVANCED_COMBAT_RECORD": {
+        "desc": "高级作战记录 库存未达目标则进入对应协议空间刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "item": "PROTODISK",
+                    "item": "ADVANCED_COMBAT_RECORD",
                     "quantity": 0
                 }
             }
@@ -389,14 +285,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SupplyPlanOverride_PROTODISK"
+            "SupplyPlanOverride_ADVANCED_COMBAT_RECORD"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "协议圆盘 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "高级作战记录 未达标，准备刷取协议空间"
         }
     },
-    "SupplyPlanOverride_PROTODISK": {
-        "desc": "PipelineOverride 后直接 next 进入 ProtocolSpaceEntry（刷 PROTODISK）",
+    "SupplyPlanOverride_ADVANCED_COMBAT_RECORD": {
+        "desc": "覆盖协议空间配置后进入刷取（高级作战记录）",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -420,8 +316,8 @@
                         },
                         "ProtocolSpaceFindTargetRecognition": {
                             "template": [
-                                "ProtocolSpace/Promotions.png",
-                                "ProtocolSpace/PromotionsLow.png"
+                                "ProtocolSpace/OperatorEXP.png",
+                                "ProtocolSpace/OperatorEXPLow.png"
                             ]
                         },
                         "ProtocolSpaceRewardSelectClaim": {
@@ -455,7 +351,7 @@
                         },
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
-                                "SupplyPlanRewardItemMet_PROTODISK",
+                                "SupplyPlanRewardItemMet_ADVANCED_COMBAT_RECORD",
                                 "ProtocolSpaceRewardClaimSuccessSanityLow",
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
@@ -472,11 +368,11 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "协议圆盘 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "高级作战记录 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_PROTOSET": {
-        "desc": "PROTOSET 库存未达目标则进入对应协议空间刷取",
+        "desc": "协议圆盘组 库存未达目标则进入对应协议空间刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -500,7 +396,7 @@
         }
     },
     "SupplyPlanOverride_PROTOSET": {
-        "desc": "PipelineOverride 后直接 next 进入 ProtocolSpaceEntry（刷 PROTOSET）",
+        "desc": "覆盖协议空间配置后进入刷取（协议圆盘组）",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -579,14 +475,14 @@
             "Node.Action.Succeeded": "协议圆盘组 协议空间目标已切换，开始刷取"
         }
     },
-    "SupplyPlanInsufficient_T_CREDS": {
-        "desc": "T_CREDS 库存未达目标则进入对应协议空间刷取",
+    "SupplyPlanInsufficient_PROTODISK": {
+        "desc": "协议圆盘 库存未达目标则进入对应协议空间刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "item": "T_CREDS",
+                    "item": "PROTODISK",
                     "quantity": 0
                 }
             }
@@ -597,110 +493,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SupplyPlanOverride_T_CREDS"
+            "SupplyPlanOverride_PROTODISK"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "折金票 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "协议圆盘 未达标，准备刷取协议空间"
         }
     },
-    "SupplyPlanOverride_T_CREDS": {
-        "desc": "PipelineOverride 后直接 next 进入 ProtocolSpaceEntry（刷 T_CREDS）",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
-                            "expected": [
-                                "员养成",
-                                "Operator Progression"
-                            ],
-                            "anchor": {
-                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable",
-                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable"
-                            }
-                        },
-                        "ProtocolSpaceOperationalManualScrollEnd": {
-                            "template": "ProtocolSpace/SkillUp.png"
-                        },
-                        "ProtocolSpaceFindTargetRecognition": {
-                            "template": "ProtocolSpace/T-Creds.png"
-                        },
-                        "ProtocolSpaceRewardSelectClaim": {
-                            "enabled": true
-                        },
-                        "ProtocolSpaceRewardSelectNoClaim": {
-                            "enabled": false
-                        },
-                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
-                            "enabled": true
-                        },
-                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
-                            "enabled": false
-                        },
-                        "ProtocolSpaceOperationExitToWorld": {
-                            "next": [
-                                "SupplyPlanDispatch"
-                            ]
-                        },
-                        "ProtocolSpaceLevelChoose": {
-                            "recognition": {
-                                "param": {
-                                    "index": 4
-                                }
-                            }
-                        },
-                        "ProtocolSpaceRewardAddItemData": {
-                            "next": [
-                                "SupplyPlanRewardItemMet_T_CREDS",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
-                            ]
-                        }
-                    },
-                    "allow_next": true
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "ProtocolSpaceEntry"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "折金票 协议空间目标已切换，开始刷取"
-        }
-    },
-    "SupplyPlanInsufficient_PROTOPRISM": {
-        "desc": "PROTOPRISM 库存未达目标则进入对应协议空间刷取",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "item": "PROTOPRISM",
-                    "quantity": 0
-                }
-            }
-        },
-        "inverse": true,
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SupplyPlanOverride_PROTOPRISM"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "协议棱柱 未达标，准备刷取协议空间"
-        }
-    },
-    "SupplyPlanOverride_PROTOPRISM": {
-        "desc": "PipelineOverride 后直接 next 进入 ProtocolSpaceEntry（刷 PROTOPRISM）",
+    "SupplyPlanOverride_PROTODISK": {
+        "desc": "覆盖协议空间配置后进入刷取（协议圆盘）",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -724,8 +524,8 @@
                         },
                         "ProtocolSpaceFindTargetRecognition": {
                             "template": [
-                                "ProtocolSpace/SkillUp.png",
-                                "ProtocolSpace/SkillUpLow.png"
+                                "ProtocolSpace/Promotions.png",
+                                "ProtocolSpace/PromotionsLow.png"
                             ]
                         },
                         "ProtocolSpaceRewardSelectClaim": {
@@ -759,7 +559,7 @@
                         },
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
-                                "SupplyPlanRewardItemMet_PROTOPRISM",
+                                "SupplyPlanRewardItemMet_PROTODISK",
                                 "ProtocolSpaceRewardClaimSuccessSanityLow",
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
@@ -776,11 +576,471 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "协议棱柱 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "协议圆盘 协议空间目标已切换，开始刷取"
+        }
+    },
+    "SupplyPlanInsufficient_TRIPHASIC_NANOFLAKE": {
+        "desc": "三相纳米片 库存未达目标则进入对应协议空间刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "TRIPHASIC_NANOFLAKE",
+                    "quantity": 0
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_TRIPHASIC_NANOFLAKE"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "三相纳米片 未达标，准备刷取协议空间"
+        }
+    },
+    "SupplyPlanOverride_TRIPHASIC_NANOFLAKE": {
+        "desc": "覆盖协议空间配置后进入刷取（三相纳米片）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                            "expected": [
+                                "危境预演",
+                                "Crisis Drills"
+                            ],
+                            "anchor": {
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEnable",
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveDisable"
+                            }
+                        },
+                        "ProtocolSpaceOperationalManualScrollEnd": {
+                            "template": [
+                                "ProtocolSpace/AdvancedProgression5.png",
+                                "ProtocolSpace/AdvancedProgression5Low.png"
+                            ]
+                        },
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/AdvancedProgression5.png"
+                        },
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardSelectNoClaim": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceOperationExitToWorld": {
+                            "next": [
+                                "SupplyPlanDispatch"
+                            ]
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_TRIPHASIC_NANOFLAKE",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceEntry"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "三相纳米片 协议空间目标已切换，开始刷取"
+        }
+    },
+    "SupplyPlanInsufficient_QUADRANT_FITTING_FLUID": {
+        "desc": "象限拟合液 库存未达目标则进入对应协议空间刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "QUADRANT_FITTING_FLUID",
+                    "quantity": 0
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_QUADRANT_FITTING_FLUID"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "象限拟合液 未达标，准备刷取协议空间"
+        }
+    },
+    "SupplyPlanOverride_QUADRANT_FITTING_FLUID": {
+        "desc": "覆盖协议空间配置后进入刷取（象限拟合液）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                            "expected": [
+                                "危境预演",
+                                "Crisis Drills"
+                            ],
+                            "anchor": {
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEnable",
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveDisable"
+                            }
+                        },
+                        "ProtocolSpaceOperationalManualScrollEnd": {
+                            "template": [
+                                "ProtocolSpace/AdvancedProgression5.png",
+                                "ProtocolSpace/AdvancedProgression5Low.png"
+                            ]
+                        },
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/AdvancedProgression4.png"
+                        },
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardSelectNoClaim": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceOperationExitToWorld": {
+                            "next": [
+                                "SupplyPlanDispatch"
+                            ]
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_QUADRANT_FITTING_FLUID",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceEntry"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "象限拟合液 协议空间目标已切换，开始刷取"
+        }
+    },
+    "SupplyPlanInsufficient_TACHYON_SCREENING_LATTICE": {
+        "desc": "快子遴捡晶格 库存未达目标则进入对应协议空间刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "TACHYON_SCREENING_LATTICE",
+                    "quantity": 0
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_TACHYON_SCREENING_LATTICE"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "快子遴捡晶格 未达标，准备刷取协议空间"
+        }
+    },
+    "SupplyPlanOverride_TACHYON_SCREENING_LATTICE": {
+        "desc": "覆盖协议空间配置后进入刷取（快子遴捡晶格）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                            "expected": [
+                                "危境预演",
+                                "Crisis Drills"
+                            ],
+                            "anchor": {
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEnable",
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveDisable"
+                            }
+                        },
+                        "ProtocolSpaceOperationalManualScrollEnd": {
+                            "template": [
+                                "ProtocolSpace/AdvancedProgression5.png",
+                                "ProtocolSpace/AdvancedProgression5Low.png"
+                            ]
+                        },
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/AdvancedProgression3.png"
+                        },
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardSelectNoClaim": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceOperationExitToWorld": {
+                            "next": [
+                                "SupplyPlanDispatch"
+                            ]
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_TACHYON_SCREENING_LATTICE",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceEntry"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "快子遴捡晶格 协议空间目标已切换，开始刷取"
+        }
+    },
+    "SupplyPlanInsufficient_D96_STEEL_SAMPLE_4": {
+        "desc": "D96钢样品四 库存未达目标则进入对应协议空间刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "D96_STEEL_SAMPLE_4",
+                    "quantity": 0
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_D96_STEEL_SAMPLE_4"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "D96钢样品四 未达标，准备刷取协议空间"
+        }
+    },
+    "SupplyPlanOverride_D96_STEEL_SAMPLE_4": {
+        "desc": "覆盖协议空间配置后进入刷取（D96钢样品四）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                            "expected": [
+                                "危境预演",
+                                "Crisis Drills"
+                            ],
+                            "anchor": {
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEnable",
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveDisable"
+                            }
+                        },
+                        "ProtocolSpaceOperationalManualScrollEnd": {
+                            "template": [
+                                "ProtocolSpace/AdvancedProgression5.png",
+                                "ProtocolSpace/AdvancedProgression5Low.png"
+                            ]
+                        },
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/AdvancedProgression1.png"
+                        },
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardSelectNoClaim": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceOperationExitToWorld": {
+                            "next": [
+                                "SupplyPlanDispatch"
+                            ]
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_D96_STEEL_SAMPLE_4",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceEntry"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "D96钢样品四 协议空间目标已切换，开始刷取"
+        }
+    },
+    "SupplyPlanInsufficient_METADIASTIMA_PHOTOEMISSION_TUBE": {
+        "desc": "超距辉映管 库存未达目标则进入对应协议空间刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "METADIASTIMA_PHOTOEMISSION_TUBE",
+                    "quantity": 0
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_METADIASTIMA_PHOTOEMISSION_TUBE"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "超距辉映管 未达标，准备刷取协议空间"
+        }
+    },
+    "SupplyPlanOverride_METADIASTIMA_PHOTOEMISSION_TUBE": {
+        "desc": "覆盖协议空间配置后进入刷取（超距辉映管）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                            "expected": [
+                                "危境预演",
+                                "Crisis Drills"
+                            ],
+                            "anchor": {
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEnable",
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveDisable"
+                            }
+                        },
+                        "ProtocolSpaceOperationalManualScrollEnd": {
+                            "template": [
+                                "ProtocolSpace/AdvancedProgression5.png",
+                                "ProtocolSpace/AdvancedProgression5Low.png"
+                            ]
+                        },
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/AdvancedProgression2.png"
+                        },
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardSelectNoClaim": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceOperationExitToWorld": {
+                            "next": [
+                                "SupplyPlanDispatch"
+                            ]
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_METADIASTIMA_PHOTOEMISSION_TUBE",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceEntry"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "超距辉映管 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanInsufficient_PROTOHEDRON": {
-        "desc": "PROTOHEDRON 库存未达目标则进入对应协议空间刷取",
+        "desc": "协议棱柱组 库存未达目标则进入对应协议空间刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -804,7 +1064,7 @@
         }
     },
     "SupplyPlanOverride_PROTOHEDRON": {
-        "desc": "PipelineOverride 后直接 next 进入 ProtocolSpaceEntry（刷 PROTOHEDRON）",
+        "desc": "覆盖协议空间配置后进入刷取（协议棱柱组）",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -883,8 +1143,208 @@
             "Node.Action.Succeeded": "协议棱柱组 协议空间目标已切换，开始刷取"
         }
     },
+    "SupplyPlanInsufficient_PROTOPRISM": {
+        "desc": "协议棱柱 库存未达目标则进入对应协议空间刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "PROTOPRISM",
+                    "quantity": 0
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_PROTOPRISM"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "协议棱柱 未达标，准备刷取协议空间"
+        }
+    },
+    "SupplyPlanOverride_PROTOPRISM": {
+        "desc": "覆盖协议空间配置后进入刷取（协议棱柱）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                            "expected": [
+                                "员养成",
+                                "Operator Progression"
+                            ],
+                            "anchor": {
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable",
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable"
+                            }
+                        },
+                        "ProtocolSpaceOperationalManualScrollEnd": {
+                            "template": "ProtocolSpace/SkillUp.png"
+                        },
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": [
+                                "ProtocolSpace/SkillUp.png",
+                                "ProtocolSpace/SkillUpLow.png"
+                            ]
+                        },
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardSelectNoClaim": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceOperationExitToWorld": {
+                            "next": [
+                                "SupplyPlanDispatch"
+                            ]
+                        },
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "B"
+                            ]
+                        },
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 4
+                                }
+                            }
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_PROTOPRISM",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceEntry"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "协议棱柱 协议空间目标已切换，开始刷取"
+        }
+    },
+    "SupplyPlanInsufficient_T_CREDS": {
+        "desc": "折金票 库存未达目标则进入对应协议空间刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "T_CREDS",
+                    "quantity": 0
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_T_CREDS"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "折金票 未达标，准备刷取协议空间"
+        }
+    },
+    "SupplyPlanOverride_T_CREDS": {
+        "desc": "覆盖协议空间配置后进入刷取（折金票）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                            "expected": [
+                                "员养成",
+                                "Operator Progression"
+                            ],
+                            "anchor": {
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable",
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable"
+                            }
+                        },
+                        "ProtocolSpaceOperationalManualScrollEnd": {
+                            "template": "ProtocolSpace/SkillUp.png"
+                        },
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/T-Creds.png"
+                        },
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardSelectNoClaim": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceOperationExitToWorld": {
+                            "next": [
+                                "SupplyPlanDispatch"
+                            ]
+                        },
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 4
+                                }
+                            }
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_T_CREDS",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceEntry"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "折金票 协议空间目标已切换，开始刷取"
+        }
+    },
     "SupplyPlanInsufficient_ARMS_INSP_SET": {
-        "desc": "ARMS_INSP_SET 库存未达目标则进入对应协议空间刷取",
+        "desc": "武器检查套组 库存未达目标则进入对应协议空间刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -908,7 +1368,7 @@
         }
     },
     "SupplyPlanOverride_ARMS_INSP_SET": {
-        "desc": "PipelineOverride 后直接 next 进入 ProtocolSpaceEntry（刷 ARMS_INSP_SET）",
+        "desc": "覆盖协议空间配置后进入刷取（武器检查套组）",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -983,7 +1443,7 @@
         }
     },
     "SupplyPlanInsufficient_ARMS_INSP_KIT": {
-        "desc": "ARMS_INSP_KIT 库存未达目标则进入对应协议空间刷取",
+        "desc": "武器检查装置 库存未达目标则进入对应协议空间刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -1007,7 +1467,7 @@
         }
     },
     "SupplyPlanOverride_ARMS_INSP_KIT": {
-        "desc": "PipelineOverride 后直接 next 进入 ProtocolSpaceEntry（刷 ARMS_INSP_KIT）",
+        "desc": "覆盖协议空间配置后进入刷取（武器检查装置）",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -1081,115 +1541,8 @@
             "Node.Action.Succeeded": "武器检查装置 协议空间目标已切换，开始刷取"
         }
     },
-    "SupplyPlanInsufficient_CAST_DIE": {
-        "desc": "CAST_DIE 库存未达目标则进入对应协议空间刷取",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "item": "CAST_DIE",
-                    "quantity": 0
-                }
-            }
-        },
-        "inverse": true,
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SupplyPlanOverride_CAST_DIE"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "强固模具 未达标，准备刷取协议空间"
-        }
-    },
-    "SupplyPlanOverride_CAST_DIE": {
-        "desc": "PipelineOverride 后直接 next 进入 ProtocolSpaceEntry（刷 CAST_DIE）",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
-                            "expected": [
-                                "武器养成",
-                                "Weapon Progression"
-                            ],
-                            "anchor": {
-                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable",
-                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable"
-                            }
-                        },
-                        "ProtocolSpaceOperationalManualScrollEnd": {
-                            "template": [
-                                "ProtocolSpace/WeaponTune.png",
-                                "ProtocolSpace/WeaponTuneLow.png"
-                            ]
-                        },
-                        "ProtocolSpaceFindTargetRecognition": {
-                            "template": [
-                                "ProtocolSpace/WeaponTune.png",
-                                "ProtocolSpace/WeaponTuneLow.png"
-                            ]
-                        },
-                        "ProtocolSpaceRewardSelectClaim": {
-                            "enabled": true
-                        },
-                        "ProtocolSpaceRewardSelectNoClaim": {
-                            "enabled": false
-                        },
-                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
-                            "enabled": true
-                        },
-                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
-                            "enabled": false
-                        },
-                        "ProtocolSpaceOperationExitToWorld": {
-                            "next": [
-                                "SupplyPlanDispatch"
-                            ]
-                        },
-                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
-                            "expected": [
-                                "B"
-                            ]
-                        },
-                        "ProtocolSpaceLevelChoose": {
-                            "recognition": {
-                                "param": {
-                                    "index": 4
-                                }
-                            }
-                        },
-                        "ProtocolSpaceRewardAddItemData": {
-                            "next": [
-                                "SupplyPlanRewardItemMet_CAST_DIE",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
-                            ]
-                        }
-                    },
-                    "allow_next": true
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "ProtocolSpaceEntry"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "强固模具 协议空间目标已切换，开始刷取"
-        }
-    },
     "SupplyPlanInsufficient_HEAVY_CAST_DIE": {
-        "desc": "HEAVY_CAST_DIE 库存未达目标则进入对应协议空间刷取",
+        "desc": "重型强固模具 库存未达目标则进入对应协议空间刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -1213,7 +1566,7 @@
         }
     },
     "SupplyPlanOverride_HEAVY_CAST_DIE": {
-        "desc": "PipelineOverride 后直接 next 进入 ProtocolSpaceEntry（刷 HEAVY_CAST_DIE）",
+        "desc": "覆盖协议空间配置后进入刷取（重型强固模具）",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -1295,14 +1648,14 @@
             "Node.Action.Succeeded": "重型强固模具 协议空间目标已切换，开始刷取"
         }
     },
-    "SupplyPlanInsufficient_D96_STEEL_SAMPLE_4": {
-        "desc": "D96_STEEL_SAMPLE_4 库存未达目标则进入对应协议空间刷取",
+    "SupplyPlanInsufficient_CAST_DIE": {
+        "desc": "强固模具 库存未达目标则进入对应协议空间刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "item": "D96_STEEL_SAMPLE_4",
+                    "item": "CAST_DIE",
                     "quantity": 0
                 }
             }
@@ -1313,14 +1666,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SupplyPlanOverride_D96_STEEL_SAMPLE_4"
+            "SupplyPlanOverride_CAST_DIE"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "D96钢样品四 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "强固模具 未达标，准备刷取协议空间"
         }
     },
-    "SupplyPlanOverride_D96_STEEL_SAMPLE_4": {
-        "desc": "PipelineOverride 后直接 next 进入 ProtocolSpaceEntry（刷 D96_STEEL_SAMPLE_4）",
+    "SupplyPlanOverride_CAST_DIE": {
+        "desc": "覆盖协议空间配置后进入刷取（强固模具）",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -1331,22 +1684,25 @@
                     "patch": {
                         "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
                             "expected": [
-                                "危境预演",
-                                "Crisis Drills"
+                                "武器养成",
+                                "Weapon Progression"
                             ],
                             "anchor": {
-                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEnable",
-                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveDisable"
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable",
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable"
                             }
                         },
                         "ProtocolSpaceOperationalManualScrollEnd": {
                             "template": [
-                                "ProtocolSpace/AdvancedProgression5.png",
-                                "ProtocolSpace/AdvancedProgression5Low.png"
+                                "ProtocolSpace/WeaponTune.png",
+                                "ProtocolSpace/WeaponTuneLow.png"
                             ]
                         },
                         "ProtocolSpaceFindTargetRecognition": {
-                            "template": "ProtocolSpace/AdvancedProgression1.png"
+                            "template": [
+                                "ProtocolSpace/WeaponTune.png",
+                                "ProtocolSpace/WeaponTuneLow.png"
+                            ]
                         },
                         "ProtocolSpaceRewardSelectClaim": {
                             "enabled": true
@@ -1365,101 +1721,21 @@
                                 "SupplyPlanDispatch"
                             ]
                         },
-                        "ProtocolSpaceRewardAddItemData": {
-                            "next": [
-                                "SupplyPlanRewardItemMet_D96_STEEL_SAMPLE_4",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
-                            ]
-                        }
-                    },
-                    "allow_next": true
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "ProtocolSpaceEntry"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "D96钢样品四 协议空间目标已切换，开始刷取"
-        }
-    },
-    "SupplyPlanInsufficient_METADIASTIMA_PHOTOEMISSION_TUBE": {
-        "desc": "METADIASTIMA_PHOTOEMISSION_TUBE 库存未达目标则进入对应协议空间刷取",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "item": "METADIASTIMA_PHOTOEMISSION_TUBE",
-                    "quantity": 0
-                }
-            }
-        },
-        "inverse": true,
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SupplyPlanOverride_METADIASTIMA_PHOTOEMISSION_TUBE"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "超距辉映管 未达标，准备刷取协议空间"
-        }
-    },
-    "SupplyPlanOverride_METADIASTIMA_PHOTOEMISSION_TUBE": {
-        "desc": "PipelineOverride 后直接 next 进入 ProtocolSpaceEntry（刷 METADIASTIMA_PHOTOEMISSION_TUBE）",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
-                                "危境预演",
-                                "Crisis Drills"
-                            ],
-                            "anchor": {
-                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEnable",
-                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveDisable"
+                                "B"
+                            ]
+                        },
+                        "ProtocolSpaceLevelChoose": {
+                            "recognition": {
+                                "param": {
+                                    "index": 4
+                                }
                             }
                         },
-                        "ProtocolSpaceOperationalManualScrollEnd": {
-                            "template": [
-                                "ProtocolSpace/AdvancedProgression5.png",
-                                "ProtocolSpace/AdvancedProgression5Low.png"
-                            ]
-                        },
-                        "ProtocolSpaceFindTargetRecognition": {
-                            "template": "ProtocolSpace/AdvancedProgression2.png"
-                        },
-                        "ProtocolSpaceRewardSelectClaim": {
-                            "enabled": true
-                        },
-                        "ProtocolSpaceRewardSelectNoClaim": {
-                            "enabled": false
-                        },
-                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
-                            "enabled": true
-                        },
-                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
-                            "enabled": false
-                        },
-                        "ProtocolSpaceOperationExitToWorld": {
-                            "next": [
-                                "SupplyPlanDispatch"
-                            ]
-                        },
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
-                                "SupplyPlanRewardItemMet_METADIASTIMA_PHOTOEMISSION_TUBE",
+                                "SupplyPlanRewardItemMet_CAST_DIE",
                                 "ProtocolSpaceRewardClaimSuccessSanityLow",
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
@@ -1476,283 +1752,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "超距辉映管 协议空间目标已切换，开始刷取"
-        }
-    },
-    "SupplyPlanInsufficient_TACHYON_SCREENING_LATTICE": {
-        "desc": "TACHYON_SCREENING_LATTICE 库存未达目标则进入对应协议空间刷取",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "item": "TACHYON_SCREENING_LATTICE",
-                    "quantity": 0
-                }
-            }
-        },
-        "inverse": true,
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SupplyPlanOverride_TACHYON_SCREENING_LATTICE"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "快子遴捡晶格 未达标，准备刷取协议空间"
-        }
-    },
-    "SupplyPlanOverride_TACHYON_SCREENING_LATTICE": {
-        "desc": "PipelineOverride 后直接 next 进入 ProtocolSpaceEntry（刷 TACHYON_SCREENING_LATTICE）",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
-                            "expected": [
-                                "危境预演",
-                                "Crisis Drills"
-                            ],
-                            "anchor": {
-                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEnable",
-                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveDisable"
-                            }
-                        },
-                        "ProtocolSpaceOperationalManualScrollEnd": {
-                            "template": [
-                                "ProtocolSpace/AdvancedProgression5.png",
-                                "ProtocolSpace/AdvancedProgression5Low.png"
-                            ]
-                        },
-                        "ProtocolSpaceFindTargetRecognition": {
-                            "template": "ProtocolSpace/AdvancedProgression3.png"
-                        },
-                        "ProtocolSpaceRewardSelectClaim": {
-                            "enabled": true
-                        },
-                        "ProtocolSpaceRewardSelectNoClaim": {
-                            "enabled": false
-                        },
-                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
-                            "enabled": true
-                        },
-                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
-                            "enabled": false
-                        },
-                        "ProtocolSpaceOperationExitToWorld": {
-                            "next": [
-                                "SupplyPlanDispatch"
-                            ]
-                        },
-                        "ProtocolSpaceRewardAddItemData": {
-                            "next": [
-                                "SupplyPlanRewardItemMet_TACHYON_SCREENING_LATTICE",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
-                            ]
-                        }
-                    },
-                    "allow_next": true
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "ProtocolSpaceEntry"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "快子遴捡晶格 协议空间目标已切换，开始刷取"
-        }
-    },
-    "SupplyPlanInsufficient_QUADRANT_FITTING_FLUID": {
-        "desc": "QUADRANT_FITTING_FLUID 库存未达目标则进入对应协议空间刷取",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "item": "QUADRANT_FITTING_FLUID",
-                    "quantity": 0
-                }
-            }
-        },
-        "inverse": true,
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SupplyPlanOverride_QUADRANT_FITTING_FLUID"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "象限拟合液 未达标，准备刷取协议空间"
-        }
-    },
-    "SupplyPlanOverride_QUADRANT_FITTING_FLUID": {
-        "desc": "PipelineOverride 后直接 next 进入 ProtocolSpaceEntry（刷 QUADRANT_FITTING_FLUID）",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
-                            "expected": [
-                                "危境预演",
-                                "Crisis Drills"
-                            ],
-                            "anchor": {
-                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEnable",
-                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveDisable"
-                            }
-                        },
-                        "ProtocolSpaceOperationalManualScrollEnd": {
-                            "template": [
-                                "ProtocolSpace/AdvancedProgression5.png",
-                                "ProtocolSpace/AdvancedProgression5Low.png"
-                            ]
-                        },
-                        "ProtocolSpaceFindTargetRecognition": {
-                            "template": "ProtocolSpace/AdvancedProgression4.png"
-                        },
-                        "ProtocolSpaceRewardSelectClaim": {
-                            "enabled": true
-                        },
-                        "ProtocolSpaceRewardSelectNoClaim": {
-                            "enabled": false
-                        },
-                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
-                            "enabled": true
-                        },
-                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
-                            "enabled": false
-                        },
-                        "ProtocolSpaceOperationExitToWorld": {
-                            "next": [
-                                "SupplyPlanDispatch"
-                            ]
-                        },
-                        "ProtocolSpaceRewardAddItemData": {
-                            "next": [
-                                "SupplyPlanRewardItemMet_QUADRANT_FITTING_FLUID",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
-                            ]
-                        }
-                    },
-                    "allow_next": true
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "ProtocolSpaceEntry"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "象限拟合液 协议空间目标已切换，开始刷取"
-        }
-    },
-    "SupplyPlanInsufficient_TRIPHASIC_NANOFLAKE": {
-        "desc": "TRIPHASIC_NANOFLAKE 库存未达目标则进入对应协议空间刷取",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "item": "TRIPHASIC_NANOFLAKE",
-                    "quantity": 0
-                }
-            }
-        },
-        "inverse": true,
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SupplyPlanOverride_TRIPHASIC_NANOFLAKE"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "三相纳米片 未达标，准备刷取协议空间"
-        }
-    },
-    "SupplyPlanOverride_TRIPHASIC_NANOFLAKE": {
-        "desc": "PipelineOverride 后直接 next 进入 ProtocolSpaceEntry（刷 TRIPHASIC_NANOFLAKE）",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
-                            "expected": [
-                                "危境预演",
-                                "Crisis Drills"
-                            ],
-                            "anchor": {
-                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEnable",
-                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveDisable"
-                            }
-                        },
-                        "ProtocolSpaceOperationalManualScrollEnd": {
-                            "template": [
-                                "ProtocolSpace/AdvancedProgression5.png",
-                                "ProtocolSpace/AdvancedProgression5Low.png"
-                            ]
-                        },
-                        "ProtocolSpaceFindTargetRecognition": {
-                            "template": "ProtocolSpace/AdvancedProgression5.png"
-                        },
-                        "ProtocolSpaceRewardSelectClaim": {
-                            "enabled": true
-                        },
-                        "ProtocolSpaceRewardSelectNoClaim": {
-                            "enabled": false
-                        },
-                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
-                            "enabled": true
-                        },
-                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
-                            "enabled": false
-                        },
-                        "ProtocolSpaceOperationExitToWorld": {
-                            "next": [
-                                "SupplyPlanDispatch"
-                            ]
-                        },
-                        "ProtocolSpaceRewardAddItemData": {
-                            "next": [
-                                "SupplyPlanRewardItemMet_TRIPHASIC_NANOFLAKE",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
-                            ]
-                        }
-                    },
-                    "allow_next": true
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "ProtocolSpaceEntry"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "三相纳米片 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "强固模具 协议空间目标已切换，开始刷取"
         }
     },
     "SupplyPlanAllTargetsMet": {
@@ -1789,7 +1789,7 @@
         }
     },
     "SupplyPlanRewardItemMet_ADVANCED_COGNITIVE_CARRIER": {
-        "desc": "ADVANCED_COGNITIVE_CARRIER 领奖累加后 R1：已达标则离开当前刷取",
+        "desc": "高级认知载体 领奖累加后检查库存：已达标则离开当前刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -1808,11 +1808,11 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "ADVANCED_COGNITIVE_CARRIER 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "高级认知载体 目标已达标，结束当前协议空间刷取"
         }
     },
     "SupplyPlanRewardItemMet_ELEMENTARY_COGNITIVE_CARRIER": {
-        "desc": "ELEMENTARY_COGNITIVE_CARRIER 领奖累加后 R1：已达标则离开当前刷取",
+        "desc": "初级认知载体 领奖累加后检查库存：已达标则离开当前刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -1831,11 +1831,11 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "ELEMENTARY_COGNITIVE_CARRIER 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "初级认知载体 目标已达标，结束当前协议空间刷取"
         }
     },
     "SupplyPlanRewardItemMet_ADVANCED_COMBAT_RECORD": {
-        "desc": "ADVANCED_COMBAT_RECORD 领奖累加后 R1：已达标则离开当前刷取",
+        "desc": "高级作战记录 领奖累加后检查库存：已达标则离开当前刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -1854,11 +1854,11 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "ADVANCED_COMBAT_RECORD 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "高级作战记录 目标已达标，结束当前协议空间刷取"
         }
     },
     "SupplyPlanRewardItemMet_PROTOSET": {
-        "desc": "PROTOSET 领奖累加后 R1：已达标则离开当前刷取",
+        "desc": "协议圆盘组 领奖累加后检查库存：已达标则离开当前刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -1877,11 +1877,11 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "PROTOSET 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "协议圆盘组 目标已达标，结束当前协议空间刷取"
         }
     },
     "SupplyPlanRewardItemMet_PROTODISK": {
-        "desc": "PROTODISK 领奖累加后 R1：已达标则离开当前刷取",
+        "desc": "协议圆盘 领奖累加后检查库存：已达标则离开当前刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -1900,11 +1900,11 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "PROTODISK 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "协议圆盘 目标已达标，结束当前协议空间刷取"
         }
     },
     "SupplyPlanRewardItemMet_TRIPHASIC_NANOFLAKE": {
-        "desc": "TRIPHASIC_NANOFLAKE 领奖累加后 R1：已达标则离开当前刷取",
+        "desc": "三相纳米片 领奖累加后检查库存：已达标则离开当前刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -1923,11 +1923,11 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "TRIPHASIC_NANOFLAKE 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "三相纳米片 目标已达标，结束当前协议空间刷取"
         }
     },
     "SupplyPlanRewardItemMet_QUADRANT_FITTING_FLUID": {
-        "desc": "QUADRANT_FITTING_FLUID 领奖累加后 R1：已达标则离开当前刷取",
+        "desc": "象限拟合液 领奖累加后检查库存：已达标则离开当前刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -1946,11 +1946,11 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "QUADRANT_FITTING_FLUID 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "象限拟合液 目标已达标，结束当前协议空间刷取"
         }
     },
     "SupplyPlanRewardItemMet_TACHYON_SCREENING_LATTICE": {
-        "desc": "TACHYON_SCREENING_LATTICE 领奖累加后 R1：已达标则离开当前刷取",
+        "desc": "快子遴捡晶格 领奖累加后检查库存：已达标则离开当前刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -1969,11 +1969,11 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "TACHYON_SCREENING_LATTICE 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "快子遴捡晶格 目标已达标，结束当前协议空间刷取"
         }
     },
     "SupplyPlanRewardItemMet_D96_STEEL_SAMPLE_4": {
-        "desc": "D96_STEEL_SAMPLE_4 领奖累加后 R1：已达标则离开当前刷取",
+        "desc": "D96钢样品四 领奖累加后检查库存：已达标则离开当前刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -1992,11 +1992,11 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "D96_STEEL_SAMPLE_4 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "D96钢样品四 目标已达标，结束当前协议空间刷取"
         }
     },
     "SupplyPlanRewardItemMet_METADIASTIMA_PHOTOEMISSION_TUBE": {
-        "desc": "METADIASTIMA_PHOTOEMISSION_TUBE 领奖累加后 R1：已达标则离开当前刷取",
+        "desc": "超距辉映管 领奖累加后检查库存：已达标则离开当前刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -2015,11 +2015,11 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "METADIASTIMA_PHOTOEMISSION_TUBE 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "超距辉映管 目标已达标，结束当前协议空间刷取"
         }
     },
     "SupplyPlanRewardItemMet_PROTOHEDRON": {
-        "desc": "PROTOHEDRON 领奖累加后 R1：已达标则离开当前刷取",
+        "desc": "协议棱柱组 领奖累加后检查库存：已达标则离开当前刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -2038,11 +2038,11 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "PROTOHEDRON 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "协议棱柱组 目标已达标，结束当前协议空间刷取"
         }
     },
     "SupplyPlanRewardItemMet_PROTOPRISM": {
-        "desc": "PROTOPRISM 领奖累加后 R1：已达标则离开当前刷取",
+        "desc": "协议棱柱 领奖累加后检查库存：已达标则离开当前刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -2061,11 +2061,11 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "PROTOPRISM 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "协议棱柱 目标已达标，结束当前协议空间刷取"
         }
     },
     "SupplyPlanRewardItemMet_T_CREDS": {
-        "desc": "T_CREDS 领奖累加后 R1：已达标则离开当前刷取",
+        "desc": "折金票 领奖累加后检查库存：已达标则离开当前刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -2084,11 +2084,11 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "T_CREDS 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "折金票 目标已达标，结束当前协议空间刷取"
         }
     },
     "SupplyPlanRewardItemMet_ARMS_INSP_SET": {
-        "desc": "ARMS_INSP_SET 领奖累加后 R1：已达标则离开当前刷取",
+        "desc": "武器检查套组 领奖累加后检查库存：已达标则离开当前刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -2107,11 +2107,11 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "ARMS_INSP_SET 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "武器检查套组 目标已达标，结束当前协议空间刷取"
         }
     },
     "SupplyPlanRewardItemMet_ARMS_INSP_KIT": {
-        "desc": "ARMS_INSP_KIT 领奖累加后 R1：已达标则离开当前刷取",
+        "desc": "武器检查装置 领奖累加后检查库存：已达标则离开当前刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -2130,11 +2130,11 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "ARMS_INSP_KIT 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "武器检查装置 目标已达标，结束当前协议空间刷取"
         }
     },
     "SupplyPlanRewardItemMet_HEAVY_CAST_DIE": {
-        "desc": "HEAVY_CAST_DIE 领奖累加后 R1：已达标则离开当前刷取",
+        "desc": "重型强固模具 领奖累加后检查库存：已达标则离开当前刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -2153,11 +2153,11 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "HEAVY_CAST_DIE 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "重型强固模具 目标已达标，结束当前协议空间刷取"
         }
     },
     "SupplyPlanRewardItemMet_CAST_DIE": {
-        "desc": "CAST_DIE 领奖累加后 R1：已达标则离开当前刷取",
+        "desc": "强固模具 领奖累加后检查库存：已达标则离开当前刷取",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -2176,7 +2176,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "CAST_DIE 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "强固模具 目标已达标，结束当前协议空间刷取"
         }
     }
 }
