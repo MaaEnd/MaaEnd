@@ -52,3 +52,18 @@ func TestDeduplicateMatchesKeepsSameScreenPositionOnDifferentMaps(t *testing.T) 
 		t.Fatalf("deduplicated match count = %d, want 2", len(result))
 	}
 }
+
+func TestDeduplicateMatchesKeepsHigherConfidenceOnSameMap(t *testing.T) {
+	matches := []MapTrackerBigMapFindImageMatch{
+		{MapName: "map01_lv001", ScreenX: 100, ScreenY: 200, Conf: 0.9},
+		{MapName: "map01_lv001", ScreenX: 100, ScreenY: 200, Conf: 0.8},
+	}
+
+	result := deduplicateMatches(matches)
+	if len(result) != 1 {
+		t.Fatalf("deduplicated match count = %d, want 1", len(result))
+	}
+	if result[0].Conf != 0.9 {
+		t.Fatalf("remaining confidence = %v, want 0.9", result[0].Conf)
+	}
+}
