@@ -80,7 +80,7 @@
             "SupplyPlanOverride_ADVANCED_COGNITIVE_CARRIER"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "高级认知载体 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.ADVANCED_COGNITIVE_CARRIER"
         }
     },
     "SupplyPlanOverride_ADVANCED_COGNITIVE_CARRIER": {
@@ -160,7 +160,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "高级认知载体 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.ADVANCED_COGNITIVE_CARRIER"
         }
     },
     "SupplyPlanInsufficient_ELEMENTARY_COGNITIVE_CARRIER": {
@@ -184,7 +184,7 @@
             "SupplyPlanOverride_ELEMENTARY_COGNITIVE_CARRIER"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "初级认知载体 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.ELEMENTARY_COGNITIVE_CARRIER"
         }
     },
     "SupplyPlanOverride_ELEMENTARY_COGNITIVE_CARRIER": {
@@ -264,7 +264,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "初级认知载体 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.ELEMENTARY_COGNITIVE_CARRIER"
         }
     },
     "SupplyPlanInsufficient_ADVANCED_COMBAT_RECORD": {
@@ -288,7 +288,7 @@
             "SupplyPlanOverride_ADVANCED_COMBAT_RECORD"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "高级作战记录 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.ADVANCED_COMBAT_RECORD"
         }
     },
     "SupplyPlanOverride_ADVANCED_COMBAT_RECORD": {
@@ -368,7 +368,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "高级作战记录 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.ADVANCED_COMBAT_RECORD"
         }
     },
     "SupplyPlanInsufficient_PROTOSET": {
@@ -392,7 +392,7 @@
             "SupplyPlanOverride_PROTOSET"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "协议圆盘组 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.PROTOSET"
         }
     },
     "SupplyPlanOverride_PROTOSET": {
@@ -472,7 +472,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "协议圆盘组 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.PROTOSET"
         }
     },
     "SupplyPlanInsufficient_PROTODISK": {
@@ -496,7 +496,7 @@
             "SupplyPlanOverride_PROTODISK"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "协议圆盘 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.PROTODISK"
         }
     },
     "SupplyPlanOverride_PROTODISK": {
@@ -576,7 +576,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "协议圆盘 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.PROTODISK"
         }
     },
     "SupplyPlanInsufficient_TRIPHASIC_NANOFLAKE": {
@@ -600,7 +600,7 @@
             "SupplyPlanOverride_TRIPHASIC_NANOFLAKE"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "三相纳米片 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.TRIPHASIC_NANOFLAKE"
         }
     },
     "SupplyPlanOverride_TRIPHASIC_NANOFLAKE": {
@@ -668,7 +668,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "三相纳米片 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.TRIPHASIC_NANOFLAKE"
         }
     },
     "SupplyPlanInsufficient_QUADRANT_FITTING_FLUID": {
@@ -692,7 +692,7 @@
             "SupplyPlanOverride_QUADRANT_FITTING_FLUID"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "象限拟合液 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.QUADRANT_FITTING_FLUID"
         }
     },
     "SupplyPlanOverride_QUADRANT_FITTING_FLUID": {
@@ -760,7 +760,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "象限拟合液 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.QUADRANT_FITTING_FLUID"
         }
     },
     "SupplyPlanInsufficient_TACHYON_SCREENING_LATTICE": {
@@ -784,7 +784,7 @@
             "SupplyPlanOverride_TACHYON_SCREENING_LATTICE"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "快子遴捡晶格 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.TACHYON_SCREENING_LATTICE"
         }
     },
     "SupplyPlanOverride_TACHYON_SCREENING_LATTICE": {
@@ -852,7 +852,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "快子遴捡晶格 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.TACHYON_SCREENING_LATTICE"
         }
     },
     "SupplyPlanInsufficient_D96_STEEL_SAMPLE_4": {
@@ -876,7 +876,7 @@
             "SupplyPlanOverride_D96_STEEL_SAMPLE_4"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "D96钢样品四 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.D96_STEEL_SAMPLE_4"
         }
     },
     "SupplyPlanOverride_D96_STEEL_SAMPLE_4": {
@@ -944,7 +944,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "D96钢样品四 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.D96_STEEL_SAMPLE_4"
         }
     },
     "SupplyPlanInsufficient_METADIASTIMA_PHOTOEMISSION_TUBE": {
@@ -968,7 +968,7 @@
             "SupplyPlanOverride_METADIASTIMA_PHOTOEMISSION_TUBE"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "超距辉映管 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.METADIASTIMA_PHOTOEMISSION_TUBE"
         }
     },
     "SupplyPlanOverride_METADIASTIMA_PHOTOEMISSION_TUBE": {
@@ -1036,7 +1036,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "超距辉映管 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.METADIASTIMA_PHOTOEMISSION_TUBE"
         }
     },
     "SupplyPlanInsufficient_PROTOHEDRON": {
@@ -1060,7 +1060,7 @@
             "SupplyPlanOverride_PROTOHEDRON"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "协议棱柱组 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.PROTOHEDRON"
         }
     },
     "SupplyPlanOverride_PROTOHEDRON": {
@@ -1140,7 +1140,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "协议棱柱组 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.PROTOHEDRON"
         }
     },
     "SupplyPlanInsufficient_PROTOPRISM": {
@@ -1164,7 +1164,7 @@
             "SupplyPlanOverride_PROTOPRISM"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "协议棱柱 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.PROTOPRISM"
         }
     },
     "SupplyPlanOverride_PROTOPRISM": {
@@ -1244,7 +1244,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "协议棱柱 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.PROTOPRISM"
         }
     },
     "SupplyPlanInsufficient_T_CREDS": {
@@ -1268,7 +1268,7 @@
             "SupplyPlanOverride_T_CREDS"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "折金票 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.T_CREDS"
         }
     },
     "SupplyPlanOverride_T_CREDS": {
@@ -1340,7 +1340,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "折金票 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.T_CREDS"
         }
     },
     "SupplyPlanInsufficient_ARMS_INSP_SET": {
@@ -1364,7 +1364,7 @@
             "SupplyPlanOverride_ARMS_INSP_SET"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "武器检查套组 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.ARMS_INSP_SET"
         }
     },
     "SupplyPlanOverride_ARMS_INSP_SET": {
@@ -1439,7 +1439,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "武器检查套组 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.ARMS_INSP_SET"
         }
     },
     "SupplyPlanInsufficient_ARMS_INSP_KIT": {
@@ -1463,7 +1463,7 @@
             "SupplyPlanOverride_ARMS_INSP_KIT"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "武器检查装置 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.ARMS_INSP_KIT"
         }
     },
     "SupplyPlanOverride_ARMS_INSP_KIT": {
@@ -1538,7 +1538,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "武器检查装置 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.ARMS_INSP_KIT"
         }
     },
     "SupplyPlanInsufficient_HEAVY_CAST_DIE": {
@@ -1562,7 +1562,7 @@
             "SupplyPlanOverride_HEAVY_CAST_DIE"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "重型强固模具 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.HEAVY_CAST_DIE"
         }
     },
     "SupplyPlanOverride_HEAVY_CAST_DIE": {
@@ -1645,7 +1645,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "重型强固模具 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.HEAVY_CAST_DIE"
         }
     },
     "SupplyPlanInsufficient_CAST_DIE": {
@@ -1669,7 +1669,7 @@
             "SupplyPlanOverride_CAST_DIE"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "强固模具 未达标，准备刷取协议空间"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.insufficient.CAST_DIE"
         }
     },
     "SupplyPlanOverride_CAST_DIE": {
@@ -1752,7 +1752,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "强固模具 协议空间目标已切换，开始刷取"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.override_started.CAST_DIE"
         }
     },
     "SupplyPlanAllTargetsMet": {
@@ -1763,7 +1763,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
-            "Node.Action.Succeeded": "培养道具目标已全部满足，结束协议空间"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.all_targets_met"
         }
     },
     "SupplyPlanRewardClaimLeave": {
@@ -1785,7 +1785,7 @@
             "[JumpBack]SceneAnyEnterWorld"
         ],
         "focus": {
-            "Node.Action.Succeeded": "当前培养道具已达标，退出协议空间并重新调度"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_claim_leave"
         }
     },
     "SupplyPlanRewardItemMet_ADVANCED_COGNITIVE_CARRIER": {
@@ -1808,7 +1808,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "高级认知载体 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.ADVANCED_COGNITIVE_CARRIER"
         }
     },
     "SupplyPlanRewardItemMet_ELEMENTARY_COGNITIVE_CARRIER": {
@@ -1831,7 +1831,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "初级认知载体 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.ELEMENTARY_COGNITIVE_CARRIER"
         }
     },
     "SupplyPlanRewardItemMet_ADVANCED_COMBAT_RECORD": {
@@ -1854,7 +1854,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "高级作战记录 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.ADVANCED_COMBAT_RECORD"
         }
     },
     "SupplyPlanRewardItemMet_PROTOSET": {
@@ -1877,7 +1877,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "协议圆盘组 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.PROTOSET"
         }
     },
     "SupplyPlanRewardItemMet_PROTODISK": {
@@ -1900,7 +1900,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "协议圆盘 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.PROTODISK"
         }
     },
     "SupplyPlanRewardItemMet_TRIPHASIC_NANOFLAKE": {
@@ -1923,7 +1923,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "三相纳米片 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.TRIPHASIC_NANOFLAKE"
         }
     },
     "SupplyPlanRewardItemMet_QUADRANT_FITTING_FLUID": {
@@ -1946,7 +1946,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "象限拟合液 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.QUADRANT_FITTING_FLUID"
         }
     },
     "SupplyPlanRewardItemMet_TACHYON_SCREENING_LATTICE": {
@@ -1969,7 +1969,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "快子遴捡晶格 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.TACHYON_SCREENING_LATTICE"
         }
     },
     "SupplyPlanRewardItemMet_D96_STEEL_SAMPLE_4": {
@@ -1992,7 +1992,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "D96钢样品四 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.D96_STEEL_SAMPLE_4"
         }
     },
     "SupplyPlanRewardItemMet_METADIASTIMA_PHOTOEMISSION_TUBE": {
@@ -2015,7 +2015,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "超距辉映管 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.METADIASTIMA_PHOTOEMISSION_TUBE"
         }
     },
     "SupplyPlanRewardItemMet_PROTOHEDRON": {
@@ -2038,7 +2038,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "协议棱柱组 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.PROTOHEDRON"
         }
     },
     "SupplyPlanRewardItemMet_PROTOPRISM": {
@@ -2061,7 +2061,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "协议棱柱 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.PROTOPRISM"
         }
     },
     "SupplyPlanRewardItemMet_T_CREDS": {
@@ -2084,7 +2084,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "折金票 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.T_CREDS"
         }
     },
     "SupplyPlanRewardItemMet_ARMS_INSP_SET": {
@@ -2107,7 +2107,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "武器检查套组 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.ARMS_INSP_SET"
         }
     },
     "SupplyPlanRewardItemMet_ARMS_INSP_KIT": {
@@ -2130,7 +2130,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "武器检查装置 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.ARMS_INSP_KIT"
         }
     },
     "SupplyPlanRewardItemMet_HEAVY_CAST_DIE": {
@@ -2153,7 +2153,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "重型强固模具 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.HEAVY_CAST_DIE"
         }
     },
     "SupplyPlanRewardItemMet_CAST_DIE": {
@@ -2176,7 +2176,7 @@
             "SupplyPlanRewardClaimLeave"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "强固模具 目标已达标，结束当前协议空间刷取"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.supply_plan.reward_item_met.CAST_DIE"
         }
     }
 }

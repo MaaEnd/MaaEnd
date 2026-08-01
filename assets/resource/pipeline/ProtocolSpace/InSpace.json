@@ -25,7 +25,7 @@
             "ProtocolSpaceEnterSpaceSelectNoClaimReward"
         ],
         "focus": {
-            "Node.Action.Succeeded": "进入协议空间"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.enter"
         }
     },
     "ProtocolSpaceEnterSpaceSelectClaimReward": {
@@ -116,7 +116,7 @@
         "action": "Click",
         "post_wait_freezes": 200,
         "focus": {
-            "Node.Action.Succeeded": "选择队伍"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.select_team"
         }
     },
     "ProtocolSpacePopupSanityLowExit": {
@@ -137,7 +137,7 @@
             }
         },
         "focus": {
-            "Node.Recognition.Succeeded": "理智不足，结束任务"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.sanity_low_end"
         }
     },
     "ProtocolSpacePopupSanityLowContinue": {
@@ -165,7 +165,7 @@
             "ProtocolSpaceEnterSpacePrepareSuccess"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "理智不足，继续行动"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.sanity_low_continue"
         }
     },
     "ProtocolSpaceEnterSpaceConfirm": {
@@ -195,7 +195,7 @@
             "ProtocolSpaceEnterSpaceSuccess"
         ],
         "focus": {
-            "Node.Action.Succeeded": "确认进入协议空间"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.confirm_enter"
         }
     },
     "ProtocolSpaceEnterSpaceSuccess": {
@@ -211,7 +211,7 @@
             "ProtocolSpaceEnterSpaceMove1"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "进入协议空间成功"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.enter_success"
         }
     },
     "ProtocolSpaceEnterSpaceMove1": {
@@ -385,7 +385,7 @@
         },
         "post_delay": 600,
         "focus": {
-            "Node.Recognition.Succeeded": "向开始点移动"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.move_to_start"
         }
     },
     "ProtocolSpaceTouchStartNotFound": {
@@ -402,7 +402,7 @@
         },
         "post_delay": 0,
         "focus": {
-            "Node.Action.Succeeded": "找不到开始点"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.start_point_not_found"
         }
     },
     "ProtocolSpaceTouchStartPrompt": {
@@ -440,7 +440,7 @@
             "ProtocolSpaceFightStartWait"
         ],
         "focus": {
-            "Node.Action.Succeeded": "开始行动"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.start_operation"
         }
     },
     "ProtocolSpaceFightStartWait": {
@@ -453,7 +453,7 @@
             "ProtocolSpaceFightStartSuccess"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "等待战斗开始"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.wait_battle_start"
         }
     },
     "ProtocolSpaceFightStartSuccess": {
@@ -502,7 +502,7 @@
         },
         "post_delay": 600,
         "focus": {
-            "Node.Recognition.Succeeded": "向退出点移动"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.move_to_exit"
         }
     },
     "ProtocolSpaceTouchExitNotFound": {
@@ -519,7 +519,7 @@
         },
         "post_delay": 0,
         "focus": {
-            "Node.Action.Succeeded": "找不到退出点"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.exit_point_not_found"
         }
     },
     "ProtocolSpaceTouchExitTouch": {
@@ -553,7 +553,7 @@
             "ProtocolSpaceReward"
         ],
         "focus": {
-            "Node.Action.Succeeded": "打开奖励"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.open_reward"
         }
     },
     "ProtocolSpaceReward": {
@@ -604,7 +604,7 @@
             "ProtocolSpaceEntry"
         ],
         "focus": {
-            "Node.Action.Succeeded": "继续行动"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.continue_operation"
         }
     },
     "ProtocolSpaceRewardNoClaimSuccessFinish": {
@@ -616,7 +616,7 @@
             "[JumpBack]SceneAnyEnterWorld"
         ],
         "focus": {
-            "Node.Action.Succeeded": "行动成功次数已满，结束任务"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.success_count_reached"
         }
     },
     "ProtocolSpaceRewardUsePermitSanityLow": {
@@ -644,7 +644,7 @@
             "ProtocolSpaceRewardDontUsePermit"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "理智不足，尝试不使用理智消耗许可"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.sanity_low_skip_permit"
         }
     },
     "ProtocolSpaceRewardSanityLow": {
@@ -669,7 +669,7 @@
         ],
         "count": 30,
         "focus": {
-            "Node.Recognition.Succeeded": "理智不足，结束任务"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.sanity_low_end"
         }
     },
     "ProtocolSpaceRewardDontUsePermit": {
@@ -691,7 +691,7 @@
             "ProtocolSpaceRewardClaim"
         ],
         "focus": {
-            "Node.Action.Succeeded": "不使用理智消耗许可"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.skip_permit"
         }
     },
     "ProtocolSpaceRewardUsePermit": {
@@ -716,7 +716,7 @@
             "ProtocolSpaceRewardClaim"
         ],
         "focus": {
-            "Node.Action.Succeeded": "尝试使用理智消耗许可"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.use_permit"
         }
     },
     "ProtocolSpaceRewardClaim": {
@@ -730,7 +730,7 @@
             "ProtocolSpaceRewardClaimSuccess"
         ],
         "focus": {
-            "Node.Action.Succeeded": "确认领取奖励"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.confirm_claim_reward"
         }
     },
     "ProtocolSpaceRewardClaimSuccess": {
@@ -815,8 +815,8 @@
             "ProtocolSpaceRewardClaimSuccessFinish"
         ],
         "focus": {
-            "Node.Action.Starting": "正在识别协议空间奖励并累加库存",
-            "Node.Action.Succeeded": "协议空间奖励已累加到库存缓存"
+            "Node.Action.Starting": "$task.ProtocolSpace.focus.add_item_data_starting",
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.add_item_data_succeeded"
         }
     },
     "ProtocolSpaceRewardClaimSuccessContinue": {
@@ -832,7 +832,7 @@
             "ProtocolSpaceRewardClaimSuccessSanityLowDialog"
         ],
         "focus": {
-            "Node.Action.Succeeded": "继续行动"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.continue_operation"
         }
     },
     "ProtocolSpaceRewardClaimSuccessSanityLowDialog": {
@@ -920,7 +920,7 @@
             "[JumpBack]SceneAnyEnterWorld"
         ],
         "focus": {
-            "Node.Action.Succeeded": "理智不足，结束任务"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.sanity_low_end"
         }
     },
     "ProtocolSpaceRewardClaimSuccessFinish": {
@@ -935,7 +935,7 @@
             "[JumpBack]SceneAnyEnterWorld"
         ],
         "focus": {
-            "Node.Action.Succeeded": "行动成功次数已满，结束任务"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.success_count_reached"
         }
     },
     "ProtocolSpaceOperationStopTask": {
@@ -965,7 +965,7 @@
             "ProtocolSpaceOperationFailedFinish"
         ],
         "focus": {
-            "Node.Action.Succeeded": "行动失败"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.operation_failed"
         }
     },
     "ProtocolSpaceOperationFailedContinue": {
@@ -980,7 +980,7 @@
             "ProtocolSpaceEnterSpaceSuccess"
         ],
         "focus": {
-            "Node.Action.Succeeded": "继续行动"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.continue_operation"
         }
     },
     "ProtocolSpaceOperationFailedFinish": {
@@ -995,7 +995,7 @@
             "[JumpBack]SceneAnyEnterWorld"
         ],
         "focus": {
-            "Node.Action.Succeeded": "行动失败次数已满，结束任务"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.failed_count_reached"
         }
     },
     "ProtocolSpaceOperationExitToWorld": {

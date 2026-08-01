@@ -52,7 +52,7 @@
             "ProtocolSpaceEnterSpace"
         ],
         "focus": {
-            "Node.Action.Succeeded": "选择关卡等级"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.select_level"
         }
     },
     "ProtocolSpaceNormalPrepareChooseReward": {
@@ -86,7 +86,7 @@
             "ProtocolSpaceNormalPrepareChooseRewardClose"
         ],
         "focus": {
-            "Node.Action.Succeeded": "选择自选奖励"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.select_optional_reward"
         }
     },
     "ProtocolSpaceNormalPrepareChooseRewardABText": {
@@ -187,7 +187,7 @@
             "unlock"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "协议空间未解锁"
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.not_unlocked"
         }
     }
 }
