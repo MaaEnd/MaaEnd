@@ -52,7 +52,6 @@
                 "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map01_lv001",
-                    "fine_approach": "AllTargets",
                     "path": [
                         [
                             476.8,
@@ -103,10 +102,6 @@
                             327.5
                         ],
                         [
-                            479.1,
-                            330.0
-                        ],
-                        [
                             479.3,
                             330.1
                         ]
@@ -129,7 +124,6 @@
                 "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map01_lv001",
-                    "fine_approach": "AllTargets",
                     "no_ensure_initial_movement_state": true,
                     "path": [
                         [
@@ -155,7 +149,6 @@
                 "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map01_lv001",
-                    "fine_approach": "AllTargets",
                     "no_ensure_initial_movement_state": true,
                     "path": [
                         [
@@ -181,7 +174,6 @@
                 "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map01_lv001",
-                    "fine_approach": "AllTargets",
                     "no_ensure_initial_movement_state": true,
                     "path": [
                         [
@@ -207,7 +199,6 @@
                 "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map01_lv001",
-                    "fine_approach": "AllTargets",
                     "no_ensure_initial_movement_state": true,
                     "path": [
                         [

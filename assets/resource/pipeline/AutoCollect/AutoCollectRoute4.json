@@ -74,7 +74,6 @@
                 "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map01_lv007",
-                    "fine_approach": "AllTargets",
                     "no_ensure_initial_movement_state": true,
                     "path": [
                         [
@@ -100,7 +99,6 @@
                 "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map01_lv007",
-                    "fine_approach": "AllTargets",
                     "no_ensure_initial_movement_state": true,
                     "path": [
                         [
@@ -126,7 +124,6 @@
                 "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map01_lv007",
-                    "fine_approach": "AllTargets",
                     "no_ensure_initial_movement_state": true,
                     "path": [
                         [
@@ -152,7 +149,6 @@
                 "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map01_lv007",
-                    "fine_approach": "AllTargets",
                     "no_ensure_initial_movement_state": true,
                     "path": [
                         [
@@ -178,7 +174,6 @@
                 "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map01_lv007",
-                    "fine_approach": "AllTargets",
                     "no_ensure_initial_movement_state": true,
                     "path": [
                         [
@@ -204,7 +199,6 @@
                 "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map01_lv007",
-                    "fine_approach": "AllTargets",
                     "no_ensure_initial_movement_state": true,
                     "path": [
                         [
@@ -230,7 +224,6 @@
                 "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": "map01_lv007",
-                    "fine_approach": "AllTargets",
                     "no_ensure_initial_movement_state": true,
                     "path": [
                         [
