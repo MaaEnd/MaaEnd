@@ -12,28 +12,14 @@
         }
     },
     "AutoCollectCommonRoute6": {
-        "anchor": {
-            "WLMarkerStoneShip2_After": "AutoCollectCommonRoute6GotoFindLine1"
-        },
-        "next": [
-            "SceneEnterWLMarkerStoneShip2"
-        ]
-    },
-    "AutoCollectCommonRoute6GotoFindLine1": {
-        "desc": "前往琼叶参采集点西侧的路口",
         "action": "Custom",
-        "custom_action": "MapTrackerGoal",
+        "custom_action": "SubTask",
         "custom_action_param": {
-            "map_name": "map02_lv004",
-            "target": [
-                436.8,
-                471.7
-            ],
-            "fine_approach": "Never",
-            "no_ensure_initial_movement_state": true
+            "sub": [
+                "SceneEnterWorldWulingMarkerStone_Ship2DestinationThenWalkAndFight"
+            ]
         },
         "next": [
-            "[JumpBack]AutoFight",
             "AutoCollectCommonRoute6GotoFind1"
         ]
     },

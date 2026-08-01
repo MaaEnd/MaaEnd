@@ -364,7 +364,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWLMarkerStoneShip2"
+                "SceneEnterWorldWulingMarkerStone_Ship2DestinationThenWalkAndFight"
             ]
         },
         "post_delay": 0,

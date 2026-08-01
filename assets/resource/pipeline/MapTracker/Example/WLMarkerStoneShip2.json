@@ -1,8 +1,22 @@
 {
-    "SceneEnterWLMarkerStoneShip2": {
+    "SceneEnterWorldWulingMarkerStone_Ship2Destination": {
         "desc": "从任意界面通过首墩【湖心岛】宏2摆渡船前往【栖云林地】西侧港口",
         "pre_delay": 0,
         "post_delay": 0,
+        "anchor": {
+            "__WLMarkerStoneShip2_ShipGetOffSuccess": "__WLMarkerStoneShip2_Exit"
+        },
+        "next": [
+            "__WLMarkerStoneShip2_Teleport"
+        ]
+    },
+    "SceneEnterWorldWulingMarkerStone_Ship2DestinationThenWalkAndFight": {
+        "desc": "从任意界面通过首墩【湖心岛】宏2摆渡船前往【栖云林地】西侧港口，到达后向东走到交叉路口并战斗",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__WLMarkerStoneShip2_ShipGetOffSuccess": "__WLMarkerStoneShip2_WalkAndFight"
+        },
         "next": [
             "__WLMarkerStoneShip2_Teleport"
         ]
@@ -143,7 +157,7 @@
         ]
     },
     "__WLMarkerStoneShip2_ShipGetOff": {
-        "desc": "走到下船位置，最后调用 Anchor 节点",
+        "desc": "走到下船位置",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
@@ -160,12 +174,44 @@
             "stuck_threshold": 6000
         },
         "next": [
-            "[Anchor]WLMarkerStoneShip2_After",
-            "__WLMarkerStoneShip2_NoAnchorWasSet"
+            "[Anchor]__WLMarkerStoneShip2_ShipGetOffSuccess"
         ]
     },
-    "__WLMarkerStoneShip2_NoAnchorWasSet": {
-        "desc": "如果调用方没有设置 Anchor，就会在这里正常结束",
+    "__WLMarkerStoneShip2_WalkAndFight": {
+        "desc": "从下船港口向东走到交叉路口，随后解决可能的战斗",
+        "action": "Custom",
+        "custom_action": "MapTrackerGoal",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "target": [
+                436.8,
+                471.7
+            ],
+            "fine_approach": "Never",
+            "no_ensure_initial_movement_state": true
+        },
+        "next": [
+            "[JumpBack]AutoFight",
+            "__WLMarkerStoneShip2_WalkAndFightSuccess"
+        ]
+    },
+    "__WLMarkerStoneShip2_WalkAndFightSuccess": {
+        "desc": "可能的战斗结束后，恢复性地走回刚才的交叉路口",
+        "action": "Custom",
+        "custom_action": "MapTrackerGoal",
+        "custom_action_param": {
+            "map_name": "map02_lv004",
+            "target": [
+                436.8,
+                471.7
+            ]
+        },
+        "next": [
+            "__WLMarkerStoneShip2_Exit"
+        ]
+    },
+    "__WLMarkerStoneShip2_Exit": {
+        "desc": "所有流程结束",
         "pre_delay": 0,
         "post_delay": 0
     }

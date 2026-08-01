@@ -681,13 +681,13 @@
         "MissionId": "m1m64",
         "Name": "栖云生态点",
         "Id": "CloudrestEcoSite",
-        "EnterMap": "SceneEnterWLMarkerStoneShip2",
+        "EnterMap": "SceneEnterWorldWulingMarkerStone_Ship2DestinationThenWalkAndFight",
         "MapName": "map02_lv004",
         "MapAssert": [
-            384.2,
-            445.6,
-            8.5,
-            12.5
+            389.3,
+            445.8,
+            69.1,
+            49.9
         ],
         "MapGoal": [
             438.1,
