@@ -54,9 +54,10 @@ const (
 // MapTrackerGoalParam represents the custom_action_param for MapTrackerGoal.
 type MapTrackerGoalParam struct {
 	MapTrackerMoveParam
-	Target        *internal.Point `json:"target,omitempty"`
-	EntityID      *int64          `json:"entity_id,omitempty"`
-	ZiplinePolicy string          `json:"zipline_policy,omitempty"`
+	Target               *internal.Point `json:"target,omitempty"`
+	EntityID             *int64          `json:"entity_id,omitempty"`
+	ZiplinePolicy        string          `json:"zipline_policy,omitempty"`
+	DeleteSharedZiplines bool            `json:"delete_shared_ziplines,omitempty"`
 }
 
 type goalContext struct {
@@ -73,7 +74,6 @@ type ziplinePolicy struct {
 	ToZiplineEdgeCostFactor      float64
 	FromZiplineEdgeCostFactor    float64
 	BetweenZiplineEdgeCostFactor float64
-	DeleteSharedZiplines         bool
 }
 
 type ziplineEdgeCostFactors struct {
@@ -100,14 +100,12 @@ var mapTrackerGoalZiplinePolicies = map[string]ziplinePolicy{
 		ToZiplineEdgeCostFactor:      8,
 		FromZiplineEdgeCostFactor:    4,
 		BetweenZiplineEdgeCostFactor: 0.5,
-		DeleteSharedZiplines:         true,
 	},
 	ZIPLINE_POLICY_AGGRESSIVE: {
 		MinNeedZiplineDistance:       15,
 		ToZiplineEdgeCostFactor:      1,
 		FromZiplineEdgeCostFactor:    1,
 		BetweenZiplineEdgeCostFactor: 0.25,
-		DeleteSharedZiplines:         true,
 	},
 }
 
@@ -557,7 +555,7 @@ func (a *MapTrackerGoal) loadRuntimeZiplines(goalCtx *goalContext, mustSeePoints
 
 	policy := mapTrackerGoalZiplinePolicies[goalCtx.param.ZiplinePolicy]
 	ownedScanZoomValue := ziplineScanZoomValue
-	if policy.DeleteSharedZiplines {
+	if goalCtx.param.DeleteSharedZiplines {
 		if err := a.clearSharedBigMapZiplines(goalCtx, mustSeePoints); err != nil {
 			return nil, fmt.Errorf("failed to delete shared ziplines: %w", err)
 		}
@@ -565,8 +563,7 @@ func (a *MapTrackerGoal) loadRuntimeZiplines(goalCtx *goalContext, mustSeePoints
 		ownedScanZoomValue = 0
 	} else {
 		log.Info().
-			Str("ziplinePolicy", goalCtx.param.ZiplinePolicy).
-			Msg("Shared zipline cleanup skipped for zipline policy")
+			Msg("Shared zipline cleanup disabled")
 	}
 
 	matches, err := a.findBigMapZiplineIcons(goalCtx, mustSeePoints, ownedZiplineTemplate, ownedScanZoomValue, 0, 0)

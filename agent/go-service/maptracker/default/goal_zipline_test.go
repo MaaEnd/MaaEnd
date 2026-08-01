@@ -11,22 +11,37 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 )
 
-func TestZiplinePolicySharedDeletion(t *testing.T) {
+func TestMapTrackerGoalSharedZiplineDeletionOption(t *testing.T) {
 	tests := []struct {
-		policy string
-		want   bool
+		name  string
+		param string
+		want  bool
 	}{
-		{policy: ZIPLINE_POLICY_NEVER, want: false},
-		{policy: ZIPLINE_POLICY_LAZY, want: false},
-		{policy: ZIPLINE_POLICY_ACTIVE, want: true},
-		{policy: ZIPLINE_POLICY_AGGRESSIVE, want: true},
+		{
+			name:  "active policy defaults to disabled",
+			param: `{"map_name":"map02_lv002","target":[100,200],"zipline_policy":"Active"}`,
+			want:  false,
+		},
+		{
+			name:  "aggressive policy defaults to disabled",
+			param: `{"map_name":"map02_lv002","target":[100,200],"zipline_policy":"Aggressive"}`,
+			want:  false,
+		},
+		{
+			name:  "explicitly enabled",
+			param: `{"map_name":"map02_lv002","target":[100,200],"zipline_policy":"Active","delete_shared_ziplines":true}`,
+			want:  true,
+		},
 	}
 
 	for _, test := range tests {
-		t.Run(test.policy, func(t *testing.T) {
-			got := mapTrackerGoalZiplinePolicies[test.policy].DeleteSharedZiplines
-			if got != test.want {
-				t.Fatalf("DeleteSharedZiplines = %v, want %v", got, test.want)
+		t.Run(test.name, func(t *testing.T) {
+			param, err := (&MapTrackerGoal{}).parseParam(test.param)
+			if err != nil {
+				t.Fatalf("parseParam() error = %v", err)
+			}
+			if param.DeleteSharedZiplines != test.want {
+				t.Fatalf("DeleteSharedZiplines = %v, want %v", param.DeleteSharedZiplines, test.want)
 			}
 		})
 	}

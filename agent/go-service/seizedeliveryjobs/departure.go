@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image"
 	"math"
+	"strings"
 	"sync"
 
 	maptrackerbigmap "github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/bigmap"
@@ -23,9 +24,20 @@ const (
 type SeizeDeliveryJobsDepartureAction struct{}
 
 type seizeDeliveryJobsDepartureParam struct {
-	MapNameRegex  string `json:"map_name_regex"`
-	ZiplinePolicy string `json:"zipline_policy"`
-	IsRetry       bool   `json:"is_retry,omitempty"`
+	MapNameRegex         string `json:"map_name_regex"`
+	ZiplinePolicy        string `json:"zipline_policy"`
+	DeleteSharedZiplines bool   `json:"delete_shared_ziplines,omitempty"`
+	IsRetry              bool   `json:"is_retry,omitempty"`
+}
+
+type seizeDeliveryJobsDepartureAttach struct {
+	// Pointer fields distinguish an omitted option from an explicit false override.
+	ZiplinePolicy        *string
+	DeleteSharedZiplines *bool
+}
+
+type seizeDeliveryJobsNodeJSONSource interface {
+	GetNodeJSON(nodeName string) (string, error)
 }
 
 const (
@@ -54,15 +66,22 @@ func (a *SeizeDeliveryJobsDepartureAction) Run(ctx *maa.Context, arg *maa.Custom
 		return false
 	}
 
-	// 1. Parse parameters
-	param, err := a.parseParam(arg.CustomActionParam)
+	// 1. Resolve the Pipeline defaults and user option overrides.
+	param, err := a.resolveParam(ctx, arg.CurrentTaskName, arg.CustomActionParam)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", seizeDeliveryJobsDepartureComponent).
-			Msg("failed to parse parameters")
+			Str("node", arg.CurrentTaskName).
+			Msg("failed to resolve parameters")
 		return false
 	}
+	log.Info().
+		Str("component", seizeDeliveryJobsDepartureComponent).
+		Str("zipline_policy", param.ZiplinePolicy).
+		Bool("delete_shared_ziplines", param.DeleteSharedZiplines).
+		Bool("is_retry", param.IsRetry).
+		Msg("resolved departure parameters")
 
 	// 2. Find the destination on the big-map, or use a cached one if currently retrying
 	var mapName string
@@ -111,7 +130,7 @@ func (a *SeizeDeliveryJobsDepartureAction) Run(ctx *maa.Context, arg *maa.Custom
 	}
 
 	// 4. Run the goal to navigate to the destination
-	if !a.runGoal(ctx, arg, mapName, param.ZiplinePolicy, target) {
+	if !a.runGoal(ctx, arg, mapName, param.ZiplinePolicy, param.DeleteSharedZiplines, target) {
 		return false
 	}
 
@@ -134,6 +153,28 @@ func (a *SeizeDeliveryJobsDepartureAction) parseParam(paramStr string) (*seizeDe
 	if param.ZiplinePolicy == "" {
 		param.ZiplinePolicy = ziplinePolicyDefault
 	}
+	return &param, nil
+}
+
+func (a *SeizeDeliveryJobsDepartureAction) resolveParam(
+	source seizeDeliveryJobsNodeJSONSource,
+	nodeName string,
+	paramStr string,
+) (*seizeDeliveryJobsDepartureParam, error) {
+	param, err := a.parseParam(paramStr)
+	if err != nil {
+		return nil, err
+	}
+
+	// Retry nodes use their own Never/false parameters and must not inherit user options.
+	if !param.IsRetry {
+		attach, err := loadSeizeDeliveryJobsDepartureAttach(source, nodeName)
+		if err != nil {
+			return nil, fmt.Errorf("load departure options from node attach: %w", err)
+		}
+		applySeizeDeliveryJobsDepartureAttach(param, attach)
+	}
+
 	switch param.ZiplinePolicy {
 	case maptrackerdefault.ZIPLINE_POLICY_NEVER,
 		maptrackerdefault.ZIPLINE_POLICY_LAZY,
@@ -141,7 +182,96 @@ func (a *SeizeDeliveryJobsDepartureAction) parseParam(paramStr string) (*seizeDe
 	default:
 		return nil, fmt.Errorf("zipline_policy must be one of %q, %q, %q", maptrackerdefault.ZIPLINE_POLICY_NEVER, maptrackerdefault.ZIPLINE_POLICY_LAZY, maptrackerdefault.ZIPLINE_POLICY_ACTIVE)
 	}
-	return &param, nil
+
+	// Deletion is only safe when zipline discovery is active.
+	if param.DeleteSharedZiplines && param.ZiplinePolicy != maptrackerdefault.ZIPLINE_POLICY_ACTIVE {
+		log.Warn().
+			Str("component", seizeDeliveryJobsDepartureComponent).
+			Str("zipline_policy", param.ZiplinePolicy).
+			Msg("disabled shared zipline deletion because zipline policy is not active")
+		param.DeleteSharedZiplines = false
+	}
+
+	return param, nil
+}
+
+func loadSeizeDeliveryJobsDepartureAttach(
+	source seizeDeliveryJobsNodeJSONSource,
+	nodeName string,
+) (seizeDeliveryJobsDepartureAttach, error) {
+	if source == nil {
+		return seizeDeliveryJobsDepartureAttach{}, fmt.Errorf("node JSON source is nil")
+	}
+
+	nodeName = strings.TrimSpace(nodeName)
+	if nodeName == "" {
+		return seizeDeliveryJobsDepartureAttach{}, fmt.Errorf("current task name is empty")
+	}
+
+	raw, err := source.GetNodeJSON(nodeName)
+	if err != nil {
+		return seizeDeliveryJobsDepartureAttach{}, fmt.Errorf("get node %q JSON: %w", nodeName, err)
+	}
+	trimmedRaw := strings.TrimSpace(raw)
+	if trimmedRaw == "" {
+		return seizeDeliveryJobsDepartureAttach{}, fmt.Errorf("node %q JSON is empty", nodeName)
+	}
+	if trimmedRaw == "null" {
+		return seizeDeliveryJobsDepartureAttach{}, fmt.Errorf("node %q JSON must be an object", nodeName)
+	}
+
+	var wrapper struct {
+		Attach json.RawMessage `json:"attach"`
+	}
+	if err := json.Unmarshal([]byte(raw), &wrapper); err != nil {
+		return seizeDeliveryJobsDepartureAttach{}, fmt.Errorf("unmarshal node %q JSON: %w", nodeName, err)
+	}
+	if len(wrapper.Attach) == 0 {
+		return seizeDeliveryJobsDepartureAttach{}, nil
+	}
+	if string(wrapper.Attach) == "null" {
+		return seizeDeliveryJobsDepartureAttach{}, fmt.Errorf("node %q attach must be an object", nodeName)
+	}
+
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(wrapper.Attach, &fields); err != nil {
+		return seizeDeliveryJobsDepartureAttach{}, fmt.Errorf("unmarshal node %q attach: %w", nodeName, err)
+	}
+
+	var attach seizeDeliveryJobsDepartureAttach
+	if rawPolicy, ok := fields["zipline_policy"]; ok {
+		if strings.TrimSpace(string(rawPolicy)) == "null" {
+			return seizeDeliveryJobsDepartureAttach{}, fmt.Errorf("node %q attach.zipline_policy must be a string", nodeName)
+		}
+		var policy string
+		if err := json.Unmarshal(rawPolicy, &policy); err != nil {
+			return seizeDeliveryJobsDepartureAttach{}, fmt.Errorf("unmarshal node %q attach.zipline_policy: %w", nodeName, err)
+		}
+		attach.ZiplinePolicy = &policy
+	}
+	if rawDelete, ok := fields["delete_shared_ziplines"]; ok {
+		if strings.TrimSpace(string(rawDelete)) == "null" {
+			return seizeDeliveryJobsDepartureAttach{}, fmt.Errorf("node %q attach.delete_shared_ziplines must be a boolean", nodeName)
+		}
+		var deleteSharedZiplines bool
+		if err := json.Unmarshal(rawDelete, &deleteSharedZiplines); err != nil {
+			return seizeDeliveryJobsDepartureAttach{}, fmt.Errorf("unmarshal node %q attach.delete_shared_ziplines: %w", nodeName, err)
+		}
+		attach.DeleteSharedZiplines = &deleteSharedZiplines
+	}
+	return attach, nil
+}
+
+func applySeizeDeliveryJobsDepartureAttach(
+	param *seizeDeliveryJobsDepartureParam,
+	attach seizeDeliveryJobsDepartureAttach,
+) {
+	if attach.ZiplinePolicy != nil {
+		param.ZiplinePolicy = *attach.ZiplinePolicy
+	}
+	if attach.DeleteSharedZiplines != nil {
+		param.DeleteSharedZiplines = *attach.DeleteSharedZiplines
+	}
 }
 
 func (a *SeizeDeliveryJobsDepartureAction) findAndCacheTarget(ctx *maa.Context, arg *maa.CustomActionArg, mapNameRegex string, target *[2]float64) (string, [2]int, bool) {
@@ -318,12 +448,20 @@ func (a *SeizeDeliveryJobsDepartureAction) clickTracking(ctx *maa.Context, scree
 	return true
 }
 
-func (a *SeizeDeliveryJobsDepartureAction) runGoal(ctx *maa.Context, arg *maa.CustomActionArg, mapName string, ziplinePolicy string, target [2]float64) bool {
+func (a *SeizeDeliveryJobsDepartureAction) runGoal(
+	ctx *maa.Context,
+	arg *maa.CustomActionArg,
+	mapName string,
+	ziplinePolicy string,
+	deleteSharedZiplines bool,
+	target [2]float64,
+) bool {
 	paramBytes, err := json.Marshal(map[string]any{
-		"map_name":         mapName,
-		"target":           target,
-		"zipline_policy":   ziplinePolicy,
-		"stuck_mitigators": []string{"MoveOrDeleteDevice", "Jump"},
+		"map_name":               mapName,
+		"target":                 target,
+		"zipline_policy":         ziplinePolicy,
+		"delete_shared_ziplines": deleteSharedZiplines,
+		"stuck_mitigators":       []string{"MoveOrDeleteDevice", "Jump"},
 	})
 	if err != nil {
 		log.Error().

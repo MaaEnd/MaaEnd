@@ -205,6 +205,12 @@
                     "type": "string",
                     "enum": [ "Never", "Lazy", "Active", "Aggressive" ],
                     "default": "Never"
+                },
+                "delete_shared_ziplines": {
+                    "title": "Delete Shared Ziplines",
+                    "description": "Delete shared long-distance zipline stands found in the scanned area before pathfinding.",
+                    "type": "boolean",
+                    "default": false
                 }
             },
             "anyOf": [

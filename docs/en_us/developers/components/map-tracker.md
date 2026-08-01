@@ -118,7 +118,7 @@ Optional parameters:
 
 This node first identifies the player's current location, then reads the NavMesh road network data, temporarily connects the current location and the target point to the road network, plans a path using the Dijkstra algorithm, and finally delegates execution to [MapTrackerMove](#action-maptrackermove).
 
-If a zipline policy is explicitly specified, it will also scan the big map before pathfinding and add player-owned zipline stands to the runtime graph. The `Active` and `Aggressive` policies also delete shared long-distance zipline stands within the scanned area.
+If a zipline policy is explicitly specified, it will also scan the big map before pathfinding and add player-owned zipline stands to the runtime graph. If `delete_shared_ziplines` is set to `true`, it will also delete shared long-distance zipline stands within the scanned area.
 
 #### Node Parameters
 
@@ -139,6 +139,8 @@ Optional parameters:
     | `"Lazy"` | Use ziplines only in extreme cases | When needing to cross impassable areas like water |
     | `"Active"` | Actively use ziplines like a human player | When there are many impassable areas and the route is long |
     | `"Aggressive"` | Use ziplines very aggressively | Generally not recommended |
+
+- `delete_shared_ziplines`: Boolean, default `false`. Whether to delete shared long-distance zipline stands within the scanned area before pathfinding.
 
 - Other parameters: Supports supplementing parameters of [MapTrackerMove](#action-maptrackermove), which will be passed through to the final movement process, such as `fine_approach`, `arrival_timeout`, `stuck_mitigators`, etc.
 

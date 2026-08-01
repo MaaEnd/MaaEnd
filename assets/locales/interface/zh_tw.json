@@ -592,6 +592,8 @@
     "task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.description": "自動送貨處於測試版，可能發生**貨物損毀、送貨失敗、死循環**等意外情況。請務必在軟體設定中開啟**全域快捷鍵**以便隨時停止任務。",
     "task.SeizeDeliveryJobsPostDeparturePreferZipline.label": "優先使用滑索送貨",
     "task.SeizeDeliveryJobsPostDeparturePreferZipline.description": "建議將滑索放置在寬敞道路中間，可獲得更高的成功率。",
+    "task.SeizeDeliveryJobsPostDepartureDeleteSharedZiplines.label": "刪除可能影響路徑的共享滑索",
+    "task.SeizeDeliveryJobsPostDepartureDeleteSharedZiplines.description": "開啟後，會在規劃送貨路線前刪除掃描區域內可能影響路徑的共享長距離滑索架。",
     "task.SeizeDeliveryJobsRepeatCount.label": "送貨次數",
     "task.SeizeDeliveryJobsRepeatCount.description": "全自動送貨的最大循環次數",
     "task.SeizeDeliveryJobsRepeatCount.cases.1.label": "最多 1 次",

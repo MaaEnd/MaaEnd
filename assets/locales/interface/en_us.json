@@ -804,6 +804,8 @@
     "task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.description": "Automatic delivery is in beta and may cause **cargo damage, delivery failure, infinite loops**, or other unexpected situations. Please enable **global hotkeys** in the app settings so you can stop the task at any time.",
     "task.SeizeDeliveryJobsPostDeparturePreferZipline.label": "Prefer Zipline for Delivery",
     "task.SeizeDeliveryJobsPostDeparturePreferZipline.description": "For higher success rates, place ziplines in the middle of wide roads.",
+    "task.SeizeDeliveryJobsPostDepartureDeleteSharedZiplines.label": "Delete Shared Ziplines Affecting the Route",
+    "task.SeizeDeliveryJobsPostDepartureDeleteSharedZiplines.description": "Before planning the delivery route, delete shared long-distance zipline stands in the scanned area that may affect the route.",
     "task.SeizeDeliveryJobsRepeatCount.label": "Delivery Count",
     "task.SeizeDeliveryJobsRepeatCount.description": "Maximum number of deliveries performed in a single task run",
     "task.SeizeDeliveryJobsRepeatCount.cases.1.label": "Max 1",

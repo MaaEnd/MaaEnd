@@ -45,8 +45,8 @@
         "custom_action": "SeizeDeliveryJobsDepartureAction",
         "custom_action_param": {
             "map_name_regex": "^(map02_lv002|map02_lv005)$", // 所有可用的送货地图名称（后续增加新地区需要更新此值）
-            // 更新此值需要同时更新 assets\tasks\SeizeDeliveryJobs.json 中对应的值
             "zipline_policy": "Lazy", // 默认不优先使用滑索（可以覆写为 "Active"）
+            "delete_shared_ziplines": false,
             "is_retry": false
         },
         "next": [

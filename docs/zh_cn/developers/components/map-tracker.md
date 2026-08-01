@@ -131,7 +131,7 @@
 
 此节点会先识别玩家当前位置，再读取 NavMesh 路网数据，将当前位置和目标点临时连接到路网中，通过 Dijkstra 算法规划路径，最后交给 [MapTrackerMove](#action-maptrackermove) 执行移动。
 
-若主动指定了滑索策略，还会在寻路前自动扫描大地图中的滑索点位，并将自有滑索架加入运行时路网。`Active` 和 `Aggressive` 策略还会删除扫描区域内的共享长距离滑索架。
+若主动指定了滑索策略，还会在寻路前自动扫描大地图中的滑索点位，并将自有滑索架加入运行时路网。若将 `delete_shared_ziplines` 设为 `true`，还会删除扫描区域内的共享长距离滑索架。
 
 #### 节点参数
 
@@ -153,6 +153,8 @@
     | `"Lazy"` | 仅在极端情况下使用滑索 | 需要跨越水域等不可通行区域时 |
     | `"Active"` | 像人类玩家一样主动使用滑索 | 不可通行区域较多且路程较长时 |
     | `"Aggressive"` | 非常积极地使用滑索 | 一般不推荐 |
+
+- `delete_shared_ziplines`: 真假值，默认 `false`。是否在寻路前删除扫描区域内的共享长距离滑索架。
 
 - 其他参数：支持补充填写 [MapTrackerMove](#action-maptrackermove) 的各个参数，这会透传给最终的移动过程，例如 `fine_approach`、`arrival_timeout`、`stuck_mitigators` 等。
 

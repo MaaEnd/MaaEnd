@@ -588,6 +588,8 @@
     "task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.description": "자동 배달은 베타 기능이며 **화물 파손, 배달 실패, 무한 루프** 등 예상치 못한 상황이 발생할 수 있습니다. 작업을 언제든지 중지할 수 있도록 앱 설정에서 **전역 단축키**를 반드시 활성화하세요.",
     "task.SeizeDeliveryJobsPostDeparturePreferZipline.label": "배달에 집라인 우선 사용",
     "task.SeizeDeliveryJobsPostDeparturePreferZipline.description": "성공률을 높이려면 집라인을 넓은 도로 중앙에 배치하세요.",
+    "task.SeizeDeliveryJobsPostDepartureDeleteSharedZiplines.label": "경로에 영향을 줄 수 있는 공유 집라인 삭제",
+    "task.SeizeDeliveryJobsPostDepartureDeleteSharedZiplines.description": "활성화하면 배달 경로를 계획하기 전에 스캔 영역에서 경로에 영향을 줄 수 있는 공유 장거리 집라인을 삭제합니다.",
     "task.SeizeDeliveryJobsRepeatCount.label": "배송 횟수",
     "task.SeizeDeliveryJobsRepeatCount.description": "완전 자동 배달의 최대 반복 횟수",
     "task.SeizeDeliveryJobsRepeatCount.cases.1.label": "최대 1회",
