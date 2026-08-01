@@ -213,10 +213,7 @@
         "action": "Click",
         "next": [
             "ProtocolSpaceNormalPrepareEnter"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.enter"
-        }
+        ]
     },
     "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveDisable": {
         "desc": "在当前页面找深潜协议空间入口，未开启",
@@ -283,9 +280,6 @@
         "action": "Click",
         "next": [
             "ProtocolSpaceDeepDivePrepareEnter"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.enter"
-        }
+        ]
     }
 }

@@ -1849,7 +1849,7 @@
         }
     },
     "SupplyPlanSanityLowEnd": {
-        "desc": "目标库存模式：理智不足回到大世界后结束任务，不再重新调度刷取",
+        "desc": "目标库存模式：理智不足回到大世界后结束任务，不再重新调度刷取（播报已由 ProtocolSpaceRewardClaimSuccessSanityLowFinish 负责，此处不再重复 focus）",
         "recognition": {
             "type": "And",
             "param": {
@@ -1862,10 +1862,7 @@
         "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.sanity_low_end"
-        }
+        "next": []
     },
     "SupplyPlanRewardClaimLeave": {
         "desc": "目标库存模式：领奖后点取消离开奖励界面",
