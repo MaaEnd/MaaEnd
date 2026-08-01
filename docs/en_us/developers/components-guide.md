@@ -52,7 +52,7 @@ The following nodes are implemented based on Go/C++ and have high business-speci
 | MapNavigator | Automatic pathfinding: reaches a target coordinate without recording; routes with interactions can be recorded | [components/map-navigator.md](./components/map-navigator.md) |
 | MapTracker | Minimap tracking and path movement | [components/map-tracker.md](./components/map-tracker.md) |
 | RecoGrid Engine | C++ grid recognition and rolling cumulative scanning engine | [components/recogrid-engine.md](./components/recogrid-engine.md) |
-| IMS | In-process cultivation-item cache and readiness gate (`ItemDataReady`) | [components/ims.md](./components/ims.md) |
+| IMS | Item Management System: A2 sync / A1 delta / A3 add, R1 quantity / R2 readiness | [components/ims.md](./components/ims.md) |
 
 ## Task Maintenance Documentation
 

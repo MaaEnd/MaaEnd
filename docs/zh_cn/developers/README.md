@@ -84,7 +84,7 @@ flowchart TD
 | [MapLocator 小地图定位](./components/map-locator.md) | 基于 AI + CV 的小地图定位系统，输出区域、坐标与朝向 |
 | [MapTracker 小地图追踪](./components/map-tracker.md) | 基于计算机视觉的小地图追踪与路径移动 |
 | [MapNavigator 路径导航](./components/map-navigator.md) | 路径导航 Action，支持免录制的目标式寻路与 GUI 录制 |
-| [IMS 培养道具管理](./components/ims.md) | 培养道具进程内缓存、`ItemDataReady` 就绪门禁 |
+| [IMS 物品管理系统](./components/ims.md) | 培养道具缓存：A2 同步 / A1 加减 / A3 累加，R1 数量门禁 / R2 就绪门禁 |
 
 ### 任务维护文档（`tasks/`）
 
