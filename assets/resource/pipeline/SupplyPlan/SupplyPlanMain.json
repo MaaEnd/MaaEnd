@@ -124,15 +124,9 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         },
-                        "ProtocolSpaceRewardClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
-                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
                         "ProtocolSpaceOperationExitToWorld": {
                             "next": [
-                                "SupplyPlanMain"
+                                "SupplyPlanDispatch"
                             ]
                         },
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
@@ -146,6 +140,14 @@
                                     "index": 4
                                 }
                             }
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_ADVANCED_COMBAT_RECORD",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -226,15 +228,9 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         },
-                        "ProtocolSpaceRewardClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
-                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
                         "ProtocolSpaceOperationExitToWorld": {
                             "next": [
-                                "SupplyPlanMain"
+                                "SupplyPlanDispatch"
                             ]
                         },
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
@@ -248,6 +244,14 @@
                                     "index": 4
                                 }
                             }
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_ADVANCED_COGNITIVE_CARRIER",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -328,15 +332,9 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         },
-                        "ProtocolSpaceRewardClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
-                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
                         "ProtocolSpaceOperationExitToWorld": {
                             "next": [
-                                "SupplyPlanMain"
+                                "SupplyPlanDispatch"
                             ]
                         },
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
@@ -350,6 +348,14 @@
                                     "index": 4
                                 }
                             }
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_ELEMENTARY_COGNITIVE_CARRIER",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -430,15 +436,9 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         },
-                        "ProtocolSpaceRewardClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
-                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
                         "ProtocolSpaceOperationExitToWorld": {
                             "next": [
-                                "SupplyPlanMain"
+                                "SupplyPlanDispatch"
                             ]
                         },
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
@@ -452,6 +452,14 @@
                                     "index": 4
                                 }
                             }
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_PROTODISK",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -532,15 +540,9 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         },
-                        "ProtocolSpaceRewardClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
-                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
                         "ProtocolSpaceOperationExitToWorld": {
                             "next": [
-                                "SupplyPlanMain"
+                                "SupplyPlanDispatch"
                             ]
                         },
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
@@ -554,6 +556,14 @@
                                     "index": 4
                                 }
                             }
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_PROTOSET",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -631,15 +641,9 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         },
-                        "ProtocolSpaceRewardClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
-                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
                         "ProtocolSpaceOperationExitToWorld": {
                             "next": [
-                                "SupplyPlanMain"
+                                "SupplyPlanDispatch"
                             ]
                         },
                         "ProtocolSpaceLevelChoose": {
@@ -648,6 +652,14 @@
                                     "index": 4
                                 }
                             }
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_T_CREDS",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -728,15 +740,9 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         },
-                        "ProtocolSpaceRewardClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
-                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
                         "ProtocolSpaceOperationExitToWorld": {
                             "next": [
-                                "SupplyPlanMain"
+                                "SupplyPlanDispatch"
                             ]
                         },
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
@@ -750,6 +756,14 @@
                                     "index": 4
                                 }
                             }
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_PROTOPRISM",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -830,15 +844,9 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         },
-                        "ProtocolSpaceRewardClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
-                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
                         "ProtocolSpaceOperationExitToWorld": {
                             "next": [
-                                "SupplyPlanMain"
+                                "SupplyPlanDispatch"
                             ]
                         },
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
@@ -852,6 +860,14 @@
                                     "index": 4
                                 }
                             }
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_PROTOHEDRON",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -932,15 +948,9 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         },
-                        "ProtocolSpaceRewardClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
-                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
                         "ProtocolSpaceOperationExitToWorld": {
                             "next": [
-                                "SupplyPlanMain"
+                                "SupplyPlanDispatch"
                             ]
                         },
                         "ProtocolSpaceLevelChoose": {
@@ -949,6 +959,14 @@
                                     "index": 4
                                 }
                             }
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_ARMS_INSP_SET",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -1029,15 +1047,9 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         },
-                        "ProtocolSpaceRewardClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
-                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
                         "ProtocolSpaceOperationExitToWorld": {
                             "next": [
-                                "SupplyPlanMain"
+                                "SupplyPlanDispatch"
                             ]
                         },
                         "ProtocolSpaceLevelChoose": {
@@ -1046,6 +1058,14 @@
                                     "index": 4
                                 }
                             }
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_ARMS_INSP_KIT",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -1129,15 +1149,9 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         },
-                        "ProtocolSpaceRewardClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
-                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
                         "ProtocolSpaceOperationExitToWorld": {
                             "next": [
-                                "SupplyPlanMain"
+                                "SupplyPlanDispatch"
                             ]
                         },
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
@@ -1151,6 +1165,14 @@
                                     "index": 4
                                 }
                             }
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_CAST_DIE",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -1234,15 +1256,9 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         },
-                        "ProtocolSpaceRewardClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
-                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
                         "ProtocolSpaceOperationExitToWorld": {
                             "next": [
-                                "SupplyPlanMain"
+                                "SupplyPlanDispatch"
                             ]
                         },
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
@@ -1256,6 +1272,14 @@
                                     "index": 4
                                 }
                             }
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_HEAVY_CAST_DIE",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -1336,15 +1360,17 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         },
-                        "ProtocolSpaceRewardClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
-                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
                         "ProtocolSpaceOperationExitToWorld": {
                             "next": [
-                                "SupplyPlanMain"
+                                "SupplyPlanDispatch"
+                            ]
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_D96_STEEL_SAMPLE_4",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
                             ]
                         }
                     },
@@ -1426,15 +1452,17 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         },
-                        "ProtocolSpaceRewardClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
-                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
                         "ProtocolSpaceOperationExitToWorld": {
                             "next": [
-                                "SupplyPlanMain"
+                                "SupplyPlanDispatch"
+                            ]
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_METADIASTIMA_PHOTOEMISSION_TUBE",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
                             ]
                         }
                     },
@@ -1516,15 +1544,17 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         },
-                        "ProtocolSpaceRewardClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
-                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
                         "ProtocolSpaceOperationExitToWorld": {
                             "next": [
-                                "SupplyPlanMain"
+                                "SupplyPlanDispatch"
+                            ]
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_TACHYON_SCREENING_LATTICE",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
                             ]
                         }
                     },
@@ -1606,15 +1636,17 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         },
-                        "ProtocolSpaceRewardClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
-                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
                         "ProtocolSpaceOperationExitToWorld": {
                             "next": [
-                                "SupplyPlanMain"
+                                "SupplyPlanDispatch"
+                            ]
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_QUADRANT_FITTING_FLUID",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
                             ]
                         }
                     },
@@ -1696,15 +1728,17 @@
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": false
                         },
-                        "ProtocolSpaceRewardClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
-                        "ProtocolSpaceRewardNoClaimSuccessContinue": {
-                            "max_hit": 0
-                        },
                         "ProtocolSpaceOperationExitToWorld": {
                             "next": [
-                                "SupplyPlanMain"
+                                "SupplyPlanDispatch"
+                            ]
+                        },
+                        "ProtocolSpaceRewardAddItemData": {
+                            "next": [
+                                "SupplyPlanRewardItemMet_TRIPHASIC_NANOFLAKE",
+                                "ProtocolSpaceRewardClaimSuccessSanityLow",
+                                "ProtocolSpaceRewardClaimSuccessContinue",
+                                "ProtocolSpaceRewardClaimSuccessFinish"
                             ]
                         }
                     },
@@ -1730,6 +1764,419 @@
         "rate_limit": 0,
         "focus": {
             "Node.Action.Succeeded": "培养道具目标已全部满足，结束协议空间"
+        }
+    },
+    "SupplyPlanRewardClaimLeave": {
+        "desc": "目标库存模式：领奖后点取消离开奖励界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CancelButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceOperationExitToWorld",
+            "[JumpBack]SceneAnyEnterWorld"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "当前培养道具已达标，退出协议空间并重新调度"
+        }
+    },
+    "SupplyPlanRewardItemMet_ADVANCED_COGNITIVE_CARRIER": {
+        "desc": "ADVANCED_COGNITIVE_CARRIER 领奖累加后 R1：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "ADVANCED_COGNITIVE_CARRIER",
+                    "quantity": 0
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "ADVANCED_COGNITIVE_CARRIER 目标已达标，结束当前协议空间刷取"
+        }
+    },
+    "SupplyPlanRewardItemMet_ELEMENTARY_COGNITIVE_CARRIER": {
+        "desc": "ELEMENTARY_COGNITIVE_CARRIER 领奖累加后 R1：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "ELEMENTARY_COGNITIVE_CARRIER",
+                    "quantity": 0
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "ELEMENTARY_COGNITIVE_CARRIER 目标已达标，结束当前协议空间刷取"
+        }
+    },
+    "SupplyPlanRewardItemMet_ADVANCED_COMBAT_RECORD": {
+        "desc": "ADVANCED_COMBAT_RECORD 领奖累加后 R1：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "ADVANCED_COMBAT_RECORD",
+                    "quantity": 0
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "ADVANCED_COMBAT_RECORD 目标已达标，结束当前协议空间刷取"
+        }
+    },
+    "SupplyPlanRewardItemMet_PROTOSET": {
+        "desc": "PROTOSET 领奖累加后 R1：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "PROTOSET",
+                    "quantity": 0
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "PROTOSET 目标已达标，结束当前协议空间刷取"
+        }
+    },
+    "SupplyPlanRewardItemMet_PROTODISK": {
+        "desc": "PROTODISK 领奖累加后 R1：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "PROTODISK",
+                    "quantity": 0
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "PROTODISK 目标已达标，结束当前协议空间刷取"
+        }
+    },
+    "SupplyPlanRewardItemMet_TRIPHASIC_NANOFLAKE": {
+        "desc": "TRIPHASIC_NANOFLAKE 领奖累加后 R1：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "TRIPHASIC_NANOFLAKE",
+                    "quantity": 0
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "TRIPHASIC_NANOFLAKE 目标已达标，结束当前协议空间刷取"
+        }
+    },
+    "SupplyPlanRewardItemMet_QUADRANT_FITTING_FLUID": {
+        "desc": "QUADRANT_FITTING_FLUID 领奖累加后 R1：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "QUADRANT_FITTING_FLUID",
+                    "quantity": 0
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "QUADRANT_FITTING_FLUID 目标已达标，结束当前协议空间刷取"
+        }
+    },
+    "SupplyPlanRewardItemMet_TACHYON_SCREENING_LATTICE": {
+        "desc": "TACHYON_SCREENING_LATTICE 领奖累加后 R1：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "TACHYON_SCREENING_LATTICE",
+                    "quantity": 0
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "TACHYON_SCREENING_LATTICE 目标已达标，结束当前协议空间刷取"
+        }
+    },
+    "SupplyPlanRewardItemMet_D96_STEEL_SAMPLE_4": {
+        "desc": "D96_STEEL_SAMPLE_4 领奖累加后 R1：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "D96_STEEL_SAMPLE_4",
+                    "quantity": 0
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "D96_STEEL_SAMPLE_4 目标已达标，结束当前协议空间刷取"
+        }
+    },
+    "SupplyPlanRewardItemMet_METADIASTIMA_PHOTOEMISSION_TUBE": {
+        "desc": "METADIASTIMA_PHOTOEMISSION_TUBE 领奖累加后 R1：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "METADIASTIMA_PHOTOEMISSION_TUBE",
+                    "quantity": 0
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "METADIASTIMA_PHOTOEMISSION_TUBE 目标已达标，结束当前协议空间刷取"
+        }
+    },
+    "SupplyPlanRewardItemMet_PROTOHEDRON": {
+        "desc": "PROTOHEDRON 领奖累加后 R1：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "PROTOHEDRON",
+                    "quantity": 0
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "PROTOHEDRON 目标已达标，结束当前协议空间刷取"
+        }
+    },
+    "SupplyPlanRewardItemMet_PROTOPRISM": {
+        "desc": "PROTOPRISM 领奖累加后 R1：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "PROTOPRISM",
+                    "quantity": 0
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "PROTOPRISM 目标已达标，结束当前协议空间刷取"
+        }
+    },
+    "SupplyPlanRewardItemMet_T_CREDS": {
+        "desc": "T_CREDS 领奖累加后 R1：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "T_CREDS",
+                    "quantity": 0
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "T_CREDS 目标已达标，结束当前协议空间刷取"
+        }
+    },
+    "SupplyPlanRewardItemMet_ARMS_INSP_SET": {
+        "desc": "ARMS_INSP_SET 领奖累加后 R1：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "ARMS_INSP_SET",
+                    "quantity": 0
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "ARMS_INSP_SET 目标已达标，结束当前协议空间刷取"
+        }
+    },
+    "SupplyPlanRewardItemMet_ARMS_INSP_KIT": {
+        "desc": "ARMS_INSP_KIT 领奖累加后 R1：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "ARMS_INSP_KIT",
+                    "quantity": 0
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "ARMS_INSP_KIT 目标已达标，结束当前协议空间刷取"
+        }
+    },
+    "SupplyPlanRewardItemMet_HEAVY_CAST_DIE": {
+        "desc": "HEAVY_CAST_DIE 领奖累加后 R1：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "HEAVY_CAST_DIE",
+                    "quantity": 0
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "HEAVY_CAST_DIE 目标已达标，结束当前协议空间刷取"
+        }
+    },
+    "SupplyPlanRewardItemMet_CAST_DIE": {
+        "desc": "CAST_DIE 领奖累加后 R1：已达标则离开当前刷取",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "item": "CAST_DIE",
+                    "quantity": 0
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanRewardClaimLeave"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "CAST_DIE 目标已达标，结束当前协议空间刷取"
         }
     }
 }
