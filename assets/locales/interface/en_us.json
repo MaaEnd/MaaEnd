@@ -232,7 +232,7 @@
     "option.SwitchTeamTeamChoose.label": "Select Team",
     "task.PuzzleSolver.description": "Automatically solve puzzle mini-games for you. No need to think anymore!",
     "task.PullCountCalculator.label": "🧮 Pull Count Calculator",
-    "task.PullCountCalculator.description": "Read the top resource bar on the Operator Recruitment screen, then scan recruitment vouchers in Valuables to estimate current and next-version pulls. Switch to the target recruitment page first.",
+    "task.PullCountCalculator.description": "Read the top resource bar on the Operator Headhunt screen, then scan headhunt vouchers in Valuables to estimate current and next-version pulls.",
     "task.PullCountCalculator.focus.start": "Reading resources and scanning warehouse vouchers",
     "task.PullCountCalculator.focus.succeeded": "Pull count calculated",
     "task.PullCountCalculator.focus.failed": "Pull count calculation failed. Make sure the Operator Recruitment screen is open, the top resource bar is visible, and Valuables can be entered.",

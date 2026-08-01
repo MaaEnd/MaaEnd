@@ -228,7 +228,7 @@
     "option.SwitchTeamTeamChoose.label": "チーム選択",
     "task.PuzzleSolver.description": "パズルミニゲームを自動で解決します。もう考える必要はありません！",
     "task.PullCountCalculator.label": "🧮 スカウト回数計算",
-    "task.PullCountCalculator.description": "オペレーター募集画面の上部リソース欄を読み取り、貴重品庫のスカウト券もスキャンして、現在と次バージョンのスカウト回数を見積もります。先に対象の募集ページへ移動してください。",
+    "task.PullCountCalculator.description": "オペレーター募集画面の上部リソース欄を読み取り、貴重品庫のスカウト券もスキャンして、現在と次バージョンのスカウト回数を見積もります。",
     "task.PullCountCalculator.focus.start": "募集リソースと倉庫券を読み取り中",
     "task.PullCountCalculator.focus.succeeded": "スカウト回数の計算が完了しました",
     "task.PullCountCalculator.focus.failed": "スカウト回数の計算に失敗しました。募集画面を開き、上部リソース欄が隠れておらず、貴重品庫へ入れることを確認してください。",

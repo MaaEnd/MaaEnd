@@ -316,6 +316,76 @@
         "pre_delay": 0,
         "post_delay": 0
     },
+    "__ScenePrivateWorldEnterMenuHeadhunt": {
+        "desc": "从大世界进入干员寻访界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuListEnterMenuHeadhunt",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
+        ]
+    },
+    "__ScenePrivateMenuListEnterMenuHeadhunt": {
+        "desc": "从菜单列表进入干员寻访界面",
+        "recognition": "And",
+        "all_of": [
+            "InMenuList",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            0,
+                            0,
+                            400,
+                            720
+                        ],
+                        "expected": [
+                            "寻访"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "__ScenePrivateAnyEnterMenuHeadhuntSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuHeadhuntSuccess": {
+        "desc": "成功进入干员寻访界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InHeadhunt"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "__ScenePrivateWorldEnterMenuAICPlan": {
         "desc": "从大世界进入工业计划菜单",
         "recognition": {

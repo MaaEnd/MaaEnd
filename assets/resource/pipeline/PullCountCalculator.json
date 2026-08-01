@@ -1,6 +1,6 @@
 {
     "PullCountCalculatorMain": {
-        "desc": "抽数计算入口：读取当前干员寻访界面顶部资源栏，再进入贵重品库扫描可留到下版本的寻访券并输出当前池/下版本池抽数估算",
+        "desc": "抽数计算入口：先进入干员寻访界面读取顶部资源栏，再进入贵重品库扫描可留到下版本的寻访券并输出当前池/下版本池抽数估算",
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
@@ -8,12 +8,33 @@
             "stage": "init"
         },
         "next": [
-            "PullCountCalculatorOriginiumOCR"
+            "PullCountCalculatorEnterHeadhunt"
         ],
         "focus": {
             "Node.Action.Starting": "$task.PullCountCalculator.focus.start",
             "Node.Action.Failed": "$task.PullCountCalculator.focus.failed"
         }
+    },
+    "PullCountCalculatorEnterHeadhunt": {
+        "desc": "进入干员寻访界面，界面跳转交由 SceneManager Pipeline 处理",
+        "next": [
+            "PullCountCalculatorInHeadhunt",
+            "[JumpBack]SceneEnterMenuHeadhunt"
+        ]
+    },
+    "PullCountCalculatorInHeadhunt": {
+        "desc": "确认当前已经在干员寻访界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InHeadhunt"
+                ]
+            }
+        },
+        "next": [
+            "PullCountCalculatorOriginiumOCR"
+        ]
     },
     "PullCountCalculatorOriginiumOCR": {
         "desc": "识别顶部衍质源石换算嵌晶玉数量",

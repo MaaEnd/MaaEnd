@@ -69,6 +69,7 @@ These node names **do not start with `__ScenePrivate`**.
 | Menu | `SceneEnterMenuProtocolPass` | Enter Protocol Pass menu. |
 | Menu | `SceneEnterMenuBackpack` | Enter inventory screen. |
 | Menu | `SceneEnterMenuShop` | Enter shop screen. |
+| Menu | `SceneEnterMenuHeadhunt` | Enter Operator Headhunt screen. |
 | Helper | `SceneDialogConfirm` | Click confirm button in dialogs. |
 | Helper | `SceneDialogCancel` | Click cancel button in dialogs. |
 | Helper | `SceneNoticeRewardsConfirm` | Click confirm button on rewards screens. |

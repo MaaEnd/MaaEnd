@@ -232,7 +232,7 @@
     "option.SwitchTeamTeamChoose.label": "選擇隊伍",
     "task.PuzzleSolver.description": "自動幫你通關拼圖小遊戲，太好了不用自己動腦子了.jpg",
     "task.PullCountCalculator.label": "🧮抽數計算",
-    "task.PullCountCalculator.description": "從幹員尋訪介面讀取頂部資源欄，再進入貴重品庫掃描尋訪券，估算目前池與下版本池子抽數。請先手動切到目標尋訪頁面。",
+    "task.PullCountCalculator.description": "從幹員尋訪介面讀取頂部資源欄，再進入貴重品庫掃描尋訪券，估算目前池與下版本池子抽數。",
     "task.PullCountCalculator.focus.start": "正在讀取尋訪資源並掃描倉庫券",
     "task.PullCountCalculator.focus.succeeded": "抽數計算完成",
     "task.PullCountCalculator.focus.failed": "抽數計算失敗，請確認目前處於幹員尋訪介面、頂部資源欄未被遮擋，且可進入貴重品庫",

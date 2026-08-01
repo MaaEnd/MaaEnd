@@ -1,0 +1,21 @@
+{
+    "InHeadhunt": {
+        "desc": "在干员寻访界面内",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    240,
+                    100
+                ],
+                "expected": [
+                    "干员寻访"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

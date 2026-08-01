@@ -66,6 +66,7 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 | 菜单 | `SceneEnterMenuProtocolPass` | 进入通行证菜单 |
 | 菜单 | `SceneEnterMenuBackpack` | 进入背包界面 |
 | 菜单 | `SceneEnterMenuShop` | 进入商店界面 |
+| 菜单 | `SceneEnterMenuHeadhunt` | 进入干员寻访界面 |
 | 辅助 | `SceneDialogConfirm` | 点击对话框确认按钮 |
 | 辅助 | `SceneDialogCancel` | 点击对话框取消按钮 |
 | 辅助 | `SceneNoticeRewardsConfirm` | 点击奖励界面确认按钮 |

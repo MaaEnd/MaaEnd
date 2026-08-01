@@ -228,7 +228,7 @@
     "option.SwitchTeamTeamChoose.label": "팀 선택",
     "task.PuzzleSolver.description": "퍼즐 미니게임을 자동으로 해결해 줍니다. 더 이상 생각할 필요가 없습니다!",
     "task.PullCountCalculator.label": "🧮 모집 횟수 계산",
-    "task.PullCountCalculator.description": "오퍼레이터 모집 화면의 상단 자원 바를 읽고 귀중품 보관함의 모집권도 스캔해 현재 풀과 다음 버전 풀 모집 횟수를 계산합니다. 먼저 대상 모집 화면으로 이동해 주세요.",
+    "task.PullCountCalculator.description": "오퍼레이터 모집 화면의 상단 자원 바를 읽고 귀중품 보관함의 모집권도 스캔해 현재 풀과 다음 버전 풀 모집 횟수를 계산합니다.",
     "task.PullCountCalculator.focus.start": "모집 자원과 창고권을 읽는 중",
     "task.PullCountCalculator.focus.succeeded": "모집 횟수 계산 완료",
     "task.PullCountCalculator.focus.failed": "모집 횟수 계산 실패. 모집 화면이 열려 있고 상단 자원 바가 가려지지 않았으며 귀중품 보관함에 들어갈 수 있는지 확인해 주세요.",

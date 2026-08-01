@@ -190,6 +190,16 @@
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
+    "SceneEnterMenuHeadhunt": {
+        "desc": "从任意界面进入干员寻访界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuHeadhunt",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
     "SceneEnterMenuLogin": {
         "desc": "从任意界面进入登录界面",
         "pre_delay": 0,
