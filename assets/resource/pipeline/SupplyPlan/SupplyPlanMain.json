@@ -128,6 +128,12 @@
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
                             ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -231,6 +237,12 @@
                                 "ProtocolSpaceRewardClaimSuccessSanityLow",
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
                             ]
                         }
                     },
@@ -336,6 +348,12 @@
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
                             ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -439,6 +457,12 @@
                                 "ProtocolSpaceRewardClaimSuccessSanityLow",
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
                             ]
                         }
                     },
@@ -544,6 +568,12 @@
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
                             ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -635,6 +665,12 @@
                                 "ProtocolSpaceRewardClaimSuccessSanityLow",
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
                             ]
                         }
                     },
@@ -728,6 +764,12 @@
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
                             ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -819,6 +861,12 @@
                                 "ProtocolSpaceRewardClaimSuccessSanityLow",
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
                             ]
                         }
                     },
@@ -912,6 +960,12 @@
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
                             ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -1003,6 +1057,12 @@
                                 "ProtocolSpaceRewardClaimSuccessSanityLow",
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
                             ]
                         }
                     },
@@ -1108,6 +1168,12 @@
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
                             ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -1212,6 +1278,12 @@
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
                             ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -1307,6 +1379,12 @@
                                 "ProtocolSpaceRewardClaimSuccessSanityLow",
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
                             ]
                         }
                     },
@@ -1407,6 +1485,12 @@
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
                             ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -1505,6 +1589,12 @@
                                 "ProtocolSpaceRewardClaimSuccessSanityLow",
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
+                            ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
                             ]
                         }
                     },
@@ -1613,6 +1703,12 @@
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
                             ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -1720,6 +1816,12 @@
                                 "ProtocolSpaceRewardClaimSuccessContinue",
                                 "ProtocolSpaceRewardClaimSuccessFinish"
                             ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                            "next": [
+                                "SupplyPlanSanityLowEnd",
+                                "[JumpBack]SceneAnyEnterWorld"
+                            ]
                         }
                     },
                     "allow_next": true
@@ -1744,6 +1846,25 @@
         "rate_limit": 0,
         "focus": {
             "Node.Action.Succeeded": "$task.ProtocolSpace.focus.supply_plan.all_targets_met"
+        }
+    },
+    "SupplyPlanSanityLowEnd": {
+        "desc": "目标库存模式：理智不足回到大世界后结束任务，不再重新调度刷取",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.sanity_low_end"
         }
     },
     "SupplyPlanRewardClaimLeave": {

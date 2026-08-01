@@ -1,7 +1,7 @@
 {
     "SyncItemData": {
-        "max_hit": 1,
         "desc": "IMS A2 入口：业务侧只需调用本节点。首次成功后 Resource 级关闭 SyncItemDataBegin，同 Resource 后续调用走 Skipped",
+        "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
