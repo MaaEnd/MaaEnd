@@ -5,14 +5,13 @@
     "__ScenePrivateAnyExit": {
         "desc": "退出当前场景，返回上一个场景",
         "max_hit": 100,
-        "pre_delay": 0,
         "action": {
             "type": "ClickKey",
             "param": {
                 "key": 27 // ESC
             }
         },
-        "post_delay": 1500
+        "post_delay": 3000
     },
     "__ScenePrivateLoggedOutConfirm": {
         "desc": "确认自动登出弹窗",
@@ -38,9 +37,7 @@
         ],
         "box_index": 1,
         "pre_wait_freezes": 100,
-        "pre_delay": 0,
         "action": "Click",
-        "post_delay": 0
     },
     "__ScenePrivateNoticeRewardsUpgrade": {
         "desc": "检测到升级",
@@ -81,7 +78,6 @@
             "빈 곳을 눌러 계속하기"
         ],
         "pre_wait_freezes": 200,
-        "pre_delay": 0,
         "action": "Click"
     },
     "__ScenePrivateCloseADBExit": {
@@ -108,11 +104,9 @@
         ],
         "box_index": 1,
         "pre_wait_freezes": 200,
-        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
         "post_wait_freezes": 200,
-        "post_delay": 0
     }
 }

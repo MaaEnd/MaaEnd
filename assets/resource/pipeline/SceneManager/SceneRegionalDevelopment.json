@@ -21,11 +21,8 @@
                 ]
             }
         ],
-        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FalseAction",
-        "post_delay": 0,
-        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "据点管理菜单未解锁"
         }
@@ -52,11 +49,8 @@
                 ]
             }
         ],
-        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FalseAction",
-        "post_delay": 0,
-        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "物资调度菜单未解锁"
         }
@@ -83,11 +77,8 @@
                 ]
             }
         ],
-        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FalseAction",
-        "post_delay": 0,
-        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "仓储节点菜单未解锁"
         }
@@ -114,11 +105,8 @@
                 ]
             }
         ],
-        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FalseAction",
-        "post_delay": 0,
-        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "环境监测菜单未解锁"
         }
@@ -140,10 +128,7 @@
                 100
             ]
         },
-        "pre_delay": 0,
         "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "__ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess"
         ]

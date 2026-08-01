@@ -164,7 +164,6 @@
             }
         },
         "pre_wait_freezes": 200,
-        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -177,8 +176,6 @@
                 }
             }
         },
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "__ScenePrivateWorldEnterMenuControlNexusSuccess"
         ],
