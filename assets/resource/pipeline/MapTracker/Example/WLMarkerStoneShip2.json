@@ -112,7 +112,7 @@
                 "custom_action": "MapTrackerToward",
                 "custom_action_param": {
                     "angle": 0, // 面向北方
-                    "rotation_lower_threshold": 30 // 不用面向得那么精确
+                    "rotation_threshold": 30 // 不用面向得那么精确
                 }
             }
         },
@@ -170,7 +170,7 @@
         "custom_action": "MapTrackerToward",
         "custom_action_param": {
             "angle": 180,
-            "rotation_lower_threshold": 30
+            "rotation_threshold": 30
         },
         "timeout": 45000, // 随后要求在 45 秒内到站
         "rate_limit": 2000, // 每 2 秒判断一次到站状态
