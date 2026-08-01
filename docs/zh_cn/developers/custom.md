@@ -114,17 +114,19 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 ### PipelineOverride
 
-`PipelineOverride` 实现位于 `agent/go-service/common/pipelineoverride`，用于在运行时把**按节点组织的局部 JSON** 合并到当前 Pipeline 中（`ctx.OverridePipeline`）。适合在**不改静态流转拓扑**的前提下，动态切换节点开关或调整识别/动作参数。
+`PipelineOverride` 实现位于 `agent/go-service/common/pipelineoverride`，用于在运行时把**按节点组织的局部 JSON** 合并到 Pipeline 中。默认走 `ctx.OverridePipeline`（仅当前任务）；可选 Resource 级覆盖。适合在**不改静态流转拓扑**的前提下，动态切换节点开关或调整识别/动作参数。
 
 - 参数：
     - `patch: object`：必填。键为**节点名**，值为该节点的**局部覆盖对象**。语义与 MaaFramework `OverridePipeline` 一致：同名节点合并、同名字段覆盖。
     - `allow_next?: bool`：是否允许局部节点对象包含顶层 `next`。默认 `false`；为 `false` 时，会在应用前移除每个 patch 项里的 `next`，避免运行时改写预设拓扑。
     - `strict?: bool`：当 `allow_next` 为 `false` 时，若 patch 中仍带有 `next`，是否直接报错失败。默认 `false`（会移除 `next` 并记录日志）；为 `true` 时当前 Action 直接失败且不会应用任何覆盖。若 `allow_next` 为 `true`，则 `strict` 会被忽略并按 `false` 处理。
+    - `resource_override?: bool`：是否使用 Resource 级覆盖（`Resource.OverridePipeline`）。默认 `false`（Context / 当前任务级）；为 `true` 时改写绑定 Resource 上的节点定义，会影响后续使用同一 Resource 的任务，需自行评估副作用。
 
 使用建议：
 
 - 优先在**流程入口**决定策略；若必须中途调整，尽量只改 `enabled`、识别器参数、动作参数等字段，不要随意改 `next` 图结构。
 - 如果确实需要在运行时修改 `next`，请显式设置 `allow_next: true`，并自行评估调试与回归成本；默认应保持关闭。
+- 默认保持 `resource_override: false`；仅在确实需要跨任务/全局改写节点时开启。
 - 排障时可结合额外日志节点或截图节点一起使用。
 - 运行时日志只记录节点数量、节点名、参数长度等非敏感元数据，不会输出完整 `custom_action_param` 或 patch 内容；这些负载里可能包含凭证、token 等敏感信息。
 

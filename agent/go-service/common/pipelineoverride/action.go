@@ -2,6 +2,7 @@ package pipelineoverride
 
 import (
 	"encoding/json"
+	"fmt"
 	"maps"
 	"strings"
 
@@ -17,10 +18,14 @@ type pipelineOverrideParam struct {
 	AllowNext *bool `json:"allow_next,omitempty"`
 	// Strict when true and allow_next is false: fail the action if any node patch contained "next".
 	Strict *bool `json:"strict,omitempty"`
+	// ResourceOverride when true applies patch via Resource.OverridePipeline (resource-wide).
+	// When false (default), applies via Context.OverridePipeline (current task only).
+	ResourceOverride *bool `json:"resource_override,omitempty"`
 }
 
-// PipelineOverrideAction applies ctx.OverridePipeline from JSON param.
-// By default it strips per-node "next" so runtime changes stay within preset flow topology.
+// PipelineOverrideAction applies OverridePipeline from JSON param.
+// By default it uses Context scope and strips per-node "next" so runtime changes
+// stay within the current task's preset flow topology.
 type PipelineOverrideAction struct{}
 
 // Compile-time interface check
@@ -75,10 +80,16 @@ func (a *PipelineOverrideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		strictMode = false
 	}
 
+	resourceOverride := false
+	if params.ResourceOverride != nil {
+		resourceOverride = *params.ResourceOverride
+	}
+
 	log.Debug().
 		Str("component", "PipelineOverride").
 		Bool("allow_next", allowNext).
 		Bool("strict", strictMode).
+		Bool("resource_override", resourceOverride).
 		Msg("PipelineOverride config")
 
 	cleanPatch := make(map[string]interface{}, len(params.Patch))
@@ -126,16 +137,22 @@ func (a *PipelineOverrideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		cleanPatch[nodeName] = cloned
 	}
 
+	scope := "context"
+	if resourceOverride {
+		scope = "resource"
+	}
 	log.Debug().
 		Str("component", "PipelineOverride").
+		Str("scope", scope).
 		Int("patch_node_count_clean", len(cleanPatch)).
 		Interface("patch_node_keys", keysOf(cleanPatch)).
-		Msg("prepared cleanPatch; calling ctx.OverridePipeline")
+		Msg("prepared cleanPatch; applying OverridePipeline")
 
-	if err := ctx.OverridePipeline(cleanPatch); err != nil {
+	if err := applyPipelineOverride(ctx, cleanPatch, resourceOverride); err != nil {
 		log.Error().
 			Err(err).
 			Str("component", "PipelineOverride").
+			Str("scope", scope).
 			Int("patch_node_count_clean", len(cleanPatch)).
 			Interface("patch_node_keys", keysOf(cleanPatch)).
 			Msg("OverridePipeline failed")
@@ -144,11 +161,30 @@ func (a *PipelineOverrideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 
 	log.Info().
 		Str("component", "PipelineOverride").
+		Str("scope", scope).
 		Int("patch_node_count_clean", len(cleanPatch)).
 		Interface("nodes", keysOf(cleanPatch)).
 		Msg("OverridePipeline applied successfully")
 
 	return true
+}
+
+func applyPipelineOverride(ctx *maa.Context, patch map[string]interface{}, resourceOverride bool) error {
+	if !resourceOverride {
+		return ctx.OverridePipeline(patch)
+	}
+	if ctx == nil {
+		return fmt.Errorf("nil context")
+	}
+	tasker := ctx.GetTasker()
+	if tasker == nil {
+		return fmt.Errorf("nil tasker")
+	}
+	res := tasker.GetResource()
+	if res == nil {
+		return fmt.Errorf("nil resource")
+	}
+	return res.OverridePipeline(patch)
 }
 
 func keysOf(m map[string]interface{}) []string {

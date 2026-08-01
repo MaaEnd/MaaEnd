@@ -112,17 +112,19 @@ Example file: [`CharacterController.json`](../../../assets/resource/pipeline/Int
 
 ### PipelineOverride
 
-The `PipelineOverride` implementation is located in `agent/go-service/common/pipelineoverride` and is used at runtime to merge **node-organized partial JSON** into the current Pipeline (`ctx.OverridePipeline`). It is suitable for dynamically toggling node switches or adjusting recognition/action parameters **without changing the static flow topology**.
+The `PipelineOverride` implementation is located in `agent/go-service/common/pipelineoverride` and is used at runtime to merge **node-organized partial JSON** into the Pipeline. By default it uses `ctx.OverridePipeline` (current task only); resource-level override is optional. It is suitable for dynamically toggling node switches or adjusting recognition/action parameters **without changing the static flow topology**.
 
 - Parameters:
     - `patch: object`: Required. Keys are **node names**, and values are the **partial override objects** for those nodes. Semantics are consistent with MaaFramework's `OverridePipeline`: same-named nodes are merged, same-named fields are overwritten.
     - `allow_next?: bool`: Whether to allow partial node objects to contain top-level `next`. Default is `false`; when `false`, `next` will be removed from each patch item before application to avoid runtime modification of the preset topology.
     - `strict?: bool`: When `allow_next` is `false`, if a patch still contains `next`, whether to immediately report an error and fail. Default is `false` (will remove `next` and log it); if `true`, the current Action fails immediately and no overrides are applied. If `allow_next` is `true`, `strict` is ignored and treated as `false`.
+    - `resource_override?: bool`: Whether to apply a resource-level override (`Resource.OverridePipeline`). Default is `false` (Context / current-task scope); when `true`, node definitions on the bound Resource are rewritten and later tasks sharing that Resource are affected—evaluate side effects carefully.
 
 Usage Recommendations:
 
 - Prioritize deciding the strategy at the **process entry point**; if adjustments are necessary midway, try to only modify fields like `enabled`, recognizer parameters, and action parameters. Avoid arbitrarily changing the `next` graph structure.
 - If runtime modification of `next` is genuinely required, explicitly set `allow_next: true` and self-assess the debugging and regression costs; it should be kept off by default.
+- Keep `resource_override: false` by default; enable it only when a cross-task / global node rewrite is truly required.
 - For troubleshooting, use in conjunction with additional log or screenshot nodes.
 - Runtime logs only record non-sensitive metadata such as node count, node names, and parameter length; they do not output the complete `custom_action_param` or patch content, which may contain sensitive information like credentials and tokens.
 

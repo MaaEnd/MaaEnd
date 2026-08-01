@@ -17,7 +17,9 @@
             "allow_next": false,
             // 默认 false：仅在 allow_next 为 false 时生效；若 allow_next 为 true，会被忽略
             // 当 allow_next 为 false 时，patch 含 next 只移除并打日志；为 true 则直接失败
-            "strict": false
+            "strict": false,
+            // 默认 false：Context / 当前任务级覆盖；为 true 时走 Resource.OverridePipeline
+            "resource_override": false
         },
         "next": []
     },
