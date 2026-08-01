@@ -41,13 +41,14 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
     "Id": "MyObservationPoint",
         // 最终模板使用的节点 ID，用于搜索生成节点/文件名；不作为主键。
     "EnterMap": "SceneEnterWorldWulingXxx",
-        // 传送节点名，必须已在 assets/resource/pipeline/SceneManager/ 中存在。
+        // 传送入口 Pipeline 节点名，不限制名称前缀，必须已在 assets/resource/pipeline/ 中存在，
+        // 并能作为 SubTask 完整执行后正常返回。
         // 启用 QuickTeleport 时不会使用该节点，可以省略。
         // 暂无合适传送点且未启用 QuickTeleport 时，不要填写占位值（生成器会按未适配处理，仅接取并追踪），
         // 不要写 "SceneAnyEnterWorld" 等占位值。
     "QuickTeleport": true,
         // 可选，默认 false。启用后通过追踪任务打开的地图依次点击“前往传送”和“传送”，
-        // 不再通过 EnterMap 的 SceneManager 万能跳转前往指定传送点。
+        // 不再调用 EnterMap 配置的 Pipeline 入口节点。
     "MapName": "map02_lv001",
         // 地图标识：使用 MapPath 时填 MapTracker 的 map_name（支持正则）；
         // 使用 MapGoal 时填可加载 NavMesh 的精确 MapTracker map_name；
@@ -97,7 +98,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 > 传送后的处理取决于路线类型：传送后直拍不做位置断言或寻路；配置 `Heading` 时先独立调用 `MapTrackerToward`，随后进入任务专属拍照包装节点。`MapPath` 需要再次通过 `MapAssert` 复核固定起点；`MapTarget` / `MapGoal` 使用 NavMesh，可从传送点附近自行前往目标，因此快捷传送后会直接开始寻路并允许省略 `MapAssert`。普通传送的寻路路线仍会在决定是否调用 `EnterMap` 前使用 `MapAssert`，所以不能省略。
 
-> 传送入口由 `QuickTeleport` 决定：默认通过 `EnterMap` 调用 SceneManager 万能跳转；启用后，“开始追踪”会直接等待任务地图，“已追踪”会先点击“停止追踪”旁的定位图标打开任务地图，随后依次点击“前往传送”和“传送”。启用时 `EnterMap` 可省略。
+> 传送入口由 `QuickTeleport` 决定：默认通过 `EnterMap` 调用配置的 Pipeline 节点，不限制节点名称；该节点需能作为 SubTask 完整执行后正常返回。启用快捷传送后，“开始追踪”会直接等待任务地图，“已追踪”会先点击“停止追踪”旁的定位图标打开任务地图，随后依次点击“前往传送”和“传送”，此时 `EnterMap` 可省略。
 
 > 重新生成 EnvironmentMonitoring 时，生成器会自动同步 `MissionId` / `Name` / `Id` 并按 `MissionId` 排序。手动新增条目时必须填写 `MissionId`；如果 zmdmap 中存在新任务但 `routes.json` 没有对应条目，生成器会自动追加仅含 `MissionId` / `Name` / `Id` 的未适配占位条目，方便维护者看到待补路线。
 

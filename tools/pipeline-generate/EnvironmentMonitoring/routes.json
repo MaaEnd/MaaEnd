@@ -690,12 +690,12 @@
             49.9
         ],
         "MapGoal": [
-            438.1,
-            509.2
+            439,
+            486.4
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "CameraMaxHit": 5,
-        "Heading": 180
+        "CameraMaxHit": 3,
+        "Heading": 170
     },
     {
         "MissionId": "m1m65",

@@ -2,10 +2,10 @@
     "SceneEnterWorldWulingMarkerStone_Ship2Destination": {
         "desc": "从任意界面通过首墩【湖心岛】宏2摆渡船前往【栖云林地】西侧港口",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__WLMarkerStoneShip2_ShipGetOffSuccess": "__WLMarkerStoneShip2_Exit"
         },
+        "post_delay": 0,
         "next": [
             "__WLMarkerStoneShip2_Teleport"
         ]
@@ -13,10 +13,10 @@
     "SceneEnterWorldWulingMarkerStone_Ship2DestinationThenWalkAndFight": {
         "desc": "从任意界面通过首墩【湖心岛】宏2摆渡船前往【栖云林地】西侧港口，到达后向东走到交叉路口并战斗",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__WLMarkerStoneShip2_ShipGetOffSuccess": "__WLMarkerStoneShip2_WalkAndFight"
         },
+        "post_delay": 0,
         "next": [
             "__WLMarkerStoneShip2_Teleport"
         ]

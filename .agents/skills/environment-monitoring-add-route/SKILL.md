@@ -47,7 +47,7 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、MapAsse
 
 | 字段                   | 说明                                                                                                                      |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| 传送入口               | 默认填写真实 `EnterMap`（通常为 `SceneEnterWorld*`）；或启用 `QuickTeleport: true`，从追踪任务地图快捷传送                |
+| 传送入口               | 默认填写真实 `EnterMap`（任意可作为 SubTask 正常返回的 Pipeline 节点）；或启用 `QuickTeleport: true` 从任务地图快捷传送 |
 | 路线方式               | 传送点可直接拍照时不填地图与寻路字段；否则 `MapPath` / `MapTarget` / `MapGoal` 必须且只能填写一个                         |
 | `MapName`              | 仅寻路路线必填。`MapPath`：MapTracker `map_name`；`MapGoal`：精确 MapTracker `map_name`；`MapTarget`：MapLocate `zone_id` |
 | `MapAssert`            | 直拍路线不填；普通传送和 `QuickTeleport + MapPath` 必填，`QuickTeleport + MapTarget/MapGoal` 可省略                       |
@@ -73,7 +73,7 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、MapAsse
 | `Replace`                      | OCR 易混字符替换表 `[["误识别", "正确字符"], ...]`；仅有实际误识别证据时填写                                           |
 | `Heading`                      | 可选。进入拍照模式前的角色朝向，范围 `[0, 360)`；直拍路线会在传送后独立调用 `MapTrackerToward`                         |
 | `NoEnsureInitialMovementState` | 仅对 `MapPath` / `MapGoal` 的 MapTracker 动作有意义。起点紧贴桥边、悬崖等危险地形时设为 `true`；默认 `false` 时省略    |
-| `QuickTeleport`                | 可选布尔值，默认 `false`。启用后依次点击任务地图的“前往传送”和“传送”，绕过 `EnterMap` 万能跳转；此时 `EnterMap` 可省略 |
+| `QuickTeleport`                | 可选布尔值，默认 `false`。启用后依次点击任务地图的“前往传送”和“传送”，不调用 `EnterMap`；此时 `EnterMap` 可省略         |
 
 所有坐标均使用 720p（1280×720）基准，并与录制工具所用地图体系保持一致。
 
@@ -117,7 +117,7 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 
 ### 3. 验证传送节点
 
-使用默认传送入口时，在 `assets/resource/pipeline/SceneManager/` 中搜索 `EnterMap`，确认节点真实存在。启用 `QuickTeleport: true` 时跳过此项，但必须已有任务详情页、任务地图和传送按钮的实测界面信息。
+使用默认传送入口时，在 `assets/resource/pipeline/` 中搜索 `EnterMap`，确认节点真实存在，并能作为 SubTask 完整执行后正常返回。`EnterMap` 不限制名称前缀；启用 `QuickTeleport: true` 时跳过此项，但必须已有任务详情页、任务地图和传送按钮的实测界面信息。
 
 若不存在：
 
@@ -126,7 +126,7 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 - 保留同步器生成的 metadata-only 条目；
 - 在交付说明中记录“等待传送点补齐后再适配”的 TODO。
 
-生成器内部的 `SceneAnyEnterWorld` 等值只用于渲染不可达的未适配节点，不是可以提交到 `routes.json` 的路线数据。
+生成器内部的 `SceneAnyEnterWorld` 等值只用于渲染不可达的未适配节点，不是可以提交到 `routes.json` 的占位路线数据。
 
 ### 4. 原位更新 `routes.json`
 
