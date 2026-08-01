@@ -319,10 +319,10 @@ func TestSelectDetail_NestedAndNodeNameChain(t *testing.T) {
 		"Count": `{
 			"recognition":{"type":"And","param":{"all_of":["TextColor","OCR"],"box_index":1}}
 		}`,
-		"OCR": `{"recognition":{"type":"OCR","param":{"expected":["^\\d+$"]}}}`,
-		"Color": `{"recognition":{"type":"ColorMatch"}}`,
+		"OCR":       `{"recognition":{"type":"OCR","param":{"expected":["^\\d+$"]}}}`,
+		"Color":     `{"recognition":{"type":"ColorMatch"}}`,
 		"TextColor": `{"recognition":{"type":"ColorMatch"}}`,
-		"Template": `{"recognition":{"type":"TemplateMatch"}}`,
+		"Template":  `{"recognition":{"type":"TemplateMatch"}}`,
 	}
 
 	ocrDetail := &maa.RecognitionDetail{Box: maa.Rect{10, 20, 30, 40}}

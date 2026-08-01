@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -95,7 +96,9 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Msg("tasker or controller is nil")
 		return false
 	}
-	img, err := tasker.GetController().CacheImage()
+	ctrl := tasker.GetController()
+	moveCursorTopLeftIfWin32(ctrl)
+	img, err := ctrl.CacheImage()
 	if err != nil || img == nil {
 		log.Error().
 			Err(err).
@@ -229,4 +232,32 @@ func parseAddItemDataParam(raw string) (addItemDataParam, error) {
 		return addItemDataParam{}, err
 	}
 	return params, nil
+}
+
+// moveCursorTopLeftIfWin32 moves the cursor to the top-left corner before A3
+// recognition so it does not occlude reward icons. Win32 only; pressure 0 means
+// move-only (no click). Non-Win32 controllers are skipped.
+func moveCursorTopLeftIfWin32(ctrl *maa.Controller) {
+	if ctrl == nil {
+		return
+	}
+	controlType, err := control.GetControlType(ctrl)
+	if err != nil {
+		log.Warn().
+			Err(err).
+			Str("component", componentAddItemData).
+			Msg("failed to resolve controller type, skip cursor move")
+		return
+	}
+	if controlType != control.CONTROL_TYPE_WIN32 {
+		return
+	}
+	ctrl.PostTouchMove(0, 0, 0, 0).Wait()
+	ctrl.PostScreencap().Wait()
+	log.Info().
+		Str("component", componentAddItemData).
+		Str("controller_type", controlType).
+		Int("x", 0).
+		Int("y", 0).
+		Msg("moved cursor to top-left before recognition")
 }
