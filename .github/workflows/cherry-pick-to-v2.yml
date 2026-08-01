@@ -11,6 +11,8 @@
 #
 # cherry-pick 的 commit 会自动追加 [skip changelog]，
 # 防止反向移植的修复在后续版本的 changelog 中重复出现。
+#
+# 若提交已在 v2 上则跳过（例如首个 RC 从 v2 tip 创建 release/vX.Y）。
 
 name: cherry-pick-to-v2
 
@@ -131,11 +133,25 @@ jobs:
         env:
           FIX_BRANCH: ${{ steps.pr.outputs.fix_branch }}
           MERGE_SHA: ${{ steps.pr.outputs.merge_sha }}
+          RELEASE_BRANCH: ${{ steps.pr.outputs.release_branch }}
         run: |
           set -euo pipefail
 
           git config user.name "maaendbotapp[bot]"
           git config user.email "305547419+maaendbotapp[bot]@users.noreply.github.com"
+
+          # release 分支独有的 hotfix commit 可能不在 v2 历史中，先取回对象
+          if ! git cat-file -e "${MERGE_SHA}^{commit}" 2>/dev/null; then
+            git fetch --no-tags origin "$MERGE_SHA" \
+              || git fetch --no-tags origin "$RELEASE_BRANCH"
+          fi
+
+          # 已在 v2：常见于首个 RC 从 v2 tip 创建 release/vX.Y，无需反向移植
+          if git merge-base --is-ancestor "$MERGE_SHA" HEAD; then
+            echo "Commit $MERGE_SHA is already on v2. Skipping cherry-pick."
+            echo "skipped=true" | tee -a "$GITHUB_OUTPUT"
+            exit 0
+          fi
 
           git checkout -b "$FIX_BRANCH"
 
@@ -162,9 +178,10 @@ jobs:
           git commit --amend -F /tmp/commit_msg.txt
 
           git push origin "$FIX_BRANCH"
+          echo "skipped=false" | tee -a "$GITHUB_OUTPUT"
 
       - name: Create pull request to v2
-        if: steps.pr.outputs.proceed == 'true' && steps.precheck.outputs.exists != 'true'
+        if: steps.pr.outputs.proceed == 'true' && steps.precheck.outputs.exists != 'true' && steps.cherry.outputs.skipped != 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           FIX_BRANCH: ${{ steps.pr.outputs.fix_branch }}

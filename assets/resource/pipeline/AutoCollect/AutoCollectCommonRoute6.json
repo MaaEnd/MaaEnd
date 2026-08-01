@@ -1,6 +1,6 @@
 {
     "AutoCollectCommonRoute6Start": {
-        "desc": "琼叶参采集线，5个点",
+        "desc": "琼叶参采集线，4个坐标，5个物品",
         "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
@@ -12,211 +12,40 @@
         }
     },
     "AutoCollectCommonRoute6": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingMarkerStone3"
-            ]
+        "anchor": {
+            "WLMarkerStoneShip2_After": "AutoCollectCommonRoute6GotoFindLine1"
         },
         "next": [
-            "AutoCollectCommonRoute6AssertLocation1"
-        ]
-    },
-    "AutoCollectCommonRoute6End": {
-        "pre_delay": 0,
-        "post_delay": 0
-    },
-    "AutoCollectCommonRoute6AssertLocation1": {
-        "desc": "传送点定位",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        600.3,
-                        319.5,
-                        16.1,
-                        13.2
-                    ]
-                }
-            ]
-        },
-        "next": [
-            "AutoCollectCommonRoute6GotoFindLine1"
+            "WLMarkerStoneShip2_Entry"
         ]
     },
     "AutoCollectCommonRoute6GotoFindLine1": {
-        "desc": "前往琼叶参采集点",
+        "desc": "前往琼叶参采集点西侧的路口",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv004",
-            "path": [
-                [
-                    607.5,
-                    326.9
-                ],
-                [
-                    607.5,
-                    327.0
-                ],
-                [
-                    610.0,
-                    326.9
-                ],
-                [
-                    611.3,
-                    325.8
-                ],
-                [
-                    628.7,
-                    325.7
-                ],
-                [
-                    632.5,
-                    324.5
-                ],
-                [
-                    635.0,
-                    327.0
-                ],
-                [
-                    640.0,
-                    338.2
-                ],
-                [
-                    640.0,
-                    340.7
-                ],
-                [
-                    641.2,
-                    342.0
-                ],
-                [
-                    641.3,
-                    345.7
-                ],
-                [
-                    643.8,
-                    364.5
-                ],
-                [
-                    645.0,
-                    367.0
-                ],
-                [
-                    645.0,
-                    377.0
-                ],
-                [
-                    646.2,
-                    379.5
-                ],
-                [
-                    646.3,
-                    410.8
-                ],
-                [
-                    647.5,
-                    413.3
-                ],
-                [
-                    647.5,
-                    417.0
-                ],
-                [
-                    601.7,
-                    419.4
-                ],
-                [
-                    601.9,
-                    433.7
-                ],
-                [
-                    556.5,
-                    433.9
-                ],
-                [
-                    533.1,
-                    445.0
-                ],
-                [
-                    521.3,
-                    452.2
-                ],
-                [
-                    524.5,
-                    459.9
-                ],
-                [
-                    513.6,
-                    466.4
-                ],
-                [
-                    516.6,
-                    473.8
-                ],
-                [
-                    509.9,
-                    477.5
-                ],
-                [
-                    511.6,
-                    481.3
-                ],
-                [
-                    499.5,
-                    487.2
-                ],
-                [
-                    481.9,
-                    478.2
-                ],
-                [
-                    462.3,
-                    475.1
-                ]
-            ]
+            "target": [
+                436.8,
+                471.7
+            ],
+            "fine_approach": "Never",
+            "no_ensure_initial_movement_state": true
         },
         "next": [
-            "AutoCollectCommonRoute6AssertLocation2"
-        ]
-    },
-    "AutoCollectCommonRoute6AssertLocation2": {
-        "desc": "目的地定位",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        455.4,
-                        469.8,
-                        14.0,
-                        11.9
-                    ]
-                }
-            ]
-        },
-        "next": [
+            "[JumpBack]AutoFight",
             "AutoCollectCommonRoute6GotoFind1"
         ]
     },
     "AutoCollectCommonRoute6GotoFind1": {
         "desc": "采集点1",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv004",
-            "path": [
-                [
-                    461.2,
-                    475.8
-                ]
+            "target": [
+                460.5,
+                477.0
             ]
         },
         "anchor": {
@@ -237,15 +66,14 @@
     "AutoCollectCommonRoute6GotoFind2": {
         "desc": "采集点2",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv004",
-            "path": [
-                [
-                    461.2,
-                    477.0
-                ]
-            ]
+            "target": [
+                460.1,
+                477.4
+            ],
+            "no_ensure_initial_movement_state": true
         },
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectCommonRoute6GotoFindCollect2"
@@ -256,48 +84,23 @@
     },
     "AutoCollectCommonRoute6GotoFindCollect2": {
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute6GotoFindLine2"
+            "AutoCollectClickAfter": "AutoCollectCommonRoute6GotoFind3"
         },
         "next": [
             "AutoCollectClickStart"
         ]
     },
-    "AutoCollectCommonRoute6GotoFindLine2": {
-        "desc": "前往琼叶参采集点",
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        467.08,
-                        2400.82
-                    ],
-                    "zone_id": "Wuling_Base"
-                }
-            ]
-        },
-        "next": [
-            "AutoCollectCommonRoute6GotoFind3"
-        ]
-    },
     "AutoCollectCommonRoute6GotoFind3": {
         "desc": "采集点3",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv004",
-            "path": [
-                [
-                    476.2,
-                    490.7
-                ],
-                [
-                    472.2,
-                    484.3
-                ]
-            ]
+            "target": [
+                471.6,
+                484.8
+            ],
+            "no_ensure_initial_movement_state": true
         },
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectCommonRoute6GotoFindCollect3"
@@ -308,14 +111,6 @@
     },
     "AutoCollectCommonRoute6GotoFindCollect3": {
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute6GotoFindCollect4"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute6GotoFindCollect4": {
-        "anchor": {
             "AutoCollectClickAfter": "AutoCollectCommonRoute6GotoFind4"
         },
         "next": [
@@ -325,33 +120,32 @@
     "AutoCollectCommonRoute6GotoFind4": {
         "desc": "采集点4",
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
             "map_name": "map02_lv004",
-            "path": [
-                [
-                    476.2,
-                    490.7
-                ],
-                [
-                    471.6,
-                    484.7
-                ]
-            ]
+            "target": [
+                472.2,
+                485.4
+            ],
+            "no_ensure_initial_movement_state": true
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute6GotoFindCollect5"
+            "AutoCollectClickAfter": "AutoCollectCommonRoute6GotoFindCollect4"
         },
         "next": [
             "AutoCollectClickStart"
         ]
     },
-    "AutoCollectCommonRoute6GotoFindCollect5": {
+    "AutoCollectCommonRoute6GotoFindCollect4": {
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectCommonRoute6End"
         },
         "next": [
             "AutoCollectClickStart"
         ]
+    },
+    "AutoCollectCommonRoute6End": {
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }
