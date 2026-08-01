@@ -81,7 +81,7 @@ Omitting `custom_recognition_param` or the field defaults to `7`.
 }
 ```
 
-See `EnsureItemDataReadyMain` for the entry gate (e.g. Protocol Space target-inventory mode calls it before dispatch).
+IMS-using tasks should call `SyncItemData` at entry (once per Resource). Use `EnsureItemDataReadyMain` only when sync-on-stale is enough.
 
 ## Recognition: `ItemQuantitySatisfied`
 
@@ -159,6 +159,9 @@ On success, updates in-memory items and rewrites `items` in `debug/record/IMS.js
 ## A2: `SyncItemData`
 
 Callers only need Pipeline node **`SyncItemData`**: any screen → Progression tab → Custom Action `SyncItemData`.
+
+> [!IMPORTANT]
+> **Once per Resource**: after a successful `SyncItemDataRun`, `SyncItemDataLock` applies a Resource-level `PipelineOverride` that disables `SyncItemDataBegin` and **does not re-enable it**. Later tasks should still call `SyncItemData`; they hit `SyncItemDataSkipped` and return immediately. Reloading the Resource / restarting the client restores the default. Use `EnsureItemDataReadyMain` when you only want A2 if the cache is stale (that path still enters `SyncItemData`, so a successful A2 locks the same way).
 
 ### Action parameters
 
@@ -242,7 +245,7 @@ See Pipeline nodes `AddItemDataOnRewards` / `AddItemDataCloseRewards`.
 
 For “ready **and** enough”, use `And` with `ItemDataReady` and `ItemQuantitySatisfied` so “not ready” is not treated as “need to farm”.
 
-Run `EnsureItemDataReadyMain` at task entry, or call `SyncItemData` directly when a forced refresh is needed.
+Call `SyncItemData` at task entry for an active refresh (skipped after the first success on this Resource). Use `EnsureItemDataReadyMain` only for sync-on-stale.
 
 ## Cache conventions (decided)
 

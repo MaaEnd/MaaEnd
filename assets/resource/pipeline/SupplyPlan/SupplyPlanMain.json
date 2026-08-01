@@ -1,33 +1,13 @@
 {
     "SupplyPlanMain": {
-        "desc": "补给计划入口：确保培养道具缓存就绪后进入调度",
+        "desc": "补给计划入口：主动调用 A2（同 Resource 内仅首次真正扫库）后进入调度",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SupplyPlanEnsureDataReady"
-        ]
-    },
-    "SupplyPlanEnsureDataReady": {
-        "desc": "确保库存缓存就绪后进入调度",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "EnsureItemDataReadyMain"
-                    ]
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
+            "[JumpBack]SyncItemData",
             "SupplyPlanDispatch"
         ]
     },

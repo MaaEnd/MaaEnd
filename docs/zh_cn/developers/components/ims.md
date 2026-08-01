@@ -81,7 +81,7 @@ python tools/SupplyPlan/mask_ims_item_corner.py
 }
 ```
 
-入口检查可参考 `EnsureItemDataReadyMain`（例如协议空间目标库存模式会在调度前调用）。
+使用 IMS 的任务入口应主动调用 `SyncItemData`（同 Resource 仅首次真正扫库）。仅在「过期才同步」时用 `EnsureItemDataReadyMain`。
 
 ## Recognition：`ItemQuantitySatisfied`
 
@@ -159,6 +159,10 @@ python tools/SupplyPlan/mask_ims_item_corner.py
 ## A2：`SyncItemData`
 
 业务侧**只调用** Pipeline 节点 `SyncItemData`：任意界面 → 培养素材页 → Custom Action `SyncItemData`。
+
+> [!IMPORTANT]
+> **同 Resource 只同步一次**：`SyncItemDataRun` 成功后会经 `SyncItemDataLock` 用 Resource 级 `PipelineOverride` 关闭 `SyncItemDataBegin`，且**不恢复**。后续任务仍应主动调用 `SyncItemData`，但会命中 `SyncItemDataSkipped` 直接跳过。重新加载 Resource / 新开客户端后恢复默认可同步。
+> 需要「缓存过期才同步」时用 `EnsureItemDataReadyMain`（未就绪才会进入 `SyncItemData`；一旦某次 A2 成功，后续同样走上述锁定）。
 
 ### Action 参数
 
@@ -253,7 +257,7 @@ python tools/SupplyPlan/mask_ims_item_corner.py
 
 需要「数据就绪且数量满足」时，用 `And` 同时引用 `ItemDataReady` 与 `ItemQuantitySatisfied`，避免把「未就绪」当成「数量不足去刷」。
 
-任务入口可跑 `EnsureItemDataReadyMain`，或在需要强制刷新时直接调 `SyncItemData`。
+使用 IMS 的任务入口应**主动**调用 `SyncItemData`（同 Resource 内仅首次真正扫库）。仅在「过期才同步」场景用 `EnsureItemDataReadyMain`。
 
 ## 缓存约定（已定）
 

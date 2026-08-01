@@ -230,15 +230,6 @@
                             "next": [
                                 "SupplyPlanMain"
                             ]
-                        },
-                        "ItemDataReady": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "refresh_days": 0
-                                    }
-                                }
-                            }
                         }
                     },
                     "option": [
