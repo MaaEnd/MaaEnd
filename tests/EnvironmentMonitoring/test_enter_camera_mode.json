@@ -1,0 +1,19 @@
+{
+    "configs": {
+        "name": "环境监测：进入拍照模式",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "大世界_选择工具.png",
+            "hits": [
+                "InSelectTool",
+                "EnterCameraModeChooseCamera"
+            ]
+        }
+    ]
+}

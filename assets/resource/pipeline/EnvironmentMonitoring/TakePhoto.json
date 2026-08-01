@@ -65,6 +65,20 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "EnterCameraModeInSelectTool"
+        ]
+    },
+    "EnterCameraModeInSelectTool": {
+        "desc": "进入拍照模式，在选择工具界面中",
+        "recognition": "And",
+        "all_of": [
+            "InSelectTool"
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "EnterCameraModeChooseCamera"
         ]
     },
@@ -79,6 +93,7 @@
         ],
         "template": "Common/CameraMode.png",
         "threshold": 0.8,
+        "order_by": "Score",
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -241,6 +256,26 @@
             360
         ],
         "end_hold": 300,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InSelectTool": {
+        "desc": "在选择工具界面中",
+        "recognition": "OCR",
+        "roi": [
+            572,
+            319,
+            134,
+            71
+        ],
+        "expected": [
+            "选择工具",
+            "選擇工具",
+            "Select Tool",
+            "ツール選択",
+            "도구 선택"
+        ],
+        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     }
