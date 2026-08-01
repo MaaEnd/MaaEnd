@@ -25,6 +25,9 @@ var _ maa.CustomRecognitionRunner = &ItemQuantitySatisfied{}
 type itemQuantitySatisfiedParam struct {
 	Item     string `json:"item"`
 	Quantity int    `json:"quantity"`
+	// NotifyUI when true prints current vs required quantity to UI Focus.
+	// Default false (omit or false) to avoid flooding dispatch-style next scans.
+	NotifyUI bool `json:"notify_ui"`
 }
 
 // ItemQuantitySatisfied reports whether cached item quantity is >= required (R1).
@@ -59,16 +62,18 @@ func (r *ItemQuantitySatisfied) Run(ctx *maa.Context, arg *maa.CustomRecognition
 	}
 
 	current := globalCache.quantity(params.Item)
-	displayName := itemDisplayName(params.Item)
-	focusKey := "ims.quantity_ok"
-	if current < params.Quantity {
-		focusKey = "ims.quantity_short"
+	if params.NotifyUI {
+		displayName := itemDisplayName(params.Item)
+		focusKey := "ims.quantity_ok"
+		if current < params.Quantity {
+			focusKey = "ims.quantity_short"
+		}
+		maafocus.PrintThrottle(
+			ctx,
+			itemQuantityFocusThrottle,
+			i18n.T(focusKey, displayName, current, params.Quantity),
+		)
 	}
-	maafocus.PrintThrottle(
-		ctx,
-		itemQuantityFocusThrottle,
-		i18n.T(focusKey, displayName, current, params.Quantity),
-	)
 
 	if current < params.Quantity {
 		log.Info().

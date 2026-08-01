@@ -1,13 +1,14 @@
 {
     "ItemQuantitySatisfied": {
-        "desc": "IMS：指定物品缓存数量是否 >= quantity（R1；只读。调用方请覆盖 custom_recognition_param.item / quantity；与 ItemDataReady 组合请用 And）",
+        "desc": "IMS R1：缓存数量是否 >= quantity（只读。覆盖 item / quantity；可选 notify_ui 向 UI 播报，默认 false；与 ItemDataReady 组合请用 And）",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
                     "item": "PROTODISK",
-                    "quantity": 1
+                    "quantity": 1,
+                    "notify_ui": false
                 }
             }
         },

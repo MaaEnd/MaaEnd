@@ -24,6 +24,17 @@ func TestParseItemQuantitySatisfiedParam(t *testing.T) {
 	if params.Item != "PROTODISK" || params.Quantity != 3 {
 		t.Fatalf("got %+v", params)
 	}
+	if params.NotifyUI {
+		t.Fatal("expected notify_ui default false when omitted")
+	}
+
+	params, err = parseItemQuantitySatisfiedParam(`{"item":"PROTODISK","quantity":1,"notify_ui":true}`)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !params.NotifyUI {
+		t.Fatal("expected notify_ui true")
+	}
 }
 
 func TestItemQuantitySatisfiedRun(t *testing.T) {

@@ -51,7 +51,7 @@
         "ItemQuantitySatisfiedParam": {
             "type": "object",
             "title": "ItemQuantitySatisfied Param",
-            "description": "Parameters for ItemQuantitySatisfied recognition (R1). Hits when cached quantity for item is >= quantity. Does not check readiness; combine with ItemDataReady via And when needed. Missing item counts as 0.",
+            "description": "Parameters for ItemQuantitySatisfied recognition (R1). Hits when cached quantity for item is >= quantity. Does not check readiness; combine with ItemDataReady via And when needed. Missing item counts as 0. UI Focus announce is off by default.",
             "additionalProperties": false,
             "required": [
                 "item",
@@ -69,6 +69,12 @@
                     "description": "Required minimum cached quantity (inclusive).",
                     "type": "integer",
                     "minimum": 0
+                },
+                "notify_ui": {
+                    "title": "Notify UI",
+                    "description": "When true, print current vs required quantity to UI Focus (throttled). Default false.",
+                    "type": "boolean",
+                    "default": false
                 }
             }
         },

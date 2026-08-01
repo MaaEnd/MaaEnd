@@ -141,12 +141,13 @@ Checks whether one cached item meets a target.
 | --- | --- |
 | `item` | Item ID |
 | `quantity` | Minimum required count (inclusive, `>= 0`) |
+| `notify_ui` | Whether to announce current vs target on UI Focus; default `false` (off) |
 
 A hit means cached quantity `>= quantity`. Missing items count as `0`.
 
 R1 does **not** check readiness. For “ready **and** enough”, `And` R2 (`ItemDataReady`) with R1 so “not synced yet” is not treated as “need to farm”.
 
-UI Focus shows current vs target (identical lines throttled ~10s to avoid dispatch-scan spam).
+UI Focus announce runs only when `notify_ui` is `true` (identical lines throttled ~10s). Keep the default off for dispatch-style `next` scans to avoid spam.
 
 ---
 
