@@ -21,7 +21,7 @@ IMS keeps an in-process cache of cultivation-item counts for task gates and quan
 
 | File | Contents |
 | --- | --- |
-| `ItemDataReady.json` | R2 `ItemDataReady` + `EnsureItemDataReady*` (calls `SyncItemData` when not ready); entry for task `IMSUpdateCache` |
+| `ItemDataReady.json` | R2 `ItemDataReady` + `EnsureItemDataReady*` (calls `SyncItemData` when not ready) |
 | `ItemQuantitySatisfied.json` | R1 `ItemQuantitySatisfied` (override `item` / `quantity`) |
 | `UpdateItemQuantity.json` | A1 `UpdateItemQuantity` (override `item` / `delta`) |
 | `SyncItemData.json` | A2 entry `SyncItemData` (any screen → Progression tab → scan) |
@@ -81,13 +81,7 @@ Omitting `custom_recognition_param` or the field defaults to `7`.
 }
 ```
 
-See `EnsureItemDataReadyMain` for the entry gate. Standalone task **Update Cultivation Item Cache** (`IMSUpdateCache`) uses the same entry with a refresh-period option:
-
-| Case | Behavior |
-| --- | --- |
-| Always | Disable the ready short-circuit; always run `SyncItemData` |
-| 7 / 30 days | `ItemDataReady.refresh_days` TTL; sync when missing or stale |
-| Sync only | `refresh_days=0`: sync only when never synced; existing data does not expire by age |
+See `EnsureItemDataReadyMain` for the entry gate (e.g. Protocol Space target-inventory mode calls it before dispatch).
 
 ## Recognition: `ItemQuantitySatisfied`
 

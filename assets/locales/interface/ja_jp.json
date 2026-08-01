@@ -835,10 +835,6 @@
     "option.ProtocolSpaceMode.description": "プロトコル空間の実行方式を選択します。回数周回は手動選関、目標在庫は不足素材のソースへ自動切替します。",
     "option.ProtocolSpaceMode.case.ByCount.label": "回数で周回",
     "option.ProtocolSpaceMode.case.TargetInventory.label": "目標在庫",
-    "option.IMSRefreshDays.7.label": "7 日",
-    "option.IMSRefreshDays.1.label": "1 日",
-    "option.IMSRefreshDays.30.label": "30 日",
-    "option.IMSRefreshDays.0.label": "期限切れにしない",
     "option.SupplyPlanLimits.label": "育成素材の目標数量",
     "option.SupplyPlanLimits.description": "各育成素材の目標在庫を設定します。0 は今回の計画から除外、正の整数は目標数量（キャッシュ数量 ≥ その値で達成）。すべて達成したら終了します。",
     "option.SupplyPlanLimits.pattern_msg": "0 以上の整数を入力してください",
@@ -1335,11 +1331,5 @@
     "controller.MacOS-Front.label": "macOS 前面ウィンドウ（ベータ版）",
     "controller.MacOS-Front.description": "ScreenCaptureKit によるキャプチャと GlobalEvent による入力を使用します。画面収録とアクセシビリティの権限が必要です。自動経路探索または相対視点移動に依存するタスクは現在サポートされていません。",
     "controller.MacOS-Background.label": "macOS バックグラウンドウィンドウ（ベータ版）",
-    "controller.MacOS-Background.description": "ScreenCaptureKit によるキャプチャと PostToPid によるバックグラウンド入力を使用します。画面収録とアクセシビリティの権限が必要です。自動経路探索または相対視点移動に依存するタスクは現在サポートされていません。",
-    "task.IMSUpdateCache.label": "📦育成素材キャッシュ更新",
-    "task.IMSUpdateCache.description": "育成素材の在庫キャッシュを確認し、未作成または更新周期超過時に貴重品庫の育成素材ページを再スキャンします。",
-    "option.IMSUpdateCacheRefreshDays.label": "更新周期",
-    "option.IMSUpdateCacheRefreshDays.description": "キャッシュ有効期間。未作成または期限切れで同期。「毎回更新」は強制再スキャン。「同期更新」は未同期時のみ更新し、データがある場合は日数で期限切れしません。",
-    "option.IMSUpdateCacheRefreshDays.case.Always.label": "毎回更新",
-    "option.IMSUpdateCacheRefreshDays.case.SyncOnly.label": "同期更新"
+    "controller.MacOS-Background.description": "ScreenCaptureKit によるキャプチャと PostToPid によるバックグラウンド入力を使用します。画面収録とアクセシビリティの権限が必要です。自動経路探索または相対視点移動に依存するタスクは現在サポートされていません。"
 }

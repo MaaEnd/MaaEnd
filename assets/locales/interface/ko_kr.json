@@ -854,10 +854,6 @@
     "option.ProtocolSpaceMode.description": "프로토콜 공간 실행 방식을 선택합니다. 횟수 파밍은 수동 스테이지 선택, 목표 재고는 부족 재료 소스로 자동 전환합니다.",
     "option.ProtocolSpaceMode.case.ByCount.label": "횟수로 파밍",
     "option.ProtocolSpaceMode.case.TargetInventory.label": "목표 재고",
-    "option.IMSRefreshDays.7.label": "7일",
-    "option.IMSRefreshDays.1.label": "1일",
-    "option.IMSRefreshDays.30.label": "30일",
-    "option.IMSRefreshDays.0.label": "기간 만료 없음",
     "option.SupplyPlanLimits.label": "육성 재료 목표 수량",
     "option.SupplyPlanLimits.description": "각 육성 재료의 목표 재고를 설정합니다. 0은 이번 계획에서 제외, 양의 정수는 목표 수량(캐시 수량 ≥ 해당 값이면 달성). 모두 달성하면 종료합니다.",
     "option.SupplyPlanLimits.pattern_msg": "0 이상의 정수를 입력하세요",
@@ -1335,11 +1331,5 @@
     "controller.MacOS-Front.label": "macOS 전면 창(베타)",
     "controller.MacOS-Front.description": "ScreenCaptureKit 캡처와 GlobalEvent 입력을 사용합니다. 화면 기록 및 손쉬운 사용 권한이 필요합니다. 자동 길찾기 또는 상대 시점 이동에 의존하는 작업은 현재 지원되지 않습니다.",
     "controller.MacOS-Background.label": "macOS 백그라운드 창(베타)",
-    "controller.MacOS-Background.description": "ScreenCaptureKit 캡처와 PostToPid 백그라운드 입력을 사용합니다. 화면 기록 및 손쉬운 사용 권한이 필요합니다. 자동 길찾기 또는 상대 시점 이동에 의존하는 작업은 현재 지원되지 않습니다.",
-    "task.IMSUpdateCache.label": "📦 육성 재료 캐시 갱신",
-    "task.IMSUpdateCache.description": "육성 재료 재고 캐시를 확인합니다. 없거나 갱신 주기가 지나면 귀중품 보관소 육성 재료 페이지를 다시 스캔합니다.",
-    "option.IMSUpdateCacheRefreshDays.label": "갱신 주기",
-    "option.IMSUpdateCacheRefreshDays.description": "캐시 유효 기간. 없거나 만료되면 한 번 동기화합니다. 「매번 갱신」은 강제 재스캔, 「동기화 갱신」은 한 번도 동기화되지 않았을 때만 갱신하며 데이터가 있으면 일수로 만료되지 않습니다.",
-    "option.IMSUpdateCacheRefreshDays.case.Always.label": "매번 갱신",
-    "option.IMSUpdateCacheRefreshDays.case.SyncOnly.label": "동기화 갱신"
+    "controller.MacOS-Background.description": "ScreenCaptureKit 캡처와 PostToPid 백그라운드 입력을 사용합니다. 화면 기록 및 손쉬운 사용 권한이 필요합니다. 자동 길찾기 또는 상대 시점 이동에 의존하는 작업은 현재 지원되지 않습니다."
 }

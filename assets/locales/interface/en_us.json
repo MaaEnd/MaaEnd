@@ -150,10 +150,6 @@
     "task.EssenceFilter.focus.tier_boundary_flawless": "Flawless-only: Pure essence detected, stopping scan",
     "task.EssenceFilter.focus.afterbattle_tier_boundary_flawless": "Flawless-only: Pure essence detected, exiting post-battle filter",
     "task.EssenceFilter.focus.afterbattle_tier_skip_pure_only": "Pure-only: Skipping flawless essence",
-    "option.IMSRefreshDays.7.label": "7 days",
-    "option.IMSRefreshDays.1.label": "1 day",
-    "option.IMSRefreshDays.30.label": "30 days",
-    "option.IMSRefreshDays.0.label": "Never expire by age",
     "option.SelectInputLanguage.label": "Game language",
     "option.SelectInputLanguage.description": "Must match the in-game UI language for skill name matching; OCR should use the same language.",
     "option.SelectInputLanguage.cases.CN.label": "简体中文",
@@ -1335,11 +1331,5 @@
     "controller.MacOS-Front.label": "macOS Foreground Window (Beta)",
     "controller.MacOS-Front.description": "Uses ScreenCaptureKit for capture and GlobalEvent for input. Screen Recording and Accessibility permissions are required. Tasks that depend on automatic navigation or relative camera movement are not currently supported.",
     "controller.MacOS-Background.label": "macOS Background Window (Beta)",
-    "controller.MacOS-Background.description": "Uses ScreenCaptureKit for capture and PostToPid background input. Screen Recording and Accessibility permissions are required. Tasks that depend on automatic navigation or relative camera movement are not currently supported.",
-    "task.IMSUpdateCache.label": "📦 Update Cultivation Item Cache",
-    "task.IMSUpdateCache.description": "Check the cultivation-item inventory cache. If missing or past the refresh period, open Valuables Progression and rescan.",
-    "option.IMSUpdateCacheRefreshDays.label": "Refresh period",
-    "option.IMSUpdateCacheRefreshDays.description": "Cache TTL. Sync once when missing or stale. \"Always\" forces a rescan. \"Sync only\" updates only when never synced; existing data does not expire by age.",
-    "option.IMSUpdateCacheRefreshDays.case.Always.label": "Always",
-    "option.IMSUpdateCacheRefreshDays.case.SyncOnly.label": "Sync only"
+    "controller.MacOS-Background.description": "Uses ScreenCaptureKit for capture and PostToPid background input. Screen Recording and Accessibility permissions are required. Tasks that depend on automatic navigation or relative camera movement are not currently supported."
 }

@@ -203,7 +203,6 @@
         "tasks/Weapon.json",
         "tasks/BatchUseDetector.json",
         "tasks/EssenceFilter.json",
-        "tasks/IMSUpdateCache.json",
         // group: open_world
         "tasks/ResourceRecycleStation.json",
         "tasks/AutoCollect.json",

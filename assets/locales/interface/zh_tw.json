@@ -957,10 +957,6 @@
     "option.ProtocolSpaceMode.description": "選擇協議空間的執行方式：按次數刷取可手動選關；目標庫存按培養道具缺口自動切換來源。",
     "option.ProtocolSpaceMode.case.ByCount.label": "按次數刷取",
     "option.ProtocolSpaceMode.case.TargetInventory.label": "目標庫存",
-    "option.IMSRefreshDays.7.label": "7 天",
-    "option.IMSRefreshDays.1.label": "1 天",
-    "option.IMSRefreshDays.30.label": "30 天",
-    "option.IMSRefreshDays.0.label": "永不因過期失效",
     "option.SupplyPlanLimits.label": "培養道具目標數量",
     "option.SupplyPlanLimits.description": "為各培養道具設定目標庫存。填 0 表示不納入本輪規劃；正整數表示目標數量（快取數量 ≥ 該值視為達標）。全部達標後結束任務。",
     "option.SupplyPlanLimits.pattern_msg": "請輸入非負整數",
@@ -1335,11 +1331,5 @@
     "controller.MacOS-Front.label": "macOS 前景視窗（測試版）",
     "controller.MacOS-Front.description": "使用 ScreenCaptureKit 截圖和 GlobalEvent 輸入。需要授予螢幕錄製與輔助使用權限。暫不支援依賴自動尋路或相對視角移動的任務。",
     "controller.MacOS-Background.label": "macOS 背景視窗（測試版）",
-    "controller.MacOS-Background.description": "使用 ScreenCaptureKit 截圖和 PostToPid 背景輸入。需要授予螢幕錄製與輔助使用權限。暫不支援依賴自動尋路或相對視角移動的任務。",
-    "task.IMSUpdateCache.label": "📦更新培養道具快取",
-    "task.IMSUpdateCache.description": "檢查培養道具庫存快取：不存在或已超過更新週期時，進入貴重品庫培養素材頁重新掃描同步。",
-    "option.IMSUpdateCacheRefreshDays.label": "更新週期",
-    "option.IMSUpdateCacheRefreshDays.description": "快取有效期。過期或不存在時執行一次同步；「每次都更新」強制重新掃描；「同步更新」僅在從未成功同步時更新，有資料後不因天數過期。",
-    "option.IMSUpdateCacheRefreshDays.case.Always.label": "每次都更新",
-    "option.IMSUpdateCacheRefreshDays.case.SyncOnly.label": "同步更新"
+    "controller.MacOS-Background.description": "使用 ScreenCaptureKit 截圖和 PostToPid 背景輸入。需要授予螢幕錄製與輔助使用權限。暫不支援依賴自動尋路或相對視角移動的任務。"
 }
