@@ -16,7 +16,7 @@
             "WLMarkerStoneShip2_After": "AutoCollectCommonRoute6GotoFindLine1"
         },
         "next": [
-            "WLMarkerStoneShip2_Entry"
+            "SceneEnterWLMarkerStoneShip2"
         ]
     },
     "AutoCollectCommonRoute6GotoFindLine1": {

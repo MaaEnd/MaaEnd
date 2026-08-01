@@ -681,20 +681,20 @@
         "MissionId": "m1m64",
         "Name": "栖云生态点",
         "Id": "CloudrestEcoSite",
-        "EnterMap": "SceneEnterWorldWulingMarkerStone3",
+        "EnterMap": "SceneEnterWLMarkerStoneShip2",
         "MapName": "map02_lv004",
         "MapAssert": [
-            602.8,
-            325,
-            9.7,
-            8.1
+            384.2,
+            445.6,
+            8.5,
+            12.5
         ],
         "MapGoal": [
             438.1,
             509.2
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "CameraMaxHit": 4,
+        "CameraMaxHit": 5,
         "Heading": 180
     },
     {

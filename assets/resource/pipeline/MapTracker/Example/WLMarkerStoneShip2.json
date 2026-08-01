@@ -1,6 +1,6 @@
 {
-    "WLMarkerStoneShip2_Entry": {
-        "desc": "从任意界面通过首墩【湖心岛】宏2摆渡船前往【栖云林地】西侧港口（调用方需设置 Anchor WLMarkerStoneShip2_AfterArrival 控制下一步）",
+    "SceneEnterWLMarkerStoneShip2": {
+        "desc": "从任意界面通过首墩【湖心岛】宏2摆渡船前往【栖云林地】西侧港口",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -160,7 +160,13 @@
             "stuck_threshold": 6000
         },
         "next": [
-            "[Anchor]WLMarkerStoneShip2_After"
+            "[Anchor]WLMarkerStoneShip2_After",
+            "__WLMarkerStoneShip2_NoAnchorWasSet"
         ]
+    },
+    "__WLMarkerStoneShip2_NoAnchorWasSet": {
+        "desc": "如果调用方没有设置 Anchor，就会在这里正常结束",
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }
