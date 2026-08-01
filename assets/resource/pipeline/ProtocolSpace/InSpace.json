@@ -57,15 +57,7 @@
         ],
         "template": "ProtocolSpace/TeamChooseIcon.png",
         "threshold": 0.9,
-        "pre_wait_freezes": {
-            "time": 200,
-            "target": [
-                0,
-                0,
-                100,
-                200
-            ]
-        },
+        "pre_wait_freezes": 200,
         "next": [
             "[JumpBack]ProtocolSpaceTeamChoose",
             "ProtocolSpaceEnterSpaceConfirm"
@@ -188,7 +180,12 @@
             }
         ],
         "pre_wait_freezes": 400,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "ProtocolSpaceEnterSpaceConfirm"
+        },
         "next": [
             "[JumpBack]SceneWaitLoadingExit",
             "ProtocolSpaceEnterSpaceSuccess"

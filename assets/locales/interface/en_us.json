@@ -1199,7 +1199,7 @@
     "task.ResourceRecycleStation.focus.Found": "Resource recycle station found",
     "task.ResourceRecycleStation.focus.Empty": "No collectible resources in this region",
     "task.AccountSwitch.label": "Auto Account Switch",
-    "task.AccountSwitch.description": "Automatically log out and switch to an account by matching the last 4 digits",
+    "task.AccountSwitch.description": "Automatically log out and switch to an account by matching the last 4 digits\n**Set the frame rate to 60 FPS and the image enhancement option to TAAU in Endfield settings**",
     "option.AccountSwitchLastFourDigits.label": "Target account last 4 digits",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "Enter last 4 digits",
     "task.TrialOfSwordmancy.label": "🗡️Trial of Swordmancy",

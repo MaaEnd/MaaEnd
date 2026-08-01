@@ -1199,7 +1199,7 @@
     "task.ResourceRecycleStation.focus.Found": "資源回収ステーションを発見",
     "task.ResourceRecycleStation.focus.Empty": "この地域に収集可能な資源はありません",
     "task.AccountSwitch.label": "自動アカウント切替",
-    "task.AccountSwitch.description": "現在のアカウントからログアウトし、指定した下4桁のアカウントに切り替えます",
+    "task.AccountSwitch.description": "現在のアカウントからログアウトし、指定した下4桁のアカウントに切り替えます\n**終末地の設定でフレームレートを60FPS、画質向上オプションをTAAUに変更してください**",
     "option.AccountSwitchLastFourDigits.label": "対象アカウント下4桁",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "下4桁を入力",
     "task.TrialOfSwordmancy.label": "🗡️剣術演武",
