@@ -28,9 +28,10 @@ type addItemDataParam struct {
 // AddItemData recognizes configured items on the current screen and adds their
 // OCR quantities into the IMS cache (A3). Does not change readiness / last_sync.
 //
-// If IMS has never been initialized (hasData=false), recognition and UI Focus
-// still run; cache write is skipped and the action returns success so Pipeline
-// can continue (e.g. closing the rewards UI).
+// If IMS has never been initialized (hasData=false), recognition still runs and
+// per-item Focus is printed; cache write is skipped and the action returns
+// success so Pipeline can continue (e.g. closing the rewards UI). No IMS
+// init / summary Focus is printed in either case.
 //
 // Best practice: run as the action of a node that recognizes CloseRewardsButton,
 // then next to a Click node that closes the rewards UI.
@@ -162,10 +163,8 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		lastSync     time.Time
 		hasData      bool
 	)
-	summaryParts := make([]string, 0, len(hits))
 	for _, h := range hits {
 		displayName := itemDisplayName(h.itemID)
-		summaryParts = append(summaryParts, i18n.T("ims.add_item_entry", displayName, h.qty))
 		maafocus.Print(ctx, i18n.T("ims.add_item_found", displayName, h.qty))
 		addedTotal += h.qty
 
@@ -196,21 +195,14 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Msg("item quantity added from recognition")
 	}
 
-	if len(hits) > 0 {
-		if cacheReady {
-			if err := persistItemsPreserveSync(persistItems, lastSync, hasData); err != nil {
-				log.Error().
-					Err(err).
-					Str("component", componentAddItemData).
-					Msg("failed to persist item quantities")
-				return false
-			}
-		} else {
-			maafocus.Print(ctx, i18n.T("ims.add_item_skip_persist"))
+	if cacheReady && len(hits) > 0 {
+		if err := persistItemsPreserveSync(persistItems, lastSync, hasData); err != nil {
+			log.Error().
+				Err(err).
+				Str("component", componentAddItemData).
+				Msg("failed to persist item quantities")
+			return false
 		}
-		maafocus.Print(ctx, i18n.T("ims.add_item_summary", len(hits), strings.Join(summaryParts, i18n.Separator())))
-	} else {
-		maafocus.Print(ctx, i18n.T("ims.add_item_none"))
 	}
 
 	log.Info().

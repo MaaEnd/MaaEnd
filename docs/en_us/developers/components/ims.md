@@ -125,7 +125,9 @@ It recognizes items on the **current screen**, then **computes** against the IMS
 
 Unlike the other IMS pieces, A3 **does not require** an existing IMS cache.
 
-If A2 has never succeeded (`hasData=false`), A3 still recognizes rewards and prints UI Focus, but **does not write the cache**, and still returns success so closing rewards is not blocked. In that mode it is a generic reward announcer.
+If A2 has never succeeded (`hasData=false`), A3 still recognizes rewards but **does not write the cache**, and still returns success so closing rewards is not blocked. Each hit prints one Focus line (e.g. “Gained xxx ×n”); it does not mention IMS init / skip-persist, and does not print a summary.
+
+When the cache is ready it also prints one Focus per hit — no Pipeline Starting/Succeeded Focus and no summary line.
 
 > Progression-tab `IMS/item/*` ROIs often do not fit the rewards UI—pass nodes for the current screen. Reward popups animate in; use `pre_wait_freezes` on the item ROI before A3 (see `ProtocolSpaceRewardAddItemData`).
 >

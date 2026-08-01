@@ -813,11 +813,7 @@
             "ProtocolSpaceRewardClaimSuccessSanityLow",
             "ProtocolSpaceRewardClaimSuccessContinue",
             "ProtocolSpaceRewardClaimSuccessFinish"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.ProtocolSpace.focus.add_item_data_starting",
-            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.add_item_data_succeeded"
-        }
+        ]
     },
     "ProtocolSpaceRewardClaimSuccessContinue": {
         "desc": "协议空间奖励界面，继续下一轮",
