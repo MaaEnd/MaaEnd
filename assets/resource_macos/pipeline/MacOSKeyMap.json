@@ -258,14 +258,6 @@
             }
         }
     },
-    "VisitFriendsWorldShipExitToMenuFriends": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 53
-            }
-        }
-    },
     "_AutoEcoFarmAltDown": {
         "action": {
             "type": "KeyDown",
