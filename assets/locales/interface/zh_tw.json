@@ -1256,5 +1256,11 @@
     "controller.MacOS-Front.label": "macOS 前景視窗（測試版）",
     "controller.MacOS-Front.description": "使用 ScreenCaptureKit 截圖和 GlobalEvent 輸入。需要授予螢幕錄製與輔助使用權限。暫不支援依賴自動尋路或相對視角移動的任務。",
     "controller.MacOS-Background.label": "macOS 背景視窗（測試版）",
-    "controller.MacOS-Background.description": "使用 ScreenCaptureKit 截圖和 PostToPid 背景輸入。需要授予螢幕錄製與輔助使用權限。暫不支援依賴自動尋路或相對視角移動的任務。"
+    "controller.MacOS-Background.description": "使用 ScreenCaptureKit 截圖和 PostToPid 背景輸入。需要授予螢幕錄製與輔助使用權限。暫不支援依賴自動尋路或相對視角移動的任務。",
+    "task.IMSUpdateCache.label": "📦更新培養道具快取",
+    "task.IMSUpdateCache.description": "檢查培養道具庫存快取：不存在或已超過更新週期時，進入貴重品庫培養素材頁重新掃描同步。",
+    "option.IMSUpdateCacheRefreshDays.label": "更新週期",
+    "option.IMSUpdateCacheRefreshDays.description": "快取有效期。過期或不存在時執行一次同步；「每次都更新」強制重新掃描；「同步更新」僅在從未成功同步時更新，有資料後不因天數過期。",
+    "option.IMSUpdateCacheRefreshDays.case.Always.label": "每次都更新",
+    "option.IMSUpdateCacheRefreshDays.case.SyncOnly.label": "同步更新"
 }

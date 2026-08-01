@@ -1256,5 +1256,11 @@
     "controller.MacOS-Front.label": "macOS 前面ウィンドウ（ベータ版）",
     "controller.MacOS-Front.description": "ScreenCaptureKit によるキャプチャと GlobalEvent による入力を使用します。画面収録とアクセシビリティの権限が必要です。自動経路探索または相対視点移動に依存するタスクは現在サポートされていません。",
     "controller.MacOS-Background.label": "macOS バックグラウンドウィンドウ（ベータ版）",
-    "controller.MacOS-Background.description": "ScreenCaptureKit によるキャプチャと PostToPid によるバックグラウンド入力を使用します。画面収録とアクセシビリティの権限が必要です。自動経路探索または相対視点移動に依存するタスクは現在サポートされていません。"
+    "controller.MacOS-Background.description": "ScreenCaptureKit によるキャプチャと PostToPid によるバックグラウンド入力を使用します。画面収録とアクセシビリティの権限が必要です。自動経路探索または相対視点移動に依存するタスクは現在サポートされていません。",
+    "task.IMSUpdateCache.label": "📦育成素材キャッシュ更新",
+    "task.IMSUpdateCache.description": "育成素材の在庫キャッシュを確認し、未作成または更新周期超過時に貴重品庫の育成素材ページを再スキャンします。",
+    "option.IMSUpdateCacheRefreshDays.label": "更新周期",
+    "option.IMSUpdateCacheRefreshDays.description": "キャッシュ有効期間。未作成または期限切れで同期。「毎回更新」は強制再スキャン。「同期更新」は未同期時のみ更新し、データがある場合は日数で期限切れしません。",
+    "option.IMSUpdateCacheRefreshDays.case.Always.label": "毎回更新",
+    "option.IMSUpdateCacheRefreshDays.case.SyncOnly.label": "同期更新"
 }

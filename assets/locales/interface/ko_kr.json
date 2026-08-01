@@ -1256,5 +1256,11 @@
     "controller.MacOS-Front.label": "macOS 전면 창(베타)",
     "controller.MacOS-Front.description": "ScreenCaptureKit 캡처와 GlobalEvent 입력을 사용합니다. 화면 기록 및 손쉬운 사용 권한이 필요합니다. 자동 길찾기 또는 상대 시점 이동에 의존하는 작업은 현재 지원되지 않습니다.",
     "controller.MacOS-Background.label": "macOS 백그라운드 창(베타)",
-    "controller.MacOS-Background.description": "ScreenCaptureKit 캡처와 PostToPid 백그라운드 입력을 사용합니다. 화면 기록 및 손쉬운 사용 권한이 필요합니다. 자동 길찾기 또는 상대 시점 이동에 의존하는 작업은 현재 지원되지 않습니다."
+    "controller.MacOS-Background.description": "ScreenCaptureKit 캡처와 PostToPid 백그라운드 입력을 사용합니다. 화면 기록 및 손쉬운 사용 권한이 필요합니다. 자동 길찾기 또는 상대 시점 이동에 의존하는 작업은 현재 지원되지 않습니다.",
+    "task.IMSUpdateCache.label": "📦 육성 재료 캐시 갱신",
+    "task.IMSUpdateCache.description": "육성 재료 재고 캐시를 확인합니다. 없거나 갱신 주기가 지나면 귀중품 보관소 육성 재료 페이지를 다시 스캔합니다.",
+    "option.IMSUpdateCacheRefreshDays.label": "갱신 주기",
+    "option.IMSUpdateCacheRefreshDays.description": "캐시 유효 기간. 없거나 만료되면 한 번 동기화합니다. 「매번 갱신」은 강제 재스캔, 「동기화 갱신」은 한 번도 동기화되지 않았을 때만 갱신하며 데이터가 있으면 일수로 만료되지 않습니다.",
+    "option.IMSUpdateCacheRefreshDays.case.Always.label": "매번 갱신",
+    "option.IMSUpdateCacheRefreshDays.case.SyncOnly.label": "동기화 갱신"
 }

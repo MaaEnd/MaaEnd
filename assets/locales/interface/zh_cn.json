@@ -1256,5 +1256,11 @@
     "controller.MacOS-Front.label": "macOS 前台窗口（测试版）",
     "controller.MacOS-Front.description": "使用 ScreenCaptureKit 截图和 GlobalEvent 输入。需要授予屏幕录制与辅助功能权限。暂不支持依赖自动寻路或相对视角移动的任务。",
     "controller.MacOS-Background.label": "macOS 后台窗口（测试版）",
-    "controller.MacOS-Background.description": "使用 ScreenCaptureKit 截图和 PostToPid 后台输入。需要授予屏幕录制与辅助功能权限。暂不支持依赖自动寻路或相对视角移动的任务。"
+    "controller.MacOS-Background.description": "使用 ScreenCaptureKit 截图和 PostToPid 后台输入。需要授予屏幕录制与辅助功能权限。暂不支持依赖自动寻路或相对视角移动的任务。",
+    "task.IMSUpdateCache.label": "📦更新培养道具缓存",
+    "task.IMSUpdateCache.description": "检查培养道具库存缓存：不存在或已超过更新周期时，进入贵重品库培养素材页重新扫描同步。",
+    "option.IMSUpdateCacheRefreshDays.label": "更新周期",
+    "option.IMSUpdateCacheRefreshDays.description": "缓存有效期。过期或不存在时执行一次同步；「每次都更新」强制重新扫描；「同步更新」仅在从未成功同步时更新，有数据后不因天数过期。",
+    "option.IMSUpdateCacheRefreshDays.case.Always.label": "每次都更新",
+    "option.IMSUpdateCacheRefreshDays.case.SyncOnly.label": "同步更新"
 }

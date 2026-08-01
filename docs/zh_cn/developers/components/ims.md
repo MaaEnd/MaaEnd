@@ -21,7 +21,7 @@ IMS（Item Management System）在 go-service 进程内维护培养道具数量�
 
 | 文件 | 内容 |
 | --- | --- |
-| `ItemDataReady.json` | R2 `ItemDataReady` + `EnsureItemDataReady*`（未就绪时调 `SyncItemData`） |
+| `ItemDataReady.json` | R2 `ItemDataReady` + `EnsureItemDataReady*`（未就绪时调 `SyncItemData`）；独立任务 `IMSUpdateCache` 入口 |
 | `ItemQuantitySatisfied.json` | R1 `ItemQuantitySatisfied`（调用方覆盖 `item` / `quantity`） |
 | `UpdateItemQuantity.json` | A1 `UpdateItemQuantity`（调用方覆盖 `item` / `delta`） |
 | `SyncItemData.json` | A2 入口 `SyncItemData`（任意位置 → 培养素材页 → 扫描） |
@@ -81,7 +81,13 @@ python tools/SupplyPlan/mask_ims_item_corner.py
 }
 ```
 
-入口检查可参考 `EnsureItemDataReadyMain`。
+入口检查可参考 `EnsureItemDataReadyMain`。独立任务 **更新培养道具缓存**（`IMSUpdateCache`）也以该入口运行，选项「更新周期」：
+
+| 选项 | 行为 |
+| --- | --- |
+| 每次都更新 | 禁用就绪短路，强制 `SyncItemData` |
+| 7 天 / 30 天 | `ItemDataReady.refresh_days` 对应 TTL；过期或不存在则同步 |
+| 同步更新 | `refresh_days=0`：仅从未成功同步时更新，有数据后不因天数过期 |
 
 ## Recognition：`ItemQuantitySatisfied`
 
