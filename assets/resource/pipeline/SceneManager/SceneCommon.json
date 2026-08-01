@@ -37,7 +37,7 @@
         ],
         "box_index": 1,
         "pre_wait_freezes": 100,
-        "action": "Click",
+        "action": "Click"
     },
     "__ScenePrivateNoticeRewardsUpgrade": {
         "desc": "检测到升级",
