@@ -777,8 +777,6 @@
     "option.IMSRefreshDays.1.label": "1일",
     "option.IMSRefreshDays.30.label": "30일",
     "option.IMSRefreshDays.0.label": "기간 만료 없음",
-    "option.SupplyPlanRefreshDays.label": "데이터 갱신 주기",
-    "option.SupplyPlanRefreshDays.description": "육성 재료 재고 캐시 유효 기간입니다. 마지막 동기화 이후 해당 일수를 초과하면 다시 스캔합니다. 0은 데이터가 있으면 만료하지 않습니다.",
     "option.SupplyPlanLimits.label": "육성 재료 목표 수량",
     "option.SupplyPlanLimits.description": "각 육성 재료의 목표 재고를 설정합니다. 0은 이번 계획에서 제외, 양의 정수는 목표 수량(캐시 수량 ≥ 해당 값이면 달성). 모두 달성하면 종료합니다.",
     "option.SupplyPlanLimits.pattern_msg": "0 이상의 정수를 입력하세요",

@@ -6,7 +6,9 @@
             "entry": "ProtocolSpaceSchedule",
             "description": "$task.ProtocolSpace.description",
             "option": [
+                "ProtocolSpaceSchedule",
                 "AutoFightSetting",
+                "ProtocolSpaceTeamChoose",
                 "ProtocolSpaceMode"
             ],
             "controller": [
@@ -130,44 +132,6 @@
                 }
             ]
         },
-        "ProtocolSpaceMode": {
-            "type": "select",
-            "label": "$option.ProtocolSpaceMode.label",
-            "description": "$option.ProtocolSpaceMode.description",
-            "default_case": "ByCount",
-            "cases": [
-                {
-                    "name": "ByCount",
-                    "label": "$option.ProtocolSpaceMode.case.ByCount.label",
-                    "option": [
-                        "ProtocolSpaceSchedule",
-                        "ProtocolSpaceTeamChoose",
-                        "ProtocolSpaceSuccessAction",
-                        "ProtocolSpaceSuccessCount",
-                        "ProtocolSpaceFailedCount",
-                        "ProtocolSpaceTab"
-                    ]
-                },
-                {
-                    "name": "TargetInventory",
-                    "label": "$option.ProtocolSpaceMode.case.TargetInventory.label",
-                    "pipeline_override": {
-                        "ProtocolSpaceScheduleEnabled": {
-                            "next": [
-                                "SupplyPlanMain"
-                            ]
-                        }
-                    },
-                    "option": [
-                        "ProtocolSpaceSchedule",
-                        "ProtocolSpaceTeamChoose",
-                        "ProtocolSpaceUsePermit",
-                        "SupplyPlanRefreshDays",
-                        "SupplyPlanLimits"
-                    ]
-                }
-            ]
-        },
         "ProtocolSpaceTeamChoose": {
             "type": "select",
             "label": "$option.ProtocolSpaceTeamChoose.label",
@@ -239,6 +203,51 @@
                 }
             ]
         },
+        // 刷取模式：UsePermit 只定义一次。
+        // - 按次数：挂在「领取奖励」下，选不领取时隐藏
+        // - 目标库存：固定领取（pipeline 默认关闭不领取节点），故始终显示 UsePermit
+        "ProtocolSpaceMode": {
+            "type": "select",
+            "label": "$option.ProtocolSpaceMode.label",
+            "description": "$option.ProtocolSpaceMode.description",
+            "default_case": "ByCount",
+            "cases": [
+                {
+                    "name": "ByCount",
+                    "label": "$option.ProtocolSpaceMode.case.ByCount.label",
+                    "option": [
+                        "ProtocolSpaceSuccessAction",
+                        "ProtocolSpaceSuccessCount",
+                        "ProtocolSpaceFailedCount",
+                        "ProtocolSpaceTab"
+                    ]
+                },
+                {
+                    "name": "TargetInventory",
+                    "label": "$option.ProtocolSpaceMode.case.TargetInventory.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceScheduleEnabled": {
+                            "next": [
+                                "SupplyPlanMain"
+                            ]
+                        },
+                        "ItemDataReady": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "refresh_days": 0
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "option": [
+                        "ProtocolSpaceUsePermit",
+                        "SupplyPlanLimits"
+                    ]
+                }
+            ]
+        },
         "ProtocolSpaceSuccessAction": {
             "type": "select",
             "label": "$option.ProtocolSpaceSuccessAction.label",
@@ -247,6 +256,7 @@
                 {
                     "name": "RewardClaim",
                     "label": "$option.ProtocolSpaceSuccessAction.case.RewardClaim.label",
+                    // 与 pipeline 默认一致；显式写出便于从「不领取」切回时覆盖
                     "pipeline_override": {
                         "ProtocolSpaceRewardSelectClaim": {
                             "enabled": true
@@ -842,74 +852,6 @@
                             "expected": [
                                 "A"
                             ]
-                        }
-                    }
-                }
-            ]
-        },
-        "SupplyPlanRefreshDays": {
-            "type": "select",
-            "label": "$option.SupplyPlanRefreshDays.label",
-            "description": "$option.SupplyPlanRefreshDays.description",
-            "default_case": "Days7",
-            "cases": [
-                {
-                    "name": "Days7",
-                    "label": "$option.IMSRefreshDays.7.label",
-                    "pipeline_override": {
-                        "ItemDataReady": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "refresh_days": 7
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "Days1",
-                    "label": "$option.IMSRefreshDays.1.label",
-                    "pipeline_override": {
-                        "ItemDataReady": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "refresh_days": 1
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "Days30",
-                    "label": "$option.IMSRefreshDays.30.label",
-                    "pipeline_override": {
-                        "ItemDataReady": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "refresh_days": 30
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "NeverExpire",
-                    "label": "$option.IMSRefreshDays.0.label",
-                    "pipeline_override": {
-                        "ItemDataReady": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "refresh_days": 0
-                                    }
-                                }
-                            }
                         }
                     }
                 }

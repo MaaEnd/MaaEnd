@@ -38,7 +38,8 @@
         ]
     },
     "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
-        "desc": "进入协议空间奖励界面，选择领取",
+        "desc": "进入协议空间奖励界面，选择不领取（默认关闭；仅「不领取奖励」选项启用）",
+        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -579,7 +580,8 @@
         ]
     },
     "ProtocolSpaceRewardSelectNoClaim": {
-        "desc": "协议空间奖励界面，选择不领取",
+        "desc": "协议空间奖励界面，选择不领取（默认关闭；仅「不领取奖励」选项启用）",
+        "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [

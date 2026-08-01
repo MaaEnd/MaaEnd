@@ -880,8 +880,6 @@
     "option.IMSRefreshDays.1.label": "1 天",
     "option.IMSRefreshDays.30.label": "30 天",
     "option.IMSRefreshDays.0.label": "永不因過期失效",
-    "option.SupplyPlanRefreshDays.label": "資料更新時間",
-    "option.SupplyPlanRefreshDays.description": "培養道具庫存快取的有效期。距上次同步超過該天數則重新掃描更新；0 表示有資料後不因過期失效。",
     "option.SupplyPlanLimits.label": "培養道具目標數量",
     "option.SupplyPlanLimits.description": "為各培養道具設定目標庫存。填 0 表示不納入本輪規劃；正整數表示目標數量（快取數量 ≥ 該值視為達標）。全部達標後結束任務。",
     "option.SupplyPlanLimits.pattern_msg": "請輸入非負整數",

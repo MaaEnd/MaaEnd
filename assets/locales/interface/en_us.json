@@ -357,8 +357,6 @@
     "option.ProtocolSpaceMode.description": "Choose how Protocol Space runs: by count for manual stage picks, or by target inventory to auto-switch sources for shortfalls.",
     "option.ProtocolSpaceMode.case.ByCount.label": "By run count",
     "option.ProtocolSpaceMode.case.TargetInventory.label": "Target inventory",
-    "option.SupplyPlanRefreshDays.label": "Data refresh interval",
-    "option.SupplyPlanRefreshDays.description": "TTL for the cultivation-item inventory cache. Resync if older than this many days since last sync; 0 means never expire by age once data exists.",
     "option.SupplyPlanLimits.label": "Cultivation item targets",
     "option.SupplyPlanLimits.description": "Set a target stock for each cultivation item. 0 excludes it from this plan; a positive integer is the target (cached qty ≥ value counts as met). Ends when all targets are met.",
     "option.SupplyPlanLimits.pattern_msg": "Enter a non-negative integer",

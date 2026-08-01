@@ -758,8 +758,6 @@
     "option.IMSRefreshDays.1.label": "1 日",
     "option.IMSRefreshDays.30.label": "30 日",
     "option.IMSRefreshDays.0.label": "期限切れにしない",
-    "option.SupplyPlanRefreshDays.label": "データ更新間隔",
-    "option.SupplyPlanRefreshDays.description": "育成素材在庫キャッシュの有効期間。前回同期からこの日数を超えると再スキャンします。0 はデータがある限り期限切れにしません。",
     "option.SupplyPlanLimits.label": "育成素材の目標数量",
     "option.SupplyPlanLimits.description": "各育成素材の目標在庫を設定します。0 は今回の計画から除外、正の整数は目標数量（キャッシュ数量 ≥ その値で達成）。すべて達成したら終了します。",
     "option.SupplyPlanLimits.pattern_msg": "0 以上の整数を入力してください",

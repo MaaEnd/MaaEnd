@@ -781,8 +781,6 @@
     "option.ProtocolSpaceMode.description": "选择协议空间的执行方式：按次数刷取可手动选关；目标库存按培养道具缺口自动切换来源。",
     "option.ProtocolSpaceMode.case.ByCount.label": "按次数刷取",
     "option.ProtocolSpaceMode.case.TargetInventory.label": "目标库存",
-    "option.SupplyPlanRefreshDays.label": "数据更新时间",
-    "option.SupplyPlanRefreshDays.description": "培养道具库存缓存的有效期。距上次同步超过该天数则重新扫描更新；0 表示有数据后不因过期失效。",
     "option.SupplyPlanLimits.label": "培养道具目标数量",
     "option.SupplyPlanLimits.description": "为各培养道具设定目标库存。填 0 表示不纳入本轮规划；正整数表示目标数量（缓存数量 ≥ 该值视为达标）。全部达标后结束任务。",
     "option.SupplyPlanLimits.pattern_msg": "请输入非负整数",
