@@ -46,7 +46,7 @@
                         408.9,
                         307.8,
                         18.3,
-                        20.4
+                        19.1
                     ]
                 }
             ]
@@ -78,7 +78,8 @@
                 "action": "Custom",
                 "custom_action": "MapTrackerToward",
                 "custom_action_param": {
-                    "angle": 0 // 面向正北
+                    "angle": 0, // 面向北方
+                    "rotation_lower_threshold": 30 // 不用面向得那么精确
                 }
             }
         },
@@ -105,8 +106,8 @@
         "order_by": "Score",
         "action": "Custom",
         "custom_action": "AutoAltClickAction",
-        "timeout": 6000, // 随后要求在 6 秒内离港成功
-        "rate_limit": 1000, // 每 1 秒判断一次离港状态
+        "timeout": 5500, // 随后要求在 5.5 秒内离港成功
+        "rate_limit": 500, // 每 0.5 秒判断一次离港状态
         "next": [
             "__WLMarkerStoneShip2_ShipDepartureSuccess"
         ],
@@ -115,13 +116,19 @@
         ]
     },
     "__WLMarkerStoneShip2_ShipDepartureSuccess": {
-        "desc": "判断是否离港成功，随后等待到站",
+        "desc": "判断是否离港成功，让角色面向南方以方便下船，随后等待到站",
         "recognition": "And",
         "all_of": [
             "__WLMarkerStoneShip2_TeleportSuccess"
         ],
-        "inverse": true, // 反转表示离开了传送点范围
-        "timeout": 50000, // 随后要求在 50 秒内到站
+        "inverse": true, // 反转表示离开了传送点范围，也就是离港成功
+        "action": "Custom",
+        "custom_action": "MapTrackerToward",
+        "custom_action_param": {
+            "angle": 180,
+            "rotation_lower_threshold": 30
+        },
+        "timeout": 45000, // 随后要求在 45 秒内到站
         "rate_limit": 2000, // 每 2 秒判断一次到站状态
         "next": [
             "__WLMarkerStoneShip2_ShipArrival"
@@ -187,6 +194,7 @@
                 436.8,
                 471.7
             ],
+            "arrival_threshold": 5.0, // 附近可能有敌人，所以先不用那么精确到位
             "fine_approach": "Never",
             "no_ensure_initial_movement_state": true
         },
