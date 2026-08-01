@@ -327,6 +327,8 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 
 ## Output Format
 
+- 当当前任务的提示词明确指定最终结论文件路径（例如 `answer.md`）时，必须将完整最终结论实际写入该路径，并在结束前确认文件存在且非空；仅在 stdout 或最终回复中输出 Markdown 不算完成。
+
 最终回答用这个结构：
 
 ````markdown
