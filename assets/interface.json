@@ -216,7 +216,6 @@
         "tasks/AutoUseSpMedication.json",
         "tasks/AutoEssence.json",
         "tasks/ProtocolSpace.json",
-        "tasks/SupplyPlan.json",
         // group: dijiang_ship
         "tasks/DijiangRewards.json",
         "tasks/VisitFriends.json",

@@ -32,7 +32,7 @@
         ]
     },
     "SupplyPlanDispatch": {
-        "desc": "一级调度：优先刷协议空间未达标物品；全部达标则基质兜底",
+        "desc": "一级调度：优先刷协议空间未达标物品；全部达标则结束任务",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -56,7 +56,7 @@
             "SupplyPlanInsufficient_ARMS_INSP_KIT",
             "SupplyPlanInsufficient_HEAVY_CAST_DIE",
             "SupplyPlanInsufficient_CAST_DIE",
-            "SupplyPlanEssenceFallback"
+            "SupplyPlanAllTargetsMet"
         ]
     },
     "SupplyPlanInsufficient_ADVANCED_COMBAT_RECORD": {
@@ -1721,35 +1721,15 @@
             "Node.Action.Succeeded": "三相纳米片 协议空间目标已切换，开始刷取"
         }
     },
-    "SupplyPlanEssenceFallback": {
-        "desc": "协议空间可刷物品均已达标：基质刷取无限循环直至理智耗尽，不再回到 Supply Plan",
+    "SupplyPlanAllTargetsMet": {
+        "desc": "协议空间可刷物品均已达标：结束目标库存模式",
         "recognition": "DirectHit",
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoEssenceOnSuccess": {
-                            "next": [
-                                "AutoEssenceMain",
-                                "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
-                                "AutoEssenceOnComplete"
-                            ]
-                        }
-                    },
-                    "allow_next": true
-                }
-            }
-        },
+        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoEssenceMain"
-        ],
         "focus": {
-            "Node.Action.Succeeded": "培养道具目标已满足，基质刷取将持续至理智耗尽"
+            "Node.Action.Succeeded": "培养道具目标已全部满足，结束协议空间"
         }
     }
 }

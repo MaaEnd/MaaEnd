@@ -21,8 +21,8 @@
                     255,
                     255
                 ],
-                "count": 100,
-                "connected": true
+                "connected": true,
+                "count": 100
             }
         },
         "pre_delay": 0,
@@ -51,8 +51,8 @@
                     172,
                     248
                 ],
-                "count": 100,
-                "connected": true
+                "connected": true,
+                "count": 100
             }
         },
         "pre_delay": 0,
@@ -81,8 +81,8 @@
                     216,
                     251
                 ],
-                "count": 100,
-                "connected": true
+                "connected": true,
+                "count": 100
             }
         },
         "pre_delay": 0,
@@ -111,8 +111,8 @@
                     174,
                     205
                 ],
-                "count": 100,
-                "connected": true
+                "connected": true,
+                "count": 100
             }
         },
         "pre_delay": 0,
@@ -141,8 +141,8 @@
                     3,
                     156
                 ],
-                "count": 100,
-                "connected": true
+                "connected": true,
+                "count": 100
             }
         },
         "pre_delay": 0,
