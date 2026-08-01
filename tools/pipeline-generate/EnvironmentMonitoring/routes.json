@@ -304,14 +304,8 @@
         "MissionId": "m1m37",
         "Name": "储备站周围的生态环境",
         "Id": "EcologyNearTheFieldLogisticsDepot",
-        "EnterMap": "SceneEnterWorldWulingWulingCity8",
+        "QuickTeleport": true,
         "MapName": "map02_lv002",
-        "MapAssert": [
-            684.3,
-            910.9,
-            20.5,
-            20.5
-        ],
         "MapGoal": [
             618.8,
             901.6
@@ -661,14 +655,8 @@
         "MissionId": "m1m63",
         "Name": "植物观察点",
         "Id": "FloraObservationPoint",
-        "EnterMap": "SceneEnterWorldWulingMarkerStone3",
+        "QuickTeleport": true,
         "MapName": "Wuling_Base",
-        "MapAssert": [
-            567.66,
-            2210.92,
-            65.56,
-            55.32
-        ],
         "MapTarget": [
             93.84,
             185.41

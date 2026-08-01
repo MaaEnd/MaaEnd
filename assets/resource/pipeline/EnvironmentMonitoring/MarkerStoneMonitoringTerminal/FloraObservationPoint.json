@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToFloraObservationPoint"
+            "FloraObservationPointInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedFloraObservationPoint": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToFloraObservationPoint"
+            "FloraObservationPointOpenTrackedMissionMap"
         ]
     },
     "FloraObservationPointOpenTrackedMissionMap": {
@@ -340,10 +340,10 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                567.66,
-                2210.92,
-                65.56,
-                55.32
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -360,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStone3"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
