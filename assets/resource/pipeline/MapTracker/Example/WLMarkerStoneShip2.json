@@ -55,6 +55,39 @@
             "__WLMarkerStoneShip2_ShipCheckIn"
         ]
     },
+    "__WLShip_IsInteractButtonIcon": {
+        "desc": "寻找通用交互按钮图标（仅识别）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            760,
+            330,
+            170,
+            310
+        ],
+        "template": "MapTracker/StuckMitigator/InteractButton.png",
+        "order_by": "Score"
+    },
+    "__WLMarkerStoneShip2_IsInteractButtonText": {
+        "desc": "寻找传播交互按钮文字“林地北”或“呼叫竹筏”（仅识别）",
+        "recognition": "OCR",
+        "roi": "__WLShip_IsInteractButtonIcon",
+        "roi_offset": [
+            0,
+            0,
+            150,
+            0
+        ],
+        "expected": [
+            "呼|叫|竹|筏", // 简体中文
+            "林地|北", // 简体中文
+            "呼|叫|竹|筏", // 繁體中文
+            "林地|北", // 繁體中文
+            "Call|Raft", // English
+            "Cloudrest|Woods\\s+N", // English
+            "いかだ|を呼ぶ", // 日本語
+            "栖雲林|北" // 日本語
+        ]
+    },
     "__WLMarkerStoneShip2_ShipCheckIn": {
         "desc": "走到船只停靠处，随后寻找交互按钮（如果没找到则重头来过）",
         "action": "Custom",
@@ -95,15 +128,12 @@
     },
     "__WLMarkerStoneShip2_ShipDeparture": {
         "desc": "点击交互按钮，随后等待离港成功（如果点到呼叫船只按钮而非下一站按钮，则会离港失败，此时重头来过）",
-        "recognition": "TemplateMatch",
-        "roi": [
-            760,
-            330,
-            170,
-            310
+        "recognition": "And",
+        "all_of": [
+            "__WLShip_IsInteractButtonIcon",
+            "__WLMarkerStoneShip2_IsInteractButtonText"
         ],
-        "template": "MapTracker/StuckMitigator/InteractButton.png",
-        "order_by": "Score",
+        "box_index": 1,
         "action": "Custom",
         "custom_action": "AutoAltClickAction",
         "timeout": 5500, // 随后要求在 5.5 秒内离港成功
@@ -116,12 +146,26 @@
         ]
     },
     "__WLMarkerStoneShip2_ShipDepartureSuccess": {
-        "desc": "判断是否离港成功，让角色面向南方以方便下船，随后等待到站",
+        "desc": "判断是否离港成功，让角色视角回正",
         "recognition": "And",
         "all_of": [
             "__WLMarkerStoneShip2_TeleportSuccess"
         ],
         "inverse": true, // 反转表示离开了传送点范围，也就是离港成功
+        "action": "Click",
+        "target": [
+            600,
+            320,
+            80,
+            80
+        ],
+        "contact": 2, // 鼠标中键
+        "next": [
+            "__WLMarkerStoneShip2_ShipDepartureSuccessPost"
+        ]
+    },
+    "__WLMarkerStoneShip2_ShipDepartureSuccessPost": {
+        "desc": "让角色面向南方以方便下船，随后等待到站",
         "action": "Custom",
         "custom_action": "MapTrackerToward",
         "custom_action_param": {
