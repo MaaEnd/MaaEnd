@@ -23,25 +23,16 @@ const (
 var _ maa.CustomRecognitionRunner = &ItemQuantitySatisfied{}
 
 // itemQuantitySatisfiedParam is custom_recognition_param for ItemQuantitySatisfied.
-// Use either simple mode (item + quantity) or expression mode (expression).
 type itemQuantitySatisfiedParam struct {
-	Item     string `json:"item"`
-	Quantity int    `json:"quantity"`
 	// Expression is a boolean expression over cached item quantities.
 	// Placeholders use {ITEM_ID}, same arithmetic/compare/logic as ExpressionRecognition.
 	Expression string `json:"expression"`
-	// NotifyUI when true prints current vs required quantity (or resolved expression) to UI Focus.
+	// NotifyUI when true prints the resolved expression to UI Focus.
 	// Default false (omit or false) to avoid flooding dispatch-style next scans.
 	NotifyUI bool `json:"notify_ui"`
 }
 
-func (p itemQuantitySatisfiedParam) expressionMode() bool {
-	return p.Expression != ""
-}
-
-// ItemQuantitySatisfied reports whether cached item quantity meets a condition (R1).
-// Simple mode: current >= quantity for one item.
-// Expression mode: evaluate a boolean expression over one or more cached item IDs.
+// ItemQuantitySatisfied reports whether cached item quantities meet an expression (R1).
 // Read-only; does not check readiness — combine with ItemDataReady via And when needed.
 type ItemQuantitySatisfied struct{}
 
@@ -72,66 +63,6 @@ func (r *ItemQuantitySatisfied) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		return nil, false
 	}
 
-	if params.expressionMode() {
-		return r.runExpression(ctx, arg, params)
-	}
-	return r.runSimple(ctx, arg, params)
-}
-
-func (r *ItemQuantitySatisfied) runSimple(
-	ctx *maa.Context,
-	arg *maa.CustomRecognitionArg,
-	params itemQuantitySatisfiedParam,
-) (*maa.CustomRecognitionResult, bool) {
-	current := globalCache.quantity(params.Item)
-	if params.NotifyUI {
-		displayName := itemDisplayName(params.Item)
-		focusKey := "ims.quantity_ok"
-		if current < params.Quantity {
-			focusKey = "ims.quantity_short"
-		}
-		maafocus.PrintThrottle(
-			ctx,
-			itemQuantityFocusThrottle,
-			i18n.T(focusKey, displayName, current, params.Quantity),
-		)
-	}
-
-	if current < params.Quantity {
-		log.Info().
-			Str("component", componentItemQuantitySatisfied).
-			Str("reason", "insufficient").
-			Str("item", params.Item).
-			Int("current", current).
-			Int("required", params.Quantity).
-			Msg("item quantity not satisfied")
-		return nil, false
-	}
-
-	detailJSON, err := json.Marshal(map[string]any{
-		"satisfied": true,
-		"item":      params.Item,
-		"current":   current,
-		"required":  params.Quantity,
-	})
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("component", componentItemQuantitySatisfied).
-			Msg("failed to marshal detail")
-		return nil, false
-	}
-	return &maa.CustomRecognitionResult{
-		Box:    arg.Roi,
-		Detail: string(detailJSON),
-	}, true
-}
-
-func (r *ItemQuantitySatisfied) runExpression(
-	ctx *maa.Context,
-	arg *maa.CustomRecognitionArg,
-	params itemQuantitySatisfiedParam,
-) (*maa.CustomRecognitionResult, bool) {
 	resolvedExpression, values, err := boolexpr.ResolvePlaceholders(
 		params.Expression,
 		func(itemID string) (int, error) {
@@ -221,23 +152,9 @@ func parseItemQuantitySatisfiedParam(raw string) (itemQuantitySatisfiedParam, er
 		return itemQuantitySatisfiedParam{}, err
 	}
 
-	params.Item = strings.TrimSpace(params.Item)
 	params.Expression = strings.TrimSpace(params.Expression)
-
-	hasSimple := params.Item != ""
-	hasExpression := params.Expression != ""
-
-	switch {
-	case hasSimple && hasExpression:
-		return itemQuantitySatisfiedParam{}, fmt.Errorf("item/quantity and expression are mutually exclusive")
-	case hasExpression:
-		return params, nil
-	case hasSimple:
-		if params.Quantity < 0 {
-			return itemQuantitySatisfiedParam{}, fmt.Errorf("quantity must be >= 0, got %d", params.Quantity)
-		}
-		return params, nil
-	default:
-		return itemQuantitySatisfiedParam{}, fmt.Errorf("either item+quantity or expression is required")
+	if params.Expression == "" {
+		return itemQuantitySatisfiedParam{}, fmt.Errorf("expression is required")
 	}
+	return params, nil
 }

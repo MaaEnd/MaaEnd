@@ -269,7 +269,7 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 - 对 `And` 节点，`box_index` 指向的本次子识别结果当前需要直接包含可解析的 OCR 数值结果。
 - 表达式中的整数字面量，以及 OCR 换算后的数值，若超出当前平台 `int` 可表示范围，会自动钳制到 `int` 最大值或最小值（正溢出取最大值，负溢出取最小值），并输出警告日志；表达式会继续求值，而不是直接失败。
 - 该识别器只负责表达式求值，不负责业务语义本身，业务侧应在 Pipeline 中自行组织节点与阈值。
-- 若要对 **IMS 缓存物品数量**做同类布尔表达式，请用 IMS R1 `ItemQuantitySatisfied` 的 `expression` 模式（占位符为 `{物品ID}`，见 [IMS 文档](./components/ims.md#r1itemquantitysatisfied)），不要对本识别器传入物品 ID。
+- 若要对 **IMS 缓存物品数量**做同类布尔表达式，请用 IMS R1 `ItemQuantitySatisfied`（占位符为 `{物品ID}`，见 [IMS 文档](./components/ims.md#r1itemquantitysatisfied)），不要对本识别器传入物品 ID。
 
 ### ListCompleteRecognition
 

@@ -1,13 +1,12 @@
 {
     "ItemQuantitySatisfied": {
-        "desc": "IMS R1：简单模式 item/quantity（缓存 >= quantity），或表达式模式 expression（{物品ID} 读缓存，语法同 ExpressionRecognition）。二选一。只读；可选 notify_ui，默认 false；与 ItemDataReady 组合请用 And",
+        "desc": "IMS R1：条件表达式（{物品ID} 读缓存，语法同 ExpressionRecognition）。只读；可选 notify_ui，默认 false；与 ItemDataReady 组合请用 And",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "item": "PROTODISK",
-                    "quantity": 1,
+                    "expression": "{PROTODISK}>=1",
                     "notify_ui": false
                 }
             }

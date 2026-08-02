@@ -12,50 +12,30 @@ func TestParseItemQuantitySatisfiedParam(t *testing.T) {
 	if _, err := parseItemQuantitySatisfiedParam(""); err == nil {
 		t.Fatal("expected error for empty param")
 	}
-	if _, err := parseItemQuantitySatisfiedParam(`{"item":"","quantity":1}`); err == nil {
-		t.Fatal("expected error for empty item")
-	}
-	if _, err := parseItemQuantitySatisfiedParam(`{"item":"X","quantity":-1}`); err == nil {
-		t.Fatal("expected error for negative quantity")
-	}
-	if _, err := parseItemQuantitySatisfiedParam(`{"item":"X","quantity":1,"expression":"{X}>=1"}`); err == nil {
-		t.Fatal("expected error when item and expression both set")
-	}
 	if _, err := parseItemQuantitySatisfiedParam(`{}`); err == nil {
-		t.Fatal("expected error when neither mode set")
+		t.Fatal("expected error when expression missing")
+	}
+	if _, err := parseItemQuantitySatisfiedParam(`{"expression":"   "}`); err == nil {
+		t.Fatal("expected error for blank expression")
 	}
 
-	params, err := parseItemQuantitySatisfiedParam(`{"item":" PROTODISK ","quantity":3}`)
+	params, err := parseItemQuantitySatisfiedParam(`{"expression":" ({PROTODISK}+{CAST_DIE}) >= 100 "}`)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if params.Item != "PROTODISK" || params.Quantity != 3 {
-		t.Fatalf("got %+v", params)
+	if params.Expression != "({PROTODISK}+{CAST_DIE}) >= 100" {
+		t.Fatalf("expression = %q", params.Expression)
 	}
 	if params.NotifyUI {
 		t.Fatal("expected notify_ui default false when omitted")
 	}
-	if params.expressionMode() {
-		t.Fatal("expected simple mode")
-	}
 
-	params, err = parseItemQuantitySatisfiedParam(`{"item":"PROTODISK","quantity":1,"notify_ui":true}`)
+	params, err = parseItemQuantitySatisfiedParam(`{"expression":"{PROTODISK}>=1","notify_ui":true}`)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if !params.NotifyUI {
 		t.Fatal("expected notify_ui true")
-	}
-
-	params, err = parseItemQuantitySatisfiedParam(`{"expression":" ({PROTODISK}+{CAST_DIE}) >= 100 "}`)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if !params.expressionMode() {
-		t.Fatal("expected expression mode")
-	}
-	if params.Expression != "({PROTODISK}+{CAST_DIE}) >= 100" {
-		t.Fatalf("expression = %q", params.Expression)
 	}
 }
 
@@ -65,7 +45,7 @@ func TestItemQuantitySatisfiedRun(t *testing.T) {
 
 	r := &ItemQuantitySatisfied{}
 	arg := &maa.CustomRecognitionArg{
-		CustomRecognitionParam: `{"item":"PROTODISK","quantity":5}`,
+		CustomRecognitionParam: `{"expression":"{PROTODISK}>=5"}`,
 		Roi:                    maa.Rect{0, 0, 1, 1},
 	}
 
@@ -93,11 +73,11 @@ func TestItemQuantitySatisfiedRun(t *testing.T) {
 	}
 
 	zeroArg := &maa.CustomRecognitionArg{
-		CustomRecognitionParam: `{"item":"MISSING","quantity":0}`,
+		CustomRecognitionParam: `{"expression":"{MISSING}>=0"}`,
 		Roi:                    maa.Rect{0, 0, 1, 1},
 	}
 	if _, ok := r.Run(nil, zeroArg); !ok {
-		t.Fatal("expected hit for quantity 0 even when item absent")
+		t.Fatal("expected hit for >=0 even when item absent")
 	}
 }
 

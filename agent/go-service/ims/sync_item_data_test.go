@@ -105,7 +105,7 @@ func TestLazyHydrateFromDisk(t *testing.T) {
 
 	qty := &ItemQuantitySatisfied{}
 	qtyArg := &maa.CustomRecognitionArg{
-		CustomRecognitionParam: `{"item":"PROTODISK","quantity":7}`,
+		CustomRecognitionParam: `{"expression":"{PROTODISK}>=7"}`,
 		Roi:                    maa.Rect{0, 0, 1, 1},
 	}
 	if _, ok := qty.Run(nil, qtyArg); !ok {

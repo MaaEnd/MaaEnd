@@ -49,61 +49,27 @@
             }
         },
         "ItemQuantitySatisfiedParam": {
+            "type": "object",
             "title": "ItemQuantitySatisfied Param",
-            "description": "Parameters for ItemQuantitySatisfied recognition (R1). Simple mode: hits when cached quantity for item is >= quantity. Expression mode: evaluate a boolean expression over one or more cached item IDs via {ITEM_ID} placeholders (same operators as ExpressionRecognition). Modes are mutually exclusive. Does not check readiness; combine with ItemDataReady via And when needed. Missing item counts as 0. UI Focus announce is off by default.",
-            "oneOf": [
-                {
-                    "type": "object",
-                    "title": "Simple (item + quantity)",
-                    "additionalProperties": false,
-                    "required": [
-                        "item",
-                        "quantity"
-                    ],
-                    "properties": {
-                        "item": {
-                            "title": "Item",
-                            "description": "Item ID (same keys as SyncItemData items / IMS.json).",
-                            "type": "string",
-                            "minLength": 1
-                        },
-                        "quantity": {
-                            "title": "Quantity",
-                            "description": "Required minimum cached quantity (inclusive).",
-                            "type": "integer",
-                            "minimum": 0
-                        },
-                        "notify_ui": {
-                            "title": "Notify UI",
-                            "description": "When true, print current vs required quantity to UI Focus (throttled). Default false.",
-                            "type": "boolean",
-                            "default": false
-                        }
-                    }
-                },
-                {
-                    "type": "object",
+            "description": "Parameters for ItemQuantitySatisfied recognition (R1). Evaluates a boolean expression over one or more cached item IDs via {ITEM_ID} placeholders (same operators as ExpressionRecognition). Does not check readiness; combine with ItemDataReady via And when needed. Missing item counts as 0. UI Focus announce is off by default.",
+            "additionalProperties": false,
+            "required": [
+                "expression"
+            ],
+            "properties": {
+                "expression": {
                     "title": "Expression",
-                    "additionalProperties": false,
-                    "required": [
-                        "expression"
-                    ],
-                    "properties": {
-                        "expression": {
-                            "title": "Expression",
-                            "description": "Boolean expression over cached item quantities. Use {ITEM_ID} placeholders (missing item = 0). Supports + - * / % < <= > >= == != && || ! and parentheses. Result must be boolean.",
-                            "type": "string",
-                            "minLength": 1
-                        },
-                        "notify_ui": {
-                            "title": "Notify UI",
-                            "description": "When true, print the resolved expression to UI Focus (throttled). Default false.",
-                            "type": "boolean",
-                            "default": false
-                        }
-                    }
+                    "description": "Boolean expression over cached item quantities. Use {ITEM_ID} placeholders (missing item = 0). Supports + - * / % < <= > >= == != && || ! and parentheses. Result must be boolean.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "notify_ui": {
+                    "title": "Notify UI",
+                    "description": "When true, print the resolved expression to UI Focus (throttled). Default false.",
+                    "type": "boolean",
+                    "default": false
                 }
-            ]
+            }
         },
         "UpdateItemQuantityParam": {
             "type": "object",
