@@ -55,7 +55,14 @@ jobs:
 
             感谢您的反馈！AI 正在自动分析该问题，预计耗时约 10 分钟。
           prompt-template: |
-            严格按照 .agents/skills/maaend-issue-log-analysis/SKILL.md 中的规则，分析 GitHub Issue {{issue_number}}。把最终结论写到 {{answer_file}}。
+            先读取并严格执行 .agents/skills/maaend-issue-log-analysis/SKILL.md，分析 GitHub Issue {{issue_number}}。
+
+            以下是任务完成的必要条件：
+            1. 使用文件写入工具，将完整最终结论实际写入当前工作目录下的 {{answer_file}}。
+            2. 写入后必须重新读取 {{answer_file}}，确认文件存在、非空且包含完整结论。
+            3. 校验失败时必须继续修正，完成写入前不得结束任务。
+            4. 仅在 stdout 或最终回复中输出 Markdown 不算完成。
+            5. 不得仅声称“已经写入”，也不得要求调用方手动复制内容。
 
       - name: 查看完整输入输出
         if: always()
