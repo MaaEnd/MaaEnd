@@ -13,6 +13,7 @@
             }
         },
         "next": [
+            "CreditShoppingBuyItemBelowReserve",
             "CreditShoppingBuyItemOCR_ArsenalTicket",
             "CreditShoppingBuyItemOCR_Oroberyl",
             "CreditShoppingBuyItemOCR_TCreds",
@@ -28,6 +29,72 @@
             "CreditShoppingBuyItemOCR_Protoprism",
             "CreditShoppingBuyItemOCR_Protohedron"
         ]
+    },
+    "CreditShoppingBuyItemPriceOCR": {
+        "desc": "购买弹窗内物品价格",
+        "recognition": "OCR",
+        "roi": [
+            921,
+            470,
+            179,
+            95
+        ],
+        "expected": [
+            "^\\d+$"
+        ],
+        "only_rec": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingBuyItemBelowReserve": {
+        "desc": "持有信用点 − 弹窗价格 < 保留阈值：取消购买并停止任务（选项：保留信用点阈值）",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{CreditShoppingReserveCreditOCRInternal}-{CreditShoppingBuyItemPriceOCR}<300"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CreditShoppingBuyItemCancelClose"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item_below_reserve"
+        }
+    },
+    "CreditShoppingBuyItemCancelClose": {
+        "desc": "取消购买：关闭购买弹窗",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CreditShoppingBuyItemStop"
+        ]
+    },
+    "CreditShoppingBuyItemStop": {
+        "desc": "取消购买后停止任务",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "CreditShoppingBuyItemNameColor": {
         "desc": "物品名称文字颜色",

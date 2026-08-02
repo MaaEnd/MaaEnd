@@ -615,6 +615,7 @@
     "task.CreditShopping.buy_item.Protohedron": "Purchasing item: Protohedron",
     "task.CreditShopping.refresh_no_credit": "Insufficient credits",
     "task.CreditShopping.reserve_credit_reached": "Credits are below the reserved threshold, exiting purchase flow",
+    "task.CreditShopping.buy_item_below_reserve": "Buying would leave credits below the reserved threshold; canceling purchase and stopping the task",
     "task.CreditShopping.auto_get_credits": "Insufficient credits, attempting to collect from the Dijiang reception room",
     "task.CreditShopping.prudent_refresh_triggered": "Current credits minus refresh cost is below the threshold, prudent refresh triggered",
     "task.CreditShopping.refresh_count_reached_triggered": "Today's refresh count has been exhausted, purchasing remaining items directly",

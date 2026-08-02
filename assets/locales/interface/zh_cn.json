@@ -430,6 +430,7 @@
     "task.CreditShopping.buy_item.Protohedron": "购买物品：协议棱柱组",
     "task.CreditShopping.refresh_no_credit": "信用点不足",
     "task.CreditShopping.reserve_credit_reached": "信用点低于保留阈值，退出购买流程",
+    "task.CreditShopping.buy_item_below_reserve": "购买后信用点将低于保留阈值，取消购买并结束任务",
     "task.CreditShopping.auto_get_credits": "信用点不足，尝试从帝江号会客室获取",
     "task.CreditShopping.prudent_refresh_triggered": "当前信用点扣除刷新花费后低于阈值，触发稳健模式刷新",
     "task.CreditShopping.refresh_count_reached_triggered": "今日刷新次数已用尽，直接购买剩余物品",

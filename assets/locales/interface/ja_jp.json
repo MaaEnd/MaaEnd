@@ -426,6 +426,7 @@
     "task.CreditShopping.buy_item.Protohedron": "購入アイテム：協約角柱セット",
     "task.CreditShopping.refresh_no_credit": "クレジット不足",
     "task.CreditShopping.reserve_credit_reached": "クレジットが保留閾値を下回ったため、購入フローを終了します",
+    "task.CreditShopping.buy_item_below_reserve": "購入後のクレジットが保留閾値を下回るため、購入をキャンセルしてタスクを終了します",
     "task.CreditShopping.auto_get_credits": "クレジット不足のため、帝江号の応接室からの回収を試みます",
     "task.CreditShopping.prudent_refresh_triggered": "現在のクレジットから更新費用を差し引いた値が閾値を下回るため、慎重更新を発動します",
     "task.CreditShopping.refresh_count_reached_triggered": "本日の更新回数が上限に達したため、残りのアイテムを直接購入します",

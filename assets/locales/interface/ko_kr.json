@@ -426,6 +426,7 @@
     "task.CreditShopping.buy_item.Protohedron": "구매 물품: Protohedron",
     "task.CreditShopping.refresh_no_credit": "크레딧이 부족합니다",
     "task.CreditShopping.reserve_credit_reached": "크레딧이 보유 임계값보다 낮아 구매 흐름을 종료합니다",
+    "task.CreditShopping.buy_item_below_reserve": "구매 후 크레딧이 보유 임계값보다 낮아지므로 구매를 취소하고 작업을 종료합니다",
     "task.CreditShopping.auto_get_credits": "크레딧이 부족하여 제강호 접견실에서 수령을 시도합니다",
     "task.CreditShopping.prudent_refresh_triggered": "현재 크레딧에서 새로고침 비용을 뺀 값이 임계값보다 낮아 신중 새로고침이 발동되었습니다",
     "task.CreditShopping.refresh_count_reached_triggered": "오늘의 새로고침 횟수가 소진되어 남은 물품을 직접 구매합니다",
