@@ -135,6 +135,8 @@ A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
 > 培养素材页的 `IMS/item/*` 节点 ROI 往往不适合奖励界面，请传入适配当前画面的识别节点。奖励弹出入场动画期间，调用前应对物品区域使用 `pre_wait_freezes`（协议空间见 `ProtocolSpaceRewardAddItemData`）。
 >
 > 参考 Pipeline：`AddItemDataOnRewards` → `AddItemDataCloseRewards`。
+>
+> 已接入 A3 的关闭奖励路径：`SceneNoticeRewardsConfirm`（日常奖励 / 基建快速收取等）、`CreditShoppingClaimConfirm`、`MFGCabinClaimRewardClose`、`GrowthChamberClaimRewardClose`。
 
 ---
 

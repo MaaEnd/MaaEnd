@@ -98,7 +98,7 @@
         ]
     },
     "GrowthChamberClaimRewardClose": {
-        "desc": "[培养舱·领奖] 领奖完成界面点击关闭返回培养舱",
+        "desc": "[培养舱·领奖] IMS A3 累加培养道具后关闭返回培养舱",
         "recognition": {
             "type": "And",
             "param": {
@@ -109,14 +109,66 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 200,
+            "time": 300,
             "target": [
-                512,
-                387,
-                191,
-                42
+                300,
+                250,
+                750,
+                200
             ],
             "timeout": 1000
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AddItemData",
+                "custom_action_param": {
+                    "items": {
+                        "ADVANCED_COGNITIVE_CARRIER": "ADVANCED_COGNITIVE_CARRIER",
+                        "ELEMENTARY_COGNITIVE_CARRIER": "ELEMENTARY_COGNITIVE_CARRIER",
+                        "ADVANCED_COMBAT_RECORD": "ADVANCED_COMBAT_RECORD",
+                        "INTERMEDIATE_COMBAT_RECORD": "INTERMEDIATE_COMBAT_RECORD",
+                        "ELEMENTARY_COMBAT_RECORD": "ELEMENTARY_COMBAT_RECORD",
+                        "MARK_OF_PERSEVERANCE": "MARK_OF_PERSEVERANCE",
+                        "PROTOSET": "PROTOSET",
+                        "PROTODISK": "PROTODISK",
+                        "TRIPHASIC_NANOFLAKE": "TRIPHASIC_NANOFLAKE",
+                        "QUADRANT_FITTING_FLUID": "QUADRANT_FITTING_FLUID",
+                        "TACHYON_SCREENING_LATTICE": "TACHYON_SCREENING_LATTICE",
+                        "D96_STEEL_SAMPLE_4": "D96_STEEL_SAMPLE_4",
+                        "METADIASTIMA_PHOTOEMISSION_TUBE": "METADIASTIMA_PHOTOEMISSION_TUBE",
+                        "PROTOHEDRON": "PROTOHEDRON",
+                        "PROTOPRISM": "PROTOPRISM",
+                        "T_CREDS": "T_CREDS",
+                        "OROBERYL": "OROBERYL",
+                        "ARMS_INSP_SET": "ARMS_INSP_SET",
+                        "ARMS_INSP_KIT": "ARMS_INSP_KIT",
+                        "ARMS_INSPECTOR": "ARMS_INSPECTOR",
+                        "HEAVY_CAST_DIE": "HEAVY_CAST_DIE",
+                        "CAST_DIE": "CAST_DIE",
+                        "COOLANT_GEL": "COOLANT_GEL",
+                        "WULING_ARTIFICING_CATALYST": "WULING_ARTIFICING_CATALYST"
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GrowthChamberClaimRewardCloseClick"
+        ]
+    },
+    "GrowthChamberClaimRewardCloseClick": {
+        "desc": "[培养舱·领奖] 领奖完成界面点击关闭返回培养舱",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton",
+                    "ClaimAllGrowRewardCloseText"
+                ]
+            }
         },
         "pre_delay": 0,
         "action": {

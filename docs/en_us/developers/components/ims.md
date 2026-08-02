@@ -137,6 +137,8 @@ When the cache is ready it also prints one Focus per hit — no Pipeline Startin
 > Progression-tab `IMS/item/*` ROIs often do not fit the rewards UI—pass nodes for the current screen. Reward popups animate in; use `pre_wait_freezes` on the item ROI before A3 (see `ProtocolSpaceRewardAddItemData`).
 >
 > Reference Pipeline: `AddItemDataOnRewards` → `AddItemDataCloseRewards`.
+>
+> Close-reward paths already wired to A3: `SceneNoticeRewardsConfirm` (DailyRewards / Dijiang fast collect, etc.), `CreditShoppingClaimConfirm`, `MFGCabinClaimRewardClose`, `GrowthChamberClaimRewardClose`.
 
 ---
 
