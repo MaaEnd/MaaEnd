@@ -9,7 +9,7 @@ There are **2 recognitions + 3 actions**:
 | **A2** | `SyncItemData` | Core: scan the current screen and write the full cache |
 | **A1** | `UpdateItemQuantity` | Add/subtract one item in the cache |
 | **A3** | `AddItemData` | Scan the current screen and **add** recognized counts into the cache |
-| **R1** | `ItemQuantitySatisfied` | Whether one item’s cached count meets a target |
+| **R1** | `ItemQuantitySatisfied` | Whether cached counts meet a target (single-item threshold or expression) |
 | **R2** | `ItemDataReady` | Whether the whole cache is usable (exists + not expired) |
 
 Codes `A1` / `A2` / `A3` and `R1` / `R2` only reflect implementation order, not priority. **A2 was the second action written, but it is the core of IMS.**
@@ -137,7 +137,9 @@ When the cache is ready it also prints one Focus per hit — no Pipeline Startin
 
 ## R1: `ItemQuantitySatisfied`
 
-Checks whether one cached item meets a target.
+Checks whether cached item quantities meet a condition. Two mutually exclusive modes:
+
+### Simple mode: `item` + `quantity`
 
 | Param | Meaning |
 | --- | --- |
@@ -147,9 +149,45 @@ Checks whether one cached item meets a target.
 
 A hit means cached quantity `>= quantity`. Missing items count as `0`.
 
+### Expression mode: `expression`
+
+Same operators as [`ExpressionRecognition`](../custom.md#expressionrecognition), but placeholders read **IMS cache item IDs**, not on-screen OCR nodes.
+
+| Param | Meaning |
+| --- | --- |
+| `expression` | Boolean expression; use `{ITEM_ID}` for cached quantities (missing = `0`) |
+| `notify_ui` | Whether to announce the resolved expression on UI Focus; default `false` (off) |
+
+Supported operators:
+
+- Arithmetic: `+` `-` `*` `/` `%`
+- Comparison: `<` `<=` `>` `>=` `==` `!=`
+- Logic: `&&` `||` `!`
+- Grouping: `(...)`
+
+Example:
+
+```json
+{
+    "custom_recognition": "ItemQuantitySatisfied",
+    "custom_recognition_param": {
+        "expression": "({PROTODISK}+{CAST_DIE})>=100",
+        "notify_ui": false
+    }
+}
+```
+
+More examples:
+
+- `{PROTODISK}>=40`
+- `{PROTODISK}+{CAST_DIE}>=100 && {T_CREDS}<50`
+- `!({HEAVY_CAST_DIE}<10)`
+
+The expression result must be boolean. Do **not** set simple-mode and expression-mode fields together.
+
 R1 does **not** check readiness. For “ready **and** enough”, `And` R2 (`ItemDataReady`) with R1 so “not synced yet” is not treated as “need to farm”.
 
-UI Focus announce runs only when `notify_ui` is `true` (identical lines throttled ~10s). Keep the default off for dispatch-style `next` scans to avoid spam.
+UI Focus announce runs only when `notify_ui` is `true` (simple: current vs target; expression: resolved expression; identical lines throttled ~10s). Keep the default off for dispatch-style `next` scans to avoid spam.
 
 ---
 
@@ -226,7 +264,7 @@ When you need ready **and** enough:
 | `SyncItemData.json` | A2 entry + once-per-Resource lock |
 | `UpdateItemQuantity.json` | A1 |
 | `AddItemData.json` | A3 best practice (close rewards) |
-| `ItemQuantitySatisfied.json` | R1 (override `item` / `quantity`) |
+| `ItemQuantitySatisfied.json` | R1 (override `item` / `quantity`, or `expression`) |
 | `ItemDataReady.json` | R2 + `EnsureItemDataReady*` |
 | `common.json` / `item/*.json` | Rarity colors and per-item nodes |
 

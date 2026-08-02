@@ -254,5 +254,7 @@
     "ims.item.T_CREDS": "탈로시안 화폐",
     "ims.quantity_ok": "%s: 재고 %d / 목표 %d (충족)",
     "ims.quantity_short": "%s: 재고 %d / 목표 %d (부족)",
+    "ims.expression_ok": "식 성립: %s",
+    "ims.expression_short": "식 불성립: %s",
     "ims.add_item_skip_persist": "IMS 미초기화: 보상은 인식했지만 캐시는 갱신하지 않음"
 }

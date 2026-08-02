@@ -2,6 +2,8 @@ package expressionrecognition
 
 import (
 	"testing"
+
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/boolexpr"
 )
 
 func TestParseOCRNumericValue(t *testing.T) {
@@ -82,63 +84,12 @@ func TestParseParamsTrimsBoxNode(t *testing.T) {
 	}
 }
 
-func TestParseExpressionIntLiteral(t *testing.T) {
-	testCases := []struct {
-		name string
-		raw  string
-		want int
-	}{
-		{
-			name: "plain integer",
-			raw:  "300000000",
-			want: 300000000,
-		},
-		{
-			name: "positive overflow clamps to max int",
-			raw:  "99999999999999999999999999999",
-			want: expressionIntMax,
-		},
-		{
-			name: "negative overflow clamps to min int",
-			raw:  "-99999999999999999999999999999",
-			want: expressionIntMin,
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			got, err := parseExpressionIntLiteral(tc.raw)
-			if err != nil {
-				t.Fatalf("unexpected error: %v", err)
-			}
-			if got != tc.want {
-				t.Fatalf("parseExpressionIntLiteral(%q) = %d, want %d", tc.raw, got, tc.want)
-			}
-		})
-	}
-}
-
-func TestEvaluateExpressionOverflowLiteral(t *testing.T) {
-	result, err := evaluateExpression("99999999999999999999999999999 < 7920000")
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	matched, ok := result.(bool)
-	if !ok {
-		t.Fatalf("expected bool result, got %T", result)
-	}
-	if matched {
-		t.Fatalf("expected overflow literal comparison to be false, got true")
-	}
-}
-
 func TestParseOCRNumericValueClampsOverflow(t *testing.T) {
 	got, err := parseOCRNumericValue("99999999999999999999999999999")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if got != expressionIntMax {
-		t.Fatalf("parseOCRNumericValue() = %d, want %d", got, expressionIntMax)
+	if got != boolexpr.IntMax {
+		t.Fatalf("parseOCRNumericValue() = %d, want %d", got, boolexpr.IntMax)
 	}
 }

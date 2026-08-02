@@ -9,7 +9,7 @@ IMS（Item Management System）在 go-service 进程内维护培养道具的数�
 | **A2** | `SyncItemData` | 核心：扫当前界面，写入整表缓存 |
 | **A1** | `UpdateItemQuantity` | 对单个物品做加减 |
 | **A3** | `AddItemData` | 扫当前界面，把识别到的数量**累加**进缓存 |
-| **R1** | `ItemQuantitySatisfied` | 判断某物品缓存数量是否达标 |
+| **R1** | `ItemQuantitySatisfied` | 判断缓存数量是否达标（单物品阈值或条件表达式） |
 | **R2** | `ItemDataReady` | 判断整份缓存是否可用（有没有、过没过期） |
 
 代号 `A1` / `A2` / `A3`、`R1` / `R2` 只表示实现顺序，不表示优先级。其中 **A2 虽是第二个写的动作，却是整个 IMS 的核心**。
@@ -137,7 +137,9 @@ A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
 
 ## R1：`ItemQuantitySatisfied`
 
-判断缓存里某个物品是否够用。
+判断缓存里的物品数量是否满足条件。支持两种互斥模式：
+
+### 简单模式：`item` + `quantity`
 
 | 参数 | 说明 |
 | --- | --- |
@@ -147,9 +149,45 @@ A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
 
 返回命中（true）表示：缓存数量 `>= quantity`。缺失的物品按 `0` 计。
 
+### 表达式模式：`expression`
+
+与通用识别器 [`ExpressionRecognition`](../custom.md#expressionrecognition) 语法相同，但占位符读取的是 **IMS 缓存物品 ID**，而不是画面 OCR 节点。
+
+| 参数 | 说明 |
+| --- | --- |
+| `expression` | 布尔表达式；用 `{物品ID}` 引用缓存数量（缺失按 `0`） |
+| `notify_ui` | 是否向 UI 播报展开后的表达式；默认 `false`（关闭） |
+
+支持的运算：
+
+- 算术：`+` `-` `*` `/` `%`
+- 比较：`<` `<=` `>` `>=` `==` `!=`
+- 逻辑：`&&` `||` `!`
+- 分组：`(...)`
+
+示例：
+
+```json
+{
+    "custom_recognition": "ItemQuantitySatisfied",
+    "custom_recognition_param": {
+        "expression": "({PROTODISK}+{CAST_DIE})>=100",
+        "notify_ui": false
+    }
+}
+```
+
+再例如：
+
+- `{PROTODISK}>=40`
+- `{PROTODISK}+{CAST_DIE}>=100 && {T_CREDS}<50`
+- `!({HEAVY_CAST_DIE}<10)`
+
+表达式结果必须是布尔值。简单模式与表达式模式**不能同时填写**。
+
 R1 **不检查**缓存是否就绪。若需要「数据可用且数量够」，用 `And` 同时挂上 R2（`ItemDataReady`）与 R1，避免把「还没同步」误判成「数量不够去刷」。
 
-仅当 `notify_ui` 为 `true` 时，才会向 UI Focus 输出当前库存与目标（约 10 秒内相同文案会节流）。调度类 `next` 扫描建议保持默认关闭，避免刷屏。
+仅当 `notify_ui` 为 `true` 时，才会向 UI Focus 输出（简单模式：当前库存与目标；表达式模式：展开后的表达式；约 10 秒内相同文案会节流）。调度类 `next` 扫描建议保持默认关闭，避免刷屏。
 
 ---
 
@@ -226,7 +264,7 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 | `SyncItemData.json` | A2 入口与同 Resource 锁定 |
 | `UpdateItemQuantity.json` | A1 |
 | `AddItemData.json` | A3 最佳实践（领奖后关闭） |
-| `ItemQuantitySatisfied.json` | R1（调用方覆盖 `item` / `quantity`） |
+| `ItemQuantitySatisfied.json` | R1（调用方覆盖 `item` / `quantity`，或 `expression`） |
 | `ItemDataReady.json` | R2 + `EnsureItemDataReady*` |
 | `common.json` / `item/*.json` | 品质色与各物品识别节点 |
 
