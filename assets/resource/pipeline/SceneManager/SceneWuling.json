@@ -600,6 +600,7 @@
         "next": [
             "__ScenePrivateMapTeleportSuccess",
             "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]__ScenePrivateMapZoomNonExtreme",
             "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
         ]
     },
@@ -670,6 +671,7 @@
         "next": [
             "__ScenePrivateMapTeleportSuccess",
             "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]__ScenePrivateMapZoomNonExtreme",
             "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
         ]
     }
