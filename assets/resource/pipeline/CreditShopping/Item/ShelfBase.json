@@ -59,10 +59,10 @@
         "recognition": "ColorMatch",
         "roi": "NotSoldOut",
         "roi_offset": [
-            108,
-            136,
-            -128,
-            -152
+            117,
+            137,
+            -123,
+            -153
         ],
         "method": 40,
         "lower": [
