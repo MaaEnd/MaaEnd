@@ -156,6 +156,52 @@
             }
         ]
     },
+    "InMapWulingYinglungPass": {
+        "desc": "在武陵-应龙关地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "应龙关",
+                    "Yinglung Pass",
+                    "應龍關",
+                    "応龍関",
+                    "응룡 관문"
+                ]
+            }
+        ]
+    },
+    "InMapWulingNorthWulingExclusionZone": {
+        "desc": "在武陵-北部禁区地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "北部禁区",
+                    "North Wuling Exclusion Zone",
+                    "北部禁區",
+                    "北部封鎖区域",
+                    "북쪽 금지 구역"
+                ]
+            }
+        ]
+    },
     "InMapDijiang": {
         "desc": "在帝江号地图界面",
         "recognition": "And",

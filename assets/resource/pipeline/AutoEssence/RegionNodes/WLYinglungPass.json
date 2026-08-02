@@ -1,0 +1,85 @@
+{
+    "GotoTriggerPointSetAnchor_WLYinglungPass": {
+        "enabled": false,
+        "pre_delay": 0,
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointGoal_WLYinglungPass",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLYinglungPass"
+        },
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "📌目标地点：应龙关"
+        }
+    },
+    "GotoTriggerPointMaybeTeleport_WLYinglungPass": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 距离淤积点最近的锚点附近
+                            "map_name": "map02_lv007",
+                            "target": [
+                                557.8,
+                                220.1,
+                                16.3,
+                                13.8
+                            ]
+                        },
+                        {
+                            // 淤积点附近
+                            "map_name": "map02_lv007",
+                            "target": [
+                                480.8,
+                                293.8,
+                                38.3,
+                                38.3
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "inverse": true,
+        "next": [
+            "[JumpBack]__GotoTriggerPointTeleportOnce_WLYinglungPass",
+            "GotoTriggerPointGoal_WLYinglungPass"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✈️准备传送到最近锚点"
+        }
+    },
+    "__GotoTriggerPointTeleportOnce_WLYinglungPass": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            // 距离淤积点最近的锚点：应龙主营（锚点编号按 X 从左到右递增）
+            "SceneEnterWorldWulingYinglungPass2"
+        ]
+    },
+    "GotoTriggerPointGoal_WLYinglungPass": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerGoal",
+                "custom_action_param": {
+                    "map_name": "map02_lv007",
+                    "target": [
+                        501.0,
+                        313.2
+                    ]
+                }
+            }
+        },
+        "post_delay": 1500, // 确保彻底停下，规避移动惯性
+        "next": [
+            "AutoEssenceDispatcher"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点"
+        }
+    }
+}

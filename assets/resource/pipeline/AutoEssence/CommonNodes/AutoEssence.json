@@ -32,7 +32,9 @@
                         "GotoTriggerPointSetAnchor_WLQingboStockade",
                         "GotoTriggerPointSetAnchor_WLMarkerStone",
                         "GotoTriggerPointSetAnchor_WLTestArea",
-                        "GotoTriggerPointSetAnchor_WLSwordVaultDale"
+                        "GotoTriggerPointSetAnchor_WLSwordVaultDale",
+                        "GotoTriggerPointSetAnchor_WLYinglungPass",
+                        "GotoTriggerPointSetAnchor_WLNorthWulingExclusionZone"
                     ],
                     "continue": false,
                     "strict": true,

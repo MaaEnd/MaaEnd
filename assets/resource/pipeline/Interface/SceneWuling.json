@@ -512,5 +512,239 @@
             "__ScenePrivateMapWulingSwordVaultDaleEnterWorldAnchorWithPick",
             "[JumpBack]SceneEnterMapWulingSwordVaultDale"
         ]
+    },
+    "SceneEnterMapWulingYinglungPass": {
+        "desc": "从任意界面进入武陵-应龙关地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingYinglungPass",
+            "[JumpBack]SceneEnterMapAny"
+        ]
+    },
+    "SceneEnterWorldWulingYinglungPass0": {
+        "desc": "从任意界面进入武陵-应龙关-临关渠北侧大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass0"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingYinglungPassEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingYinglungPass"
+        ]
+    },
+    "SceneEnterWorldWulingYinglungPass1": {
+        "desc": "从任意界面进入武陵-应龙关-奇松岭东侧大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass1"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingYinglungPassEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingYinglungPass"
+        ]
+    },
+    "SceneEnterWorldWulingYinglungPass2": {
+        "desc": "从任意界面进入武陵-应龙关-应龙主营大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass2"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingYinglungPassEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingYinglungPass"
+        ]
+    },
+    "SceneEnterWorldWulingYinglungPass3": {
+        "desc": "从任意界面进入武陵-应龙关-石涧崖南侧大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass3"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingYinglungPassEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingYinglungPass"
+        ]
+    },
+    "SceneEnterWorldWulingYinglungPass4": {
+        "desc": "从任意界面进入武陵-应龙关-置器阁大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass4"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingYinglungPassEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingYinglungPass"
+        ]
+    },
+    "SceneEnterWorldWulingYinglungPass5": {
+        "desc": "从任意界面进入武陵-应龙关-应龙档案室大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass5"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingYinglungPassEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingYinglungPass"
+        ]
+    },
+    "SceneEnterMapWulingNorthWulingExclusionZone": {
+        "desc": "从任意界面进入武陵-北部禁区地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingNorthWulingExclusionZone",
+            "[JumpBack]SceneEnterMapAny"
+        ]
+    },
+    "SceneEnterWorldWulingNorthWulingExclusionZone0": {
+        "desc": "从任意界面进入武陵-北部禁区-前哨基地大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone0"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingNorthWulingExclusionZone"
+        ]
+    },
+    "SceneEnterWorldWulingNorthWulingExclusionZone1": {
+        "desc": "从任意界面进入武陵-北部禁区-水利枢纽大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone1"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingNorthWulingExclusionZone"
+        ]
+    },
+    "SceneEnterWorldWulingNorthWulingExclusionZone2": {
+        "desc": "从任意界面进入武陵-北部禁区-城建区西北侧大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone2"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingNorthWulingExclusionZone"
+        ]
+    },
+    "SceneEnterWorldWulingNorthWulingExclusionZone3": {
+        "desc": "从任意界面进入武陵-北部禁区-谈剑堂大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone3"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingNorthWulingExclusionZone"
+        ]
+    },
+    "SceneEnterWorldWulingNorthWulingExclusionZone4": {
+        "desc": "从任意界面进入武陵-北部禁区-城建区东南侧大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone4"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingNorthWulingExclusionZone"
+        ]
+    },
+    "SceneEnterWorldWulingNorthWulingExclusionZone5": {
+        "desc": "从任意界面进入武陵-北部禁区-平波堤大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone5"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingNorthWulingExclusionZone"
+        ]
+    },
+    "SceneEnterWorldWulingNorthWulingExclusionZone6": {
+        "desc": "从任意界面进入武陵-北部禁区-息壤研究所大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone6"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingNorthWulingExclusionZone"
+        ]
+    },
+    "SceneEnterWorldWulingNorthWulingExclusionZone7": {
+        "desc": "从任意界面进入武陵-北部禁区-天师桩研发中心大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone7"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingNorthWulingExclusionZone"
+        ]
+    },
+    "SceneEnterWorldWulingNorthWulingExclusionZone8": {
+        "desc": "从任意界面进入武陵-北部禁区-幽台试验场大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone8"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingNorthWulingExclusionZone"
+        ]
+    },
+    "SceneEnterWorldWulingNorthWulingExclusionZone9": {
+        "desc": "从任意界面进入武陵-北部禁区-甚大裂隙地下层大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone9"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingNorthWulingExclusionZone"
+        ]
+    },
+    "SceneEnterWorldWulingNorthWulingExclusionZone10": {
+        "desc": "从任意界面进入武陵-北部禁区-天柱大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone10"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingNorthWulingExclusionZone"
+        ]
+    },
+    "SceneEnterWorldWulingNorthWulingExclusionZone11": {
+        "desc": "从任意界面进入武陵-北部禁区-甚大裂隙地表层大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone11"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingNorthWulingExclusionZone"
+        ]
     }
 }

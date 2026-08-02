@@ -115,6 +115,24 @@
                             "enabled": true
                         }
                     }
+                },
+                {
+                    "name": "WLYinglungPass",
+                    "label": "$global.region.YinglungPass",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLYinglungPass": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "WLNorthWulingExclusionZone",
+                    "label": "$global.region.NorthWulingExclusionZone",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLNorthWulingExclusionZone": {
+                            "enabled": true
+                        }
+                    }
                 }
             ]
         },

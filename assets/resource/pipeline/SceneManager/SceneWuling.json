@@ -532,5 +532,145 @@
             "[JumpBack]__ScenePrivateMapZoomNonExtreme",
             "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
         ]
+    },
+    "__ScenePrivateMapAnyEnterMapWulingYinglungPass": {
+        "desc": "在任意地图界面，进入武陵-应龙关地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingYinglungPassSuccess",
+            "__ScenePrivateMapOverviewEnterMapWulingYinglungPass",
+            "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
+        ]
+    },
+    "__ScenePrivateMapAnyEnterMapWulingYinglungPassSuccess": {
+        "desc": "在地图界面，成功进入武陵-应龙关地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingYinglungPass"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMapOverviewEnterMapWulingYinglungPass": {
+        "desc": "在地图总览界面，进入武陵-应龙关地图",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -450,
+                    -150,
+                    350,
+                    150
+                ],
+                "template": [
+                    "SceneManager/MapOverviewWulingChoose.png",
+                    "SceneManager/MapOverviewWulingNotChoose.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "next": [
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
+            "__ScenePrivateMapOverviewWulingEnterMapWulingYinglungPass"
+        ]
+    },
+    "__ScenePrivateMapOverviewWulingEnterMapWulingYinglungPass": {
+        "desc": "在武陵总览界面，进入武陵-应龙关地图",
+        "action": "Click",
+        "target": [
+            733,
+            202
+        ],
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingYinglungPassSuccess"
+        ]
+    },
+    "__ScenePrivateMapWulingYinglungPassEnterWorldAnchorWithPick": {
+        "desc": "在武陵-应龙关地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingYinglungPass"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
+        ]
+    },
+    "__ScenePrivateMapAnyEnterMapWulingNorthWulingExclusionZone": {
+        "desc": "在任意地图界面，进入武陵-北部禁区地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingNorthWulingExclusionZoneSuccess",
+            "__ScenePrivateMapOverviewEnterMapWulingNorthWulingExclusionZone",
+            "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
+        ]
+    },
+    "__ScenePrivateMapAnyEnterMapWulingNorthWulingExclusionZoneSuccess": {
+        "desc": "在地图界面，成功进入武陵-北部禁区地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingNorthWulingExclusionZone"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMapOverviewEnterMapWulingNorthWulingExclusionZone": {
+        "desc": "在地图总览界面，进入武陵-北部禁区地图",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -450,
+                    -150,
+                    350,
+                    150
+                ],
+                "template": [
+                    "SceneManager/MapOverviewWulingChoose.png",
+                    "SceneManager/MapOverviewWulingNotChoose.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "next": [
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
+            "__ScenePrivateMapOverviewWulingEnterMapWulingNorthWulingExclusionZone"
+        ]
+    },
+    "__ScenePrivateMapOverviewWulingEnterMapWulingNorthWulingExclusionZone": {
+        "desc": "在武陵总览界面，进入武陵-北部禁区地图",
+        "action": "Click",
+        "target": [
+            891,
+            116
+        ],
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingNorthWulingExclusionZoneSuccess"
+        ]
+    },
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldAnchorWithPick": {
+        "desc": "在武陵-北部禁区地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingNorthWulingExclusionZone"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
+        ]
     }
 }

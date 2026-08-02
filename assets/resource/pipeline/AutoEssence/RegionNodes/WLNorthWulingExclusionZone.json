@@ -1,0 +1,128 @@
+{
+    "GotoTriggerPointSetAnchor_WLNorthWulingExclusionZone": {
+        "enabled": false,
+        "pre_delay": 0,
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_WLNorthWulingExclusionZone",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLNorthWulingExclusionZone"
+        },
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "📌目标地点：北部禁区"
+        }
+    },
+    "GotoTriggerPointMaybeTeleport_WLNorthWulingExclusionZone": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            // 距离淤积点最近的锚点附近
+                            "map_name": "map02_lv008",
+                            "target": [
+                                526.1,
+                                505.3,
+                                15.9,
+                                16.7
+                            ]
+                        },
+                        {
+                            // 淤积点附近
+                            "map_name": "map02_lv008",
+                            "target": [
+                                509.3,
+                                531.8,
+                                30.7,
+                                25.4
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "inverse": true,
+        "next": [
+            "[JumpBack]__GotoTriggerPointTeleportOnce_WLNorthWulingExclusionZone",
+            "GotoTriggerPointMove_WLNorthWulingExclusionZone"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✈️准备传送到最近锚点"
+        }
+    },
+    "__GotoTriggerPointTeleportOnce_WLNorthWulingExclusionZone": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            // 距离淤积点最近的锚点：平波堤（锚点编号按 X 从左到右递增）
+            "SceneEnterWorldWulingNorthWulingExclusionZone5"
+        ]
+    },
+    "GotoTriggerPointMove_WLNorthWulingExclusionZone": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv008",
+                    "path": [
+                        [
+                            532.9,
+                            512.3
+                        ],
+                        [
+                            535.9,
+                            511.7
+                        ],
+                        [
+                            540.8,
+                            520.0
+                        ],
+                        [
+                            535.6,
+                            538.9
+                        ],
+                        [
+                            530.6,
+                            547.1
+                        ]
+                    ],
+                    "path_trim": true
+                }
+            }
+        },
+        "next": [
+            "GotoTriggerPointMoveExact_WLNorthWulingExclusionZone"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往预备位置"
+        }
+    },
+    "GotoTriggerPointMoveExact_WLNorthWulingExclusionZone": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv008",
+                    "path": [
+                        [
+                            522.7,
+                            546.0
+                        ]
+                    ],
+                    "no_ensure_initial_movement_state": true
+                }
+            }
+        },
+        "post_delay": 1500, // 确保彻底停下，规避移动惯性
+        "next": [
+            "AutoEssenceDispatcher"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点"
+        }
+    }
+}
