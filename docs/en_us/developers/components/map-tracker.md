@@ -377,7 +377,7 @@ Optional parameters:
 - `threshold`: A real number in the range $(0, 1]$, default `0.5`. Match confidence threshold. Match results below this value will be ignored.
 - `green_mask`: Boolean, default `false`. Whether to enable green masking for the template image.
 - `with_rotation`: Boolean, default `false`. Whether to enable arbitrary angle matching, suitable for situations requiring matching rotated icons (e.g., player pointer).
-- `zoom_value`: A real number in the range $[0, 1]$, default `0`. Adjust the big map zoom slider to this position before starting the match. If set to `0` (default), it means no adjustment of the zoom slider will be made.
+- `zoom_value`: A real number in the range $[0, 1]$, default `0`. Adjust the big map zoom slider to this position before starting the match. If set to `0` (default), no zoom adjustment is made. After a non-zero zoom, the node captures a new screenshot and uses that same image for both map viewport inference and template matching.
 - `map_name_regex`: String, defaults to not filled. Restricts the range of candidate maps for big map inference. Only set when map misidentification may occur, for example, `"^map02_lv002$"` will lock the inference to only occur within "map02_lv002".
 
 <details>

@@ -245,6 +245,16 @@ func (r *MapTrackerBigMapFindImage) runSingleViewportSearch(
 	param *MapTrackerBigMapFindImageParam,
 ) (*maa.CustomRecognitionResult, bool) {
 	matchImg := arg.Img
+	if param.ZoomValue != 0 {
+		ctrl := ctx.GetTasker().GetController()
+		ctrl.PostScreencap().Wait()
+		var err error
+		matchImg, err = ctrl.CacheImage()
+		if err != nil || matchImg == nil {
+			log.Error().Err(err).Msg("Failed to capture refreshed image after zoom for FindImage")
+			return nil, false
+		}
+	}
 	inferRes, err := r.inferResultWithImg(ctx, arg, matchImg, &param.MapTrackerBigMapInferParam)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to prepare big-map viewport for FindImage")

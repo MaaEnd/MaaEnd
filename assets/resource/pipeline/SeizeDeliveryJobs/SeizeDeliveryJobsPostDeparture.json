@@ -56,15 +56,167 @@
     // ===== 分割线：下面的节点由 Go 调用 =====
     "SeizeDeliveryJobsClickTracking": {
         "desc": "在目的地地图界面，点击任务的定位标（此节点由 Go 覆写 target 并调用）",
+        "pre_delay": 0,
         "action": "Click",
         "target": [
             -1,
             -1
         ], // 需要由 Go 覆写点击位置
-        "timeout": 5000, // 断言可以正常取消追踪
+        "post_wait_freezes": {
+            "target": [
+                900,
+                520,
+                380,
+                200
+            ],
+            "time": 200,
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
+            "__MapTrackerBigMapClickCustomMarkerCancel",
             "SeizeDeliveryJobsCancelTracking"
         ]
+    },
+    "__MapTrackerBigMapClickCustomMarkerCancel": {
+        "desc": "取消送货定位标误创建的自定义标记面板",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1040,
+            620,
+            100,
+            80
+        ],
+        "template": [
+            "Common/Button/CancelButtonType1Line.png",
+            "Common/Button/CancelButtonType1LineHover.png"
+        ],
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                900,
+                520,
+                380,
+                200
+            ],
+            "time": 200,
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__MapTrackerBigMapClickCustomMarkerGone"
+        ]
+    },
+    "__MapTrackerBigMapClickCustomMarkerGone": {
+        "desc": "确认送货定位标误创建的自定义标记面板已消失",
+        "recognition": "And",
+        "all_of": [
+            "__MapTrackerBigMapClickCustomMarkerCancel"
+        ],
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__MapTrackerBigMapClickRetryReady"
+        ]
+    },
+    "__MapTrackerBigMapClickRetryReady": {
+        "desc": "确认自定义标记面板消失且已恢复大地图，准备重试送货定位标点击",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__MapTrackerBigMapClickRetry"
+        ]
+    },
+    "__MapTrackerBigMapClickRetry": {
+        "desc": "重新点击一次送货任务定位标（此节点由 Go 覆写 target）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            -1,
+            -1
+        ], // 需要由 Go 覆写点击位置
+        "post_wait_freezes": {
+            "target": [
+                900,
+                520,
+                380,
+                200
+            ],
+            "time": 200,
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__MapTrackerBigMapClickRetryCustomMarkerCancel",
+            "SeizeDeliveryJobsCancelTracking"
+        ]
+    },
+    "__MapTrackerBigMapClickRetryCustomMarkerCancel": {
+        "desc": "第二次点击仍误创建自定义标记时取消面板",
+        "recognition": "And",
+        "all_of": [
+            "__MapTrackerBigMapClickCustomMarkerCancel"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                900,
+                520,
+                380,
+                200
+            ],
+            "time": 200,
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__MapTrackerBigMapClickRetryCustomMarkerGone"
+        ]
+    },
+    "__MapTrackerBigMapClickRetryCustomMarkerGone": {
+        "desc": "确认第二次误创建的自定义标记面板已消失",
+        "recognition": "And",
+        "all_of": [
+            "__MapTrackerBigMapClickCustomMarkerCancel"
+        ],
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__MapTrackerBigMapClickRetryFailed"
+        ]
+    },
+    "__MapTrackerBigMapClickRetryFailed": {
+        "desc": "第二次误创建标记清理完成，结束本次送货流程",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SeizeDeliveryJobsCancelTracking": {
         "desc": "在当前任务地图界面，取消任务追踪以防止追踪标志干扰后续识别",
