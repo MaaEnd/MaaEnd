@@ -7,6 +7,15 @@
             107
         ]
     },
+    "__ScenePrivateMenuValuablesEnterProgressionTab": {
+        "roi": [
+            0,
+            40,
+            140,
+            658
+        ],
+        "template": "SceneManager/ProgressionTabNotChoosed.png"
+    },
     "__ScenePrivateMenuFriendsEnterMenuFriendsList": {
         "roi": [
             0,

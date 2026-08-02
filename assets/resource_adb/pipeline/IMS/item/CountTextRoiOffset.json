@@ -1,0 +1,290 @@
+{
+    "__ADVANCED_COGNITIVE_CARRIER_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__ADVANCED_COMBAT_RECORD_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__ARMS_INSPECTOR_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__ARMS_INSP_KIT_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__ARMS_INSP_SET_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__CAST_DIE_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__COOLANT_GEL_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__D96_STEEL_SAMPLE_4_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__ELEMENTARY_COGNITIVE_CARRIER_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__ELEMENTARY_COMBAT_RECORD_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__HEAVY_CAST_DIE_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__INTERMEDIATE_COMBAT_RECORD_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__MARK_OF_PERSEVERANCE_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__METADIASTIMA_PHOTOEMISSION_TUBE_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__OROBERYL_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__PROTODISK_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__PROTOHEDRON_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__PROTOPRISM_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__PROTOSET_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__QUADRANT_FITTING_FLUID_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__TACHYON_SCREENING_LATTICE_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__TRIPHASIC_NANOFLAKE_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__T_CREDS_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    },
+    "__WULING_ARTIFICING_CATALYST_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
+    }
+}

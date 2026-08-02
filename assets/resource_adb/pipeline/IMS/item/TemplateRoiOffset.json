@@ -1,0 +1,290 @@
+{
+    "__ADVANCED_COGNITIVE_CARRIER_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__ADVANCED_COMBAT_RECORD_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__ARMS_INSPECTOR_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__ARMS_INSP_KIT_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__ARMS_INSP_SET_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__CAST_DIE_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__COOLANT_GEL_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__D96_STEEL_SAMPLE_4_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__ELEMENTARY_COGNITIVE_CARRIER_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__ELEMENTARY_COMBAT_RECORD_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__HEAVY_CAST_DIE_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__INTERMEDIATE_COMBAT_RECORD_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__MARK_OF_PERSEVERANCE_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__METADIASTIMA_PHOTOEMISSION_TUBE_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__OROBERYL_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__PROTODISK_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__PROTOHEDRON_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__PROTOPRISM_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__PROTOSET_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__QUADRANT_FITTING_FLUID_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__TACHYON_SCREENING_LATTICE_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__TRIPHASIC_NANOFLAKE_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__T_CREDS_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__WULING_ARTIFICING_CATALYST_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    }
+}
