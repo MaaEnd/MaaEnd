@@ -75,10 +75,15 @@ Hits also emit localized item name + quantity via UI Focus.
 
 Overwrite is for paged lists: page 1 regenerates; later pages overwrite only the IDs visible on that page so earlier pages are not wiped.
 
+The reserved entry `SyncItemData` defaults to:
+
 ```text
-Page 1: page_dedup = false (regenerate)
-After swipe: page_dedup = true (overwrite hits, keep the rest)
+First pass: SyncItemDataRunFull (page_dedup = false, full rebuild)
+  next[0]: [JumpBack]SyncItemDataScrollPage → swipe, then SyncItemDataRunInc (page_dedup = true)
+  next[1]: SyncItemDataLock (scan finished)
 ```
+
+Extra page rounds are controlled only by `SyncItemDataScrollPage.max_hit` (currently 1). When `max_hit` is exhausted, JumpBack no longer matches and Lock runs. The node is `enabled=false` on Win32-Front by default; ADB enables it and overrides the action with a swipe-up.
 
 ### Once per Resource (implementation)
 

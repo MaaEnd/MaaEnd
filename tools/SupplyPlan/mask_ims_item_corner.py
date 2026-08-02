@@ -4,6 +4,9 @@
 
 默认将 assets/resource/image/IMS/item/*_TEMPLATE.png
 左上角 31×18 矩形涂为 RGB(0, 255, 0)。
+
+ADB 等更大模板可用 --scale-from 指向 Win32 模板目录，
+按「同名参考图尺寸比」放大绿幕矩形。
 """
 from __future__ import annotations
 
@@ -39,13 +42,22 @@ def build_parser() -> ArgumentParser:
         "--width",
         type=int,
         default=DEFAULT_BOX[2] - DEFAULT_BOX[0],
-        help="Green box width in pixels. Default: 31",
+        help="Green box width in pixels (before --scale-from). Default: 31",
     )
     parser.add_argument(
         "--height",
         type=int,
         default=DEFAULT_BOX[3] - DEFAULT_BOX[1],
-        help="Green box height in pixels. Default: 18",
+        help="Green box height in pixels (before --scale-from). Default: 18",
+    )
+    parser.add_argument(
+        "--scale-from",
+        type=Path,
+        default=None,
+        help=(
+            "Reference template directory of the same filenames. "
+            "Scales width/height by target/reference size per image."
+        ),
     )
     parser.add_argument(
         "--color",
@@ -72,6 +84,33 @@ def validate_color(color: tuple[int, int, int]) -> tuple[int, int, int]:
 def validate_size(width: int, height: int) -> tuple[int, int]:
     if width <= 0 or height <= 0:
         raise ValueError("width and height must be positive.")
+    return width, height
+
+
+def scaled_box_size(
+    png_path: Path,
+    base_width: int,
+    base_height: int,
+    scale_from: Path | None,
+) -> tuple[int, int]:
+    if scale_from is None:
+        return base_width, base_height
+
+    reference_path = scale_from / png_path.name
+    if not reference_path.is_file():
+        raise FileNotFoundError(
+            f"Missing scale reference for {png_path.name}: {reference_path}"
+        )
+
+    with Image.open(png_path) as target, Image.open(reference_path) as reference:
+        target_w, target_h = target.size
+        ref_w, ref_h = reference.size
+
+    if ref_w <= 0 or ref_h <= 0:
+        raise ValueError(f"{reference_path.name}: invalid reference size {ref_w}x{ref_h}")
+
+    width = max(1, round(base_width * target_w / ref_w))
+    height = max(1, round(base_height * target_h / ref_h))
     return width, height
 
 
@@ -110,11 +149,14 @@ def collect_templates(directory: Path) -> list[Path]:
 def main() -> int:
     args = build_parser().parse_args()
     color = validate_color(tuple(args.color))
-    width, height = validate_size(args.width, args.height)
+    base_width, base_height = validate_size(args.width, args.height)
     directory = args.directory.resolve()
+    scale_from = args.scale_from.resolve() if args.scale_from is not None else None
 
     if not directory.is_dir():
         raise FileNotFoundError(f"Directory does not exist: {directory}")
+    if scale_from is not None and not scale_from.is_dir():
+        raise FileNotFoundError(f"Scale-from directory does not exist: {scale_from}")
 
     png_paths = collect_templates(directory)
     if not png_paths:
@@ -122,10 +164,20 @@ def main() -> int:
         return 0
 
     print(f"directory={directory}")
-    print(f"green_box=[{0}, {0}, {width}, {height}] color={color}")
+    if scale_from is None:
+        print(f"green_box=[{0}, {0}, {base_width}, {base_height}] color={color}")
+    else:
+        print(
+            f"scale_from={scale_from} base_green_box=[{0}, {0}, {base_width}, {base_height}] "
+            f"color={color}"
+        )
 
     for png_path in png_paths:
-        print(f"{'DRY-RUN' if args.dry_run else 'PROCESS'} {png_path.name}")
+        width, height = scaled_box_size(
+            png_path, base_width, base_height, scale_from
+        )
+        label = "DRY-RUN" if args.dry_run else "PROCESS"
+        print(f"{label} {png_path.name} green_box=[{0}, {0}, {width}, {height}]")
         if not args.dry_run:
             paint_top_left(png_path, width, height, color)
 

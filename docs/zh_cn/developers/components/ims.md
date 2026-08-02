@@ -73,12 +73,15 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 | `false`（默认） | **重新生成** | 以本轮命中结果为准，**整表重建**缓存。本轮没扫到的 ID 不会出现在新表里。 |
 | `true` | **覆写** | 在已有缓存上，按本轮命中的 ID **覆盖数量**；没扫到的 ID **保留旧值**。 |
 
-覆写适合「列表要翻页」的场景：第一页用重新生成拿到完整第一页；翻页后再用覆写，只更新本页见到的物品，不把上一页已记的数量清掉。
+覆写适合「列表要翻页」的场景。预留入口 `SyncItemData` 的默认链路为：
 
 ```text
-第 1 页：page_dedup = false（重新生成）
-翻页后：page_dedup = true（覆写已见 ID，保留其它）
+初次：SyncItemDataRunFull（page_dedup = false，整表重建）
+  next[0]：[JumpBack]SyncItemDataScrollPage → 滑动后 SyncItemDataRunInc（page_dedup = true）
+  next[1]：SyncItemDataLock（扫描结束）
 ```
+
+额外翻页次数只改 `SyncItemDataScrollPage.max_hit`（当前为 1）。`max_hit` 用尽后 JumpBack 不再命中，走 Lock。该节点在 Win32-Front 默认 `enabled=false`，ADB 资源开启并覆盖为上滑。
 
 ### 同 Resource 只真正扫库一次（实现细节）
 
