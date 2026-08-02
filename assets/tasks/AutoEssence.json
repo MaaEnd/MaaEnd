@@ -32,7 +32,17 @@
             "label": "$option.AutoEssenceChooseLocation.label",
             "description": "$option.AutoEssenceChooseLocation.description",
             "default_case": [
-                "VFTheHub"
+                "VFTheHub",
+                "VFOriginiumSciencePark",
+                "VFOriginLodespring",
+                "VFPowerPlateau",
+                "WLWulingCity",
+                "WLQingboStockade",
+                "WLMarkerStone",
+                "WLTestArea",
+                "WLSwordVaultDale",
+                "WLYinglungPass",
+                "WLNorthWulingExclusionZone"
             ],
             "cases": [
                 {
