@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "FloraObservationPointInQuickTeleportMap"
+            "GoToFloraObservationPoint"
         ]
     },
     "AlreadyTrackedFloraObservationPoint": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "FloraObservationPointOpenTrackedMissionMap"
+            "GoToFloraObservationPoint"
         ]
     },
     "FloraObservationPointOpenTrackedMissionMap": {
@@ -340,10 +340,10 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                0,
-                0,
-                1,
-                1
+                477.62,
+                2108.95,
+                27.2,
+                27.33
             ]
         },
         "pre_delay": 0,
@@ -360,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingMarkerStone1"
             ]
         },
         "post_delay": 0,
@@ -379,14 +379,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        93.84,
-                        185.41
+                        125.73,
+                        112.6
                     ],
                     "target_tier": "Wuling_L4_330"
                 },
                 {
                     "action": "HEADING",
-                    "angle": 0
+                    "angle": 180
                 }
             ]
         },
@@ -416,7 +416,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringSwipeScreenLeft"
+            "EnvironmentMonitoringSwipeScreenDown"
         ]
     }
 }

@@ -619,15 +619,21 @@
         "MissionId": "m1m63",
         "Name": "植物观察点",
         "Id": "FloraObservationPoint",
-        "QuickTeleport": true,
+        "EnterMap": "SceneEnterWorldWulingMarkerStone1",
         "MapName": "Wuling_Base",
+        "MapAssert": [
+            477.62,
+            2108.95,
+            27.2,
+            27.33
+        ],
         "MapTarget": [
-            93.84,
-            185.41
+            125.73,
+            112.6
         ],
         "MapTargetTier": "Wuling_L4_330",
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft",
-        "Heading": 0
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 180
     },
     {
         "MissionId": "m1m64",
