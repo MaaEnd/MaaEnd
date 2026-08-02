@@ -1,0 +1,176 @@
+{
+    "OROBERYL": {
+        "desc": "IMS A3 物品:嵌晶玉(红色品质；品质色 → 模板 → 数量；仅 AddItemData 注册；box_index 指向数量 And)",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "IMSItemColorRed",
+                    "__OROBERYL_TEMPLATE",
+                    "OROBERYL_COUNT"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__OROBERYL_TEMPLATE": {
+        "desc": "IMS A3:嵌晶玉模版匹配(roi 基于品质色)",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "IMSItemColorRed",
+                "roi_offset": [
+                    -30,
+                    -100,
+                    60,
+                    100
+                ],
+                "template": [
+                    "IMS/item/OROBERYL_TEMPLATE.png"
+                ],
+                "green_mask": true,
+                "threshold": 0.85,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OROBERYL_COUNT": {
+        "desc": "IMS A3:嵌晶玉数量(灰色文字 And OCR；box_index 指向 OCR)",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__OROBERYL_COUNT_TEXT_COLOR",
+                    "OROBERYL_COUNT_OCR"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__OROBERYL_COUNT_TEXT_COLOR": {
+        "desc": "IMS A3:嵌晶玉数量灰色文字(roi 基于模板)",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "__OROBERYL_TEMPLATE",
+                "roi_offset": [
+                    0,
+                    78,
+                    0,
+                    -64
+                ],
+                "method": 4,
+                "lower": [
+                    74,
+                    74,
+                    74
+                ],
+                "upper": [
+                    119,
+                    112,
+                    107
+                ],
+                "count": 10
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OROBERYL_COUNT_OCR": {
+        "desc": "IMS A3:嵌晶玉数量 OCR（纯数字）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__OROBERYL_COUNT_TEXT_COLOR",
+                "roi_offset": [
+                    -1,
+                    -1,
+                    2,
+                    2
+                ],
+                "expected": [
+                    "^\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OROBERYL_NUMBER": {
+        "desc": "IMS A2 嵌晶玉数量（非物品卡；右上角白色文字 ColorMatch And OCR；box_index 指向 OCR）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__OROBERYL_NUMBER_TEXT_COLOR",
+                    "OROBERYL_NUMBER_OCR"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__OROBERYL_NUMBER_TEXT_COLOR": {
+        "desc": "IMS A2:嵌晶玉右上角白色文字 ColorMatch",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1087,
+                    0,
+                    92,
+                    56
+                ],
+                "method": 4,
+                "lower": [
+                    200,
+                    200,
+                    200
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 10
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OROBERYL_NUMBER_OCR": {
+        "desc": "IMS A2:嵌晶玉右上角数量 OCR（纯数字）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__OROBERYL_NUMBER_TEXT_COLOR",
+                "roi_offset": [
+                    -1,
+                    -1,
+                    2,
+                    2
+                ],
+                "expected": [
+                    "^\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

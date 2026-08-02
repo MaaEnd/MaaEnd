@@ -148,5 +148,35 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "IMSItemColorRed": {
+        "desc": "IMS 通用：奖励/列表区红色品质槽 ColorMatch（嵌晶玉等；供物品节点作 roi 锚点）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    4,
+                    46,
+                    965,
+                    589
+                ],
+                "method": 40,
+                "lower": [
+                    13,
+                    230,
+                    230
+                ],
+                "upper": [
+                    13,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 100
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

@@ -252,6 +252,7 @@
     "ims.item.COOLANT_GEL": "冷却グリース",
     "ims.item.WULING_ARTIFICING_CATALYST": "武陵加工強化剤",
     "ims.item.T_CREDS": "折金券",
+    "ims.item.OROBERYL": "赤晶玉",
     "ims.quantity_ok": "%s：在庫 %d / 目標 %d（達成）",
     "ims.quantity_short": "%s：在庫 %d / 目標 %d（不足）",
     "ims.expression_ok": "式が成立：%s",
