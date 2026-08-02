@@ -211,7 +211,7 @@
     "option.AutoEssenceDoOverride.label": "Use Inscription Vouchers",
     "option.AutoEssenceDoOverride.description": "If inscription is needed, please select the attribute to be inscribed on the accumulation point start interface in advance, and ensure sufficient inscription vouchers (if not enough, non-inscription collection will be performed).",
     "option.AutoEssenceChooseLocation.label": "Region",
-    "option.AutoEssenceChooseLocation.description": "Randomly picks one region from those selected to challenge (the task stops if none is selected).",
+    "option.AutoEssenceChooseLocation.description": "- Randomly picks one region from those selected to challenge (the task stops if none is selected).\n- Due to terrain, the regions with the highest success rate are currently Sword Vault Dale and Qingbo Stockade, while the lowest success rate is in Test Area.",
     "option.AutoEssenceChooseLocationMode.label": "Loop Execution Mode",
     "option.AutoEssenceChooseLocationMode.description": "Controls whether to randomly switch regions between each loop run",
     "option.AutoEssenceChooseLocationMode.cases.ChooseOnlyOnce.label": "Keep a single region throughout",

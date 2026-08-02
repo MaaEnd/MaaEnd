@@ -211,7 +211,7 @@
     "option.AutoEssenceDoOverride.label": "使用刻寫券",
     "option.AutoEssenceDoOverride.description": "如需刻寫，請事先在淤積點開始界面選擇要刻寫的屬性，並確保刻寫券充足（數量不足則會進行非刻寫領取）",
     "option.AutoEssenceChooseLocation.label": "地區選擇",
-    "option.AutoEssenceChooseLocation.description": "將從所選的地區中，隨機選取一個地區進行挑戰（若全不選則任務終止）",
+    "option.AutoEssenceChooseLocation.description": "- 將從所選的地區中，隨機選取一個地區進行挑戰（若全不選則任務終止）。\n- 受地形影響，目前成功率最高的地區是藏劍谷和清波寨，成功率最低的地區是試驗園區。",
     "option.AutoEssenceChooseLocationMode.label": "循環執行方式",
     "option.AutoEssenceChooseLocationMode.description": "可以控制每次循環執行間是否需要隨機改換地區",
     "option.AutoEssenceChooseLocationMode.cases.ChooseOnlyOnce.label": "全程固定單個地區",

@@ -211,7 +211,7 @@
     "option.AutoEssenceDoOverride.label": "使用刻写券",
     "option.AutoEssenceDoOverride.description": "如需刻写，请事先在淤积点开始界面选择要刻写的属性，并确保刻写券充足（数量不足则会进行非刻写领取）",
     "option.AutoEssenceChooseLocation.label": "地区选择",
-    "option.AutoEssenceChooseLocation.description": "将从所选的地区中，随机选取一个地区进行挑战（若全不选则任务终止）",
+    "option.AutoEssenceChooseLocation.description": "- 将从所选的地区中，随机选取一个地区进行挑战（若全不选则任务终止）。\n- 受地形影响，目前成功率最高的地区是藏剑谷和清波寨，成功率最低的地区是试验园区。",
     "option.AutoEssenceChooseLocationMode.label": "循环执行方式",
     "option.AutoEssenceChooseLocationMode.description": "可以控制每次循环执行间是否需要随机改换地区",
     "option.AutoEssenceChooseLocationMode.cases.ChooseOnlyOnce.label": "全程固定单个地区",

@@ -207,7 +207,7 @@
     "option.AutoEssenceDoOverride.label": "刻印券を使用する",
     "option.AutoEssenceDoOverride.description": "刻印が必要な場合は、あらかじめ蓄積ポイント開始画面で刻印したい属性を選択し、刻印券が十分にあることを確認してください（不足している場合は非刻印で受け取ります）",
     "option.AutoEssenceChooseLocation.label": "地域",
-    "option.AutoEssenceChooseLocation.description": "選択した地域の中からランダムに1つを選んで挑戦します（何も選択しない場合はタスクを終了します）",
+    "option.AutoEssenceChooseLocation.description": "- 選択した地域の中からランダムに1つを選んで挑戦します（何も選択しない場合はタスクを終了します）。\n- 地形の影響により、現在成功率が最も高い地域は蔵剣谷と清波寨、最も低い地域は実験区域です。",
     "option.AutoEssenceChooseLocationMode.label": "ループ実行方式",
     "option.AutoEssenceChooseLocationMode.description": "ループ実行ごとにランダムで地域を切り替えるかどうかを制御します",
     "option.AutoEssenceChooseLocationMode.cases.ChooseOnlyOnce.label": "最後まで1つの地域に固定",

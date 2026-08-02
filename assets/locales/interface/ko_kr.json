@@ -207,7 +207,7 @@
     "option.AutoEssenceDoOverride.label": "각인권 사용",
     "option.AutoEssenceDoOverride.description": "각인이 필요한 경우 미리 축적 지점 시작 인터페이스에서 각인할 속성을 선택하고 각인권이 충분한지 확인하십시오. (부족 시 비각인 수령 진행)",
     "option.AutoEssenceChooseLocation.label": "지역",
-    "option.AutoEssenceChooseLocation.description": "선택한 지역 중에서 무작위로 하나를 골라 도전합니다 (아무것도 선택하지 않으면 작업이 종료됩니다)",
+    "option.AutoEssenceChooseLocation.description": "- 선택한 지역 중에서 무작위로 하나를 골라 도전합니다 (아무것도 선택하지 않으면 작업이 종료됩니다).\n- 지형의 영향으로 현재 성공률이 가장 높은 지역은 검고리 골짜기와 청파채이며, 성공률이 가장 낮은 지역은 실험 구역입니다.",
     "option.AutoEssenceChooseLocationMode.label": "반복 실행 방식",
     "option.AutoEssenceChooseLocationMode.description": "반복 실행마다 지역을 무작위로 전환할지 여부를 제어합니다",
     "option.AutoEssenceChooseLocationMode.cases.ChooseOnlyOnce.label": "처음부터 끝까지 단일 지역 고정",
