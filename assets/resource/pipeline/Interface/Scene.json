@@ -87,13 +87,14 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 400,
-            "timeout": 5000,
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500,
             "target": [
-                230,
-                250,
-                800,
-                200
+                528,
+                299,
+                222,
+                131
             ]
         },
         "pre_delay": 0,
@@ -183,13 +184,14 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 400,
-            "timeout": 5000,
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500,
             "target": [
-                230,
-                250,
-                800,
-                200
+                528,
+                299,
+                222,
+                131
             ]
         },
         "pre_delay": 0,
