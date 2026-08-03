@@ -581,20 +581,6 @@
     "option.CreditShoppingItems.cases.WulingTalositeProbe.label": "Wuling Talosite Probe",
     "option.CreditShoppingItems.cases.FowlbeastPaperKite.label": "Fowlbeast Paper Kite",
     "option.CreditShoppingItems.cases.SwingingGentlemanClassicalAlbum.label": "Der Schwingende Gentleman Classical Album",
-    "task.CreditShopping.buy_item.Oroberyl": "Purchasing item: Oroberyl",
-    "task.CreditShopping.buy_item.ArsenalTicket": "Purchasing item: Arsenal Ticket",
-    "task.CreditShopping.buy_item.TCreds": "Purchasing item: T-Creds",
-    "task.CreditShopping.buy_item.ElementaryCognitiveCarrier": "Purchasing item: Elementary Cognitive Carrier",
-    "task.CreditShopping.buy_item.ElementaryCombatRecord": "Purchasing item: Elementary Combat Record",
-    "task.CreditShopping.buy_item.IntermediateCombatRecord": "Purchasing item: Intermediate Combat Record",
-    "task.CreditShopping.buy_item.ArmsInspector": "Purchasing item: Arms Inspector",
-    "task.CreditShopping.buy_item.CastDie": "Purchasing item: Cast Die",
-    "task.CreditShopping.buy_item.HeavyCastDie": "Purchasing item: Heavy Cast Die",
-    "task.CreditShopping.buy_item.ArmsINSPKit": "Purchasing item: Arms INSP Kit",
-    "task.CreditShopping.buy_item.Protodisk": "Purchasing item: Protodisk",
-    "task.CreditShopping.buy_item.Protoprism": "Purchasing item: Protoprism",
-    "task.CreditShopping.buy_item.Protoset": "Purchasing item: Protoset",
-    "task.CreditShopping.buy_item.Protohedron": "Purchasing item: Protohedron",
     "task.CreditShopping.refresh_no_credit": "Insufficient credits",
     "task.CreditShopping.reserve_credit_reached": "Credits are below the reserved threshold, exiting purchase flow",
     "task.CreditShopping.buy_item_below_reserve": "Buying would leave credits below the reserved threshold; canceling purchase and stopping the task",
@@ -1328,3 +1314,4 @@
     "task.ProtocolSpace.focus.supply_plan.override_started.WEAPON_EXP": "Weapon EXP: Protocol Space target switched; start farming",
     "task.ProtocolSpace.focus.supply_plan.reward_item_met.WEAPON_EXP": "Weapon EXP target met; end current Protocol Space run"
 }
+

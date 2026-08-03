@@ -416,20 +416,6 @@
     "option.CreditShoppingItems.cases.WulingTalositeProbe.label": "武陵塔晶探针",
     "option.CreditShoppingItems.cases.FowlbeastPaperKite.label": "羽兽剪纸风筝",
     "option.CreditShoppingItems.cases.SwingingGentlemanClassicalAlbum.label": "《摇摆绅士古典特辑》",
-    "task.CreditShopping.buy_item.Oroberyl": "购买物品：嵌晶玉",
-    "task.CreditShopping.buy_item.ArsenalTicket": "购买物品：武库配额",
-    "task.CreditShopping.buy_item.TCreds": "购买物品：折金票",
-    "task.CreditShopping.buy_item.ElementaryCognitiveCarrier": "购买物品：初级认知载体",
-    "task.CreditShopping.buy_item.ElementaryCombatRecord": "购买物品：初级作战记录",
-    "task.CreditShopping.buy_item.IntermediateCombatRecord": "购买物品：中级作战记录",
-    "task.CreditShopping.buy_item.ArmsInspector": "购买物品：武器检查单元",
-    "task.CreditShopping.buy_item.CastDie": "购买物品：强固模具",
-    "task.CreditShopping.buy_item.HeavyCastDie": "购买物品：重型强固模具",
-    "task.CreditShopping.buy_item.ArmsINSPKit": "购买物品：武器检查装置",
-    "task.CreditShopping.buy_item.Protodisk": "购买物品：协议圆盘",
-    "task.CreditShopping.buy_item.Protoprism": "购买物品：协议棱柱",
-    "task.CreditShopping.buy_item.Protoset": "购买物品：协议圆盘组",
-    "task.CreditShopping.buy_item.Protohedron": "购买物品：协议棱柱组",
     "task.CreditShopping.refresh_no_credit": "信用点不足",
     "task.CreditShopping.reserve_credit_reached": "信用点低于保留阈值，退出购买流程",
     "task.CreditShopping.buy_item_below_reserve": "购买后信用点将低于保留阈值，取消购买并结束任务",
@@ -1328,3 +1314,4 @@
     "task.ProtocolSpace.focus.supply_plan.override_started.WEAPON_EXP": "武器经验 协议空间目标已切换，开始刷取",
     "task.ProtocolSpace.focus.supply_plan.reward_item_met.WEAPON_EXP": "武器经验 目标已达标，结束当前协议空间刷取"
 }
+

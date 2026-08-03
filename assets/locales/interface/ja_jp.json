@@ -412,20 +412,6 @@
     "option.CreditShoppingItems.cases.WulingTalositeProbe.label": "武陵タロサイト探査機",
     "option.CreditShoppingItems.cases.FowlbeastPaperKite.label": "羽獣の切り紙凧",
     "option.CreditShoppingItems.cases.SwingingGentlemanClassicalAlbum.label": "『スウィングジェントルのクラシックアルバム』",
-    "task.CreditShopping.buy_item.Oroberyl": "購入アイテム：嵌晶玉",
-    "task.CreditShopping.buy_item.ArsenalTicket": "購入アイテム：武庫配額",
-    "task.CreditShopping.buy_item.TCreds": "購入アイテム：折金票",
-    "task.CreditShopping.buy_item.ElementaryCognitiveCarrier": "購入アイテム：初級認識媒体",
-    "task.CreditShopping.buy_item.ElementaryCombatRecord": "購入アイテム：初級作戦記録",
-    "task.CreditShopping.buy_item.IntermediateCombatRecord": "購入アイテム：中級作戦記録",
-    "task.CreditShopping.buy_item.ArmsInspector": "購入アイテム：武器検査ユニット",
-    "task.CreditShopping.buy_item.CastDie": "購入アイテム：硬質金型",
-    "task.CreditShopping.buy_item.HeavyCastDie": "購入アイテム：重硬質金型",
-    "task.CreditShopping.buy_item.ArmsINSPKit": "購入アイテム：武器検査セット",
-    "task.CreditShopping.buy_item.Protodisk": "購入アイテム：協約ディスク",
-    "task.CreditShopping.buy_item.Protoprism": "購入アイテム：協約角柱",
-    "task.CreditShopping.buy_item.Protoset": "購入アイテム：協約ディスクセット",
-    "task.CreditShopping.buy_item.Protohedron": "購入アイテム：協約角柱セット",
     "task.CreditShopping.refresh_no_credit": "クレジット不足",
     "task.CreditShopping.reserve_credit_reached": "クレジットが保留閾値を下回ったため、購入フローを終了します",
     "task.CreditShopping.buy_item_below_reserve": "購入後のクレジットが保留閾値を下回るため、購入をキャンセルしてタスクを終了します",
@@ -1328,3 +1314,4 @@
     "task.ProtocolSpace.focus.supply_plan.override_started.WEAPON_EXP": "武器経験 のプロトコル空間目標へ切り替え、周回を開始します",
     "task.ProtocolSpace.focus.supply_plan.reward_item_met.WEAPON_EXP": "武器経験 が目標達成のため、現在のプロトコル空間周回を終了します"
 }
+

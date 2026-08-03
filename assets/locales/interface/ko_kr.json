@@ -412,20 +412,6 @@
     "option.CreditShoppingItems.cases.WulingTalositeProbe.label": "무릉 유령수정 탐침기",
     "option.CreditShoppingItems.cases.FowlbeastPaperKite.label": "파울비스트 종이 연",
     "option.CreditShoppingItems.cases.SwingingGentlemanClassicalAlbum.label": "<스윙 젠틀맨 고전 특집>",
-    "task.CreditShopping.buy_item.Oroberyl": "구매 물품: Oroberyl",
-    "task.CreditShopping.buy_item.ArsenalTicket": "구매 물품: Arsenal Ticket",
-    "task.CreditShopping.buy_item.TCreds": "구매 물품: T-Creds",
-    "task.CreditShopping.buy_item.ElementaryCognitiveCarrier": "구매 물품: Elementary Cognitive Carrier",
-    "task.CreditShopping.buy_item.ElementaryCombatRecord": "구매 물품: Elementary Combat Record",
-    "task.CreditShopping.buy_item.IntermediateCombatRecord": "구매 물품: Intermediate Combat Record",
-    "task.CreditShopping.buy_item.ArmsInspector": "구매 물품: Arms Inspector",
-    "task.CreditShopping.buy_item.CastDie": "구매 물품: Cast Die",
-    "task.CreditShopping.buy_item.HeavyCastDie": "구매 물품: Heavy Cast Die",
-    "task.CreditShopping.buy_item.ArmsINSPKit": "구매 물품: Arms INSP Kit",
-    "task.CreditShopping.buy_item.Protodisk": "구매 물품: Protodisk",
-    "task.CreditShopping.buy_item.Protoprism": "구매 물품: Protoprism",
-    "task.CreditShopping.buy_item.Protoset": "구매 물품: Protoset",
-    "task.CreditShopping.buy_item.Protohedron": "구매 물품: Protohedron",
     "task.CreditShopping.refresh_no_credit": "크레딧이 부족합니다",
     "task.CreditShopping.reserve_credit_reached": "크레딧이 보유 임계값보다 낮아 구매 흐름을 종료합니다",
     "task.CreditShopping.buy_item_below_reserve": "구매 후 크레딧이 보유 임계값보다 낮아지므로 구매를 취소하고 작업을 종료합니다",
@@ -1328,3 +1314,4 @@
     "task.ProtocolSpace.focus.supply_plan.override_started.WEAPON_EXP": "무기 경험: 프로토콜 공간 목표 전환, 파밍 시작",
     "task.ProtocolSpace.focus.supply_plan.reward_item_met.WEAPON_EXP": "무기 경험 목표 달성, 현재 프로토콜 공간 종료"
 }
+
