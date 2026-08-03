@@ -200,6 +200,21 @@ navmesh::WorldPoint LookaheadOnCorridor(const navmesh::WorldPath& path, const Co
     return path.points.back();
 }
 
+double CorridorAimHeading(const NaviPosition& position, const navmesh::WorldPoint& anchor,
+                          const navmesh::WorldPoint& lookahead)
+{
+    const double dx = lookahead.x - anchor.x;
+    const double dy = lookahead.y - anchor.y;
+    constexpr double kChordFloorM = 1e-6;
+    const double chord = std::hypot(dx, dy);
+    if (chord <= kChordFloorM) {
+        return NaviMath::CalcTargetRotation(position.x, position.y, lookahead.x, lookahead.y);
+    }
+    const double reach = std::max(kNavRunAimReachMinM, chord);
+    return NaviMath::CalcTargetRotation(position.x, position.y, anchor.x + dx / chord * reach,
+                                        anchor.y + dy / chord * reach);
+}
+
 double UpcomingCorridorTurnDeg(const navmesh::WorldPath& path, const CorridorProjection& projection, double lookahead_distance)
 {
     if (path.points.size() < 2 || projection.edge_idx + 1 >= path.points.size() || lookahead_distance <= 0.0) {
@@ -318,12 +333,66 @@ bool NavRunController::buildPlan(
     return true;
 }
 
+void NavRunController::recordSpeedSample(const NaviPosition& position, std::chrono::steady_clock::time_point now)
+{
+    ++tick_seq_;
+    if (!speed_samples_.empty()) {
+        const NavRunSpeedSample& last = speed_samples_.back();
+        const double step = std::hypot(position.x - last.x, position.y - last.y);
+        if (step <= kMeasurementDefaultPositionQuantum) {
+            return;
+        }
+        // Two ways the pair stops describing one tick of travel: a jump too fast to be travel is a
+        // re-acquire landing somewhere else, and a span this long means the corridor was down in
+        // between, so the step covers many ticks while the counter advanced once. Either would read
+        // as an enormous rate, so the window restarts instead of carrying the discontinuity.
+        const int64_t span_ms = ElapsedMs(last.at, now);
+        const double span_sec = static_cast<double>(span_ms) / 1000.0;
+        if (span_sec <= 0.0 || span_ms > kNavRunSpeedWindowMs || step > kNavRunSpeedJumpMaxPxPerSec * span_sec) {
+            speed_samples_.clear();
+        }
+    }
+    speed_samples_.push_back(NavRunSpeedSample { .at = now, .tick_seq = tick_seq_, .x = position.x, .y = position.y });
+    while (speed_samples_.size() > kNavRunSpeedMaxSamples
+           || (speed_samples_.size() > 1 && ElapsedMs(speed_samples_.front().at, now) > kNavRunSpeedKeepMs)) {
+        speed_samples_.erase(speed_samples_.begin());
+    }
+}
+
+std::optional<double> NavRunController::estimateStepPerTick() const
+{
+    if (speed_samples_.size() < 2) {
+        return std::nullopt;
+    }
+    const NavRunSpeedSample& newest = speed_samples_.back();
+    // Oldest sample still at least a full window back, so the estimate spans real travel rather than
+    // one fix pair; before that much history exists the whole span is used instead of stalling.
+    size_t oldest = 0;
+    for (size_t i = 0; i + 1 < speed_samples_.size(); ++i) {
+        if (ElapsedMs(speed_samples_[i].at, newest.at) >= kNavRunSpeedWindowMs) {
+            oldest = i;
+        }
+    }
+    if (newest.tick_seq <= speed_samples_[oldest].tick_seq) {
+        return std::nullopt;
+    }
+    double arc = 0.0;
+    for (size_t i = oldest; i + 1 < speed_samples_.size(); ++i) {
+        arc += std::hypot(speed_samples_[i + 1].x - speed_samples_[i].x, speed_samples_[i + 1].y - speed_samples_[i].y);
+    }
+    return arc / static_cast<double>(newest.tick_seq - speed_samples_[oldest].tick_seq);
+}
+
 double NavRunController::chooseLookaheadDistance(const RouteTrackingState& route) const
 {
     if (!route.startup_motion_confirmed) {
         return kNavRunLookaheadLowSpeedM;
     }
-    return kNavRunLookaheadWalkM;
+    const std::optional<double> step = estimateStepPerTick();
+    if (!step) {
+        return kNavRunLookaheadLowSpeedM;
+    }
+    return std::clamp(kNavRunLookaheadPreviewTicks * *step, kNavRunLookaheadMinM, kNavRunLookaheadMaxM);
 }
 
 NavRunReplanReason NavRunController::detectReplanTrigger(const RouteTrackingState& route, std::chrono::steady_clock::time_point now) const
@@ -351,12 +420,22 @@ NavRunTickResult NavRunController::tick(
         runtime->nav_run_dirty = false;
     }
 
+    // Ahead of every early return below, so the speed window keeps filling while the corridor is down
+    // and the first steered tick after it comes back already has a usable estimate.
+    recordSpeedSample(position, now);
+
     if (!anchor.HasPosition() || !session->HasCurrentWaypoint()) {
         return result;
     }
     if (!CanUseNavRunSteering(session->CurrentWaypoint())) {
         return result;
     }
+
+    // Published before any of the early returns below (plan build failed, projection lost, cursor clamped
+    // outside the window). Without it the caller falls back to the serial waypoint breadcrumb, which sits a
+    // couple of pixels away while the anchor is still tens of pixels out, and the no-progress watchdogs read
+    // that as "arrived" for as long as the corridor stays down.
+    result.straight_to_anchor = std::hypot(position.x - anchor.x, position.y - anchor.y);
 
     if (plan_.valid) {
         if (plan_.anchor_index != anchor_index) {
@@ -368,9 +447,15 @@ NavRunTickResult NavRunController::tick(
     }
 
     if (!plan_.valid) {
-        if (!buildPlan(param, *session, position, anchor_index, anchor, NavRunReplanReason::AnchorChanged, now)) {
+        if (failed_build_anchor_ == anchor_index && ElapsedMs(failed_build_at_, now) < kNavRunPlanFailureCooldownMs) {
             return result;
         }
+        if (!buildPlan(param, *session, position, anchor_index, anchor, NavRunReplanReason::AnchorChanged, now)) {
+            failed_build_anchor_ = anchor_index;
+            failed_build_at_ = now;
+            return result;
+        }
+        failed_build_anchor_ = std::numeric_limits<size_t>::max();
         last_progress_seen_ = now;
         last_remaining_to_anchor_ = std::numeric_limits<double>::infinity();
     }
@@ -433,7 +518,7 @@ NavRunTickResult NavRunController::tick(
     const double upcoming_turn = UpcomingCorridorTurnDeg(plan_.path, *projection, kNavRunUpcomingTurnLookaheadM);
     const double lookahead_distance = chooseLookaheadDistance(route);
     const navmesh::WorldPoint lookahead = LookaheadOnCorridor(plan_.path, *projection, lookahead_distance);
-    const double corridor_heading = NaviMath::CalcTargetRotation(position.x, position.y, lookahead.x, lookahead.y);
+    const double corridor_heading = CorridorAimHeading(position, projection->point, lookahead);
 
     result.has_corridor_heading = true;
     result.corridor_heading = corridor_heading;

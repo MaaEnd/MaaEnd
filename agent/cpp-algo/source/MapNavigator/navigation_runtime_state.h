@@ -81,8 +81,6 @@ struct DynamicRecoveryState
     std::chrono::steady_clock::time_point started_at {};
     std::chrono::steady_clock::time_point last_replan_at {};
     size_t anchor_index = std::numeric_limits<size_t>::max();
-    int jump_attempt_count = 0;
-    int detour_attempt_count = 0;
     bool active = false;
 
     void Reset()
@@ -91,9 +89,25 @@ struct DynamicRecoveryState
         started_at = {};
         last_replan_at = {};
         anchor_index = std::numeric_limits<size_t>::max();
+        active = false;
+    }
+};
+
+// Recovery ladder position (jump -> navmesh detour -> physical unstick), keyed on the corridor anchor the
+// agent is stuck against. Top-level so a dynamic replan, which renumbers the path and clears the
+// DynamicRecoveryState episode, cannot rewind it; cleared only by a genuine escape, a waypoint advance or
+// a new navigation.
+struct RecoveryEscalationState
+{
+    size_t anchor_index = std::numeric_limits<size_t>::max();
+    int jump_attempt_count = 0;
+    int detour_attempt_count = 0;
+
+    void Reset()
+    {
+        anchor_index = std::numeric_limits<size_t>::max();
         jump_attempt_count = 0;
         detour_attempt_count = 0;
-        active = false;
     }
 };
 
@@ -215,12 +229,27 @@ struct CrossTierEscapeState
     }
 };
 
+struct ProgressIdentityState
+{
+    static constexpr size_t kSerialKeyBias = std::numeric_limits<size_t>::max() / 2;
+
+    bool from_anchor = false;
+    size_t source_reset_idx = std::numeric_limits<size_t>::max();
+
+    void Reset()
+    {
+        from_anchor = false;
+        source_reset_idx = std::numeric_limits<size_t>::max();
+    }
+};
+
 struct NavigationRuntimeState
 {
     RouteTrackerState route;
     FlowState flow;
     SemanticState semantic;
     DynamicRecoveryState recovery;
+    RecoveryEscalationState recovery_escalation;
     LocalizationLossState localization_loss;
     RiverFallRecoveryState river_fall;
     LateralBypassState bypass;
@@ -234,13 +263,13 @@ struct NavigationRuntimeState
     int global_reacquire_streak = 0;
     bool dynamic_replan_requested = false;
     bool nav_run_dirty = true;
-    bool progress_from_corridor = false;
-    size_t progress_source_reset_idx = std::numeric_limits<size_t>::max();
+    ProgressIdentityState progress_identity;
 
     void ResetNavigationAssistState()
     {
         route.ResetTracking();
         recovery.Reset();
+        recovery_escalation.Reset();
         steering_rate.Reset();
         offroute.Reset();
         dynamic_replan_requested = false;
@@ -252,12 +281,14 @@ struct NavigationRuntimeState
         route.Reset();
         semantic.ResetTransient();
         recovery.Reset();
+        recovery_escalation.Reset();
         localization_loss.Reset();
         river_fall.Reset();
         bypass.Reset();
         steering_rate.Reset();
         offroute.Reset();
         cross_tier_escape.Reset();
+        progress_identity.Reset();
         global_reacquire_streak = 0;
         dynamic_replan_requested = false;
         nav_run_dirty = true;
@@ -270,6 +301,7 @@ struct NavigationRuntimeState
     {
         route.ResetTracking();
         recovery.Reset();
+        recovery_escalation.Reset();
         river_fall.Reset();
         bypass.Reset();
         offroute.Reset();

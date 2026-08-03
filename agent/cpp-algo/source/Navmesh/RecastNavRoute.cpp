@@ -139,7 +139,7 @@ std::optional<WindowInfo> buildWindow(
             continue;
         }
         const float lf = info.lh.v[static_cast<size_t>(rcs.cell[ci])];
-        if (!std::isnan(lf) && std::fabs(rcs.h[ci] - lf) <= static_cast<float>(kMergeH)) {
+        if (!std::isnan(lf) && std::fabs(rcs.h[ci] - lf) <= static_cast<float>(kQH)) {
             corein.v[static_cast<size_t>(rcs.cell[ci])] = 1;
         }
     }
@@ -279,6 +279,7 @@ std::optional<std::vector<WorldPoint>>
         dist.v[i] = std::min(info.dist.v[i], wdist.v[i]);
     }
     // 亏欠越多单价越高;脊线保底只进几何口径 prefg,禁入 mult
+    // 拓扑口径的余量目标随局部通道半宽下降, 窄通道的余量单价才不会把能走的路挤出选路
     const Grid<float> pref = PrefField(dist, false);
     const Grid<float> prefg = PrefField(dist, true);
     Grid<float> mult(nx, ny, 0.0F);
@@ -287,12 +288,15 @@ std::optional<std::vector<WorldPoint>>
         mult.v[i] = 1.0F + static_cast<float>(kLam) * c;
     }
     // 几何口径的余量目标: 通道半宽封顶 kGeoR, 供绿段重寻与拉直判定
+    // 通道目标之外再按固定余量目标 kR 追加平方亏欠, 使窄通道内部仍向中间收敛
     const Grid<float> tgt = TargetField(dist);
     Grid<float> multg(nx, ny, 0.0F);
     Grid<float> cf(nx, ny, 0.0F);
     for (size_t i = 0; i < multg.v.size(); ++i) {
         const float c = std::min(std::max((tgt.v[i] - dist.v[i]) / tgt.v[i], 0.0F), 1.0F);
-        multg.v[i] = 1.0F + static_cast<float>(kLam) * c;
+        const float cdef =
+            std::min(std::max((static_cast<float>(kR) - dist.v[i]) / static_cast<float>(kR), 0.0F), 1.0F);
+        multg.v[i] = 1.0F + static_cast<float>(kLam) * c + static_cast<float>(kLamR) * cdef * cdef;
         cf.v[i] = std::min(dist.v[i], tgt.v[i]);
     }
     const ClearanceFloor cfl(&cf, &multg, x0, y0, kCS);
@@ -582,6 +586,17 @@ std::optional<std::vector<WorldPoint>>
                             dist.at(y, x) >= pref.at(y, x) || (dist.at(y, x) >= prefg.at(y, x) && pmd.at(y, x) != 0) || pm.at(y, x) != 0);
                     }
                 }
+                // 切角规则要求对角步两个正交伴格都在掩膜里, 原掩膜搜不出时才放行伴格;
+                // 挡线集恒用 er, 伴格进挡线集会把角内侧开口
+                Mask ers = er;
+                for (size_t k2 = 1; k2 < cells.size(); ++k2) {
+                    const CellPt& a3 = cells[k2 - 1];
+                    const CellPt& b3 = cells[k2];
+                    if (a3.x != b3.x && a3.y != b3.y) {
+                        ers.at(a3.y, b3.x) = 1;
+                        ers.at(b3.y, a3.x) = 1;
+                    }
+                }
                 // 重寻硬禁穿墙步,不可避穿墙处切开逐子段重寻,原步原样保留
                 std::vector<size_t> cuts;
                 for (const size_t k : bad) {
@@ -590,43 +605,49 @@ std::optional<std::vector<WorldPoint>>
                     }
                 }
                 cuts.push_back(cells.size());
-                std::vector<uint8_t> ue;
-                Mask ce;
-                if (qs.has_value()) {
-                    mk(er, ue, ce);
-                }
-                std::optional<std::vector<CellPt>> q2 = std::vector<CellPt> {};
+                const auto research = [&](const Mask& m3, std::vector<float>& oh) -> std::optional<std::vector<CellPt>> {
+                    std::vector<uint8_t> ue;
+                    Mask ce;
+                    if (qs.has_value()) {
+                        mk(m3, ue, ce);
+                    }
+                    std::vector<CellPt> o2;
+                    oh.clear();
+                    size_t a2 = 0;
+                    for (const size_t c2 : cuts) {
+                        const size_t b2 = c2 - 1;
+                        if (a2 == b2) {
+                            o2.push_back(cells[a2]);
+                            if (qs.has_value()) {
+                                oh.push_back(hs[a2]);
+                            }
+                        }
+                        else if (!qs.has_value()) {
+                            const auto r2 = CostAstar(m3, cells[a2], cells[b2], multg, &blocked_steps, nullptr);
+                            if (!r2.has_value()) {
+                                return std::nullopt;
+                            }
+                            o2.insert(o2.end(), r2->begin(), r2->end());
+                        }
+                        else {
+                            const auto r2 = SpanAstar(st3, ue, info.cidx, ce, sub[a2], { sub[b2] }, multg, &blocked_steps, nullptr);
+                            if (!r2.has_value()) {
+                                return std::nullopt;
+                            }
+                            for (const int64_t v : *r2) {
+                                const int64_t c = st3.sp_cell[static_cast<size_t>(v)];
+                                o2.push_back({ c % nx, c / nx });
+                                oh.push_back(st3.sp_h[static_cast<size_t>(v)]);
+                            }
+                        }
+                        a2 = c2;
+                    }
+                    return o2;
+                };
                 std::vector<float> h2;
-                size_t a2 = 0;
-                for (const size_t c2 : cuts) {
-                    const size_t b2 = c2 - 1;
-                    if (a2 == b2) {
-                        q2->push_back(cells[a2]);
-                        if (qs.has_value()) {
-                            h2.push_back(hs[a2]);
-                        }
-                    }
-                    else if (!qs.has_value()) {
-                        const auto r2 = CostAstar(er, cells[a2], cells[b2], multg, &blocked_steps, nullptr);
-                        if (!r2.has_value()) {
-                            q2.reset();
-                            break;
-                        }
-                        q2->insert(q2->end(), r2->begin(), r2->end());
-                    }
-                    else {
-                        const auto r2 = SpanAstar(st3, ue, info.cidx, ce, sub[a2], { sub[b2] }, multg, &blocked_steps, nullptr);
-                        if (!r2.has_value()) {
-                            q2.reset();
-                            break;
-                        }
-                        for (const int64_t v : *r2) {
-                            const int64_t c = st3.sp_cell[static_cast<size_t>(v)];
-                            q2->push_back({ c % nx, c / nx });
-                            h2.push_back(st3.sp_h[static_cast<size_t>(v)]);
-                        }
-                    }
-                    a2 = c2;
+                auto q2 = research(er, h2);
+                if (!q2.has_value()) {
+                    q2 = research(ers, h2);
                 }
                 if (q2.has_value()) {
                     double l1 = 0.0;
@@ -687,11 +708,13 @@ std::optional<std::vector<WorldPoint>>
         }
     }
     std::vector<WorldPoint> out = DropLoops(ded);
+    const LayerOracle* lyo_p = qs.has_value() ? &lyo : nullptr;
+    const float lyo_h = qs.has_value() ? st3.sp_h[static_cast<size_t>(qs->front())] : 0.0F;
     if (kSlimEps > 0 && out.size() > 2) {
-        const auto sl = Slim(out, blk_gray, kSlimEps, &cfl);
-        if (!qs.has_value() || lyo.walk(sl, st3.sp_h[static_cast<size_t>(qs->front())]).has_value()) {
-            out = sl;
-        }
+        out = Slim(out, blk_gray, kSlimEps, &cfl, lyo_p, lyo_h);
+    }
+    if (out.size() > 2) {
+        out = WidenCorners(out, blk_gray, dist, info.x0, info.y0, kCS, &cfl, lyo_p, lyo_h);
     }
     dg.clearance.reserve(out.size());
     for (const auto& p : out) {

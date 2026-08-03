@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 
 namespace mapnavigator
@@ -144,10 +145,23 @@ constexpr int32_t kLocalizationThrashFailCount = 5;
 
 // --- NavRunController (RUN corridor follower) ---
 constexpr double kNavRunLookaheadLowSpeedM = 2.5;
-// The lookahead point is measured forward along the corridor and the agent drives straight at it, so
-// this distance is the whole turn anticipation budget: the steering target only starts rotating once
-// the corner is inside it. It must cover the time a turn takes at the observed 5-8 px/s travel speed.
-constexpr double kNavRunLookaheadWalkM = 6.0;
+// The lookahead point is measured forward along the corridor and supplies the direction the agent
+// steers along, so it is the whole turn anticipation budget: the steering target only starts
+// rotating once the corner is inside it. Held as a count of ticks worth of travel so it tracks both
+// speed and loop period: a fixed distance over-anticipates whenever the agent slows, and leaves too
+// little room to react when the link is slow enough that each tick covers more ground.
+constexpr double kNavRunLookaheadPreviewTicks = 5.0;
+constexpr double kNavRunLookaheadMinM = 2.0;
+constexpr double kNavRunLookaheadMaxM = 14.0;
+// The aim point is pushed at least this far along that direction. Heading error from a cross-track
+// offset is atan(offset / reach), so without a floor the position quantum's contribution grows as
+// the lookahead shrinks and starts clearing the steering deadband on its own. Never shortened below
+// the lookahead itself: a reach tighter than the anticipation budget over-steers into the loop lag.
+constexpr double kNavRunAimReachMinM = 6.0;
+constexpr int32_t kNavRunSpeedWindowMs = 700;
+constexpr int32_t kNavRunSpeedKeepMs = 2000;
+constexpr size_t kNavRunSpeedMaxSamples = 8;
+constexpr double kNavRunSpeedJumpMaxPxPerSec = 40.0;
 constexpr double kNavRunUpcomingTurnLookaheadM = 8.0;
 constexpr double kNavRunCrossTrackWarnM = 2.2;
 constexpr double kNavRunCrossTrackFailM = 4.0;
@@ -155,6 +169,10 @@ constexpr double kNavRunProgressReplanMinCrossTrackM = 1.25;
 constexpr int32_t kNavRunSoftReplanCooldownMs = 1200;
 constexpr int32_t kNavRunSoftReplanMaxPerAnchor = 3;
 constexpr int32_t kNavRunProgressRegressionMs = 800;
+// A failed plan leaves nothing to invalidate, so without a cooldown the next tick rebuilds immediately.
+// A failing plan is also the slowest kind (it walks the whole window-expansion ladder before giving up),
+// so the retry storm costs the tick loop far more than it costs to fall back to waypoint steering.
+constexpr int32_t kNavRunPlanFailureCooldownMs = 3000;
 
 // --- Zone / Portal / Transfer Constants ---
 constexpr int32_t kZoneConfirmRetryIntervalMs = 120;

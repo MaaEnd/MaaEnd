@@ -16,15 +16,24 @@ inline constexpr double kClimb = 3.0;              // 相邻格可连通最大�
 inline constexpr double kSlope = 1.0;              // 可攀爬坡度上限 tanθ, 抬升超过水平位移的这个倍数即立面
 inline constexpr double kUp = kSlope * kCS;        // 正交相邻格允许的抬升 px, 斜向按实际水平位移等比放大
 inline constexpr double kMergeH = kUp;             // 同列 span 合并容差 px, 取 kUp 使同层内处处可一步跨到
+inline constexpr double kQH = 1.0;                 // 体素取样高差容差 px, 需装下斜面单格起伏与格心取样偏差
 inline constexpr double kEdtCap = 12.0;            // 距离场截断 px
 inline constexpr double kR = 1.75;                 // 期望余量上限 px
 inline constexpr double kGeoR = 3.5;               // 几何口径舒适余量上限 px
 inline constexpr double kRel = 0.6;                // 期望余量 = min(R, REL×局部净空)
-inline constexpr double kLam = 4.0;                // 满亏欠一步加价倍数
+inline constexpr double kLam = 4.0;                // 按局部通道目标计亏欠的满亏欠一步加价倍数
+inline constexpr double kLamR = 28.0;              // 按固定余量目标 kR 计亏欠的满亏欠一步加价倍数
 inline constexpr double kRidgeFloor = 0.5;         // 脊线保底余量地板 px
 inline constexpr double kMaxErr = 0.5;             // 轮廓 DP 容差 px
 inline constexpr double kSlimEps = 0.5;            // 终线共线剔除容差 px
 inline constexpr double kClrTol = 0.125;           // 拉直允许的净空退让 px, 取半格即采样步长
+inline constexpr double kCornerR = 1.75;           // 过角期望余量 px
+inline constexpr double kCornerTurn = 5.0;         // 需要留过角余量的最小转角 度
+inline constexpr double kCornerSeg = 2.0;          // 认定为拐点的最小相邻段长 px
+inline constexpr double kCornerMax = 4.0;          // 拐点外挪上限 px
+inline constexpr double kCornerStep = 0.5;         // 拐点外挪步长 px
+inline constexpr int64_t kCornerDirs = 32;         // 拐点外挪候选方向数
+inline constexpr int64_t kCornerRounds = 3;        // 拐点外挪迭代轮数
 inline constexpr double kCostTol = 1e-9;           // 代价判据相对容差, 容纳共线子路径的浮点求和差
 inline constexpr double kMcHBand = 8.0;            // 层高度带(墙筛/盖章)px
 inline constexpr double kHBand = 6.0;              // 真墙探针高度带 px
@@ -242,6 +251,9 @@ private:
     double cs_ = kCS;
 };
 
+// 走查只用来跟住弦所在的层, 立面本身由挡线集与拓扑禁步管住, 故抬升按体素取样
+// 容差放宽: 高度取自格心, 斜面与接缝上相邻格的取样差本就能超出一步抬升上限,
+// 照拓扑口径卡会把大量直弦判死, 拉直退化成网格锯齿。
 class LayerOracle
 {
 public:
@@ -255,7 +267,10 @@ public:
     {
     }
 
+    // h 取起点高度或一组可达高度
     std::optional<std::vector<float>> walk(const std::vector<WorldPoint>& pts, float h) const;
+
+    std::optional<std::vector<float>> walk(const std::vector<WorldPoint>& pts, const std::vector<float>& h) const;
 
     bool ok(const WorldPoint& p, const WorldPoint& q, float h, float hq) const;
 
@@ -275,7 +290,24 @@ std::vector<WorldPoint> StringPull(
     const LayerOracle* lyo = nullptr,
     const std::vector<float>* hs = nullptr);
 
-std::vector<WorldPoint> Slim(const std::vector<WorldPoint>& pts, const Blockers& blk, double eps, const ClearanceFloor* cfl);
+std::vector<WorldPoint> Slim(
+    const std::vector<WorldPoint>& pts,
+    const Blockers& blk,
+    double eps,
+    const ClearanceFloor* cfl,
+    const LayerOracle* lyo = nullptr,
+    float h = 0.0F);
+
+std::vector<WorldPoint> WidenCorners(
+    const std::vector<WorldPoint>& pts,
+    const Blockers& blk,
+    const Grid<float>& dist,
+    double x0,
+    double y0,
+    double cs,
+    const ClearanceFloor* cfl,
+    const LayerOracle* lyo,
+    float h);
 
 std::vector<WorldPoint> DropLoops(const std::vector<WorldPoint>& pts);
 

@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <functional>
 #include <optional>
 #include <string>
 #include <vector>
@@ -25,7 +26,13 @@ std::string InitialExpectedZone(const NaviParam& param);
 // rewritten. Never consults the external MapTracker transforms.
 void NormalizeLivePositionToBase(const NaviParam& param, NaviPosition& pos);
 void PreloadNavmeshWaypoints(const NaviParam& param);
-bool ExpandNavmeshWaypoints(const NaviParam& param, const NaviPosition& initial_pos, std::vector<Waypoint>& out_path);
+// `should_stop` is polled between waypoints and between fallback probes: expansion runs before the
+// state machine exists, so it is the only place a stop request can be honored during planning.
+bool ExpandNavmeshWaypoints(
+    const NaviParam& param,
+    const NaviPosition& initial_pos,
+    const std::function<bool()>& should_stop,
+    std::vector<Waypoint>& out_path);
 std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const NaviParam& param,
     const std::string& locator_zone,

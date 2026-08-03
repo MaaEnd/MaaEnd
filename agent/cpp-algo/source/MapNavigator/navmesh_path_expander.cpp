@@ -86,6 +86,8 @@ constexpr double kDetourSnapPenalty = 3.0;
 constexpr double kBlindTargetFallbackSnapRadius = 12.0;
 constexpr double kBlindTargetMaxExtension = 30.0;
 constexpr double kBlindTargetProbeStep = 2.0;
+// 探针扫描的墙钟上限。能命中的探针在头几个就返回,耗满预算即目标与起点不连通,余下探针是同一个失败。
+constexpr int64_t kBlindTargetProbeBudgetMs = 30000;
 
 // Start recovery: how far we are willing to walk unguided to get back onto the mesh. Covers the whole
 // off-mesh band measured along the base-exit corridor, where the blind walk out of the base drops us.
@@ -533,6 +535,7 @@ bool AppendBlindTargetFallback(
     const CachedNavmesh& navmesh,
     const navmesh::WorldPoint& base_target,
     float goal_floor_y,
+    const std::function<bool()>& should_stop,
     NavmeshExpansionState& state,
     std::vector<Waypoint>& out_path)
 {
@@ -558,7 +561,19 @@ bool AppendBlindTargetFallback(
     navmesh::BaseNavRouteResult approach;
     bool found = false;
     double blind_gap = 0.0;
+    const auto probe_started_at = std::chrono::steady_clock::now();
     for (double offset = 0.0; offset <= probe_limit + 1e-6; offset += kBlindTargetProbeStep) {
+        if (should_stop()) {
+            return false;
+        }
+        const int64_t probe_elapsed_ms =
+            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - probe_started_at).count();
+        if (probe_elapsed_ms > kBlindTargetProbeBudgetMs) {
+            LogWarn << "NAVMESH blind-target fallback gave up: probe budget exhausted." << VAR(state.navmesh_zone)
+                    << VAR(state.current_zone) << VAR(target.x) << VAR(target.y) << VAR(offset) << VAR(probe_limit)
+                    << VAR(probe_elapsed_ms);
+            return false;
+        }
         const double t = std::min(offset / total, 1.0);
         const navmesh::WorldPoint probe {
             .x = target.x + (start.x - target.x) * t,
@@ -638,6 +653,7 @@ bool AppendNavmeshWaypoint(
     const NaviParam& param,
     const CachedNavmesh& navmesh,
     const Waypoint& waypoint,
+    const std::function<bool()>& should_stop,
     NavmeshExpansionState& state,
     std::vector<Waypoint>& out_path)
 {
@@ -658,8 +674,11 @@ bool AppendNavmeshWaypoint(
     if (!route_result.ok()) {
         LogWarn << "NAVMESH waypoint not directly reachable; attempting blind-target fallback." << VAR(state.navmesh_zone)
                 << VAR(state.current_zone) << VAR(target.point.x) << VAR(target.point.y) << VAR(navmesh::ToString(route_result.status));
-        if (AppendBlindTargetFallback(param, navmesh, target.point, target.floor_y, state, out_path)) {
+        if (AppendBlindTargetFallback(param, navmesh, target.point, target.floor_y, should_stop, state, out_path)) {
             return true;
+        }
+        if (should_stop()) {
+            return false;
         }
         LogError << "Failed to plan NAVMESH waypoint." << VAR(state.navmesh_zone) << VAR(state.current_zone) << VAR(target.point.x)
                  << VAR(target.point.y) << VAR(navmesh::ToString(route_result.status));
@@ -778,7 +797,11 @@ void PreloadNavmeshWaypoints(const NaviParam& param)
     (void)GetCachedNavmeshFuture(navmesh_path, *navmesh_zone);
 }
 
-bool ExpandNavmeshWaypoints(const NaviParam& param, const NaviPosition& initial_pos, std::vector<Waypoint>& out_path)
+bool ExpandNavmeshWaypoints(
+    const NaviParam& param,
+    const NaviPosition& initial_pos,
+    const std::function<bool()>& should_stop,
+    std::vector<Waypoint>& out_path)
 {
     if (!ContainsNavmeshWaypoint(param.path)) {
         out_path = param.path;
@@ -801,6 +824,9 @@ bool ExpandNavmeshWaypoints(const NaviParam& param, const NaviPosition& initial_
 
     out_path.clear();
     for (const Waypoint& waypoint : param.path) {
+        if (should_stop()) {
+            return false;
+        }
         if (waypoint.IsZoneDeclaration()) {
             state->current_zone = waypoint.zone_id;
             out_path.push_back(waypoint);
@@ -811,7 +837,7 @@ bool ExpandNavmeshWaypoints(const NaviParam& param, const NaviPosition& initial_
             UpdateStateFromRegularWaypoint(waypoint, *state);
             continue;
         }
-        if (!AppendNavmeshWaypoint(param, *navmesh, waypoint, *state, out_path)) {
+        if (!AppendNavmeshWaypoint(param, *navmesh, waypoint, should_stop, *state, out_path)) {
             return false;
         }
     }
