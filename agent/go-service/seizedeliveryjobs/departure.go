@@ -294,9 +294,6 @@ func (a *SeizeDeliveryJobsDepartureAction) clickTracking(ctx *maa.Context, scree
 		"SeizeDeliveryJobsClickTracking": map[string]any{
 			"target": []int{screenTarget[0], screenTarget[1]},
 		},
-		"__MapTrackerBigMapClickRetry": map[string]any{
-			"target": []int{screenTarget[0], screenTarget[1]},
-		},
 	}); err != nil {
 		log.Error().
 			Err(err).
