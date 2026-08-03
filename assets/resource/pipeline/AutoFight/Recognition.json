@@ -344,5 +344,43 @@
         "focus": {
             "Node.Recognition.Succeeded": "识别到敌人"
         }
+    },
+    "__AutoFightRecognitionProtocolSpaceMechanicsGate": {
+        "desc": "协议空间机关场景，且不在影拓丰碑：左上角同时存在撤退与机关提示图标",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    100
+                ],
+                "template": "ProtocolSpace/RetreatSpace.png"
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    100
+                ],
+                "template": "ProtocolSpace/MechanicsIcon.png"
+            }
+        ]
+    },
+    "__AutoFightRecognitionProtocolSpaceRestart": {
+        "desc": "协议空间战斗开始：SpaceResart 按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            200,
+            160,
+            120
+        ],
+        "template": "ProtocolSpace/SpaceResart.png",
+        "green_mask": true
     }
 }

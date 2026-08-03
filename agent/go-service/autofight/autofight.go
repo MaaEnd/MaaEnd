@@ -50,6 +50,71 @@ func getCharactorLevelShow(ctx *maa.Context, img image.Image) bool {
 	return detail.Hit
 }
 
+func screencapImage(ctx *maa.Context) (image.Image, bool) {
+	ctx.GetTasker().GetController().PostScreencap().Wait()
+	img, err := ctx.GetTasker().GetController().CacheImage()
+	if err != nil {
+		log.Error().Err(err).Str("component", "AutoFight").Msg("failed to cache image")
+		return nil, false
+	}
+	return img, true
+}
+
+// 竞技大会活动，触摸光球时游戏判断开始战斗，接着321倒计时，之后出现怪物。在321倒计时时按下锁定怪物按键会导致普攻松开，因此等待倒计时结束。
+func waitProtocolSpaceRestartIfNeeded(ctx *maa.Context) {
+	img, ok := screencapImage(ctx)
+	if !ok {
+		return
+	}
+
+	gate, err := ctx.RunRecognition("__AutoFightRecognitionProtocolSpaceMechanicsGate", img)
+	if err != nil || gate == nil {
+		log.Error().
+			Err(err).
+			Str("component", "AutoFight").
+			Str("step", "protocolSpaceMechanicsGate").
+			Str("recognition", "__AutoFightRecognitionProtocolSpaceMechanicsGate").
+			Msg("failed to run protocol space mechanics gate recognition")
+		return
+	}
+	if !gate.Hit {
+		return
+	}
+
+	log.Info().Str("component", "AutoFight").Msg("protocol space mechanics gate hit, waiting for SpaceResart")
+	maafocus.Print(ctx, i18n.T("autofight.wait_battle_start"))
+	deadline := time.Now().Add(5 * time.Second)
+	for {
+		restart, err := ctx.RunRecognition("__AutoFightRecognitionProtocolSpaceRestart", img)
+		if err != nil || restart == nil {
+			log.Error().
+				Err(err).
+				Str("component", "AutoFight").
+				Str("step", "protocolSpaceRestart").
+				Str("recognition", "__AutoFightRecognitionProtocolSpaceRestart").
+				Msg("failed to run protocol space restart recognition")
+			return
+		}
+		if restart.Hit {
+			log.Info().Str("component", "AutoFight").Msg("protocol space SpaceResart found, continue fight")
+			maafocus.Print(ctx, i18n.T("autofight.wait_battle_start_found"))
+			return
+		}
+
+		if time.Now().After(deadline) {
+			log.Warn().Str("component", "AutoFight").Msg("protocol space SpaceResart timeout, continue fight")
+			maafocus.Print(ctx, i18n.T("autofight.wait_battle_start_timeout"))
+			return
+		}
+
+		time.Sleep(1 * time.Second)
+		img, ok = screencapImage(ctx)
+		if !ok {
+			return
+		}
+	}
+}
+
 // captureDurationTracker 统计截图识别的平均耗时：每 reportWindow 计算一次窗口内平均值并重置，
 // 若平均耗时超过 alertThreshold，则通过 maafocus 提醒用户降低显卡资源占用。
 type captureDurationTracker struct {
@@ -282,6 +347,8 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	}
 
 	log.Debug().Str("component", "AutoFight").Interface("params", params).Msg("parsed action attach parameters")
+	waitProtocolSpaceRestartIfNeeded(ctx)
+
 	var pauseStart time.Time
 	var lastLevelShowCheck time.Time
 	var noLockStart time.Time
