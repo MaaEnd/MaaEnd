@@ -15,7 +15,7 @@ const (
 	nodeDoDrawCard     = "TrialOfSwordmancyDoDrawCard"     // 抽一张牌
 	nodeDoDoubleReward = "TrialOfSwordmancyDoDoubleReward" // 选择本局翻倍
 
-	// 抽牌成功等待节点；Decide 决策抽牌时按落位槽覆盖其 all_of / post_wait_freezes.target。
+	// 抽牌成功等待节点；Decide 决策抽牌时按落位槽覆盖其 all_of。
 	nodeDoDrawCardSuccess = "TrialOfSwordmancyDoDrawCardSuccess"
 
 	// 既有执行链入口。

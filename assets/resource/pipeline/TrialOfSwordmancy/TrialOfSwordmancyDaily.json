@@ -94,15 +94,6 @@
             "TrialOfSwordmancyEnemyCard1"
         ],
         "pre_delay": 0,
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                173,
-                123,
-                74,
-                80
-            ]
-        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyAbandProbeClickGiveUp",
@@ -236,17 +227,11 @@
     },
     "TrialOfSwordmancyDoDrawCardSuccess": {
         "desc": "等待抽牌动画结束",
-        // 本节点的 all_of 与 post_wait_freezes.target 为初始占位，运行时由
-        // TrialOfSwordmancy.Decide 按落位槽覆盖为 EnemyCard<N> 与 HandPosition<N> 的 ROI。
         "recognition": "And",
         "all_of": [
-            "TrialOfSwordmancyEnemyCard1"
+            "TrialOfSwordmancyEnemyCard1" // go 运行时覆盖
         ],
         "pre_delay": 0,
-        "post_wait_freezes": {
-            "time": 200,
-            "target": "TrialOfSwordmancyHandPosition1"
-        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyDecide"
