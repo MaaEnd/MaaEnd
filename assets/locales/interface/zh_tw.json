@@ -468,6 +468,8 @@
     "option.PrudentRefresh.description": "開啟後，當前信用點扣除刷新花費後若低於設定閾值，會購買任意物品（包括無折扣）而不是執行刷新。",
     "option.PrudentRefresh.inputs.PrudentRefreshThreshold.label": "穩健刷新閾值",
     "option.PrudentRefresh.inputs.PrudentRefreshThreshold.description": "請輸入非負整數；當前信用點扣除刷新花費後若低於該值，會購買任意物品（包括無折扣）而不是執行刷新。",
+    "option.CreditShoppingRefreshCheckPrice.label": "直購前檢查價格",
+    "option.CreditShoppingRefreshCheckPrice.description": "開啟後，刷新用盡直購或穩健改直購時，會按「持有信用點 − 物品價格」判斷是否會買穿保留閾值，不足則取消並停止；關閉則先購買，買完後再用「保留信用點」判斷是否停止。",
     "task.ImportBluePrints.label": "📐一鍵導入藍圖",
     "task.ImportBluePrints.description": "一鍵批量導入藍圖，支援智慧解析",
     "option.ImportBluePrints.label": "導入藍圖",

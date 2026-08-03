@@ -92,7 +92,7 @@
         ]
     },
     "CreditShoppingPrudentRefresh": {
-        "desc": "稳健模式下改为购买任意物品含无折扣（选项：稳健模式刷新、稳健刷新阈值）",
+        "desc": "稳健模式下改为购买任意物品含无折扣（选项：稳健模式刷新、稳健刷新阈值；是否购前检查价格由刷新子选项控制）",
         "recognition": {
             "type": "And",
             "param": {
@@ -130,6 +130,7 @@
             "type": "Click"
         },
         "next": [
+            "CreditShoppingBuyItemBelowReserve",
             "CreditShoppingBuyFailed",
             "CreditShoppingBuyConfirm"
         ],
@@ -138,7 +139,7 @@
         }
     },
     "CreditShoppingRefreshCountReached": {
-        "desc": "刷新次数已用尽时直接购买（选项：没有可购买物品时=执行刷新）",
+        "desc": "刷新次数已用尽时直接购买（选项：执行刷新；是否购前检查价格由刷新子选项控制）",
         "recognition": {
             "type": "And",
             "param": {
@@ -166,6 +167,7 @@
             "type": "Click"
         },
         "next": [
+            "CreditShoppingBuyItemBelowReserve",
             "CreditShoppingBuyFailed",
             "CreditShoppingBuyConfirm"
         ],

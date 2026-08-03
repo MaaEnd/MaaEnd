@@ -141,10 +141,12 @@ The fallback after all three tiers fail to match is determined by `CreditShoppin
 | ---------------- | ------------------------------------------------------------ |
 | Exit | Do not purchase any item, do not refresh, end directly |
 | Ignore Blacklist | Purchase any affordable, not sold-out item; before confirm, `BuyItemBelowReserve` checks reserve via "held − price", and cancels/stops if insufficient |
-| Refresh | Attempt to refresh the shelf; can expand to "stable refresh" |
+| Refresh | Attempt to refresh the shelf; can expand to "stable refresh" and "check price before direct buy" |
 
 **Stable Refresh**: If "Current credit − Refresh cost < Stable refresh threshold" and there are still purchasable items on the shelf, then do not refresh, but directly purchase instead.  
 This threshold and the "Reserve Credit Points" are two independent conditions; do not mix them.
+
+**Check price before direct buy** (Refresh sub-option, default on): When enabled, refresh-exhausted / prudent direct buys check reserve via "held − price" before confirm and cancel/stop if insufficient; when disabled, buy first, then the reserved-credits node decides whether to stop.
 
 ## Paths to Modify When Adding New Items
 

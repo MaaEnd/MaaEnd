@@ -633,6 +633,8 @@
     "option.PrudentRefresh.description": "When enabled, if current credits minus the refresh cost falls below the configured threshold, it will buy any available item (including non-discounted) instead of refreshing.",
     "option.PrudentRefresh.inputs.PrudentRefreshThreshold.label": "Prudent refresh threshold",
     "option.PrudentRefresh.inputs.PrudentRefreshThreshold.description": "Enter a non-negative integer. If current credits minus the refresh cost falls below this value, it will buy any available item (including non-discounted) instead of refreshing.",
+    "option.CreditShoppingRefreshCheckPrice.label": "Check price before direct buy",
+    "option.CreditShoppingRefreshCheckPrice.description": "When enabled, refresh-exhausted or prudent direct buys check \"held credits − item price\" against the reserve threshold and cancel/stop if buying would breach it. When disabled, buy first, then stop using the reserved-credits check after purchase.",
     "task.ImportBluePrints.label": "📐 Import Blueprints",
     "task.ImportBluePrints.description": "Batch import blueprints with smart parsing.",
     "option.ImportBluePrints.label": "Import Blueprints",
