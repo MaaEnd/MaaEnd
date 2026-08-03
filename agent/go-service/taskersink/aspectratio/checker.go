@@ -145,7 +145,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		return
 	}
 
-	aspectRatioOK, minResolutionOK, resolutionOK := isNonADBResolutionOK(width, height)
+	aspectRatioOK, minResolutionOK, resolutionOK, scaledW, scaledH := isNonADBResolutionOK(width, height)
 
 	log.Debug().
 		Uint64("task_id", detail.TaskID).
@@ -156,6 +156,8 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		Str("mode", "aspect_ratio_min_resolution").
 		Int32("width", width).
 		Int32("height", height).
+		Int("scaled_width", scaledW).
+		Int("scaled_height", scaledH).
 		Int("target_width", targetWidth).
 		Int("target_height", targetHeight).
 		Bool("aspect_ratio_ok", aspectRatioOK).
@@ -170,7 +172,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		}
 		width = recheckedWidth
 		height = recheckedHeight
-		aspectRatioOK, minResolutionOK, _ = isNonADBResolutionOK(width, height)
+		aspectRatioOK, minResolutionOK, _, scaledW, scaledH = isNonADBResolutionOK(width, height)
 		actualRatio := calculateAspectRatio(int(width), int(height))
 		log.Error().
 			Uint64("task_id", detail.TaskID).
@@ -181,6 +183,8 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 			Bool("stop_task", true).
 			Int32("width", width).
 			Int32("height", height).
+			Int("scaled_width", scaledW).
+			Int("scaled_height", scaledH).
 			Int("target_width", targetWidth).
 			Int("target_height", targetHeight).
 			Bool("aspect_ratio_ok", aspectRatioOK).
@@ -215,6 +219,8 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		Str("requirement", "aspect_ratio_min_resolution").
 		Int32("width", width).
 		Int32("height", height).
+		Int("scaled_width", scaledW).
+		Int("scaled_height", scaledH).
 		Int("target_width", targetWidth).
 		Int("target_height", targetHeight).
 		Bool("aspect_ratio_ok", aspectRatioOK).
@@ -247,10 +253,26 @@ func readResolutionWithRetry(controller *maa.Controller) (int32, int32, bool) {
 	return width, height, false
 }
 
-func isNonADBResolutionOK(width, height int32) (bool, bool, bool) {
-	aspectRatioOK := isAspectRatio16x9(int(width), int(height))
-	minResolutionOK := isAtLeastTargetResolution(int(width), int(height))
-	return aspectRatioOK, minResolutionOK, aspectRatioOK && minResolutionOK
+func isNonADBResolutionOK(width, height int32) (bool, bool, bool, int, int) {
+	w, h := int(width), int(height)
+	aspectRatioOK := isAspectRatio16x9(w, h)
+	minResolutionOK := isAtLeastTargetResolution(w, h)
+
+	// 需要严格支持缩放后1280x720，例如1360×768缩放后是1275×720会识别异常
+	var scaledW, scaledH int
+	if w > 0 && h > 0 {
+		if w > h {
+			scaledW = int(math.Round(float64(targetHeight) * float64(w) / float64(h)))
+			scaledH = targetHeight
+		} else {
+			scaledW = targetHeight
+			scaledH = int(math.Round(float64(targetHeight) * float64(h) / float64(w)))
+		}
+	}
+	scaledOK := (scaledW == targetWidth && scaledH == targetHeight) ||
+		(scaledW == targetHeight && scaledH == targetWidth)
+
+	return aspectRatioOK, minResolutionOK, aspectRatioOK && minResolutionOK && scaledOK, scaledW, scaledH
 }
 
 func trySwitchFullscreenToWindowedAndRecheck(controller *maa.Controller, detail maa.TaskerTaskDetail, width, height int32) (int32, int32, bool) {
@@ -330,12 +352,14 @@ func recheckResolutionAfterFullscreenToggle(readResolution resolutionReader, det
 
 	width = recheckedWidth
 	height = recheckedHeight
-	aspectRatioOK, minResolutionOK, resolutionOK := isNonADBResolutionOK(width, height)
+	aspectRatioOK, minResolutionOK, resolutionOK, scaledW, scaledH := isNonADBResolutionOK(width, height)
 	log.Debug().
 		Uint64("task_id", detail.TaskID).
 		Str("entry", detail.Entry).
 		Int32("width", width).
 		Int32("height", height).
+		Int("scaled_width", scaledW).
+		Int("scaled_height", scaledH).
 		Bool("aspect_ratio_ok", aspectRatioOK).
 		Bool("min_resolution_ok", minResolutionOK).
 		Msg("Rechecked resolution after Alt+Enter")
