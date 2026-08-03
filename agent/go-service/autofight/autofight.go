@@ -171,6 +171,11 @@ const (
 	lockStageInitial lockStage = 0
 	lockStageRetry   lockStage = 1
 	lockStageRecover lockStage = 2
+
+	// attackRestartDelayAfterLockTarget 是中键锁定成功到重建持续普攻之间的非阻塞等待时间。
+	attackRestartDelayAfterLockTarget = 300 * time.Millisecond
+	// attackRestartDelayAfterTouchUp 是重建持续普攻时松开到重新按下攻击键之间的非阻塞等待时间。
+	attackRestartDelayAfterTouchUp = 100 * time.Millisecond
 )
 
 type ActionType int
@@ -286,6 +291,8 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	var lastLevelShowCheck time.Time
 	var noLockStart time.Time
 	var lockTargetStage lockStage
+	var attackRestartQueue []time.Time
+	var attackTouchDownQueue []time.Time
 	lastDodgeAt = time.Now()
 	firstNoLockIteration := true
 	characterCount := -1
@@ -393,6 +400,8 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			}
 		}
 
+		enemyLocked := screenAnalyzer.GetEnemyLocked()
+
 		if params.EnableLockTarget {
 			// 锁定目标时序状态机（按距上次检测到 EnemyLocked 的累计时长划分）：
 			//   首次未锁定的那一帧               -> 直接 continue，过滤瞬时识别抖动
@@ -403,7 +412,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			//                        无 facing -> 前进 + ActionLockTarget
 			//   阶段 3 [9s, ∞)    -> 重置 noLockStart 重新进入阶段 0（含首帧 continue），循环重试
 			//   任意时刻检测到 EnemyLocked     -> 把 noLockStart 推回当前时刻、回到阶段 0，并重置首帧标记
-			if screenAnalyzer.GetEnemyLocked() {
+			if enemyLocked {
 				noLockStart = time.Now()
 				lockTargetStage = lockStageLocked
 				firstNoLockIteration = false
@@ -499,7 +508,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		}
 
 		hasEnemyTarget := false
-		if params.EnableLockTarget && screenAnalyzer.GetEnemyLocked() {
+		if params.EnableLockTarget && enemyLocked {
 			hasEnemyTarget = true
 		} else if !params.EnableLockTarget {
 			hasEnemyTarget = true
@@ -625,7 +634,41 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			}
 		}
 
-		drainActionQueue(ctx)
+		lockTargetExecutedCount := drainActionQueue(ctx)
+		if params.EnableAttack && lockTargetExecutedCount > 0 {
+			restartAt := time.Now().Add(attackRestartDelayAfterLockTarget)
+			for range lockTargetExecutedCount {
+				attackRestartQueue = append(attackRestartQueue, restartAt)
+			}
+			log.Debug().
+				Str("component", "AutoFight").
+				Str("step", "scheduleAttackRestart").
+				Dur("delay", attackRestartDelayAfterLockTarget).
+				Int("scheduled", lockTargetExecutedCount).
+				Int("pending", len(attackRestartQueue)).
+				Msg("lock target executed, scheduled continuous attack restart")
+		}
+		for len(attackRestartQueue) > 0 && !time.Now().Before(attackRestartQueue[0]) {
+			log.Debug().
+				Str("component", "AutoFight").
+				Str("step", "scheduleAttackTouchDown").
+				Dur("delay", attackRestartDelayAfterTouchUp).
+				Int("pending", len(attackTouchDownQueue)+1).
+				Msg("released continuous attack, scheduled touch down")
+			ctx.RunAction("__AutoFightActionAttackTouchUp", maa.Rect{600, 320, 80, 80}, "", nil)
+			attackTouchDownQueue = append(attackTouchDownQueue, time.Now().Add(attackRestartDelayAfterTouchUp))
+			attackRestartQueue = attackRestartQueue[1:]
+		}
+		for len(attackTouchDownQueue) > 0 && !time.Now().Before(attackTouchDownQueue[0]) {
+			// 到期后仅重新按下攻击键，不阻塞期间的截图、识别和其他战斗动作。
+			log.Debug().
+				Str("component", "AutoFight").
+				Str("step", "restartAttack").
+				Int("pending", len(attackTouchDownQueue)-1).
+				Msg("restarting continuous attack after touch up")
+			ctx.RunAction("__AutoFightActionAttackTouchDown", maa.Rect{600, 320, 80, 80}, "", nil)
+			attackTouchDownQueue = attackTouchDownQueue[1:]
+		}
 	}
 	if params.EnableAttack {
 		ctx.RunAction("__AutoFightActionAttackTouchUp", maa.Rect{600, 320, 80, 80}, "", nil)
@@ -653,7 +696,8 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	return result
 }
 
-func drainActionQueue(ctx *maa.Context) {
+func drainActionQueue(ctx *maa.Context) int {
+	lockTargetExecutedCount := 0
 	now := time.Now()
 	for len(actionQueue) > 0 && !actionQueue[0].executeAt.After(now) {
 		fa, ok := dequeueAction()
@@ -691,7 +735,15 @@ func drainActionQueue(ctx *maa.Context) {
 			maafocus.Print(ctx, i18n.T("autofight.end_skill", 4))
 			ctx.RunAction("__AutoFightActionEndSkillOperators4", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionLockTarget:
-			ctx.RunAction("__AutoFightActionLockTarget", maa.Rect{600, 320, 80, 80}, "", nil)
+			if _, err := ctx.RunAction("__AutoFightActionLockTarget", maa.Rect{600, 320, 80, 80}, "", nil); err != nil {
+				log.Error().
+					Err(err).
+					Str("component", "AutoFight").
+					Str("step", "lockTarget").
+					Msg("failed to lock target")
+			} else {
+				lockTargetExecutedCount++
+			}
 		case ActionDodge:
 			maafocus.Print(ctx, i18n.T("autofight.dodge"))
 			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
@@ -727,4 +779,5 @@ func drainActionQueue(ctx *maa.Context) {
 			ctx.RunAction("__AutoFightActionMoveRightKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
 		}
 	}
+	return lockTargetExecutedCount
 }
