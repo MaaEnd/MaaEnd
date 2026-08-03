@@ -3,6 +3,7 @@ package taskfail
 import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -51,6 +52,15 @@ func (s *Sink) OnTaskerTask(_ *maa.Tasker, event maa.EventStatus, detail maa.Tas
 			Uint64("task_id", detail.TaskID).
 			Str("entry", detail.Entry).
 			Msg("Task failed but entry is not in feedback hint list, skip feedback hint")
+		return
+	}
+
+	if pienv.ControllerName() != "Win32-Front" {
+		log.Debug().
+			Uint64("task_id", detail.TaskID).
+			Str("entry", detail.Entry).
+			Str("controller", pienv.ControllerName()).
+			Msg("Task failed but controller is not Win32-Front, skip feedback hint")
 		return
 	}
 
