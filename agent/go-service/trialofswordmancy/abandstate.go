@@ -2,7 +2,6 @@ package trialofswordmancy
 
 import (
 	"strconv"
-	"sync"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -62,32 +61,22 @@ func recognizeAbandExhausted(ctx *maa.Context, arg *maa.CustomRecognitionArg) (b
 //
 // 为何这一项要持久化、不能像其它字段那样每步从截图读：界面上不直接显示剩余放弃次数，
 // 只有点击「放弃」后弹出的确认框里才写（「本日剩余放弃次数x次」/「已用完」）。
-// 所以由 Pipeline 负责打开和关闭放弃弹窗，RecognizeAband 只识别当前弹窗文本并缓存次数；
-// 之后总成识别直接读缓存。
+// 所以由 Pipeline 在每轮任务开始时探测一次放弃弹窗（AbandProbe max_hit=1），
+// RecognizeAband 识别当前弹窗文本并缓存次数；之后总成识别直接读缓存，
+// 每次真实放弃（Decide 路由到 Abandon）时缓存减一，直到下次任务运行探测覆盖。
 //
 // 生命周期：
 //   - 进程内初始化为 -1（未知）。
-//   - 路由到 放弃(Abandon) 或 开始演算(Calculate) 时重置为 -1，回合结束后重新识别。
-var (
-	abandMu    sync.Mutex
-	abandCount = -1 // -1 = 未知，需从放弃弹窗识别
-)
+//   - 每轮任务运行的探测写入真实值。
+//   - 每次真实放弃减一（跨日残局那局不减，见 action.go DecideAction）。
+//
+// MaaFramework 保证任务回调单线程同步执行，无需加锁。
+var abandCount = -1 // -1 = 未知，需从放弃弹窗识别
 
 func getAband() int {
-	abandMu.Lock()
-	defer abandMu.Unlock()
 	return abandCount
 }
 
 func setAband(n int) {
-	abandMu.Lock()
-	defer abandMu.Unlock()
 	abandCount = n
-}
-
-// resetAband 把缓存的剩余放弃次数置为 -1（未知），等待 RecognizeAband 重新识别。
-func resetAband() {
-	abandMu.Lock()
-	defer abandMu.Unlock()
-	abandCount = -1
 }

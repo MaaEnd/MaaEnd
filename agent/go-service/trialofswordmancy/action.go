@@ -22,7 +22,7 @@ var _ maa.CustomActionRunner = &DecideAction{}
 // 按决策用 OverrideNext 路由到执行节点。
 //
 // 几乎无状态：每步的完整 State 都由 recognition 读出后传入；本动作只做「求解 → 路由」。
-// 唯一副作用：路由到 放弃/开始演算（回合结束）时 resetAband()，使下回合重新识别放弃次数。
+// 唯一副作用：路由到 放弃（真实放弃）时把剩余放弃次数缓存减一；开始演算不影响放弃次数。
 // 单步循环靠 pipeline 的 next 回到 TrialOfSwordmancyDecide（recognition 重新读图），
 // 直到奖励耗尽（pipeline 检测 → Finish）。solver 只返回单步最优决策。
 type DecideAction struct{}
@@ -72,9 +72,14 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	// 放弃/开始演算会结束当前回合。重置为 -1，下回合首步重新探测放弃次数。
-	if best == solver.Abandon || best == solver.Calculate {
-		resetAband()
+	// 放弃会结束当前回合并消耗 1 次放弃次数。pipeline 只在每轮任务开始时探测一次
+	// （AbandProbe max_hit=1），不重探测，故这里按真实放弃把缓存减一，而非重置为 -1 等重读。
+	// 跨日残局那局（RemainCalc==4）放弃按求解器模型扣演算次数、不扣放弃，不减；
+	// 剩余 0（已用完）时也不减——0 减成 -1 会把缓存毒化成「未知」。
+	if best == solver.Abandon {
+		if gs.State.RemainCalc != 4 && gs.State.RemainAband > 0 {
+			setAband(gs.State.RemainAband - 1)
+		}
 	}
 
 	// 按决策路由到执行节点（节点自行点击 + 等动画），完成后回到 Decide 形成单步循环。
