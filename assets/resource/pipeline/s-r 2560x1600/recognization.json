@@ -1,0 +1,105 @@
+{
+    "recognize_the_screeen_resolution": {
+        "desc": "识别设置位置",
+
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "s-r 2560x1600/Gotosetting.png",
+                "roi": [
+                    249,109,96,82
+                ],
+                "threshold": 0.9
+            }
+        },
+
+        "action": {
+            "type": "Click"
+        },
+
+        "pre_delay": 0,
+        "post_delay": 0,
+        "post_wait_freezes": 400,
+
+        "next": ["start_to_choose_s-r"]
+    },
+    "start_to_choose_s-r": {
+        "desc": "准备换成标准的1560x1440",
+
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "s-r 2560x1600/2560x1600.png",
+                "roi": [
+                    1217,397,369,62
+                ],
+                "threshold": 0.9
+            }
+        },
+
+        "action": {
+            "type": "Click"
+        },
+
+        "pre_delay": 0,
+        "post_delay": 0,
+        "post_wait_freezes": 400,
+
+        "next": ["choose_s-r"]
+    },
+
+    "choose_s-r": {
+        "desc": "换成标准的1560x1440",
+
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "s-r 2560x1600/changeto2560x1440.png",
+                "roi": [
+                    1217,511,354,54
+                ],
+                "threshold": 0.9
+            }
+        },
+
+        "action": {
+            "type": "Click"
+        },
+
+        "pre_delay": 0,
+        "post_delay": 0,
+        "post_wait_freezes": 400,
+
+        "next": ["check"]
+     },
+
+     "check": {
+        "desc": "check and quit",
+
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "s-r 2560x1600/2560x1440.png",
+                "roi": [
+                    1216,473,353,42
+                ],
+                "threshold": 0.9
+            }
+        },
+
+        "action": {
+            "type": "Click",
+            "param": {
+            "target": [1601,71,69,43]
+           }
+        },
+
+        "pre_delay": 0,
+        "post_delay": 0,
+
+        "focus": {
+        "Node.Action.Succeeded": "完成切换"
+}
+}
+}
+
