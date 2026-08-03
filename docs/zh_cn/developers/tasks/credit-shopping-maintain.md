@@ -155,7 +155,7 @@ ShelfBase → 白名单 → 折扣 → 进入补信用判断
 | 策略 | 行为 |
 | ---------- | -------------------------------- |
 | 退出 | 不买任意品、不刷新，直接结束 |
-| 忽略黑名单 | 购买任意买得起且未售罄的商品 |
+| 忽略黑名单 | 购买任意买得起且未售罄的商品；弹窗内用 `BuyItemForce` 按「持有 − 价格」检查保留阈值，不足则取消并停止 |
 | 刷新 | 尝试刷新货架；可展开「稳健刷新」 |
 
 **稳健刷新**：若「当前信用 − 刷新花费 < 稳健刷新阈值」且架上仍有可买品，则不刷新、改为直接购买。  
@@ -164,7 +164,7 @@ ShelfBase → 白名单 → 折扣 → 进入补信用判断
 ## 新增商品时需改的路径
 
 1. `assets/tasks/CreditShopping.json` — 在对应档位 checkbox 增加 case，同时写「买得起」与「买不起」两侧的 `attach`
-2. `assets/resource/pipeline/CreditShopping/Flow/BuyItem.json` — `next` 列表加入该商品弹窗分支
+2. `assets/resource/pipeline/CreditShopping/Flow/BuyItem.json` — `CreditShoppingBuyItemMatch` 的 `next` 列表加入该商品弹窗分支
 3. `assets/resource/pipeline/CreditShopping/BuyItem/` — 新建对应商品文件（弹窗 OCR + focus 文案），参考已有文件结构
 4. `assets/locales/interface/*.json` — `option.CreditShoppingItems.cases.*.label`
 

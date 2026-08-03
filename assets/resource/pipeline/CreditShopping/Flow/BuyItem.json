@@ -1,7 +1,24 @@
 {
-    // 在商店中购买物品的节点
+    // 在商店中购买物品的节点（优先购买 / 稳健刷新 / 刷新次数用尽直购）
     "CreditShoppingBuyItem": {
-        "desc": "购买商品文字识别",
+        "desc": "购买商品文字识别（不检查保留信用点；各档阈值由 ReserveCreditGate / 无条件购买控制）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CreditShoppingBuyItemNameColor",
+                    "CreditShoppingBuyItemName"
+                ],
+                "box_index": 1
+            }
+        },
+        "next": [
+            "CreditShoppingBuyItemMatch"
+        ]
+    },
+    // 强制购买专用：弹窗内按「持有 − 价格」检查保留阈值后再匹配商品
+    "CreditShoppingBuyItemForce": {
+        "desc": "强制购买弹窗：先检查保留信用点，再识别商品（选项：购买选项均未命中时操作=购买任意物品）",
         "recognition": {
             "type": "And",
             "param": {
@@ -14,6 +31,16 @@
         },
         "next": [
             "CreditShoppingBuyItemBelowReserve",
+            "CreditShoppingBuyItemMatch"
+        ]
+    },
+    "CreditShoppingBuyItemMatch": {
+        "desc": "购买弹窗内匹配具体商品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "CreditShoppingBuyItemOCR_ArsenalTicket",
             "CreditShoppingBuyItemOCR_Oroberyl",
             "CreditShoppingBuyItemOCR_TCreds",
@@ -31,7 +58,7 @@
         ]
     },
     "CreditShoppingBuyItemPriceOCR": {
-        "desc": "购买弹窗内物品价格",
+        "desc": "购买弹窗内物品价格（供强制购买的保留阈值表达式引用）",
         "recognition": "OCR",
         "roi": [
             921,
@@ -47,7 +74,7 @@
         "rate_limit": 0
     },
     "CreditShoppingBuyItemBelowReserve": {
-        "desc": "持有信用点 − 弹窗价格 < 保留阈值：取消购买并停止任务（选项：保留信用点阈值）",
+        "desc": "强制购买：持有信用点 − 弹窗价格 < 保留阈值则取消购买并停止任务（选项：保留信用点阈值）",
         "recognition": {
             "type": "Custom",
             "param": {

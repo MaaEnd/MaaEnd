@@ -155,7 +155,7 @@ The fallback after all three tiers fail to match is determined by `CreditShoppin
 | Strategy | Behavior |
 | ---------------- | ------------------------------------------------------------ |
 | Exit | Do not purchase any item, do not refresh, end directly |
-| Ignore Blacklist | Purchase any affordable, not sold-out item |
+| Ignore Blacklist | Purchase any affordable, not sold-out item; the popup uses `BuyItemForce` to check reserve via "held − price", and cancels/stops if insufficient |
 | Refresh | Attempt to refresh the shelf; can expand to "stable refresh" |
 
 **Stable Refresh**: If "Current credit − Refresh cost < Stable refresh threshold" and there are still purchasable items on the shelf, then do not refresh, but directly purchase instead.  
@@ -164,7 +164,7 @@ This threshold and the "Reserve Credit Points" are two independent conditions; d
 ## Paths to Modify When Adding New Items
 
 1. `assets/tasks/CreditShopping.json` — Add a case in the corresponding tier's checkbox, and simultaneously write `attach` for both the "affordable" and "unaffordable" sides.
-2. `assets/resource/pipeline/CreditShopping/Flow/BuyItem.json` — Add this item's popup branch to the `next` list.
+2. `assets/resource/pipeline/CreditShopping/Flow/BuyItem.json` — Add this item's popup branch to the `CreditShoppingBuyItemMatch` `next` list.
 3. `assets/resource/pipeline/CreditShopping/BuyItem/` — Create a new item file (popup OCR + focus text), following the existing file structure.
 4. `assets/locales/interface/*.json` — `option.CreditShoppingItems.cases.*.label`
 
