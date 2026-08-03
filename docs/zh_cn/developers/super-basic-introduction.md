@@ -62,23 +62,21 @@
 - **Windows 11**：在文件夹里右键 → "在终端中打开"
 - **Windows 10**：装了 Git 后右键 → "Git Bash Here"
 - **macOS**：`Command + 空格` → 输入 `Terminal` → 回车
-- **Linux**：`Ctrl + Alt + T`
 
-你只需要会三个命令：
+你只需要会两个命令：
 
 ```bash
 cd 文件夹名    # 进入某个文件夹
 ls             # 看看当前文件夹里有什么
-# 复制粘贴     # 把教程里的命令粘贴进来按回车
 ```
 
-够了。
+其余可以直接从文档里复制粘贴
 
 ### 2.3 VS Code
 
 - 下载：[code.visualstudio.com](https://code.visualstudio.com/)
 - 安装时建议勾上"添加到 PATH"和"将 Code 添加到右键菜单"
-- VS Code 本身装好就行，插件等后面 Clone 完、打开了项目文件夹再装——因为 `@recommended` 工作区推荐得先有项目开着才有东西。详见 [B.2 Clone——下载到本地](#b2-clone下载到本地)
+- VS Code 本身装好就行，插件等后面 Clone 完、打开了项目文件夹再装——因为 `@recommended` 工作区推荐得先有项目开着才有东西。
 - 最重要的插件：**Maa Pipeline Support**——截图、框选识别区域全靠它（也可以先在扩展市场搜这个装上）
 
 ### 2.4 Node.js + pnpm
@@ -91,6 +89,7 @@ corepack enable pnpm
 ```
 
 - 验证：`pnpm --version` 能看到版本号（需要 10+）就 OK
+- pnpm 是 Node 的包管理器（装依赖用的）。现在装好放着，等 Clone 完项目跑 `pnpm install` 时才会用到
 
 ### 2.5 Python
 
@@ -99,7 +98,9 @@ corepack enable pnpm
 
 ### 2.6 Go（必装）
 
-项目底层依赖 Go 编译运行，所以**必须安装**。好消息是：你不需要学 Go 语法，也不需要写 Go 代码，装好放着就行。去 [go.dev](https://go.dev/) 下载安装（1.25.6+）。
+项目底层依赖 Go 编译运行，所以**必须安装**。好消息是：你不需要学 Go 语法，也不需要写 Go 代码，装好放着就行。去 [go.dev](https://go.dev/) 下载安装（1.25.6+）。项目里用 Go 写的那部分逻辑在 `agent/go-service/` 下，你现在不用碰。
+
+> 上面装的这些（Node / Python / Go / pnpm）现在**装好放着就行**——第三章只需要 Git，它们要等真正跑项目时才用得到。
 
 ### 🎯 检查点
 
@@ -115,7 +116,7 @@ corepack enable pnpm
 
 ## 第三章 · GitHub 最小求生指南
 
-> 目标：能 clone、能开分支、能 commit、能 push、能开 PR。
+> 目标：fork + clone——把项目复制到自己名下，再下载到本地。开分支、commit、push、开 PR 都和提 PR 相关，留到第六章做真任务时再学。
 >
 > 下面提供两条路，选一条走到底就行：
 >
@@ -126,68 +127,37 @@ corepack enable pnpm
 
 ---
 
-### 线路 A：GitHub Desktop（图形界面）
+### Fork——把仓库复制到自己名下
 
-先去 [GitHub Desktop 官网](https://desktop.github.com/) 下载安装，打开后登录你的 GitHub 账号。
-
-#### A.1 Fork——把仓库复制到自己名下
-
-这一步在网页上操作：
+这一步在网页上做，两条线路都一样：
 
 1. 打开 [MaaEnd 仓库](https://github.com/MaaEnd/MaaEnd)，确认已登录
 2. 点右上角 **Fork** 按钮
 3. 不改任何东西，直接点 **Create fork**
 4. 等几秒，页面跳到 `https://github.com/你的用户名/MaaEnd`——这是你自己的副本
 
-#### A.2 Clone——下载到本地
+> 之后你所有的改动都在这个副本上做，改好了再通过 PR 请求合并回原仓库。下面 clone 的就是这个副本。
+
+---
+
+### 线路 A：GitHub Desktop（图形界面）
+
+先去 [GitHub Desktop 官网](https://desktop.github.com/) 下载安装，打开后登录你的 GitHub 账号。
+
+#### A.1 Clone——下载到本地
 
 1. 打开 GitHub Desktop，菜单栏 **File → Clone a repository**
 2. 选 **GitHub.com** 标签页，找到 `你的用户名/MaaEnd` 仓库，点它
 3. 选一个本地存放路径，点 **Clone**
 4. 等它下载完，仓库就在你电脑上了
 
-#### A.3 Branch——开一条工作分支
-
-1. GitHub Desktop 上方有个分支选择框，点它
-2. 选 **New Branch**
-3. 分支名用英文，格式建议 `feat/描述`，比如 `feat/add-sell-button`，点 **Create Branch**
-
-> Fork 是复制了一整个仓库，Branch 是在仓库里面再开一条工作分支。永远不要直接在 v2 分支上改东西——开条分支，改烂了删掉就行，v2 干干净净不受影响。
-
-#### A.4 Commit——存档
-
-1. 改完文件后，GitHub Desktop 左侧会列出所有变更
-2. 勾选你要存档的文件
-3. 左下角 **Summary** 输入框写 commit 消息（格式见下方"Commit 消息格式"）
-4. 点 **Commit to 你的分支名**
-
-#### A.5 Push——上传到 GitHub
-
-GitHub Desktop 顶部会出现 **Push origin** 按钮，点一下就行。第一次 push 会稍慢，之后很快。
-
-#### A.6 开 PR——请求审核
-
-1. push 完后 GitHub Desktop 顶部会出现 **Create Pull Request** 按钮，点了直接跳浏览器
-2. 或者手动打开 `https://github.com/你的用户名/MaaEnd`，页面顶部会有黄色提示条 "xxx had recent pushes"，点 **Compare & pull request**
-3. 标题写清楚你改了什么
-4. 没做完就勾上 **Create draft pull request**
-5. 点 **Create pull request**
-
 ---
 
 ### 线路 B：Git 命令行
 
-你已经在第二章装好了 Git。打开终端（文件夹右键 → "Git Bash Here" 或 "在终端中打开"），跟着敲就行。
+你已经装好了 Git。打开终端（文件夹右键 → "Git Bash Here" 或 "在终端中打开"），跟着敲就行。
 
-#### B.1 Fork——把仓库复制到自己名下
-
-这一步同样在网页上操作：
-
-1. 打开 [MaaEnd 仓库](https://github.com/MaaEnd/MaaEnd)，确认已登录
-2. 点右上角 **Fork** 按钮，直接点 **Create fork**
-3. 等几秒，页面跳到 `https://github.com/你的用户名/MaaEnd`
-
-#### B.2 Clone——下载到本地
+#### B.1 Clone——下载到本地
 
 ```bash
 git clone --recursive https://github.com/你的用户名/MaaEnd.git
@@ -203,80 +173,12 @@ git submodule update --init --recursive
 
 > **子模块是什么？** MaaEnd 引用了外部资源（比如模型文件），它们放在别的 Git 仓库里。`--recursive` 就是"把引用的外部仓库也一起下载下来"。不加的话，用到的部分文件会缺失，后续跑不起来。
 
-#### B.3 Branch——开一条工作分支
-
-```bash
-cd MaaEnd                                    # 进入仓库目录
-git checkout -b feat/你的分支名               # 创建并切换到新分支
-```
-
-分支名用英文，格式建议 `feat/描述`，比如 `feat/add-sell-button`。
-
-> Fork 是复制了一整个仓库，Branch 是在仓库里面再开一条工作分支。永远不要直接在 v2 分支上改东西——开条分支，改烂了删掉就行，v2 干干净净不受影响。
-
-#### B.4 Commit——存档
-
-```bash
-git add .                                                # 暂存所有改动
-git commit -m "feat(任务名): 做了什么"                     # 存档 + 写备注
-```
-
-commit 消息格式见下方。如果只想存档某几个文件，把 `git add .` 换成 `git add 文件路径`。
-
-#### B.5 Push——上传到 GitHub
-
-```bash
-git push -u origin feat/你的分支名
-```
-
-**为什么要 `-u`？** 你本地新建的分支，GitHub 那边还不存在。`-u`（`--set-upstream` 的缩写）做两件事：
-
-1. 在 GitHub 上创建同名远程分支，把本地代码传上去
-2. 让本地分支"记住"对应哪个远程分支——之后直接 `git push` 就行，不用再敲一长串
-
-**忘了加 `-u` 会怎样？** push 时会报错：
-
-```text
-fatal: The current branch feat/xxx has no upstream branch.
-```
-
-别慌，按它提示的敲：
-
-```bash
-git push --set-upstream origin feat/你的分支名
-```
-
-效果跟 `-u` 一样。之后再 push 就只需要 `git push` 了。
-
-#### B.6 开 PR——请求审核
-
-push 完之后，打开浏览器访问 `https://github.com/你的用户名/MaaEnd`，页面顶部会有黄色提示条 "xxx had recent pushes"，点 **Compare & pull request**。标题写清楚，没做完勾上 **Create draft pull request**，点 **Create pull request**。
-
----
-
-### Commit 消息格式（两条线通用）
-
-本项目遵循 [约定式提交（Conventional Commits）](https://www.conventionalcommits.org/zh-hans/v1.0.0/)，详见 [getting-started.md § 0. 提交规范](./getting-started.md)。下面是常用前缀速查：
-
-| 前缀 | 什么时候用 |
-| -------- | ------------------------------------- |
-| `feat:` | 新增功能（Pipeline 节点、识别模板等） |
-| `fix:` | 修复 Bug |
-| `docs:` | 仅文档更改 |
-| `style:` | 格式/空白调整（不影响代码含义） |
-| `chore:` | 构建、依赖等杂项 |
-
-示例：`feat(SellProduct): 添加售货按钮识别模板`、`fix: 修复启动崩溃`。
-
 ---
 
 ### 🎯 检查点
 
-> - [ ] 能把仓库 clone 到本地
-> - [ ] 能创建分支
-> - [ ] 能 commit（写出符合格式的 message）
-> - [ ] 能 push
-> - [ ] 能在 GitHub 网页上开一个 Draft PR
+> - [ ] 在 GitHub 上 fork 了 MaaEnd（复制到自己名下）
+> - [ ] 把副本 clone 到了本地
 
 ---
 
@@ -333,6 +235,8 @@ push 完之后，打开浏览器访问 `https://github.com/你的用户名/MaaEn
 ```
 
 这就是 Pipeline 节点的基本形状。
+
+> 为了看着像人话，上面的键名先用了中文示意。真实的 Pipeline 字段是英文的（`recognition` / `action` / `next`）。
 
 ### 4.4 新手最常见的三个错误
 
@@ -394,7 +298,7 @@ push 完之后，打开浏览器访问 `https://github.com/你的用户名/MaaEn
 
 ## 第五章 · Pipeline 是怎么跑的
 
-> 这一章让你能看懂别人写的 Pipeline。读完就去看 `getting-started.md`。
+> 这一章让你能看懂别人写的 Pipeline。下一章（第六章）带你走一遍第一个 PR，之后就去看 `getting-started.md`。
 
 ### 5.1 核心思想：先看，再动
 
@@ -420,21 +324,20 @@ push 完之后，打开浏览器访问 `https://github.com/你的用户名/MaaEn
 
 ```json
 {
-    "SellProductMain": {
-        "desc": "在主界面时，识别地区建设入口并点击进入",
+    "EssenceFilterSwitchTab": {
+        "desc": "切换到武器基质标签页",
 
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "SellProduct/RegionalDevelopmentEntry.png",
+                "template": "EssenceFilter/EssenceTabNotChoose.png",
                 "roi": [
-                    400,
-                    200,
-                    480,
-                    320
+                    350,
+                    0,
+                    500,
+                    80
                 ],
-                "threshold": 0.7,
-                "green_mask": true
+                "threshold": 0.9
             }
         },
 
@@ -444,9 +347,9 @@ push 完之后，打开浏览器访问 `https://github.com/你的用户名/MaaEn
 
         "pre_delay": 0,
         "post_delay": 0,
-        "post_wait_freezes": 100,
+        "post_wait_freezes": 400,
 
-        "next": ["SellProductLoop"]
+        "next": ["EssenceFilterCheckInInventory"]
     }
 }
 ```
@@ -459,19 +362,27 @@ push 完之后，打开浏览器访问 `https://github.com/你的用户名/MaaEn
 | `"recognition"` → `"type": "TemplateMatch"` | 识别方式：模板匹配（在屏幕上找一张小图） |
 | `"template"` | 要找的那张图存哪了 |
 | `"roi"` | 只在这个框里找——`[左上x, 左上y, 宽, 高]`，屏幕左上角是原点 |
-| `"threshold": 0.7` | 相似度 70% 就算命中 |
-| `"green_mask": true` | 绿色掩码：若为 true，将图片中不希望匹配的部分涂绿 RGB: (0, 255, 0)，匹配时会跳过绿色区域 |
+| `"threshold": 0.9` | 相似度 90% 就算命中 |
+| `"green_mask": true`（可选） | 绿色掩码：若为 true，将图片中不希望匹配的部分涂绿 RGB: (0, 255, 0)，匹配时会跳过绿色区域。本例没用到；模板里有多余图案干扰时才需要 |
 | `"action"` → `"type": "Click"` | 识别到了就点击，默认点击识别到的位置 |
-| `"pre_delay": 0` | 识别到后、执行动作前等待多少毫秒。入口节点画面稳定，设 0 |
+| `"pre_delay": 0` | 识别到后、执行动作前等待多少毫秒。这个节点画面通常稳定，设 0 |
 | `"post_delay": 0` | 执行动作后、开始识别 next 前等待多少毫秒。这里用 `post_wait_freezes` 代替了 |
-| `"post_wait_freezes": 100` | 执行动作后等画面不动了，再多等 100 毫秒。比固定 `post_delay` 更靠谱 |
-| `"next": ["SellProductLoop"]` | 做完后按顺序尝试 next 里的每个节点，只执行第一个识别到的 |
+| `"post_wait_freezes": 400` | 执行动作后等画面不动了，再多等 400 毫秒。比固定 `post_delay` 更靠谱 |
+| `"next": ["EssenceFilterCheckInInventory"]` | 做完后依次尝试 next 里的节点，命中第一个就停 |
 
-> 延迟字段只在必要时用：`pre_delay` 等画面出现，`post_delay` 等动画播完，`post_wait_freezes` 等画面稳定。大多数节点设 0 就行。SellProductMain 作为任务入口，画面本身就是稳定的，所以 pre/post_delay 都是 0。
+> 延迟字段只在必要时用：`pre_delay` 等画面出现，`post_delay` 等动画播完，`post_wait_freezes` 等画面稳定。大多数节点设 0 就行。上面这个节点点完会触发标签页切换动画，所以用 `post_wait_freezes: 400` 等画面彻底稳定。
 >
-> 这里只拆了最常用的字段，实际可用的远不止这些——遇到不认识的，自己去网上搜 **MaaFramework Pipeline 协议**，官方文档有完整列表（5.5 节有链接）。
+> 这里只拆了最常用的字段，实际可用的远不止这些——完整的字段列表见 [MaaFramework Pipeline 协议](https://maafw.com/docs/3.1-PipelineProtocol/)（官方文档）。
 
-### 5.3 常用识别方式速查
+### 5.3 下一步的跳转逻辑
+
+```json
+"next": ["SellProductSchedule", "SellProductTaskEnd"]
+```
+
+Pipeline 会**按顺序尝试**——先试第一个，不命中才试第二个。所以把**最可能出现的状态写在最前面**：任务刚启动时多半还在主界面，先试 `SellProductSchedule`；万一已经卖完了，再试 `SellProductTaskEnd` 让任务收尾。候选越多越好，能在一轮"截图 → 识别 → 动作"的循环中命中。
+
+### 5.4 常用识别方式速查
 
 | 方式 | 关键词 | 什么时候用 |
 | -------- | ---------------- | -------------------------------------- |
@@ -481,15 +392,17 @@ push 完之后，打开浏览器访问 `https://github.com/你的用户名/MaaEn
 | 同时满足 | `And` + `all_of` | 多个条件都满足才命中 |
 | 任意满足 | `Or` + `any_of` | 满足一个就命中 |
 
-### 5.4 下一步的跳转逻辑
+### 5.5 怎么自己截一张识别模板
 
-```json
-"next": ["SellProductStartSelling", "SellProductTaskEnd"]
-```
+> 前提：先启动 MaaEnd 客户端，连上你的游戏或模拟器，插件才能截到真实的游戏画面。
 
-Pipeline 会**按顺序尝试**——先试第一个，不命中才试第二个。所以最可能出现的状态写在最前面。候选越多越好，能在一轮"截图 → 识别 → 动作"的循环中命中。
+1. 截图以 1280×720 为基准/推荐，但无需手动切换分辨率（framework 会自动缩放）
+2. VS Code 里 `Ctrl+Shift+P` → `Maa: Screenshot`（需要装了 Maa Pipeline Support 插件）
+3. 在截图上框选你要识别的区域
+4. 需要的话使用绿色掩码去除干扰识别的区域——将不希望匹配的部分涂绿 RGB: (0, 255, 0)，匹配时会跳过绿色区域。装了插件可以直接在截图上涂绿，不要手动 PS
+5. 把处理好的截图存成 PNG，放到 `assets/resource/image/你的任务名/` 文件夹里（没有就新建）
 
-### 5.5 去哪查详细语法
+### 5.6 去哪查详细语法
 
 - [MaaFramework Pipeline 协议](https://maafw.com/docs/3.1-PipelineProtocol/)——官方完整文档
 - 最快的学习方式：打开 `assets/resource/pipeline/` 下别人写好的 JSON，看一行学一行
@@ -506,57 +419,90 @@ Pipeline 会**按顺序尝试**——先试第一个，不命中才试第二个�
 
 ## 第六章 · 你的第一次 PR（手把手）
 
-> 任务：给项目贡献一张截图模板——零编程门槛，人人都能干。
+> 任务：给项目加一个按钮识别——一个 Pipeline 节点 + 一张模板图。不用写代码，人人都能干。
+>
+> 第三章你已经 fork 并 clone 了自己的副本（`你的用户名/MaaEnd`）。这一章在副本上把贡献流程走完：开分支 → 改文件 → commit → push → 开 PR。开 PR 在网页上做；其余步骤都给了 GitHub Desktop 和终端两种做法，选顺手的一种。
 
-### 第 1 步：Fork
+### 第 1 步：创建分支
 
-1. 打开 [MaaEnd 仓库](https://github.com/MaaEnd/MaaEnd)
-2. 点右上角 **Fork** 按钮
-3. 不改任何东西，直接点 **Create fork**
+> Fork 是复制了一整个仓库，Branch 是在仓库里面再开一条工作分支。v2 是本项目的主分支（PR 也往它开）。永远不要直接在 v2 分支上改东西——开条分支，改烂了删掉就行，v2 干干净净不受影响。
 
-等几秒就跳到了 `https://github.com/你的用户名/MaaEnd`——这是你自己的副本。
-
-### 第 2 步：Clone 你自己的仓库
-
-> 忘了 clone 是什么意思？→ [回第三章复习](#第三章--github-最小求生指南)
-
-VS Code → `F1` → `Git: Clone` → 输入 **你 fork 的那个地址**，不是原版的那个。
-
-### 第 3 步：创建分支
-
-点左下角分支名 → "创建新分支" → `feat/add-template-xxx`
-
-### 第 4 步：截图 + 放模板
-
-1. 截图以 1280×720 为基准/推荐，但无需手动切换分辨率（framework 会自动缩放）
-2. VS Code 里 `Ctrl+Shift+P` → `Maa: Screenshot`（需要装了 Maa Pipeline Support）
-3. 在截图上框选你要识别的区域
-4. 需要的话使用绿色掩码去除干扰识别的区域——将不希望匹配的部分涂绿 RGB: (0, 255, 0)，匹配时会跳过绿色区域。VS Code 装了 Maa Pipeline Support 插件后可以直接在截图上涂绿，不要手动 PS
-5. 图片放到 `assets/resource/image/你的任务名/`
-
-### 第 5 步：Commit
-
-选一种你顺手的方式：
+选你顺手的方式：
 
 | 方式 | 操作 |
 | -------------------- | ---------------------------------------------------------- |
-| VS Code 界面 | `Ctrl + Shift + G` → 点 `+` 暂存 → 写 commit 消息 → 点 `✓` |
-| 终端（第三章线路 B） | `git add .` 然后 `git commit -m "feat(任务名): 做了什么"` |
+| GitHub Desktop | 点上方分支选择框 → **New Branch** → 分支名用英文，格式建议 `feat/描述`，比如 `feat/add-sell-button` → 点 **Create Branch** |
+| 终端 | 在仓库目录里敲 `git checkout -b feat/add-sell-button` |
 
-### 第 6 步：Push
+### 第 2 步：动手改——写节点 + 做模板
+
+这次改动是两个文件配套，都在 `assets/resource/` 下：
+
+1. **模板图**：按 [5.5 怎么自己截一张识别模板](#55-怎么自己截一张识别模板) 的方法截好图并处理成识别模板，存成 PNG 放进 `assets/resource/image/你的任务名/` 文件夹（英文名，比如 `SellProduct/`，图片比如 `SellButton.png`）
+2. **JSON 节点**：在 `assets/resource/pipeline/` 下新建 `你的任务名.json`，写一个 Pipeline 节点，`recognition` 里的 `template` 指向你刚做的那张图。节点长什么样、每个字段干什么，[5.2](#52-拆解一个真实节点) 刚讲过，照着写就行
+
+### 第 3 步：Commit——存档
+
+选你顺手的方式：
 
 | 方式 | 操作 |
-| -------------------- | ------------------------------------------ |
-| VS Code 界面 | 点左下角"同步更改"按钮 |
-| 终端（第三章线路 B） | `git push -u origin feat/add-template-xxx` |
+| -------------------- | ---------------------------------------------------------- |
+| GitHub Desktop | 左侧列出所有变更 → 勾选文件 → 左下角 **Summary** 写 commit 消息 → 点 **Commit to 你的分支名** |
+| 终端 | `git add .` 然后 `git commit -m "feat(任务名): 做了什么"` |
+| VS Code | `Ctrl + Shift + G` → 点 `+` 暂存 → 写 commit 消息 → 点 `✓` |
 
-### 第 7 步：开 PR（在网页）
+消息按下方"Commit 消息格式"写，比如 `feat(SellProduct): 添加售货按钮识别模板`。
 
-1. 打开 [你 fork 的仓库](https://github.com/你的用户名/MaaEnd)，页面顶部会有黄色提示条 → 点 "Compare & pull request"
+### 第 4 步：Push——上传到 GitHub
+
+选你顺手的方式：
+
+| 方式 | 操作 |
+| -------------------- | ---------------------------------------------------------- |
+| GitHub Desktop | 顶部出现 **Push origin** 按钮，点一下 |
+| 终端 | `git push -u origin feat/add-sell-button` |
+| VS Code | 点左下角"同步更改"按钮 |
+
+**为什么要 `-u`？** 你本地新建的分支，GitHub 那边还不存在。`-u`（`--set-upstream` 的缩写）做两件事：
+
+1. 在 GitHub 上创建同名远程分支，把本地代码传上去
+2. 让本地分支"记住"对应哪个远程分支——之后直接 `git push` 就行，不用再敲一长串
+
+**忘了加 `-u` 会怎样？** push 时会报错：
+
+```text
+fatal: The current branch feat/xxx has no upstream branch.
+```
+
+别慌，按它提示的敲：
+
+```bash
+git push --set-upstream origin feat/add-sell-button
+```
+
+效果跟 `-u` 一样。之后再 push 就只需要 `git push` 了。第一次 push 会稍慢，之后很快。
+
+### 第 5 步：开 PR（在网页）
+
+1. 打开**你 fork 的仓库**（`github.com/你的用户名/MaaEnd`），页面顶部会有黄色提示条 → 点 "Compare & pull request"
 2. 确认 base 分支是 `v2`（原仓库的主分支），head 分支是你刚 push 的分支
 3. 标题写清楚：`feat(任务名): 添加了某某按钮的识别模板`
 4. 没做完选 "Create draft pull request"
 5. 点 "Create pull request"
+
+### Commit 消息格式
+
+本项目遵循 [约定式提交（Conventional Commits）](https://www.conventionalcommits.org/zh-hans/v1.0.0/)，详见 [getting-started.md § 0. 提交规范](./getting-started.md)。下面是常用前缀速查：
+
+| 前缀 | 什么时候用 |
+| -------- | ------------------------------------- |
+| `feat:` | 新增功能（Pipeline 节点、识别模板等） |
+| `fix:` | 修复 Bug |
+| `docs:` | 仅文档更改 |
+| `style:` | 格式/空白调整（不影响代码含义） |
+| `chore:` | 构建、依赖等杂项 |
+
+示例：`feat(SellProduct): 添加售货按钮识别模板`、`fix: 修复启动崩溃`。
 
 ### 然后呢
 
@@ -567,15 +513,15 @@ VS Code → `F1` → `Git: Clone` → 输入 **你 fork 的那个地址**，不�
 ### 完整流程回顾
 
 ```text
-Fork 仓库
+Fork 仓库（第三章已做）
     ↓
-Clone 你自己的仓库
+Clone 你自己的副本（第三章已做）
     ↓
 创建分支（开一条自己的线）
     ↓
-截图 + 框选识别区域（Maa Pipeline Support 插件）
+做模板图，放进 assets/resource/image/你的任务名/
     ↓
-把图片放到 assets/resource/image/ 对应文件夹
+写 JSON 节点引用它（assets/resource/pipeline/你的任务名.json）
     ↓
 Commit（存档）
     ↓
@@ -588,10 +534,10 @@ Push（上传）
 
 ### 🎯 检查点
 
-> - [ ] Fork 了 MaaEnd
-> - [ ] Clone 到了本地
+> 前置（第三章已做）：fork 了自己的副本、clone 到了本地
+>
 > - [ ] 创建了分支
-> - [ ] 放了一张截图模板
+> - [ ] 改了 JSON 节点 + 放了一张模板图
 > - [ ] Commit + Push 成功
 > - [ ] 在 GitHub 上看到了自己的 PR
 > - [ ] 🎉 恭喜！人生第一个开源贡献！
@@ -618,7 +564,7 @@ Push（上传）
 - [MaaFramework Pipeline 协议](https://maafw.com/docs/3.1-PipelineProtocol/)——所有节点的详细语法
 - [DeepWiki — MaaEnd](https://deepwiki.com/MaaEnd/MaaEnd)——AI 驱动的第三方在线文档浏览器
 
-需要帮助？
+## 需要帮助？
 
 遇到不懂的先别慌，也别急着到处问。试试这个顺序：
 
