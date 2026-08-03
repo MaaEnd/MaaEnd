@@ -82,6 +82,16 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 	}
 
+	// 抽牌路径：把 DoDrawCardSuccess 的等待目标覆盖为本次落位槽（第 N 张在场卡牌 + 第 N 手牌槽），
+	// 避免第 2 张及以后的抽牌仍等待槽 1（早已在场）导致动画中途即命中、手牌读错。
+	// 先覆盖再路由：DoDrawCardSuccess 每次必经本动作，节点执行时必为最新定义。
+	if best == solver.DrawCard {
+		if err := overrideDrawCardSuccess(ctx, gs.State.Hand); err != nil {
+			log.Error().Err(err).Str("component", component).Msg("override draw card success node failed")
+			return false
+		}
+	}
+
 	// 按决策路由到执行节点（节点自行点击 + 等动画），完成后回到 Decide 形成单步循环。
 	if err := routeDecision(ctx, arg.CurrentTaskName, best); err != nil {
 		log.Error().Err(err).Str("component", component).Str("action", best.String()).Msg("failed to route decision")
@@ -190,6 +200,48 @@ func pickDecision(outcomes []solver.Outcome) solver.Action {
 //   - Calculate→ StartTrial 战斗链
 func routeDecision(ctx *maa.Context, currentNode string, action solver.Action) error {
 	return ctx.OverrideNext(currentNode, []maa.NextItem{{Name: executeNode(action)}})
+}
+
+// overrideDrawCardSuccess 把 DoDrawCardSuccess 的等待目标覆盖为本次抽牌的落位槽：
+// all_of → EnemyCard<N>（第 N 张牌已落地），post_wait_freezes.target → HandPosition<N> 的 ROI（点数静止）。
+// 扁平覆盖、缺省字段由框架字段级合并保留（time 等仍以 pipeline JSON 为唯一来源）。
+// 手牌回合内只增不减且紧凑排列，落位槽 = 当前手牌数 + 1（与 solver 的 Hand 视图一致）；
+// 满手时 solver 不决策抽牌，clamp 到 [1,5] 纯属防御。
+func overrideDrawCardSuccess(ctx *maa.Context, hand [5]int) error {
+	slot := 1
+	for _, c := range hand {
+		slot += c
+	}
+	if slot > 5 {
+		slot = 5
+	}
+
+	enemyCard := nodeEnemyCardPrefix + strconv.Itoa(slot)
+	handPosition := nodeHandPositionPrefix + strconv.Itoa(slot)
+	handROI, err := nodeROI(ctx, handPosition)
+	if err != nil {
+		return fmt.Errorf("get %s roi: %w", handPosition, err)
+	}
+
+	if err := ctx.OverridePipeline(map[string]any{
+		nodeDoDrawCardSuccess: map[string]any{
+			"all_of": []string{enemyCard},
+			"post_wait_freezes": map[string]any{
+				"target": handROI,
+			},
+		},
+	}); err != nil {
+		return err
+	}
+
+	log.Debug().
+		Str("component", component).
+		Int("slot", slot).
+		Str("allOf", enemyCard).
+		Str("freezeTargetNode", handPosition).
+		Ints("freezeTarget", handROI[:]).
+		Msg("draw card success node overridden")
+	return nil
 }
 
 // executeNode 把最优决策映射到执行节点名。

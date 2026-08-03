@@ -72,9 +72,17 @@
         ],
         "inverse": true,
         "pre_delay": 0,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "interval_ms": 1500,
+            "wait_nodes": [
+                "TrialOfSwordmancyDrawFirstCardSuccess"
+            ]
+        },
         "target": "TrialOfSwordmancyDrawCard",
-        "post_delay": 400,
+        "post_delay": 0,
         "next": [
             "TrialOfSwordmancyDrawFirstCardSuccess"
         ]
@@ -89,13 +97,13 @@
         "post_wait_freezes": {
             "time": 200,
             "target": [
-                62,
-                146,
                 173,
-                289
+                123,
+                74,
+                80
             ]
         },
-        "post_delay": 400,
+        "post_delay": 0,
         "next": [
             "TrialOfSwordmancyAbandProbeClickGiveUp",
             "TrialOfSwordmancyDecide"
@@ -110,13 +118,22 @@
             "TrialOfSwordmancyGiveUp"
         ],
         "pre_delay": 0,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "interval_ms": 600,
+            "repeat_count": 6,
+            "wait_nodes": [
+                "TrialOfSwordmancyAbandProbePopup"
+            ]
+        },
         "post_delay": 0,
         "next": [
-            "TrialOfSwordmancyAbandProbeWaitPopup"
+            "TrialOfSwordmancyAbandProbePopup"
         ]
     },
-    "TrialOfSwordmancyAbandProbeWaitPopup": {
+    "TrialOfSwordmancyAbandProbePopup": {
         "desc": "探测放弃次数①：等放弃确认弹窗出现",
         "recognition": "And",
         "all_of": [
@@ -124,15 +141,6 @@
             "YellowConfirmButtonType1"
         ],
         "pre_delay": 0,
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                303,
-                344,
-                674,
-                18
-            ]
-        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyAbandProbeRecognize"
@@ -168,16 +176,7 @@
             "TrialOfSwordmancyEnemyCard1"
         ],
         "pre_delay": 0,
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                62,
-                146,
-                173,
-                289
-            ]
-        },
-        "post_delay": 400,
+        "post_delay": 400, // 过渡状态就会被识别命中，需要等待动画结束，但 wait_freezes 也是永远命中，不如写明只是单纯 delay
         "next": [
             "TrialOfSwordmancyDecide"
         ]
@@ -205,11 +204,21 @@
             "TrialOfSwordmancyDrawCard"
         ],
         "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 400,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "interval_ms": 600,
+            "repeat_count": 6,
+            "wait_nodes": [
+                "TrialOfSwordmancyDoDrawCardConfirm",
+                "TrialOfSwordmancyDoDrawCardSuccess"
+            ]
+        },
+        "post_delay": 0,
         "next": [
             "TrialOfSwordmancyDoDrawCardConfirm",
-            "TrialOfSwordmancyDoWaitDrawCardFreezes"
+            "TrialOfSwordmancyDoDrawCardSuccess"
         ]
     },
     "TrialOfSwordmancyDoDrawCardConfirm": {
@@ -220,28 +229,25 @@
         ],
         "pre_delay": 0,
         "action": "Click",
-        "post_delay": 400,
+        "post_delay": 0,
         "next": [
-            "TrialOfSwordmancyDoWaitDrawCardFreezes"
+            "TrialOfSwordmancyDoDrawCardSuccess"
         ]
     },
-    "TrialOfSwordmancyDoWaitDrawCardFreezes": {
+    "TrialOfSwordmancyDoDrawCardSuccess": {
         "desc": "等待抽牌动画结束",
+        // 本节点的 all_of 与 post_wait_freezes.target 为初始占位，运行时由
+        // TrialOfSwordmancy.Decide 按落位槽覆盖为 EnemyCard<N> 与 HandPosition<N> 的 ROI。
         "recognition": "And",
         "all_of": [
-            "TrialOfSwordmancyDrawCard"
+            "TrialOfSwordmancyEnemyCard1"
         ],
         "pre_delay": 0,
         "post_wait_freezes": {
             "time": 200,
-            "target": [
-                62,
-                146,
-                1191,
-                289
-            ]
+            "target": "TrialOfSwordmancyHandPosition1"
         },
-        "post_delay": 400, // 即使动画结束，抽牌按钮仍有一定时间不可用
+        "post_delay": 0,
         "next": [
             "TrialOfSwordmancyDecide"
         ]
@@ -254,14 +260,13 @@
             "TrialOfSwordmancyDoubleReward"
         ],
         "pre_delay": 0,
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                690,
-                613,
-                280,
-                50
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "interval_ms": 1500,
+            "wait_nodes": [
+                "TrialOfSwordmancyIsDoubled"
             ]
         },
         "post_delay": 0,
@@ -277,7 +282,15 @@
             "TrialOfSwordmancyGiveUp"
         ],
         "pre_delay": 0,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "interval_ms": 1500,
+            "wait_nodes": [
+                "TrialOfSwordmancyDailyConfirmGiveUp"
+            ]
+        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyDailyConfirmGiveUp"
@@ -311,7 +324,6 @@
                 "TrialOfSwordmancyGotoTrialArenaCpp"
             ]
         },
-        "post_wait_freezes": 200,
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyDailyMain"

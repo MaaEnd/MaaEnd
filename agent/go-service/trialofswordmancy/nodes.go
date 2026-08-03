@@ -15,10 +15,16 @@ const (
 	nodeDoDrawCard     = "TrialOfSwordmancyDoDrawCard"     // 抽一张牌
 	nodeDoDoubleReward = "TrialOfSwordmancyDoDoubleReward" // 选择本局翻倍
 
+	// 抽牌成功等待节点；Decide 决策抽牌时按落位槽覆盖其 all_of / post_wait_freezes.target。
+	nodeDoDrawCardSuccess = "TrialOfSwordmancyDoDrawCardSuccess"
+
 	// 既有执行链入口。
 	nodeGiveUp     = "TrialOfSwordmancyDailyGiveUp" // 放弃本局 → 确认 → 重置寻路 → 回主入口
 	nodeStartTrial = "TrialOfSwordmancyStartTrial"  // 开始演算 → 编队 → 战斗 → 领奖
 
+	// 第 N 张在场卡牌（定义在 Common.json 上半区，pipeline 可见）；+ "1".."5" 组成 EnemyCardN。
+	// Decide 覆盖 DoDrawCardSuccess 的 all_of 用，标识第 N 张牌已落地。
+	nodeEnemyCardPrefix = "TrialOfSwordmancyEnemyCard"
 )
 
 // go-service 专用识别节点名（定义在 TrialOfSwordmancyCommon.json 的 [go] 区，ROI/模板都在 JSON 里）。
