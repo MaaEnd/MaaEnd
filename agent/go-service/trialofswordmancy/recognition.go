@@ -19,7 +19,7 @@ var _ maa.CustomRecognitionRunner = &Recognition{}
 // 组装 GameState 后序列化进 CustomRecognitionResult.Detail 交给 Decide 动作。
 //
 // 每步只做稳定识别（remainDeck OCR），手牌由缓存的 Deck 反推；完整识别（remainDeck + Hand 模板匹配）
-// 由 RecognizeDeck 在轮次开始时执行并缓存（见 deckstate.go）。缓存缺失 / 推导越界 → 严格中止，不猜测。
+// 由 RecognizeDeck 在轮次开始时执行并缓存（见 session.go）。缓存缺失 / 推导越界 → 严格中止，不猜测。
 //
 // 各字段来源（ROI/模板都在 TrialOfSwordmancyCommon.json 的 [go] 节点里，Go 按名调用 maafw）：
 //   - 屏幕态：RewardMode / DrawCard 在场 → 处于抽牌界面。
@@ -44,7 +44,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	// 一轮演算内 Deck 恒定，此处只读 remainDeck（OCR，稳定），反推 Hand = Deck - remainDeck，
 	// 不再每步跑不稳定的 Hand 模板匹配。
 	// 缓存缺失 = pipeline 漏跑 RecognizeDeck 或轮次切换后未重置 → 严格中止，不猜测。
-	deck, cacheOK := getDeck()
+	deck, cacheOK := sess.Deck()
 	if !cacheOK {
 		log.Error().Str("component", component).Msg("deck cache missing: 轮次开始前未执行 RecognizeDeck（或缓存已被开始演算/放弃重置）")
 		return nil, false
@@ -87,7 +87,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 
 	// 剩余放弃次数由独立的 RecognizeAband 从放弃弹窗识别并缓存。
 	// 缓存仍未知时保留 -1，交给求解器判不可达并中止，不在总成识别中执行任何界面操作。
-	remainAband := getAband()
+	remainAband := sess.Aband()
 
 	// 屏幕的「本日剩余奖励演算次数」显示的是「当前进行中这局之外的剩余」——进入抽牌界面即扣 1，
 	// 而求解器把进行中这局也算作可用 → solver = OCR + 1（常规状态 RemainCalc 1..3，对应 OCR 0..2）。
@@ -280,7 +280,7 @@ var _ maa.CustomRecognitionRunner = &DeckRecognition{}
 
 // DeckRecognition 是完整牌库识别器：一次读 remainDeck（OCR）+ Hand（模板），推导总牌量 Deck 并缓存。
 // 一轮演算内 Deck 恒定，只需在轮次开始时执行一次；之后总成识别只读 remainDeck 反推 Hand，
-// 跳过不稳定的 Hand 模板识别。决策到开始演算/放弃演算后由 DecideAction 重置缓存（见 deckstate.go）。
+// 跳过不稳定的 Hand 模板识别。决策到开始演算/放弃演算后由 DecideAction 重置缓存（见 session.go）。
 // 由 pipeline 节点以 custom_recognition 方式调用（TrialOfSwordmancy.RecognizeDeck）。
 type DeckRecognition struct{}
 
@@ -307,7 +307,7 @@ func (r *DeckRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		return nil, false
 	}
 
-	setDeck(deck)
+	sess.SetDeck(deck)
 
 	log.Info().
 		Str("component", component).
@@ -326,6 +326,56 @@ type deckDetail struct {
 	RemainDeck [5]int `json:"remainDeck"`
 	Hand       [5]int `json:"hand"`
 	HandRaw    [5]int `json:"handRaw"`
+}
+
+var _ maa.CustomRecognitionRunner = &AbandRecognition{}
+
+// AbandRecognition 从当前截图中已显示的放弃确认文本识别剩余放弃次数。
+// 它只读取文本并更新缓存，不负责打开弹窗、等待界面或关闭弹窗。
+type AbandRecognition struct{}
+
+// Run 识别放弃确认弹窗文本，并将剩余放弃次数写入总成识别使用的缓存。
+func (r *AbandRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if arg == nil || arg.Img == nil {
+		log.Error().Str("component", component).Msg("aband recognition arg or image is nil")
+		return nil, false
+	}
+
+	count := 0
+	text := ""
+	exhausted, ok := recognizeAbandExhausted(ctx, arg)
+	if !ok {
+		return nil, false
+	}
+	if !exhausted {
+		var ok bool
+		text, ok = ocrNodeText(ctx, arg.Img, nodeAbandPopup)
+		if !ok {
+			log.Warn().Str("component", component).Msg("aband popup OCR failed")
+			return nil, false
+		}
+
+		var parsed bool
+		count, parsed = parseFirstInt(text)
+		if !parsed {
+			log.Warn().Str("component", component).Str("ocr", text).Msg("failed to parse remaining aband count")
+			return nil, false
+		}
+	}
+
+	sess.SetAband(count)
+	log.Info().Str("component", component).Int("aband", count).Str("ocr", text).Msg("remaining aband count recognized")
+
+	return &maa.CustomRecognitionResult{Box: arg.Roi, Detail: strconv.Itoa(count)}, true
+}
+
+func recognizeAbandExhausted(ctx *maa.Context, arg *maa.CustomRecognitionArg) (bool, bool) {
+	detail, err := ctx.RunRecognition(nodeAbandExhausted, arg.Img, nil)
+	if err != nil || detail == nil {
+		log.Warn().Err(err).Str("component", component).Msg("aband exhausted ColorMatch failed")
+		return false, false
+	}
+	return detail.Hit, true
 }
 
 func nodeROI(ctx *maa.Context, nodeName string) (maa.Rect, error) {

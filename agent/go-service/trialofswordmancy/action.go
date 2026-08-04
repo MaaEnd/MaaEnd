@@ -21,9 +21,9 @@ var _ maa.CustomActionRunner = &DecideAction{}
 // DecideAction 反序列化 recognition 产出的 GameState，调 solver.Decide 取最优单步决策，
 // 按决策用 OverrideNext 路由到执行节点。
 //
-// 几乎无状态：每步的完整 State 都由 recognition 读出后传入；本动作只做「求解 → 路由」。
-// 副作用：路由到 放弃（真实放弃）时把剩余放弃次数缓存减一；路由到 放弃/开始演算 时重置完整牌库缓存
-// （下一轮是新牌库，见 deckstate.go）；开始演算不影响放弃次数。
+// 本身不持有状态：每步的完整 State 都由 recognition 读出后传入，本动作只做「求解 → 路由」；
+// 唯一的状态副作用是经 sess.OnRoundEnd 落定轮次边界（放弃递减、牌库重置，见 session.go），
+// 具体规则（跨日残局白送、0 不减）在那边，这里不重复。
 // 单步循环靠 pipeline 的 next 回到 TrialOfSwordmancyDecide（recognition 重新读图），
 // 直到奖励耗尽（pipeline 检测 → Finish）。solver 只返回单步最优决策。
 type DecideAction struct{}
@@ -73,22 +73,8 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	// 放弃会结束当前回合并消耗 1 次放弃次数。pipeline 只在每轮任务开始时探测一次
-	// （AbandProbe max_hit=1），不重探测，故这里按真实放弃把缓存减一，而非重置为 -1 等重读。
-	// 跨日残局那局（RemainCalc==4）放弃按求解器模型扣演算次数、不扣放弃，不减；
-	// 剩余 0（已用完）时也不减——0 减成 -1 会把缓存毒化成「未知」。
-	if best == solver.Abandon {
-		if gs.State.RemainCalc != 4 && gs.State.RemainAband > 0 {
-			setAband(gs.State.RemainAband - 1)
-		}
-	}
-
-	// 开始演算 / 放弃都会结束当前轮次，下一轮是重新洗好的新牌库 → 重置完整牌库缓存。
-	// 路由后的 GiveUp/StartTrial 链路上不会用到旧缓存；即使链路中断，缓存缺失也会被
-	// 总成识别严格中止（见 recognition.go），不会拿上一轮的牌库做决策。
-	if best == solver.Abandon || best == solver.Calculate {
-		resetDeckCache()
-	}
+	// 轮次边界状态转移先于路由落定（沿用原时序）：路由失败任务即中止，状态不再被读取。
+	sess.OnRoundEnd(best, gs.State)
 
 	// 抽牌路径：按本次局面覆盖两个等待锚点（落位槽、战力点），
 	// 避免后续抽牌沿用旧值（槽 1 早已在场、战力点已非 0）提前命中或失去重试保护。

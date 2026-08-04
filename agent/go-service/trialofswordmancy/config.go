@@ -9,8 +9,10 @@ import (
 // overflowMode 是玩家策略选项：recognition 用默认值，最终由 Decide 节点的
 // custom_action_param.overflowMode 覆盖（见 DecideAction.Run / loadOverflowMode）。
 
-// —— 求解器缓存：按 Config 哈希键，Config 变化才重新 Solve ——
-// 正常一副牌 + 三种溢出模式只产生极少量键；上限兜底，防止牌库 OCR 抖动产生大量误识别键导致常驻内存增长。
+// —— solver 备忘：进程级、按 Config 哈希键，Config 变化才重新 Solve ——
+// 与 Session（run 级状态，随轮次重置）不同：备忘不随轮次失效，只有上限兜底——正常一副牌 + 三种
+// 溢出模式只产生极少量键；上限防牌库 OCR 抖动产生大量误识别键导致常驻内存增长。
+// （演进方向：异步预求解。）
 // MaaFramework 保证任务回调单线程同步执行，无需加锁。
 const solverCacheLimit = 16
 
