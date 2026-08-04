@@ -136,6 +136,8 @@
     "option.QuickTeleport.description": "在大地图上点击传送点（或列表中有传送点）时，自动点击传送",
     "option.AutoPuzzleSolving.label": "解拼图",
     "option.AutoPuzzleSolving.description": "自动帮你通关拼图小游戏（等价于开启⌈🧩解拼图⌋任务的循环执行）",
+    "option.AutoAeroSalvage.label": "浮空回收",
+    "option.AutoAeroSalvage.description": "自动帮你完成浮空回收小游戏（等价于开启⌈🎈浮空回收⌋任务的循环执行）",
     "option.AutoTaskInterval.label": "实时辅助间隔",
     "option.AutoTaskInterval.description": "过快的检测间隔可能会导致卡顿，请根据实际情况调整",
     "option.AutoTaskInterval.cases.AutoTaskIntervalFast.label": "快",

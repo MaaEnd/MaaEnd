@@ -1,14 +1,31 @@
 {
     "AeroSalvageMain": {
         "desc": "浮空回收入口",
-        "recognition": "TemplateMatch",
-        "roi": [
-            942,
-            134,
-            120,
-            119
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "浮空回收"
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    942,
+                    134,
+                    120,
+                    119
+                ],
+                "template": "AeroSalvage/Salvage.png"
+            }
         ],
-        "template": "AeroSalvage/Salvage.png",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [

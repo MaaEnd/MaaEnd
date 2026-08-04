@@ -134,6 +134,8 @@
     "option.QuickTeleport.description": "ワールドマップ（または一覧）で転送地点を選択した時に、転送を自動でクリックします。",
     "option.AutoPuzzleSolving.label": "パズル解決",
     "option.AutoPuzzleSolving.description": "パズルミニゲームを自動でクリアします（⌈🧩 パズル解決⌋タスクの繰り返し実行を有効にするのと同等）。",
+    "option.AutoAeroSalvage.label": "浮遊回収",
+    "option.AutoAeroSalvage.description": "浮遊回収ミニゲームを自動でクリアします（⌈🎈 浮遊回収⌋タスクの繰り返し実行を有効にするのと同等）。",
     "option.AutoTaskInterval.label": "リアルタイム支援間隔",
     "option.AutoTaskInterval.description": "間隔が速すぎるとカクつく可能性があります。状況に応じて調整してください。",
     "option.AutoTaskInterval.cases.AutoTaskIntervalFast.label": "速い",

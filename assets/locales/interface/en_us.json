@@ -136,6 +136,8 @@
     "option.QuickTeleport.description": "When selecting a teleport point on the world map (or from a list), automatically click Teleport.",
     "option.AutoPuzzleSolving.label": "Solve Puzzle",
     "option.AutoPuzzleSolving.description": "Automatically clears the puzzle minigame for you (equivalent to enabling the ⌈🧩 Solve Puzzle⌋ task in Loop mode).",
+    "option.AutoAeroSalvage.label": "Aerial Salvage",
+    "option.AutoAeroSalvage.description": "Automatically clears the Aerial Salvage minigame for you (equivalent to enabling the ⌈🎈 Aerial Salvage⌋ task in Loop mode).",
     "option.AutoTaskInterval.label": "Real-time Assist Interval",
     "option.AutoTaskInterval.description": "Too fast a check interval may cause lag. Adjust according to your situation.",
     "option.AutoTaskInterval.cases.AutoTaskIntervalFast.label": "Fast",
