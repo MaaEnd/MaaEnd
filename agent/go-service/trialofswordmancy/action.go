@@ -82,12 +82,12 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 	}
 
-	// 抽牌路径：把 DoDrawCardSuccess 的 all_of 覆盖为本次落位槽（第 N 张在场卡牌），
-	// 避免第 2 张及以后的抽牌仍等待槽 1（早已在场）导致动画中途即命中、手牌读错。
-	// 先覆盖再路由：DoDrawCardSuccess 每次必经本动作，节点执行时必为最新定义。
+	// 抽牌路径：按本次局面覆盖两个等待锚点（落位槽、战力点），
+	// 避免后续抽牌沿用旧值（槽 1 早已在场、战力点已非 0）提前命中或失去重试保护。
+	// 先覆盖再路由：两节点每次必经本动作，执行时必为最新定义。
 	if best == solver.DrawCard {
-		if err := overrideDrawCardSuccess(ctx, gs.State.Hand); err != nil {
-			log.Error().Err(err).Str("component", component).Msg("override draw card success node failed")
+		if err := overrideDrawCardNodes(ctx, gs.State.Hand); err != nil {
+			log.Error().Err(err).Str("component", component).Msg("override draw card nodes failed")
 			return false
 		}
 	}
@@ -202,11 +202,13 @@ func routeDecision(ctx *maa.Context, currentNode string, action solver.Action) e
 	return ctx.OverrideNext(currentNode, []maa.NextItem{{Name: executeNode(action)}})
 }
 
-// overrideDrawCardSuccess 把 DoDrawCardSuccess 的 all_of 覆盖为本次抽牌的落位槽：
-// all_of → EnemyCard<N>（第 N 张牌已落地）。
-// 手牌回合内只增不减且紧凑排列，落位槽 = 当前手牌数 + 1（与 solver 的 Hand 视图一致）；
-// 满手时 solver 不决策抽牌，clamp 到 [1,5] 纯属防御。
-func overrideDrawCardSuccess(ctx *maa.Context, hand [5]int) error {
+// overrideDrawCardNodes 按本次局面覆盖抽牌等待锚点——静态值在后续抽牌时失效：
+// 落位槽递增（槽 1 早已在场），战力点变化（BattlePts0 只在战力点 0 时命中）。
+//   - DoDrawCard.custom_action_param.wait_node → BattlePts<战力点 = 手牌点数总和 % 11>
+//   - DoDrawCardSuccess.all_of → EnemyCard<落位槽 = 当前手牌数 + 1>（clamp [1,5] 纯属防御）
+//
+// 注：override 为字段级浅合并，custom_action_param 必须全量给出，与 Daily.json 的 DoDrawCard 同步维护。
+func overrideDrawCardNodes(ctx *maa.Context, hand [5]int) error {
 	slot := 1
 	for _, c := range hand {
 		slot += c
@@ -214,10 +216,20 @@ func overrideDrawCardSuccess(ctx *maa.Context, hand [5]int) error {
 	if slot > 5 {
 		slot = 5
 	}
-
 	enemyCard := nodeEnemyCardPrefix + strconv.Itoa(slot)
 
+	power := solver.PowerOf(hand)
+	waitNode := nodeBattlePtsPrefix + strconv.Itoa(power)
+
 	if err := ctx.OverridePipeline(map[string]any{
+		nodeDoDrawCard: map[string]any{
+			"custom_action_param": map[string]any{
+				"action":       "Click",
+				"interval_ms":  600,
+				"repeat_count": 6,
+				"wait_node":    waitNode,
+			},
+		},
 		nodeDoDrawCardSuccess: map[string]any{
 			"all_of": []string{enemyCard},
 		},
@@ -229,7 +241,9 @@ func overrideDrawCardSuccess(ctx *maa.Context, hand [5]int) error {
 		Str("component", component).
 		Int("slot", slot).
 		Str("allOf", enemyCard).
-		Msg("draw card success node overridden")
+		Int("power", power).
+		Str("waitNode", waitNode).
+		Msg("draw card nodes overridden")
 	return nil
 }
 

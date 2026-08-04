@@ -25,6 +25,10 @@ const (
 	// 第 N 张在场卡牌（定义在 Common.json 上半区，pipeline 可见）；+ "1".."5" 组成 EnemyCardN。
 	// Decide 覆盖 DoDrawCardSuccess 的 all_of 用，标识第 N 张牌已落地。
 	nodeEnemyCardPrefix = "TrialOfSwordmancyEnemyCard"
+
+	// 战力点锚点（Common.json 上半区）；+ "0".."10" 组成 BattlePtsN，命中 ⟺ 战力点 == N
+	// （手牌点数总和 % 11，见 solver.PowerOf）。Decide 覆盖 DoDrawCard 的 wait_node 用。
+	nodeBattlePtsPrefix = "TrialOfSwordmancyBattlePts"
 )
 
 // go-service 专用识别节点名（定义在 TrialOfSwordmancyCommon.json 的 [go] 区，ROI/模板都在 JSON 里）。

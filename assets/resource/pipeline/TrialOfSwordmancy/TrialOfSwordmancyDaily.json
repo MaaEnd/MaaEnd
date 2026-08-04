@@ -73,13 +73,12 @@
         "inverse": true,
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "RepeatUntilFoundAction",
+        "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "interval_ms": 1500,
-            "wait_nodes": [
-                "TrialOfSwordmancyDrawFirstCardSuccess"
-            ]
+            "interval_ms": 600,
+            "repeat_count": 6,
+            "wait_node": "TrialOfSwordmancyBattlePts0"
         },
         "target": "TrialOfSwordmancyDrawCard",
         "post_delay": 0,
@@ -113,8 +112,7 @@
         "custom_action": "RepeatUntilFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "interval_ms": 600,
-            "repeat_count": 6,
+            "interval_ms": 1500,
             "wait_nodes": [
                 "TrialOfSwordmancyAbandProbePopup"
             ]
@@ -196,15 +194,12 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "RepeatUntilFoundAction",
+        "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "action": "Click",
             "interval_ms": 600,
             "repeat_count": 6,
-            "wait_nodes": [
-                "TrialOfSwordmancyDoDrawCardConfirm",
-                "TrialOfSwordmancyDoDrawCardSuccess"
-            ]
+            "wait_node": "TrialOfSwordmancyBattlePts0" // go 运行时覆盖
         },
         "post_delay": 0,
         "next": [
@@ -219,8 +214,16 @@
             "YellowConfirmButtonType1"
         ],
         "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "interval_ms": 1500,
+            "wait_nodes": [
+                "TrialOfSwordmancyEnemyCard3"
+            ]
+        },
+        "post_delay": 600, // 无法识别战力点消失，只能用延迟确保右侧牌库已刷新
         "next": [
             "TrialOfSwordmancyDoDrawCardSuccess"
         ]
