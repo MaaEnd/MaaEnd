@@ -24,14 +24,43 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "GiftOperatorMoveResetBackward",
             "GiftOperatorMoveLocation3",
-            //"GiftOperatorMoveLocation3Move",
+            "GiftOperatorMoveLocation3Move",
             "GiftOperatorMoveLocation2",
-            //"GiftOperatorMoveLocation2Move",
+            "GiftOperatorMoveLocation2Move",
             "GiftOperatorMoveLocation1",
-            //"GiftOperatorMoveLocation1Move",
+            "GiftOperatorMoveLocation1Move",
             "GiftOperatorMoveFail"
         ]
+    },
+    "GiftOperatorMoveResetBackward": {
+        "desc": "向后(S)一步，再向前(W)重置视角",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 83
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorMoveResetForward"
+        ]
+    },
+    "GiftOperatorMoveResetForward": {
+        "desc": "向前(W)一步，完成视角重置",
+        "pre_delay": 0,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 87
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "GiftOperatorMoveFail": {
         "desc": "移动未能接触到干员，炸掉程序",
@@ -46,7 +75,7 @@
     },
     "GiftOperatorMoveLocation1": {
         "desc": "转向270度(正西)尝试接触到干员(预设位置1)",
-        "max_hit": 2,
+        "max_hit": 1,
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -67,38 +96,22 @@
         "rate_limit": 0
     },
     "GiftOperatorMoveLocation1Move": {
-        "desc": "移动尝试接触到干员(预设位置1)",
+        "desc": "转向270度后向前(W)一段尝试接触干员(预设位置1)",
         "max_hit": 1,
+        "pre_delay": 0,
         "action": {
-            "type": "Custom",
+            "type": "LongPressKey",
             "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "base01_lv003",
-                    "no_ensure_initial_movement_state": true,
-                    "path": [
-                        [
-                            186.6,
-                            175.0
-                        ]
-                    ]
-                }
+                "duration": 300,
+                "key": 87
             }
         },
-        "post_wait_freezes": {
-            "time": 150,
-            "target": [
-                807,
-                420,
-                70,
-                121
-            ],
-            "timeout": 2000
-        }
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "GiftOperatorMoveLocation2": {
         "desc": "转向345度(北偏西15度)尝试接触到干员(预设位置2)",
-        "max_hit": 2,
+        "max_hit": 1,
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -119,38 +132,22 @@
         "rate_limit": 0
     },
     "GiftOperatorMoveLocation2Move": {
-        "desc": "移动尝试接触到干员(预设位置2)",
+        "desc": "转向345度后向前(W)一段尝试接触干员(预设位置2)",
         "max_hit": 1,
+        "pre_delay": 0,
         "action": {
-            "type": "Custom",
+            "type": "LongPressKey",
             "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "base01_lv003",
-                    "no_ensure_initial_movement_state": true,
-                    "path": [
-                        [
-                            188.0,
-                            175.3
-                        ]
-                    ]
-                }
+                "duration": 300,
+                "key": 87
             }
         },
-        "post_wait_freezes": {
-            "time": 150,
-            "target": [
-                807,
-                420,
-                70,
-                121
-            ],
-            "timeout": 2000
-        }
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "GiftOperatorMoveLocation3": {
         "desc": "转向90度(正东)尝试接触到干员(预设位置3)",
-        "max_hit": 2,
+        "max_hit": 1,
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -171,34 +168,18 @@
         "rate_limit": 0
     },
     "GiftOperatorMoveLocation3Move": {
-        "desc": "移动尝试接触到干员(预设位置3)",
+        "desc": "转向90度后向前(W)一段尝试接触干员(预设位置3)",
         "max_hit": 1,
+        "pre_delay": 0,
         "action": {
-            "type": "Custom",
+            "type": "LongPressKey",
             "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "base01_lv003",
-                    "no_ensure_initial_movement_state": true,
-                    "path": [
-                        [
-                            188.6,
-                            176.2
-                        ]
-                    ]
-                }
+                "duration": 300,
+                "key": 87
             }
         },
-        "post_wait_freezes": {
-            "time": 150,
-            "target": [
-                807,
-                420,
-                70,
-                121
-            ],
-            "timeout": 2000
-        }
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "GiftOperatorMoveMapTracker": {
         "desc": "使用 MapTracker 识别寻路走到干员联络台",
