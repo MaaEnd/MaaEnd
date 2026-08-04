@@ -32,7 +32,6 @@
                     "IMS/item/T_CREDS_TEMPLATE.png"
                 ],
                 "green_mask": true,
-                "threshold": 0.85,
                 "order_by": "Score"
             }
         },
