@@ -68,7 +68,6 @@
                     0,
                     -64
                 ],
-                "method": 4,
                 "lower": [
                     74,
                     74,
@@ -76,8 +75,8 @@
                 ],
                 "upper": [
                     119,
-                    112,
-                    107
+                    145,
+                    157
                 ],
                 "count": 10
             }
@@ -93,10 +92,10 @@
             "param": {
                 "roi": "__TRIPHASIC_NANOFLAKE_COUNT_TEXT_COLOR",
                 "roi_offset": [
-                    -1,
-                    -1,
-                    2,
-                    2
+                    -2,
+                    -2,
+                    4,
+                    4
                 ],
                 "expected": [
                     "^\\d+$"
