@@ -667,6 +667,8 @@
     "option.AutoCollectRoute13.failed": "<span style=\"color: red; font-weight: bold;\">路線13：四號谷底-中黯石採集失敗</span>",
     "option.AutoCollectRoute14.label": "路線14：四號谷底-晶化多齒葉",
     "option.AutoCollectRoute14.failed": "<span style=\"color: red; font-weight: bold;\">路線14：四號谷底-晶化多齒葉採集失敗</span>",
+    "option.AutoCollectRoute15.label": "路線15：武陵-紅矛葉",
+    "option.AutoCollectRoute15.failed": "<span style=\"color: red; font-weight: bold;\">路線15：武陵-紅矛葉採集失敗</span>",
     "option.AutoCollectCommonRoutes.label": "一般採集物線路",
     "option.AutoCollectCommonRoute1.label": "路線1：映火蕎花",
     "option.AutoCollectCommonRoute1.failed": "<span style=\"color: red; font-weight: bold;\">路線1：映火蕎花採集失敗</span>",
@@ -1317,4 +1319,3 @@
     "task.ProtocolSpace.focus.supply_plan.override_started.WEAPON_EXP": "武器經驗 協議空間目標已切換，開始刷取",
     "task.ProtocolSpace.focus.supply_plan.reward_item_met.WEAPON_EXP": "武器經驗 目標已達標，結束當前協議空間刷取"
 }
-

@@ -964,6 +964,8 @@
     "option.AutoCollectRoute13.failed": "<span style=\"color: red; font-weight: bold;\">Collect Route 13: Valley IV - Auronyx collection failed</span>",
     "option.AutoCollectRoute14.label": "Collect Route 14: Valley IV - Kalkodendra",
     "option.AutoCollectRoute14.failed": "<span style=\"color: red; font-weight: bold;\">Collect Route 14: Valley IV - Kalkodendra collection failed</span>",
+    "option.AutoCollectRoute15.label": "Collect Route 15: Wuling - Crimson Spearleaf",
+    "option.AutoCollectRoute15.failed": "<span style=\"color: red; font-weight: bold;\">Collect Route 15: Wuling - Crimson Spearleaf collection failed</span>",
     "option.AutoCollectCommonRoutes.label": "General sampling circuit",
     "option.AutoCollectCommonRoute1.label": "Collect Route 1: Firebuckle",
     "option.AutoCollectCommonRoute1.failed": "<span style=\"color: red; font-weight: bold;\">Collect Route 1: Firebuckle collection failed</span>",
@@ -1317,4 +1319,3 @@
     "task.ProtocolSpace.focus.supply_plan.override_started.WEAPON_EXP": "Weapon EXP: Protocol Space target switched; start farming",
     "task.ProtocolSpace.focus.supply_plan.reward_item_met.WEAPON_EXP": "Weapon EXP target met; end current Protocol Space run"
 }
-
