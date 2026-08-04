@@ -58,8 +58,19 @@
         ]
     },
     "SyncItemDataRunFull": {
-        "desc": "A2 初次完整识别（page_dedup=false）。结束后优先 JumpBack 滑动增量，次数由 SyncItemDataScrollPage.max_hit 控制；用尽后走 Lock",
+        "desc": "A2 初次完整识别（page_dedup=false）。培养素材列表静止后识别；结束后优先 JumpBack 滑动增量，次数由 SyncItemDataScrollPage.max_hit 控制；用尽后走 Lock",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "target": [
+                30,
+                80,
+                950,
+                560
+            ],
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500
+        },
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -127,6 +138,17 @@
                 "end_hold": 300
             }
         },
+        "post_wait_freezes": {
+            "target": [
+                30,
+                80,
+                950,
+                560
+            ],
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -134,8 +156,19 @@
         ]
     },
     "SyncItemDataRunInc": {
-        "desc": "A2 增量识别（page_dedup=true）。完成后空 next，经 JumpBack 回到 RunFull.next 再决定是否继续滑动",
+        "desc": "A2 增量识别（page_dedup=true）。列表静止后识别；完成后空 next，经 JumpBack 回到 RunFull.next 再决定是否继续滑动",
         "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "target": [
+                30,
+                80,
+                950,
+                560
+            ],
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500
+        },
         "pre_delay": 0,
         "action": {
             "type": "Custom",
