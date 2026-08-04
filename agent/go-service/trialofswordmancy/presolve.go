@@ -15,78 +15,79 @@ import (
 // recognition 的默认值——两侧同源，预求解配置与决策配置必然一致。
 
 // —— solver 备忘：进程级、按 Config 哈希键，Config 变化才重新 Solve ——
-// 与 Session（run 级状态，随轮次重置）不同：备忘不随轮次失效，只有上限兜底——正常一副牌 + 三种
-// 溢出模式只产生极少量键；上限防牌库 OCR 抖动产生大量误识别键导致常驻内存增长。
-// 求解由后台 goroutine 预热、回调线程取用，两侧都写这张表，必须加锁——MaaFramework 的
-// 单线程保证只覆盖任务回调，不覆盖 goroutine。
+// 与 RoundState（随轮次重置）相反：备忘不随轮次失效，只有上限兜底——正常一副牌 + 三种
+// 溢出模式只产生极少量键，上限防牌库 OCR 抖动产生大量误识别键常驻内存。
+// 必须加锁：预求解 goroutine 与回调线程两侧都写这张表，MaaFramework 的单线程保证
+// 只覆盖任务回调，不覆盖 goroutine。
 const solverCacheLimit = 16
+
+// cacheEntry 是备忘的一个条目，二态：已求解（slv）/ 在途求解（future）。
+// 在途条目让同 key 预热复用同一 future，避免重复 spawn（同 key 双算）。
+type cacheEntry struct {
+	slv    *solver.Solver
+	future *solveFuture
+}
 
 var (
 	solverMu    sync.Mutex
-	solverCache = map[string]*solver.Solver{}
+	solverCache = map[string]*cacheEntry{}
 )
 
-// solverFor 返回给定配置的 *solver.Solver；缓存未命中（新牌库/新溢出模式）才构造求解。
-// 异步预求解流程下回调线程只会带着「预热时缓存已热」的 cfg 走到这里（见 awaitPreSolve），
-// miss 分支是纯防御路径：即使走到，也与改造前的同步求解行为一致。
+// solverFor 返回配置对应的求解器；未命中才构造求解。异步预热下回调线程只会带
+// 「已热」的 cfg 到这里（awaitPreSolve），miss 分支纯防御，行为与改造前同步求解一致。
 func solverFor(cfg solver.Config) *solver.Solver {
 	key := solver.ConfigKey(cfg)
 	solverMu.Lock()
 	defer solverMu.Unlock()
-	if s, ok := solverCache[key]; ok {
-		return s
+	if e, ok := solverCache[key]; ok && e.slv != nil {
+		return e.slv
 	}
 	if len(solverCache) >= solverCacheLimit {
-		solverCache = make(map[string]*solver.Solver) // 超阈值清空，避免无限增长
+		solverCache = make(map[string]*cacheEntry) // 超阈值清空，避免无限增长
 	}
 	s := solver.NewSolver(cfg)
 	s.Solve()
-	solverCache[key] = s
+	solverCache[key] = &cacheEntry{slv: s}
 	return s
 }
 
-// solveFuture 是一次异步预求解的结果载体；done 为 buffered(1)，goroutine send 永不阻塞、必然退出。
+// solveFuture 是一次异步预求解的结果载体。done 用 close 广播而非 send：
+// 跨轮同 key 在途时可能不止一个 Decide 等在同一个 future 上，close 让所有等待方
+// 同时醒来（close 同时建立 err 的 happens-before）。
 type solveFuture struct {
-	done chan solveResult
+	done chan struct{}
+	err  error
 }
 
-type solveResult struct {
-	slv *solver.Solver
-	err error
-}
-
-// preSolveIfNeeded 为 cfg 启动异步预求解；缓存已热返回 nil（本轮 Decide 无需等待，直接命中）。
-// 锁内完成「查缓存 + 启动」，与 goroutine 的写缓存互斥——即使存在在途求解（stop/restart 边界），
-// 最坏也只是同 key 双算一次，结果相同，无正确性影响。
+// preSolveIfNeeded 为 cfg 启动异步预求解；缓存已热返回 nil（Decide 无需等待）。
+// 在途时复用既有 future，不重复 spawn；锁内完成检查+标记+启动，与 goroutine 写缓存互斥。
 func preSolveIfNeeded(cfg solver.Config) *solveFuture {
+	key := solver.ConfigKey(cfg)
 	solverMu.Lock()
 	defer solverMu.Unlock()
-	if _, ok := solverCache[solver.ConfigKey(cfg)]; ok {
+	if e, ok := solverCache[key]; ok && e.slv != nil {
 		return nil
 	}
-	return spawnPreSolve(cfg)
-}
-
-// spawnPreSolve 在后台 goroutine 中求解并预热缓存。
-// goroutine 只碰 solverCache（锁内）与 done——不碰 ctx 与 sess：MaaFW 的线程亲和只在任务
-// 回调侧，跨线程调 ctx 方法或读写无锁 Session 都是未定义行为。
-func spawnPreSolve(cfg solver.Config) *solveFuture {
-	f := &solveFuture{done: make(chan solveResult, 1)}
+	if e, ok := solverCache[key]; ok && e.future != nil {
+		return e.future
+	}
+	f := &solveFuture{done: make(chan struct{})}
+	solverCache[key] = &cacheEntry{future: f}
 	go func() {
-		slv, err := solveOnce(cfg)
-		if err != nil {
-			log.Error().Err(err).Str("component", component).Msg("async pre-solve failed")
+		f.err = solveOnce(cfg)
+		if f.err != nil {
+			log.Error().Err(f.err).Str("component", component).Msg("async pre-solve failed")
 		}
-		f.done <- solveResult{slv: slv, err: err}
+		close(f.done)
 	}()
 	return f
 }
 
-// solveOnce 执行一次全量求解并写入缓存。
-// panic 必须就地兜底为错误返回：goroutine 里未 recover 的 panic 会崩掉整个 go-service 进程；
-// 锁内段用 defer 解锁，panic 也不会把锁留在持锁态。求解是纯算术（状态空间有界、除零有守卫），
+// solveOnce 全量求解并写入缓存（覆盖在途标记条目）。
+// panic 就地兜底为错误：goroutine 里未 recover 的 panic 会崩掉整个 go-service 进程；
+// 锁内段 defer 解锁，panic 也不会持锁。求解是纯算术（状态空间有界、除零有守卫），
 // 失败即系统性 bug，由调用方（Decide）中止任务，不走兜底路径。
-func solveOnce(cfg solver.Config) (slv *solver.Solver, err error) {
+func solveOnce(cfg solver.Config) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("pre-solve panicked: %v", r)
@@ -97,28 +98,38 @@ func solveOnce(cfg solver.Config) (slv *solver.Solver, err error) {
 	solverMu.Lock()
 	defer solverMu.Unlock()
 	if len(solverCache) >= solverCacheLimit {
-		solverCache = make(map[string]*solver.Solver)
+		solverCache = make(map[string]*cacheEntry)
 	}
-	solverCache[solver.ConfigKey(cfg)] = s
-	return s, nil
+	solverCache[solver.ConfigKey(cfg)] = &cacheEntry{slv: s}
+	return nil
 }
 
-// awaitPreSolve 取用本轮异步预求解的求解器，供首个 Decide 使用。
-// future 非 nil 时阻塞等 goroutine 完成：求解早在轮次开始时启动，常态瞬间返回；最坏情况
-// （预热后立即决策）等价于改造前的同步求解，只是阻塞位置挪到了这里。future 为 nil 说明
-// 预热时缓存已热或本轮已消费，solverFor 必命中。
-// 取用后即清掉 Session 里的 future：一轮里有多个 Decide 步，只有第一个需要等 goroutine——
-// goroutine 先写缓存再发信号，消费完成即缓存已热，后续 Decide 直接走 solverFor；不清理的话
-// 第二个 Decide 会阻塞在已被抽干的通道上。
+// awaitPreSolve 取用 cfg 对应的求解器。在途时阻塞等 goroutine：求解在轮次开始时
+// 就已启动，常态瞬间返回，最坏等价于改造前的同步求解。一轮有多个 Decide 步，
+// 只有第一个可能等在途——goroutine 完成即写入缓存，后续直接命中，无需清理。
+// 返回 false = 求解失败（系统性 bug），由调用方中止任务。
 func awaitPreSolve(cfg solver.Config) (*solver.Solver, bool) {
-	f := sess.PendingSolve()
-	if f == nil {
+	key := solver.ConfigKey(cfg)
+	solverMu.Lock()
+	e, ok := solverCache[key]
+	if !ok || e.slv != nil {
+		solverMu.Unlock()
 		return solverFor(cfg), true
 	}
-	res := <-f.done
-	sess.SetPendingSolve(nil)
-	if res.err != nil {
+	f := e.future
+	solverMu.Unlock()
+
+	<-f.done
+	if f.err != nil {
 		return nil, false
 	}
-	return res.slv, true
+
+	solverMu.Lock()
+	e2, ok2 := solverCache[key]
+	solverMu.Unlock()
+	if ok2 && e2.slv != nil {
+		return e2.slv, true
+	}
+	// 备忘被超上限清空等边缘：in-flight 结果已随条目丢失，防御性同步求解（与 solverFor miss 分支一致）。
+	return solverFor(cfg), true
 }

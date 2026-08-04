@@ -19,7 +19,7 @@ var _ maa.CustomRecognitionRunner = &Recognition{}
 // 组装 GameState 后序列化进 CustomRecognitionResult.Detail 交给 Decide 动作。
 //
 // 每步只做稳定识别（remainDeck OCR），手牌由缓存的 Deck 反推；完整识别（remainDeck + Hand 模板匹配）
-// 由 RecognizeDeck 在轮次开始时执行并缓存（见 session.go）。缓存缺失 / 推导越界 → 严格中止，不猜测。
+// 由 RecognizeDeck 在轮次开始时执行并缓存（见 roundstate.go）。缓存缺失 / 推导越界 → 严格中止，不猜测。
 //
 // 各字段来源（ROI/模板都在 TrialOfSwordmancyCommon.json 的 [go] 节点里，Go 按名调用 maafw）：
 //   - 屏幕态：RewardMode / DrawCard 在场 → 处于抽牌界面。
@@ -43,7 +43,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	// 一轮演算内 Deck 恒定，此处只读 remainDeck（OCR，稳定），反推 Hand = Deck - remainDeck，
 	// 不再每步跑不稳定的 Hand 模板匹配。
 	// 缓存缺失 = pipeline 漏跑 RecognizeDeck 或轮次切换后未重置 → 严格中止，不猜测。
-	deck, cacheOK := sess.Deck()
+	deck, cacheOK := roundState.Deck()
 	if !cacheOK {
 		log.Error().Str("component", component).Msg("deck cache missing: 轮次开始前未执行 RecognizeDeck（或缓存已被开始演算/放弃重置）")
 		return nil, false
@@ -66,10 +66,10 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 
 	// 剩余放弃次数由独立的 RecognizeAband 从放弃弹窗识别并缓存。
 	// 缓存仍未知时保留 -1，交给求解器判不可达并中止，不在总成识别中执行任何界面操作。
-	remainAband := sess.Aband()
+	remainAband := roundState.Aband()
 
 	// 纯推导：手牌 = 缓存 Deck − remainDeck（校验自洽）→ 合成 HandRaw → 组装 GameState
-	// （含 +1 偏移规则）。规则与失败语义的完整说明见 gamestate.go deriveGameState。
+	// （含 +1 偏移规则）。规则与失败语义的完整说明见 roundstate.go deriveGameState。
 	gs, ok := deriveGameState(stepReadings{
 		deck:         deck,
 		remainDeck:   remainDeck,
@@ -236,7 +236,7 @@ var _ maa.CustomRecognitionRunner = &DeckRecognition{}
 
 // DeckRecognition 是完整牌库识别器：一次读 remainDeck（OCR）+ Hand（模板），推导总牌量 Deck 并缓存。
 // 一轮演算内 Deck 恒定，只需在轮次开始时执行一次；之后总成识别只读 remainDeck 反推 Hand，
-// 跳过不稳定的 Hand 模板识别。决策到开始演算/放弃演算后由 DecideAction 重置缓存（见 session.go）。
+// 跳过不稳定的 Hand 模板识别。决策到开始演算/放弃演算后由 DecideAction 重置缓存（见 roundstate.go）。
 // 识别出牌库后随即异步预热求解器（presolve.go preSolveIfNeeded）——牌库是求解配置里最后一个
 // 才识别出来的字段，这里是轮次内最早具备全量求解条件的时机，Decide 取用时无需再等。
 // 由 pipeline 节点以 custom_recognition 方式调用（TrialOfSwordmancy.RecognizeDeck）。
@@ -265,7 +265,7 @@ func (r *DeckRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		return nil, false
 	}
 
-	sess.SetDeck(deck)
+	roundState.setDeck(deck)
 
 	// 异步预热：全量求解 ~100ms，放后台让 Decide 阻塞取用（presolve.go awaitPreSolve），
 	// 这 100ms 不落在任何节点的关键路径上。溢出模式必须与 Decide 最终配置同源
@@ -277,7 +277,7 @@ func (r *DeckRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	cfg := solver.DefaultConfig
 	cfg.Deck = deck
 	cfg.OverflowMode = overflowMode
-	sess.SetPendingSolve(preSolveIfNeeded(cfg))
+	preSolveIfNeeded(cfg) // 预热（nil = 缓存已热，Decide 无需等待）；在途条目复用由备忘内部处理
 
 	log.Info().
 		Str("component", component).
@@ -333,7 +333,7 @@ func (r *AbandRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) 
 		}
 	}
 
-	sess.SetAband(count)
+	roundState.setAband(count)
 	log.Info().Str("component", component).Int("aband", count).Str("ocr", text).Msg("remaining aband count recognized")
 
 	return &maa.CustomRecognitionResult{Box: arg.Roi, Detail: strconv.Itoa(count)}, true

@@ -23,7 +23,7 @@ var _ maa.CustomActionRunner = &DecideAction{}
 // （presolve.go awaitPreSolve），本动作只做「取结果 → 查表 → 路由」。
 //
 // 本身不持有状态：每步的完整 State 都由 recognition 读出后传入，本动作只做「取结果 → 路由」；
-// 唯一的状态副作用是经 sess.OnRoundEnd 落定轮次边界（放弃递减、牌库重置，见 session.go），
+// 唯一的状态副作用是经 roundState.OnRoundEnd 落定轮次边界（放弃递减、牌库重置，见 roundstate.go），
 // 具体规则（跨日残局白送、0 不减）在那边，这里不重复。
 // 单步循环靠 pipeline 的 next 回到 TrialOfSwordmancyDecide（recognition 重新读图），
 // 直到奖励耗尽（pipeline 检测 → Finish）。solver 只返回单步最优决策。
@@ -85,7 +85,7 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	// 轮次边界状态转移先于路由落定（沿用原时序）：路由失败任务即中止，状态不再被读取。
-	sess.OnRoundEnd(best, gs.State)
+	roundState.OnRoundEnd(best, gs.State)
 
 	// 抽牌路径：按本次局面覆盖两个等待锚点（落位槽、战力点），
 	// 避免后续抽牌沿用旧值（槽 1 早已在场、战力点已非 0）提前命中或失去重试保护。
