@@ -4,7 +4,7 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "s-r_2560x1600/gotosetting.png",
+                "template": "s-r_2560x1600/Gotosetting.png",
                 "roi": [
                     249,
                     109,
