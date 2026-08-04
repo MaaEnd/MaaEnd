@@ -91,9 +91,9 @@
             "param": {
                 "roi": "__ADVANCED_COMBAT_RECORD_COUNT_TEXT_COLOR",
                 "roi_offset": [
+                    -6,
                     -2,
-                    -2,
-                    4,
+                    12,
                     4
                 ],
                 "expected": [

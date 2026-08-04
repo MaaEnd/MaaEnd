@@ -31,6 +31,7 @@
                 "template": [
                     "IMS/item/ADVANCED_COGNITIVE_CARRIER_TEMPLATE.png"
                 ],
+                "threshold": 0.85, //分数过低可能会和武陵精锻助剂混淆
                 "green_mask": true,
                 "order_by": "Score"
             }
@@ -91,9 +92,9 @@
             "param": {
                 "roi": "__ADVANCED_COGNITIVE_CARRIER_COUNT_TEXT_COLOR",
                 "roi_offset": [
+                    -6,
                     -2,
-                    -2,
-                    4,
+                    12,
                     4
                 ],
                 "expected": [

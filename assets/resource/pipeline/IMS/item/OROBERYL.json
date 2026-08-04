@@ -91,9 +91,9 @@
             "param": {
                 "roi": "__OROBERYL_COUNT_TEXT_COLOR",
                 "roi_offset": [
+                    -6,
                     -2,
-                    -2,
-                    4,
+                    12,
                     4
                 ],
                 "expected": [
@@ -156,9 +156,9 @@
             "param": {
                 "roi": "__OROBERYL_NUMBER_TEXT_COLOR",
                 "roi_offset": [
+                    -6,
                     -2,
-                    -2,
-                    4,
+                    12,
                     4
                 ],
                 "expected": [
