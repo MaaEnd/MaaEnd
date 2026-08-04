@@ -673,14 +673,8 @@
         "MissionId": "m1m66",
         "Name": "念念家的桃树",
         "Id": "PeachTreeAtBabblesSHome",
-        "EnterMap": "SceneEnterWorldWulingMarkerStone4",
+        "QuickTeleport": true,
         "MapName": "map02_lv004_tier_328",
-        "MapAssert": [
-            514,
-            666,
-            15,
-            15
-        ],
         "MapPath": [
             [
                 520.3,

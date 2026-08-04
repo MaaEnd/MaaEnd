@@ -172,14 +172,14 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 | `GoToMonitoringTerminal` | 由 `Station` 决定 |
 | `EnterMap` | `routes.json[*].EnterMap`，默认传送入口；可填写任意已定义、能作为 SubTask 正常返回的 Pipeline 节点名，不限制名称前缀；启用 `QuickTeleport` 时不会使用，可省略 |
 | `QuickTeleport` | `routes.json[*].QuickTeleport`，可选布尔值，默认 `false`；启用后从追踪任务地图依次点击“前往传送”和“传送”，不调用 `EnterMap` |
-| `MapName` / `MapAssert` / `MapPath` / `MapTarget` / `MapTargetTier` / `MapGoal` | `routes.json[*]`，对应初始位置判断与后续寻路参数；`MapPath` 生成 `MapTrackerAssertLocation` + `MapTrackerMove`，`MapTarget` 生成 `MapLocateAssertLocation` + `MapNavigateAction` 的 `NAVMESH` 目标点，`MapTargetTier` 可选生成 `target_tier`，`MapGoal` 生成 `MapTrackerAssertLocation` + `MapTrackerGoal`。传送后直拍时这些字段全部省略；寻路时 `MapPath` / `MapTarget` / `MapGoal` 三者必须且只能选一个；`QuickTeleport + MapTarget/MapGoal` 可省略 `MapAssert` |
+| `MapName` / `MapAssert` / `MapPath` / `MapTarget` / `MapTargetTier` / `MapGoal` | `routes.json[*]`，对应初始位置判断与后续寻路参数；`MapPath` 生成 `MapTrackerAssertLocation` + `MapTrackerMove`，`MapTarget` 生成 `MapLocateAssertLocation` + `MapNavigateAction` 的 `NAVMESH` 目标点，`MapTargetTier` 可选生成 `target_tier`，`MapGoal` 生成 `MapTrackerAssertLocation` + `MapTrackerGoal`。传送后直拍时这些字段全部省略；寻路时 `MapPath` / `MapTarget` / `MapGoal` 三者必须且只能选一个；`QuickTeleport` 与三种寻路方式组合时均可省略 `MapAssert` |
 | `CameraSwipeDirection` | `routes.json[*]`，必须是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 之一 |
 | `CameraMaxHit` | `routes.json[*].CameraMaxHit`，缺省为 `2`；对应 `${Id}AdjustCamera` 滑屏动作的最大命中次数 |
 | `OcrReplace` | 由 `routes.json[*].Replace` 透传到 `Check${Id}Text.replace` 与 `In${Id}Mission.replace`；用于按任务配置任务列表和任务详情页 OCR 的易混字符替换，不影响路线是否已适配的判断 |
 | `ExpectedText` | 由 `kite_station_i18n.json` 的 `mission.name` 多语言 map 自动展开（5 语言，英文转柔性正则） |
 | `InExpectedText` | 由 `kite_station_i18n.json` 的 `mission.shotTargetName` 自动展开 |
 | `TrackOrGoToNext` / `AfterTrackNext` / `AfterAlreadyTrackedNext` | 由 `data.mjs` 根据路线是否完整及 `QuickTeleport` 自动决定：默认进入 `GoTo${Id}`；快捷传送时，开始追踪后等待任务地图，已追踪则先点击定位图标打开任务地图；未适配时进入 `${Id}NotAdapted` |
-| `GoToNext` / `AfterTeleportDescription` / `AfterTeleportNext` | 由 `data.mjs` 根据路线类型自动决定：传送后直拍始终执行真实传送并进入 `${Id}TakePhoto`；`MapPath` 传送后返回 `GoTo${Id}StartPos` 复核落点；`MapTarget` / `MapGoal` 传送后直接进入 `GoTo${Id}Move` |
+| `GoToNext` / `AfterTeleportDescription` / `AfterTeleportNext` | 由 `data.mjs` 根据传送入口和路线类型自动决定：传送后直拍始终执行真实传送并进入 `${Id}TakePhoto`；`QuickTeleport` 与任一寻路方式组合时传送后直接进入 `GoTo${Id}Move`；普通传送的 `MapPath` 返回 `GoTo${Id}StartPos` 复核落点，`MapTarget` / `MapGoal` 直接进入 `GoTo${Id}Move` |
 
 ### 终端分组：`terminals-config.json`
 
@@ -227,10 +227,10 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 观察点的传送与寻路流程会按路线类型组合使用 MapTracker 与 MapNavigator：
 
-- `MapTrackerAssertLocation` / `MapLocateAssertLocation`（识别）：根据当前小地图判断是否在 `MapAssert` 矩形内。普通传送路线用于判断是否需要调用 `EnterMap`，`QuickTeleport + MapPath` 用于传送后复核固定起点；`QuickTeleport + MapTarget/MapGoal` 不进入该节点，可省略 `MapAssert`。
+- `MapTrackerAssertLocation` / `MapLocateAssertLocation`（识别）：根据当前小地图判断是否在 `MapAssert` 矩形内。普通传送路线用于判断是否需要调用 `EnterMap`，其中 `MapPath` 还会在传送后再次复核；`QuickTeleport + MapPath/MapTarget/MapGoal` 从固定传送落点直接开始寻路，不进入该节点，可省略 `MapAssert`。
 - `MapTrackerMove` / `MapTrackerGoal` / `MapNavigateAction`（动作）：沿 `MapPath` 路径走到目标点，按 `MapGoal` 调用 `MapTrackerGoal` 自动规划并前往目标，或按 `MapTarget` 生成 `NAVMESH` 目标点并前往目标；`MapTargetTier` 会透传为 `target_tier`，用于目标坐标与起点不在同一 tier 的情况。
 - `${Id}TakePhoto`（包装节点）：为寻路和直拍路线统一设置 `EnvironmentMonitoringBackToTerminal` / `EnvironmentMonitoringAdjustCamera` anchor，再进入公共拍照流程。
-- 传送后直拍不执行地图断言或寻路；配置 `Heading` 时会独立调用 `MapTrackerToward` 调整角色朝向。`MapPath` 路线传送后再次复核 `MapAssert`；`MapTarget` / `MapGoal` 路线依靠 NavMesh 从传送点附近自行前往目标。
+- 传送后直拍不执行地图断言或寻路；配置 `Heading` 时会独立调用 `MapTrackerToward` 调整角色朝向。快捷传送路线从固定传送落点直接开始 `MapPath` / `MapTarget` / `MapGoal` 寻路；普通传送的 `MapPath` 会再次复核 `MapAssert`，`MapTarget` / `MapGoal` 则直接开始 NavMesh 寻路。
 
 详细参数与坐标录制方式见 [map-tracker.md](../components/map-tracker.md)、[map-locator.md](../components/map-locator.md) 与 [map-navigator.md](../components/map-navigator.md)。
 
@@ -238,7 +238,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 默认传送路线的 `EnterMap` 字段必须填写 `assets/resource/pipeline/` 中已存在的 Pipeline 节点名。名称不要求以 `Scene` 开头，也不限制字符组合；普通 SceneManager 万能跳转与封装了传送、交互等流程的任务入口均可使用，但节点必须能作为 SubTask 完整执行后正常返回。启用 `QuickTeleport: true` 时不会调用 `EnterMap`，该字段可以省略。
 
-`model.mjs` 通过判断 `routes.json` 条目是否完整决定是否进入寻路/拍照流程，未适配点会直接走 `${Id}NotAdapted` 分支。所有已适配条目都必须在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种传送入口，并配置 `CameraSwipeDirection`。如果传送落点已经满足拍照条件，则省略 `MapName`、`MapAssert` 和全部寻路相关字段，生成器自动进入直拍分支；否则需要配置 `MapName`，在 `MapPath` / `MapTarget` / `MapGoal` 中三选一，并按路线类型补 `MapAssert`。
+`model.mjs` 通过判断 `routes.json` 条目是否完整决定是否进入寻路/拍照流程，未适配点会直接走 `${Id}NotAdapted` 分支。所有已适配条目都必须在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种传送入口，并配置 `CameraSwipeDirection`。如果传送落点已经满足拍照条件，则省略 `MapName`、`MapAssert` 和全部寻路相关字段，生成器自动进入直拍分支；否则需要配置 `MapName`，在 `MapPath` / `MapTarget` / `MapGoal` 中三选一。普通传送寻路路线还需配置 `MapAssert`，快捷传送寻路路线可省略。
 
 ### `routes.json` 配置类型
 
@@ -248,7 +248,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 | ------------- | ---------------------------------------------------------------------- | ---------------------------- | ------------------------------------------ |
 | metadata-only | 仅 `MissionId` / `Name` / `Id` | 不填 | 仅接取并追踪，不传送或拍照 |
 | 传送后直拍 | 不填 `MapName` 和寻路字段；可选 `Heading` | 不填 | 传送 → 可选 `MapTrackerToward` → 拍照 |
-| `MapPath` | `MapName` + `MapPath`；可选 `Heading` / `NoEnsureInitialMovementState` | 默认传送和快捷传送都必填 | 断言固定起点 → `MapTrackerMove` → 拍照 |
+| `MapPath` | `MapName` + `MapPath`；可选 `Heading` / `NoEnsureInitialMovementState` | 默认传送必填；快捷传送可省略 | `MapTrackerMove` → 拍照 |
 | `MapTarget` | `MapName` + `MapTarget`；跨层时可加 `MapTargetTier` | 默认传送必填；快捷传送可省略 | `MapNavigateAction` 的 NAVMESH 寻路 → 拍照 |
 | `MapGoal` | `MapName` + `MapGoal`；可选 `Heading` / `NoEnsureInitialMovementState` | 默认传送必填；快捷传送可省略 | `MapTrackerGoal` 自动寻路 → 拍照 |
 
@@ -289,7 +289,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
     "EnterMap": "SceneEnterWorldWulingXxx", // 已定义且能作为 SubTask 正常返回的 Pipeline 节点
     // "QuickTeleport": true,             // 可选；启用后从追踪任务地图快捷传送，EnterMap 可省略
     "MapName": "map02_lv001",               // 地图标识：MapPath 用 MapTracker map_name；MapGoal 用可加载 NavMesh 的精确 MapTracker map_name；MapTarget 用 MapLocate zone_id
-    "MapAssert": [x, y, w, h],              // 普通传送和 QuickTeleport + MapPath 必填；快捷传送的 MapTarget / MapGoal 可省略
+    "MapAssert": [x, y, w, h],              // 普通传送的寻路路线必填；快捷传送的 MapPath / MapTarget / MapGoal 可省略
     "MapPath": [[x1, y1], [x2, y2]],        // 寻路路径（小地图坐标），与 MapTarget / MapGoal 三选一
     // "MapTarget": [x, y],             // MapNavigateAction 的 NAVMESH 目标点
     // "MapTargetTier": "ValleyIV_L1_171", // 可选；MapTarget 坐标所在的 target_tier，目标与起点不在同一 tier 时填写
@@ -326,7 +326,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 ### 4. 录制坐标和路径
 
-如果传送点不能直接拍照，参考 [map-navigator.md](../components/map-navigator.md) 的 GUI 工具录制所需的 `MapAssert` / `MapPath`，复制 MapNavigateAction 的 `NAVMESH` 目标点填入 `MapTarget`，需要跨层目标时把 `target_tier` 填入 `MapTargetTier`，或复制 MapTrackerGoal 目标点填入 `MapGoal`。仅 `QuickTeleport + MapTarget/MapGoal` 不需要录制 `MapAssert`。随后在游戏中确认：
+如果传送点不能直接拍照，参考 [map-navigator.md](../components/map-navigator.md) 的 GUI 工具录制所需的 `MapAssert` / `MapPath`，复制 MapNavigateAction 的 `NAVMESH` 目标点填入 `MapTarget`，需要跨层目标时把 `target_tier` 填入 `MapTargetTier`，或复制 MapTrackerGoal 目标点填入 `MapGoal`。`QuickTeleport + MapPath/MapTarget/MapGoal` 不需要录制 `MapAssert`。随后在游戏中确认：
 
 - `MapName` 与使用的工具一致：`MapPath` 路线填写 MapTracker 的 `map_name`（如 `map02_lv001` / 正则），`MapGoal` 路线填写可加载 NavMesh 的精确 MapTracker `map_name`（如 `map02_lv001`），`MapTarget` 路线填写 MapLocate 的 `zone_id`（如 `Wuling_Base`），可选的 `MapTargetTier` 填 MapNavigator `target_tier` 的区域名。两套标识不要混用。
 
@@ -369,7 +369,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 1. `tools/pipeline-generate/EnvironmentMonitoring/routes.json` 中新增/修改条目是否字段齐全。
 2. `routes.json` 中新增条目的 `MissionId` 是否能匹配 `kite_station_i18n.json` 的 `missionId`；`Id` 由生成器自动刷新。
-3. 已适配条目的传送入口已在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种，`CameraSwipeDirection` 已填写真实值；直拍路线没有任何地图与寻路字段，寻路路线则在 `MapPath` / `MapTarget` / `MapGoal` 中三选一，并按类型补齐真实 `MapAssert`。
+3. 已适配条目的传送入口已在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种，`CameraSwipeDirection` 已填写真实值；直拍路线没有任何地图与寻路字段，寻路路线则在 `MapPath` / `MapTarget` / `MapGoal` 中三选一，且普通传送路线补齐真实 `MapAssert`。
 4. 重生成的 `Terminals.json` 中各 `{Station}MonitoringTerminalLoop.next` 包含全部新 `[JumpBack]{Id}Job`，并以 `EnvironmentMonitoringTerminalFinish` 收尾。
 5. 若填写了 `EnterMap`，其引用的节点确实存在于 `assets/resource/pipeline/`，并能作为 SubTask 完整执行后正常返回。
 6. `CameraSwipeDirection` 是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 四者之一。

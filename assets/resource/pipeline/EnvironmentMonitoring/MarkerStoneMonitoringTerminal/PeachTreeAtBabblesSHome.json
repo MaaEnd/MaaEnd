@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToPeachTreeAtBabblesSHome"
+            "PeachTreeAtBabblesSHomeInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedPeachTreeAtBabblesSHome": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToPeachTreeAtBabblesSHome"
+            "PeachTreeAtBabblesSHomeOpenTrackedMissionMap"
         ]
     },
     "PeachTreeAtBabblesSHomeOpenTrackedMissionMap": {
@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToPeachTreeAtBabblesSHomeStartPos"
+            "GoToPeachTreeAtBabblesSHomeMove"
         ]
     },
     "PeachTreeAtBabblesSHomeNotAdapted": {
@@ -342,10 +342,10 @@
                 {
                     "map_name": "map02_lv004_tier_328",
                     "target": [
-                        514,
-                        666,
-                        15,
-                        15
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
@@ -358,19 +358,19 @@
         ]
     },
     "GoToPeachTreeAtBabblesSHomeNotAtStartPos": {
-        "desc": "不在念念家的桃树任务开始位置附近，先传送再检查落点",
+        "desc": "不在念念家的桃树任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStone4"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToPeachTreeAtBabblesSHomeStartPos"
+            "GoToPeachTreeAtBabblesSHomeMove"
         ]
     },
     "GoToPeachTreeAtBabblesSHomeMove": {

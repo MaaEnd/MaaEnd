@@ -54,8 +54,8 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
         // 使用 MapGoal 时填可加载 NavMesh 的精确 MapTracker map_name；
         // 使用 MapTarget 时填 MapLocate 的 zone_id。必须与录制工具保持一致。
     "MapAssert": [x, y, w, h],
-        // 初始位置判断矩形。普通传送和 QuickTeleport + MapPath 必填；
-        // QuickTeleport + MapTarget / MapGoal 传送后直接开始 NavMesh 寻路，可省略。
+        // 初始位置判断矩形。普通传送的寻路路线必填；
+        // QuickTeleport + MapPath / MapTarget / MapGoal 传送后直接开始寻路，可省略。
         // 如果传送点可以直接拍照，则连同 MapName 和三种寻路字段一起省略。
     "MapPath": [[x1, y1], [x2, y2]],
         // 寻路路径（小地图坐标序列），由 MapTrackerMove 逐点跟随。
@@ -96,7 +96,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 > `routes.json` 是严格 JSON：不允许行内注释、不允许尾随逗号。上面的注释只是文档示意，实际文件里要去掉。需要寻路时，`MapPath` / `MapTarget` / `MapGoal` 必须且只能填写其中一个；如果传送点可以直接拍照，则不要填写 `MapName`、`MapAssert`、三种寻路字段、`MapTargetTier` 或 `NoEnsureInitialMovementState`，但可以按实测结果保留可选的 `Heading`。生成器会根据“存在真实传送入口和 `CameraSwipeDirection`，同时没有 `MapAssert` 和寻路配置”自动进入直拍分支，不需要额外开关字段。
 
-> 传送后的处理取决于路线类型：传送后直拍不做位置断言或寻路；配置 `Heading` 时先独立调用 `MapTrackerToward`，随后进入任务专属拍照包装节点。`MapPath` 需要再次通过 `MapAssert` 复核固定起点；`MapTarget` / `MapGoal` 使用 NavMesh，可从传送点附近自行前往目标，因此快捷传送后会直接开始寻路并允许省略 `MapAssert`。普通传送的寻路路线仍会在决定是否调用 `EnterMap` 前使用 `MapAssert`，所以不能省略。
+> 传送后的处理取决于入口和路线类型：传送后直拍不做位置断言或寻路；配置 `Heading` 时先独立调用 `MapTrackerToward`，随后进入任务专属拍照包装节点。`QuickTeleport` 的固定传送落点可直接进入 `MapPath` / `MapTarget` / `MapGoal` 寻路，因此允许省略 `MapAssert`。普通传送的寻路路线仍会在决定是否调用 `EnterMap` 前使用 `MapAssert`，所以不能省略；传送完成后，仅 `MapPath` 会再次复核固定起点，`MapTarget` / `MapGoal` 直接开始 NavMesh 寻路。
 
 > 传送入口由 `QuickTeleport` 决定：默认通过 `EnterMap` 调用配置的 Pipeline 节点，不限制节点名称；该节点需能作为 SubTask 完整执行后正常返回。启用快捷传送后，“开始追踪”会直接等待任务地图，“已追踪”会先点击“停止追踪”旁的定位图标打开任务地图，随后依次点击“前往传送”和“传送”，此时 `EnterMap` 可省略。
 
@@ -112,7 +112,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 | ------------- | ---------------------------------------------------------------------- | ---------------------------- | ------------------------------------------ |
 | metadata-only | 仅 `MissionId` / `Name` / `Id` | 不填 | 仅接取并追踪，不传送或拍照 |
 | 传送后直拍 | 不填 `MapName` 和任何寻路字段；`Heading` 可选 | 不填 | 传送 → 可选 `MapTrackerToward` → 拍照 |
-| `MapPath` | `MapName` + `MapPath`；可选 `Heading` / `NoEnsureInitialMovementState` | 默认传送和快捷传送都必填 | 断言固定起点 → `MapTrackerMove` → 拍照 |
+| `MapPath` | `MapName` + `MapPath`；可选 `Heading` / `NoEnsureInitialMovementState` | 默认传送必填；快捷传送可省略 | `MapTrackerMove` → 拍照 |
 | `MapTarget` | `MapName` + `MapTarget`；跨层时可加 `MapTargetTier` | 默认传送必填；快捷传送可省略 | `MapNavigateAction` 的 NAVMESH 寻路 → 拍照 |
 | `MapGoal` | `MapName` + `MapGoal`；可选 `Heading` / `NoEnsureInitialMovementState` | 默认传送必填；快捷传送可省略 | `MapTrackerGoal` 自动寻路 → 拍照 |
 
