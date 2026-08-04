@@ -38,7 +38,6 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	}
 
 	// —— 关键字段识别：任一读不到即 return false（任务中止），不在错误/缺失信息上做决策 ——
-	cfg := solver.DefaultConfig
 
 	// 牌库：完整识别（remainDeck + Hand → 总牌量 Deck）由 RecognizeDeck 在轮次开始时执行并缓存。
 	// 一轮演算内 Deck 恒定，此处只读 remainDeck（OCR，稳定），反推 Hand = Deck - remainDeck，
@@ -49,31 +48,11 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		log.Error().Str("component", component).Msg("deck cache missing: 轮次开始前未执行 RecognizeDeck（或缓存已被开始演算/放弃重置）")
 		return nil, false
 	}
-	cfg.Deck = deck
 
 	remainDeck, remainOK := recognizeDeck(ctx, arg.Img)
 	if !remainOK {
 		return nil, recognitionFailed(ctx, "牌库 OCR 失败")
 	}
-
-	// 推导手牌并校验：remainDeck 读数必须与缓存 Deck 自洽（各点数非负、总张数 ≤ 5）。
-	// 违例 = remainDeck OCR 抖动或缓存过期，显式中止；日志带缓存 Deck 与刚读的 remainDeck 供对账。
-	var handCounts [5]int
-	for i := 0; i < 5; i++ {
-		handCounts[i] = deck[i] - remainDeck[i]
-	}
-	if !validHand(handCounts) {
-		log.Error().
-			Str("component", component).
-			Ints("deck", deck[:]).
-			Ints("remainDeck", remainDeck[:]).
-			Ints("derivedHand", handCounts[:]).
-			Msg("derived hand invalid: remainDeck 读数与缓存 Deck 不一致")
-		return nil, false
-	}
-
-	// 推导路径没有槽位级识别结果：按点数升序合成 HandRaw 供 focus 展示（不影响求解）。
-	handRaw := synthesizeHandRaw(handCounts)
 
 	remainCalc, calcOK := recognizeCount(ctx, arg.Img, nodeRemainCalc)
 	if !calcOK {
@@ -89,21 +68,23 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	// 缓存仍未知时保留 -1，交给求解器判不可达并中止，不在总成识别中执行任何界面操作。
 	remainAband := sess.Aband()
 
-	// 屏幕的「本日剩余奖励演算次数」显示的是「当前进行中这局之外的剩余」——进入抽牌界面即扣 1，
-	// 而求解器把进行中这局也算作可用 → solver = OCR + 1（常规状态 RemainCalc 1..3，对应 OCR 0..2）。
-	// 仅演算次数有此偏移：放弃/翻倍次数界面显示的就是真实值，直接用。走到这里 calcOK 必为真。
-	// 跨天残局那局白送：OCR 读到 3 → RemainCalc=4，由求解器按特殊规则处理。
-	state := solver.State{
-		RemainCalc:   remainCalc + 1,
-		RemainAband:  remainAband,
-		RemainDouble: remainDouble,
-		IsDoubled:    isDoubled,
-		Hand:         handCounts,
-	}
-	gs := GameState{
-		State:   state,
-		Config:  cfg,
-		HandRaw: handRaw,
+	// 纯推导：手牌 = 缓存 Deck − remainDeck（校验自洽）→ 合成 HandRaw → 组装 GameState
+	// （含 +1 偏移规则）。规则与失败语义的完整说明见 gamestate.go deriveGameState。
+	gs, ok := deriveGameState(stepReadings{
+		deck:         deck,
+		remainDeck:   remainDeck,
+		remainCalc:   remainCalc,
+		remainAband:  remainAband,
+		remainDouble: remainDouble,
+		isDoubled:    isDoubled,
+	})
+	if !ok {
+		log.Error().
+			Str("component", component).
+			Ints("deck", deck[:]).
+			Ints("remainDeck", remainDeck[:]).
+			Msg("derived hand invalid: remainDeck 读数与缓存 Deck 不一致")
+		return nil, false
 	}
 
 	detailBytes, err := json.Marshal(gs)
@@ -114,13 +95,13 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 
 	log.Info().
 		Str("component", component).
-		Int("remainCalc", state.RemainCalc).
-		Int("remainAband", state.RemainAband).
-		Int("remainDouble", state.RemainDouble).
-		Bool("isDoubled", state.IsDoubled).
-		Ints("hand", state.Hand[:]).
-		Ints("handRaw", handRaw[:]).
-		Str("overflowMode", cfg.OverflowMode.String()).
+		Int("remainCalc", gs.State.RemainCalc).
+		Int("remainAband", gs.State.RemainAband).
+		Int("remainDouble", gs.State.RemainDouble).
+		Bool("isDoubled", gs.State.IsDoubled).
+		Ints("hand", gs.State.Hand[:]).
+		Ints("handRaw", gs.HandRaw[:]).
+		Str("overflowMode", gs.Config.OverflowMode.String()).
 		Msg("game state recognized")
 
 	return &maa.CustomRecognitionResult{Box: arg.Roi, Detail: string(detailBytes)}, true
@@ -249,31 +230,6 @@ func recognizeFullDeck(ctx *maa.Context, img image.Image) (deck, remainDeck, han
 		deck[i] = remainDeck[i] + handCounts[i]
 	}
 	return
-}
-
-// validHand 校验手牌计数合法性：各点数非负且总张数 ≤ 5。
-func validHand(hand [5]int) bool {
-	total := 0
-	for _, c := range hand {
-		if c < 0 {
-			return false
-		}
-		total += c
-	}
-	return total <= 5
-}
-
-// synthesizeHandRaw 从手牌计数合成槽位展示数组：点数升序填槽（0=空槽）。
-// 推导路径没有槽位级识别结果；HandRaw 仅用于 focus 展示，槽位顺序不影响求解。
-func synthesizeHandRaw(hand [5]int) (handRaw [5]int) {
-	slot := 0
-	for point := 1; point <= 5 && slot < 5; point++ {
-		for c := 0; c < hand[point-1] && slot < 5; c++ {
-			handRaw[slot] = point
-			slot++
-		}
-	}
-	return handRaw
 }
 
 var _ maa.CustomRecognitionRunner = &DeckRecognition{}
