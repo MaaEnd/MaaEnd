@@ -36,59 +36,5 @@
                 "duration": 50
             }
         }
-    },
-    "GiftOperatorMoveLocation1Move": {
-        "desc": "转向270度后向前一段（ADB 虚拟摇杆上推）",
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": [
-                    195,
-                    551
-                ],
-                "end": [
-                    195,
-                    536
-                ],
-                "end_hold": 300,
-                "duration": 50
-            }
-        }
-    },
-    "GiftOperatorMoveLocation2Move": {
-        "desc": "转向345度后向前一段（ADB 虚拟摇杆上推）",
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": [
-                    195,
-                    551
-                ],
-                "end": [
-                    195,
-                    536
-                ],
-                "end_hold": 300,
-                "duration": 50
-            }
-        }
-    },
-    "GiftOperatorMoveLocation3Move": {
-        "desc": "转向90度后向前一段（ADB 虚拟摇杆上推）",
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": [
-                    195,
-                    551
-                ],
-                "end": [
-                    195,
-                    536
-                ],
-                "end_hold": 300,
-                "duration": 50
-            }
-        }
     }
 }
