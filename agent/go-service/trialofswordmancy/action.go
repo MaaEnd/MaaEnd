@@ -22,7 +22,8 @@ var _ maa.CustomActionRunner = &DecideAction{}
 // 按决策用 OverrideNext 路由到执行节点。
 //
 // 几乎无状态：每步的完整 State 都由 recognition 读出后传入；本动作只做「求解 → 路由」。
-// 唯一副作用：路由到 放弃（真实放弃）时把剩余放弃次数缓存减一；开始演算不影响放弃次数。
+// 副作用：路由到 放弃（真实放弃）时把剩余放弃次数缓存减一；路由到 放弃/开始演算 时重置完整牌库缓存
+// （下一轮是新牌库，见 deckstate.go）；开始演算不影响放弃次数。
 // 单步循环靠 pipeline 的 next 回到 TrialOfSwordmancyDecide（recognition 重新读图），
 // 直到奖励耗尽（pipeline 检测 → Finish）。solver 只返回单步最优决策。
 type DecideAction struct{}
@@ -80,6 +81,13 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		if gs.State.RemainCalc != 4 && gs.State.RemainAband > 0 {
 			setAband(gs.State.RemainAband - 1)
 		}
+	}
+
+	// 开始演算 / 放弃都会结束当前轮次，下一轮是重新洗好的新牌库 → 重置完整牌库缓存。
+	// 路由后的 GiveUp/StartTrial 链路上不会用到旧缓存；即使链路中断，缓存缺失也会被
+	// 总成识别严格中止（见 recognition.go），不会拿上一轮的牌库做决策。
+	if best == solver.Abandon || best == solver.Calculate {
+		resetDeckCache()
 	}
 
 	// 抽牌路径：按本次局面覆盖两个等待锚点（落位槽、战力点），

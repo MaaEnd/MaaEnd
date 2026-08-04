@@ -18,12 +18,13 @@ var _ maa.CustomRecognitionRunner = &Recognition{}
 // Recognition 是选剑演武总成识别器：取一张截图 arg.Img，识别当前局面的各状态字段，
 // 组装 GameState 后序列化进 CustomRecognitionResult.Detail 交给 Decide 动作。
 //
-// 几乎无状态——除剩余放弃次数外（界面不显示，由 RecognizeAband 识别后缓存），其余字段每步都从当前截图重读。
+// 每步只做稳定识别（remainDeck OCR），手牌由缓存的 Deck 反推；完整识别（remainDeck + Hand 模板匹配）
+// 由 RecognizeDeck 在轮次开始时执行并缓存（见 deckstate.go）。缓存缺失 / 推导越界 → 严格中止，不猜测。
 //
 // 各字段来源（ROI/模板都在 TrialOfSwordmancyCommon.json 的 [go] 节点里，Go 按名调用 maafw）：
 //   - 屏幕态：RewardMode / DrawCard 在场 → 处于抽牌界面。
-//   - Hand：HandPoint1-5 分别整行匹配 Point1-5.png，按 HandPosition1-5 ROI 归槽。
-//   - Deck：牌库「剩余库存」整列 OCR（Deck，按 DeckCount1-5 ROI 分组，抽牌递减）；总牌量 = 剩余 + 手牌。
+//   - Deck：RecognizeDeck 缓存的完整识别结果（remainDeck + Hand），决策到开始演算/放弃后重置。
+//   - Hand：Deck - remainDeck 推导（校验非负且总张数 ≤ 5）；HandRaw 为点数升序合成值，仅展示。
 //   - RemainCalc / RemainDouble：OCR（RemainCalc / RemainDouble 节点）。
 //   - RemainAband：RecognizeAband 从放弃弹窗识别后写入的持久化缓存。
 //   - IsDoubled：模板匹配（IsDoubled 节点）。
@@ -38,27 +39,49 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 
 	// —— 关键字段识别：任一读不到即 return false（任务中止），不在错误/缺失信息上做决策 ——
 	cfg := solver.DefaultConfig
-	deck, deckOK := recognizeDeck(ctx, arg.Img)
-	if !deckOK {
-		return nil, r.recognitionFailed(ctx, "牌库 OCR 失败")
+
+	// 牌库：完整识别（remainDeck + Hand → 总牌量 Deck）由 RecognizeDeck 在轮次开始时执行并缓存。
+	// 一轮演算内 Deck 恒定，此处只读 remainDeck（OCR，稳定），反推 Hand = Deck - remainDeck，
+	// 不再每步跑不稳定的 Hand 模板匹配。
+	// 缓存缺失 = pipeline 漏跑 RecognizeDeck 或轮次切换后未重置 → 严格中止，不猜测。
+	deck, cacheOK := getDeck()
+	if !cacheOK {
+		log.Error().Str("component", component).Msg("deck cache missing: 轮次开始前未执行 RecognizeDeck（或缓存已被开始演算/放弃重置）")
+		return nil, false
+	}
+	cfg.Deck = deck
+
+	remainDeck, remainOK := recognizeDeck(ctx, arg.Img)
+	if !remainOK {
+		return nil, recognitionFailed(ctx, "牌库 OCR 失败")
 	}
 
-	handCounts, handRaw := r.recognizeHand(ctx, arg.Img)
-
-	// 牌库面板显示的是「剩余库存」（抽一张即递减）；求解器的 Deck 是「总牌量」——它自己按 Deck-Hand 推剩余
-	// （见 solver/state.go 的 remain = Deck - Hand）。故总牌量 = 剩余读数 + 已抽手牌。
-	// 否则抽牌后 remaining < hand，求解器会判手牌超牌库 → 不可达（实测 322 手牌 + 牌库读到 1 个点数2 即此因）。
+	// 推导手牌并校验：remainDeck 读数必须与缓存 Deck 自洽（各点数非负、总张数 ≤ 5）。
+	// 违例 = remainDeck OCR 抖动或缓存过期，显式中止；日志带缓存 Deck 与刚读的 remainDeck 供对账。
+	var handCounts [5]int
 	for i := 0; i < 5; i++ {
-		cfg.Deck[i] = deck[i] + handCounts[i]
+		handCounts[i] = deck[i] - remainDeck[i]
 	}
+	if !validHand(handCounts) {
+		log.Error().
+			Str("component", component).
+			Ints("deck", deck[:]).
+			Ints("remainDeck", remainDeck[:]).
+			Ints("derivedHand", handCounts[:]).
+			Msg("derived hand invalid: remainDeck 读数与缓存 Deck 不一致")
+		return nil, false
+	}
+
+	// 推导路径没有槽位级识别结果：按点数升序合成 HandRaw 供 focus 展示（不影响求解）。
+	handRaw := synthesizeHandRaw(handCounts)
 
 	remainCalc, calcOK := recognizeCount(ctx, arg.Img, nodeRemainCalc)
 	if !calcOK {
-		return nil, r.recognitionFailed(ctx, "剩余演算次数 OCR 失败")
+		return nil, recognitionFailed(ctx, "剩余演算次数 OCR 失败")
 	}
 	remainDouble, doubleOK := recognizeCount(ctx, arg.Img, nodeRemainDouble)
 	if !doubleOK {
-		return nil, r.recognitionFailed(ctx, "剩余翻倍次数 OCR 失败")
+		return nil, recognitionFailed(ctx, "剩余翻倍次数 OCR 失败")
 	}
 	isDoubled := recognizeIsDoubled(ctx, arg.Img)
 
@@ -105,8 +128,8 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 
 // recognitionFailed 关键字段识别失败的统一出口：记日志 + focus「识别失败」+ 返回 false。
 // 任一关键字段（牌库/演算次数/翻倍次数）读不到都走这里——读不到就不在错误信息上做决策，让任务中止。
-// （放弃次数缓存未知不在此中止，见 Run 内注释。）
-func (r *Recognition) recognitionFailed(ctx *maa.Context, reason string) bool {
+// （放弃次数缓存未知不在此中止，见 Run 内注释；牌库缓存缺失 / 推导越界走 log.Error 严格中止，不打 focus。）
+func recognitionFailed(ctx *maa.Context, reason string) bool {
 	log.Warn().Str("component", component).Str("reason", reason).Msg("recognition failed, aborting task")
 	maafocus.Print(ctx, i18n.T("trialofswordmancy.recognition_failed"))
 	return false
@@ -114,7 +137,8 @@ func (r *Recognition) recognitionFailed(ctx *maa.Context, reason string) bool {
 
 // recognizeHand 跑 HandPoint1-5 五个整行模板节点，再按 HandPosition1-5 ROI 筛选各槽点数。
 // 同一槽命中多个点数模板时取最高分；都没中则为空槽。
-func (r *Recognition) recognizeHand(ctx *maa.Context, img image.Image) (handCounts [5]int, handRaw [5]int) {
+// 仅供 RecognizeDeck 的完整识别使用（总成识别每步走推导路径，不再调用）。
+func recognizeHand(ctx *maa.Context, img image.Image) (handCounts [5]int, handRaw [5]int) {
 	var rois [5]maa.Rect
 	for i := range rois {
 		roi, err := nodeROI(ctx, nodeHandPositionPrefix+strconv.Itoa(i+1))
@@ -208,6 +232,100 @@ func recognizeDeck(ctx *maa.Context, img image.Image) ([5]int, bool) {
 		deck[i] = n
 	}
 	return deck, true
+}
+
+// recognizeFullDeck 完整识别一次牌库：remainDeck OCR + Hand 模板匹配，推导总牌量 Deck = remainDeck + Hand。
+// 由 RecognizeDeck 节点调用并缓存；任一环节失败返回 ok=false——调用方中止，不写半截缓存。
+func recognizeFullDeck(ctx *maa.Context, img image.Image) (deck, remainDeck, handCounts, handRaw [5]int, ok bool) {
+	remainDeck, ok = recognizeDeck(ctx, img)
+	if !ok {
+		return
+	}
+	handCounts, handRaw = recognizeHand(ctx, img)
+	// 牌库面板显示的是「剩余库存」（抽一张即递减）；求解器的 Deck 是「总牌量」——它自己按 Deck-Hand 推剩余
+	// （见 solver/state.go 的 remain = Deck - Hand）。故总牌量 = 剩余读数 + 已抽手牌。
+	// 否则抽牌后 remaining < hand，求解器会判手牌超牌库 → 不可达（实测 322 手牌 + 牌库读到 1 个点数2 即此因）。
+	for i := 0; i < 5; i++ {
+		deck[i] = remainDeck[i] + handCounts[i]
+	}
+	return
+}
+
+// validHand 校验手牌计数合法性：各点数非负且总张数 ≤ 5。
+func validHand(hand [5]int) bool {
+	total := 0
+	for _, c := range hand {
+		if c < 0 {
+			return false
+		}
+		total += c
+	}
+	return total <= 5
+}
+
+// synthesizeHandRaw 从手牌计数合成槽位展示数组：点数升序填槽（0=空槽）。
+// 推导路径没有槽位级识别结果；HandRaw 仅用于 focus 展示，槽位顺序不影响求解。
+func synthesizeHandRaw(hand [5]int) (handRaw [5]int) {
+	slot := 0
+	for point := 1; point <= 5 && slot < 5; point++ {
+		for c := 0; c < hand[point-1] && slot < 5; c++ {
+			handRaw[slot] = point
+			slot++
+		}
+	}
+	return handRaw
+}
+
+var _ maa.CustomRecognitionRunner = &DeckRecognition{}
+
+// DeckRecognition 是完整牌库识别器：一次读 remainDeck（OCR）+ Hand（模板），推导总牌量 Deck 并缓存。
+// 一轮演算内 Deck 恒定，只需在轮次开始时执行一次；之后总成识别只读 remainDeck 反推 Hand，
+// 跳过不稳定的 Hand 模板识别。决策到开始演算/放弃演算后由 DecideAction 重置缓存（见 deckstate.go）。
+// 由 pipeline 节点以 custom_recognition 方式调用（TrialOfSwordmancy.RecognizeDeck）。
+type DeckRecognition struct{}
+
+// Run 执行完整牌库识别并缓存。
+func (r *DeckRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if arg == nil || arg.Img == nil {
+		log.Error().Str("component", component).Msg("deck recognition arg or image is nil")
+		return nil, false
+	}
+
+	deck, remainDeck, handCounts, handRaw, ok := recognizeFullDeck(ctx, arg.Img)
+	if !ok {
+		return nil, recognitionFailed(ctx, "完整牌库识别失败（remainDeck 或 Hand 读不到）")
+	}
+
+	detailBytes, err := json.Marshal(deckDetail{
+		Deck:       deck,
+		RemainDeck: remainDeck,
+		Hand:       handCounts,
+		HandRaw:    handRaw,
+	})
+	if err != nil {
+		log.Error().Err(err).Str("component", component).Msg("failed to marshal deck detail")
+		return nil, false
+	}
+
+	setDeck(deck)
+
+	log.Info().
+		Str("component", component).
+		Ints("deck", deck[:]).
+		Ints("remainDeck", remainDeck[:]).
+		Ints("hand", handCounts[:]).
+		Ints("handRaw", handRaw[:]).
+		Msg("deck recognized and cached")
+
+	return &maa.CustomRecognitionResult{Box: arg.Roi, Detail: string(detailBytes)}, true
+}
+
+// deckDetail 是 DeckRecognition 写入 Detail 的观测载体（仅日志/调试用，pipeline 与 Decide 不读）。
+type deckDetail struct {
+	Deck       [5]int `json:"deck"`
+	RemainDeck [5]int `json:"remainDeck"`
+	Hand       [5]int `json:"hand"`
+	HandRaw    [5]int `json:"handRaw"`
 }
 
 func nodeROI(ctx *maa.Context, nodeName string) (maa.Rect, error) {

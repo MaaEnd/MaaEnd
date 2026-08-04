@@ -58,6 +58,16 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "TrialOfSwordmancyDailyRecognizeDeck"
+        ]
+    },
+    "TrialOfSwordmancyDailyRecognizeDeck": {
+        "desc": "识别完整牌库",
+        "recognition": "Custom",
+        "custom_recognition": "TrialOfSwordmancy.RecognizeDeck",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
             "TrialOfSwordmancyEnsureFirstCard",
             "TrialOfSwordmancyAbandProbeClickGiveUp",
             "TrialOfSwordmancyDecide"

@@ -5,6 +5,7 @@ const (
 	component = "trialofswordmancy"
 
 	recognitionName      = "TrialOfSwordmancy.Recognize"      // pipeline 节点的 custom_recognition
+	deckRecognitionName  = "TrialOfSwordmancy.RecognizeDeck"  // 完整牌库识别 custom_recognition（缓存 Deck）
 	abandRecognitionName = "TrialOfSwordmancy.RecognizeAband" // 放弃弹窗文本 custom_recognition
 	decideName           = "TrialOfSwordmancy.Decide"         // pipeline 节点的 custom_action
 )
