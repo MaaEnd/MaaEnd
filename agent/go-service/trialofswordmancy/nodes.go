@@ -19,6 +19,10 @@ const (
 	// 抽牌成功等待节点；Decide 决策抽牌时按落位槽覆盖其 all_of。
 	nodeDoDrawCardSuccess = "TrialOfSwordmancyDoDrawCardSuccess"
 
+	// 决策节点：异步预求解要读它的 custom_action_param.overflowMode 来构造求解配置
+	// （action.go decideOverflowMode）——预求解配置必须与决策配置同源，读不到即中止。
+	nodeDecide = "TrialOfSwordmancyDecide"
+
 	// 既有执行链入口。
 	nodeGiveUp     = "TrialOfSwordmancyDailyGiveUp" // 放弃本局 → 确认 → 重置寻路 → 回主入口
 	nodeStartTrial = "TrialOfSwordmancyStartTrial"  // 开始演算 → 编队 → 战斗 → 领奖

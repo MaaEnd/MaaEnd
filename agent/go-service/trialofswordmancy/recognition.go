@@ -281,6 +281,8 @@ var _ maa.CustomRecognitionRunner = &DeckRecognition{}
 // DeckRecognition 是完整牌库识别器：一次读 remainDeck（OCR）+ Hand（模板），推导总牌量 Deck 并缓存。
 // 一轮演算内 Deck 恒定，只需在轮次开始时执行一次；之后总成识别只读 remainDeck 反推 Hand，
 // 跳过不稳定的 Hand 模板识别。决策到开始演算/放弃演算后由 DecideAction 重置缓存（见 session.go）。
+// 识别出牌库后随即异步预热求解器（presolve.go preSolveIfNeeded）——牌库是求解配置里最后一个
+// 才识别出来的字段，这里是轮次内最早具备全量求解条件的时机，Decide 取用时无需再等。
 // 由 pipeline 节点以 custom_recognition 方式调用（TrialOfSwordmancy.RecognizeDeck）。
 type DeckRecognition struct{}
 
@@ -308,6 +310,18 @@ func (r *DeckRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	}
 
 	sess.SetDeck(deck)
+
+	// 异步预热：全量求解 ~100ms，放后台让 Decide 阻塞取用（presolve.go awaitPreSolve），
+	// 这 100ms 不落在任何节点的关键路径上。溢出模式必须与 Decide 最终配置同源
+	// （decideOverflowMode），读不到 = pipeline 配置错误，硬中止而非猜默认值预热。
+	overflowMode, ok := decideOverflowMode(ctx)
+	if !ok {
+		return nil, recognitionFailed(ctx, "读取 Decide 节点 overflowMode 失败")
+	}
+	cfg := solver.DefaultConfig
+	cfg.Deck = deck
+	cfg.OverflowMode = overflowMode
+	sess.SetPendingSolve(preSolveIfNeeded(cfg))
 
 	log.Info().
 		Str("component", component).

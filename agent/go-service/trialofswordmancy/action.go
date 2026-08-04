@@ -19,9 +19,10 @@ import (
 var _ maa.CustomActionRunner = &DecideAction{}
 
 // DecideAction 反序列化 recognition 产出的 GameState，调 solver.Decide 取最优单步决策，
-// 按决策用 OverrideNext 路由到执行节点。
+// 按决策用 OverrideNext 路由到执行节点。求解器来自 RecognizeDeck 的异步预热
+// （presolve.go awaitPreSolve），本动作只做「取结果 → 查表 → 路由」。
 //
-// 本身不持有状态：每步的完整 State 都由 recognition 读出后传入，本动作只做「求解 → 路由」；
+// 本身不持有状态：每步的完整 State 都由 recognition 读出后传入，本动作只做「取结果 → 路由」；
 // 唯一的状态副作用是经 sess.OnRoundEnd 落定轮次边界（放弃递减、牌库重置，见 session.go），
 // 具体规则（跨日残局白送、0 不减）在那边，这里不重复。
 // 单步循环靠 pipeline 的 next 回到 TrialOfSwordmancyDecide（recognition 重新读图），
@@ -52,11 +53,21 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	// 配置：牌库/手牌/剩余次数/翻倍态来自 recognition 截图识别；溢出模式是玩家策略选项，
-	// 由本节点 custom_action_param.overflowMode 提供（任务 select 决定），覆盖 recognition 的默认值。
+	// 唯一数据源是 Decide 节点的 custom_action_param，与 RecognizeDeck 预求解同源同值
+	// （decideOverflowMode）。读不到 = 配置错误，硬中止。
+	overflowMode, ok := decideOverflowMode(ctx)
+	if !ok {
+		log.Error().Str("component", component).Msg("decide overflowMode missing or invalid, aborting")
+		return false
+	}
 	cfg := gs.Config
-	cfg.OverflowMode = loadOverflowMode(arg.CustomActionParam)
+	cfg.OverflowMode = overflowMode
 
-	slv := solverFor(cfg)
+	// 取用本轮异步预求解的求解器（presolve.go awaitPreSolve）；失败 = 系统性 bug，中止。
+	slv, ok := awaitPreSolve(cfg)
+	if !ok {
+		return false
+	}
 	outcomes := slv.Decide(gs.State)
 
 	// 不直接用求解器 Policy（其并列时按 [DrawCard,Abandon,Calculate] 取首位=抽牌）；
@@ -272,21 +283,48 @@ func actionFocusLabel(action solver.Action) string {
 	}
 }
 
-// loadOverflowMode 从 Decide 节点的 custom_action_param 解析溢出模式；
-// 缺省或解析失败 → OverflowNone（不接受溢出，默认）。这是玩家策略选项（任务 select 决定），
-// 不属于截图识别范畴，故由 action 提供、覆盖 recognition 的默认。
-func loadOverflowMode(customActionParam string) solver.OverflowMode {
-	if customActionParam == "" {
-		return solver.OverflowNone
+// decideOverflowMode 读取 Decide 节点 custom_action_param.overflowMode，是溢出模式的唯一数据源：
+// RecognizeDeck 用它构造异步预求解的 cfg，Decide 用它覆盖 recognition 的默认值——同源同回退，
+// 预求解配置与决策配置必然一致。参数是强制项：缺省/非法 = pipeline 配置错误，调用方硬中止，
+// 不猜默认值（猜错会让预求解白算，且决策在无人察觉时换了模式）。
+func decideOverflowMode(ctx *maa.Context) (solver.OverflowMode, bool) {
+	raw, err := ctx.GetNodeJSON(nodeDecide)
+	if err != nil {
+		log.Error().Err(err).Str("component", component).Str("node", nodeDecide).Msg("GetNodeJSON failed")
+		return solver.OverflowNone, false
 	}
-	var p struct {
-		OverflowMode solver.OverflowMode `json:"overflowMode"`
+	return parseDecideOverflowMode(raw)
+}
+
+// parseDecideOverflowMode 从 GetNodeJSON 返回的节点 JSON 解析 custom_action_param.overflowMode。
+// 注意 GetNodeJSON 返回的是 MaaFramework PipelineDumper 的规范化形态：action.param 是
+// JCustomAction {target, target_offset, custom_action, custom_action_param}，玩家参数在
+// custom_action_param 里，不是直接挂在 action.param 下（与 recognition.param 同级，见 nodeROI）。
+func parseDecideOverflowMode(raw string) (solver.OverflowMode, bool) {
+	var node struct {
+		Action struct {
+			Param struct {
+				CustomActionParam struct {
+					OverflowMode json.RawMessage `json:"overflowMode"`
+				} `json:"custom_action_param"`
+			} `json:"param"`
+		} `json:"action"`
 	}
-	if err := json.Unmarshal([]byte(customActionParam), &p); err != nil {
-		log.Warn().Err(err).Str("component", component).Msg("parse overflowMode custom_action_param 失败，回退 OverflowNone")
-		return solver.OverflowNone
+	if err := json.Unmarshal([]byte(raw), &node); err != nil {
+		log.Error().Err(err).Str("component", component).Str("node", nodeDecide).Msg("parse node JSON failed")
+		return solver.OverflowNone, false
 	}
-	return p.OverflowMode
+	// RawMessage 判缺省：OverflowMode 的零值是合法模式（OverflowNone），按值无法区分「缺失」与「显式 OverflowNone」。
+	if len(node.Action.Param.CustomActionParam.OverflowMode) == 0 {
+		log.Error().Str("component", component).Str("node", nodeDecide).Msg("overflowMode param missing")
+		return solver.OverflowNone, false
+	}
+	var mode solver.OverflowMode
+	if err := json.Unmarshal(node.Action.Param.CustomActionParam.OverflowMode, &mode); err != nil {
+		log.Error().Err(err).Str("component", component).Str("node", nodeDecide).Msg("invalid overflowMode value")
+		return solver.OverflowNone, false
+	}
+	return mode, true
 }
 
 // —— 辅助：Custom 识别 detail 解包 ——
