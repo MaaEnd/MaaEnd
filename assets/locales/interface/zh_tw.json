@@ -1016,6 +1016,7 @@
     "task.SceneManager.focus.mod_check_failed_prefix": "<span style=\"color: red; font-weight: bold;\">UID顯示不完整，開啟UID隱藏MOD會導致畫面左上方文字缺失，影響識別</span>",
     "task.SceneManager.focus.osd_check_failed": "<span style=\"color: red; font-weight: bold;\">螢幕存在遮擋，請關閉幀率/硬體監控懸浮窗（如 FPS、CPU、GPU、Afterburner 等）後重試</span>",
     "task.SceneManager.focus.language_not_zh_cn": "<span style=\"color: red; font-weight: bold;\">當前遊戲語言不是簡體中文，相容性較差，任務可能會失敗</span>",
+    "task.SceneManager.focus.screenshot_stable_abnormal": "<span style=\"color: red; font-weight: bold;\">當前環境識別異常，請使用 D3D11 啟動遊戲，或切換到視窗化重試</span>",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.zh_tw.md",
     "contact.file": "https://end.maafw.com/CONTACT/CONTACT.zh_tw.md",
     "operator.Perlica": "佩麗卡",

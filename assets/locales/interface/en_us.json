@@ -1016,6 +1016,7 @@
     "task.SceneManager.focus.mod_check_failed_prefix": "<span style=\"color: red; font-weight: bold;\">UID display is incomplete. Enabling UID-hiding mods removes text in the upper-left corner of the screen, which affects recognition.</span>",
     "task.SceneManager.focus.osd_check_failed": "<span style=\"color: red; font-weight: bold;\">Screen overlay detected. Close FPS/hardware monitoring overlays (e.g. FPS, CPU, GPU, Afterburner) and try again</span>",
     "task.SceneManager.focus.language_not_zh_cn": "<span style=\"color: red; font-weight: bold;\">The game language is not Simplified Chinese. Compatibility is limited, and tasks may fail.</span>",
+    "task.SceneManager.focus.screenshot_stable_abnormal": "<span style=\"color: red; font-weight: bold;\">Environment recognition is abnormal. Please launch the game with D3D11, or switch to windowed mode and retry.</span>",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.en_us.md",
     "contact.file": "https://end.maafw.com/CONTACT/CONTACT.en_us.md",
     "operator.Perlica": "Perlica",

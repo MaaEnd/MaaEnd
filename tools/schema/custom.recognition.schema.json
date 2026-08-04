@@ -30,6 +30,7 @@
                 "ReceptionRoomExchangeCountdownWithinThresholdRecognition",
                 "ReceptionRoomWaitExchangeKeepAliveDueRecognition",
                 "ScheduleRecognition",
+                "ScreenshotStableRecognition",
                 "SellProductCurrentBestOperator",
                 "SellProductCurrentOperatorUncached",
                 "SellProductOperatorCacheReady",

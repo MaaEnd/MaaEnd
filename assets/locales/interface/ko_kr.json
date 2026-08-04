@@ -1016,6 +1016,7 @@
     "task.SceneManager.focus.mod_check_failed_prefix": "<span style=\"color: red; font-weight: bold;\">UID 표시가 불완전합니다. UID 숨김 MOD를 켜면 화면 왼쪽 상단의 문자가 누락되어 인식에 영향을 줍니다.</span>",
     "task.SceneManager.focus.osd_check_failed": "<span style=\"color: red; font-weight: bold;\">화면에 오버레이가 감지되었습니다. 프레임레이트/하드웨어 모니터링 오버레이(FPS, CPU, GPU, Afterburner 등)를 끈 후 다시 시도하세요</span>",
     "task.SceneManager.focus.language_not_zh_cn": "<span style=\"color: red; font-weight: bold;\">게임 언어가 간체 중국어가 아닙니다. 호환성이 낮아 작업이 실패할 수 있습니다.</span>",
+    "task.SceneManager.focus.screenshot_stable_abnormal": "<span style=\"color: red; font-weight: bold;\">현재 환경 인식이 비정상입니다. D3D11로 게임을 실행하거나 창 모드로 전환한 후 다시 시도하세요.</span>",
     "description.file": "locales/interface/DESCRIPTION/DESCRIPTION.ko_kr.md",
     "contact.file": "https://end.maafw.com/CONTACT/CONTACT.ko_kr.md",
     "operator.Perlica": "펠리카",

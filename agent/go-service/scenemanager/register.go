@@ -6,4 +6,5 @@ func Register() {
 	maa.AgentServerRegisterCustomAction("SceneManagerMenuListClickItemAction", &SceneManagerMenuListClickItemAction{})
 	maa.AgentServerRegisterCustomRecognition("ImageCheckNotPassedRecognition", &ImageCheckNotPassedRecognition{})
 	maa.AgentServerRegisterCustomAction("ImageCheckSetResultAction", &ImageCheckSetResultAction{})
+	maa.AgentServerRegisterCustomRecognition("ScreenshotStableRecognition", &ScreenshotStableRecognition{})
 }

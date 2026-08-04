@@ -17,6 +17,7 @@
             "[JumpBack]__ScenePrivateWorldStorySkip",
             "[JumpBack]__ScenePrivateLoggedOutConfirm",
             "[JumpBack]SceneWaitLoadingExit",
+            "[JumpBack]__ScenePrivateScreenshotStableAbnormal",
             "[JumpBack]__ScenePrivateAnyExit"
         ]
     },
