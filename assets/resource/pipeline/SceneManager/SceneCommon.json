@@ -14,7 +14,7 @@
         "post_delay": 3000
     },
     "__ScenePrivateScreenshotStableAbnormal": {
-        "desc": "连续画面不变时判定环境识别异常强制失败",
+        "desc": "连续画面不变时判定环境识别异常强制失败,部分用户vulcan全屏游戏时，所有截图api截取到的画面都是不动的",
         "recognition": {
             "type": "Custom",
             "param": {
