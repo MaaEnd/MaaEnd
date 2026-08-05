@@ -2,7 +2,9 @@
 package maptrackerinternal
 
 import (
+	"container/heap"
 	"encoding/json"
+	"fmt"
 	"math"
 
 	"github.com/rs/zerolog"
@@ -89,6 +91,20 @@ func (p Point) AngleTo(other Point) float64 {
 	return angle
 }
 
+// RotateToLocalFrame projects a map-frame delta into a local frame whose forward axis points
+// along headingDeg, using the same convention as [Point.AngleTo]: 0° is up (negative Y) and
+// angles increase clockwise. The returned forward is the component along the heading and
+// right is the component 90° clockwise from it.
+func RotateToLocalFrame(delta Point, headingDeg float64) (forward, right float64) {
+	rad := headingDeg * math.Pi / 180
+	sin, cos := math.Sin(rad), math.Cos(rad)
+
+	// Forward is (sin, -cos) and right is (cos, sin) in map coordinates.
+	forward = delta.X*sin - delta.Y*cos
+	right = delta.X*cos + delta.Y*sin
+	return
+}
+
 /* ******** Linear Transformation ******** */
 
 type LinearTransform struct {
@@ -110,4 +126,152 @@ func (lt LinearTransform) Inverse(p Point) Point {
 		X: (p.X - lt.OffsetX) / lt.ScaleX,
 		Y: (p.Y - lt.OffsetY) / lt.ScaleY,
 	}
+}
+
+/* ******** Interpolation algorithms ******** */
+
+// Lerp returns the linear interpolation between a and b at parameter t.
+// Callers that need a unit ramp should use [UnitRamp] first.
+func Lerp(a, b, t float64) float64 {
+	return a + (b-a)*t
+}
+
+// UnitRamp maps x from the interval [lo, hi] onto [0, 1], clamping outside.
+func UnitRamp(x, lo, hi float64) float64 {
+	if x <= lo {
+		return 0
+	}
+	if x >= hi {
+		return 1
+	}
+	return (x - lo) / (hi - lo)
+}
+
+/* ******** Misc ******** */
+
+// PathBounds returns the min and max X/Y of all valid points in path.
+// Returns (+Inf, +Inf, -Inf, -Inf) when no valid points are present.
+func PathBounds(path []Point) (minX, minY, maxX, maxY float64) {
+	minX, minY = math.Inf(1), math.Inf(1)
+	maxX, maxY = math.Inf(-1), math.Inf(-1)
+	for _, p := range path {
+		if !p.IsValid() {
+			continue
+		}
+		minX = math.Min(minX, p.X)
+		minY = math.Min(minY, p.Y)
+		maxX = math.Max(maxX, p.X)
+		maxY = math.Max(maxY, p.Y)
+	}
+	return
+}
+
+// PathTotalDistance returns the cumulative Euclidean distance along a coordinate path.
+func PathTotalDistance(path []Point) float64 {
+	distance := 0.0
+	for i := 1; i < len(path); i++ {
+		distance += path[i].DistanceTo(path[i-1])
+	}
+	return distance
+}
+
+// DeltaRotation returns the minimum signed angle difference from current to target in [-180.0, 180.0].
+func DeltaRotation(current, target int) float64 {
+	diff := target - current
+	for diff > 180 {
+		diff -= 360
+	}
+	for diff < -180 {
+		diff += 360
+	}
+	return float64(diff)
+}
+
+/* ******** Graph searching algorithms ******** */
+
+type algoEdge struct {
+	to   int
+	cost float64
+}
+
+func dijkstraPath(adjacency map[int][]algoEdge, startID, targetID int) ([]int, error) {
+	open := &dijkstraPriorityQueue{}
+	heap.Init(open)
+	heap.Push(open, dijkstraQueueItem{id: startID, priority: 0})
+
+	cameFrom := map[int]int{}
+	gScore := map[int]float64{startID: 0}
+	closed := map[int]bool{}
+
+	for open.Len() > 0 {
+		current := heap.Pop(open).(dijkstraQueueItem).id
+		if closed[current] {
+			continue
+		}
+		if current == targetID {
+			return reconstructDijkstraPath(cameFrom, current), nil
+		}
+		closed[current] = true
+
+		for _, edge := range adjacency[current] {
+			if closed[edge.to] {
+				continue
+			}
+			tentativeG := gScore[current] + edge.cost
+			oldG, ok := gScore[edge.to]
+			if ok && tentativeG >= oldG {
+				continue
+			}
+			cameFrom[edge.to] = current
+			gScore[edge.to] = tentativeG
+			heap.Push(open, dijkstraQueueItem{id: edge.to, priority: tentativeG})
+		}
+	}
+
+	return nil, fmt.Errorf("dijkstra path not found")
+}
+
+func reconstructDijkstraPath(cameFrom map[int]int, current int) []int {
+	path := []int{current}
+	for {
+		prev, ok := cameFrom[current]
+		if !ok {
+			break
+		}
+		path = append(path, prev)
+		current = prev
+	}
+	for i, j := 0, len(path)-1; i < j; i, j = i+1, j-1 {
+		path[i], path[j] = path[j], path[i]
+	}
+	return path
+}
+
+type dijkstraQueueItem struct {
+	id       int
+	priority float64
+}
+
+type dijkstraPriorityQueue []dijkstraQueueItem
+
+func (q dijkstraPriorityQueue) Len() int { return len(q) }
+
+func (q dijkstraPriorityQueue) Less(i, j int) bool {
+	if math.Abs(q[i].priority-q[j].priority) < 1e-9 {
+		return q[i].id < q[j].id
+	}
+	return q[i].priority < q[j].priority
+}
+
+func (q dijkstraPriorityQueue) Swap(i, j int) { q[i], q[j] = q[j], q[i] }
+
+func (q *dijkstraPriorityQueue) Push(x any) {
+	*q = append(*q, x.(dijkstraQueueItem))
+}
+
+func (q *dijkstraPriorityQueue) Pop() any {
+	old := *q
+	item := old[len(old)-1]
+	*q = old[:len(old)-1]
+	return item
 }

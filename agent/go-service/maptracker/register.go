@@ -2,9 +2,9 @@
 package maptracker
 
 import (
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/bigmap"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/compatible"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/default"
+	maptrackerbigmap "github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/bigmap"
+	maptrackercompatible "github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/compatible"
+	maptrackerdefault "github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker/default"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 )
 
