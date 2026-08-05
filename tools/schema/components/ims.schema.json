@@ -28,6 +28,23 @@
                 }
             }
         },
+        "EvaluateItemQuantityParam": {
+            "type": "object",
+            "title": "EvaluateItemQuantity Param",
+            "description": "Parameters for EvaluateItemQuantity action (A4). Evaluates an integer expression over cached item IDs via {ITEM_ID} placeholders and prints the result via i18n Focus. Does not change cache / readiness. Missing item counts as 0. Result must be int (not bool).",
+            "additionalProperties": false,
+            "required": [
+                "expression"
+            ],
+            "properties": {
+                "expression": {
+                    "title": "Expression",
+                    "description": "Integer expression over cached item quantities. Use {ITEM_ID} placeholders (missing item = 0). Supports + - * / % parentheses and max(a,b) / min(a,b). Use / for integer division (truncates toward zero; equals floor for non-negative operands). Do not use // (Go comment). Clamp with max(x,0). Result must be int.",
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        },
         "ItemDataReadyParam": {
             "type": "object",
             "title": "ItemDataReady Param",
@@ -59,7 +76,7 @@
             "properties": {
                 "expression": {
                     "title": "Expression",
-                    "description": "Boolean expression over cached item quantities. Use {ITEM_ID} placeholders (missing item = 0). Supports + - * / % < <= > >= == != && || ! and parentheses. Result must be boolean.",
+                    "description": "Boolean expression over cached item quantities. Use {ITEM_ID} placeholders (missing item = 0). Supports + - * / % < <= > >= == != && || ! parentheses and max(a,b) / min(a,b). Result must be boolean.",
                     "type": "string",
                     "minLength": 1
                 },
