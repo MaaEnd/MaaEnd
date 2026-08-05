@@ -901,7 +901,7 @@
     "option.ItemTransferTransferTimes.input.description": "転送操作を実行する回数。",
     "option.ItemTransferTransferTimes.input.error": "0より大きい整数を入力してください。",
     "task.BatchAddFriends.label": "👥フレンド一括追加",
-    "task.BatchAddFriends.description": "UID 指定または陌生人追加に対応してフレンド申請を一括送信",
+    "task.BatchAddFriends.description": "UID 指定または陌生人追加に対応してフレンド申請を一括送信。注意：フレンド申請が頻繁すぎるとゲームの風控を招く可能性があります",
     "option.BatchAddFriends.label": "一括追加設定",
     "option.BatchAddFriends.inputs.UidList.label": "UID リスト",
     "option.BatchAddFriends.inputs.UidList.description": "複数の UID はスペースまたは「、」で区切ります。空欄の場合は見知らぬ人を追加します。",

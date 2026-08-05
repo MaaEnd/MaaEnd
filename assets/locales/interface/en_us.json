@@ -778,7 +778,7 @@
     "option.ItemTransferTransferTimes.input.description": "The number of times to perform the transfer operation.",
     "option.ItemTransferTransferTimes.input.error": "Please enter an integer greater than 0.",
     "task.BatchAddFriends.label": "👥 Batch Add Friends",
-    "task.BatchAddFriends.description": "Send friend requests in batch, supports UID list or strangers.",
+    "task.BatchAddFriends.description": "Send friend requests in batch, supports UID list or strangers. Note: Adding friends too frequently may trigger game risk control.",
     "option.BatchAddFriends.label": "Batch add settings",
     "option.BatchAddFriends.inputs.UidList.label": "UID list",
     "option.BatchAddFriends.inputs.UidList.description": "Separate multiple UIDs with spaces or '、'; leave empty to add strangers.",

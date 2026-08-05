@@ -831,7 +831,7 @@
     "option.ItemTransferTransferTimes.input.description": "執行搬運操作的次數。",
     "option.ItemTransferTransferTimes.input.error": "請輸入大於0的整數。",
     "task.BatchAddFriends.label": "👥批量添加好友",
-    "task.BatchAddFriends.description": "自動批量發送好友申請，支援指定 UID 與陌生人添加",
+    "task.BatchAddFriends.description": "自動批量發送好友申請，支援指定 UID 與陌生人添加。注意：過於頻繁的添加好友可能會造成遊戲風控",
     "option.BatchAddFriends.label": "批量添加設定",
     "option.BatchAddFriends.inputs.UidList.label": "UID 清單",
     "option.BatchAddFriends.inputs.UidList.description": "多個 UID 用空格或頓號分隔，留空則預設添加陌生人",

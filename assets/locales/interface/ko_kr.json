@@ -732,7 +732,7 @@
     "option.ItemTransferTransferTimes.input.description": "이전 작업을 수행할 횟수입니다.",
     "option.ItemTransferTransferTimes.input.error": "0보다 큰 정수를 입력하세요.",
     "task.BatchAddFriends.label": "👥친구 일괄 추가",
-    "task.BatchAddFriends.description": "UID 목록 또는 낯선 사람 추가를 지원하는 친구 신청 일괄 전송",
+    "task.BatchAddFriends.description": "UID 목록 또는 낯선 사람 추가를 지원하는 친구 신청 일괄 전송. 주의: 친구 추가가 너무 빈번하면 게임 리스크 컨트롤을 유발할 수 있습니다",
     "option.BatchAddFriends.label": "일괄 추가 설정",
     "option.BatchAddFriends.inputs.UidList.label": "UID 목록",
     "option.BatchAddFriends.inputs.UidList.description": "여러 UID는 공백 또는 '、'로 구분하며, 비워두면 기본으로 낯선 사람을 추가합니다.",

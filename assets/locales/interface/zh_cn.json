@@ -613,7 +613,7 @@
     "option.ItemTransferTransferTimes.input.description": "执行搬运操作的次数。",
     "option.ItemTransferTransferTimes.input.error": "请输入大于0的整数。",
     "task.BatchAddFriends.label": "👥批量添加好友",
-    "task.BatchAddFriends.description": "自动批量发送好友申请，支持指定 UID 与陌生人添加",
+    "task.BatchAddFriends.description": "自动批量发送好友申请，支持指定 UID 与陌生人添加。注意：过于频繁的添加好友可能会造成游戏风控",
     "option.BatchAddFriends.label": "批量添加设置",
     "option.BatchAddFriends.inputs.UidList.label": "UID 列表",
     "option.BatchAddFriends.inputs.UidList.description": "多个 UID 用空格或顿号分隔，留空则默认添加陌生人",
