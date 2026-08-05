@@ -123,11 +123,9 @@
             "Node.Recognition.Succeeded": "识别到采集物"
         }
     },
+    //子任务出口：由 MapNavigator 以 MaaContextRunTask 调起，跑到这里就结束、返回引擎
     "AutoCollectClickEnd": {
         "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "[Anchor]AutoCollectClickAfter"
-        ]
+        "post_delay": 0
     }
 }

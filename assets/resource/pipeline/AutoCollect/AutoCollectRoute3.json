@@ -20,123 +20,42 @@
         "post_delay": 0
     },
     "AutoCollectRoute3AssertLocation": {
-        "desc": "传送到收集地",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            "map_name": "map02_lv002",
-                            "target": [
-                                424,
-                                850,
-                                20,
-                                20
-                            ]
-                        }
-                    ]
-                }
-            }
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                706,
+                1893,
+                20,
+                20
+            ]
         },
+        "action": "DoNothing",
         "next": [
             "AutoCollectRoute3Goto"
         ]
     },
     "AutoCollectRoute3Goto": {
-        "desc": "前往收集地",
+        "desc": "前往采集点",
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map02_lv002",
                     "path": [
                         {
                             "action": "ZONE",
                             "zone_id": "Wuling_Base"
                         },
-                        [
-                            707,
-                            1894
-                        ],
-                        [
-                            706,
-                            1894
-                        ],
-                        [
-                            707,
-                            1894
-                        ],
-                        [
-                            712,
-                            1889
-                        ],
-                        [
-                            714,
-                            1889
-                        ],
-                        [
-                            716,
-                            1888
-                        ],
-                        [
-                            720,
-                            1888
-                        ],
-                        [
-                            721,
-                            1887
-                        ],
-                        [
-                            725,
-                            1887
-                        ],
-                        [
-                            727,
-                            1886
-                        ],
-                        [
-                            730,
-                            1886
-                        ],
-                        [
-                            732,
-                            1885
-                        ],
-                        [
-                            733,
-                            1885
-                        ],
-                        [
-                            734,
-                            1883
-                        ],
-                        [
-                            734,
-                            1872
-                        ],
-                        [
-                            737,
-                            1869
-                        ],
-                        [
-                            737,
-                            1867
-                        ],
-                        [
-                            739,
-                            1864
-                        ],
-                        [
-                            739,
-                            1862
-                        ],
-                        [
-                            741,
-                            1859
-                        ],
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                733,
+                                1885
+                            ]
+                        },
                         [
                             741,
                             1858,

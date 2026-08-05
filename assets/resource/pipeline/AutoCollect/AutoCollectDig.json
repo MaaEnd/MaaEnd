@@ -22,11 +22,9 @@
             "Node.Action.Succeeded": "执行挖掘点击"
         }
     },
+    //子任务出口：由 MapNavigator 以 MaaContextRunTask 调起，跑到这里就结束、返回引擎
     "AutoCollectDigEnd": {
         "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "[Anchor]AutoCollectDigAfter"
-        ]
+        "post_delay": 0
     }
 }
