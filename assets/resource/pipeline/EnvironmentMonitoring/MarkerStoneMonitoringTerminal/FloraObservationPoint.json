@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToFloraObservationPoint"
+            "FloraObservationPointInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedFloraObservationPoint": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToFloraObservationPoint"
+            "FloraObservationPointOpenTrackedMissionMap"
         ]
     },
     "FloraObservationPointOpenTrackedMissionMap": {
@@ -336,14 +336,18 @@
     "GoToFloraObservationPointStartPos": {
         "desc": "在植物观察点任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
-            "zone_id": "Wuling_Base",
-            "target": [
-                477.62,
-                2108.95,
-                27.2,
-                27.33
+            "expected": [
+                {
+                    "map_name": "map02_lv004",
+                    "target": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ]
+                }
             ]
         },
         "pre_delay": 0,
@@ -360,7 +364,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStone1"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
@@ -373,22 +377,20 @@
         "desc": "自动寻路前往植物观察点",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapNavigateAction",
+        "custom_action": "MapTrackerGoal",
         "custom_action_param": {
-            "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        125.73,
-                        112.6
-                    ],
-                    "target_tier": "Wuling_L4_330"
-                },
-                {
-                    "action": "HEADING",
-                    "angle": 180
+            "map_name": "map02_lv004",
+            "target": [
+                550.3,
+                252.6
+            ],
+            "on_finish": {
+                "action": "Custom",
+                "custom_action": "MapTrackerToward",
+                "custom_action_param": {
+                    "angle": 0
                 }
-            ]
+            }
         },
         "post_delay": 0,
         "rate_limit": 0,
