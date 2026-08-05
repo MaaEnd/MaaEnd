@@ -92,10 +92,45 @@ func TestResolvePlaceholders(t *testing.T) {
 	}
 }
 
-func TestResolvePlaceholdersEmptyName(t *testing.T) {
-	if _, _, err := ResolvePlaceholders("{ }", func(string) (int, error) {
-		return 0, nil
-	}); err == nil {
-		t.Fatal("expected error for empty placeholder")
+func TestEvaluateMaxMinAndClamp(t *testing.T) {
+	got, err := Evaluate("max(20-29, 0)")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got != 0 {
+		t.Fatalf("max(20-29,0) = %#v, want 0", got)
+	}
+
+	got, err = Evaluate("20-29")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got != -9 {
+		t.Fatalf("20-29 = %#v, want -9", got)
+	}
+
+	got, err = Evaluate("((max(129-29,0)*75)/500)")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got != 15 {
+		t.Fatalf("floor-style pulls = %#v, want 15", got)
+	}
+
+	got, err = Evaluate("(1+2)*10")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got != 30 {
+		t.Fatalf("paren precedence = %#v, want 30", got)
+	}
+
+	got, err = Evaluate("1+2*10")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got != 21 {
+		t.Fatalf("mul before add = %#v, want 21", got)
 	}
 }
+

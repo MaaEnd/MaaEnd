@@ -1,5 +1,7 @@
-// Package boolexpr evaluates boolean expressions over integers.
-// Used by ExpressionRecognition (OCR node placeholders) and IMS R1 (cached item IDs).
+// Package boolexpr evaluates boolean/integer expressions.
+// Used by ExpressionRecognition (OCR node placeholders) and IMS R1/A4 (cached item IDs).
+// Supports + - * / % comparisons, && || !, parentheses, and max(a,b) / min(a,b).
+// Integer / truncates toward zero (same as Go); for non-negative operands this equals floor division.
 package boolexpr
 
 import (
@@ -89,6 +91,8 @@ func evaluateAST(expr ast.Expr) (any, error) {
 		return ParseIntLiteral(node.Value)
 	case *ast.ParenExpr:
 		return evaluateAST(node.X)
+	case *ast.CallExpr:
+		return evaluateCall(node)
 	case *ast.UnaryExpr:
 		value, err := evaluateAST(node.X)
 		if err != nil {
@@ -200,6 +204,47 @@ func evaluateBinary(left any, right any, op token.Token) (any, error) {
 	}
 
 	return nil, fmt.Errorf("unsupported binary operator %s", op.String())
+}
+
+func evaluateCall(node *ast.CallExpr) (any, error) {
+	fn, ok := node.Fun.(*ast.Ident)
+	if !ok {
+		return nil, fmt.Errorf("unsupported function call form %T", node.Fun)
+	}
+	name := strings.ToLower(fn.Name)
+	if name != "max" && name != "min" {
+		return nil, fmt.Errorf("unsupported function %s", fn.Name)
+	}
+	if len(node.Args) != 2 {
+		return nil, fmt.Errorf("function %s expects 2 arguments, got %d", fn.Name, len(node.Args))
+	}
+
+	left, err := evaluateAST(node.Args[0])
+	if err != nil {
+		return nil, err
+	}
+	right, err := evaluateAST(node.Args[1])
+	if err != nil {
+		return nil, err
+	}
+	leftInt, ok := left.(int)
+	if !ok {
+		return nil, fmt.Errorf("function %s expects int operands, got %T and %T", fn.Name, left, right)
+	}
+	rightInt, ok := right.(int)
+	if !ok {
+		return nil, fmt.Errorf("function %s expects int operands, got %T and %T", fn.Name, left, right)
+	}
+	if name == "max" {
+		if leftInt > rightInt {
+			return leftInt, nil
+		}
+		return rightInt, nil
+	}
+	if leftInt < rightInt {
+		return leftInt, nil
+	}
+	return rightInt, nil
 }
 
 func requireInts(left any, right any, op token.Token) (int, int, error) {
