@@ -25,13 +25,44 @@
         {
             "image": "武陵_拍照模式_拍摄目标.png",
             "hits": [
+                "EnvironmentMonitoringPhotoSettingsTab",
+                "EnvironmentMonitoringOpenPhotoSettings",
                 "EnvironmentMonitoringShutterButtonHighlighted",
                 "EnvironmentMonitoringShutterButtonPhotographyTarget"
             ]
         },
         {
             "image": "武陵_拍照模式_拍摄目标未达成.png",
-            "hits": []
+            "hits": [
+                "EnvironmentMonitoringPhotoSettingsTab",
+                "EnvironmentMonitoringOpenPhotoSettings"
+            ]
+        },
+        {
+            "image": "武陵_拍照模式_画面设置.png",
+            "hits": [
+                "EnvironmentMonitoringPhotoSettingsTab",
+                "EnvironmentMonitoringOpenPhotoSettings",
+                "EnvironmentMonitoringPhotoSettingsShowAllOperators"
+            ]
+        },
+        {
+            "image": "武陵_拍照模式_显示干员选项.png",
+            "hits": [
+                "EnvironmentMonitoringPhotoSettingsTab",
+                "EnvironmentMonitoringOpenPhotoSettings",
+                "EnvironmentMonitoringPhotoSettingsShowAllOperators",
+                "EnvironmentMonitoringPhotoSettingsHideAllOperators"
+            ]
+        },
+        {
+            "image": "武陵_拍照模式_隐藏全部.png",
+            "hits": [
+                "EnvironmentMonitoringPhotoSettingsTab",
+                "EnvironmentMonitoringOpenPhotoSettings",
+                "EnvironmentMonitoringPhotoSettingsOperatorsHidden",
+                "EnvironmentMonitoringClosePhotoSettingsWithOperatorsHidden"
+            ]
         }
     ]
 }
