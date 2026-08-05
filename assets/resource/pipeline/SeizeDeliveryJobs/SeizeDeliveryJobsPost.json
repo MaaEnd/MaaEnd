@@ -81,18 +81,14 @@
     "SeizeDeliveryJobsTargetDepotNodeIsWulingCity": {
         "desc": "判断当前是武陵城的送货任务",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        642.0,
-                        715.0,
-                        54.0,
-                        91.0
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                920.48,
+                1760.33,
+                53.2,
+                89.64
             ]
         },
         "pre_delay": 0,
@@ -110,18 +106,14 @@
     "SeizeDeliveryJobsTargetDepotNodeIsTestArea": {
         "desc": "判断当前是试验园区的送货任务",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv005",
-                    "target": [
-                        280.0,
-                        387.0,
-                        65.0,
-                        45.0
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                1235.89,
+                1725.05,
+                64.05,
+                44.31
             ]
         },
         "pre_delay": 0,
@@ -172,12 +164,37 @@
         "desc": "走到武陵城仓储节点",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerGoal",
+        "custom_action": "MapNavigateAction",
+        // 仓储节点在河南岸，和落点分属两块互不连通的网格，直接给终点会闭眼直冲踩进河里。
+        // 改走旁边那座桥：网格只铺到南北两个桥头，桥面被游戏挖空，所以桥上两点写死照走。
         "custom_action_param": {
-            "map_name": "map02_lv002",
-            "target": [
-                674.9,
-                789.2
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH", // 桥北头，网格到此为止
+                    "target": [
+                        964.0,
+                        1805.0
+                    ]
+                },
+                [
+                    964.0,
+                    1813.0
+                ], // 桥面正中
+                [
+                    964.0,
+                    1824.0
+                ], // 下桥，落回南岸路面
+                {
+                    "action": "NAVMESH", // 南岸寻路到仓储节点
+                    "target": [
+                        952.9,
+                        1833.42
+                    ]
+                }
             ]
         },
         "post_delay": 500, // 等待弹出接取货物按钮
@@ -196,20 +213,26 @@
         "max_hit": 5, // 最大重试次数
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv002",
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        965.31,
+                        1830.66
+                    ]
+                },
                 [
-                    687.5,
-                    786.4
-                ],
-                [
-                    674.9,
-                    789.2
+                    952.9,
+                    1833.42,
+                    true
                 ]
-            ],
-            "path_trim": false
+            ]
         },
         "post_delay": 500, // 等待弹出接取货物按钮
         "focus": {
@@ -221,12 +244,20 @@
         "desc": "走到试验园区仓储节点",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerGoal",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv005",
-            "target": [
-                297.5,
-                413.3
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1253.14,
+                        1751.93
+                    ]
+                }
             ]
         },
         "post_delay": 2000, // 等待玩家止步
@@ -245,20 +276,26 @@
         "max_hit": 5, // 最大重试次数
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv005",
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1253.53,
+                        1740.21
+                    ]
+                },
                 [
-                    297.9,
-                    402.4
-                ],
-                [
-                    297.5,
-                    413.3
+                    1253.14,
+                    1751.93,
+                    true
                 ]
-            ],
-            "path_trim": false
+            ]
         },
         "post_delay": 2000, // 等待玩家止步
         "focus": {
