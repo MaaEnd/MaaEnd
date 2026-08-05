@@ -286,5 +286,17 @@
                 ]
             }
         }
+    },
+    "__CHARTERED_HH_PERMIT_TEMPLATE": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
     }
 }

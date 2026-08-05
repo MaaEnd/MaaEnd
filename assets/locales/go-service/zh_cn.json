@@ -255,6 +255,7 @@
     "ims.item.T_CREDS": "折金票",
     "ims.item.OROBERYL": "嵌晶玉",
     "ims.item.ORIGEOMETRY": "衍质源石",
+    "ims.item.CHARTERED_HH_PERMIT": "特许寻访凭证",
     "ims.quantity_ok": "%s：库存 %d / 目标 %d（已达标）",
     "ims.quantity_short": "%s：库存 %d / 目标 %d（未达标）",
     "ims.expression_ok": "表达式成立：%s",

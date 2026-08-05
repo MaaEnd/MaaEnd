@@ -255,6 +255,7 @@
     "ims.item.T_CREDS": "탈로시안 화폐",
     "ims.item.OROBERYL": "오로베릴",
     "ims.item.ORIGEOMETRY": "파생 오리지늄",
+    "ims.item.CHARTERED_HH_PERMIT": "특별 허가 헤드헌팅 허가증",
     "ims.quantity_ok": "%s: 재고 %d / 목표 %d (충족)",
     "ims.quantity_short": "%s: 재고 %d / 목표 %d (부족)",
     "ims.expression_ok": "식 성립: %s",

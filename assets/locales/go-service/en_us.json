@@ -255,6 +255,7 @@
     "ims.item.T_CREDS": "T-Creds",
     "ims.item.OROBERYL": "Oroberyl",
     "ims.item.ORIGEOMETRY": "Origeometry",
+    "ims.item.CHARTERED_HH_PERMIT": "Chartered HH Permit",
     "ims.quantity_ok": "%s: stock %d / target %d (met)",
     "ims.quantity_short": "%s: stock %d / target %d (short)",
     "ims.expression_ok": "expression matched: %s",
