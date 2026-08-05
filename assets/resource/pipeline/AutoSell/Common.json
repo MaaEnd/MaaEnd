@@ -13,24 +13,26 @@
         "pre_wait_freezes": 100,
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "base01_lv003",
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "OMVBase01"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        185.9,
+                        141.39
+                    ]
+                },
                 [
-                    196.9,
-                    143.6
-                ],
-                [
-                    188.8,
-                    143.6
-                ],
-                [
-                    188.8,
-                    134.8
+                    185.9,
+                    132.73,
+                    true
                 ]
-            ],
-            "no_ensure_initial_movement_state": true
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -40,44 +42,6 @@
         "focus": {
             "Node.Action.Starting": "正在走向物资调度终端"
         }
-    },
-    "AutoSellShipEnterStockRedistribution2": {
-        "desc": "测试时cpp容易卡到障碍物，go容易走不到头或走过头卡死",
-        "recognition": "TemplateMatch",
-        "roi": [
-            0,
-            0,
-            100,
-            100
-        ],
-        "template": "VisitFriends/ShipEscButton.png",
-        "threshold": 0.9,
-        "pre_wait_freezes": 100,
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "OMVBase01"
-                },
-                [
-                    187,
-                    141
-                ],
-                [
-                    187,
-                    131,
-                    true
-                ]
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellEnterStockRedistribution"
-        ]
     },
     "AutoSellEnterStockRedistribution": {
         "desc": "进入物资调度页面",
