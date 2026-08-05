@@ -62,22 +62,22 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 1. 按 `items` 的键名排序，依次跑对应识别节点。
 2. **命中且数量合法**：记录 `物品 ID → 数量`。
-3. **未命中**：本轮不记录该 ID（见下方「重新生成 / 覆写」）。
+3. **未命中**：本轮不记录该 ID（见下方「地区重建 / 覆写」）。
 4. 全部节点跑完后，把结果写入内存，并落盘到 `./debug/record/IMS.json`，同时写入时间戳 `updated_at`，表示这份数据是何时生成的。
 
 命中时会通过 UI Focus 打出本地化物品名与数量。
 
-### 重新生成模式 vs 覆写模式（`page_dedup`）
+### 地区重建模式 vs 覆写模式（`page_dedup`）
 
 | `page_dedup` | 模式 | 行为 |
 | --- | --- | --- |
-| `false`（默认） | **重新生成** | 以本轮命中结果为准，**整表重建**缓存。本轮没扫到的 ID 不会出现在新表里。 |
+| `false`（默认） | **地区重建** | 只重建本轮 `items` 里的 ID：命中则写入，未命中则从缓存删除这些 ID；**其他地区**已缓存的 ID 保留。 |
 | `true` | **覆写** | 在已有缓存上，按本轮命中的 ID **覆盖数量**；没扫到的 ID **保留旧值**。 |
 
-覆写适合「列表要翻页」的场景。预留入口 `SyncItemData` 的默认链路为：
+覆写适合「列表要翻页」的场景：第 1 页地区重建；后续页只覆写当页可见 ID，避免抹掉前面页。预留入口 `SyncItemData` 的默认链路为：
 
 ```text
-初次：SyncItemDataRunFull（page_dedup = false，整表重建）
+初次：SyncItemDataRunFull（page_dedup = false，地区重建）
   next[0]：[JumpBack]SyncItemDataScrollPage → 滑动后 SyncItemDataRunInc（page_dedup = true）
   next[1]：SyncItemDataLock（扫描结束）
 ```

@@ -22,7 +22,9 @@ var _ maa.CustomActionRunner = &SyncItemData{}
 // syncItemDataParam is custom_action_param for SyncItemData.
 //
 // items: 字典，键为物品 ID，值为 And 识别节点名；依次执行节点，沿 box_index 链取 OCR 数量。
-// page_dedup: 翻页去重。false=本轮结果整表创建；true=在已有缓存上按 ID 覆盖数量。
+// page_dedup: 翻页去重 / 地区重建。
+//   false=仅重建本轮 items 内的 ID（未命中则从缓存删除这些 ID），其他地区已缓存 ID 保留；
+//   true=在已有缓存上按命中 ID 覆盖数量，未命中保留旧值。
 type syncItemDataParam struct {
 	Items     map[string]string `json:"items"`
 	PageDedup bool              `json:"page_dedup"`
@@ -80,7 +82,13 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	merged, err := baseItemsForSync(params.PageDedup)
+	itemIDs := make([]string, 0, len(params.Items))
+	for itemID := range params.Items {
+		itemIDs = append(itemIDs, itemID)
+	}
+	sort.Strings(itemIDs)
+
+	merged, err := baseItemsForSync(params.PageDedup, itemIDs)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -88,12 +96,6 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Msg("failed to prepare base items")
 		return false
 	}
-
-	itemIDs := make([]string, 0, len(params.Items))
-	for itemID := range params.Items {
-		itemIDs = append(itemIDs, itemID)
-	}
-	sort.Strings(itemIDs)
 
 	hitCount := 0
 	for _, itemID := range itemIDs {
@@ -176,12 +178,21 @@ func parseSyncItemDataParam(raw string) (syncItemDataParam, error) {
 	return params, nil
 }
 
-func baseItemsForSync(pageDedup bool) (map[string]int, error) {
-	if !pageDedup {
-		return map[string]int{}, nil
-	}
+func baseItemsForSync(pageDedup bool, scanItemIDs []string) (map[string]int, error) {
 	// Caller must ensureHydrated first; memory is the session source of truth.
-	return ItemsSnapshot(), nil
+	snap := ItemsSnapshot()
+	if pageDedup {
+		return snap, nil
+	}
+	// Region rebuild: drop only IDs belonging to this scan, keep other regions.
+	out := make(map[string]int, len(snap))
+	for id, qty := range snap {
+		out[id] = qty
+	}
+	for _, id := range scanItemIDs {
+		delete(out, strings.TrimSpace(id))
+	}
+	return out, nil
 }
 
 func recognizeItemQuantity(ctx *maa.Context, andNode string, img image.Image) (qty int, hit bool, err error) {

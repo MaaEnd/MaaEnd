@@ -67,19 +67,19 @@ Example:
 
 Hits also emit localized item name + quantity via UI Focus.
 
-### Regenerate vs overwrite (`page_dedup`)
+### Region rebuild vs overwrite (`page_dedup`)
 
 | `page_dedup` | Mode | Behavior |
 | --- | --- | --- |
-| `false` (default) | **Regenerate** | Rebuild the cache from this round’s hits only. IDs not seen this round disappear from the new map. |
+| `false` (default) | **Region rebuild** | Rebuild only IDs in this scan’s `items`: hits are written; misses remove those IDs. Cached IDs from **other regions** are kept. |
 | `true` | **Overwrite** | Start from the existing cache; **overwrite** quantities for IDs hit this round; keep old values for IDs not seen. |
 
-Overwrite is for paged lists: page 1 regenerates; later pages overwrite only the IDs visible on that page so earlier pages are not wiped.
+Overwrite is for paged lists: page 1 region-rebuilds; later pages overwrite only the IDs visible on that page so earlier pages are not wiped.
 
 The reserved entry `SyncItemData` defaults to:
 
 ```text
-First pass: SyncItemDataRunFull (page_dedup = false, full rebuild)
+First pass: SyncItemDataRunFull (page_dedup = false, region rebuild)
   next[0]: [JumpBack]SyncItemDataScrollPage → swipe, then SyncItemDataRunInc (page_dedup = true)
   next[1]: SyncItemDataLock (scan finished)
 ```
