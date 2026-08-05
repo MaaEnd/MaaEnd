@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToRainbowFinStartPos"
+            "GoToRainbowFinMove"
         ]
     },
     "RainbowFinNotAdapted": {
@@ -336,18 +336,14 @@
     "GoToRainbowFinStartPos": {
         "desc": "在七彩鳞任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        125,
-                        815,
-                        15,
-                        15
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                603.08,
+                2818.92,
+                14.77,
+                14.78
             ]
         },
         "pre_delay": 0,
@@ -358,7 +354,7 @@
         ]
     },
     "GoToRainbowFinNotAtStartPos": {
-        "desc": "不在七彩鳞任务开始位置附近，先传送再检查落点",
+        "desc": "不在七彩鳞任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -370,57 +366,32 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToRainbowFinStartPos"
+            "GoToRainbowFinMove"
         ]
     },
     "GoToRainbowFinMove": {
         "desc": "自动寻路前往七彩鳞",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv001",
             "path": [
-                [
-                    131,
-                    820
-                ],
-                [
-                    142,
-                    818
-                ],
-                [
-                    151,
-                    813
-                ],
-                [
-                    163,
-                    808
-                ],
-                [
-                    172,
-                    799
-                ],
-                [
-                    188,
-                    789
-                ],
-                [
-                    194,
-                    765
-                ],
-                [
-                    205,
-                    755
-                ]
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        681.85,
+                        2759.81
+                    ]
+                },
+                {
+                    "action": "HEADING",
                     "angle": 45
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

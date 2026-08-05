@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToBeaconDamagedInTheBlightTideStartPos"
+            "GoToBeaconDamagedInTheBlightTideMove"
         ]
     },
     "BeaconDamagedInTheBlightTideNotAdapted": {
@@ -336,18 +336,14 @@
     "GoToBeaconDamagedInTheBlightTideStartPos": {
         "desc": "在侵蚀潮中损坏的信标任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        640,
-                        255,
-                        15,
-                        15
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                918.51,
+                1307.19,
+                14.78,
+                14.78
             ]
         },
         "pre_delay": 0,
@@ -358,7 +354,7 @@
         ]
     },
     "GoToBeaconDamagedInTheBlightTideNotAtStartPos": {
-        "desc": "不在侵蚀潮中损坏的信标任务开始位置附近，先传送再检查落点",
+        "desc": "不在侵蚀潮中损坏的信标任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -370,69 +366,53 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToBeaconDamagedInTheBlightTideStartPos"
+            "GoToBeaconDamagedInTheBlightTideMove"
         ]
     },
     "GoToBeaconDamagedInTheBlightTideMove": {
         "desc": "自动寻路前往侵蚀潮中损坏的信标",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv002",
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
                 [
-                    642,
-                    272
+                    920.48,
+                    1323.94
                 ],
                 [
-                    640,
-                    299
+                    918.51,
+                    1350.54
                 ],
                 [
-                    629,
-                    301
+                    902.75,
+                    1353.49
                 ],
                 [
-                    624,
-                    302
+                    920.48,
+                    1368.27
                 ],
                 [
-                    642,
-                    317
+                    963.83,
+                    1369.25
                 ],
                 [
-                    649,
-                    317
+                    958.91,
+                    1384.03
                 ],
                 [
-                    686,
-                    318
+                    979.59,
+                    1395.85
                 ],
-                [
-                    687,
-                    329
-                ],
-                [
-                    681,
-                    333
-                ],
-                [
-                    692,
-                    344
-                ],
-                [
-                    702,
-                    345
-                ]
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
+                {
+                    "action": "HEADING",
                     "angle": 90
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

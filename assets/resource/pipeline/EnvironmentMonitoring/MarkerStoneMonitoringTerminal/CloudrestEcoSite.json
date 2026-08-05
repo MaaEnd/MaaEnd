@@ -336,18 +336,14 @@
     "GoToCloudrestEcoSiteStartPos": {
         "desc": "在栖云生态点任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        389.3,
-                        445.8,
-                        69.1,
-                        49.9
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                593.53,
+                2240.18,
+                9.55,
+                7.98
             ]
         },
         "pre_delay": 0,
@@ -364,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStone_Ship2DestinationThenWalkAndFight"
+                "SceneEnterWorldWulingMarkerStone3"
             ]
         },
         "post_delay": 0,
@@ -377,20 +373,39 @@
         "desc": "自动寻路前往栖云生态点",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerGoal",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv004",
-            "target": [
-                439,
-                486.4
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
-                    "angle": 170
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        637.54,
+                        2332.1
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        593.23,
+                        2333.28
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        431.36,
+                        2421.65
+                    ]
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 180
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

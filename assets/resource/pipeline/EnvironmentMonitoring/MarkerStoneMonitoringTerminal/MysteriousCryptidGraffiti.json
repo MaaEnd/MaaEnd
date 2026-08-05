@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToMysteriousCryptidGraffitiStartPos"
+            "GoToMysteriousCryptidGraffitiMove"
         ]
     },
     "MysteriousCryptidGraffitiNotAdapted": {
@@ -336,18 +336,14 @@
     "GoToMysteriousCryptidGraffitiStartPos": {
         "desc": "在谜之生物的涂鸦任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv003",
-                    "target": [
-                        384.5,
-                        542,
-                        28,
-                        28
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                1242.58,
+                2357.97,
+                27.57,
+                27.58
             ]
         },
         "pre_delay": 0,
@@ -358,7 +354,7 @@
         ]
     },
     "GoToMysteriousCryptidGraffitiNotAtStartPos": {
-        "desc": "不在谜之生物的涂鸦任务开始位置附近，先传送再检查落点",
+        "desc": "不在谜之生物的涂鸦任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -370,89 +366,117 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToMysteriousCryptidGraffitiStartPos"
+            "GoToMysteriousCryptidGraffitiMove"
         ]
     },
     "GoToMysteriousCryptidGraffitiMove": {
         "desc": "自动寻路前往谜之生物的涂鸦",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv003",
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
                 [
-                    407.4,
-                    548.1
+                    1265.13,
+                    2363.98
                 ],
                 [
-                    420.8,
-                    537.6
+                    1278.33,
+                    2353.63,
+                    "PORTAL"
+                ],
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_L3_298"
+                },
+                [
+                    75.37,
+                    173.16,
+                    "PORTAL"
                 ],
                 [
-                    434.6,
-                    527.3
+                    78.95,
+                    169.19
                 ],
                 [
-                    438.2,
-                    523.6
+                    78.16,
+                    164.58
                 ],
                 [
-                    437.4,
-                    519.3
+                    75.97,
+                    160.83
                 ],
                 [
-                    435.2,
-                    515.8
+                    75.77,
+                    149.9
                 ],
                 [
-                    435,
-                    505.6
+                    76.96,
+                    147.76
                 ],
                 [
-                    436.2,
-                    503.6
+                    79.55,
+                    147.22
                 ],
                 [
-                    438.8,
-                    503.1
+                    82.04,
+                    147.22,
+                    "PORTAL"
+                ],
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                [
+                    1299.69,
+                    2324.47,
+                    "PORTAL"
                 ],
                 [
-                    441.3,
-                    503.1
+                    1302.15,
+                    2329.4
                 ],
                 [
-                    442.5,
-                    508
+                    1302.25,
+                    2335.6,
+                    "PORTAL"
                 ],
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_L3_298"
+                },
                 [
-                    445,
-                    513
+                    83.23,
+                    171.12,
+                    "PORTAL"
                 ],
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
                 [
-                    445.1,
-                    519.3
+                    1298.51,
+                    2344.17,
+                    "PORTAL"
                 ],
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_L3_298"
+                },
                 [
-                    442.5,
-                    525.4
+                    83.23,
+                    177.87,
+                    "PORTAL"
                 ],
-                [
-                    441.3,
-                    528
-                ],
-                [
-                    442.5,
-                    531.7
-                ]
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
+                {
+                    "action": "HEADING",
                     "angle": 165
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

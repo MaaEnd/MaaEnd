@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToInflatedAndGlowingBugspittingLankybeastStartPos"
+            "GoToInflatedAndGlowingBugspittingLankybeastMove"
         ]
     },
     "InflatedAndGlowingBugspittingLankybeastNotAdapted": {
@@ -336,18 +336,14 @@
     "GoToInflatedAndGlowingBugspittingLankybeastStartPos": {
         "desc": "在肚子鼓气后发光的吐虫长股兽任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        416.7,
-                        844.3,
-                        11.4,
-                        10.6
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                698.52,
+                1887.7,
+                11.23,
+                10.44
             ]
         },
         "pre_delay": 0,
@@ -358,7 +354,7 @@
         ]
     },
     "GoToInflatedAndGlowingBugspittingLankybeastNotAtStartPos": {
-        "desc": "不在肚子鼓气后发光的吐虫长股兽任务开始位置附近，先传送再检查落点",
+        "desc": "不在肚子鼓气后发光的吐虫长股兽任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -370,33 +366,33 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToInflatedAndGlowingBugspittingLankybeastStartPos"
+            "GoToInflatedAndGlowingBugspittingLankybeastMove"
         ]
     },
     "GoToInflatedAndGlowingBugspittingLankybeastMove": {
         "desc": "自动寻路前往肚子鼓气后发光的吐虫长股兽",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv002",
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
                 [
-                    426,
-                    851.2
+                    707.69,
+                    1894.5
                 ],
                 [
-                    437.3,
-                    842.5
-                ]
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
+                    718.82,
+                    1885.93
+                ],
+                {
+                    "action": "HEADING",
                     "angle": 45
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
