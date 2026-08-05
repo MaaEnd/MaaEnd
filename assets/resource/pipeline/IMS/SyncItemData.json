@@ -58,7 +58,7 @@
         ]
     },
     "SyncItemDataRunFull": {
-        "desc": "A2 初次完整识别（page_dedup=false）。培养素材列表静止后识别；结束后优先 JumpBack 滑动增量，次数由 SyncItemDataScrollPage.max_hit 控制；用尽后走 Lock",
+        "desc": "A2 初次完整识别（page_dedup=false，地区重建）。培养素材列表静止后识别；结束后优先 JumpBack 滑动增量，次数由 SyncItemDataScrollPage.max_hit 控制；用尽后走 Lock",
         "recognition": "DirectHit",
         "pre_wait_freezes": {
             "target": [

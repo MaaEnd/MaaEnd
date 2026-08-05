@@ -58,7 +58,7 @@
         ]
     },
     "SyncValuablesItemDataRunFull": {
-        "desc": "A2 珍贵物品页识别（page_dedup=true，合并写入）。列表静止后识别；结束后优先 JumpBack 滑动增量，用尽后走 Lock",
+        "desc": "A2 珍贵物品页识别（page_dedup=false，地区重建）。列表静止后识别；结束后优先 JumpBack 滑动增量，用尽后走 Lock",
         "recognition": "DirectHit",
         "pre_wait_freezes": {
             "target": [
@@ -80,7 +80,7 @@
                     "items": {
                         "CHARTERED_HH_PERMIT": "CHARTERED_HH_PERMIT"
                     },
-                    "page_dedup": true
+                    "page_dedup": false
                 }
             }
         },

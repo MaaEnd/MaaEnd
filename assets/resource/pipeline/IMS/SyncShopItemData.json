@@ -58,7 +58,7 @@
         ]
     },
     "SyncShopItemDataRun": {
-        "desc": "A2 采购中心识别（page_dedup=true，合并写入，避免清空培养仓库缓存）。顶部货币静止后识别；结束后走 Lock",
+        "desc": "A2 采购中心识别（page_dedup=false，地区重建）。顶部货币静止后识别；结束后走 Lock",
         "recognition": "DirectHit",
         "pre_wait_freezes": {
             "target": [
@@ -81,7 +81,7 @@
                         "ORIGEOMETRY": "ORIGEOMETRY_NUMBER",
                         "OROBERYL": "OROBERYL_NUMBER_SHOP"
                     },
-                    "page_dedup": true
+                    "page_dedup": false
                 }
             }
         },
