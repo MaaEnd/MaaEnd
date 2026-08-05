@@ -2,13 +2,14 @@
 
 IMS（Item Management System）在 go-service 进程内维护培养道具的数量缓存，供任务做「够不够」「要不要刷」等判断。流程编排仍由 Pipeline 负责；IMS 只提供识别与动作。
 
-整套能力一共 **2 个识别器 + 3 个动作**：
+整套能力一共 **2 个识别器 + 4 个动作**：
 
 | 代号 | 注册名 | 角色 |
 | --- | --- | --- |
 | **A2** | `SyncItemData` | 核心：扫当前界面，写入整表缓存 |
 | **A1** | `UpdateItemQuantity` | 对单个物品做加减 |
 | **A3** | `AddItemData` | 扫当前界面，把识别到的数量**累加**进缓存 |
+| **A4** | `EvaluateItemQuantity` | 按库存公式求整数结果，经 i18n Focus 播报 |
 | **R1** | `ItemQuantitySatisfied` | 用条件表达式判断缓存数量是否达标 |
 | **R2** | `ItemDataReady` | 判断整份缓存是否可用（有没有、过没过期） |
 
@@ -140,6 +141,43 @@ A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
 
 ---
 
+## A4：`EvaluateItemQuantity`
+
+按库存公式对 IMS 缓存求**整数**结果，并用 i18n Focus 播报（只读，不改缓存 / 就绪状态）。
+
+| 参数 | 说明 |
+| --- | --- |
+| `expression` | 整数表达式；用 `{物品ID}` 引用缓存数量（缺失按 `0`） |
+
+与 R1 共用同一套表达式引擎，但结果必须是 **int**（不能是布尔）。
+
+支持的运算：
+
+- 算术：`+` `-` `*` `/` `%`（`/` 为向零取整的整数除；非负操作数时等价于地板除）
+- 函数：`max(a,b)` / `min(a,b)`（可做「减到不低于 0」）
+- 分组：`(...)`（括号优先于乘除加减，顺序有保证）
+
+注意：
+
+- 占位符必须写 `{ITEM_ID}`，不要写裸 ID。
+- **不要写 `//`**：在引擎里 `//` 是注释，不是地板除；请用 `/`。
+- `20-29` 结果是 **`-9`**，不会自动变成 0；需要钳制时写 `max({ITEM}-29, 0)`。
+
+示例（特许寻访凭证 + 可用源石折算抽数）：
+
+```json
+{
+    "custom_action": "EvaluateItemQuantity",
+    "custom_action_param": {
+        "expression": "{CHARTERED_HH_PERMIT}+((max({ORIGEOMETRY}-29,0)*75)/500)"
+    }
+}
+```
+
+预留节点见 `assets/resource/pipeline/IMS/EvaluateItemQuantity.json`。
+
+---
+
 ## R1：`ItemQuantitySatisfied`
 
 判断缓存里的物品数量是否满足条件表达式。
@@ -154,6 +192,7 @@ A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
 支持的运算：
 
 - 算术：`+` `-` `*` `/` `%`
+- 函数：`max(a,b)` / `min(a,b)`
 - 比较：`<` `<=` `>` `>=` `==` `!=`
 - 逻辑：`&&` `||` `!`
 - 分组：`(...)`
@@ -256,6 +295,7 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 | --- | --- |
 | `SyncItemData.json` | A2 入口与同 Resource 锁定 |
 | `UpdateItemQuantity.json` | A1 |
+| `EvaluateItemQuantity.json` | A4 |
 | `AddItemData.json` | A3 最佳实践（领奖后关闭） |
 | `ItemQuantitySatisfied.json` | R1（调用方覆盖 `expression`） |
 | `ItemDataReady.json` | R2 + `EnsureItemDataReady*` |

@@ -2,13 +2,14 @@
 
 IMS keeps an in-process cache of cultivation-item counts so tasks can answer “is it enough?” and “should we farm?”. Pipeline still owns flow control; IMS only provides recognitions and actions.
 
-There are **2 recognitions + 3 actions**:
+There are **2 recognitions + 4 actions**:
 
 | Code | Registered name | Role |
 | --- | --- | --- |
 | **A2** | `SyncItemData` | Core: scan the current screen and write the full cache |
 | **A1** | `UpdateItemQuantity` | Add/subtract one item in the cache |
 | **A3** | `AddItemData` | Scan the current screen and **add** recognized counts into the cache |
+| **A4** | `EvaluateItemQuantity` | Evaluate an inventory formula to an int and announce via i18n Focus |
 | **R1** | `ItemQuantitySatisfied` | Whether cached counts meet a boolean expression |
 | **R2** | `ItemDataReady` | Whether the whole cache is usable (exists + not expired) |
 
@@ -142,6 +143,43 @@ When the cache is ready it also prints one Focus per hit — no Pipeline Startin
 
 ---
 
+## A4: `EvaluateItemQuantity`
+
+Evaluates an inventory formula against the IMS cache to an **integer** and announces it via i18n Focus (read-only; does not change cache / readiness).
+
+| Param | Meaning |
+| --- | --- |
+| `expression` | Integer expression; use `{ITEM_ID}` for cached counts (missing = `0`) |
+
+Same engine as R1, but the result must be an **int** (not bool).
+
+Supported operators:
+
+- Arithmetic: `+` `-` `*` `/` `%` (`/` is truncated toward zero; equals floor for non-negative operands)
+- Functions: `max(a,b)` / `min(a,b)` (use `max(x,0)` to clamp)
+- Grouping: `(...)` (parentheses bind first)
+
+Notes:
+
+- Placeholders must be `{ITEM_ID}`, not bare IDs.
+- Do **not** write `//` — it is a comment in the engine, not floor division; use `/`.
+- `20-29` yields **`-9`**, not `0`; clamp with `max({ITEM}-29, 0)`.
+
+Example:
+
+```json
+{
+    "custom_action": "EvaluateItemQuantity",
+    "custom_action_param": {
+        "expression": "{CHARTERED_HH_PERMIT}+((max({ORIGEOMETRY}-29,0)*75)/500)"
+    }
+}
+```
+
+Reserved node: `assets/resource/pipeline/IMS/EvaluateItemQuantity.json`.
+
+---
+
 ## R1: `ItemQuantitySatisfied`
 
 Checks whether cached item quantities meet a boolean expression.
@@ -156,6 +194,7 @@ Same operators as [`ExpressionRecognition`](../custom.md#expressionrecognition),
 Supported operators:
 
 - Arithmetic: `+` `-` `*` `/` `%`
+- Functions: `max(a,b)` / `min(a,b)`
 - Comparison: `<` `<=` `>` `>=` `==` `!=`
 - Logic: `&&` `||` `!`
 - Grouping: `(...)`
@@ -258,6 +297,7 @@ When you need ready **and** enough:
 | --- | --- |
 | `SyncItemData.json` | A2 entry + once-per-Resource lock |
 | `UpdateItemQuantity.json` | A1 |
+| `EvaluateItemQuantity.json` | A4 |
 | `AddItemData.json` | A3 best practice (close rewards) |
 | `ItemQuantitySatisfied.json` | R1 (override `expression`) |
 | `ItemDataReady.json` | R2 + `EnsureItemDataReady*` |
