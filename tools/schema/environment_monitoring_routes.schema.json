@@ -14,6 +14,14 @@
             ],
             "MapTargetDeckY": [
                 "MapTarget"
+            ],
+            "NavZoneId": [
+                "NavAssert",
+                "NavPath"
+            ],
+            "NavAssert": [
+                "NavZoneId",
+                "NavPath"
             ]
         },
         "required": [
@@ -63,6 +71,11 @@
                         {
                             "required": [
                                 "MapGoal"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "NavZoneId"
                             ]
                         },
                         {
@@ -163,6 +176,89 @@
                                         "required": [
                                             "NoEnsureInitialMovementState"
                                         ]
+                                    },
+                                    {
+                                        "required": [
+                                            "NavZoneId"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "NavAssert"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "NavPath"
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "title": "MapNavigatorRoute",
+                            "description": "MapNavigator 路线：NavPath 必填，普通传送还需 NavZoneId / NavAssert，QuickTeleport 可省略二者；不再填写 MapName / MapAssert / MapPath / MapTarget / MapTargetTier / MapGoal / NoEnsureInitialMovementState。",
+                            "required": [
+                                "NavPath"
+                            ],
+                            "allOf": [
+                                {
+                                    "if": {
+                                        "not": {
+                                            "required": [
+                                                "QuickTeleport"
+                                            ],
+                                            "properties": {
+                                                "QuickTeleport": {
+                                                    "const": true
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "required": [
+                                            "NavZoneId",
+                                            "NavAssert"
+                                        ]
+                                    }
+                                }
+                            ],
+                            "not": {
+                                "anyOf": [
+                                    {
+                                        "required": [
+                                            "MapName"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "MapAssert"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "MapPath"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "MapTarget"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "MapTargetTier"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "MapGoal"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "NoEnsureInitialMovementState"
+                                        ]
                                     }
                                 ]
                             }
@@ -231,7 +327,26 @@
                                         "MapGoal"
                                     ]
                                 }
-                            ]
+                            ],
+                            "not": {
+                                "anyOf": [
+                                    {
+                                        "required": [
+                                            "NavZoneId"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "NavAssert"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "NavPath"
+                                        ]
+                                    }
+                                ]
+                            }
                         }
                     ]
                 }
@@ -265,7 +380,7 @@
             "MapName": {
                 "type": "string",
                 "minLength": 1,
-                "description": "仅寻路路线使用。使用 MapPath 时填写 MapTracker 的 map_name（支持正则）；使用 MapGoal 时填写可加载 NavMesh 的精确 MapTracker map_name；使用 MapTarget 时填写 MapLocate 的 zone_id。传送后直拍时省略。",
+                "description": "遗留字段，仅 MapTarget / MapPath / MapGoal 路线使用，新增路线改用 NavZoneId。使用 MapTarget 时填写 MapLocate 的 zone_id；MapPath / MapGoal 填写原有实现的 map_name（支持正则）。传送后直拍时省略。",
                 "examples": [
                     "map02_lv001",
                     "map02_lv002",
@@ -287,7 +402,7 @@
             },
             "MapPath": {
                 "type": "array",
-                "description": "寻路路径（小地图坐标序列），由 MapTrackerMove 逐点跟随。寻路路线中与 MapTarget / MapGoal 三选一；传送后直拍时省略。用 tools/MapNavigator/ 的 GUI 工具录制。",
+                "description": "遗留字段，只保留给尚未迁移的存量路线，新增路线改用 NavPath。逐点跟随的寻路路径（小地图坐标序列），与 MapTarget / MapGoal 三选一；传送后直拍时省略。",
                 "minItems": 1,
                 "items": {
                     "type": "array",
@@ -326,12 +441,61 @@
             },
             "MapGoal": {
                 "type": "array",
-                "description": "MapTrackerGoal 目标点 [x, y]。生成器会自动生成 custom_action: \"MapTrackerGoal\"，并把 MapName 作为 map_name、该坐标作为 target。与 MapPath / MapTarget 三选一，适合已有 NavMesh 的 MapTracker 路线。",
+                "description": "遗留字段，只保留给尚未迁移的存量路线，新增路线改用 NavPath。自动寻路目标点 [x, y]，生成器会把 MapName 作为 map_name、该坐标作为 target 交给原有实现。与 MapPath / MapTarget 三选一。",
                 "items": {
                     "type": "number"
                 },
                 "minItems": 2,
                 "maxItems": 2
+            },
+            "NavZoneId": {
+                "type": "string",
+                "minLength": 1,
+                "description": "普通传送 MapNavigator 路线起点断言的 MapLocate zone_id（渲染为 MapLocateAssertLocation 的 zone_id）。与 NavAssert / NavPath 同时配置；QuickTeleport 不执行起点断言，可省略 NavZoneId / NavAssert。",
+                "examples": [
+                    "Wuling_Base",
+                    "Wuling_L4_328"
+                ]
+            },
+            "NavAssert": {
+                "type": "array",
+                "description": "初始位置判断矩形 [x, y, w, h]，使用 NavZoneId 分区坐标（tier 分区为 tier 局部坐标）。普通传送必填；QuickTeleport 不执行起点断言，可与 NavZoneId 一并省略。",
+                "items": {
+                    "type": "number"
+                },
+                "minItems": 4,
+                "maxItems": 4
+            },
+            "NavPath": {
+                "type": "array",
+                "description": "MapNavigateAction 的 path 数组（不含 HEADING；朝向仍由 Heading 字段在生成时追加）。元素为坐标点 [x, y] / [x, y, \"COLLECT\"|\"DIG\"|\"PORTAL\"]，或 {\"action\": \"ZONE\"|\"NAVMESH\", ...} 声明，格式详见 docs/zh_cn/developers/components/map-navigator.md。",
+                "minItems": 1,
+                "items": {
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "items": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "string"
+                                }
+                            ],
+                            "additionalItems": false,
+                            "minItems": 2
+                        },
+                        {
+                            "type": "object",
+                            "required": [
+                                "action"
+                            ]
+                        }
+                    ]
+                }
             },
             "CameraSwipeDirection": {
                 "type": "string",
@@ -376,13 +540,13 @@
             },
             "Heading": {
                 "type": "number",
-                "description": "可选；进入拍照模式前把角色朝向旋转到该角度。传送后直拍时会独立调用 MapTrackerToward，不需要 MapName 或 MapAssert。仅影响角色朝向，与摄像头滑屏（CameraSwipeDirection）相互独立。",
+                "description": "可选；进入拍照模式前把角色朝向旋转到该角度。传送后直拍时只原地调整朝向，不需要任何地图断言或寻路字段。仅影响角色朝向，与摄像头滑屏（CameraSwipeDirection）相互独立。",
                 "minimum": 0,
                 "exclusiveMaximum": 360
             },
             "NoEnsureInitialMovementState": {
                 "type": "boolean",
-                "description": "可选，默认 false。对应 MapTrackerMove 的 no_ensure_initial_movement_state 参数。一般只在路线起点紧贴桥边、悬崖边等危险地形时开启，用于跳过开局的冲刺准备动作，避免角色因为这一步直接掉下桥或掉下悬崖。"
+                "description": "可选，默认 false，仅遗留的 MapPath 路线使用，对应其 no_ensure_initial_movement_state 参数。一般只在路线起点紧贴桥边、悬崖边等危险地形时开启，用于跳过开局的冲刺准备动作，避免角色因为这一步直接掉下桥或掉下悬崖。"
             },
             "QuickTeleport": {
                 "type": "boolean",

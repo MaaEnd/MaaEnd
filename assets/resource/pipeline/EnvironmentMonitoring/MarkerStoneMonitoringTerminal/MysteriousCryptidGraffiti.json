@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToMysteriousCryptidGraffiti"
+            "MysteriousCryptidGraffitiInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedMysteriousCryptidGraffiti": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToMysteriousCryptidGraffiti"
+            "MysteriousCryptidGraffitiOpenTrackedMissionMap"
         ]
     },
     "MysteriousCryptidGraffitiOpenTrackedMissionMap": {
@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToMysteriousCryptidGraffitiStartPos"
+            "GoToMysteriousCryptidGraffitiMove"
         ]
     },
     "MysteriousCryptidGraffitiNotAdapted": {
@@ -336,18 +336,14 @@
     "GoToMysteriousCryptidGraffitiStartPos": {
         "desc": "在谜之生物的涂鸦任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv003",
-                    "target": [
-                        384.5,
-                        542,
-                        28,
-                        28
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -358,101 +354,40 @@
         ]
     },
     "GoToMysteriousCryptidGraffitiNotAtStartPos": {
-        "desc": "不在谜之生物的涂鸦任务开始位置附近，先传送再检查落点",
+        "desc": "不在谜之生物的涂鸦任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingQingboStockade2"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToMysteriousCryptidGraffitiStartPos"
+            "GoToMysteriousCryptidGraffitiMove"
         ]
     },
     "GoToMysteriousCryptidGraffitiMove": {
         "desc": "自动寻路前往谜之生物的涂鸦",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv003",
             "path": [
-                [
-                    407.4,
-                    548.1
-                ],
-                [
-                    420.8,
-                    537.6
-                ],
-                [
-                    434.6,
-                    527.3
-                ],
-                [
-                    438.2,
-                    523.6
-                ],
-                [
-                    437.4,
-                    519.3
-                ],
-                [
-                    435.2,
-                    515.8
-                ],
-                [
-                    435,
-                    505.6
-                ],
-                [
-                    436.2,
-                    503.6
-                ],
-                [
-                    438.8,
-                    503.1
-                ],
-                [
-                    441.3,
-                    503.1
-                ],
-                [
-                    442.5,
-                    508
-                ],
-                [
-                    445,
-                    513
-                ],
-                [
-                    445.1,
-                    519.3
-                ],
-                [
-                    442.5,
-                    525.4
-                ],
-                [
-                    441.3,
-                    528
-                ],
-                [
-                    442.5,
-                    531.7
-                ]
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1298.93,
+                        2346.99
+                    ]
+                },
+                {
+                    "action": "HEADING",
                     "angle": 165
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToEternalSunsetStartPos"
+            "GoToEternalSunsetMove"
         ]
     },
     "EternalSunsetNotAdapted": {
@@ -336,18 +336,14 @@
     "GoToEternalSunsetStartPos": {
         "desc": "在栖霞驻影任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        315,
-                        305,
-                        15,
-                        15
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                790.15,
+                2316.48,
+                14.77,
+                14.78
             ]
         },
         "pre_delay": 0,
@@ -358,7 +354,7 @@
         ]
     },
     "GoToEternalSunsetNotAtStartPos": {
-        "desc": "不在栖霞驻影任务开始位置附近，先传送再检查落点",
+        "desc": "不在栖霞驻影任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -370,33 +366,33 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToEternalSunsetStartPos"
+            "GoToEternalSunsetMove"
         ]
     },
     "GoToEternalSunsetMove": {
         "desc": "自动寻路前往栖霞驻影",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv001",
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
                 [
-                    332,
-                    303
+                    806.89,
+                    2314.51
                 ],
                 [
-                    346,
-                    296
-                ]
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
+                    820.68,
+                    2307.61
+                ],
+                {
+                    "action": "HEADING",
                     "angle": 60
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

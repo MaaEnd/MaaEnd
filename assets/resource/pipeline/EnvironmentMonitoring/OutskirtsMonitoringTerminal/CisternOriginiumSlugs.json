@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToCisternOriginiumSlugs"
+            "CisternOriginiumSlugsInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedCisternOriginiumSlugs": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToCisternOriginiumSlugs"
+            "CisternOriginiumSlugsOpenTrackedMissionMap"
         ]
     },
     "CisternOriginiumSlugsOpenTrackedMissionMap": {
@@ -340,10 +340,10 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                747.21,
-                2572.86,
-                36.4,
-                31.87
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -360,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValley7"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
@@ -385,7 +385,7 @@
                 },
                 {
                     "action": "HEADING",
-                    "angle": 235
+                    "angle": 225
                 }
             ]
         },
