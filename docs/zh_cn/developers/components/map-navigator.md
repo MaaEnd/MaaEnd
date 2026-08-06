@@ -69,8 +69,8 @@ python main.py
 
 | 模式 | 操作 | 导出内容 |
 | ---------- | ------------------------------------------ | ------------------------------------------------ |
-| `A* 寻路` | 选择底图与层级，在图上标记目标点并预览路线 | `复制 JSON 配置` → `NAVMESH` 节点 |
-| `断言模式` | 框选矩形区域 | `复制断言 JSON` → `MapLocateAssertLocation` 节点 |
+| `A* 寻路` | 选择底图与层级，在图上标记目标点并预览路线 | 复制 `NAVMESH` 节点，或仅复制环境监测 `MapTarget` 坐标 |
+| `断言模式` | 框选矩形区域 | 复制 `MapLocateAssertLocation` 节点，或仅复制环境监测 `MapAssert` 坐标 |
 | `路径编辑` | 连接游戏录制路线，编辑路径点动作 | `复制路径` → 完整 `path` |
 
 `A* 寻路` 与 `路径编辑` 对应 MapNavigator 的两种用法：给定终点由运行时规划路线，或给定完整路线按序执行。两者可混排在同一个 `path` 数组中——长距离移动用 `NAVMESH`，需要精确语义的局部段用坐标点。
@@ -206,6 +206,18 @@ python main.py
 ]
 ```
 
+`NAVMESH` 是例外：它是语义寻路节点，必须使用带 `target` 的对象，不能写成 `[x, y, "NAVMESH"]`：
+
+```json
+{
+    "action": "NAVMESH",
+    "target": [
+        1242.04,
+        773.41
+    ]
+}
+```
+
 可用动作：
 
 | 动作 | 到达后行为 |
@@ -217,6 +229,7 @@ python main.py
 | `INTERACT` | 交互一次 |
 | `COLLECT` | 采集：停止移动，触发 OCR 识别并点击采集，见[采集与挖掘](#采集与挖掘-collect--dig) |
 | `DIG` | 挖掘：停止移动，触发挖掘子任务，见[采集与挖掘](#采集与挖掘-collect--dig) |
+| `NAVMESH` | 从当前定位自动规划路线并移动到 `target`；必须使用上方对象格式 |
 | `TRANSFER` | 原地等待外力（剧情、传送等）将角色送至下一段，再从后续点继续 |
 | `PORTAL` | 过图点，触发后盲走一小段并等待区域切换 |
 | `HEADING` | 将镜头转到指定朝向，再按一次 `W` 使朝向生效 |
@@ -268,7 +281,7 @@ python main.py
 
 > [!NOTE]
 >
-> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`）以及由区域信息派生的 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`NAVMESH` 在 `A* 寻路` 模式中直接复制。
+> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / NAVMESH`）以及由区域信息派生的 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`NAVMESH` 也可以在 `A* 寻路` 模式中直接复制。
 
 ---
 

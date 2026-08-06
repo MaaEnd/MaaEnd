@@ -86,6 +86,11 @@
                 633.8,
                 348.8
             ]
+        },
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
         }
     },
     "AutoCollectRoute12GotoFind1": {
@@ -106,7 +111,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute12GotoFind2": {
         "desc": "前往收集地2",
@@ -126,7 +136,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute12GotoFind3": {
         "desc": "前往收集地3",
@@ -146,7 +161,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute12GotoFind4": {
         "desc": "前往收集地4",
@@ -166,7 +186,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute12GotoFindCollect1": {
         "anchor": {
@@ -202,7 +227,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute12GotoFindCollect3": {
         "anchor": {
@@ -238,7 +268,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute12GotoFindCollect5": {
         "anchor": {
@@ -274,7 +309,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute12GotoFindCollect7": {
         "anchor": {
@@ -302,6 +342,11 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     }
 }

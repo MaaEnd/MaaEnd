@@ -12,33 +12,18 @@ CreditShopping/
 │   ├── Entry.json         # 入口检测 + 白名单初始化
 │   ├── Scan.json          # 货架扫描门控 + 快照（触发购买决策循环）
 │   ├── BuyAction.json     # 三档购买 / 黑名单 / 稳健刷新 / 无物可买
-│   ├── BuyItem.json       # 购买弹窗确认 / 失败 / 关闭
+│   ├── BuyItem.json       # 购买确认 / 失败 / 强制购买价格阈值检查
 │   └── Special.json       # ADB 滑动 / 刷新时无法购买 / 刷新商品
 ├── Credit/                # 信用点管理
 │   ├── Reserve.json       # 保留阈值检测 + 当前信用点 OCR
 │   ├── AutoGetCredits.json# 自动补信用（买不起时跳基建）
-│   └── ClaimCredit.json   # 领取待收取信用
+│   └── ClaimCredit.json   # 领取待收取信用（含 IMS A3 累加）
 ├── Item/                  # 货架商品识别（识别链）
 │   ├── ShelfBase.json     # 锚点 CreditIcon + 售罄 + 价格判断
 │   ├── Priority1.json     # 优先购买 1 白名单 + 折扣
 │   ├── Priority2.json     # 优先购买 2 白名单 + 折扣
 │   ├── Priority3.json     # 优先购买 3 白名单 + 折扣
 │   └── Blacklist.json     # 黑名单过滤 + 折扣
-├── BuyItem/               # 购买弹窗（每商品一文件）
-│   ├── ArsenalTicket.json # 各商品弹窗 OCR
-│   ├── Oroberyl.json
-│   ├── TCreds.json
-│   ├── ElementaryCombatRecord.json
-│   ├── IntermediateCombatRecord.json
-│   ├── ElementaryCognitiveCarrier.json
-│   ├── ArmsInspector.json
-│   ├── ArmsINSPKit.json
-│   ├── CastDie.json
-│   ├── HeavyCastDie.json
-│   ├── Protodisk.json
-│   ├── Protoset.json
-│   ├── Protoprism.json
-│   └── Protohedron.json
 ├── GoToShop.json           # 导航到商店并切到信用交易所页签
 ├── record.json             # 货架快照时记录商品名与折扣
 └── Reflash.json            # 刷新按钮 / 花费 / 次数用尽 / 无法刷新
@@ -60,11 +45,11 @@ CreditShopping/
 2. 进入扫描循环前，[一次性初始化各档商品名白名单](#attach-与白名单初始化)（`Flow/Entry.json` + `attachregex/action.go`）。
 3. 每轮对当前货架快照，按固定优先级依次判断（`Flow/Scan.json` → `Flow/BuyAction.json`）：
     - 某档目标商品[买得起但信用不够](#自动补信用) → 跳基建补信用后回来。
-    - 是否命中[优先购买 1 / 2 / 3](#三档购买优先级) → 进入购买弹窗。
+    - 是否命中[优先购买 1 / 2 / 3](#三档购买优先级) → 直接确认购买。
     - 当前信用是否[低于保留阈值](#保留信用点阈值) → 结束任务。
     - 刷新次数是否已用尽、是否触发[稳健刷新改直购](#强制策略与刷新)。
     - 按[强制策略](#强制策略与刷新)购买任意可买品 / 刷新货架 / 直接结束。
-4. 购买弹窗内确认商品、记录 focus（`Flow/BuyItem.json` + `BuyItem/*.json`），回到列表继续扫描。
+4. 点击确认后进入奖励界面：IMS A3 累加培养道具并播报，再关闭回到列表继续扫描。强制购买会在确认前按「持有 − 价格」检查保留阈值。
 
 > 扫描循环的 `next` 顺序即业务优先级；改行为时要看整条链，不要只改单个识别器。
 
@@ -155,20 +140,20 @@ ShelfBase → 白名单 → 折扣 → 进入补信用判断
 | 策略 | 行为 |
 | ---------- | -------------------------------- |
 | 退出 | 不买任意品、不刷新，直接结束 |
-| 忽略黑名单 | 购买任意买得起且未售罄的商品 |
-| 刷新 | 尝试刷新货架；可展开「稳健刷新」 |
+| 忽略黑名单 | 购买任意买得起且未售罄的商品；确认前用 `BuyItemBelowReserve` 按「持有 − 价格」检查保留阈值，不足则取消并停止 |
+| 刷新 | 尝试刷新货架；可展开「稳健刷新」「直购前检查价格」 |
 
 **稳健刷新**：若「当前信用 − 刷新花费 < 稳健刷新阈值」且架上仍有可买品，则不刷新、改为直接购买。  
 该阈值与「保留信用点」是两套独立条件，不要混用。
 
+**直购前检查价格**（刷新子选项，默认开）：开启后，刷新用尽直购 / 稳健改直购在确认前按「持有 − 价格」检查保留阈值，不足则取消并停止；关闭则先买，买完后再由「保留信用点」节点决定是否结束。
+
 ## 新增商品时需改的路径
 
 1. `assets/tasks/CreditShopping.json` — 在对应档位 checkbox 增加 case，同时写「买得起」与「买不起」两侧的 `attach`
-2. `assets/resource/pipeline/CreditShopping/Flow/BuyItem.json` — `next` 列表加入该商品弹窗分支
-3. `assets/resource/pipeline/CreditShopping/BuyItem/` — 新建对应商品文件（弹窗 OCR + focus 文案），参考已有文件结构
-4. `assets/locales/interface/*.json` — `option.CreditShoppingItems.cases.*.label`
+2. `assets/locales/interface/*.json` — `option.CreditShoppingItems.cases.*.label`
 
-只改列表白名单、不改弹窗确认时，会出现能点开但 focus 缺失的问题。  
+货架白名单改完即可购买；奖励播报与数量累加由 IMS A3（`ClaimCredit.json`）负责，不必再为弹窗单独加商品 OCR。  
 新增 case 后记得检查 `default_case` 是否也要纳入新商品。
 
 ## 维护要点

@@ -30,7 +30,36 @@ class LocationService:
             expected_map_name
         )
 
-    def _ensure_initialized(self) -> None:
+    def _dispose_maa(self) -> None:
+        maa = self._maa_interface
+        self._maa_interface = None
+        if maa is None:
+            return
+        try:
+            maa.dispose_agent()
+        except Exception:
+            pass
+
+    def _ensure_agent(self) -> None:
+        """Ensures agent is ready for fixed-image recognition (no live controller)."""
+        maa = self._maa_interface
+        if maa is not None and maa.agent_client is not None:
+            return
+
+        self._dispose_maa()
+        maa = MaaInterface()
+        try:
+            maa.init_agent()
+        except Exception:
+            try:
+                maa.dispose_agent()
+            except Exception:
+                pass
+            raise
+        self._maa_interface = maa
+
+    def _ensure_controller(self) -> None:
+        """Ensures live controller + agent for screencap-based location tools."""
         maa = self._maa_interface
         if (
             maa is not None
@@ -39,13 +68,7 @@ class LocationService:
         ):
             return
 
-        if maa is not None:
-            try:
-                maa.dispose_agent()
-            except Exception:
-                pass
-            self._maa_interface = None
-
+        self._dispose_maa()
         maa = MaaInterface()
         try:
             maa.init_controller()
@@ -59,7 +82,7 @@ class LocationService:
         self._maa_interface = maa
 
     def infer_once(self, expected_map_name: str) -> MapTrackerInferResult:
-        self._ensure_initialized()
+        self._ensure_controller()
         with self._infer_lock:
             result = self._maa_interface.do_infer(precision=0.9)
         if not self._is_map_match(result["map_name"], expected_map_name):
@@ -68,15 +91,29 @@ class LocationService:
             )
         return result
 
+    def infer_on_image(
+        self,
+        image,
+        *,
+        precision: float = 0.7,
+        allowed_modes: int = 3,
+    ) -> MapTrackerInferResult:
+        if not 0.1 <= precision <= 1.0:
+            raise ValueError("Precision must be between 0.1 and 1.0")
+        self._ensure_agent()
+        with self._infer_lock:
+            return self._maa_interface.do_infer_on_image(
+                image,
+                precision=precision,
+                allowed_modes=allowed_modes,
+            )
+
     def run_goal(self, map_name: str, x: float, y: float) -> None:
-        self._ensure_initialized()
+        self._ensure_controller()
         with self._infer_lock:
             self._maa_interface.do_goal(map_name, x, y)
 
     def cleanup(self) -> None:
-        if self._maa_interface is not None:
-            try:
-                self._maa_interface.dispose_agent()
-            except Exception:
-                pass
-            self._maa_interface = None
+        # Do not wait on the infer lock: shutdown must kill the agent even if a
+        # recognition is still running (that call will fail after process death).
+        self._dispose_maa()

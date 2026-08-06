@@ -393,7 +393,12 @@
         "rate_limit": 0,
         "next": [
             "CollapsedTianshiPillarTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "CollapsedTianshiPillarTakePhoto": {
         "desc": "在倒塌的天师桩任务拍照点开始拍照",

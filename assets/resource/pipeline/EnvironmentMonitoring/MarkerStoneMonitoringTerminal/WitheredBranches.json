@@ -402,7 +402,12 @@
         "rate_limit": 0,
         "next": [
             "WitheredBranchesTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "WitheredBranchesTakePhoto": {
         "desc": "在枯枝任务拍照点开始拍照",

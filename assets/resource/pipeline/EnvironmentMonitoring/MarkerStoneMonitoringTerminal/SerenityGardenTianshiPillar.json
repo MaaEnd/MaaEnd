@@ -407,7 +407,12 @@
         "rate_limit": 0,
         "next": [
             "SerenityGardenTianshiPillarTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "SerenityGardenTianshiPillarTakePhoto": {
         "desc": "在安思园的天师桩任务拍照点开始拍照",

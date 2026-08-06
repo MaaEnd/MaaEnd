@@ -393,7 +393,12 @@
         "rate_limit": 0,
         "next": [
             "IndoorCropsTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "IndoorCropsTakePhoto": {
         "desc": "在室内作物任务拍照点开始拍照",

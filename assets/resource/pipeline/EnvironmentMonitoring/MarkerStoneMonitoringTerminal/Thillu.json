@@ -385,7 +385,12 @@
         "rate_limit": 0,
         "next": [
             "ThilluTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "ThilluTakePhoto": {
         "desc": "在表象任务拍照点开始拍照",

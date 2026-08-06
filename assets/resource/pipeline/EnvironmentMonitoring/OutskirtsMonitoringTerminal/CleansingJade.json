@@ -398,7 +398,12 @@
         "rate_limit": 0,
         "next": [
             "CleansingJadeTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "CleansingJadeTakePhoto": {
         "desc": "在漱玉任务拍照点开始拍照",

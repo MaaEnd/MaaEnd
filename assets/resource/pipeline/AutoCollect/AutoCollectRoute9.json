@@ -136,6 +136,11 @@
                     901.3
                 ]
             ]
+        },
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
         }
     },
     "AutoCollectRoute9GotoFind1": {
@@ -160,7 +165,12 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute9GotoFind2": {
         "desc": "前往收集地2",
@@ -184,7 +194,12 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute9GotoFind3": {
         "desc": "前往收集地3",
@@ -208,7 +223,12 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute9GotoFind4": {
         "desc": "前往收集地4",
@@ -232,7 +252,12 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute9GotoFind5": {
         "desc": "前往收集地5",
@@ -256,7 +281,12 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute9GotoFind6": {
         "desc": "前往收集地6",
@@ -280,7 +310,12 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute9GotoFind7": {
         "desc": "前往收集地7",
@@ -304,7 +339,12 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute9GotoFind8": {
         "desc": "前往收集地8",
@@ -328,6 +368,11 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     }
 }

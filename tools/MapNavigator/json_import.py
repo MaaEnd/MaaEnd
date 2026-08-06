@@ -98,7 +98,13 @@ def export_path_nodes(points: list[PathPoint]) -> list[dict[str, Any] | list[int
 
         strict_arrival = coerce_strict_arrival(point.get("strict"), default=False)
         for action in get_point_actions(point):
-            node: list[int | float | str | bool] = [_compact_number(point["x"]), _compact_number(point["y"])]
+            target = [_compact_number(point["x"]), _compact_number(point["y"])]
+            if action == int(ActionType.NAVMESH):
+                # The runtime parses NAVMESH from an object target and makes its arrival strict itself.
+                exported_nodes.append({"action": "NAVMESH", "target": target})
+                continue
+
+            node: list[int | float | str | bool] = [*target]
             if action != int(ActionType.RUN):
                 node.append(export_action_token(action))
             if strict_arrival:

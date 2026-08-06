@@ -106,6 +106,7 @@
         "custom_action": "ClearHitCount",
         "custom_action_param": {
             "nodes": [
+                "GiftOperatorMoveResetBackward",
                 "GiftOperatorMoveLocation3",
                 "GiftOperatorMoveLocation3Move",
                 "GiftOperatorMoveLocation2",

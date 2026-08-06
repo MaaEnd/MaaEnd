@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import math
+import threading
 import time
+from array import array
 from collections import deque
 
 import numpy as np
@@ -13,6 +15,9 @@ WELD_DH = 3.0      # 顶点焊接同柱高差容差 px
 PORTAL_SAMPLES = (0.5, 0.25, 0.75, 0.1, 0.9)  # 共边 hop 的门户采样位
 FLOOR_BAND = bp.FLOOR_BAND
 SNAP_FALLBACK_RADIUS = bp.SNAP_FALLBACK_RADIUS
+HOP_CELL = 4.0
+HOP_STRIDE = np.int64(1 << 24)
+BRIDGE_BATCH = 20_000
 
 
 class PolyMesh:
@@ -44,7 +49,7 @@ class PolyMesh:
         found = skeys[posc] == kr
         return np.where(found, order[posc] // 3, -1).reshape(m, 3)
 
-    def _build_grid(self, cell=24.0):
+    def _build_grid(self, cell=8.0):
         self._cell = cell
         m = len(self.T)
         mn = np.minimum(np.minimum(self.V[self.T[:, 0]], self.V[self.T[:, 1]]),
@@ -56,7 +61,7 @@ class PolyMesh:
         nx = g1[:, 0] - g0[:, 0] + 1
         ny = g1[:, 1] - g0[:, 1] + 1
         cnt = nx * ny
-        tri = np.repeat(np.arange(m), cnt)
+        tri = np.repeat(np.arange(m, dtype=np.int32), cnt)
         off = np.concatenate(([0], np.cumsum(cnt)[:-1]))
         jj = np.arange(cnt.sum()) - np.repeat(off, cnt)
         nxr = np.repeat(nx, cnt)
@@ -92,16 +97,24 @@ class ZoneClean:
         t0 = time.time()
 
         # 区网格:顶点段连续,f32 坐标回吸 0.05 格点得精确 f64
-        TVI = np.array([field.triangles[i].vertices
-                        for i in range(self.lo, self.hi)], dtype=np.int64)
+        TVI = np.column_stack(
+            [
+                field.triangles["v0"][self.lo:self.hi],
+                field.triangles["v1"][self.lo:self.hi],
+                field.triangles["v2"][self.lo:self.hi],
+            ]
+        ).astype(np.int64)
         vmin = int(TVI.min())
         vmax = int(TVI.max())
         CT = TVI - vmin
-        CV = np.array([(field.vertices[i].u, field.vertices[i].v)
-                       for i in range(vmin, vmax + 1)], dtype=np.float64)
-        CV = np.rint(CV * 20.0) / 20.0
-        CH = np.array([field.vertices[i].height
-                       for i in range(vmin, vmax + 1)], dtype=np.float64)
+        V_ORIG = np.column_stack(
+            [
+                field.vertices["u"][vmin:vmax + 1],
+                field.vertices["v"][vmin:vmax + 1],
+            ]
+        ).astype(np.float64)
+        CV = np.rint(V_ORIG * 20.0) / 20.0
+        CH = field.vertices["h"][vmin:vmax + 1].astype(np.float64)
 
         key = np.round(CV * 1e4).astype(np.int64)
         kk = key[:, 0] * np.int64(1 << 40) + key[:, 1]
@@ -203,13 +216,30 @@ class ZoneClean:
 
         # link 层 hop:NB 已邻接跳过;跨分量共焊边 → edge portal,
         # 否则 touch/bridge;同分量共焊边且非近连通 → srcadj 窄通道
-        self.hops = {}
+        self._hop_exit = array("d")
+        self._hop_entry = array("d")
+        hop_typecode = "q" if array("q").itemsize == 8 else "Q"
+        self._hop_to = array(hop_typecode)
+        if self._hop_to.itemsize != 8:
+            raise RuntimeError("hop_to must use 64-bit items")
         n_hop = {"edge": 0, "touch": 0, "bridge": 0, "srcadj": 0}
         adj = (NB[la] == lb[:, None]).any(1)
         ia, ib = la[~adj], lb[~adj]
         ca, cb = self.comp[ia], self.comp[ib]
         TA, TB = T[ia], T[ib]
         nsh = (TA[:, :, None] == TB[:, None, :]).any(2).sum(1)
+        bridge_idx = np.nonzero(nsh != 2)[0]
+        bridge_pos = np.full(len(ia), -1, np.int32)
+        if len(bridge_idx):
+            bridge_pos[bridge_idx] = np.arange(len(bridge_idx), dtype=np.int32)
+            bridge_lx, bridge_ly, bridge_rx, bridge_ry = (
+                _closest_segment_points_batch(
+                    V_ORIG, TVI[ia[bridge_idx]] - vmin,
+                    TVI[ib[bridge_idx]] - vmin
+                )
+            )
+        else:
+            bridge_lx = bridge_ly = bridge_rx = bridge_ry = np.zeros(0)
         for r in np.nonzero(ca != cb)[0]:
             i, j = int(ia[r]), int(ib[r])
             c1, c2 = int(ca[r]), int(cb[r])
@@ -220,16 +250,17 @@ class ZoneClean:
                 for t_ in PORTAL_SAMPLES:
                     pt = (float(p0[0] + (p1[0] - p0[0]) * t_),
                           float(p0[1] + (p1[1] - p0[1]) * t_))
-                    self.hops.setdefault(c1, []).append(Hop(pt, pt, j))
-                    self.hops.setdefault(c2, []).append(Hop(pt, pt, i))
+                    self._append_hop(pt, pt, j)
+                    self._append_hop(pt, pt, i)
                 n_hop["edge"] += 1
             else:
-                ex, en = field._closest_edge_bridge_points(
-                    self.lo + i, self.lo + j)
+                q = int(bridge_pos[r])
+                ex = (float(bridge_lx[q]), float(bridge_ly[q]))
+                en = (float(bridge_rx[q]), float(bridge_ry[q]))
                 gap = math.hypot(ex[0] - en[0], ex[1] - en[1])
                 brk = gap > 1e-7
-                self.hops.setdefault(c1, []).append(Hop(ex, en, j))
-                self.hops.setdefault(c2, []).append(Hop(en, ex, i))
+                self._append_hop(ex, en, j)
+                self._append_hop(en, ex, i)
                 n_hop["touch" if not brk else "bridge"] += 1
 
         scand = np.nonzero(ca == cb)[0]
@@ -274,24 +305,87 @@ class ZoneClean:
                     for t_ in PORTAL_SAMPLES:
                         pt = (float(p0[0] + (p1[0] - p0[0]) * t_),
                               float(p0[1] + (p1[1] - p0[1]) * t_))
-                        self.hops.setdefault(c1, []).append(Hop(pt, pt, tb_))
-                        self.hops.setdefault(c2, []).append(Hop(pt, pt, ta_))
+                        self._append_hop(pt, pt, tb_)
+                        self._append_hop(pt, pt, ta_)
                 else:
-                    ex, en = field._closest_edge_bridge_points(
-                        self.lo + ta_, self.lo + tb_)
+                    sr = int(scand[r])
+                    q = int(bridge_pos[sr])
+                    ex = (float(bridge_lx[q]), float(bridge_ly[q]))
+                    en = (float(bridge_rx[q]), float(bridge_ry[q]))
                     gap = math.hypot(ex[0] - en[0], ex[1] - en[1])
                     if gap > 8.0:
                         continue
-                    self.hops.setdefault(c1, []).append(Hop(ex, en, tb_))
-                    self.hops.setdefault(c2, []).append(Hop(en, ex, ta_))
+                    self._append_hop(ex, en, tb_)
+                    self._append_hop(en, ex, ta_)
                 n_hop["srcadj"] += 1
 
         print(f"{zone_name}: weld {n_weld}v dup-sever {n_dup}, "
               f"link-mask cut {n_cut}, "
               f"comps {len(np.unique(self.comp))}, "
               f"hops {n_hop} [{time.time()-t0:.0f}s]", flush=True)
+        self.hop_cell = HOP_CELL
+        self.hop_stride = HOP_STRIDE
+        self._build_hop_index(mesh.H, T)
+        self.hops = None
 
-    _LOCATE_ROW_CAP = 2_000_000
+    def _append_hop(self, exit_pt, entry_pt, to_tri) -> None:
+        """Append one directed hop to the typed buffers in original order."""
+        self._hop_exit.extend((float(exit_pt[0]), float(exit_pt[1])))
+        self._hop_entry.extend((float(entry_pt[0]), float(entry_pt[1])))
+        self._hop_to.append(int(to_tri))
+
+    def _build_hop_index(self, H, T) -> None:
+        """Build a compact, grid-sorted hop index from typed buffers. """
+        hop_exit = self._hop_exit
+        hop_entry = self._hop_entry
+        hop_to = self._hop_to
+        if hop_to.itemsize != 8:
+            raise RuntimeError("hop_to must use 64-bit items")
+        R = len(hop_to)
+        if R == 0:
+            self.hop_x = np.zeros(0, np.float64)
+            self.hop_y = np.zeros(0, np.float64)
+            self.hop_h = np.zeros(0, np.float64)
+            self.hop_cells: dict[int, tuple[int, int]] = {}
+            del self._hop_exit, self._hop_entry, self._hop_to
+            return
+        exit_pts = np.frombuffer(hop_exit, dtype=np.float64).reshape(-1, 2)
+        entry_pts = np.frombuffer(hop_entry, dtype=np.float64).reshape(-1, 2)
+        to_tri = np.frombuffer(hop_to, dtype=np.int64)
+        pts = np.empty((2 * R, 2), dtype=np.float64)
+        pts[:R] = exit_pts
+        pts[R:] = entry_pts
+        tri_h = H[T[to_tri]].mean(axis=1)
+        heights = np.empty(2 * R, dtype=np.float64)
+        heights[:R] = tri_h
+        heights[R:] = tri_h
+        # Release the typed buffers before allocating the sort temporaries.
+        del exit_pts, entry_pts, to_tri, tri_h
+        del hop_exit, hop_entry, hop_to
+        del self._hop_exit, self._hop_entry, self._hop_to
+
+        cell = self.hop_cell
+        stride = self.hop_stride
+        gx = np.floor(pts[:, 0] / cell).astype(np.int64)
+        gy = np.floor(pts[:, 1] / cell).astype(np.int64)
+        key = gx * stride + gy
+        del gx, gy
+        order = np.argsort(key, kind="stable")
+        skey = key[order]
+        starts = np.flatnonzero(
+            np.concatenate(([True], skey[1:] != skey[:-1]))
+        )
+        counts = np.diff(np.append(starts, len(skey)))
+        self.hop_cells = dict(
+            zip(skey[starts].tolist(), zip(starts.tolist(), counts.tolist()))
+        )
+        del key, skey, starts, counts
+        self.hop_x = pts[order, 0]
+        self.hop_y = pts[order, 1]
+        self.hop_h = heights[order]
+        del pts, heights, order
+
+    _LOCATE_ROW_CAP = 250_000
 
     def _batch_locate(self, pts, hhints):
         mesh = self.mesh
@@ -302,7 +396,7 @@ class ZoneClean:
         hi = np.searchsorted(mesh._gkeys, keys, "right")
         cnt = hi - lo
         csum = np.cumsum(cnt)
-        out = np.full(len(pts), -1, np.int64)
+        out = np.full(len(pts), -1, np.int32)
         s = 0
         while s < len(pts):
             base = int(csum[s - 1]) if s else 0
@@ -315,7 +409,7 @@ class ZoneClean:
     def _locate_chunk(self, pts, hhints, lo, cnt, s, e, out):
         mesh = self.mesh
         ccnt = cnt[s:e]
-        pi = np.repeat(np.arange(s, e), ccnt)
+        pi = np.repeat(np.arange(s, e, dtype=np.int32), ccnt)
         off = np.concatenate(([0], np.cumsum(ccnt)[:-1]))
         idx = np.repeat(lo[s:e], ccnt) + (np.arange(int(ccnt.sum()))
                                           - np.repeat(off, ccnt))
@@ -397,11 +491,19 @@ class CleanNav:
         self.SRC = np.repeat(np.arange(len(counts), dtype=np.int64), counts)
         self.TGT = flat.astype(np.int64)
         self._zones = {}
+        self._zone_lock = threading.Lock()
 
     def zone(self, name):
-        if name not in self._zones:
-            self._zones[name] = ZoneClean(self, name)
-        return self._zones[name]
+        with self._zone_lock:
+            if name in self._zones:
+                return self._zones[name]
+            zone = ZoneClean(self, name)
+            self._zones[name] = zone
+            return zone
+
+    def drop_zone(self, name) -> None:
+        with self._zone_lock:
+            self._zones.pop(name, None)
 
     def zone_link_arrays(self, zc):
         m = (self.SRC >= zc.lo) & (self.SRC < zc.hi) & (self.TGT >= zc.lo) \
@@ -428,15 +530,12 @@ class WallOracle:
         self.cls = np.full(len(a), -1, np.int8)
         self._lo = np.minimum(P0, P1)
         self._hi = np.maximum(P0, P1)
-        self.hop_cell = 4.0
-        self.hop_grid = {}
-        for lst in zc.hops.values():
-            for hp in lst:
-                hz = float(H[T[hp.to_tri]].mean())
-                for px_, py_ in (hp.exit_pt, hp.entry_pt):
-                    key = (int(px_ // self.hop_cell),
-                           int(py_ // self.hop_cell))
-                    self.hop_grid.setdefault(key, []).append((px_, py_, hz))
+        self.hop_cell = zc.hop_cell
+        self.hop_stride = int(zc.hop_stride)
+        self.hop_x = zc.hop_x
+        self.hop_y = zc.hop_y
+        self.hop_h = zc.hop_h
+        self.hop_cells = zc.hop_cells
 
     def _hop_near(self, ei, tol=1.5):
         p0, p1 = self.P0[ei], self.P1[ei]
@@ -448,14 +547,25 @@ class WallOracle:
         l2 = max(float(d[0] * d[0] + d[1] * d[1]), 1e-18)
         for cx in range(int((x0 - tol) // cs), int((x1 + tol) // cs) + 1):
             for cy in range(int((y0 - tol) // cs), int((y1 + tol) // cs) + 1):
-                for hx, hy, hz in self.hop_grid.get((cx, cy), ()):
-                    if abs(hz - hh) > MC_HBAND:
-                        continue
-                    t_ = min(1.0, max(0.0, ((hx - p0[0]) * d[0]
-                                            + (hy - p0[1]) * d[1]) / l2))
-                    if math.hypot(p0[0] + d[0] * t_ - hx,
-                                  p0[1] + d[1] * t_ - hy) <= tol:
-                        return True
+                key = cx * self.hop_stride + cy
+                start, count = self.hop_cells.get(key, (0, 0))
+                if not count:
+                    continue
+                end = start + count
+                hx = self.hop_x[start:end]
+                hy = self.hop_y[start:end]
+                hz = self.hop_h[start:end]
+                good = np.abs(hz - hh) <= MC_HBAND
+                if not good.any():
+                    continue
+                hx = hx[good]
+                hy = hy[good]
+                t_ = np.clip(((hx - p0[0]) * d[0] + (hy - p0[1]) * d[1]) / l2,
+                             0.0, 1.0)
+                dist = np.hypot(p0[0] + d[0] * t_ - hx,
+                                p0[1] + d[1] * t_ - hy)
+                if bool((dist <= tol).any()):
+                    return True
         return False
 
     def _probe_free(self, todo, dist):
@@ -490,3 +600,74 @@ def _closest_on_tri(p, a, b, c):
         return p, 0.0
     q = bp._closest_point_on_triangle(p, (a, b, c))
     return q, math.hypot(q[0] - p[0], q[1] - p[1])
+
+
+def _closest_segment_points_batch(V, TA, TB, batch=BRIDGE_BATCH):
+    """Vectorized closest edge-point pairs for many triangle pairs.
+
+    Mirrors the candidate order of ``basenav_preview._closest_segment_points`` so
+    the first minimum wins on exact ties, keeping hop outputs stable. Rows are
+    processed in fixed-size chunks so large link tables do not keep every
+    intermediate result array alive at once.
+    """
+
+    R = len(TA)
+    out_l = np.zeros((R, 2), dtype=np.float64)
+    out_r = np.zeros((R, 2), dtype=np.float64)
+    for start in range(0, R, batch):
+        end = min(start + batch, R)
+        n = end - start
+        best_d = np.full(n, np.inf)
+        best_l = np.zeros((n, 2), dtype=np.float64)
+        best_r = np.zeros((n, 2), dtype=np.float64)
+        A = [V[TA[start:end, 0]], V[TA[start:end, 1]],
+             V[TA[start:end, 2]]]
+        B = [V[TB[start:end, 0]], V[TB[start:end, 1]],
+             V[TB[start:end, 2]]]
+
+        def snap(px, py, ax, ay, bx, by):
+            abx = bx - ax
+            aby = by - ay
+            denom = abx * abx + aby * aby
+            degen = denom <= 1e-12
+            with np.errstate(divide="ignore", invalid="ignore"):
+                t = np.clip(
+                    ((px - ax) * abx + (py - ay) * aby) / denom, 0.0, 1.0
+                )
+            qx = np.where(degen, ax, ax + abx * t)
+            qy = np.where(degen, ay, ay + aby * t)
+            return qx, qy
+
+        def update(dist, lx, ly, rx, ry):
+            nonlocal best_d, best_l, best_r
+            better = dist < best_d
+            if better.any():
+                best_d[better] = dist[better]
+                best_l[better, 0] = lx[better]
+                best_l[better, 1] = ly[better]
+                best_r[better, 0] = rx[better]
+                best_r[better, 1] = ry[better]
+
+        for i in range(3):
+            a0, a1 = A[i], A[(i + 1) % 3]
+            for j in range(3):
+                b0, b1 = B[j], B[(j + 1) % 3]
+                qx, qy = snap(a0[:, 0], a0[:, 1], b0[:, 0], b0[:, 1],
+                              b1[:, 0], b1[:, 1])
+                update(np.hypot(a0[:, 0] - qx, a0[:, 1] - qy),
+                       a0[:, 0], a0[:, 1], qx, qy)
+                qx, qy = snap(a1[:, 0], a1[:, 1], b0[:, 0], b0[:, 1],
+                              b1[:, 0], b1[:, 1])
+                update(np.hypot(a1[:, 0] - qx, a1[:, 1] - qy),
+                       a1[:, 0], a1[:, 1], qx, qy)
+                qx, qy = snap(b0[:, 0], b0[:, 1], a0[:, 0], a0[:, 1],
+                              a1[:, 0], a1[:, 1])
+                update(np.hypot(b0[:, 0] - qx, b0[:, 1] - qy),
+                       qx, qy, b0[:, 0], b0[:, 1])
+                qx, qy = snap(b1[:, 0], b1[:, 1], a0[:, 0], a0[:, 1],
+                              a1[:, 0], a1[:, 1])
+                update(np.hypot(b1[:, 0] - qx, b1[:, 1] - qy),
+                       qx, qy, b1[:, 0], b1[:, 1])
+        out_l[start:end] = best_l
+        out_r[start:end] = best_r
+    return out_l[:, 0], out_l[:, 1], out_r[:, 0], out_r[:, 1]

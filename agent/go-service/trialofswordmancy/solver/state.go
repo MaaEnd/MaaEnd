@@ -93,11 +93,7 @@ func (s *Solver) calcSettleReward(hand [5]int, isDoubled bool) int {
 	case OverflowTwice:
 		// 无上限
 	}
-	power := PowerOf(hand) // 恒为 0..10
-	r := 0
-	if power >= 0 && power < len(s.cfg.Reward) {
-		r = s.cfg.Reward[power]
-	}
+	r := s.cfg.Reward[PowerOf(hand)]
 	if isDoubled {
 		r *= 2
 	}
@@ -124,7 +120,7 @@ type transition struct {
 	prob  float64
 }
 
-// transitions 返回 from 在 action 下的 [(目标状态, 概率)]，并过滤概率为 0 的项（§6.5）。
+// transitions 返回 from 在 action 下的 [(目标状态, 概率)]（§6.5）。
 //
 // 吸收态自循环：返回 [(吸收态, 1.0)]。
 func (s *Solver) transitions(from mdpState, action Action) []transition {
@@ -133,7 +129,7 @@ func (s *Solver) transitions(from mdpState, action Action) []transition {
 	}
 
 	st := from.State
-	var raw []transition
+	var transitions []transition
 
 	switch action {
 	case DrawCard:
@@ -153,20 +149,22 @@ func (s *Solver) transitions(from mdpState, action Action) []transition {
 				targetHand := st.Hand
 				targetHand[i]++
 				target := s.getState(st.RemainCalc, st.RemainAband, st.RemainDouble, st.IsDoubled, targetHand)
-				raw = append(raw, transition{state: target, prob: p})
+				transitions = append(transitions, transition{state: target, prob: p})
 			}
 		}
 
 	case Abandon:
 		// 清空手牌；翻倍状态清除但翻倍次数不消耗。
-		// 剩余放弃次数 > 0 时扣放弃次数，否则扣演算次数。
+		// 跨日残局的额外一局扣演算次数；常规状态有放弃次数时扣放弃次数，否则扣演算次数。
 		var target mdpState
-		if st.RemainAband > 0 {
+		if st.RemainCalc == maxRemainCalc {
+			target = s.getState(st.RemainCalc-1, st.RemainAband, st.RemainDouble, false, [5]int{})
+		} else if st.RemainAband > 0 {
 			target = s.getState(st.RemainCalc, st.RemainAband-1, st.RemainDouble, false, [5]int{})
 		} else {
 			target = s.getState(st.RemainCalc-1, st.RemainAband, st.RemainDouble, false, [5]int{})
 		}
-		raw = append(raw, transition{state: target, prob: 1.0})
+		transitions = append(transitions, transition{state: target, prob: 1.0})
 
 	case Calculate:
 		// 结算：消耗演算次数；若已翻倍则消耗一次翻倍次数。
@@ -175,21 +173,15 @@ func (s *Solver) transitions(from mdpState, action Action) []transition {
 			nextDouble--
 		}
 		target := s.getState(st.RemainCalc-1, st.RemainAband, nextDouble, false, [5]int{})
-		raw = append(raw, transition{state: target, prob: 1.0})
+		transitions = append(transitions, transition{state: target, prob: 1.0})
 
 	case Double:
 		// 仅置位翻倍标志，不消耗任何次数（消耗发生在演算时）
 		target := s.getState(st.RemainCalc, st.RemainAband, st.RemainDouble, true, st.Hand)
-		raw = append(raw, transition{state: target, prob: 1.0})
+		transitions = append(transitions, transition{state: target, prob: 1.0})
 	}
 
-	out := make([]transition, 0, len(raw))
-	for _, t := range raw {
-		if t.prob > 0 {
-			out = append(out, t)
-		}
-	}
-	return out
+	return transitions
 }
 
 // allowedActions 返回状态下的合法决策集合（§6.6）。
@@ -226,15 +218,16 @@ func (s *Solver) immediateReward(st mdpState, action Action) int {
 
 // stateFilter 判定过渡态是否需要纳入状态空间（§6.8，最易抄错，逐条对齐）。
 func (s *Solver) stateFilter(st State) bool {
-	if !(st.RemainCalc >= 1 && st.RemainCalc <= 3) {
+	if !(st.RemainCalc >= 1 && st.RemainCalc <= maxRemainCalc) {
 		return false
 	}
 	if !(st.RemainAband >= 0 && st.RemainAband <= 3) {
 		return false
 	}
-	// 第 3 条：剩余翻倍次数 - 3 + maxDouble <= 剩余翻倍次数 <= maxDouble
+	// 第 3 条：max(0, 剩余演算次数 - 4 + maxDouble) <= 剩余翻倍次数 <= maxDouble
 	// 语义等价于「已消耗翻倍次数 ≤ 已消耗演算次数」，排除翻倍用得比演算还多的非法态。
-	if !(st.RemainCalc-3+s.cfg.MaxDouble <= st.RemainDouble && st.RemainDouble <= s.cfg.MaxDouble) {
+	minRemainDouble := max(0, st.RemainCalc-maxRemainCalc+s.cfg.MaxDouble)
+	if !(minRemainDouble <= st.RemainDouble && st.RemainDouble <= s.cfg.MaxDouble) {
 		return false
 	}
 	total := handTotal(st.Hand)
@@ -253,7 +246,7 @@ func (s *Solver) buildStateList() {
 	s.index = map[string]int{mdpStateKey(endState()): 0}
 
 	combos := s.handCombinations()
-	for remainCalc := 1; remainCalc <= 3; remainCalc++ {
+	for remainCalc := 1; remainCalc <= maxRemainCalc; remainCalc++ {
 		for remainAband := 0; remainAband <= 3; remainAband++ {
 			for remainDouble := 0; remainDouble <= s.cfg.MaxDouble; remainDouble++ {
 				for _, isDoubled := range []bool{false, true} {

@@ -199,6 +199,11 @@
         },
         "next": [
             "AutoCollectRoute999End"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     }
 }

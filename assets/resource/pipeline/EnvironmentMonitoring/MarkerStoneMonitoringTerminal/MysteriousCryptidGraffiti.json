@@ -458,7 +458,12 @@
         "rate_limit": 0,
         "next": [
             "MysteriousCryptidGraffitiTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "MysteriousCryptidGraffitiTakePhoto": {
         "desc": "在谜之生物的涂鸦任务拍照点开始拍照",

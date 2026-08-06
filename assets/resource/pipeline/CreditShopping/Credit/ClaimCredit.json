@@ -49,7 +49,7 @@
         ]
     },
     "CreditShoppingClaimConfirm": {
-        "desc": "获取信用点或物品后的通用确认节点",
+        "desc": "获取信用点或物品后：IMS A3 累加培养道具，再关闭奖励界面",
         "recognition": {
             "type": "And",
             "param": {
@@ -60,18 +60,46 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 250,
+            "time": 300,
             "target": [
-                512,
-                387,
-                191,
-                42
+                300,
+                250,
+                750,
+                200
             ],
             "timeout": 1000
         },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AddItemData",
+                "custom_action_param": {}
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CreditShoppingClaimConfirmClick"
+        ]
+    },
+    "CreditShoppingClaimConfirmClick": {
+        "desc": "关闭奖励界面后继续信用购物",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton",
+                    "CreditShoppingClaimConfirmText"
+                ]
+            }
+        },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "CreditShoppingShopping"
         ]

@@ -385,7 +385,12 @@
         "rate_limit": 0,
         "next": [
             "FeranmutHeartTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "FeranmutHeartTakePhoto": {
         "desc": "在巨兽心脏任务拍照点开始拍照",

@@ -71,7 +71,12 @@
         },
         "next": [
             "AutoCollectCommonRoute7GotoFind1"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute7GotoFind1": {
         "desc": "采集点1",
@@ -91,7 +96,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute7GotoFindCollect1": {
         "anchor": {
@@ -119,7 +129,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute7GotoFindCollect2": {
         "anchor": {
@@ -147,7 +162,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute7GotoFindCollect3": {
         "anchor": {
@@ -175,7 +195,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute7GotoFindCollect4": {
         "anchor": {
@@ -203,7 +228,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute7GotoFindCollect5": {
         "anchor": {
@@ -235,7 +265,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute7GotoFindCollect6": {
         "anchor": {

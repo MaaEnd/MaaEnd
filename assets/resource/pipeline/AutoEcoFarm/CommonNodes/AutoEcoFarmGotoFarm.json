@@ -1,4 +1,4 @@
-//引用节点：MapTracker、万能跳转
+//引用节点：MapNavigator、万能跳转
 //
 //节点从Start进入，开始前必须要在地图界面
 //节点从Exit离开，这里关联下一个阶段的节点
@@ -7,7 +7,7 @@
     "_AutoEcoFarmGotoEcoFarmStart": {
         "desc": "这块代码是用来前往农场的",
         "next": [
-            "[JumpBack][Anchor]_AutoEcoFarmGotoEcoFarmCppAnchor",
+            "[JumpBack][Anchor]_AutoEcoFarmGotoEcoFarmBaseNavAnchor",
             "_AutoEcoFarmGotoEcoFarmExit"
         ]
     },
@@ -27,58 +27,5 @@
         "next": [
             "_AutoEcoFarmMoveAndWorkStart"
         ]
-    },
-    //盲走避障模块，一般用来出基地
-
-    "_AutoEcoFarmBlindWalkPhotoMode": {
-        "desc": "进入拍照模式，准备盲走",
-        "next": [
-            "[JumpBack]_AutoEcoFarmEnterCameraModeKeyDownR",
-            "[JumpBack]_AutoEcoFarmPressTab",
-            "_AutoEcoFarmPressW"
-        ]
-    },
-    "_AutoEcoFarmPressTab": {
-        "desc": "检测到移动镜头时按Tab键",
-        "max_hit": 3,
-        "recognition": "OCR",
-        "roi": [
-            1210,
-            409,
-            57,
-            25
-        ],
-        "expected": [
-            "移动镜头",
-            "移動鏡頭",
-            "Move Camera",
-            "視点移動",
-            "카메라 이동"
-        ],
-        "action": "ClickKey",
-        "key": 9,
-        "post_delay": 100,
-        "next": [
-            "_AutoEcoFarmJumpBack"
-        ]
-    },
-    "_AutoEcoFarmPressW": {
-        "desc": "长按W盲走一段距离,然后进入下一步",
-        "pre_delay": 0,
-        "action": {
-            "type": "LongPressKey",
-            "param": {
-                "duration": 20000,
-                "key": 87 //w键
-            }
-        },
-        "post_delay": 0,
-        "next": [
-            "[JumpBack]_AutoEcoFarmExitCameraMode",
-            "_AutoEcoFarmGotoEcoFarmStart"
-        ],
-        "focus": {
-            "Node.Action.Starting": "盲走20秒出基地，可能会撞墙或落水，这些不影响脚本运行，不用在意"
-        }
     }
 }

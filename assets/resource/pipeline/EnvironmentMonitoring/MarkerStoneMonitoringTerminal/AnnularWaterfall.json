@@ -393,7 +393,12 @@
         "rate_limit": 0,
         "next": [
             "AnnularWaterfallTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AnnularWaterfallTakePhoto": {
         "desc": "在环形瀑布任务拍照点开始拍照",

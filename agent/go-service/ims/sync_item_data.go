@@ -22,6 +22,7 @@ var _ maa.CustomActionRunner = &SyncItemData{}
 // syncItemDataParam is custom_action_param for SyncItemData.
 //
 // items: 字典，键为物品 ID，值为 And 识别节点名；依次执行节点，沿 box_index 链取 OCR 数量。
+// A2 必须显式传入 items（含定点 OCR 如 T_CREDS_NUMBER / OROBERYL_NUMBER），不使用 items.json 默认清单。
 // page_dedup: 翻页去重。false=本轮结果整表创建；true=在已有缓存上按 ID 覆盖数量。
 type syncItemDataParam struct {
 	Items     map[string]string `json:"items"`
@@ -55,6 +56,7 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Msg("items must not be empty")
 		return false
 	}
+	items := params.Items
 
 	if err := ensureHydrated(); err != nil {
 		log.Error().
@@ -89,15 +91,15 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	itemIDs := make([]string, 0, len(params.Items))
-	for itemID := range params.Items {
+	itemIDs := make([]string, 0, len(items))
+	for itemID := range items {
 		itemIDs = append(itemIDs, itemID)
 	}
 	sort.Strings(itemIDs)
 
 	hitCount := 0
 	for _, itemID := range itemIDs {
-		nodeName := strings.TrimSpace(params.Items[itemID])
+		nodeName := strings.TrimSpace(items[itemID])
 		itemID = strings.TrimSpace(itemID)
 		if itemID == "" || nodeName == "" {
 			log.Error().
@@ -156,7 +158,7 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	log.Info().
 		Str("component", componentSyncItemData).
-		Int("item_param_count", len(params.Items)).
+		Int("item_param_count", len(items)).
 		Int("hit_count", hitCount).
 		Int("total_cached", len(merged)).
 		Bool("page_dedup", params.PageDedup).
@@ -185,23 +187,34 @@ func baseItemsForSync(pageDedup bool) (map[string]int, error) {
 }
 
 func recognizeItemQuantity(ctx *maa.Context, andNode string, img image.Image) (qty int, hit bool, err error) {
-	detail, err := ctx.RunRecognition(andNode, img)
+	qty, hit, _, err = recognizeItemQuantityHit(ctx, andNode, img)
+	return qty, hit, err
+}
+
+// recognizeItemQuantityHit runs the item And node and returns quantity plus the
+// root recognition detail (for A3 hit-region masking via CombinedResult).
+func recognizeItemQuantityHit(
+	ctx *maa.Context,
+	andNode string,
+	img image.Image,
+) (qty int, hit bool, detail *maa.RecognitionDetail, err error) {
+	detail, err = ctx.RunRecognition(andNode, img)
 	if err != nil {
-		return 0, false, fmt.Errorf("run recognition %s: %w", andNode, err)
+		return 0, false, nil, fmt.Errorf("run recognition %s: %w", andNode, err)
 	}
 	if detail == nil || !detail.Hit {
-		return 0, false, nil
+		return 0, false, detail, nil
 	}
 
 	selected, err := recogtarget.SelectDetail(ctx, andNode, detail)
 	if err != nil {
-		return 0, false, fmt.Errorf("select box_index detail: %w", err)
+		return 0, false, detail, fmt.Errorf("select box_index detail: %w", err)
 	}
 	qty, err = extractOCRQuantity(selected)
 	if err != nil {
-		return 0, false, fmt.Errorf("parse quantity from %s: %w", andNode, err)
+		return 0, false, detail, fmt.Errorf("parse quantity from %s: %w", andNode, err)
 	}
-	return qty, true, nil
+	return qty, true, detail, nil
 }
 
 func itemDisplayName(itemID string) string {

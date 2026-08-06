@@ -394,7 +394,12 @@
         "rate_limit": 0,
         "next": [
             "TreeOfTheOldCourtyardTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "TreeOfTheOldCourtyardTakePhoto": {
         "desc": "在旧庭树任务拍照点开始拍照",

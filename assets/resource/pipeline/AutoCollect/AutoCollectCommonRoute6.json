@@ -39,7 +39,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute6GotoFindCollect1": {
         "anchor": {
@@ -66,7 +71,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute6GotoFindCollect2": {
         "anchor": {
@@ -93,7 +103,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute6GotoFindCollect3": {
         "anchor": {
@@ -120,7 +135,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute6GotoFindCollect4": {
         "anchor": {

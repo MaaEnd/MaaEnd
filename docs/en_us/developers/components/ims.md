@@ -41,7 +41,9 @@ Do not skip the entry because “the cache should still be fine”, and do not r
 | **Key** | Item ID (stored in the cache / `IMS.json`) |
 | **Value** | Pipeline node name that recognizes the item and its quantity |
 
-Nodes are usually `And` (rarity color / template / quantity OCR, etc.). If the UI only shows a number for that item, a plain OCR node is fine.
+Nodes are usually `And` (rarity color / template / quantity OCR, etc.). If the UI only shows a number for that item, a plain OCR node is fine (e.g. Progression-tab header `T_CREDS_NUMBER` / `OROBERYL_NUMBER`).
+
+**A2 always requires an explicit `items` map** and does not use `items.json`. Progression / valuables / shop entry points each keep their own subset (fixed OCR nodes also differ by screen).
 
 **Requirement:** the node’s `box_index` chain must end at the **quantity** recognition (digits only). A2 only records an entry when the node hits and the quantity text is a valid number.
 
@@ -114,7 +116,15 @@ Result is clamped to `>= 0`. Persists `items` in `IMS.json` but **does not** cha
 
 ## A3: `AddItemData`
 
-A3 takes the same `items` map as A2 (key = item ID, value = recognition node; `box_index` must point at quantity).
+A3 takes the same optional `items` map as A2 (key = item ID, value = recognition node; `box_index` must point at quantity).
+
+**Default full set:** when `items` is **omitted or empty** (or `custom_action_param` is `{}`), A3 loads the **`a3`** section of [`assets/data/IMS/items.json`](../../../assets/data/IMS/items.json). Maintain reward-recognizable items there; call sites usually need not copy a large `items` map.
+
+A3-only optional parameter:
+
+| Param | Meaning |
+| --- | --- |
+| `mask_hit_region` | After each hit, paint that item’s region green `(0,255,0)` on the working screenshot and **keep recognizing the same item ID** until no more hits. Handles dual stacks on one reward popup (e.g. base 100 + bonus 15). Defaults to **`true`** when omitted. |
 
 It recognizes items on the **current screen**, then **computes** against the IMS cache: each hit quantity is added as a **positive delta** (same as repeated A1 `+n`). It does **not** refresh the sync timestamp / readiness.
 
@@ -249,6 +259,7 @@ When you need ready **and** enough:
 | Path | Role |
 | --- | --- |
 | `agent/go-service/ims/` | Custom components and cache |
+| `assets/data/IMS/items.json` | A3 reward-item catalog (default when `items` omitted; unused by A2) |
 | `assets/resource/pipeline/IMS/` | Pipeline (one file per API) |
 | `assets/resource/image/IMS/item/` | Item templates (`*_TEMPLATE.png`) |
 | `tools/SupplyPlan/mask_ims_item_corner.py` | Top-left green mask tool |

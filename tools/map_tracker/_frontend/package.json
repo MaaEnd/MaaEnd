@@ -1,0 +1,32 @@
+{
+    "name": "maaend-map-tracker-web",
+    "private": true,
+    "version": "0.1.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vue-tsc -b && vite build",
+        "postbuild": "python scripts/pack_static_files.py",
+        "typecheck": "vue-tsc -b"
+    },
+    "dependencies": {
+        "@element-plus/icons-vue": "^2.3.2",
+        "@lucide/vue": "^1.25.0",
+        "element-plus": "^2.11.0",
+        "pinia": "^3.0.3",
+        "vue": "^3.5.18",
+        "vue-i18n": "^11.4.7",
+        "vue-router": "^4.5.1"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.3.3",
+        "@vitejs/plugin-vue": "^6.0.1",
+        "tailwindcss": "^4.3.3",
+        "typescript": "^5.9.2",
+        "unplugin-auto-import": "^20.2.0",
+        "unplugin-vue-components": "^29.2.0",
+        "vite": "^7.1.3",
+        "vue-tsc": "^3.0.5"
+    },
+    "packageManager": "pnpm@10.28.0"
+}

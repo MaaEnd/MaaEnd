@@ -326,6 +326,11 @@ canvas {
   white-space: nowrap;
 }
 
+.copy-format-combo {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .zone-label {
   flex: 1 1 auto;
   text-align: center;

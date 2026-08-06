@@ -235,27 +235,22 @@ def _serialize_zone_mesh(field: Any, zone: Any) -> bytes:
     """
     start = zone.first_triangle
     end = start + zone.triangle_count
-    triangles = field.triangles
+    slice_triangles = field.triangles[start:end]
 
     # 展平该区所有三角形的全局顶点下标 (v0,v1,v2 顺序), 供 numpy 去重。
-    flat: list[int] = []
-    extend = flat.extend
-    for index in range(start, end):
-        extend(triangles[index].vertices)
-    flat_arr = np.asarray(flat, dtype=np.int64)
+    flat_arr = np.column_stack(
+        [slice_triangles["v0"], slice_triangles["v1"], slice_triangles["v2"]]
+    ).ravel()
 
     # 全局顶点下标 -> 局部下标 (顺序无关, 前端只按下标取顶点)。
     unique_global, inverse = np.unique(flat_arr, return_inverse=True)
     inverse = np.asarray(inverse).reshape(-1)  # 跨 numpy 版本保证 1-D
 
-    vertices = field.vertices
     vertex_count = int(unique_global.shape[0])
     vertex_buffer = np.empty((vertex_count, 3), dtype="<f4")
-    for local, global_index in enumerate(unique_global.tolist()):
-        vertex = vertices[global_index]
-        vertex_buffer[local, 0] = vertex.u
-        vertex_buffer[local, 1] = vertex.v
-        vertex_buffer[local, 2] = vertex.height  # world-Y, 供楼层带
+    vertex_buffer[:, 0] = field.vertices["u"][unique_global]
+    vertex_buffer[:, 1] = field.vertices["v"][unique_global]
+    vertex_buffer[:, 2] = field.vertices["h"][unique_global]  # world-Y, 供楼层带
 
     index_buffer = inverse.astype("<u4")
 
@@ -292,9 +287,10 @@ def _prewarm_recast(zone_id: int) -> None:
             return
         get_recast_engine(field).warm(zone.name)
     except Exception as exc:  # noqa: BLE001
+        _log(f"路线引擎预热失败(下次拉取该区网格时重试): {exc}")
+    finally:
         with _prewarm_lock:
             _prewarm_started.discard(zone_id)
-        _log(f"路线引擎预热失败(下次拉取该区网格时重试): {exc}")
 
 
 def prewarm_recast_in_background(zone_id: int) -> None:

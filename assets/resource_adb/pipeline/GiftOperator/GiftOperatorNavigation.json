@@ -1,0 +1,40 @@
+{
+    // MapTracker ADB 摇杆：中心 (195, 551)，步行偏移 15
+    // 后退 (195, 566) / 前进 (195, 536)
+    "GiftOperatorMoveResetBackward": {
+        "desc": "向后走一步（ADB 虚拟摇杆下推），再向前重置视角",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    195,
+                    551
+                ],
+                "end": [
+                    195,
+                    566
+                ],
+                "end_hold": 100,
+                "duration": 50
+            }
+        }
+    },
+    "GiftOperatorMoveResetForward": {
+        "desc": "向前走一步（ADB 虚拟摇杆上推），完成视角重置",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    195,
+                    551
+                ],
+                "end": [
+                    195,
+                    536
+                ],
+                "end_hold": 100,
+                "duration": 50
+            }
+        }
+    }
+}

@@ -636,7 +636,8 @@
             }
         },
         "next": [
-            "__ScenePrivateAnyEnterMenuEventSuccess"
+            "__ScenePrivateMenuEventOpenedClose",
+            "__ScenePrivateAnyEnterMenuEventWaitOpened"
         ]
     },
     "__ScenePrivateWorldEnterMenuEventClick": {
@@ -663,12 +664,75 @@
                 "custom_action_param": {
                     "custom_action": "AutoAltClickAction",
                     "wait_nodes": [
-                        "__ScenePrivateAnyEnterMenuEventSuccess"
+                        "__ScenePrivateMenuEventOpenedClose",
+                        "__ScenePrivateAnyEnterMenuEventWaitOpened"
                     ]
                 }
             }
         },
         "next": [
+            "__ScenePrivateMenuEventOpenedClose",
+            "__ScenePrivateAnyEnterMenuEventWaitOpened"
+        ]
+    },
+    "__ScenePrivateMenuEventOpenedClose": {
+        "desc": "关闭「活动已开启」弹窗",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    170,
+                    400,
+                    250
+                ],
+                "expected": [
+                    "活动已开启"
+                ]
+            },
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "__ScenePrivateAnyEnterMenuEventSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuEventWaitOpened": {
+        "desc": "进入活动菜单，等一会看看有没有「活动已开启」弹窗",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "活动中心",
+                    "活動中心",
+                    "(?i)Event\\s*Center",
+                    "イベント",
+                    "이벤트 센터"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 1500, // 弹窗可能延迟出现，只能硬等
+        "next": [
+            "__ScenePrivateMenuEventOpenedClose",
             "__ScenePrivateAnyEnterMenuEventSuccess"
         ]
     },

@@ -393,7 +393,12 @@
         "rate_limit": 0,
         "next": [
             "AncientTreeTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AncientTreeTakePhoto": {
         "desc": "在古树任务拍照点开始拍照",

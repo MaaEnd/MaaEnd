@@ -124,6 +124,11 @@
                     573.8
                 ]
             ]
+        },
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
         }
     },
     "AutoCollectRoute14GotoFind1": {
@@ -148,7 +153,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute14GotoFindCollect1": {
         "anchor": {
@@ -188,7 +198,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute14GotoFindCollect3": {
         "anchor": {
@@ -228,7 +243,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute14GotoFindCollect5": {
         "anchor": {
@@ -268,7 +288,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute14GotoFindCollect7": {
         "anchor": {
@@ -308,7 +333,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute14GotoFindCollect11": {
         "anchor": {
@@ -340,7 +370,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute14GotoFindCollect12": {
         "anchor": {

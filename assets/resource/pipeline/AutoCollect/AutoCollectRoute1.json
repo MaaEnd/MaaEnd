@@ -207,6 +207,11 @@
         },
         "next": [
             "AutoCollectRoute1End"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     }
 }

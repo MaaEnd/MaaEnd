@@ -14,6 +14,7 @@
                 "AutoPick",
                 "QuickTeleport",
                 "AutoPuzzleSolving",
+                "AutoAeroSalvage",
                 "AutoZipline",
                 "AutoPat",
                 "AutoTaskInterval"
@@ -970,6 +971,32 @@
                             "enabled": false
                         },
                         "PuzzleSolverOnSceneMain": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoAeroSalvage": {
+            "type": "switch",
+            "label": "$option.AutoAeroSalvage.label",
+            "description": "$option.AutoAeroSalvage.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AeroSalvageCompleteConfirm": {
+                            "next": [
+                                "AeroSalvageMainLoop",
+                                "RealTimeTaskMain"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AeroSalvageMain": {
                             "enabled": false
                         }
                     }

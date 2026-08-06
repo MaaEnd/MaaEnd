@@ -3,16 +3,36 @@
         "desc": "自动送委托的入口点（此节点默认关闭）",
         "enabled": false,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "SeizeDeliveryJobsPostDepartureRun"
+            ]
+        },
         "anchor": {
-            "SeizeDeliveryJobsAfterEnterDestinationMap": "SeizeDeliveryJobsPostPurifyDestinationMap"
+            "SeizeDeliveryJobsAfterEnterDestinationMap": "SeizeDeliveryJobsPostPurifyDestinationMap",
+            "SeizeDeliveryJobsDepartureOnError": ""
         },
         "post_delay": 0,
         "next": [
-            "SeizeDeliveryJobsEnterDestinationMap"
+            "SeizeDeliveryJobsPostDepartureRun"
         ],
         "focus": {
             "Node.Action.Starting": "**进入自动送货流程**"
         }
+    },
+    "SeizeDeliveryJobsPostDepartureRun": {
+        "desc": "执行进入目的地地图及自动送货流程，允许清理误创建标记后完整重走一次",
+        "max_hit": 2,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsEnterDestinationMap"
+        ]
     },
     "SeizeDeliveryJobsPostPurifyDestinationMap": {
         "desc": "在目的地地图界面，清理地图图标遮挡",
@@ -51,20 +71,109 @@
         },
         "next": [
             // 此 CustomAction 内部会自行规划后续节点，故无需在此处指定 next
+        ],
+        "on_error": [
+            "[Anchor]SeizeDeliveryJobsDepartureOnError"
         ]
     },
     // ===== 分割线：下面的节点由 Go 调用 =====
     "SeizeDeliveryJobsClickTracking": {
         "desc": "在目的地地图界面，点击任务的定位标（此节点由 Go 覆写 target 并调用）",
+        "pre_delay": 0,
         "action": "Click",
         "target": [
             -1,
             -1
         ], // 需要由 Go 覆写点击位置
-        "timeout": 5000, // 断言可以正常取消追踪
+        "post_wait_freezes": {
+            "target": [
+                900,
+                520,
+                380,
+                200
+            ],
+            "time": 200,
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
+            "__MapTrackerBigMapClickCustomMarkerCancel",
             "SeizeDeliveryJobsCancelTracking"
         ]
+    },
+    "__MapTrackerBigMapClickCustomMarkerCancel": {
+        "desc": "取消送货定位标误创建的自定义标记面板",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1040,
+            620,
+            100,
+            80
+        ],
+        "template": [
+            "Common/Button/CancelButtonType1Line.png",
+            "Common/Button/CancelButtonType1LineHover.png"
+        ],
+        "threshold": 0.9,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                900,
+                520,
+                380,
+                200
+            ],
+            "time": 200,
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__MapTrackerBigMapClickCustomMarkerGone"
+        ]
+    },
+    "__MapTrackerBigMapClickCustomMarkerGone": {
+        "desc": "确认送货定位标误创建的自定义标记面板已消失",
+        "recognition": "And",
+        "all_of": [
+            "__MapTrackerBigMapClickCustomMarkerCancel"
+        ],
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__MapTrackerBigMapClickCustomMarkerRecovered"
+        ]
+    },
+    "__MapTrackerBigMapClickCustomMarkerRecovered": {
+        "desc": "确认自定义标记面板消失且已恢复大地图，标记本次送货流程需要重新进入地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "SeizeDeliveryJobsDepartureOnError": "SeizeDeliveryJobsPostDepartureRun"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__MapTrackerBigMapClickRecoveryRequest"
+        ]
+    },
+    "__MapTrackerBigMapClickRecoveryRequest": {
+        "desc": "将已清理的自定义标记结果返回给送货流程并请求重新进入地图",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SeizeDeliveryJobsCancelTracking": {
         "desc": "在当前任务地图界面，取消任务追踪以防止追踪标志干扰后续识别",
@@ -126,20 +235,63 @@
         }
     },
     "SeizeDeliveryJobsCloseRewardDialog": {
-        "desc": "在提交货物后，关闭奖励对话框；随后按剩余循环次数决定回到抢单入口或结束任务",
-        "recognition": "And",
-        "all_of": [
-            "CloseRewardsButton"
-        ],
-        "pre_wait_freezes": 500, // 等待奖励动画播放完毕
-        "action": "Click",
+        "desc": "提交货物后：IMS A3 累加培养道具，再关闭奖励界面；随后按剩余循环次数决定回到抢单入口或结束任务",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "target": [
+                528,
+                299,
+                222,
+                131
+            ],
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AddItemData",
+                "custom_action_param": {}
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "SeizeDeliveryJobsMain", // 有剩余次数时继续循环
-            "SeizeDeliveryJobsTaskEnd" // 次数用尽时结束任务
+            "SeizeDeliveryJobsCloseRewardDialogClick"
         ],
         "focus": {
             "Node.Action.Starting": "**成功提交货物**"
         }
+    },
+    "SeizeDeliveryJobsCloseRewardDialogClick": {
+        "desc": "关闭奖励界面后，按剩余循环次数决定回到抢单入口或结束任务",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsMain", // 有剩余次数时继续循环
+            "SeizeDeliveryJobsTaskEnd" // 次数用尽时结束任务
+        ]
     },
     "SeizeDeliveryJobsSubmitFallback": {
         "desc": "未能找到提交货物按钮时触发，使用缓存坐标重新返回大世界并送货（有最大尝试次数限制）",

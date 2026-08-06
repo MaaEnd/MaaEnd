@@ -177,6 +177,11 @@
                                                     "anyOf": [
                                                         {
                                                             "required": [
+                                                                "MapPath"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "required": [
                                                                 "MapTarget"
                                                             ]
                                                         },
@@ -260,7 +265,7 @@
             },
             "MapAssert": {
                 "type": "array",
-                "description": "初始位置判断矩形 [x, y, w, h]。普通传送寻路路线和 MapPath 快捷传送路线必填；QuickTeleport 与 MapTarget / MapGoal 组合时可省略；传送后直拍时必须省略。",
+                "description": "初始位置判断矩形 [x, y, w, h]。普通传送寻路路线必填；QuickTeleport 与 MapPath / MapTarget / MapGoal 组合时可省略；传送后直拍时必须省略。",
                 "items": {
                     "type": "number"
                 },

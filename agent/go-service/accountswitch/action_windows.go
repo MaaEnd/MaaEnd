@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"time"
 	"unsafe"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -17,10 +16,13 @@ import (
 const (
 	swRestore = 9
 
-	wmClose = 0x0010
-
-	mouseEventFLeftDown = 0x0002
-	mouseEventFLeftUp   = 0x0004
+	wmClose       = 0x0010
+	wmActivate    = 0x0006
+	waActive      = 1
+	wmMouseMove   = 0x0200
+	wmLButtonDown = 0x0201
+	wmLButtonUp   = 0x0202
+	mkLButton     = 0x0001
 
 	awarenessContextPerMonitorAwareV2 = ^uintptr(3) // DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
 )
@@ -33,12 +35,12 @@ var (
 	procShowWindow          = user32.NewProc("ShowWindow")
 	procBringWindowToTop    = user32.NewProc("BringWindowToTop")
 	procSetForegroundWindow = user32.NewProc("SetForegroundWindow")
-	procSetCursorPos        = user32.NewProc("SetCursorPos")
-	procMouseEvent          = user32.NewProc("mouse_event")
 	procSendMessageW        = user32.NewProc("SendMessageW")
+	procPostMessageW        = user32.NewProc("PostMessageW")
 	procGetClientRect       = user32.NewProc("GetClientRect")
 	procGetWindowRect       = user32.NewProc("GetWindowRect")
 	procClientToScreen      = user32.NewProc("ClientToScreen")
+	procScreenToClient      = user32.NewProc("ScreenToClient")
 	procSetThreadDpiCtx     = user32.NewProc("SetThreadDpiAwarenessContext")
 )
 
@@ -242,7 +244,7 @@ func clickWindow(ctx *maa.Context, arg *maa.CustomActionArg, targetHwnd uintptr,
 			Msg("mapped click point is outside target window rect")
 	}
 
-	if !cursorClick(screenX, screenY) {
+	if !postClick(targetHwnd, screenX, screenY) {
 		return false
 	}
 
@@ -400,29 +402,54 @@ func scaleCoord(value int, sourceSize int, targetSize int32) int32 {
 	return int32((int64(value)*int64(targetSize) + int64(sourceSize)/2) / int64(sourceSize))
 }
 
-func cursorClick(screenX, screenY int32) bool {
-	if !setCursorPos(screenX, screenY) {
+// PostMessage-style click (no physical cursor): activate + move/down/up on target hwnd.
+func postClick(hwnd uintptr, screenX, screenY int32) bool {
+	pt := winPoint{X: screenX, Y: screenY}
+	if !screenToClient(hwnd, &pt) {
 		log.Error().
 			Str("component", componentName).
+			Uint64("hwnd", uint64(hwnd)).
 			Int32("screen_x", screenX).
 			Int32("screen_y", screenY).
-			Msg("failed to move cursor for account switch click")
+			Msg("ScreenToClient failed for account switch click")
 		return false
 	}
-	time.Sleep(30 * time.Millisecond)
-	mouseEvent(mouseEventFLeftDown, 0, 0, 0, 0)
-	time.Sleep(50 * time.Millisecond)
-	mouseEvent(mouseEventFLeftUp, 0, 0, 0, 0)
+
+	lParam := makeMouseLParam(pt.X, pt.Y)
+	sendMessage(hwnd, wmActivate, waActive, 0)
+	if !postMessage(hwnd, wmMouseMove, 0, lParam) {
+		return false
+	}
+	if !postMessage(hwnd, wmLButtonDown, mkLButton, lParam) {
+		return false
+	}
+	if !postMessage(hwnd, wmLButtonUp, 0, lParam) {
+		return false
+	}
 	return true
 }
 
-func setCursorPos(x, y int32) bool {
-	ret, _, _ := procSetCursorPos.Call(uintptr(x), uintptr(y))
+func makeMouseLParam(x, y int32) uintptr {
+	return uintptr(uint32(uint16(int16(x))) | uint32(uint16(int16(y)))<<16)
+}
+
+func screenToClient(hwnd uintptr, point *winPoint) bool {
+	ret, _, _ := procScreenToClient.Call(hwnd, uintptr(unsafe.Pointer(point)))
 	return ret != 0
 }
 
-func mouseEvent(flags, dx, dy, data, extraInfo uintptr) {
-	procMouseEvent.Call(flags, dx, dy, data, extraInfo)
+func postMessage(hwnd, msg, wparam, lparam uintptr) bool {
+	ret, _, err := procPostMessageW.Call(hwnd, msg, wparam, lparam)
+	if ret != 0 {
+		return true
+	}
+	log.Error().
+		Err(err).
+		Str("component", componentName).
+		Uint64("hwnd", uint64(hwnd)).
+		Uint64("msg", uint64(msg)).
+		Msg("PostMessageW failed for account switch click")
+	return false
 }
 
 func describeWindowSelector(param windowActionParam) string {

@@ -2138,8 +2138,53 @@
                         }
                     },
                     "option": [
-                        "PrudentRefresh"
+                        "PrudentRefresh",
+                        "CreditShoppingRefreshCheckPrice"
                     ]
+                }
+            ]
+        },
+        "CreditShoppingRefreshCheckPrice": {
+            "type": "switch",
+            "label": "$option.CreditShoppingRefreshCheckPrice.label",
+            "description": "$option.CreditShoppingRefreshCheckPrice.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CreditShoppingRefreshCountReached": {
+                            "next": [
+                                "CreditShoppingBuyItemBelowReserve",
+                                "CreditShoppingBuyFailed",
+                                "CreditShoppingBuyConfirm"
+                            ]
+                        },
+                        "CreditShoppingPrudentRefresh": {
+                            "next": [
+                                "CreditShoppingBuyItemBelowReserve",
+                                "CreditShoppingBuyFailed",
+                                "CreditShoppingBuyConfirm"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingRefreshCountReached": {
+                            "next": [
+                                "CreditShoppingBuyFailed",
+                                "CreditShoppingBuyConfirm"
+                            ]
+                        },
+                        "CreditShoppingPrudentRefresh": {
+                            "next": [
+                                "CreditShoppingBuyFailed",
+                                "CreditShoppingBuyConfirm"
+                            ]
+                        }
+                    }
                 }
             ]
         },

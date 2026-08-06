@@ -6,15 +6,12 @@
         "AddItemDataParam": {
             "type": "object",
             "title": "AddItemData Param",
-            "description": "Parameters for AddItemData action (A3). Sequentially runs recognition nodes and adds OCR quantities into the IMS cache as positive deltas. Does not change readiness / last_sync. Misses and non-positive quantities are skipped. Best practice: use under CloseRewardsButton recognition, then next to click-close the rewards UI.",
+            "description": "Parameters for AddItemData action (A3). Sequentially runs recognition nodes and adds OCR quantities into the IMS cache as positive deltas. Does not change readiness / last_sync. Misses and non-positive quantities are skipped. When items is omitted or empty, uses the full a3 map from assets/data/IMS/items.json. Best practice: use under CloseRewardsButton recognition, then next to click-close the rewards UI; custom_action_param may be {}.",
             "additionalProperties": false,
-            "required": [
-                "items"
-            ],
             "properties": {
                 "items": {
                     "title": "Items",
-                    "description": "Map of item ID -> recognition node name. Keys are cache IDs; values are run in sorted key order. Quantity comes from each node's box_index OCR result and is added to cache.",
+                    "description": "Optional map of item ID -> recognition node name. When omitted or empty, load the full a3 catalog from data/IMS/items.json. Keys are cache IDs; values are run in sorted key order. Quantity comes from each node's box_index OCR result and is added to cache.",
                     "type": "object",
                     "minProperties": 1,
                     "additionalProperties": {
@@ -25,6 +22,12 @@
                         "type": "string",
                         "minLength": 1
                     }
+                },
+                "mask_hit_region": {
+                    "title": "Mask Hit Region",
+                    "description": "A3 only. After each successful item hit, paint that item's on-screen region green (RGB 0,255,0) on the working screenshot and keep recognizing the same item ID until no more hits. Fixes dual stacks on one reward popup (e.g. base 100 + bonus 15). Default true when omitted.",
+                    "type": "boolean",
+                    "default": true
                 }
             }
         },
@@ -97,7 +100,7 @@
         "SyncItemDataParam": {
             "type": "object",
             "title": "SyncItemData Param",
-            "description": "Scan And recognizers on the current screen. items maps item ID to recognition node name; quantity is read from that node's box_index OCR child. Results are written to debug/record/IMS.json with updated_at.",
+            "description": "Scan And recognizers on the current screen. items maps item ID to recognition node name; quantity is read from that node's box_index OCR child. A2 requires an explicit items map (no items.json default). Results are written to debug/record/IMS.json with updated_at.",
             "additionalProperties": false,
             "required": [
                 "items"
@@ -105,7 +108,7 @@
             "properties": {
                 "items": {
                     "title": "Items",
-                    "description": "Map of item ID -> And recognition node name. Keys are stored as cache IDs; values are run in sorted key order. Quantity comes from each node's box_index OCR result.",
+                    "description": "Required map of item ID -> And recognition node name. Keys are stored as cache IDs; values are run in sorted key order. Quantity comes from each node's box_index OCR result. Include fixed OCR nodes (e.g. T_CREDS_NUMBER) when needed for the current screen.",
                     "type": "object",
                     "minProperties": 1,
                     "additionalProperties": {

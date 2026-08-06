@@ -438,7 +438,12 @@
         "rate_limit": 0,
         "next": [
             "BeaconDamagedInTheBlightTideTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "BeaconDamagedInTheBlightTideTakePhoto": {
         "desc": "在侵蚀潮中损坏的信标任务拍照点开始拍照",

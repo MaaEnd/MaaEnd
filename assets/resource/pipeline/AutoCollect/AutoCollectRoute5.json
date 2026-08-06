@@ -114,7 +114,12 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute5GotoFind2": {
         "desc": "前往采集点2",
@@ -139,7 +144,12 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute5GotoFind3": {
         "desc": "前往采集点3",
@@ -164,7 +174,12 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute5GotoFind4": {
         "desc": "前往采集点4",
@@ -189,7 +204,12 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute5GotoFind6": {
         "desc": "前往采集点6",
@@ -214,6 +234,11 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     }
 }

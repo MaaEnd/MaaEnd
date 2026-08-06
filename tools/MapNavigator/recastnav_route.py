@@ -3,6 +3,7 @@
 import math
 import threading
 import time
+from collections import OrderedDict
 
 import numpy as np
 
@@ -173,14 +174,16 @@ def route(info, s, g, climb_faces=False):
     # 亏欠越多单价越高;脊线保底只进几何口径 prefg,禁入 mult
     # 拓扑口径的余量目标随局部通道半宽下降, 窄通道的余量单价才不会把能走的路挤出选路
     pref = rc.pref_field(dist)
-    mult = 1.0 + LAM * np.clip((pref - dist) / pref, 0.0, 1.0)
+    mult = (1.0 + LAM * np.clip((pref - dist) / pref, 0.0, 1.0)).astype(
+        np.float32, copy=False
+    )
     prefg = rc.pref_field(dist, ridge=True)
     # 几何口径的余量目标: 通道半宽封顶 GEO_R, 供绿段重寻与拉直判定
     # 通道目标之外再按固定余量目标 R 追加平方亏欠, 使窄通道内部仍向中间收敛
     tgt = rc.target_field(dist)
     cdef = np.clip((R - dist) / R, 0.0, 1.0)
     multg = (1.0 + LAM * np.clip((tgt - dist) / tgt, 0.0, 1.0)
-             + LAM_R * cdef * cdef)
+             + LAM_R * cdef * cdef).astype(np.float32, copy=False)
     cfl = rc.ClearanceFloor(np.minimum(dist, tgt), multg, x0, y0, CS)
 
     spC, spH, spOcc = info["spC"], info["spH"], info["spOcc"]
@@ -261,12 +264,14 @@ def route(info, s, g, climb_faces=False):
     t_as = time.time() - t0
     xw = []
     bad = []
+    NC = nx * ny
     for k in range(1, len(q)):
-        e = (q[k - 1][1] * nx + q[k - 1][0], q[k][1] * nx + q[k][0])
-        if e not in blocked:
+        eid = (q[k - 1][1] * nx + q[k - 1][0]) * NC \
+            + (q[k][1] * nx + q[k][0])
+        if eid not in blocked:
             continue
         bad.append(k)
-        if e in bn:
+        if eid in bn:
             xw.append((x0 + (q[k][0] + 0.5) * CS,
                        y0 + (q[k][1] + 0.5) * CS))
     if xw:
@@ -447,25 +452,43 @@ def offmesh(line, info):
 
 class RecastEngine:
 
+    MAX_CACHED_ZONES = 2
+
     def __init__(self, field):
         self.nav = CleanNav(field)
-        self._oracles = {}
+        self._oracles: OrderedDict[str, WallOracle] = OrderedDict()
         self.lock = threading.Lock()
 
     def _zone(self, name):
+        # 调用方必须已持有 self.lock（plan 的入口已加锁）。
         zc = self.nav.zone(name)
         wo = self._oracles.get(name)
         if wo is None:
             wo = self._oracles[name] = WallOracle(zc)
+        self._oracles.move_to_end(name)
+        self._evict_locked()
         return zc, wo
 
+    def _evict_locked(self) -> None:
+        while len(self._oracles) > self.MAX_CACHED_ZONES:
+            old_name, _ = self._oracles.popitem(last=False)
+            self.nav.drop_zone(old_name)
+
     def warm(self, zone_name):
-        # 提前完成该区的准备(区网格切片 + 墙判据); 构建放锁外, 不阻塞其他区的规划,
-        # 与并发 plan 撞同一区最坏重复构建一次, dict 单操作在 GIL 下原子
+        # 提前完成该区的准备(区网格切片 + 墙判据); 构建放锁外, 不阻塞其他区的规划。
+        with self.lock:
+            if zone_name in self._oracles:
+                self._oracles.move_to_end(zone_name)
+                self._evict_locked()
+                return
         zc = self.nav.zone(zone_name)
         wo = WallOracle(zc)
         with self.lock:
-            self._oracles.setdefault(zone_name, wo)
+            if zone_name in self._oracles:
+                return
+            self._oracles[zone_name] = wo
+            self._oracles.move_to_end(zone_name)
+            self._evict_locked()
 
     def plan(self, zone_name, start, goal, floor_y=None):
         with self.lock:
@@ -532,6 +555,7 @@ class RecastEngine:
             prev_ms = max(int((time.time() - t_pass) * 1000), 1)
             prev_cells = nx * ny
             last_err = err
+            info = line = dg = None
         else:
             raise ValueError(last_err or "路线失败")
 

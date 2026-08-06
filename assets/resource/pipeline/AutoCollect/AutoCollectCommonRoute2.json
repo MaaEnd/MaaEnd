@@ -71,7 +71,12 @@
         },
         "next": [
             "AutoCollectCommonRoute2GotoFind1"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute2GotoFind1": {
         "desc": "黯银柑实采集点1",
@@ -97,7 +102,12 @@
         },
         "next": [
             "AutoCollectCommonRoute2GotoFindLine2"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute2GotoFindLine2": {
         "desc": "前往黯银柑实采集点",
@@ -143,7 +153,12 @@
         },
         "next": [
             "AutoCollectCommonRoute2GotoFind2"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute2GotoFind2": {
         "desc": "黯银柑实x1",
@@ -164,7 +179,12 @@
         },
         "next": [
             "AutoCollectCommonRoute2GotoFindCollect1"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute2GotoFindCollect1": {
         "anchor": {
@@ -200,7 +220,12 @@
         },
         "next": [
             "AutoCollectCommonRoute2GoFight1"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute2GoFight1": {
         "desc": "凭空索敌，该范围内只有一个怪，4下攻击不出意外可以锁定并进战",
@@ -256,7 +281,12 @@
         },
         "next": [
             "AutoCollectCommonRoute2GotoFind3"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute2GotoFind3": {
         "desc": "黯银柑实采集点3",
@@ -276,7 +306,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute2GotoFindCollect3": {
         "anchor": {
@@ -316,7 +351,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute2GotoFindCollect5": {
         "anchor": {

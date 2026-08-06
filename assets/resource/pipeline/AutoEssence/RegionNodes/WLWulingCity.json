@@ -78,7 +78,10 @@
             "AutoEssenceDispatcher"
         ],
         "focus": {
-            "Node.Action.Starting": "🚶正在前往激发点"
+            "Node.Action.Starting": "🚶正在前往激发点",
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
         }
     }
 }
