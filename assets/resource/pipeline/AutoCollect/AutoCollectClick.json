@@ -120,7 +120,10 @@
             "AutoCollectClickEnd"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "识别到采集物"
+            "Node.Recognition.Succeeded": "识别到采集物",
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
         }
     },
     "AutoCollectClickEnd": {
