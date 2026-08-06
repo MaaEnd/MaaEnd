@@ -125,7 +125,7 @@
         "rate_limit": 0
     },
     "VALLEY_STOCK_BILL_COUNT_OCR": {
-        "desc": "IMS A3:谷地调度券数量 OCR（纯数字）",
+        "desc": "IMS A3:谷地调度券数量 OCR（非0数字开头；支持小数/万等缩写，由 Go 解析）",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -137,7 +137,7 @@
                     4
                 ],
                 "expected": [
-                    "^\\d+$"
+                    "^[1-9]"
                 ]
             }
         },

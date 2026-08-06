@@ -85,7 +85,7 @@
         "rate_limit": 0
     },
     "T_CREDS_COUNT_OCR": {
-        "desc": "IMS A3:折金票数量 OCR（纯数字）",
+        "desc": "IMS A3:折金票数量 OCR（非0数字开头；支持小数/万等缩写，由 Go 解析）",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -97,7 +97,7 @@
                     4
                 ],
                 "expected": [
-                    "^\\d+$"
+                    "^[1-9]"
                 ]
             }
         },
@@ -150,7 +150,7 @@
         "rate_limit": 0
     },
     "T_CREDS_NUMBER_OCR": {
-        "desc": "IMS A2:折金票右上角数量 OCR（纯数字）",
+        "desc": "IMS A2:折金票右上角数量 OCR（非0数字开头；支持小数/万等缩写，由 Go 解析）",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -162,7 +162,7 @@
                     4
                 ],
                 "expected": [
-                    "^\\d+$"
+                    "^[1-9]"
                 ]
             }
         },
