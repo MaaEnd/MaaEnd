@@ -50,6 +50,7 @@ const LOAD_POLL_MS = 400;
 const LEFT_PANEL_FIT_OFFSET = 350;
 // World px kept around the A* preview markers when framing them.
 const ASTAR_HINT_FIT_PADDING = 200;
+const COPY_FORMAT_COORDINATES = 'coordinates';
 
 /** round(value, 2) with CPython banker's rounding — parity for assert-target export. */
 function bankerRound2(value) {
@@ -180,6 +181,7 @@ class MapNavigatorApp {
       btnStop: $('btn-stop'),
       btnCopyPath: $('btn-copy-path'),
       btnCopyAssert: $('btn-copy-assert'),
+      assertCopyFormat: $('assert-copy-format'),
       btnImport: $('btn-import'),
       fileInput: $('file-input'),
       btnPrev: $('btn-prev'),
@@ -215,6 +217,7 @@ class MapNavigatorApp {
       astarZoneCombo: $('astar-zone-combo'),
       btnClearAstar: $('btn-clear-astar'),
       btnCopyNavmesh: $('btn-copy-navmesh'),
+      navmeshCopyFormat: $('navmesh-copy-format'),
       loadProgress: $('load-progress'),
       loadProgressBar: $('load-progress-bar'),
       loadProgressLabel: $('load-progress-label'),
@@ -264,6 +267,7 @@ class MapNavigatorApp {
       this._populateActionMenu();
       this._resetPropertyControls();
       this._wireEvents();
+      this._syncCopyButtonLabels();
 
       this.connection = new ConnectionPanel({
         kindCombo: this.els.kindCombo,
@@ -583,6 +587,7 @@ class MapNavigatorApp {
     const e = this.els;
     e.btnCopyPath.addEventListener('click', () => this._copyPath());
     e.btnCopyAssert.addEventListener('click', () => this._copyAssert());
+    e.assertCopyFormat.addEventListener('change', () => this._syncCopyButtonLabels());
     e.btnPrev.addEventListener('click', () => this._prevZone());
     e.btnNext.addEventListener('click', () => this._nextZone());
     e.btnZoomOut.addEventListener('click', () => this._zoomOut());
@@ -593,6 +598,7 @@ class MapNavigatorApp {
     e.astarZoneCombo.addEventListener('change', () => this._onAstarZoneChanged());
     e.btnClearAstar.addEventListener('click', () => this._onClearAstar());
     e.btnCopyNavmesh.addEventListener('click', () => this._copyNavmesh());
+    e.navmeshCopyFormat.addEventListener('change', () => this._syncCopyButtonLabels());
     e.btnAssertLocate.addEventListener('click', () => this._onLocateCurrentPosition('assert'));
     e.btnAstarLocate.addEventListener('click', () => this._onLocateCurrentPosition('astar'));
     e.btnAstarMarkCoord.addEventListener('click', () => this._onAstarMarkCoord());
@@ -1506,20 +1512,14 @@ class MapNavigatorApp {
     this.isDragging = false;
   }
 
-  /**
-   * Wheel input: plain wheel pans (trackpad-style), Ctrl/Cmd+wheel zooms at the cursor.
-   * @param {WheelEvent} e
-   * @returns {void}
-   */
+  /** Wheel input: zoom the map at the cursor. @param {WheelEvent} e @returns {void} */
   _onWheel(e) {
     e.preventDefault();
-    if (e.ctrlKey || e.metaKey) {
-      const [x, y] = this._evtXY(e);
-      const factor = Math.max(0.5, Math.min(2.0, Math.exp(-e.deltaY * 0.012)));
-      this.camera.zoomAt(x, y, factor);
-    } else {
-      this.camera.panBy(-e.deltaX * 1.3, -e.deltaY * 1.3);
-    }
+    const [x, y] = this._evtXY(e);
+    const deltaScale =
+      e.deltaMode === WheelEvent.DOM_DELTA_LINE ? 16 : e.deltaMode === WheelEvent.DOM_DELTA_PAGE ? this._cssH : 1;
+    const factor = Math.max(0.5, Math.min(2.0, Math.exp(-e.deltaY * deltaScale * 0.0015)));
+    this.camera.zoomAt(x, y, factor);
     this._paint();
   }
 
@@ -2130,6 +2130,14 @@ class MapNavigatorApp {
   //  Copy actions
   // ==================================================================================
 
+  /** Keep each copy button's label aligned with its selected output format. @returns {void} */
+  _syncCopyButtonLabels() {
+    this.els.btnCopyNavmesh.textContent =
+      this.els.navmeshCopyFormat.value === COPY_FORMAT_COORDINATES ? '复制坐标' : '复制 JSON 配置';
+    this.els.btnCopyAssert.textContent =
+      this.els.assertCopyFormat.value === COPY_FORMAT_COORDINATES ? '复制坐标' : '复制断言 JSON';
+  }
+
   /** Export the route as a MapNavigator path node (backend, tk-byte-identical) and copy it. @returns {Promise<void>} */
   async _copyPath() {
     if (!this.state.points.length) {
@@ -2146,7 +2154,7 @@ class MapNavigatorApp {
     }
   }
 
-  /** Export the assert rect as a MapLocateAssertLocation node and copy it. @returns {Promise<void>} */
+  /** Export the assert rect as a full node or a routes.json MapAssert coordinate array. @returns {Promise<void>} */
   async _copyAssert() {
     const zoneId = this._displayZoneId();
     if (!zoneId) {
@@ -2159,6 +2167,11 @@ class MapNavigatorApp {
       return;
     }
     try {
+      if (this.els.assertCopyFormat.value === COPY_FORMAT_COORDINATES) {
+        await this._copyText(JSON.stringify(target, null, 4));
+        setStatus(`环境监测 MapAssert 坐标已复制: [${target.join(', ')}]`, '#10b981');
+        return;
+      }
       const result = await exportAssert(zoneId, target);
       await this._copyText(result.text);
       setStatus('MapLocateAssertLocation 节点已复制到剪贴板', '#10b981');
@@ -2171,7 +2184,9 @@ class MapNavigatorApp {
   /**
    * Copy the A* waypoints (all clicked points after the start, in base px) as
    * NAVMESH action payloads — a single object for one target, an array for a
-   * multi-leg route. With no route planned, falls back to the locate hint.
+   * multi-leg route. Coordinate-only output copies the final target for an
+   * EnvironmentMonitoring routes.json `MapTarget`. With no route planned, falls
+   * back to the locate hint.
    * @returns {Promise<void>}
    */
   async _copyNavmesh() {
@@ -2200,10 +2215,12 @@ class MapNavigatorApp {
         if (tierName) {
           payload.target_tier = tierName;
         }
-        await this._copyText(JSON.stringify(payload, null, 4));
-        const tierNote = tierName ? ` target_tier=${tierName}` : '';
+        const coordinatesOnly = this.els.navmeshCopyFormat.value === COPY_FORMAT_COORDINATES;
+        await this._copyText(JSON.stringify(coordinatesOnly ? payload.target : payload, null, 4));
+        const tierField = coordinatesOnly ? 'MapTargetTier' : 'target_tier';
+        const tierNote = tierName ? ` ${tierField}=${tierName}` : '';
         setStatus(
-          `NAVMESH 目标已复制: zone=${zoneId} target=[${payload.target[0]}, ${payload.target[1]}]${tierNote}`,
+          `${coordinatesOnly ? '环境监测 MapTarget 坐标' : 'NAVMESH 目标'}已复制: zone=${zoneId} target=[${payload.target[0]}, ${payload.target[1]}]${tierNote}`,
           '#10b981',
         );
         return;
@@ -2235,7 +2252,12 @@ class MapNavigatorApp {
       targets.push(payload);
     }
 
-    if (targets.length === 1) {
+    if (this.els.navmeshCopyFormat.value === COPY_FORMAT_COORDINATES) {
+      const target = targets[targets.length - 1];
+      await this._copyText(JSON.stringify(target.target, null, 4));
+      const tierNote = tierName ? ` MapTargetTier=${tierName}` : '';
+      setStatus(`环境监测 MapTarget 坐标已复制: [${target.target[0]}, ${target.target[1]}]${tierNote}`, '#10b981');
+    } else if (targets.length === 1) {
       await this._copyText(JSON.stringify(targets[0], null, 4));
       const tierNote = tierName ? ` target_tier=${tierName}` : '';
       setStatus(
@@ -2777,7 +2799,7 @@ class MapNavigatorApp {
     this._syncActionControls();
     this._refreshZoneLabel();
     setStatus(
-      '录制结束。Ctrl+滚轮缩放，滚轮或右键平移；添加工具左键点击插点，拖拽路点微调，Ctrl+拖拽框选批量操作，C 键复制选中点坐标。',
+      '录制结束。滚轮缩放，右键或 Alt+拖拽平移；添加工具左键点击插点，拖拽路点微调，Ctrl+拖拽框选批量操作，C 键复制选中点坐标。',
       '#10b981',
     );
     this._fitView();
