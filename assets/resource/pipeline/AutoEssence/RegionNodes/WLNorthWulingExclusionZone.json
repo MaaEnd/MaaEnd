@@ -98,7 +98,6 @@
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往预备位置",
-
             "Node.PipelineNode.Succeeded": {
                 "trace": true
             }
@@ -127,7 +126,6 @@
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",
-
             "Node.PipelineNode.Succeeded": {
                 "trace": true
             }
