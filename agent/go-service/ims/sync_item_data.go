@@ -22,7 +22,7 @@ var _ maa.CustomActionRunner = &SyncItemData{}
 // syncItemDataParam is custom_action_param for SyncItemData.
 //
 // items: 字典，键为物品 ID，值为 And 识别节点名；依次执行节点，沿 box_index 链取 OCR 数量。
-// 省略或为空时，使用 assets/data/IMS/items.json 的 a2 全量清单。
+// A2 必须显式传入 items（含定点 OCR 如 T_CREDS_NUMBER / OROBERYL_NUMBER），不使用 items.json 默认清单。
 // page_dedup: 翻页去重。false=本轮结果整表创建；true=在已有缓存上按 ID 覆盖数量。
 type syncItemDataParam struct {
 	Items     map[string]string `json:"items"`
@@ -50,14 +50,13 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Msg("failed to parse params")
 		return false
 	}
-	items, err := resolveItemsMap(params.Items, itemsCatalogA2)
-	if err != nil {
+	if len(params.Items) == 0 {
 		log.Error().
-			Err(err).
 			Str("component", componentSyncItemData).
-			Msg("failed to resolve items")
+			Msg("items must not be empty")
 		return false
 	}
+	items := params.Items
 
 	if err := ensureHydrated(); err != nil {
 		log.Error().
@@ -163,7 +162,6 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		Int("hit_count", hitCount).
 		Int("total_cached", len(merged)).
 		Bool("page_dedup", params.PageDedup).
-		Bool("items_from_catalog", len(params.Items) == 0).
 		Time("updated_at", at.UTC()).
 		Msg("item data sync finished")
 	return true
@@ -172,7 +170,7 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 func parseSyncItemDataParam(raw string) (syncItemDataParam, error) {
 	var params syncItemDataParam
 	if strings.TrimSpace(raw) == "" {
-		return params, nil
+		return params, fmt.Errorf("custom_action_param is empty")
 	}
 	if err := json.Unmarshal([]byte(raw), &params); err != nil {
 		return syncItemDataParam{}, err

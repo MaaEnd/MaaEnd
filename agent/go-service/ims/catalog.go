@@ -10,17 +10,10 @@ import (
 
 const itemsCatalogResourcePath = "data/IMS/items.json"
 
-type itemsCatalogAPI string
-
-const (
-	itemsCatalogA2 itemsCatalogAPI = "a2"
-	itemsCatalogA3 itemsCatalogAPI = "a3"
-)
-
-// itemsCatalog is the on-disk registry of IMS-supported items and their
-// recognition nodes for A2 / A3. Path: assets/data/IMS/items.json.
+// itemsCatalog is the on-disk registry of A3-supported reward items and their
+// recognition nodes. Path: assets/data/IMS/items.json.
+// A2 (SyncItemData) always requires an explicit items map and does not use this file.
 type itemsCatalog struct {
-	A2 map[string]string `json:"a2"`
 	A3 map[string]string `json:"a3"`
 }
 
@@ -64,7 +57,6 @@ func loadItemsCatalog() (*itemsCatalog, error) {
 		itemsCatalogCache = &cat
 		log.Info().
 			Str("path", path).
-			Int("a2_count", len(cat.A2)).
 			Int("a3_count", len(cat.A3)).
 			Msg("IMS items catalog loaded")
 	})
@@ -81,16 +73,10 @@ func validateItemsCatalog(cat *itemsCatalog) error {
 	if cat == nil {
 		return fmt.Errorf("catalog is nil")
 	}
-	if len(cat.A2) == 0 && len(cat.A3) == 0 {
-		return fmt.Errorf("a2 and a3 are both empty")
+	if len(cat.A3) == 0 {
+		return fmt.Errorf("a3 is empty")
 	}
-	if err := validateItemsMap("a2", cat.A2); err != nil {
-		return err
-	}
-	if err := validateItemsMap("a3", cat.A3); err != nil {
-		return err
-	}
-	return nil
+	return validateItemsMap("a3", cat.A3)
 }
 
 func validateItemsMap(label string, items map[string]string) error {
@@ -102,9 +88,9 @@ func validateItemsMap(label string, items map[string]string) error {
 	return nil
 }
 
-// resolveItemsMap returns explicit items when non-empty; otherwise loads the
-// catalog section for the given API (a2 / a3).
-func resolveItemsMap(explicit map[string]string, api itemsCatalogAPI) (map[string]string, error) {
+// resolveA3ItemsMap returns explicit items when non-empty; otherwise loads the
+// a3 section of assets/data/IMS/items.json.
+func resolveA3ItemsMap(explicit map[string]string) (map[string]string, error) {
 	if len(explicit) > 0 {
 		return explicit, nil
 	}
@@ -112,21 +98,8 @@ func resolveItemsMap(explicit map[string]string, api itemsCatalogAPI) (map[strin
 	if err != nil {
 		return nil, err
 	}
-	var items map[string]string
-	switch api {
-	case itemsCatalogA2:
-		items = cat.A2
-	case itemsCatalogA3:
-		items = cat.A3
-	default:
-		return nil, fmt.Errorf("unknown items catalog api %q", api)
-	}
-	if len(items) == 0 {
-		return nil, fmt.Errorf("IMS items catalog %s is empty", api)
-	}
-	// Copy so callers cannot mutate the cached catalog.
-	out := make(map[string]string, len(items))
-	for id, node := range items {
+	out := make(map[string]string, len(cat.A3))
+	for id, node := range cat.A3 {
 		out[id] = node
 	}
 	return out, nil

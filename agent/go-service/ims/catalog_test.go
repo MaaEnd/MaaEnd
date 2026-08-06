@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestResolveItemsMapUsesCatalogWhenEmpty(t *testing.T) {
+func TestResolveA3ItemsMapUsesCatalogWhenEmpty(t *testing.T) {
 	resetItemsCatalogForTest()
 	oldPath := itemsCatalogPathFunc
 	t.Cleanup(func() {
@@ -17,7 +17,6 @@ func TestResolveItemsMapUsesCatalogWhenEmpty(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "items.json")
 	content := `{
-		"a2": {"PROTODISK": "PROTODISK", "CAST_DIE": "CAST_DIE"},
 		"a3": {"PROTODISK": "PROTODISK", "T_CREDS": "T_CREDS"}
 	}`
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
@@ -25,25 +24,24 @@ func TestResolveItemsMapUsesCatalogWhenEmpty(t *testing.T) {
 	}
 	itemsCatalogPathFunc = func() string { return path }
 
-	a2, err := resolveItemsMap(nil, itemsCatalogA2)
+	a3, err := resolveA3ItemsMap(nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(a2) != 2 || a2["PROTODISK"] != "PROTODISK" || a2["CAST_DIE"] != "CAST_DIE" {
-		t.Fatalf("a2=%v", a2)
-	}
-
-	a3, err := resolveItemsMap(map[string]string{}, itemsCatalogA3)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(a3) != 2 || a3["T_CREDS"] != "T_CREDS" {
+	if len(a3) != 2 || a3["PROTODISK"] != "PROTODISK" || a3["T_CREDS"] != "T_CREDS" {
 		t.Fatalf("a3=%v", a3)
 	}
 
-	// Explicit map wins.
+	a3, err = resolveA3ItemsMap(map[string]string{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(a3) != 2 {
+		t.Fatalf("empty map should load catalog, got %v", a3)
+	}
+
 	explicit := map[string]string{"ONLY": "ONLY_NODE"}
-	got, err := resolveItemsMap(explicit, itemsCatalogA3)
+	got, err := resolveA3ItemsMap(explicit)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,15 +71,11 @@ func TestParseAddItemDataParamEmptyUsesCatalogDefaults(t *testing.T) {
 	}
 }
 
-func TestParseSyncItemDataParamEmptyAllowed(t *testing.T) {
-	params, err := parseSyncItemDataParam("")
-	if err != nil {
-		t.Fatal(err)
+func TestParseSyncItemDataParamRequiresBody(t *testing.T) {
+	if _, err := parseSyncItemDataParam(""); err == nil {
+		t.Fatal("expected error for empty param")
 	}
-	if params.PageDedup {
-		t.Fatal("page_dedup should default false")
-	}
-	params, err = parseSyncItemDataParam(`{"page_dedup": true}`)
+	params, err := parseSyncItemDataParam(`{"page_dedup": true}`)
 	if err != nil {
 		t.Fatal(err)
 	}

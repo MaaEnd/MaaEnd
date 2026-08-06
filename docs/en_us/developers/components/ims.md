@@ -41,15 +41,13 @@ Do not skip the entry because “the cache should still be fine”, and do not r
 | **Key** | Item ID (stored in the cache / `IMS.json`) |
 | **Value** | Pipeline node name that recognizes the item and its quantity |
 
-Nodes are usually `And` (rarity color / template / quantity OCR, etc.). If the UI only shows a number for that item, a plain OCR node is fine.
+Nodes are usually `And` (rarity color / template / quantity OCR, etc.). If the UI only shows a number for that item, a plain OCR node is fine (e.g. Progression-tab header `T_CREDS_NUMBER` / `OROBERYL_NUMBER`).
 
-**Default full set:** when `items` is **omitted or empty**, A2 loads the **`a2`** section of [`assets/data/IMS/items.json`](../../../assets/data/IMS/items.json). Add Progression-tab items there instead of editing every Pipeline call site.
-
-You can still pass an explicit `items` map to override the catalog (e.g. valuables / shop subset entries).
+**A2 always requires an explicit `items` map** and does not use `items.json`. Progression / valuables / shop entry points each keep their own subset (fixed OCR nodes also differ by screen).
 
 **Requirement:** the node’s `box_index` chain must end at the **quantity** recognition (digits only). A2 only records an entry when the node hits and the quantity text is a valid number.
 
-Example (explicit subset):
+Example:
 
 ```json
 {
@@ -57,14 +55,6 @@ Example (explicit subset):
         "PROTODISK": "PROTODISK",
         "T_CREDS": "T_CREDS_NUMBER"
     },
-    "page_dedup": false
-}
-```
-
-Reserved entry can be just:
-
-```json
-{
     "page_dedup": false
 }
 ```
@@ -269,7 +259,7 @@ When you need ready **and** enough:
 | Path | Role |
 | --- | --- |
 | `agent/go-service/ims/` | Custom components and cache |
-| `assets/data/IMS/items.json` | Supported-item catalog for A2 / A3 (default when `items` omitted) |
+| `assets/data/IMS/items.json` | A3 reward-item catalog (default when `items` omitted; unused by A2) |
 | `assets/resource/pipeline/IMS/` | Pipeline (one file per API) |
 | `assets/resource/image/IMS/item/` | Item templates (`*_TEMPLATE.png`) |
 | `tools/SupplyPlan/mask_ims_item_corner.py` | Top-left green mask tool |

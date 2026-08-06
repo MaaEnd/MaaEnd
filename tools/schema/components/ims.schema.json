@@ -100,12 +100,15 @@
         "SyncItemDataParam": {
             "type": "object",
             "title": "SyncItemData Param",
-            "description": "Scan And recognizers on the current screen. items maps item ID to recognition node name; quantity is read from that node's box_index OCR child. When items is omitted or empty, uses the full a2 map from assets/data/IMS/items.json. Results are written to debug/record/IMS.json with updated_at.",
+            "description": "Scan And recognizers on the current screen. items maps item ID to recognition node name; quantity is read from that node's box_index OCR child. A2 requires an explicit items map (no items.json default). Results are written to debug/record/IMS.json with updated_at.",
             "additionalProperties": false,
+            "required": [
+                "items"
+            ],
             "properties": {
                 "items": {
                     "title": "Items",
-                    "description": "Optional map of item ID -> And recognition node name. When omitted or empty, load the full a2 catalog from data/IMS/items.json. Keys are stored as cache IDs; values are run in sorted key order. Quantity comes from each node's box_index OCR result.",
+                    "description": "Required map of item ID -> And recognition node name. Keys are stored as cache IDs; values are run in sorted key order. Quantity comes from each node's box_index OCR result. Include fixed OCR nodes (e.g. T_CREDS_NUMBER) when needed for the current screen.",
                     "type": "object",
                     "minProperties": 1,
                     "additionalProperties": {

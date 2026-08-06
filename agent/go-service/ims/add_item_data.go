@@ -83,7 +83,7 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Msg("failed to parse params")
 		return false
 	}
-	items, err := resolveItemsMap(params.Items, itemsCatalogA3)
+	items, err := resolveA3ItemsMap(params.Items)
 	if err != nil {
 		log.Error().
 			Err(err).
