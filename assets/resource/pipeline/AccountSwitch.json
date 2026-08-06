@@ -136,6 +136,7 @@
     },
     "__AccountSwitchClickDropdown": {
         "desc": "点击账号下拉按钮,maafw在前台截图时5秒内会置顶一次游戏窗口，导致下拉框消失，因此需要重试",
+        "max_hit": 3,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -161,7 +162,8 @@
         },
         "post_wait_freezes": 500,
         "next": [
-            "__AccountSwitchClickDropdownSuccess"
+            "__AccountSwitchClickDropdownSuccess",
+            "__AccountSwitchClickDropdown"
         ]
     },
     "__AccountSwitchClickDropdownSuccess": {
@@ -180,6 +182,13 @@
             }
         },
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "__AccountSwitchClickDropdown"
+            ]
+        },
         "post_delay": 0,
         "next": [
             "__AccountSwitchOCRSelectAccount"
