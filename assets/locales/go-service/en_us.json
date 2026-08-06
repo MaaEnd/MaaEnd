@@ -254,6 +254,8 @@
     "ims.item.WULING_ARTIFICING_CATALYST": "Wuling Artificing Catalyst",
     "ims.item.T_CREDS": "T-Creds",
     "ims.item.OROBERYL": "Oroberyl",
+    "ims.item.WULING_STOCK_BILL": "Wuling Stock Bill",
+    "ims.item.VALLEY_STOCK_BILL": "Valley Stock Bill",
     "ims.quantity_ok": "%s: stock %d / target %d (met)",
     "ims.quantity_short": "%s: stock %d / target %d (short)",
     "ims.expression_ok": "expression matched: %s",

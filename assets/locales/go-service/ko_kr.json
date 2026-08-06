@@ -254,6 +254,8 @@
     "ims.item.WULING_ARTIFICING_CATALYST": "무릉 정밀 단조제",
     "ims.item.T_CREDS": "탈로시안 화폐",
     "ims.item.OROBERYL": "오로베릴",
+    "ims.item.WULING_STOCK_BILL": "무릉 관리권",
+    "ims.item.VALLEY_STOCK_BILL": "협곡 관리권",
     "ims.quantity_ok": "%s: 재고 %d / 목표 %d (충족)",
     "ims.quantity_short": "%s: 재고 %d / 목표 %d (부족)",
     "ims.expression_ok": "식 성립: %s",

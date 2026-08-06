@@ -286,5 +286,29 @@
                 ]
             }
         }
+    },
+    "__WULING_STOCK_BILL_TEMPLATE_MATCH": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
+    },
+    "__VALLEY_STOCK_BILL_TEMPLATE_MATCH": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    -34,
+                    -131,
+                    67,
+                    131
+                ]
+            }
+        }
     }
 }

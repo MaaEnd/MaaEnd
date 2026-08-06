@@ -254,6 +254,8 @@
     "ims.item.WULING_ARTIFICING_CATALYST": "武陵精锻助剂",
     "ims.item.T_CREDS": "折金票",
     "ims.item.OROBERYL": "嵌晶玉",
+    "ims.item.WULING_STOCK_BILL": "武陵调度券",
+    "ims.item.VALLEY_STOCK_BILL": "谷地调度券",
     "ims.quantity_ok": "%s：库存 %d / 目标 %d（已达标）",
     "ims.quantity_short": "%s：库存 %d / 目标 %d（未达标）",
     "ims.expression_ok": "表达式成立：%s",

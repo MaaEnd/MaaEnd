@@ -128,7 +128,9 @@
                         "HEAVY_CAST_DIE": "HEAVY_CAST_DIE",
                         "CAST_DIE": "CAST_DIE",
                         "COOLANT_GEL": "COOLANT_GEL",
-                        "WULING_ARTIFICING_CATALYST": "WULING_ARTIFICING_CATALYST"
+                        "WULING_ARTIFICING_CATALYST": "WULING_ARTIFICING_CATALYST",
+                        "WULING_STOCK_BILL": "WULING_STOCK_BILL",
+                        "VALLEY_STOCK_BILL": "VALLEY_STOCK_BILL"
                     }
                 }
             }
@@ -225,7 +227,9 @@
                         "HEAVY_CAST_DIE": "HEAVY_CAST_DIE",
                         "CAST_DIE": "CAST_DIE",
                         "COOLANT_GEL": "COOLANT_GEL",
-                        "WULING_ARTIFICING_CATALYST": "WULING_ARTIFICING_CATALYST"
+                        "WULING_ARTIFICING_CATALYST": "WULING_ARTIFICING_CATALYST",
+                        "WULING_STOCK_BILL": "WULING_STOCK_BILL",
+                        "VALLEY_STOCK_BILL": "VALLEY_STOCK_BILL"
                     }
                 }
             }
