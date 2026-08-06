@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import heapq
 import math
+from collections import deque
 
 import numpy as np
 
@@ -150,9 +151,9 @@ def dense_k(sp_h, occ, cstart, ccnt):
     K = int(ccnt.max())
     n = len(occ)
     HK = np.full((n, K), np.inf, np.float32)
-    IK = np.full((n, K), -1, np.int64)
+    IK = np.full((n, K), -1, np.int32)
     rank = np.arange(len(sp_h)) - np.repeat(cstart, ccnt)
-    ci = np.repeat(np.arange(n), ccnt)
+    ci = np.repeat(np.arange(n, dtype=np.int32), ccnt).astype(np.int32)
     HK[ci, rank] = sp_h
     IK[ci, rank] = np.arange(len(sp_h))
     return HK, IK, ci
@@ -279,29 +280,37 @@ def span_astar(ok, sp_h, occ, HK, IK, sp_ci, cidx, ok2, s, gset, mult, nx, ny,
     if not ok[s] or not gset:
         return None
     K = HK.shape[1]
+    hk = HK.ravel()
+    ik = IK.ravel()
     bn = banned or ()
     fb = forbidden or ()
     mf = mult.ravel()
+    nb8 = _NB8
+    heappop = heapq.heappop
+    heappush = heapq.heappush
+    hypot = math.hypot
     gc = int(occ[sp_ci[next(iter(gset))]])
     gxx, gyy = gc % nx, gc // nx
+    NC = nx * ny
     dist = np.full(len(sp_h), np.inf)
-    prev = np.full(len(sp_h), -1, np.int64)
+    prev = np.full(len(sp_h), -1, np.int32)
     dist[s] = 0.0
     pq = [(0.0, s)]
     hit = -1
     while pq:
-        f, u = heapq.heappop(pq)
+        f, u = heappop(pq)
         d0 = dist[u]
         cu = int(occ[sp_ci[u]])
         x, y = cu % nx, cu // nx
-        if f > d0 + math.hypot(gxx - x, gyy - y) + 1e-9:
+        if f > d0 + hypot(gxx - x, gyy - y) + 1e-9:
             continue
         if u in gset:
             hit = u
             break
         hu = sp_h[u]
         m0 = mf[cu]
-        for dx, dy, w in _NB8:
+        base_eid = cu * NC
+        for dx, dy, w in nb8:
             a, b = x + dx, y + dy
             if not (0 <= a < nx and 0 <= b < ny):
                 continue
@@ -313,26 +322,27 @@ def span_astar(ok, sp_h, occ, HK, IK, sp_ci, cidx, ok2, s, gset, mult, nx, ny,
             j = cidx[cv]
             if j < 0:
                 continue
-            e = (cu, cv)
-            if e in fb:
+            eid = base_eid + cv
+            if eid in fb:
                 continue
             pen = 0.0
-            if e in bn:
+            if eid in bn:
                 if bnp is None:
                     continue
                 pen = bnp
             nd = d0 + w * 0.5 * (m0 + mf[cv]) + pen
+            row = j * K
             for k in range(K):
-                v = int(IK[j, k])
+                v = int(ik[row + k])
                 if v < 0 or not ok[v]:
                     continue
-                dh = HK[j, k] - hu
+                dh = hk[row + k] - hu
                 if dh > up * w or dh < -climb:
                     continue
                 if nd < dist[v] - 1e-12:
                     dist[v] = nd
                     prev[v] = u
-                    heapq.heappush(pq, (nd + math.hypot(gxx - a, gyy - b), v))
+                    heappush(pq, (nd + hypot(gxx - a, gyy - b), v))
     if hit < 0:
         return None
     out = [hit]
@@ -421,6 +431,7 @@ def _step_heights(occ, HK, IK, vis, lay, nx, ny):
 
 def step_breaks(occ, HK, IK, vis, lay, nx, ny, ox, oy, cs=CS, slope=SLOPE):
     out = set()
+    NC = nx * ny
     src = np.nonzero(lay.ravel())[0]
     if not len(src) or not np.isfinite(slope):
         return out, (np.zeros((0, 2)), np.zeros((0, 2)))
@@ -448,7 +459,9 @@ def step_breaks(occ, HK, IK, vis, lay, nx, ny, ox, oy, cs=CS, slope=SLOPE):
             continue
         a, b = a[bad], b[bad]
         up = B[r[bad], k[bad] % K] > A[r[bad], k[bad] // K]
-        out.update(zip(np.where(up, a, b).tolist(), np.where(up, b, a).tolist()))
+        frm = np.where(up, a, b)
+        to = np.where(up, b, a)
+        out.update((frm * NC + to).tolist())
         if dx and dy:
             continue
         px = ox + (a % nx + dx) * cs
@@ -563,6 +576,7 @@ def wall_index(P0, P1, ox, oy, nx, ny, cs=CS, sub=0.2):
 
 def banned_steps(free, wid, start, P0, P1, ox, oy, nx, cs=CS):
     ny = free.shape[0]
+    NC = nx * ny
     P0 = np.asarray(P0, float); P1 = np.asarray(P1, float)
     flat = free.ravel()
     has = np.nonzero((start[1:] > start[:-1]) & flat)[0]
@@ -594,8 +608,9 @@ def banned_steps(free, wid, start, P0, P1, ox, oy, nx, cs=CS):
         t = (u[:, 0] * s[:, 1] - u[:, 1] * s[:, 0]) / dd
         w = (u[:, 0] * r[:, 1] - u[:, 1] * r[:, 0]) / dd
         hit = ok & (t > 1e-9) & (t < 1 - 1e-9) & (w > -1e-9) & (w < 1 + 1e-9)
-        for k in np.unique(pid[hit]):
-            out.add((int(a[k]), int(b[k]))); out.add((int(b[k]), int(a[k])))
+        uid = np.unique(pid[hit])
+        out.update((a[uid] * NC + b[uid]).tolist())
+        out.update((b[uid] * NC + a[uid]).tolist())
     return out
 
 
@@ -629,17 +644,71 @@ def comps4(mask):
 
 
 def fill_holes(mask, max_cells, protect=None):
-    lab = comps4(~mask)
     out = mask.copy()
-    edge = set(lab[0, :].tolist()) | set(lab[-1, :].tolist()) \
-        | set(lab[:, 0].tolist()) | set(lab[:, -1].tolist())
-    u, c = np.unique(lab[lab >= 0], return_counts=True)
-    for cid, cnt in zip(u.tolist(), c.tolist()):
-        if cid in edge or cnt > max_cells:
+    if max_cells <= 0 or not mask.any():
+        return out
+    ny, nx = mask.shape
+    empty = ~mask
+    empty_flat = empty.ravel()
+    visited = np.zeros(ny * nx, bool)
+
+    border = np.zeros_like(mask)
+    border[0, :] = border[-1, :] = border[:, 0] = border[:, -1] = True
+    seeds = empty & border
+    if protect is not None:
+        seeds |= empty & protect
+
+    def mark_neighbors(cid, queue):
+        x = cid % nx
+        if x > 0:
+            n = cid - 1
+            if empty_flat[n] and not visited[n]:
+                visited[n] = True
+                queue.append(n)
+        if x + 1 < nx:
+            n = cid + 1
+            if empty_flat[n] and not visited[n]:
+                visited[n] = True
+                queue.append(n)
+        n = cid - nx
+        if n >= 0 and empty_flat[n] and not visited[n]:
+            visited[n] = True
+            queue.append(n)
+        n = cid + nx
+        if n < ny * nx and empty_flat[n] and not visited[n]:
+            visited[n] = True
+            queue.append(n)
+
+    # 从边界/受保护空格向外漫灌，剩下的空格才可能是需要填掉的小洞。
+    for start in np.flatnonzero(seeds).tolist():
+        if visited[start]:
             continue
-        if protect is not None and protect[lab == cid].any():
+        visited[start] = True
+        queue = deque([start])
+        while queue:
+            mark_neighbors(queue.popleft(), queue)
+
+    # 对每个未达小洞做有上限的 BFS；超过上限的洞保持原样并整组标记已访问。
+    for start in np.flatnonzero(empty_flat & ~visited).tolist():
+        if visited[start]:
             continue
-        out[lab == cid] = True
+        comp = []
+        visited[start] = True
+        queue = deque([start])
+        too_big = False
+        while queue:
+            cid = queue.popleft()
+            comp.append(cid)
+            if len(comp) > max_cells:
+                too_big = True
+                break
+            mark_neighbors(cid, queue)
+        if too_big:
+            mark_neighbors(cid, queue)
+            while queue:
+                mark_neighbors(queue.popleft(), queue)
+            continue
+        out.ravel()[comp] = True
     return out
 
 
@@ -677,8 +746,9 @@ def cost_astar(mask, s, g, mult, banned=None, bnp=None, forbidden=None):
         return None
     bn = banned or ()
     fb = forbidden or ()
+    NC = nx * ny
     dist = np.full(mask.shape, np.inf)
-    prev = np.full(mask.shape, -1, np.int64)
+    prev = np.full(mask.shape, -1, np.int32)
     dist[s[1], s[0]] = 0.0
     pq = [(0.0, s[0], s[1])]
     while pq:
@@ -695,11 +765,11 @@ def cost_astar(mask, s, g, mult, banned=None, bnp=None, forbidden=None):
                 continue
             if dx and dy and not (mask[y, a] and mask[b, x]):
                 continue
-            e = (y * nx + x, b * nx + a)
-            if e in fb:
+            eid = (y * nx + x) * NC + (b * nx + a)
+            if eid in fb:
                 continue
             pen = 0.0
-            if e in bn:
+            if eid in bn:
                 if bnp is None:
                     continue
                 pen = bnp
@@ -753,18 +823,22 @@ def pref_field(dist, ridge=False):
     pref = np.maximum(np.minimum(R, REL * locw) if REL > 0
                       else np.full_like(dist, R), 0.25)
     if not ridge:
-        return pref
+        return pref.astype(np.float32, copy=False)
     rg = np.zeros(dist.shape, bool)
     for dy, dx in ((0, 1), (1, 0), (1, 1), (1, -1)):
         a, b = _shf(dist, dy, dx), _shf(dist, -dy, -dx)
         rg |= (dist >= np.maximum(a, b)) & (dist > np.minimum(a, b))
     rg &= dist >= RIDGEF
-    return np.where(rg, np.minimum(pref, dist), pref)
+    return np.where(rg, np.minimum(pref, dist), pref).astype(
+        np.float32, copy=False
+    )
 
 
 def target_field(dist):
     locw = local_max(dist, int(math.ceil(R / CS)))
-    return np.maximum(np.minimum(GEO_R, locw), 0.25)
+    return np.maximum(np.minimum(GEO_R, locw), 0.25).astype(
+        np.float32, copy=False
+    )
 
 
 def slim(pts, blk, eps=SLIMEPS, cfl=None):
@@ -848,20 +922,25 @@ def _dp_split(P, i0, i1, max_err):
     a, b = P[i0], P[i1]
     d = b - a
     L2 = float(d @ d)
-    best, bi = max_err * max_err, -1
-    i = (i0 + 1) % n
-    while i != i1:
-        q = P[i] - a
-        if L2 > 1e-12:
-            t = float(np.clip((q @ d) / L2, 0.0, 1.0))
-            e = q - d * t
-        else:
-            e = q
-        dd = float(e @ e)
-        if dd > best:
-            best, bi = dd, i
-        i = (i + 1) % n
-    return bi
+    if i1 > i0:
+        idx = np.arange(i0 + 1, i1, dtype=np.int64)
+    else:
+        idx = np.concatenate(
+            (np.arange(i0 + 1, n, dtype=np.int64),
+             np.arange(0, i1, dtype=np.int64))
+        )
+    if not len(idx):
+        return -1
+    q = P[idx] - a
+    if L2 > 1e-12:
+        t = np.clip((q @ d) / L2, 0.0, 1.0)
+        e = q - d * t[:, None]
+    else:
+        e = q
+    dd = e[:, 0] * e[:, 0] + e[:, 1] * e[:, 1]
+    best = max_err * max_err
+    m = float(dd.max())
+    return -1 if m <= best else int(idx[int(np.argmax(dd))])
 
 
 def simplify_loop(P, max_err):
@@ -899,27 +978,64 @@ class Blockers:
         self.B = np.vstack(B) if B else np.zeros((0, 2))
         self.lo = np.minimum(self.A, self.B)
         self.hi = np.maximum(self.A, self.B)
+        self.cell = 8.0
+        self._grid: dict[tuple[int, int], list[int]] = {}
+        for i in range(len(self.A)):
+            ax, ay = self.A[i]
+            bx, by = self.B[i]
+            for cx, cy in self._line_cells(ax, ay, bx, by, 0.0):
+                self._grid.setdefault((cx, cy), []).append(i)
 
     def blocked(self, p, q, eps=1e-7):
-        p = np.asarray(p, float); q = np.asarray(q, float)
-        lo = np.minimum(p, q) - eps; hi = np.maximum(p, q) + eps
-        m = ((self.hi[:, 0] >= lo[0]) & (self.lo[:, 0] <= hi[0])
-             & (self.hi[:, 1] >= lo[1]) & (self.lo[:, 1] <= hi[1]))
-        if not m.any():
-            return self._off(p, q)
-        A, B = self.A[m], self.B[m]
-        r = q - p; s = B - A
-        den = r[0] * s[:, 1] - r[1] * s[:, 0]
-        u = A - p
-        ok = np.abs(den) > 1e-12
-        t = np.where(ok, (u[:, 0] * s[:, 1] - u[:, 1] * s[:, 0])
-                     / np.where(ok, den, 1), -1.0)
-        w = np.where(ok, (u[:, 0] * r[1] - u[:, 1] * r[0])
-                     / np.where(ok, den, 1), -1.0)
-        if bool((ok & (t > eps) & (t < 1 - eps)
-                 & (w > eps) & (w < 1 - eps)).any()):
-            return True
+        px, py = float(p[0]), float(p[1])
+        qx, qy = float(q[0]), float(q[1])
+        rx, ry = qx - px, qy - py
+        seen = set()
+        for cx, cy in self._line_cells(px, py, qx, qy, eps):
+            for i in self._grid.get((cx, cy), ()):
+                if i in seen:
+                    continue
+                seen.add(i)
+                ax, ay = self.A[i]
+                bx, by = self.B[i]
+                sx, sy = bx - ax, by - ay
+                den = rx * sy - ry * sx
+                if abs(den) <= 1e-12:
+                    continue
+                ux, uy = ax - px, ay - py
+                t = (ux * sy - uy * sx) / den
+                w = (ux * ry - uy * rx) / den
+                if (eps < t < 1 - eps and eps < w < 1 - eps):
+                    return True
         return self._off(p, q)
+
+    def _line_cells(self, px, py, qx, qy, eps):
+        """枚举查询线段实际经过的网格单元, 避免遍历整张包围盒。"""
+        cell = self.cell
+        lx, hx = min(px, qx) - eps, max(px, qx) + eps
+        ly, hy = min(py, qy) - eps, max(py, qy) + eps
+        c0, c1 = int(lx // cell), int(hx // cell)
+        r0, r1 = int(ly // cell), int(hy // cell)
+        dx, dy = qx - px, qy - py
+        if dx == 0.0:
+            for cx in range(c0, c1 + 1):
+                for cy in range(r0, r1 + 1):
+                    yield cx, cy
+            return
+        for cx in range(c0, c1 + 1):
+            xlo = max(cx * cell, min(px, qx))
+            xhi = min((cx + 1) * cell, max(px, qx))
+            if xlo > xhi:
+                continue
+            t0 = max(min((xlo - px) / dx, (xhi - px) / dx), 0.0)
+            t1 = min(max((xlo - px) / dx, (xhi - px) / dx), 1.0)
+            if t1 < t0:
+                continue
+            y0 = py + dy * t0
+            y1 = py + dy * t1
+            ylo, yhi = min(y0, y1) - eps, max(y0, y1) + eps
+            for cy in range(int(ylo // cell), int(yhi // cell) + 1):
+                yield cx, cy
 
     def _off(self, p, q):
         if self.on is None:
