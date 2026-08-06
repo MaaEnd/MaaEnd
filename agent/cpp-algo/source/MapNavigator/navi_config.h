@@ -150,7 +150,9 @@ constexpr double kNavRunLookaheadLowSpeedM = 2.5;
 // rotating once the corner is inside it. Held as a count of ticks worth of travel so it tracks both
 // speed and loop period: a fixed distance over-anticipates whenever the agent slows, and leaves too
 // little room to react when the link is slow enough that each tick covers more ground.
-constexpr double kNavRunLookaheadPreviewTicks = 5.0;
+// Calibrated on device by blind A/B: 7 beat 5 in both presentation orders, beat 9, and 11 was
+// clearly harmful (cut corners, wandered, took twice as long).
+constexpr double kNavRunLookaheadPreviewTicks = 7.0;
 constexpr double kNavRunLookaheadMinM = 2.0;
 constexpr double kNavRunLookaheadMaxM = 14.0;
 // The aim point is pushed at least this far along that direction. Heading error from a cross-track
