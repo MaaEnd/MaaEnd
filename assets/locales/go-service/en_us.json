@@ -260,6 +260,5 @@
     "ims.quantity_short": "%s: stock %d / target %d (short)",
     "ims.expression_ok": "expression matched: %s",
     "ims.expression_short": "expression not matched: %s",
-    "ims.expression_result": "result: %s = %d",
     "ims.add_item_skip_persist": "IMS not initialized: rewards recognized but cache not updated"
 }

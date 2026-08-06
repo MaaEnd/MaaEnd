@@ -260,6 +260,5 @@
     "ims.quantity_short": "%s：库存 %d / 目标 %d（未达标）",
     "ims.expression_ok": "表达式成立：%s",
     "ims.expression_short": "表达式不成立：%s",
-    "ims.expression_result": "计算结果：%s = %d",
     "ims.add_item_skip_persist": "IMS 未初始化，已识别奖励但不写入缓存"
 }

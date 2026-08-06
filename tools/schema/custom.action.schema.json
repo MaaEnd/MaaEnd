@@ -39,7 +39,6 @@
                 "ClearHitCount",
                 "CreditShoppingScanItemAction",
                 "ERROR",
-                "EvaluateItemQuantity",
                 "EssenceFilterAfterBattleSkillDecisionAction",
                 "EssenceFilterAfterBattleTierGateAction",
                 "EssenceFilterCheckItemAction",
@@ -108,20 +107,6 @@
 			"then": {
 				"properties": {
 					"custom_action_param": { "$ref": "./components/ims.schema.json#/$defs/AddItemDataParam" }
-				},
-				"required": [ "custom_action_param" ]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"custom_action": { "const": "EvaluateItemQuantity" }
-				},
-				"required": [ "custom_action" ]
-			},
-			"then": {
-				"properties": {
-					"custom_action_param": { "$ref": "./components/ims.schema.json#/$defs/EvaluateItemQuantityParam" }
 				},
 				"required": [ "custom_action_param" ]
 			}
