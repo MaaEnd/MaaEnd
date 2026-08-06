@@ -43,9 +43,13 @@ Do not skip the entry because “the cache should still be fine”, and do not r
 
 Nodes are usually `And` (rarity color / template / quantity OCR, etc.). If the UI only shows a number for that item, a plain OCR node is fine.
 
+**Default full set:** when `items` is **omitted or empty**, A2 loads the **`a2`** section of [`assets/data/IMS/items.json`](../../../assets/data/IMS/items.json). Add Progression-tab items there instead of editing every Pipeline call site.
+
+You can still pass an explicit `items` map to override the catalog (e.g. valuables / shop subset entries).
+
 **Requirement:** the node’s `box_index` chain must end at the **quantity** recognition (digits only). A2 only records an entry when the node hits and the quantity text is a valid number.
 
-Example:
+Example (explicit subset):
 
 ```json
 {
@@ -53,6 +57,14 @@ Example:
         "PROTODISK": "PROTODISK",
         "T_CREDS": "T_CREDS_NUMBER"
     },
+    "page_dedup": false
+}
+```
+
+Reserved entry can be just:
+
+```json
+{
     "page_dedup": false
 }
 ```
@@ -114,7 +126,9 @@ Result is clamped to `>= 0`. Persists `items` in `IMS.json` but **does not** cha
 
 ## A3: `AddItemData`
 
-A3 takes the same `items` map as A2 (key = item ID, value = recognition node; `box_index` must point at quantity).
+A3 takes the same optional `items` map as A2 (key = item ID, value = recognition node; `box_index` must point at quantity).
+
+**Default full set:** when `items` is **omitted or empty** (or `custom_action_param` is `{}`), A3 loads the **`a3`** section of [`assets/data/IMS/items.json`](../../../assets/data/IMS/items.json). Maintain reward-recognizable items there; call sites usually need not copy a large `items` map.
 
 A3-only optional parameter:
 
@@ -255,6 +269,7 @@ When you need ready **and** enough:
 | Path | Role |
 | --- | --- |
 | `agent/go-service/ims/` | Custom components and cache |
+| `assets/data/IMS/items.json` | Supported-item catalog for A2 / A3 (default when `items` omitted) |
 | `assets/resource/pipeline/IMS/` | Pipeline (one file per API) |
 | `assets/resource/image/IMS/item/` | Item templates (`*_TEMPLATE.png`) |
 | `tools/SupplyPlan/mask_ims_item_corner.py` | Top-left green mask tool |

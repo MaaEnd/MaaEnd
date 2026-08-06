@@ -43,9 +43,13 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 节点通常是 `And`（品质色 / 模板 / 数量 OCR 等拼在一起）。若界面上该物品只有数字、没有图标链路，也可以直接用 OCR 节点。
 
+**默认全量**：`items` **省略或为空**时，自动使用清单文件 [`assets/data/IMS/items.json`](../../../assets/data/IMS/items.json) 的 **`a2`** 段。新增培养素材页可同步的物品时，改该文件即可，不必再改各处 Pipeline。
+
+仍可在调用时显式传入 `items` 覆盖清单（例如珍品页 / 采购中心等子集入口）。
+
 **关键约束**：节点的 `box_index` 必须最终指向「数量」那一层识别结果（纯数字）。A2 沿 `box_index` 链取到的文本必须是合法数字，才会记入缓存。
 
-示例：
+示例（显式子集）：
 
 ```json
 {
@@ -53,6 +57,14 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
         "PROTODISK": "PROTODISK",
         "T_CREDS": "T_CREDS_NUMBER"
     },
+    "page_dedup": false
+}
+```
+
+预留入口只需：
+
+```json
+{
     "page_dedup": false
 }
 ```
@@ -112,7 +124,9 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 ## A3：`AddItemData`
 
-A3 的入参与 A2 相同：一个 `items` 字典（键 = 物品 ID，值 = 识别节点；`box_index` 同样要指向数量）。
+A3 的入参与 A2 相同：一个可选的 `items` 字典（键 = 物品 ID，值 = 识别节点；`box_index` 同样要指向数量）。
+
+**默认全量**：`items` **省略或为空**（甚至整个 `custom_action_param` 为 `{}`）时，使用 [`assets/data/IMS/items.json`](../../../assets/data/IMS/items.json) 的 **`a3`** 段。领奖弹窗可识别的物品在此维护；业务侧一般不必再抄一大段 `items`。
 
 另有 **仅 A3 生效** 的可选参数：
 
@@ -253,6 +267,7 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 | 路径 | 说明 |
 | --- | --- |
 | `agent/go-service/ims/` | Custom 组件与缓存 |
+| `assets/data/IMS/items.json` | A2 / A3 支持的物品清单（省略 `items` 时的默认全量） |
 | `assets/resource/pipeline/IMS/` | Pipeline（按接口分文件） |
 | `assets/resource/image/IMS/item/` | 物品模板图（`*_TEMPLATE.png`） |
 | `tools/SupplyPlan/mask_ims_item_corner.py` | 模板左上角涂绿工具 |

@@ -2,7 +2,6 @@ package ims
 
 import (
 	"encoding/json"
-	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -33,6 +32,7 @@ var (
 // addItemDataParam is custom_action_param for AddItemData (A3).
 //
 // items: 字典，键为物品 ID，值为识别节点名；依次识别，将 OCR 数量作为正增量写入缓存。
+// 省略或为空时，使用 assets/data/IMS/items.json 的 a3 全量清单。
 // mask_hit_region: 命中后将该物品区域涂绿，并对同一物品继续识别直到未命中（仅 A3）。
 // 省略时默认为 true。
 type addItemDataParam struct {
@@ -83,10 +83,12 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Msg("failed to parse params")
 		return false
 	}
-	if len(params.Items) == 0 {
+	items, err := resolveItemsMap(params.Items, itemsCatalogA3)
+	if err != nil {
 		log.Error().
+			Err(err).
 			Str("component", componentAddItemData).
-			Msg("items must not be empty")
+			Msg("failed to resolve items")
 		return false
 	}
 	maskHitRegion := params.maskHitRegionEnabled()
@@ -139,15 +141,15 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	itemIDs := make([]string, 0, len(params.Items))
-	for itemID := range params.Items {
+	itemIDs := make([]string, 0, len(items))
+	for itemID := range items {
 		itemIDs = append(itemIDs, itemID)
 	}
 	sort.Strings(itemIDs)
 
 	hits := make([]recognizedItemAdd, 0, len(itemIDs))
 	for _, itemID := range itemIDs {
-		nodeName := strings.TrimSpace(params.Items[itemID])
+		nodeName := strings.TrimSpace(items[itemID])
 		itemID = strings.TrimSpace(itemID)
 		if itemID == "" || nodeName == "" {
 			log.Error().
@@ -276,11 +278,12 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	log.Info().
 		Str("component", componentAddItemData).
-		Int("item_param_count", len(params.Items)).
+		Int("item_param_count", len(items)).
 		Int("hit_count", len(hits)).
 		Int("added_total", addedTotal).
 		Bool("cache_ready", cacheReady).
 		Bool("mask_hit_region", maskHitRegion).
+		Bool("items_from_catalog", len(params.Items) == 0).
 		Msg("add item data finished")
 	return true
 }
@@ -288,7 +291,7 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 func parseAddItemDataParam(raw string) (addItemDataParam, error) {
 	var params addItemDataParam
 	if strings.TrimSpace(raw) == "" {
-		return params, fmt.Errorf("custom_action_param is empty")
+		return params, nil
 	}
 	if err := json.Unmarshal([]byte(raw), &params); err != nil {
 		return addItemDataParam{}, err

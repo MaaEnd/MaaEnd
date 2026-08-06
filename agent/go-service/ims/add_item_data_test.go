@@ -9,10 +9,14 @@ import (
 )
 
 func TestParseAddItemDataParam(t *testing.T) {
-	if _, err := parseAddItemDataParam(""); err == nil {
-		t.Fatal("expected error for empty param")
+	params, err := parseAddItemDataParam("")
+	if err != nil {
+		t.Fatal(err)
 	}
-	params, err := parseAddItemDataParam(`{
+	if len(params.Items) != 0 {
+		t.Fatalf("empty param should yield empty items, got %v", params.Items)
+	}
+	params, err = parseAddItemDataParam(`{
 		"items": {
 			"PROTODISK": "PROTODISK",
 			"CAST_DIE": "CAST_DIE"
