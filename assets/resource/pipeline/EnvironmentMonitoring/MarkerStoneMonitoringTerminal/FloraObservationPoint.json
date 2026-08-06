@@ -396,7 +396,12 @@
         "rate_limit": 0,
         "next": [
             "FloraObservationPointTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "FloraObservationPointTakePhoto": {
         "desc": "在植物观察点任务拍照点开始拍照",

@@ -343,6 +343,11 @@
         "custom_action_param": "${RouteActionParam}",
         "post_delay": 0,
         "rate_limit": 0,
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        },
         "next": [
             "${Id}TakePhoto"
         ]

@@ -95,7 +95,13 @@
         "on_error": [
             // 本次寻路必定失败
             "TrialOfSwordmancyEnterTrialTarget"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "TrialOfSwordmancyEnterTrialTarget": {
         "desc": "进入挑战目标界面",

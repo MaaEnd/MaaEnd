@@ -410,7 +410,12 @@
         "rate_limit": 0,
         "next": [
             "BambooWaterChimesTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "BambooWaterChimesTakePhoto": {
         "desc": "在水竹铃任务拍照点开始拍照",

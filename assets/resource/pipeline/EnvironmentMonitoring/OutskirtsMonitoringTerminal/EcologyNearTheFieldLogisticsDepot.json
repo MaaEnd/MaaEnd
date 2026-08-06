@@ -396,7 +396,12 @@
         "rate_limit": 0,
         "next": [
             "EcologyNearTheFieldLogisticsDepotTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "EcologyNearTheFieldLogisticsDepotTakePhoto": {
         "desc": "在储备站周围的生态环境任务拍照点开始拍照",

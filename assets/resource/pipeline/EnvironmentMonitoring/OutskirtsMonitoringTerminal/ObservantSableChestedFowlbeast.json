@@ -385,7 +385,12 @@
         "rate_limit": 0,
         "next": [
             "ObservantSableChestedFowlbeastTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "ObservantSableChestedFowlbeastTakePhoto": {
         "desc": "在东张西望的黑腹雉羽兽任务拍照点开始拍照",

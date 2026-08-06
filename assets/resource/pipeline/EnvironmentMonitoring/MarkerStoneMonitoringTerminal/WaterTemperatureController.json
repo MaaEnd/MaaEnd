@@ -377,12 +377,14 @@
         "desc": "自动寻路前往净水温控装置",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerGoal",
+        "custom_action": "MapTrackerMove",
         "custom_action_param": {
             "map_name": "map02_lv004",
-            "target": [
-                343.8,
-                238.8
+            "path": [
+                [
+                    343.8,
+                    238.8
+                ]
             ],
             "on_finish": {
                 "action": "Custom",
@@ -397,7 +399,12 @@
         "rate_limit": 0,
         "next": [
             "WaterTemperatureControllerTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "WaterTemperatureControllerTakePhoto": {
         "desc": "在净水温控装置任务拍照点开始拍照",

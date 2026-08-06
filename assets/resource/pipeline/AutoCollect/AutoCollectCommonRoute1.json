@@ -96,7 +96,13 @@
         },
         "next": [
             "AutoCollectCommonRoute1GotoFind1"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute1GotoFind1": {
         "desc": "映火荞花",
@@ -120,7 +126,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute1GotoFindCollect1": {
         "anchor": {
@@ -160,7 +172,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute1GotoFindCollect3": {
         "anchor": {
@@ -200,7 +218,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute1GotoFindCollect5": {
         "anchor": {
@@ -236,7 +260,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute1GotoFindCollect7": {
         "anchor": {
@@ -276,7 +306,13 @@
         },
         "next": [
             "AutoCollectCommonRoute1GotoFind5"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute1GotoFind5": {
         "desc": "前往收集地5",
@@ -296,7 +332,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute1GotoFindCollect9": {
         "anchor": {

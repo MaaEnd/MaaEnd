@@ -393,7 +393,12 @@
         "rate_limit": 0,
         "next": [
             "VigorousCisternOriginiumSlugTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "VigorousCisternOriginiumSlugTakePhoto": {
         "desc": "在充满活力的蓄水源石虫任务拍照点开始拍照",

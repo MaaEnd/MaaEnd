@@ -87,7 +87,13 @@
         },
         "next": [
             "AutoCollectCommonRoute3GotoFind1"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute3GotoFind1": {
         "desc": "采集点1",
@@ -107,7 +113,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute3GotoFindCollect1": {
         "anchor": {
@@ -135,7 +147,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute3GotoFindCollect2": {
         "anchor": {
@@ -167,7 +185,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute3GotoFindCollect3": {
         "anchor": {
@@ -195,7 +219,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute3GotoFindCollect4": {
         "anchor": {
@@ -227,7 +257,13 @@
         },
         "next": [
             "AutoCollectCommonRoute3GotoFind5"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute3GotoFind5": {
         "desc": "采集点5",
@@ -247,7 +283,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute3GotoFindCollect5": {
         "anchor": {
@@ -275,7 +317,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute3GotoFindCollect6": {
         "anchor": {
@@ -303,7 +351,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute3GotoFindCollect7": {
         "anchor": {

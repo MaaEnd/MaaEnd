@@ -402,7 +402,12 @@
         "rate_limit": 0,
         "next": [
             "InflatedAndGlowingBugspittingLankybeastTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "InflatedAndGlowingBugspittingLankybeastTakePhoto": {
         "desc": "在肚子鼓气后发光的吐虫长股兽任务拍照点开始拍照",

@@ -402,7 +402,12 @@
         "rate_limit": 0,
         "next": [
             "PeachTreeAtBabblesSHomeTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "PeachTreeAtBabblesSHomeTakePhoto": {
         "desc": "在念念家的桃树任务拍照点开始拍照",

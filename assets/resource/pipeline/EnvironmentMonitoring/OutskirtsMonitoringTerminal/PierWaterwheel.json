@@ -402,7 +402,12 @@
         "rate_limit": 0,
         "next": [
             "PierWaterwheelTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "PierWaterwheelTakePhoto": {
         "desc": "在码头水车任务拍照点开始拍照",

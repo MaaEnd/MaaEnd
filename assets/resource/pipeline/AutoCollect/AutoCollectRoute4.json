@@ -64,7 +64,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute4GotoFind2": {
         "desc": "前往采集点",
@@ -89,7 +95,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute4GotoFind3": {
         "desc": "前往采集点",
@@ -114,7 +126,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute4GotoFind4": {
         "desc": "前往采集点",
@@ -139,7 +157,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute4GotoFind5": {
         "desc": "前往采集点",
@@ -164,7 +188,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute4GotoFind6": {
         "desc": "前往采集点",
@@ -189,7 +219,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute4GotoFind7": {
         "desc": "前往采集点",
@@ -214,7 +250,13 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute4GotoFind8": {
         "desc": "前往采集点",
@@ -239,6 +281,12 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     }
 }

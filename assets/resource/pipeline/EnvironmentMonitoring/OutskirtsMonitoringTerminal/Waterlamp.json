@@ -398,7 +398,12 @@
         "rate_limit": 0,
         "next": [
             "WaterlampTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "WaterlampTakePhoto": {
         "desc": "在水灯虫任务拍照点开始拍照",

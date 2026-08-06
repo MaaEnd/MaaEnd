@@ -422,7 +422,12 @@
         "rate_limit": 0,
         "next": [
             "XiraniteNexusTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "XiraniteNexusTakePhoto": {
         "desc": "在枢壤仪任务拍照点开始拍照",

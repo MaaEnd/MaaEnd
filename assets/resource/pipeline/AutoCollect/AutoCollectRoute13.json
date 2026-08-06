@@ -132,6 +132,12 @@
                     419.4
                 ]
             ]
+        },
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
         }
     },
     "AutoCollectRoute13GotoFind1": {
@@ -156,7 +162,13 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute13GotoFind2": {
         "desc": "前往收集地2",
@@ -180,7 +192,13 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute13GotoFind3": {
         "desc": "前往收集地3",
@@ -204,7 +222,13 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute13GotoFind4": {
         "desc": "前往收集地4",
@@ -228,7 +252,13 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute13GotoFind5": {
         "desc": "前往收集地5",
@@ -252,7 +282,13 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute13GotoFind6": {
         "desc": "前往收集地6",
@@ -276,6 +312,12 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     }
 }

@@ -396,7 +396,12 @@
         "rate_limit": 0,
         "next": [
             "HangingVinesTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "HangingVinesTakePhoto": {
         "desc": "在垂藤任务拍照点开始拍照",
