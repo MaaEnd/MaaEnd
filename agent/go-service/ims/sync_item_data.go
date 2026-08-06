@@ -185,23 +185,34 @@ func baseItemsForSync(pageDedup bool) (map[string]int, error) {
 }
 
 func recognizeItemQuantity(ctx *maa.Context, andNode string, img image.Image) (qty int, hit bool, err error) {
-	detail, err := ctx.RunRecognition(andNode, img)
+	qty, hit, _, err = recognizeItemQuantityHit(ctx, andNode, img)
+	return qty, hit, err
+}
+
+// recognizeItemQuantityHit runs the item And node and returns quantity plus the
+// root recognition detail (for A3 hit-region masking via CombinedResult).
+func recognizeItemQuantityHit(
+	ctx *maa.Context,
+	andNode string,
+	img image.Image,
+) (qty int, hit bool, detail *maa.RecognitionDetail, err error) {
+	detail, err = ctx.RunRecognition(andNode, img)
 	if err != nil {
-		return 0, false, fmt.Errorf("run recognition %s: %w", andNode, err)
+		return 0, false, nil, fmt.Errorf("run recognition %s: %w", andNode, err)
 	}
 	if detail == nil || !detail.Hit {
-		return 0, false, nil
+		return 0, false, detail, nil
 	}
 
 	selected, err := recogtarget.SelectDetail(ctx, andNode, detail)
 	if err != nil {
-		return 0, false, fmt.Errorf("select box_index detail: %w", err)
+		return 0, false, detail, fmt.Errorf("select box_index detail: %w", err)
 	}
 	qty, err = extractOCRQuantity(selected)
 	if err != nil {
-		return 0, false, fmt.Errorf("parse quantity from %s: %w", andNode, err)
+		return 0, false, detail, fmt.Errorf("parse quantity from %s: %w", andNode, err)
 	}
-	return qty, true, nil
+	return qty, true, detail, nil
 }
 
 func itemDisplayName(itemID string) string {

@@ -26,6 +26,7 @@
             "param": {
                 "custom_action": "AddItemData",
                 "custom_action_param": {
+                    "mask_hit_region": true,
                     "items": {
                         "ADVANCED_COGNITIVE_CARRIER": "ADVANCED_COGNITIVE_CARRIER",
                         "ELEMENTARY_COGNITIVE_CARRIER": "ELEMENTARY_COGNITIVE_CARRIER",

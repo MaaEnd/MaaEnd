@@ -25,6 +25,12 @@
                         "type": "string",
                         "minLength": 1
                     }
+                },
+                "mask_hit_region": {
+                    "title": "Mask Hit Region",
+                    "description": "A3 only. After each successful item hit, paint that item's on-screen region green (RGB 0,255,0) on the working screenshot and keep recognizing the same item ID until no more hits. Fixes dual stacks on one reward popup (e.g. base 100 + bonus 15). Default true when omitted.",
+                    "type": "boolean",
+                    "default": true
                 }
             }
         },

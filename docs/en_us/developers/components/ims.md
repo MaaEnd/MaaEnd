@@ -116,6 +116,12 @@ Result is clamped to `>= 0`. Persists `items` in `IMS.json` but **does not** cha
 
 A3 takes the same `items` map as A2 (key = item ID, value = recognition node; `box_index` must point at quantity).
 
+A3-only optional parameter:
+
+| Param | Meaning |
+| --- | --- |
+| `mask_hit_region` | After each hit, paint that item’s region green `(0,255,0)` on the working screenshot and **keep recognizing the same item ID** until no more hits. Handles dual stacks on one reward popup (e.g. base 100 + bonus 15). Defaults to **`true`** when omitted. |
+
 It recognizes items on the **current screen**, then **computes** against the IMS cache: each hit quantity is added as a **positive delta** (same as repeated A1 `+n`). It does **not** refresh the sync timestamp / readiness.
 
 ### Difference from A2
