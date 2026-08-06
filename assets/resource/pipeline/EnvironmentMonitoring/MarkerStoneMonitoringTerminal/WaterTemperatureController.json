@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToWaterTemperatureController"
+            "WaterTemperatureControllerInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedWaterTemperatureController": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToWaterTemperatureController"
+            "WaterTemperatureControllerOpenTrackedMissionMap"
         ]
     },
     "WaterTemperatureControllerOpenTrackedMissionMap": {
@@ -340,10 +340,10 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                402.22,
-                2228.06,
-                16.54,
-                17.93
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -360,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStone2"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
@@ -376,10 +376,6 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
-                },
                 {
                     "action": "NAVMESH",
                     "target": [

@@ -338,12 +338,12 @@
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "zone_id": "Wuling_L4_328",
+            "zone_id": "Wuling_Base",
             "target": [
-                245.55,
-                204.14,
-                18.01,
-                15.3
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -376,26 +376,6 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_L4_328"
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        244.66,
-                        189.93
-                    ],
-                    "target_tier": "Wuling_L4_328"
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        243.37,
-                        165.81
-                    ],
-                    "target_tier": "Wuling_L4_328"
-                },
                 {
                     "action": "NAVMESH",
                     "target": [

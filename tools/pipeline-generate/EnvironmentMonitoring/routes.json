@@ -106,14 +106,8 @@
         "MissionId": "m1m30",
         "Name": "古树",
         "Id": "AncientTree",
-        "EnterMap": "SceneEnterWorldWulingJingyuValley7",
+        "QuickTeleport": true,
         "MapName": "Wuling_Base",
-        "MapAssert": [
-            745.98,
-            2575.62,
-            54.24,
-            42.21
-        ],
         "MapTarget": [
             829.41,
             2576.94
@@ -268,23 +262,11 @@
         "MissionId": "m1m38",
         "Name": "水灯虫",
         "Id": "Waterlamp",
-        "EnterMap": "SceneEnterWorldWulingWulingCity7",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            702.07,
-            1891.34,
-            10.15,
-            8.77
-        ],
-        "NavPath": [
-            {
-                "action": "ZONE",
-                "zone_id": "Wuling_Base"
-            },
-            [
-                710.94,
-                1887.4
-            ]
+        "QuickTeleport": true,
+        "MapName": "Wuling_Base",
+        "MapTarget": [
+            710.94,
+            1887.4
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 30
@@ -488,14 +470,8 @@
         "MissionId": "m1m61",
         "Name": "“旧庭树”",
         "Id": "TreeOfTheOldCourtyard",
-        "EnterMap": "SceneEnterWorldWulingMarkerStone1",
+        "QuickTeleport": true,
         "MapName": "Wuling_Base",
-        "MapAssert": [
-            480.76,
-            2112.91,
-            21.99,
-            23.92
-        ],
         "MapTarget": [
             98.4,
             111
@@ -579,43 +555,12 @@
         "Name": "彩虹",
         "Id": "Rainbow",
         "QuickTeleport": true,
-        "NavZoneId": "Wuling_L4_328",
-        "NavAssert": [
-            245.55,
-            204.14,
-            18.01,
-            15.3
+        "MapName": "Wuling_Base",
+        "MapTarget": [
+            214.61,
+            145.62
         ],
-        "NavPath": [
-            {
-                "action": "ZONE",
-                "zone_id": "Wuling_L4_328"
-            },
-            {
-                "action": "NAVMESH",
-                "target": [
-                    244.66,
-                    189.93
-                ],
-                "target_tier": "Wuling_L4_328"
-            },
-            {
-                "action": "NAVMESH",
-                "target": [
-                    243.37,
-                    165.81
-                ],
-                "target_tier": "Wuling_L4_328"
-            },
-            {
-                "action": "NAVMESH",
-                "target": [
-                    214.61,
-                    145.62
-                ],
-                "target_tier": "Wuling_L4_328"
-            }
-        ],
+        "MapTargetTier": "Wuling_L4_328",
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "CameraMaxHit": 1,
         "Heading": 260
@@ -643,26 +588,11 @@
         "MissionId": "m1m67",
         "Name": "净水温控装置",
         "Id": "WaterTemperatureController",
-        "EnterMap": "SceneEnterWorldWulingMarkerStone2",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            402.22,
-            2228.06,
-            16.54,
-            17.93
-        ],
-        "NavPath": [
-            {
-                "action": "ZONE",
-                "zone_id": "Wuling_Base"
-            },
-            {
-                "action": "NAVMESH",
-                "target": [
-                    338.51,
-                    2155.26
-                ]
-            }
+        "QuickTeleport": true,
+        "MapName": "Wuling_Base",
+        "MapTarget": [
+            338.51,
+            2155.26
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 270
