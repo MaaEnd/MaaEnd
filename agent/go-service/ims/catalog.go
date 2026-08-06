@@ -92,6 +92,9 @@ func validateItemsMap(label string, items map[string]string) error {
 // a3 section of assets/data/IMS/items.json.
 func resolveA3ItemsMap(explicit map[string]string) (map[string]string, error) {
 	if len(explicit) > 0 {
+		if err := validateItemsMap("explicit", explicit); err != nil {
+			return nil, err
+		}
 		return explicit, nil
 	}
 	cat, err := loadItemsCatalog()

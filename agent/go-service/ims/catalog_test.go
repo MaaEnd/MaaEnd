@@ -48,6 +48,13 @@ func TestResolveA3ItemsMapUsesCatalogWhenEmpty(t *testing.T) {
 	if len(got) != 1 || got["ONLY"] != "ONLY_NODE" {
 		t.Fatalf("explicit=%v", got)
 	}
+
+	if _, err := resolveA3ItemsMap(map[string]string{"": "NODE"}); err == nil {
+		t.Fatal("expected error for empty item id")
+	}
+	if _, err := resolveA3ItemsMap(map[string]string{"ITEM": ""}); err == nil {
+		t.Fatal("expected error for empty node name")
+	}
 }
 
 func TestParseAddItemDataParamEmptyUsesCatalogDefaults(t *testing.T) {
