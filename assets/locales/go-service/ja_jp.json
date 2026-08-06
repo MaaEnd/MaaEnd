@@ -76,12 +76,8 @@
     "autofight.endaxis.waiting_combo_cooldown": "連携技のクールダウン完了を待機中",
     "autofight.endaxis.retry_timeline": "新しい軸取りラウンドを試みます",
     "autofight.endaxis.no_matching_scenario": "現在の終結技状態に使用可能な軸取りがありません。プランを追加してください",
-    "pullcount.resource.originium": "衍質源石を嵌晶玉へ換算した値",
-    "pullcount.resource.oroberyl": "嵌晶玉",
-    "pullcount.resource_read_success": "%sの読み取り成功：%d",
-    "pullcount.error.invalid_params": "スカウト回数計算のパラメータが無効です",
-    "pullcount.error.recognition_failed": "スカウト回数の認識に失敗しました：%s。オペレーター募集画面を開き、上部リソース欄が隠れていないことを確認してください。",
-    "pullcount.result": "リソース換算：%d 回\n嵌晶玉：%d = %d 回\n衍質源石を嵌晶玉へ換算した値：%d（源石 %d 個分 = 嵌晶玉 %d を保留、有効 %d = %d 回）\n次バージョンへ持ち越せる券：%d 回\n次バージョン商店：%d 回\n次バージョンログイン：%d 回\n現行プールで使用可能：%d 回\n次バージョンプール合計：%d 回",
+    "pullcount.error.invalid_params": "回数計算のパラメータが無効です",
+    "pullcount.result": "資源換算：%d 回\n赤晶玉：%d（保留 %d、利用可能 %d = %d 回）\n展延源石：%d（保留 %d、換算利用可能赤晶玉 %d = %d 回）\n次バージョンへ持ち越し券：%d 回\n次バージョン商店：%d 回\n次バージョンログイン：%d 回\n現行プール：%d 回\n次バージョン合計：%d 回",
     "autoecofarm.invalid_params": "パラメータが不正です",
     "autoecofarm.no_results": "結果を認識できませんでした",
     "autoecofarm.crossed_center": "行き過ぎを検知、ステップ比率を低減します",
@@ -265,5 +261,7 @@
     "cultivation.invalid_target": "目標が無効です。正の整数を入力してください",
     "cultivation.capacity": "選択項目で約 %d セット可能です",
     "cultivation.deficit_ok": "目標 %d セット分の素材は足りています",
-    "cultivation.deficit": "目標 %d セットの不足：\n%s"
+    "cultivation.deficit": "目標 %d セットの不足：\n%s",
+    "pullcount.error.invalid_reserve": "保留量が無効です。0以上の整数を入力してください",
+    "pullcount.error.ims_not_ready": "回数計算失敗：IMS在庫の準備ができていません。調達センターと貴重品の同期を先に完了してください。"
 }

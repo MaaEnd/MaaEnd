@@ -76,12 +76,8 @@
     "autofight.endaxis.waiting_combo_cooldown": "연계기 쿨다운 완료 대기 중",
     "autofight.endaxis.retry_timeline": "새 타임라인 회차를 시도합니다",
     "autofight.endaxis.no_matching_scenario": "현재 종결기 상태에 사용 가능한 타임라인 방안이 없습니다. 더 많은 방안을 추가하세요",
-    "pullcount.resource.originium": "연질 원석의 오로베릴 환산값",
-    "pullcount.resource.oroberyl": "오로베릴",
-    "pullcount.resource_read_success": "%s 읽기 성공: %d",
-    "pullcount.error.invalid_params": "모집 횟수 계산 파라미터가 올바르지 않습니다",
-    "pullcount.error.recognition_failed": "모집 횟수 인식 실패: %s. 오퍼레이터 모집 화면이 열려 있고 상단 자원 바가 가려지지 않았는지 확인해 주세요.",
-    "pullcount.result": "자원 환산: %d회\n오로베릴: %d = %d회\n연질 원석의 오로베릴 환산값: %d (원석 %d개분 = 오로베릴 %d 보류, 사용 가능 %d = %d회)\n다음 버전으로 이월 가능한 권: %d회\n다음 버전 상점: %d회\n다음 버전 출석: %d회\n현재 풀 사용 가능: %d회\n다음 버전 풀 합계: %d회",
+    "pullcount.error.invalid_params": "모집 횟수 계산 매개변수가 유효하지 않습니다",
+    "pullcount.result": "자원 환산: %d 회\n오로베릴: %d (보류 %d, 사용 가능 %d = %d 회)\n파생 오리지늄: %d (보류 %d, 환산 사용 가능 오로베릴 %d = %d 회)\n다음 버전 이월 티켓: %d 회\n다음 버전 상점: %d 회\n다음 버전 출석: %d 회\n현재 풀: %d 회\n다음 버전 합계: %d 회",
     "autoecofarm.invalid_params": "잘못된 매개변수입니다",
     "autoecofarm.no_results": "인식된 결과가 없습니다",
     "autoecofarm.crossed_center": "오버슈트 감지, 이동 비율을 줄입니다",
@@ -265,5 +261,7 @@
     "cultivation.invalid_target": "목표가 잘못되었습니다. 양의 정수를 입력하세요",
     "cultivation.capacity": "선택 항목으로 약 %d세트 가능합니다",
     "cultivation.deficit_ok": "목표 %d세트 재료가 충분합니다",
-    "cultivation.deficit": "목표 %d세트 부족:\n%s"
+    "cultivation.deficit": "목표 %d세트 부족:\n%s",
+    "pullcount.error.invalid_reserve": "보류량이 유효하지 않습니다. 0 이상의 정수를 입력하세요",
+    "pullcount.error.ims_not_ready": "모집 횟수 계산 실패: IMS 재고가 준비되지 않았습니다. 조달 센터와 귀중품 동기화를 먼저 완료하세요."
 }

@@ -1,0 +1,12 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/MaaEnd/MaaEnd/tools/schema/components/pullcount.schema.json",
+    "title": "PullCount Calculator Custom Action Params",
+    "$defs": {
+        "PullCountCalculatorActionParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "PullCountCalculatorAction 无额外参数；保留量由节点 attach.reserve_originium / reserve_oroberyl 提供。"
+        }
+    }
+}

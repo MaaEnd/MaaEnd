@@ -232,10 +232,10 @@
     "option.SwitchTeamTeamChoose.label": "팀 선택",
     "task.PuzzleSolver.description": "퍼즐 미니게임을 자동으로 해결해 줍니다. 더 이상 생각할 필요가 없습니다!",
     "task.PullCountCalculator.label": "🧮 모집 횟수 계산",
-    "task.PullCountCalculator.description": "오퍼레이터 모집 화면의 상단 자원 바를 읽고 귀중품 보관함의 모집권도 스캔해 현재 풀과 다음 버전 풀 모집 횟수를 계산합니다.",
-    "task.PullCountCalculator.focus.start": "모집 자원과 창고권을 읽는 중",
+    "task.PullCountCalculator.description": "조달 센터 재화와 귀중품 보관함의 특별 허가 모집권을 동기화한 뒤, 사용자 지정 원석/오로베릴 보류량을 반영해 현재/다음 버전 모집 횟수를 추정합니다.",
+    "task.PullCountCalculator.focus.start": "조달 센터와 귀중품 재고 동기화 중",
     "task.PullCountCalculator.focus.succeeded": "모집 횟수 계산 완료",
-    "task.PullCountCalculator.focus.failed": "모집 횟수 계산 실패. 모집 화면이 열려 있고 상단 자원 바가 가려지지 않았으며 귀중품 보관함에 들어갈 수 있는지 확인해 주세요.",
+    "task.PullCountCalculator.focus.failed": "모집 횟수 계산 실패. 조달 센터와 귀중품 보관함(귀중품)에 들어갈 수 있는지 확인해 주세요.",
     "option.PuzzleSolverMode.label": "모드",
     "option.PuzzleSolverMode.description": "- 단일 실행: 성공적으로 한 번 해결한 후 작업이 자동 종료\n- 반복 실행: 수동으로 중지할 때까지 반복 해결\n- 데모만: 실제로 해결하지 않고 작업 단계만 시연(결국 직접 해결해야 함)",
     "option.PuzzleSolverMode.cases.Single.label": "단일 실행",
@@ -1345,5 +1345,12 @@
     "task.CultivationCalc.option.Target.description": "부족 모드에서 사용할 양의 정수.",
     "task.CultivationCalc.option.Target.inputs.Sets.label": "목표 세트 수",
     "task.CultivationCalc.option.Target.inputs.Sets.description": "예: 1 = 선택 항목 기준 오퍼레이터/무기 1세트.",
-    "task.CultivationCalc.option.Target.pattern_msg": "양의 정수를 입력하세요"
+    "task.CultivationCalc.option.Target.pattern_msg": "양의 정수를 입력하세요",
+    "task.PullCountCalculator.option.Reserve.label": "사용자 지정 보류",
+    "task.PullCountCalculator.option.Reserve.description": "모집 횟수 계산에서 차감할 보류량. 기본값: 파생 오리지늄 29, 오로베릴 0.",
+    "task.PullCountCalculator.option.Reserve.inputs.Originium.label": "파생 오리지늄 보류",
+    "task.PullCountCalculator.option.Reserve.inputs.Originium.description": "환산에 사용하지 않을 파생 오리지늄 수(0 이상의 정수).",
+    "task.PullCountCalculator.option.Reserve.inputs.Oroberyl.label": "오로베릴 보류",
+    "task.PullCountCalculator.option.Reserve.inputs.Oroberyl.description": "모집 환산에 사용하지 않을 오로베릴 수(0 이상의 정수).",
+    "task.PullCountCalculator.option.Reserve.pattern_msg": "0 이상의 정수를 입력하세요"
 }

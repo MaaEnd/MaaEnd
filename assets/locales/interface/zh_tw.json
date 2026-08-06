@@ -236,10 +236,10 @@
     "option.SwitchTeamTeamChoose.label": "選擇隊伍",
     "task.PuzzleSolver.description": "自動幫你通關拼圖小遊戲，太好了不用自己動腦子了.jpg",
     "task.PullCountCalculator.label": "🧮抽數計算",
-    "task.PullCountCalculator.description": "從幹員尋訪介面讀取頂部資源欄，再進入貴重品庫掃描尋訪券，估算目前池與下版本池子抽數。",
-    "task.PullCountCalculator.focus.start": "正在讀取尋訪資源並掃描倉庫券",
+    "task.PullCountCalculator.description": "同步採購中心貨幣與貴重品庫特許尋訪憑證，按自訂保留的源石/嵌晶玉估算目前池與下版本池抽數。",
+    "task.PullCountCalculator.focus.start": "正在同步採購中心與珍貴物品庫存",
     "task.PullCountCalculator.focus.succeeded": "抽數計算完成",
-    "task.PullCountCalculator.focus.failed": "抽數計算失敗，請確認目前處於幹員尋訪介面、頂部資源欄未被遮擋，且可進入貴重品庫",
+    "task.PullCountCalculator.focus.failed": "抽數計算失敗，請確認可進入採購中心與貴重品庫珍貴物品頁",
     "option.PuzzleSolverMode.label": "模式",
     "option.PuzzleSolverMode.description": "- 單次執行：成功解謎一次後任務自動結束\n- 重複執行：重複執行解謎直到手動停止\n- 僅演示：不會實際執行解謎，僅進行操作步驟的演示（搞半天還要自己拼）",
     "option.PuzzleSolverMode.cases.Single.label": "單次執行",
@@ -1345,5 +1345,12 @@
     "task.CultivationCalc.option.Target.description": "缺料模式下要規劃的套數（正整數）。",
     "task.CultivationCalc.option.Target.inputs.Sets.label": "目標套數",
     "task.CultivationCalc.option.Target.inputs.Sets.description": "例如 1 表示升滿 1 名幹員/武器對應勾選內容。",
-    "task.CultivationCalc.option.Target.pattern_msg": "請輸入正整數"
+    "task.CultivationCalc.option.Target.pattern_msg": "請輸入正整數",
+    "task.PullCountCalculator.option.Reserve.label": "自訂保留",
+    "task.PullCountCalculator.option.Reserve.description": "計算抽數時從庫存中扣除的保留量；預設保留 29 顆衍質源石、0 嵌晶玉。",
+    "task.PullCountCalculator.option.Reserve.inputs.Originium.label": "保留衍質源石",
+    "task.PullCountCalculator.option.Reserve.inputs.Originium.description": "不參與換算抽數的衍質源石數量（非負整數）。",
+    "task.PullCountCalculator.option.Reserve.inputs.Oroberyl.label": "保留嵌晶玉",
+    "task.PullCountCalculator.option.Reserve.inputs.Oroberyl.description": "不參與折算抽數的嵌晶玉數量（非負整數）。",
+    "task.PullCountCalculator.option.Reserve.pattern_msg": "請輸入非負整數"
 }

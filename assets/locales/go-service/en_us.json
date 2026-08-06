@@ -76,12 +76,8 @@
     "autofight.endaxis.waiting_combo_cooldown": "Waiting for link skill cooldown",
     "autofight.endaxis.retry_timeline": "Trying a new timeline round",
     "autofight.endaxis.no_matching_scenario": "No timeline plan available for current ultimate state; add more plans",
-    "pullcount.resource.originium": "Essence Originium converted to Oroberyl",
-    "pullcount.resource.oroberyl": "Oroberyl",
-    "pullcount.resource_read_success": "%s read successfully: %d",
-    "pullcount.error.invalid_params": "Invalid pull count calculation parameters",
-    "pullcount.error.recognition_failed": "Pull count recognition failed: %s. Make sure the Operator Recruitment screen is open and the top resource bar is visible.",
-    "pullcount.result": "Resource conversion: %d pulls\nOroberyl: %d = %d pulls\nEssence Originium converted to Oroberyl: %d (reserve %d Originium = %d Oroberyl, usable %d = %d pulls)\nCarry-over vouchers: %d pulls\nNext-version shop: %d pulls\nNext-version sign-in: %d pulls\nCurrent pool available: %d pulls\nNext-version pool total: %d pulls",
+    "pullcount.error.invalid_params": "Invalid pull-count parameters",
+    "pullcount.result": "Resources: %d pulls\nOroberyl: %d (reserve %d, usable %d = %d pulls)\nOrigeometry: %d (reserve %d, usable as Oroberyl %d = %d pulls)\nCarry-over vouchers: %d pulls\nNext-version shop: %d pulls\nNext-version sign-in: %d pulls\nCurrent pool: %d pulls\nNext-version total: %d pulls",
     "autoecofarm.invalid_params": "Invalid parameters",
     "autoecofarm.no_results": "No results recognized",
     "autoecofarm.crossed_center": "Overshot detected, reducing step ratio",
@@ -265,5 +261,7 @@
     "cultivation.invalid_target": "Invalid target; enter a positive integer",
     "cultivation.capacity": "Stock can complete about %d package(s) for the selected parts",
     "cultivation.deficit_ok": "Materials are enough for %d package(s)",
-    "cultivation.deficit": "Missing for %d package(s):\n%s"
+    "cultivation.deficit": "Missing for %d package(s):\n%s",
+    "pullcount.error.invalid_reserve": "Invalid reserve; enter a non-negative integer",
+    "pullcount.error.ims_not_ready": "Pull count failed: IMS inventory is not ready. Sync Acquisition Center and Valuables first."
 }

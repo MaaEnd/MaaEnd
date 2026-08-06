@@ -15,7 +15,45 @@
             ],
             "group": [
                 "other_menu"
+            ],
+            "option": [
+                "PullCountReserve"
             ]
         }
-    ]
+    ],
+    "option": {
+        "PullCountReserve": {
+            "type": "input",
+            "label": "$task.PullCountCalculator.option.Reserve.label",
+            "description": "$task.PullCountCalculator.option.Reserve.description",
+            "inputs": [
+                {
+                    "name": "PullCountReserveOriginium",
+                    "label": "$task.PullCountCalculator.option.Reserve.inputs.Originium.label",
+                    "description": "$task.PullCountCalculator.option.Reserve.inputs.Originium.description",
+                    "pipeline_type": "int",
+                    "default": "29",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$task.PullCountCalculator.option.Reserve.pattern_msg"
+                },
+                {
+                    "name": "PullCountReserveOroberyl",
+                    "label": "$task.PullCountCalculator.option.Reserve.inputs.Oroberyl.label",
+                    "description": "$task.PullCountCalculator.option.Reserve.inputs.Oroberyl.description",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$task.PullCountCalculator.option.Reserve.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "PullCountCalculatorEvaluate": {
+                    "attach": {
+                        "reserve_originium": "{PullCountReserveOriginium}",
+                        "reserve_oroberyl": "{PullCountReserveOroberyl}"
+                    }
+                }
+            }
+        }
+    }
 }

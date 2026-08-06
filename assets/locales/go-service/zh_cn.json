@@ -76,12 +76,8 @@
     "autofight.endaxis.waiting_combo_cooldown": "等待连携技冷却完成",
     "autofight.endaxis.retry_timeline": "尝试新一轮排轴",
     "autofight.endaxis.no_matching_scenario": "当前终结技状态没有可用排轴，需添加更多方案",
-    "pullcount.resource.originium": "衍质源石换算嵌晶玉",
-    "pullcount.resource.oroberyl": "嵌晶玉",
-    "pullcount.resource_read_success": "%s读取成功：%d",
     "pullcount.error.invalid_params": "抽数计算参数无效",
-    "pullcount.error.recognition_failed": "抽数计算识别失败：%s。请确认当前处于干员寻访界面且顶部资源栏无遮挡。",
-    "pullcount.result": "资源折算：%d 抽\n嵌晶玉：%d = %d 抽\n衍质源石换算嵌晶玉：%d（保留源石 %d 个 = 嵌晶玉 %d，可用 %d = %d 抽）\n可留到下版本的券：%d 抽\n下版本商店：%d 抽\n下版本签到：%d 抽\n当前池可用：%d 抽\n下版本池子总计：%d 抽",
+    "pullcount.result": "资源折算：%d 抽\n嵌晶玉：%d（保留 %d，可用 %d = %d 抽）\n衍质源石：%d（保留 %d，换算可用嵌晶玉 %d = %d 抽）\n可留到下版本的券：%d 抽\n下版本商店：%d 抽\n下版本签到：%d 抽\n当前池可用：%d 抽\n下版本池子总计：%d 抽",
     "autoecofarm.invalid_params": "非法参数",
     "autoecofarm.no_results": "未识别到结果",
     "autoecofarm.crossed_center": "检测到拉过头，自动降低拉近比例",
@@ -265,5 +261,7 @@
     "cultivation.invalid_target": "目标套数无效，请输入正整数",
     "cultivation.capacity": "当前库存大约可完成 %d 套（按勾选养成项）",
     "cultivation.deficit_ok": "目标 %d 套材料已足够",
-    "cultivation.deficit": "目标 %d 套还缺少：\n%s"
+    "cultivation.deficit": "目标 %d 套还缺少：\n%s",
+    "pullcount.error.invalid_reserve": "保留量无效，请输入非负整数",
+    "pullcount.error.ims_not_ready": "抽数计算失败：IMS 库存未就绪，请先完成采购中心与珍贵物品页同步"
 }

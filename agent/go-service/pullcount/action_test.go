@@ -2,44 +2,73 @@ package pullcount
 
 import "testing"
 
-// TestCalculatePullCount verifies the resource formula and fixed next-pool pulls.
 func TestCalculatePullCount(t *testing.T) {
 	tests := []struct {
-		name string
-		vals resourceValues
-		sum  voucherSummary
-		want calculationResult
+		name             string
+		stock            resourceStock
+		reserveOriginium int
+		reserveOroberyl  int
+		want             calculationResult
 	}{
 		{
 			name: "issue resource example",
-			vals: resourceValues{ConvertedOriginiumOroberyl: 2925, Oroberyl: 20770},
-			sum:  voucherSummary{CarryToNextPulls: 3},
+			// 旧顶栏「换算嵌晶玉 2925」= 39 颗源石；保留 29 → 可用 10*75=750
+			stock: resourceStock{
+				Originium:        39,
+				Oroberyl:         20770,
+				CarryToNextPulls: 3,
+			},
+			reserveOriginium: 29,
+			reserveOroberyl:  0,
 			want: calculationResult{
-				ReservedOriginiumOroberyl: 2175,
-				UsableOriginiumOroberyl:   750,
-				OroberylPulls:             41,
-				UsableOriginiumPulls:      1,
-				ResourcePulls:             43,
-				CurrentPoolTotal:          46,
-				NextPoolTotal:             56,
+				UsableOriginiumOroberyl: 750,
+				UsableOroberyl:          20770,
+				OroberylPulls:           41,
+				UsableOriginiumPulls:    1,
+				ResourcePulls:           43,
+				CurrentPoolTotal:        46,
+				NextPoolTotal:           56,
 			},
 		},
 		{
 			name: "reserved originium clamps to zero",
-			vals: resourceValues{ConvertedOriginiumOroberyl: 2000, Oroberyl: 499},
+			stock: resourceStock{
+				Originium: 26,
+				Oroberyl:  499,
+			},
+			reserveOriginium: 29,
+			reserveOroberyl:  0,
 			want: calculationResult{
-				ReservedOriginiumOroberyl: 2175,
-				UsableOriginiumOroberyl:   0,
-				ResourcePulls:             0,
-				NextPoolTotal:             10,
+				UsableOriginiumOroberyl: 0,
+				UsableOroberyl:          499,
+				ResourcePulls:           0,
+				NextPoolTotal:           10,
+			},
+		},
+		{
+			name: "custom oroberyl reserve",
+			stock: resourceStock{
+				Originium:        29,
+				Oroberyl:         1500,
+				CarryToNextPulls: 1,
+			},
+			reserveOriginium: 29,
+			reserveOroberyl:  500,
+			want: calculationResult{
+				UsableOriginiumOroberyl: 0,
+				UsableOroberyl:          1000,
+				OroberylPulls:           2,
+				ResourcePulls:           2,
+				CurrentPoolTotal:        3,
+				NextPoolTotal:           13,
 			},
 		},
 	}
 
 	for _, tt := range tests {
-		got := calculatePullCount(tt.vals, tt.sum)
-		if got.ReservedOriginiumOroberyl != tt.want.ReservedOriginiumOroberyl ||
-			got.UsableOriginiumOroberyl != tt.want.UsableOriginiumOroberyl ||
+		got := calculatePullCount(tt.stock, tt.reserveOriginium, tt.reserveOroberyl)
+		if got.UsableOriginiumOroberyl != tt.want.UsableOriginiumOroberyl ||
+			got.UsableOroberyl != tt.want.UsableOroberyl ||
 			got.OroberylPulls != tt.want.OroberylPulls ||
 			got.UsableOriginiumPulls != tt.want.UsableOriginiumPulls ||
 			got.ResourcePulls != tt.want.ResourcePulls ||
@@ -48,48 +77,4 @@ func TestCalculatePullCount(t *testing.T) {
 			t.Fatalf("%s: calculatePullCount() = %+v, want key fields %+v", tt.name, got, tt.want)
 		}
 	}
-}
-
-// TestAddVoucher verifies Pipeline-classified voucher accumulation and duplicate suppression.
-func TestAddVoucher(t *testing.T) {
-	session := newTestSession()
-
-	if added := recordCarryToNextVoucher(session, "p1"); !added {
-		t.Fatal("recordCarryToNextVoucher first hit = false, want true")
-	}
-	if added := recordCarryToNextVoucher(session, "p1"); added {
-		t.Fatal("recordCarryToNextVoucher duplicate = true, want false")
-	}
-	if added := recordCarryToNextVoucher(session, "p2"); !added {
-		t.Fatal("recordCarryToNextVoucher second hit = false, want true")
-	}
-	if session.Vouchers.CarryToNextPulls != 2 {
-		t.Fatalf("voucher summary = %+v, want carry 2", session.Vouchers)
-	}
-}
-
-// TestParseIntegerText verifies OCR counter parsing and rejection.
-func TestParseIntegerText(t *testing.T) {
-	for text, want := range map[string]int{
-		" 20,770 |": 20770,
-		"20770 1":   20770,
-		"x 123 y":   123,
-		"abc 456":   456,
-		"987654321": 987654321,
-	} {
-		got, err := parseIntegerText(text)
-		if err != nil || got != want {
-			t.Fatalf("parseIntegerText(%q) = %d, %v; want %d", text, got, err, want)
-		}
-	}
-	for _, text := range []string{"abc", " | ", ""} {
-		if got, err := parseIntegerText(text); err == nil {
-			t.Fatalf("parseIntegerText(%q) = %d, want error", text, got)
-		}
-	}
-}
-
-// newTestSession builds the minimal state needed by page-decision unit tests.
-func newTestSession() *runSession {
-	return newRunSession()
 }

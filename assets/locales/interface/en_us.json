@@ -236,10 +236,10 @@
     "option.SwitchTeamTeamChoose.label": "Select Team",
     "task.PuzzleSolver.description": "Automatically solve puzzle mini-games for you. No need to think anymore!",
     "task.PullCountCalculator.label": "🧮 Pull Count Calculator",
-    "task.PullCountCalculator.description": "Read the top resource bar on the Operator Headhunt screen, then scan headhunt vouchers in Valuables to estimate current and next-version pulls.",
-    "task.PullCountCalculator.focus.start": "Reading resources and scanning warehouse vouchers",
+    "task.PullCountCalculator.description": "Sync Acquisition Center currencies and Valuables chartered permits, then estimate current and next-version pulls with custom Origeometry/Oroberyl reserves.",
+    "task.PullCountCalculator.focus.start": "Syncing shop and valuables inventory",
     "task.PullCountCalculator.focus.succeeded": "Pull count calculated",
-    "task.PullCountCalculator.focus.failed": "Pull count calculation failed. Make sure the Operator Recruitment screen is open, the top resource bar is visible, and Valuables can be entered.",
+    "task.PullCountCalculator.focus.failed": "Pull count failed. Make sure Acquisition Center and Valuables (Valuable Items) can be entered.",
     "option.PuzzleSolverMode.label": "Mode",
     "option.PuzzleSolverMode.description": "- Single Run: Task ends automatically after successfully solving once\n- Loop: Repeat solving until manually stopped\n- Demo Only: Does not actually solve, only demonstrates steps (you'll still need to solve it yourself)",
     "option.PuzzleSolverMode.cases.Single.label": "Single Run",
@@ -1345,5 +1345,12 @@
     "task.CultivationCalc.option.Target.description": "Positive integer target used in deficit mode.",
     "task.CultivationCalc.option.Target.inputs.Sets.label": "Target packages",
     "task.CultivationCalc.option.Target.inputs.Sets.description": "e.g. 1 = one operator/weapon package for the selected parts.",
-    "task.CultivationCalc.option.Target.pattern_msg": "Enter a positive integer"
+    "task.CultivationCalc.option.Target.pattern_msg": "Enter a positive integer",
+    "task.PullCountCalculator.option.Reserve.label": "Custom reserves",
+    "task.PullCountCalculator.option.Reserve.description": "Amounts withheld from the pull estimate. Defaults: 29 Origeometry, 0 Oroberyl.",
+    "task.PullCountCalculator.option.Reserve.inputs.Originium.label": "Reserve Origeometry",
+    "task.PullCountCalculator.option.Reserve.inputs.Originium.description": "Origeometry kept out of conversion (non-negative integer).",
+    "task.PullCountCalculator.option.Reserve.inputs.Oroberyl.label": "Reserve Oroberyl",
+    "task.PullCountCalculator.option.Reserve.inputs.Oroberyl.description": "Oroberyl kept out of pull conversion (non-negative integer).",
+    "task.PullCountCalculator.option.Reserve.pattern_msg": "Enter a non-negative integer"
 }

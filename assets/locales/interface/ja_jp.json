@@ -232,10 +232,10 @@
     "option.SwitchTeamTeamChoose.label": "チーム選択",
     "task.PuzzleSolver.description": "パズルミニゲームを自動で解決します。もう考える必要はありません！",
     "task.PullCountCalculator.label": "🧮 スカウト回数計算",
-    "task.PullCountCalculator.description": "オペレーター募集画面の上部リソース欄を読み取り、貴重品庫のスカウト券もスキャンして、現在と次バージョンのスカウト回数を見積もります。",
-    "task.PullCountCalculator.focus.start": "募集リソースと倉庫券を読み取り中",
-    "task.PullCountCalculator.focus.succeeded": "スカウト回数の計算が完了しました",
-    "task.PullCountCalculator.focus.failed": "スカウト回数の計算に失敗しました。募集画面を開き、上部リソース欄が隠れておらず、貴重品庫へ入れることを確認してください。",
+    "task.PullCountCalculator.description": "調達センターの通貨と貴重品庫の特別スカウト券を同期し、カスタム保留の源石/赤晶玉で現行プールと次バージョンの回数を見積もります。",
+    "task.PullCountCalculator.focus.start": "調達センターと貴重品の在庫を同期中",
+    "task.PullCountCalculator.focus.succeeded": "回数計算完了",
+    "task.PullCountCalculator.focus.failed": "回数計算に失敗しました。調達センターと貴重品庫（貴重品）に入れるか確認してください。",
     "option.PuzzleSolverMode.label": "モード",
     "option.PuzzleSolverMode.description": "- 単回実行：成功解決1回後にタスクが自動終了\n- 繰り返し実行：手動停止まで繰り返し解決\n- デモのみ：実際には解決せず、操作手順のみをデモンストレーション（結局自分で解く必要があります）",
     "option.PuzzleSolverMode.cases.Single.label": "単回実行",
@@ -1345,5 +1345,12 @@
     "task.CultivationCalc.option.Target.description": "不足モードで使う正の整数。",
     "task.CultivationCalc.option.Target.inputs.Sets.label": "目標セット数",
     "task.CultivationCalc.option.Target.inputs.Sets.description": "例: 1 = 選択項目1オペレーター/武器分。",
-    "task.CultivationCalc.option.Target.pattern_msg": "正の整数を入力してください"
+    "task.CultivationCalc.option.Target.pattern_msg": "正の整数を入力してください",
+    "task.PullCountCalculator.option.Reserve.label": "カスタム保留",
+    "task.PullCountCalculator.option.Reserve.description": "回数計算から差し引く保留量。既定は展延源石 29、赤晶玉 0。",
+    "task.PullCountCalculator.option.Reserve.inputs.Originium.label": "展延源石の保留",
+    "task.PullCountCalculator.option.Reserve.inputs.Originium.description": "換算に使わない展延源石の数（0以上の整数）。",
+    "task.PullCountCalculator.option.Reserve.inputs.Oroberyl.label": "赤晶玉の保留",
+    "task.PullCountCalculator.option.Reserve.inputs.Oroberyl.description": "回数換算に使わない赤晶玉の数（0以上の整数）。",
+    "task.PullCountCalculator.option.Reserve.pattern_msg": "0以上の整数を入力してください"
 }

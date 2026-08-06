@@ -4,88 +4,108 @@ import (
 	"encoding/json"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/ims"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
+const componentName = "PullCountCalculator"
+
 const (
-	componentName = "PullCountCalculator"
-
-	stageInit            = "init"
-	stageRecordOriginium = "record_originium"
-	stageRecordOroberyl  = "record_oroberyl"
-	stageRecordVoucher   = "record_voucher"
-	stageFinish          = "finish"
-
-	reservedOriginium   = 29
-	originiumToOroberyl = 75
-	oroberylPerPull     = 500
-	nextPoolShopPulls   = 5
-	nextPoolSigninPulls = 5
+	defaultReserveOriginium = 29
+	defaultReserveOroberyl  = 0
+	originiumToOroberyl     = 75
+	oroberylPerPull         = 500
+	nextPoolShopPulls       = 5
+	nextPoolSigninPulls     = 5
 )
 
 var _ maa.CustomActionRunner = &Action{}
 
-// Action calculates current and next-version recruitment pulls from Pipeline-provided OCR results.
+// Action reads IMS shop/valuables stock and attach reserves, then prints pull totals.
 type Action struct{}
 
-// --- Entry And Parameters --- //
+type pullCountAttach struct {
+	ReserveOriginium *int `json:"reserve_originium"`
+	ReserveOroberyl  *int `json:"reserve_oroberyl"`
+}
 
-// Run dispatches one Pipeline stage of the pull-count calculation.
+// Run implements maa.CustomActionRunner.
 func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	if ctx == nil {
-		log.Error().Str("component", componentName).Msg("context is nil")
-		return false
-	}
-	if arg == nil {
-		log.Error().Str("component", componentName).Msg("custom action arg is nil")
+	if ctx == nil || arg == nil {
+		log.Error().Str("component", componentName).Msg("nil context or arg")
 		return false
 	}
 
-	stage, err := parseStage(arg.CustomActionParam)
+	attach, err := loadPullCountAttach(ctx, arg.CurrentTaskName)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", componentName).
-			Str("custom_action_param", arg.CustomActionParam).
-			Msg("failed to parse action params")
+			Str("node", arg.CurrentTaskName).
+			Msg("failed to load attach")
 		maafocus.Print(ctx, i18n.T("pullcount.error.invalid_params"))
 		return false
 	}
 
-	sessionMu.Lock()
-	defer sessionMu.Unlock()
-
-	switch stage {
-	case stageInit:
-		return handleInit(ctx)
-	case stageRecordOriginium:
-		return handleRecordResource(ctx, arg, true)
-	case stageRecordOroberyl:
-		return handleRecordResource(ctx, arg, false)
-	case stageRecordVoucher:
-		return handleRecordVoucher(ctx, arg)
-	case stageFinish:
-		return handleFinish(ctx)
-	default:
-		log.Error().Str("component", componentName).Str("stage", stage).Msg("unknown stage")
-		maafocus.Print(ctx, i18n.T("pullcount.error.invalid_params"))
+	if err := ims.EnsureHydrated(); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", componentName).
+			Msg("failed to hydrate ims cache")
+		maafocus.Print(ctx, i18n.T("pullcount.error.ims_not_ready"))
 		return false
 	}
+
+	reserveOriginium := defaultReserveOriginium
+	if attach.ReserveOriginium != nil {
+		if *attach.ReserveOriginium < 0 {
+			maafocus.Print(ctx, i18n.T("pullcount.error.invalid_reserve"))
+			return false
+		}
+		reserveOriginium = *attach.ReserveOriginium
+	}
+	reserveOroberyl := defaultReserveOroberyl
+	if attach.ReserveOroberyl != nil {
+		if *attach.ReserveOroberyl < 0 {
+			maafocus.Print(ctx, i18n.T("pullcount.error.invalid_reserve"))
+			return false
+		}
+		reserveOroberyl = *attach.ReserveOroberyl
+	}
+
+	stock := resourceStock{
+		Originium:        ims.ItemQuantity("ORIGEOMETRY"),
+		Oroberyl:         ims.ItemQuantity("OROBERYL"),
+		CarryToNextPulls: ims.ItemQuantity("CHARTERED_HH_PERMIT"),
+	}
+	result := calculatePullCount(stock, reserveOriginium, reserveOroberyl)
+	maafocus.Print(ctx, formatResultFocus(stock, result))
+	log.Info().
+		Str("component", componentName).
+		Interface("stock", stock).
+		Int("reserve_originium", reserveOriginium).
+		Int("reserve_oroberyl", reserveOroberyl).
+		Interface("result", result).
+		Msg("pull count calculated")
+	return true
 }
 
-// parseStage reads the pull-count stage name passed from Pipeline.
-func parseStage(raw string) (string, error) {
-	var param struct {
-		Stage string `json:"stage"`
+func loadPullCountAttach(ctx *maa.Context, nodeName string) (pullCountAttach, error) {
+	if ctx == nil || strings.TrimSpace(nodeName) == "" {
+		return pullCountAttach{}, nil
 	}
-	if strings.TrimSpace(raw) != "" {
-		if err := json.Unmarshal([]byte(raw), &param); err != nil {
-			return "", err
-		}
+	raw, err := ctx.GetNodeJSON(nodeName)
+	if err != nil {
+		return pullCountAttach{}, err
 	}
-
-	return strings.TrimSpace(param.Stage), nil
+	var wrapper struct {
+		Attach pullCountAttach `json:"attach"`
+	}
+	if err := json.Unmarshal([]byte(raw), &wrapper); err != nil {
+		return pullCountAttach{}, err
+	}
+	return wrapper.Attach, nil
 }
