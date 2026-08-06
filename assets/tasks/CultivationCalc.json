@@ -1,0 +1,194 @@
+{
+    "task": [
+        {
+            "name": "CultivationCalc",
+            "label": "$task.CultivationCalc.label",
+            "entry": "CultivationCalcMain",
+            "description": "$task.CultivationCalc.description",
+            "controller": [
+                "ADB",
+                "MacOS-Background",
+                "MacOS-Front",
+                "PlayCover",
+                "Win32-Front",
+                "Wlroots"
+            ],
+            "group": [
+                "other_menu"
+            ],
+            "option": [
+                "CultivationCalcParts",
+                "CultivationCalcMode"
+            ]
+        }
+    ],
+    "option": {
+        "CultivationCalcParts": {
+            "type": "checkbox",
+            "label": "$task.CultivationCalc.option.Parts.label",
+            "description": "$task.CultivationCalc.option.Parts.description",
+            "default_case": [
+                "Level"
+            ],
+            "cases": [
+                {
+                    "name": "Level",
+                    "label": "$task.CultivationCalc.option.Parts.cases.Level.label",
+                    "pipeline_override": {
+                        "CultivationCalcEvaluate": {
+                            "attach": {
+                                "level": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "BasicAttack",
+                    "label": "$task.CultivationCalc.option.Parts.cases.BasicAttack.label",
+                    "pipeline_override": {
+                        "CultivationCalcEvaluate": {
+                            "attach": {
+                                "basic_attack": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Skill",
+                    "label": "$task.CultivationCalc.option.Parts.cases.Skill.label",
+                    "pipeline_override": {
+                        "CultivationCalcEvaluate": {
+                            "attach": {
+                                "skill": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Combo",
+                    "label": "$task.CultivationCalc.option.Parts.cases.Combo.label",
+                    "pipeline_override": {
+                        "CultivationCalcEvaluate": {
+                            "attach": {
+                                "combo": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Ultimate",
+                    "label": "$task.CultivationCalc.option.Parts.cases.Ultimate.label",
+                    "pipeline_override": {
+                        "CultivationCalcEvaluate": {
+                            "attach": {
+                                "ultimate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Trust",
+                    "label": "$task.CultivationCalc.option.Parts.cases.Trust.label",
+                    "pipeline_override": {
+                        "CultivationCalcEvaluate": {
+                            "attach": {
+                                "trust": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Talent",
+                    "label": "$task.CultivationCalc.option.Parts.cases.Talent.label",
+                    "pipeline_override": {
+                        "CultivationCalcEvaluate": {
+                            "attach": {
+                                "talent": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Base",
+                    "label": "$task.CultivationCalc.option.Parts.cases.Base.label",
+                    "pipeline_override": {
+                        "CultivationCalcEvaluate": {
+                            "attach": {
+                                "base": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Weapon",
+                    "label": "$task.CultivationCalc.option.Parts.cases.Weapon.label",
+                    "pipeline_override": {
+                        "CultivationCalcEvaluate": {
+                            "attach": {
+                                "weapon": true
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CultivationCalcMode": {
+            "type": "select",
+            "label": "$task.CultivationCalc.option.Mode.label",
+            "description": "$task.CultivationCalc.option.Mode.description",
+            "default_case": "Capacity",
+            "cases": [
+                {
+                    "name": "Capacity",
+                    "label": "$task.CultivationCalc.option.Mode.cases.Capacity.label",
+                    "description": "$task.CultivationCalc.option.Mode.cases.Capacity.description",
+                    "pipeline_override": {
+                        "CultivationCalcEvaluate": {
+                            "attach": {
+                                "mode": "capacity"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Deficit",
+                    "label": "$task.CultivationCalc.option.Mode.cases.Deficit.label",
+                    "description": "$task.CultivationCalc.option.Mode.cases.Deficit.description",
+                    "pipeline_override": {
+                        "CultivationCalcEvaluate": {
+                            "attach": {
+                                "mode": "deficit"
+                            }
+                        }
+                    },
+                    "option": [
+                        "CultivationCalcTarget"
+                    ]
+                }
+            ]
+        },
+        "CultivationCalcTarget": {
+            "type": "input",
+            "label": "$task.CultivationCalc.option.Target.label",
+            "description": "$task.CultivationCalc.option.Target.description",
+            "inputs": [
+                {
+                    "name": "CultivationCalcTargetSets",
+                    "label": "$task.CultivationCalc.option.Target.inputs.Sets.label",
+                    "description": "$task.CultivationCalc.option.Target.inputs.Sets.description",
+                    "pipeline_type": "int",
+                    "default": "1",
+                    "verify": "^[1-9]\\d*$",
+                    "pattern_msg": "$task.CultivationCalc.option.Target.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "CultivationCalcEvaluate": {
+                    "attach": {
+                        "target": "{CultivationCalcTargetSets}"
+                    }
+                }
+            }
+        }
+    }
+}

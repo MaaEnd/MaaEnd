@@ -260,5 +260,10 @@
     "ims.quantity_short": "%s：在庫 %d / 目標 %d（不足）",
     "ims.expression_ok": "式が成立：%s",
     "ims.expression_short": "式が不成立：%s",
-    "ims.add_item_skip_persist": "IMS 未初期化：報酬は認識しましたがキャッシュは更新しません"
+    "ims.add_item_skip_persist": "IMS 未初期化：報酬は認識しましたがキャッシュは更新しません",
+    "cultivation.no_parts": "育成項目が選択されていません",
+    "cultivation.invalid_target": "目標が無効です。正の整数を入力してください",
+    "cultivation.capacity": "選択項目で約 %d セット可能です",
+    "cultivation.deficit_ok": "目標 %d セット分の素材は足りています",
+    "cultivation.deficit": "目標 %d セットの不足：\n%s"
 }

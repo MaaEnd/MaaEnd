@@ -1,0 +1,27 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Cultivation Calc Component Schema",
+    "description": "Parameter definitions for cultivation-calc custom actions.",
+    "$defs": {
+        "EvaluateCultivationBundleParam": {
+            "type": "object",
+            "title": "EvaluateCultivationBundle Param",
+            "description": "Optional overrides for EvaluateCultivationBundle. Selected parts and mode/target come from node attach (checkbox/select/input). Empty object uses built-in default cultivation cost table.",
+            "additionalProperties": false,
+            "properties": {
+                "bundle_costs": {
+                    "title": "Bundle Costs",
+                    "description": "Map of part key (level/basic_attack/skill/combo/ultimate/trust/talent/base/weapon) to resource needs. Resource keys are IMS item IDs, or COMBAT_RECORD_EXP / COGNITIVE_CARRIER_EXP / WEAPON_EXP / ADVANCED_MATERIAL.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

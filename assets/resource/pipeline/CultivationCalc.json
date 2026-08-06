@@ -1,0 +1,49 @@
+{
+    "CultivationCalcMain": {
+        "desc": "养成计算入口：同步培养仓库存后，按勾选养成项估算能做几套或缺料",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationCalcSync"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.CultivationCalc.focus.start",
+            "Node.Action.Failed": "$task.CultivationCalc.focus.failed"
+        }
+    },
+    "CultivationCalcSync": {
+        "desc": "同步培养仓 IMS 库存",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SyncItemData",
+            "CultivationCalcEvaluate"
+        ]
+    },
+    "CultivationCalcEvaluate": {
+        "desc": "按 attach 勾选与模式计算套数或缺料；bundle_costs 可空（用默认表）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EvaluateCultivationBundle",
+                "custom_action_param": {}
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [],
+        "focus": {
+            "Node.Action.Succeeded": "$task.CultivationCalc.focus.succeeded",
+            "Node.Action.Failed": "$task.CultivationCalc.focus.failed"
+        },
+        "attach": {}
+    }
+}

@@ -222,6 +222,7 @@
         "tasks/BatchAddFriends.json",
         // group: other_menu
         "tasks/PullCountCalculator.json",
+        "tasks/CultivationCalc.json",
         "tasks/BakerEntry.json",
         "tasks/ReadAllWiki.json",
         "tasks/DailyRewards.json",

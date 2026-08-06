@@ -260,5 +260,10 @@
     "ims.quantity_short": "%s: 재고 %d / 목표 %d (부족)",
     "ims.expression_ok": "식 성립: %s",
     "ims.expression_short": "식 불성립: %s",
-    "ims.add_item_skip_persist": "IMS 미초기화: 보상은 인식했지만 캐시는 갱신하지 않음"
+    "ims.add_item_skip_persist": "IMS 미초기화: 보상은 인식했지만 캐시는 갱신하지 않음",
+    "cultivation.no_parts": "육성 항목이 선택되지 않았습니다",
+    "cultivation.invalid_target": "목표가 잘못되었습니다. 양의 정수를 입력하세요",
+    "cultivation.capacity": "선택 항목으로 약 %d세트 가능합니다",
+    "cultivation.deficit_ok": "목표 %d세트 재료가 충분합니다",
+    "cultivation.deficit": "목표 %d세트 부족:\n%s"
 }

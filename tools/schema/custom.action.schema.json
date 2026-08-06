@@ -39,6 +39,7 @@
                 "ClearHitCount",
                 "CreditShoppingScanItemAction",
                 "ERROR",
+                "EvaluateCultivationBundle",
                 "EssenceFilterAfterBattleSkillDecisionAction",
                 "EssenceFilterAfterBattleTierGateAction",
                 "EssenceFilterCheckItemAction",
@@ -107,6 +108,20 @@
 			"then": {
 				"properties": {
 					"custom_action_param": { "$ref": "./components/ims.schema.json#/$defs/AddItemDataParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "EvaluateCultivationBundle" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/cultivation.schema.json#/$defs/EvaluateCultivationBundleParam" }
 				},
 				"required": [ "custom_action_param" ]
 			}

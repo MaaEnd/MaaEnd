@@ -260,5 +260,10 @@
     "ims.quantity_short": "%s：库存 %d / 目标 %d（未达标）",
     "ims.expression_ok": "表达式成立：%s",
     "ims.expression_short": "表达式不成立：%s",
-    "ims.add_item_skip_persist": "IMS 未初始化，已识别奖励但不写入缓存"
+    "ims.add_item_skip_persist": "IMS 未初始化，已识别奖励但不写入缓存",
+    "cultivation.no_parts": "未勾选任何养成项目",
+    "cultivation.invalid_target": "目标套数无效，请输入正整数",
+    "cultivation.capacity": "当前库存大约可完成 %d 套（按勾选养成项）",
+    "cultivation.deficit_ok": "目标 %d 套材料已足够",
+    "cultivation.deficit": "目标 %d 套还缺少：\n%s"
 }

@@ -109,3 +109,13 @@ func ClearCache() {
 	globalCache.clear()
 	hydrated = true
 }
+
+// EnsureHydrated loads IMS.json into memory at most once until ClearCache.
+func EnsureHydrated() error {
+	return ensureHydrated()
+}
+
+// ItemQuantity returns the cached count for itemID (0 if missing). Call EnsureHydrated first.
+func ItemQuantity(itemID string) int {
+	return globalCache.quantity(itemID)
+}
