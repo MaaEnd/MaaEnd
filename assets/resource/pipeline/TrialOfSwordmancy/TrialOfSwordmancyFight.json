@@ -10,7 +10,15 @@
         ],
         "template": "TrialOfSwordmancy/TrialStart.png",
         "pre_delay": 0,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "interval_ms": 1500,
+            "wait_nodes": [
+                "TrialOfSwordmancyPrepareTeam"
+            ]
+        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyPrepareTeam"
@@ -27,15 +35,6 @@
             100
         ],
         "template": "ProtocolSpace/TeamChooseIcon.png",
-        "pre_wait_freezes": {
-            "time": 200,
-            "target": [
-                0,
-                0,
-                100,
-                200
-            ]
-        },
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -48,9 +47,13 @@
         "all_of": [
             "YellowConfirmButtonType2"
         ],
-        "pre_wait_freezes": 400,
         "pre_delay": 0,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "TrialOfSwordmancyConfirmTeam"
+        },
         "post_delay": 0,
         "next": [
             "[JumpBack]SceneWaitBlackScreenLoadingExit",
@@ -106,7 +109,6 @@
             "TrialOfSwordmancyCloseTrialTarget"
         ]
     },
-    // 挑战目标界面无任何画面变化，用不了 post_wait_freezes
     "TrialOfSwordmancyCloseTrialTarget": {
         "desc": "关闭挑战目标界面",
         "recognition": "TemplateMatch",
@@ -117,8 +119,13 @@
             119
         ],
         "template": "Common/Button/CloseButtonType4.png",
-        "pre_delay": 500, // 防止点击失效
-        "action": "Click",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "TrialOfSwordmancyChallengeBackground"
+        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyEnterTrialSuccess"
@@ -145,7 +152,15 @@
             "WhiteConfirmButtonType1"
         ],
         "pre_delay": 0,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_nodes": [
+                "TrialOfSwordmancyRewardExhausted",
+                "TrialOfSwordmancyReEnterTrialMenuSuccess"
+            ]
+        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyRewardExhausted",
@@ -171,16 +186,6 @@
         "all_of": [
             "TrialOfSwordmancyDrawCard"
         ],
-        "pre_wait_freezes": {
-            "time": 100,
-            "target": [
-                // 等待抽牌按钮的骰子转动完毕
-                1081,
-                510,
-                68,
-                60
-            ]
-        },
         "pre_delay": 0,
         "post_delay": 0,
         "next": [

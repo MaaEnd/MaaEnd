@@ -160,14 +160,14 @@ The default export of `data.mjs` is an array, where each element = the rendering
 | `Name` | Comes from the Chinese name in `kite_station_i18n.json`; `MissionId` is only used by `model.mjs` to match `routes.json` and is not passed to the template |
 | `GoToMonitoringTerminal` | Determined by `Station` |
 | `EnterMap` | `routes.json[*].EnterMap`; any defined Pipeline node name is allowed, without a required prefix, as long as the node can complete and return normally when run as a SubTask |
-| `MapName` / `MapAssert` / `MapPath` / `MapTarget` / `MapTargetTier` / `MapGoal` | `routes.json[*]`, corresponding to the initial location check and subsequent pathfinding parameters; `MapPath` generates `MapTrackerAssertLocation` + `MapTrackerMove`, `MapTarget` generates `MapLocateAssertLocation` + `MapNavigateAction` with the `NAVMESH` target point, `MapTargetTier` optionally generates `target_tier`, and `MapGoal` generates `MapTrackerAssertLocation` + `MapTrackerGoal`. Omit all of these fields when the teleport landing point can be photographed directly; otherwise exactly one of `MapPath` / `MapTarget` / `MapGoal` is required. |
+| `MapName` / `MapAssert` / `MapPath` / `MapTarget` / `MapTargetTier` / `MapGoal` | `routes.json[*]`, corresponding to the initial location check and subsequent pathfinding parameters; `MapPath` generates `MapTrackerAssertLocation` + `MapTrackerMove`, `MapTarget` generates `MapLocateAssertLocation` + `MapNavigateAction` with the `NAVMESH` target point, `MapTargetTier` optionally generates `target_tier`, and `MapGoal` generates `MapTrackerAssertLocation` + `MapTrackerGoal`. Omit all of these fields when the teleport landing point can be photographed directly; otherwise exactly one of `MapPath` / `MapTarget` / `MapGoal` is required. All three navigation modes may omit `MapAssert` when combined with `QuickTeleport`. |
 | `CameraSwipeDirection` | `routes.json[*]`, must be one of `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` |
 | `CameraMaxHit` | `routes.json[*].CameraMaxHit`, defaults to `2`; corresponds to the maximum hit count for the `${Id}AdjustCamera` swipe action |
 | `OcrReplace` | Passed through from `routes.json[*].Replace` to `Check${Id}Text.replace` and `In${Id}Mission.replace`; used to configure task-specific OCR replacement pairs for the task list and mission detail page, without affecting route adaptation checks |
 | `ExpectedText` | Automatically expanded from the `mission.name` multilingual map in `kite_station_i18n.json` (5 languages, English converted to flexible regex) |
 | `InExpectedText` | Automatically expanded from the `mission.shotTargetName` in `kite_station_i18n.json` |
 | `TrackOrGoToNext` / `AfterTrackedNext` | Automatically determined by `data.mjs` based on whether the route is complete: `TrackOrGoToNext` converges to `Track${Id}` / `AlreadyTracked${Id}`, `AfterTrackedNext` is `GoTo${Id}` when adapted, `${Id}NotAdapted` when not adapted |
-| `GoToNext` / `AfterTeleportDescription` / `AfterTeleportNext` | Automatically determined by `data.mjs`: direct-photo routes always perform the configured teleport and enter `${Id}TakePhoto`; `MapPath` returns to `GoTo${Id}StartPos` to verify the landing point; `MapTarget` / `MapGoal` proceed directly to `GoTo${Id}Move`. |
+| `GoToNext` / `AfterTeleportDescription` / `AfterTeleportNext` | Automatically determined by `data.mjs`: direct-photo routes always perform the configured teleport and enter `${Id}TakePhoto`; `QuickTeleport` with any navigation mode proceeds directly to `GoTo${Id}Move`; regular `MapPath` routes return to `GoTo${Id}StartPos` to verify the landing point, while `MapTarget` / `MapGoal` proceed directly to `GoTo${Id}Move`. |
 
 ### Terminal Grouping: `terminals-config.json`
 
@@ -215,10 +215,10 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 The teleport and pathfinding flow for observation points combines MapTracker and MapNavigator according to the route type:
 
-- `MapTrackerAssertLocation` / `MapLocateAssertLocation` (Recognition): Judges whether the current position is within the `MapAssert` rectangle based on the minimap. Uses `MapTrackerAssertLocation` when using `MapPath` / `MapGoal`, and `MapLocateAssertLocation` when using `MapTarget`.
+- `MapTrackerAssertLocation` / `MapLocateAssertLocation` (Recognition): Judges whether the current position is within the `MapAssert` rectangle based on the minimap. Regular teleport routes use it to decide whether `EnterMap` is needed, and `MapPath` checks it again after teleporting; quick-teleport routes may skip this check.
 - `MapTrackerMove` / `MapTrackerGoal` / `MapNavigateAction` (Action): Walks along the `MapPath` route to the target point, plans with `MapTrackerGoal`, or generates a `NAVMESH` target from `MapTarget`; `MapTargetTier` is passed through as `target_tier`.
 - `${Id}TakePhoto` (wrapper): Sets the task-specific `EnvironmentMonitoringBackToTerminal` and `EnvironmentMonitoringAdjustCamera` anchors before entering the shared photo flow.
-- Direct-photo routes perform neither a location assertion nor pathfinding; optional `Heading` invokes standalone `MapTrackerToward`. `MapPath` verifies `MapAssert` again after teleporting; `MapTarget` / `MapGoal` start NavMesh pathfinding immediately.
+- Direct-photo routes perform neither a location assertion nor pathfinding; optional `Heading` invokes standalone `MapTrackerToward`. Quick-teleport routes start `MapPath` / `MapTarget` / `MapGoal` navigation directly from the fixed landing point. After a regular teleport, `MapPath` verifies `MapAssert` again, while `MapTarget` / `MapGoal` start NavMesh pathfinding immediately.
 
 For detailed parameters and coordinate recording methods, see [map-tracker.md](../components/map-tracker.md), [map-locator.md](../components/map-locator.md), and [map-navigator.md](../components/map-navigator.md).
 
@@ -226,7 +226,7 @@ For detailed parameters and coordinate recording methods, see [map-tracker.md](.
 
 The `EnterMap` field must name an existing node under `assets/resource/pipeline/`. The name does not need to start with `Scene` and has no additional character restriction. A regular SceneManager entry or a task entry that encapsulates teleportation and interactions can both be used, provided that it can complete and return normally when run as a SubTask. With `QuickTeleport: true`, `EnterMap` is not called and may be omitted.
 
-`model.mjs` determines whether to enter the pathfinding/photo-taking process based on whether the `routes.json` entry is complete. Every adapted entry needs a real `EnterMap` or `QuickTeleport: true`, plus `CameraSwipeDirection`. If the teleport landing point can be photographed directly, omit `MapName`, `MapAssert`, and every navigation-related field; otherwise configure `MapName`, exactly one of `MapPath` / `MapTarget` / `MapGoal`, and the required `MapAssert`. Unadapted points take the `${Id}NotAdapted` branch.
+`model.mjs` determines whether to enter the pathfinding/photo-taking process based on whether the `routes.json` entry is complete. Every adapted entry needs a real `EnterMap` or `QuickTeleport: true`, plus `CameraSwipeDirection`. If the teleport landing point can be photographed directly, omit `MapName`, `MapAssert`, and every navigation-related field. Otherwise configure `MapName` and exactly one of `MapPath` / `MapTarget` / `MapGoal`; regular teleport routes also require `MapAssert`, while quick-teleport routes may omit it. Unadapted points take the `${Id}NotAdapted` branch.
 
 ### `routes.json` Configuration Types
 
@@ -236,7 +236,7 @@ Every fully adapted entry needs metadata, `CameraSwipeDirection`, and one telepo
 | ----------------- | -------------------------------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------- |
 | Metadata only | `MissionId` / `Name` / `Id` only | Omit | Accept and track only; no teleport or photo |
 | Photo at teleport | No `MapName` or navigation field; optional `Heading` | Omit | Teleport → optional `MapTrackerToward` → photo |
-| `MapPath` | `MapName` + `MapPath`; optional `Heading` / `NoEnsureInitialMovementState` | Required for both teleport methods | Assert fixed start → `MapTrackerMove` → photo |
+| `MapPath` | `MapName` + `MapPath`; optional `Heading` / `NoEnsureInitialMovementState` | Required with `EnterMap`; optional with quick teleport | `MapTrackerMove` → photo |
 | `MapTarget` | `MapName` + `MapTarget`; optional `MapTargetTier` for cross-tier targets | Required with `EnterMap`; optional with quick teleport | `MapNavigateAction` NAVMESH → photo |
 | `MapGoal` | `MapName` + `MapGoal`; optional `Heading` / `NoEnsureInitialMovementState` | Required with `EnterMap`; optional with quick teleport | `MapTrackerGoal` → photo |
 
@@ -280,7 +280,7 @@ Compare the `entrustTasks` in `kite_station_i18n.json` with the entries in `rout
     "Id": "MyNewObservationPoint",           // Final template node ID, for human searching nodes/file names only
     "EnterMap": "SceneEnterWorldWulingXxx",  // Defined Pipeline node that can complete and return as a SubTask
     "MapName": "map02_lv001",                // Map identifier: MapPath uses MapTracker map_name; MapGoal uses exact MapTracker map_name that can load NavMesh; MapTarget uses MapLocate zone_id
-    "MapAssert": [x, y, w, h],               // Initial location rectangle; only MapPath verifies it again after teleporting
+    "MapAssert": [x, y, w, h],               // Required for regular teleport navigation; optional for QuickTeleport with any navigation mode
     "MapPath": [[x1, y1], [x2, y2]],         // Pathfinding path (minimap coordinates), select one from MapTarget / MapGoal
     // "MapTarget": [x, y],                  // NAVMESH target point for MapNavigateAction
     // "MapTargetTier": "ValleyIV_L1_171",   // Optional; target_tier where the MapTarget coordinates are located, fill when target and start point are not in the same tier
@@ -317,7 +317,7 @@ Do not include `MapName`, `MapAssert`, `MapPath`, `MapTarget`, `MapTargetTier`, 
 
 ### 4. Record Coordinates and Paths
 
-If the teleport landing point cannot be photographed directly, use the GUI tool in [map-navigator.md](../components/map-navigator.md) to record `MapAssert` / `MapPath`. Copy the `NAVMESH` target point from MapNavigateAction into `MapTarget`, or use a `MapGoal`, and confirm in the game:
+If the teleport landing point cannot be photographed directly, use the GUI tool in [map-navigator.md](../components/map-navigator.md) to record `MapAssert` / `MapPath`. Copy the `NAVMESH` target point from MapNavigateAction into `MapTarget`, or use a `MapGoal`. `QuickTeleport` with any of these three navigation modes may omit `MapAssert`. Confirm in the game:
 
 - `MapName` is consistent with the tool used: For `MapPath` routes, fill in the MapTracker `map_name` (e.g., `map02_lv001` / regex); for `MapGoal` routes, fill in the exact MapTracker `map_name` that can load NavMesh (e.g., `map02_lv001`); for `MapTarget` routes, fill in the MapLocate `zone_id` (e.g., `Wuling_Base`); optional `MapTargetTier` fills the MapNavigator `target_tier` region name. Do not mix the two sets of identifiers.
 
@@ -360,7 +360,7 @@ Before submission, at least check:
 
 1. Are the fields for new/modified entries in `tools/pipeline-generate/EnvironmentMonitoring/routes.json` complete?
 2. Does the `MissionId` for new entries in `routes.json` match the `missionId` in `kite_station_i18n.json`; `Id` is automatically refreshed by the generator.
-3. Does every adapted entry have a real teleport method and `CameraSwipeDirection`; do direct-photo routes omit all map/navigation fields, while navigation routes select exactly one of `MapPath` / `MapTarget` / `MapGoal` and provide the required `MapAssert`?
+3. Does every adapted entry have a real teleport method and `CameraSwipeDirection`; do direct-photo routes omit all map/navigation fields, while navigation routes select exactly one of `MapPath` / `MapTarget` / `MapGoal` and regular teleport routes provide `MapAssert`?
 4. In the regenerated `Terminals.json`, does each `{Station}MonitoringTerminalLoop.next` contain all new `[JumpBack]{Id}Job`, and end with `EnvironmentMonitoringTerminalFinish`?
 5. Does the node referenced by `EnterMap` exist under `assets/resource/pipeline/`, and can it complete and return normally as a SubTask?
 6. Is `CameraSwipeDirection` one of the four: `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}`?

@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToHangingVines"
+            "HangingVinesInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedHangingVines": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToHangingVines"
+            "HangingVinesOpenTrackedMissionMap"
         ]
     },
     "HangingVinesOpenTrackedMissionMap": {
@@ -342,10 +342,10 @@
                 {
                     "map_name": "map02_lv004",
                     "target": [
-                        602.8,
-                        325,
-                        9.7,
-                        8.1
+                        0,
+                        0,
+                        1,
+                        1
                     ]
                 }
             ]
@@ -364,7 +364,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStone3"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
@@ -381,14 +381,14 @@
         "custom_action_param": {
             "map_name": "map02_lv004",
             "target": [
-                520,
-                288
+                579.2,
+                253.7
             ],
             "on_finish": {
                 "action": "Custom",
                 "custom_action": "MapTrackerToward",
                 "custom_action_param": {
-                    "angle": 0
+                    "angle": 90
                 }
             }
         },

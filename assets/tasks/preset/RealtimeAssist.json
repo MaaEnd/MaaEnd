@@ -17,6 +17,7 @@
                         "AutoPick": "Yes",
                         "QuickTeleport": "Yes",
                         "AutoPuzzleSolving": "Yes",
+                        "AutoAeroSalvage": "Yes",
                         "AutoZipline": "Yes",
                         "AutoPat": "No"
                     }

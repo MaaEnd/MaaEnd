@@ -7,7 +7,7 @@
         ]
     },
     "__AccountSwitchAtLoginScreen": {
-        "desc": "已在登录界面",
+        "desc": "已在登录界面，等待加载完成",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -23,41 +23,26 @@
             }
         },
         "next": [
-            "__AccountSwitchCheckInitState"
+            "__AccountSwitchClickLogout",
+            "__AccountSwitchAtLoginScreenDialogShow",
+            "__AccountSwitchAtLoginScreen"
         ]
     },
-    "__AccountSwitchCheckInitState": {
-        "desc": "中继节点：检查是否已退出",
-        "recognition": "Or",
-        "any_of": [
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    -300,
-                    60,
-                    300,
-                    300
-                ],
-                "template": [
-                    "AccountSwitch/LogoutButton.png"
-                ],
-                "threshold": 0.6
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    651,
-                    130,
-                    466,
-                    495
-                ],
-                "template": [
-                    "AccountSwitch/DropdownButton.png"
-                ]
-            }
+    "__AccountSwitchAtLoginScreenDialogShow": {
+        "desc": "在登陆界面，显示对话框",
+        "recognition": "TemplateMatch",
+        "roi": [
+            651,
+            130,
+            466,
+            495
         ],
+        "template": [
+            "AccountSwitch/LoginClose.png"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "__AccountSwitchClickLogout",
             "__AccountSwitchFocusFormBeforeDropdown"
         ]
     },
@@ -80,9 +65,14 @@
         },
         "pre_wait_freezes": 100,
         "action": "Click",
+        "target_offset": [
+            7,
+            7,
+            -15,
+            -15
+        ],
         "next": [
-            "[JumpBack]__AccountSwitchLogoutConfirm",
-            "__AccountSwitchCheckAccount"
+            "__AccountSwitchLogoutConfirm"
         ]
     },
     "__AccountSwitchLogoutConfirm": {
@@ -125,7 +115,10 @@
         ],
         "box_index": 1,
         "pre_wait_freezes": 200,
-        "action": "Click"
+        "action": "Click",
+        "next": [
+            "__AccountSwitchAtLoginScreenDialogShow"
+        ]
     },
     "__AccountSwitchFocusFormBeforeDropdown": {
         "desc": "聚焦账号登录窗口后准备点击下拉",
@@ -142,7 +135,7 @@
         ]
     },
     "__AccountSwitchClickDropdown": {
-        "desc": "点击账号下拉按钮",
+        "desc": "点击账号下拉按钮,maafw在前台截图时5秒内会置顶一次游戏窗口，导致下拉框消失，因此需要重试",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -160,8 +153,34 @@
                 ]
             }
         },
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "AccountSwitchWindowAction", //目前是PostMessage，需要管理员运行，手动启动agent需要注意
+        "custom_action_param": {
+            "op": "click",
+            "window": "form"
+        },
         "post_wait_freezes": 500,
+        "next": [
+            "__AccountSwitchClickDropdownSuccess"
+        ]
+    },
+    "__AccountSwitchClickDropdownSuccess": {
+        "desc": "点击账号下拉按钮成功",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "__AccountSwitchClickDropdown",
+                "roi_offset": [
+                    -100,
+                    30,
+                    100,
+                    100
+                ],
+                "template": "AccountSwitch/LoginSwitchIcon.png"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "__AccountSwitchOCRSelectAccount"
         ]

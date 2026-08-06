@@ -98,6 +98,22 @@
             }
         }
     },
+    "GiftOperatorMoveResetBackward": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 1
+            }
+        }
+    },
+    "GiftOperatorMoveResetForward": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 13
+            }
+        }
+    },
     "GiftOperatorShiftToRunMapTracker": {
         "action": {
             "type": "ClickKey",
@@ -426,23 +442,6 @@
             "type": "ClickKey",
             "param": {
                 "key": 56
-            }
-        }
-    },
-    "_AutoEcoFarmPressTab": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 48
-            }
-        }
-    },
-    "_AutoEcoFarmPressW": {
-        "action": {
-            "type": "LongPressKey",
-            "param": {
-                "duration": 20000,
-                "key": 13
             }
         }
     },

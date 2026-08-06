@@ -41,7 +41,7 @@ export function collectMissingRouteFields(route) {
         hasMapGoal,
     ].filter(Boolean).length;
     const isDirectPhoto = !hasMapAssert && navigationConfigCount === 0;
-    const canSkipMapAssert = quickTeleport && navigationConfigCount === 1 && (hasMapTarget || hasMapGoal);
+    const canSkipMapAssert = quickTeleport && navigationConfigCount === 1;
     const missingFields = [];
 
     if (!quickTeleport && isFieldMissing(route.EnterMap)) {
@@ -273,7 +273,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                 hasMapGoal,
             ].filter(Boolean).length;
             const isDirectPhoto = isFieldMissing(override?.MapAssert) && navigationConfigCount === 0;
-            const canSkipMapAssert = QuickTeleport && navigationConfigCount === 1 && (hasMapTarget || hasMapGoal);
+            const canSkipMapAssert = QuickTeleport && navigationConfigCount === 1;
 
             const resolved = {};
             const missingFields = collectMissingRouteFields(override);
@@ -346,7 +346,8 @@ export function createRouteResolver(routeConfig, options = {}) {
                 NoEnsureInitialMovementState,
                 QuickTeleport,
                 IsDirectPhoto: isAdapted && isDirectPhoto,
-                ShouldAssertAfterTeleport: !isDirectPhoto && (navigationConfigCount !== 1 || hasMapPath),
+                ShouldAssertAfterTeleport:
+                    !isDirectPhoto && (navigationConfigCount !== 1 || (hasMapPath && !QuickTeleport)),
                 ...heading,
                 ...buildNavigationParams({
                     MapName,

@@ -50,14 +50,14 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、MapAsse
 | 传送入口               | 默认填写真实 `EnterMap`（任意可作为 SubTask 正常返回的 Pipeline 节点）；或启用 `QuickTeleport: true` 从任务地图快捷传送 |
 | 路线方式               | 传送点可直接拍照时不填地图与寻路字段；否则 `MapPath` / `MapTarget` / `MapGoal` 必须且只能填写一个                         |
 | `MapName`              | 仅寻路路线必填。`MapPath`：MapTracker `map_name`；`MapGoal`：精确 MapTracker `map_name`；`MapTarget`：MapLocate `zone_id` |
-| `MapAssert`            | 直拍路线不填；普通传送和 `QuickTeleport + MapPath` 必填，`QuickTeleport + MapTarget/MapGoal` 可省略                       |
+| `MapAssert`            | 直拍路线不填；普通传送的寻路路线必填，`QuickTeleport + MapPath/MapTarget/MapGoal` 可省略                                |
 | `CameraSwipeDirection` | `EnvironmentMonitoringSwipeScreenUp/Down/Left/Right`，用于进入拍照后的摄像头调整                                          |
 
 ### 四种路线模式
 
 | 模式        | 数据格式          | 生成动作            | 适用场景                                                                    |
 | ----------- | ----------------- | ------------------- | --------------------------------------------------------------------------- |
-| `MapPath`   | `[[x1, y1], ...]` | `MapTrackerMove`    | 需要按实录路径逐点行走；传送后会再次用 `MapAssert` 复核固定起点             |
+| `MapPath`   | `[[x1, y1], ...]` | `MapTrackerMove`    | 需要按实录路径逐点行走；快捷传送后可从固定传送落点直接开始                 |
 | `MapTarget` | `[x, y]`          | `MapNavigateAction` | 使用 MapLocate / MapNavigator 的 NAVMESH 目标；快捷传送时可省略 `MapAssert` |
 | `MapGoal`   | `[x, y]`          | `MapTrackerGoal`    | 使用 MapTracker NavMesh 自动寻路；快捷传送时可省略 `MapAssert`              |
 | 传送后直拍  | 不配置地图字段    | 可选转向后拍照      | 传送落点已经满足拍照条件；可配置 `Heading`，但不配置地图断言或寻路字段      |
@@ -104,7 +104,7 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 1. 传送入口：真实 `EnterMap`，或已实测任务地图支持的 `QuickTeleport: true`
 2. 路线方式：已实测可传送后直拍，或 `MapPath` / `MapTarget` / `MapGoal`
 3. 直拍时直接跳到第 7 项；寻路时收集 `MapName`
-4. `MapAssert`（普通传送或 `QuickTeleport + MapPath` 必填；`QuickTeleport + MapTarget/MapGoal` 跳过）
+4. `MapAssert`（普通传送的寻路路线必填；`QuickTeleport + MapPath/MapTarget/MapGoal` 跳过）
 5. 所选寻路字段的坐标
 6. `MapTargetTier`（仅 `MapTarget` 且确有跨 tier 目标时）
 7. `CameraSwipeDirection`

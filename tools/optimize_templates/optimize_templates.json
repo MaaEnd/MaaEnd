@@ -984,5 +984,7 @@
     "resource/image/IMS/item/PROTOHEDRON_TEMPLATE": "23e61c6003a5576e1309c77941b5691df11bcbc8b2b029c4269145b6362f48f9",
     "resource/image/Common/Button/TrackedMissionMapButton": "476da5205d64343ce84275dbb8978269172bbb27ca93ad47461424850674705b",
     "resource/image/IMS/item/OROBERYL_TEMPLATE": "3602a08527a0542a7c7e2b6451e9ba17937d0b2fd6a1d4aad584b1b80f7b4e57",
-    "resource/image/ProtocolSpace/MechanicsIcon": "10199ea056374f794a7109520918ce0b9a559eec05b012337649beff9898dba1"
+    "resource/image/ProtocolSpace/MechanicsIcon": "10199ea056374f794a7109520918ce0b9a559eec05b012337649beff9898dba1",
+    "resource/image/AccountSwitch/LoginClose": "eda659de62386318b0f14aca0b15ac806b7f2782ad9c42ff58decaaa3950e9ea",
+    "resource/image/AccountSwitch/LoginSwitchIcon": "f7dcce4dcc2fc879c4e9001b0949eb7b9ccc9f134aefa03fff030827a91e4a61"
 }

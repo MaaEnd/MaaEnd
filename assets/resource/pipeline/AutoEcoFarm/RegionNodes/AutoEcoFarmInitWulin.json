@@ -19,19 +19,13 @@
             "_AutoEcoFarmTeleportToFarmAnchor": "_AutoEcoFarmTeleportToFarmWulin",
             //智能导航
             "_AutoEcoFarmGotoEcoFarmBaseNavAnchor": "_AutoEcoFarmGotoEcoFarmBaseNavWulin",
-            "_AutoEcoFarmGotoEcoFarmMapTrackerGoalAnchor": "_AutoEcoFarmGotoEcoFarmMapTrackerGoalWulin",
-            //预设路径
-            "_AutoEcoFarmGotoEcoFarmCppAnchor": "_AutoEcoFarmGotoEcoFarmCppWulin",
-            "_AutoEcoFarmGotoEcoFarmGoAnchor": "_AutoEcoFarmGotoEcoFarmGoWulin",
             //AutoEcoFarmFindFarmland.json 寻找标记部分
             "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindEcoFarmWulin",
-            "_AutoEcoFarmBlindWalkStartAnchor": "_AutoEcoFarmBlindWalkStartWulin",
             //AutoEcoFarmMoveAndWork.json 工作循环部分
             "_AutoEcoFarmInFarmAnchor": "_AutoEcoFarmInFarmWulin"
         },
         "next": [
             "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
-            "[Anchor]_AutoEcoFarmBlindWalkStartAnchor",
             "_AutoEcoFarmGotoEcoFarmStart"
         ]
     },
@@ -44,7 +38,7 @@
             "SceneEnterWorldWulingWulingCityCore"
         ]
     },
-    //智能导航 - Cpp版（NAVMESH语义寻路，只需填终点坐标）
+    //智能导航（NAVMESH语义寻路）
     "_AutoEcoFarmGotoEcoFarmBaseNavWulin": {
         "desc": "[Wulin版]前往生态农场NAVMESH版",
         "max_hit": 1,
@@ -53,168 +47,24 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "arrival_timeout": 45000,
-            "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        725.74,
-                        1249.06
-                    ]
-                }
-            ]
-        },
-        "next": []
-    },
-    //智能导航 - Go版（MapTrackerGoal，只需填终点坐标）
-    "_AutoEcoFarmGotoEcoFarmMapTrackerGoalWulin": {
-        "desc": "[Wulin版]前往生态农场MapTrackerGoal版",
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "MapTrackerGoal",
-        "custom_action_param": {
-            "map_name": "map02_lv002",
-            "target": [
-                444.7,
-                193.2
-            ]
-        },
-        "next": []
-    },
-    //预设路径 - Cpp版（MapNavigator手动录点）
-    "_AutoEcoFarmGotoEcoFarmCppWulin": {
-        "desc": "[Wulin版]前往生态农场cpp版",
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "arrival_timeout": 45000,
 
+            // 农场里面没铺导航网格（709,1251 往北就没了），进场口还有道看不见的栅栏，
+            // 直接斜插会被挡住。所以先寻路到网格尽头，最后两跳照录制点走死绕进去。
             "path": [
                 {
                     "action": "ZONE",
                     "zone_id": "Wuling_Base"
                 },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        709,
+                        1251
+                    ]
+                },
                 [
-                    666,
-                    1296
-                ],
-                [
-                    667,
-                    1295
-                ],
-                [
-                    668,
-                    1293
-                ],
-                [
-                    670,
-                    1292
-                ],
-                [
-                    682,
-                    1285
-                ],
-                [
-                    685,
-                    1284
-                ],
-                [
-                    687,
-                    1283
-                ],
-                [
-                    689,
-                    1282
-                ],
-                [
-                    691,
-                    1282
-                ],
-                [
-                    699,
-                    1282
-                ],
-                [
-                    710,
-                    1280
-                ],
-                [
-                    711,
-                    1278
-                ],
-                [
-                    713,
-                    1273
-                ],
-                [
-                    712,
-                    1271
-                ],
-                [
-                    712,
-                    1268
-                ],
-                [
-                    711,
-                    1266
-                ],
-                [
-                    710,
-                    1263
-                ],
-                [
-                    710,
-                    1261
-                ],
-                [
-                    709,
-                    1258
-                ],
-                [
-                    709,
-                    1256
-                ],
-                [
-                    709,
-                    1253
-                ],
-                [
-                    709,
-                    1251
-                ],
-                [
-                    709,
-                    1248
-                ],
-                [
-                    709,
-                    1246
-                ],
-                [
-                    710,
-                    1243
-                ],
-                [
-                    712,
+                    707,
                     1241
-                ],
-                [
-                    714,
-                    1242
-                ],
-                [
-                    717,
-                    1242
-                ],
-                [
-                    719,
-                    1242
-                ],
-                [
-                    722,
-                    1244
                 ],
                 [
                     724,
@@ -222,99 +72,22 @@
                 ]
             ]
         },
-        "next": [
-            //JumpBack
-        ]
-    },
-    //预设路径 - Go版（MapTrackerMove录点跟走）
-    "_AutoEcoFarmGotoEcoFarmGoWulin": {
-        "desc": "[Wulin版]前往生态农场Go版",
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv002",
-            "path_trim": true,
-            "fine_approach": "Never",
-            "path": [
-                [
-                    387.2,
-                    250.0
-                ],
-                [
-                    387.2,
-                    238.3
-                ],
-                [
-                    398.4,
-                    234.5
-                ],
-                [
-                    404.8,
-                    232.0
-                ],
-                [
-                    413.4,
-                    228.3
-                ],
-                [
-                    427.3,
-                    229.5
-                ],
-                [
-                    431.0,
-                    225.8
-                ],
-                [
-                    432.2,
-                    218.1
-                ],
-                [
-                    429.8,
-                    209.4
-                ],
-                [
-                    429.8,
-                    192.0
-                ],
-                [
-                    434.7,
-                    189.5
-                ],
-                [
-                    439.7,
-                    189.4
-                ],
-                [
-                    444.7,
-                    193.2
-                ]
-            ]
-        },
-        "next": [
-            //JumpBack
-        ]
+        "next": []
     },
     //确认是否在武陵农场内，在则继续工作循环。如需更换目标农场，请修改下方 target 坐标，
     //将矩形范围扩大至覆盖整块目标农场的地图区域
     "_AutoEcoFarmInFarmWulin": {
         "desc": "确认在武陵农场内, 在则继续工作循环",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        413,
-                        164,
-                        33,
-                        32
-                    ]
-                }
-            ],
-            "precision": 1
+            "zone_id": "Wuling_Base",
+            "target": [
+                694.88,
+                1217.55,
+                32.51,
+                31.52
+            ]
         },
         "next": [
             "_AutoEcoFarmJump"
@@ -347,55 +120,5 @@
             //要是一直失败就先移动鼠标避免干扰再找
             "[JumpBack]_AutoEcoFarmMoveMouse"
         ]
-    },
-    //决定是否要进入拍照模式，如果是出发点在基地那就开启
-    "_AutoEcoFarmBlindWalkStartWulin": {
-        "desc": "[Wulin版]关闭工业设备朝标记盲走一段距离，默认关闭",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "_AutoEcoFarmBlindWalkStartNavigateWulin"
-            ],
-            "strict": false
-        },
-        "next": [
-            "_AutoEcoFarmAssertOutsideBaseWulin",
-            "_AutoEcoFarmBlindWalkPhotoMode"
-        ]
-    },
-    "_AutoEcoFarmAssertOutsideBaseWulin": {
-        "desc": "[Wulin版]已经在基地外，无需盲走",
-        "recognition": "Custom",
-        "custom_recognition": "MapLocateAssertLocation",
-        "custom_recognition_param": {
-            "zone_id": "Wuling_Base",
-            "target": [
-                660.75,
-                1276.38,
-                51.34,
-                60.38
-            ]
-        },
-        "action": "DoNothing",
-        "next": ["_AutoEcoFarmGotoEcoFarmStart"]
-    },
-    "_AutoEcoFarmBlindWalkStartNavigateWulin": {
-        "desc": "[Wulin版]尝试直接走出基地",
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv002",
-            "path": [
-                [
-                    673,
-                    230
-                ]
-            ]
-        }
     }
 }

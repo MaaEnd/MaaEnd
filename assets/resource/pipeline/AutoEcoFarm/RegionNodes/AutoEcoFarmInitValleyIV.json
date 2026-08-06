@@ -19,19 +19,13 @@
             "_AutoEcoFarmTeleportToFarmAnchor": "_AutoEcoFarmTeleportToFarmValleyIV",
             //智能导航
             "_AutoEcoFarmGotoEcoFarmBaseNavAnchor": "_AutoEcoFarmGotoEcoFarmBaseNavValleyIV",
-            "_AutoEcoFarmGotoEcoFarmMapTrackerGoalAnchor": "_AutoEcoFarmGotoEcoFarmMapTrackerGoalValleyIV",
-            //预设路径
-            "_AutoEcoFarmGotoEcoFarmCppAnchor": "_AutoEcoFarmGotoEcoFarmCppValleyIV",
-            "_AutoEcoFarmGotoEcoFarmGoAnchor": "_AutoEcoFarmGotoEcoFarmGoValleyIV",
             //AutoEcoFarmFindFarmland.json 寻找标记部分
             "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindEcoFarmValleyIV",
-            "_AutoEcoFarmBlindWalkStartAnchor": "_AutoEcoFarmBlindWalkStartValleyIV",
             //AutoEcoFarmMoveAndWork.json 工作循环部分
             "_AutoEcoFarmInFarmAnchor": "_AutoEcoFarmInFarmValleyIV"
         },
         "next": [
             "[JumpBack][Anchor]_AutoEcoFarmTeleportToFarmAnchor",
-            "[Anchor]_AutoEcoFarmBlindWalkStartAnchor",
             "_AutoEcoFarmGotoEcoFarmStart"
         ]
     },
@@ -43,7 +37,7 @@
             "SceneEnterWorldValleyIVOriginiumSciencePark2"
         ]
     },
-    //智能导航 - Cpp版（NAVMESH语义寻路，只需填终点坐标）
+    //智能导航（NAVMESH语义寻路，只需填终点坐标）
     "_AutoEcoFarmGotoEcoFarmBaseNavValleyIV": {
         "desc": "[ValleyIV版]前往生态农场NAVMESH版",
         "max_hit": 1,
@@ -65,352 +59,20 @@
         },
         "next": []
     },
-    //智能导航 - Go版（MapTrackerGoal，只需填终点坐标）
-    "_AutoEcoFarmGotoEcoFarmMapTrackerGoalValleyIV": {
-        "desc": "[ValleyIV版]前往生态农场MapTrackerGoal版",
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "MapTrackerGoal",
-        "custom_action_param": {
-            "map_name": "map01_lv005",
-            "target": [
-                570.7,
-                342.9
-            ]
-        },
-        "next": []
-    },
-    //预设路径 - Cpp版（MapNavigator手动录点）
-    "_AutoEcoFarmGotoEcoFarmCppValleyIV": {
-        "desc": "[ValleyIV版]前往生态农场cpp版",
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "arrival_timeout": 45000,
-
-            "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "ValleyIV_Base"
-                },
-                [
-                    1293,
-                    763
-                ],
-                [
-                    1293,
-                    765
-                ],
-                [
-                    1292,
-                    766
-                ],
-                [
-                    1292,
-                    768
-                ],
-                [
-                    1292,
-                    770
-                ],
-                [
-                    1292,
-                    771
-                ],
-                [
-                    1292,
-                    773
-                ],
-                [
-                    1293,
-                    775
-                ],
-                [
-                    1293,
-                    776
-                ],
-                [
-                    1293,
-                    778
-                ],
-                [
-                    1294,
-                    780
-                ],
-                [
-                    1295,
-                    781
-                ],
-                [
-                    1295,
-                    783
-                ],
-                [
-                    1296,
-                    785
-                ],
-                [
-                    1296,
-                    786
-                ],
-                [
-                    1297,
-                    788
-                ],
-                [
-                    1297,
-                    790
-                ],
-                [
-                    1298,
-                    791
-                ],
-                [
-                    1298,
-                    793
-                ],
-                [
-                    1298,
-                    794
-                ],
-                [
-                    1298,
-                    796
-                ],
-                [
-                    1297,
-                    797
-                ],
-                [
-                    1296,
-                    799
-                ],
-                [
-                    1295,
-                    800
-                ],
-                [
-                    1294,
-                    802
-                ],
-                [
-                    1294,
-                    803
-                ],
-                [
-                    1294,
-                    805
-                ],
-                [
-                    1294,
-                    807
-                ],
-                [
-                    1295,
-                    808
-                ],
-                [
-                    1296,
-                    810
-                ],
-                [
-                    1297,
-                    811
-                ],
-                [
-                    1298,
-                    813
-                ],
-                [
-                    1299,
-                    814
-                ],
-                [
-                    1302,
-                    816
-                ],
-                [
-                    1304,
-                    818
-                ],
-                [
-                    1305,
-                    820
-                ],
-                [
-                    1307,
-                    821
-                ],
-                [
-                    1308,
-                    823
-                ],
-                [
-                    1310,
-                    825
-                ],
-                [
-                    1311,
-                    828
-                ],
-                [
-                    1312,
-                    830
-                ],
-                [
-                    1315,
-                    841
-                ],
-                [
-                    1315,
-                    844
-                ],
-                [
-                    1317,
-                    846
-                ],
-                [
-                    1319,
-                    847
-                ],
-                [
-                    1321,
-                    848
-                ],
-                [
-                    1323,
-                    849
-                ],
-                [
-                    1325,
-                    850
-                ],
-                [
-                    1327,
-                    851
-                ],
-                [
-                    1332,
-                    853
-                ],
-                [
-                    1337.54,
-                    856.11
-                ]
-            ]
-        },
-        "next": [
-            //JumpBack
-        ]
-    },
-    //预设路径 - Go版（MapTrackerMove录点跟走）
-    "_AutoEcoFarmGotoEcoFarmGoValleyIV": {
-        "desc": "[ValleyIV版]前往生态农场Go版",
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map01_lv005",
-            "path_trim": true,
-            "fine_approach": "Never",
-            "path": [
-                [
-                    523.2,
-                    241.6
-                ],
-                [
-                    520.7,
-                    249.2
-                ],
-                [
-                    523.1,
-                    259.1
-                ],
-                [
-                    526.9,
-                    266.7
-                ],
-                [
-                    528.1,
-                    275.4
-                ],
-                [
-                    525.6,
-                    280.4
-                ],
-                [
-                    521.9,
-                    284.1
-                ],
-                [
-                    524.4,
-                    291.7
-                ],
-                [
-                    533.8,
-                    300.5
-                ],
-                [
-                    539.1,
-                    303.2
-                ],
-                [
-                    542.2,
-                    309.0
-                ],
-                [
-                    545.7,
-                    317.9
-                ],
-                [
-                    546.9,
-                    330.4
-                ],
-                [
-                    555.6,
-                    336.6
-                ],
-                [
-                    561.9,
-                    339.2
-                ],
-                [
-                    568.1,
-                    341.7
-                ],
-                [
-                    570.7,
-                    342.9
-                ]
-            ]
-        },
-        "next": [
-            //JumpBack
-        ]
-    },
     //确认是否在谷地农场内，在则继续工作循环。如需更换目标农场，请修改下方 target 坐标，
     //将矩形范围扩大至覆盖整块目标农场的地图区域
     "_AutoEcoFarmInFarmValleyIV": {
         "desc": "确认在谷地农场内, 在则继续工作循环",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map01_lv005",
-                    "target": [
-                        551,
-                        322,
-                        23,
-                        23
-                    ]
-                }
-            ],
-            "precision": 1
+            "zone_id": "ValleyIV_Base",
+            "target": [
+                1318.99,
+                837.23,
+                21.25,
+                21.23
+            ]
         },
         "next": [
             "_AutoEcoFarmJump"
@@ -443,55 +105,5 @@
             //要是一直失败就先移动鼠标避免干扰再找
             "[JumpBack]_AutoEcoFarmMoveMouse"
         ]
-    },
-    //决定是否要进入拍照模式，如果是出发点在基地那就开启
-    "_AutoEcoFarmBlindWalkStartValleyIV": {
-        "desc": "[ValleyIV版]关闭工业设备朝标记盲走一段距离，默认关闭",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "_AutoEcoFarmBlindWalkStartNavigateValleyIV"
-            ],
-            "strict": false
-        },
-        "next": [
-            "_AutoEcoFarmAssertOutsideBaseValleyIV",
-            "_AutoEcoFarmBlindWalkPhotoMode"
-        ]
-    },
-    "_AutoEcoFarmAssertOutsideBaseValleyIV": {
-        "desc": "[ValleyIV版]已经在基地外，无需盲走",
-        "recognition": "Custom",
-        "custom_recognition": "MapLocateAssertLocation",
-        "custom_recognition_param": {
-            "zone_id": "ValleyIV_Base",
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        },
-        "action": "DoNothing",
-        "next": ["_AutoEcoFarmGotoEcoFarmStart"]
-    },
-    "_AutoEcoFarmBlindWalkStartNavigateValleyIV": {
-        "desc": "[ValleyIV版]尝试直接走出基地",
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map01_lv005",
-            "path": [
-                [
-                    0,
-                    0
-                ]
-            ]
-        }
     }
 }

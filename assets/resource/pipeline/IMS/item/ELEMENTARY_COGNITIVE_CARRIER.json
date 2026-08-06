@@ -32,7 +32,6 @@
                     "IMS/item/ELEMENTARY_COGNITIVE_CARRIER_TEMPLATE.png"
                 ],
                 "green_mask": true,
-                "threshold": 0.85,
                 "order_by": "Score"
             }
         },
@@ -68,7 +67,6 @@
                     0,
                     -64
                 ],
-                "method": 4,
                 "lower": [
                     74,
                     74,
@@ -76,8 +74,8 @@
                 ],
                 "upper": [
                     119,
-                    112,
-                    107
+                    145,
+                    157
                 ],
                 "count": 10
             }
@@ -93,10 +91,10 @@
             "param": {
                 "roi": "__ELEMENTARY_COGNITIVE_CARRIER_COUNT_TEXT_COLOR",
                 "roi_offset": [
-                    -1,
-                    -1,
-                    2,
-                    2
+                    -6,
+                    -2,
+                    12,
+                    4
                 ],
                 "expected": [
                     "^\\d+$"

@@ -1726,9 +1726,15 @@
                                 "swinging_gentleman_classical_album": [
                                     "《摇摆绅士古典特辑》",
                                     "《搖擺紳士古典特輯》",
-                                    "Der Schwingende Gentleman Classical Album",
+                                    "(?i)Der\\s*Schwingende\\s*Gentleman\\s*Classical\\s*Album",
                                     "『スウィングジェントルのクラシックアルバム』",
-                                    "<스윙 젠틀맨 고전 특집>"
+                                    "<스윙 젠틀맨 고전 특집>",
+                                    "《摇摆绅士",
+                                    "《搖擺紳士",
+                                    "《摇摆绅士古典特",
+                                    "《搖擺紳士古典特",
+                                    "《摇摆绅士典特",
+                                    "《搖擺紳士典特"
                                 ]
                             }
                         }
