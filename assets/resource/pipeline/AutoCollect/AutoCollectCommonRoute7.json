@@ -72,7 +72,6 @@
         "next": [
             "AutoCollectCommonRoute7GotoFind1"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -98,7 +97,6 @@
         "next": [
             "AutoCollectClickStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -132,7 +130,6 @@
         "next": [
             "AutoCollectClickStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -166,7 +163,6 @@
         "next": [
             "AutoCollectClickStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -200,7 +196,6 @@
         "next": [
             "AutoCollectClickStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -234,7 +229,6 @@
         "next": [
             "AutoCollectClickStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -272,7 +266,6 @@
         "next": [
             "AutoCollectClickStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true

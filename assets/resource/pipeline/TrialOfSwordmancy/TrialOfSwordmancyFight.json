@@ -96,7 +96,6 @@
             // 本次寻路必定失败
             "TrialOfSwordmancyEnterTrialTarget"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true

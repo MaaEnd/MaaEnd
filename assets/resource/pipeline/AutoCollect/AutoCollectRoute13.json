@@ -133,7 +133,6 @@
                 ]
             ]
         },
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -163,7 +162,6 @@
         "next": [
             "AutoCollectDigStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -193,7 +191,6 @@
         "next": [
             "AutoCollectDigStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -223,7 +220,6 @@
         "next": [
             "AutoCollectDigStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -253,7 +249,6 @@
         "next": [
             "AutoCollectDigStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -283,7 +278,6 @@
         "next": [
             "AutoCollectDigStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -313,7 +307,6 @@
         "next": [
             "AutoCollectDigStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true

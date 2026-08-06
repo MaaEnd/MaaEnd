@@ -211,7 +211,6 @@
         "next": [
             "TrialOfSwordmancyGotoTrialArenaExit"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true

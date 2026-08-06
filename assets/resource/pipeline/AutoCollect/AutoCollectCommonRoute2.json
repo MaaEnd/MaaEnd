@@ -72,7 +72,6 @@
         "next": [
             "AutoCollectCommonRoute2GotoFind1"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -104,7 +103,6 @@
         "next": [
             "AutoCollectCommonRoute2GotoFindLine2"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -156,7 +154,6 @@
         "next": [
             "AutoCollectCommonRoute2GotoFind2"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -183,7 +180,6 @@
         "next": [
             "AutoCollectCommonRoute2GotoFindCollect1"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -225,7 +221,6 @@
         "next": [
             "AutoCollectCommonRoute2GoFight1"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -287,7 +282,6 @@
         "next": [
             "AutoCollectCommonRoute2GotoFind3"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -313,7 +307,6 @@
         "next": [
             "AutoCollectClickStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -359,7 +352,6 @@
         "next": [
             "AutoCollectClickStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true

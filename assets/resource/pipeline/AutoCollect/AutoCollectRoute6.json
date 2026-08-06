@@ -300,7 +300,6 @@
         "next": [
             "AutoCollectRoute6End"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true

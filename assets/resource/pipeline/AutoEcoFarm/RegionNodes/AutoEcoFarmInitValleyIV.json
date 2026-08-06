@@ -58,7 +58,6 @@
             ]
         },
         "next": [],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true

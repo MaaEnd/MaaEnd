@@ -119,7 +119,6 @@
         "next": [
             "AutoCollectClickStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -150,7 +149,6 @@
         "next": [
             "AutoCollectClickStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -181,7 +179,6 @@
         "next": [
             "AutoCollectClickStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -212,7 +209,6 @@
         "next": [
             "AutoCollectClickStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -243,7 +239,6 @@
         "next": [
             "AutoCollectClickStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -274,7 +269,6 @@
         "next": [
             "AutoCollectClickStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -305,7 +299,6 @@
         "next": [
             "AutoCollectClickStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -336,7 +329,6 @@
         "next": [
             "AutoCollectClickStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -367,7 +359,6 @@
         "next": [
             "AutoCollectClickStart"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true

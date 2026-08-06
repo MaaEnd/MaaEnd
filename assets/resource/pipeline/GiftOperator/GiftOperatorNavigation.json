@@ -94,7 +94,6 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -130,7 +129,6 @@
             ],
             "timeout": 2000
         },
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -158,7 +156,6 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -194,7 +191,6 @@
             ],
             "timeout": 2000
         },
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -222,7 +218,6 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -258,7 +253,6 @@
             ],
             "timeout": 2000
         },
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -294,7 +288,6 @@
             "GiftOperatorClickContact",
             "[JumpBack]GiftOperatorGoAheadContact"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -322,7 +315,6 @@
                 }
             }
         },
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
@@ -349,7 +341,6 @@
         "next": [
             "GiftOperatorClickContact"
         ],
-
         "focus": {
             "Node.PipelineNode.Succeeded": {
                 "trace": true
