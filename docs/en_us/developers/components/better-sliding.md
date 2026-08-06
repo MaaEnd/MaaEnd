@@ -19,6 +19,7 @@ Suitable for scenarios where you want to slide to the maximum/minimum. Parameter
 | ------------- | -------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Direction` | `string` | Yes | Swipe direction. Supports `left` / `right` / `up` / `down`. |
 | `SwipeButton` | `string` | No | Custom slider template path. Overrides the default template of the `BetterSlidingSwipeButton` node when provided. Default `""` (uses the shared default template `BetterSliding/SwipeButton.png`). |
+| `ResetBeforeFindStart` | `bool` | No | When `true`, first swipes toward the minimum before matching the slider start position, then performs the swipe. Default `false`. |
 
 > [!note]
 > When matching the `SwipeButton` internally, the CustomAction sets `GreenMask` to `true`. For the green masking method, please refer to the default template.
@@ -43,13 +44,13 @@ Suitable for scenarios where you want to slide to the maximum/minimum. Parameter
 ## Specified Quantity Mode
 
 > [!important]
-> Before the CustomAction executes, ensure the slider is at its initial value, and that the initial value is 1. Otherwise, the position deviation of the slider between its minimum and maximum cannot be calculated, causing the quantity adjustment to fail.
+> Before the CustomAction executes, ensure the slider is at its initial value, and that the initial value is 1. Otherwise, the position deviation of the slider between its minimum and maximum cannot be calculated, causing the quantity adjustment to fail. If the caller cannot guarantee that the slider starts at its initial value, set `ResetBeforeFindStart: true` so BetterSliding first swipes toward the minimum before matching the start position.
 
 ### Parameter Description
 
 #### Parameters that can be passed in `attach`
 
-The following 4 fields are recommended to be passed via the calling node's `attach`. The `attach` priority is higher than the same-named fields in `custom_action_param`.
+The following 5 fields are recommended to be passed via the calling node's `attach`. The `attach` priority is higher than the same-named fields in `custom_action_param`.
 
 | Field | Type | Required | Description |
 | ------------------------- | ------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -57,6 +58,7 @@ The following 4 fields are recommended to be passed via the calling node's `atta
 | `TargetQuantityType` | `string` | No | How to interpret `TargetQuantity`. `"Value"` (default): absolute count; `"Percentage"`: percentage of `availableQuantity` (1–100), rounded and clamped. |
 | `ReverseTarget` | `bool` | No | When `true`, resolves the target from the available quantity: Value mode uses `availableQuantity - TargetQuantity`; Percentage mode uses the remaining percentage. Default `false`. |
 | `FinishAfterPreciseClick` | `bool` | No | When `true`, returns success immediately after a precise click, without entering the quantity validation and fine-tuning process. Default `false`. |
+| `ResetBeforeFindStart` | `bool` | No | When `true`, first swipes toward the minimum before matching the slider start position, so the recorded start position is the minimum value. Default `false`. |
 
 > [!note]
 > Combination calculation logic for `TargetQuantityType` and `ReverseTarget`:
@@ -70,7 +72,7 @@ The following 4 fields are recommended to be passed via the calling node's `atta
 
 #### Parameters that can only be passed via `custom_action_param`
 
-In addition to the 4 fields above, all other parameters can only be read from `custom_action_param`:
+In addition to the 5 fields above, all other parameters can only be read from `custom_action_param`:
 
 | Field | Type | Required | Description |
 | ------------------------------- | ----------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

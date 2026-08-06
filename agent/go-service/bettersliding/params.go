@@ -30,6 +30,7 @@ type parsedBetterSlidingParams struct {
 	reverseTarget                 bool
 	swipeOnlyMode                 bool
 	finishAfterPreciseClick       bool
+	resetBeforeFindStart          bool
 }
 
 func detectBetterSlidingParamPresence(rawParam string) (betterSlidingParamPresence, error) {
@@ -56,6 +57,7 @@ func detectBetterSlidingParamPresence(rawParam string) (betterSlidingParamPresen
 		CenterPointOffset:             hasNonNullRawKey(rawKeys, "CenterPointOffset"),
 		ClampTargetToSliderMax:        hasNonNullRawKey(rawKeys, "ClampTargetToSliderMax"),
 		FinishAfterPreciseClick:       hasNonNullRawKey(rawKeys, "FinishAfterPreciseClick"),
+		ResetBeforeFindStart:          hasNonNullRawKey(rawKeys, "ResetBeforeFindStart"),
 	}, nil
 }
 
@@ -169,6 +171,7 @@ func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (
 			reverseTarget:                 params.ReverseTarget,
 			swipeOnlyMode:                 true,
 			finishAfterPreciseClick:       false,
+			resetBeforeFindStart:          params.ResetBeforeFindStart,
 		}, true
 	}
 
@@ -252,6 +255,7 @@ func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (
 		reverseTarget:                 params.ReverseTarget,
 		swipeOnlyMode:                 false,
 		finishAfterPreciseClick:       params.FinishAfterPreciseClick,
+		resetBeforeFindStart:          params.ResetBeforeFindStart,
 	}, true
 }
 
@@ -280,6 +284,7 @@ func (a *BetterSlidingAction) applyActionParams(params parsedBetterSlidingParams
 	a.ReverseTarget = params.reverseTarget
 	a.SwipeOnlyMode = params.swipeOnlyMode
 	a.FinishAfterPreciseClick = params.finishAfterPreciseClick
+	a.ResetBeforeFindStart = params.resetBeforeFindStart
 }
 
 func (a *BetterSlidingAction) logParsedActionParams() {
@@ -299,6 +304,7 @@ func (a *BetterSlidingAction) logParsedActionParams() {
 		Ints("center_point_offset", []int{a.CenterPointOffset[0], a.CenterPointOffset[1]}).
 		Bool("clamp_target_to_slider_max", a.ClampTargetToSliderMax).
 		Bool("finish_after_precise_click", a.FinishAfterPreciseClick).
+		Bool("reset_before_find_start", a.ResetBeforeFindStart).
 		Str("swipe_button", a.SwipeButton).
 		Str("out_of_range_override_enable", a.OutOfRangeOverrideEnable).
 		Str("target_reachable_override_enable", a.TargetReachableOverrideEnable).
@@ -335,8 +341,8 @@ func (a *BetterSlidingAction) initLogger(taskName string) {
 }
 
 // mergeAttachParams reads the attach block from the caller pipeline node and merges
-// TargetQuantity, TargetQuantityType, ReverseTarget, and FinishAfterPreciseClick into
-// the customActionParam JSON.
+// TargetQuantity, TargetQuantityType, ReverseTarget, FinishAfterPreciseClick, and
+// ResetBeforeFindStart into the customActionParam JSON.
 // On any error, the original customActionParam string is returned unchanged.
 func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionParam string) string {
 	if ctx == nil || callerNodeName == "" {
@@ -442,6 +448,20 @@ func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionPara
 				Str("node", callerNodeName).
 				Str("field", "attach.FinishAfterPreciseClick").
 				Str("value", string(fapcRaw)).
+				Msg("failed to parse attach field")
+		}
+	}
+
+	if rbfsRaw, has := attachKeys["ResetBeforeFindStart"]; has {
+		var rbfs bool
+		if err := json.Unmarshal(rbfsRaw, &rbfs); err == nil {
+			paramMap["ResetBeforeFindStart"] = rbfs
+		} else {
+			logger.Warn().
+				Err(err).
+				Str("node", callerNodeName).
+				Str("field", "attach.ResetBeforeFindStart").
+				Str("value", string(rbfsRaw)).
 				Msg("failed to parse attach field")
 		}
 	}

@@ -19,6 +19,7 @@
 | ------------- | -------- | ---- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | `Direction` | `string` | 是 | 滑动方向。支持 `left` / `right` / `up` / `down`。 |
 | `SwipeButton` | `string` | 否 | 自定义滑块模板路径。提供时覆盖 `BetterSlidingSwipeButton` 节点的默认模板。默认 `""`（使用共享默认模板 `BetterSliding/SwipeButton.png`）。 |
+| `ResetBeforeFindStart` | `bool` | 否 | 为 `true` 时，先向最小方向滑动复位，再匹配滑块起始位置并执行滑动。默认 `false`。 |
 
 > [!note]
 > Custom内部在对`SwipeButton`进行匹配时，`GreenMask`设置为`true`，涂绿方式可参考默认模板
@@ -43,13 +44,13 @@
 ## 指定数量模式
 
 > [!important]
-> 在CustomAction执行前，请确保滑块位于初始值，且初始值为1。否则将无法计算滑块在最小与最大的位置偏差，导致数量调整失效。
+> 在CustomAction执行前，请确保滑块位于初始值，且初始值为1。否则将无法计算滑块在最小与最大的位置偏差，导致数量调整失效。若调用方无法保证滑块位于初始值，可设置 `ResetBeforeFindStart: true`，BetterSliding 会在匹配起始位置前先向最小方向滑动复位。
 
 ### 参数说明
 
 #### 可在 `attach` 中传入的参数
 
-以下 4 个字段推荐通过调用节点的 `attach` 传入，`attach` 优先级高于 `custom_action_param` 中的同名字段。
+以下 5 个字段推荐通过调用节点的 `attach` 传入，`attach` 优先级高于 `custom_action_param` 中的同名字段。
 
 | 字段 | 类型 | 必填 | 说明 |
 | ------------------------- | --------------- | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -57,6 +58,7 @@
 | `TargetQuantityType` | `string` | 否 | 如何解释 `TargetQuantity`。`"Value"`（默认）：绝对离散计数；`"Percentage"`：`availableQuantity` 的百分比（1–100），四舍五入后钳制到 `[1, availableQuantity]`。 |
 | `ReverseTarget` | `bool` | 否 | 为 `true` 时从可用总量反向计算目标：Value 模式为 `availableQuantity - TargetQuantity`；Percentage 模式按剩余百分比计算。默认 `false`。 |
 | `FinishAfterPreciseClick` | `bool` | 否 | 为 `true` 时精确点击后直接返回成功，不再进入数量校验与微调流程。默认 `false`。 |
+| `ResetBeforeFindStart` | `bool` | 否 | 为 `true` 时，在匹配滑条起始位置前先向最小方向滑动复位，保证后续记录到的起始位置为最小值。默认 `false`。 |
 
 > [!note]
 > `TargetQuantityType` 与 `ReverseTarget` 的组合计算逻辑：
@@ -70,7 +72,7 @@
 
 #### 仅能通过 `custom_action_param` 传入的参数
 
-除上述 4 个字段外，其余参数都只能从 `custom_action_param` 读取：
+除上述 5 个字段外，其余参数都只能从 `custom_action_param` 读取：
 
 | 字段 | 类型 | 必填 | 说明 |
 | ------------------------------- | ----------------------- | ---- | ------------------------------------------------------------------------------------------------------------------- |

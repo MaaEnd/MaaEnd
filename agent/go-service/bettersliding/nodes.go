@@ -25,6 +25,7 @@ const (
 	nodeBetterSlidingFail                    = "BetterSlidingFail"
 	nodeBetterSlidingIncreaseQuantity        = "BetterSlidingIncreaseQuantity"
 	nodeBetterSlidingDecreaseQuantity        = "BetterSlidingDecreaseQuantity"
+	nodeBetterSlidingReset                   = "BetterSlidingReset"
 )
 
 var betterSlidingActionNodes = []string{
