@@ -38,6 +38,7 @@ SNAP_RADIUS = 8.0  # 起终点吸附半径 px
 MARGIN = 25.0      # 窗口外扩 px
 HOLE_MAX = max(1, int(round(2.0 / (CS * CS))))  # 封闭小洞填充上限(格 = 2px²)
 MAX_CELLS = 30_000_000
+PLAN_BUDGET_MS = 6000  # 逐档扩窗的墙钟上限,与 RecastNavRoute.h 的 RecastPlanBudget 同步
 
 _NB8 = [(1, 0, 1.0), (-1, 0, 1.0), (0, 1, 1.0), (0, -1, 1.0),
         (1, 1, math.sqrt(2)), (1, -1, math.sqrt(2)),

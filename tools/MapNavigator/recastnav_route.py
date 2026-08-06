@@ -7,8 +7,8 @@ import time
 import numpy as np
 
 import recastnav as rc
-from recastnav import (CAP, CS, LAM, LAM_R, MARGIN, MAX_CELLS, MAXERR, MC_HBAND, R,
-                       SLIMEPS, SNAP_RADIUS, TAU)
+from recastnav import (CAP, CS, LAM, LAM_R, MARGIN, MAX_CELLS, MAXERR, MC_HBAND,
+                       PLAN_BUDGET_MS, R, SLIMEPS, SNAP_RADIUS, TAU)
 from recastnav_zone import CleanNav, WallOracle
 
 
@@ -486,6 +486,7 @@ class RecastEngine:
         margins = [MARGIN, MARGIN * 2, MARGIN * 4, MARGIN * 8]
         info = line = dg = None
         last_err = None
+        prev_cells = prev_ms = 0
         for p in range(len(margins) * 2):
             i, margin = p % len(margins), margins[p % len(margins)]
             x0 = min(s[0], g[0]) - margin; y0 = min(s[1], g[1]) - margin
@@ -494,6 +495,16 @@ class RecastEngine:
             ny = int(np.ceil((y1 - y0) / CS))
             if nx * ny > MAX_CELLS:
                 raise ValueError(f"窗口过大 ({nx}×{ny} 格)")
+            # 与 RecastNavRoute.cpp 同步:本档窗口按上一档实测速度外推,预算装不下就停。
+            # 不跟着改的话,预览会算出运行时早已放弃的线。
+            if p > 0:
+                used_ms = int((time.time() - t_all) * 1000)
+                projected_ms = prev_ms * nx * ny // prev_cells if prev_cells else 0
+                if used_ms + projected_ms > PLAN_BUDGET_MS:
+                    raise ValueError(
+                        f"{last_err or '路线失败'} (扩窗预算耗尽: 已用 {used_ms}ms,"
+                        f" 下档 {nx}×{ny} 格约需 {projected_ms}ms)")
+            t_pass = time.time()
             info, err = build(zc, wo, s, ss[1], h0, x0, y0, x1, y1)
             if err is None:
                 line, dg = route(info, s, g, p >= len(margins))
@@ -518,6 +529,8 @@ class RecastEngine:
                         err = "终线触界,扩窗重跑"
                 else:
                     err = dg.get("err", "路线失败")
+            prev_ms = max(int((time.time() - t_pass) * 1000), 1)
+            prev_cells = nx * ny
             last_err = err
         else:
             raise ValueError(last_err or "路线失败")

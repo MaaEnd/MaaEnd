@@ -1,6 +1,7 @@
 #include "RecastNavRoute.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstdio>
 #include <limits>
@@ -754,10 +755,11 @@ RecastPlanResult RecastNavEngine::plan(
     float start_floor_y,
     float goal_floor_y,
     const std::vector<uint32_t>& blocked,
-    const std::vector<WorldPoint>& blocked_points)
+    const std::vector<WorldPoint>& blocked_points,
+    const RecastPlanBudget& budget)
 {
     const std::lock_guard<std::mutex> lock(mutex_);
-    return planLocked(zone_name, start, goal, start_floor_y, goal_floor_y, blocked, blocked_points);
+    return planLocked(zone_name, start, goal, start_floor_y, goal_floor_y, blocked, blocked_points, budget);
 }
 
 RecastPlanResult RecastNavEngine::planLocked(
@@ -767,7 +769,8 @@ RecastPlanResult RecastNavEngine::planLocked(
     float start_floor_y,
     float goal_floor_y,
     const std::vector<uint32_t>& blocked,
-    const std::vector<WorldPoint>& blocked_points)
+    const std::vector<WorldPoint>& blocked_points,
+    const RecastPlanBudget& budget)
 {
     RecastPlanResult res;
     ZoneEntry& ze = zoneEntry(zone_name);
@@ -801,6 +804,12 @@ RecastPlanResult RecastNavEngine::planLocked(
 
     const double margins[4] = { kMargin, kMargin * 2, kMargin * 4, kMargin * 8 };
     const int pass_count = (blocked.empty() && blocked_points.empty()) ? 8 : 1;
+    const auto plan_started_at = std::chrono::steady_clock::now();
+    const auto elapsed_ms = [&plan_started_at] {
+        return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - plan_started_at).count();
+    };
+    int64_t prev_cells = 0;
+    int64_t prev_ms = 0;
     std::string last_err;
     for (int pass = 0; pass < pass_count; ++pass) {
         const int mi = pass % 4;
@@ -815,6 +824,30 @@ RecastPlanResult RecastNavEngine::planLocked(
             res.error = "窗口过大 (" + std::to_string(nx) + "×" + std::to_string(ny) + " 格)";
             return res;
         }
+        // 本档窗口按上一档实测速度外推,预算装不下就停在已有结论上。终点不连通时每档都是
+        // 同一个失败,而窗口面积逐档翻番,跑满四档能到分钟级;短途窗口小,外推值远在预算内。
+        if (pass > 0) {
+            if (budget.should_stop && budget.should_stop()) {
+                res.error = "规划已取消";
+                return res;
+            }
+            const int64_t projected_ms = prev_cells > 0 ? prev_ms * (nx * ny) / prev_cells : 0;
+            if (elapsed_ms() + projected_ms > budget.wall_ms) {
+                char buf[192];
+                std::snprintf(
+                    buf,
+                    sizeof(buf),
+                    "%s (扩窗预算耗尽: 已用 %lldms, 下档 %lld×%lld 格约需 %lldms)",
+                    last_err.empty() ? "路线失败" : last_err.c_str(),
+                    static_cast<long long>(elapsed_ms()),
+                    static_cast<long long>(nx),
+                    static_cast<long long>(ny),
+                    static_cast<long long>(projected_ms));
+                res.error = buf;
+                return res;
+            }
+        }
+        const int64_t pass_started_ms = elapsed_ms();
         std::string err;
         const auto info = buildWindow(zc, wo, start, ss->point, h0, x0, y0, x1, y1, blocked_local, blocked_points, err);
         if (info.has_value()) {
@@ -868,6 +901,8 @@ RecastPlanResult RecastNavEngine::planLocked(
                 err = dg.err.empty() ? "路线失败" : dg.err;
             }
         }
+        prev_ms = std::max<int64_t>(elapsed_ms() - pass_started_ms, 1);
+        prev_cells = nx * ny;
         last_err = err;
     }
     res.error = last_err.empty() ? "路线失败" : last_err;

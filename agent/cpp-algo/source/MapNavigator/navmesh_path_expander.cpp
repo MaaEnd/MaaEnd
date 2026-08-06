@@ -86,8 +86,9 @@ constexpr double kDetourSnapPenalty = 3.0;
 constexpr double kBlindTargetFallbackSnapRadius = 12.0;
 constexpr double kBlindTargetMaxExtension = 30.0;
 constexpr double kBlindTargetProbeStep = 2.0;
-// 探针扫描的墙钟上限。能命中的探针在头几个就返回,耗满预算即目标与起点不连通,余下探针是同一个失败。
-constexpr int64_t kBlindTargetProbeBudgetMs = 30000;
+// 探针扫描的墙钟上限。能命中的探针在头几个就返回(近处目标单次规划几十毫秒),耗满预算即目标与
+// 起点不连通,余下探针是同一个失败。远距离目标单次规划本身就要吃掉扩窗预算,这里只容一个来回。
+constexpr int64_t kBlindTargetProbeBudgetMs = 8000;
 
 // Start recovery: how far we are willing to walk unguided to get back onto the mesh. Covers the whole
 // off-mesh band measured along the base-exit corridor, where the blind walk out of the base drops us.
@@ -429,7 +430,10 @@ ProjectedTarget ResolveProjectedTarget(const navmesh::BaseNavPack& pack, const W
     return { navmesh::WorldPoint { .x = projection->x, .y = projection->y }, pack.floorYForZoneName(waypoint.target_tier) };
 }
 
-navmesh::BaseNavRouteResult PlanCorridorRoute(const CachedNavmesh& navmesh, const navmesh::BaseNavRouteRequest& request)
+navmesh::BaseNavRouteResult PlanCorridorRoute(
+    const CachedNavmesh& navmesh,
+    const navmesh::BaseNavRouteRequest& request,
+    const std::function<bool()>& should_stop = {})
 {
     navmesh::BaseNavRouteResult result;
     const navmesh::BaseNavZone* zone = navmesh.pack.findZoneByName(request.zone_name);
@@ -448,7 +452,8 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(const CachedNavmesh& navmesh, cons
         start_floor,
         goal_floor,
         request.blocked_triangles,
-        request.blocked_points);
+        request.blocked_points,
+        navmesh::recast::RecastPlanBudget { .should_stop = should_stop });
     if (!plan.ok || plan.points.size() < 2) {
         if (!detour_probe) {
             LogWarn << "RECAST plan failed." << VAR(request.zone_name) << VAR(plan.error);
@@ -585,7 +590,7 @@ bool AppendBlindTargetFallback(
         }
         const navmesh::BaseNavRouteRequest request =
             BuildRouteRequest(navmesh.pack, state.current_zone, state.navmesh_zone, start, entry->point, {}, {}, goal_floor_y);
-        const auto route = PlanCorridorRoute(navmesh, request);
+        const auto route = PlanCorridorRoute(navmesh, request, should_stop);
         if (!route.ok() || route.path.points.empty()) {
             continue;
         }
@@ -662,11 +667,11 @@ bool AppendNavmeshWaypoint(
     navmesh::BaseNavRouteRequest request =
         BuildRouteRequest(navmesh.pack, state.current_zone, state.navmesh_zone, state.route_start, target.point, {}, {}, target.floor_y);
     const auto plan_started_at = std::chrono::steady_clock::now();
-    auto route_result = PlanCorridorRoute(navmesh, request);
+    auto route_result = PlanCorridorRoute(navmesh, request, should_stop);
     bool start_recovered = false;
     if (!route_result.ok() && AppendStartRecovery(param, navmesh, request, state, out_path)) {
         request.start = state.route_start;
-        route_result = PlanCorridorRoute(navmesh, request);
+        route_result = PlanCorridorRoute(navmesh, request, should_stop);
         start_recovered = true;
     }
     const int64_t plan_ms =
