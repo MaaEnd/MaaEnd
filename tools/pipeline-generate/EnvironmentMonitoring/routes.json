@@ -52,14 +52,8 @@
         "MissionId": "m1m27",
         "Name": "蓄水源石虫",
         "Id": "CisternOriginiumSlugs",
-        "EnterMap": "SceneEnterWorldWulingJingyuValley7",
+        "QuickTeleport": true,
         "MapName": "Wuling_Base",
-        "MapAssert": [
-            747.21,
-            2572.86,
-            36.4,
-            31.87
-        ],
         "MapTarget": [
             794,
             2602.21
@@ -99,14 +93,8 @@
         "MissionId": "m1m29",
         "Name": "室内作物",
         "Id": "IndoorCrops",
-        "EnterMap": "SceneEnterWorldWulingWulingCity4",
+        "QuickTeleport": true,
         "MapName": "Wuling_Base",
-        "MapAssert": [
-            517.16,
-            1731.72,
-            31.13,
-            26.64
-        ],
         "MapTarget": [
             474.12,
             1772.18
@@ -487,7 +475,7 @@
         "MissionId": "m1m60",
         "Name": "谜之生物的涂鸦",
         "Id": "MysteriousCryptidGraffiti",
-        "EnterMap": "SceneEnterWorldWulingQingboStockade2",
+        "QuickTeleport": true,
         "NavZoneId": "Wuling_Base",
         "NavAssert": [
             1242.58,
