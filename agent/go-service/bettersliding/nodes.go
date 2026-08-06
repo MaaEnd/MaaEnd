@@ -5,6 +5,7 @@ const (
 
 	nodeBetterSlidingMain                 = "BetterSlidingMain"
 	nodeBetterSlidingFindStart            = "BetterSlidingFindStart"
+	nodeBetterSlidingFindSwipeForReset    = "BetterSlidingFindSwipeForReset"
 	nodeBetterSlidingGetSliderMaxQuantity = "BetterSlidingGetSliderMaxQuantity"
 	nodeBetterSlidingGetAvailableQuantity = "BetterSlidingGetAvailableQuantity"
 	nodeBetterSlidingFindEnd              = "BetterSlidingFindEnd"

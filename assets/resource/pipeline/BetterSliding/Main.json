@@ -96,28 +96,25 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "BetterSlidingReset",
+            "BetterSlidingFindSwipeForReset",
             "BetterSlidingFindStart"
         ]
     },
     "BetterSlidingReset": {
-        "desc": "向最小方向滑动复位（默认关闭，由 Go 在 ResetBeforeFindStart 开启时启用）",
-        "enabled": false,
+        "desc": "向最小方向滑动复位",
         "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
-                "begin": [
-                    1260,
-                    10,
-                    10,
-                    10
+                "begin": "BetterSlidingFindSwipeForReset",
+                "begin_offset": [
+                    5,
+                    5,
+                    -10,
+                    -10
                 ],
                 "end": [
-                    10,
-                    700,
-                    10,
-                    10
+                    "BetterSlidingFindSwipeForReset"
                 ]
             }
         },
@@ -320,6 +317,24 @@
         "rate_limit": 0,
         "next": [
             "BetterSlidingGetSliderMaxQuantity"
+        ]
+    },
+    "BetterSlidingFindSwipeForReset": {
+        "desc": "识别滑块，用于复位",
+        "enabled": false,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "BetterSlidingSwipeButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BetterSlidingReset"
         ]
     }
 }

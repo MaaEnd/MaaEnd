@@ -24,41 +24,43 @@ func buildSwipeEnd(direction string) ([]int, error) {
 	}
 }
 
-// buildResetSwipeParams returns fixed begin/end coordinates for the reset swipe,
-// dragging from the maximum-side corner to the minimum-side corner.
-func buildResetSwipeParams(direction string) ([]int, []int, error) {
+// buildResetSwipeEnd returns the minimum-side end coordinate for the reset swipe.
+func buildResetSwipeEnd(direction string) ([]int, error) {
 	switch direction {
 	case "right", "up":
-		return []int{1260, 10, 10, 10}, []int{10, 700, 10, 10}, nil
+		return []int{10, 700, 10, 10}, nil
 	case "left", "down":
-		return []int{10, 700, 10, 10}, []int{1260, 10, 10, 10}, nil
+		return []int{1260, 10, 10, 10}, nil
 	default:
-		return nil, nil, fmt.Errorf("unsupported direction %q", direction)
+		return nil, fmt.Errorf("unsupported direction %q", direction)
 	}
 }
 
-// buildResetSwipeOverride builds the pipeline override for the reset node. It always
-// sets the node's enabled state explicitly; when enabled, its swipe points from the
-// maximum side to the minimum side.
+// buildResetSwipeOverride builds the pipeline override for the reset flow.
+// The BetterSlidingFindSwipeForReset gate controls whether the reset swipe runs;
+// BetterSlidingReset itself only gets its end overridden in the same multi-segment
+// style as BetterSlidingSwipeToMax, keeping the pipeline-defined begin anchored at
+// the just-recognized slider position.
 func buildResetSwipeOverride(direction string, enabled bool) (map[string]any, error) {
-	node := map[string]any{
-		"enabled": enabled,
-	}
-	if enabled {
-		begin, end, err := buildResetSwipeParams(direction)
-		if err != nil {
-			return nil, err
-		}
-		node["action"] = map[string]any{
-			"param": map[string]any{
-				"begin": begin,
-				"end":   end,
-			},
-		}
+	end, err := buildResetSwipeEnd(direction)
+	if err != nil {
+		return nil, err
 	}
 
 	return map[string]any{
-		nodeBetterSlidingReset: node,
+		nodeBetterSlidingFindSwipeForReset: map[string]any{
+			"enabled": enabled,
+		},
+		nodeBetterSlidingReset: map[string]any{
+			"action": map[string]any{
+				"param": map[string]any{
+					"end": []any{
+						nodeBetterSlidingFindSwipeForReset,
+						append([]int(nil), end...),
+					},
+				},
+			},
+		},
 	}, nil
 }
 
