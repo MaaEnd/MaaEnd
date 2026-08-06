@@ -343,12 +343,13 @@ void NavRunController::recordSpeedSample(const NaviPosition& position, std::chro
             return;
         }
         // Two ways the pair stops describing one tick of travel: a jump too fast to be travel is a
-        // re-acquire landing somewhere else, and a span this long means the corridor was down in
-        // between, so the step covers many ticks while the counter advanced once. Either would read
-        // as an enormous rate, so the window restarts instead of carrying the discontinuity.
+        // re-acquire landing somewhere else, and a gap this many ticks wide straddles a stall the
+        // older sample knows nothing about. Either would read as a misleading rate, so the window
+        // restarts instead of carrying the discontinuity.
         const int64_t span_ms = ElapsedMs(last.at, now);
         const double span_sec = static_cast<double>(span_ms) / 1000.0;
-        if (span_sec <= 0.0 || span_ms > kNavRunSpeedWindowMs || step > kNavRunSpeedJumpMaxPxPerSec * span_sec) {
+        if (span_sec <= 0.0 || tick_seq_ - last.tick_seq > kNavRunSpeedMaxSampleGapTicks
+            || step > kNavRunSpeedJumpMaxPxPerSec * span_sec) {
             speed_samples_.clear();
         }
     }

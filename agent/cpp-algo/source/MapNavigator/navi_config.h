@@ -161,6 +161,7 @@ constexpr double kNavRunAimReachMinM = 6.0;
 constexpr int32_t kNavRunSpeedWindowMs = 700;
 constexpr int32_t kNavRunSpeedKeepMs = 2000;
 constexpr size_t kNavRunSpeedMaxSamples = 8;
+constexpr uint64_t kNavRunSpeedMaxSampleGapTicks = 8;
 constexpr double kNavRunSpeedJumpMaxPxPerSec = 40.0;
 constexpr double kNavRunUpcomingTurnLookaheadM = 8.0;
 constexpr double kNavRunCrossTrackWarnM = 2.2;
