@@ -1364,7 +1364,8 @@ bool NavigationStateMachine::TickNavigate()
     }
 
     const double heading_error = NaviMath::NormalizeAngle(effective_route_heading - current_heading);
-    const SteeringCommand steering = SteeringController::Update(heading_error, heading_rate_deg, motion_controller_->IsMovingForward());
+    const SteeringCommand steering = SteeringController::Update(heading_error, heading_rate_deg, motion_controller_->IsMovingForward(),
+                                                                runtime_state_.steering_rate.turn_latch_sign);
 
     motion_controller_->SetForwardState(true);
 

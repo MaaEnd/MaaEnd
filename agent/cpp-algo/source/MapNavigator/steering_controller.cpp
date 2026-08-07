@@ -19,10 +19,15 @@ constexpr double kHeadingRateDampingGain = 0.5;
 constexpr double kHeadingRateDeadbandDeg = 3.0;
 constexpr double kHeadingRatePlausibleMaxDeg = 60.0;
 constexpr double kHeadingRateDampingCapDeg = 14.0;
+// An about-face has no shorter side, so at the antipode a degree of heading jitter flips the command a full 360
+// and the agent alternates left and right forever without crossing. Latch the direction on entry and hold it
+// until the turn is well under way; either side reaches the target, so the latched one is never the wrong one.
+constexpr double kTurnLatchEnterDeg = 150.0;
+constexpr double kTurnLatchExitDeg = 120.0;
 
 } // namespace
 
-SteeringCommand SteeringController::Update(double heading_error, double heading_rate_deg, bool moving_forward)
+SteeringCommand SteeringController::Update(double heading_error, double heading_rate_deg, bool moving_forward, int& turn_latch_sign)
 {
     SteeringCommand command;
     const double rate_magnitude = std::abs(heading_rate_deg);
@@ -30,6 +35,16 @@ SteeringCommand SteeringController::Update(double heading_error, double heading_
     if (rate_magnitude > kHeadingRatePlausibleMaxDeg) {
         LogDebug << "SteeringController glitch-suppressed." << VAR(heading_error) << VAR(heading_rate_deg);
         return command;
+    }
+
+    if (std::abs(heading_error) < kTurnLatchExitDeg) {
+        turn_latch_sign = 0;
+    }
+    else if (turn_latch_sign == 0 && std::abs(heading_error) >= kTurnLatchEnterDeg) {
+        turn_latch_sign = heading_error >= 0.0 ? 1 : -1;
+    }
+    if (turn_latch_sign != 0) {
+        heading_error = std::abs(heading_error) * turn_latch_sign;
     }
 
     // Deadband gates the P term only: it suppresses chasing sub-noise heading error on a straight. A real corner
@@ -46,7 +61,7 @@ SteeringCommand SteeringController::Update(double heading_error, double heading_
     command.yaw_delta_deg = cmd;
     command.issued = std::abs(cmd) >= 2.0;
     LogDebug << "SteeringController update." << VAR(heading_error) << VAR(heading_rate_deg) << VAR(damping) << VAR(moving_forward)
-             << VAR(cmd);
+             << VAR(turn_latch_sign) << VAR(cmd);
     return command;
 }
 
