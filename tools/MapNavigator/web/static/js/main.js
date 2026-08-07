@@ -22,14 +22,16 @@
 import { Camera } from './camera.js';
 import { Renderer } from './gl/renderer.js';
 import { Overlay } from './gl/overlay.js';
+import { formatHeading, transformHeading } from './heading.js';
 import { NavmeshField } from './navmesh_field.js';
 import { AppState, Mode } from './state.js';
 import { ACTION_NAMES, ActionType, ACTION_MENU_NAMES, ACTION_COLORS, ACTION_MENU_TYPES, getPointActions, normalizeZoneId } from './model.js';
 import { compactNumber, roundHalfEven } from './rounding.js';
-import { initFeedback, setStatus, setLocator } from './ui/toast.js';
+import { initFeedback, setStatus } from './ui/toast.js';
 import { ConnectionPanel } from './ui/connection.js';
 import { RecordingController } from './ui/recording.js';
 import { Importer } from './ui/importer.js';
+import { PositionReadout } from './ui/position.js';
 import {
   getZones,
   getLoadStatus,
@@ -91,12 +93,12 @@ class MapNavigatorApp {
     // --- assert / A* view state ---
     /** @type {?number[]} raw drag rect `[x0,y0,x1,y1]` in display-frame world. */
     this.assertRectWorld = null;
-    /** @type {?number[]} assert locate hint coordinate [x, y]. */
+    /** @type {?{x:number,y:number,rot:?number,label:string}} assert locate hint in base px. */
     this.assertLocateHint = null;
     /**
      * A* **preview** markers in base px — from a game locate fix or a hand-entered
      * coordinate. Preview only: never part of `state.points` (the real route).
-     * @type {Array<{x:number, y:number, label:string}>}
+     * @type {Array<{x:number, y:number, label:string, rot:?number}>}
      */
     this.astarLocateHints = [];
     /** @type {?{x0:number,y0:number,x1:number,y1:number}} canvas-px selection box. */
@@ -223,6 +225,11 @@ class MapNavigatorApp {
       loadProgressLabel: $('load-progress-label'),
       statusLabel: $('status-label'),
       locatorLabel: $('locator-label'),
+      positionReadout: $('position-readout'),
+      positionCoordinates: $('position-coordinates'),
+      positionHeading: $('position-heading'),
+      positionZone: $('position-zone'),
+      positionHeadingArrow: $('position-heading-arrow'),
       importDialog: $('import-dialog'),
       importDialogRows: $('import-dialog-rows'),
       importDialogCancel: $('import-dialog-cancel'),
@@ -263,6 +270,13 @@ class MapNavigatorApp {
   async boot() {
     try {
       initFeedback({ status: this.els.statusLabel, locator: this.els.locatorLabel });
+      this.positionReadout = new PositionReadout({
+        root: this.els.positionReadout,
+        coordinates: this.els.positionCoordinates,
+        heading: this.els.positionHeading,
+        zone: this.els.positionZone,
+        arrow: this.els.positionHeadingArrow,
+      });
 
       this._populateActionMenu();
       this._resetPropertyControls();
@@ -289,6 +303,9 @@ class MapNavigatorApp {
         appEl: this.els.app,
         connection: this.connection,
         onFinished: (rawPoints) => this._onRecordingFinished(rawPoints),
+        onPosition: (fix) => this.positionReadout.update(fix),
+        onPositionPending: () => this.positionReadout.setPending('正在获取实时位置与朝向...'),
+        onPositionUnavailable: (message) => this.positionReadout.setPending(message),
       });
       this.importer = new Importer(
         {
@@ -771,7 +788,14 @@ class MapNavigatorApp {
 
     let displayAssertLocateHint = null;
     if (mode === Mode.ASSERT && this.assertLocateHint) {
-      displayAssertLocateHint = this._baseToDisplay(this.assertLocateHint[0], this.assertLocateHint[1]);
+      const hint = this.assertLocateHint;
+      const [x, y] = this._baseToDisplay(hint.x, hint.y);
+      displayAssertLocateHint = {
+        x,
+        y,
+        label: hint.label,
+        rot: this._headingBaseToDisplay(hint.x, hint.y, hint.rot),
+      };
     }
     const displayAstarLocateHints = mode === Mode.ASTAR ? this._astarDisplayHints() : [];
 
@@ -835,12 +859,22 @@ class MapNavigatorApp {
     return this.field.baseToTier(tierId, bx, by);
   }
 
-  /** A* preview markers projected base → display frame. @returns {Array<{x:number,y:number,label:string}>} */
+  /** A* preview markers projected base → display frame, including their heading vector. */
   _astarDisplayHints() {
     return this.astarLocateHints.map((hint) => {
       const [x, y] = this._baseToDisplay(hint.x, hint.y);
-      return { x, y, label: hint.label };
+      return { x, y, label: hint.label, rot: this._headingBaseToDisplay(hint.x, hint.y, hint.rot) };
     });
+  }
+
+  /** MapLocator zone-frame heading → base-frame heading. @returns {?number} */
+  _headingToBase(zoneId, x, y, rot) {
+    return transformHeading(rot, (px, py) => this._pointToBase(zoneId, px, py), x, y);
+  }
+
+  /** Base-frame heading → current display-frame heading. @returns {?number} */
+  _headingBaseToDisplay(x, y, rot) {
+    return transformHeading(rot, (px, py) => this._baseToDisplay(px, py), x, y);
   }
 
   /**
@@ -1188,7 +1222,7 @@ class MapNavigatorApp {
       minY = assertTarget[1];
       maxY = assertTarget[1] + assertTarget[3];
     } else if (mode === Mode.ASSERT && this.assertLocateHint) {
-      const pt = this._baseToDisplay(this.assertLocateHint[0], this.assertLocateHint[1]);
+      const pt = this._baseToDisplay(this.assertLocateHint.x, this.assertLocateHint.y);
       minX = pt[0] - 200;
       maxX = pt[0] + 200;
       minY = pt[1] - 200;
@@ -1823,13 +1857,18 @@ class MapNavigatorApp {
     }
 
     const connectionPayload = this.connection ? this.connection.buildSession() : null;
+    const locateButton = mode === 'assert' ? this.els.btnAssertLocate : this.els.btnAstarLocate;
+    if (locateButton) locateButton.disabled = true;
     setStatus('正在连接游戏并获取位置，请保持游戏前台运行...', '#3b82f6');
+    if (this.positionReadout) this.positionReadout.setPending('正在获取位置与朝向...');
 
     try {
       const res = await locateOnce(connectionPayload);
       if (res && res.ok) {
-        const { x, y, zone } = res;
-        setStatus(`定位成功: [${x.toFixed(1)}, ${y.toFixed(1)}] @ ${zone}`, '#10b981');
+        const { x, y, zone, rot = null } = res;
+        const headingText = formatHeading(rot);
+        if (this.positionReadout) this.positionReadout.update({ x, y, zone, rot });
+        setStatus(`定位成功: [${x.toFixed(1)}, ${y.toFixed(1)}] · ${headingText} @ ${zone}`, '#10b981');
 
         if (mode === 'astar') {
           const zoneIdNum = this._resolveZoneId(zone);
@@ -1841,8 +1880,12 @@ class MapNavigatorApp {
 
             // 定位给的是所在 zone 自己的帧(tier 上即 tier px), 预览点存 base px。
             const [bx, by] = this._pointToBase(zoneIdNum, x, y);
-            this._addAstarHint(bx, by, '游戏当前位置');
-            setStatus(`已标记 A* 定位预览点: [${x.toFixed(1)}, ${y.toFixed(1)}]。当前有 ${this.astarLocateHints.length} 个预览点。`, '#10b981');
+            const baseRot = this._headingToBase(zoneIdNum, x, y, rot);
+            this._addAstarHint(bx, by, `游戏当前位置 · ${headingText}`, baseRot);
+            setStatus(
+              `已标记 A* 定位预览点: [${x.toFixed(1)}, ${y.toFixed(1)}] · ${headingText}。当前有 ${this.astarLocateHints.length} 个预览点。`,
+              '#10b981',
+            );
             this._focusAstarHints();
           }
         } else if (mode === 'assert') {
@@ -1856,17 +1899,26 @@ class MapNavigatorApp {
               this._onAssertZoneChanged();
             }
             // 定位给的是所在 zone 自己的帧(tier 上即 tier px), 提示点存 base px。
-            this.assertLocateHint = zoneObj ? this._pointToBase(zoneObj.zone_id, x, y) : [x, y];
+            const [bx, by] = zoneObj ? this._pointToBase(zoneObj.zone_id, x, y) : [x, y];
+            const baseRot = zoneObj ? this._headingToBase(zoneObj.zone_id, x, y, rot) : rot;
+            this.assertLocateHint = { x: bx, y: by, rot: baseRot, label: `游戏当前位置 · ${headingText}` };
             this._fitView();
-            setStatus(`已定位到游戏当前位置 [${x.toFixed(1)}, ${y.toFixed(1)}]，请在此提示点周围拖拽鼠标来画出断言矩形。`, '#10b981');
+            setStatus(
+              `已定位到游戏当前位置 [${x.toFixed(1)}, ${y.toFixed(1)}] · ${headingText}，请在此提示点周围拖拽鼠标来画出断言矩形。`,
+              '#10b981',
+            );
             this._paint();
           }
         }
       } else {
         setStatus(`定位失败: ${res?.error || '未知错误'}`, '#ef4444');
+        if (this.positionReadout) this.positionReadout.setPending('未获取到位置与朝向');
       }
     } catch (err) {
       setStatus(`定位异常: ${err && err.message ? err.message : err}`, '#ef4444');
+      if (this.positionReadout) this.positionReadout.setPending('未获取到位置与朝向');
+    } finally {
+      if (locateButton) locateButton.disabled = false;
     }
   }
 
@@ -1878,10 +1930,11 @@ class MapNavigatorApp {
    * Append an A* preview marker. Coords are **base px** (callers convert from the point's
    * own zone frame); `_paint` projects them into the display frame.
    * @param {number} x @param {number} y @param {string} label caption drawn under the marker
+   * @param {?number} [rot=null] north-up clockwise heading in the base frame
    * @returns {void}
    */
-  _addAstarHint(x, y, label) {
-    this.astarLocateHints.push({ x, y, label });
+  _addAstarHint(x, y, label, rot = null) {
+    this.astarLocateHints.push({ x, y, label, rot });
   }
 
   /**
