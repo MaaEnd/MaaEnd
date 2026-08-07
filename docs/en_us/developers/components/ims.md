@@ -208,13 +208,6 @@ UI Focus announce runs only when `notify_ui` is `true` (resolved expression; ide
 
 Checks whether the **whole** IMS cache is usable for business decisions.
 
-### Parameters
-
-| Param | Meaning |
-| --- | --- |
-| `refresh_days` | TTL in days; omit defaults to `7`; `0` means never expire by age |
-| `notify_ui` | Whether to Focus-announce ready / not-ready; **omit defaults to `true`**. For silent checks, use reserved node `ItemDataReadyNoNotify` (`notify_ui: false`) |
-
 ### Conditions
 
 1. **Cache exists**  
@@ -288,7 +281,7 @@ When you need ready **and** enough:
 | `UpdateItemQuantity.json` | A1 |
 | `AddItemData.json` | A3 best practice (close rewards) |
 | `ItemQuantitySatisfied.json` | R1 (override `expression`) |
-| `ItemDataReady.json` | R2 + `ItemDataReadyNoNotify` + `EnsureItemDataReady*` |
+| `ItemDataReady.json` | R2 + `EnsureItemDataReady*` |
 | `common.json` / `item/*.json` | Rarity colors and per-item nodes |
 
 ### Item template green mask

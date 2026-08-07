@@ -206,13 +206,6 @@ R1 **不检查**缓存是否就绪。若需要「数据可用且数量够」，�
 
 判断**整份** IMS 缓存当前是否合格、能不能拿来做业务判断。
 
-### 参数
-
-| 参数 | 说明 |
-| --- | --- |
-| `refresh_days` | 过期天数；省略默认 `7`；`0` 表示不因时间过期 |
-| `notify_ui` | 是否向 UI Focus 播报就绪/未就绪；**省略默认 `true`**。静默检查请用预留节点 `ItemDataReadyNoNotify`（`notify_ui: false`） |
-
 ### 检测条件
 
 1. **有没有缓存**  
@@ -286,7 +279,7 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 | `UpdateItemQuantity.json` | A1 |
 | `AddItemData.json` | A3 最佳实践（领奖后关闭） |
 | `ItemQuantitySatisfied.json` | R1（调用方覆盖 `expression`） |
-| `ItemDataReady.json` | R2 + `ItemDataReadyNoNotify` + `EnsureItemDataReady*` |
+| `ItemDataReady.json` | R2 + `EnsureItemDataReady*` |
 | `common.json` / `item/*.json` | 品质色与各物品识别节点 |
 
 ### 物品模板绿幕
