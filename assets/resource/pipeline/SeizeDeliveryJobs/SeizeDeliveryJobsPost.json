@@ -189,7 +189,10 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "正在走到武陵城仓储节点",
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -217,7 +220,10 @@
         "post_delay": 500, // 等待弹出接取货物按钮
         "focus": {
             "Node.Recognition.Succeeded": "正在重新走到武陵城仓储节点",
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -244,7 +250,10 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "正在走到试验园区仓储节点",
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -272,7 +281,10 @@
         "post_delay": 2000, // 等待玩家止步
         "focus": {
             "Node.Recognition.Succeeded": "正在重新走到试验园区仓储节点",
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }

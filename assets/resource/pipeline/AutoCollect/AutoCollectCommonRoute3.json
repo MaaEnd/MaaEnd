@@ -89,7 +89,10 @@
             "AutoCollectCommonRoute3GotoFind1"
         ],
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -114,7 +117,10 @@
             "AutoCollectClickStart"
         ],
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -147,7 +153,10 @@
             "AutoCollectClickStart"
         ],
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -184,7 +193,10 @@
             "AutoCollectClickStart"
         ],
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -217,7 +229,10 @@
             "AutoCollectClickStart"
         ],
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -254,7 +269,10 @@
             "AutoCollectCommonRoute3GotoFind5"
         ],
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -279,7 +297,10 @@
             "AutoCollectClickStart"
         ],
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -312,7 +333,10 @@
             "AutoCollectClickStart"
         ],
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -345,7 +369,10 @@
             "AutoCollectClickStart"
         ],
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }

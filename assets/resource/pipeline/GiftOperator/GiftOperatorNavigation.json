@@ -95,7 +95,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -130,7 +133,10 @@
             "timeout": 2000
         },
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -157,7 +163,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -192,7 +201,10 @@
             "timeout": 2000
         },
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -219,7 +231,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -254,7 +269,10 @@
             "timeout": 2000
         },
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -289,7 +307,10 @@
             "[JumpBack]GiftOperatorGoAheadContact"
         ],
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -316,7 +337,10 @@
             }
         },
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -342,7 +366,10 @@
             "GiftOperatorClickContact"
         ],
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }

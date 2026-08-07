@@ -126,7 +126,10 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "识别到采集物",
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
