@@ -522,6 +522,22 @@
         "QuickTeleport": true,
         "NavPath": [
             {
+                "action": "ZONE",
+                "zone_id": "Wuling_L4_328"
+            },
+            {
+                "action": "NAVMESH",
+                "target": [
+                    243.65,
+                    182.44
+                ],
+                "target_tier": "Wuling_L4_328"
+            },
+            [
+                243.5,
+                178.04
+            ],
+            {
                 "action": "NAVMESH",
                 "target": [
                     214.61,
