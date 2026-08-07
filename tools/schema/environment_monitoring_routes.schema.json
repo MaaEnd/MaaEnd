@@ -19,10 +19,6 @@
             "NavAssert": [
                 "NavZoneId",
                 "NavPath"
-            ],
-            "NavPath": [
-                "NavZoneId",
-                "NavAssert"
             ]
         },
         "required": [
@@ -188,11 +184,31 @@
                         },
                         {
                             "title": "MapNavigatorRoute",
-                            "description": "MapNavigator 路线：NavZoneId / NavAssert / NavPath 三者同时配置，不再填写 MapName / MapAssert / MapPath / MapTarget / MapTargetTier / MapGoal / NoEnsureInitialMovementState。",
+                            "description": "MapNavigator 路线：NavPath 必填，普通传送还需 NavZoneId / NavAssert，QuickTeleport 可省略二者；不再填写 MapName / MapAssert / MapPath / MapTarget / MapTargetTier / MapGoal / NoEnsureInitialMovementState。",
                             "required": [
-                                "NavZoneId",
-                                "NavAssert",
                                 "NavPath"
+                            ],
+                            "allOf": [
+                                {
+                                    "if": {
+                                        "not": {
+                                            "required": [
+                                                "QuickTeleport"
+                                            ],
+                                            "properties": {
+                                                "QuickTeleport": {
+                                                    "const": true
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "required": [
+                                            "NavZoneId",
+                                            "NavAssert"
+                                        ]
+                                    }
+                                }
                             ],
                             "not": {
                                 "anyOf": [
@@ -415,7 +431,7 @@
             "NavZoneId": {
                 "type": "string",
                 "minLength": 1,
-                "description": "MapNavigator 路线的分区 zone_id（渲染为 MapLocateAssertLocation 的 zone_id）。与 NavAssert / NavPath 三者同时配置，配置后不再填写 MapName / MapAssert / MapPath / MapTarget / MapGoal。",
+                "description": "普通传送 MapNavigator 路线起点断言的 MapLocate zone_id（渲染为 MapLocateAssertLocation 的 zone_id）。与 NavAssert / NavPath 同时配置；QuickTeleport 不执行起点断言，可省略 NavZoneId / NavAssert。",
                 "examples": [
                     "Wuling_Base",
                     "Wuling_L4_328"
@@ -423,7 +439,7 @@
             },
             "NavAssert": {
                 "type": "array",
-                "description": "初始位置判断矩形 [x, y, w, h]，使用 NavZoneId 分区坐标（tier 分区为 tier 局部坐标）。",
+                "description": "初始位置判断矩形 [x, y, w, h]，使用 NavZoneId 分区坐标（tier 分区为 tier 局部坐标）。普通传送必填；QuickTeleport 不执行起点断言，可与 NavZoneId 一并省略。",
                 "items": {
                     "type": "number"
                 },

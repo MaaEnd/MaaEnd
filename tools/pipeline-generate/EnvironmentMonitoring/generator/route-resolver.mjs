@@ -21,10 +21,16 @@ export const ROUTE_CONFIG_FIELDS = [
     "QuickTeleport",
 ];
 
-// MapNavigator 路线的三件套，必须同时配置
-const NAV_ROUTE_FIELDS = [
+// MapNavigator 路线只要求路径；普通传送还需要起点断言的分区与矩形。
+const NAV_ROUTE_REQUIRED_FIELDS = [
+    "NavPath",
+];
+const NAV_ASSERT_FIELDS = [
     "NavZoneId",
     "NavAssert",
+];
+const NAV_ROUTE_FIELDS = [
+    ...NAV_ASSERT_FIELDS,
     "NavPath",
 ];
 
@@ -39,6 +45,14 @@ export function collectNavRouteFields(route) {
     return NAV_ROUTE_FIELDS.filter((field) => !isFieldMissing(route?.[field]));
 }
 
+function hasCompleteNavRoute(route) {
+    const hasRequiredFields = NAV_ROUTE_REQUIRED_FIELDS.every((field) => !isFieldMissing(route?.[field]));
+    const assertFieldsPresent = NAV_ASSERT_FIELDS.filter((field) => !isFieldMissing(route?.[field])).length;
+    const hasCompleteAssert = assertFieldsPresent === NAV_ASSERT_FIELDS.length;
+    const canOmitAssert = route?.QuickTeleport === true && assertFieldsPresent === 0;
+    return hasRequiredFields && (hasCompleteAssert || canOmitAssert);
+}
+
 export function collectMissingRouteFields(route) {
     if (route == null) {
         return ["route"];
@@ -50,7 +64,7 @@ export function collectMissingRouteFields(route) {
     const hasMapTarget = !isFieldMissing(route.MapTarget);
     const hasMapGoal = !isFieldMissing(route.MapGoal);
     const navFieldsPresent = collectNavRouteFields(route);
-    const hasNavRoute = navFieldsPresent.length === NAV_ROUTE_FIELDS.length;
+    const hasNavRoute = hasCompleteNavRoute(route);
     const navigationConfigCount = [
         hasMapPath,
         hasMapTarget,
@@ -66,10 +80,6 @@ export function collectMissingRouteFields(route) {
     if (isFieldMissing(route.CameraSwipeDirection)) {
         missingFields.push("CameraSwipeDirection");
     }
-    if (navFieldsPresent.length > 0 && !hasNavRoute) {
-        missingFields.push(`${NAV_ROUTE_FIELDS.join("/")} 必须同时配置`);
-    }
-
     if (isDirectPhoto) {
         const unusedDirectPhotoFields = [
             "MapName",
@@ -79,19 +89,25 @@ export function collectMissingRouteFields(route) {
         if (unusedDirectPhotoFields.length > 0) {
             missingFields.push(`传送后直拍不应配置 ${unusedDirectPhotoFields.join("/")}`);
         }
-    } else if (hasNavRoute) {
-        // Nav 路线自带分区、断言与路径，老的地图字段留着只会两份配置对不上。
-        const unusedNavRouteFields = [
-            "MapName",
-            "MapAssert",
-            "MapPath",
-            "MapTarget",
-            "MapTargetTier",
-            "MapGoal",
-            "NoEnsureInitialMovementState",
-        ].filter((field) => !isFieldMissing(route[field]));
-        if (unusedNavRouteFields.length > 0) {
-            missingFields.push(`${NAV_ROUTE_FIELDS.join("/")} 路线不应配置 ${unusedNavRouteFields.join("/")}`);
+    } else if (navFieldsPresent.length > 0) {
+        if (!hasNavRoute) {
+            const hasAnyAssertField = NAV_ASSERT_FIELDS.some((field) => !isFieldMissing(route[field]));
+            const requiredFields = quickTeleport && !hasAnyAssertField ? NAV_ROUTE_REQUIRED_FIELDS : NAV_ROUTE_FIELDS;
+            missingFields.push(`${requiredFields.join("/")} 必须同时配置`);
+        } else {
+            // Nav 路线自带路径，普通传送另带分区与断言；老的地图字段留着只会两份配置对不上。
+            const unusedNavRouteFields = [
+                "MapName",
+                "MapAssert",
+                "MapPath",
+                "MapTarget",
+                "MapTargetTier",
+                "MapGoal",
+                "NoEnsureInitialMovementState",
+            ].filter((field) => !isFieldMissing(route[field]));
+            if (unusedNavRouteFields.length > 0) {
+                missingFields.push(`NavPath 路线不应配置 ${unusedNavRouteFields.join("/")}`);
+            }
         }
     } else {
         if (isFieldMissing(route.MapName)) {
@@ -133,6 +149,7 @@ const UNREACHABLE_ROUTE_PLACEHOLDER = {
     MapTarget: null,
     MapTargetTier: null,
     MapGoal: null,
+    NavZoneId: "Wuling_Base",
     CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
 };
 
@@ -309,7 +326,7 @@ export function createRouteResolver(routeConfig, options = {}) {
             const hasMapTarget = !isFieldMissing(override?.MapTarget);
             const hasMapGoal = !isFieldMissing(override?.MapGoal);
             const navFieldsPresent = collectNavRouteFields(override);
-            const hasNavRoute = navFieldsPresent.length === NAV_ROUTE_FIELDS.length;
+            const hasNavRoute = hasCompleteNavRoute(override);
             const navigationConfigCount = [
                 hasMapPath,
                 hasMapTarget,
@@ -403,8 +420,12 @@ export function createRouteResolver(routeConfig, options = {}) {
                     MapTarget,
                     MapTargetTier,
                     MapGoal,
-                    NavZoneId: override?.NavZoneId,
-                    NavAssert: override?.NavAssert,
+                    NavZoneId: isFieldMissing(override?.NavZoneId)
+                        ? UNREACHABLE_ROUTE_PLACEHOLDER.NavZoneId
+                        : override.NavZoneId,
+                    NavAssert: isFieldMissing(override?.NavAssert)
+                        ? UNREACHABLE_ROUTE_PLACEHOLDER.MapAssert
+                        : override.NavAssert,
                     NavPath: override?.NavPath,
                     NoEnsureInitialMovementState,
                     hasMapTarget: navigationConfigCount === 1 && hasMapTarget,

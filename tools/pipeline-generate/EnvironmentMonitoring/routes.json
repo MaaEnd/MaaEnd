@@ -3,47 +3,31 @@
         "MissionId": "m1m26",
         "Name": "侵蚀潮中损坏的信标",
         "Id": "BeaconDamagedInTheBlightTide",
-        "EnterMap": "SceneEnterWorldWulingWulingCity0",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            918.51,
-            1307.19,
-            14.78,
-            14.78
-        ],
+        "QuickTeleport": true,
         "NavPath": [
             {
                 "action": "ZONE",
                 "zone_id": "Wuling_Base"
             },
             [
-                920.48,
-                1323.94
+                922.79,
+                1312.01
             ],
             [
-                918.51,
-                1350.54
+                918.05,
+                1334.25
             ],
             [
-                902.75,
-                1353.49
+                917.94,
+                1348.38
             ],
-            [
-                920.48,
-                1368.27
-            ],
-            [
-                963.83,
-                1369.25
-            ],
-            [
-                958.91,
-                1384.03
-            ],
-            [
-                979.59,
-                1395.85
-            ]
+            {
+                "action": "NAVMESH",
+                "target": [
+                    978.32,
+                    1399.26
+                ]
+            }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "Heading": 90
@@ -53,10 +37,14 @@
         "Name": "蓄水源石虫",
         "Id": "CisternOriginiumSlugs",
         "QuickTeleport": true,
-        "MapName": "Wuling_Base",
-        "MapTarget": [
-            794,
-            2602.21
+        "NavPath": [
+            {
+                "action": "NAVMESH",
+                "target": [
+                    794,
+                    2602.21
+                ]
+            }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "Heading": 235
@@ -94,10 +82,14 @@
         "Name": "室内作物",
         "Id": "IndoorCrops",
         "QuickTeleport": true,
-        "MapName": "Wuling_Base",
-        "MapTarget": [
-            474.12,
-            1772.18
+        "NavPath": [
+            {
+                "action": "NAVMESH",
+                "target": [
+                    474.12,
+                    1772.18
+                ]
+            }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 180
@@ -107,10 +99,14 @@
         "Name": "古树",
         "Id": "AncientTree",
         "QuickTeleport": true,
-        "MapName": "Wuling_Base",
-        "MapTarget": [
-            829.41,
-            2576.94
+        "NavPath": [
+            {
+                "action": "NAVMESH",
+                "target": [
+                    829.41,
+                    2576.94
+                ]
+            }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 245
@@ -120,16 +116,21 @@
         "Name": "倒塌的天师桩",
         "Id": "CollapsedTianshiPillar",
         "EnterMap": "SceneEnterWorldWulingJingyuValley8",
-        "MapName": "Wuling_Base",
-        "MapAssert": [
+        "NavZoneId": "Wuling_Base",
+        "NavAssert": [
             671.75,
             2620.08,
             46.31,
             54.57
         ],
-        "MapTarget": [
-            644.99,
-            2617.89
+        "NavPath": [
+            {
+                "action": "NAVMESH",
+                "target": [
+                    644.99,
+                    2617.89
+                ]
+            }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 290
@@ -193,16 +194,21 @@
         "Name": "充满活力的蓄水源石虫",
         "Id": "VigorousCisternOriginiumSlug",
         "EnterMap": "SceneEnterWorldWulingJingyuValley8",
-        "MapName": "Wuling_Base",
-        "MapAssert": [
+        "NavZoneId": "Wuling_Base",
+        "NavAssert": [
             682.09,
             2636.41,
             44.2,
             48.35
         ],
-        "MapTarget": [
-            691.16,
-            2634.78
+        "NavPath": [
+            {
+                "action": "NAVMESH",
+                "target": [
+                    691.16,
+                    2634.78
+                ]
+            }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "Heading": 100
@@ -263,10 +269,14 @@
         "Name": "水灯虫",
         "Id": "Waterlamp",
         "QuickTeleport": true,
-        "MapName": "Wuling_Base",
-        "MapTarget": [
-            710.94,
-            1887.4
+        "NavPath": [
+            {
+                "action": "NAVMESH",
+                "target": [
+                    710.94,
+                    1887.4
+                ]
+            }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 30
@@ -367,10 +377,14 @@
         "Name": "环形瀑布",
         "Id": "AnnularWaterfall",
         "QuickTeleport": true,
-        "MapName": "Wuling_Base",
-        "MapTarget": [
-            1364.14,
-            2147.09
+        "NavPath": [
+            {
+                "action": "NAVMESH",
+                "target": [
+                    1364.14,
+                    2147.09
+                ]
+            }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 15
@@ -458,10 +472,14 @@
         "Name": "谜之生物的涂鸦",
         "Id": "MysteriousCryptidGraffiti",
         "QuickTeleport": true,
-        "MapName": "Wuling_Base",
-        "MapTarget": [
-            1298.93,
-            2346.99
+        "NavPath": [
+            {
+                "action": "NAVMESH",
+                "target": [
+                    1298.93,
+                    2346.99
+                ]
+            }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft",
         "Heading": 165
@@ -471,12 +489,16 @@
         "Name": "“旧庭树”",
         "Id": "TreeOfTheOldCourtyard",
         "QuickTeleport": true,
-        "MapName": "Wuling_Base",
-        "MapTarget": [
-            98.4,
-            111
+        "NavPath": [
+            {
+                "action": "NAVMESH",
+                "target": [
+                    98.4,
+                    111
+                ],
+                "target_tier": "Wuling_L4_330"
+            }
         ],
-        "MapTargetTier": "Wuling_L4_330",
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "Heading": 180
     },
@@ -555,12 +577,16 @@
         "Name": "彩虹",
         "Id": "Rainbow",
         "QuickTeleport": true,
-        "MapName": "Wuling_Base",
-        "MapTarget": [
-            214.61,
-            145.62
+        "NavPath": [
+            {
+                "action": "NAVMESH",
+                "target": [
+                    214.61,
+                    145.62
+                ],
+                "target_tier": "Wuling_L4_328"
+            }
         ],
-        "MapTargetTier": "Wuling_L4_328",
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "CameraMaxHit": 1,
         "Heading": 260
@@ -589,10 +615,14 @@
         "Name": "净水温控装置",
         "Id": "WaterTemperatureController",
         "QuickTeleport": true,
-        "MapName": "Wuling_Base",
-        "MapTarget": [
-            338.51,
-            2155.26
+        "NavPath": [
+            {
+                "action": "NAVMESH",
+                "target": [
+                    338.51,
+                    2155.26
+                ]
+            }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 270

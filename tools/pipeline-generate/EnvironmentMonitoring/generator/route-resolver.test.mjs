@@ -164,6 +164,52 @@ test("Nav route fields render MapLocateAssertLocation + MapNavigateAction", () =
     });
 });
 
+test("QuickTeleport Nav routes only require NavPath", () => {
+    const result = resolve({
+        MissionId: mission.missionId,
+        Name: "测试观察点",
+        Id: "TestMission",
+        QuickTeleport: true,
+        NavPath: [
+            {
+                action: "NAVMESH",
+                target: [
+                    5,
+                    5,
+                ],
+            },
+        ],
+        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
+    });
+
+    assert.equal(result.isAdapted, true);
+    assert.equal(result.IsDirectPhoto, false);
+    assert.equal(result.ShouldAssertAfterTeleport, false);
+    assert.equal(result.MapAssertRecognition, "MapLocateAssertLocation");
+    assert.deepEqual(result.MapAssertParam, {
+        zone_id: "Wuling_Base",
+        target: [
+            0,
+            0,
+            1,
+            1,
+        ],
+    });
+    assert.equal(result.RouteAction, "MapNavigateAction");
+    assert.deepEqual(result.RouteActionParam, {
+        path: [
+            {
+                action: "NAVMESH",
+                target: [
+                    5,
+                    5,
+                ],
+            },
+        ],
+    });
+    assert.deepEqual(result.missingFields, []);
+});
+
 test("Nav route fields cannot be mixed with the map route fields", () => {
     const missingFields = collectMissingRouteFields({
         MissionId: mission.missionId,
@@ -191,7 +237,7 @@ test("Nav route fields cannot be mixed with the map route fields", () => {
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     });
 
-    assert.deepEqual(missingFields, ["NavZoneId/NavAssert/NavPath 路线不应配置 MapName/MapGoal"]);
+    assert.deepEqual(missingFields, ["NavPath 路线不应配置 MapName/MapGoal"]);
 });
 
 test("incomplete Nav route fields are reported", () => {
@@ -210,12 +256,7 @@ test("incomplete Nav route fields are reported", () => {
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     });
 
-    assert.deepEqual(missingFields, [
-        "NavZoneId/NavAssert/NavPath 必须同时配置",
-        "MapName",
-        "MapAssert",
-        "MapPath/MapTarget/MapGoal",
-    ]);
+    assert.deepEqual(missingFields, ["NavZoneId/NavAssert/NavPath 必须同时配置"]);
 });
 
 test("existing navigation forms remain adapted", () => {

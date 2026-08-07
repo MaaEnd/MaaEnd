@@ -52,11 +52,12 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
     "NavZoneId": "Wuling_Base",
     "NavAssert": [x, y, w, h],
     "NavPath": [{ "action": "ZONE", "zone_id": "..." }, [x1, y1], [x2, y2]]
-        // 寻路路线的写法，三者同时配置，用 tools/MapNavigator/ 的 GUI 工具录制。
+        // 寻路路线的写法。NavPath 必填，用 tools/MapNavigator/ 的 GUI 工具录制。
         // NavZoneId + NavAssert 渲染为 MapLocateAssertLocation（NavZoneId 分区坐标，
         // tier 分区为 tier 局部坐标）；NavPath 原样作为 MapNavigateAction 的 path
         // （不含 HEADING，朝向仍由 Heading 字段追加）。
-        // 普通传送必须有 NavAssert 用来判断是否调用 EnterMap，快捷传送可省略。
+        // 普通传送必须有 NavZoneId / NavAssert 用来判断是否调用 EnterMap；
+        // 快捷传送不执行起点断言，可同时省略二者。
         // 如果传送点可以直接拍照，则整组字段一起省略。
     // 下面几个是遗留字段，只保留给尚未迁移的存量路线，新增路线不要使用：
     // "MapName": "map02_lv001",
@@ -95,9 +96,11 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 }
 ```
 
-> `routes.json` 是严格 JSON：不允许行内注释、不允许尾随逗号。上面的注释只是文档示意，实际文件里要去掉。需要寻路时用 `NavZoneId` / `NavAssert` / `NavPath` 三件套；它与遗留的 `MapPath` / `MapTarget` / `MapGoal` 互斥，只能选一种写法。如果传送点可以直接拍照，则整组地图断言和寻路字段都不要填，但可以按实测结果保留可选的 `Heading`。生成器会根据“存在真实传送入口和 `CameraSwipeDirection`，同时没有 `MapAssert` 和寻路配置”自动进入直拍分支，不需要额外开关字段。
+> `routes.json` 是严格 JSON：不允许行内注释、不允许尾随逗号。上面的注释只是文档示意，实际文件里要去掉。需要寻路时配置 `NavPath`，普通传送再配置 `NavZoneId` / `NavAssert`；它与遗留的 `MapPath` / `MapTarget` / `MapGoal` 互斥，只能选一种写法。如果传送点可以直接拍照，则整组地图断言和寻路字段都不要填，但可以按实测结果保留可选的 `Heading`。生成器会根据“存在真实传送入口和 `CameraSwipeDirection`，同时没有 `MapAssert` 和寻路配置”自动进入直拍分支，不需要额外开关字段。
 
-> 传送后的处理取决于入口和路线类型：传送后直拍不做位置断言或寻路，配置 `Heading` 时只原地调整朝向，随后进入任务专属拍照包装节点。`QuickTeleport` 的固定传送落点可直接开始寻路，因此允许省略断言矩形。普通传送的寻路路线仍会在决定是否调用 `EnterMap` 前用到断言矩形，所以不能省略；传送完成后 `NavPath` / `MapTarget` / `MapGoal` 直接开始寻路，只有遗留的 `MapPath` 会再次复核固定起点。
+> 传送后的处理取决于入口和路线类型：传送后直拍不做位置断言或寻路，配置 `Heading` 时只原地调整朝向，随后进入任务专属拍照包装节点。`QuickTeleport` 的固定传送落点可直接开始寻路，因此允许省略 `NavZoneId` / `NavAssert`。普通传送的寻路路线仍会在决定是否调用 `EnterMap` 前用到断言配置，所以不能省略；传送完成后 `NavPath` / `MapTarget` / `MapGoal` 直接开始寻路，只有遗留的 `MapPath` 会再次复核固定起点。
+>
+> 仅含 `NAVMESH` 的 `NavPath` 不需要前置 `ZONE`：导航器会从 MapLocator 当前定位自动确定起点区域。`ZONE` 只为后续手录坐标点声明和校验分区，多分区或过图路径应原样保留录制工具导出的 `ZONE`。
 
 > 传送入口由 `QuickTeleport` 决定：默认通过 `EnterMap` 调用配置的 Pipeline 节点，不限制节点名称；该节点需能作为 SubTask 完整执行后正常返回。启用快捷传送后，“开始追踪”会直接等待任务地图，“已追踪”会先点击“停止追踪”旁的定位图标打开任务地图，随后依次点击“前往传送”和“传送”，此时 `EnterMap` 可省略。
 
@@ -113,11 +116,11 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 | ----------------------------- | --------------------------------------------------------------------- | --------------------------- | -------------------------------------------- |
 | metadata-only                 | 仅 `MissionId` / `Name` / `Id`                                        | 不填                        | 仅接取并追踪，不传送或拍照                   |
 | 传送后直拍                    | 不填任何地图和寻路字段；`Heading` 可选                                | 不填                        | 传送 →（可选原地调整朝向）→ 拍照             |
-| 寻路（推荐写法）              | `NavZoneId` + `NavPath`；可选 `Heading`                               | `NavAssert`，快捷传送可省略 | `MapNavigateAction` 按 `NavPath` 寻路 → 拍照 |
+| 寻路（推荐写法）              | `NavPath`；普通传送再加 `NavZoneId`，可选 `Heading`                    | `NavAssert`，快捷传送可省略 | `MapNavigateAction` 按 `NavPath` 寻路 → 拍照 |
 | `MapTarget`（简写）           | `MapName` + `MapTarget`；跨层时可加 `MapTargetTier`                   | `MapAssert`，快捷传送可省略 | `MapNavigateAction` 的 NAVMESH 寻路 → 拍照   |
 | `MapPath` / `MapGoal`（遗留） | `MapName` + 对应字段；可选 `Heading` / `NoEnsureInitialMovementState` | `MapAssert`，快捷传送可省略 | 原有实现寻路 → 拍照，仅存量路线保留          |
 
-`CameraMaxHit` 和 `Replace` 可用于所有已适配路线，不改变路线类型。直拍必须经过游戏实测确认，不能用来代替尚未录制的路线数据。新增寻路路线一律用 `NavZoneId` / `NavAssert` / `NavPath`，最后两行只是存量路线的现状记录。
+`CameraMaxHit` 和 `Replace` 可用于所有已适配路线，不改变路线类型。直拍必须经过游戏实测确认，不能用来代替尚未录制的路线数据。新增寻路路线一律用 `NavPath`，普通传送再补 `NavZoneId` / `NavAssert`；最后两行只是存量路线的现状记录。
 
 > 完整维护流程见 `docs/zh_cn/developers/tasks/environment-monitoring-maintain.md`。
 
