@@ -258,8 +258,6 @@
     "ims.item.CHARTERED_HH_PERMIT": "特別スカウト券",
     "ims.item.WULING_STOCK_BILL": "武陵取引券",
     "ims.item.VALLEY_STOCK_BILL": "谷地取引券",
-    "ims.data_ready": "IMS キャッシュ準備完了",
-    "ims.data_not_ready": "IMS キャッシュ未準備（%s）",
     "ims.quantity_ok": "%s：在庫 %d / 目標 %d（達成）",
     "ims.quantity_short": "%s：在庫 %d / 目標 %d（不足）",
     "ims.expression_ok": "式が成立：%s",
