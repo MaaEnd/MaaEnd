@@ -90,6 +90,38 @@ func TestResolveRefreshDays(t *testing.T) {
 	}
 }
 
+func TestResolveNotifyUI(t *testing.T) {
+	if !resolveNotifyUI(nil) {
+		t.Fatal("notify_ui omitted should default true")
+	}
+	off := false
+	if resolveNotifyUI(&off) {
+		t.Fatal("notify_ui=false should disable")
+	}
+	on := true
+	if !resolveNotifyUI(&on) {
+		t.Fatal("notify_ui=true should enable")
+	}
+}
+
+func TestParseItemDataReadyParamNotifyUI(t *testing.T) {
+	params, err := parseItemDataReadyParam(`{}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if params.NotifyUI != nil {
+		t.Fatal("omitted notify_ui should leave pointer nil (default true at resolve)")
+	}
+
+	params, err = parseItemDataReadyParam(`{"notify_ui":false}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if params.NotifyUI == nil || *params.NotifyUI {
+		t.Fatal("expected notify_ui false")
+	}
+}
+
 func TestItemDataReadyRun(t *testing.T) {
 	ClearCache()
 	t.Cleanup(ClearCache)
