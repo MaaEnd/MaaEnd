@@ -2284,24 +2284,12 @@
         }
     },
     "__ScenePrivateAnyEnterMenuShopSuccess": {
-        "desc": "成功进入商店菜单",
+        "desc": "已在采购中心：顺手 IMS 商店静默缓存（Completed 短路；未扫过则 SyncShopItemDataInShopNoNotify，不播报物品名与数量）",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    0,
-                    0,
-                    240,
-                    100
-                ],
-                "expected": [
-                    "采购中心",
-                    "採購中心",
-                    "(?i)Acquisition\\s*Center",
-                    "購買部",
-                    "Acquisition",
-                    "Center",
-                    "구매 센터"
+                "all_of": [
+                    "InShop"
                 ]
             }
         },
@@ -2315,7 +2303,12 @@
             ]
         },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncShopItemDataCompleted",
+            "SyncShopItemDataInShopNoNotify"
+        ]
     },
     "__ScenePrivateWorldEnterMenuLogin": {
         "desc": "从大世界进入登录菜单",
