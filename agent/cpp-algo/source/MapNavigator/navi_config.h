@@ -69,6 +69,10 @@ constexpr int32_t kTargetTickMs = 33;
 // Steering ticks of held-forward-but-motionless before the hold is re-sent. Counted in ticks so slow frame
 // capture does not stretch the wait: three of them is already past any single dropped fix or brake settle.
 constexpr int32_t kForwardHoldReassertTicks = 3;
+// Re-sends that changed nothing before recovery is let in early. One says the keydown was dropped and is worth
+// repeating; a second with the agent still exactly put says it was not, so waiting out the stall clock only
+// buys more seconds of walking into whatever is there.
+constexpr int32_t kForwardHoldFutileReassertsBeforeRecovery = 2;
 // How many navigate ticks a heading reference stays usable for. Sized to match the wall-clock cap this
 // replaced at the loop period of a fast machine, so nothing changes there; on a slow one it stretches
 // with the loop instead of silently discarding the damping term.

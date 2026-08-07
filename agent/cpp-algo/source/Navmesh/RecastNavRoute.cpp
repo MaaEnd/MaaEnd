@@ -811,6 +811,7 @@ RecastPlanResult RecastNavEngine::planLocked(
     int64_t prev_cells = 0;
     int64_t prev_ms = 0;
     std::string last_err;
+    bool widen_requested = false;
     for (int pass = 0; pass < pass_count; ++pass) {
         const int mi = pass % 4;
         const bool climb_faces = pass >= 4;
@@ -832,7 +833,10 @@ RecastPlanResult RecastNavEngine::planLocked(
                 return res;
             }
             const int64_t projected_ms = prev_cells > 0 ? prev_ms * (nx * ny) / prev_cells : 0;
-            if (elapsed_ms() + projected_ms > budget.wall_ms) {
+            // 上一档主动要求扩窗(锚点出窗/终线触界)是有结论的重试,下一档通常就成,按整次预算走。
+            // 没要求就是同一个失败重来一遍,只把窗口翻番,用更紧的上限收住。
+            const int64_t limit = widen_requested ? budget.wall_ms : std::min(budget.wall_ms, budget.dead_end_ms);
+            if (elapsed_ms() + projected_ms > limit) {
                 char buf[192];
                 std::snprintf(
                     buf,
@@ -848,6 +852,7 @@ RecastPlanResult RecastNavEngine::planLocked(
             }
         }
         const int64_t pass_started_ms = elapsed_ms();
+        widen_requested = false;
         std::string err;
         const auto info = buildWindow(zc, wo, start, ss->point, h0, x0, y0, x1, y1, blocked_local, blocked_points, err);
         if (info.has_value()) {
@@ -868,6 +873,7 @@ RecastPlanResult RecastNavEngine::planLocked(
                         return res;
                     }
                     err = "端点锚点过远,扩窗重跑";
+                    widen_requested = true;
                 }
                 else {
                     double mnx = line->front().x;
@@ -895,6 +901,7 @@ RecastPlanResult RecastNavEngine::planLocked(
                         return res;
                     }
                     err = "终线触界,扩窗重跑";
+                    widen_requested = true;
                 }
             }
             else {

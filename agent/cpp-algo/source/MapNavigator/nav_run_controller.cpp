@@ -4,6 +4,7 @@
 #include <cmath>
 #include <limits>
 #include <optional>
+#include <tuple>
 #include <utility>
 
 #include <MaaUtils/Logger.h>
@@ -327,6 +328,72 @@ navmesh::WorldPath BuildAuthoredSpanPolyline(const NavigationSession& session, s
     return poly;
 }
 
+// Cut the line back to where the agent actually stands on it, dropping what is already behind.
+// The span always begins at the session's current waypoint, but a waypoint only counts as reached once
+// the agent enters a band about a pixel wide, so a pass a pixel wide of it leaves the span starting
+// behind the agent -- and a corridor joined to the agent's own position then aims it backwards at
+// ground it has no reason to revisit. Only points the agent has gone past along the line are dropped,
+// one edge at a time, so the line can never be cut short sideways.
+// Returns false while the agent is still short of the head, where a joining segment is the right answer.
+bool TrimAuthoredSpanToAgent(navmesh::WorldPath& authored, const NaviPosition& position)
+{
+    const auto edge_projection = [&](size_t edge) {
+        const navmesh::WorldPoint& a = authored.points[edge];
+        const navmesh::WorldPoint& b = authored.points[edge + 1];
+        const double dx = b.x - a.x;
+        const double dy = b.y - a.y;
+        const double len_sq = dx * dx + dy * dy;
+        const double t = len_sq <= std::numeric_limits<double>::epsilon()
+            ? 1.0
+            : ((position.x - a.x) * dx + (position.y - a.y) * dy) / len_sq;
+        return std::tuple { t, a.x + std::clamp(t, 0.0, 1.0) * dx, a.y + std::clamp(t, 0.0, 1.0) * dy };
+    };
+
+    // Landing on an edge replaces the vertex it starts from with a point along it, so that corner stops
+    // existing. Past a right angle the outgoing edge carries the agent back the way it came, which means the
+    // perpendicular foot runs off the end of the incoming edge long before the agent has rounded anything --
+    // trim there and the follower is handed a line straight across the corner. Stop one vertex short instead.
+    // The test is the turn itself, not a tuned angle: at ninety degrees is exactly where the foot starts lying.
+    const auto turns_back = [&](size_t vertex) {
+        const navmesh::WorldPoint& prev = authored.points[vertex - 1];
+        const navmesh::WorldPoint& curr = authored.points[vertex];
+        const navmesh::WorldPoint& next = authored.points[vertex + 1];
+        return (curr.x - prev.x) * (next.x - curr.x) + (curr.y - prev.y) * (next.y - curr.y) <= 0.0;
+    };
+
+    // Both tests below bound how far the agent may stand from the stretch it claims to have passed. A
+    // locator excursion reports a position hundreds of pixels away for a few seconds; without the bound
+    // it would read as "already past everything" and delete the rest of the line.
+    size_t head = 0;
+    while (head + 2 < authored.points.size()) {
+        if (turns_back(head + 1)) {
+            break;
+        }
+        const auto [t, foot_x, foot_y] = edge_projection(head);
+        if (t < 1.0 || std::hypot(position.x - foot_x, position.y - foot_y) > kNavRunCrossTrackFailM) {
+            break;
+        }
+        ++head;
+    }
+    // Starting the corridor at the foot is only meaningful while the agent is within the follower's own reach of
+    // the line. A perpendicular foot slides past a corner well before the agent has rounded it, so out here the
+    // vertex is still load-bearing: drop it and the agent cuts straight across whatever the corner went around.
+    // Inside the lookahead it is already on the line and the vertex behind it is only something to aim back at.
+    // Past the end of this edge means the only reason we are still on it is the corner ahead we refused to
+    // trim through. Pinning the start to its far end would duplicate that vertex right where the follower can
+    // least afford a degenerate edge, so hand the whole line back and let the caller join to it instead.
+    const auto [t, foot_x, foot_y] = edge_projection(head);
+    if (t <= 0.0 || t >= 1.0 || std::hypot(position.x - foot_x, position.y - foot_y) > kLookaheadRadius) {
+        return false;
+    }
+    authored.points.erase(authored.points.begin(), authored.points.begin() + head);
+    if (!authored.clearance.empty()) {
+        authored.clearance.erase(authored.clearance.begin(), authored.clearance.begin() + head);
+    }
+    authored.points.front() = { .x = foot_x, .y = foot_y };
+    return true;
+}
+
 } // namespace
 
 void NavRunController::invalidate()
@@ -358,27 +425,41 @@ bool NavRunController::buildPlan(
     };
 
     navmesh::WorldPath authored = BuildAuthoredSpanPolyline(session, anchor_index);
-    if (authored.points.size() >= 2) {
-        const navmesh::WorldPoint& span_start = authored.points.front();
-        if (std::hypot(position.x - span_start.x, position.y - span_start.y) > kMeasurementDefaultPositionQuantum) {
-            authored.points.insert(authored.points.begin(), { .x = position.x, .y = position.y });
-            if (!authored.clearance.empty()) {
-                authored.clearance.insert(authored.clearance.begin(), authored.clearance.front());
+    const bool has_authored = authored.points.size() >= 2;
+    const size_t authored_points = authored.points.size();
+    const bool on_authored_line = has_authored && TrimAuthoredSpanToAgent(authored, position);
+
+    const auto commit_authored = [&] {
+        if (!on_authored_line) {
+            const navmesh::WorldPoint& span_start = authored.points.front();
+            if (std::hypot(position.x - span_start.x, position.y - span_start.y) > kMeasurementDefaultPositionQuantum) {
+                authored.points.insert(authored.points.begin(), { .x = position.x, .y = position.y });
+                if (!authored.clearance.empty()) {
+                    authored.clearance.insert(authored.clearance.begin(), authored.clearance.front());
+                }
             }
+        }
+        else {
+            LogDebug << "NavRunController span trimmed to agent." << VAR(anchor_index) << VAR(authored_points)
+                     << VAR(authored.points.size()) << VAR(authored.points.front().x) << VAR(authored.points.front().y);
         }
         commit(std::move(authored), true);
         return true;
+    };
+
+    if (has_authored) {
+        return commit_authored();
     }
 
     const navmesh::WorldPoint start { .x = position.x, .y = position.y };
     const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
     auto route = PlanNavmeshRoute(param, position.zone_id, start, goal);
-    if (!route || !route->ok() || route->path.points.size() < 2) {
-        LogDebug << "NavRunController plan build failed." << VAR(static_cast<int>(reason)) << VAR(anchor_index) << VAR(position.zone_id);
-        return false;
+    if (route && route->ok() && route->path.points.size() >= 2) {
+        commit(std::move(route->path), false);
+        return true;
     }
-    commit(std::move(route->path), false);
-    return true;
+    LogDebug << "NavRunController plan build failed." << VAR(static_cast<int>(reason)) << VAR(anchor_index) << VAR(position.zone_id);
+    return false;
 }
 
 void NavRunController::recordSpeedSample(const NaviPosition& position, std::chrono::steady_clock::time_point now)

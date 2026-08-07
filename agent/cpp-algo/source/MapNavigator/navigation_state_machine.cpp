@@ -1191,7 +1191,12 @@ bool NavigationStateMachine::TickNavigate()
     // steers, corridor remaining is the true distance left, and the serial waypoint is a breadcrumb that can sit
     // a pixel away with the whole leg still ahead. Reading the breadcrumb here closed the gate on an agent pinned
     // beside it — arrival needs startup motion it cannot make, recovery saw "already there", nothing ran.
-    const bool should_try_recovery = session_->phase() == NaviPhase::Navigate && stalled_ms >= kObstacleRecoveryMinTriggerMs
+    // A held forward that has been re-sent twice with the fix never leaving its quantum is the same evidence the
+    // stall clock is still gathering, only earlier and stronger: aimed, commanding no turn, and going nowhere.
+    // Waiting out the remaining wall clock just spends it walking into the obstacle, so it opens recovery too.
+    const bool forward_hold_futile = runtime_state_.flow.futile_forward_reasserts >= kForwardHoldFutileReassertsBeforeRecovery;
+    const bool should_try_recovery = session_->phase() == NaviPhase::Navigate
+                                     && (stalled_ms >= kObstacleRecoveryMinTriggerMs || forward_hold_futile)
                                      && (effective_progress > kNoProgressMinDistance || waypoint.RequiresStrictArrival())
                                      && !runtime_state_.cross_tier_escape.active;
     if (should_try_recovery) {
@@ -1387,7 +1392,14 @@ bool NavigationStateMachine::TickNavigate()
     const bool moved = flow.has_last_steer_position
                        && std::hypot(position_->x - flow.last_steer_position.x, position_->y - flow.last_steer_position.y)
                               > kMeasurementDefaultPositionQuantum;
-    if (moved || issued_delta_deg != 0.0 || !motion_controller_->IsMovingForward() || runtime_state_.recovery.active) {
+    // The re-send counter deliberately outlives recovery going active. Recovery clears the tick counter because it
+    // owns the keys from then on, but clearing the evidence that opened the gate would close it again a tick later,
+    // before the ladder got past its first jump. Motion or a turn is what makes the hold no longer the suspect.
+    const bool hold_progressing = moved || issued_delta_deg != 0.0 || !motion_controller_->IsMovingForward();
+    if (hold_progressing) {
+        flow.futile_forward_reasserts = 0;
+    }
+    if (hold_progressing || runtime_state_.recovery.active) {
         flow.motionless_hold_ticks = 0;
     }
     else if (flow.has_last_steer_position) {
@@ -1396,8 +1408,9 @@ bool NavigationStateMachine::TickNavigate()
     flow.last_steer_position = *position_;
     flow.has_last_steer_position = true;
     if (flow.motionless_hold_ticks >= kForwardHoldReassertTicks) {
+        ++flow.futile_forward_reasserts;
         LogWarn << "Forward hold produced no motion; re-sending it." << VAR(flow.motionless_hold_ticks) << VAR(heading_error)
-                << VAR(position_->x) << VAR(position_->y);
+                << VAR(flow.futile_forward_reasserts) << VAR(position_->x) << VAR(position_->y);
         motion_controller_->ReassertForward();
         flow.motionless_hold_ticks = 0;
     }

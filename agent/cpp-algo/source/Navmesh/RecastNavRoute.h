@@ -33,6 +33,7 @@ struct RecastPlanResult
 struct RecastPlanBudget
 {
     int64_t wall_ms = 6000;            // 整次 plan 的墙钟上限
+    int64_t dead_end_ms = 6000;        // 上一档没要求扩窗时的上限:扩窗改不了结论,别一直把窗口翻番
     std::function<bool()> should_stop; // 外部取消,逐档之间查
 };
 

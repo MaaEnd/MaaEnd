@@ -414,9 +414,34 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
     return best;
 }
 
-bool BaseNavPlanner::isRouteSegmentDrivable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b) const
+bool BaseNavPlanner::isRouteSegmentDrivable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b, double half_width) const
 {
-    return segmentHeightWalkable(zone_id, a, b);
+    if (!segmentHeightWalkable(zone_id, a, b)) {
+        return false;
+    }
+    const double dx = b.x - a.x;
+    const double dy = b.y - a.y;
+    const double length = std::hypot(dx, dy);
+    if (half_width <= 0.0 || length <= std::numeric_limits<double>::epsilon()) {
+        return true;
+    }
+    // Walk both flanks of the same leg. They are pulled in by one half-width at each end so the test never
+    // asks about the ground beside the anchors themselves — those sit wherever the route already put them,
+    // frequently hard against a wall, and would veto every shortcut in a corridor.
+    const double ux = dx / length;
+    const double uy = dy / length;
+    const double inset = std::min(half_width, length * 0.5);
+    const WorldPoint head { .x = a.x + ux * inset, .y = a.y + uy * inset };
+    const WorldPoint tail { .x = b.x - ux * inset, .y = b.y - uy * inset };
+    for (const double side : { 1.0, -1.0 }) {
+        const double ox = -uy * half_width * side;
+        const double oy = ux * half_width * side;
+        if (!segmentHeightWalkable(
+                zone_id, { .x = head.x + ox, .y = head.y + oy }, { .x = tail.x + ox, .y = tail.y + oy })) {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool BaseNavPlanner::isSmallIslandTriangle(uint32_t triangle_index) const

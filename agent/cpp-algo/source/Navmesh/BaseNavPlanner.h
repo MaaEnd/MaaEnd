@@ -75,8 +75,10 @@ public:
     bool pointOnMesh(uint16_t zone_id, const WorldPoint& point) const;
 
     // Height-continuity drivability of a straight route leg: the oracle the waypoint emitter uses to
-    // decide whether a collapsed straight leg stays on walkable mesh.
-    bool isRouteSegmentDrivable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b) const;
+    // decide whether a collapsed straight leg stays on walkable mesh. `half_width` gives the leg a body:
+    // both flanks must hold up too, so a line a dimensionless point could thread is rejected on behalf of
+    // a character that has width. Zero keeps the bare centre-line test.
+    bool isRouteSegmentDrivable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b, double half_width = 0.0) const;
 
     // RecastNav 复用
     const std::vector<uint32_t>& adjacencyOffsets() const { return adjacency_offsets_; }
