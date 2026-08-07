@@ -258,6 +258,8 @@
     "ims.item.CHARTERED_HH_PERMIT": "특별 허가 헤드헌팅 허가증",
     "ims.item.WULING_STOCK_BILL": "무릉 관리권",
     "ims.item.VALLEY_STOCK_BILL": "협곡 관리권",
+    "ims.data_ready": "IMS 캐시 준비됨",
+    "ims.data_not_ready": "IMS 캐시 미준비 (%s)",
     "ims.quantity_ok": "%s: 재고 %d / 목표 %d (충족)",
     "ims.quantity_short": "%s: 재고 %d / 목표 %d (부족)",
     "ims.expression_ok": "식 성립: %s",

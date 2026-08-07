@@ -258,6 +258,8 @@
     "ims.item.CHARTERED_HH_PERMIT": "特许寻访凭证",
     "ims.item.WULING_STOCK_BILL": "武陵调度券",
     "ims.item.VALLEY_STOCK_BILL": "谷地调度券",
+    "ims.data_ready": "IMS 缓存就绪",
+    "ims.data_not_ready": "IMS 缓存未就绪（%s）",
     "ims.quantity_ok": "%s：库存 %d / 目标 %d（已达标）",
     "ims.quantity_short": "%s：库存 %d / 目标 %d（未达标）",
     "ims.expression_ok": "表达式成立：%s",
