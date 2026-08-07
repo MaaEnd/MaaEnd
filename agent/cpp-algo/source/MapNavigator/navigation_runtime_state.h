@@ -185,6 +185,8 @@ struct SteeringRateState
     double cmd_delta_deg = 0.0;
     bool has_cmd = false;
     std::chrono::steady_clock::time_point cmd_at {};
+    // Which way a near-about-face turn was committed to, held until it is well under way. Zero means free.
+    int turn_latch_sign = 0;
 
     void Reset()
     {
@@ -196,6 +198,7 @@ struct SteeringRateState
         cmd_delta_deg = 0.0;
         has_cmd = false;
         cmd_at = {};
+        turn_latch_sign = 0;
     }
 };
 
