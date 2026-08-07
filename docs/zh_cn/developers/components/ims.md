@@ -74,7 +74,7 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 3. **未命中**：本轮不记录该 ID（见下方「地区重建 / 覆写」）。
 4. 全部节点跑完后，把结果写入内存，并落盘到 `./debug/record/IMS.json`，同时写入时间戳 `updated_at`，表示这份数据是何时生成的。
 
-命中时会通过 UI Focus 打出本地化物品名与数量。
+命中时默认会通过 UI Focus 打出本地化物品名与数量（`ims.sync_item_found`）。可用参数 `notify_ui: false` 关闭（省略默认 `true`）；商店万能跳转顺手缓存使用 `SyncShopItemDataRunNoNotify`。
 
 ### 地区重建模式 vs 覆写模式（`page_dedup`）
 

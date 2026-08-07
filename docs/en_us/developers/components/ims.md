@@ -74,7 +74,7 @@ Example:
 3. **Miss:** do not record that ID this round (see region rebuild / overwrite below).
 4. After all nodes finish, update memory, write `./debug/record/IMS.json`, and set `updated_at` to when this snapshot was produced.
 
-Hits also emit localized item name + quantity via UI Focus.
+Hits also emit localized item name + quantity via UI Focus by default (`ims.sync_item_found`). Pass `notify_ui: false` to silence (omit defaults to `true`); the shop scene-jump side-cache uses `SyncShopItemDataRunNoNotify`.
 
 ### Region rebuild vs overwrite (`page_dedup`)
 

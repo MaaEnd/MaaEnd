@@ -32,6 +32,26 @@ func TestParseSyncItemDataParamMap(t *testing.T) {
 	if params.Items["ADVANCED_COGNITIVE_CARRIER"] != "ADVANCED_COGNITIVE_CARRIER" {
 		t.Fatalf("items=%v", params.Items)
 	}
+	if params.NotifyUI != nil {
+		t.Fatal("omitted notify_ui should leave pointer nil (default true at resolve)")
+	}
+	if !resolveSyncNotifyUI(params.NotifyUI) {
+		t.Fatal("notify_ui omitted should default true")
+	}
+
+	params, err = parseSyncItemDataParam(`{
+		"items": {"A": "A"},
+		"notify_ui": false
+	}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if params.NotifyUI == nil || *params.NotifyUI {
+		t.Fatal("expected notify_ui false")
+	}
+	if resolveSyncNotifyUI(params.NotifyUI) {
+		t.Fatal("notify_ui=false should disable")
+	}
 }
 
 func TestItemDisplayNameFallback(t *testing.T) {

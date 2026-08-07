@@ -27,9 +27,14 @@ var _ maa.CustomActionRunner = &SyncItemData{}
 //
 //	false=仅重建本轮 items 内的 ID（未命中则从缓存删除这些 ID），其他地区已缓存 ID 保留；
 //	true=在已有缓存上按命中 ID 覆盖数量，未命中保留旧值。
+//
+// notify_ui:
+//   - omitted → default true（命中物品时 Focus 播报「物品名：数量」）
+//   - false → 不播报物品命中（万能跳转顺手缓存等场景）
 type syncItemDataParam struct {
 	Items     map[string]string `json:"items"`
 	PageDedup bool              `json:"page_dedup"`
+	NotifyUI  *bool             `json:"notify_ui"`
 }
 
 // SyncItemData scans configured item recognizers on the current screen and persists quantities.
@@ -60,6 +65,7 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 	items := params.Items
+	notifyUI := resolveSyncNotifyUI(params.NotifyUI)
 
 	if err := ensureHydrated(); err != nil {
 		log.Error().
@@ -137,7 +143,9 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		merged[itemID] = qty
 		hitCount++
 		displayName := itemDisplayName(itemID)
-		maafocus.Print(ctx, i18n.T("ims.sync_item_found", displayName, qty))
+		if notifyUI {
+			maafocus.Print(ctx, i18n.T("ims.sync_item_found", displayName, qty))
+		}
 		log.Info().
 			Str("component", componentSyncItemData).
 			Str("item_id", itemID).
@@ -147,6 +155,7 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Int("previous", prev).
 			Bool("overwrote", existed).
 			Bool("page_dedup", params.PageDedup).
+			Bool("notify_ui", notifyUI).
 			Msg("item quantity recorded")
 	}
 
@@ -179,6 +188,14 @@ func parseSyncItemDataParam(raw string) (syncItemDataParam, error) {
 		return syncItemDataParam{}, err
 	}
 	return params, nil
+}
+
+// resolveSyncNotifyUI defaults to true when omitted (announce each hit item).
+func resolveSyncNotifyUI(v *bool) bool {
+	if v == nil {
+		return true
+	}
+	return *v
 }
 
 func baseItemsForSync(pageDedup bool, scanItemIDs []string) (map[string]int, error) {
