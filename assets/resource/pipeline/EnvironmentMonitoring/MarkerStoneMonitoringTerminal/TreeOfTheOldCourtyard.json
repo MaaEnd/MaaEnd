@@ -396,7 +396,10 @@
             "TreeOfTheOldCourtyardTakePhoto"
         ],
         "focus": {
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
