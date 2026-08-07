@@ -255,8 +255,14 @@ std::optional<WindowInfo> buildWindow(
     return info;
 }
 
-std::optional<std::vector<WorldPoint>>
-    routeWindow(const WindowInfo& info, const WorldPoint& s, const WorldPoint& g, bool climb_faces, RouteDiag& dg)
+// goal_deck: 终点所在面的高度。不声明时终点集是该格全部 span,先够到哪张停哪张
+std::optional<std::vector<WorldPoint>> routeWindow(
+    const WindowInfo& info,
+    const WorldPoint& s,
+    const WorldPoint& g,
+    bool climb_faces,
+    RouteDiag& dg,
+    std::optional<double> goal_deck = std::nullopt)
 {
     const int64_t nx = info.nx;
     const int64_t ny = info.ny;
@@ -372,6 +378,40 @@ std::optional<std::vector<WorldPoint>>
         }
         return best;
     };
+    // 高度最近的一张; 超出 kDeckBand 视为该面不在此格
+    const auto atDeck = [&](const std::vector<int64_t>& vs, double deck) {
+        int64_t best = -1;
+        double bd = 0.0;
+        for (const int64_t v : vs) {
+            const double d = std::fabs(static_cast<double>(st3.sp_h[static_cast<size_t>(v)]) - deck);
+            if (best < 0 || d < bd) {
+                best = v;
+                bd = d;
+            }
+        }
+        return best >= 0 && bd <= kDeckBand ? best : -1;
+    };
+    // 起点的面只由起点自己的高度决定, 终点的声明不参与。h0 来自二维吸附,
+    // 重叠处可能落在屋顶, 所以终点声明了面时起点层不再当已知, 按 h0 由近到远逐张试
+    const auto seedsOf = [&](const std::vector<int64_t>& vs) -> std::vector<int64_t> {
+        if (!goal_deck.has_value()) {
+            return std::vector<int64_t> { atSeedLayer(vs) };
+        }
+        const auto h0 = static_cast<float>(info.h0);
+        std::vector<int64_t> out = vs;
+        std::stable_sort(out.begin(), out.end(), [&](const int64_t a, const int64_t b) {
+            return std::fabs(st3.sp_h[static_cast<size_t>(a)] - h0) < std::fabs(st3.sp_h[static_cast<size_t>(b)] - h0);
+        });
+        return out;
+    };
+    // 终点声明是硬的: 收敛到单张 span, 匹配不上交空集让本级失败
+    const auto goalsOf = [&](const std::vector<int64_t>& vs) {
+        if (!goal_deck.has_value()) {
+            return vs;
+        }
+        const int64_t v = atDeck(vs, *goal_deck);
+        return v >= 0 ? std::vector<int64_t> { v } : std::vector<int64_t> {};
+    };
 
     auto [as_, dsa] = near(cw3, sc);
     auto [ag_, dga] = near(cw3, gc);
@@ -384,22 +424,55 @@ std::optional<std::vector<WorldPoint>>
     const std::unordered_set<int64_t>* faces = climb_faces ? nullptr : &info.sev.steps;
     const std::unordered_set<int64_t>& soft = climb_faces ? blocked_steps : bn;
     Mask on3 = cw3;
+    // 起点层不确定时按 seedsOf 的次序逐张试, 第一张走通的就是它所在的面
+    const auto search = [&](const std::vector<uint8_t>& use,
+                            const Mask& c3,
+                            const std::vector<int64_t>& svs,
+                            const std::vector<int64_t>& gs) -> std::optional<std::vector<int64_t>> {
+        for (const int64_t sd : seedsOf(svs)) {
+            auto r = SpanAstar(st3, use, info.cidx, c3, sd, gs, mult, &soft, &BIGP, faces);
+            if (r.has_value()) {
+                return r;
+            }
+        }
+        return std::nullopt;
+    };
     std::optional<std::vector<int64_t>> qs;
     if (as_->x == ag_->x && as_->y == ag_->y) {
-        qs = std::vector<int64_t> { atSeedLayer(pick(*as_, useW)) };
+        const std::vector<int64_t> vs = pick(*as_, useW);
+        const std::vector<int64_t> gs = goalsOf(vs);
+        if (!goal_deck.has_value()) {
+            qs = std::vector<int64_t> { seedsOf(vs).front() };
+        }
+        else if (!gs.empty()) {
+            qs = std::vector<int64_t> { gs.front() };
+        }
     }
     else {
-        qs = SpanAstar(st3, useW, info.cidx, cw3, atSeedLayer(pick(*as_, useW)), pick(*ag_, useW), mult, &soft, &BIGP, faces);
+        const std::vector<int64_t> gs = goalsOf(pick(*ag_, useW));
+        if (!goal_deck.has_value() || !gs.empty()) {
+            qs = search(useW, cw3, pick(*as_, useW), gs);
+        }
     }
     if (!qs.has_value()) {
         const auto [ac_, dc_] = near(cc3, sc);
         const auto [ag2, dg2] = near(cc3, gc);
         if (ac_.has_value() && ag2.has_value()) {
             if (ac_->x == ag2->x && ac_->y == ag2->y) {
-                qs = std::vector<int64_t> { atSeedLayer(pick(*ac_, useC)) };
+                const std::vector<int64_t> vs = pick(*ac_, useC);
+                const std::vector<int64_t> gs = goalsOf(vs);
+                if (!goal_deck.has_value()) {
+                    qs = std::vector<int64_t> { seedsOf(vs).front() };
+                }
+                else if (!gs.empty()) {
+                    qs = std::vector<int64_t> { gs.front() };
+                }
             }
             else {
-                qs = SpanAstar(st3, useC, info.cidx, cc3, atSeedLayer(pick(*ac_, useC)), pick(*ag2, useC), mult, &soft, &BIGP, faces);
+                const std::vector<int64_t> gs = goalsOf(pick(*ag2, useC));
+                if (!goal_deck.has_value() || !gs.empty()) {
+                    qs = search(useC, cc3, pick(*ac_, useC), gs);
+                }
             }
             if (qs.has_value()) {
                 on3 = cc3;
@@ -422,6 +495,28 @@ std::optional<std::vector<WorldPoint>>
         q = std::move(cellq);
     }
     else {
+        // 格级搜索连 span 都不看, 退到这一级等于把选层交回给楼层盲的那一级
+        if (goal_deck.has_value()) {
+            const std::vector<int64_t> gv = pick(*ag_, useW);
+            std::vector<float> hs;
+            for (const int64_t v : gv) {
+                hs.push_back(st3.sp_h[static_cast<size_t>(v)]);
+            }
+            std::sort(hs.begin(), hs.end());
+            hs.erase(std::unique(hs.begin(), hs.end()), hs.end());
+            std::string list;
+            char buf[32];
+            for (const float h : hs) {
+                std::snprintf(buf, sizeof(buf), "%.2f", static_cast<double>(h));
+                list += (list.empty() ? "" : ", ") + std::string(buf);
+            }
+            std::snprintf(buf, sizeof(buf), "%.2f", *goal_deck);
+            // 声明的面在表里就是这一跳连不上, 不在表里是这个坐标底下没有那张面
+            const std::string tail = atDeck(gv, *goal_deck) >= 0 ? "这一跳连不上, 拆成多段" : "该坐标下没有这张面";
+            dg.err = "目标面不可达 (声明 " + std::string(buf) + ", 终点格里的面 "
+                + (list.empty() ? std::string("无") : "[" + list + "]") + ") — " + tail;
+            return std::nullopt;
+        }
         std::tie(as_, dsa) = near(walk, sc);
         std::tie(ag_, dga) = near(walk, gc);
         on3 = walk;
@@ -754,12 +849,22 @@ RecastPlanResult RecastNavEngine::plan(
     const WorldPoint& goal,
     float start_floor_y,
     float goal_floor_y,
+    float goal_deck_y,
     const std::vector<uint32_t>& blocked,
     const std::vector<WorldPoint>& blocked_points,
     const RecastPlanBudget& budget)
 {
     const std::lock_guard<std::mutex> lock(mutex_);
-    return planLocked(zone_name, start, goal, start_floor_y, goal_floor_y, blocked, blocked_points, budget);
+    return planLocked(
+        zone_name,
+        start,
+        goal,
+        start_floor_y,
+        goal_floor_y,
+        goal_deck_y,
+        blocked,
+        blocked_points,
+        budget);
 }
 
 RecastPlanResult RecastNavEngine::planLocked(
@@ -768,6 +873,7 @@ RecastPlanResult RecastNavEngine::planLocked(
     const WorldPoint& goal,
     float start_floor_y,
     float goal_floor_y,
+    float goal_deck_y,
     const std::vector<uint32_t>& blocked,
     const std::vector<WorldPoint>& blocked_points,
     const RecastPlanBudget& budget)
@@ -791,6 +897,8 @@ RecastPlanResult RecastNavEngine::planLocked(
         start_floor_y > kBaseNavFloorYValidMin ? std::optional<double>(static_cast<double>(start_floor_y)) : std::nullopt;
     const std::optional<double> gfl =
         goal_floor_y > kBaseNavFloorYValidMin ? std::optional<double>(static_cast<double>(goal_floor_y)) : std::nullopt;
+    const std::optional<double> gdk =
+        goal_deck_y > kBaseNavFloorYValidMin ? std::optional<double>(static_cast<double>(goal_deck_y)) : std::nullopt;
     const auto ss = zc.snap(start, kSnapRadius, sfl);
     if (!ss.has_value()) {
         res.error = "起点不在网格附近";
@@ -857,7 +965,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         const auto info = buildWindow(zc, wo, start, ss->point, h0, x0, y0, x1, y1, blocked_local, blocked_points, err);
         if (info.has_value()) {
             RouteDiag dg;
-            const auto line = routeWindow(*info, start, goal, climb_faces, dg);
+            const auto line = routeWindow(*info, start, goal, climb_faces, dg, gdk);
             if (line.has_value()) {
                 // 锚点远 = 走廊出窗,同触界扩窗,否则末段盲跳穿墙
                 if (std::max(dg.snap_start, dg.snap_goal) > kSnapRadius) {

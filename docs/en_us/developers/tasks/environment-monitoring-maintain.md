@@ -160,7 +160,7 @@ The default export of `data.mjs` is an array, where each element = the rendering
 | `Name` | Comes from the Chinese name in `kite_station_i18n.json`; `MissionId` is only used by `model.mjs` to match `routes.json` and is not passed to the template |
 | `GoToMonitoringTerminal` | Determined by `Station` |
 | `EnterMap` | `routes.json[*].EnterMap`; any defined Pipeline node name is allowed, without a required prefix, as long as the node can complete and return normally when run as a SubTask |
-| `MapName` / `MapAssert` / `MapPath` / `MapTarget` / `MapTargetTier` / `MapGoal` | `routes.json[*]`, corresponding to the initial location check and subsequent pathfinding parameters; `MapPath` generates `MapTrackerAssertLocation` + `MapTrackerMove`, `MapTarget` generates `MapLocateAssertLocation` + `MapNavigateAction` with the `NAVMESH` target point, `MapTargetTier` optionally generates `target_tier`, and `MapGoal` generates `MapTrackerAssertLocation` + `MapTrackerGoal`. Omit all of these fields when the teleport landing point can be photographed directly; otherwise exactly one of `MapPath` / `MapTarget` / `MapGoal` is required. All three navigation modes may omit `MapAssert` when combined with `QuickTeleport`. |
+| `MapName` / `MapAssert` / `MapPath` / `MapTarget` / `MapTargetTier` / `MapTargetDeckY` / `MapGoal` | `routes.json[*]`, corresponding to the initial location check and subsequent pathfinding parameters; `MapPath` generates `MapTrackerAssertLocation` + `MapTrackerMove`, `MapTarget` generates `MapLocateAssertLocation` + `MapNavigateAction` with the `NAVMESH` target point, `MapTargetTier` optionally generates `target_tier`, `MapTargetDeckY` optionally generates `target_deck_y`, and `MapGoal` generates `MapTrackerAssertLocation` + `MapTrackerGoal`. Omit all of these fields when the teleport landing point can be photographed directly; otherwise exactly one of `MapPath` / `MapTarget` / `MapGoal` is required. All three navigation modes may omit `MapAssert` when combined with `QuickTeleport`. |
 | `CameraSwipeDirection` | `routes.json[*]`, must be one of `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` |
 | `CameraMaxHit` | `routes.json[*].CameraMaxHit`, defaults to `2`; corresponds to the maximum hit count for the `${Id}AdjustCamera` swipe action |
 | `OcrReplace` | Passed through from `routes.json[*].Replace` to `Check${Id}Text.replace` and `In${Id}Mission.replace`; used to configure task-specific OCR replacement pairs for the task list and mission detail page, without affecting route adaptation checks |
@@ -216,7 +216,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 The teleport and pathfinding flow for observation points combines MapTracker and MapNavigator according to the route type:
 
 - `MapTrackerAssertLocation` / `MapLocateAssertLocation` (Recognition): Judges whether the current position is within the `MapAssert` rectangle based on the minimap. Regular teleport routes use it to decide whether `EnterMap` is needed, and `MapPath` checks it again after teleporting; quick-teleport routes may skip this check.
-- `MapTrackerMove` / `MapTrackerGoal` / `MapNavigateAction` (Action): Walks along the `MapPath` route to the target point, plans with `MapTrackerGoal`, or generates a `NAVMESH` target from `MapTarget`; `MapTargetTier` is passed through as `target_tier`.
+- `MapTrackerMove` / `MapTrackerGoal` / `MapNavigateAction` (Action): Walks along the `MapPath` route to the target point, plans with `MapTrackerGoal`, or generates a `NAVMESH` target from `MapTarget`; `MapTargetTier` is passed through as `target_tier`, and `MapTargetDeckY` as `target_deck_y` for targets that sit on one of several overlapping walkable decks (walkway / bridge / rooftop).
 - `${Id}TakePhoto` (wrapper): Sets the task-specific `EnvironmentMonitoringBackToTerminal` and `EnvironmentMonitoringAdjustCamera` anchors before entering the shared photo flow.
 - Direct-photo routes perform neither a location assertion nor pathfinding; optional `Heading` invokes standalone `MapTrackerToward`. Quick-teleport routes start `MapPath` / `MapTarget` / `MapGoal` navigation directly from the fixed landing point. After a regular teleport, `MapPath` verifies `MapAssert` again, while `MapTarget` / `MapGoal` start NavMesh pathfinding immediately.
 
@@ -237,7 +237,7 @@ Every fully adapted entry needs metadata, `CameraSwipeDirection`, and one telepo
 | Metadata only | `MissionId` / `Name` / `Id` only | Omit | Accept and track only; no teleport or photo |
 | Photo at teleport | No `MapName` or navigation field; optional `Heading` | Omit | Teleport → optional `MapTrackerToward` → photo |
 | `MapPath` | `MapName` + `MapPath`; optional `Heading` / `NoEnsureInitialMovementState` | Required with `EnterMap`; optional with quick teleport | `MapTrackerMove` → photo |
-| `MapTarget` | `MapName` + `MapTarget`; optional `MapTargetTier` for cross-tier targets | Required with `EnterMap`; optional with quick teleport | `MapNavigateAction` NAVMESH → photo |
+| `MapTarget` | `MapName` + `MapTarget`; optional `MapTargetTier` for cross-tier targets, optional `MapTargetDeckY` for overlapping decks | Required with `EnterMap`; optional with quick teleport | `MapNavigateAction` NAVMESH → photo |
 | `MapGoal` | `MapName` + `MapGoal`; optional `Heading` / `NoEnsureInitialMovementState` | Required with `EnterMap`; optional with quick teleport | `MapTrackerGoal` → photo |
 
 `CameraMaxHit` and `Replace` are available to every adapted route and do not define a separate route type. Use photo-at-teleport only after in-game verification; missing route data must remain metadata-only.
@@ -284,6 +284,7 @@ Compare the `entrustTasks` in `kite_station_i18n.json` with the entries in `rout
     "MapPath": [[x1, y1], [x2, y2]],         // Pathfinding path (minimap coordinates), select one from MapTarget / MapGoal
     // "MapTarget": [x, y],                  // NAVMESH target point for MapNavigateAction
     // "MapTargetTier": "ValleyIV_L1_171",   // Optional; target_tier where the MapTarget coordinates are located, fill when target and start point are not in the same tier
+    // "MapTargetDeckY": 265.37,             // Optional; world height of the walkable deck the MapTarget sits on, fill when several decks overlap at that coordinate
     // "MapGoal": [x, y],                    // MapTrackerGoal target point, will automatically use MapTrackerGoal during generation
     "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp", // Orientation adjustment direction
     // "CameraMaxHit": 2,  // Optional; maximum swipe hit count, defaults to 2; can be increased slightly if the target is difficult to align
@@ -305,7 +306,7 @@ When the teleport landing point can be photographed directly, use the compact fo
 }
 ```
 
-Do not include `MapName`, `MapAssert`, `MapPath`, `MapTarget`, `MapTargetTier`, `MapGoal`, or `NoEnsureInitialMovementState` in this form. `Heading` remains optional; when present, the generator invokes standalone `MapTrackerToward` after teleporting and then enters the photo flow. The generator recognizes direct photography from a complete teleport/photo configuration with no assertion or navigation fields. A metadata-only entry remains unadapted.
+Do not include `MapName`, `MapAssert`, `MapPath`, `MapTarget`, `MapTargetTier`, `MapTargetDeckY`, `MapGoal`, or `NoEnsureInitialMovementState` in this form. `Heading` remains optional; when present, the generator invokes standalone `MapTrackerToward` after teleporting and then enters the photo flow. The generator recognizes direct photography from a complete teleport/photo configuration with no assertion or navigation fields. A metadata-only entry remains unadapted.
 
 > [!IMPORTANT]
 >
@@ -319,7 +320,7 @@ Do not include `MapName`, `MapAssert`, `MapPath`, `MapTarget`, `MapTargetTier`, 
 
 If the teleport landing point cannot be photographed directly, use the GUI tool in [map-navigator.md](../components/map-navigator.md) to record `MapAssert` / `MapPath`. Copy the `NAVMESH` target point from MapNavigateAction into `MapTarget`, or use a `MapGoal`. `QuickTeleport` with any of these three navigation modes may omit `MapAssert`. Confirm in the game:
 
-- `MapName` is consistent with the tool used: For `MapPath` routes, fill in the MapTracker `map_name` (e.g., `map02_lv001` / regex); for `MapGoal` routes, fill in the exact MapTracker `map_name` that can load NavMesh (e.g., `map02_lv001`); for `MapTarget` routes, fill in the MapLocate `zone_id` (e.g., `Wuling_Base`); optional `MapTargetTier` fills the MapNavigator `target_tier` region name. Do not mix the two sets of identifiers.
+- `MapName` is consistent with the tool used: For `MapPath` routes, fill in the MapTracker `map_name` (e.g., `map02_lv001` / regex); for `MapGoal` routes, fill in the exact MapTracker `map_name` that can load NavMesh (e.g., `map02_lv001`); for `MapTarget` routes, fill in the MapLocate `zone_id` (e.g., `Wuling_Base`); optional `MapTargetTier` fills the MapNavigator `target_tier` region name, and optional `MapTargetDeckY` fills the deck height read from the tool's overlapping-deck list. Do not mix the two sets of identifiers.
 
 - Which direction the camera needs to swipe for the photo (determines `CameraSwipeDirection`).
 - Whether the standing position allows `EnvironmentMonitoringTakePhoto` to successfully execute `EnvironmentMonitoringEnterCameraMode` (auto-orient to target); if not, it will automatically fall back to `EnvironmentMonitoringTakePhotoDirectly` + manual swipe `${Id}AdjustCamera`.

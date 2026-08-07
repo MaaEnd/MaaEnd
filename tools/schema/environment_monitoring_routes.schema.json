@@ -11,6 +11,9 @@
         "dependencies": {
             "MapTargetTier": [
                 "MapTarget"
+            ],
+            "MapTargetDeckY": [
+                "MapTarget"
             ]
         },
         "required": [
@@ -50,6 +53,11 @@
                         {
                             "required": [
                                 "MapTargetTier"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "MapTargetDeckY"
                             ]
                         },
                         {
@@ -144,6 +152,11 @@
                                     {
                                         "required": [
                                             "MapTargetTier"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "MapTargetDeckY"
                                         ]
                                     },
                                     {
@@ -302,6 +315,13 @@
                 "examples": [
                     "ValleyIV_L1_171",
                     "Wuling_L4_328"
+                ]
+            },
+            "MapTargetDeckY": {
+                "type": "number",
+                "description": "可选，仅用于 MapTarget 路线。目标点所在那张可走面的世界高度。小地图是二维的，同一个坐标底下可能压着两三张面（走廊 / 天桥 / 屋顶）；不配置时寻路取整格的全部面，先够到哪张停哪张。用 MapNavigator 预览工具点中目标后从重叠面列表读出该值，别手估。填了却够不到那张面时会报「目标面不可达」而不是静默走到另一张。",
+                "examples": [
+                    265.37
                 ]
             },
             "MapGoal": {

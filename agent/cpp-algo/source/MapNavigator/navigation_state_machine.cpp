@@ -325,7 +325,8 @@ std::optional<DynamicAnchor>
         const navmesh::WorldPoint start { .x = position.x, .y = position.y };
         const navmesh::WorldPoint goal { .x = waypoint.x, .y = waypoint.y };
         if (std::hypot(goal.x - start.x, goal.y - start.y) < best_cost) {
-            const auto route = PlanNavmeshRoute(param, position.zone_id, start, goal);
+            // 只钉终点: 够不到那张面的候选就不该被选中
+            const auto route = PlanNavmeshRoute(param, position.zone_id, start, goal, waypoint.target_deck_y);
             if (route) {
                 ++planned_count;
                 if (route->cost < best_cost) {
@@ -645,7 +646,7 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
     const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
     navmesh::WorldPoint detour_vertex {};
     const auto route = use_detour ? PlanNavmeshDetourRoute(param_, *position_, anchor, route_heading, &detour_vertex)
-                                  : PlanNavmeshRoute(param_, position_->zone_id, start, goal);
+                                  : PlanNavmeshRoute(param_, position_->zone_id, start, goal, anchor.target_deck_y);
     if (!route) {
         return false;
     }

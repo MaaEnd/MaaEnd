@@ -69,6 +69,7 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、MapAsse
 | 字段                           | 使用条件与写法                                                                                                         |
 | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
 | `MapTargetTier`                | 仅用于 `MapTarget`。目标点取自 tier 底图且与起点不在同一层时填写 MapNavigator `target_tier`；否则省略                  |
+| `MapTargetDeckY`               | 仅用于 `MapTarget`。目标点底下压着多张可走面（走廊 / 天桥 / 屋顶）时，填 MapNavigator 重叠面列表读出的那一层高度；不填时寻路先够到哪张停哪张，走错面不报错 |
 | `CameraMaxHit`                 | 摄像头最大滑屏次数，默认 2；只有实测需要其他值时才写                                                                   |
 | `Replace`                      | OCR 易混字符替换表 `[["误识别", "正确字符"], ...]`；仅有实际误识别证据时填写                                           |
 | `Heading`                      | 可选。进入拍照模式前的角色朝向，范围 `[0, 360)`；直拍路线会在传送后独立调用 `MapTrackerToward`                         |
@@ -106,7 +107,7 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 3. 直拍时直接跳到第 7 项；寻路时收集 `MapName`
 4. `MapAssert`（普通传送的寻路路线必填；`QuickTeleport + MapPath/MapTarget/MapGoal` 跳过）
 5. 所选寻路字段的坐标
-6. `MapTargetTier`（仅 `MapTarget` 且确有跨 tier 目标时）
+6. `MapTargetTier`（仅 `MapTarget` 且确有跨 tier 目标时）、`MapTargetDeckY`（仅 `MapTarget` 且工具显示目标点存在重叠面时）
 7. `CameraSwipeDirection`
 8. `CameraMaxHit`（可选）
 9. `Heading`（可选）
@@ -137,8 +138,9 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 - 严格 JSON：双引号、无注释、无尾随逗号、4 空格缩进；
 - `MapPath` 的每个坐标对单独一行；
 - 寻路路线中 `MapPath` / `MapTarget` / `MapGoal` 只能保留一个；切换模式时删除旧模式字段；
-- 传送后直拍不增加开关字段，删除 `MapName`、`MapAssert`、三种寻路字段、`MapTargetTier` 和 `NoEnsureInitialMovementState`；按实测结果可保留 `Heading`；
-- `MapTargetTier` 只能与 `MapTarget` 同时存在；
+- 传送后直拍不增加开关字段，删除 `MapName`、`MapAssert`、三种寻路字段、`MapTargetTier`、`MapTargetDeckY` 和 `NoEnsureInitialMovementState`；按实测结果可保留 `Heading`；
+- `MapTargetTier` / `MapTargetDeckY` 只能与 `MapTarget` 同时存在；
+- 终点落在重叠可走面上时必须标 `MapTargetDeckY`，数值从工具读、不要手估；作者点不得压成单个 NAVMESH 目标，需要逐段；
 - 默认值不写：`CameraMaxHit: 2`、`NoEnsureInitialMovementState: false`、`QuickTeleport: false`；
 - 不确定的可选值直接省略，不写占位值或 TODO 注释；
 - 不手改 `Name` / `Id` 排序或 locale 失败提示，这些内容由同步器维护。
@@ -182,7 +184,7 @@ pnpm test
 说明：
 
 - 更新了哪个观察点及其 `MissionId`；
-- 使用哪种寻路方式和关键可选项（如 `MapTargetTier` / `Heading` / `Replace`）；
+- 使用哪种寻路方式和关键可选项（如 `MapTargetTier` / `MapTargetDeckY` / `Heading` / `Replace`）；
 - 哪些命令已经通过；
 - 因缺少真实传送点或录制数据而保留未适配状态的 TODO。
 

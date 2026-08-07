@@ -36,6 +36,7 @@ MC_HBAND = 8.0     # 层高度带(墙筛/盖章)px
 H_BAND = 6.0       # 真墙探针高度带 px
 EPS_PROBE = 0.75   # 真墙探针距离 px
 SNAP_RADIUS = 8.0  # 起终点吸附半径 px
+DECK_BAND = 2.0    # 声明面高度匹配容差 px, 需远小于相邻面间距
 MARGIN = 25.0      # 窗口外扩 px
 HOLE_MAX = max(1, int(round(2.0 / (CS * CS))))  # 封闭小洞填充上限(格 = 2px²)
 MAX_CELLS = 30_000_000

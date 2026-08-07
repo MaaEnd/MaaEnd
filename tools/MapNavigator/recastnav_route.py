@@ -8,8 +8,9 @@ from collections import OrderedDict
 import numpy as np
 
 import recastnav as rc
-from recastnav import (CAP, CS, LAM, LAM_R, MARGIN, MAX_CELLS, MAXERR, MC_HBAND,
-                       PLAN_BUDGET_MS, R, SLIMEPS, SNAP_RADIUS, TAU)
+from recastnav import (CAP, CS, DECK_BAND, LAM, LAM_R, MARGIN, MAX_CELLS,
+                       MAXERR, MC_HBAND, PLAN_BUDGET_MS, R, SLIMEPS,
+                       SNAP_RADIUS, TAU)
 from recastnav_zone import CleanNav, WallOracle
 
 
@@ -160,7 +161,8 @@ def metrics(wo, P, h0, info, step=0.25):
             hug / tot * 100 if tot else 0.0)
 
 
-def route(info, s, g, climb_faces=False):
+def route(info, s, g, climb_faces=False, *, goal_deck=None):
+    # goal_deck: 终点所在面的高度。不声明时终点集是该格全部 span,先够到哪张停哪张。
     lay, dist, core = info["lay"], info["dist"], info["core"]
     x0, y0, nx, ny = info["x0"], info["y0"], info["nx"], info["ny"]
     walk = core & lay
@@ -204,6 +206,32 @@ def route(info, s, g, climb_faces=False):
         j = int(cidx[c[1] * nx + c[0]])
         return [int(v) for v in spIK[j] if v >= 0 and use[v]] if j >= 0 else []
 
+    def at_seed_layer(vs):
+        return int(min(vs, key=lambda v: abs(spH[v] - info["h0"])))
+
+    # 高度最近的一张; 超出 DECK_BAND 视为该面不在此格
+    def at_deck(vs, deck):
+        best, bd = -1, 0.0
+        for v in vs:
+            d = abs(float(spH[v]) - deck)
+            if best < 0 or d < bd:
+                best, bd = int(v), d
+        return best if best >= 0 and bd <= DECK_BAND else -1
+
+    # 起点的面只由起点自己的高度决定, 终点的声明不参与。h0 来自二维吸附,
+    # 重叠处可能落在屋顶, 所以终点声明了面时起点层不再当已知, 按 h0 由近到远逐张试。
+    def seeds_of(vs):
+        if goal_deck is None:
+            return [at_seed_layer(vs)]
+        return sorted(vs, key=lambda v: abs(float(spH[v]) - info["h0"]))
+
+    # 终点声明是硬的: 收敛到单张 span, 匹配不上交空集让本级失败
+    def goals_of(vs):
+        if goal_deck is None:
+            return vs
+        v = at_deck(vs, goal_deck)
+        return [v] if v >= 0 else []
+
     sc = (int((s[0] - x0) / CS), int((s[1] - y0) / CS))
     gc = (int((g[0] - x0) / CS), int((g[1] - y0) / CS))
 
@@ -225,22 +253,42 @@ def route(info, s, g, climb_faces=False):
     soft = blocked if climb_faces else bn
     t0 = time.time()
     on3 = cw3
-    ss = pick(as_, useW)
-    s0 = int(min(ss, key=lambda v: abs(spH[v] - info["h0"])))
-    qs = (rc.span_astar(useW, spH, spOcc, spHK, spIK, spCi, cidx, cw3,
-                        s0, set(pick(ag_, useW)), mult, nx, ny,
-                        soft, BIGP, faces)
-          if as_ != ag_ else [s0])
+    qs = None
+
+    def search(use, c3, svs, gs):
+        for sd in seeds_of(svs):
+            r = rc.span_astar(use, spH, spOcc, spHK, spIK, spCi, cidx, c3,
+                              sd, set(gs), mult, nx, ny, soft, BIGP, faces)
+            if r is not None:
+                return r
+        return None
+
+    if as_ == ag_:
+        vs = pick(as_, useW)
+        gs = goals_of(vs)
+        if goal_deck is None:
+            qs = [seeds_of(vs)[0]]
+        elif gs:
+            qs = [gs[0]]
+    else:
+        gs = goals_of(pick(ag_, useW))
+        if goal_deck is None or gs:
+            qs = search(useW, cw3, pick(as_, useW), gs)
     if qs is None:
         ac_, dc_ = near(cc3.reshape(ny, nx), sc)
         ag2, dg2 = near(cc3.reshape(ny, nx), gc)
         if ac_ is not None and ag2 is not None:
-            s0 = int(min(pick(ac_, useC),
-                         key=lambda v: abs(spH[v] - info["h0"])))
-            qs = (rc.span_astar(useC, spH, spOcc, spHK, spIK, spCi, cidx, cc3,
-                                s0, set(pick(ag2, useC)), mult, nx, ny,
-                                soft, BIGP, faces)
-                  if ac_ != ag2 else [s0])
+            if ac_ == ag2:
+                vs = pick(ac_, useC)
+                gs = goals_of(vs)
+                if goal_deck is None:
+                    qs = [seeds_of(vs)[0]]
+                elif gs:
+                    qs = [gs[0]]
+            else:
+                gs = goals_of(pick(ag2, useC))
+                if goal_deck is None or gs:
+                    qs = search(useC, cc3, pick(ac_, useC), gs)
         if qs is not None:
             on3 = cc3
             as_, dsa, ag_, dga = ac_, dc_, ag2, dg2
@@ -248,6 +296,18 @@ def route(info, s, g, climb_faces=False):
     if qs is not None:
         q = [(int(c % nx), int(c // nx)) for c in spC[qs]]
     else:
+        # 格级搜索连 span 都不看, 退到这一级等于把选层交回给楼层盲的那一级
+        if goal_deck is not None:
+            gv = pick(ag_, useW)
+            hs = sorted({round(float(spH[v]), 2) for v in gv})
+            # 声明的面在表里就是这一跳连不上, 不在表里是这个坐标底下没有那张面
+            tail = "这一跳连不上, 拆成多段" if at_deck(gv, goal_deck) >= 0 \
+                else "该坐标下没有这张面"
+            return None, {
+                "err": f"目标面不可达 (声明 {goal_deck:g}, 终点格里的面 "
+                       f"{hs if hs else '无'}) — {tail}",
+                "warn": warn,
+            }
         as_, dsa = near(walk, sc)
         ag_, dga = near(walk, gc)
         on3 = walk.ravel()
@@ -490,11 +550,12 @@ class RecastEngine:
             self._oracles.move_to_end(zone_name)
             self._evict_locked()
 
-    def plan(self, zone_name, start, goal, floor_y=None):
+    # goal_deck_y = 终点所在重叠面的高度,选层用,与吸附用的 floor_y 是两件事
+    def plan(self, zone_name, start, goal, floor_y=None, *, goal_deck_y=None):
         with self.lock:
-            return self._plan(zone_name, start, goal, floor_y)
+            return self._plan(zone_name, start, goal, floor_y, goal_deck_y)
 
-    def _plan(self, zone_name, start, goal, floor_y):
+    def _plan(self, zone_name, start, goal, floor_y, goal_deck_y=None):
         t_all = time.time()
         zc, wo = self._zone(zone_name)
         s = (float(start[0]), float(start[1]))
@@ -533,7 +594,8 @@ class RecastEngine:
             t_pass = time.time()
             info, err = build(zc, wo, s, ss[1], h0, x0, y0, x1, y1)
             if err is None:
-                line, dg = route(info, s, g, p >= len(margins))
+                line, dg = route(info, s, g, p >= len(margins),
+                                 goal_deck=goal_deck_y)
                 if line is not None:
                     P = np.asarray(line, float)
                     pad = 2.0

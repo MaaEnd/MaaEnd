@@ -39,6 +39,7 @@ inline constexpr double kMcHBand = 8.0;            // 层高度带(墙筛/盖章
 inline constexpr double kHBand = 6.0;              // 真墙探针高度带 px
 inline constexpr double kEpsProbe = 0.75;          // 真墙探针距离 px
 inline constexpr double kSnapRadius = 8.0;         // 起终点吸附半径 px
+inline constexpr double kDeckBand = 2.0;           // 声明面高度匹配容差 px, 需远小于相邻面间距
 inline constexpr double kMargin = 25.0;            // 窗口外扩 px
 inline constexpr double kBlockedPointRadius = 1.0; // 封堵点盖章半径 px
 inline constexpr int64_t kHoleMaxCells = 32;       // 封闭小洞填充上限(格 = 2px²)

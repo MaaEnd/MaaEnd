@@ -38,6 +38,7 @@ import {
   basemapByZoneUrl,
   postRoute,
   postOffMeshProbe,
+  postDeckProbe,
   exportPath,
   exportAssert,
   locateOnce,
@@ -105,6 +106,19 @@ class MapNavigatorApp {
     this.astarPoints = [];
     /** @type {?{points:number[][], segment_breaks:number[], cost:number}} */
     this.astarRoute = null;
+    /**
+     * 每个 A* 路点声明的可走面高度(`target_deck_y`),与 {@link astarPoints} 同下标;
+     * `null` = 不声明 = 寻路取整格全部面。`hintDeck` 是只有一个预览点时的同一件事。
+     * @type {Array<?number>}
+     */
+    this.astarDecks = [];
+    /** @type {?number} */
+    this.hintDeck = null;
+    /** @type {?{index:number, decks:Array<{height:number, band:number[], thin:boolean}>}} */
+    this.deckProbe = null;
+    /** @type {?number} 正在预览的那一层高度。 */
+    this.deckPreview = null;
+    this._deckToken = 0;
     /**
      * Straight lines the runtime walks with no navmesh under it, base px: `off` is the
      * point outside the mesh, `mesh` where the mesh takes over. Taken from the backend's
@@ -256,6 +270,9 @@ class MapNavigatorApp {
       btnAstarMarkCoord: $('btn-astar-mark-coord'),
       btnAstarImport: $('btn-astar-import'),
       btnAssertImport: $('btn-assert-import'),
+      astarDeckBox: $('astar-deck-box'),
+      astarDeckTitle: $('astar-deck-title'),
+      astarDeckList: $('astar-deck-list'),
     };
   }
 
@@ -1544,30 +1561,156 @@ class MapNavigatorApp {
     if (this.activeTool === 'astar-single') {
       if (this.astarPoints.length === 0 || this.astarPoints.length >= 2) {
         this.astarPoints = [[wx, wy]];
+        this.astarDecks = [null];
         this.astarRoute = null;
         setStatus(`A* 起点: [${wx.toFixed(1)}, ${wy.toFixed(1)}]，再点击终点。`, '#3b82f6');
         // 探针/路线的同步开头会清掉上一轮的离网徽标, 所以先调它们、再 _paint(),
         // 免得这一帧还画着上一条路线的警示环。
         this._probeLoneAstarPoint();
+        this._refreshDeckProbe();
         this._paint();
         return;
       }
       this.astarPoints.push([wx, wy]);
+      this.astarDecks.push(null);
       setStatus('正在计算 A* 路径...', '#eab308');
       this._calculateAstarPreview();
+      this._refreshDeckProbe();
       this._paint();
     } else {
       this.astarPoints.push([wx, wy]);
+      this.astarDecks.push(null);
       if (this.astarPoints.length < 2) {
         setStatus('已设置 A* 起点，请继续点击后续路点以串联多段路径。', '#3b82f6');
         this._probeLoneAstarPoint();
-        this._paint();
       } else {
         setStatus(`正在计算第 ${this.astarPoints.length - 1} 段 A* 路径...`, '#eab308');
         this._calculateAstarPreview();
-        this._paint();
       }
+      this._refreshDeckProbe();
+      this._paint();
     }
+  }
+
+  /**
+   * 问最后一个预览点底下压着几张可走面,并把结果铺进侧栏。小地图是二维的,同一个坐标可能
+   * 同时是走廊、天桥和屋顶;不声明的话寻路先够到哪张停哪张。
+   * @returns {Promise<void>}
+   */
+  async _refreshDeckProbe() {
+    const token = ++this._deckToken;
+    const index = this.astarPoints.length >= 1 ? this.astarPoints.length - 1 : -1;
+    const point = index >= 0 ? this.astarPoints[index] : this.astarLastHint
+      ? [this.astarLastHint.x, this.astarLastHint.y]
+      : null;
+    this.deckProbe = null;
+    this._setDeckPreview(null);
+    if (!this.field || !point) {
+      this._renderDeckList();
+      return;
+    }
+    const displayZoneId = this._astarZoneId();
+    if (Number.isNaN(displayZoneId)) {
+      this._renderDeckList();
+      return;
+    }
+    // 路点存的是显示帧; 预览点(astarLocateHints)本来就是 base 帧, 别再转一次。
+    const tierId = index >= 0 ? this._activeDisplayTierId() : null;
+    const base = tierId !== null ? this.field.tierToBase(tierId, point[0], point[1]) : point;
+
+    let res;
+    try {
+      res = await postDeckProbe({ zone_id: this.field.geometryZoneId(displayZoneId), point: base });
+    } catch {
+      return; // 探针只是提示, 失败就静默放过, 别打断编辑
+    }
+    if (token !== this._deckToken) return; // 期间点变了, 丢弃这次结果
+    this.deckProbe = res && res.ok && res.decks ? { index, decks: res.decks } : null;
+    this._renderDeckList();
+  }
+
+  /** 只有一张面时整块隐藏 —— 没有重叠就没有要选的东西。@returns {void} */
+  _renderDeckList() {
+    const box = this.els.astarDeckBox;
+    const list = this.els.astarDeckList;
+    if (!box || !list) return;
+    const decks = this.deckProbe ? this.deckProbe.decks : [];
+    list.replaceChildren();
+    if (decks.length < 2) {
+      box.hidden = true;
+      return;
+    }
+    box.hidden = false;
+    const index = this.deckProbe.index;
+    const filled = index >= 0 ? this.astarDecks[index] : this.hintDeck;
+    this.els.astarDeckTitle.textContent =
+      `重叠面：该点底下压着 ${decks.length} 张可走面`;
+
+    decks.forEach((deck, i) => {
+      const row = document.createElement('div');
+      row.className = 'deck-item';
+      if (this.deckPreview === deck.height) row.classList.add('is-preview');
+      if (filled === deck.height) row.classList.add('is-filled');
+
+      const pick = document.createElement('button');
+      pick.type = 'button';
+      pick.className = 'deck-pick';
+      pick.title = '预览这一层';
+      pick.textContent = deck.height.toFixed(2);
+      const note = document.createElement('small');
+      // 列表按高度从上往下排, 层号跟着自上而下数
+      note.textContent = ` 自上而下第 ${i + 1} 层 / 共 ${decks.length} 层${deck.thin ? '（薄片，多半是墙顶）' : ''}`;
+      pick.appendChild(note);
+      pick.addEventListener('click', () => {
+        this._setDeckPreview(this.deckPreview === deck.height ? null : deck.height);
+        this._renderDeckList();
+      });
+      row.appendChild(pick);
+
+      // 第一个点是角色起点不是导航目标, 复制配置时不会输出, 所以只给预览不给选择
+      if (index !== 0) {
+        const fill = document.createElement('button');
+        fill.type = 'button';
+        fill.className = 'btn btn-secondary btn-sm';
+        fill.textContent = filled === deck.height ? '已选' : '选择';
+        fill.addEventListener('click', () => this._fillDeck(index, filled === deck.height ? null : deck.height));
+        row.appendChild(fill);
+      }
+      list.appendChild(row);
+    });
+  }
+
+  /**
+   * 把落在该层高度带里的面点亮、其余压暗,好让开发者一眼看出这是屋顶还是底下那条走廊。
+   * @param {?number} height @returns {void}
+   */
+  _setDeckPreview(height) {
+    this.deckPreview = height;
+    const band = this.deckProbe && height !== null
+      ? (this.deckProbe.decks.find((d) => d.height === height) || {}).band
+      : null;
+    this.renderer.setDeckBand(band || null);
+    this._paint();
+  }
+
+  /**
+   * 记下该路点声明的可走面高度,并按新声明重算预览线 —— 预览线必须跟运行时选中同一张面。
+   * @param {number} index @param {?number} height @returns {void}
+   */
+  _fillDeck(index, height) {
+    if (index >= 0) {
+      this.astarDecks[index] = height;
+    } else {
+      this.hintDeck = height;
+    }
+    this._renderDeckList();
+    if (this.astarPoints.length >= 2) {
+      this._calculateAstarPreview();
+    }
+    setStatus(
+      height === null ? '已清除该点的 target_deck_y。' : `该点 target_deck_y = ${height.toFixed(2)}，复制配置时会带上。`,
+      '#10b981',
+    );
   }
 
   /**
@@ -1639,12 +1782,14 @@ class MapNavigatorApp {
       for (let i = 0; i < basePoints.length - 1; i++) {
         const legStart = basePoints[i];
         const legGoal = basePoints[i + 1];
+        // 声明只钉终点: 运行时重规划的起点是实时二维定位, 本来就没有面可言
         const res = await postRoute({
           zone_id: geomId,
           start: legStart,
           goal: legGoal,
           snap_radius: ASTAR_PREVIEW_SNAP_RADIUS,
           floor_y: floorY,
+          goal_deck_y: this.astarDecks[i + 1] ?? null,
         });
 
         if (!res || !res.ok) {
@@ -1790,9 +1935,12 @@ class MapNavigatorApp {
   /** Drop all A* click points, the computed route, and the preview markers. @returns {void} */
   _clearAstarPreview() {
     this.astarPoints = [];
+    this.astarDecks = [];
+    this.hintDeck = null;
     this.astarRoute = null;
     this.astarLocateHints = [];
     this._resetOffMeshOverlays();
+    this._refreshDeckProbe();
   }
 
   /** Reset A* view state on a zone change. @returns {void} */
@@ -1882,6 +2030,8 @@ class MapNavigatorApp {
    */
   _addAstarHint(x, y, label) {
     this.astarLocateHints.push({ x, y, label });
+    this.hintDeck = null;
+    this._refreshDeckProbe();
   }
 
   /**
@@ -2215,12 +2365,19 @@ class MapNavigatorApp {
         if (tierName) {
           payload.target_tier = tierName;
         }
+        if (this.hintDeck !== null) {
+          payload.target_deck_y = this.hintDeck;
+        }
         const coordinatesOnly = this.els.navmeshCopyFormat.value === COPY_FORMAT_COORDINATES;
         await this._copyText(JSON.stringify(coordinatesOnly ? payload.target : payload, null, 4));
         const tierField = coordinatesOnly ? 'MapTargetTier' : 'target_tier';
         const tierNote = tierName ? ` ${tierField}=${tierName}` : '';
+        // 只复制坐标时 deck 落不进剪贴板(它是 routes.json 的另一个键), 所以念给开发者抄。
+        const deckNote = this.hintDeck === null
+          ? ''
+          : ` ${coordinatesOnly ? 'MapTargetDeckY' : 'target_deck_y'}=${this.hintDeck.toFixed(2)}`;
         setStatus(
-          `${coordinatesOnly ? '环境监测 MapTarget 坐标' : 'NAVMESH 目标'}已复制: zone=${zoneId} target=[${payload.target[0]}, ${payload.target[1]}]${tierNote}`,
+          `${coordinatesOnly ? '环境监测 MapTarget 坐标' : 'NAVMESH 目标'}已复制: zone=${zoneId} target=[${payload.target[0]}, ${payload.target[1]}]${tierNote}${deckNote}`,
           '#10b981',
         );
         return;
@@ -2249,6 +2406,9 @@ class MapNavigatorApp {
       if (tierName) {
         payload.target_tier = tierName;
       }
+      if (this.astarDecks[i] !== null && this.astarDecks[i] !== undefined) {
+        payload.target_deck_y = this.astarDecks[i];
+      }
       targets.push(payload);
     }
 
@@ -2256,7 +2416,11 @@ class MapNavigatorApp {
       const target = targets[targets.length - 1];
       await this._copyText(JSON.stringify(target.target, null, 4));
       const tierNote = tierName ? ` MapTargetTier=${tierName}` : '';
-      setStatus(`环境监测 MapTarget 坐标已复制: [${target.target[0]}, ${target.target[1]}]${tierNote}`, '#10b981');
+      // 只复制坐标时 deck 落不进剪贴板(它是 routes.json 的另一个键), 所以念给开发者抄。
+      const deckNote = target.target_deck_y === undefined
+        ? ''
+        : ` MapTargetDeckY=${target.target_deck_y.toFixed(2)}`;
+      setStatus(`环境监测 MapTarget 坐标已复制: [${target.target[0]}, ${target.target[1]}]${tierNote}${deckNote}`, '#10b981');
     } else if (targets.length === 1) {
       await this._copyText(JSON.stringify(targets[0], null, 4));
       const tierNote = tierName ? ` target_tier=${tierName}` : '';
@@ -2330,6 +2494,7 @@ class MapNavigatorApp {
       if (this.state.mode === Mode.ASTAR) {
         if (this.astarPoints.length > 0) {
           this.astarPoints.pop();
+          this.astarDecks.pop();
           this.astarRoute = null;
           if (this.astarPoints.length >= 2) {
             this._calculateAstarPreview();
@@ -2342,6 +2507,7 @@ class MapNavigatorApp {
             this._probeLoneAstarPoint();
             this._paint();
           }
+          this._refreshDeckProbe();
           e.preventDefault();
           return;
         }

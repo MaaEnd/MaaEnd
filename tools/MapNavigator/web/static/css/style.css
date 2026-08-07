@@ -312,6 +312,54 @@ canvas {
   margin: 4px 0 2px 0;
 }
 
+/* 重叠面列表:同一坐标底下压着的几张可走面,选中一层会在画布上高亮。 */
+.deck-box {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.deck-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.deck-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 4px 6px;
+}
+
+.deck-item.is-preview {
+  border-color: var(--accent-yellow);
+}
+
+.deck-item.is-filled {
+  border-color: var(--accent-green);
+}
+
+.deck-pick {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.deck-pick small {
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+}
+
 .segment-nav-row {
   justify-content: space-between;
   background: rgba(0, 0, 0, 0.2);

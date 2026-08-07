@@ -9,6 +9,7 @@ export const ROUTE_CONFIG_FIELDS = [
     "MapPath",
     "MapTarget",
     "MapTargetTier",
+    "MapTargetDeckY",
     "MapGoal",
     "CameraSwipeDirection",
     "CameraMaxHit",
@@ -55,6 +56,7 @@ export function collectMissingRouteFields(route) {
         const unusedDirectPhotoFields = [
             "MapName",
             "MapTargetTier",
+            "MapTargetDeckY",
             "NoEnsureInitialMovementState",
         ].filter((field) => !isFieldMissing(route[field]));
         if (unusedDirectPhotoFields.length > 0) {
@@ -78,6 +80,10 @@ export function collectMissingRouteFields(route) {
         missingFields.push("MapTargetTier 仅可与 MapTarget 同时使用");
     }
 
+    if (!isFieldMissing(route.MapTargetDeckY) && !hasMapTarget) {
+        missingFields.push("MapTargetDeckY 仅可与 MapTarget 同时使用");
+    }
+
     return missingFields;
 }
 
@@ -99,6 +105,7 @@ const UNREACHABLE_ROUTE_PLACEHOLDER = {
     ],
     MapTarget: null,
     MapTargetTier: null,
+    MapTargetDeckY: null,
     MapGoal: null,
     CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
 };
@@ -161,6 +168,7 @@ function buildNavigationParams({
     MapPath,
     MapTarget,
     MapTargetTier,
+    MapTargetDeckY,
     MapGoal,
     NoEnsureInitialMovementState,
     hasMapTarget,
@@ -222,6 +230,7 @@ function buildNavigationParams({
                         action: "NAVMESH",
                         target: MapTarget,
                         ...(!isFieldMissing(MapTargetTier) ? {target_tier: MapTargetTier} : {}),
+                        ...(!isFieldMissing(MapTargetDeckY) ? {target_deck_y: MapTargetDeckY} : {}),
                     },
                     ...(heading.HasHeading
                         ? [
@@ -309,6 +318,10 @@ export function createRouteResolver(routeConfig, options = {}) {
                 navigationConfigCount === 1 && hasMapTarget && !isFieldMissing(override?.MapTargetTier)
                     ? override.MapTargetTier
                     : UNREACHABLE_ROUTE_PLACEHOLDER.MapTargetTier;
+            const MapTargetDeckY =
+                navigationConfigCount === 1 && hasMapTarget && !isFieldMissing(override?.MapTargetDeckY)
+                    ? override.MapTargetDeckY
+                    : UNREACHABLE_ROUTE_PLACEHOLDER.MapTargetDeckY;
             const MapGoal =
                 navigationConfigCount === 1 && hasMapGoal ? override.MapGoal : UNREACHABLE_ROUTE_PLACEHOLDER.MapGoal;
             const CameraMaxHit = override?.CameraMaxHit ?? CAMERA_MAX_HIT_DEFAULT;
@@ -339,6 +352,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                 MapPath,
                 MapTarget,
                 MapTargetTier,
+                MapTargetDeckY,
                 MapGoal,
                 CameraSwipeDirection,
                 CameraMaxHit,
@@ -355,6 +369,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                     MapPath,
                     MapTarget,
                     MapTargetTier,
+                    MapTargetDeckY,
                     MapGoal,
                     NoEnsureInitialMovementState,
                     hasMapTarget: navigationConfigCount === 1 && hasMapTarget,

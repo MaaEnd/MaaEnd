@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import math
 import os
 import socket
 import struct
@@ -62,7 +63,11 @@ if str(_PARENT_DIR) not in sys.path:
     sys.path.insert(0, str(_PARENT_DIR))
 
 import key_listener  # noqa: E402  (ensure_privileges, 录制开始时才调用)
-from basenav_preview import load_basenav_field  # noqa: E402
+from basenav_preview import (  # noqa: E402
+    _closest_point_on_triangle,
+    _point_in_triangle,
+    load_basenav_field,
+)
 from connection_models import (  # noqa: E402
     AdbConnectionConfig,
     RecordingSessionConfig,
@@ -71,6 +76,7 @@ from connection_models import (  # noqa: E402
 )
 from connectors import build_recording_connector, find_game_window, list_adb_devices, resolve_adb_path  # noqa: E402
 from model import normalize_zone_id, resolve_zone_image  # noqa: E402
+from recastnav import DECK_BAND  # noqa: E402
 from recastnav_route import RecastEngine  # noqa: E402
 from recording_service import RecordingService  # noqa: E402
 from runtime import (  # noqa: E402
@@ -431,6 +437,8 @@ class RouteRequest(BaseModel):
     goal: list[float]
     snap_radius: float = 5.0
     floor_y: float | None = None
+    # 终点所在重叠面的高度; floor_y 管吸附, 这个管选层
+    goal_deck_y: float | None = None
 
 
 @app.get("/api/load-status")
@@ -548,6 +556,61 @@ async def api_offmesh_probe(req: OffMeshProbeRequest) -> dict[str, Any]:
     return await run_in_threadpool(_compute)
 
 
+DECK_PROBE_RADIUS = 0.25  # 一个体素, 与寻路按整格取 span 同量级
+
+
+class DeckProbeRequest(BaseModel):
+    zone_id: int
+    point: list[float]
+
+
+@app.post("/api/deck-probe")
+async def api_deck_probe(req: DeckProbeRequest) -> dict[str, Any]:
+    """这个坐标底下压着几张可走面? 小地图是二维的,同一个点可能有走廊/天桥/屋顶好几层。
+
+    取该点一个体素(0.25px)内的可走面,按高度归并:两个高度差不超过 DECK_BAND 时寻路的
+    选面判据本来就分不开,所以归成同一张。返回的高度可直接填进 target_deck_y。
+    """
+
+    def _compute() -> dict[str, Any]:
+        try:
+            field = field_manager.get()
+        except RuntimeError as exc:
+            return {"ok": False, "error": f"navmesh 尚未就绪: {exc}"}
+        if len(req.point) < 2:
+            return {"ok": False, "error": "point 需为 [x, y]"}
+
+        geom_zone_id = int(field.geometry_zone_id(req.zone_id))
+        point = (float(req.point[0]), float(req.point[1]))
+        found: list[tuple[float, float, int]] = []  # (height, distance, triangle)
+        for triangle in field._candidate_triangles(geom_zone_id, point, DECK_PROBE_RADIUS):
+            vertices = field._triangle_points(triangle)
+            if _point_in_triangle(point, *vertices):
+                distance = 0.0
+            else:
+                near = _closest_point_on_triangle(point, vertices)
+                distance = math.hypot(near[0] - point[0], near[1] - point[1])
+                if distance > DECK_PROBE_RADIUS:
+                    continue
+            found.append((float(field.triangle_height[triangle]), distance, triangle))
+
+        decks: list[dict[str, Any]] = []
+        for height, distance, triangle in sorted(found, key=lambda f: (f[1], f[2])):
+            if any(abs(d["height"] - height) <= DECK_BAND for d in decks):
+                continue
+            decks.append({
+                "height": round(height, 2),
+                "band": [round(height - DECK_BAND, 2), round(height + DECK_BAND, 2)],
+                "on_surface": distance == 0.0,
+                # 烘焙出来的墙顶/檐口薄片, 不是真地面; 前端灰掉它免得被当成一层
+                "thin": bool(field._is_small_island(triangle)),
+            })
+        decks.sort(key=lambda d: -d["height"])
+        return {"ok": True, "decks": decks}
+
+    return await run_in_threadpool(_compute)
+
+
 @app.post("/api/route")
 async def api_route(req: RouteRequest) -> dict[str, Any]:
     """栅格路线; snap_radius 请求参数被忽略 (引擎定死 8.0), blind_* 恒 null, 诊断在 `recast` 键。"""
@@ -569,7 +632,10 @@ async def api_route(req: RouteRequest) -> dict[str, Any]:
         goal = (float(req.goal[0]), float(req.goal[1]))
 
         try:
-            plan = get_recast_engine(field).plan(zone.name, start, goal, req.floor_y)
+            plan = get_recast_engine(field).plan(
+                zone.name, start, goal, req.floor_y,
+                goal_deck_y=req.goal_deck_y,
+            )
         except (ValueError, FileNotFoundError) as exc:
             # 失败时带上起终点离网探针, 前端才能标出是哪个点掉在网格外。
             return {

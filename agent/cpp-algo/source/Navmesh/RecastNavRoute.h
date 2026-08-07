@@ -43,6 +43,7 @@ public:
     RecastNavEngine(const BaseNavPack& pack, const BaseNavPlanner& planner);
 
     // start/goal 各带楼层高度(<= kBaseNavFloorYValidMin ⇒ floor 盲吸附);
+    // goal_deck_y = 终点所在重叠面的高度,选层用,与吸附用的 floor_y 是两件事;
     // blocked = pack 全局三角形号封堵集,命中格从可走层盖掉;
     // blocked_points = 世界坐标封堵点,kBlockedPointRadius 半径内的格盖掉
     RecastPlanResult plan(
@@ -51,6 +52,7 @@ public:
         const WorldPoint& goal,
         float start_floor_y = kBaseNavFloorYNone,
         float goal_floor_y = kBaseNavFloorYNone,
+        float goal_deck_y = kBaseNavFloorYNone,
         const std::vector<uint32_t>& blocked = {},
         const std::vector<WorldPoint>& blocked_points = {},
         const RecastPlanBudget& budget = {});
@@ -69,6 +71,7 @@ private:
         const WorldPoint& goal,
         float start_floor_y,
         float goal_floor_y,
+        float goal_deck_y,
         const std::vector<uint32_t>& blocked,
         const std::vector<WorldPoint>& blocked_points,
         const RecastPlanBudget& budget);

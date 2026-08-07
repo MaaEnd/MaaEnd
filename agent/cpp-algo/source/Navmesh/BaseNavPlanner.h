@@ -40,6 +40,9 @@ struct BaseNavRouteRequest
     // floor and the goal onto the declared target frame's floor. Unset -> falls back to `floor_y`.
     float start_floor_y = kBaseNavFloorYNone;
     float goal_floor_y = kBaseNavFloorYNone;
+    // Height of the overlapping deck the goal sits on. floor_y steers the snap; this steers which span the
+    // search must stop on. Unset -> the search keeps its full span set.
+    float goal_deck_y = kBaseNavFloorYNone;
 };
 
 enum class BaseNavRouteStatus
