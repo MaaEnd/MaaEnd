@@ -1,6 +1,6 @@
 {
     "ARMS_INSPECTOR": {
-        "desc": "IMS 物品:武器检查单元(And；绿色品质；品质色 → 模板 → 数量；box_index 指向数量 And)",
+        "desc": "武器检查单元",
         "recognition": {
             "type": "And",
             "param": {

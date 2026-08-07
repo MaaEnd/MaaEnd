@@ -1,6 +1,6 @@
 {
     "HEAVY_CAST_DIE": {
-        "desc": "IMS 物品:重型强固模具(And；紫色品质；品质色 → 模板 → 数量；box_index 指向数量 And)",
+        "desc": "重型强固模具",
         "recognition": {
             "type": "And",
             "param": {

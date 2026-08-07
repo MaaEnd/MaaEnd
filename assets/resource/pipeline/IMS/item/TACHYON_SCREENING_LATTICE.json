@@ -1,6 +1,6 @@
 {
     "TACHYON_SCREENING_LATTICE": {
-        "desc": "IMS 物品:快子遴捡晶格(And；黄色品质；品质色 → 模板 → 数量；box_index 指向数量 And)",
+        "desc": "快子遴捡晶格",
         "recognition": {
             "type": "And",
             "param": {

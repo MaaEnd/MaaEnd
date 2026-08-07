@@ -1,6 +1,6 @@
 {
     "T_CREDS": {
-        "desc": "IMS A3 物品:折金票(紫色品质；品质色 → 模板 → 数量；仅 AddItemData 注册；box_index 指向数量 And)",
+        "desc": "折金票",
         "recognition": {
             "type": "And",
             "param": {
@@ -106,7 +106,7 @@
         "rate_limit": 0
     },
     "T_CREDS_NUMBER": {
-        "desc": "IMS A2 折金票数量（非物品卡；右上角白色文字 ColorMatch And OCR；box_index 指向 OCR）",
+        "desc": "折金票（纯数字）",
         "recognition": {
             "type": "And",
             "param": {

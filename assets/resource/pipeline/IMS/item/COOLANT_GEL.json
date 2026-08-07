@@ -1,6 +1,6 @@
 {
     "COOLANT_GEL": {
-        "desc": "IMS 物品:冷却脂(And；黄色品质；品质色 → 模板 → 数量；box_index 指向数量 And)",
+        "desc": "冷却脂",
         "recognition": {
             "type": "And",
             "param": {

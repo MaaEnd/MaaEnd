@@ -1,6 +1,6 @@
 {
     "MARK_OF_PERSEVERANCE": {
-        "desc": "IMS 物品:存续的痕迹(And；黄色品质；品质色 → 模板 → 数量；box_index 指向数量 And)",
+        "desc": "存续的痕迹",
         "recognition": {
             "type": "And",
             "param": {

@@ -1,6 +1,6 @@
 {
     "CHARTERED_HH_PERMIT": {
-        "desc": "IMS 物品:特许寻访凭证(And；限时角标色 → 模板 → 数量；box_index 指向数量 And)",
+        "desc": "特许寻访凭证",
         "recognition": {
             "type": "And",
             "param": {

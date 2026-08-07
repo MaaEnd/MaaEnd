@@ -1,6 +1,6 @@
 {
     "ORIGEOMETRY_NUMBER": {
-        "desc": "IMS A2 衍质源石数量（非物品卡；采购中心顶部白色文字 ColorMatch And OCR；box_index 指向 OCR）",
+        "desc": "衍质源石（纯数字）",
         "recognition": {
             "type": "And",
             "param": {

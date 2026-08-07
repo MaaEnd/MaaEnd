@@ -1,6 +1,6 @@
 {
     "VALLEY_STOCK_BILL": {
-        "desc": "IMS A3 物品:谷地调度券(黄色品质；品质色 → 模板And(模板+颜色) → 数量；仅 AddItemData 注册；box_index 指向数量 And)",
+        "desc": "谷地调度券",
         "recognition": {
             "type": "And",
             "param": {

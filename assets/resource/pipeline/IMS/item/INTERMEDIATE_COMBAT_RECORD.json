@@ -1,6 +1,6 @@
 {
     "INTERMEDIATE_COMBAT_RECORD": {
-        "desc": "IMS 物品:中级作战记录(And；绿色品质；品质色 → 模板 → 数量；box_index 指向数量 And)",
+        "desc": "中级作战记录",
         "recognition": {
             "type": "And",
             "param": {
