@@ -539,16 +539,15 @@
         "Name": "念念家的桃树",
         "Id": "PeachTreeAtBabblesSHome",
         "QuickTeleport": true,
-        "MapName": "map02_lv004_tier_328",
-        "MapPath": [
-            [
-                520.3,
-                672.8
-            ],
-            [
-                524.7,
-                665.8
-            ]
+        "NavPath": [
+            {
+                "action": "NAVMESH",
+                "target": [
+                    265.63,
+                    206.32
+                ],
+                "target_tier": "Wuling_L4_328"
+            }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 90
@@ -574,31 +573,13 @@
         "MissionId": "m1m68",
         "Name": "安思园的天师桩",
         "Id": "SerenityGardenTianshiPillar",
-        "EnterMap": "SceneEnterWorldWulingMarkerStone2",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            396.21,
-            2228.75,
-            20.48,
-            17.15
-        ],
+        "QuickTeleport": true,
         "NavPath": [
             {
-                "action": "ZONE",
-                "zone_id": "Wuling_Base"
-            },
-            {
                 "action": "NAVMESH",
                 "target": [
-                    319.9,
-                    2317.81
-                ]
-            },
-            {
-                "action": "NAVMESH",
-                "target": [
-                    290.56,
-                    2317.81
+                    290.29,
+                    2317.95
                 ]
             }
         ],
@@ -615,22 +596,14 @@
         "MissionId": "m1m69",
         "Name": "“小池荷”",
         "Id": "PoolLotus",
-        "EnterMap": "SceneEnterWorldWulingMarkerStone3",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            593.53,
-            2240.18,
-            9.55,
-            7.98
-        ],
+        "QuickTeleport": true,
         "NavPath": [
             {
                 "action": "NAVMESH",
                 "target": [
-                    124.28,
-                    240.32
-                ],
-                "target_tier": "Wuling_L4_330"
+                    573.36,
+                    2219.06
+                ]
             }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
@@ -641,23 +614,15 @@
         "MissionId": "m1m70",
         "Name": "“金秋时”",
         "Id": "AutumnGold",
-        "EnterMap": "SceneEnterWorldWulingMarkerStone2",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            396.21,
-            2228.75,
-            20.48,
-            17.14
-        ],
+        "QuickTeleport": true,
         "NavPath": [
             {
-                "action": "ZONE",
-                "zone_id": "Wuling_Base"
-            },
-            [
-                294.89,
-                2300.77
-            ]
+                "action": "NAVMESH",
+                "target": [
+                    294.89,
+                    2300.77
+                ]
+            }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "CameraMaxHit": 1,
