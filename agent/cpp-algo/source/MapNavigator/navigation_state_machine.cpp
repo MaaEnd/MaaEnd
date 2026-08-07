@@ -854,6 +854,7 @@ bool NavigationStateMachine::TickNavigate()
             ? std::chrono::duration_cast<std::chrono::milliseconds>(tick_started_at - runtime_state_.flow.last_tick_started_at).count()
             : 0;
     runtime_state_.flow.last_tick_started_at = tick_started_at;
+    ++runtime_state_.flow.tick_seq;
 
     if (!session_->HasCurrentWaypoint()) {
         session_->NoteRouteTailConsumed(*position_, "route_tail_consumed");
@@ -1331,22 +1332,29 @@ bool NavigationStateMachine::TickNavigate()
     double heading_rate_deg = 0.0;
     double heading_rate_raw_delta_deg = 0.0;
     int64_t heading_rate_gap_ms = 0;
+    uint64_t heading_rate_gap_ticks = 0;
     if (runtime_state_.steering_rate.has_prev) {
         heading_rate_raw_delta_deg = NaviMath::NormalizeAngle(current_heading - runtime_state_.steering_rate.prev_heading_deg);
         heading_rate_gap_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.steering_rate.at).count();
+        heading_rate_gap_ticks = runtime_state_.flow.tick_seq - runtime_state_.steering_rate.at_tick;
         const bool heading_changed = std::abs(heading_rate_raw_delta_deg) > kSteeringHeadingChangeEpsilonDeg;
-        if (heading_changed && heading_rate_gap_ms > 0 && heading_rate_gap_ms <= kSteeringRateMaxGapMs) {
+        // Staleness is counted in ticks, not milliseconds: the reference goes stale after so many missed chances
+        // to observe a change, and slow frame capture stretches those chances out without making them fewer. A
+        // wall-clock cap threw the damping term away on exactly the slow loops that need it most.
+        if (heading_changed && heading_rate_gap_ms > 0 && heading_rate_gap_ticks <= kSteeringRateMaxGapTicks) {
             heading_rate_deg =
                 heading_rate_raw_delta_deg * static_cast<double>(kSteeringRateReferenceMs) / static_cast<double>(heading_rate_gap_ms);
         }
         if (heading_changed) {
             runtime_state_.steering_rate.prev_heading_deg = current_heading;
             runtime_state_.steering_rate.at = now;
+            runtime_state_.steering_rate.at_tick = runtime_state_.flow.tick_seq;
         }
     }
     else {
         runtime_state_.steering_rate.prev_heading_deg = current_heading;
         runtime_state_.steering_rate.at = now;
+        runtime_state_.steering_rate.at_tick = runtime_state_.flow.tick_seq;
         runtime_state_.steering_rate.has_prev = true;
     }
 
@@ -1357,7 +1365,7 @@ bool NavigationStateMachine::TickNavigate()
 
     double issued_delta_deg = 0.0;
     if (steering.issued) {
-        const TurnCommandResult steering_result = motion_controller_->ApplySteering(steering.yaw_delta_deg);
+        const TurnCommandResult steering_result = motion_controller_->ApplySteering(steering.yaw_delta_deg, tick_gap_ms);
         if (steering_result.issued) {
             issued_delta_deg = steering_result.issued_delta_degrees;
         }
@@ -1369,11 +1377,39 @@ bool NavigationStateMachine::TickNavigate()
         runtime_state_.steering_rate.has_cmd = true;
     }
 
+    // Closed the loop on the forward hold: the keydown goes out once on the transition, so a swallowed one
+    // strands the agent aimed correctly and walking nowhere until an obstacle recovery notices seconds later.
+    // Only counts ticks that steered nowhere, so turning in place and braked arrivals never trigger it. Stands
+    // down once recovery is active: it owns the movement keys from then on, its cooldown ticks fall through to
+    // here, and a release/re-press dropped between two of its jump pulses would fight it. That leaves this the
+    // early window only — kObstacleRecoveryMinTriggerMs away, which is the whole point of it.
+    FlowState& flow = runtime_state_.flow;
+    const bool moved = flow.has_last_steer_position
+                       && std::hypot(position_->x - flow.last_steer_position.x, position_->y - flow.last_steer_position.y)
+                              > kMeasurementDefaultPositionQuantum;
+    if (moved || issued_delta_deg != 0.0 || !motion_controller_->IsMovingForward() || runtime_state_.recovery.active) {
+        flow.motionless_hold_ticks = 0;
+    }
+    else if (flow.has_last_steer_position) {
+        ++flow.motionless_hold_ticks;
+    }
+    flow.last_steer_position = *position_;
+    flow.has_last_steer_position = true;
+    if (flow.motionless_hold_ticks >= kForwardHoldReassertTicks) {
+        LogWarn << "Forward hold produced no motion; re-sending it." << VAR(flow.motionless_hold_ticks) << VAR(heading_error)
+                << VAR(position_->x) << VAR(position_->y);
+        motion_controller_->ReassertForward();
+        flow.motionless_hold_ticks = 0;
+    }
+
     const double lookahead_x = nav_run_result.lookahead_point.x;
     const double lookahead_y = nav_run_result.lookahead_point.y;
+    const double projection_x = nav_run_result.projection_point.x;
+    const double projection_y = nav_run_result.projection_point.y;
     const int nav_run_replan_reason = static_cast<int>(nav_run_result.replanned_with);
     LogDebug << "TickNavigate corridor target." << VAR(session_->current_node_idx()) << VAR(waypoint.x) << VAR(waypoint.y)
              << VAR(waypoint.RequiresStrictArrival()) << VAR(lookahead_x) << VAR(lookahead_y)
+             << VAR(projection_x) << VAR(projection_y)
              << VAR(nav_run_result.remaining_to_anchor)
              << VAR(nav_run_result.straight_to_anchor) << VAR(nav_run_result.passed_run_waypoints) << VAR(nav_run_replan_reason)
              << VAR(route.along_track_remaining)
@@ -1384,7 +1420,8 @@ bool NavigationStateMachine::TickNavigate()
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - tick_started_at).count();
     LogDebug << "TickNavigate steering decision." << VAR(current_heading) << VAR(route.route_heading) << VAR(effective_route_heading)
              << VAR(nav_run_result.has_corridor_heading) << VAR(nav_run_result.cross_track) << VAR(nav_run_result.upcoming_turn_deg)
-             << VAR(heading_rate_deg) << VAR(heading_rate_raw_delta_deg) << VAR(heading_rate_gap_ms) << VAR(heading_error)
+             << VAR(heading_rate_deg) << VAR(heading_rate_raw_delta_deg) << VAR(heading_rate_gap_ms)
+             << VAR(heading_rate_gap_ticks) << VAR(heading_error)
              << VAR(steering.yaw_delta_deg) << VAR(issued_delta_deg) << VAR(turn_achieved_deg) << VAR(turn_residual_deg)
              << VAR(turn_elapsed_ms) << VAR(route.waypoint_distance) << VAR(route.on_route) << VAR(degraded_fix) << VAR(held_fix_streak)
              << VAR(capture_ms) << VAR(fix_age_ms) << VAR(tick_gap_ms) << VAR(tick_compute_ms);

@@ -47,6 +47,14 @@ struct FlowState
     // every entry including the ones that bail out early, and only ever reported from the steering tick, so a
     // large gap means the ticks in between returned early rather than that this one ran long.
     std::chrono::steady_clock::time_point last_tick_started_at {};
+    // Counts navigate ticks. Lets staleness be judged in control opportunities rather than wall clock, which
+    // is what keeps the rule meaning the same thing on a fast machine and on one with slow frame capture.
+    uint64_t tick_seq = 0;
+    // Consecutive steering ticks that held forward, issued no turn, and saw the fix stay put. The forward hold
+    // is edge-triggered, so a dropped keydown looks exactly like this and never repairs itself.
+    int32_t motionless_hold_ticks = 0;
+    NaviPosition last_steer_position {};
+    bool has_last_steer_position = false;
 };
 
 struct SemanticState
@@ -169,6 +177,7 @@ struct SteeringRateState
     double prev_heading_deg = 0.0;
     bool has_prev = false;
     std::chrono::steady_clock::time_point at {};
+    uint64_t at_tick = 0;
     double cmd_heading_deg = 0.0;
     double cmd_delta_deg = 0.0;
     bool has_cmd = false;
@@ -179,6 +188,7 @@ struct SteeringRateState
         prev_heading_deg = 0.0;
         has_prev = false;
         at = {};
+        at_tick = 0;
         cmd_heading_deg = 0.0;
         cmd_delta_deg = 0.0;
         has_cmd = false;

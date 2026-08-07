@@ -159,7 +159,8 @@ size_t CountCorridorPassedRunWaypoints(
     return count;
 }
 
-navmesh::WorldPoint LookaheadOnCorridor(const navmesh::WorldPath& path, const CorridorProjection& projection, double distance)
+navmesh::WorldPoint LookaheadOnCorridor(const navmesh::WorldPath& path, const CorridorProjection& projection, double distance,
+                                        double commit_distance)
 {
     if (path.points.empty()) {
         return projection.point;
@@ -181,13 +182,29 @@ navmesh::WorldPoint LookaheadOnCorridor(const navmesh::WorldPath& path, const Co
         return { .x = projection.point.x + dx0 * scale, .y = projection.point.y + dy0 * scale };
     }
     distance -= remaining_on_edge;
+    double travelled = remaining_on_edge;
 
+    // Never aim past a turn the agent has not started yet. The aim distance is measured in ticks of travel, so
+    // on a slow loop it grows until the aim point sits well around a bend while the bend itself is still many
+    // world units away -- and the straight line the agent then drives cuts the inside of it, which is a wall.
+    // Holding the aim at the vertex where the corridor has bent too far keeps it on the stretch the agent is
+    // actually on. The hold lifts once the bend is within commit_distance, which is counted in ticks of travel
+    // so the turn always gets the same number of ticks to happen in: a fixed lead in world units would be most
+    // of a tick on a slow loop, and the agent would still be facing the old way when it reached the bend.
+    const navmesh::WorldPoint& edge_start = path.points[projection.edge_idx];
+    const double base_heading = NaviMath::CalcTargetRotation(edge_start.x, edge_start.y, edge_end.x, edge_end.y);
     for (size_t edge = projection.edge_idx + 1; edge < num_edges; ++edge) {
         const navmesh::WorldPoint& a = path.points[edge];
         const navmesh::WorldPoint& b = path.points[edge + 1];
         const double dx = b.x - a.x;
         const double dy = b.y - a.y;
         const double len = std::hypot(dx, dy);
+        if (len > std::numeric_limits<double>::epsilon() && travelled > commit_distance) {
+            const double heading = NaviMath::CalcTargetRotation(a.x, a.y, b.x, b.y);
+            if (std::abs(NaviMath::NormalizeAngle(heading - base_heading)) > kNavRunLookaheadTurnBudgetDeg) {
+                return a;
+            }
+        }
         if (len >= distance) {
             if (len <= std::numeric_limits<double>::epsilon()) {
                 return b;
@@ -196,6 +213,7 @@ navmesh::WorldPoint LookaheadOnCorridor(const navmesh::WorldPath& path, const Co
             return { .x = a.x + dx * scale, .y = a.y + dy * scale };
         }
         distance -= len;
+        travelled += len;
     }
     return path.points.back();
 }
@@ -396,6 +414,13 @@ double NavRunController::chooseLookaheadDistance(const RouteTrackingState& route
     return std::clamp(kNavRunLookaheadPreviewTicks * *step, kNavRunLookaheadMinM, kNavRunLookaheadMaxM);
 }
 
+double NavRunController::chooseTurnCommitDistance(double lookahead_distance) const
+{
+    const std::optional<double> step = estimateStepPerTick();
+    const double by_speed = step ? kNavRunTurnCommitTicks * *step : kNavRunLookaheadMinM;
+    return std::clamp(by_speed, kNavRunLookaheadMinM, lookahead_distance);
+}
+
 NavRunReplanReason NavRunController::detectReplanTrigger(const RouteTrackingState& route, std::chrono::steady_clock::time_point now) const
 {
     if (route.startup_motion_confirmed && ElapsedMs(last_progress_seen_, now) >= kNavRunProgressRegressionMs) {
@@ -518,12 +543,14 @@ NavRunTickResult NavRunController::tick(
 
     const double upcoming_turn = UpcomingCorridorTurnDeg(plan_.path, *projection, kNavRunUpcomingTurnLookaheadM);
     const double lookahead_distance = chooseLookaheadDistance(route);
-    const navmesh::WorldPoint lookahead = LookaheadOnCorridor(plan_.path, *projection, lookahead_distance);
+    const navmesh::WorldPoint lookahead =
+        LookaheadOnCorridor(plan_.path, *projection, lookahead_distance, chooseTurnCommitDistance(lookahead_distance));
     const double corridor_heading = CorridorAimHeading(position, projection->point, lookahead);
 
     result.has_corridor_heading = true;
     result.corridor_heading = corridor_heading;
     result.lookahead_point = lookahead;
+    result.projection_point = projection->point;
     result.cross_track = projection->cross_track;
     result.remaining_to_anchor = remaining;
     result.upcoming_turn_deg = upcoming_turn;

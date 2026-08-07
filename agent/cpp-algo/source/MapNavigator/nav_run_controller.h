@@ -61,6 +61,9 @@ struct NavRunTickResult
     bool has_corridor_heading = false;
     double corridor_heading = 0.0;
     navmesh::WorldPoint lookahead_point {};
+    // Foot of the perpendicular on the corridor. With lookahead_point it gives the corridor direction,
+    // which is what turns the unsigned cross_track below into a side.
+    navmesh::WorldPoint projection_point {};
     double cross_track = std::numeric_limits<double>::infinity();
     double remaining_to_anchor = std::numeric_limits<double>::infinity();
     // Straight-line agent->anchor distance, available whenever a RUN anchor exists — including the ticks
@@ -105,6 +108,7 @@ private:
     NavRunReplanReason detectReplanTrigger(const RouteTrackingState& route, std::chrono::steady_clock::time_point now) const;
 
     double chooseLookaheadDistance(const RouteTrackingState& route) const;
+    double chooseTurnCommitDistance(double lookahead_distance) const;
 
     void recordSpeedSample(const NaviPosition& position, std::chrono::steady_clock::time_point now);
 

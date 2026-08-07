@@ -66,8 +66,18 @@ constexpr int32_t kLocatorRetryIntervalMs = 20;
 constexpr int32_t kHighLatencyCaptureMs = 180;
 constexpr int32_t kStopWaitMs = 150;
 constexpr int32_t kTargetTickMs = 33;
-constexpr int32_t kSteeringRateMaxGapMs = 400;
+// Steering ticks of held-forward-but-motionless before the hold is re-sent. Counted in ticks so slow frame
+// capture does not stretch the wait: three of them is already past any single dropped fix or brake settle.
+constexpr int32_t kForwardHoldReassertTicks = 3;
+// How many navigate ticks a heading reference stays usable for. Sized to match the wall-clock cap this
+// replaced at the loop period of a fast machine, so nothing changes there; on a slow one it stretches
+// with the loop instead of silently discarding the damping term.
+constexpr uint64_t kSteeringRateMaxGapTicks = 4;
 constexpr int32_t kSteeringRateReferenceMs = 100;
+// Turn batches one tick may spend. The backend's per-batch cap is a per-drag reliability limit, not a budget
+// for the whole tick: a slow loop gets fewer, longer ticks, so one batch each would shrink the turn achieved
+// per metre walked just as the lag makes more of it necessary. Bounded so a misread heading cannot spin far.
+constexpr int32_t kSteeringMaxBatchesPerTick = 3;
 constexpr double kSteeringHeadingChangeEpsilonDeg = 0.05;
 constexpr int32_t kPostHeadingForwardPulseMs = 270;
 constexpr double kHeadingAcceptToleranceDeg = 40.0;
@@ -155,6 +165,13 @@ constexpr double kNavRunLookaheadLowSpeedM = 2.5;
 constexpr double kNavRunLookaheadPreviewTicks = 7.0;
 constexpr double kNavRunLookaheadMinM = 2.0;
 constexpr double kNavRunLookaheadMaxM = 14.0;
+// How far the corridor may bend away from the leg the agent is on before the aim point stops advancing and
+// waits at that vertex. Measured as the total turn accumulated from the current leg, not per vertex: a
+// staircase of four 30 degree bends leaves the corridor just as badly as one sharp corner does.
+constexpr double kNavRunLookaheadTurnBudgetDeg = 50.0;
+// Ticks of travel before a bend at which the aim stops waiting for it and starts leading into it. Fewer than
+// the preview ticks above, so the aim still stops short of the bend rather than reaching around it.
+constexpr double kNavRunTurnCommitTicks = 4.0;
 // The aim point is pushed at least this far along that direction. Heading error from a cross-track
 // offset is atan(offset / reach), so without a floor the position quantum's contribution grows as
 // the lookahead shrinks and starts clearing the steering deadband on its own. Never shortened below
