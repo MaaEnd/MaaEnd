@@ -28,7 +28,7 @@ A2 means “look at the current screen and record item quantities”. Callers mu
 | `SyncShopItemData` | **Procurement Center** (Origeometry / Oroberyl header counts) |
 | `SyncValuablesItemData` | Valuables **Valuables** tab (e.g. Chartered HH Permit) |
 
-In addition, the scene jump `SceneEnterMenuValuablesProgressionTab` **runs an A2 scan as a side effect after arriving** on the Progression tab (only the first real scan per Resource; later arrivals short-circuit via `SyncItemDataCompleted`). Tasks that must declare “I want a fresh cache” should still call the matching entry (it goes to Skipped if already scanned).
+Tasks that must declare “I want a fresh cache” should call the matching entry (it goes to Skipped if already scanned).
 
 ### Calling convention (required)
 
@@ -99,7 +99,7 @@ Extra page rounds are controlled only by `SyncItemDataScrollPage.max_hit` (curre
 
 Each entry node handles this automatically; callers only need to keep invoking the matching entry:
 
-1. **First call:** actually open the target screen and scan (or scan as a side effect of the Progression-tab scene jump), write the cache, then close the “scan again” path with a Resource-level override (Progression also enables `SyncItemDataCompleted`) for the rest of this run.
+1. **First call:** actually open the target screen, scan, write the cache, then close the “scan again” path with a Resource-level override for the rest of this run.
 2. **Later calls:** the entry is still reachable, but it immediately decides “already synced this run”, skips the scan, and continues.
 3. **Next cold start:** reloading the Resource / restarting the client restores the path; the next IMS task will scan again.
 
