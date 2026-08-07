@@ -124,7 +124,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringShutterButtonHighlighted",
             "EnvironmentMonitoringShutterButtonPhotographyTarget",
             "EnvironmentMonitoringOpenPhotoSettings"
         ]
@@ -283,7 +282,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringShutterButtonHighlighted",
             "EnvironmentMonitoringShutterButtonPhotographyTarget",
             "[JumpBack][Anchor]EnvironmentMonitoringAdjustCamera"
         ]
@@ -308,43 +306,6 @@
         "all_of": [
             "ShutterButton",
             "EnvironmentMonitoringCheckPhotographyTarget"
-        ],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[Anchor]EnvironmentMonitoringBackToTerminal"
-        ]
-    },
-    "EnvironmentMonitoringShutterButtonHighlighted": {
-        "desc": "拍照按钮高亮，拍照",
-        "recognition": "And",
-        "all_of": [
-            "ShutterButton",
-            {
-                "recognition": "ColorMatch",
-                "roi": "ShutterButton",
-                "roi_offset": [
-                    -34,
-                    -39,
-                    69,
-                    85
-                ],
-                "method": 40,
-                "lower": [
-                    20,
-                    100,
-                    160
-                ],
-                "upper": [
-                    38,
-                    255,
-                    255
-                ],
-                "connected": true,
-                "count": 140
-            }
         ],
         "pre_delay": 0,
         "action": "Click",
