@@ -172,6 +172,9 @@ constexpr double kNavRunLookaheadTurnBudgetDeg = 50.0;
 // Ticks of travel before a bend at which the aim stops waiting for it and starts leading into it. Fewer than
 // the preview ticks above, so the aim still stops short of the bend rather than reaching around it.
 constexpr double kNavRunTurnCommitTicks = 4.0;
+// Corridor edges shorter than this carry no usable direction: the planner places vertices a grid cell apart,
+// so a sub-cell edge's heading is quantisation noise, and a spurious bend on one would park the aim point.
+constexpr double kNavRunCorridorEdgeMinM = 0.75;
 // The aim point is pushed at least this far along that direction. Heading error from a cross-track
 // offset is atan(offset / reach), so without a floor the position quantum's contribution grows as
 // the lookahead shrinks and starts clearing the steering deadband on its own. Never shortened below
