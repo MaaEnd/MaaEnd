@@ -85,7 +85,10 @@
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点附近",
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
@@ -113,7 +116,10 @@
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",
-            "Node.PipelineNode.Succeeded": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
                 "trace": true
             }
         }
