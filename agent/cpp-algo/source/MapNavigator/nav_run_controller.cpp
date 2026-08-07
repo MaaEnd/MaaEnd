@@ -4,6 +4,7 @@
 #include <cmath>
 #include <limits>
 #include <optional>
+#include <tuple>
 #include <utility>
 
 #include <MaaUtils/Logger.h>
@@ -159,7 +160,25 @@ size_t CountCorridorPassedRunWaypoints(
     return count;
 }
 
-navmesh::WorldPoint LookaheadOnCorridor(const navmesh::WorldPath& path, const CorridorProjection& projection, double distance)
+// How close to a bend the aim may start leading into it. Leading from distance d makes the agent drive the
+// chord instead of the corner, which cuts the inside of the bend by about d*sin(turn/2); where the corridor
+// is narrow that cut is the wall, so the lead is capped by what the corridor at the bend can absorb. The
+// clearance is unknown on a hand-authored line, which keeps the speed-derived budget as it was.
+double CornerCommitDistance(const navmesh::WorldPath& path, size_t vertex, double turn_deg, double commit_distance)
+{
+    if (vertex >= path.clearance.size()) {
+        return commit_distance;
+    }
+    const double clearance = path.clearance[vertex];
+    const double cut_per_unit = std::sin(turn_deg * 0.5 * kPi / 180.0);
+    if (clearance <= 0.0 || cut_per_unit <= std::numeric_limits<double>::epsilon()) {
+        return commit_distance;
+    }
+    return std::min(commit_distance, clearance / cut_per_unit);
+}
+
+navmesh::WorldPoint LookaheadOnCorridor(const navmesh::WorldPath& path, const CorridorProjection& projection, double distance,
+                                        double commit_distance)
 {
     if (path.points.empty()) {
         return projection.point;
@@ -181,13 +200,30 @@ navmesh::WorldPoint LookaheadOnCorridor(const navmesh::WorldPath& path, const Co
         return { .x = projection.point.x + dx0 * scale, .y = projection.point.y + dy0 * scale };
     }
     distance -= remaining_on_edge;
+    double travelled = remaining_on_edge;
 
+    // Never aim past a turn the agent has not started yet. The aim distance is measured in ticks of travel, so
+    // on a slow loop it grows until the aim point sits well around a bend while the bend itself is still many
+    // world units away -- and the straight line the agent then drives cuts the inside of it, which is a wall.
+    // Holding the aim at the vertex where the corridor has bent too far keeps it on the stretch the agent is
+    // actually on. The hold lifts once the bend is within commit_distance, which is counted in ticks of travel
+    // so the turn always gets the same number of ticks to happen in: a fixed lead in world units would be most
+    // of a tick on a slow loop, and the agent would still be facing the old way when it reached the bend.
+    const navmesh::WorldPoint& edge_start = path.points[projection.edge_idx];
+    const double base_heading = NaviMath::CalcTargetRotation(edge_start.x, edge_start.y, edge_end.x, edge_end.y);
     for (size_t edge = projection.edge_idx + 1; edge < num_edges; ++edge) {
         const navmesh::WorldPoint& a = path.points[edge];
         const navmesh::WorldPoint& b = path.points[edge + 1];
         const double dx = b.x - a.x;
         const double dy = b.y - a.y;
         const double len = std::hypot(dx, dy);
+        if (len >= kNavRunCorridorEdgeMinM) {
+            const double heading = NaviMath::CalcTargetRotation(a.x, a.y, b.x, b.y);
+            const double turn = std::abs(NaviMath::NormalizeAngle(heading - base_heading));
+            if (turn > kNavRunLookaheadTurnBudgetDeg && travelled > CornerCommitDistance(path, edge, turn, commit_distance)) {
+                return a;
+            }
+        }
         if (len >= distance) {
             if (len <= std::numeric_limits<double>::epsilon()) {
                 return b;
@@ -196,8 +232,24 @@ navmesh::WorldPoint LookaheadOnCorridor(const navmesh::WorldPath& path, const Co
             return { .x = a.x + dx * scale, .y = a.y + dy * scale };
         }
         distance -= len;
+        travelled += len;
     }
     return path.points.back();
+}
+
+double CorridorAimHeading(const NaviPosition& position, const navmesh::WorldPoint& anchor,
+                          const navmesh::WorldPoint& lookahead)
+{
+    const double dx = lookahead.x - anchor.x;
+    const double dy = lookahead.y - anchor.y;
+    constexpr double kChordFloorM = 1e-6;
+    const double chord = std::hypot(dx, dy);
+    if (chord <= kChordFloorM) {
+        return NaviMath::CalcTargetRotation(position.x, position.y, lookahead.x, lookahead.y);
+    }
+    const double reach = std::max(kNavRunAimReachMinM, chord);
+    return NaviMath::CalcTargetRotation(position.x, position.y, anchor.x + dx / chord * reach,
+                                        anchor.y + dy / chord * reach);
 }
 
 double UpcomingCorridorTurnDeg(const navmesh::WorldPath& path, const CorridorProjection& projection, double lookahead_distance)
@@ -218,11 +270,14 @@ double UpcomingCorridorTurnDeg(const navmesh::WorldPath& path, const CorridorPro
         const double dy = segment_end.y - segment_start.y;
         const double length = std::hypot(dx, dy);
         if (length > std::numeric_limits<double>::epsilon()) {
-            const double heading = NaviMath::CalcTargetRotation(segment_start.x, segment_start.y, segment_end.x, segment_end.y);
-            if (!base_heading) {
-                base_heading = heading;
+            // Sub-cell edges still consume the preview distance, but their heading is quantisation noise.
+            if (length >= kNavRunCorridorEdgeMinM) {
+                const double heading = NaviMath::CalcTargetRotation(segment_start.x, segment_start.y, segment_end.x, segment_end.y);
+                if (!base_heading) {
+                    base_heading = heading;
+                }
+                max_turn = std::max(max_turn, std::abs(NaviMath::NormalizeAngle(heading - *base_heading)));
             }
-            max_turn = std::max(max_turn, std::abs(NaviMath::NormalizeAngle(heading - *base_heading)));
             remaining -= length;
         }
         segment_start = segment_end;
@@ -239,20 +294,24 @@ int64_t ElapsedMs(std::chrono::steady_clock::time_point from, std::chrono::stead
     return std::chrono::duration_cast<std::chrono::milliseconds>(to - from).count();
 }
 
-// The authored line from the current waypoint up to and including the anchor. Returns empty unless the
-// anchor is actually reached (a control node or path end first truncates the span), so the caller falls
-// back to the navmesh corridor instead of trusting a line that stops short of the anchor.
-std::vector<navmesh::WorldPoint> BuildAuthoredSpanPolyline(const NavigationSession& session, size_t anchor_index)
+// The authored line from the current waypoint up to and including the anchor, carrying each point's corridor
+// half-width so the follower can tell where it has no room to cut. Returns empty unless the anchor is actually
+// reached (a control node or path end first truncates the span), so the caller falls back to the navmesh
+// corridor instead of trusting a line that stops short of the anchor.
+navmesh::WorldPath BuildAuthoredSpanPolyline(const NavigationSession& session, size_t anchor_index)
 {
     const std::vector<Waypoint>& waypoints = session.current_path();
-    std::vector<navmesh::WorldPoint> poly;
+    navmesh::WorldPath poly;
     bool reached_anchor = false;
+    bool any_clearance = false;
     for (size_t index = session.current_node_idx(); index < waypoints.size(); ++index) {
         const Waypoint& waypoint = waypoints[index];
         if (!waypoint.HasPosition()) {
             break;
         }
-        poly.push_back({ .x = waypoint.x, .y = waypoint.y });
+        poly.points.push_back({ .x = waypoint.x, .y = waypoint.y });
+        poly.clearance.push_back(waypoint.corridor_clearance);
+        any_clearance = any_clearance || waypoint.corridor_clearance > 0.0;
         const std::optional<size_t> canonical = session.CanonicalIndexAtCurrentPath(index);
         if (canonical && *canonical == anchor_index) {
             reached_anchor = true;
@@ -262,7 +321,77 @@ std::vector<navmesh::WorldPoint> BuildAuthoredSpanPolyline(const NavigationSessi
     if (!reached_anchor) {
         return {};
     }
+    // An empty vector means "no widths known"; a line of nothing but unknowns must not claim zero width.
+    if (!any_clearance) {
+        poly.clearance.clear();
+    }
     return poly;
+}
+
+// Cut the line back to where the agent actually stands on it, dropping what is already behind.
+// The span always begins at the session's current waypoint, but a waypoint only counts as reached once
+// the agent enters a band about a pixel wide, so a pass a pixel wide of it leaves the span starting
+// behind the agent -- and a corridor joined to the agent's own position then aims it backwards at
+// ground it has no reason to revisit. Only points the agent has gone past along the line are dropped,
+// one edge at a time, so the line can never be cut short sideways.
+// Returns false while the agent is still short of the head, where a joining segment is the right answer.
+bool TrimAuthoredSpanToAgent(navmesh::WorldPath& authored, const NaviPosition& position)
+{
+    const auto edge_projection = [&](size_t edge) {
+        const navmesh::WorldPoint& a = authored.points[edge];
+        const navmesh::WorldPoint& b = authored.points[edge + 1];
+        const double dx = b.x - a.x;
+        const double dy = b.y - a.y;
+        const double len_sq = dx * dx + dy * dy;
+        const double t = len_sq <= std::numeric_limits<double>::epsilon()
+            ? 1.0
+            : ((position.x - a.x) * dx + (position.y - a.y) * dy) / len_sq;
+        return std::tuple { t, a.x + std::clamp(t, 0.0, 1.0) * dx, a.y + std::clamp(t, 0.0, 1.0) * dy };
+    };
+
+    // Landing on an edge replaces the vertex it starts from with a point along it, so that corner stops
+    // existing. Past a right angle the outgoing edge carries the agent back the way it came, which means the
+    // perpendicular foot runs off the end of the incoming edge long before the agent has rounded anything --
+    // trim there and the follower is handed a line straight across the corner. Stop one vertex short instead.
+    // The test is the turn itself, not a tuned angle: at ninety degrees is exactly where the foot starts lying.
+    const auto turns_back = [&](size_t vertex) {
+        const navmesh::WorldPoint& prev = authored.points[vertex - 1];
+        const navmesh::WorldPoint& curr = authored.points[vertex];
+        const navmesh::WorldPoint& next = authored.points[vertex + 1];
+        return (curr.x - prev.x) * (next.x - curr.x) + (curr.y - prev.y) * (next.y - curr.y) <= 0.0;
+    };
+
+    // Both tests below bound how far the agent may stand from the stretch it claims to have passed. A
+    // locator excursion reports a position hundreds of pixels away for a few seconds; without the bound
+    // it would read as "already past everything" and delete the rest of the line.
+    size_t head = 0;
+    while (head + 2 < authored.points.size()) {
+        if (turns_back(head + 1)) {
+            break;
+        }
+        const auto [t, foot_x, foot_y] = edge_projection(head);
+        if (t < 1.0 || std::hypot(position.x - foot_x, position.y - foot_y) > kNavRunCrossTrackFailM) {
+            break;
+        }
+        ++head;
+    }
+    // Starting the corridor at the foot is only meaningful while the agent is within the follower's own reach of
+    // the line. A perpendicular foot slides past a corner well before the agent has rounded it, so out here the
+    // vertex is still load-bearing: drop it and the agent cuts straight across whatever the corner went around.
+    // Inside the lookahead it is already on the line and the vertex behind it is only something to aim back at.
+    // Past the end of this edge means the only reason we are still on it is the corner ahead we refused to
+    // trim through. Pinning the start to its far end would duplicate that vertex right where the follower can
+    // least afford a degenerate edge, so hand the whole line back and let the caller join to it instead.
+    const auto [t, foot_x, foot_y] = edge_projection(head);
+    if (t <= 0.0 || t >= 1.0 || std::hypot(position.x - foot_x, position.y - foot_y) > kLookaheadRadius) {
+        return false;
+    }
+    authored.points.erase(authored.points.begin(), authored.points.begin() + head);
+    if (!authored.clearance.empty()) {
+        authored.clearance.erase(authored.clearance.begin(), authored.clearance.begin() + head);
+    }
+    authored.points.front() = { .x = foot_x, .y = foot_y };
+    return true;
 }
 
 } // namespace
@@ -295,27 +424,93 @@ bool NavRunController::buildPlan(
         plan_.planned_at = now;
     };
 
-    std::vector<navmesh::WorldPoint> authored = BuildAuthoredSpanPolyline(session, anchor_index);
-    if (authored.size() >= 2) {
-        navmesh::WorldPath literal_path;
-        literal_path.points = std::move(authored);
-        const navmesh::WorldPoint& span_start = literal_path.points.front();
-        if (std::hypot(position.x - span_start.x, position.y - span_start.y) > kMeasurementDefaultPositionQuantum) {
-            literal_path.points.insert(literal_path.points.begin(), { .x = position.x, .y = position.y });
+    navmesh::WorldPath authored = BuildAuthoredSpanPolyline(session, anchor_index);
+    const bool has_authored = authored.points.size() >= 2;
+    const size_t authored_points = authored.points.size();
+    const bool on_authored_line = has_authored && TrimAuthoredSpanToAgent(authored, position);
+
+    const auto commit_authored = [&] {
+        if (!on_authored_line) {
+            const navmesh::WorldPoint& span_start = authored.points.front();
+            if (std::hypot(position.x - span_start.x, position.y - span_start.y) > kMeasurementDefaultPositionQuantum) {
+                authored.points.insert(authored.points.begin(), { .x = position.x, .y = position.y });
+                if (!authored.clearance.empty()) {
+                    authored.clearance.insert(authored.clearance.begin(), authored.clearance.front());
+                }
+            }
         }
-        commit(std::move(literal_path), true);
+        else {
+            LogDebug << "NavRunController span trimmed to agent." << VAR(anchor_index) << VAR(authored_points)
+                     << VAR(authored.points.size()) << VAR(authored.points.front().x) << VAR(authored.points.front().y);
+        }
+        commit(std::move(authored), true);
         return true;
+    };
+
+    if (has_authored) {
+        return commit_authored();
     }
 
     const navmesh::WorldPoint start { .x = position.x, .y = position.y };
     const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
     auto route = PlanNavmeshRoute(param, position.zone_id, start, goal);
-    if (!route || !route->ok() || route->path.points.size() < 2) {
-        LogDebug << "NavRunController plan build failed." << VAR(static_cast<int>(reason)) << VAR(anchor_index) << VAR(position.zone_id);
-        return false;
+    if (route && route->ok() && route->path.points.size() >= 2) {
+        commit(std::move(route->path), false);
+        return true;
     }
-    commit(std::move(route->path), false);
-    return true;
+    LogDebug << "NavRunController plan build failed." << VAR(static_cast<int>(reason)) << VAR(anchor_index) << VAR(position.zone_id);
+    return false;
+}
+
+void NavRunController::recordSpeedSample(const NaviPosition& position, std::chrono::steady_clock::time_point now)
+{
+    ++tick_seq_;
+    if (!speed_samples_.empty()) {
+        const NavRunSpeedSample& last = speed_samples_.back();
+        const double step = std::hypot(position.x - last.x, position.y - last.y);
+        if (step <= kMeasurementDefaultPositionQuantum) {
+            return;
+        }
+        // Two ways the pair stops describing one tick of travel: a jump too fast to be travel is a
+        // re-acquire landing somewhere else, and a gap this many ticks wide straddles a stall the
+        // older sample knows nothing about. Either would read as a misleading rate, so the window
+        // restarts instead of carrying the discontinuity.
+        const int64_t span_ms = ElapsedMs(last.at, now);
+        const double span_sec = static_cast<double>(span_ms) / 1000.0;
+        if (span_sec <= 0.0 || tick_seq_ - last.tick_seq > kNavRunSpeedMaxSampleGapTicks
+            || step > kNavRunSpeedJumpMaxPxPerSec * span_sec) {
+            speed_samples_.clear();
+        }
+    }
+    speed_samples_.push_back(NavRunSpeedSample { .at = now, .tick_seq = tick_seq_, .x = position.x, .y = position.y });
+    while (speed_samples_.size() > kNavRunSpeedMaxSamples
+           || (speed_samples_.size() > 1 && ElapsedMs(speed_samples_.front().at, now) > kNavRunSpeedKeepMs)) {
+        speed_samples_.erase(speed_samples_.begin());
+    }
+}
+
+std::optional<double> NavRunController::estimateStepPerTick() const
+{
+    if (speed_samples_.size() < 2) {
+        return std::nullopt;
+    }
+    const NavRunSpeedSample& newest = speed_samples_.back();
+    // Oldest sample still at least a full window back, so the estimate spans real travel rather than
+    // one fix pair; before that much history exists the whole span is used instead of stalling.
+    size_t oldest = 0;
+    for (size_t i = 0; i + 1 < speed_samples_.size(); ++i) {
+        if (ElapsedMs(speed_samples_[i].at, newest.at) >= kNavRunSpeedWindowMs) {
+            oldest = i;
+        }
+    }
+    if (newest.tick_seq <= speed_samples_[oldest].tick_seq) {
+        return std::nullopt;
+    }
+    double arc = 0.0;
+    for (size_t i = oldest; i + 1 < speed_samples_.size(); ++i) {
+        arc += std::hypot(speed_samples_[i + 1].x - speed_samples_[i].x, speed_samples_[i + 1].y - speed_samples_[i].y);
+    }
+    return arc / static_cast<double>(newest.tick_seq - speed_samples_[oldest].tick_seq);
 }
 
 double NavRunController::chooseLookaheadDistance(const RouteTrackingState& route) const
@@ -323,7 +518,18 @@ double NavRunController::chooseLookaheadDistance(const RouteTrackingState& route
     if (!route.startup_motion_confirmed) {
         return kNavRunLookaheadLowSpeedM;
     }
-    return kNavRunLookaheadWalkM;
+    const std::optional<double> step = estimateStepPerTick();
+    if (!step) {
+        return kNavRunLookaheadLowSpeedM;
+    }
+    return std::clamp(kNavRunLookaheadPreviewTicks * *step, kNavRunLookaheadMinM, kNavRunLookaheadMaxM);
+}
+
+double NavRunController::chooseTurnCommitDistance(double lookahead_distance) const
+{
+    const std::optional<double> step = estimateStepPerTick();
+    const double by_speed = step ? kNavRunTurnCommitTicks * *step : kNavRunLookaheadMinM;
+    return std::clamp(by_speed, kNavRunLookaheadMinM, lookahead_distance);
 }
 
 NavRunReplanReason NavRunController::detectReplanTrigger(const RouteTrackingState& route, std::chrono::steady_clock::time_point now) const
@@ -351,12 +557,22 @@ NavRunTickResult NavRunController::tick(
         runtime->nav_run_dirty = false;
     }
 
+    // Ahead of every early return below, so the speed window keeps filling while the corridor is down
+    // and the first steered tick after it comes back already has a usable estimate.
+    recordSpeedSample(position, now);
+
     if (!anchor.HasPosition() || !session->HasCurrentWaypoint()) {
         return result;
     }
     if (!CanUseNavRunSteering(session->CurrentWaypoint())) {
         return result;
     }
+
+    // Published before any of the early returns below (plan build failed, projection lost, cursor clamped
+    // outside the window). Without it the caller falls back to the serial waypoint breadcrumb, which sits a
+    // couple of pixels away while the anchor is still tens of pixels out, and the no-progress watchdogs read
+    // that as "arrived" for as long as the corridor stays down.
+    result.straight_to_anchor = std::hypot(position.x - anchor.x, position.y - anchor.y);
 
     if (plan_.valid) {
         if (plan_.anchor_index != anchor_index) {
@@ -368,9 +584,15 @@ NavRunTickResult NavRunController::tick(
     }
 
     if (!plan_.valid) {
-        if (!buildPlan(param, *session, position, anchor_index, anchor, NavRunReplanReason::AnchorChanged, now)) {
+        if (failed_build_anchor_ == anchor_index && ElapsedMs(failed_build_at_, now) < kNavRunPlanFailureCooldownMs) {
             return result;
         }
+        if (!buildPlan(param, *session, position, anchor_index, anchor, NavRunReplanReason::AnchorChanged, now)) {
+            failed_build_anchor_ = anchor_index;
+            failed_build_at_ = now;
+            return result;
+        }
+        failed_build_anchor_ = std::numeric_limits<size_t>::max();
         last_progress_seen_ = now;
         last_remaining_to_anchor_ = std::numeric_limits<double>::infinity();
     }
@@ -432,12 +654,14 @@ NavRunTickResult NavRunController::tick(
 
     const double upcoming_turn = UpcomingCorridorTurnDeg(plan_.path, *projection, kNavRunUpcomingTurnLookaheadM);
     const double lookahead_distance = chooseLookaheadDistance(route);
-    const navmesh::WorldPoint lookahead = LookaheadOnCorridor(plan_.path, *projection, lookahead_distance);
-    const double corridor_heading = NaviMath::CalcTargetRotation(position.x, position.y, lookahead.x, lookahead.y);
+    const navmesh::WorldPoint lookahead =
+        LookaheadOnCorridor(plan_.path, *projection, lookahead_distance, chooseTurnCommitDistance(lookahead_distance));
+    const double corridor_heading = CorridorAimHeading(position, projection->point, lookahead);
 
     result.has_corridor_heading = true;
     result.corridor_heading = corridor_heading;
     result.lookahead_point = lookahead;
+    result.projection_point = projection->point;
     result.cross_track = projection->cross_track;
     result.remaining_to_anchor = remaining;
     result.upcoming_turn_deg = upcoming_turn;

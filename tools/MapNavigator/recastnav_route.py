@@ -8,8 +8,8 @@ from collections import OrderedDict
 import numpy as np
 
 import recastnav as rc
-from recastnav import (CAP, CS, LAM, MARGIN, MAX_CELLS, MAXERR, MC_HBAND, R,
-                       SLIMEPS, SNAP_RADIUS, TAU)
+from recastnav import (CAP, CS, LAM, LAM_R, MARGIN, MAX_CELLS, MAXERR, MC_HBAND,
+                       PLAN_BUDGET_MS, R, SLIMEPS, SNAP_RADIUS, TAU)
 from recastnav_zone import CleanNav, WallOracle
 
 
@@ -61,7 +61,7 @@ def build(zc, wo, s, s_snap, h0, x0, y0, x1, y1):
     sol = np.zeros(ny * nx, bool)
     ci, hi_ = cell[ins], hz[ins]
     lf = lh.ravel()
-    okc = ~np.isnan(lf[ci]) & (np.abs(hi_ - lf[ci]) <= rc.MERGE_H)
+    okc = ~np.isnan(lf[ci]) & (np.abs(hi_ - lf[ci]) <= rc.QH)
     sol[ci[okc]] = True
     core = rc.fill_holes(lay & sol.reshape(ny, nx), rc.HOLE_MAX,
                          protect=wallcell.reshape(ny, nx))
@@ -172,16 +172,18 @@ def route(info, s, g, climb_faces=False):
     wcell = (ws[1:] > ws[:-1]).reshape(ny, nx)
     dist = np.minimum(dist, rc.clearance(~wcell))
     # 亏欠越多单价越高;脊线保底只进几何口径 prefg,禁入 mult
+    # 拓扑口径的余量目标随局部通道半宽下降, 窄通道的余量单价才不会把能走的路挤出选路
     pref = rc.pref_field(dist)
     mult = (1.0 + LAM * np.clip((pref - dist) / pref, 0.0, 1.0)).astype(
         np.float32, copy=False
     )
     prefg = rc.pref_field(dist, ridge=True)
     # 几何口径的余量目标: 通道半宽封顶 GEO_R, 供绿段重寻与拉直判定
+    # 通道目标之外再按固定余量目标 R 追加平方亏欠, 使窄通道内部仍向中间收敛
     tgt = rc.target_field(dist)
-    multg = (1.0 + LAM * np.clip((tgt - dist) / tgt, 0.0, 1.0)).astype(
-        np.float32, copy=False
-    )
+    cdef = np.clip((R - dist) / R, 0.0, 1.0)
+    multg = (1.0 + LAM * np.clip((tgt - dist) / tgt, 0.0, 1.0)
+             + LAM_R * cdef * cdef).astype(np.float32, copy=False)
     cfl = rc.ClearanceFloor(np.minimum(dist, tgt), multg, x0, y0, CS)
 
     spC, spH, spOcc = info["spC"], info["spH"], info["spOcc"]
@@ -340,34 +342,50 @@ def route(info, s, g, climb_faces=False):
                         acc |= rc._sh(pmd, -i_ * dy, -i_ * dx)
                     pmd = acc
                 er = (dist >= pref) | ((dist >= prefg) & pmd) | pm
-                ue, ce = mk(er)
+                # 切角规则要求对角步两个正交伴格都在掩膜里, 原掩膜搜不出时
+                # 才放行伴格; 挡线集恒用 er, 伴格进挡线集会把角内侧开口
+                ers = er.copy()
+                for k2 in range(1, len(cells)):
+                    (ax, ay), (bx, by) = cells[k2 - 1], cells[k2]
+                    if ax != bx and ay != by:
+                        ers[ay, bx] = True
+                        ers[by, ax] = True
                 # 重寻硬禁穿墙步,不可避穿墙处切开逐子段重寻,原步原样保留
                 cuts = [k - i0 for k in bad if i0 < k <= i0 + len(cells) - 1]
-                q2, h2, a2 = [], [], 0
-                for c2 in cuts + [len(cells)]:
-                    b2 = c2 - 1
-                    if a2 == b2:
-                        r2 = [cells[a2]]
-                        r2h = [hs[a2]] if hs is not None else None
-                    elif sub is None:
-                        r2 = rc.cost_astar(er, cells[a2], cells[b2], multg,
-                                           blocked, None)
-                        r2h = None
-                    else:
-                        r2s = rc.span_astar(ue, spH, spOcc, spHK, spIK, spCi,
-                                            cidx, ce, sub[a2], {sub[b2]},
-                                            multg, nx, ny, blocked, None)
-                        r2 = (None if r2s is None else
-                              [(int(c % nx), int(c // nx)) for c in spC[r2s]])
-                        r2h = None if r2s is None else [float(spH[v])
-                                                       for v in r2s]
-                    if r2 is None:
-                        q2 = None
-                        break
-                    q2.extend(r2)
-                    if r2h is not None:
-                        h2.extend(r2h)
-                    a2 = c2
+
+                def research(m3):
+                    ue, ce = mk(m3)
+                    o2, oh, a2 = [], [], 0
+                    for c2 in cuts + [len(cells)]:
+                        b2 = c2 - 1
+                        if a2 == b2:
+                            r2 = [cells[a2]]
+                            r2h = [hs[a2]] if hs is not None else None
+                        elif sub is None:
+                            r2 = rc.cost_astar(m3, cells[a2], cells[b2], multg,
+                                               blocked, None)
+                            r2h = None
+                        else:
+                            r2s = rc.span_astar(ue, spH, spOcc, spHK, spIK,
+                                                spCi, cidx, ce, sub[a2],
+                                                {sub[b2]}, multg, nx, ny,
+                                                blocked, None)
+                            r2 = (None if r2s is None else
+                                  [(int(c % nx), int(c // nx))
+                                   for c in spC[r2s]])
+                            r2h = None if r2s is None else [float(spH[v])
+                                                           for v in r2s]
+                        if r2 is None:
+                            return None, None
+                        o2.extend(r2)
+                        if r2h is not None:
+                            oh.extend(r2h)
+                        a2 = c2
+                    return o2, oh
+
+                q2, h2 = research(er)
+                if q2 is None:
+                    q2, h2 = research(ers)
                 if q2 is not None:
                     l2 = sum(math.dist(q2[k - 1], q2[k])
                              for k in range(1, len(q2)))
@@ -398,9 +416,13 @@ def route(info, s, g, climb_faces=False):
             ded.append(p)
     line = rc.drop_loops(ded)
     if SLIMEPS > 0 and len(line) > 2:
-        sl = rc.slim(line, blk_gray, SLIMEPS, cfl)
-        if qs is None or lyo.walk(sl, float(spH[qs[0]])) is not None:
-            line = sl
+        line = rc.slim(line, blk_gray, SLIMEPS, cfl,
+                       lyo=lyo if qs is not None else None,
+                       h=float(spH[qs[0]]) if qs is not None else None)
+    if len(line) > 2:
+        line = rc.widen_corners(line, blk_gray, dist, x0, y0, CS, cfl,
+                                lyo=lyo if qs is not None else None,
+                                h=float(spH[qs[0]]) if qs is not None else None)
     clr = []
     for px, py in line:
         a = min(max(int(math.floor((px - x0) / CS)), 0), nx - 1)
@@ -487,6 +509,10 @@ class RecastEngine:
         margins = [MARGIN, MARGIN * 2, MARGIN * 4, MARGIN * 8]
         info = line = dg = None
         last_err = None
+        # 预算只计扩窗本身,不含首次进区的建区开销(与 RecastNavRoute.cpp 的
+        # plan_started_at 同位置);否则冷区第一条线会被建区时间挤爆预算。
+        t_budget = time.time()
+        prev_cells = prev_ms = 0
         for p in range(len(margins) * 2):
             i, margin = p % len(margins), margins[p % len(margins)]
             x0 = min(s[0], g[0]) - margin; y0 = min(s[1], g[1]) - margin
@@ -495,6 +521,16 @@ class RecastEngine:
             ny = int(np.ceil((y1 - y0) / CS))
             if nx * ny > MAX_CELLS:
                 raise ValueError(f"窗口过大 ({nx}×{ny} 格)")
+            # 与 RecastNavRoute.cpp 同步:本档窗口按上一档实测速度外推,预算装不下就停。
+            # 不跟着改的话,预览会算出运行时早已放弃的线。
+            if p > 0:
+                used_ms = int((time.time() - t_budget) * 1000)
+                projected_ms = prev_ms * nx * ny // prev_cells if prev_cells else 0
+                if used_ms + projected_ms > PLAN_BUDGET_MS:
+                    raise ValueError(
+                        f"{last_err or '路线失败'} (扩窗预算耗尽: 已用 {used_ms}ms,"
+                        f" 下档 {nx}×{ny} 格约需 {projected_ms}ms)")
+            t_pass = time.time()
             info, err = build(zc, wo, s, ss[1], h0, x0, y0, x1, y1)
             if err is None:
                 line, dg = route(info, s, g, p >= len(margins))
@@ -519,6 +555,8 @@ class RecastEngine:
                         err = "终线触界,扩窗重跑"
                 else:
                     err = dg.get("err", "路线失败")
+            prev_ms = max(int((time.time() - t_pass) * 1000), 1)
+            prev_cells = nx * ny
             last_err = err
             info = line = dg = None
         else:

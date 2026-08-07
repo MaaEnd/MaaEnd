@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+#include <functional>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -26,6 +28,15 @@ struct RecastPlanResult
     double snap_goal = 0.0;
 };
 
+// 逐档扩窗的预算。窗口面积随边距增长,不可达时每一档都要把整个窗口栅格化再搜一遍,
+// 跑满四档是分钟级。按上一档实测速度外推下一档,装不下就停在已有结论上。
+struct RecastPlanBudget
+{
+    int64_t wall_ms = 6000;            // 整次 plan 的墙钟上限
+    int64_t dead_end_ms = 6000;        // 上一档没要求扩窗时的上限:扩窗改不了结论,别一直把窗口翻番
+    std::function<bool()> should_stop; // 外部取消,逐档之间查
+};
+
 class RecastNavEngine
 {
 public:
@@ -41,7 +52,8 @@ public:
         float start_floor_y = kBaseNavFloorYNone,
         float goal_floor_y = kBaseNavFloorYNone,
         const std::vector<uint32_t>& blocked = {},
-        const std::vector<WorldPoint>& blocked_points = {});
+        const std::vector<WorldPoint>& blocked_points = {},
+        const RecastPlanBudget& budget = {});
 
 private:
     struct ZoneEntry
@@ -58,7 +70,8 @@ private:
         float start_floor_y,
         float goal_floor_y,
         const std::vector<uint32_t>& blocked,
-        const std::vector<WorldPoint>& blocked_points);
+        const std::vector<WorldPoint>& blocked_points,
+        const RecastPlanBudget& budget);
 
     const BaseNavPack& pack_;
     const BaseNavPlanner& planner_;

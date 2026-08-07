@@ -11,15 +11,24 @@ CLIMB = 3.0        # 相邻格可连通最大高差 px
 SLOPE = 1.0        # 可攀爬坡度上限 tanθ, 抬升超过水平位移的这个倍数即立面, 只能绕行
 UP = SLOPE * CS    # 正交相邻格允许的抬升 px, 斜向按实际水平位移等比放大
 MERGE_H = UP       # 同列 span 合并容差 px, 取 UP 使同层内处处可一步跨到
+QH = 1.0           # 体素取样高差容差 px, 需装下斜面单格起伏与格心取样偏差
 EDT_CAP = 12.0     # 距离场截断 px
 R = 1.75           # 期望余量上限 px
 GEO_R = 3.5        # 几何口径舒适余量上限 px
 REL = 0.6          # 期望余量 = min(R, REL×局部净空)
-LAM = 4.0          # 满亏欠一步加价倍数
+LAM = 4.0          # 按局部通道目标计亏欠的满亏欠一步加价倍数
+LAM_R = 28.0       # 按固定余量目标 R 计亏欠的满亏欠一步加价倍数
 RIDGEF = 0.5       # 脊线保底余量地板 px
 MAXERR = 0.5       # 轮廓 DP 容差 px
 SLIMEPS = 0.5      # 终线共线剔除容差 px
 CLRTOL = 0.125     # 拉直允许的净空退让 px, 取半格即采样步长
+CORNER_R = 1.75    # 过角期望余量 px
+CORNER_TURN = 5.0  # 需要留过角余量的最小转角 度
+CORNER_SEG = 2.0   # 认定为拐点的最小相邻段长 px
+CORNER_MAX = 4.0   # 拐点外挪上限 px
+CORNER_STEP = 0.5  # 拐点外挪步长 px
+CORNER_DIRS = 32   # 拐点外挪候选方向数
+CORNER_ROUNDS = 3  # 拐点外挪迭代轮数
 COSTTOL = 1e-9     # 代价判据相对容差, 容纳共线子路径的浮点求和差
 TAU = 1.0          # 贴墙诊断阈 px
 CAP = 12.0         # wall_dist 截断 px
@@ -30,6 +39,7 @@ SNAP_RADIUS = 8.0  # 起终点吸附半径 px
 MARGIN = 25.0      # 窗口外扩 px
 HOLE_MAX = max(1, int(round(2.0 / (CS * CS))))  # 封闭小洞填充上限(格 = 2px²)
 MAX_CELLS = 30_000_000
+PLAN_BUDGET_MS = 6000  # 逐档扩窗的墙钟上限,与 RecastNavRoute.h 的 RecastPlanBudget 同步
 
 _NB8 = [(1, 0, 1.0), (-1, 0, 1.0), (0, 1, 1.0), (0, -1, 1.0),
         (1, 1, math.sqrt(2)), (1, -1, math.sqrt(2)),
@@ -351,9 +361,12 @@ def span_astar(ok, sp_h, occ, HK, IK, sp_ci, cidx, ok2, s, gset, mult, nx, ny,
     return out[::-1]
 
 
+# 走查只用来跟住弦所在的层, 立面本身由挡线集与拓扑禁步管住, 故抬升按体素取样
+# 容差放宽: 高度取自格心, 斜面与接缝上相邻格的取样差本就能超出一步抬升上限,
+# 照拓扑口径卡会把大量直弦判死, 拉直退化成网格锯齿。
 class LayerOracle:
     def __init__(self, HK, IK, cidx, nx, ny, x0, y0, cs=CS,
-                 slope=SLOPE, climb=CLIMB):
+                 slope=SLOPE, climb=CLIMB, qh=QH):
         self.HK = HK
         self.IK = IK
         self.cidx = cidx
@@ -364,7 +377,9 @@ class LayerOracle:
         self.cs = cs
         self.slope = slope
         self.climb = climb
+        self.qh = qh
 
+    # h 取起点高度或一组可达高度
     def walk(self, pts, h):
         cs, nx, ny = self.cs, self.nx, self.ny
         cells = []
@@ -380,7 +395,7 @@ class LayerOracle:
                 if not cells or cells[-1] != c:
                     cells.append(c)
         cells = [c for c in cells if 0 <= c[0] < nx and 0 <= c[1] < ny]
-        cur = np.array([h], np.float32)
+        cur = np.atleast_1d(np.asarray(h, np.float32))
         pc = cells[0] if cells else None
         for c in cells[1:]:
             j = int(self.cidx[c[1] * nx + c[0]])
@@ -389,7 +404,8 @@ class LayerOracle:
             nb = self.HK[j][self.IK[j] >= 0]
             if not len(nb):
                 continue
-            up = self.slope * math.hypot(c[0] - pc[0], c[1] - pc[1]) * cs
+            up = (self.slope * math.hypot(c[0] - pc[0], c[1] - pc[1]) * cs
+                  + self.qh)
             d = nb[None, :] - cur[:, None]
             m = (d <= up) & (d >= -self.climb)
             if not m.any():
@@ -841,8 +857,23 @@ def target_field(dist):
     )
 
 
-def slim(pts, blk, eps=SLIMEPS, cfl=None):
+# 层高逐点否决: 弦须从前一点的可达高度集走通, 且走到的高度集覆盖后一点原有的
+# 高度集, 后续各点据此仍然走得通。整线走查只能全取或全弃, 一处跨带就把整条线
+# 的共线剔除连坐掉, 网格锯齿会原样留在终线上。
+# 剔点后自该点起重算高度集: 剔点只会放大可达集, 沿用旧值会把后续弦按更窄的
+# 起点集判死。
+def slim(pts, blk, eps=SLIMEPS, cfl=None, lyo=None, h=None):
     P = [tuple(p) for p in pts]
+    hv = None
+
+    def chain(k):
+        for i in range(k, len(P)):
+            hv[i] = (None if hv[i - 1] is None
+                     else lyo.walk((P[i - 1], P[i]), hv[i - 1]))
+
+    if lyo is not None and h is not None:
+        hv = [np.asarray([h], np.float32)] + [None] * (len(P) - 1)
+        chain(1)
     ch = True
     while ch:
         ch = False
@@ -854,14 +885,106 @@ def slim(pts, blk, eps=SLIMEPS, cfl=None):
             t = 0.0 if L2 == 0 else max(0.0, min(1.0, (
                 (b[0] - a[0]) * ux + (b[1] - a[1]) * uy) / L2))
             d = math.hypot(b[0] - a[0] - t * ux, b[1] - a[1] - t * uy)
-            if d <= eps and not blk.blocked(a, c) and (
-                    cfl is None
-                    or cfl.seg(a, c) >= min(cfl.seg(a, b), cfl.seg(b, c))):
+            ok = d <= eps and not blk.blocked(a, c) and (
+                cfl is None
+                or cfl.seg(a, c) >= min(cfl.seg(a, b), cfl.seg(b, c)))
+            if ok and hv is not None:
+                nh = (None if hv[i - 1] is None
+                      else lyo.walk((a, c), hv[i - 1]))
+                ok = (nh is not None and hv[i + 1] is not None
+                      and bool(np.isin(hv[i + 1], nh).all()))
+            if ok:
                 P.pop(i)
+                if hv is not None:
+                    hv.pop(i)
+                    hv[i] = nh
+                    chain(i + 1)
                 ch = True
             else:
                 i += 1
     return P
+
+
+def _turn(a, b, c):
+    ux, uy = b[0] - a[0], b[1] - a[1]
+    vx, vy = c[0] - b[0], c[1] - b[1]
+    nu, nv = math.hypot(ux, uy), math.hypot(vx, vy)
+    if nu < 1e-12 or nv < 1e-12:
+        return -1.0
+    return (ux * vx + uy * vy) / (nu * nv)
+
+
+def _at(F, x0, y0, cs, p):
+    ny, nx = F.shape
+    return float(F[min(max(int((p[1] - y0) / cs), 0), ny - 1),
+                   min(max(int((p[0] - x0) / cs), 0), nx - 1)])
+
+
+# 拉直把拐点钉在轮廓角上, 过角即贴角切线, 实机绕不过去。沿转弯外侧扫方向把
+# 拐点外挪到留够过角余量; 只挪拐点不插点, 两段仍是直线, 直角不抹圆。
+# 判据取拐点自身净空: 用整弦会被两侧远处的窄段钉死, 角上的亏欠被掩盖。
+# 相邻段短于 CORNER_SEG 的不算拐点, 亚像素锯齿挪动只会把线推向墙。
+# 候选按偏离转弯外侧的角度排序, 达标即停; 绝大多数方向被挡线否决, 少试方向
+# 会整体空转。两段弦净空各自允许半格退让, 挡线与层高各自否决。
+# 候选不得把转角掰得更尖: 外挪是给转弯让余量, 掰尖等于就地折返。
+def widen_corners(P, blk, dist, x0, y0, cs, cfl, want=CORNER_R,
+                  lyo=None, h=None, rounds=CORNER_ROUNDS):
+    Q = [(float(p[0]), float(p[1])) for p in P]
+    if len(Q) < 3:
+        return Q
+    cosmin = math.cos(math.radians(CORNER_TURN))
+    nstep = max(1, int(round(CORNER_MAX / CORNER_STEP)))
+    ang = [2.0 * math.pi * t / CORNER_DIRS for t in range(CORNER_DIRS)]
+    for _ in range(rounds):
+        moved = False
+        for k in range(1, len(Q) - 1):
+            a, b, c = Q[k - 1], Q[k], Q[k + 1]
+            ux, uy = b[0] - a[0], b[1] - a[1]
+            vx, vy = c[0] - b[0], c[1] - b[1]
+            nu, nv = math.hypot(ux, uy), math.hypot(vx, vy)
+            if nu < CORNER_SEG or nv < CORNER_SEG:
+                continue
+            ux, uy, vx, vy = ux / nu, uy / nu, vx / nv, vy / nv
+            if ux * vx + uy * vy > cosmin:
+                continue
+            best = _at(dist, x0, y0, cs, b)
+            if best >= want:
+                continue
+            out = math.atan2(uy - vy, ux - vx)
+            fa = cfl.seg(a, b) - CLRTOL if cfl is not None else -1.0
+            fc = cfl.seg(b, c) - CLRTOL if cfl is not None else -1.0
+            order = sorted(ang, key=lambda t: abs(
+                math.remainder(t - out, 2.0 * math.pi)))
+            turn = ux * vx + uy * vy
+            pick = None
+            for t in order:
+                dx, dy = math.cos(t), math.sin(t)
+                for i in range(1, nstep + 1):
+                    q = (b[0] + dx * i * CORNER_STEP,
+                         b[1] + dy * i * CORNER_STEP)
+                    if blk.blocked(a, q) or blk.blocked(q, c):
+                        break
+                    if _turn(a, q, c) < turn - 1e-9:
+                        continue
+                    v = _at(dist, x0, y0, cs, q)
+                    if v > best + 1e-9 and (
+                            cfl is None
+                            or (cfl.seg(a, q) >= fa and cfl.seg(q, c) >= fc)):
+                        best, pick = v, q
+                        if best >= want:
+                            break
+                if best >= want:
+                    break
+            if pick is None:
+                continue
+            if lyo is not None and lyo.walk(
+                    Q[:k] + [pick] + Q[k + 1:], h) is None:
+                continue
+            Q[k] = pick
+            moved = True
+        if not moved:
+            break
+    return Q
 
 
 _SIDES = (

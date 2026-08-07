@@ -3,6 +3,7 @@
 #include <chrono>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "nav_run_controller.h"
@@ -57,6 +58,12 @@ private:
     bool PlanCrossTierEscapeCorridorFromHere(const char* reason);
     bool ExecutePhysicalUnstick(double stuck_heading);
     void SelectPhaseForCurrentWaypoint(const char* reason);
+    bool ResumeAfterEscape(const char* reason);
+    double ObserveNavigationProgress(
+        const RouteTrackingState& route,
+        double straight_to_anchor,
+        const std::optional<size_t>& anchor_index,
+        const std::chrono::steady_clock::time_point& now);
     void StopMotion();
     bool FailNavigation(const char* reason, const char* log_message, double current_distance, double yaw_error, int64_t stalled_ms);
 
