@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToWitheredBranches"
+            "WitheredBranchesInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedWitheredBranches": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToWitheredBranches"
+            "WitheredBranchesOpenTrackedMissionMap"
         ]
     },
     "WitheredBranchesOpenTrackedMissionMap": {
@@ -340,10 +340,10 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                1352.47,
-                2178.76,
-                19,
-                14.09
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -360,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingQingboStockade3"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
@@ -377,20 +377,15 @@
         "custom_action_param": {
             "path": [
                 {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
+                    "action": "NAVMESH",
+                    "target": [
+                        1361.74,
+                        2194.86
+                    ]
                 },
-                [
-                    1362.51,
-                    2196.4
-                ],
-                [
-                    1363.69,
-                    2197.58
-                ],
                 {
                     "action": "HEADING",
-                    "angle": 135
+                    "angle": 120
                 }
             ]
         },

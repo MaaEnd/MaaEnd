@@ -378,15 +378,15 @@
             "path": [
                 {
                     "action": "ZONE",
-                    "zone_id": "Wuling_Base"
+                    "zone_id": "Wuling_L1_277"
                 },
                 [
-                    722.22,
-                    2404.16
+                    82.7,
+                    228.2
                 ],
                 {
                     "action": "HEADING",
-                    "angle": 300
+                    "angle": 330
                 }
             ]
         },

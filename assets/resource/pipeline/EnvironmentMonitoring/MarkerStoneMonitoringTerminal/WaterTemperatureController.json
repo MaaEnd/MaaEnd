@@ -379,13 +379,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        338.51,
-                        2155.26
-                    ]
+                        333.71,
+                        2155.67
+                    ],
+                    "target_deck_y": 265.55
                 },
                 {
                     "action": "HEADING",
-                    "angle": 270
+                    "angle": 255.3
                 }
             ]
         },

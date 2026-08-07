@@ -340,10 +340,10 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                593.53,
-                2240.18,
-                9.55,
-                7.98
+                378.56,
+                2345.75,
+                120.17,
+                97.03
             ]
         },
         "pre_delay": 0,
@@ -360,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStone3"
+                "SceneEnterWorldWulingMarkerStone_Ship2DestinationThenWalkAndFight"
             ]
         },
         "post_delay": 0,
@@ -377,33 +377,15 @@
         "custom_action_param": {
             "path": [
                 {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
-                },
-                {
                     "action": "NAVMESH",
                     "target": [
-                        637.54,
-                        2332.1
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        593.23,
-                        2333.28
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        431.36,
-                        2421.65
+                        431.11,
+                        2407.17
                     ]
                 },
                 {
                     "action": "HEADING",
-                    "angle": 180
+                    "angle": 177
                 }
             ]
         },
@@ -436,7 +418,7 @@
     },
     "CloudrestEcoSiteAdjustCamera": {
         "desc": "栖云生态点任务中调整朝向",
-        "max_hit": 3,
+        "max_hit": 2,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

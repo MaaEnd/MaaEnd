@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToPierWaterwheel"
+            "PierWaterwheelInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedPierWaterwheel": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToPierWaterwheel"
+            "PierWaterwheelOpenTrackedMissionMap"
         ]
     },
     "PierWaterwheelOpenTrackedMissionMap": {
@@ -340,10 +340,10 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                964.92,
-                2191.36,
-                13,
-                12.81
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -360,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValley1"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
@@ -380,14 +380,13 @@
                     "action": "ZONE",
                     "zone_id": "Wuling_Base"
                 },
-                [
-                    976.84,
-                    2202.2
-                ],
-                [
-                    984.12,
-                    2205.15
-                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        984.12,
+                        2205.15
+                    ]
+                },
                 {
                     "action": "HEADING",
                     "angle": 105

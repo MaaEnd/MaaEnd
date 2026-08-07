@@ -226,7 +226,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToSerenityGardenTianshiPillar"
+            "SerenityGardenTianshiPillarInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedSerenityGardenTianshiPillar": {
@@ -240,7 +240,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToSerenityGardenTianshiPillar"
+            "SerenityGardenTianshiPillarOpenTrackedMissionMap"
         ]
     },
     "SerenityGardenTianshiPillarOpenTrackedMissionMap": {
@@ -350,10 +350,10 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                396.21,
-                2228.75,
-                20.48,
-                17.15
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -370,7 +370,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStone2"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
@@ -387,21 +387,10 @@
         "custom_action_param": {
             "path": [
                 {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
-                },
-                {
                     "action": "NAVMESH",
                     "target": [
-                        319.9,
-                        2317.81
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        290.56,
-                        2317.81
+                        290.29,
+                        2317.95
                     ]
                 },
                 {
