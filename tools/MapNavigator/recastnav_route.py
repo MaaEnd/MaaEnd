@@ -509,6 +509,9 @@ class RecastEngine:
         margins = [MARGIN, MARGIN * 2, MARGIN * 4, MARGIN * 8]
         info = line = dg = None
         last_err = None
+        # 预算只计扩窗本身,不含首次进区的建区开销(与 RecastNavRoute.cpp 的
+        # plan_started_at 同位置);否则冷区第一条线会被建区时间挤爆预算。
+        t_budget = time.time()
         prev_cells = prev_ms = 0
         for p in range(len(margins) * 2):
             i, margin = p % len(margins), margins[p % len(margins)]
@@ -521,7 +524,7 @@ class RecastEngine:
             # 与 RecastNavRoute.cpp 同步:本档窗口按上一档实测速度外推,预算装不下就停。
             # 不跟着改的话,预览会算出运行时早已放弃的线。
             if p > 0:
-                used_ms = int((time.time() - t_all) * 1000)
+                used_ms = int((time.time() - t_budget) * 1000)
                 projected_ms = prev_ms * nx * ny // prev_cells if prev_cells else 0
                 if used_ms + projected_ms > PLAN_BUDGET_MS:
                     raise ValueError(
