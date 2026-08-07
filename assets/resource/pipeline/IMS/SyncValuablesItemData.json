@@ -23,10 +23,7 @@
         "next": [
             "SyncValuablesItemDataInValuablesTab",
             "[JumpBack]SceneEnterMenuValuablesValuableTab"
-        ],
-        "focus": {
-            "Node.Action.Starting": "即将进入贵重品库珍贵物品页并同步物品数据"
-        }
+        ]
     },
     "SyncValuablesItemDataSkipped": {
         "desc": "本次 Resource 已同步过珍贵物品页缓存，跳过 A2",
@@ -35,10 +32,7 @@
         "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [],
-        "focus": {
-            "Node.Recognition.Succeeded": "本次运行已同步过珍贵物品页缓存，跳过 A2"
-        }
+        "next": []
     },
     "SyncValuablesItemDataInValuablesTab": {
         "desc": "确认已在珍贵物品页，开始同步",
@@ -89,11 +83,7 @@
         "next": [
             "[JumpBack]SyncValuablesItemDataScrollPage",
             "SyncValuablesItemDataLock"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "珍贵物品页同步完成",
-            "Node.Action.Failed": "珍贵物品页同步失败"
-        }
+        ]
     },
     "SyncValuablesItemDataScrollPage": {
         "desc": "A2 滑动并进入增量识别。Win32-Front 默认关闭；调 max_hit 控制额外翻页次数",
@@ -161,11 +151,7 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [],
-        "focus": {
-            "Node.Action.Succeeded": "珍贵物品页增量同步完成",
-            "Node.Action.Failed": "珍贵物品页增量同步失败"
-        }
+        "next": []
     },
     "SyncValuablesItemDataLock": {
         "desc": "A2 成功后 Resource 级关闭 SyncValuablesItemDataBegin，同 Resource 内不再扫珍贵物品页（不恢复）",
@@ -187,9 +173,6 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [],
-        "focus": {
-            "Node.Action.Succeeded": "已关闭本次运行的珍贵物品页 A2 入口，后续任务将跳过珍贵物品页同步"
-        }
+        "next": []
     }
 }
