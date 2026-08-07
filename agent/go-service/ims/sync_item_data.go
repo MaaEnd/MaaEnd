@@ -108,17 +108,7 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	hitCount := 0
 	for _, itemID := range itemIDs {
-		nodeName := strings.TrimSpace(items[itemID])
-		itemID = strings.TrimSpace(itemID)
-		if itemID == "" || nodeName == "" {
-			log.Error().
-				Str("component", componentSyncItemData).
-				Str("item_id", itemID).
-				Str("node", nodeName).
-				Msg("items contains empty item id or node name")
-			return false
-		}
-
+		nodeName := items[itemID]
 		qty, ok, err := recognizeItemQuantity(ctx, nodeName, img)
 		if err != nil {
 			log.Error().
@@ -187,7 +177,33 @@ func parseSyncItemDataParam(raw string) (syncItemDataParam, error) {
 	if err := json.Unmarshal([]byte(raw), &params); err != nil {
 		return syncItemDataParam{}, err
 	}
+	normalized, err := normalizeItemsMap(params.Items)
+	if err != nil {
+		return syncItemDataParam{}, err
+	}
+	params.Items = normalized
 	return params, nil
+}
+
+// normalizeItemsMap trims item IDs and node names so cache keys stay consistent
+// across region rebuild, recognition, and persistence.
+func normalizeItemsMap(items map[string]string) (map[string]string, error) {
+	if len(items) == 0 {
+		return items, nil
+	}
+	out := make(map[string]string, len(items))
+	for id, node := range items {
+		id = strings.TrimSpace(id)
+		node = strings.TrimSpace(node)
+		if id == "" || node == "" {
+			return nil, fmt.Errorf("items contains empty item id or node name")
+		}
+		if _, dup := out[id]; dup {
+			return nil, fmt.Errorf("items contains duplicate item id after trim: %s", id)
+		}
+		out[id] = node
+	}
+	return out, nil
 }
 
 // resolveSyncNotifyUI defaults to true when omitted (announce each hit item).
@@ -200,6 +216,7 @@ func resolveSyncNotifyUI(v *bool) bool {
 
 func baseItemsForSync(pageDedup bool, scanItemIDs []string) (map[string]int, error) {
 	// Caller must ensureHydrated first; memory is the session source of truth.
+	// scanItemIDs must already be normalized (see normalizeItemsMap).
 	snap := ItemsSnapshot()
 	if pageDedup {
 		return snap, nil
@@ -210,7 +227,7 @@ func baseItemsForSync(pageDedup bool, scanItemIDs []string) (map[string]int, err
 		out[id] = qty
 	}
 	for _, id := range scanItemIDs {
-		delete(out, strings.TrimSpace(id))
+		delete(out, id)
 	}
 	return out, nil
 }

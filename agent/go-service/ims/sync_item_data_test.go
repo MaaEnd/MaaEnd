@@ -52,6 +52,27 @@ func TestParseSyncItemDataParamMap(t *testing.T) {
 	if resolveSyncNotifyUI(params.NotifyUI) {
 		t.Fatal("notify_ui=false should disable")
 	}
+
+	params, err = parseSyncItemDataParam(`{
+		"items": {"  CAST_DIE  ": "  CAST_DIE  "}
+	}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(params.Items) != 1 || params.Items["CAST_DIE"] != "CAST_DIE" {
+		t.Fatalf("expected trimmed items, got %v", params.Items)
+	}
+
+	if _, err := parseSyncItemDataParam(`{
+		"items": {"A": "A", " A ": "B"}
+	}`); err == nil {
+		t.Fatal("expected duplicate after trim to fail")
+	}
+	if _, err := parseSyncItemDataParam(`{
+		"items": {"  ": "NODE"}
+	}`); err == nil {
+		t.Fatal("expected empty id after trim to fail")
+	}
 }
 
 func TestItemDisplayNameFallback(t *testing.T) {
