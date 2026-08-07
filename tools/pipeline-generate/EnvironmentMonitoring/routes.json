@@ -111,14 +111,7 @@
         "MissionId": "m1m31",
         "Name": "倒塌的天师桩",
         "Id": "CollapsedTianshiPillar",
-        "EnterMap": "SceneEnterWorldWulingJingyuValley8",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            671.75,
-            2620.08,
-            46.31,
-            54.57
-        ],
+        "QuickTeleport": true,
         "NavPath": [
             {
                 "action": "NAVMESH",
@@ -175,15 +168,15 @@
         "NavPath": [
             {
                 "action": "ZONE",
-                "zone_id": "Wuling_Base"
+                "zone_id": "Wuling_L1_277"
             },
             [
-                722.22,
-                2404.16
+                82.7,
+                228.2
             ]
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "Heading": 300
+        "Heading": 330
     },
     {
         "MissionId": "m1m34",
@@ -281,14 +274,7 @@
         "MissionId": "m1m39",
         "Name": "枢壤仪",
         "Id": "XiraniteNexus",
-        "EnterMap": "SceneEnterWorldWulingWulingCity4",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            524.44,
-            1740.63,
-            14.78,
-            14.77
-        ],
+        "QuickTeleport": true,
         "NavPath": [
             {
                 "action": "ZONE",
@@ -309,27 +295,19 @@
         "MissionId": "m1m40",
         "Name": "码头水车",
         "Id": "PierWaterwheel",
-        "EnterMap": "SceneEnterWorldWulingJingyuValley1",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            964.92,
-            2191.36,
-            13,
-            12.81
-        ],
+        "QuickTeleport": true,
         "NavPath": [
             {
                 "action": "ZONE",
                 "zone_id": "Wuling_Base"
             },
-            [
-                976.84,
-                2202.2
-            ],
-            [
-                984.12,
-                2205.15
-            ]
+            {
+                "action": "NAVMESH",
+                "target": [
+                    984.12,
+                    2205.15
+                ]
+            }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 105
@@ -389,50 +367,19 @@
         "MissionId": "m1m58",
         "Name": "水竹铃",
         "Id": "BambooWaterChimes",
-        "EnterMap": "SceneEnterWorldWulingQingboStockade1",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            1159.38,
-            2277.18,
-            14.77,
-            14.78
-        ],
+        "QuickTeleport": true,
         "NavPath": [
             {
-                "action": "ZONE",
-                "zone_id": "Wuling_Base"
-            },
-            [
-                1151.21,
-                2290.48,
-                "PORTAL"
-            ],
-            {
-                "action": "ZONE",
-                "zone_id": "Wuling_L3_299"
-            },
-            [
-                108.59,
-                114.09,
-                "PORTAL"
-            ],
-            [
-                108.28,
-                103.52,
-                "PORTAL"
-            ],
-            {
-                "action": "ZONE",
-                "zone_id": "Wuling_Base"
-            },
-            [
-                1128.66,
-                2275.31,
-                "PORTAL"
-            ]
+                "action": "NAVMESH",
+                "target": [
+                    104.96,
+                    93.02
+                ],
+                "target_tier": "Wuling_L3_299"
+            }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft",
-        "Heading": 345
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
+        "Heading": 266
     },
     {
         "MissionId": "m1m59",
