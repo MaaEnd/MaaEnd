@@ -20,19 +20,27 @@ On-disk path: `./debug/record/IMS.json` (relative to the run directory).
 
 ## A2: `SyncItemData` (core)
 
-A2 means “look at the current screen and record item quantities”. Callers must **not** invent their own stash-scan flow—always use the reserved Pipeline entry `SyncItemData` (any screen → Valuables → Progression tab → Custom Action).
+A2 means “look at the current screen and record item quantities”. Callers must **not** invent their own stash-scan flow—use the reserved entry for the region you need:
+
+| Entry | Screen |
+| --- | --- |
+| `SyncItemData` | Valuables **Progression** tab |
+| `SyncShopItemData` | **Procurement Center** (Origeometry / Oroberyl header counts) |
+| `SyncValuablesItemData` | Valuables **Valuables** tab (e.g. Chartered HH Permit) |
+
+In addition, the scene jump `SceneEnterMenuValuablesProgressionTab` **runs an A2 scan as a side effect after arriving** on the Progression tab (only the first real scan per Resource; later arrivals short-circuit via `SyncItemDataCompleted`). Tasks that must declare “I want a fresh cache” should still call the matching entry (it goes to Skipped if already scanned).
 
 ### Calling convention (required)
 
-Every task that needs the IMS cache must **actively refresh once before its business logic**: run the reserved node `SyncItemData` once.
+Every task that needs a region’s IMS cache must **actively refresh that region once before its business logic**: run the matching reserved entry once.
 
 Effects:
 
 1. **Every IMS task declares “I want a fresh cache”**, instead of silently trusting possibly stale on-disk data.
-2. **Within one Resource lifetime, only the first call actually scans**; a successful A2 closes further scan entry.
-3. **Later IMS tasks still call the same node, but skip immediately** and reuse the cache written by the first task.
+2. **Within one Resource lifetime, each regional entry only scans once**; a successful A2 closes further scan entry for that region.
+3. **Later tasks still call the same node, but skip immediately** and reuse the cache written by the first task.
 
-Do not skip the entry because “the cache should still be fine”, and do not reimplement scanning inside the task. Always go through `SyncItemData` so data stays fresh without every task re-entering the Progression tab.
+Do not skip the entry because “the cache should still be fine”, and do not reimplement scanning inside the task. Always go through the reserved entries so data stays fresh without every task re-entering the same UI.
 
 ### Parameter: `items` map
 
@@ -63,24 +71,24 @@ Example:
 
 1. Sort `items` keys and run each recognition node in order.
 2. **Hit + valid quantity:** record `item ID → quantity`.
-3. **Miss:** do not record that ID this round (see regenerate / overwrite below).
+3. **Miss:** do not record that ID this round (see region rebuild / overwrite below).
 4. After all nodes finish, update memory, write `./debug/record/IMS.json`, and set `updated_at` to when this snapshot was produced.
 
 Hits also emit localized item name + quantity via UI Focus.
 
-### Regenerate vs overwrite (`page_dedup`)
+### Region rebuild vs overwrite (`page_dedup`)
 
 | `page_dedup` | Mode | Behavior |
 | --- | --- | --- |
-| `false` (default) | **Regenerate** | Rebuild the cache from this round’s hits only. IDs not seen this round disappear from the new map. |
+| `false` (default) | **Region rebuild** | Rebuild only IDs in this scan’s `items`: hits are written; misses remove those IDs. Cached IDs from **other regions** are kept. |
 | `true` | **Overwrite** | Start from the existing cache; **overwrite** quantities for IDs hit this round; keep old values for IDs not seen. |
 
-Overwrite is for paged lists: page 1 regenerates; later pages overwrite only the IDs visible on that page so earlier pages are not wiped.
+Overwrite is for paged lists: page 1 region-rebuilds; later pages overwrite only the IDs visible on that page so earlier pages are not wiped.
 
 The reserved entry `SyncItemData` defaults to:
 
 ```text
-First pass: SyncItemDataRunFull (page_dedup = false, full rebuild)
+First pass: SyncItemDataRunFull (page_dedup = false, region rebuild)
   next[0]: [JumpBack]SyncItemDataScrollPage → swipe, then SyncItemDataRunInc (page_dedup = true)
   next[1]: SyncItemDataLock (scan finished)
 ```
@@ -89,15 +97,15 @@ Extra page rounds are controlled only by `SyncItemDataScrollPage.max_hit` (curre
 
 ### Once per Resource (implementation)
 
-The entry node handles this automatically; callers only need to keep invoking `SyncItemData`:
+Each entry node handles this automatically; callers only need to keep invoking the matching entry:
 
-1. **First call:** actually open the Progression tab, scan, write the cache, then close the “scan again” path with a Resource-level override for the rest of this run.
+1. **First call:** actually open the target screen and scan (or scan as a side effect of the Progression-tab scene jump), write the cache, then close the “scan again” path with a Resource-level override (Progression also enables `SyncItemDataCompleted`) for the rest of this run.
 2. **Later calls:** the entry is still reachable, but it immediately decides “already synced this run”, skips the scan, and continues.
 3. **Next cold start:** reloading the Resource / restarting the client restores the path; the next IMS task will scan again.
 
-> Reserved entry and scan parameters: `assets/resource/pipeline/IMS/SyncItemData.json`.
+> Reserved entries and scan parameters: `assets/resource/pipeline/IMS/SyncItemData.json`, `SyncShopItemData.json`, `SyncValuablesItemData.json`.
 >
-> Use `EnsureItemDataReadyMain` only for special “enter A2 only if R2 says stale” cases. Normal IMS tasks should call `SyncItemData` directly, not rely on the expiry gate alone.
+> Use `EnsureItemDataReadyMain` only for special “enter A2 only if R2 says stale” cases. Normal IMS tasks should call the matching `Sync*ItemData` directly, not rely on the expiry gate alone.
 
 ---
 
@@ -267,7 +275,9 @@ When you need ready **and** enough:
 
 | Pipeline file | Contents |
 | --- | --- |
-| `SyncItemData.json` | A2 entry + once-per-Resource lock |
+| `SyncItemData.json` | A2 Progression-tab entry + once-per-Resource lock |
+| `SyncShopItemData.json` | A2 Procurement Center entry |
+| `SyncValuablesItemData.json` | A2 Valuables-tab entry |
 | `UpdateItemQuantity.json` | A1 |
 | `AddItemData.json` | A3 best practice (close rewards) |
 | `ItemQuantitySatisfied.json` | R1 (override `expression`) |
