@@ -287,19 +287,7 @@
             }
         }
     },
-    "__WULING_STOCK_BILL_TEMPLATE_MATCH": {
-        "recognition": {
-            "param": {
-                "roi_offset": [
-                    -34,
-                    -131,
-                    67,
-                    131
-                ]
-            }
-        }
-    },
-    "__VALLEY_STOCK_BILL_TEMPLATE_MATCH": {
+    "__CHARTERED_HH_PERMIT_TEMPLATE": {
         "recognition": {
             "param": {
                 "roi_offset": [

@@ -178,5 +178,49 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "IMSItemColorTimedCorner": {
+        "desc": "IMS 通用：限时物品左上角绿/红时限角标 ColorMatch（HSV 与 ColorRecognitionEmergencySanityBoosterDeadline 一致；供特许寻访凭证等作 roi 锚点）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        50,
+                        200,
+                        150
+                    ],
+                    [
+                        161,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        90,
+                        255,
+                        255
+                    ],
+                    [
+                        191,
+                        255,
+                        255
+                    ]
+                ],
+                "connected": true,
+                "count": 100
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }
