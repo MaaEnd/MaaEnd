@@ -5,6 +5,7 @@
 
 #include "Common/ParentProcessWatcher.h"
 #include "EssenceGridScan/EssenceGridScan.h"
+#include "IconRecognition/IconRecognitionRecognition.h"
 #include "MapLocator/MapLocateAction.h"
 #include "MapNavigator/MapNavigator.h"
 #include "MapNavigator/MapNavigatorCompatible.h"
@@ -52,6 +53,7 @@ int main(int argc, char** argv)
         "WeaponInventoryScanRecognition",
         weaponinventoryscan::WeaponInventoryScanRecognitionRun,
         nullptr);
+    MaaAgentServerRegisterCustomRecognition("IconRecognition", iconrecognition::IconRecognitionRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigatorCompatible", mapnavigator::MapNavigatorCompatibleRun, nullptr);
     MaaAgentServerRegisterCustomAction("RealTimeTaskAction", realtimetask::RealTimeTaskActionRun, nullptr);

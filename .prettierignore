@@ -1,6 +1,9 @@
 # 构建产物
 install/
 node_modules/
+agent/cpp-algo/source/IconRecognition/test/build/
+agent/cpp-algo/source/IconRecognition/test/input/
+agent/cpp-algo/source/IconRecognition/test/output/
 
 # 子模块
 assets/resource/model/

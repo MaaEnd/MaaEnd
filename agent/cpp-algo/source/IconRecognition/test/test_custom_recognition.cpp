@@ -1,0 +1,477 @@
+#include <filesystem>
+#include <iostream>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <vector>
+
+#include <MaaFramework/Utility/MaaBuffer.h>
+#include <MaaUtils/NoWarningCV.hpp>
+#include <meojson/json.hpp>
+
+#include "../../utils.h"
+#include "IconRecognitionRecognition.h"
+#include "IconRecognizer.h"
+#include "detail/RecognitionDiagnostics.h"
+
+namespace
+{
+
+class ImageBuffer
+{
+public:
+    ImageBuffer()
+        : handle_(MaaImageBufferCreate())
+    {
+        if (handle_ == nullptr) {
+            throw std::runtime_error("failed to create MaaImageBuffer");
+        }
+    }
+
+    ~ImageBuffer() { MaaImageBufferDestroy(handle_); }
+
+    ImageBuffer(const ImageBuffer&) = delete;
+    ImageBuffer& operator=(const ImageBuffer&) = delete;
+
+    MaaImageBuffer* get() const { return handle_; }
+
+    void set(const cv::Mat& image) const
+    {
+        if (!MaaImageBufferSetRawData(handle_, image.data, image.cols, image.rows, image.type())) {
+            throw std::runtime_error("failed to populate MaaImageBuffer");
+        }
+    }
+
+private:
+    MaaImageBuffer* handle_ = nullptr;
+};
+
+class StringBuffer
+{
+public:
+    StringBuffer()
+        : handle_(MaaStringBufferCreate())
+    {
+        if (handle_ == nullptr) {
+            throw std::runtime_error("failed to create MaaStringBuffer");
+        }
+    }
+
+    ~StringBuffer() { MaaStringBufferDestroy(handle_); }
+
+    StringBuffer(const StringBuffer&) = delete;
+    StringBuffer& operator=(const StringBuffer&) = delete;
+
+    MaaStringBuffer* get() const { return handle_; }
+
+    json::object detail() const
+    {
+        const char* text = MaaStringBufferGet(handle_);
+        if (text == nullptr || *text == '\0') {
+            throw std::runtime_error("recognition detail is empty");
+        }
+        const auto parsed = json::parse(text);
+        if (!parsed || !parsed->is_object()) {
+            throw std::runtime_error("recognition detail is not a JSON object");
+        }
+        return parsed->as_object();
+    }
+
+private:
+    MaaStringBuffer* handle_ = nullptr;
+};
+
+class ImageListBuffer
+{
+public:
+    ImageListBuffer()
+        : handle_(MaaImageListBufferCreate())
+    {
+        if (handle_ == nullptr) {
+            throw std::runtime_error("failed to create MaaImageListBuffer");
+        }
+    }
+
+    ~ImageListBuffer() { MaaImageListBufferDestroy(handle_); }
+
+    MaaImageListBuffer* get() const { return handle_; }
+
+private:
+    MaaImageListBuffer* handle_ = nullptr;
+};
+
+class FrameworkFixture
+{
+public:
+    FrameworkFixture()
+        : resource_(MaaResourceCreate())
+        , tasker_(MaaTaskerCreate())
+    {
+        if (resource_ == nullptr || tasker_ == nullptr) {
+            throw std::runtime_error("failed to create MaaFramework fixture");
+        }
+        if (!MaaResourceRegisterCustomRecognition(resource_, "IconRecognition", iconrecognition::IconRecognitionRun, nullptr)) {
+            throw std::runtime_error("failed to register IconRecognition on MaaResource");
+        }
+        if (!MaaTaskerBindResource(tasker_, resource_)) {
+            throw std::runtime_error("failed to bind MaaResource to MaaTasker");
+        }
+    }
+
+    ~FrameworkFixture()
+    {
+        MaaTaskerDestroy(tasker_);
+        MaaResourceDestroy(resource_);
+    }
+
+    FrameworkFixture(const FrameworkFixture&) = delete;
+    FrameworkFixture& operator=(const FrameworkFixture&) = delete;
+
+    MaaTasker* tasker() const { return tasker_; }
+
+private:
+    MaaResource* resource_ = nullptr;
+    MaaTasker* tasker_ = nullptr;
+};
+
+void Require(bool condition, std::string_view message)
+{
+    if (!condition) {
+        throw std::runtime_error(std::string(message));
+    }
+}
+
+std::string ErrorCode(const json::object& detail)
+{
+    Require(detail.contains("error") && detail.at("error").is_object(), "failure detail must contain error");
+    const auto& error = detail.at("error").as_object();
+    Require(error.contains("code") && error.at("code").is_string(), "failure detail must contain error.code");
+    return error.at("code").as_string();
+}
+
+std::string ErrorMessage(const json::object& detail)
+{
+    Require(detail.contains("error") && detail.at("error").is_object(), "failure detail must contain error");
+    const auto& error = detail.at("error").as_object();
+    Require(error.contains("message") && error.at("message").is_string(), "failure detail must contain error.message");
+    return error.at("message").as_string();
+}
+
+json::object RunFailure(const MaaImageBuffer* image, const char* param, MaaRect& out_box)
+{
+    StringBuffer detail;
+    const MaaBool matched = iconrecognition::IconRecognitionRun(
+        nullptr,
+        0,
+        "IconRecognitionTest",
+        "IconRecognition",
+        param,
+        image,
+        nullptr,
+        nullptr,
+        &out_box,
+        detail.get());
+    Require(!matched, "invalid recognition request must fail");
+    return detail.detail();
+}
+
+void RequireUntouched(const MaaRect& box)
+{
+    Require(box.x == 101 && box.y == 202 && box.width == 303 && box.height == 404, "failed recognition must not write out_box");
+}
+
+void TestEmptyImageWritesInvalidImageDetail()
+{
+    ImageBuffer image;
+    MaaRect out_box { 101, 202, 303, 404 };
+    const auto detail = RunFailure(image.get(), R"({"grid_type":"transfer"})", out_box);
+    Require(ErrorCode(detail) == "invalid_image", "empty image must use invalid_image error code");
+    RequireUntouched(out_box);
+}
+
+void TestUnknownGridTypeIsRejected()
+{
+    ImageBuffer image;
+    const cv::Mat pixels(64, 64, CV_8UC3, cv::Scalar(0, 0, 0));
+    image.set(pixels);
+    MaaRect out_box { 101, 202, 303, 404 };
+    const auto detail = RunFailure(image.get(), R"({"grid_type":"unknown"})", out_box);
+    Require(ErrorMessage(detail).find("grid_type") != std::string::npos, "unknown grid type error must identify grid_type");
+    RequireUntouched(out_box);
+}
+
+void TestRequiredParametersAreRejected()
+{
+    ImageBuffer image;
+    const cv::Mat pixels(720, 1280, CV_8UC3, cv::Scalar(0, 0, 0));
+    image.set(pixels);
+    for (const auto& [param, field] : {
+             std::pair { R"({})", "grid_type" },
+             std::pair { R"({"grid_type":"single_roi"})", "roi" },
+             std::pair { R"({"roi":[0,0,54,54]})", "grid_type" },
+         }) {
+        MaaRect out_box { 101, 202, 303, 404 };
+        const auto detail = RunFailure(image.get(), param, out_box);
+        Require(ErrorMessage(detail).find(field) != std::string::npos, "missing required parameter must identify its field");
+        RequireUntouched(out_box);
+    }
+}
+
+void TestMalformedRoiIsRejected()
+{
+    ImageBuffer image;
+    const cv::Mat pixels(64, 64, CV_8UC3, cv::Scalar(0, 0, 0));
+    image.set(pixels);
+    for (const char* param : {
+             R"({"grid_type":"single_roi","roi":"bad"})",
+             R"({"grid_type":"single_roi","roi":[0,0,54]})",
+             R"({"grid_type":"single_roi","roi":[0,0,54.5,54]})",
+             R"({"grid_type":"single_roi","roi":[0,0,0,54]})",
+             R"({"grid_type":"single_roi","roi":[0,0,54,55]})",
+         }) {
+        MaaRect out_box { 101, 202, 303, 404 };
+        const auto detail = RunFailure(image.get(), param, out_box);
+        Require(ErrorMessage(detail).find("roi") != std::string::npos, "invalid roi error must identify roi");
+        Require(
+            detail.contains("grid_type") && detail.at("grid_type").as_string() == "single_roi",
+            "single_roi failure must preserve grid_type");
+        RequireUntouched(out_box);
+    }
+}
+
+void TestMalformedCandidateListsAreRejected()
+{
+    ImageBuffer image;
+    const cv::Mat pixels(64, 64, CV_8UC3, cv::Scalar(0, 0, 0));
+    image.set(pixels);
+    for (const auto& [param, field] : {
+             std::pair { R"({"grid_type":"single_roi","roi":[0,0,54,54],"item_ids":"bad"})", "item_ids" },
+             std::pair { R"({"grid_type":"single_roi","roi":[0,0,54,54],"item_filters":[1]})", "item_filters" },
+         }) {
+        MaaRect out_box { 101, 202, 303, 404 };
+        const auto detail = RunFailure(image.get(), param, out_box);
+        Require(ErrorMessage(detail).find(field) != std::string::npos, "candidate error must identify its field");
+        Require(
+            detail.contains("grid_type") && detail.at("grid_type").as_string() == "single_roi",
+            "single_roi failure must preserve grid_type");
+        RequireUntouched(out_box);
+    }
+}
+
+void TestMalformedScalarParametersAreRejected()
+{
+    ImageBuffer image;
+    const cv::Mat pixels(64, 64, CV_8UC3, cv::Scalar(0, 0, 0));
+    image.set(pixels);
+    for (const auto& [param, field] : {
+             std::pair { R"({"grid_type":1})", "grid_type" },
+             std::pair { R"({"grid_type":"single_roi","roi":[0,0,54,54],"threshold":"bad"})", "threshold" },
+             std::pair { R"({"grid_type":"single_roi","roi":[0,0,54,54],"subpixel_threshold":"bad"})", "subpixel_threshold" },
+             std::pair { R"({"grid_type":"single_roi","roi":[0,0,54,54],"debug":"bad"})", "debug" },
+             std::pair { R"({"roi":[0,0,54,54],"grid_type":1})", "grid_type" },
+             std::pair { R"({"roi":[0,0,54,54],"grid_type":"transfer","deduplicate":"bad"})", "deduplicate" },
+         }) {
+        MaaRect out_box { 101, 202, 303, 404 };
+        const auto detail = RunFailure(image.get(), param, out_box);
+        Require(ErrorMessage(detail).find(field) != std::string::npos, "scalar parameter error must identify its field");
+        RequireUntouched(out_box);
+    }
+}
+
+void TestSuccessfulSingleRoiUsesPrimaryCellBox()
+{
+    const std::filesystem::path image_path = std::filesystem::path(ICON_RECOGNITION_TEST_INPUT_DIR) / "90.png";
+    const cv::Mat pixels = cv::imread(image_path.string(), cv::IMREAD_COLOR);
+    Require(!pixels.empty(), "fixed ROI test image must load");
+    ImageBuffer image;
+    image.set(pixels);
+    StringBuffer detail_buffer;
+    MaaRect out_box { 101, 202, 303, 404 };
+    const MaaBool matched = iconrecognition::IconRecognitionRun(
+        nullptr,
+        0,
+        "IconRecognitionTest",
+        "IconRecognition",
+        R"({"grid_type":"single_roi","roi":[1177,450,54,54],"item_filters":["Normal:Product","Normal:Usable"]})",
+        image.get(),
+        nullptr,
+        nullptr,
+        &out_box,
+        detail_buffer.get());
+    Require(matched, "representative single ROI request must match");
+    const auto detail = detail_buffer.detail();
+    Require(
+        detail.contains("matched") && detail.at("matched").is_boolean() && detail.at("matched").as_boolean(),
+        "successful detail must be matched");
+    Require(
+        detail.contains("grid_type") && detail.at("grid_type").as_string() == "single_roi",
+        "single_roi success must preserve grid_type");
+    Require(
+        detail.contains("matches") && detail.at("matches").is_array() && detail.at("matches").as_array().size() == 1,
+        "single_roi success must contain one match");
+    const auto& match = detail.at("matches").as_array().at(0).as_object();
+    Require(match.contains("cell_box") && match.at("cell_box").is_object(), "successful match must contain cell_box");
+    Require(match.contains("item_box") && match.at("item_box").is_object(), "successful match must contain item_box");
+    Require(match.contains("score") && match.at("score").is_number(), "successful match must contain score");
+    const auto& cell_box = match.at("cell_box").as_object();
+    Require(out_box.x == cell_box.at("x").as_integer(), "out_box.x must equal primary cell_box.x");
+    Require(out_box.y == cell_box.at("y").as_integer(), "out_box.y must equal primary cell_box.y");
+    Require(out_box.width == cell_box.at("width").as_integer(), "out_box.width must equal primary cell_box.width");
+    Require(out_box.height == cell_box.at("height").as_integer(), "out_box.height must equal primary cell_box.height");
+}
+
+void TestRecognizerPreservesInternalDiagnostics()
+{
+    const std::filesystem::path image_path = std::filesystem::path(ICON_RECOGNITION_TEST_INPUT_DIR) / "90.png";
+    const cv::Mat pixels = cv::imread(image_path.string(), cv::IMREAD_COLOR);
+    Require(!pixels.empty(), "diagnostics test image must load");
+    iconrecognition::IconRecognizer recognizer(get_exe_dir() / ".." / "data" / "IconRecognition");
+    Require(recognizer.initialize(), "diagnostics recognizer must initialize");
+    iconrecognition::RecognitionRequest request;
+    request.grid_type = iconrecognition::GridType::SingleRoi;
+    request.roi = cv::Rect(1177, 450, 54, 54);
+    request.candidates.item_filters = { "Normal:Product", "Normal:Usable" };
+    const auto result = recognizer.recognize(pixels, request);
+    Require(result.matched && result.matches.size() == 1, "diagnostics fixture must match one item");
+    Require(result.diagnostics && result.diagnostics->cells.size() == 1, "fixed ROI recognition must preserve one internal diagnostic");
+    const auto& diagnostic = result.diagnostics->cells.front();
+    Require(diagnostic.best_candidate_id == result.matches.front().item.item_id, "diagnostic candidate id must match the public item");
+    Require(diagnostic.candidate_box == result.matches.front().item_box, "diagnostic candidate box must match the public item box");
+    Require(diagnostic.score == result.matches.front().score, "diagnostic final score must match the public score");
+    Require(diagnostic.candidate_count > 1, "diagnostics must preserve the ranked candidate count");
+    Require(diagnostic.mask_kind == "lower_extended", "fixed ROI must report the lower_extended mask");
+    Require(!json::value(result).as_object().contains("diagnostics"), "public detail must not serialize internal diagnostics");
+}
+
+struct FrameworkRecognitionResult
+{
+    bool hit = false;
+    MaaRect box {};
+    json::object detail;
+};
+
+FrameworkRecognitionResult RunFrameworkRecognition(FrameworkFixture& fixture, const cv::Mat& pixels, const char* param)
+{
+    ImageBuffer image;
+    image.set(pixels);
+    const MaaTaskId task_id = MaaTaskerPostRecognition(fixture.tasker(), "Custom", param, image.get());
+    Require(task_id != 0, "MaaTaskerPostRecognition must return a task id");
+    Require(MaaTaskerWait(fixture.tasker(), task_id) == MaaStatus_Succeeded, "MaaFramework recognition task must succeed");
+
+    StringBuffer entry;
+    MaaStatus task_status = MaaStatus_Invalid;
+    MaaSize node_count = 0;
+    Require(
+        MaaTaskerGetTaskDetail(fixture.tasker(), task_id, entry.get(), nullptr, &node_count, &task_status),
+        "MaaTaskerGetTaskDetail must report node count");
+    Require(node_count > 0, "MaaFramework recognition task must contain a node");
+    std::vector<MaaNodeId> node_ids(node_count);
+    Require(
+        MaaTaskerGetTaskDetail(fixture.tasker(), task_id, entry.get(), node_ids.data(), &node_count, &task_status),
+        "MaaTaskerGetTaskDetail must return node ids");
+    StringBuffer node_detail_name;
+    MaaRecoId reco_id = 0;
+    MaaActId action_id = 0;
+    MaaBool completed = 0;
+    Require(
+        MaaTaskerGetNodeDetail(fixture.tasker(), node_ids.front(), node_detail_name.get(), &reco_id, &action_id, &completed),
+        "MaaTaskerGetNodeDetail must return reco id");
+    Require(reco_id != 0, "MaaFramework recognition node must expose reco id");
+
+    StringBuffer node_name;
+    StringBuffer algorithm;
+    StringBuffer detail_buffer;
+    ImageBuffer raw;
+    ImageListBuffer draws;
+    MaaBool hit = 0;
+    MaaRect box {};
+    Require(
+        MaaTaskerGetRecognitionDetail(
+            fixture.tasker(),
+            reco_id,
+            node_name.get(),
+            algorithm.get(),
+            &hit,
+            &box,
+            detail_buffer.get(),
+            raw.get(),
+            draws.get()),
+        "MaaTaskerGetRecognitionDetail must succeed");
+    Require(
+        MaaImageBufferWidth(raw.get()) == pixels.cols && MaaImageBufferHeight(raw.get()) == pixels.rows,
+        "MaaFramework raw must preserve the full input size");
+    Require(
+        cv::norm(
+            cv::Mat(pixels),
+            cv::Mat(
+                MaaImageBufferHeight(raw.get()),
+                MaaImageBufferWidth(raw.get()),
+                MaaImageBufferType(raw.get()),
+                MaaImageBufferGetRawData(raw.get())),
+            cv::NORM_INF)
+            == 0.0,
+        "MaaFramework raw must remain unannotated");
+    return FrameworkRecognitionResult { hit != 0, box, detail_buffer.detail() };
+}
+
+void TestMaaFrameworkWrapsCustomDetail()
+{
+    MaaBool debug_mode = 1;
+    Require(MaaGlobalSetOption(MaaGlobalOption_DebugMode, &debug_mode, sizeof(debug_mode)), "MaaFramework debug mode must enable");
+    FrameworkFixture fixture;
+    const std::filesystem::path image_path = std::filesystem::path(ICON_RECOGNITION_TEST_INPUT_DIR) / "90.png";
+    const cv::Mat pixels = cv::imread(image_path.string(), cv::IMREAD_COLOR);
+    Require(!pixels.empty(), "MaaFramework fixture image must load");
+
+    const auto success = RunFrameworkRecognition(
+        fixture,
+        pixels,
+        R"({"custom_recognition":"IconRecognition","custom_recognition_param":{"grid_type":"single_roi","roi":[1177,450,54,54],"item_filters":["Normal:Product","Normal:Usable"]}})");
+    Require(success.hit, "MaaFramework success result must hit");
+    Require(success.detail.at("all").as_array().size() == 1, "MaaFramework all must contain the custom result");
+    Require(success.detail.at("filtered").as_array().size() == 1, "MaaFramework filtered must contain the hit");
+    Require(success.detail.at("best").is_object(), "MaaFramework best must contain the hit");
+    const auto& best = success.detail.at("best").as_object();
+    const auto& best_box = best.at("box").as_array();
+    Require(best_box.size() == 4, "MaaFramework best.box must contain four components");
+    Require(success.box.x == best_box.at(0).as_integer(), "MaaFramework best.box.x must match callback out_box");
+    Require(success.box.y == best_box.at(1).as_integer(), "MaaFramework best.box.y must match callback out_box");
+    Require(success.box.width == best_box.at(2).as_integer(), "MaaFramework best.box.width must match callback out_box");
+    Require(success.box.height == best_box.at(3).as_integer(), "MaaFramework best.box.height must match callback out_box");
+    Require(best.at("detail").as_object().at("matches").as_array().size() == 1, "MaaFramework best.detail must preserve complete matches");
+
+    const auto failure = RunFrameworkRecognition(
+        fixture,
+        pixels,
+        R"({"custom_recognition":"IconRecognition","custom_recognition_param":{"grid_type":"single_roi","roi":[1177,450,54,54],"item_filters":["Normal:Product","Normal:Usable"],"threshold":1.0}})");
+    Require(!failure.hit, "MaaFramework rejected result must not hit");
+    Require(failure.detail.at("all").as_array().size() == 1, "MaaFramework all must retain rejected detail");
+    Require(failure.detail.at("filtered").as_array().empty(), "MaaFramework filtered must be empty on rejection");
+    Require(failure.detail.at("best").is_null(), "MaaFramework best must be null on rejection");
+
+    debug_mode = 0;
+    Require(MaaGlobalSetOption(MaaGlobalOption_DebugMode, &debug_mode, sizeof(debug_mode)), "MaaFramework debug mode must restore");
+}
+
+} // namespace
+
+int main()
+{
+    try {
+        TestEmptyImageWritesInvalidImageDetail();
+        TestUnknownGridTypeIsRejected();
+        TestRequiredParametersAreRejected();
+        TestMalformedRoiIsRejected();
+        TestMalformedCandidateListsAreRejected();
+        TestMalformedScalarParametersAreRejected();
+        TestSuccessfulSingleRoiUsesPrimaryCellBox();
+        TestRecognizerPreservesInternalDiagnostics();
+        TestMaaFrameworkWrapsCustomDetail();
+        std::cout << "IconRecognition custom recognition tests passed\n";
+        return 0;
+    }
+    catch (const std::exception& error) {
+        std::cerr << error.what() << '\n';
+        return 1;
+    }
+}

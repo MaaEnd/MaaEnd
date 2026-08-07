@@ -1,0 +1,43 @@
+#pragma once
+
+#include <optional>
+#include <string>
+#include <vector>
+
+#include <MaaUtils/NoWarningCV.hpp>
+#include <meojson/json.hpp>
+
+namespace iconrecognition::detail
+{
+
+struct CellRecognitionDiagnostics
+{
+    cv::Rect cell_box;
+    cv::Rect candidate_box;
+    std::string best_candidate_id;
+    double baseline_score = 0.0;
+    double score = 0.0;
+    std::optional<double> top2_margin;
+    std::size_t candidate_count = 0;
+    bool fallback_used = false;
+    cv::Point2d best_phase;
+    std::optional<std::string> rejected_reason;
+    std::optional<double> foreground_texture;
+    std::optional<int> rarity;
+    double rarity_coverage = 0.0;
+    std::optional<int> rarity_row_offset;
+    std::string mask_kind;
+    std::optional<int> row;
+    std::optional<int> column;
+
+    json::value to_json() const;
+};
+
+struct RecognitionDiagnostics
+{
+    std::vector<CellRecognitionDiagnostics> cells;
+
+    json::value to_json() const;
+};
+
+} // namespace iconrecognition::detail

@@ -1,0 +1,111 @@
+#include <algorithm>
+#include <cstdint>
+#include <filesystem>
+#include <iostream>
+#include <set>
+#include <stdexcept>
+#include <string>
+
+#include <MaaUtils/NoWarningCV.hpp>
+#include <meojson/json.hpp>
+
+#include "../detail/DebugCapture.h"
+#include "../detail/RecognitionDiagnostics.h"
+
+namespace
+{
+
+void Require(bool condition, const std::string& message)
+{
+    if (!condition) {
+        throw std::runtime_error(message);
+    }
+}
+
+std::set<std::string> Stems(const std::filesystem::path& directory)
+{
+    std::set<std::string> stems;
+    for (const auto& entry : std::filesystem::directory_iterator(directory)) {
+        if (entry.is_regular_file()) {
+            stems.insert(entry.path().stem().string());
+        }
+    }
+    return stems;
+}
+
+void TestDebugCaptureKeepsSynchronizedGroups()
+{
+    const std::filesystem::path root = std::filesystem::current_path() / "icon-recognition-debug-fixture";
+    std::filesystem::remove_all(root);
+
+    iconrecognition::RecognitionResult result;
+    result.matched = true;
+    result.roi = cv::Rect(2, 3, 32, 32);
+    result.diagnostics = std::make_shared<iconrecognition::detail::RecognitionDiagnostics>();
+    result.diagnostics->cells.push_back(iconrecognition::detail::CellRecognitionDiagnostics {
+        .cell_box = cv::Rect(4, 5, 16, 16),
+        .candidate_box = cv::Rect(6, 7, 12, 12),
+        .best_candidate_id = "fixture_item",
+        .baseline_score = 0.71,
+        .score = 0.83,
+        .top2_margin = 0.12,
+        .candidate_count = 3,
+        .fallback_used = true,
+        .best_phase = cv::Point2d(0.25, -0.5),
+        .rejected_reason = std::nullopt,
+        .foreground_texture = 18.0,
+        .rarity = 3,
+        .rarity_coverage = 1.0,
+        .rarity_row_offset = 0,
+        .mask_kind = "lower_extended",
+        .row = 0,
+        .column = 1,
+    });
+
+    const cv::Mat image(32, 32, CV_8UC3, cv::Scalar(10, 20, 30));
+    for (std::uint64_t reco_id = 1; reco_id <= 21; ++reco_id) {
+        iconrecognition::detail::SaveDebugCapture(root, image, result, reco_id);
+    }
+
+    const auto raw_stems = Stems(root / "raw");
+    const auto annotated_stems = Stems(root / "annotated");
+    const auto detail_stems = Stems(root / "detail");
+    Require(raw_stems.size() == 20, "raw captures must retain at most 20 groups");
+    Require(annotated_stems == raw_stems, "annotated captures must be trimmed by raw group stem");
+    Require(detail_stems == raw_stems, "detail captures must be trimmed by raw group stem");
+
+    const std::string latest_stem = *raw_stems.rbegin();
+    const cv::Mat raw = cv::imread((root / "raw" / (latest_stem + ".png")).string(), cv::IMREAD_COLOR);
+    const cv::Mat annotated = cv::imread((root / "annotated" / (latest_stem + ".png")).string(), cv::IMREAD_COLOR);
+    Require(!raw.empty() && !annotated.empty(), "debug PNGs must be readable");
+    Require(cv::norm(raw, image, cv::NORM_INF) == 0.0, "raw PNG must remain unannotated");
+    Require(cv::norm(annotated, image, cv::NORM_INF) > 0.0, "annotated PNG must contain overlays");
+
+    const auto detail = json::open((root / "detail" / (latest_stem + ".json")).string());
+    Require(detail && detail->is_object(), "debug detail must be a JSON object");
+    const auto& object = detail->as_object();
+    Require(object.contains("diagnostics"), "debug detail must include internal diagnostics");
+    const auto& diagnostics = object.at("diagnostics").as_object();
+    const auto& cell = diagnostics.at("cells").as_array().at(0).as_object();
+    Require(cell.at("baseline_score").as_double() == 0.71, "debug detail must preserve baseline score");
+    Require(cell.at("fallback_used").as_boolean(), "debug detail must preserve fallback state");
+    Require(cell.at("mask_kind").as_string() == "lower_extended", "debug detail must preserve mask kind");
+    Require(cell.at("rarity").as_object().at("row_offset").as_integer() == 0, "debug detail must preserve rarity row offset");
+
+    std::filesystem::remove_all(root);
+}
+
+} // namespace
+
+int main()
+{
+    try {
+        TestDebugCaptureKeepsSynchronizedGroups();
+        std::cout << "IconRecognition debug capture tests passed\n";
+        return 0;
+    }
+    catch (const std::exception& error) {
+        std::cerr << error.what() << '\n';
+        return 1;
+    }
+}
