@@ -62,16 +62,33 @@ func TestPersistSyncedAndPageDedupBase(t *testing.T) {
 		t.Fatalf("cache A=%d", ItemsSnapshot()["A"])
 	}
 
-	base, err := baseItemsForSync(true)
+	base, err := baseItemsForSync(true, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if base["A"] != 1 {
 		t.Fatalf("page_dedup base=%v", base)
 	}
-	createBase, err := baseItemsForSync(false)
-	if err != nil || len(createBase) != 0 {
-		t.Fatalf("create base=%v err=%v", createBase, err)
+	createBase, err := baseItemsForSync(false, []string{"A"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(createBase) != 0 {
+		t.Fatalf("create base for scanned keys should drop A, got=%v", createBase)
+	}
+
+	if err := persistSynced(at, map[string]int{"A": 1, "ORIGEOMETRY": 9}); err != nil {
+		t.Fatal(err)
+	}
+	regionBase, err := baseItemsForSync(false, []string{"A"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := regionBase["A"]; ok {
+		t.Fatalf("region rebuild should drop scanned miss keys, got=%v", regionBase)
+	}
+	if regionBase["ORIGEOMETRY"] != 9 {
+		t.Fatalf("region rebuild should keep other IDs, got=%v", regionBase)
 	}
 }
 
@@ -86,7 +103,8 @@ func TestLazyHydrateFromDisk(t *testing.T) {
 	})
 	ClearCache()
 
-	at := time.Date(2026, 7, 29, 12, 0, 0, 0, time.UTC)
+	// Keep within refresh_days so ItemDataReady is not stale-dependent on wall clock.
+	at := time.Now().UTC().Add(-24 * time.Hour)
 	if err := persistSynced(at, map[string]int{"PROTODISK": 7, "CAST_DIE": 3}); err != nil {
 		t.Fatal(err)
 	}

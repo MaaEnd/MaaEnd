@@ -122,7 +122,7 @@
                 },
                 "page_dedup": {
                     "title": "Page Dedup",
-                    "description": "When false (default), rebuild the item map from this scan only (create). When true, merge into existing cache/file and overwrite quantities for hit IDs (used after paging).",
+                    "description": "When false (default), rebuild only the item IDs listed in this scan's items map (misses are removed for those IDs); other cached IDs from other regions are preserved. When true, merge into existing cache and overwrite quantities for hit IDs (used after paging).",
                     "type": "boolean",
                     "default": false
                 }
