@@ -258,9 +258,9 @@ export function postDeckProbe(req) {
 
 /**
  * Trigger a single location capture. Connects to the game, captures the third valid location frame,
- * terminates connection and returns {ok: true, x, y, zone}.
+ * terminates connection and returns {ok: true, x, y, zone, rot}.
  * @param {Object} [connection] optional connection override, defaults to settings store config.
- * @returns {Promise<{ok: boolean, x: number, y: number, zone: string}>}
+ * @returns {Promise<{ok: boolean, x: number, y: number, zone: string, rot: ?number}>}
  */
 export function locateOnce(connection) {
   return sendJson('/api/locate-once', { connection });

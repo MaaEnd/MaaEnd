@@ -18,6 +18,7 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 - 默认复制 `MapNavigator` 可直接粘贴的 canonical `path`：有 zone 时写 `ZONE` 无坐标声明节点，没有 zone 时保留纯坐标点数组。
 - 支持独立的 `Assert 模式`：手动选择底图并框选矩形区域，导出 `MapLocateAssertLocation` 节点。
 - 支持 `A* 模式`：加载 BaseNav `.nav` / `.nav.gz` 后选择起点和终点，在 GUI 上显示计算路线。
+- 单次定位与录制期间都会显示 MapLocator 返回的实时坐标、区域和角色朝向；单次定位参考点还会在底图上绘制朝向箭头。
 
 当前需要注意：
 
@@ -28,6 +29,12 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 
 - 游戏合成器需支持 `wlr-screencopy-unstable-v1` 协议；建议游戏跑在嵌套合成器（如 gamescope）上，**不要连接当前桌面会话的 socket**（连错会截到桌面而不是游戏）。
 - socket 路径是完整路径（如 `/run/user/1000/wayland-0`），不一定是 `$WAYLAND_DISPLAY` 指向的那个；下拉候选来自 `$XDG_RUNTIME_DIR` 下的实际 socket 枚举。
+
+## 位置与朝向
+
+`A* 寻路` 和 `断言模式` 的“标出游戏内当前位置”按钮会临时连接游戏，连续取得 3 个有效定位帧后显示第 3 帧的坐标与朝向。底部罗盘按 MapLocator 约定显示精确角度和八方位文字：`0°` 为北、`90°` 为东，角度顺时针增加；地图参考点上的青色箭头表示同一朝向。
+
+在 `路径编辑` 模式开始录制后，底部读数会以固定频率刷新位置与朝向。定位短暂丢失时保留最后一次真实观测，不使用轨迹预测补出虚拟位置。
 
 ## 复制格式
 
