@@ -167,18 +167,46 @@
         ]
     },
     "__AccountSwitchClickDropdownSuccess": {
-        "desc": "点击账号下拉按钮成功",
+        "desc": "确认账号下拉列表已展开",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "Or",
             "param": {
-                "roi": "__AccountSwitchClickDropdown",
-                "roi_offset": [
-                    -100,
-                    30,
-                    100,
-                    100
-                ],
-                "template": "AccountSwitch/LoginSwitchIcon.png"
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "__AccountSwitchClickDropdown",
+                                "roi_offset": [
+                                    -100,
+                                    30,
+                                    100,
+                                    100
+                                ],
+                                "template": "AccountSwitch/LoginSwitchIcon.png"
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": "__AccountSwitchClickDropdown",
+                                "roi_offset": [
+                                    -100,
+                                    30,
+                                    100,
+                                    100
+                                ],
+                                "expected": [
+                                    // 完整文本示例："上次登录：7分钟前"
+                                    // @i18n-skip
+                                    ".*上次登录.*"
+                                ]
+                            }
+                        }
+                    }
+                ]
             }
         },
         "pre_delay": 0,
