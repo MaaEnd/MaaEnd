@@ -21,10 +21,10 @@ Use a top-level key from `assets/data/IconRecognition/recognition_items.json` as
                 "custom_recognition": "IconRecognition",
                 "custom_recognition_param": {
                     "grid_type": "transfer",
-                    "roi": [155, 205, 970, 280],
                     "item_ids": ["item_copper_ore"],
                     "deduplicate": true
-                }
+                },
+                "roi": [155, 205, 970, 280]
             }
         },
         "action": "DoNothing"
@@ -49,9 +49,9 @@ For `transfer` (inventory and storage) and `port_storager` (portable storage), t
                 "custom_recognition": "IconRecognition",
                 "custom_recognition_param": {
                     "grid_type": "transfer",
-                    "roi": [155, 205, 970, 280],
                     "item_filters": ["Normal:*"]
-                }
+                },
+                "roi": [155, 205, 970, 280]
             }
         },
         "action": "DoNothing"
@@ -72,9 +72,9 @@ For `transfer` (inventory and storage) and `port_storager` (portable storage), t
                 "custom_recognition": "IconRecognition",
                 "custom_recognition_param": {
                     "grid_type": "single_roi",
-                    "roi": [1177, 450, 54, 54],
                     "item_filters": ["Normal:Product", "Normal:Usable"]
-                }
+                },
+                "roi": [1177, 450, 54, 54]
             }
         },
         "action": "DoNothing"
@@ -86,7 +86,7 @@ For `transfer` (inventory and storage) and `port_storager` (portable storage), t
 
 ## Parameters and results
 
-Only `grid_type` and `roi` are required. Optional parameters are `item_ids`, `item_filters`, `threshold`, `subpixel_threshold`, `deduplicate`, and `debug`.
+Put the native `roi` in `recognition.param` alongside `custom_recognition`. `custom_recognition_param` must contain `grid_type`; its optional fields are `item_ids`, `item_filters`, `threshold`, `subpixel_threshold`, `deduplicate`, and `debug`.
 
 See the [interface contract](/agent/cpp-algo/source/IconRecognition/docs/architecture.md) for filter categories, per-grid defaults, threshold constraints, item ID lookup, and the complete result schema.
 
@@ -94,7 +94,7 @@ On a hit, `out_box` equals the primary match's `cell_box`. Component detail cont
 
 ## Go Service
 
-Go services call the `IconRecognition` registration through `ctx.RunRecognitionDirect`, using `maa.RecognitionTypeCustom` and `maa.CustomRecognitionParam`. MaaFramework wraps Custom detail, so parse the component payload from `best.detail`. The Chinese guide includes a complete Go example.
+Go services call the `IconRecognition` registration through `ctx.RunRecognitionDirect`, using `maa.RecognitionTypeCustom` and `maa.CustomRecognitionParam`. Set the native ROI through `CustomRecognitionParam.ROI`; keep component-specific fields in `CustomRecognitionParam`. MaaFramework wraps Custom detail, so parse the component payload from `best.detail`. The Chinese guide includes a complete Go example.
 
 ## References
 

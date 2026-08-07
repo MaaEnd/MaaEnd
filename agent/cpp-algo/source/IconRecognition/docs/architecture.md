@@ -30,12 +30,11 @@ const iconrecognition::RecognitionResult result = recognizer.recognize(image, re
 
 ## Custom Recognition 参数
 
-Maa 注册名为 `IconRecognition`。`custom_recognition_param` 必须是 JSON 对象，`grid_type` 和 `roi` 必选。
+Maa 注册名为 `IconRecognition`。调用节点的原生 `roi` 写在 `recognition.param` 中，与 `custom_recognition` 同级；`custom_recognition_param` 必须是 JSON 对象并包含 `grid_type`。
 
 | 字段 | 类型 | 必选 | 默认值 | 说明 |
 | --- | --- | --- | --- | --- |
 | `grid_type` | string | 是 | 无 | `trade`、`transfer`、`port_storager`、`valuables`、`shipment`、`credit_trade` 或 `single_roi` |
-| `roi` | `[int,int,int,int]` | 是 | 无 | Maa `[x,y,width,height]`，基准分辨率 1280x720；宽高必须为正 |
 | `item_ids` | string[] | 否 | `[]` | 只保留指定物品候选；多个 ID 取并集，不能重复 |
 | `item_filters` | string[] | 否 | 由 `grid_type` 决定 | `storageKind:categoryType`；多个条件取并集，`*` 匹配该 storage 下全部分类 |
 | `threshold` | number | 否 | `0.85` | 最终接受阈值 |
@@ -43,7 +42,7 @@ Maa 注册名为 `IconRecognition`。`custom_recognition_param` 必须是 JSON �
 | `deduplicate` | boolean | 否 | `false` | 同一个 `item_id` 在多个 cell 命中时只保留分数最高的一项；不同物品分别保留 |
 | `debug` | boolean | 否 | `false` | Custom 入口保存原图、标注图和内部诊断 JSON |
 
-阈值必须满足 `0 <= subpixel_threshold < threshold <= 1`。`single_roi` 还要求 ROI 宽高相等且完全位于图片内。`item_ids` 与 `item_filters` 同时提供时取交集；ID 不存在或被过滤器排除会返回明确错误。
+原生 `roi` 使用 Maa `[x,y,width,height]`，基准分辨率为 1280x720，宽高必须为正；`single_roi` 还要求 ROI 宽高相等且完全位于图片内。阈值必须满足 `0 <= subpixel_threshold < threshold <= 1`。`item_ids` 与 `item_filters` 同时提供时取交集；ID 不存在或被过滤器排除会返回明确错误。
 
 ### item ID 从哪里获取
 

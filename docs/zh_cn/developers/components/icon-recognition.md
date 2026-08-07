@@ -21,10 +21,10 @@
                 "custom_recognition": "IconRecognition",
                 "custom_recognition_param": {
                     "grid_type": "transfer",
-                    "roi": [155, 205, 970, 280],
                     "item_ids": ["item_copper_ore"],
                     "deduplicate": true
-                }
+                },
+                "roi": [155, 205, 970, 280]
             }
         },
         "action": "DoNothing"
@@ -49,9 +49,9 @@
                 "custom_recognition": "IconRecognition",
                 "custom_recognition_param": {
                     "grid_type": "transfer",
-                    "roi": [155, 205, 970, 280],
                     "item_filters": ["Normal:*"]
-                }
+                },
+                "roi": [155, 205, 970, 280]
             }
         },
         "action": "DoNothing"
@@ -72,9 +72,9 @@
                 "custom_recognition": "IconRecognition",
                 "custom_recognition_param": {
                     "grid_type": "single_roi",
-                    "roi": [1177, 450, 54, 54],
                     "item_filters": ["Normal:Product", "Normal:Usable"]
-                }
+                },
+                "roi": [1177, 450, 54, 54]
             }
         },
         "action": "DoNothing"
@@ -86,7 +86,7 @@
 
 ## 参数与返回值
 
-必选参数只有 `grid_type` 和 `roi`。可选参数包括 `item_ids`、`item_filters`、`threshold`、`subpixel_threshold`、`deduplicate` 和 `debug`。
+原生 `roi` 写在 `recognition.param` 中，与 `custom_recognition` 同级；`custom_recognition_param` 必须包含 `grid_type`。其中可选参数包括 `item_ids`、`item_filters`、`threshold`、`subpixel_threshold`、`deduplicate` 和 `debug`。
 
 `item_filters` 的全部分类、各 `grid_type` 默认候选、阈值约束和 item ID 获取方法见[接口与数据契约](/agent/cpp-algo/source/IconRecognition/docs/architecture.md)。
 
@@ -99,7 +99,7 @@
 
 ## Go Service 调用
 
-Go Service 通过 `ctx.RunRecognitionDirect` 调用注册名 `IconRecognition`。MaaFramework 的 `DetailJson` 是外层包装，组件结果位于 `best.detail`：
+Go Service 通过 `ctx.RunRecognitionDirect` 调用注册名 `IconRecognition`，原生 ROI 设置在 `CustomRecognitionParam.ROI`。MaaFramework 的 `DetailJson` 是外层包装，组件结果位于 `best.detail`：
 
 ```go
 import (
@@ -130,10 +130,10 @@ func recognizeIcons(ctx *maa.Context, img image.Image) (iconDetail, error) {
     detail, err := ctx.RunRecognitionDirect(
         maa.RecognitionTypeCustom,
         &maa.CustomRecognitionParam{
+            ROI:                maa.NewTargetRect(maa.Rect{155, 205, 970, 280}),
             CustomRecognition: "IconRecognition",
             CustomRecognitionParam: map[string]any{
                 "grid_type":  "transfer",
-                "roi":        []int{155, 205, 970, 280},
                 "item_ids":   []string{"item_copper_ore"},
                 "deduplicate": true,
             },

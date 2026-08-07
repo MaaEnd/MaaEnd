@@ -1,10 +1,7 @@
 #include "IconRecognitionRecognition.h"
 
-#include <array>
-#include <cmath>
 #include <cstdint>
 #include <cstring>
-#include <limits>
 #include <memory>
 #include <mutex>
 #include <stdexcept>
@@ -26,30 +23,6 @@ namespace iconrecognition
 {
 namespace
 {
-
-cv::Rect ReadRect(const json::value& value)
-{
-    if (!value.is_array() || value.as_array().size() != 4) {
-        throw std::invalid_argument("IconRecognition roi must be an array of four integers");
-    }
-    std::array<int, 4> values {};
-    for (std::size_t index = 0; index < values.size(); ++index) {
-        const auto& component = value.as_array().at(index);
-        if (!component.is_number()) {
-            throw std::invalid_argument("IconRecognition roi must be an array of four integers");
-        }
-        const double number = component.as_double();
-        if (!std::isfinite(number) || std::trunc(number) != number || number < std::numeric_limits<int>::min()
-            || number > std::numeric_limits<int>::max()) {
-            throw std::invalid_argument("IconRecognition roi must be an array of four integers");
-        }
-        values[index] = static_cast<int>(number);
-    }
-    if (values[2] <= 0 || values[3] <= 0) {
-        throw std::invalid_argument("IconRecognition roi width and height must be positive");
-    }
-    return cv::Rect(values[0], values[1], values[2], values[3]);
-}
 
 CandidateFilter ReadCandidates(const json::object& object)
 {
@@ -166,14 +139,17 @@ MaaBool MAA_CALL IconRecognitionRun(
         if (!parsed_grid_type) {
             throw std::invalid_argument("unknown IconRecognition grid_type");
         }
-        if (!object.contains("roi")) {
+        if (roi == nullptr) {
             throw std::invalid_argument("IconRecognition roi is required");
+        }
+        if (roi->width <= 0 || roi->height <= 0) {
+            throw std::invalid_argument("IconRecognition roi width and height must be positive");
         }
         const bool debug = ReadBool(object, "debug", false);
         debug_requested = debug;
         RecognitionRequest request;
         request.grid_type = *parsed_grid_type;
-        request.roi = ReadRect(object.at("roi"));
+        request.roi = cv::Rect(roi->x, roi->y, roi->width, roi->height);
         request.candidates = ReadCandidates(object);
         request.threshold = ReadDouble(object, "threshold", request.threshold);
         request.subpixel_threshold = ReadDouble(object, "subpixel_threshold", request.subpixel_threshold);

@@ -157,7 +157,13 @@ std::string ErrorMessage(const json::object& detail)
     return error.at("message").as_string();
 }
 
-json::object RunFailure(const MaaImageBuffer* image, const char* param, MaaRect& out_box)
+constexpr MaaRect kValidRoi { 0, 0, 54, 54 };
+
+json::object RunFailure(
+    const MaaImageBuffer* image,
+    const char* param,
+    MaaRect& out_box,
+    const MaaRect* roi = &kValidRoi)
 {
     StringBuffer detail;
     const MaaBool matched = iconrecognition::IconRecognitionRun(
@@ -167,7 +173,7 @@ json::object RunFailure(const MaaImageBuffer* image, const char* param, MaaRect&
         "IconRecognition",
         param,
         image,
-        nullptr,
+        roi,
         nullptr,
         &out_box,
         detail.get());
@@ -207,8 +213,6 @@ void TestRequiredParametersAreRejected()
     image.set(pixels);
     for (const auto& [param, field] : {
              std::pair { R"({})", "grid_type" },
-             std::pair { R"({"grid_type":"single_roi"})", "roi" },
-             std::pair { R"({"roi":[0,0,54,54]})", "grid_type" },
          }) {
         MaaRect out_box { 101, 202, 303, 404 };
         const auto detail = RunFailure(image.get(), param, out_box);
@@ -217,20 +221,20 @@ void TestRequiredParametersAreRejected()
     }
 }
 
-void TestMalformedRoiIsRejected()
+void TestInvalidNativeRoiIsRejected()
 {
     ImageBuffer image;
     const cv::Mat pixels(64, 64, CV_8UC3, cv::Scalar(0, 0, 0));
     image.set(pixels);
-    for (const char* param : {
-             R"({"grid_type":"single_roi","roi":"bad"})",
-             R"({"grid_type":"single_roi","roi":[0,0,54]})",
-             R"({"grid_type":"single_roi","roi":[0,0,54.5,54]})",
-             R"({"grid_type":"single_roi","roi":[0,0,0,54]})",
-             R"({"grid_type":"single_roi","roi":[0,0,54,55]})",
+    const MaaRect zero_width { 0, 0, 0, 54 };
+    const MaaRect zero_height { 0, 0, 54, 0 };
+    for (const MaaRect* roi : {
+             static_cast<const MaaRect*>(nullptr),
+             &zero_width,
+             &zero_height,
          }) {
         MaaRect out_box { 101, 202, 303, 404 };
-        const auto detail = RunFailure(image.get(), param, out_box);
+        const auto detail = RunFailure(image.get(), R"({"grid_type":"single_roi"})", out_box, roi);
         Require(ErrorMessage(detail).find("roi") != std::string::npos, "invalid roi error must identify roi");
         Require(
             detail.contains("grid_type") && detail.at("grid_type").as_string() == "single_roi",
@@ -245,8 +249,8 @@ void TestMalformedCandidateListsAreRejected()
     const cv::Mat pixels(64, 64, CV_8UC3, cv::Scalar(0, 0, 0));
     image.set(pixels);
     for (const auto& [param, field] : {
-             std::pair { R"({"grid_type":"single_roi","roi":[0,0,54,54],"item_ids":"bad"})", "item_ids" },
-             std::pair { R"({"grid_type":"single_roi","roi":[0,0,54,54],"item_filters":[1]})", "item_filters" },
+             std::pair { R"({"grid_type":"single_roi","item_ids":"bad"})", "item_ids" },
+             std::pair { R"({"grid_type":"single_roi","item_filters":[1]})", "item_filters" },
          }) {
         MaaRect out_box { 101, 202, 303, 404 };
         const auto detail = RunFailure(image.get(), param, out_box);
@@ -265,11 +269,10 @@ void TestMalformedScalarParametersAreRejected()
     image.set(pixels);
     for (const auto& [param, field] : {
              std::pair { R"({"grid_type":1})", "grid_type" },
-             std::pair { R"({"grid_type":"single_roi","roi":[0,0,54,54],"threshold":"bad"})", "threshold" },
-             std::pair { R"({"grid_type":"single_roi","roi":[0,0,54,54],"subpixel_threshold":"bad"})", "subpixel_threshold" },
-             std::pair { R"({"grid_type":"single_roi","roi":[0,0,54,54],"debug":"bad"})", "debug" },
-             std::pair { R"({"roi":[0,0,54,54],"grid_type":1})", "grid_type" },
-             std::pair { R"({"roi":[0,0,54,54],"grid_type":"transfer","deduplicate":"bad"})", "deduplicate" },
+             std::pair { R"({"grid_type":"single_roi","threshold":"bad"})", "threshold" },
+             std::pair { R"({"grid_type":"single_roi","subpixel_threshold":"bad"})", "subpixel_threshold" },
+             std::pair { R"({"grid_type":"single_roi","debug":"bad"})", "debug" },
+             std::pair { R"({"grid_type":"transfer","deduplicate":"bad"})", "deduplicate" },
          }) {
         MaaRect out_box { 101, 202, 303, 404 };
         const auto detail = RunFailure(image.get(), param, out_box);
@@ -286,15 +289,16 @@ void TestSuccessfulSingleRoiUsesPrimaryCellBox()
     ImageBuffer image;
     image.set(pixels);
     StringBuffer detail_buffer;
+    const MaaRect roi { 1177, 450, 54, 54 };
     MaaRect out_box { 101, 202, 303, 404 };
     const MaaBool matched = iconrecognition::IconRecognitionRun(
         nullptr,
         0,
         "IconRecognitionTest",
         "IconRecognition",
-        R"({"grid_type":"single_roi","roi":[1177,450,54,54],"item_filters":["Normal:Product","Normal:Usable"]})",
+        R"({"grid_type":"single_roi","item_filters":["Normal:Product","Normal:Usable"]})",
         image.get(),
-        nullptr,
+        &roi,
         nullptr,
         &out_box,
         detail_buffer.get());
@@ -426,7 +430,7 @@ void TestMaaFrameworkWrapsCustomDetail()
     const auto success = RunFrameworkRecognition(
         fixture,
         pixels,
-        R"({"custom_recognition":"IconRecognition","custom_recognition_param":{"grid_type":"single_roi","roi":[1177,450,54,54],"item_filters":["Normal:Product","Normal:Usable"]}})");
+        R"({"custom_recognition":"IconRecognition","roi":[1177,450,54,54],"custom_recognition_param":{"grid_type":"single_roi","item_filters":["Normal:Product","Normal:Usable"]}})");
     Require(success.hit, "MaaFramework success result must hit");
     Require(success.detail.at("all").as_array().size() == 1, "MaaFramework all must contain the custom result");
     Require(success.detail.at("filtered").as_array().size() == 1, "MaaFramework filtered must contain the hit");
@@ -443,7 +447,7 @@ void TestMaaFrameworkWrapsCustomDetail()
     const auto failure = RunFrameworkRecognition(
         fixture,
         pixels,
-        R"({"custom_recognition":"IconRecognition","custom_recognition_param":{"grid_type":"single_roi","roi":[1177,450,54,54],"item_filters":["Normal:Product","Normal:Usable"],"threshold":1.0}})");
+        R"({"custom_recognition":"IconRecognition","roi":[1177,450,54,54],"custom_recognition_param":{"grid_type":"single_roi","item_filters":["Normal:Product","Normal:Usable"],"threshold":1.0}})");
     Require(!failure.hit, "MaaFramework rejected result must not hit");
     Require(failure.detail.at("all").as_array().size() == 1, "MaaFramework all must retain rejected detail");
     Require(failure.detail.at("filtered").as_array().empty(), "MaaFramework filtered must be empty on rejection");
@@ -461,7 +465,7 @@ int main()
         TestEmptyImageWritesInvalidImageDetail();
         TestUnknownGridTypeIsRejected();
         TestRequiredParametersAreRejected();
-        TestMalformedRoiIsRejected();
+        TestInvalidNativeRoiIsRejected();
         TestMalformedCandidateListsAreRejected();
         TestMalformedScalarParametersAreRejected();
         TestSuccessfulSingleRoiUsesPrimaryCellBox();
