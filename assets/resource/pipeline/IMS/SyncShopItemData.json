@@ -1,0 +1,123 @@
+{
+    "SyncShopItemData": {
+        "desc": "IMS A2 采购中心入口：业务侧只需调用本节点。首次成功后 Resource 级关闭 SyncShopItemDataBegin，同 Resource 后续调用走 Skipped",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncShopItemDataBegin",
+            "SyncShopItemDataSkipped"
+        ]
+    },
+    "SyncShopItemDataBegin": {
+        "desc": "A2 实际执行入口：进入采购中心并同步；成功后由 SyncShopItemDataLock 关闭本节点",
+        "enabled": true,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncShopItemDataInShop",
+            "[JumpBack]SceneEnterMenuShop"
+        ],
+        "focus": {
+            "Node.Action.Starting": "即将进入采购中心并同步物品数据"
+        }
+    },
+    "SyncShopItemDataSkipped": {
+        "desc": "本次 Resource 已同步过采购中心缓存，跳过 A2",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [],
+        "focus": {
+            "Node.Recognition.Succeeded": "本次运行已同步过采购中心缓存，跳过 A2"
+        }
+    },
+    "SyncShopItemDataInShop": {
+        "desc": "确认已在采购中心，开始同步",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InShop"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncShopItemDataRun"
+        ]
+    },
+    "SyncShopItemDataRun": {
+        "desc": "A2 采购中心识别（page_dedup=false，地区重建）。顶部货币静止后识别；结束后走 Lock",
+        "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "target": [
+                929,
+                0,
+                245,
+                68
+            ],
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SyncItemData",
+                "custom_action_param": {
+                    "items": {
+                        "ORIGEOMETRY": "ORIGEOMETRY_NUMBER",
+                        "OROBERYL": "OROBERYL_NUMBER_SHOP"
+                    },
+                    "page_dedup": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncShopItemDataLock"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "采购中心同步完成",
+            "Node.Action.Failed": "采购中心同步失败"
+        }
+    },
+    "SyncShopItemDataLock": {
+        "desc": "A2 成功后 Resource 级关闭 SyncShopItemDataBegin，同 Resource 内不再扫采购中心（不恢复）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "resource_override": true,
+                    "patch": {
+                        "SyncShopItemDataBegin": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [],
+        "focus": {
+            "Node.Action.Succeeded": "已关闭本次运行的采购中心 A2 入口，后续任务将跳过采购中心同步"
+        }
+    }
+}
