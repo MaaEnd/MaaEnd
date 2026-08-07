@@ -12,7 +12,7 @@
         ]
     },
     "EnsureItemDataReadyAlreadyOk": {
-        "desc": "库存缓存已就绪，无需扫描（R2 默认播报）",
+        "desc": "库存缓存已就绪，无需扫描",
         "recognition": {
             "type": "And",
             "param": {
@@ -24,32 +24,19 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": []
+        "next": [],
+        "focus": {
+            "Node.Recognition.Succeeded": "培养道具缓存仍有效，跳过同步"
+        }
     },
     "ItemDataReady": {
-        "desc": "IMS R2：库存缓存是否就绪（无数据或超过 refresh_days 则未命中；0=永不因过期失效；notify_ui 默认 true 播报结果）",
+        "desc": "IMS：库存缓存是否就绪（无数据或超过 refresh_days 则未命中；0=永不因过期失效）",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemDataReady",
                 "custom_recognition_param": {
                     "refresh_days": 7
-                }
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "ItemDataReadyNoNotify": {
-        "desc": "IMS R2 静默版：同 ItemDataReady，但 notify_ui=false，不向 UI 播报（供万能跳转顺手缓存等场景）",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ItemDataReady",
-                "custom_recognition_param": {
-                    "refresh_days": 7,
-                    "notify_ui": false
                 }
             }
         },

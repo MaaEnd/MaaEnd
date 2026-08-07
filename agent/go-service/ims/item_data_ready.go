@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -24,20 +22,15 @@ var _ maa.CustomRecognitionRunner = &ItemDataReady{}
 //   - omitted → default 7
 //   - 1 / 7 / 30 → TTL in days
 //   - 0 → never expire after a successful sync
-//
-// notify_ui:
-//   - omitted → default true（向 UI Focus 播报就绪/未就绪）
-//   - false → 不播报（万能跳转顺手缓存等场景）
 type itemDataReadyParam struct {
-	RefreshDays *int  `json:"refresh_days"`
-	NotifyUI    *bool `json:"notify_ui"`
+	RefreshDays *int `json:"refresh_days"`
 }
 
 // ItemDataReady reports whether IMS inventory cache is ready for use (R2).
 type ItemDataReady struct{}
 
 // Run implements maa.CustomRecognitionRunner.
-func (r *ItemDataReady) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+func (r *ItemDataReady) Run(_ *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if arg == nil {
 		log.Error().
 			Str("component", componentItemDataReady).
@@ -63,7 +56,6 @@ func (r *ItemDataReady) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*m
 			Msg("invalid refresh_days")
 		return nil, false
 	}
-	notifyUI := resolveNotifyUI(params.NotifyUI)
 
 	if err := ensureHydrated(); err != nil {
 		log.Error().
@@ -76,37 +68,21 @@ func (r *ItemDataReady) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*m
 	hasData, lastSync := globalCache.snapshot()
 	ready, reason := evaluateReady(hasData, lastSync, refreshDays, time.Now())
 	if !ready {
-		if notifyUI {
-			maafocus.Print(ctx, i18n.T("ims.data_not_ready", reason))
-		}
 		log.Info().
 			Str("component", componentItemDataReady).
 			Str("reason", reason).
 			Bool("has_data", hasData).
 			Time("last_sync", lastSync).
 			Int("refresh_days", refreshDays).
-			Bool("notify_ui", notifyUI).
 			Msg("item data not ready")
 		return nil, false
 	}
-
-	if notifyUI {
-		maafocus.Print(ctx, i18n.T("ims.data_ready"))
-	}
-	log.Info().
-		Str("component", componentItemDataReady).
-		Bool("has_data", hasData).
-		Time("last_sync", lastSync).
-		Int("refresh_days", refreshDays).
-		Bool("notify_ui", notifyUI).
-		Msg("item data ready")
 
 	detailJSON, _ := json.Marshal(map[string]any{
 		"ready":        true,
 		"has_data":     hasData,
 		"last_sync":    lastSync.UTC().Format(time.RFC3339),
 		"refresh_days": refreshDays,
-		"notify_ui":    notifyUI,
 	})
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
@@ -135,14 +111,6 @@ func resolveRefreshDays(v *int) (int, error) {
 	default:
 		return 0, fmt.Errorf("refresh_days must be 0, 1, 7, or 30, got %d", *v)
 	}
-}
-
-// resolveNotifyUI defaults to true when omitted (opposite of R1 notify_ui).
-func resolveNotifyUI(v *bool) bool {
-	if v == nil {
-		return true
-	}
-	return *v
 }
 
 // evaluateReady returns whether cache is usable and a short reason when not.

@@ -34,7 +34,7 @@
         "ItemDataReadyParam": {
             "type": "object",
             "title": "ItemDataReady Param",
-            "description": "Parameters for ItemDataReady recognition. Reports whether the in-process inventory cache is ready (has a successful sync and is within TTL). UI Focus announce is on by default.",
+            "description": "Parameters for ItemDataReady recognition. Reports whether the in-process inventory cache is ready (has a successful sync and is within TTL).",
             "additionalProperties": false,
             "properties": {
                 "refresh_days": {
@@ -48,12 +48,6 @@
                         30
                     ],
                     "default": 7
-                },
-                "notify_ui": {
-                    "title": "Notify UI",
-                    "description": "When true (default), print ready / not-ready to UI Focus. Set false for silent checks (e.g. scene-jump side-cache gates).",
-                    "type": "boolean",
-                    "default": true
                 }
             }
         },
