@@ -142,7 +142,13 @@ std::vector<uint8_t> WallsAtLayer(
     double ox,
     double oy);
 
-std::vector<uint8_t> WallsAtLayerInterpolated(
+struct WallSegments
+{
+    std::vector<WorldPoint> p0;
+    std::vector<WorldPoint> p1;
+};
+
+WallSegments ClipWallsAtLayerInterpolated(
     const std::vector<WorldPoint>& p0,
     const std::vector<WorldPoint>& p1,
     const std::vector<double>& h0,

@@ -14,32 +14,42 @@ from recastnav import (CAP, CS, DECK_BAND, LAM, LAM_R, MARGIN, MAX_CELLS,
 from recastnav_zone import CleanNav, WallOracle
 
 
-def _walls_at_layer_interpolated(P0, P1, H0, H1, lh, ox, oy, nx, ny):
-    """Keep walls whose edge height meets the selected deck at the sampled position."""
+def _clip_walls_at_layer_interpolated(P0, P1, H0, H1, lh, ox, oy, nx, ny):
+    """只保留墙边沿途与所选层相交的局部片段。"""
     P0 = np.asarray(P0, float)
     P1 = np.asarray(P1, float)
-    keep = np.zeros(len(P0), bool)
     if not len(P0):
-        return keep
-    length = np.hypot(*(P1 - P0).T)
-    steps = np.maximum(np.ceil(length / (CS * 0.4)).astype(np.int64), 1) + 1
-    wall_ids = np.repeat(np.arange(len(P0)), steps)
-    base = np.repeat(np.concatenate(([0], np.cumsum(steps)[:-1])), steps)
-    t = (np.arange(int(steps.sum())) - base) / np.maximum(
-        np.repeat(steps, steps) - 1, 1
-    )
-    samples = P0[wall_ids] + (P1[wall_ids] - P0[wall_ids]) * t[:, None]
-    gx = np.floor((samples[:, 0] - ox) / CS).astype(np.int64)
-    gy = np.floor((samples[:, 1] - oy) / CS).astype(np.int64)
-    inside = (gx >= 0) & (gx < nx) & (gy >= 0) & (gy < ny)
-    layer_h = lh.ravel()[np.where(inside, gy * nx + gx, 0)]
-    edge_h = (
-        np.asarray(H0, float)[wall_ids]
-        + (np.asarray(H1, float)[wall_ids] - np.asarray(H0, float)[wall_ids]) * t
-    )
-    hit = inside & ~np.isnan(layer_h) & (np.abs(layer_h - edge_h) <= rc.QH)
-    keep[np.unique(wall_ids[hit])] = True
-    return keep
+        return np.empty((0, 2), float), np.empty((0, 2), float)
+    H0 = np.asarray(H0, float)
+    H1 = np.asarray(H1, float)
+    out0, out1 = [], []
+    for wall in range(len(P0)):
+        length = float(np.hypot(*(P1[wall] - P0[wall])))
+        steps = max(int(math.ceil(length / (CS * 0.4))), 1) + 1
+        open_t = None
+        for k in range(steps - 1):
+            t0 = k / (steps - 1)
+            t1 = (k + 1) / (steps - 1)
+            t = (t0 + t1) / 2.0
+            sample = P0[wall] + (P1[wall] - P0[wall]) * t
+            gx = math.floor((sample[0] - ox) / CS)
+            gy = math.floor((sample[1] - oy) / CS)
+            keep = False
+            if 0 <= gx < nx and 0 <= gy < ny:
+                layer_height = float(lh[gy, gx])
+                edge_height = H0[wall] + (H1[wall] - H0[wall]) * t
+                keep = not math.isnan(layer_height) and abs(
+                    layer_height - edge_height) <= rc.QH
+            if keep and open_t is None:
+                open_t = t0
+            if not keep and open_t is not None:
+                out0.append(P0[wall] + (P1[wall] - P0[wall]) * open_t)
+                out1.append(P0[wall] + (P1[wall] - P0[wall]) * t0)
+                open_t = None
+        if open_t is not None:
+            out0.append(P0[wall] + (P1[wall] - P0[wall]) * open_t)
+            out1.append(P1[wall])
+    return np.asarray(out0, float).reshape(-1, 2), np.asarray(out1, float).reshape(-1, 2)
 
 
 def build(
@@ -97,7 +107,9 @@ def build(
     c_ = sp_cell[vis]
     lay[c_] = True
     lh[c_] = sp_h[vis]
-    if layered_core and layer_hint is not None:
+    wall_lh = lh.copy()
+    # 声明面只参与墙的局部选层；旧 core 仍沿用原层图，避免改写成功线路。
+    if layer_hint is not None:
         # The recovery path is tied to a declared deck. Select that deck per column before
         # filtering walls; otherwise the last reachable upper span can project its walls onto
         # the lower route even though the lower span is the one being searched.
@@ -106,17 +118,20 @@ def build(
         delta = np.where(reachable, np.abs(sp_h[safe_ids] - layer_hint), np.inf)
         have = reachable.any(axis=1)
         best = safe_ids[np.arange(len(occ)), delta.argmin(axis=1)]
-        lh.fill(np.nan)
-        lh[occ[have]] = sp_h[best[have]]
+        wall_lh.fill(np.nan)
+        wall_lh[occ[have]] = sp_h[best[have]]
+    if layered_core:
+        lh = wall_lh
     lay = lay.reshape(ny, nx); lh = lh.reshape(ny, nx)
-    if layered_core and layer_hint is not None:
-        keep = _walls_at_layer_interpolated(
-            wo.P0[widx], wo.P1[widx], wo.H0[widx], wo.H1[widx], lh,
+    wall_lh = wall_lh.reshape(ny, nx)
+    if layer_hint is not None:
+        wP0, wP1 = _clip_walls_at_layer_interpolated(
+            wo.P0[widx], wo.P1[widx], wo.H0[widx], wo.H1[widx], wall_lh,
             x0, y0, nx, ny)
     else:
         keep = rc.walls_at_layer(wo.P0[widx], wo.P1[widx], wo.HH[widx], lh,
                                  x0, y0, nx, ny, hband=MC_HBAND)
-    wP0, wP1 = wo.P0[widx][keep], wo.P1[widx][keep]
+        wP0, wP1 = wo.P0[widx][keep], wo.P1[widx][keep]
     wid, wstart = rc.wall_index(wP0, wP1, x0, y0, nx, ny)
     if layered_core:
         wallcell = np.diff(wstart) > 0
@@ -178,6 +193,8 @@ def build(
     info = dict(x0=x0, y0=y0, nx=nx, ny=ny, lay=lay, lh=lh, dist=dist,
                 core=core, t_vox=t_vox, t_fl=t_fl, t_edt=t_edt,
                 wP0=wP0, wP1=wP1, wid=wid, wstart=wstart,
+                sourceWallP0=wo.P0[widx], sourceWallP1=wo.P1[widx],
+                sourceWallH0=wo.H0[widx], sourceWallH1=wo.H1[widx],
                 sev=sev, sseg=sseg, h0=h0,
                 spC=spC, spH=spH, spOcc=spOcc, spHK=spHK, spIK=spIK,
                 spCi=spCi, cidx=cidx, reachN=reachN)
@@ -214,6 +231,67 @@ def wall_dist(wo, S, hs, pad=CAP):
     return out
 
 
+def _layer_wall_clear(info, lyo, line, start_height, goal_deck):
+    """逐交点验证终线存在一条不穿过同高墙体的连续层。"""
+    eps = 1e-7
+    heights = np.asarray([start_height], np.float32)
+    walls0 = np.asarray(info["sourceWallP0"], float)
+    walls1 = np.asarray(info["sourceWallP1"], float)
+    wall_h0 = np.asarray(info["sourceWallH0"], float)
+    wall_h1 = np.asarray(info["sourceWallH1"], float)
+    for segment in range(1, len(line)):
+        p = np.asarray(line[segment - 1], float)
+        q = np.asarray(line[segment], float)
+        route = q - p
+        hits = []
+        route_lo = np.minimum(p, q)
+        route_hi = np.maximum(p, q)
+        nearby = np.nonzero(
+            (np.maximum(walls0[:, 0], walls1[:, 0]) >= route_lo[0])
+            & (np.minimum(walls0[:, 0], walls1[:, 0]) <= route_hi[0])
+            & (np.maximum(walls0[:, 1], walls1[:, 1]) >= route_lo[1])
+            & (np.minimum(walls0[:, 1], walls1[:, 1]) <= route_hi[1])
+        )[0]
+        for wall in nearby:
+            edge = walls1[wall] - walls0[wall]
+            den = route[0] * edge[1] - route[1] * edge[0]
+            if abs(den) <= 1e-12:
+                continue
+            offset = walls0[wall] - p
+            route_t = (offset[0] * edge[1] - offset[1] * edge[0]) / den
+            wall_t = (offset[0] * route[1] - offset[1] * route[0]) / den
+            if not (eps < route_t < 1.0 - eps and eps < wall_t < 1.0 - eps):
+                continue
+            height = wall_h0[wall] + (wall_h1[wall] - wall_h0[wall]) * wall_t
+            hits.append((route_t, height))
+        hits.sort(key=lambda hit: hit[0])
+
+        cursor = tuple(p)
+        first = 0
+        while first < len(hits):
+            last = first + 1
+            while last < len(hits) and abs(hits[last][0] - hits[first][0]) <= eps:
+                last += 1
+            crossing = tuple(p + route * hits[first][0])
+            at_crossing = lyo.walk((cursor, crossing), heights)
+            if at_crossing is None:
+                return False
+            blocked = np.zeros(len(at_crossing), bool)
+            for _, wall_height in hits[first:last]:
+                blocked |= np.abs(at_crossing - wall_height) <= rc.QH
+            heights = at_crossing[~blocked]
+            if not len(heights):
+                return False
+            cursor = crossing
+            first = last
+        at_end = lyo.walk((cursor, tuple(q)), heights)
+        if at_end is None:
+            return False
+        heights = at_end
+    return goal_deck is None or bool(
+        (np.abs(heights - goal_deck) <= DECK_BAND).any())
+
+
 def metrics(wo, P, h0, info, step=0.25):
     P = np.asarray(P, float)
     L = float(np.hypot(*np.diff(P, axis=0).T).sum())
@@ -234,7 +312,8 @@ def metrics(wo, P, h0, info, step=0.25):
             hug / tot * 100 if tot else 0.0)
 
 
-def route(info, s, g, climb_faces=False, *, goal_deck=None, hard_walls=False):
+def route(info, s, g, climb_faces=False, *, goal_deck=None, hard_walls=False,
+          validate_layer_walls=False):
     # goal_deck: 终点所在面的高度。不声明时终点集是该格全部 span,先够到哪张停哪张。
     lay, dist, core = info["lay"], info["dist"], info["core"]
     x0, y0, nx, ny = info["x0"], info["y0"], info["nx"], info["ny"]
@@ -556,6 +635,10 @@ def route(info, s, g, climb_faces=False, *, goal_deck=None, hard_walls=False):
         line = rc.widen_corners(line, blk_gray, dist, x0, y0, CS, cfl,
                                 lyo=lyo if qs is not None else None,
                                 h=float(spH[qs[0]]) if qs is not None else None)
+    if (validate_layer_walls
+            and (qs is None or not _layer_wall_clear(
+                info, lyo, line, float(spH[qs[0]]), goal_deck))):
+        return None, {"err": "终线穿过当前层墙体", "warn": warn}
     clr = []
     for px, py in line:
         a = min(max(int(math.floor((px - x0) / CS)), 0), nx - 1)
@@ -674,18 +757,14 @@ class RecastEngine:
                     goal_deck_y is not None
                     and abs(h0 - goal_deck_y) <= DECK_BAND
                 )
-                if (same_deck_recovery
-                        and (line is None
-                             or dg.get("crossed_barrier", False))):
-                    # A declared deck makes the recovery layer unambiguous. Do not retain a
-                    # legacy soft-crossing result if the layer-correct hard-wall route fails.
-                    line = None
-                    # Anchor recovery to the world voxel lattice. Moving the query bbox by a
-                    # fraction of one cell must not change the reconstructed topology.
-                    recovery_x0 = math.floor(x0 / CS) * CS
-                    recovery_y0 = math.floor(y0 / CS) * CS
-                    recovery_x1 = math.ceil(x1 / CS) * CS
-                    recovery_y1 = math.ceil(y1 / CS) * CS
+                if same_deck_recovery and line is None:
+                    # 成功的旧线路原样保留；只有旧拓扑失败才换稳定相位恢复。
+                    recovery_x0 = math.floor((x0 - CS / 2.0) / CS) * CS + CS / 2.0
+                    recovery_y0 = math.floor((y0 - CS / 2.0) / CS) * CS + CS / 2.0
+                    recovery_x1 = recovery_x0 + math.ceil(
+                        (x1 - recovery_x0) / CS) * CS
+                    recovery_y1 = recovery_y0 + math.ceil(
+                        (y1 - recovery_y0) / CS) * CS
                     recovery_nx = math.ceil((recovery_x1 - recovery_x0) / CS)
                     recovery_ny = math.ceil((recovery_y1 - recovery_y0) / CS)
                     if recovery_nx * recovery_ny > MAX_CELLS:
@@ -703,7 +782,6 @@ class RecastEngine:
                             recovery_y0,
                             recovery_x1,
                             recovery_y1,
-                            layered_core=True,
                             layer_hint=goal_deck_y,
                         )
                     if recovery_err is None:
@@ -712,7 +790,7 @@ class RecastEngine:
                             s,
                             g,
                             goal_deck=goal_deck_y,
-                            hard_walls=True,
+                            validate_layer_walls=True,
                         )
                         if (recovery_line is not None and not recovery_dg.get(
                                 "crossed_barrier", False)):
@@ -721,6 +799,47 @@ class RecastEngine:
                             dg = recovery_dg
                     else:
                         dg = {"err": recovery_err}
+                    if line is None:
+                        # 稳定相位仍失败时，退回完整分层且墙体硬约束的保守路径。
+                        hard_x0 = math.floor(x0 / CS) * CS
+                        hard_y0 = math.floor(y0 / CS) * CS
+                        hard_x1 = math.ceil(x1 / CS) * CS
+                        hard_y1 = math.ceil(y1 / CS) * CS
+                        hard_nx = math.ceil((hard_x1 - hard_x0) / CS)
+                        hard_ny = math.ceil((hard_y1 - hard_y0) / CS)
+                        if hard_nx * hard_ny > MAX_CELLS:
+                            hard_info = None
+                            hard_err = f"恢复窗口过大 ({hard_nx}×{hard_ny} 格)"
+                        else:
+                            hard_info, hard_err = build(
+                                zc,
+                                wo,
+                                s,
+                                ss[1],
+                                h0,
+                                hard_x0,
+                                hard_y0,
+                                hard_x1,
+                                hard_y1,
+                                layered_core=True,
+                                layer_hint=goal_deck_y,
+                            )
+                        if hard_err is None:
+                            hard_line, hard_dg = route(
+                                hard_info,
+                                s,
+                                g,
+                                goal_deck=goal_deck_y,
+                                hard_walls=True,
+                                validate_layer_walls=True,
+                            )
+                            if (hard_line is not None and not hard_dg.get(
+                                    "crossed_barrier", False)):
+                                info, line, dg = hard_info, hard_line, hard_dg
+                            else:
+                                dg = hard_dg
+                        else:
+                            dg = {"err": hard_err}
                 if line is not None:
                     P = np.asarray(line, float)
                     pad = 2.0

@@ -31,6 +31,10 @@ struct WindowInfo
     Grid<float> dist;
     std::vector<WorldPoint> wP0;
     std::vector<WorldPoint> wP1;
+    std::vector<WorldPoint> sourceWallP0;
+    std::vector<WorldPoint> sourceWallP1;
+    std::vector<double> sourceWallH0;
+    std::vector<double> sourceWallH1;
     WallCsr wcsr;
     StepBarrier sev;
     std::vector<WorldPoint> segA;
@@ -134,8 +138,10 @@ std::optional<WindowInfo> buildWindow(
             info.lh.v[static_cast<size_t>(st.sp_cell[si])] = st.sp_h[si];
         }
     }
-    if (layered_core && layer_hint.has_value()) {
-        std::fill(info.lh.v.begin(), info.lh.v.end(), std::numeric_limits<float>::quiet_NaN());
+    // 声明面只参与墙的局部选层；旧 core 仍用原来的层图，避免成功线路被恢复逻辑改写。
+    Grid<float> wall_lh = info.lh;
+    if (layer_hint.has_value()) {
+        std::fill(wall_lh.v.begin(), wall_lh.v.end(), std::numeric_limits<float>::quiet_NaN());
         for (size_t row = 0; row < st.occ.size(); ++row) {
             int64_t best_span = -1;
             double best_delta = 0.0;
@@ -151,16 +157,29 @@ std::optional<WindowInfo> buildWindow(
                 }
             }
             if (best_span >= 0) {
-                info.lh.v[static_cast<size_t>(st.occ[row])] = st.sp_h[static_cast<size_t>(best_span)];
+                wall_lh.v[static_cast<size_t>(st.occ[row])] = st.sp_h[static_cast<size_t>(best_span)];
             }
         }
     }
-    const std::vector<uint8_t> keep = layered_core && layer_hint.has_value() ? WallsAtLayerInterpolated(p0, p1, wh0, wh1, info.lh, x0, y0)
-                                                                             : WallsAtLayer(p0, p1, hh, info.lh, x0, y0);
-    for (size_t i = 0; i < keep.size(); ++i) {
-        if (keep[i] != 0) {
-            info.wP0.push_back(p0[i]);
-            info.wP1.push_back(p1[i]);
+    if (layered_core) {
+        info.lh = wall_lh;
+    }
+    info.sourceWallP0 = p0;
+    info.sourceWallP1 = p1;
+    info.sourceWallH0 = wh0;
+    info.sourceWallH1 = wh1;
+    if (layer_hint.has_value()) {
+        WallSegments walls = ClipWallsAtLayerInterpolated(p0, p1, wh0, wh1, wall_lh, x0, y0);
+        info.wP0 = std::move(walls.p0);
+        info.wP1 = std::move(walls.p1);
+    }
+    else {
+        const std::vector<uint8_t> keep = WallsAtLayer(p0, p1, hh, info.lh, x0, y0);
+        for (size_t i = 0; i < keep.size(); ++i) {
+            if (keep[i] != 0) {
+                info.wP0.push_back(p0[i]);
+                info.wP1.push_back(p1[i]);
+            }
         }
     }
     info.wcsr = BuildWallIndex(info.wP0, info.wP1, x0, y0, nx, ny);
@@ -313,6 +332,98 @@ std::optional<WindowInfo> buildWindow(
     return info;
 }
 
+bool layerWallClear(
+    const WindowInfo& info,
+    const LayerOracle& layer_oracle,
+    const std::vector<WorldPoint>& line,
+    float start_height,
+    std::optional<double> goal_deck)
+{
+    struct Hit
+    {
+        double route_t = 0.0;
+        double wall_height = 0.0;
+    };
+
+    constexpr double kIntersectionEpsilon = 1e-7;
+    // 拉直后的终线再对原始墙边逐交点验层。候选在交点若只剩与墙同高的
+    // 连续层就判死；上层墙与下层路线平面重叠时则不会互相误伤。
+    std::vector<float> heights { start_height };
+    for (size_t segment = 1; segment < line.size(); ++segment) {
+        const WorldPoint& p = line[segment - 1];
+        const WorldPoint& q = line[segment];
+        const double route_x = q.x - p.x;
+        const double route_y = q.y - p.y;
+        const double route_min_x = std::min(p.x, q.x);
+        const double route_max_x = std::max(p.x, q.x);
+        const double route_min_y = std::min(p.y, q.y);
+        const double route_max_y = std::max(p.y, q.y);
+        std::vector<Hit> hits;
+        for (size_t wall = 0; wall < info.sourceWallP0.size(); ++wall) {
+            const WorldPoint& a = info.sourceWallP0[wall];
+            const WorldPoint& b = info.sourceWallP1[wall];
+            if (std::max(a.x, b.x) < route_min_x || std::min(a.x, b.x) > route_max_x || std::max(a.y, b.y) < route_min_y
+                || std::min(a.y, b.y) > route_max_y) {
+                continue;
+            }
+            const double wall_x = b.x - a.x;
+            const double wall_y = b.y - a.y;
+            const double den = route_x * wall_y - route_y * wall_x;
+            if (std::abs(den) <= 1e-12) {
+                continue;
+            }
+            const double offset_x = a.x - p.x;
+            const double offset_y = a.y - p.y;
+            const double route_t = (offset_x * wall_y - offset_y * wall_x) / den;
+            const double wall_t = (offset_x * route_y - offset_y * route_x) / den;
+            if (route_t <= kIntersectionEpsilon || route_t >= 1.0 - kIntersectionEpsilon || wall_t <= kIntersectionEpsilon
+                || wall_t >= 1.0 - kIntersectionEpsilon) {
+                continue;
+            }
+            hits.push_back({ route_t, info.sourceWallH0[wall] + (info.sourceWallH1[wall] - info.sourceWallH0[wall]) * wall_t });
+        }
+        std::stable_sort(hits.begin(), hits.end(), [](const Hit& a, const Hit& b) { return a.route_t < b.route_t; });
+
+        WorldPoint cursor = p;
+        for (size_t first = 0; first < hits.size();) {
+            size_t last = first + 1;
+            while (last < hits.size() && std::abs(hits[last].route_t - hits[first].route_t) <= kIntersectionEpsilon) {
+                ++last;
+            }
+            const WorldPoint crossing {
+                p.x + route_x * hits[first].route_t,
+                p.y + route_y * hits[first].route_t,
+            };
+            auto at_crossing = layer_oracle.walk({ cursor, crossing }, heights);
+            if (!at_crossing.has_value()) {
+                return false;
+            }
+            std::erase_if(*at_crossing, [&](float height) {
+                for (size_t hit = first; hit < last; ++hit) {
+                    if (std::abs(static_cast<double>(height) - hits[hit].wall_height) <= kQH) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+            if (at_crossing->empty()) {
+                return false;
+            }
+            heights = std::move(*at_crossing);
+            cursor = crossing;
+            first = last;
+        }
+        auto at_end = layer_oracle.walk({ cursor, q }, heights);
+        if (!at_end.has_value()) {
+            return false;
+        }
+        heights = std::move(*at_end);
+    }
+    return !goal_deck.has_value() || std::any_of(heights.begin(), heights.end(), [&](float height) {
+        return std::abs(static_cast<double>(height) - *goal_deck) <= kDeckBand;
+    });
+}
+
 // goal_deck: 终点所在面的高度。不声明时终点集是该格全部 span,先够到哪张停哪张
 std::optional<std::vector<WorldPoint>> routeWindow(
     const WindowInfo& info,
@@ -321,7 +432,8 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     bool climb_faces,
     RouteDiag& dg,
     std::optional<double> goal_deck = std::nullopt,
-    bool hard_walls = false)
+    bool hard_walls = false,
+    bool validate_layer_walls = false)
 {
     const int64_t nx = info.nx;
     const int64_t ny = info.ny;
@@ -873,6 +985,11 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     if (out.size() > 2) {
         out = WidenCorners(out, blk_gray, dist, info.x0, info.y0, kCS, &cfl, lyo_p, lyo_h);
     }
+    if (validate_layer_walls
+        && (!qs.has_value() || !layerWallClear(info, lyo, out, st3.sp_h[static_cast<size_t>(qs->front())], goal_deck))) {
+        dg.err = "终线穿过当前层墙体";
+        return std::nullopt;
+    }
     dg.clearance.reserve(out.size());
     for (const auto& p : out) {
         const int64_t cx = std::min(std::max(static_cast<int64_t>(std::floor((p.x - info.x0) / kCS)), int64_t { 0 }), nx - 1);
@@ -1028,17 +1145,14 @@ RecastPlanResult RecastNavEngine::planLocked(
             RouteDiag dg;
             auto line = routeWindow(*info, start, goal, climb_faces, dg, gdk);
             const bool same_deck_recovery = gdk.has_value() && std::abs(h0 - *gdk) <= kDeckBand;
-            if (same_deck_recovery && (!line.has_value() || dg.crossed_barrier)) {
-                // A declared deck gives recovery an unambiguous layer. Never keep a legacy soft-crossing
-                // result here: if the layer-correct hard-wall search cannot route it, failing is safer.
-                line.reset();
+            if (same_deck_recovery && !line.has_value()) {
+                // 成功的旧线路原样保留：f4768a05 明确保留不可避免的软约束步，
+                // 恢复寻路不能借声明面反向改写它。仅在旧拓扑确实失败时换稳定相位重建。
                 std::string recovery_err;
-                // Recovery is anchored to the world voxel lattice. Its topology must not change merely
-                // because the query bbox moved by a fraction of one cell.
-                const double recovery_x0 = std::floor(x0 / kCS) * kCS;
-                const double recovery_y0 = std::floor(y0 / kCS) * kCS;
-                const double recovery_x1 = std::ceil(x1 / kCS) * kCS;
-                const double recovery_y1 = std::ceil(y1 / kCS) * kCS;
+                const double recovery_x0 = std::floor((x0 - kCS / 2.0) / kCS) * kCS + kCS / 2.0;
+                const double recovery_y0 = std::floor((y0 - kCS / 2.0) / kCS) * kCS + kCS / 2.0;
+                const double recovery_x1 = recovery_x0 + std::ceil((x1 - recovery_x0) / kCS) * kCS;
+                const double recovery_y1 = recovery_y0 + std::ceil((y1 - recovery_y0) / kCS) * kCS;
                 const int64_t recovery_nx = static_cast<int64_t>(std::ceil((recovery_x1 - recovery_x0) / kCS));
                 const int64_t recovery_ny = static_cast<int64_t>(std::ceil((recovery_y1 - recovery_y0) / kCS));
                 std::optional<WindowInfo> recovery_info;
@@ -1058,13 +1172,13 @@ RecastPlanResult RecastNavEngine::planLocked(
                         recovery_y1,
                         blocked_local,
                         blocked_points,
-                        true,
+                        false,
                         gdk,
                         recovery_err);
                 }
                 if (recovery_info.has_value()) {
                     RouteDiag recovery_dg;
-                    auto recovery_line = routeWindow(*recovery_info, start, goal, false, recovery_dg, gdk, true);
+                    auto recovery_line = routeWindow(*recovery_info, start, goal, false, recovery_dg, gdk, false, true);
                     if (recovery_line.has_value() && !recovery_dg.crossed_barrier) {
                         info = std::move(recovery_info);
                         line = std::move(recovery_line);
@@ -1076,6 +1190,52 @@ RecastPlanResult RecastNavEngine::planLocked(
                 }
                 else {
                     dg.err = std::move(recovery_err);
+                }
+                if (!line.has_value()) {
+                    // 稳定相位仍无安全终线时，退回完整分层且墙体硬约束的保守路径。
+                    const double hard_x0 = std::floor(x0 / kCS) * kCS;
+                    const double hard_y0 = std::floor(y0 / kCS) * kCS;
+                    const double hard_x1 = std::ceil(x1 / kCS) * kCS;
+                    const double hard_y1 = std::ceil(y1 / kCS) * kCS;
+                    const int64_t hard_nx = static_cast<int64_t>(std::ceil((hard_x1 - hard_x0) / kCS));
+                    const int64_t hard_ny = static_cast<int64_t>(std::ceil((hard_y1 - hard_y0) / kCS));
+                    std::string hard_err;
+                    std::optional<WindowInfo> hard_info;
+                    if (hard_nx * hard_ny > kMaxCells) {
+                        hard_err = "恢复窗口过大 (" + std::to_string(hard_nx) + "×" + std::to_string(hard_ny) + " 格)";
+                    }
+                    else {
+                        hard_info = buildWindow(
+                            zc,
+                            wo,
+                            start,
+                            ss->point,
+                            h0,
+                            hard_x0,
+                            hard_y0,
+                            hard_x1,
+                            hard_y1,
+                            blocked_local,
+                            blocked_points,
+                            true,
+                            gdk,
+                            hard_err);
+                    }
+                    if (hard_info.has_value()) {
+                        RouteDiag hard_dg;
+                        auto hard_line = routeWindow(*hard_info, start, goal, false, hard_dg, gdk, true, true);
+                        if (hard_line.has_value() && !hard_dg.crossed_barrier) {
+                            info = std::move(hard_info);
+                            line = std::move(hard_line);
+                            dg = std::move(hard_dg);
+                        }
+                        else {
+                            dg = std::move(hard_dg);
+                        }
+                    }
+                    else {
+                        dg.err = std::move(hard_err);
+                    }
                 }
             }
             if (line.has_value()) {
