@@ -116,7 +116,11 @@
         "box_index": 1,
         "pre_wait_freezes": 200,
         "action": "Click",
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
         "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
             "__AccountSwitchAtLoginScreenDialogShow"
         ]
     },
