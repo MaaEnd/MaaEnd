@@ -49,7 +49,7 @@
     "__AccountSwitchClickLogout": {
         "desc": "点击登出按钮",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
                     -300,
@@ -57,20 +57,13 @@
                     300,
                     300
                 ],
-                "template": [
-                    "AccountSwitch/LogoutButton.png"
-                ],
-                "threshold": 0.8
+                "expected": [
+                    "账户登出"
+                ]
             }
         },
         "pre_wait_freezes": 100,
         "action": "Click",
-        "target_offset": [
-            7,
-            7,
-            -15,
-            -15
-        ],
         "next": [
             "__AccountSwitchLogoutConfirm"
         ]
@@ -116,7 +109,11 @@
         "box_index": 1,
         "pre_wait_freezes": 200,
         "action": "Click",
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
         "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
             "__AccountSwitchAtLoginScreenDialogShow"
         ]
     },
@@ -136,7 +133,7 @@
     },
     "__AccountSwitchClickDropdown": {
         "desc": "点击账号下拉按钮,maafw在前台截图时5秒内会置顶一次游戏窗口，导致下拉框消失，因此需要重试",
-        "max_hit": 3,
+        "max_hit": 5,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -167,9 +164,9 @@
         ]
     },
     "__AccountSwitchClickDropdownSuccess": {
-        "desc": "点击账号下拉按钮成功",
+        "desc": "确认账号下拉列表已展开",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": "__AccountSwitchClickDropdown",
                 "roi_offset": [
@@ -178,7 +175,11 @@
                     100,
                     100
                 ],
-                "template": "AccountSwitch/LoginSwitchIcon.png"
+                "expected": [
+                    // 完整文本示例："上次登录：7分钟前"
+                    // @i18n-skip
+                    "次登录"
+                ]
             }
         },
         "pre_delay": 0,
