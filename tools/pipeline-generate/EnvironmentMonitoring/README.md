@@ -116,13 +116,13 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 所有完整适配条目都需要元数据、`CameraSwipeDirection`，以及 `EnterMap` / `QuickTeleport: true` 中的一种传送入口。其余字段按路线类型填写：
 
-| 类型                          | 地图与路线字段                                                                             | 断言矩形                    | 生成流程                                     |
+| 类型 | 地图与路线字段 | 断言矩形 | 生成流程 |
 | ----------------------------- | ------------------------------------------------------------------------------------------ | --------------------------- | -------------------------------------------- |
-| metadata-only                 | 仅 `MissionId` / `Name` / `Id`                                                             | 不填                        | 仅接取并追踪，不传送或拍照                   |
-| 传送后直拍                    | 不填任何地图和寻路字段；`Heading` 可选                                                     | 不填                        | 传送 →（可选原地调整朝向）→ 拍照             |
-| 寻路（推荐写法）              | `NavPath`；普通传送再加 `NavZoneId`，可选 `Heading`                                        | `NavAssert`，快捷传送可省略 | `MapNavigateAction` 按 `NavPath` 寻路 → 拍照 |
-| `MapTarget`（简写）           | `MapName` + `MapTarget`；跨层时可加 `MapTargetTier`，目标点有重叠面时可加 `MapTargetDeckY` | `MapAssert`，快捷传送可省略 | `MapNavigateAction` 的 NAVMESH 寻路 → 拍照   |
-| `MapPath` / `MapGoal`（遗留） | `MapName` + 对应字段；可选 `Heading` / `NoEnsureInitialMovementState`                      | `MapAssert`，快捷传送可省略 | 原有实现寻路 → 拍照，仅存量路线保留          |
+| metadata-only | 仅 `MissionId` / `Name` / `Id` | 不填 | 仅接取并追踪，不传送或拍照 |
+| 传送后直拍 | 不填任何地图和寻路字段；`Heading` 可选 | 不填 | 传送 →（可选原地调整朝向）→ 拍照 |
+| 寻路（推荐写法） | `NavPath`；普通传送再加 `NavZoneId`，可选 `Heading` | `NavAssert`，快捷传送可省略 | `MapNavigateAction` 按 `NavPath` 寻路 → 拍照 |
+| `MapTarget`（简写） | `MapName` + `MapTarget`；跨层时可加 `MapTargetTier`，目标点有重叠面时可加 `MapTargetDeckY` | `MapAssert`，快捷传送可省略 | `MapNavigateAction` 的 NAVMESH 寻路 → 拍照 |
+| `MapPath` / `MapGoal`（遗留） | `MapName` + 对应字段；可选 `Heading` / `NoEnsureInitialMovementState` | `MapAssert`，快捷传送可省略 | 原有实现寻路 → 拍照，仅存量路线保留 |
 
 `CameraMaxHit` 和 `Replace` 可用于所有已适配路线，不改变路线类型。直拍必须经过游戏实测确认，不能用来代替尚未录制的路线数据。新增寻路路线一律用 `NavPath`，普通传送再补 `NavZoneId` / `NavAssert`；最后两行只是存量路线的现状记录。
 

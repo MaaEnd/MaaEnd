@@ -13,7 +13,7 @@
 环境监测的核心维护点如下：
 
 | 模块 | 路径 | 作用 |
-| ------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 任务入口 | `assets/tasks/EnvironmentMonitoring.json` | interface 任务定义（无可配置选项，控制器 = Win32-Front / Wlroots / ADB） |
 | 主流程 Pipeline | `assets/resource/pipeline/EnvironmentMonitoring.json` | 主入口节点 `EnvironmentMonitoringMain`，循环识别两个监测终端 |
 | 终端分组（生成） | `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` | 城郊监测终端 / 首墩监测终端的入口节点与各自的观察点 `next` 列表（**生成**） |
@@ -136,9 +136,9 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 
 由 `model.mjs` 从观察点所属终端对应的 `environment_monitoring.json.terminals[terminalId].names.en_us` PascalCase 而来。当前仓库内只有两组：
 
-| 中文名       | Station ID                      | 对应 terminalId     | `GoToMonitoringTerminal` 锚点                            |
+| 中文名 | Station ID | 对应 terminalId | `GoToMonitoringTerminal` 锚点 |
 | ------------ | ------------------------------- | ------------------- | -------------------------------------------------------- |
-| 城郊监测终端 | `OutskirtsMonitoringTerminal`   | `kitestation_002_1` | `EnvironmentMonitoringGoToOutskirtsMonitoringTerminal`   |
+| 城郊监测终端 | `OutskirtsMonitoringTerminal` | `kitestation_002_1` | `EnvironmentMonitoringGoToOutskirtsMonitoringTerminal` |
 | 首墩监测终端 | `MarkerStoneMonitoringTerminal` | `kitestation_004_1` | `EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal` |
 
 如果出现新的 Station，**生成器侧（`routes.json` + `model.mjs`）零改动**：`MONITORING_TERMINAL_IDS` 自动从 `environment_monitoring.json` 派生，`GoToMonitoringTerminal` 锚点名按 `EnvironmentMonitoringGoTo{Station}` 模板拼接。但生成出来的 Pipeline 引用的下列**手写联动节点**必须先补齐，否则 MaaFramework 运行时会报「引用了未定义的任务」：
@@ -165,7 +165,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 `data.mjs` 的默认导出是数组，每个元素 = 一个观察点的渲染上下文（字段名与 `template.json` 中 `${Xxx}` 占位符对应）。`pnpm generate:EnvironmentMonitoring` 会先同步 zmdmap 精简游戏数据，再调用 `sync-routes.mjs` 刷新上一级 `routes.json`；随后 `model.mjs` 只读 `routes.json` 与 `environment_monitoring.json`，通过 `route-resolver.mjs` 装配规范化任务，`data.mjs` 再投影出最终行：
 
 | 字段 | 来源 |
-| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Station` | `environment_monitoring.json` 的英文站名（PascalCase） |
 | `Id` | 默认由官方英文名 PascalCase 自动生成；会同步写回 `routes.json`，等价于最终模板使用的节点 ID |
 | `Name` | 来自 `environment_monitoring.json` 的中文名；`MissionId` 只作为 `model.mjs` 匹配 `routes.json` 的主键，不透传给模板 |
@@ -247,13 +247,13 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 所有完整适配条目都需要元数据、`CameraSwipeDirection`，以及 `EnterMap` / `QuickTeleport: true` 中的一种传送入口。不同路线类型的字段组合如下：
 
-| 类型                          | 地图与路线字段                                                                             | 断言矩形                    | 运行行为                                   |
+| 类型 | 地图与路线字段 | 断言矩形 | 运行行为 |
 | ----------------------------- | ------------------------------------------------------------------------------------------ | --------------------------- | ------------------------------------------ |
-| metadata-only                 | 仅 `MissionId` / `Name` / `Id`                                                             | 不填                        | 仅接取并追踪，不传送或拍照                 |
-| 传送后直拍                    | 不填任何地图和寻路字段；可选 `Heading`                                                     | 不填                        | 传送 →（可选原地调整朝向）→ 拍照           |
-| 寻路（推荐写法）              | `NavPath`；普通传送再加 `NavZoneId`，可选 `Heading`                                        | `NavAssert`，快捷传送可省略 | `MapNavigateAction` 寻路 → 拍照            |
-| `MapTarget`（简写）           | `MapName` + `MapTarget`；跨层时可加 `MapTargetTier`，目标点有重叠面时可加 `MapTargetDeckY` | `MapAssert`，快捷传送可省略 | `MapNavigateAction` 的 NAVMESH 寻路 → 拍照 |
-| `MapPath` / `MapGoal`（遗留） | `MapName` + 对应字段；可选 `Heading` / `NoEnsureInitialMovementState`                      | `MapAssert`，快捷传送可省略 | 原有实现寻路 → 拍照，仅存量路线保留        |
+| metadata-only | 仅 `MissionId` / `Name` / `Id` | 不填 | 仅接取并追踪，不传送或拍照 |
+| 传送后直拍 | 不填任何地图和寻路字段；可选 `Heading` | 不填 | 传送 →（可选原地调整朝向）→ 拍照 |
+| 寻路（推荐写法） | `NavPath`；普通传送再加 `NavZoneId`，可选 `Heading` | `NavAssert`，快捷传送可省略 | `MapNavigateAction` 寻路 → 拍照 |
+| `MapTarget`（简写） | `MapName` + `MapTarget`；跨层时可加 `MapTargetTier`，目标点有重叠面时可加 `MapTargetDeckY` | `MapAssert`，快捷传送可省略 | `MapNavigateAction` 的 NAVMESH 寻路 → 拍照 |
+| `MapPath` / `MapGoal`（遗留） | `MapName` + 对应字段；可选 `Heading` / `NoEnsureInitialMovementState` | `MapAssert`，快捷传送可省略 | 原有实现寻路 → 拍照，仅存量路线保留 |
 
 `CameraMaxHit` 和 `Replace` 适用于所有已适配路线，不改变路线类型。直拍配置只能用于已经游戏实测确认的传送落点；缺少路线数据时继续保留 metadata-only 状态。新增寻路路线一律用 `NavPath`，普通传送再补 `NavZoneId` / `NavAssert`；最后两行只是存量路线的现状记录。
 
