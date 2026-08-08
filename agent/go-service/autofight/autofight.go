@@ -53,15 +53,19 @@ func getCharactorLevelShow(ctx *maa.Context, img image.Image) bool {
 
 // hitExitNode 在 img 上依次运行 nodes 中各节点的识别，返回首个命中的节点名，未命中返回空字符串。
 func hitExitNode(ctx *maa.Context, img image.Image, nodes []string) string {
+	if len(nodes) == 0 {
+		return ""
+	}
 	for _, node := range nodes {
 		detail, err := ctx.RunRecognition(node, img)
-		if err != nil || detail == nil {
+		if err != nil {
 			log.Error().Err(err).Str("component", "AutoFight").Str("recognition", node).Msg("failed to run exit node recognition")
 			continue
 		}
-		if detail.Hit {
-			return node
+		if detail == nil || !detail.Hit {
+			continue
 		}
+		return node
 	}
 	return ""
 }
