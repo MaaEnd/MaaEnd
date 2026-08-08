@@ -169,43 +169,19 @@
     "__AccountSwitchClickDropdownSuccess": {
         "desc": "确认账号下拉列表已展开",
         "recognition": {
-            "type": "Or",
+            "type": "OCR",
             "param": {
-                "any_of": [
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": "__AccountSwitchClickDropdown",
-                                "roi_offset": [
-                                    -100,
-                                    30,
-                                    100,
-                                    100
-                                ],
-                                "template": "AccountSwitch/LoginSwitchIcon.png"
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": "__AccountSwitchClickDropdown",
-                                "roi_offset": [
-                                    -100,
-                                    30,
-                                    100,
-                                    100
-                                ],
-                                "expected": [
-                                    // 完整文本示例："上次登录：7分钟前"
-                                    // @i18n-skip
-                                    ".*上次登录.*"
-                                ]
-                            }
-                        }
-                    }
+                "roi": "__AccountSwitchClickDropdown",
+                "roi_offset": [
+                    -100,
+                    30,
+                    100,
+                    100
+                ],
+                "expected": [
+                    // 完整文本示例："上次登录：7分钟前"
+                    // @i18n-skip
+                    "次登录"
                 ]
             }
         },
