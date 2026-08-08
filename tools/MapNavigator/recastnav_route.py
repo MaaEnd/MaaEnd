@@ -14,7 +14,48 @@ from recastnav import (CAP, CS, DECK_BAND, LAM, LAM_R, MARGIN, MAX_CELLS,
 from recastnav_zone import CleanNav, WallOracle
 
 
-def build(zc, wo, s, s_snap, h0, x0, y0, x1, y1):
+def _walls_at_layer_interpolated(P0, P1, H0, H1, lh, ox, oy, nx, ny):
+    """Keep walls whose edge height meets the selected deck at the sampled position."""
+    P0 = np.asarray(P0, float)
+    P1 = np.asarray(P1, float)
+    keep = np.zeros(len(P0), bool)
+    if not len(P0):
+        return keep
+    length = np.hypot(*(P1 - P0).T)
+    steps = np.maximum(np.ceil(length / (CS * 0.4)).astype(np.int64), 1) + 1
+    wall_ids = np.repeat(np.arange(len(P0)), steps)
+    base = np.repeat(np.concatenate(([0], np.cumsum(steps)[:-1])), steps)
+    t = (np.arange(int(steps.sum())) - base) / np.maximum(
+        np.repeat(steps, steps) - 1, 1
+    )
+    samples = P0[wall_ids] + (P1[wall_ids] - P0[wall_ids]) * t[:, None]
+    gx = np.floor((samples[:, 0] - ox) / CS).astype(np.int64)
+    gy = np.floor((samples[:, 1] - oy) / CS).astype(np.int64)
+    inside = (gx >= 0) & (gx < nx) & (gy >= 0) & (gy < ny)
+    layer_h = lh.ravel()[np.where(inside, gy * nx + gx, 0)]
+    edge_h = (
+        np.asarray(H0, float)[wall_ids]
+        + (np.asarray(H1, float)[wall_ids] - np.asarray(H0, float)[wall_ids]) * t
+    )
+    hit = inside & ~np.isnan(layer_h) & (np.abs(layer_h - edge_h) <= rc.QH)
+    keep[np.unique(wall_ids[hit])] = True
+    return keep
+
+
+def build(
+    zc,
+    wo,
+    s,
+    s_snap,
+    h0,
+    x0,
+    y0,
+    x1,
+    y1,
+    *,
+    layered_core=False,
+    layer_hint=None,
+):
     nx = int(np.ceil((x1 - x0) / CS))
     ny = int(np.ceil((y1 - y0) / CS))
     m = zc.mesh
@@ -32,8 +73,9 @@ def build(zc, wo, s, s_snap, h0, x0, y0, x1, y1):
 
     widx = wo.walls_in_bbox(x0 - 4, y0 - 4, x0 + nx * CS + 4,
                             y0 + ny * CS + 4)
-    dead = rc.stamp_walls(wo.P0[widx], wo.P1[widx], wo.HH[widx], x0, y0,
-                          nx, ny, (occ, HK, IK, len(sp_h)))
+    dead = (None if layered_core else
+            rc.stamp_walls(wo.P0[widx], wo.P1[widx], wo.HH[widx], x0, y0,
+                           nx, ny, (occ, HK, IK, len(sp_h))))
 
     gx = int((s[0] - x0) / CS); gy = int((s[1] - y0) / CS)
     j = int(np.searchsorted(occ, gy * nx + gx))
@@ -55,14 +97,50 @@ def build(zc, wo, s, s_snap, h0, x0, y0, x1, y1):
     c_ = sp_cell[vis]
     lay[c_] = True
     lh[c_] = sp_h[vis]
+    if layered_core and layer_hint is not None:
+        # The recovery path is tied to a declared deck. Select that deck per column before
+        # filtering walls; otherwise the last reachable upper span can project its walls onto
+        # the lower route even though the lower span is the one being searched.
+        safe_ids = np.maximum(IK, 0)
+        reachable = (IK >= 0) & vis[safe_ids]
+        delta = np.where(reachable, np.abs(sp_h[safe_ids] - layer_hint), np.inf)
+        have = reachable.any(axis=1)
+        best = safe_ids[np.arange(len(occ)), delta.argmin(axis=1)]
+        lh.fill(np.nan)
+        lh[occ[have]] = sp_h[best[have]]
     lay = lay.reshape(ny, nx); lh = lh.reshape(ny, nx)
-    wallcell = np.zeros(ny * nx, bool)
-    wallcell[sp_cell[dead]] = True
+    if layered_core and layer_hint is not None:
+        keep = _walls_at_layer_interpolated(
+            wo.P0[widx], wo.P1[widx], wo.H0[widx], wo.H1[widx], lh,
+            x0, y0, nx, ny)
+    else:
+        keep = rc.walls_at_layer(wo.P0[widx], wo.P1[widx], wo.HH[widx], lh,
+                                 x0, y0, nx, ny, hband=MC_HBAND)
+    wP0, wP1 = wo.P0[widx][keep], wo.P1[widx][keep]
+    wid, wstart = rc.wall_index(wP0, wP1, x0, y0, nx, ny)
+    if layered_core:
+        wallcell = np.diff(wstart) > 0
+    else:
+        wallcell = np.zeros(ny * nx, bool)
+        wallcell[sp_cell[dead]] = True
     lay = rc.fill_holes(lay, rc.HOLE_MAX, protect=wallcell.reshape(ny, nx))
     sol = np.zeros(ny * nx, bool)
     ci, hi_ = cell[ins], hz[ins]
-    lf = lh.ravel()
-    okc = ~np.isnan(lf[ci]) & (np.abs(hi_ - lf[ci]) <= rc.QH)
+    if layered_core:
+        # A 2-D height slot is ambiguous when two reachable decks overlap the same cell: assigning
+        # ``lh[c] = sp_h`` lets the last span erase the other deck. Match each interior raster sample
+        # against the reachable spans in its own column instead, so an upper deck cannot punch holes
+        # into the lower deck's core mask (or vice versa).
+        rows = np.searchsorted(occ, ci)
+        span_ids = IK[rows]
+        valid = span_ids >= 0
+        safe_ids = np.where(valid, span_ids, 0)
+        okc = np.any(
+            valid & vis[safe_ids]
+            & (np.abs(hi_[:, None] - sp_h[safe_ids]) <= rc.QH), axis=1)
+    else:
+        lf = lh.ravel()
+        okc = ~np.isnan(lf[ci]) & (np.abs(hi_ - lf[ci]) <= rc.QH)
     sol[ci[okc]] = True
     core = rc.fill_holes(lay & sol.reshape(ny, nx), rc.HOLE_MAX,
                          protect=wallcell.reshape(ny, nx))
@@ -92,11 +170,6 @@ def build(zc, wo, s, s_snap, h0, x0, y0, x1, y1):
     cd = spIK[sj][spIK[sj] >= 0]
     seedN = int(cd[int(np.argmin(np.abs(spH[cd] - h0)))])
     reachN = rc.span_reach(seedN, spH, spOcc, spHK, spIK, spCi, spV, nx, ny)
-
-    keep = rc.walls_at_layer(wo.P0[widx], wo.P1[widx], wo.HH[widx], lh,
-                             x0, y0, nx, ny, hband=MC_HBAND)
-    wP0, wP1 = wo.P0[widx][keep], wo.P1[widx][keep]
-    wid, wstart = rc.wall_index(wP0, wP1, x0, y0, nx, ny)
 
     t0 = time.time()
     dist = rc.clearance(core)
@@ -161,7 +234,7 @@ def metrics(wo, P, h0, info, step=0.25):
             hug / tot * 100 if tot else 0.0)
 
 
-def route(info, s, g, climb_faces=False, *, goal_deck=None):
+def route(info, s, g, climb_faces=False, *, goal_deck=None, hard_walls=False):
     # goal_deck: 终点所在面的高度。不声明时终点集是该格全部 span,先够到哪张停哪张。
     lay, dist, core = info["lay"], info["dist"], info["core"]
     x0, y0, nx, ny = info["x0"], info["y0"], info["nx"], info["ny"]
@@ -249,8 +322,8 @@ def route(info, s, g, climb_faces=False, *, goal_deck=None):
     if as_ is None:
         return None, {"err": "walk 掩膜为空"}
     BIGP = nx * ny * CS * (1.0 + LAM)
-    faces = None if climb_faces else info["sev"]
-    soft = blocked if climb_faces else bn
+    faces = blocked if hard_walls else (None if climb_faces else info["sev"])
+    soft = () if hard_walls else (blocked if climb_faces else bn)
     t0 = time.time()
     on3 = cw3
     qs = None
@@ -489,7 +562,8 @@ def route(info, s, g, climb_faces=False, *, goal_deck=None):
         b = min(max(int(math.floor((py - y0) / CS)), 0), ny - 1)
         clr.append(float(dist[b, a]))
     return line, {"warn": warn, "snapd": (dsa, dga), "clr": clr,
-                  "t_as": t_as, "t_sp": t_sp, "xwall": xw}
+                  "t_as": t_as, "t_sp": t_sp, "xwall": xw,
+                  "crossed_barrier": bool(bad)}
 
 
 def offmesh(line, info):
@@ -596,6 +670,57 @@ class RecastEngine:
             if err is None:
                 line, dg = route(info, s, g, p >= len(margins),
                                  goal_deck=goal_deck_y)
+                same_deck_recovery = (
+                    goal_deck_y is not None
+                    and abs(h0 - goal_deck_y) <= DECK_BAND
+                )
+                if (same_deck_recovery
+                        and (line is None
+                             or dg.get("crossed_barrier", False))):
+                    # A declared deck makes the recovery layer unambiguous. Do not retain a
+                    # legacy soft-crossing result if the layer-correct hard-wall route fails.
+                    line = None
+                    # Anchor recovery to the world voxel lattice. Moving the query bbox by a
+                    # fraction of one cell must not change the reconstructed topology.
+                    recovery_x0 = math.floor(x0 / CS) * CS
+                    recovery_y0 = math.floor(y0 / CS) * CS
+                    recovery_x1 = math.ceil(x1 / CS) * CS
+                    recovery_y1 = math.ceil(y1 / CS) * CS
+                    recovery_nx = math.ceil((recovery_x1 - recovery_x0) / CS)
+                    recovery_ny = math.ceil((recovery_y1 - recovery_y0) / CS)
+                    if recovery_nx * recovery_ny > MAX_CELLS:
+                        recovery_info = None
+                        recovery_err = (
+                            f"恢复窗口过大 ({recovery_nx}×{recovery_ny} 格)")
+                    else:
+                        recovery_info, recovery_err = build(
+                            zc,
+                            wo,
+                            s,
+                            ss[1],
+                            h0,
+                            recovery_x0,
+                            recovery_y0,
+                            recovery_x1,
+                            recovery_y1,
+                            layered_core=True,
+                            layer_hint=goal_deck_y,
+                        )
+                    if recovery_err is None:
+                        recovery_line, recovery_dg = route(
+                            recovery_info,
+                            s,
+                            g,
+                            goal_deck=goal_deck_y,
+                            hard_walls=True,
+                        )
+                        if (recovery_line is not None and not recovery_dg.get(
+                                "crossed_barrier", False)):
+                            info, line, dg = recovery_info, recovery_line, recovery_dg
+                        else:
+                            dg = recovery_dg
+                    else:
+                        dg = {"err": recovery_err}
                 if line is not None:
                     P = np.asarray(line, float)
                     pad = 2.0

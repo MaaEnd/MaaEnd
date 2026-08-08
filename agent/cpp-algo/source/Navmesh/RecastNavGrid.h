@@ -142,6 +142,15 @@ std::vector<uint8_t> WallsAtLayer(
     double ox,
     double oy);
 
+std::vector<uint8_t> WallsAtLayerInterpolated(
+    const std::vector<WorldPoint>& p0,
+    const std::vector<WorldPoint>& p1,
+    const std::vector<double>& h0,
+    const std::vector<double>& h1,
+    const Grid<float>& lh,
+    double ox,
+    double oy);
+
 WallCsr BuildWallIndex(const std::vector<WorldPoint>& p0, const std::vector<WorldPoint>& p1, double ox, double oy, int64_t nx, int64_t ny);
 
 std::unordered_set<int64_t> BannedSteps(

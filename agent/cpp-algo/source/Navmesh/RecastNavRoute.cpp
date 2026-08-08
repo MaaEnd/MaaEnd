@@ -48,6 +48,7 @@ struct RouteDiag
     std::vector<std::string> warn;
     std::vector<WorldPoint> xwall;
     std::vector<double> clearance;
+    bool crossed_barrier = false;
     double snap_start = 0.0;
     double snap_goal = 0.0;
 };
@@ -64,6 +65,8 @@ std::optional<WindowInfo> buildWindow(
     double y1,
     const std::vector<int32_t>& blocked_local,
     const std::vector<WorldPoint>& blocked_points,
+    bool layered_core,
+    std::optional<double> layer_hint,
     std::string& err)
 {
     const int64_t nx = static_cast<int64_t>(std::ceil((x1 - x0) / kCS));
@@ -75,13 +78,17 @@ std::optional<WindowInfo> buildWindow(
     const auto widx = wo.wallsInBbox(x0 - 4, y0 - 4, x0 + static_cast<double>(nx) * kCS + 4, y0 + static_cast<double>(ny) * kCS + 4);
     std::vector<WorldPoint> p0;
     std::vector<WorldPoint> p1;
+    std::vector<double> wh0;
+    std::vector<double> wh1;
     std::vector<double> hh;
     for (const int64_t i : widx) {
         p0.push_back(wo.P0[static_cast<size_t>(i)]);
         p1.push_back(wo.P1[static_cast<size_t>(i)]);
+        wh0.push_back(wo.H0[static_cast<size_t>(i)]);
+        wh1.push_back(wo.H1[static_cast<size_t>(i)]);
         hh.push_back(wo.HH[static_cast<size_t>(i)]);
     }
-    const std::vector<uint8_t> dead = StampWalls(p0, p1, hh, x0, y0, nx, ny, st);
+    const std::vector<uint8_t> dead = layered_core ? std::vector<uint8_t>() : StampWalls(p0, p1, hh, x0, y0, nx, ny, st);
 
     int64_t gx = static_cast<int64_t>((s.x - x0) / kCS);
     int64_t gy = static_cast<int64_t>((s.y - y0) / kCS);
@@ -127,20 +134,79 @@ std::optional<WindowInfo> buildWindow(
             info.lh.v[static_cast<size_t>(st.sp_cell[si])] = st.sp_h[si];
         }
     }
+    if (layered_core && layer_hint.has_value()) {
+        std::fill(info.lh.v.begin(), info.lh.v.end(), std::numeric_limits<float>::quiet_NaN());
+        for (size_t row = 0; row < st.occ.size(); ++row) {
+            int64_t best_span = -1;
+            double best_delta = 0.0;
+            for (int64_t k = 0; k < st.K; ++k) {
+                const int64_t sid = st.IK[row * static_cast<size_t>(st.K) + static_cast<size_t>(k)];
+                if (sid < 0 || vis[static_cast<size_t>(sid)] == 0) {
+                    continue;
+                }
+                const double delta = std::abs(static_cast<double>(st.sp_h[static_cast<size_t>(sid)]) - *layer_hint);
+                if (best_span < 0 || delta < best_delta) {
+                    best_span = sid;
+                    best_delta = delta;
+                }
+            }
+            if (best_span >= 0) {
+                info.lh.v[static_cast<size_t>(st.occ[row])] = st.sp_h[static_cast<size_t>(best_span)];
+            }
+        }
+    }
+    const std::vector<uint8_t> keep = layered_core && layer_hint.has_value() ? WallsAtLayerInterpolated(p0, p1, wh0, wh1, info.lh, x0, y0)
+                                                                             : WallsAtLayer(p0, p1, hh, info.lh, x0, y0);
+    for (size_t i = 0; i < keep.size(); ++i) {
+        if (keep[i] != 0) {
+            info.wP0.push_back(p0[i]);
+            info.wP1.push_back(p1[i]);
+        }
+    }
+    info.wcsr = BuildWallIndex(info.wP0, info.wP1, x0, y0, nx, ny);
     Mask wallcell(nx, ny, 0);
-    for (size_t si = 0; si < dead.size(); ++si) {
-        if (dead[si] != 0) {
-            wallcell.v[static_cast<size_t>(st.sp_cell[si])] = 1;
+    if (layered_core) {
+        for (size_t cell = 0; cell < wallcell.v.size(); ++cell) {
+            wallcell.v[cell] = static_cast<uint8_t>(info.wcsr.start[cell + 1] > info.wcsr.start[cell]);
+        }
+    }
+    else {
+        for (size_t si = 0; si < dead.size(); ++si) {
+            if (dead[si] != 0) {
+                wallcell.v[static_cast<size_t>(st.sp_cell[si])] = 1;
+            }
         }
     }
     info.lay = FillHoles(info.lay, kHoleMaxCells, &wallcell);
     Mask corein(nx, ny, 0);
+    std::vector<int64_t> span_row;
+    if (layered_core) {
+        span_row.assign(static_cast<size_t>(nx * ny), -1);
+        for (size_t row = 0; row < st.occ.size(); ++row) {
+            span_row[static_cast<size_t>(st.occ[row])] = static_cast<int64_t>(row);
+        }
+    }
     for (size_t ci = 0; ci < rcs.cell.size(); ++ci) {
         if (rcs.ins[ci] == 0) {
             continue;
         }
-        const float lf = info.lh.v[static_cast<size_t>(rcs.cell[ci])];
-        if (!std::isnan(lf) && std::fabs(rcs.h[ci] - lf) <= static_cast<float>(kQH)) {
+        bool matches = false;
+        if (layered_core) {
+            const int64_t row_index = span_row[static_cast<size_t>(rcs.cell[ci])];
+            if (row_index >= 0) {
+                const size_t row = static_cast<size_t>(row_index);
+                for (int64_t k = 0; k < st.K && !matches; ++k) {
+                    const int64_t sid = st.IK[row * static_cast<size_t>(st.K) + static_cast<size_t>(k)];
+                    matches = sid >= 0 && vis[static_cast<size_t>(sid)] != 0
+                              && std::fabs(rcs.h[ci] - st.sp_h[static_cast<size_t>(sid)]) <= static_cast<float>(kQH);
+                }
+            }
+        }
+        else {
+            const float lf = info.lh.v[static_cast<size_t>(rcs.cell[ci])];
+            matches = !std::isnan(lf) && std::fabs(rcs.h[ci] - lf) <= static_cast<float>(kQH);
+        }
+        if (matches) {
             corein.v[static_cast<size_t>(rcs.cell[ci])] = 1;
         }
     }
@@ -239,14 +305,6 @@ std::optional<WindowInfo> buildWindow(
     }
     info.reach3 = SpanReach(seed3, info.st3, info.vis3, nx, ny);
 
-    const std::vector<uint8_t> keep = WallsAtLayer(p0, p1, hh, info.lh, x0, y0);
-    for (size_t i = 0; i < keep.size(); ++i) {
-        if (keep[i] != 0) {
-            info.wP0.push_back(p0[i]);
-            info.wP1.push_back(p1[i]);
-        }
-    }
-    info.wcsr = BuildWallIndex(info.wP0, info.wP1, x0, y0, nx, ny);
     info.segA = info.wP0;
     info.segA.insert(info.segA.end(), info.sev.p0.begin(), info.sev.p0.end());
     info.segB = info.wP1;
@@ -262,7 +320,8 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const WorldPoint& g,
     bool climb_faces,
     RouteDiag& dg,
-    std::optional<double> goal_deck = std::nullopt)
+    std::optional<double> goal_deck = std::nullopt,
+    bool hard_walls = false)
 {
     const int64_t nx = info.nx;
     const int64_t ny = info.ny;
@@ -421,8 +480,9 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     }
 
     const double BIGP = static_cast<double>(nx * ny) * kCS * (1.0 + kLam);
-    const std::unordered_set<int64_t>* faces = climb_faces ? nullptr : &info.sev.steps;
-    const std::unordered_set<int64_t>& soft = climb_faces ? blocked_steps : bn;
+    const std::unordered_set<int64_t>* faces = hard_walls ? &blocked_steps : (climb_faces ? nullptr : &info.sev.steps);
+    const std::unordered_set<int64_t>* soft = hard_walls ? nullptr : (climb_faces ? &blocked_steps : &bn);
+    const double* soft_penalty = hard_walls ? nullptr : &BIGP;
     Mask on3 = cw3;
     // 起点层不确定时按 seedsOf 的次序逐张试, 第一张走通的就是它所在的面
     const auto search = [&](const std::vector<uint8_t>& use,
@@ -430,7 +490,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                             const std::vector<int64_t>& svs,
                             const std::vector<int64_t>& gs) -> std::optional<std::vector<int64_t>> {
         for (const int64_t sd : seedsOf(svs)) {
-            auto r = SpanAstar(st3, use, info.cidx, c3, sd, gs, mult, &soft, &BIGP, faces);
+            auto r = SpanAstar(st3, use, info.cidx, c3, sd, gs, mult, soft, soft_penalty, faces);
             if (r.has_value()) {
                 return r;
             }
@@ -524,11 +584,11 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             q = std::vector<CellPt> { *as_ };
         }
         else {
-            q = CostAstar(walk, *as_, *ag_, mult, &soft, &BIGP, faces);
+            q = CostAstar(walk, *as_, *ag_, mult, soft, soft_penalty, faces);
         }
         if (!q.has_value()) {
             on3 = info.core;
-            q = CostAstar(info.core, *as_, *ag_, mult, &soft, &BIGP, faces);
+            q = CostAstar(info.core, *as_, *ag_, mult, soft, soft_penalty, faces);
             if (q.has_value()) {
                 dg.warn.push_back("walk 断开→退回 core");
             }
@@ -560,6 +620,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     if (bad.size() > dg.xwall.size()) {
         dg.warn.push_back("不可避立面 " + std::to_string(bad.size() - dg.xwall.size()) + " 步");
     }
+    dg.crossed_barrier = !bad.empty();
 
     const auto cen = [&](const std::vector<CellPt>& P) {
         std::vector<WorldPoint> out;
@@ -962,10 +1023,61 @@ RecastPlanResult RecastNavEngine::planLocked(
         const int64_t pass_started_ms = elapsed_ms();
         widen_requested = false;
         std::string err;
-        const auto info = buildWindow(zc, wo, start, ss->point, h0, x0, y0, x1, y1, blocked_local, blocked_points, err);
+        auto info = buildWindow(zc, wo, start, ss->point, h0, x0, y0, x1, y1, blocked_local, blocked_points, false, std::nullopt, err);
         if (info.has_value()) {
             RouteDiag dg;
-            const auto line = routeWindow(*info, start, goal, climb_faces, dg, gdk);
+            auto line = routeWindow(*info, start, goal, climb_faces, dg, gdk);
+            const bool same_deck_recovery = gdk.has_value() && std::abs(h0 - *gdk) <= kDeckBand;
+            if (same_deck_recovery && (!line.has_value() || dg.crossed_barrier)) {
+                // A declared deck gives recovery an unambiguous layer. Never keep a legacy soft-crossing
+                // result here: if the layer-correct hard-wall search cannot route it, failing is safer.
+                line.reset();
+                std::string recovery_err;
+                // Recovery is anchored to the world voxel lattice. Its topology must not change merely
+                // because the query bbox moved by a fraction of one cell.
+                const double recovery_x0 = std::floor(x0 / kCS) * kCS;
+                const double recovery_y0 = std::floor(y0 / kCS) * kCS;
+                const double recovery_x1 = std::ceil(x1 / kCS) * kCS;
+                const double recovery_y1 = std::ceil(y1 / kCS) * kCS;
+                const int64_t recovery_nx = static_cast<int64_t>(std::ceil((recovery_x1 - recovery_x0) / kCS));
+                const int64_t recovery_ny = static_cast<int64_t>(std::ceil((recovery_y1 - recovery_y0) / kCS));
+                std::optional<WindowInfo> recovery_info;
+                if (recovery_nx * recovery_ny > kMaxCells) {
+                    recovery_err = "恢复窗口过大 (" + std::to_string(recovery_nx) + "×" + std::to_string(recovery_ny) + " 格)";
+                }
+                else {
+                    recovery_info = buildWindow(
+                        zc,
+                        wo,
+                        start,
+                        ss->point,
+                        h0,
+                        recovery_x0,
+                        recovery_y0,
+                        recovery_x1,
+                        recovery_y1,
+                        blocked_local,
+                        blocked_points,
+                        true,
+                        gdk,
+                        recovery_err);
+                }
+                if (recovery_info.has_value()) {
+                    RouteDiag recovery_dg;
+                    auto recovery_line = routeWindow(*recovery_info, start, goal, false, recovery_dg, gdk, true);
+                    if (recovery_line.has_value() && !recovery_dg.crossed_barrier) {
+                        info = std::move(recovery_info);
+                        line = std::move(recovery_line);
+                        dg = std::move(recovery_dg);
+                    }
+                    else {
+                        dg = std::move(recovery_dg);
+                    }
+                }
+                else {
+                    dg.err = std::move(recovery_err);
+                }
+            }
             if (line.has_value()) {
                 // 锚点远 = 走廊出窗,同触界扩窗,否则末段盲跳穿墙
                 if (std::max(dg.snap_start, dg.snap_goal) > kSnapRadius) {
