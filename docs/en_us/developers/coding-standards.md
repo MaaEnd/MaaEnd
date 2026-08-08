@@ -121,7 +121,7 @@ pnpm check         # Resource and schema check
 pnpm test          # Node testing
 ```
 
-CI is also built around these validations: `pnpm check`, `python tools/validate_schema.py`, `pnpm test`, `pnpm format:all`.
+CI is also built around these validations: `pnpm check`, `uv run tools/validate_schema.py`, `pnpm test`, `pnpm format:all`.
 
 ## Supporting Files
 
@@ -139,7 +139,7 @@ A functional change in MaaEnd often involves more than one place.
 
 - Register in the corresponding sub-package `register.go`
 - Integrate in `agent/go-service/register.go`'s `registerAll()`
-- Re-run `python tools/build_and_install.py`
+- Re-run `uv run tools/build_and_install.py`
 
 > MXU is a GUI for end-users and is not recommended for daily development and debugging. The above development tools can greatly improve development efficiency.
 
@@ -154,7 +154,7 @@ After modifying `assets/resource/pipeline/**/*.json`, just reload the resource i
 After modifying `agent/go-service/`, you must recompile:
 
 ```bash
-python tools/build_and_install.py
+uv run tools/build_and_install.py
 ```
 
 You can use the `build` task in VS Code's terminal run tasks for quick execution, or set breakpoints or attach debugging to go-service.
@@ -164,7 +164,7 @@ You can use the `build` task in VS Code's terminal run tasks for quick execution
 `assets/interface.json` is the main source file. After modification, run:
 
 ```bash
-python tools/build_and_install.py
+uv run tools/build_and_install.py
 ```
 
 If `install/interface.json` is modified through a tool, it needs to be manually synced back to `assets/interface.json`.
@@ -174,7 +174,7 @@ If `install/interface.json` is modified through a tool, it needs to be manually 
 Requires a VC generator and cmake; generally, developers do not need to change it:
 
 ```bash
-python tools/build_and_install.py --cpp-algo
+uv run tools/build_and_install.py --cpp-algo
 ```
 
 ## Resource Standards
@@ -236,8 +236,8 @@ MaaEnd uses maa-tools for node testing. See [Node Testing Documentation](./node-
 | Pitfall | Handling |
 | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
 | `pnpm check` / `pnpm test` fails to run | `pnpm install` |
-| Model or C++ dependency directory missing | `git submodule update --init --recursive` or `python tools/setup_workspace.py --update` |
-| Go changes not taking effect | Forgot `python tools/build_and_install.py` |
+| Model or C++ dependency directory missing | `git submodule update --init --recursive` or `uv run tools/setup_workspace.py --update` |
+| Go changes not taking effect | Forgot `uv run tools/build_and_install.py` |
 | Directly referenced `__ScenePrivate*` nodes | Should reference scene interface nodes exposed in the `Interface` directory |
 | Only focusing on the main flow, not handling pop-ups/loading | Treat pop-ups, loading, and intermediate states as normal scenarios |
 | Changed tasks but didn't add text | Text goes in `assets/locales/` |

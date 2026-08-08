@@ -1,6 +1,7 @@
 # 构建产物
 install/
 node_modules/
+.venv/
 
 # 子模块
 assets/resource/model/

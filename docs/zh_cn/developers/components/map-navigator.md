@@ -55,14 +55,11 @@ MapNavigator 是 MaaEnd 的寻路组件：给定目标位置，自动规划路�
 
 工具负责产出坐标，MapNavigator 负责按坐标执行移动。工具为本地 FastAPI 后端（仅监听 `127.0.0.1`）+ 浏览器前端，启动后自动打开页面，详见 [`tools/MapNavigator/README.md`](../../../../tools/MapNavigator/README.md)。
 
-不使用 uv 时的启动方式：
+启动方式：
 
 ```powershell
 cd tools\MapNavigator
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-python main.py
+uv run main.py
 ```
 
 页面顶部有三个模式，各自导出一种可直接粘贴到 Pipeline 的配置：
@@ -123,9 +120,9 @@ python main.py
 ### 录制准备
 
 1. 项目开发环境已配置完成，尤其是 `install/agent/cpp-algo.exe` 与 `install/maafw` 可正常使用。
-2. Python 依赖已安装（见 `requirements.txt`，或直接使用 `uv run`）。
+2. 已安装 uv；运行 `uv run main.py` 时会根据 PEP 723 声明自动准备 Python 与依赖。
 3. **Windows** 需**以管理员身份运行**，否则游戏（管理员进程）在前台时 `G` / `X` 热键无法接收。`main.py` 启动时会自动检测并弹出 UAC。
-4. **macOS** 首次运行需在 **系统设置 → 隐私与安全性 → 输入监控** 中授权当前终端或 Python 解释器，否则全局热键不生效。
+4. **macOS** 首次运行需在 **系统设置 → 隐私与安全性 → 输入监控** 中授权当前终端或 uv 管理的 Python 解释器，否则全局热键不生效。
 5. 使用 `Win32` 连接时，游戏已启动且窗口**未最小化**；使用 `ADB` 连接时，`adb` 可用且设备已出现在列表中（`检测并刷新设备`）。
 6. 角色已位于待录路线的起点附近。
 

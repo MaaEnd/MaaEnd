@@ -1,0 +1,42 @@
+[project]
+name = "maaend"
+version = "0.0.0"
+description = "Python dependencies for MaaEnd development scripts"
+requires-python = ">=3.10"
+dependencies = []
+
+[dependency-groups]
+schema = [
+    "jsonschema==4.26.0",
+    "referencing==0.37.0",
+]
+pipeline = [
+    "json5",
+    "maafw>=5.12,<6.0",
+]
+images = [
+    "numpy",
+    "pillow",
+    "tqdm",
+]
+map-navigator = [
+    "fastapi>=0.129,<1.0",
+    "maafw>=5.12,<6.0",
+    "numpy",
+    "pydantic",
+    "pynput>=1.7.0",
+    "pyperclip",
+    "starlette",
+    "uvicorn>=0.41,<1.0",
+    "websockets",
+]
+scripts = [
+    { include-group = "schema" },
+    { include-group = "pipeline" },
+    { include-group = "images" },
+    { include-group = "map-navigator" },
+]
+
+[tool.uv]
+default-groups = ["scripts"]
+package = false

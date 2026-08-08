@@ -524,20 +524,10 @@
 
 ### 立即体验工具
 
-**如何开始使用？** 推荐您使用 [uv](https://docs.astral.sh/uv/) 依赖管理器直接运行工具，它会自动准备所需的依赖：
+**如何开始使用？** 使用 [uv](https://docs.astral.sh/uv/) 直接运行工具，它会根据 PEP 723 声明自动准备独立的 Python 3.12+ 环境与依赖，不受根项目 Python 3.10+ 基线影响：
 
 ```bash
 uv run tools/map_tracker/map_tracker_master.py
 ```
 
 工具启动后会自动打开浏览器页面。如果没有自动打开，您可以人工查看终端输出的 URL 地址（通常是 <http://127.0.0.1:8060/web/> ）并在浏览器中访问即可。
-
-<details>
-<summary>如果您不想使用 uv，也可以手动安装依赖并启动……</summary>
-
-```bash
-pip install -r tools/map_tracker/requirements.txt
-python tools/map_tracker/map_tracker_master.py
-```
-
-</details>

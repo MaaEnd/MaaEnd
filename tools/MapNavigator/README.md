@@ -186,21 +186,11 @@ dung01
 
 ## 运行方式
 
-### 1) uv（推荐，依赖声明在 `main.py` / `web/serve.py` 的 PEP 723 头里）
+依赖声明在 `main.py` / `web/serve.py` 的 PEP 723 头里，uv 会自动准备对应环境：
 
 ```powershell
 cd tools/MapNavigator
 uv run main.py
-```
-
-### 2) 标准 Python
-
-```powershell
-cd tools/MapNavigator
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-python main.py
 ```
 
 启动后服务监听 `http://127.0.0.1:8770`（仅本机，不暴露局域网）并自动打开浏览器。**端口被占用时会自动顺延到下一个可用端口**（最多试 20 个，仍全占用则由系统分配），控制台会打印 `[Backend] 服务地址: ...`，浏览器也会打开实际地址。环境变量：`MAPNAV_PORT` 指定首选端口（被占用时同样顺延）；`MAPNAV_NO_BROWSER=1` 只起服务不开浏览器。也可以直接 `uv run web/serve.py`（完全等价）。

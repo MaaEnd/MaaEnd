@@ -124,12 +124,12 @@ MapTracker 的部分组件，以及 MapTracker 所依赖的核心库 [minicv](/a
 您可以运行下面的脚本来完成批量测试：
 
 ```bash
-python tools/map_tracker/map_tracker_tester.py batch_test -i tests/MaaEndTestset/Win32/Official_CN/map_tracker
+uv run tools/map_tracker/map_tracker_tester.py batch_test -i tests/MaaEndTestset/Win32/Official_CN/map_tracker
 ```
 
 > [!NOTE]
 >
-> 运行这个测试脚本前，您需要安装 Python 及 `opencv-python`、`maafw` 库，并事先配置好本项目的开发环境。
+> 运行这个测试脚本前，请先安装 uv 并配置好本项目的开发环境；uv 会根据 PEP 723 声明自动准备 Python、`opencv-python` 和 `maafw`。
 
 > [!TIP]
 >
@@ -155,44 +155,44 @@ MapTracker 的日常维护主要涉及的是**地图图片的更新**。当游�
 
 > [!NOTE]
 >
-> 运行下面的脚本前，您需要安装 Python 及 `opencv-python`、`PyMaxflow` 依赖库。
+> 运行下面的脚本前，请先安装 uv；uv 会根据 PEP 723 声明自动准备 Python、`opencv-python` 和 `PyMaxflow`。
 
 该工具脚本的完整操作步骤如下：
 
 1. 从 zmdmap 拉取最新的地图数据到生产数据目录：
 
     ```bash
-    python tools/map_tracker/map_fetcher.py json -o assets/data/ZmdMap
+    uv run tools/map_tracker/map_fetcher.py json -o assets/data/ZmdMap
     ```
 
 2. 从 zmdmap 拉取最新的 Region 地图的原始图片（并将其切割为若干 Level 地图图片），同时拉取最新的 Tier 地图的原始图片。原始图片不是运行时资源，暂存在 `.cache/map_tracker/images`：
 
     ```bash
-    python tools/map_tracker/map_fetcher.py image -i assets/data/ZmdMap -o .cache/map_tracker/images
+    uv run tools/map_tracker/map_fetcher.py image -i assets/data/ZmdMap -o .cache/map_tracker/images
     ```
 
 3. 对所有 Level 地图图片进行重叠区域再分配：
 
     ```bash
-    python tools/map_tracker/map_generator.py distinguish_levels -i .cache/map_tracker/images -o .cache/map_tracker/images_staged --data-dir assets/data/ZmdMap
+    uv run tools/map_tracker/map_generator.py distinguish_levels -i .cache/map_tracker/images -o .cache/map_tracker/images_staged --data-dir assets/data/ZmdMap
     ```
 
 4. 在所有非 Tier 地图图片上附加固定图标，并部署到生产目录：
 
     ```bash
-    python tools/map_tracker/map_generator.py attach_icons -i .cache/map_tracker/images_staged -o assets/resource/image/MapTracker/map/ --data-dir assets/data/ZmdMap
+    uv run tools/map_tracker/map_generator.py attach_icons -i .cache/map_tracker/images_staged -o assets/resource/image/MapTracker/map/ --data-dir assets/data/ZmdMap
     ```
 
 5. 对所有 Tier 地图图片进行画布扩展和背景叠加，并部署到生产目录：
 
     ```bash
-    python tools/map_tracker/map_generator.py tidy_tiers -i .cache/map_tracker/images -o assets/resource/image/MapTracker/map/
+    uv run tools/map_tracker/map_generator.py tidy_tiers -i .cache/map_tracker/images -o assets/resource/image/MapTracker/map/
     ```
 
 6. 根据生产资源目录中的最终地图图片生成 BBox 数据：
 
     ```bash
-    python tools/map_tracker/map_generator.py bbox -i assets/resource/image/MapTracker/map -o assets/data/MapTracker
+    uv run tools/map_tracker/map_generator.py bbox -i assets/resource/image/MapTracker/map -o assets/data/MapTracker
     ```
 
 MapTracker 使用的生产资源为 `assets/resource/image/MapTracker/map` 中的地图图片和 `assets/data/MapTracker/map_bbox_data.json`。`assets/data/ZmdMap` 保存地图生成工具使用的 zmdmap 数据；`.cache/map_tracker` 仅用于暂存下载和生成过程中的中间文件，不应作为生产资源提交。

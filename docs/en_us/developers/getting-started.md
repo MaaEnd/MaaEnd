@@ -5,7 +5,7 @@ Take "Auto-sell Items" as an example, go through the complete development proces
 ## Environment Preparation
 
 - Git
-- Python 3.10+
+- [uv](https://docs.astral.sh/uv/) (manages Python 3.10+ and script dependencies automatically)
 - Node.js 22
 - pnpm 10+
 - Go 1.25.6+
@@ -14,7 +14,7 @@ Take "Auto-sell Items" as an example, go through the complete development proces
 
 ```bash
 git --version
-python3 --version   # or python --version (be mindful of Python 2)
+uv --version
 node --version
 pnpm --version
 go version
@@ -25,7 +25,7 @@ go version
 ```bash
 git clone --recursive https://github.com/MaaEnd/MaaEnd.git
 cd MaaEnd
-python tools/setup_workspace.py
+uv run tools/setup_workspace.py
 pnpm install
 ```
 
@@ -296,7 +296,7 @@ Load resources with the development tool, connect to the emulator or PC client, 
 - Every time you modify the Pipeline, simply **reload the resources** in the tool; no recompilation is needed.
 - Be aware that animation transition speeds differ at different frame rates (e.g., 12 fps vs 60 fps), which may cause recognition timing discrepancies.
 
-> If you modified the Go Service, you must first run `python tools/build_and_install.py` to recompile.
+> If you modified the Go Service, you must first run `uv run tools/build_and_install.py` to recompile.
 
 The current example uses **Maa Pipeline Support** (VS Code plugin): enable Admin Mode on the control panel and connect to the window.
 
@@ -402,19 +402,19 @@ Congratulations, you've completed your first task!
 3. Download MaaDeps pre-built.
 
     ```bash
-    python tools/maadeps-download.py
+    uv run tools/maadeps-download.py
     ```
 
 4. Compile go-service and configure paths.
 
     ```bash
-    python tools/build_and_install.py
+    uv run tools/build_and_install.py
     ```
 
     > If you also need to compile cpp-algo, add the `--cpp-algo` parameter:
     >
     > ```bash
-    > python tools/build_and_install.py --cpp-algo
+    > uv run tools/build_and_install.py --cpp-algo
     > ```
 
 5. Copy the contents of `deps/bin` extracted in Step 2 to `install/maafw/`.

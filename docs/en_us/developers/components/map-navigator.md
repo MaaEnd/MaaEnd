@@ -342,18 +342,6 @@ Non-coordinate control nodes like `HEADING` and semantic pathfinding nodes like 
 
 ### Running Method
 
-#### 1) Standard Python
-
-```powershell
-cd tools\MapNavigator
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-python main.py
-```
-
-#### 2) uv
-
 ```powershell
 cd tools\MapNavigator
 uv run main.py
@@ -364,9 +352,9 @@ uv run main.py
 Before starting to record, please confirm:
 
 1. The project development environment has been configured according to the development manual, especially that `install/agent/cpp-algo.exe` and `install/maafw` are usable.
-2. The Python dependencies `maafw`, `Pillow`, and `pynput` are installed.
+2. uv is installed; `uv run main.py` prepares Python and dependencies automatically from the PEP 723 metadata.
 3. **Windows**: The tool needs to be run with **administrator privileges**; otherwise, the G/X hotkeys may not be captured by the system when the game (an administrator process) is in the foreground. `main.py` will automatically detect this and prompt a UAC elevation request at startup.
-4. **macOS**: On the first run, you need to authorize the current terminal or Python interpreter in **System Settings → Privacy & Security → Input Monitoring**, otherwise global hotkeys will not work.
+4. **macOS**: On the first run, authorize the current terminal or the uv-managed Python interpreter in **System Settings → Privacy & Security → Input Monitoring**; otherwise, global hotkeys will not work.
 5. If using `Win32` connection, the game is already started, and the window is **not minimized**.
 6. If using `ADB` connection, `adb` is available, and the target emulator/device appears in the device list.
 7. The current character is standing near the starting point of the route you want to record.
