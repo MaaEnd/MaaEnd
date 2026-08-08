@@ -138,7 +138,7 @@ double CardVerticalPhaseScore(const cv::Mat& gray, int phase_y, double pitch_y, 
     return Median(std::move(scores));
 }
 
-void RefineCardVerticalPhase(const cv::Mat& image, const cv::Rect& roi, GridLayout& layout)
+void RefineCardVerticalPhase(const cv::Mat& image, const cv::Rect& roi, GridType type, GridLayout& layout)
 {
     cv::Mat bgr;
     if (image.channels() == 4) {
@@ -158,7 +158,7 @@ void RefineCardVerticalPhase(const cv::Mat& image, const cv::Rect& roi, GridLayo
     const int current_y = layout.cells.front().cell_box.y;
     const double current_pitch = layout.pitch_y;
     const double current_score = CardVerticalPhaseScore(gray, current_y, current_pitch, layout.cell_size, x_starts);
-    const GridProfile profile = ProfileFor(layout.cell_size == 96 ? GridType::Valuables : GridType::Shipment);
+    const GridProfile profile = ProfileFor(type);
     const double pitch_min = std::max(profile.pitch_y - 8.0, current_pitch - 1.5);
     const double pitch_max = std::min(profile.pitch_y + 8.0, current_pitch + 1.5);
     const int phase_stop = std::min(roi.y + roi.height, roi.y + cvRound(current_pitch));
@@ -209,6 +209,52 @@ void RefineCardVerticalPhase(const cv::Mat& image, const cv::Rect& roi, GridLayo
         y_starts.back() + layout.cell_size - y_starts.front());
 }
 
+GridLayout BuildCreditTradeLattice(const cv::Rect& roi, int x_phase, int y_phase)
+{
+    constexpr int kCellSize = 128;
+    constexpr int kColumns = 7;
+    constexpr int kPitchX = 161;
+    constexpr int kPitchY = 205;
+    constexpr int kCellOffsetX = 10;
+    constexpr int kCellOffsetY = 6;
+
+    GridLayout layout;
+    layout.grid_index = 0;
+    layout.cell_size = kCellSize;
+    layout.pitch_x = kPitchX;
+    layout.pitch_y = kPitchY;
+    layout.columns = kColumns;
+    for (int row = 0; row < 8; ++row) {
+        const int y = y_phase + row * kPitchY + kCellOffsetY;
+        if (y >= roi.y + roi.height) {
+            break;
+        }
+        bool kept_row = false;
+        for (int column = 0; column < kColumns; ++column) {
+            const cv::Rect cell(x_phase + column * kPitchX + kCellOffsetX, y, kCellSize, kCellSize);
+            if (IsFormal(cell, roi)) {
+                layout.cells.push_back({ 0, layout.rows, column, cell });
+                kept_row = true;
+            }
+        }
+        layout.rows += kept_row ? 1 : 0;
+    }
+    if (layout.cells.empty()) {
+        throw std::runtime_error("credit_trade ROI contains no formal cells");
+    }
+
+    int x1 = std::numeric_limits<int>::max();
+    int y1 = std::numeric_limits<int>::max();
+    int x2 = std::numeric_limits<int>::min();
+    int y2 = std::numeric_limits<int>::min();
+    for (const auto& cell : layout.cells) {
+        x1 = std::min(x1, cell.cell_box.x), y1 = std::min(y1, cell.cell_box.y),
+        x2 = std::max(x2, cell.cell_box.x + kCellSize), y2 = std::max(y2, cell.cell_box.y + kCellSize);
+    }
+    layout.bounds = cv::Rect(x1, y1, x2 - x1, y2 - y1);
+    return layout;
+}
+
 GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
 {
     cv::Mat crop = image(roi);
@@ -236,11 +282,11 @@ GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
             cards.emplace_back(stats.at<int>(index, cv::CC_STAT_LEFT) + roi.x, stats.at<int>(index, cv::CC_STAT_TOP) + roi.y);
         }
     }
-    if (cards.size() < 5) {
-        throw std::runtime_error("credit_trade ROI has insufficient card structures");
-    }
     constexpr int kPitchX = 161;
     constexpr int kPitchY = 205;
+    if (cards.size() < 2) {
+        return DetectSingleLattice(image, GridType::CreditTrade, roi);
+    }
     std::vector<double> x_phases;
     std::vector<double> y_phases;
     for (const auto& card : cards) {
@@ -249,6 +295,19 @@ GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
     }
     const int x_phase = cvRound(Median(std::move(x_phases)));
     const int y_phase = cvRound(Median(std::move(y_phases)));
+    if (cards.size() < 5) {
+        const double maximum_residual = 0.04 * std::min(kPitchX, kPitchY);
+        const bool coherent = std::ranges::all_of(cards, [&](const auto& card) {
+            const int column = cvRound(static_cast<double>(card.x - x_phase) / kPitchX);
+            const int row = cvRound(static_cast<double>(card.y - y_phase) / kPitchY);
+            return std::abs(card.x - (x_phase + column * kPitchX)) <= maximum_residual
+                   && std::abs(card.y - (y_phase + row * kPitchY)) <= maximum_residual;
+        });
+        if (coherent) {
+            return BuildCreditTradeLattice(roi, x_phase, y_phase);
+        }
+        return DetectSingleLattice(image, GridType::CreditTrade, roi);
+    }
     std::vector<std::pair<int, int>> observed;
     for (const auto& card : cards) {
         const int row = cvRound(static_cast<double>(card.y - y_phase) / kPitchY);
@@ -508,7 +567,13 @@ TransferAxisFit FitTransferAxis(
 }
 
 std::vector<float>
-    ProjectCellBorders(const cv::Mat& values, const std::vector<int>& orthogonal_starts, int offset, int cell_size, bool x_axis)
+    ProjectCellBorders(
+        const cv::Mat& values,
+        const std::vector<int>& orthogonal_starts,
+        int offset,
+        int cell_size,
+        bool x_axis,
+        bool preserve_sign = false)
 {
     const int margin = std::max(2, cvRound(cell_size * 0.06));
     std::vector<std::vector<float>> samples;
@@ -550,6 +615,20 @@ std::vector<float>
         result[index] = values_at.size() % 2 == 0 ? 0.5F * (values_at[values_at.size() / 2 - 1] + values_at[values_at.size() / 2])
                                                   : values_at[values_at.size() / 2];
     }
+    if (preserve_sign) {
+        float maximum = 0.0F;
+        for (float value : result) {
+            maximum = std::max(maximum, std::abs(value));
+        }
+        if (maximum <= kEpsilon) {
+            return std::vector<float>(length, 0.0F);
+        }
+        for (float& value : result) {
+            value /= maximum;
+        }
+        return result;
+    }
+
     const float minimum = std::min(0.0F, *std::ranges::min_element(result));
     for (float& value : result) {
         value -= minimum;
@@ -691,9 +770,14 @@ std::vector<int>
     cv::Mat gray;
     cv::cvtColor(bgr, gray, cv::COLOR_BGR2GRAY);
     const auto standard_deviation = [&](int top, int bottom) {
+        const int clipped_top = std::clamp(top, 0, gray.rows);
+        const int clipped_bottom = std::clamp(bottom, 0, gray.rows);
+        if (clipped_bottom <= clipped_top || x2 <= x1) {
+            return 0.0;
+        }
         cv::Scalar mean;
         cv::Scalar deviation;
-        cv::meanStdDev(gray(cv::Rect(x1, std::max(0, top), x2 - x1, std::min(gray.rows, bottom) - std::max(0, top))), mean, deviation);
+        cv::meanStdDev(gray(cv::Rect(x1, clipped_top, x2 - x1, clipped_bottom - clipped_top)), mean, deviation);
         return deviation[0];
     };
     const double texture_drop = standard_deviation(y, y + 45) - standard_deviation(y + 45, y + 64);
@@ -711,8 +795,6 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     const auto boundary_y = RobustProjection(maps.horizontal, false);
     const int column_count = static_cast<int>(hint.x_starts.size());
     const auto refined_x = RefineFirstBoundary(hint.x_starts, boundary_x, hint.region.x, 64);
-    auto structural_y = transfer ? RefineStructuralPhase(hint.y_starts, boundary_y, hint.region.y, 64) : hint.y_starts;
-    auto refined_y = structural_y != hint.y_starts ? structural_y : RefinePortY(hint.y_starts, boundary_y, hint.region.y, column_count);
     const TransferAxisFit x_fit = FitTransferAxis(
         refined_x,
         boundary_x,
@@ -724,6 +806,9 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
         static_cast<int>(refined_x.size()),
         !transfer);
     std::vector<int> local_x = x_fit.starts;
+    const int grid_pitch = std::clamp(cvRound(x_fit.pitch), 67, 70);
+    auto structural_y = transfer ? RefineStructuralPhase(hint.y_starts, boundary_y, hint.region.y, 64) : hint.y_starts;
+    auto refined_y = structural_y != hint.y_starts ? structural_y : RefinePortY(hint.y_starts, boundary_y, hint.region.y, column_count);
     if (transfer && column_count == 5) {
         const auto projected_y = ProjectCellBorders(maps.horizontal, local_x, hint.region.x, 64, false);
         refined_y = FitTransferAxis(hint.y_starts, projected_y, hint.region.y, 64, { 69.0, 69.0 }, 5, true).starts;
@@ -735,6 +820,20 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
         column_count == 4 || column_count == 7);
     if (transfer && column_count >= 7) {
         local_y = RefineStructuralPhase(local_y, boundary_y, hint.region.y, 64, 12, 0.25, true);
+    }
+
+    const auto signed_y = ProjectCellBorders(maps.signed_y, local_x, hint.region.x, 64, false, true);
+    const auto directed_phase = FitDirectedCellPhase(signed_y, 64, grid_pitch);
+    const int coarse_phase = (local_y.front() - hint.region.y) % grid_pitch;
+    if (directed_phase && ShouldUseDirectedCellPhase(transfer, column_count, coarse_phase, *directed_phase, grid_pitch)) {
+        local_y.clear();
+        for (int index = 0; index < 5; ++index) {
+            const int start = hint.region.y + *directed_phase + index * grid_pitch;
+            if (start >= hint.region.y + hint.region.height) {
+                break;
+            }
+            local_y.push_back(start);
+        }
     }
     if (local_y.size() < 5) {
         const cv::Mat score = BuildTransferCellScore(image(roi), 64);
@@ -816,6 +915,58 @@ void Append(GridDetection& result, GridLayout layout)
 
 } // namespace
 
+std::optional<int> FitDirectedCellPhase(const std::vector<float>& signed_boundary, int cell_size, int pitch)
+{
+    if (cell_size <= 0 || pitch <= 0) {
+        throw std::invalid_argument("cell size and pitch must be positive");
+    }
+    if (static_cast<int>(signed_boundary.size()) <= cell_size) {
+        return std::nullopt;
+    }
+
+    double best_score = 0.0;
+    int best_phase = 0;
+    for (int phase = 0; phase < pitch; ++phase) {
+        double score = 0.0;
+        int count = 0;
+        int supported = 0;
+        for (int start = phase; start + cell_size < static_cast<int>(signed_boundary.size()); start += pitch) {
+            const double pair = std::sqrt(
+                std::max(static_cast<double>(signed_boundary[start]), 0.0)
+                * std::max(static_cast<double>(-signed_boundary[start + cell_size]), 0.0));
+            score += pair;
+            supported += pair > kEpsilon ? 1 : 0;
+            ++count;
+        }
+        score = count ? score / count : 0.0;
+        if (supported >= 2 && score > best_score) {
+            best_score = score;
+            best_phase = phase;
+        }
+    }
+    return best_score > kEpsilon ? std::optional<int>(best_phase) : std::nullopt;
+}
+
+int CellPhaseDistance(int left, int right, int pitch)
+{
+    if (pitch <= 0) {
+        throw std::invalid_argument("pitch must be positive");
+    }
+    const auto normalize = [pitch](int phase) { return (phase % pitch + pitch) % pitch; };
+    const int distance = std::abs(normalize(left) - normalize(right));
+    return std::min(distance, pitch - distance);
+}
+
+bool ShouldUseDirectedCellPhase(bool transfer, int column_count, int coarse_phase, int directed_phase, int pitch)
+{
+    constexpr int kLocalPhaseRefinementRadius = 4;
+    const int distance = CellPhaseDistance(coarse_phase, directed_phase, pitch);
+    if (transfer) {
+        return column_count == 5 || distance <= kLocalPhaseRefinementRadius;
+    }
+    return distance > kLocalPhaseRefinementRadius;
+}
+
 GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& roi)
 {
     if (image.empty()) {
@@ -837,8 +988,8 @@ GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& ro
     }
     else {
         GridLayout layout = DetectSingleLattice(image, type, roi);
-        if (type == GridType::Valuables || type == GridType::Shipment) {
-            RefineCardVerticalPhase(image, roi, layout);
+        if (type == GridType::Trade || type == GridType::Valuables || type == GridType::Shipment) {
+            RefineCardVerticalPhase(image, roi, type, layout);
         }
         Append(result, std::move(layout));
     }

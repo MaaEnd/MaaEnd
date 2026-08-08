@@ -265,10 +265,6 @@ std::vector<cv::Rect> discover_transfer_regions(const cv::Mat& crop)
         }
         independent.push_back(hypothesis);
     }
-    if (independent.size() > 2) {
-        throw std::runtime_error("transfer ROI contains more than two strong grids");
-    }
-
     std::optional<std::pair<TransferHypothesis, TransferHypothesis>> best_pair;
     double best_pair_score = -1.0;
     for (const auto& left : localized) {
@@ -295,9 +291,10 @@ std::vector<cv::Rect> discover_transfer_regions(const cv::Mat& crop)
     }
     if (best_pair) {
         const auto& [left, right] = *best_pair;
-        const int left_x2 = std::clamp(left.rect.x + left.rect.width + 12, 1, crop.cols - 1);
-        const int right_x1 = std::clamp(right.rect.x - 12, left_x2 + 1, crop.cols - 1);
-        return { cv::Rect(0, 0, left_x2, crop.rows), cv::Rect(right_x1, 0, crop.cols - right_x1, crop.rows) };
+        return PartitionTransferRegions(crop.size(), left.rect, right.rect);
+    }
+    if (independent.size() > 2) {
+        throw std::runtime_error("transfer ROI contains more than two strong grids");
     }
     const auto& dominant = localized.front();
     const double center = dominant.rect.x + dominant.rect.width / 2.0;
@@ -357,6 +354,25 @@ TransferGridHint to_hint(const TransferHypothesis& hypothesis, const cv::Rect& r
 }
 
 } // namespace
+
+std::vector<cv::Rect> PartitionTransferRegions(cv::Size crop_size, const cv::Rect& left, const cv::Rect& right)
+{
+    if (crop_size.width <= 1 || crop_size.height <= 0) {
+        throw std::invalid_argument("transfer crop must have positive dimensions");
+    }
+    const int left_end = std::clamp(left.x + left.width, 1, crop_size.width - 1);
+    const int right_begin = std::clamp(right.x, 1, crop_size.width - 1);
+    if (left_end >= right_begin) {
+        throw std::invalid_argument("transfer grids must have a separating gap");
+    }
+
+    // 分界放在两个已确认网格之间，保留边缘弱纹理单元供后续完整网格拟合。
+    const int split = left_end + (right_begin - left_end) / 2;
+    constexpr int kStructureContext = 12;
+    const int right_start = std::clamp(right_begin - kStructureContext, split + 1, crop_size.width - 1);
+    return { cv::Rect(0, 0, split, crop_size.height),
+             cv::Rect(right_start, 0, crop_size.width - right_start, crop_size.height) };
+}
 
 GridProfile ProfileFor(GridType type)
 {

@@ -3,12 +3,15 @@
 #include <filesystem>
 #include <map>
 #include <mutex>
+#include <string>
 #include <vector>
 
 #include "TemplateTypes.h"
 
 namespace iconrecognition::detail
 {
+
+std::filesystem::path ResolveIconPath(const std::filesystem::path& image_root, const std::string& icon_id);
 
 class TemplateCatalog
 {
@@ -23,7 +26,6 @@ public:
 
 private:
     bool InitializeUnlocked();
-    std::filesystem::path ResolveIcon(const std::string& icon_id) const;
     std::filesystem::path data_root_;
     std::filesystem::path image_root_;
     std::vector<TemplateRecord> records_;

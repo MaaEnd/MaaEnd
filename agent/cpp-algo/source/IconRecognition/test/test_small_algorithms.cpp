@@ -108,6 +108,140 @@ void TestGridGeometryModuleContract()
     Check(axis.integer_starts == std::vector<int>({ 0, 69, 138 }), "empty evidence must use the fallback axis sequence");
 }
 
+void TestTradeGridUsesCardBoundariesForVerticalPhase()
+{
+    constexpr int kCellSize = 96;
+    constexpr int kPitchX = 310;
+    constexpr int kPitchY = 109;
+    constexpr int kCardWidth = 300;
+    constexpr int kPhaseY = 70;
+    const cv::Rect roi(0, 0, 935, 385);
+    cv::Mat image(roi.size(), CV_8UC3, cv::Scalar(24, 24, 24));
+
+    for (int row = 0; row < 3; ++row) {
+        const int y = kPhaseY + row * kPitchY;
+        for (int column = 0; column < 3; ++column) {
+            const int x = 10 + column * kPitchX;
+            image(cv::Rect(x, y, kCardWidth, kCellSize)).setTo(cv::Scalar(132, 132, 132));
+            image(cv::Rect(x, y, kCellSize, kCellSize)).setTo(cv::Scalar(224, 224, 224));
+        }
+    }
+
+    // 反向强边界模拟卡片内部纹理：结构投影会响应，但卡片边界应保持“外暗内亮”。
+    constexpr int kTextureOffset = 25;
+    constexpr int kTextureBand = 6;
+    for (int row = 0; row < 3; ++row) {
+        const int false_y = kPhaseY - kTextureOffset + row * kPitchY;
+        image.rowRange(false_y - kTextureBand, false_y).setTo(cv::Scalar(245, 245, 245));
+        image.rowRange(false_y, false_y + kTextureBand).setTo(cv::Scalar(12, 12, 12));
+        image.rowRange(false_y + kCellSize - kTextureBand, false_y + kCellSize).setTo(cv::Scalar(12, 12, 12));
+        image.rowRange(false_y + kCellSize, false_y + kCellSize + kTextureBand).setTo(cv::Scalar(245, 245, 245));
+    }
+
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Trade, roi);
+    const auto first_row = std::ranges::find_if(grid.cells, [](const auto& cell) { return cell.row == 0 && cell.column == 0; });
+    Check(first_row != grid.cells.end(), "synthetic trade grid must contain its first cell");
+    Check(
+        std::abs(first_row->cell_box.y - kPhaseY) <= 1,
+        "trade grid must follow card boundaries instead of internal texture: actual_y=" + std::to_string(first_row->cell_box.y));
+}
+
+void TestTransferVerticalPhaseUsesDirectedCellBoundaries()
+{
+    constexpr int kCellSize = 64;
+    constexpr int kPitch = 69;
+    constexpr int kTruePhase = 37;
+    constexpr int kFalsePhase = 4;
+    std::vector<float> signed_boundary(291, 0.0F);
+
+    for (int row = 0; row < 3; ++row) {
+        const int start = kTruePhase + row * kPitch;
+        signed_boundary[start] = 0.65F;
+        signed_boundary[start + kCellSize] = -0.65F;
+
+        const int false_start = kFalsePhase + row * kPitch;
+        signed_boundary[false_start] = -1.0F;
+        signed_boundary[false_start + kCellSize] = 1.0F;
+    }
+    signed_boundary[kTruePhase + 3 * kPitch] = 0.65F;
+
+    const auto phase = iconrecognition::detail::FitDirectedCellPhase(signed_boundary, kCellSize, kPitch);
+    Check(phase && *phase == kTruePhase, "transfer vertical phase must follow directed cell boundaries");
+}
+
+void TestTransferVerticalPhaseRejectsMissingEvidence()
+{
+    const auto phase = iconrecognition::detail::FitDirectedCellPhase(std::vector<float>(291, 0.0F), 64, 69);
+    Check(!phase, "transfer vertical phase must preserve the coarse fallback when directed evidence is missing");
+}
+
+void TestCellPhaseDistanceWrapsWithinOnePitch()
+{
+    Check(iconrecognition::detail::CellPhaseDistance(2, 67, 69) == 4, "cell phase distance must wrap across the pitch boundary");
+    Check(iconrecognition::detail::CellPhaseDistance(10, 40, 69) == 30, "cell phase distance must retain a distinct phase");
+}
+
+void TestDirectedCellPhasePolicyRejectsDistantWideGridTexture()
+{
+    Check(
+        iconrecognition::detail::ShouldUseDirectedCellPhase(true, 5, 8, 36, 69),
+        "narrow transfer grids must allow directed recovery beyond local refinement");
+    Check(
+        !iconrecognition::detail::ShouldUseDirectedCellPhase(true, 6, 8, 36, 69),
+        "wide transfer grids must reject a distant phase caused by internal texture");
+    Check(
+        iconrecognition::detail::ShouldUseDirectedCellPhase(true, 8, 2, 67, 69),
+        "wide transfer grids must accept directed boundaries inside local refinement");
+    Check(
+        iconrecognition::detail::ShouldUseDirectedCellPhase(false, 7, 8, 36, 69),
+        "port grids must use directed recovery when the legacy local refinement cannot reach it");
+}
+
+void TestTransferRegionPartitionKeepsUndetectedOuterColumns()
+{
+    const cv::Rect detected_left(8, 20, 203, 271);
+    const cv::Rect detected_right(394, 18, 479, 271);
+    const auto regions = iconrecognition::detail::PartitionTransferRegions(cv::Size(880, 350), detected_left, detected_right);
+
+    Check(regions.size() == 2, "two detected grids must produce two search regions");
+    Check(regions[0].x == 0, "left transfer search region must begin at the ROI edge");
+    Check(regions[1].x > regions[0].width, "transfer search regions may preserve unstructured space between grids");
+    Check(regions[1].x < detected_right.x, "right transfer search region must retain structural context before the grid");
+    Check(
+        regions[0].width >= detected_left.x + 4 * 69,
+        "left transfer search region must retain room for a weak outer column");
+}
+
+void TestCreditTradeGridUsesDimCardStructures()
+{
+    constexpr int kCellSize = 128;
+    constexpr int kPitchX = 161;
+    constexpr int kPitchY = 205;
+    constexpr int kColumns = 7;
+    constexpr int kRows = 2;
+    constexpr int kPhaseX = 20;
+    constexpr int kPhaseY = 14;
+    const cv::Rect roi(0, 0, 1130, 410);
+    cv::Mat image(roi.size(), CV_8UC3, cv::Scalar(28, 28, 28));
+
+    for (int row = 0; row < kRows; ++row) {
+        for (int column = 0; column < kColumns; ++column) {
+            const int x = kPhaseX + column * kPitchX;
+            const int y = kPhaseY + row * kPitchY;
+            const bool bright_anchor = row == 0 && column < 3;
+            const unsigned char card_value = bright_anchor ? 240 : 72;
+            image(cv::Rect(x - 10, y - 6, 150, 180)).setTo(cv::Scalar(card_value, card_value, card_value));
+            const unsigned char value = bright_anchor ? 245 : static_cast<unsigned char>(120 + 12 * ((row + column) % 3));
+            image(cv::Rect(x, y, kCellSize, kCellSize)).setTo(cv::Scalar(value, value, value));
+        }
+    }
+
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::CreditTrade, roi);
+    Check(grid.grids.size() == 1, "dim credit cards must form one grid");
+    Check(grid.grids.front().columns == kColumns, "dim credit card grid must retain every column");
+    Check(grid.grids.front().rows == kRows, "dim credit card grid must retain every row");
+}
+
 void TestTransferProfileModuleContract()
 {
     const cv::Mat image = cv::imread("agent/cpp-algo/source/IconRecognition/test/input/62.png");
@@ -243,6 +377,18 @@ void TestCatalogBuildsFinalSizeDirectlyFromSourceAssets()
         Check(cv::norm(prepared->image, expected.image, cv::NORM_INF) == 0.0, "template image must be generated directly at final size");
         Check(cv::norm(prepared->mask, expected.mask, cv::NORM_INF) == 0.0, "template mask must be generated directly at final size");
     }
+}
+
+void TestIconPathResolutionDoesNotAssumeCatalogRarity()
+{
+    const std::filesystem::path image_root = "agent/cpp-algo/source/IconRecognition/test/build/generated-icon-resolution-generic";
+    const std::filesystem::path expected = image_root / "future-rarity" / "synthetic-fluid.png";
+    std::filesystem::create_directories(expected.parent_path());
+    Check(cv::imwrite(expected.string(), cv::Mat(8, 8, CV_8UC4, cv::Scalar(10, 20, 30, 255))), "unable to write synthetic icon");
+
+    Check(
+        iconrecognition::detail::ResolveIconPath(image_root, "synthetic-fluid") == expected,
+        "icon path resolution must search resource folders independently of item rarity");
 }
 
 void TestCatalogConcurrentLoadIsStable()
@@ -388,12 +534,20 @@ int main()
         TestForegroundTextureUsesContentInsets();
         TestStructureFeatureModuleContract();
         TestGridGeometryModuleContract();
+        TestTradeGridUsesCardBoundariesForVerticalPhase();
+        TestTransferVerticalPhaseUsesDirectedCellBoundaries();
+        TestTransferVerticalPhaseRejectsMissingEvidence();
+        TestCellPhaseDistanceWrapsWithinOnePitch();
+        TestDirectedCellPhasePolicyRejectsDistantWideGridTexture();
+        TestTransferRegionPartitionKeepsUndetectedOuterColumns();
+        TestCreditTradeGridUsesDimCardStructures();
         TestTransferProfileModuleContract();
         TestRarityUsesBottomEdgeRows();
         TestMatcherSearchRadiusIsExplicit();
         TestSubpixelPhasesAreStable();
         TestTemplatePreparationUsesExpectedMasks();
         TestCatalogBuildsFinalSizeDirectlyFromSourceAssets();
+        TestIconPathResolutionDoesNotAssumeCatalogRarity();
         TestCatalogConcurrentLoadIsStable();
         TestDecodeBgraRejectsNonStandardSourceSizes();
         TestArbitrarySquareRoiUsesItsFinalSize();

@@ -18,6 +18,7 @@
 
 #include "../IconRecognizer.h"
 #include "../detail/RecognitionDiagnostics.h"
+#include "../detail/TemplateCatalog.h"
 
 namespace
 {
@@ -73,7 +74,6 @@ struct AuditItem
     std::string display_name;
     std::string icon_id;
     std::string fluid_icon_id;
-    int rarity = 0;
 };
 
 struct TextLabel
@@ -174,7 +174,6 @@ public:
                     .display_name = display_name,
                     .icon_id = object.at("iconId").as_string(),
                     .fluid_icon_id = object.at("fluidIconId").as_string(),
-                    .rarity = object.at("rarity").as_integer(),
                 });
         }
     }
@@ -188,9 +187,9 @@ public:
         return found->second;
     }
 
-    cv::Mat loadIcon(const AuditItem& item, const std::string& icon_id, int size) const
+    cv::Mat loadIcon(const std::string& icon_id, int size) const
     {
-        const auto path = image_root_ / std::to_string(item.rarity) / (icon_id + ".png");
+        const auto path = iconrecognition::detail::ResolveIconPath(image_root_, icon_id);
         const cv::Mat source = cv::imread(path.string(), cv::IMREAD_UNCHANGED);
         if (source.empty()) {
             throw std::runtime_error("unable to load audit icon: " + path.string());
@@ -252,6 +251,15 @@ cv::Mat DrawResult(const cv::Mat& source, const iconrecognition::RecognitionResu
             match.cell_box.tl() + cv::Point(3, 16),
             cv::FONT_HERSHEY_SIMPLEX,
             0.48,
+            cv::Scalar(0, 0, 0),
+            4,
+            cv::LINE_AA);
+        cv::putText(
+            image,
+            number,
+            match.cell_box.tl() + cv::Point(3, 16),
+            cv::FONT_HERSHEY_SIMPLEX,
+            0.48,
             cv::Scalar(255, 255, 255),
             2,
             cv::LINE_AA);
@@ -265,10 +273,10 @@ cv::Mat DrawResult(const cv::Mat& source, const iconrecognition::RecognitionResu
 
         const auto& audit = catalog.at(match.item.item_id);
         const cv::Rect icon_box(tile.x + 34, tile.y + 10, 64, 64);
-        PasteIcon(image, catalog.loadIcon(audit, audit.icon_id, icon_box.width), icon_box);
+        PasteIcon(image, catalog.loadIcon(audit.icon_id, icon_box.width), icon_box);
         if (!audit.fluid_icon_id.empty()) {
             const cv::Rect fluid_box(tile.x + 74, tile.y + 48, 32, 32);
-            PasteIcon(image, catalog.loadIcon(audit, audit.fluid_icon_id, fluid_box.width), fluid_box);
+            PasteIcon(image, catalog.loadIcon(audit.fluid_icon_id, fluid_box.width), fluid_box);
             cv::rectangle(image, fluid_box, cv::Scalar(210, 210, 210), 1);
         }
         labels.push_back(TextLabel { .text = audit.display_name, .origin = cv::Point(tile.x + 108, tile.y + 8), .height = 18 });

@@ -79,11 +79,14 @@ bool TemplateCatalog::InitializeUnlocked()
     return true;
 }
 
-std::filesystem::path TemplateCatalog::ResolveIcon(const std::string& icon_id) const
+std::filesystem::path ResolveIconPath(const std::filesystem::path& image_root, const std::string& icon_id)
 {
     std::filesystem::path found;
-    for (int rarity = 1; rarity <= 6; ++rarity) {
-        const auto path = image_root_ / std::to_string(rarity) / (icon_id + ".png");
+    for (const auto& directory : std::filesystem::directory_iterator(image_root)) {
+        if (!directory.is_directory()) {
+            continue;
+        }
+        const auto path = directory.path() / (icon_id + ".png");
         if (!std::filesystem::is_regular_file(path)) {
             continue;
         }
@@ -119,7 +122,7 @@ const std::vector<PreparedTemplate>& TemplateCatalog::load(int target_size)
             result.push_back(PrepareStandardTemplate(record, base, target_size, 230));
         }
         else {
-            result.push_back(BuildCompositeIcon(record, base, DecodeBgra(ResolveIcon(record.fluid_icon_id)), target_size, 230));
+            result.push_back(BuildCompositeIcon(record, base, DecodeBgra(ResolveIconPath(image_root_, record.fluid_icon_id)), target_size, 230));
         }
     }
     return result;
