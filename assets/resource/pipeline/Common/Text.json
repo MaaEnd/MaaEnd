@@ -57,6 +57,46 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "CheckRegionalOverviewValleyIVText": {
+        "desc": "检查四号谷地事务总览左上角的文字",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            420,
+            60
+        ],
+        "expected": [
+            "四号谷地事务总览",
+            "四號谷地事務總覽",
+            "(?i)Valley\\s*IV\\s*Regional\\s*Overview",
+            "四号谷地業務一覧",
+            "4번 협곡 전체 업무"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckRegionalOverviewWulingText": {
+        "desc": "检查武陵事务总览左上角的文字",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            420,
+            60
+        ],
+        "expected": [
+            "武陵事务总览",
+            "武陵事務總覽",
+            "(?i)Wuling\\s*Regional\\s*Overview",
+            "武陵業務一覧",
+            "무릉 전체 업무"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "CheckLocalDepotNodeText": {
         "desc": "检查本地仓储节点界面的文字，来确认已经进入了仓储节点界面",
         "recognition": "OCR",
