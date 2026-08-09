@@ -1,4 +1,21 @@
 {
+    "IMSA3MouseMoveReset": {
+        "desc": "IMS A3：识别前将鼠标移到左上角，避免遮挡奖励图标；ADB 等触摸资源包覆盖为 DoNothing",
+        "pre_delay": 0,
+        "action": {
+            "type": "TouchMove",
+            "param": {
+                "target": [
+                    0,
+                    0,
+                    1,
+                    1
+                ]
+            }
+        },
+        "post_delay": 200,
+        "rate_limit": 0
+    },
     "AddItemDataOnRewards": {
         "desc": "IMS A3 最佳实践模板：奖励关闭按钮可见且奖励区静止后，累加识别到的物品数量，再关闭奖励界面。items 省略时使用 data/IMS/items.json 的 a3 全量清单；业务侧可按需覆盖 items，并替换识别节点（奖励界面 ROI 可能与培养素材页不同）",
         "recognition": {

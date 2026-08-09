@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
@@ -19,6 +18,8 @@ import (
 
 const (
 	componentAddItemData = "AddItemData"
+	// Pipeline node that moves the cursor off reward icons; ADB overlays DoNothing.
+	nodeIMSA3MouseMoveReset = "IMSA3MouseMoveReset"
 	// Safety cap when mask_hit_region keeps re-scanning the same item ID.
 	addItemDataMaxHitsPerItem = 32
 )
@@ -123,7 +124,7 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 	ctrl := tasker.GetController()
-	moveCursorTopLeftIfWin32(ctrl)
+	resetCursorBeforeRecognition(ctx, ctrl)
 	img, err := ctrl.CacheImage()
 	if err != nil || img == nil {
 		log.Error().
@@ -299,32 +300,27 @@ func parseAddItemDataParam(raw string) (addItemDataParam, error) {
 	return params, nil
 }
 
-// moveCursorTopLeftIfWin32 moves the cursor to the top-left corner before A3
-// recognition so it does not occlude reward icons. Win32 only; pressure 0 means
-// move-only (no click). Non-Win32 controllers are skipped.
-func moveCursorTopLeftIfWin32(ctrl *maa.Controller) {
-	if ctrl == nil {
+// resetCursorBeforeRecognition runs IMSA3MouseMoveReset before A3 recognition
+// so the cursor does not occlude reward icons. Controller-specific behavior is
+// owned by Pipeline overlays (e.g. ADB DoNothing). Screencap is refreshed
+// afterwards so CacheImage reflects any cursor change.
+func resetCursorBeforeRecognition(ctx *maa.Context, ctrl *maa.Controller) {
+	if ctx == nil || ctrl == nil {
 		return
 	}
-	controlType, err := control.GetControlType(ctrl)
-	if err != nil {
+	if _, err := ctx.RunAction(nodeIMSA3MouseMoveReset, maa.Rect{0, 0, 0, 0}, "", nil); err != nil {
 		log.Warn().
 			Err(err).
 			Str("component", componentAddItemData).
-			Msg("failed to resolve controller type, skip cursor move")
+			Str("node", nodeIMSA3MouseMoveReset).
+			Msg("failed to run IMSA3MouseMoveReset before recognition")
 		return
 	}
-	if controlType != control.CONTROL_TYPE_WIN32 {
-		return
-	}
-	ctrl.PostTouchMove(0, 0, 0, 0).Wait()
 	ctrl.PostScreencap().Wait()
 	log.Info().
 		Str("component", componentAddItemData).
-		Str("controller_type", controlType).
-		Int("x", 0).
-		Int("y", 0).
-		Msg("moved cursor to top-left before recognition")
+		Str("node", nodeIMSA3MouseMoveReset).
+		Msg("ran IMSA3MouseMoveReset before recognition")
 }
 
 func workingRGBA(img image.Image) *image.RGBA {
