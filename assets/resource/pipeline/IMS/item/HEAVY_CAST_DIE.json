@@ -98,7 +98,8 @@
                 ],
                 "expected": [
                     "^\\d+$"
-                ]
+                ],
+                "color_filter": "__HEAVY_CAST_DIE_COUNT_TEXT_COLOR"
             }
         },
         "pre_delay": 0,

@@ -98,7 +98,8 @@
                 ],
                 "expected": [
                     "^\\d+$"
-                ]
+                ],
+                "color_filter": "__CHARTERED_HH_PERMIT_COUNT_TEXT_COLOR"
             }
         },
         "pre_delay": 0,

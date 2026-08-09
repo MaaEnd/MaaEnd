@@ -98,7 +98,8 @@
                 ],
                 "expected": [
                     "^[1-9]"
-                ]
+                ],
+                "color_filter": "__T_CREDS_COUNT_TEXT_COLOR"
             }
         },
         "pre_delay": 0,

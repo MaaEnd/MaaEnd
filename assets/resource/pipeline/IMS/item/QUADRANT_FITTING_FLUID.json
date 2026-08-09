@@ -98,7 +98,8 @@
                 ],
                 "expected": [
                     "^\\d+$"
-                ]
+                ],
+                "color_filter": "__QUADRANT_FITTING_FLUID_COUNT_TEXT_COLOR"
             }
         },
         "pre_delay": 0,
