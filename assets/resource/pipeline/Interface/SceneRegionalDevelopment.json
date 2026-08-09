@@ -43,6 +43,16 @@
             "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIV"
         ]
     },
+    "SceneEnterMenuRegionalOverviewValleyIV": {
+        "desc": "进入地区建设-四号谷地-事务总览",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterOverview",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIV"
+        ]
+    },
     "SceneEnterMenuRegionalDevelopmentWuling": {
         "desc": "进入地区建设-武陵",
         "pre_delay": 0,
@@ -95,6 +105,16 @@
         "next": [
             "__ScenePrivateMenuRegionalDevelopmentEnvironmentMonitoringLocked",
             "__ScenePrivateMenuRegionalDevelopmentWulingEnterTargetEnvironmentMonitoring",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWuling"
+        ]
+    },
+    "SceneEnterMenuRegionalOverviewWuling": {
+        "desc": "进入地区建设-武陵-事务总览",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentWulingEnterOverview",
             "[JumpBack]SceneEnterMenuRegionalDevelopmentWuling"
         ]
     }
