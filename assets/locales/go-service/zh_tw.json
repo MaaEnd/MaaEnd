@@ -53,7 +53,7 @@
     "autofight.wait_battle_start": "等待戰鬥開始",
     "autofight.wait_battle_start_found": "戰鬥已開始",
     "autofight.wait_battle_start_timeout": "等待戰鬥開始超時，繼續戰鬥",
-    "autofight.capture_slow": "<span style=\"color: red; font-weight: bold;\">戰鬥識別平均耗時 %d ms，請在遊戲設定中降低畫質、解析度，減少裝置負載</span>",
+    "autofight.capture_slow": "<span style=\"color: red; font-weight: bold;\">戰鬥識別平均耗時 %d ms，會導致釋放技能不及時，請在遊戲設定中降低畫質、解析度，減少裝置負載，並檢查工作管理員 GPU 佔用是否過高</span>",
     "autofight.adjust_view": "調整視角",
     "autofight.move_back": "長時間找不到敵人，後退",
     "autofight.approach_enemy": "靠近敵人",

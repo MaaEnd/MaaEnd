@@ -53,7 +53,7 @@
     "autofight.wait_battle_start": "Waiting for battle to start",
     "autofight.wait_battle_start_found": "Battle started",
     "autofight.wait_battle_start_timeout": "Timed out waiting for battle to start, continuing combat",
-    "autofight.capture_slow": "<span style=\"color: red; font-weight: bold;\">Combat recognition averages %d ms. Lower graphics quality and resolution in game settings to reduce device load.</span>",
+    "autofight.capture_slow": "<span style=\"color: red; font-weight: bold;\">Combat recognition averages %d ms, which may delay skill casting. Lower graphics quality and resolution in game settings to reduce device load, and check Task Manager for high GPU usage.</span>",
     "autofight.adjust_view": "Adjusting view",
     "autofight.move_back": "Enemy not found for a while, moving back",
     "autofight.approach_enemy": "Approaching enemy",
