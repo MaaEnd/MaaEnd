@@ -226,6 +226,10 @@ class MapNavigatorApp {
       adbTargetInput: $('adb-target-combo'),
       adbTargetList: $('adb-target-list'),
       btnRefreshAdb: $('btn-refresh-adb'),
+      wlrootsGroup: $('wlroots-group'),
+      wlrootsSocketEntry: $('wlroots-socket-entry'),
+      wlrootsSocketList: $('wlroots-socket-list'),
+      btnRefreshWlroots: $('btn-refresh-wlroots'),
       connectionSummary: $('connection-summary'),
       astarDisplayZoneCombo: $('astar-display-zone-combo'),
       astarZoneCombo: $('astar-zone-combo'),
@@ -298,6 +302,10 @@ class MapNavigatorApp {
         adbTargetInput: this.els.adbTargetInput,
         adbTargetList: this.els.adbTargetList,
         btnRefreshAdb: this.els.btnRefreshAdb,
+        wlrootsGroup: this.els.wlrootsGroup,
+        wlrootsSocketEntry: this.els.wlrootsSocketEntry,
+        wlrootsSocketList: this.els.wlrootsSocketList,
+        btnRefreshWlroots: this.els.btnRefreshWlroots,
         summary: this.els.connectionSummary,
       });
       this.recording = new RecordingController({

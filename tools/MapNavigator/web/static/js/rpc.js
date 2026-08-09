@@ -358,6 +358,15 @@ export function getAdbDevices(adbPath = '') {
   return getJson(`/api/adb/devices${q}`);
 }
 
+/**
+ * Enumerate Wayland sockets under `$XDG_RUNTIME_DIR` (name contains "wayland"),
+ * plus the computed default socket path.
+ * @returns {Promise<{sockets:string[], default:string}>}
+ */
+export function getWlrootsSockets() {
+  return getJson('/api/wlroots/sockets');
+}
+
 // --- recording (WebSocket) -----------------------------------------------------------
 
 /**
