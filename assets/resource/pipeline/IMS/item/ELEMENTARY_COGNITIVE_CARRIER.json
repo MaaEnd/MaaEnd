@@ -98,8 +98,7 @@
                 ],
                 "expected": [
                     "^\\d+$"
-                ],
-                "color_filter": "__ELEMENTARY_COGNITIVE_CARRIER_COUNT_TEXT_COLOR"
+                ]
             }
         },
         "pre_delay": 0,
