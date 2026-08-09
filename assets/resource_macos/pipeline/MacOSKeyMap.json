@@ -50,6 +50,14 @@
             }
         }
     },
+    "AutoCollectClick": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 3
+            }
+        }
+    },
     "AutoPickFalls": {
         "action": {
             "type": "ClickKey",

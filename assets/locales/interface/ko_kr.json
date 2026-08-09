@@ -112,6 +112,7 @@
     "option.Keymap.description": "게임 내 설정-조작과 동일하게 맞추세요.",
     "option.KeymapGeneral.label": "일반",
     "option.KeymapGeneral.inputs.KeymapUseCurrentQuickTool.label": "현재 편의 도구 사용",
+    "option.KeymapGeneral.inputs.KeymapInteract.label": "상호 작용",
     "option.KeymapFight.label": "전투",
     "option.KeymapFight.inputs.KeymapFightCombo.label": "연계 스킬",
     "option.KeymapFight.inputs.KeymapFightSkill1.label": "1번 오퍼레이터 전투 스킬",

@@ -112,6 +112,7 @@
     "option.Keymap.description": "ゲーム内の設定→操作と同じにしてください。",
     "option.KeymapGeneral.label": "汎用",
     "option.KeymapGeneral.inputs.KeymapUseCurrentQuickTool.label": "現在の便捷ツールを使用",
+    "option.KeymapGeneral.inputs.KeymapInteract.label": "インタラクト",
     "option.KeymapFight.label": "戦闘",
     "option.KeymapFight.inputs.KeymapFightCombo.label": "連携スキル発動",
     "option.KeymapFight.inputs.KeymapFightSkill1.label": "1番オペレーター戦技",

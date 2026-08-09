@@ -114,6 +114,7 @@
     "option.Keymap.description": "Keep the same as in-game Settings → Controls.",
     "option.KeymapGeneral.label": "General",
     "option.KeymapGeneral.inputs.KeymapUseCurrentQuickTool.label": "Use Current Quick Tool",
+    "option.KeymapGeneral.inputs.KeymapInteract.label": "Interact",
     "option.KeymapFight.label": "Combat",
     "option.KeymapFight.inputs.KeymapFightCombo.label": "Link Skill",
     "option.KeymapFight.inputs.KeymapFightSkill1.label": "Operator 1 Combat Skill",

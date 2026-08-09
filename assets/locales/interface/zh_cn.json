@@ -114,6 +114,7 @@
     "option.Keymap.description": "与游戏中 设置-按键 保持一致",
     "option.KeymapGeneral.label": "通用",
     "option.KeymapGeneral.inputs.KeymapUseCurrentQuickTool.label": "使用当前便捷工具",
+    "option.KeymapGeneral.inputs.KeymapInteract.label": "交互",
     "option.KeymapFight.label": "战斗",
     "option.KeymapFight.inputs.KeymapFightCombo.label": "释放连携技",
     "option.KeymapFight.inputs.KeymapFightSkill1.label": "1号干员战技",
