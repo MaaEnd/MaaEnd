@@ -109,6 +109,7 @@
                 "GiftOperatorMoveResetBackward",
                 "GiftOperatorMoveLocation3",
                 "GiftOperatorMoveLocation3Move",
+                "GiftOperatorMoveLocation4",
                 "GiftOperatorMoveLocation2",
                 "GiftOperatorMoveLocation2Move",
                 "GiftOperatorMoveLocation1",
