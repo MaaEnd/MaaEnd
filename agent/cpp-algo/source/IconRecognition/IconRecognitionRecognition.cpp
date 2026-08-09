@@ -119,6 +119,7 @@ MaaBool MAA_CALL IconRecognitionRun(
     bool debug_requested = false;
     if (image == nullptr || MaaImageBufferIsEmpty(image)) {
         RecognitionResult result;
+        result.has_grid_type = false;
         result.error_code = "invalid_image";
         result.message = "Input image is empty";
         WriteDetail(out_detail, result);

@@ -12,14 +12,21 @@ namespace iconrecognition::detail
 namespace
 {
 
+// 相距不超过该像素值的轴观测会合并；调大抑制重复峰，调小保留更近的独立证据。
 constexpr double kObservationClusterRadius = 0.75;
+// 全局 pitch 搜索步长（像素）；调小提高拟合精度但增加候选数量，调大则相反。
 constexpr double kPitchStep = 0.05;
+// 浮点 pitch 循环的闭区间容差，只用于包含上界，不参与识别评分。
 constexpr double kPitchLoopEpsilon = 1e-9;
-// 置信度权重来自现有回归样本，支持密度优先，其次为残差和接近先验 pitch 的程度。
+// 直接观测覆盖率在轴拟合置信度中的权重；调高更偏好证据密集的晶格。
 constexpr double kSupportConfidenceWeight = 0.45;
+// 平均残差质量在轴拟合置信度中的权重；调高更严格惩罚几何偏差。
 constexpr double kResidualConfidenceWeight = 0.30;
+// 接近 profile 首选 pitch 的程度在置信度中的权重；调高会增强先验偏好。
 constexpr double kPitchConfidenceWeight = 0.25;
+// 只有一个直接色带观测时使用的保守置信度；调高会让单点晶格更容易胜出。
 constexpr double kDirectSingletonConfidence = 0.55;
+// 只有一个间接结构观测时使用的低置信度；调高会增加弱证据生成晶格的风险。
 constexpr double kIndirectSingletonConfidence = 0.25;
 
 std::vector<LatticeObservation> NormalizeObservations(const std::vector<LatticeObservation>& source)

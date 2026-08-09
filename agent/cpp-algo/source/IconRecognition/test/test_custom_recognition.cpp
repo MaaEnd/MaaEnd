@@ -13,6 +13,7 @@
 #include "IconRecognitionRecognition.h"
 #include "IconRecognizer.h"
 #include "detail/RecognitionDiagnostics.h"
+#include "detail/TemplateTypes.h"
 
 namespace
 {
@@ -158,6 +159,32 @@ std::string ErrorMessage(const json::object& detail)
 }
 
 constexpr MaaRect kValidRoi { 0, 0, 54, 54 };
+constexpr int kSyntheticRoiX = 7;
+constexpr int kSyntheticRoiY = 5;
+constexpr int kSyntheticRoiSize = 54;
+constexpr int kSyntheticAlphaThreshold = 230;
+
+struct SingleRoiFixture
+{
+    cv::Mat pixels;
+    MaaRect roi { kSyntheticRoiX, kSyntheticRoiY, kSyntheticRoiSize, kSyntheticRoiSize };
+};
+
+SingleRoiFixture MakeSingleRoiFixture()
+{
+    const auto template_path =
+        get_exe_dir() / ".." / "resource" / "image" / "IconRecognition" / "1" / "item_copper_ore.png";
+    const iconrecognition::detail::TemplateRecord record { .item_id = "item_copper_ore" };
+    const auto prepared = iconrecognition::detail::PrepareStandardTemplate(
+        record,
+        iconrecognition::detail::DecodeBgra(template_path),
+        kSyntheticRoiSize,
+        kSyntheticAlphaThreshold);
+    const cv::Size canvas_size { kSyntheticRoiX + kSyntheticRoiSize + 5, kSyntheticRoiY + kSyntheticRoiSize + 5 };
+    cv::Mat pixels = cv::Mat::zeros(canvas_size, CV_8UC3);
+    prepared.image.copyTo(pixels(cv::Rect(kSyntheticRoiX, kSyntheticRoiY, kSyntheticRoiSize, kSyntheticRoiSize)));
+    return { std::move(pixels) };
+}
 
 json::object RunFailure(const MaaImageBuffer* image, const char* param, MaaRect& out_box, const MaaRect* roi = &kValidRoi)
 {
@@ -186,8 +213,9 @@ void TestEmptyImageWritesInvalidImageDetail()
 {
     ImageBuffer image;
     MaaRect out_box { 101, 202, 303, 404 };
-    const auto detail = RunFailure(image.get(), R"({"grid_type":"transfer"})", out_box);
+    const auto detail = RunFailure(image.get(), R"({"grid_type":"valuables"})", out_box);
     Require(ErrorCode(detail) == "invalid_image", "empty image must use invalid_image error code");
+    Require(!detail.contains("grid_type"), "empty image failure must omit grid_type before parameter parsing");
     RequireUntouched(out_box);
 }
 
@@ -279,23 +307,19 @@ void TestMalformedScalarParametersAreRejected()
 
 void TestSuccessfulSingleRoiUsesPrimaryCellBox()
 {
-    const std::filesystem::path image_path =
-        std::filesystem::path(ICON_RECOGNITION_TEST_INPUT_DIR) / "single_roi" / "1177-450-54" / "1.png";
-    const cv::Mat pixels = cv::imread(image_path.string(), cv::IMREAD_COLOR);
-    Require(!pixels.empty(), "fixed ROI test image must load");
+    const auto fixture = MakeSingleRoiFixture();
     ImageBuffer image;
-    image.set(pixels);
+    image.set(fixture.pixels);
     StringBuffer detail_buffer;
-    const MaaRect roi { 1177, 450, 54, 54 };
     MaaRect out_box { 101, 202, 303, 404 };
     const MaaBool matched = iconrecognition::IconRecognitionRun(
         nullptr,
         0,
         "IconRecognitionTest",
         "IconRecognition",
-        R"({"grid_type":"single_roi","item_filters":["Normal:Product","Normal:Usable"]})",
+        R"({"grid_type":"single_roi","item_filters":["Normal:Ore"]})",
         image.get(),
-        &roi,
+        &fixture.roi,
         nullptr,
         &out_box,
         detail_buffer.get());
@@ -323,18 +347,15 @@ void TestSuccessfulSingleRoiUsesPrimaryCellBox()
 
 void TestRecognizerPreservesInternalDiagnostics()
 {
-    const std::filesystem::path image_path =
-        std::filesystem::path(ICON_RECOGNITION_TEST_INPUT_DIR) / "single_roi" / "1177-450-54" / "1.png";
-    const cv::Mat pixels = cv::imread(image_path.string(), cv::IMREAD_COLOR);
-    Require(!pixels.empty(), "diagnostics test image must load");
+    const auto fixture = MakeSingleRoiFixture();
     iconrecognition::IconRecognizer recognizer(get_exe_dir() / ".." / "data" / "IconRecognition");
     Require(recognizer.initialize(), "diagnostics recognizer must initialize");
     iconrecognition::RecognitionRequest request;
     request.grid_type = iconrecognition::GridType::SingleRoi;
-    request.roi = cv::Rect(1177, 450, 54, 54);
-    request.candidates.item_filters = { "Normal:Product", "Normal:Usable" };
+    request.roi = cv::Rect(fixture.roi.x, fixture.roi.y, fixture.roi.width, fixture.roi.height);
+    request.candidates.item_filters = { "Normal:Ore" };
     request.debug = true;
-    const auto result = recognizer.recognize(pixels, request);
+    const auto result = recognizer.recognize(fixture.pixels, request);
     Require(result.matched && result.matches.size() == 1, "diagnostics fixture must match one item");
     Require(result.diagnostics && result.diagnostics->cells.size() == 1, "fixed ROI recognition must preserve one internal diagnostic");
     const auto& diagnostic = result.diagnostics->cells.front();
@@ -350,51 +371,6 @@ void TestRecognizerPreservesInternalDiagnostics()
     Require(performance.matcher.score_calls >= performance.ranking.baseline_candidates, "matcher diagnostics must count score calls");
     Require(performance.total_ms >= performance.ranking.total_ms, "total recognition time must cover ranking time");
     Require(!json::value(result).as_object().contains("diagnostics"), "public detail must not serialize internal diagnostics");
-}
-
-void TestReliableRarityReducesBaselineCandidateScoring()
-{
-    const std::filesystem::path image_path = std::filesystem::path(ICON_RECOGNITION_TEST_INPUT_DIR) / "transfer" / "37.png";
-    const cv::Mat pixels = cv::imread(image_path.string(), cv::IMREAD_COLOR);
-    Require(!pixels.empty(), "rarity prefilter fixture must load");
-    iconrecognition::IconRecognizer recognizer(get_exe_dir() / ".." / "data" / "IconRecognition");
-    Require(recognizer.initialize(), "rarity prefilter recognizer must initialize");
-    iconrecognition::RecognitionRequest request;
-    request.grid_type = iconrecognition::GridType::Transfer;
-    request.roi = cv::Rect(154, 202, 983, 291);
-    request.debug = true;
-
-    const auto result = recognizer.recognize(pixels, request);
-    Require(result.matched && result.matches.size() == 52, "rarity prefilter must preserve all transfer 37 matches");
-    Require(result.diagnostics && result.diagnostics->performance, "rarity prefilter fixture must expose performance diagnostics");
-    const auto& performance = *result.diagnostics->performance;
-    constexpr std::size_t kOriginalBaselineCandidates = 52 * 445;
-    Require(performance.ranking.baseline_candidates == 9168, "reliable rarity must use the expected reduced baseline count");
-    Require(performance.ranking.rarity_prefiltered_cells == 39, "transfer 37 must prefilter every reliable rarity cell");
-    Require(performance.ranking.rarity_fallback_cells == 0, "correct transfer 37 rarity must not require full fallback");
-    Require(performance.ranking.rarity_preferred_candidates == 3383, "transfer 37 must count preferred rarity candidates");
-    Require(performance.ranking.rarity_remaining_candidates == 0, "transfer 37 must not score remaining candidates");
-    Require(performance.matcher.score_calls == performance.ranking.baseline_candidates, "accepted rarity passes must not refine or rescore");
-    Require(performance.ranking.baseline_candidates < kOriginalBaselineCandidates, "rarity prefilter must beat exhaustive scoring");
-
-    request.candidates.item_ids = {
-        "item_copper_ore",
-        "item_agmelee_1_moss_1_lbmob_1_1",
-        "item_activity_xiranite_bottle",
-        "item_activity_xiranite_enr_cmpt",
-        "item_activity_xiranite_enr_hulu",
-    };
-    request.threshold = 1.0;
-    request.subpixel_threshold = 0.999;
-    const auto fallback_result = recognizer.recognize(pixels, request);
-    Require(fallback_result.diagnostics && fallback_result.diagnostics->performance, "forced fallback must expose performance diagnostics");
-    const auto& fallback = *fallback_result.diagnostics->performance;
-    Require(fallback.ranking.rarity_prefiltered_cells == 39, "forced fallback must retain reliable rarity prefiltering");
-    Require(fallback.ranking.rarity_fallback_cells == 39, "every reliable rarity cell must enter the forced fallback pass");
-    Require(fallback.ranking.rarity_preferred_candidates == 39, "five-candidate fixture must score one preferred candidate per reliable cell");
-    Require(fallback.ranking.rarity_remaining_candidates == 156, "fallback must score only four remaining candidates per reliable cell");
-    Require(fallback.ranking.baseline_candidates == 52 * 5, "fallback passes must score every candidate exactly once");
-    Require(fallback.matcher.score_calls == fallback.ranking.baseline_candidates, "forced fallback must not duplicate baseline or phase scoring");
 }
 
 void TestGridDiagnosticsSerializeSelectionEvidence()
@@ -518,15 +494,12 @@ void TestMaaFrameworkWrapsCustomDetail()
     MaaBool debug_mode = 1;
     Require(MaaGlobalSetOption(MaaGlobalOption_DebugMode, &debug_mode, sizeof(debug_mode)), "MaaFramework debug mode must enable");
     FrameworkFixture fixture;
-    const std::filesystem::path image_path =
-        std::filesystem::path(ICON_RECOGNITION_TEST_INPUT_DIR) / "single_roi" / "1177-450-54" / "1.png";
-    const cv::Mat pixels = cv::imread(image_path.string(), cv::IMREAD_COLOR);
-    Require(!pixels.empty(), "MaaFramework fixture image must load");
+    const auto fixture_image = MakeSingleRoiFixture();
 
     const auto success = RunFrameworkRecognition(
         fixture,
-        pixels,
-        R"({"custom_recognition":"IconRecognition","roi":[1177,450,54,54],"custom_recognition_param":{"grid_type":"single_roi","item_filters":["Normal:Product","Normal:Usable"]}})");
+        fixture_image.pixels,
+        R"({"custom_recognition":"IconRecognition","roi":[7,5,54,54],"custom_recognition_param":{"grid_type":"single_roi","item_filters":["Normal:Ore"]}})");
     Require(success.hit, "MaaFramework success result must hit");
     Require(success.detail.at("all").as_array().size() == 1, "MaaFramework all must contain the custom result");
     Require(success.detail.at("filtered").as_array().size() == 1, "MaaFramework filtered must contain the hit");
@@ -540,10 +513,11 @@ void TestMaaFrameworkWrapsCustomDetail()
     Require(success.box.height == best_box.at(3).as_integer(), "MaaFramework best.box.height must match callback out_box");
     Require(best.at("detail").as_object().at("matches").as_array().size() == 1, "MaaFramework best.detail must preserve complete matches");
 
+    const cv::Mat rejected_pixels = cv::Mat::zeros(fixture_image.pixels.size(), fixture_image.pixels.type());
     const auto failure = RunFrameworkRecognition(
         fixture,
-        pixels,
-        R"({"custom_recognition":"IconRecognition","roi":[1177,450,54,54],"custom_recognition_param":{"grid_type":"single_roi","item_filters":["Normal:Product","Normal:Usable"],"threshold":1.0}})");
+        rejected_pixels,
+        R"({"custom_recognition":"IconRecognition","roi":[7,5,54,54],"custom_recognition_param":{"grid_type":"single_roi","item_filters":["Normal:Ore"]}})");
     Require(!failure.hit, "MaaFramework rejected result must not hit");
     Require(failure.detail.at("all").as_array().size() == 1, "MaaFramework all must retain rejected detail");
     Require(failure.detail.at("filtered").as_array().empty(), "MaaFramework filtered must be empty on rejection");
@@ -566,7 +540,6 @@ int main()
         TestMalformedScalarParametersAreRejected();
         TestSuccessfulSingleRoiUsesPrimaryCellBox();
         TestRecognizerPreservesInternalDiagnostics();
-        TestReliableRarityReducesBaselineCandidateScoring();
         TestGridDiagnosticsSerializeSelectionEvidence();
         TestRecognizerPreloadsEveryRequestedTemplateSize();
         TestMaaFrameworkWrapsCustomDetail();

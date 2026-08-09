@@ -7,6 +7,7 @@
 namespace iconrecognition::detail
 {
 
+// 全局规则轴允许的最大单点残差（像素）；调大提高畸变容忍度，调小可更早拒绝错位晶格。
 inline constexpr double kMaximumRegularAxisResidual = 2.25;
 
 struct LatticeObservation

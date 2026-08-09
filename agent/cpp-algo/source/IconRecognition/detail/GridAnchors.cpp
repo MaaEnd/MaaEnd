@@ -17,8 +17,9 @@ namespace iconrecognition::detail
 namespace
 {
 
-// 可信色带只在 profile 给出的正式 pitch 区间内细化，不引入独立的 69px 先验。
+// 可信色带轴拟合的 pitch 搜索步长（像素）；调小提高精度但增加搜索次数，调大则相反。
 constexpr double kTrustedAxisPitchStep = 0.25;
+// 浮点 pitch 循环的闭区间容差，仅确保搜索包含 profile 上界。
 constexpr double kPitchLoopEpsilon = 1e-9;
 
 struct RarityLine

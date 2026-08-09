@@ -10,22 +10,41 @@ namespace iconrecognition::detail
 namespace
 {
 
+// 送货数量条检测和遮罩的顶部高度（像素）；调大覆盖更多数量条，也会裁掉更多图标。
 constexpr int kShipmentQuantityBarHeight = 20;
+// 顶部区域判为黄色数量条所需的最少像素数；调高减少误触发，调低可识别残缺数量条。
 constexpr int kShipmentQuantityBarMinPixels = 500;
+// 武器头像清理规则只适用于 96px 贵重品槽位，其他尺寸不执行圆检测。
 constexpr int kValuablesSlotSize = 96;
+// 96px 槽位右上角用于寻找武器头像圆的局部区域。
 const cv::Rect kValuablesPortraitDetectionRect { 60, 0, 36, 42 };
+// 检出头像后从匹配 mask 中清除的圆心，按 720p 贵重品槽位标定。
 const cv::Point kValuablesPortraitCenter { 81, 15 };
+// 从匹配 mask 中清除的头像圆半径；调大减少头像干扰，也会损失更多武器图标信息。
 constexpr int kValuablesPortraitRadius = 20;
-// 武器头像圆只会出现在槽位右上角；参数按 96px 贵重品槽位截图标定。
+// 下扩 mask 上部斜边的转折比例；调大缩小上半部覆盖，调小会纳入更多角落背景。
+constexpr double kLowerExtendedMaskTopRatio = 0.5;
+// 下扩 mask 的底边比例；调大保留更多图标下部，也会纳入更多文字或背景。
+constexpr double kLowerExtendedMaskBottomRatio = 0.7;
+// Hough 累加器分辨率相对输入图的反比；保持 1.0 表示不降采样。
 constexpr double kPortraitHoughDp = 1.0;
+// Hough 候选圆心的最小间距；调大减少重复圆，调小会产生更多相邻候选。
 constexpr double kPortraitHoughMinDistance = 16.0;
+// Hough 内部 Canny 高阈值；调高只保留强边缘，调低可召回弱圆但增加噪声。
 constexpr double kPortraitHoughCannyThreshold = 100.0;
+// Hough 圆心累加器阈值；调高减少误检，调低提高弱头像圆召回。
 constexpr double kPortraitHoughAccumulatorThreshold = 16.0;
+// 可接受头像圆的最小半径；调低会把小型圆形纹理当作头像。
 constexpr int kPortraitHoughMinRadius = 14;
+// 可接受头像圆的最大半径；调高会接纳更大的非头像圆形结构。
 constexpr int kPortraitHoughMaxRadius = 22;
+// 头像圆心在完整槽位中的最小 x 坐标，限制候选位于右上角。
 constexpr double kPortraitCenterMinX = 70.0;
+// 头像圆心在完整槽位中的最大 x 坐标；放宽会允许圆心越过槽位右边缘。
 constexpr double kPortraitCenterMaxX = 96.0;
+// 头像圆心在完整槽位中的最小 y 坐标，0 表示允许圆心贴近顶边。
 constexpr double kPortraitCenterMinY = 0.0;
+// 头像圆心在完整槽位中的最大 y 坐标；调大可能接受图标主体内的圆形纹理。
 constexpr double kPortraitCenterMaxY = 30.0;
 
 int RoundHalfToEven(double value)
@@ -53,8 +72,11 @@ cv::Mat BuildLowerExtendedMask(int target_size)
     cv::Mat mask = cv::Mat::zeros(target_size, target_size, CV_8UC1);
     const int maximum = target_size - 1;
     const std::vector<cv::Point> polygon {
-        { RoundHalfToEven(0.5 * maximum), 0 }, { maximum, RoundHalfToEven(0.5 * maximum) }, { maximum, RoundHalfToEven(0.7 * maximum) },
-        { 0, RoundHalfToEven(0.7 * maximum) }, { 0, RoundHalfToEven(0.5 * maximum) },
+        { RoundHalfToEven(kLowerExtendedMaskTopRatio * maximum), 0 },
+        { maximum, RoundHalfToEven(kLowerExtendedMaskTopRatio * maximum) },
+        { maximum, RoundHalfToEven(kLowerExtendedMaskBottomRatio * maximum) },
+        { 0, RoundHalfToEven(kLowerExtendedMaskBottomRatio * maximum) },
+        { 0, RoundHalfToEven(kLowerExtendedMaskTopRatio * maximum) },
     };
     cv::fillPoly(mask, std::vector<std::vector<cv::Point>> { polygon }, cv::Scalar(255));
     return mask;

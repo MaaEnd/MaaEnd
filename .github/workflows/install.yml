@@ -210,6 +210,18 @@ jobs:
 
           cat install/interface.json
 
+      - name: Run IconRecognition quick tests on Windows PowerShell 5.1
+        if: matrix.os == 'win' && matrix.arch == 'x86_64'
+        shell: powershell
+        run: |
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+          $vsInstall = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if ([string]::IsNullOrWhiteSpace($vsInstall)) {
+            throw '未找到 Visual Studio C++ 工具链'
+          }
+          $vsDevShell = Join-Path $vsInstall 'Common7\Tools\Launch-VsDevShell.ps1'
+          & '.\agent\cpp-algo\source\IconRecognition\test\run-tests.ps1' -Task quick -VsDevShellPath $vsDevShell
+
       - uses: actions/upload-artifact@v6
         with:
           name: MaaEnd-${{ matrix.os }}-${{ matrix.arch }}-intermediate

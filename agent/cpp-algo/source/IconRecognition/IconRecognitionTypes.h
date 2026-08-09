@@ -164,20 +164,28 @@ struct CandidateFilter
 
 struct RecognitionRequest
 {
+    // 默认值仅作为构造占位；调用入口解析成功后必须写入实际 grid_type。
     GridType grid_type = GridType::Transfer;
     cv::Rect roi;
     CandidateFilter candidates;
+    // 最终接受匹配的默认分数；调高减少误识别，调低提高弱图标召回。
     double threshold = 0.85;
+    // 首轮分数达到该值才进行亚像素细化；调高减少计算量，调低增加细化候选。
     double subpixel_threshold = 0.60;
+    // 默认保留同一 item 的所有格子命中，由调用方决定是否按 item 去重。
     bool deduplicate = false;
+    // 默认不采集内部诊断和耗时，避免正常识别承担额外观测开销。
     bool debug = false;
 };
 
 struct RecognitionResult
 {
+    // 公开 detail JSON 的结构版本，字段发生不兼容变化时递增。
     int detail_version = 1;
     bool matched = false;
+    // 结果对象的构造占位值；has_grid_type=false 时不会序列化该字段。
     GridType grid_type = GridType::Transfer;
+    // 标记 grid_type 是否已经从请求解析或识别上下文中确定。
     bool has_grid_type = true;
     cv::Rect roi;
     std::vector<ItemMatch> matches;

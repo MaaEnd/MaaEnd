@@ -14,7 +14,10 @@ namespace iconrecognition::detail
 namespace
 {
 
+// 每个 debug 目录最多保留的完整截图组数；调大便于追溯，但会线性增加磁盘占用。
 constexpr std::size_t kMaxCaptureGroups = 20;
+// 诊断文字按 720p 截图标定；调大更易读但更容易遮挡相邻槽位。
+constexpr double kDiagnosticTextScale = 0.35;
 
 std::string Stamp(std::uint64_t reco_id)
 {
@@ -83,7 +86,7 @@ void DrawDiagnostics(cv::Mat& annotated, const RecognitionResult& result)
             label,
             cell.cell_box.tl() + cv::Point(0, 14),
             cv::FONT_HERSHEY_SIMPLEX,
-            0.35,
+            kDiagnosticTextScale,
             cv::Scalar(255, 255, 255),
             1,
             cv::LINE_AA);

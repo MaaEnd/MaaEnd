@@ -12,16 +12,25 @@ namespace iconrecognition::detail
 namespace
 {
 
+// 归一化分母的近零阈值，仅防止无梯度图像除零，不参与经验调优。
 constexpr double kEpsilon = 1e-8;
-// 下列参数按 720p 网格样本标定，集中定义以保持结构响应口径一致。
+// 梯度响应使用的归一化百分位；调高更保留强峰差异，调低会更早压平极值。
 constexpr double kNormalizationPercentile = 99.0;
+// 鲁棒投影两端各裁掉的样本比例；调高更抗离群纹理，但会减少有效样本。
 constexpr double kProjectionTrimRatio = 0.10;
+// 多尺度梯度的 sigma/权重组合：原图保留锐边，0.8px 平滑分支补充抗噪结构。
 constexpr std::array kGradientScales { std::pair { 0.0, 0.6 }, std::pair { 0.8, 0.4 } };
+// 斜向梯度对横纵边缘响应的抑制权重；调高更排斥斜纹理，也可能削弱圆角格框。
 constexpr double kDiagonalPenaltyWeight = 0.5;
+// 形态学长边核的最小像素长度，避免小 cell 产生退化结构元素。
 constexpr int kMinimumSupportLength = 5;
+// 长边核长度相对 cell 的比例；调高只保留更连续的边，调低可召回短缺口边缘。
 constexpr double kSupportLengthRatio = 0.5;
+// 连续长边在结构响应中的权重；调高更偏好完整格框，调低更依赖局部边缘。
 constexpr double kLongEdgeWeight = 0.8;
+// 未经形态学过滤的局部边缘权重；调高提高破损边框召回，也会引入更多纹理噪声。
 constexpr double kLocalEdgeWeight = 0.2;
+// 判定 cell 非空的最低平均灰度；调高会把暗物品视为空，调低会接受更多暗背景。
 constexpr double kOccupiedCellBrightness = 8.0;
 
 cv::Mat normalize_percentile(const cv::Mat& values, double selected_percentile = kNormalizationPercentile)

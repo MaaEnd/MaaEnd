@@ -8,6 +8,7 @@ namespace iconrecognition::detail
 
 std::vector<Phase> PhaseGrid()
 {
+    // 首轮亚像素相位覆盖 -0.75..0.75px，0.25px 步长平衡精度与 49 次二维组合的成本。
     constexpr std::array<double, 7> axis { -0.75, -0.50, -0.25, 0.0, 0.25, 0.50, 0.75 };
     std::vector<Phase> phases;
     phases.reserve(axis.size() * axis.size());
@@ -27,6 +28,7 @@ std::vector<Phase> BoundaryExtensionPhases(Phase winning)
     };
     const double x_edge = edge(winning.x);
     const double y_edge = edge(winning.y);
+    // 边界扩展沿另一轴复用首轮相位，避免把二维搜索扩大到全部 ±1px 组合。
     constexpr std::array<double, 7> axis { -0.75, -0.50, -0.25, 0.0, 0.25, 0.50, 0.75 };
     if (x_edge != 2.0) {
         for (double y : axis) {

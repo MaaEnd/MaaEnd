@@ -9,6 +9,13 @@
 
 namespace iconrecognition::detail
 {
+namespace
+{
+
+// 透明度低于该值的像素不参与模板匹配；调高可抑制半透明边缘噪声，调低可保留更多细节。
+constexpr int kTemplateAlphaThreshold = 230;
+
+} // namespace
 
 TemplateCatalog::TemplateCatalog(std::filesystem::path data_root, std::filesystem::path image_root)
     : data_root_(std::move(data_root))
@@ -119,10 +126,15 @@ const std::vector<PreparedTemplate>& TemplateCatalog::load(int target_size)
         const auto base_path = image_root_ / std::to_string(record.rarity) / (record.icon_id + ".png");
         const cv::Mat base = DecodeBgra(base_path);
         if (record.fluid_icon_id.empty()) {
-            result.push_back(PrepareStandardTemplate(record, base, target_size, 230));
+            result.push_back(PrepareStandardTemplate(record, base, target_size, kTemplateAlphaThreshold));
         }
         else {
-            result.push_back(BuildCompositeIcon(record, base, DecodeBgra(ResolveIconPath(image_root_, record.fluid_icon_id)), target_size, 230));
+            result.push_back(BuildCompositeIcon(
+                record,
+                base,
+                DecodeBgra(ResolveIconPath(image_root_, record.fluid_icon_id)),
+                target_size,
+                kTemplateAlphaThreshold));
         }
     }
     return cache_.emplace(target_size, std::move(result)).first->second;

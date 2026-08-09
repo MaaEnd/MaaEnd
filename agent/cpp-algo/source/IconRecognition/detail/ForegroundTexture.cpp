@@ -6,10 +6,15 @@ namespace iconrecognition::detail
 namespace
 {
 
+// 纹理检测区域排除 cell 左侧边框的像素数；调大可避开边框，也会减少有效图标区域。
 constexpr int kContentInsetLeft = 6;
+// 纹理检测区域排除 cell 顶部边框的像素数；调大可避开顶边装饰，也会减少有效区域。
 constexpr int kContentInsetTop = 6;
+// 纹理检测区域排除 cell 右侧边框的像素数；调大可避开边框，也会减少有效图标区域。
 constexpr int kContentInsetRight = 6;
+// 纹理检测区域排除 cell 底部色带的像素数；调大可避开 rarity 色带，但可能裁掉图标下沿。
 constexpr int kContentInsetBottom = 8;
+// 低纹理门控只适用于 64px 双侧网格 cell，其他尺寸直接跳过该规则。
 constexpr int kTextureCellSize = 64;
 
 } // namespace

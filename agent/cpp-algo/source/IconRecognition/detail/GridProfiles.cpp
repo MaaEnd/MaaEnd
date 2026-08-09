@@ -17,19 +17,87 @@ namespace iconrecognition::detail
 namespace
 {
 
+// 结构响应比较的近零阈值，仅用于拒绝无有效边缘的图像。
 constexpr double kEpsilon = 1e-8;
+// 双侧网格的公共 64px cell、68..70px pitch 和可见性默认值。
 constexpr TransferGridProfile kBaseTransferProfile {};
-// 宽范围只用于候选召回；正式晶格拟合使用 kBaseTransferProfile 的稳定 pitch 范围。
+// 粗发现阶段允许的 pitch 范围；扩大可召回畸变网格，也会增加候选和误检。
 constexpr std::pair<int, int> kTransferDiscoveryPitchRange { 66, 74 };
+// 粗发现候选至少包含的列数；调高减少局部误检，调低可召回窄面板。
 constexpr int kTransferDiscoveryMinimumColumns = 3;
+// 粗发现候选至少包含的行数；调高减少局部误检，调低可召回浅面板。
 constexpr int kTransferDiscoveryMinimumRows = 3;
+// 单侧 transfer 候选允许的最大列数，防止把左右面板合成一个网格。
 constexpr int kTransferMaximumColumns = 8;
+// 右侧面板分区的 720p 参考宽度，用于缺少双候选时构造保守区域。
 constexpr int kTransferRightPanelWidth = 398;
-// 峰值需同时达到全图最大响应比例和正响应高分位，兼顾弱格框召回与高纹理背景抑制。
+// 局部峰相对全图最大响应的最低比例；调高抑制弱噪声，调低提高弱格框召回。
 constexpr double kLocalPeakMaximumRatio = 0.22;
+// 局部峰需达到的正响应百分位；调高只保留尖峰，调低会保留更多纹理峰。
 constexpr double kLocalPeakPercentile = 92.0;
+// 局部极大值抑制的方形邻域边长；调大合并近邻峰，调小保留更多候选。
 constexpr int kLocalPeakNeighborhoodSize = 5;
+// 浮点峰值与膨胀结果比较的相等容差，仅用于数值稳定性。
 constexpr float kLocalPeakEqualityTolerance = 1e-7F;
+// 传输网格候选至少覆盖的槽位比例；调高减少破碎误检，调低可召回遮挡较多的网格。
+constexpr double kTransferHypothesisMinimumOccupancy = 0.42;
+// 宽 ROI 中单侧候选的最大宽度比例；调大可能把左右两侧合并，调小可能截断真实面板。
+constexpr double kTransferLocalizedMaximumWidthRatio = 0.70;
+// 独立局部候选相对最强候选的最低分数；调高只保留强面板，调低可保留弱面板但增加冲突。
+constexpr double kIndependentCandidateMinimumScoreRatio = 0.15;
+// 左右面板配对时，较弱一侧相对较强一侧的最低分数；调高抑制伪配对，调低提高弱侧召回。
+constexpr double kGridPairMinimumRelativeScore = 0.15;
+// 结构响应图的平滑 sigma（像素）；调大可抑制噪声，调小保留窄边界但更易受噪声影响。
+constexpr double kTransferStructureBlurSigma = 0.8;
+
+// 据点交易按 96px cell、310x109px pitch 和至少 3x3 卡片区域标定。
+constexpr GridProfile kTradeGridProfile {
+    .cell_size = 96,
+    .pitch_x = 310.0,
+    .pitch_y = 109.0,
+    .min_columns = 3,
+    .min_rows = 3,
+};
+// 背包和仓库沿用双侧网格的 64px cell、69px 首选 pitch，至少需要 3x3 结构证据。
+constexpr GridProfile kTransferGridProfile {
+    .cell_size = kBaseTransferProfile.cell_size,
+    .pitch_x = kBaseTransferProfile.preferred_pitch,
+    .pitch_y = kBaseTransferProfile.preferred_pitch,
+    .min_columns = 3,
+    .min_rows = 3,
+};
+// 便捷存取站与 transfer 使用相同几何基准，但后续选择不同的色带与边界策略。
+constexpr GridProfile kPortStoragerGridProfile {
+    .cell_size = kBaseTransferProfile.cell_size,
+    .pitch_x = kBaseTransferProfile.preferred_pitch,
+    .pitch_y = kBaseTransferProfile.preferred_pitch,
+    .min_columns = 3,
+    .min_rows = 3,
+};
+// 贵重品库按 96px cell、103.5px 双轴 pitch 和至少 7x4 的首屏布局标定。
+constexpr GridProfile kValuablesGridProfile {
+    .cell_size = 96,
+    .pitch_x = 103.5,
+    .pitch_y = 103.5,
+    .min_columns = 7,
+    .min_rows = 4,
+};
+// 送货界面按 64px cell、73.6x112px pitch 和至少 4x3 布局标定。
+constexpr GridProfile kShipmentGridProfile {
+    .cell_size = 64,
+    .pitch_x = 73.6,
+    .pitch_y = 112.0,
+    .min_columns = 4,
+    .min_rows = 3,
+};
+// 信用交易卡片按 128px cell、161x205px pitch 和单行七列布局标定。
+constexpr GridProfile kCreditTradeGridProfile {
+    .cell_size = 128,
+    .pitch_x = 161.0,
+    .pitch_y = 205.0,
+    .min_columns = 7,
+    .min_rows = 1,
+};
 
 struct Peak
 {
@@ -190,7 +258,7 @@ std::vector<TransferHypothesis>
                         continue;
                     }
                     const double occupancy = static_cast<double>(component.size()) / (columns.size() * rows.size());
-                    if (occupancy < 0.42) {
+                    if (occupancy < kTransferHypothesisMinimumOccupancy) {
                         continue;
                     }
                     std::vector<int> x_starts;
@@ -265,7 +333,7 @@ std::vector<cv::Rect> discover_transfer_regions(const cv::Mat& crop)
     std::vector<TransferHypothesis> localized;
     for (const auto& item : hypotheses) {
         if (item.columns <= kTransferMaximumColumns && item.rows <= kBaseTransferProfile.maximum_rows
-            && item.rect.width <= crop.cols * 0.70) {
+            && item.rect.width <= crop.cols * kTransferLocalizedMaximumWidthRatio) {
             localized.push_back(item);
         }
     }
@@ -273,7 +341,7 @@ std::vector<cv::Rect> discover_transfer_regions(const cv::Mat& crop)
         throw std::runtime_error("transfer ROI contains no local grid candidate");
     }
     std::vector<TransferHypothesis> independent;
-    const double threshold = localized.front().score * 0.15;
+    const double threshold = localized.front().score * kIndependentCandidateMinimumScoreRatio;
     for (const auto& hypothesis : localized) {
         if (hypothesis.score < threshold) {
             break;
@@ -292,7 +360,7 @@ std::vector<cv::Rect> discover_transfer_regions(const cv::Mat& crop)
             }
             const double weaker = std::min(left.score, right.score);
             const double stronger = std::max(left.score, right.score);
-            if (weaker < stronger * 0.15) {
+            if (weaker < stronger * kGridPairMinimumRelativeScore) {
                 continue;
             }
             const bool spanned = std::ranges::any_of(localized, [&](const auto& item) {
@@ -393,6 +461,7 @@ std::vector<cv::Rect> PartitionTransferRegions(cv::Size crop_size, const cv::Rec
 
     // 分界放在两个已确认网格之间，保留边缘弱纹理单元供后续完整网格拟合。
     const int split = left_end + (right_begin - left_end) / 2;
+    // 右侧分区向左保留的结构上下文（像素）；调大有利于边缘 cell 拟合，也会增加区域重叠。
     constexpr int kStructureContext = 12;
     const int right_start = std::clamp(right_begin - kStructureContext, split + 1, crop_size.width - 1);
     return { cv::Rect(0, 0, split, crop_size.height),
@@ -403,29 +472,17 @@ GridProfile ProfileFor(GridType type)
 {
     switch (type) {
     case GridType::Trade:
-        return { 96, 310.0, 109.0, 3, 3 };
+        return kTradeGridProfile;
     case GridType::Transfer:
-        return {
-            kBaseTransferProfile.cell_size,
-            kBaseTransferProfile.preferred_pitch,
-            kBaseTransferProfile.preferred_pitch,
-            3,
-            3,
-        };
+        return kTransferGridProfile;
     case GridType::PortStorager:
-        return {
-            kBaseTransferProfile.cell_size,
-            kBaseTransferProfile.preferred_pitch,
-            kBaseTransferProfile.preferred_pitch,
-            3,
-            3,
-        };
+        return kPortStoragerGridProfile;
     case GridType::Valuables:
-        return { 96, 103.5, 103.5, 7, 4 };
+        return kValuablesGridProfile;
     case GridType::Shipment:
-        return { 64, 73.6, 112.0, 4, 3 };
+        return kShipmentGridProfile;
     case GridType::CreditTrade:
-        return { 128, 161.0, 205.0, 7, 1 };
+        return kCreditTradeGridProfile;
     case GridType::SingleRoi:
         throw std::invalid_argument("single_roi does not use a grid profile");
     }
@@ -434,22 +491,24 @@ GridProfile ProfileFor(GridType type)
 
 TransferGridProfile TransferProfileFor(TransferGridVariant variant)
 {
+    // 背包左侧允许 85% 顶部可见率，兼容 ROI 从首行中部开始的截图。
     constexpr TransferGridProfile kTransferLeft {
         .rarity_anchor_offset = 64,
         .minimum_top_visibility = 0.85,
     };
-    // 背包右侧五列的实际横纵 pitch 均为 69px；固定值避免短轴拟合被物品纹理拉偏 1px。
+    // 背包右侧固定 69px pitch，避免五列短轴被物品纹理拉偏 1px。
     constexpr TransferGridProfile kTransferRight {
         .pitch_min = 69,
         .pitch_max = 69,
         .rarity_anchor_offset = 64,
         .minimum_top_visibility = 0.85,
     };
-    // 便捷存取站的格框结构不同，但 64px cell 都应完整包含底部色带。
+    // 便捷存取站左侧要求 90% 顶部可见率，减少标题区或遮挡造成的伪首行。
     constexpr TransferGridProfile kPortLeft {
         .rarity_anchor_offset = 64,
         .minimum_top_visibility = 0.90,
     };
+    // 便捷存取站右侧沿用相同 90% 顶部可见率和默认 68..70px pitch。
     constexpr TransferGridProfile kPortRight {
         .rarity_anchor_offset = 64,
         .minimum_top_visibility = 0.90,
@@ -490,7 +549,7 @@ cv::Mat BuildTransferCellScore(const cv::Mat& image, int cell_size)
             result.at<float>(y, x) = static_cast<float>(std::pow(product, 0.25));
         }
     }
-    cv::GaussianBlur(result, result, cv::Size(), 0.8);
+    cv::GaussianBlur(result, result, cv::Size(), kTransferStructureBlurSigma);
     return result;
 }
 

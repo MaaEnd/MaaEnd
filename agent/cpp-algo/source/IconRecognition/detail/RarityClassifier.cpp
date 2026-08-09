@@ -12,8 +12,11 @@ namespace iconrecognition::detail
 namespace
 {
 
+// 在 cell 预期底边附近搜索 rarity 色带的纵向像素半径；调大提高错位容忍度，也更易采到背景。
 constexpr int kSearchRadius = 8;
+// 像素与 rarity 原型色的最大 Lab 距离；调大提高颜色召回，调小减少相近背景误判。
 constexpr double kLabDistance = 25.0;
+// 最佳色带行需达到的原型色覆盖率；调高提高可靠性，调低可适应压缩或光照偏色。
 constexpr double kMinCoverage = 0.8;
 
 struct Candidate
@@ -32,9 +35,20 @@ bool candidate_less(const Candidate& left, const Candidate& right)
 
 const std::array<cv::Vec3f, 6>& RarityLabPrototypes()
 {
+    // 六个 Lab 原型按数组下标依次对应 rarity 1..6，数值来自 720p 色带回归样本的代表色。
     static const std::array<cv::Vec3f, 6> prototypes {
-        cv::Vec3f(163.0F, 128.0F, 128.0F), cv::Vec3f(198.0F, 98.0F, 191.0F),  cv::Vec3f(182.0F, 113.0F, 86.0F),
-        cv::Vec3f(129.0F, 189.0F, 55.0F),  cv::Vec3f(204.0F, 136.0F, 202.0F), cv::Vec3f(163.0F, 167.0F, 191.0F),
+        // rarity 1 灰色色带的 Lab 原型。
+        cv::Vec3f(163.0F, 128.0F, 128.0F),
+        // rarity 2 色带的 Lab 原型。
+        cv::Vec3f(198.0F, 98.0F, 191.0F),
+        // rarity 3 色带的 Lab 原型。
+        cv::Vec3f(182.0F, 113.0F, 86.0F),
+        // rarity 4 色带的 Lab 原型。
+        cv::Vec3f(129.0F, 189.0F, 55.0F),
+        // rarity 5 色带的 Lab 原型。
+        cv::Vec3f(204.0F, 136.0F, 202.0F),
+        // rarity 6 色带的 Lab 原型。
+        cv::Vec3f(163.0F, 167.0F, 191.0F),
     };
     return prototypes;
 }

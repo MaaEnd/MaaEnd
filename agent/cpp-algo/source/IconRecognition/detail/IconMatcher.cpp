@@ -12,6 +12,15 @@ namespace
 
 using PerformanceClock = std::chrono::steady_clock;
 
+// 兼容旧的单模板 API 时允许的像素平移半径；调大提高错位容忍度，但增加搜索面积。
+constexpr int kDefaultSearchRadius = 2;
+// 模板相关性在最终分数中的权重；调高更重视轮廓结构，调低会让颜色差异占比上升。
+constexpr double kTemplateScoreWeight = 0.85;
+// Lab 颜色相似度在最终分数中的权重；调高更能区分同轮廓物品，但更易受光照影响。
+constexpr double kColorScoreWeight = 0.15;
+// OpenCV Lab 通道距离的归一化尺度，把平均颜色距离映射到 0..1 分数区间。
+constexpr double kColorDistanceNormalization = 255.0;
+
 double ElapsedMilliseconds(PerformanceClock::time_point started_at)
 {
     return std::chrono::duration<double, std::milli>(PerformanceClock::now() - started_at).count();
@@ -129,13 +138,14 @@ MatchDiagnostics ScoreTemplateAt(
             ++active;
         }
     }
-    const double color_score = active == 0 ? 0.0 : std::clamp(1.0 - distance / active / 255.0, 0.0, 1.0);
+    const double color_score =
+        active == 0 ? 0.0 : std::clamp(1.0 - distance / active / kColorDistanceNormalization, 0.0, 1.0);
     if (performance) {
         performance->color_distance_ms += ElapsedMilliseconds(color_started);
     }
     result.tm_score = maximum;
     result.color_score = color_score;
-    result.score = 0.85 * maximum + 0.15 * color_score;
+    result.score = kTemplateScoreWeight * maximum + kColorScoreWeight * color_score;
     result.position = cv::Point(location.x + search.x, location.y + search.y);
     result.phase = phase;
     return result;
@@ -144,21 +154,21 @@ MatchDiagnostics ScoreTemplateAt(
 MatchDiagnostics
     MatchTemplateAt(const cv::Mat& image, const cv::Rect& slot, const PreparedTemplate& templ, double threshold, double subpixel_threshold)
 {
-    MatchDiagnostics best = ScoreTemplateAt(image, slot, templ, 2, { 0.0, 0.0 });
+    MatchDiagnostics best = ScoreTemplateAt(image, slot, templ, kDefaultSearchRadius, { 0.0, 0.0 });
     if (best.score >= subpixel_threshold && best.score < threshold) {
         best.fallback_used = true;
         for (const Phase phase : PhaseGrid()) {
             if (phase.x == 0.0 && phase.y == 0.0) {
                 continue;
             }
-            const MatchDiagnostics candidate = ScoreTemplateAt(image, slot, templ, 2, phase);
+            const MatchDiagnostics candidate = ScoreTemplateAt(image, slot, templ, kDefaultSearchRadius, phase);
             if (candidate.score > best.score) {
                 best = candidate, best.fallback_used = true;
             }
         }
         const auto extensions = BoundaryExtensionPhases(best.phase);
         for (const Phase phase : extensions) {
-            const MatchDiagnostics candidate = ScoreTemplateAt(image, slot, templ, 2, phase);
+            const MatchDiagnostics candidate = ScoreTemplateAt(image, slot, templ, kDefaultSearchRadius, phase);
             if (candidate.score > best.score) {
                 best = candidate, best.fallback_used = true;
             }

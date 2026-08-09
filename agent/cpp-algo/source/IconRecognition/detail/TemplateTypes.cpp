@@ -13,6 +13,11 @@ namespace iconrecognition::detail
 namespace
 {
 
+// 复合图标内容层占基础图标边长的比例；调大提高内容可见性，调小减少对底图轮廓的覆盖。
+constexpr double kCompositeContentSizeRatio = 7.0 / 16.0;
+// 8 位 alpha 通道的最大值，用于把透明度归一化到 0..1。
+constexpr double kAlphaChannelMaximum = 255.0;
+
 cv::Mat ToBgr(const cv::Mat& source, cv::Mat& alpha)
 {
     if (source.empty()) {
@@ -114,7 +119,7 @@ PreparedTemplate PrepareCompositeTemplate(
     cv::Mat base_mask;
     cv::bitwise_and(AlphaMask(base_alpha, alpha_threshold), BuildLowerExtendedMask(target_size), base_mask);
 
-    const int content_size = std::max(1, cvRound(target_size * 7.0 / 16.0));
+    const int content_size = std::max(1, cvRound(target_size * kCompositeContentSizeRatio));
     cv::Mat content_alpha;
     cv::Mat content_bgr = ResizeAndCenterBgr(content, content_size, content_alpha);
     if (cv::countNonZero(AlphaMask(content_alpha, alpha_threshold)) == 0) {
@@ -124,7 +129,7 @@ PreparedTemplate PrepareCompositeTemplate(
     cv::Mat destination = output(cv::Rect(offset, offset, content_size, content_size));
     for (int y = 0; y < content_size; ++y) {
         for (int x = 0; x < content_size; ++x) {
-            const float alpha = content_alpha.at<uchar>(y, x) / 255.0F;
+            const float alpha = static_cast<float>(content_alpha.at<uchar>(y, x) / kAlphaChannelMaximum);
             if (alpha <= 0.0F) {
                 continue;
             }

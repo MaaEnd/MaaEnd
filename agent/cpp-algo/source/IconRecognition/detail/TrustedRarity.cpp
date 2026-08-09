@@ -12,25 +12,43 @@ namespace iconrecognition::detail
 namespace
 {
 
+// 像素与 rarity 原型色的最大 Lab 距离；调大提高色带召回，调小减少相近背景进入 mask。
 constexpr double kPrototypeDistance = 25.0;
+// 连通色带宽度相对 cell 的下限；调低可接受残缺色带，也会增加短横线误检。
 constexpr double kMinimumWidthRatio = 0.72;
+// 连通色带宽度相对 cell 的上限；调高容忍跨格粘连，调低更严格限制为单格色带。
 constexpr double kMaximumWidthRatio = 1.08;
+// 色带连通域允许的最小厚度（像素）；调低没有意义，调高会漏掉细弱色带。
 constexpr int kMinimumThickness = 1;
+// 色带连通域允许的最大厚度（像素）；调高会容忍模糊，也更易接受宽背景条。
 constexpr int kMaximumThickness = 6;
+// 连通框内原型色像素的最低覆盖率；调高提高纯度，调低可适应压缩噪声。
 constexpr double kMinimumCoverage = 0.72;
+// 色带最长连续段占宽度的最低比例；调高拒绝断裂噪声，调低可接受遮挡色带。
 constexpr double kMinimumContinuity = 0.70;
+// 色带均色与上下背景的最低平均 Lab 差；调高减少同色背景误判，调低提高低对比召回。
 constexpr double kMinimumBackgroundDelta = 10.0;
+// 色带与较相近一侧背景仍需达到的最低 Lab 差；调高要求双侧边界更清晰。
 constexpr double kMinimumEdgeResponse = 7.0;
-// 可信度同时衡量颜色覆盖、连续性、背景对比、边缘和厚度，避免单一高覆盖率接管晶格。
+// 颜色覆盖率在可信度中的权重；调高更看重色带像素纯度。
 constexpr double kCoverageConfidenceWeight = 0.30;
+// 横向连续性在可信度中的权重；调高更偏好完整长条。
 constexpr double kContinuityConfidenceWeight = 0.20;
+// 上下背景平均对比度在可信度中的权重；调高更看重整体背景分离。
 constexpr double kBackgroundConfidenceWeight = 0.20;
+// 较弱一侧边缘响应在可信度中的权重；调高更看重双侧都存在边界。
 constexpr double kEdgeConfidenceWeight = 0.20;
+// 色带厚度接近期望值的权重；调高会更严格拒绝过厚或过薄的条带。
 constexpr double kThicknessConfidenceWeight = 0.10;
+// 背景 Lab 差映射到满置信度的尺度；调大使背景对比贡献增长更慢。
 constexpr double kBackgroundDeltaScale = 25.0;
+// 单侧边缘 Lab 差映射到满置信度的尺度；调大使边缘证据贡献增长更慢。
 constexpr double kEdgeResponseScale = 20.0;
+// 720p 双侧网格 rarity 色带的期望厚度（像素）。
 constexpr int kExpectedThickness = 3;
+// 厚度偏差归一化尺度；调大减轻厚度偏差惩罚，调小则更严格。
 constexpr double kThicknessDeviationScale = 3.0;
+// 只有一侧背景可采样时施加的置信度折扣；调低更保守，调高更信任边缘样本。
 constexpr double kSingleBackgroundPenalty = 0.85;
 
 cv::Mat ToLab32(const cv::Mat& image)

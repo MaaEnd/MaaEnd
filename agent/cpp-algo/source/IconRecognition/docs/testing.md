@@ -7,7 +7,7 @@
 - `build/`：CMake 构建目录；
 - `run-tests.local.psd1`：可选的本机工具链路径配置。
 
-生产代码和测试都读取 `assets/data/IconRecognition`、`assets/resource/image/IconRecognition` 与 `assets/locales/interface`，不维护测试专用 catalog 或模板副本。
+生产代码和测试都读取 `assets/data/IconRecognition`、`assets/resource/image/IconRecognition` 与 `assets/locales/interface`，不维护测试专用 catalog 或模板副本。`quick` 使用仓库内已跟踪的铜矿模板合成 single ROI 输入，不读取被忽略的 `input/`；`input/` 仅供人工 runner 和显式截图回归使用。
 
 ## 准备图片
 
@@ -54,6 +54,8 @@ input/
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Image 43.png
 ```
 
+`quick` 是干净 checkout 可运行的快速门禁，覆盖类型、参数契约、single ROI、MaaFramework 包装、算法小测试和 debug capture。整图识别及性能回归必须先准备 `input/`，再使用 `-Task manual` 显式运行，不会被 quick 静默跳过。
+
 无参数、`-Help`、`-h` 会打印完整用法；PowerShell 保留的 `-?` 会显示脚本参数帮助。人工 runner 支持三种选择范围：
 
 - `-All`：遍历所有分类目录；
@@ -63,7 +65,7 @@ input/
 `-Side` 只用于 `transfer` 和 `port_storager`，默认是 `full`：
 
 | 值 | 每张图片执行的 ROI |
-| --- | --- |
+| ------- | ----------------------- |
 | `full` | 完整大 ROI 一次 |
 | `left` | 左侧 ROI 一次 |
 | `right` | 右侧 ROI 一次 |

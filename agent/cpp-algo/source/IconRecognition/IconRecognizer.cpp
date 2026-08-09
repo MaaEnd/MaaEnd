@@ -27,12 +27,19 @@ namespace iconrecognition
 namespace
 {
 
+// 常规网格允许模板相对 cell 中心平移的像素半径；调大提高错位容忍度，但增加匹配耗时和串格风险。
 constexpr int kGridSearchRadius = 2;
+// 据点交易图标在 96px cell 内的实际模板边长；调大会纳入更多卡片背景，调小会裁掉图标边缘。
 constexpr int kTradeTemplateSize = 88;
+// 信用交易卡片内图标区域的模板边长，按 720p 卡片截图标定。
 constexpr int kCreditTradeTemplateSize = 140;
+// 信用交易模板相对检测 cell 左上角的横向偏移；数值增大时采样区域向右移动。
 constexpr int kCreditTradeOffsetX = -6;
+// 信用交易模板相对检测 cell 左上角的纵向偏移；数值增大时采样区域向下移动。
 constexpr int kCreditTradeOffsetY = 4;
+// 亚像素细化至少保留的候选数量；调大提高次优模板翻盘机会，但增加相位匹配次数。
 constexpr int kShortlistCount = 5;
+// 除固定数量外允许进入细化的分数窗口；调大提高召回但增加耗时，调小更偏向首轮排名。
 constexpr double kShortlistScoreWindow = 0.08;
 
 using PerformanceClock = std::chrono::steady_clock;
@@ -44,9 +51,13 @@ double ElapsedMilliseconds(PerformanceClock::time_point started_at)
 
 const std::vector<std::string>& DefaultFilters(GridType type)
 {
+    // 背包、存取站、送货和 single ROI 默认覆盖普通仓库的全部分类。
     static const std::vector<std::string> normal { "Normal:*" };
+    // 据点交易只展示产品和可使用物品，缩小候选集可降低单格识别耗时。
     static const std::vector<std::string> trade { "Normal:Product", "Normal:Usable" };
+    // 贵重品库默认覆盖 ValuableDepot 下的全部分类。
     static const std::vector<std::string> valuables { "ValuableDepot:*" };
+    // 信用交易所只展示特殊商品和隔离存储的货币类物品。
     static const std::vector<std::string> credit { "ValuableDepot:SpecialItem", "Isolate:*" };
     switch (type) {
     case GridType::Trade:

@@ -10,20 +10,33 @@ namespace iconrecognition::detail
 namespace
 {
 
+// 信号能量和曲率计算的近零阈值，仅用于数值稳定性。
 constexpr double kEpsilon = 1e-8;
-// 格框响应由离线样本标定的四类证据组合：对边与单向边是主体，亮度对比补强，斜纹理用于抑制误检。
+// 成对格框边缘在局部分数中的权重；调高更偏好左右或上下边同时清晰的 cell。
 constexpr double kPairedBorderWeight = 0.45;
+// 方向一致的有符号边缘在局部分数中的权重；调高更强调边缘朝向正确。
 constexpr double kDirectionalBorderWeight = 0.35;
+// cell 内外亮度差在局部分数中的权重；调高可补强弱边框，也更易受物品亮度影响。
 constexpr double kContrastWeight = 0.20;
+// 斜向纹理从局部分数中扣除的权重；调高更能抑制物品纹理，也可能误伤斜角边框。
 constexpr double kDiagonalPenaltyWeight = 0.20;
+// 动态规划跨格间隙中边界响应的惩罚权重；调高更排斥跨过额外边线的序列。
 constexpr double kGapBoundaryPenaltyWeight = 0.30;
+// 相邻 cell 间距偏离 profile pitch 的 Huber 惩罚权重；调高会更强地锁定先验间距。
 constexpr double kPitchDeviationPenaltyWeight = 0.05;
+// 无法估计峰曲率时使用的初始定位不确定宽度（像素）。
 constexpr double kInitialAmbiguityWidth = 2.0;
+// 曲率换算得到的定位不确定宽度下限；调低允许对尖锐峰给出更高确定性。
 constexpr double kMinimumAmbiguityWidth = 0.25;
+// 曲率换算得到的定位不确定宽度上限；调高会更保守地描述平坦峰。
 constexpr double kMaximumAmbiguityWidth = 4.0;
+// 曲率开方分母的稳定项，防止平坦峰产生无穷不确定度。
 constexpr double kCurvatureEpsilon = 1e-6;
+// 绝对结构证据在轴置信度中的权重；调高更看重最佳序列本身的强度。
 constexpr double kEvidenceConfidenceWeight = 0.85;
+// 网格候选间分数 margin 的置信权重；调高更看重唯一性，调低更依赖绝对证据分数。
 constexpr double kMarginConfidenceWeight = 0.15;
+// 轴拟合标记为低置信的阈值；调高会让更多弱轴进入保守 fallback。
 constexpr double kLowConfidenceThreshold = 0.12;
 
 double huber(double value)

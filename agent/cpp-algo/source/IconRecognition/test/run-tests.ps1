@@ -1,10 +1,10 @@
-[CmdletBinding()]
-param(
+﻿param(
     [ValidateSet("configure", "build", "quick", "manual")]
     [string]$Task,
     [Alias("h", "?")]
     [switch]$Help,
     [switch]$All,
+    [switch]$Debug,
     [ValidateSet("trade", "transfer", "port_storager", "valuables", "shipment", "credit_trade", "single_roi")]
     [string]$GridType,
     [string]$Image,
