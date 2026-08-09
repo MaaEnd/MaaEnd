@@ -1,6 +1,7 @@
 #include "IconRecognizer.h"
 
 #include <algorithm>
+#include <chrono>
 #include <filesystem>
 #include <memory>
 #include <set>
@@ -32,6 +33,13 @@ constexpr int kCreditTradeOffsetX = -6;
 constexpr int kCreditTradeOffsetY = 4;
 constexpr int kShortlistCount = 5;
 constexpr double kShortlistScoreWindow = 0.08;
+
+using PerformanceClock = std::chrono::steady_clock;
+
+double ElapsedMilliseconds(PerformanceClock::time_point started_at)
+{
+    return std::chrono::duration<double, std::milli>(PerformanceClock::now() - started_at).count();
+}
 
 const std::vector<std::string>& DefaultFilters(GridType type)
 {
@@ -201,19 +209,32 @@ RankedCandidate RefineCandidate(
     const cv::Rect& slot,
     const std::vector<detail::PreparedTemplate>& templates,
     RankedCandidate candidate,
-    int search_radius)
+    int search_radius,
+    detail::RecognitionPerformanceDiagnostics* performance)
 {
     for (const detail::Phase phase : detail::PhaseGrid()) {
         if (phase.x == 0.0 && phase.y == 0.0) {
             continue;
         }
-        const auto diagnostics = detail::ScoreTemplateAt(image, slot, templates[candidate.template_index], search_radius, phase);
+        const auto diagnostics = detail::ScoreTemplateAt(
+            image,
+            slot,
+            templates[candidate.template_index],
+            search_radius,
+            phase,
+            performance ? &performance->matcher : nullptr);
         if (PhaseScoreBetter(diagnostics, phase, candidate)) {
             candidate.diagnostics = diagnostics, candidate.phase = phase;
         }
     }
     for (const detail::Phase phase : detail::BoundaryExtensionPhases(candidate.phase)) {
-        const auto diagnostics = detail::ScoreTemplateAt(image, slot, templates[candidate.template_index], search_radius, phase);
+        const auto diagnostics = detail::ScoreTemplateAt(
+            image,
+            slot,
+            templates[candidate.template_index],
+            search_radius,
+            phase,
+            performance ? &performance->matcher : nullptr);
         if (PhaseScoreBetter(diagnostics, phase, candidate)) {
             candidate.diagnostics = diagnostics, candidate.phase = phase;
         }
@@ -227,27 +248,59 @@ SlotRanking RankSlot(
     const std::vector<detail::PreparedTemplate>& templates,
     double accept,
     double subpixel,
-    int search_radius)
+    int search_radius,
+    detail::RecognitionPerformanceDiagnostics* performance)
 {
+    const auto ranking_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
+    const auto baseline_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
     std::vector<RankedCandidate> ranked;
     ranked.reserve(templates.size());
     for (std::size_t index = 0; index < templates.size(); ++index) {
-        auto diagnostics = detail::ScoreTemplateAt(image, slot, templates[index], search_radius, {});
+        auto diagnostics = detail::ScoreTemplateAt(
+            image,
+            slot,
+            templates[index],
+            search_radius,
+            {},
+            performance ? &performance->matcher : nullptr);
         ranked.push_back({ index, diagnostics, diagnostics, {} });
     }
+    if (performance) {
+        performance->ranking.baseline_candidates += templates.size();
+        performance->ranking.baseline_scoring_ms += ElapsedMilliseconds(baseline_started);
+    }
+
+    const auto baseline_sort_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
     std::ranges::sort(ranked, [&](const auto& left, const auto& right) { return CandidateLess(left, right, templates); });
+    if (performance) {
+        performance->ranking.baseline_sort_ms += ElapsedMilliseconds(baseline_sort_started);
+    }
     const double baseline_score = ranked.front().diagnostics.score;
     if (!(subpixel <= baseline_score && baseline_score < accept)) {
+        if (performance) {
+            performance->ranking.total_ms += ElapsedMilliseconds(ranking_started);
+        }
         return { ranked.front(), std::move(ranked), baseline_score, false };
     }
 
+    const auto refinement_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
     std::vector<RankedCandidate> refined;
     for (std::size_t index = 0; index < ranked.size(); ++index) {
         if (index < kShortlistCount || ranked[index].diagnostics.score >= baseline_score - kShortlistScoreWindow) {
-            refined.push_back(RefineCandidate(image, slot, templates, ranked[index], search_radius));
+            refined.push_back(RefineCandidate(image, slot, templates, ranked[index], search_radius, performance));
         }
     }
+    if (performance) {
+        performance->ranking.refined_candidates += refined.size();
+        performance->ranking.refinement_scoring_ms += ElapsedMilliseconds(refinement_started);
+    }
+
+    const auto refinement_sort_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
     std::ranges::sort(refined, [&](const auto& left, const auto& right) { return CandidateLess(left, right, templates); });
+    if (performance) {
+        performance->ranking.refinement_sort_ms += ElapsedMilliseconds(refinement_sort_started);
+        performance->ranking.total_ms += ElapsedMilliseconds(ranking_started);
+    }
     return { refined.front(), std::move(refined), baseline_score, true };
 }
 
@@ -325,15 +378,44 @@ public:
 
     const std::vector<detail::PreparedTemplate>& RoiTemplates(int target_size) const { return catalog_.load(target_size); }
 
+    bool preload(const std::vector<RecognitionRequest>& requests)
+    {
+        try {
+            for (const auto& request : requests) {
+                if (request.grid_type == GridType::SingleRoi) {
+                    if (request.roi.width <= 0 || request.roi.width != request.roi.height) {
+                        throw std::invalid_argument("single_roi preload must use a positive square ROI");
+                    }
+                    static_cast<void>(RoiTemplates(request.roi.width));
+                }
+                else {
+                    static_cast<void>(TemplatesFor(request.grid_type));
+                }
+            }
+            return true;
+        }
+        catch (const std::exception& error) {
+            LogError << "IconRecognizer template preload failed" << VAR(error.what());
+            return false;
+        }
+    }
+
     RecognitionResult recognize(const cv::Mat& image, const RecognitionRequest& request) const
     {
         try {
+            const auto recognition_started = request.debug ? PerformanceClock::now() : PerformanceClock::time_point {};
+            std::optional<detail::RecognitionPerformanceDiagnostics> performance;
+            if (request.debug) {
+                performance.emplace();
+            }
+            auto* performance_ptr = performance ? &*performance : nullptr;
             if (image.empty()) {
                 return Error(request.roi, request.grid_type, "invalid_image", "Input image is empty");
             }
             ValidateThresholds(request.threshold, request.subpixel_threshold);
             const bool single_roi = request.grid_type == GridType::SingleRoi;
             std::vector<detail::GridCell> cells;
+            std::vector<detail::GridLayout> detected_grids;
             std::vector<detail::PreparedTemplate> selected;
             if (single_roi) {
                 if (request.roi.width <= 0 || request.roi.width != request.roi.height) {
@@ -344,28 +426,71 @@ public:
                     throw std::invalid_argument("single_roi must be fully inside the image");
                 }
                 cells.push_back(detail::GridCell { .cell_box = request.roi });
+                const auto selection_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
                 selected = SelectTemplates(RoiTemplates(request.roi.width), request.candidates, DefaultFilters(request.grid_type));
+                if (performance) {
+                    performance->template_selection_ms += ElapsedMilliseconds(selection_started);
+                }
             }
             else {
-                cells = detail::DetectGrid(image, request.grid_type, request.roi).cells;
+                const auto detection_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
+                const detail::GridDetection detection = detail::DetectGrid(image, request.grid_type, request.roi);
+                if (performance) {
+                    performance->grid_detection_ms += ElapsedMilliseconds(detection_started);
+                }
+                cells = detection.cells;
+                detected_grids = detection.grids;
+                const auto selection_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
                 selected = SelectTemplates(TemplatesFor(request.grid_type), request.candidates, DefaultFilters(request.grid_type));
+                if (performance) {
+                    performance->template_selection_ms += ElapsedMilliseconds(selection_started);
+                }
             }
             RecognitionResult result;
             result.grid_type = request.grid_type;
             result.roi = request.roi;
             result.diagnostics = std::make_shared<detail::RecognitionDiagnostics>();
+            for (const auto& grid : detected_grids) {
+                if (grid.selection_diagnostics) {
+                    result.diagnostics->grids.push_back(*grid.selection_diagnostics);
+                }
+            }
             for (const auto& cell : cells) {
                 const cv::Rect slot = single_roi ? cell.cell_box : SlotFor(request.grid_type, cell);
+                const auto active_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
                 const auto active = single_roi ? selected : ActiveTemplates(image, request.grid_type, slot, selected);
+                if (performance) {
+                    performance->active_templates_ms += ElapsedMilliseconds(active_started);
+                }
                 const SlotRanking ranking =
-                    RankSlot(image, slot, active, request.threshold, request.subpixel_threshold, single_roi ? 0 : kGridSearchRadius);
+                    RankSlot(
+                        image,
+                        slot,
+                        active,
+                        request.threshold,
+                        request.subpixel_threshold,
+                        single_roi ? 0 : kGridSearchRadius,
+                        performance_ptr);
                 const auto& best = ranking.best;
                 const auto& templ = active[best.template_index];
+                const auto texture_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
                 const auto foreground_texture =
                     single_roi ? std::optional<double> {} : detail::ForegroundTextureScore(image, cell.cell_box, request.grid_type);
+                if (performance) {
+                    performance->foreground_texture_ms += ElapsedMilliseconds(texture_started);
+                }
+                const auto rarity_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
                 const auto rarity = single_roi ? detail::RarityResult {} : detail::ClassifyRarity(image, slot);
+                if (performance) {
+                    performance->rarity_classification_ms += ElapsedMilliseconds(rarity_started);
+                }
+                const auto low_texture_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
                 const bool texture_rejected = !single_roi && best.diagnostics.score >= request.threshold
-                                              && detail::IsLowTexture(image, cell.cell_box, request.grid_type);
+                                               && detail::IsLowTexture(image, cell.cell_box, request.grid_type);
+                if (performance) {
+                    performance->foreground_texture_ms += ElapsedMilliseconds(low_texture_started);
+                }
+                const auto assembly_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
                 const bool accepted = best.diagnostics.score >= request.threshold && !texture_rejected;
                 std::optional<std::string> rejected_reason;
                 if (!accepted) {
@@ -397,6 +522,9 @@ public:
                     .column = single_roi ? std::optional<int> {} : std::optional<int>(cell.column),
                 });
                 if (!accepted) {
+                    if (performance) {
+                        performance->result_assembly_ms += ElapsedMilliseconds(assembly_started);
+                    }
                     continue;
                 }
                 result.matches.push_back(ItemMatch {
@@ -407,14 +535,27 @@ public:
                     .row = single_roi ? std::optional<int> {} : std::optional<int>(cell.row),
                     .column = single_roi ? std::optional<int> {} : std::optional<int>(cell.column),
                 });
+                if (performance) {
+                    performance->result_assembly_ms += ElapsedMilliseconds(assembly_started);
+                }
             }
+            const auto sort_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
             std::ranges::stable_sort(result.matches, ItemMatchLess {});
             if (request.deduplicate) {
                 DeduplicateMatches(result.matches);
             }
+            if (performance) {
+                performance->result_sort_ms += ElapsedMilliseconds(sort_started);
+            }
             result.matched = !result.matches.empty();
             if (!result.matched) {
                 result.error_code = "no_match", result.message = "No item reached the configured threshold";
+            }
+            if (performance) {
+                performance->cell_count = cells.size();
+                performance->total_ms = ElapsedMilliseconds(recognition_started);
+                result.diagnostics->performance = std::move(performance);
+                LogInfo << "IconRecognition debug performance" << VAR(*result.diagnostics->performance);
             }
             return result;
         }
@@ -441,6 +582,11 @@ IconRecognizer& IconRecognizer::operator=(IconRecognizer&&) noexcept = default;
 bool IconRecognizer::initialize()
 {
     return impl_->initialize();
+}
+
+bool IconRecognizer::preload(const std::vector<RecognitionRequest>& requests)
+{
+    return impl_->preload(requests);
 }
 
 RecognitionResult IconRecognizer::recognize(const cv::Mat& image, const RecognitionRequest& request) const

@@ -27,6 +27,7 @@ endif()
 add_executable(
     icon-recognition-manual-cli-tests
     test_manual_cli.cpp
+    manual_runner_executor.cpp
     manual_runner_config.cpp
 )
 target_include_directories(
@@ -54,11 +55,13 @@ add_executable(
     ../detail/GridDetector.cpp
     ../detail/GridFeatures.cpp
     ../detail/GridGeometry.cpp
+    ../detail/RegularLattice.cpp
     ../detail/GridAnchors.cpp
     ../detail/GridProfiles.cpp
     ../detail/IconMatcher.cpp
     ../detail/MaskPolicy.cpp
     ../detail/RarityClassifier.cpp
+    ../detail/TrustedRarity.cpp
     ../detail/RecognitionDiagnostics.cpp
     ../detail/SubpixelMatcher.cpp
     ../detail/TemplateCatalog.cpp
@@ -93,11 +96,13 @@ add_executable(
     ../detail/GridDetector.cpp
     ../detail/GridFeatures.cpp
     ../detail/GridGeometry.cpp
+    ../detail/RegularLattice.cpp
     ../detail/GridAnchors.cpp
     ../detail/GridProfiles.cpp
     ../detail/IconMatcher.cpp
     ../detail/MaskPolicy.cpp
     ../detail/RarityClassifier.cpp
+    ../detail/TrustedRarity.cpp
     ../detail/RecognitionDiagnostics.cpp
     ../detail/SubpixelMatcher.cpp
     ../detail/TemplateCatalog.cpp
@@ -172,6 +177,7 @@ endif()
 add_executable(
     icon-recognition-manual-runner
     test_full_diff.cpp
+    manual_runner_executor.cpp
     manual_runner_config.cpp
     ../IconRecognizer.cpp
     ../detail/CompositeIcon.cpp
@@ -179,11 +185,13 @@ add_executable(
     ../detail/GridDetector.cpp
     ../detail/GridFeatures.cpp
     ../detail/GridGeometry.cpp
+    ../detail/RegularLattice.cpp
     ../detail/GridAnchors.cpp
     ../detail/GridProfiles.cpp
     ../detail/IconMatcher.cpp
     ../detail/MaskPolicy.cpp
     ../detail/RarityClassifier.cpp
+    ../detail/TrustedRarity.cpp
     ../detail/RecognitionDiagnostics.cpp
     ../detail/SubpixelMatcher.cpp
     ../detail/TemplateCatalog.cpp

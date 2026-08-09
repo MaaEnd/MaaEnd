@@ -1,6 +1,7 @@
 #include "IconMatcher.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <limits>
 
@@ -8,6 +9,13 @@ namespace iconrecognition::detail
 {
 namespace
 {
+
+using PerformanceClock = std::chrono::steady_clock;
+
+double ElapsedMilliseconds(PerformanceClock::time_point started_at)
+{
+    return std::chrono::duration<double, std::milli>(PerformanceClock::now() - started_at).count();
+}
 
 cv::Mat ToBgr(const cv::Mat& image)
 {
@@ -36,10 +44,26 @@ cv::Mat ToLab32(const cv::Mat& image)
 
 MatchDiagnostics ScoreTemplateAt(const cv::Mat& image, const cv::Rect& slot, const PreparedTemplate& templ, int search_radius, Phase phase)
 {
+    return ScoreTemplateAt(image, slot, templ, search_radius, phase, nullptr);
+}
+
+MatchDiagnostics ScoreTemplateAt(
+    const cv::Mat& image,
+    const cv::Rect& slot,
+    const PreparedTemplate& templ,
+    int search_radius,
+    Phase phase,
+    MatcherPerformanceDiagnostics* performance)
+{
     MatchDiagnostics result;
     if (image.empty() || image.channels() < 3 || templ.image.empty() || templ.mask.empty() || search_radius < 0) {
         return result;
     }
+    if (performance) {
+        ++performance->score_calls;
+    }
+
+    const auto canvas_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
     const cv::Mat source = ToBgr(image);
     const cv::Rect search(
         slot.x - search_radius,
@@ -52,12 +76,27 @@ MatchDiagnostics ScoreTemplateAt(const cv::Mat& image, const cv::Rect& slot, con
     if (clipped.width > 0 && clipped.height > 0) {
         source(clipped).copyTo(canvas(cv::Rect(clipped.x - search.x, clipped.y - search.y, clipped.width, clipped.height)));
     }
+    if (performance) {
+        performance->canvas_prepare_ms += ElapsedMilliseconds(canvas_started);
+    }
+
+    const auto shift_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
     const PreparedTemplate transformed = ShiftTemplate(templ, phase);
+    if (performance) {
+        performance->template_shift_ms += ElapsedMilliseconds(shift_started);
+    }
     if (canvas.cols < transformed.image.cols || canvas.rows < transformed.image.rows) {
         return result;
     }
+
+    const auto match_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
     cv::Mat response;
     cv::matchTemplate(canvas, transformed.image, response, cv::TM_CCOEFF_NORMED, transformed.mask);
+    if (performance) {
+        performance->template_match_ms += ElapsedMilliseconds(match_started);
+    }
+
+    const auto reduce_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
     cv::patchNaNs(response, -1.0);
     double maximum = -1.0;
     cv::Point location;
@@ -66,8 +105,18 @@ MatchDiagnostics ScoreTemplateAt(const cv::Mat& image, const cv::Rect& slot, con
         maximum = -1.0;
     }
     const cv::Mat matched = canvas(cv::Rect(location, transformed.image.size()));
+    if (performance) {
+        performance->response_reduce_ms += ElapsedMilliseconds(reduce_started);
+    }
+
+    const auto lab_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
     const cv::Mat templ_lab = ToLab32(transformed.image);
     const cv::Mat matched_lab = ToLab32(matched);
+    if (performance) {
+        performance->lab_conversion_ms += ElapsedMilliseconds(lab_started);
+    }
+
+    const auto color_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
     double distance = 0.0;
     int active = 0;
     for (int y = 0; y < transformed.mask.rows; ++y) {
@@ -81,6 +130,9 @@ MatchDiagnostics ScoreTemplateAt(const cv::Mat& image, const cv::Rect& slot, con
         }
     }
     const double color_score = active == 0 ? 0.0 : std::clamp(1.0 - distance / active / 255.0, 0.0, 1.0);
+    if (performance) {
+        performance->color_distance_ms += ElapsedMilliseconds(color_started);
+    }
     result.tm_score = maximum;
     result.color_score = color_score;
     result.score = 0.85 * maximum + 0.15 * color_score;

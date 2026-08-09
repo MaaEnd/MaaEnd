@@ -36,10 +36,11 @@ input/
 @{
     CMakePath      = "C:/path/to/cmake.exe"
     VsDevShellPath = "C:/path/to/Launch-VsDevShell.ps1"
+    Jobs           = 16
 }
 ```
 
-脚本只接受以上两个本地配置字段。显式传入的 `-CMakePath`、`-VsDevShellPath` 优先于本地配置；未配置时继续从 `PATH` 查找 `cmake`，并使用当前 PowerShell 环境。
+脚本只接受以上三个本地配置字段。显式传入的 `-CMakePath`、`-VsDevShellPath`、`-Jobs` 优先于本地配置；未配置工具路径时继续从 `PATH` 查找 `cmake`，并使用当前 PowerShell 环境。
 
 配置完成后，普通 PowerShell 和 Visual Studio Developer PowerShell 使用同一个入口：
 
@@ -49,6 +50,7 @@ input/
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -All
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType transfer
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType transfer -Image 43.png -Side all
+./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType transfer -Side all -Jobs 16
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Image 43.png
 ```
 
@@ -70,6 +72,18 @@ input/
 
 参数冲突、缺值、未知网格类型或非双侧网格使用 `-Side` 时会打印原因和用法，并返回非零退出码。
 
+`-Jobs` 只并行不同测试 case，不改变单张图片内部的生产识别算法。未显式传入时读取本机配置，仍未配置则为 1；C++ runner 直接调用时还支持 `--jobs auto`，按物理核心数选择并最多使用 16 个 worker。多 worker 模式把 OpenCV 内部线程限制为 1，避免 worker 数与 OpenCV 线程数相乘。
+
+每个 worker 只写自己的 annotated/detail 文件；主线程按 case 发现顺序生成控制台输出和 `report.json`。报告额外记录 `jobs`、`opencv_threads`、`elapsed_seconds` 和 `cases_per_second`。
+
+需要分析性能时，在 PowerShell 命令中加入通用参数 `-Debug`；直接运行 C++ runner 时使用 `--debug`。debug 模式会在控制台打印启动和单 case 耗时，在 detail 的 `diagnostics.performance` 中记录网格检测、模板选择、候选排名、纹理、稀有度、结果组装，以及 matcher 内部的画布准备、相位变换、模板匹配、极值归约、Lab 转换和颜色距离；`report.json` 还会记录 `startup_performance` 与各 case 的 `runner_performance`。正常模式不采集这些计时。示例：
+
+```powershell
+./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType transfer -Image 37.png -Side full -Jobs 1 -Debug
+```
+
+生产自定义识别参数中的 `debug: true` 同样会采集 `diagnostics.performance`，并随现有 debug capture 写入 detail JSON。细粒度计时会引入少量观测开销，比较绝对耗时时应固定图片、ROI、构建配置和 worker 数，并至少重复三次。
+
 ## 查看结果
 
 每次人工运行创建独立的 `output/<时间戳>-<选择范围>/`，不会覆盖之前的审核结果：
@@ -79,3 +93,18 @@ input/
 - `report.json`：本次 case 数、失败数，以及每个 case 的图片相对路径、`grid_type`、`roi_name`、ROI、命中数和输出路径。
 
 人工审核时依次检查 ROI 是否覆盖正确区域、编号 cell 是否对应审核栏原图标与中文名、item 框是否贴合、分数是否合理，以及红色拒识格是否符合预期。
+
+## 双侧网格回归门槛
+
+可信色带和规则晶格的定向测试至少覆盖：
+
+- 六档 rarity 覆盖向量，以及灰色/黄色同色背景与真实窄条的区别；
+- 同一行混合 rarity 共同支持晶格，不要求整行同色；
+- 浮点 pitch 的整数投影无累积误差，递增可变 pitch 序列被拒绝；
+- `transfer` 1、25、100、106、108 的相位和稀疏边界；
+- `transfer` 4、41、53 的 full cell 集合等于独立 left + right；
+- `port_storager/1` 左右两侧不同 origin。
+
+截图编号只用于测试入口，不得进入生产判断。全量审核使用 transfer 112 张图片的 full/left/right 共 336 个 case，并覆盖 port_storager 的全部可用 ROI。正确 match 总数不能整体下降，新增远端整片错位立即视为失败；结构和色带都不足时，明确失败优于输出低置信网格。
+
+人工 detail 的 `diagnostics.grids[]` 应同时检查 pitch 位于 68–70px、最大残差不超过 2.25px、可信 rarity 计数、fallback 原因，以及 full/split 的 origin、pitch、行列数是否一致。

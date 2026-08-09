@@ -15,10 +15,6 @@ namespace
 constexpr int kSearchRadius = 8;
 constexpr double kLabDistance = 25.0;
 constexpr double kMinCoverage = 0.8;
-const std::array<cv::Vec3f, 6> kPrototypes {
-    cv::Vec3f(163.0F, 128.0F, 128.0F), cv::Vec3f(198.0F, 98.0F, 191.0F),  cv::Vec3f(182.0F, 113.0F, 86.0F),
-    cv::Vec3f(129.0F, 189.0F, 55.0F),  cv::Vec3f(204.0F, 136.0F, 202.0F), cv::Vec3f(163.0F, 167.0F, 191.0F),
-};
 
 struct Candidate
 {
@@ -34,33 +30,48 @@ bool candidate_less(const Candidate& left, const Candidate& right)
 
 } // namespace
 
+const std::array<cv::Vec3f, 6>& RarityLabPrototypes()
+{
+    static const std::array<cv::Vec3f, 6> prototypes {
+        cv::Vec3f(163.0F, 128.0F, 128.0F), cv::Vec3f(198.0F, 98.0F, 191.0F),  cv::Vec3f(182.0F, 113.0F, 86.0F),
+        cv::Vec3f(129.0F, 189.0F, 55.0F),  cv::Vec3f(204.0F, 136.0F, 202.0F), cv::Vec3f(163.0F, 167.0F, 191.0F),
+    };
+    return prototypes;
+}
+
+double RarityRowEvidence::maximumCoverage() const
+{
+    return *std::ranges::max_element(coverages);
+}
+
+double RarityRowEvidence::maximumChromaticCoverage() const
+{
+    return *std::ranges::max_element(coverages.begin() + 1, coverages.end());
+}
+
 RarityRowEvidence MeasureRarityRow(const cv::Mat& lab_row)
 {
     if (lab_row.empty() || lab_row.type() != CV_32FC3 || lab_row.rows != 1) {
         return {};
     }
-    double maximum_coverage = 0.0;
-    double chromatic_coverage = 0.0;
-    for (std::size_t index = 0; index < kPrototypes.size(); ++index) {
-        const auto& prototype = kPrototypes[index];
+    RarityRowEvidence evidence;
+    const auto& prototypes = RarityLabPrototypes();
+    for (std::size_t index = 0; index < prototypes.size(); ++index) {
+        const auto& prototype = prototypes[index];
         int covered = 0;
         for (int column = 0; column < lab_row.cols; ++column) {
             if (cv::norm(lab_row.at<cv::Vec3f>(0, column) - prototype) <= kLabDistance) {
                 ++covered;
             }
         }
-        const double coverage = static_cast<double>(covered) / lab_row.cols;
-        maximum_coverage = std::max(maximum_coverage, coverage);
-        if (index > 0) {
-            chromatic_coverage = std::max(chromatic_coverage, coverage);
-        }
+        evidence.coverages[index] = static_cast<double>(covered) / lab_row.cols;
     }
-    return { maximum_coverage, chromatic_coverage };
+    return evidence;
 }
 
 double RarityRowCoverage(const cv::Mat& lab_row)
 {
-    return MeasureRarityRow(lab_row).coverage;
+    return MeasureRarityRow(lab_row).maximumCoverage();
 }
 
 RarityResult ClassifyRarity(const cv::Mat& image, const cv::Rect& slot)
@@ -90,13 +101,14 @@ RarityResult ClassifyRarity(const cv::Mat& image, const cv::Rect& slot)
     lab.convertTo(lab, CV_32FC3);
 
     std::vector<Candidate> candidates;
-    candidates.reserve(kPrototypes.size());
-    for (int index = 0; index < static_cast<int>(kPrototypes.size()); ++index) {
+    const auto& prototypes = RarityLabPrototypes();
+    candidates.reserve(prototypes.size());
+    for (int index = 0; index < static_cast<int>(prototypes.size()); ++index) {
         Candidate best { .coverage = -1.0, .rarity = index + 1 };
         for (int row = 0; row < lab.rows; ++row) {
             int covered = 0;
             for (int column = 0; column < lab.cols; ++column) {
-                const cv::Vec3f delta = lab.at<cv::Vec3f>(row, column) - kPrototypes[index];
+                const cv::Vec3f delta = lab.at<cv::Vec3f>(row, column) - prototypes[index];
                 if (cv::norm(delta) <= kLabDistance) {
                     ++covered;
                 }

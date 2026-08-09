@@ -12,8 +12,8 @@
 #include <tuple>
 #include <vector>
 
-#include "GridFeatures.h"
 #include "GridAnchors.h"
+#include "GridFeatures.h"
 #include "GridGeometry.h"
 #include "GridProfiles.h"
 
@@ -27,11 +27,7 @@ constexpr int kCreditTradeColumns = 7;
 constexpr int kCreditTradeCellOffsetX = 10;
 constexpr int kCreditTradeCellOffsetY = 6;
 
-bool IsFormal(
-    const cv::Rect& cell,
-    const cv::Rect& roi,
-    double minimum_top_visibility = 0.90,
-    double minimum_bottom_visibility = 0.70)
+bool IsFormal(const cv::Rect& cell, const cv::Rect& roi, double minimum_top_visibility = 0.90, double minimum_bottom_visibility = 0.70)
 {
     const cv::Rect intersection = cell & roi;
     if (intersection.empty()) {
@@ -235,11 +231,7 @@ GridLayout BuildCreditTradeLattice(const cv::Rect& roi, int x_phase, int y_phase
         }
         bool kept_row = false;
         for (int column = 0; column < kCreditTradeColumns; ++column) {
-            const cv::Rect cell(
-                x_phase + column * pitch_x + kCreditTradeCellOffsetX,
-                y,
-                profile.cell_size,
-                profile.cell_size);
+            const cv::Rect cell(x_phase + column * pitch_x + kCreditTradeCellOffsetX, y, profile.cell_size, profile.cell_size);
             if (IsFormal(cell, roi)) {
                 layout.cells.push_back({ 0, layout.rows, column, cell });
                 kept_row = true;
@@ -256,8 +248,7 @@ GridLayout BuildCreditTradeLattice(const cv::Rect& roi, int x_phase, int y_phase
     int x2 = std::numeric_limits<int>::min();
     int y2 = std::numeric_limits<int>::min();
     for (const auto& cell : layout.cells) {
-        x1 = std::min(x1, cell.cell_box.x), y1 = std::min(y1, cell.cell_box.y),
-        x2 = std::max(x2, cell.cell_box.x + profile.cell_size),
+        x1 = std::min(x1, cell.cell_box.x), y1 = std::min(y1, cell.cell_box.y), x2 = std::max(x2, cell.cell_box.x + profile.cell_size),
         y2 = std::max(y2, cell.cell_box.y + profile.cell_size);
     }
     layout.bounds = cv::Rect(x1, y1, x2 - x1, y2 - y1);
@@ -374,8 +365,8 @@ GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
     int x2 = std::numeric_limits<int>::min();
     int y2 = std::numeric_limits<int>::min();
     for (const auto& cell : layout.cells) {
-        x1 = std::min(x1, cell.cell_box.x), y1 = std::min(y1, cell.cell_box.y),
-        x2 = std::max(x2, cell.cell_box.x + profile.cell_size), y2 = std::max(y2, cell.cell_box.y + profile.cell_size);
+        x1 = std::min(x1, cell.cell_box.x), y1 = std::min(y1, cell.cell_box.y), x2 = std::max(x2, cell.cell_box.x + profile.cell_size),
+        y2 = std::max(y2, cell.cell_box.y + profile.cell_size);
     }
     layout.bounds = cv::Rect(x1, y1, x2 - x1, y2 - y1);
     return layout;
@@ -581,14 +572,13 @@ TransferAxisFit FitTransferAxis(
     return fit;
 }
 
-std::vector<float>
-    ProjectCellBorders(
-        const cv::Mat& values,
-        const std::vector<int>& orthogonal_starts,
-        int offset,
-        int cell_size,
-        bool x_axis,
-        bool preserve_sign = false)
+std::vector<float> ProjectCellBorders(
+    const cv::Mat& values,
+    const std::vector<int>& orthogonal_starts,
+    int offset,
+    int cell_size,
+    bool x_axis,
+    bool preserve_sign = false)
 {
     const int margin = std::max(2, cvRound(cell_size * 0.06));
     std::vector<std::vector<float>> samples;
@@ -763,14 +753,55 @@ double CellSupport(const cv::Mat& score, int x, int y)
     return maximum;
 }
 
-std::vector<int>
-    DropPortRows(
-        const cv::Mat& image,
-        const cv::Rect& roi,
-        const std::vector<int>& x_starts,
-        std::vector<int> y_starts,
-        int column_count,
-        int cell_size)
+int AlignedTrustedStrips(
+    const TrustedRarityGridFit& fit,
+    const std::vector<int>& x_starts,
+    const std::vector<int>& y_starts,
+    const TransferGridProfile& profile)
+{
+    const auto nearest = [](int position, const std::vector<int>& starts) {
+        int residual = std::numeric_limits<int>::max();
+        for (int start : starts) {
+            residual = std::min(residual, std::abs(position - start));
+        }
+        return residual;
+    };
+    int aligned = 0;
+    for (const auto& strip : fit.strips) {
+        const int cell_top = strip.box.y + strip.box.height - profile.rarity_anchor_offset;
+        if (nearest(strip.box.x, x_starts) <= profile.phase_tolerance && nearest(cell_top, y_starts) <= profile.phase_tolerance) {
+            ++aligned;
+        }
+    }
+    return aligned;
+}
+
+double NormalizedStructureSupport(const cv::Mat& score, const std::vector<int>& x_starts, const std::vector<int>& y_starts)
+{
+    if (score.empty() || x_starts.empty() || y_starts.empty()) {
+        return 0.0;
+    }
+    double maximum = 0.0;
+    cv::minMaxLoc(score, nullptr, &maximum);
+    if (maximum <= kEpsilon) {
+        return 0.0;
+    }
+    double total = 0.0;
+    for (int y : y_starts) {
+        for (int x : x_starts) {
+            total += CellSupport(score, x, y) / maximum;
+        }
+    }
+    return total / static_cast<double>(x_starts.size() * y_starts.size());
+}
+
+std::vector<int> DropPortRows(
+    const cv::Mat& image,
+    const cv::Rect& roi,
+    const std::vector<int>& x_starts,
+    std::vector<int> y_starts,
+    int column_count,
+    int cell_size)
 {
     // 端口面板的空白首/末行由格框支持与格内纹理共同判定，阈值按现有 720p 样本标定。
     constexpr double kSecondRowMinimumSupport = 0.20;
@@ -822,8 +853,7 @@ std::vector<int>
         return deviation[0];
     };
     const int texture_split = cvRound(cell_size * kTextureSplitRatio);
-    const double texture_drop =
-        standard_deviation(y, y + texture_split) - standard_deviation(y + texture_split, y + cell_size);
+    const double texture_drop = standard_deviation(y, y + texture_split) - standard_deviation(y + texture_split, y + cell_size);
     if (support < kLastRowMaximumSupport && texture_drop > kMinimumTextureDrop) {
         y_starts.pop_back();
     }
@@ -836,14 +866,15 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     const int absolute_center = roi.x + hint.rect.x + hint.rect.width / 2;
     const bool left_side = absolute_center < image.cols / 2;
     const TransferGridVariant variant = transfer
-        ? (left_side ? TransferGridVariant::TransferLeft : TransferGridVariant::TransferRight)
-        : (left_side ? TransferGridVariant::PortStoragerLeft : TransferGridVariant::PortStoragerRight);
+                                            ? (left_side ? TransferGridVariant::TransferLeft : TransferGridVariant::TransferRight)
+                                            : (left_side ? TransferGridVariant::PortStoragerLeft : TransferGridVariant::PortStoragerRight);
     const TransferGridProfile profile = TransferProfileFor(variant);
     const cv::Rect absolute_region(roi.x + hint.region.x, roi.y + hint.region.y, hint.region.width, hint.region.height);
     const StructureMaps maps = BuildStructureMaps(image(absolute_region), profile.cell_size);
     const auto boundary_x = RobustProjection(maps.vertical, true);
     const auto boundary_y = RobustProjection(maps.horizontal, false);
     const int column_count = static_cast<int>(hint.x_starts.size());
+    const auto trusted_fit = FitTrustedRarityGrid(image(roi), hint.region, profile);
     const auto refined_x = RefineFirstBoundary(hint.x_starts, boundary_x, hint.region.x, profile.cell_size);
     const TransferAxisFit x_fit = FitTransferAxis(
         refined_x,
@@ -859,20 +890,16 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     const auto rarity_fit = FitRarityGrid(image(roi), local_x, hint.y_starts, profile);
     if (rarity_fit) {
         local_x = rarity_fit->x_starts;
-        const int count = std::min(
-            profile.maximum_rows,
-            std::max(static_cast<int>(hint.y_starts.size()), rarity_fit->supporting_rows));
+        const int count = std::min(profile.maximum_rows, std::max(static_cast<int>(hint.y_starts.size()), rarity_fit->supporting_rows));
         for (int row = 0; row < count; ++row) {
             local_y.push_back(rarity_fit->origin + row * rarity_fit->pitch);
         }
     }
     else {
-        auto structural_y = transfer
-            ? RefineStructuralPhase(hint.y_starts, boundary_y, hint.region.y, profile.cell_size)
-            : hint.y_starts;
+        auto structural_y = transfer ? RefineStructuralPhase(hint.y_starts, boundary_y, hint.region.y, profile.cell_size) : hint.y_starts;
         auto refined_y = structural_y != hint.y_starts
-            ? structural_y
-            : RefinePortY(hint.y_starts, boundary_y, hint.region.y, column_count, profile.cell_size);
+                             ? structural_y
+                             : RefinePortY(hint.y_starts, boundary_y, hint.region.y, column_count, profile.cell_size);
         local_y = CompleteAxis(
             refined_y,
             profile.maximum_rows,
@@ -886,12 +913,38 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
             local_y = RefineStructuralPhase(local_y, boundary_y, hint.region.y, profile.cell_size, 12, 0.25, true);
         }
     }
+    const cv::Mat cell_score = BuildTransferCellScore(image(roi), profile.cell_size);
+    bool trusted_selected = false;
+    double trusted_candidate_score = 0.0;
+    const double legacy_structure = NormalizedStructureSupport(cell_score, local_x, local_y);
+    double legacy_rarity = 0.0;
+    std::vector<std::string> rejected_reasons;
+    if (trusted_fit) {
+        legacy_rarity = static_cast<double>(AlignedTrustedStrips(*trusted_fit, local_x, local_y, profile)) / trusted_fit->supporting_cells;
+        const double trusted_structure = NormalizedStructureSupport(cell_score, trusted_fit->x_starts, trusted_fit->y_starts);
+        const double trusted_consistency = 0.5 * (trusted_fit->x_axis.confidence + trusted_fit->y_axis.confidence);
+        trusted_candidate_score = 0.40 * trusted_structure + 0.35 * trusted_fit->mean_confidence + 0.25 * trusted_consistency;
+        if (legacy_rarity == 0.0 && (trusted_fit->supporting_cells >= 2 || trusted_structure >= 0.10)) {
+            local_x = trusted_fit->x_starts;
+            local_y = trusted_fit->y_starts;
+            trusted_selected = true;
+        }
+        else if (legacy_rarity > 0.0) {
+            rejected_reasons.emplace_back("trusted-evidence-already-explained");
+        }
+        else {
+            rejected_reasons.emplace_back("trusted-candidate-lacks-structure");
+        }
+    }
+    else {
+        rejected_reasons.emplace_back("no-trusted-chromatic-strip");
+    }
+    const double legacy_candidate_score = 0.65 * legacy_structure + 0.35 * legacy_rarity;
     if (local_y.size() < static_cast<std::size_t>(profile.maximum_rows)) {
-        const cv::Mat score = BuildTransferCellScore(image(roi), profile.cell_size);
         const auto row_support = [&](int y) {
             double total = 0.0;
             for (int x : local_x) {
-                total += CellSupport(score, x, y);
+                total += CellSupport(cell_score, x, y);
             }
             return local_x.empty() ? 0.0 : total / local_x.size();
         };
@@ -905,32 +958,52 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
             spacings.push_back(local_y[index] - local_y[index - 1]);
         }
         const int pitch_y = spacings.empty() ? profile.preferred_pitch : static_cast<int>(std::floor(Median(spacings) + 0.5));
-        while (local_y.size() < static_cast<std::size_t>(profile.maximum_rows)) {
+        const std::size_t completion_limit = trusted_selected && trusted_fit->y_axis.direct_indices.size() == 1
+                                                 ? std::min<std::size_t>(2, profile.maximum_rows)
+                                                 : static_cast<std::size_t>(profile.maximum_rows);
+        while (local_y.size() < completion_limit) {
             const int following = local_y.back() + std::clamp(pitch_y, profile.pitch_min, profile.pitch_max);
             if (hint.region.y + hint.region.height - following < profile.minimum_bottom_visibility * profile.cell_size) {
                 break;
             }
-            const bool stable_rarity_lattice = rarity_fit && rarity_fit->supporting_rows >= 3;
+            const bool stable_rarity_lattice =
+                (rarity_fit && rarity_fit->supporting_rows >= 3) || (trusted_selected && trusted_fit->y_axis.direct_indices.size() >= 3);
             if (!stable_rarity_lattice && (minimum_support <= 0.0 || row_support(following) < minimum_support)) {
                 break;
             }
             local_y.push_back(following);
         }
     }
-    if (!transfer && !rarity_fit) {
+    if (!transfer && !rarity_fit && !trusted_selected) {
         local_y = DropPortRows(image, roi, local_x, local_y, column_count, profile.cell_size);
     }
+
+    const auto fit_final_axis = [&](const std::vector<int>& starts, int maximum_count) {
+        std::vector<LatticeObservation> observations;
+        observations.reserve(starts.size());
+        for (int start : starts) {
+            observations.push_back({ static_cast<double>(start), 1.0, true });
+        }
+        return FitRegularAxis(
+            observations,
+            maximum_count,
+            { static_cast<double>(profile.pitch_min), static_cast<double>(profile.pitch_max) },
+            profile.preferred_pitch);
+    };
+    const auto final_x_axis = fit_final_axis(local_x, std::max(1, static_cast<int>(local_x.size())));
+    const auto final_y_axis = fit_final_axis(local_y, profile.maximum_rows);
+    if (!final_x_axis || !final_y_axis) {
+        throw std::runtime_error("transfer final lattice does not fit one global origin and pitch");
+    }
+    local_x = ProjectRegularAxis(*final_x_axis);
+    local_y = ProjectRegularAxis(*final_y_axis);
 
     GridLayout layout;
     layout.grid_index = grid_index;
     layout.cell_size = profile.cell_size;
     for (int row = 0; row < static_cast<int>(local_y.size()); ++row) {
         for (int column = 0; column < static_cast<int>(local_x.size()); ++column) {
-            const cv::Rect cell(
-                roi.x + local_x[column],
-                roi.y + local_y[row],
-                profile.cell_size,
-                profile.cell_size);
+            const cv::Rect cell(roi.x + local_x[column], roi.y + local_y[row], profile.cell_size, profile.cell_size);
             if (IsFormal(cell, roi, profile.minimum_top_visibility, profile.minimum_bottom_visibility)) {
                 layout.cells.push_back({ grid_index, row, column, cell });
             }
@@ -939,16 +1012,8 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     if (layout.cells.empty()) {
         throw std::runtime_error("transfer hint contains no formal cells");
     }
-    std::vector<double> x_spacings;
-    std::vector<double> y_spacings;
-    for (std::size_t index = 1; index < local_x.size(); ++index) {
-        x_spacings.push_back(local_x[index] - local_x[index - 1]);
-    }
-    for (std::size_t index = 1; index < local_y.size(); ++index) {
-        y_spacings.push_back(local_y[index] - local_y[index - 1]);
-    }
-    layout.pitch_x = x_spacings.empty() ? profile.preferred_pitch : Median(x_spacings);
-    layout.pitch_y = y_spacings.empty() ? profile.preferred_pitch : Median(y_spacings);
+    layout.pitch_x = final_x_axis->pitch;
+    layout.pitch_y = final_y_axis->pitch;
     layout.columns = static_cast<int>(local_x.size());
     layout.rows = static_cast<int>(local_y.size());
     int x1 = std::numeric_limits<int>::max();
@@ -956,10 +1021,36 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     int x2 = std::numeric_limits<int>::min();
     int y2 = std::numeric_limits<int>::min();
     for (const auto& cell : layout.cells) {
-        x1 = std::min(x1, cell.cell_box.x), y1 = std::min(y1, cell.cell_box.y),
-        x2 = std::max(x2, cell.cell_box.x + layout.cell_size), y2 = std::max(y2, cell.cell_box.y + layout.cell_size);
+        x1 = std::min(x1, cell.cell_box.x), y1 = std::min(y1, cell.cell_box.y), x2 = std::max(x2, cell.cell_box.x + layout.cell_size),
+        y2 = std::max(y2, cell.cell_box.y + layout.cell_size);
     }
     layout.bounds = cv::Rect(x1, y1, x2 - x1, y2 - y1);
+    const double final_structure = NormalizedStructureSupport(cell_score, local_x, local_y);
+    const double final_rarity = trusted_fit ? static_cast<double>(AlignedTrustedStrips(*trusted_fit, local_x, local_y, profile))
+                                                  / trusted_fit->supporting_cells * trusted_fit->mean_confidence
+                                            : 0.0;
+    const double maximum_residual = std::max(final_x_axis->maximum_residual, final_y_axis->maximum_residual);
+    const double consistency = std::clamp(1.0 - maximum_residual / 2.25, 0.0, 1.0);
+    const double selected_score = trusted_selected ? trusted_candidate_score : legacy_candidate_score;
+    const double other_score = trusted_selected ? legacy_candidate_score : trusted_candidate_score;
+    layout.selection_diagnostics = GridSelectionDiagnostics {
+        .origin = cv::Point2d(roi.x + final_x_axis->origin, roi.y + final_y_axis->origin),
+        .pitch = cv::Point2d(final_x_axis->pitch, final_y_axis->pitch),
+        .rows = layout.rows,
+        .columns = layout.columns,
+        .best_score = selected_score,
+        .second_score = other_score,
+        .score_margin = selected_score - other_score,
+        .structure_score = final_structure,
+        .rarity_score = final_rarity,
+        .consistency_score = consistency,
+        .maximum_residual = maximum_residual,
+        .residual_trend = std::max(std::abs(final_x_axis->residual_trend), std::abs(final_y_axis->residual_trend)),
+        .trusted_rarity_cells = trusted_fit ? trusted_fit->rarity_counts : std::array<int, 6> {},
+        .fallback_used = !trusted_selected,
+        .fallback_reason = trusted_selected ? "" : "legacy-structure-without-conflicting-trusted-rarity",
+        .rejected_reasons = std::move(rejected_reasons),
+    };
     return layout;
 }
 

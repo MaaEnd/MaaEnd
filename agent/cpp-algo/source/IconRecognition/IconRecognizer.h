@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <memory>
+#include <vector>
 
 #include <MaaUtils/NoWarningCV.hpp>
 
@@ -22,6 +23,7 @@ public:
     IconRecognizer& operator=(IconRecognizer&&) noexcept;
 
     bool initialize();
+    bool preload(const std::vector<RecognitionRequest>& requests);
     RecognitionResult recognize(const cv::Mat& image, const RecognitionRequest& request) const;
 
 private:

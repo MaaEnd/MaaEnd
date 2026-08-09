@@ -10,6 +10,8 @@ param(
     [string]$Image,
     [ValidateSet("full", "left", "right", "split", "all")]
     [string]$Side = "full",
+    [ValidateRange(1, 64)]
+    [int]$Jobs,
     [string]$CMakePath,
     [string]$VsDevShellPath,
     [string]$Configuration = "RelWithDebInfo"
@@ -26,15 +28,16 @@ function Show-Usage {
   ./run-tests.ps1 -Task configure
   ./run-tests.ps1 -Task build
   ./run-tests.ps1 -Task quick
-  ./run-tests.ps1 -Task manual -All [-Side full|left|right|split|all]
-  ./run-tests.ps1 -Task manual -GridType <type> [-Image <basename>] [-Side full|left|right|split|all]
-  ./run-tests.ps1 -Task manual -Image <basename>
+  ./run-tests.ps1 -Task manual -All [-Side full|left|right|split|all] [-Jobs <1..64>] [-Debug]
+  ./run-tests.ps1 -Task manual -GridType <type> [-Image <basename>] [-Side full|left|right|split|all] [-Jobs <1..64>] [-Debug]
+  ./run-tests.ps1 -Task manual -Image <basename> [-Jobs <1..64>] [-Debug]
   ./run-tests.ps1 -Help|-h
 
 网格类型:
   trade, transfer, port_storager, valuables, shipment, credit_trade, single_roi
 
 Side 仅用于 transfer 和 port_storager；默认使用 full。
+Jobs 的命令行参数优先于本机配置；未配置时使用 1。
 "@
 }
 
@@ -52,12 +55,18 @@ $localConfigPath = Join-Path $testRoot "run-tests.local.psd1"
 $localConfig = @{}
 if (Test-Path -LiteralPath $localConfigPath -PathType Leaf) {
     $localConfig = Import-PowerShellDataFile -LiteralPath $localConfigPath
-    $allowedKeys = @("CMakePath", "VsDevShellPath")
+    $allowedKeys = @("CMakePath", "VsDevShellPath", "Jobs")
     $unknownKeys = @($localConfig.Keys | Where-Object { $_ -notin $allowedKeys })
     if ($unknownKeys.Count -gt 0) {
         throw "本地测试配置包含未知字段: $($unknownKeys -join ', ')"
     }
     foreach ($key in $localConfig.Keys) {
+        if ($key -eq "Jobs") {
+            if ($localConfig[$key] -isnot [int] -or $localConfig[$key] -lt 1 -or $localConfig[$key] -gt 64) {
+                throw "本地测试配置 Jobs 必须是 1..64 的整数"
+            }
+            continue
+        }
         if ($localConfig[$key] -isnot [string] -or [string]::IsNullOrWhiteSpace($localConfig[$key])) {
             throw "本地测试配置 $key 必须是非空字符串"
         }
@@ -70,6 +79,9 @@ if (-not $PSBoundParameters.ContainsKey("CMakePath")) {
 }
 if (-not $PSBoundParameters.ContainsKey("VsDevShellPath")) {
     $VsDevShellPath = if ($localConfig.ContainsKey("VsDevShellPath")) { $localConfig.VsDevShellPath } else { "" }
+}
+if (-not $PSBoundParameters.ContainsKey("Jobs")) {
+    $Jobs = if ($localConfig.ContainsKey("Jobs")) { $localConfig.Jobs } else { 1 }
 }
 
 if ([System.IO.Path]::IsPathRooted($CMakePath) -and -not (Test-Path -LiteralPath $CMakePath -PathType Leaf)) {
@@ -186,6 +198,10 @@ switch ($Task) {
         }
         if ($PSBoundParameters.ContainsKey("Side")) {
             $arguments += @("--side", $Side)
+        }
+        $arguments += @("--jobs", $Jobs)
+        if ($PSBoundParameters.ContainsKey("Debug")) {
+            $arguments += "--debug"
         }
         & (Find-TestExecutable -Name "icon-recognition-manual-runner") @arguments
         if ($LASTEXITCODE -ne 0) {

@@ -42,6 +42,37 @@ void TestDebugCaptureKeepsSynchronizedGroups()
     result.matched = true;
     result.roi = cv::Rect(2, 3, 32, 32);
     result.diagnostics = std::make_shared<iconrecognition::detail::RecognitionDiagnostics>();
+    result.diagnostics->performance = iconrecognition::detail::RecognitionPerformanceDiagnostics {
+        .total_ms = 12.5,
+        .grid_detection_ms = 1.25,
+        .template_selection_ms = 0.5,
+        .active_templates_ms = 0.25,
+        .ranking =
+            {
+                .total_ms = 9.0,
+                .baseline_scoring_ms = 7.0,
+                .baseline_sort_ms = 1.0,
+                .refinement_scoring_ms = 0.75,
+                .refinement_sort_ms = 0.25,
+                .baseline_candidates = 445,
+                .refined_candidates = 5,
+            },
+        .matcher =
+            {
+                .score_calls = 450,
+                .canvas_prepare_ms = 0.5,
+                .template_shift_ms = 0.25,
+                .template_match_ms = 4.5,
+                .response_reduce_ms = 0.5,
+                .lab_conversion_ms = 2.0,
+                .color_distance_ms = 1.0,
+            },
+        .foreground_texture_ms = 0.25,
+        .rarity_classification_ms = 0.25,
+        .result_assembly_ms = 0.5,
+        .result_sort_ms = 0.25,
+        .cell_count = 1,
+    };
     result.diagnostics->cells.push_back(iconrecognition::detail::CellRecognitionDiagnostics {
         .cell_box = cv::Rect(4, 5, 16, 16),
         .candidate_box = cv::Rect(6, 7, 12, 12),
@@ -86,6 +117,14 @@ void TestDebugCaptureKeepsSynchronizedGroups()
     const auto& object = detail->as_object();
     Require(object.contains("diagnostics"), "debug detail must include internal diagnostics");
     const auto& diagnostics = object.at("diagnostics").as_object();
+    const auto& performance = diagnostics.at("performance").as_object();
+    Require(performance.at("total_ms").as_double() == 12.5, "debug detail must preserve total recognition time");
+    Require(
+        performance.at("ranking").as_object().at("baseline_candidates").as_integer() == 445,
+        "debug detail must preserve baseline candidate count");
+    Require(
+        performance.at("matcher").as_object().at("template_match_ms").as_double() == 4.5,
+        "debug detail must preserve matcher timing");
     const auto& cell = diagnostics.at("cells").as_array().at(0).as_object();
     Require(cell.at("baseline_score").as_double() == 0.71, "debug detail must preserve baseline score");
     Require(cell.at("fallback_used").as_boolean(), "debug detail must preserve fallback state");

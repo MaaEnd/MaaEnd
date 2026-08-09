@@ -226,15 +226,16 @@ const std::string& RequireValue(const std::vector<std::string>& arguments, std::
 std::string ManualRunnerUsage()
 {
     return R"(Usage:
-  icon-recognition-manual-runner --all [--side full|left|right|split|all]
-  icon-recognition-manual-runner --grid-type <type> [--image <basename>] [--side full|left|right|split|all]
-  icon-recognition-manual-runner --image <basename>
+  icon-recognition-manual-runner --all [--side full|left|right|split|all] [--jobs <N|auto>] [--debug]
+  icon-recognition-manual-runner --grid-type <type> [--image <basename>] [--side full|left|right|split|all] [--jobs <N|auto>] [--debug]
+  icon-recognition-manual-runner --image <basename> [--jobs <N|auto>] [--debug]
   icon-recognition-manual-runner -h|--help|-?
 
 Grid types:
   trade, transfer, port_storager, valuables, shipment, credit_trade, single_roi
 
 Side modes apply only to transfer and port_storager. The default is full.
+Worker selection defaults to 1. auto uses physical cores and is capped at 16.
 )";
 }
 
@@ -247,6 +248,8 @@ ManualRunnerOptions ParseManualRunnerOptions(const std::vector<std::string>& arg
     }
 
     bool side_specified = false;
+    bool jobs_specified = false;
+    bool debug_specified = false;
     for (std::size_t index = 0; index < arguments.size(); ++index) {
         const std::string& argument = arguments[index];
         if (IsHelpOption(argument)) {
@@ -286,6 +289,33 @@ ManualRunnerOptions ParseManualRunnerOptions(const std::vector<std::string>& arg
             side_specified = true;
             continue;
         }
+        if (argument == "--jobs") {
+            if (jobs_specified) {
+                throw std::invalid_argument("duplicate option: --jobs");
+            }
+            const std::string& value = RequireValue(arguments, index);
+            if (value == "auto") {
+                options.automatic_jobs = true;
+            }
+            else {
+                try {
+                    options.jobs = static_cast<std::size_t>(ParsePositiveInt(value, "--jobs"));
+                }
+                catch (const std::runtime_error& error) {
+                    throw std::invalid_argument(error.what());
+                }
+            }
+            jobs_specified = true;
+            continue;
+        }
+        if (argument == "--debug") {
+            if (debug_specified) {
+                throw std::invalid_argument("duplicate option: --debug");
+            }
+            options.debug = true;
+            debug_specified = true;
+            continue;
+        }
         throw std::invalid_argument("unknown option: " + argument);
     }
 
@@ -307,6 +337,17 @@ ManualRunnerOptions ParseManualRunnerOptions(const std::vector<std::string>& arg
     return options;
 }
 
+std::size_t ResolveManualRunnerJobs(const ManualRunnerOptions& options, std::size_t physical_core_count, std::size_t case_count)
+{
+    if (case_count == 0) {
+        return 0;
+    }
+    constexpr std::size_t kAutomaticMaximumJobs = 16;
+    const std::size_t requested =
+        options.automatic_jobs ? std::min(std::max<std::size_t>(physical_core_count, 1), kAutomaticMaximumJobs) : options.jobs;
+    return std::min(std::max<std::size_t>(requested, 1), case_count);
+}
+
 std::vector<ManualRunnerCase> DiscoverManualRunnerCases(
     const std::filesystem::path& input_root,
     const std::filesystem::path& rois_path,
@@ -325,12 +366,7 @@ std::vector<ManualRunnerCase> DiscoverManualRunnerCases(
     const auto& rois = parsed_rois->as_object();
 
     constexpr std::array kGridTypes {
-        GridType::Trade,
-        GridType::Transfer,
-        GridType::PortStorager,
-        GridType::Valuables,
-        GridType::Shipment,
-        GridType::CreditTrade,
+        GridType::Trade, GridType::Transfer, GridType::PortStorager, GridType::Valuables, GridType::Shipment, GridType::CreditTrade,
     };
     std::vector<ManualRunnerCase> cases;
     if (options.grid_type) {

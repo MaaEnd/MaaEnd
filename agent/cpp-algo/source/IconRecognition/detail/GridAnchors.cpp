@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "RarityClassifier.h"
+#include "RegularLattice.h"
+#include "TrustedRarity.h"
 
 namespace iconrecognition::detail
 {
@@ -53,15 +55,13 @@ bool HasFormalVerticalExtent(int cell_top, int image_height, const TransferGridP
 {
     const int visible_top = std::max(0, cell_top);
     const int visible_bottom = std::min(image_height, cell_top + profile.cell_size);
-    const double visibility =
-        static_cast<double>(std::max(0, visible_bottom - visible_top)) / profile.cell_size;
+    const double visibility = static_cast<double>(std::max(0, visible_bottom - visible_top)) / profile.cell_size;
     const bool top_ok = cell_top >= 0 || visibility >= profile.minimum_top_visibility;
     const bool bottom_ok = cell_top + profile.cell_size <= image_height || visibility >= profile.minimum_bottom_visibility;
     return top_ok && bottom_ok;
 }
 
-std::vector<RarityBand>
-    DetectRarityBands(const cv::Mat& lab, const std::vector<int>& x_starts, const TransferGridProfile& profile)
+std::vector<RarityBand> DetectRarityBands(const cv::Mat& lab, const std::vector<int>& x_starts, const TransferGridProfile& profile)
 {
     if (lab.empty() || x_starts.empty()) {
         return {};
@@ -77,18 +77,17 @@ std::vector<RarityBand>
             const int right = std::min(lab.cols, x + profile.cell_size);
             if (right > left) {
                 const auto evidence = MeasureRarityRow(lab(cv::Rect(left, y, right - left, 1)));
-                coverages.push_back(evidence.coverage);
-                if (evidence.chromatic_coverage >= profile.strong_rarity_coverage) {
+                coverages.push_back(evidence.maximumCoverage());
+                if (evidence.maximumChromaticCoverage() >= profile.strong_rarity_coverage) {
                     ++strong_columns;
                 }
-                if (evidence.chromatic_coverage >= profile.minimum_rarity_coverage) {
+                if (evidence.maximumChromaticCoverage() >= profile.minimum_rarity_coverage) {
                     ++chromatic_columns;
                 }
             }
         }
-        const int supported = static_cast<int>(std::ranges::count_if(coverages, [&](double coverage) {
-            return coverage >= profile.minimum_rarity_coverage;
-        }));
+        const int supported = static_cast<int>(
+            std::ranges::count_if(coverages, [&](double coverage) { return coverage >= profile.minimum_rarity_coverage; }));
         if (supported < minimum_supported_columns) {
             continue;
         }
@@ -104,10 +103,8 @@ std::vector<RarityBand>
         while (end < candidates.size() && candidates[end].y == candidates[end - 1].y + 1) {
             ++end;
         }
-        const auto maximum = std::max_element(
-            candidates.begin() + begin,
-            candidates.begin() + end,
-            [](const auto& left, const auto& right) {
+        const auto maximum =
+            std::max_element(candidates.begin() + begin, candidates.begin() + end, [](const auto& left, const auto& right) {
                 return std::tie(left.chromatic_columns, left.strong_columns, left.supported_columns)
                        < std::tie(right.chromatic_columns, right.strong_columns, right.supported_columns);
             });
@@ -132,15 +129,12 @@ std::vector<RarityBand>
             }
             std::size_t peak_end = peak_begin + 1;
             while (peak_end < end && candidates[peak_end].y == candidates[peak_end - 1].y + 1
-                   && candidates[peak_end].chromatic_columns == maximum_chromatic
-                   && candidates[peak_end].strong_columns == maximum_strong
+                   && candidates[peak_end].chromatic_columns == maximum_chromatic && candidates[peak_end].strong_columns == maximum_strong
                    && candidates[peak_end].supported_columns == maximum_support) {
                 ++peak_end;
             }
-            const auto best = std::max_element(
-                candidates.begin() + peak_begin,
-                candidates.begin() + peak_end,
-                [](const auto& left, const auto& right) {
+            const auto best =
+                std::max_element(candidates.begin() + peak_begin, candidates.begin() + peak_end, [](const auto& left, const auto& right) {
                     return std::tie(left.mean_coverage, left.y) < std::tie(right.mean_coverage, right.y);
                 });
             const int bottom = candidates[peak_end - 1].y + 1;
@@ -193,14 +187,7 @@ std::optional<VerticalBandFit> FitVerticalBands(
 {
     using Rank = std::tuple<int, int, int, int, double, int, int, int>;
     Rank best_rank {
-        -1,
-        -1,
-        -1,
-        -1,
-        -1.0,
-        std::numeric_limits<int>::min(),
-        std::numeric_limits<int>::min(),
-        std::numeric_limits<int>::min(),
+        -1, -1, -1, -1, -1.0, std::numeric_limits<int>::min(), std::numeric_limits<int>::min(), std::numeric_limits<int>::min(),
     };
     std::optional<VerticalBandFit> best;
     for (int pitch = profile.pitch_min; pitch <= profile.pitch_max; ++pitch) {
@@ -216,21 +203,16 @@ std::optional<VerticalBandFit> FitVerticalBands(
                 }
                 const auto found = slots.find(index);
                 const auto rank = std::tuple {
-                    band.strong_columns,
-                    band.supported_columns,
-                    band.chromatic_columns,
-                    band.mean_coverage,
-                    -residual,
+                    band.strong_columns, band.supported_columns, band.chromatic_columns, band.mean_coverage, -residual,
                 };
                 if (found == slots.end()
-                    || rank
-                           > std::tuple {
-                               found->second.first.strong_columns,
-                               found->second.first.supported_columns,
-                               found->second.first.chromatic_columns,
-                               found->second.first.mean_coverage,
-                               -found->second.second,
-                           }) {
+                    || rank > std::tuple {
+                           found->second.first.strong_columns,
+                           found->second.first.supported_columns,
+                           found->second.first.chromatic_columns,
+                           found->second.first.mean_coverage,
+                           -found->second.second,
+                       }) {
                     slots[index] = { band, residual };
                 }
             }
@@ -264,14 +246,8 @@ std::optional<VerticalBandFit> FitVerticalBands(
             const int origin_residual = std::abs(origin - coarse_y_starts.front());
             const double mean_coverage = coverage_sum / slots.size();
             const Rank rank {
-                supporting_strong_cells,
-                supporting_cells,
-                supporting_chromatic_cells,
-                static_cast<int>(slots.size()),
-                mean_coverage,
-                -residual_sum,
-                -origin_residual,
-                -std::abs(pitch - profile.preferred_pitch),
+                supporting_strong_cells, supporting_cells, supporting_chromatic_cells, static_cast<int>(slots.size()),
+                mean_coverage,           -residual_sum,    -origin_residual,           -std::abs(pitch - profile.preferred_pitch),
             };
             if (rank > best_rank) {
                 best_rank = rank;
@@ -292,7 +268,113 @@ std::optional<VerticalBandFit> FitVerticalBands(
     return best;
 }
 
+std::optional<RegularAxisFit>
+    BestTrustedAxis(const std::vector<LatticeObservation>& observations, int maximum_count, const TransferGridProfile& profile)
+{
+    if (observations.empty()) {
+        return std::nullopt;
+    }
+    std::optional<RegularAxisFit> best;
+    std::tuple<std::size_t, double, double> best_rank { 0, -1.0, -1.0 };
+    for (const auto& seed : observations) {
+        for (double pitch = profile.pitch_min; pitch <= profile.pitch_max + 1e-9; pitch += 0.25) {
+            std::vector<LatticeObservation> consistent;
+            double total_weight = 0.0;
+            for (const auto& observation : observations) {
+                const int index = cvRound((observation.position - seed.position) / pitch);
+                const double residual = std::abs(observation.position - (seed.position + index * pitch));
+                if (residual <= profile.phase_tolerance) {
+                    consistent.push_back(observation);
+                    total_weight += observation.weight;
+                }
+            }
+            const auto fit = FitRegularAxis(
+                consistent,
+                maximum_count,
+                { static_cast<double>(profile.pitch_min), static_cast<double>(profile.pitch_max) },
+                profile.preferred_pitch);
+            if (!fit) {
+                continue;
+            }
+            const auto rank = std::tuple { fit->direct_indices.size(), total_weight, fit->confidence };
+            if (rank > best_rank) {
+                best_rank = rank;
+                best = fit;
+            }
+        }
+    }
+    return best;
+}
+
+double NearestResidual(int position, const std::vector<int>& starts)
+{
+    double residual = std::numeric_limits<double>::infinity();
+    for (int start : starts) {
+        residual = std::min(residual, static_cast<double>(std::abs(position - start)));
+    }
+    return residual;
+}
+
 } // namespace
+
+std::optional<TrustedRarityGridFit> FitTrustedRarityGrid(const cv::Mat& image, const cv::Rect& region, const TransferGridProfile& profile)
+{
+    if (image.empty() || (region & cv::Rect(0, 0, image.cols, image.rows)) != region || region.width <= 0 || region.height <= 0) {
+        return std::nullopt;
+    }
+    std::vector<TrustedRarityStrip> strips;
+    for (const auto& strip : DetectTrustedRarityStrips(image, profile.cell_size)) {
+        const cv::Point center = strip.box.tl() + cv::Point(strip.box.width / 2, strip.box.height / 2);
+        if (strip.can_seed_lattice && region.contains(center)) {
+            strips.push_back(strip);
+        }
+    }
+    if (strips.empty()) {
+        return std::nullopt;
+    }
+
+    std::vector<LatticeObservation> x_observations;
+    std::vector<LatticeObservation> y_observations;
+    for (const auto& strip : strips) {
+        x_observations.push_back({ static_cast<double>(strip.box.x), strip.confidence, true });
+        y_observations.push_back(
+            { static_cast<double>(strip.box.y + strip.box.height - profile.rarity_anchor_offset), strip.confidence, true });
+    }
+    const int maximum_columns = std::max(1, (region.width - profile.cell_size) / profile.pitch_min + 1);
+    const auto x_axis = BestTrustedAxis(x_observations, maximum_columns, profile);
+    const auto y_axis = BestTrustedAxis(y_observations, profile.maximum_rows, profile);
+    if (!x_axis || !y_axis) {
+        return std::nullopt;
+    }
+    const auto x_starts = ProjectRegularAxis(*x_axis);
+    const auto y_starts = ProjectRegularAxis(*y_axis);
+    std::vector<TrustedRarityStrip> aligned;
+    std::array<int, 6> rarity_counts {};
+    double confidence_sum = 0.0;
+    for (const auto& strip : strips) {
+        const int cell_top = strip.box.y + strip.box.height - profile.rarity_anchor_offset;
+        if (NearestResidual(strip.box.x, x_starts) <= profile.phase_tolerance
+            && NearestResidual(cell_top, y_starts) <= profile.phase_tolerance) {
+            aligned.push_back(strip);
+            ++rarity_counts[static_cast<std::size_t>(strip.rarity - 1)];
+            confidence_sum += strip.confidence;
+        }
+    }
+    if (aligned.empty()) {
+        return std::nullopt;
+    }
+    const int supporting_cells = static_cast<int>(aligned.size());
+    return TrustedRarityGridFit {
+        .x_axis = *x_axis,
+        .y_axis = *y_axis,
+        .x_starts = x_starts,
+        .y_starts = y_starts,
+        .strips = std::move(aligned),
+        .rarity_counts = rarity_counts,
+        .supporting_cells = supporting_cells,
+        .mean_confidence = confidence_sum / supporting_cells,
+    };
+}
 
 std::optional<RarityGridFit> FitRarityGrid(
     const cv::Mat& image,
@@ -344,15 +426,9 @@ std::optional<RarityGridFit> FitRarityGrid(
                 continue;
             }
             const Rank rank {
-                vertical->supporting_strong_cells,
-                -std::abs(pitch_x - coarse_pitch),
-                vertical->mean_coverage,
-                vertical->supporting_cells,
-                vertical->supporting_chromatic_cells,
-                vertical->supporting_rows,
-                -vertical->residual_sum,
-                -vertical->origin_residual,
-                -std::abs(shift),
+                vertical->supporting_strong_cells, -std::abs(pitch_x - coarse_pitch),    vertical->mean_coverage,
+                vertical->supporting_cells,        vertical->supporting_chromatic_cells, vertical->supporting_rows,
+                -vertical->residual_sum,           -vertical->origin_residual,           -std::abs(shift),
             };
             const RarityGridFit current {
                 .x_starts = candidate_x,
@@ -381,8 +457,7 @@ std::optional<RarityGridFit> FitRarityGrid(
     if (reference && (best.x_starts != reference->x_starts || best.pitch_x != reference->pitch_x)) {
         const int minimum_cell_gain = std::max(1, (column_count + 1) / 2);
         // 完整色带和弱色带任一证据显著增强时才接管结构相位，避免跨格弱覆盖形成整张假网格。
-        const bool strong_evidence_improved =
-            best.supporting_strong_cells >= reference->supporting_strong_cells + minimum_cell_gain;
+        const bool strong_evidence_improved = best.supporting_strong_cells >= reference->supporting_strong_cells + minimum_cell_gain;
         const bool supported_evidence_improved = best.supporting_cells >= reference->supporting_cells + minimum_cell_gain;
         if (!strong_evidence_improved && !supported_evidence_improved) {
             best = *reference;

@@ -154,6 +154,7 @@ MaaBool MAA_CALL IconRecognitionRun(
         request.threshold = ReadDouble(object, "threshold", request.threshold);
         request.subpixel_threshold = ReadDouble(object, "subpixel_threshold", request.subpixel_threshold);
         request.deduplicate = ReadBool(object, "deduplicate", request.deduplicate);
+        request.debug = debug;
         RecognitionResult result = GetRecognizer().recognize(to_mat(image), request);
         if (debug) {
             detail::SaveDebugCapture(

@@ -159,11 +159,7 @@ std::string ErrorMessage(const json::object& detail)
 
 constexpr MaaRect kValidRoi { 0, 0, 54, 54 };
 
-json::object RunFailure(
-    const MaaImageBuffer* image,
-    const char* param,
-    MaaRect& out_box,
-    const MaaRect* roi = &kValidRoi)
+json::object RunFailure(const MaaImageBuffer* image, const char* param, MaaRect& out_box, const MaaRect* roi = &kValidRoi)
 {
     StringBuffer detail;
     const MaaBool matched = iconrecognition::IconRecognitionRun(
@@ -337,6 +333,7 @@ void TestRecognizerPreservesInternalDiagnostics()
     request.grid_type = iconrecognition::GridType::SingleRoi;
     request.roi = cv::Rect(1177, 450, 54, 54);
     request.candidates.item_filters = { "Normal:Product", "Normal:Usable" };
+    request.debug = true;
     const auto result = recognizer.recognize(pixels, request);
     Require(result.matched && result.matches.size() == 1, "diagnostics fixture must match one item");
     Require(result.diagnostics && result.diagnostics->cells.size() == 1, "fixed ROI recognition must preserve one internal diagnostic");
@@ -346,7 +343,58 @@ void TestRecognizerPreservesInternalDiagnostics()
     Require(diagnostic.score == result.matches.front().score, "diagnostic final score must match the public score");
     Require(diagnostic.candidate_count > 1, "diagnostics must preserve the ranked candidate count");
     Require(diagnostic.mask_kind == "lower_extended", "fixed ROI must report the lower_extended mask");
+    Require(result.diagnostics->performance.has_value(), "debug recognition must preserve performance diagnostics");
+    const auto& performance = *result.diagnostics->performance;
+    Require(performance.cell_count == 1, "performance diagnostics must preserve the recognized cell count");
+    Require(performance.ranking.baseline_candidates > 1, "performance diagnostics must count baseline candidates");
+    Require(performance.matcher.score_calls >= performance.ranking.baseline_candidates, "matcher diagnostics must count score calls");
+    Require(performance.total_ms >= performance.ranking.total_ms, "total recognition time must cover ranking time");
     Require(!json::value(result).as_object().contains("diagnostics"), "public detail must not serialize internal diagnostics");
+}
+
+void TestGridDiagnosticsSerializeSelectionEvidence()
+{
+    iconrecognition::detail::RecognitionDiagnostics diagnostics;
+    diagnostics.grids.push_back(iconrecognition::detail::GridSelectionDiagnostics {
+        .origin = cv::Point2d(161.0, 217.0),
+        .pitch = cv::Point2d(69.0, 69.0),
+        .rows = 2,
+        .columns = 1,
+        .best_score = 0.91,
+        .second_score = 0.42,
+        .score_margin = 0.49,
+        .structure_score = 0.72,
+        .rarity_score = 0.95,
+        .consistency_score = 1.0,
+        .trusted_rarity_cells = { 0, 1, 0, 0, 0, 0 },
+        .fallback_used = false,
+        .rejected_reasons = { "legacy-conflict" },
+    });
+
+    const auto object = diagnostics.to_json().as_object();
+    Require(!object.contains("performance"), "normal diagnostics must not serialize debug performance data");
+    Require(object.contains("grids") && object.at("grids").as_array().size() == 1, "diagnostics must serialize grid evidence");
+    const auto& grid = object.at("grids").as_array().at(0).as_object();
+    Require(grid.at("origin").as_object().at("x").as_double() == 161.0, "grid diagnostics must preserve origin");
+    Require(grid.at("pitch").as_object().at("y").as_double() == 69.0, "grid diagnostics must preserve pitch");
+    Require(grid.at("trusted_rarity_cells").as_array().at(1).as_integer() == 1, "grid diagnostics must preserve six-color evidence");
+    Require(grid.at("rejected_reasons").as_array().size() == 1, "grid diagnostics must preserve rejection reasons");
+}
+
+void TestRecognizerPreloadsEveryRequestedTemplateSize()
+{
+    iconrecognition::IconRecognizer recognizer(get_exe_dir() / ".." / "data" / "IconRecognition");
+    Require(recognizer.initialize(), "preload recognizer must initialize");
+
+    iconrecognition::RecognitionRequest transfer;
+    transfer.grid_type = iconrecognition::GridType::Transfer;
+    iconrecognition::RecognitionRequest credit;
+    credit.grid_type = iconrecognition::GridType::CreditTrade;
+    iconrecognition::RecognitionRequest single;
+    single.grid_type = iconrecognition::GridType::SingleRoi;
+    single.roi = cv::Rect(0, 0, 54, 54);
+
+    Require(recognizer.preload({ transfer, credit, single }), "recognizer must preload fixed and single-ROI template sizes");
 }
 
 struct FrameworkRecognitionResult
@@ -473,6 +521,8 @@ int main()
         TestMalformedScalarParametersAreRejected();
         TestSuccessfulSingleRoiUsesPrimaryCellBox();
         TestRecognizerPreservesInternalDiagnostics();
+        TestGridDiagnosticsSerializeSelectionEvidence();
+        TestRecognizerPreloadsEveryRequestedTemplateSize();
         TestMaaFrameworkWrapsCustomDetail();
         std::cout << "IconRecognition custom recognition tests passed\n";
         return 0;

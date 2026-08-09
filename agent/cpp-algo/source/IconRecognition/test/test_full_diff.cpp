@@ -2,16 +2,19 @@
 #include <windows.h>
 
 #include <chrono>
+#include <cstddef>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <map>
+#include <optional>
 #include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include <MaaUtils/NoWarningCV.hpp>
@@ -21,9 +24,39 @@
 #include "../detail/RecognitionDiagnostics.h"
 #include "../detail/TemplateCatalog.h"
 #include "manual_runner_config.h"
+#include "manual_runner_executor.h"
 
 namespace
 {
+
+using RunnerClock = std::chrono::steady_clock;
+
+double ElapsedMilliseconds(RunnerClock::time_point started_at)
+{
+    return std::chrono::duration<double, std::milli>(RunnerClock::now() - started_at).count();
+}
+
+struct RunnerCasePerformance
+{
+    double total_ms = 0.0;
+    double image_decode_ms = 0.0;
+    double recognition_ms = 0.0;
+    double annotation_ms = 0.0;
+    double annotated_write_ms = 0.0;
+    double detail_write_ms = 0.0;
+
+    json::value to_json() const
+    {
+        return json::object {
+            { "total_ms", total_ms },
+            { "image_decode_ms", image_decode_ms },
+            { "recognition_ms", recognition_ms },
+            { "annotation_ms", annotation_ms },
+            { "annotated_write_ms", annotated_write_ms },
+            { "detail_write_ms", detail_write_ms },
+        };
+    }
+};
 
 json::value ReadJson(const std::filesystem::path& path)
 {
@@ -278,14 +311,17 @@ cv::Mat DrawResult(const cv::Mat& source, const iconrecognition::RecognitionResu
     return image;
 }
 
-iconrecognition::RecognitionResult RunCase(
-    iconrecognition::IconRecognizer& recognizer,
-    const cv::Mat& image,
-    const iconrecognition::test::ManualRunnerCase& test_case)
+iconrecognition::RecognitionResult
+    RunCase(
+        iconrecognition::IconRecognizer& recognizer,
+        const cv::Mat& image,
+        const iconrecognition::test::ManualRunnerCase& test_case,
+        bool debug)
 {
     iconrecognition::RecognitionRequest request;
     request.grid_type = test_case.grid_type;
     request.roi = test_case.roi;
+    request.debug = debug;
     if ((request.roi & cv::Rect(0, 0, image.cols, image.rows)) != request.roi) {
         throw std::runtime_error("roi must be fully inside the input image");
     }
@@ -314,6 +350,53 @@ std::string RunLabel(const iconrecognition::test::ManualRunnerOptions& options)
         return std::filesystem::path(*options.image_name).stem().string();
     }
     return "manual";
+}
+
+struct CompletedCase
+{
+    json::object report;
+    std::string console_line;
+    bool failed = false;
+};
+
+std::size_t PhysicalCoreCount()
+{
+    DWORD bytes = 0;
+    GetLogicalProcessorInformationEx(RelationProcessorCore, nullptr, &bytes);
+    if (bytes > 0) {
+        std::vector<std::byte> buffer(bytes);
+        if (GetLogicalProcessorInformationEx(
+                RelationProcessorCore,
+                reinterpret_cast<PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX>(buffer.data()),
+                &bytes)) {
+            std::size_t count = 0;
+            DWORD offset = 0;
+            while (offset < bytes) {
+                const auto* entry = reinterpret_cast<const SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX*>(buffer.data() + offset);
+                if (entry->Relationship == RelationProcessorCore) {
+                    ++count;
+                }
+                offset += entry->Size;
+            }
+            if (count > 0) {
+                return count;
+            }
+        }
+    }
+    return std::max(1U, std::thread::hardware_concurrency());
+}
+
+std::vector<iconrecognition::RecognitionRequest> PreloadRequests(const std::vector<iconrecognition::test::ManualRunnerCase>& cases)
+{
+    std::vector<iconrecognition::RecognitionRequest> requests;
+    requests.reserve(cases.size());
+    for (const auto& test_case : cases) {
+        iconrecognition::RecognitionRequest request;
+        request.grid_type = test_case.grid_type;
+        request.roi = test_case.roi;
+        requests.push_back(std::move(request));
+    }
+    return requests;
 }
 
 std::filesystem::path CreateRunRoot(const std::filesystem::path& output_root, const std::string& label)
@@ -357,55 +440,139 @@ int main(int argc, char** argv)
         std::filesystem::create_directories(annotated_root);
         std::filesystem::create_directories(detail_root);
 
+        const auto initialize_started = RunnerClock::now();
         iconrecognition::IconRecognizer recognizer(ICON_RECOGNITION_TEST_DATA_ROOT);
         if (!recognizer.initialize()) {
             throw std::runtime_error("recognizer initialization failed");
         }
+        const double initialize_ms = ElapsedMilliseconds(initialize_started);
+        const auto preload_started = RunnerClock::now();
+        if (!recognizer.preload(PreloadRequests(cases))) {
+            throw std::runtime_error("recognizer template preload failed");
+        }
+        const double preload_ms = ElapsedMilliseconds(preload_started);
+        const std::size_t jobs = iconrecognition::test::ResolveManualRunnerJobs(options, PhysicalCoreCount(), cases.size());
+        if (jobs > 1) {
+            cv::setNumThreads(1);
+        }
+        const auto audit_catalog_started = RunnerClock::now();
         const AuditCatalog audit_catalog(ICON_RECOGNITION_TEST_DATA_ROOT);
+        const double audit_catalog_ms = ElapsedMilliseconds(audit_catalog_started);
+        const json::object startup_performance {
+            { "initialize_ms", initialize_ms },
+            { "preload_ms", preload_ms },
+            { "audit_catalog_ms", audit_catalog_ms },
+        };
+        if (options.debug) {
+            std::cout << "IconRecognition runner startup performance " << json::value(startup_performance).dumps() << '\n';
+        }
 
-        json::array reports;
-        std::size_t failed = 0;
-        for (const auto& test_case : cases) {
+        const auto started_at = std::chrono::steady_clock::now();
+        std::vector<std::optional<CompletedCase>> completed(cases.size());
+        const auto errors = iconrecognition::test::ExecuteManualRunnerCases(cases.size(), jobs, [&](std::size_t index) {
+            const auto& test_case = cases[index];
+            const auto case_started = RunnerClock::now();
+            RunnerCasePerformance case_performance;
+            const auto decode_started = RunnerClock::now();
             const cv::Mat image = cv::imread(test_case.image_path.string(), cv::IMREAD_COLOR);
+            case_performance.image_decode_ms = ElapsedMilliseconds(decode_started);
             if (image.empty()) {
                 throw std::runtime_error("unable to decode input image: " + test_case.image_path.string());
             }
-            const auto result = RunCase(recognizer, image, test_case);
-            cv::Mat annotated = DrawResult(image, result, audit_catalog);
+            const auto recognition_started = RunnerClock::now();
+            const auto result = RunCase(recognizer, image, test_case, options.debug);
+            case_performance.recognition_ms = ElapsedMilliseconds(recognition_started);
+            const auto annotation_started = RunnerClock::now();
+            const cv::Mat annotated = DrawResult(image, result, audit_catalog);
+            case_performance.annotation_ms = ElapsedMilliseconds(annotation_started);
             const std::string output_name = std::string(iconrecognition::GridTypeName(test_case.grid_type)) + "-" + test_case.roi_name + "-"
                                             + test_case.image_path.stem().string();
             const auto annotated_path = annotated_root / (output_name + ".png");
             const auto detail_path = detail_root / (output_name + ".json");
+            const auto annotated_write_started = RunnerClock::now();
             if (!cv::imwrite(annotated_path.string(), annotated)) {
                 throw std::runtime_error("unable to write annotated image: " + annotated_path.string());
             }
+            case_performance.annotated_write_ms = ElapsedMilliseconds(annotated_write_started);
+            const auto detail_write_started = RunnerClock::now();
             WriteDetail(detail_path, result);
-            const bool case_failed = result.error_code == "exception";
-            failed += case_failed ? 1 : 0;
+            case_performance.detail_write_ms = ElapsedMilliseconds(detail_write_started);
+            case_performance.total_ms = ElapsedMilliseconds(case_started);
+            const bool failed = result.error_code == "exception";
             const std::string image_name = test_case.image_path.lexically_relative(input_root).generic_string();
-            reports.emplace_back(json::object {
+            json::object case_report {
                 { "image", image_name },
                 { "grid_type", std::string(iconrecognition::GridTypeName(test_case.grid_type)) },
                 { "roi_name", test_case.roi_name },
                 { "roi", iconrecognition::RectToJson(test_case.roi) },
                 { "matched", result.matched },
                 { "match_count", static_cast<unsigned long long>(result.matches.size()) },
-                { "failed", case_failed },
+                { "failed", failed },
                 { "annotated", annotated_path.string() },
                 { "detail", detail_path.string() },
-            });
-            std::cout << image_name << " [" << test_case.roi_name << "] -> " << annotated_path.string() << '\n';
+            };
+            if (options.debug) {
+                case_report["runner_performance"] = case_performance;
+            }
+            completed[index] = CompletedCase {
+                .report = std::move(case_report),
+                .console_line = image_name + " [" + test_case.roi_name + "] -> " + annotated_path.string()
+                                + (options.debug ? " performance=" + json::value(case_performance).dumps() : ""),
+                .failed = failed,
+            };
+        });
+
+        json::array reports;
+        std::size_t failed = 0;
+        for (std::size_t index = 0; index < cases.size(); ++index) {
+            if (errors[index]) {
+                std::string message = "unknown case failure";
+                try {
+                    std::rethrow_exception(errors[index]);
+                }
+                catch (const std::exception& error) {
+                    message = error.what();
+                }
+                const auto& test_case = cases[index];
+                const std::string image_name = test_case.image_path.lexically_relative(input_root).generic_string();
+                reports.emplace_back(json::object {
+                    { "image", image_name },
+                    { "grid_type", std::string(iconrecognition::GridTypeName(test_case.grid_type)) },
+                    { "roi_name", test_case.roi_name },
+                    { "roi", iconrecognition::RectToJson(test_case.roi) },
+                    { "matched", false },
+                    { "match_count", 0 },
+                    { "failed", true },
+                    { "case_error", message },
+                });
+                std::cout << image_name << " [" << test_case.roi_name << "] -> ERROR: " << message << '\n';
+                ++failed;
+                continue;
+            }
+            if (!completed[index]) {
+                throw std::runtime_error("manual runner case completed without a result slot");
+            }
+            reports.emplace_back(std::move(completed[index]->report));
+            std::cout << completed[index]->console_line << '\n';
+            failed += completed[index]->failed ? 1 : 0;
         }
+        const auto elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - started_at).count();
 
         const auto report_path = run_root / "report.json";
         std::ofstream report(report_path, std::ios::binary | std::ios::trunc);
-        report << json::value(json::object {
-                                  { "case_count", static_cast<unsigned long long>(reports.size()) },
-                                  { "failure_count", static_cast<unsigned long long>(failed) },
-                                  { "cases", std::move(reports) },
-                              })
-                      .dumps(4)
-               << '\n';
+        json::object report_object {
+            { "case_count", static_cast<unsigned long long>(reports.size()) },
+            { "failure_count", static_cast<unsigned long long>(failed) },
+            { "jobs", static_cast<unsigned long long>(jobs) },
+            { "opencv_threads", cv::getNumThreads() },
+            { "elapsed_seconds", elapsed },
+            { "cases_per_second", elapsed > 0.0 ? reports.size() / elapsed : 0.0 },
+            { "cases", std::move(reports) },
+        };
+        if (options.debug) {
+            report_object["startup_performance"] = startup_performance;
+        }
+        report << json::value(std::move(report_object)).dumps(4) << '\n';
         return failed == 0 ? 0 : 1;
     }
     catch (const std::invalid_argument& error) {

@@ -1,11 +1,15 @@
 #include "manual_runner_config.h"
+#include "manual_runner_executor.h"
 
+#include <atomic>
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <functional>
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace
@@ -39,9 +43,9 @@ void TestHelpModes()
     Check(usage.find("--all") != std::string::npos, "usage must document full test selection");
     Check(usage.find("--grid-type") != std::string::npos, "usage must document grid type selection");
     Check(usage.find("--image") != std::string::npos, "usage must document image selection");
-    Check(
-        usage.find("full|left|right|split|all") != std::string::npos,
-        "usage must document dual-grid modes");
+    Check(usage.find("--jobs <N|auto>") != std::string::npos, "usage must document worker selection");
+    Check(usage.find("--debug") != std::string::npos, "usage must document debug performance diagnostics");
+    Check(usage.find("full|left|right|split|all") != std::string::npos, "usage must document dual-grid modes");
 }
 
 void TestSelectors()
@@ -69,15 +73,68 @@ void TestSelectors()
 void TestDualGridModes()
 {
     const std::vector<std::pair<std::string, iconrecognition::test::DualGridMode>> modes {
-        { "full", iconrecognition::test::DualGridMode::Full },
-        { "left", iconrecognition::test::DualGridMode::Left },
-        { "right", iconrecognition::test::DualGridMode::Right },
-        { "split", iconrecognition::test::DualGridMode::Split },
+        { "full", iconrecognition::test::DualGridMode::Full },   { "left", iconrecognition::test::DualGridMode::Left },
+        { "right", iconrecognition::test::DualGridMode::Right }, { "split", iconrecognition::test::DualGridMode::Split },
         { "all", iconrecognition::test::DualGridMode::All },
     };
     for (const auto& [name, expected] : modes) {
         const auto options = iconrecognition::test::ParseManualRunnerOptions({ "--grid-type", "port_storager", "--side", name });
         Check(options.dual_grid_mode == expected, "dual-grid mode mismatch: " + name);
+    }
+}
+
+void TestJobSelection()
+{
+    const auto defaults = iconrecognition::test::ParseManualRunnerOptions({ "--all" });
+    Check(defaults.jobs == 1 && !defaults.automatic_jobs, "manual runner must remain serial by default");
+
+    const auto explicit_jobs = iconrecognition::test::ParseManualRunnerOptions({ "--grid-type", "transfer", "--jobs", "12" });
+    Check(explicit_jobs.jobs == 12 && !explicit_jobs.automatic_jobs, "--jobs must preserve an explicit positive count");
+
+    const auto automatic = iconrecognition::test::ParseManualRunnerOptions({ "--all", "--jobs", "auto" });
+    Check(automatic.automatic_jobs, "--jobs auto must request hardware-based resolution");
+    Check(iconrecognition::test::ResolveManualRunnerJobs(automatic, 24, 336) == 16, "automatic jobs must cap physical cores at sixteen");
+    Check(iconrecognition::test::ResolveManualRunnerJobs(automatic, 8, 3) == 3, "resolved jobs must not exceed the case count");
+    Check(iconrecognition::test::ResolveManualRunnerJobs(defaults, 24, 336) == 1, "default job resolution must remain serial");
+
+    CheckRejected({ "--all", "--jobs", "0" }, "zero worker count");
+    CheckRejected({ "--all", "--jobs", "-1" }, "negative worker count");
+    CheckRejected({ "--all", "--jobs", "many" }, "unknown worker count");
+    CheckRejected({ "--all", "--jobs", "4", "--jobs", "8" }, "duplicate worker count");
+}
+
+void TestDebugMode()
+{
+    const auto defaults = iconrecognition::test::ParseManualRunnerOptions({ "--grid-type", "transfer" });
+    Check(!defaults.debug, "manual runner debug diagnostics must remain disabled by default");
+
+    const auto debug = iconrecognition::test::ParseManualRunnerOptions({ "--grid-type", "transfer", "--debug" });
+    Check(debug.debug, "--debug must enable performance diagnostics");
+
+    CheckRejected({ "--grid-type", "transfer", "--debug", "--debug" }, "duplicate debug option");
+}
+
+void TestParallelExecutorKeepsIndexedResultsAndErrors()
+{
+    constexpr std::size_t kCaseCount = 17;
+    std::vector<int> results(kCaseCount, -1);
+    std::vector<std::atomic<int>> visits(kCaseCount);
+    const auto errors = iconrecognition::test::ExecuteManualRunnerCases(kCaseCount, 4, [&](std::size_t index) {
+        ++visits[index];
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>((kCaseCount - index) % 3)));
+        if (index == 5) {
+            throw std::runtime_error("synthetic case failure");
+        }
+        results[index] = static_cast<int>(index);
+    });
+
+    Check(errors.size() == kCaseCount, "executor must return one error slot per case");
+    for (std::size_t index = 0; index < kCaseCount; ++index) {
+        Check(visits[index] == 1, "executor must visit every case exactly once");
+        Check((index == 5) == (errors[index] != nullptr), "executor must isolate the failing case error");
+        if (index != 5) {
+            Check(results[index] == static_cast<int>(index), "indexed result slots must retain discovery order");
+        }
     }
 }
 
@@ -141,7 +198,9 @@ void TestCaseDiscovery()
         rois_path,
         iconrecognition::test::ParseManualRunnerOptions({ "--grid-type", "port_storager", "--side", "all" }));
     Check(triple.size() == 3, "all must run full, left, and right ROIs for a dual grid");
-    Check(triple[0].roi_name == "full" && triple[1].roi_name == "left" && triple[2].roi_name == "right", "all must keep stable ROI ordering");
+    Check(
+        triple[0].roi_name == "full" && triple[1].roi_name == "left" && triple[2].roi_name == "right",
+        "all must keep stable ROI ordering");
 
     const auto named = iconrecognition::test::DiscoverManualRunnerCases(
         input_root,
@@ -181,6 +240,9 @@ int main()
         TestHelpModes();
         TestSelectors();
         TestDualGridModes();
+        TestJobSelection();
+        TestDebugMode();
+        TestParallelExecutorKeepsIndexedResultsAndErrors();
         TestInvalidArguments();
         TestCaseDiscovery();
         TestSingleRoiAtScreenOrigin();

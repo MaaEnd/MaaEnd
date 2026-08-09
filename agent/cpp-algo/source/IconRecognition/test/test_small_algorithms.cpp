@@ -10,12 +10,14 @@
 #include "../detail/IconMatcher.h"
 #include "../detail/MaskPolicy.h"
 #include "../detail/RarityClassifier.h"
+#include "../detail/RegularLattice.h"
 #include "../detail/SubpixelMatcher.h"
 #include "../detail/TemplateCatalog.h"
 #include "../detail/TemplateTypes.h"
+#include "../detail/TrustedRarity.h"
 
-#include <array>
 #include <algorithm>
+#include <array>
 #include <barrier>
 #include <cmath>
 #include <cstdlib>
@@ -161,9 +163,7 @@ void TestTransferRegionPartitionKeepsUndetectedOuterColumns()
     Check(regions[0].x == 0, "left transfer search region must begin at the ROI edge");
     Check(regions[1].x > regions[0].width, "transfer search regions may preserve unstructured space between grids");
     Check(regions[1].x < detected_right.x, "right transfer search region must retain structural context before the grid");
-    Check(
-        regions[0].width >= detected_left.x + 4 * 69,
-        "left transfer search region must retain room for a weak outer column");
+    Check(regions[0].width >= detected_left.x + 4 * 69, "left transfer search region must retain room for a weak outer column");
 }
 
 void TestCreditTradeGridUsesDimCardStructures()
@@ -300,17 +300,14 @@ void CheckGridOrigin(
     Check(
         std::abs(rows.front() - expected.y) <= tolerance,
         context + " first row mismatch: expected=" + std::to_string(expected.y) + " actual=" + std::to_string(rows.front())
-            + " actual_x=" + std::to_string(columns.front())
-            + " pitch_x=" + std::to_string(detection.grids[grid_index].pitch_x)
+            + " actual_x=" + std::to_string(columns.front()) + " pitch_x=" + std::to_string(detection.grids[grid_index].pitch_x)
             + " pitch_y=" + std::to_string(detection.grids[grid_index].pitch_y));
     Check(
         static_cast<int>(columns.size()) == expected_shape.width,
-        context + " column count mismatch: expected=" + std::to_string(expected_shape.width)
-            + " actual=" + std::to_string(columns.size()));
+        context + " column count mismatch: expected=" + std::to_string(expected_shape.width) + " actual=" + std::to_string(columns.size()));
     Check(
         static_cast<int>(rows.size()) == expected_shape.height,
-        context + " row count mismatch: expected=" + std::to_string(expected_shape.height)
-            + " actual=" + std::to_string(rows.size()));
+        context + " row count mismatch: expected=" + std::to_string(expected_shape.height) + " actual=" + std::to_string(rows.size()));
 }
 
 void CheckGridColumns(
@@ -326,12 +323,10 @@ void CheckGridColumns(
     Check(!columns.empty(), context + " has no columns");
     Check(
         std::abs(columns.front() - expected_first) <= tolerance,
-        context + " first column mismatch: expected=" + std::to_string(expected_first)
-            + " actual=" + std::to_string(columns.front()));
+        context + " first column mismatch: expected=" + std::to_string(expected_first) + " actual=" + std::to_string(columns.front()));
     Check(
         static_cast<int>(columns.size()) == expected_columns,
-        context + " column count mismatch: expected=" + std::to_string(expected_columns)
-            + " actual=" + std::to_string(columns.size()));
+        context + " column count mismatch: expected=" + std::to_string(expected_columns) + " actual=" + std::to_string(columns.size()));
 }
 
 void TestTransferRarityBarsAnchorGridOrigins()
@@ -346,8 +341,7 @@ void TestTransferRarityBarsAnchorGridOrigins()
 
     const cv::Rect roi(154, 202, 983, 291);
     const auto detect = [&](const char* name) {
-        const std::filesystem::path path =
-            std::filesystem::path("agent/cpp-algo/source/IconRecognition/test/input/transfer") / name;
+        const std::filesystem::path path = std::filesystem::path("agent/cpp-algo/source/IconRecognition/test/input/transfer") / name;
         const cv::Mat image = cv::imread(path.string(), cv::IMREAD_COLOR);
         Check(!image.empty(), "transfer grid fixture is missing: " + path.string());
         return iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi);
@@ -370,8 +364,7 @@ void TestTransferRarityBandsDefineRightGridBounds()
 {
     const cv::Rect roi(739, 202, 398, 291);
     const auto detect = [&](const char* name) {
-        const std::filesystem::path path =
-            std::filesystem::path("agent/cpp-algo/source/IconRecognition/test/input/transfer") / name;
+        const std::filesystem::path path = std::filesystem::path("agent/cpp-algo/source/IconRecognition/test/input/transfer") / name;
         const cv::Mat image = cv::imread(path.string(), cv::IMREAD_COLOR);
         Check(!image.empty(), "transfer right grid fixture is missing: " + path.string());
         return iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi);
@@ -392,8 +385,7 @@ void TestTransferRarityBandsPreserveCompleteLeftGrid()
 {
     const cv::Rect roi(154, 202, 585, 291);
     const auto detect = [&](const char* name) {
-        const std::filesystem::path path =
-            std::filesystem::path("agent/cpp-algo/source/IconRecognition/test/input/transfer") / name;
+        const std::filesystem::path path = std::filesystem::path("agent/cpp-algo/source/IconRecognition/test/input/transfer") / name;
         const cv::Mat image = cv::imread(path.string(), cv::IMREAD_COLOR);
         Check(!image.empty(), "transfer left grid fixture is missing: " + path.string());
         return iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi);
@@ -415,10 +407,15 @@ void TestTransferSparseLeftGridUsesVisibleCardEvidence()
 {
     const cv::Mat image = cv::imread("agent/cpp-algo/source/IconRecognition/test/input/transfer/25.png", cv::IMREAD_COLOR);
     Check(!image.empty(), "transfer sparse left fixture is missing");
-    const auto detection =
-        iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, cv::Rect(154, 202, 585, 291));
+    const auto detection = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, cv::Rect(154, 202, 585, 291));
 
     CheckGridOrigin(detection, 0, cv::Point(161, 217), 1, cv::Size(1, 2), "transfer 25 sparse left");
+    const auto& layout = detection.grids.front();
+    Check(layout.selection_diagnostics.has_value(), "transfer 25 must expose grid selection diagnostics");
+    Check(!layout.selection_diagnostics->fallback_used, "transfer 25 must select the trusted rarity candidate");
+    Check(layout.pitch_x >= 68.0 && layout.pitch_x <= 70.0, "transfer 25 x pitch must use the formal range");
+    Check(layout.pitch_y >= 68.0 && layout.pitch_y <= 70.0, "transfer 25 y pitch must use the formal range");
+    Check(layout.selection_diagnostics->maximum_residual <= 2.25, "transfer 25 must not accumulate lattice residual");
 }
 
 void TestTransferFullRoiMatchesIndependentSides()
@@ -427,8 +424,7 @@ void TestTransferFullRoiMatchesIndependentSides()
     const cv::Rect left_roi(154, 202, 585, 291);
     const cv::Rect right_roi(739, 202, 398, 291);
     for (const char* name : { "4.png", "41.png", "53.png" }) {
-        const std::filesystem::path path =
-            std::filesystem::path("agent/cpp-algo/source/IconRecognition/test/input/transfer") / name;
+        const std::filesystem::path path = std::filesystem::path("agent/cpp-algo/source/IconRecognition/test/input/transfer") / name;
         const cv::Mat image = cv::imread(path.string(), cv::IMREAD_COLOR);
         Check(!image.empty(), "transfer dual-grid fixture is missing: " + path.string());
         const auto full = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, full_roi);
@@ -472,10 +468,8 @@ void TestRarityBandsRecoverGridFromGlobalEvidence()
     Check(
         fit->x_starts == expected_x,
         "global rarity evidence must recover the correct x phase: actual=" + std::to_string(fit->x_starts.front())
-            + " support=" + std::to_string(fit->supporting_cells)
-            + " strong=" + std::to_string(fit->supporting_strong_cells)
-            + " chromatic=" + std::to_string(fit->supporting_chromatic_cells)
-            + " pitch_x=" + std::to_string(fit->pitch_x)
+            + " support=" + std::to_string(fit->supporting_cells) + " strong=" + std::to_string(fit->supporting_strong_cells)
+            + " chromatic=" + std::to_string(fit->supporting_chromatic_cells) + " pitch_x=" + std::to_string(fit->pitch_x)
             + " mean=" + std::to_string(fit->mean_coverage));
     Check(fit->origin == 15, "global rarity evidence must recover the band-bottom y origin");
     Check(fit->pitch_x == 69 && fit->pitch == 69, "global rarity evidence must preserve the regular pitch");
@@ -512,6 +506,115 @@ void TestRarityUsesBottomEdgeRows()
     Check(!absent.rarity, "unreliable rarity evidence must not report a rarity");
     Check(std::abs(absent.coverage) <= 1e-6, "unreliable rarity coverage must remain available for diagnostics");
     Check(absent.row_offset == -8, "rarity ties must keep the first row like numpy.argmax");
+}
+
+void TestRarityRowEvidenceKeepsAllSixChannels()
+{
+    const std::array<cv::Vec3f, 6> prototypes {
+        cv::Vec3f(163.0F, 128.0F, 128.0F), cv::Vec3f(198.0F, 98.0F, 191.0F),  cv::Vec3f(182.0F, 113.0F, 86.0F),
+        cv::Vec3f(129.0F, 189.0F, 55.0F),  cv::Vec3f(204.0F, 136.0F, 202.0F), cv::Vec3f(163.0F, 167.0F, 191.0F),
+    };
+    cv::Mat row(1, 60, CV_32FC3);
+    for (int rarity = 0; rarity < 6; ++rarity) {
+        for (int x = rarity * 10; x < (rarity + 1) * 10; ++x) {
+            row.at<cv::Vec3f>(0, x) = prototypes[rarity];
+        }
+    }
+
+    const auto evidence = iconrecognition::detail::MeasureRarityRow(row);
+    for (std::size_t rarity = 0; rarity < evidence.coverages.size(); ++rarity) {
+        Check(
+            std::abs(evidence.coverages[rarity] - 1.0 / 6.0) <= 1e-6,
+            "rarity row evidence must retain channel " + std::to_string(rarity + 1));
+    }
+    Check(std::abs(evidence.maximumCoverage() - 1.0 / 6.0) <= 1e-6, "maximum coverage must derive from six channels");
+    Check(std::abs(evidence.maximumChromaticCoverage() - 1.0 / 6.0) <= 1e-6, "chromatic maximum must exclude only rarity one");
+}
+
+cv::Scalar RarityBgr(int rarity)
+{
+    const cv::Vec3f prototype = iconrecognition::detail::RarityLabPrototypes().at(static_cast<std::size_t>(rarity - 1));
+    cv::Mat lab(1, 1, CV_8UC3, cv::Scalar(prototype[0], prototype[1], prototype[2]));
+    cv::Mat bgr;
+    cv::cvtColor(lab, bgr, cv::COLOR_Lab2BGR);
+    return bgr.at<cv::Vec3b>(0, 0);
+}
+
+void TestTrustedRarityRejectsSameColorBackground()
+{
+    cv::Mat image(120, 220, CV_8UC3, RarityBgr(6));
+    const auto background = iconrecognition::detail::DetectTrustedRarityStrips(image, 64);
+    Check(background.empty(), "large same-color background must not become a rarity strip");
+
+    image.setTo(cv::Scalar(35, 40, 46));
+    image(cv::Rect(20, 70, 64, 3)).setTo(RarityBgr(6));
+    image(cv::Rect(120, 70, 64, 3)).setTo(RarityBgr(2));
+    const auto trusted = iconrecognition::detail::DetectTrustedRarityStrips(image, 64);
+    Check(trusted.size() == 2, "two differently colored cells on one row must both remain available");
+    Check(trusted[0].rarity != trusted[1].rarity, "mixed rarity evidence must stay cell-local");
+    Check(trusted[0].trusted && trusted[1].trusted, "real narrow bars must pass local contrast and shape constraints");
+}
+
+void TestGrayRarityCannotSeedLattice()
+{
+    cv::Mat image(100, 100, CV_8UC3, cv::Scalar(25, 30, 35));
+    image(cv::Rect(18, 60, 64, 3)).setTo(RarityBgr(1));
+    const auto strips = iconrecognition::detail::DetectTrustedRarityStrips(image, 64);
+    Check(strips.size() == 1 && strips.front().trusted, "gray strip must remain as evidence");
+    Check(!strips.front().can_seed_lattice, "gray evidence must require an existing structural candidate");
+}
+
+void TestRegularLatticeUsesOneGlobalFloatingPitch()
+{
+    const std::vector<iconrecognition::detail::LatticeObservation> observations {
+        { 12.0, 1.0, true }, { 81.0, 1.0, true }, { 150.0, 1.0, true }, { 220.0, 1.0, true }, { 289.0, 1.0, true },
+    };
+    const auto fit = iconrecognition::detail::FitRegularAxis(observations, 8, { 68.0, 70.0 }, 69.0);
+    Check(fit.has_value(), "regular observations must produce a global axis");
+    Check(fit->pitch >= 68.0 && fit->pitch <= 70.0, "fitted pitch must stay inside the formal prior");
+    const auto starts = iconrecognition::detail::ProjectRegularAxis(*fit);
+    for (std::size_t index = 0; index < starts.size(); ++index) {
+        Check(
+            starts[index] == cvRound(fit->origin + static_cast<double>(index + fit->minimum_index) * fit->pitch),
+            "every integer start must project directly from one global model");
+    }
+}
+
+void TestRegularLatticeRejectsAccumulatingResiduals()
+{
+    const std::vector<iconrecognition::detail::LatticeObservation> drifting {
+        { 10.0, 1.0, true }, { 78.0, 1.0, true }, { 147.0, 1.0, true }, { 218.0, 1.0, true }, { 291.0, 1.0, true },
+    };
+    Check(
+        !iconrecognition::detail::FitRegularAxis(drifting, 8, { 68.0, 70.0 }, 69.0),
+        "a sequence requiring increasing per-cell pitch must be rejected");
+
+    const auto sparse = iconrecognition::detail::FitRegularAxis({ { 31.0, 1.0, true } }, 8, { 68.0, 70.0 }, 69.0);
+    Check(sparse && sparse->low_geometry_confidence, "one observation may retain only its direct cell");
+    Check(iconrecognition::detail::ProjectRegularAxis(*sparse) == std::vector<int> { 31 }, "one observation must not expand a remote grid");
+}
+
+void TestTransfer25ExposesIndependentTrustedRaritySeed()
+{
+    const cv::Mat image = cv::imread("agent/cpp-algo/source/IconRecognition/test/input/transfer/25.png", cv::IMREAD_COLOR);
+    Check(!image.empty(), "transfer sparse rarity fixture is missing");
+    const cv::Rect roi(154, 202, 585, 291);
+    const auto strips = iconrecognition::detail::DetectTrustedRarityStrips(image(roi), 64);
+    Check(
+        std::ranges::any_of(
+            strips,
+            [](const auto& strip) {
+                const int cell_top = strip.box.y + strip.box.height - 64;
+                return strip.can_seed_lattice && std::abs(strip.box.x - 7) <= 2 && std::abs(cell_top - 15) <= 2;
+            }),
+        "transfer 25 must expose the left-top chromatic strip independently of the structural winner");
+
+    const auto profile = iconrecognition::detail::TransferProfileFor(iconrecognition::detail::TransferGridVariant::TransferLeft);
+    const auto fit = iconrecognition::detail::FitTrustedRarityGrid(image(roi), cv::Rect(0, 0, roi.width, roi.height), profile);
+    Check(fit.has_value(), "transfer 25 trusted strips must produce an independent grid candidate");
+    Check(
+        std::abs(fit->x_starts.front() - 7) <= 2 && std::abs(fit->y_starts.front() - 15) <= 2,
+        "transfer 25 trusted candidate must retain the real left-top phase");
 }
 
 iconrecognition::detail::PreparedTemplate BuildMatcherFixture()
@@ -650,9 +753,7 @@ void TestCatalogFailedLoadDoesNotPoisonCache()
     std::ofstream(data_root / "recognition_items.json", std::ios::binary | std::ios::trunc)
         << R"({"missing_item":{"name":"missing","category":"test","storageKind":"Normal","categoryType":"Product","rarity":1,"iconId":"missing_item","fluidIconId":""}})";
     Check(
-        cv::imwrite(
-            (image_root / "1" / "missing_item.png").string(),
-            cv::Mat(127, 127, CV_8UC4, cv::Scalar(10, 20, 30, 255))),
+        cv::imwrite((image_root / "1" / "missing_item.png").string(), cv::Mat(127, 127, CV_8UC4, cv::Scalar(10, 20, 30, 255))),
         "unable to write invalid template fixture");
 
     iconrecognition::detail::TemplateCatalog catalog(data_root, image_root);
@@ -785,6 +886,12 @@ int main()
         TestTransferRegionPartitionKeepsUndetectedOuterColumns();
         TestCreditTradeGridUsesDimCardStructures();
         TestTransferProfileModuleContract();
+        TestRarityRowEvidenceKeepsAllSixChannels();
+        TestTrustedRarityRejectsSameColorBackground();
+        TestGrayRarityCannotSeedLattice();
+        TestRegularLatticeUsesOneGlobalFloatingPitch();
+        TestRegularLatticeRejectsAccumulatingResiduals();
+        TestTransfer25ExposesIndependentTrustedRaritySeed();
         TestRarityBandsRecoverGridFromGlobalEvidence();
         TestTransferFullRoiMatchesIndependentSides();
         TestTransferRarityBandsPreserveCompleteLeftGrid();

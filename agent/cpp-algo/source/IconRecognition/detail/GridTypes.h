@@ -1,5 +1,8 @@
 #pragma once
 
+#include <array>
+#include <optional>
+#include <string>
 #include <vector>
 
 #include "../IconRecognitionTypes.h"
@@ -15,6 +18,26 @@ struct GridCell
     cv::Rect cell_box;
 };
 
+struct GridSelectionDiagnostics
+{
+    cv::Point2d origin;
+    cv::Point2d pitch;
+    int rows = 0;
+    int columns = 0;
+    double best_score = 0.0;
+    double second_score = 0.0;
+    double score_margin = 0.0;
+    double structure_score = 0.0;
+    double rarity_score = 0.0;
+    double consistency_score = 0.0;
+    double maximum_residual = 0.0;
+    double residual_trend = 0.0;
+    std::array<int, 6> trusted_rarity_cells {};
+    bool fallback_used = false;
+    std::string fallback_reason;
+    std::vector<std::string> rejected_reasons;
+};
+
 struct GridLayout
 {
     int grid_index = 0;
@@ -25,6 +48,7 @@ struct GridLayout
     int rows = 0;
     int columns = 0;
     std::vector<GridCell> cells;
+    std::optional<GridSelectionDiagnostics> selection_diagnostics;
 };
 
 struct GridDetection

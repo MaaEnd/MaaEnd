@@ -28,6 +28,21 @@ const iconrecognition::RecognitionResult result = recognizer.recognize(image, re
 
 `single_roi` 与其它类型共用候选选择、内置图标缩放、匹配、阈值和结果排序逻辑，仅省略真实网格检测及界面专用门控。
 
+`preload(requests)` 可在并发识别前按请求集合准备模板尺寸。模板 catalog 仍由 `IconRecognizer` 管理；预热不执行网格检测或图标匹配，也不改变后续 `recognize()` 的结果。
+
+## 64px 双侧网格内部职责
+
+`transfer` 与 `port_storager` 的内部定位拆成四个可独立验证的职责：
+
+- `RarityClassifier` 保存 rarity 1..6 六个颜色通道的逐行覆盖，不提前压成单一最大值；
+- `TrustedRarity` 只提取通过颜色覆盖、水平连续性、上下局部背景对比、双边缘和厚度硬约束的窄条；
+- `RegularLattice` 只拟合单轴 `origin + index * pitch`，不读取界面类型，也不从前一格递增坐标；
+- `GridDetector` 比较独立可信色带候选与现有结构候选，最终统一投影为一个 x/y 全局晶格。
+
+灰色 rarity 仍作为证据保留，但不能独立创建候选。可信 chromatic 色带与结构候选一致时保留结构范围；两者冲突时，色带候选还必须获得直接格框支持或多个可信格支持才可接管。没有任何最终全局模型能解释证据时，网格检测抛出异常并沿用 `RecognitionResult.error` 转换。
+
+网格选择分数、origin/pitch、残差、六色可信格数量和 fallback 原因只进入内部 diagnostics，供回归与人工审核使用，不是 Pipeline 或 Custom 调用方的稳定业务分支契约。
+
 ## Custom Recognition 参数
 
 Maa 注册名为 `IconRecognition`。调用节点的原生 `roi` 写在 `recognition.param` 中，与 `custom_recognition` 同级；`custom_recognition_param` 必须是 JSON 对象并包含 `grid_type`。
@@ -178,3 +193,5 @@ Custom 命中时返回 `MAA_TRUE`，`out_box` 等于 `matches[0].cell_box`；没
 - `detail/<stem>.json`：公开结果加内部 `diagnostics`。
 
 三个文件使用相同 stem，合称一组。组件按 `raw` 文件的修改时间只保留最近 20 组，并同步删除其它两个目录中的同组文件。Custom 回调的公开 detail 不包含内部 `diagnostics`；只有 debug 文件和人工测试 detail 会附加该字段。
+
+双侧网格的 `diagnostics.grids[]` 额外记录最终 origin、浮点 pitch、行列数、结构/色带/一致性分数、最大残差、六色可信格计数、fallback 原因和被拒候选原因。`diagnostics.cells[]` 继续记录每个图标候选的匹配细节。

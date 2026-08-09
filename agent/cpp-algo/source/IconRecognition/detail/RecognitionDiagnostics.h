@@ -7,6 +7,9 @@
 #include <MaaUtils/NoWarningCV.hpp>
 #include <meojson/json.hpp>
 
+#include "GridTypes.h"
+#include "PerformanceDiagnostics.h"
+
 namespace iconrecognition::detail
 {
 
@@ -35,7 +38,10 @@ struct CellRecognitionDiagnostics
 
 struct RecognitionDiagnostics
 {
+    std::vector<GridSelectionDiagnostics> grids;
     std::vector<CellRecognitionDiagnostics> cells;
+    // 性能数据只在 debug 请求中采集，避免正常识别承担计时开销。
+    std::optional<RecognitionPerformanceDiagnostics> performance;
 
     json::value to_json() const;
 };

@@ -170,6 +170,7 @@ struct RecognitionRequest
     double threshold = 0.85;
     double subpixel_threshold = 0.60;
     bool deduplicate = false;
+    bool debug = false;
 };
 
 struct RecognitionResult
