@@ -40,7 +40,7 @@
             "AutoSellEnterStockRedistribution"
         ],
         "focus": {
-            "Node.Action.Starting": "正在走向物资调度终端"
+            "Node.Action.Starting": "正在走向物资调度终端",
             "Node.Action.Succeeded": {
                 "trace": true
             },
