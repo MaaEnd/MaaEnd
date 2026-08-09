@@ -63,7 +63,15 @@
         },
         "next": [
             "AutoCollectRoute12AssertLocation2"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute12AssertLocation2": {
         "desc": "传送到采集点",
@@ -176,6 +184,14 @@
         },
         "next": [
             "AutoCollectRoute12End"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     }
 }

@@ -1,0 +1,67 @@
+{
+    "ORIGEOMETRY_NUMBER": {
+        "desc": "衍质源石（纯数字）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__ORIGEOMETRY_NUMBER_TEXT_COLOR",
+                    "ORIGEOMETRY_NUMBER_OCR"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ORIGEOMETRY_NUMBER_TEXT_COLOR": {
+        "desc": "IMS A2:采购中心衍质源石白色文字 ColorMatch",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    929,
+                    0,
+                    88,
+                    52
+                ],
+                "lower": [
+                    200,
+                    200,
+                    200
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 10
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ORIGEOMETRY_NUMBER_OCR": {
+        "desc": "IMS A2:采购中心衍质源石数量 OCR（纯数字）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__ORIGEOMETRY_NUMBER_TEXT_COLOR",
+                "roi_offset": [
+                    -6,
+                    -2,
+                    12,
+                    4
+                ],
+                "expected": [
+                    "^\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

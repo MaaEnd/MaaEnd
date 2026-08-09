@@ -396,7 +396,15 @@
         "rate_limit": 0,
         "next": [
             "CloudrestEcoSiteTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "CloudrestEcoSiteTakePhoto": {
         "desc": "在栖云生态点任务拍照点开始拍照",

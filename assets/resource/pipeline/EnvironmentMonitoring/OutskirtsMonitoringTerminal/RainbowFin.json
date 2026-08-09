@@ -426,7 +426,15 @@
         "rate_limit": 0,
         "next": [
             "RainbowFinTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "RainbowFinTakePhoto": {
         "desc": "在七彩鳞任务拍照点开始拍照",

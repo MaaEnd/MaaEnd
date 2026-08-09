@@ -63,7 +63,15 @@
         },
         "next": [
             "AutoCollectRoute7AssertLocation2"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7AssertLocation2": {
         "desc": "传送到采集点",
@@ -141,7 +149,15 @@
         },
         "next": [
             "AutoCollectRoute7AssertLocation4"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7AssertLocation4": {
         "desc": "传送到采集点",
@@ -201,6 +217,14 @@
                     ]
                 }
             ]
+        },
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
         }
     },
     "AutoCollectRoute7FindButtonUsing": {
@@ -257,7 +281,15 @@
         },
         "next": [
             "AutoCollectRoute7AssertLocation5"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7AssertLocation5": {
         "desc": "传送到采集点",
@@ -302,7 +334,15 @@
         },
         "next": [
             "AutoCollectRoute7AssertLocation7"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7AssertLocation7": {
         "desc": "传送到采集点",
@@ -370,7 +410,15 @@
         },
         "next": [
             "AutoCollectRoute7Wait10sec"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7Wait10sec": {
         "desc": "等待10s完成收集",

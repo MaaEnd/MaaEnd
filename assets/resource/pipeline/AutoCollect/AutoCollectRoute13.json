@@ -70,7 +70,15 @@
         },
         "next": [
             "AutoCollectRoute13AssertLocation2"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute13AssertLocation2": {
         "desc": "传送到采集点",
@@ -138,7 +146,15 @@
         },
         "next": [
             "AutoCollectRoute13Wait10sec"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute13Wait10sec": {
         "desc": "等待10s完成收集",

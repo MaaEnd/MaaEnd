@@ -17,11 +17,12 @@ public:
 
     void Stop();
     void SetForwardState(bool forward);
-    TurnCommandResult ApplySteering(double yaw_delta_deg);
+    TurnCommandResult ApplySteering(double yaw_delta_deg, int64_t tick_gap_ms = 0);
     bool TriggerSprint();
     bool SupportsSprint() const;
     void SetSprintSuppressed(bool suppressed);
     void SetAction(LocalDriverAction action, bool force);
+    void ReassertForward();
 
     bool IsMoving() const;
     bool IsMovingForward() const;

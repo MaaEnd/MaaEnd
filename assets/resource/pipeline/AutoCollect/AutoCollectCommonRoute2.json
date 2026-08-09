@@ -129,7 +129,15 @@
         },
         "next": [
             "AutoCollectCommonRoute2GoFight3"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute2GoFight3": {
         "pre_delay": 0,
@@ -191,6 +199,14 @@
         },
         "next": [
             "AutoCollectCommonRoute2End"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     }
 }

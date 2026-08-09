@@ -63,7 +63,15 @@
         },
         "next": [
             "AutoCollectRoute10AssertLocation2"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute10AssertLocation2": {
         "desc": "传送到采集点",
@@ -169,7 +177,15 @@
         },
         "next": [
             "AutoCollectRoute10AssertLocation3"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute10AssertLocation3": {
         "desc": "传送到采集点",
@@ -247,6 +263,14 @@
         },
         "next": [
             "AutoCollectRoute10End"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     }
 }

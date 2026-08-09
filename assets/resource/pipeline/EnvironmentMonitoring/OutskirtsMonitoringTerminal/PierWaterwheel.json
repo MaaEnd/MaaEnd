@@ -402,7 +402,15 @@
         "rate_limit": 0,
         "next": [
             "PierWaterwheelTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "PierWaterwheelTakePhoto": {
         "desc": "在码头水车任务拍照点开始拍照",

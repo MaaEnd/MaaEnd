@@ -22,7 +22,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path, PurePosixPath
 from zipfile import BadZipFile, ZipFile
 
-from fastapi import Body, FastAPI, HTTPException, Request
+from fastapi import Body, FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, RedirectResponse, Response
 
 from _internal.core_utils import (
@@ -149,22 +149,6 @@ def _pipeline_files() -> list[dict]:
     return files
 
 
-def _navmesh_payload(name: str, nmf: NavMeshFile) -> dict:
-    return {
-        "name": name,
-        "meta": {
-            "name": nmf.name,
-            "description": nmf.description,
-            "map_region_name": nmf.map_region_name,
-            "map_level_name": nmf.map_level_name,
-            "geo_width": nmf.geo_width,
-            "geo_height": nmf.geo_height,
-        },
-        "vertices": [vars(vertex) for vertex in nmf.vertices],
-        "edges": [vars(edge) for edge in nmf.edges],
-    }
-
-
 def _get_location_service():
     global _location_service
     with _service_lock:
@@ -234,10 +218,17 @@ def _load_frontend_files() -> None:
 async def lifespan(_app: FastAPI):
     _load_frontend_files()
     yield
-    if _location_service is not None:
-        await asyncio.to_thread(_location_service.cleanup)
-    if _sample_collector is not None:
-        await asyncio.to_thread(_sample_collector.cleanup)
+    # Bound shutdown so a stuck Maa IPC cannot hang Ctrl+C for the full agent timeout.
+    for cleanup in (
+        getattr(_location_service, "cleanup", None),
+        getattr(_sample_collector, "cleanup", None),
+    ):
+        if cleanup is None:
+            continue
+        try:
+            await asyncio.wait_for(asyncio.to_thread(cleanup), timeout=2.0)
+        except Exception:
+            pass
 
 
 app = FastAPI(title="MapTracker Web Tool", lifespan=lifespan)
@@ -364,10 +355,15 @@ def load_navmesh(name: str) -> dict:
         nmf = NavMeshFile.read(str(path))
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
-    payload = _navmesh_payload(path.relative_to(NAVMESH_DIR).as_posix(), nmf)
-    payload["revision"] = _revision(path)
-    payload["map_file"] = find_map_file(path.stem) or f"{path.stem}.png"
-    return payload
+    result = nmf.to_dict()
+    result.update(
+        {
+            "name": path.relative_to(NAVMESH_DIR).as_posix(),
+            "revision": _revision(path),
+            "map_file": find_map_file(path.stem) or f"{path.stem}.png",
+        }
+    )
+    return result
 
 
 @app.post("/api/navmeshes/new")
@@ -394,9 +390,14 @@ def new_navmesh(payload: dict = Body(...)) -> dict:
         vertices=data.vertices,
         edges=data.edges,
     )
-    result = _navmesh_payload(f"{map_path.stem}.mtnm", nmf)
+    result = nmf.to_dict()
     result.update(
-        {"revision": None, "map_file": map_file, "imported_entities": imported}
+        {
+            "name": f"{map_path.stem}.mtnm",
+            "revision": None,
+            "map_file": map_file,
+            "imported_entities": imported,
+        }
     )
     return result
 
@@ -408,18 +409,8 @@ def save_navmesh(name: str, payload: dict = Body(...)) -> dict:
         raise HTTPException(400, "NavMesh filename must end with .mtnm")
     if path.exists() and payload.get("revision") not in (None, _revision(path)):
         raise HTTPException(409, "NavMesh file changed after it was opened")
-    meta = payload.get("meta") or {}
     try:
-        nmf = NavMeshFile(
-            name=str(meta["name"]),
-            description=str(meta.get("description", "")),
-            map_region_name=str(meta["map_region_name"]),
-            map_level_name=str(meta["map_level_name"]),
-            geo_width=float(meta["geo_width"]),
-            geo_height=float(meta["geo_height"]),
-            vertices=[NavVertex(**value) for value in payload.get("vertices", [])],
-            edges=[NavEdge(**value) for value in payload.get("edges", [])],
-        )
+        nmf = NavMeshFile.from_dict(payload)
         path.parent.mkdir(parents=True, exist_ok=True)
         temporary = path.with_suffix(path.suffix + ".tmp")
         nmf.save(str(temporary))
@@ -427,6 +418,12 @@ def save_navmesh(name: str, payload: dict = Body(...)) -> dict:
         temporary.replace(path)
     except (KeyError, TypeError, ValueError) as exc:
         raise HTTPException(422, str(exc)) from exc
+    # Drop live Maa so the next goal/infer reloads navmesh from disk.
+    if _location_service is not None:
+        try:
+            _location_service.cleanup()
+        except Exception:
+            pass
     return {"revision": _revision(path)}
 
 
@@ -437,6 +434,56 @@ async def infer_location(payload: dict = Body(...)) -> dict:
         return await asyncio.to_thread(
             _get_location_service().infer_once, str(payload.get("map_name", ""))
         )
+    except Exception as exc:
+        raise HTTPException(503, str(exc)) from exc
+
+
+def _decode_image_bytes(raw: bytes):
+    from _internal.core_utils import cv2
+    import numpy as np
+
+    if not raw:
+        return None
+    buffer = np.frombuffer(raw, dtype=np.uint8)
+    image = cv2.imdecode(buffer, cv2.IMREAD_COLOR)
+    if image is None:
+        return None
+    if image.ndim == 2:
+        return cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+    if image.ndim == 3 and image.shape[2] == 4:
+        return cv2.cvtColor(image, cv2.COLOR_BGRA2BGR)
+    return image
+
+
+@app.post("/api/location/infer-image")
+async def infer_location_on_image(
+    request: Request,
+    precision: float = Query(0.7),
+) -> dict:
+    _ensure_sample_collection_stopped()
+    if not 0.1 <= precision <= 1.0:
+        raise HTTPException(422, "Precision must be between 0.1 and 1.0")
+    try:
+        raw = await request.body()
+        if not raw:
+            raise HTTPException(422, "Empty image file")
+        image = _decode_image_bytes(raw)
+        if image is None:
+            raise HTTPException(422, "Unsupported or corrupted image file")
+        used_precision = round(float(precision), 1)
+
+        def _run():
+            # Static image inference has no temporal state; force full search only.
+            result = _get_location_service().infer_on_image(
+                image,
+                precision=used_precision,
+                allowed_modes=0b01,
+            )
+            return {**result, "precision": used_precision}
+
+        return await asyncio.to_thread(_run)
+    except HTTPException:
+        raise
     except Exception as exc:
         raise HTTPException(503, str(exc)) from exc
 

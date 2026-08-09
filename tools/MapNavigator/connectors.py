@@ -3,13 +3,22 @@ from __future__ import annotations
 import ctypes
 import inspect
 import json
+import os
 import shutil
 import subprocess
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Any
 
-from connection_models import AdbConnectionConfig, AdbDeviceInfo, RecordingSessionConfig, Win32ConnectionConfig, PlayCoverConnectionConfig
-from runtime import AGENT_DIR, MaaRuntime, RESOURCE_ADB_DIR
+from connection_models import (
+    AdbConnectionConfig,
+    AdbDeviceInfo,
+    PlayCoverConnectionConfig,
+    RecordingSessionConfig,
+    Win32ConnectionConfig,
+    WlRootsConnectionConfig,
+)
+from runtime import AGENT_DIR, MaaRuntime, RESOURCE_ADB_DIR, RESOURCE_WLROOTS_DIR
 
 DEFAULT_ADB_INPUT_METHODS = 1 | 2 | 4
 DEFAULT_ADB_SCREENCAP_METHODS = 1 | 2 | 4 | 64
@@ -124,11 +133,44 @@ class PlayCoverRecordingConnector(RecordingConnector):
                 raise RuntimeError(f"PlayCover 附加资源失败: {exc}") from exc
 
 
+class WlRootsRecordingConnector(RecordingConnector):
+    """基于 WlRoots (Linux Wayland 合成器) 建立录制连接。"""
+
+    def __init__(self, runtime: MaaRuntime, config: WlRootsConnectionConfig) -> None:
+        super().__init__(runtime)
+        self._config = config
+
+    def connect(self) -> Any:
+        if self._runtime.WlRootsController is None:
+            raise RuntimeError("当前 maafw Python 运行时不支持 WlRootsController (仅 Linux 支持)。")
+
+        socket_path = self._config.wlr_socket_path.strip()
+        if not socket_path:
+            raise RuntimeError("未指定 Wayland socket 路径。")
+
+        # use_win32_vk_code 与 assets/interface.json 的 Wlroots 控制器条目保持一致:
+        # MaaEnd pipeline 的按键动作按 Win32 VK 码表书写。MapNavigator 录制只截图不投递
+        # 按键, 该参数对录制无实际影响, 但连接器不应自创与项目约定不同的取值。
+        controller = self._runtime.WlRootsController(wlr_socket_path=socket_path, use_win32_vk_code=True)
+        controller.post_connection().wait()
+        return controller
+
+    def attach_resource(self, resource: Any) -> None:
+        attach_path = getattr(resource, "post_path", None)
+        if callable(attach_path) and RESOURCE_WLROOTS_DIR.exists():
+            try:
+                attach_path(str(RESOURCE_WLROOTS_DIR)).wait()
+            except Exception as exc:
+                raise RuntimeError(f"附加 WlRoots 资源失败: {exc}") from exc
+
+
 def build_recording_connector(runtime: MaaRuntime, session: RecordingSessionConfig) -> RecordingConnector:
     if session.kind == "adb":
         return AdbRecordingConnector(runtime, session.adb)
     elif session.kind == "playcover":
         return PlayCoverRecordingConnector(runtime, session.playcover)
+    elif session.kind == "wlroots":
+        return WlRootsRecordingConnector(runtime, session.wlroots)
     return Win32RecordingConnector(runtime, session.win32)
 
 
@@ -184,6 +226,36 @@ def list_adb_devices(adb_path: str) -> list[AdbDeviceInfo]:
             )
         )
     return devices
+
+
+def list_wlroots_sockets() -> list[str]:
+    """枚举 $XDG_RUNTIME_DIR 下名字含 wayland 的 socket 路径。
+
+    用「名字含 wayland」而不是 `wayland-*` 前缀, 是为了覆盖 `niri.wayland-1.1238.sock`
+    这类非标准前缀的真实合成器 socket。只做枚举, 不验证协议支持。
+    """
+    runtime_dir = os.environ.get("XDG_RUNTIME_DIR", "").strip()
+    if not runtime_dir:
+        uid = getattr(os, "getuid", lambda: 0)()
+        runtime_dir = f"/run/user/{uid}"
+
+    root = Path(runtime_dir)
+    if not root.is_dir():
+        return []
+
+    found: list[str] = []
+    try:
+        for entry in root.iterdir():
+            if "wayland" not in entry.name:
+                continue
+            try:
+                if entry.is_socket():
+                    found.append(str(entry))
+            except OSError:
+                continue
+    except OSError:
+        return []
+    return sorted(found)
 
 
 def find_game_window(expected_title: str) -> int:

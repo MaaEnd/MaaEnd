@@ -416,7 +416,15 @@
         "rate_limit": 0,
         "next": [
             "MiniShellbeastTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "MiniShellbeastTakePhoto": {
         "desc": "在小壳兽任务拍照点开始拍照",

@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <functional>
 #include <optional>
 #include <string>
 #include <vector>
@@ -25,12 +26,21 @@ std::string InitialExpectedZone(const NaviParam& param);
 // rewritten. Never consults the external MapTracker transforms.
 void NormalizeLivePositionToBase(const NaviParam& param, NaviPosition& pos);
 void PreloadNavmeshWaypoints(const NaviParam& param);
-bool ExpandNavmeshWaypoints(const NaviParam& param, const NaviPosition& initial_pos, std::vector<Waypoint>& out_path);
+// `should_stop` is polled between waypoints and between fallback probes: expansion runs before the
+// state machine exists, so it is the only place a stop request can be honored during planning.
+bool ExpandNavmeshWaypoints(
+    const NaviParam& param,
+    const NaviPosition& initial_pos,
+    const std::function<bool()>& should_stop,
+    std::vector<Waypoint>& out_path);
+// The goal deck pins which overlapping walkable surface the route must stop on; unset keeps the full span
+// set. The start has no deck argument — where it stands is read off its own height, not off the goal.
 std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const NaviParam& param,
     const std::string& locator_zone,
     const navmesh::WorldPoint& start,
-    const navmesh::WorldPoint& goal);
+    const navmesh::WorldPoint& goal,
+    std::optional<double> goal_deck_y = std::nullopt);
 float NavmeshFloorYForZone(const NaviParam& param, const std::string& locator_zone);
 bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a, const std::string& zone_b);
 

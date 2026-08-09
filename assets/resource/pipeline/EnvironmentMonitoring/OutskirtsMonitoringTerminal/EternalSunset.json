@@ -402,7 +402,15 @@
         "rate_limit": 0,
         "next": [
             "EternalSunsetTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "EternalSunsetTakePhoto": {
         "desc": "在栖霞驻影任务拍照点开始拍照",
