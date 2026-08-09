@@ -32,7 +32,7 @@ type autoFightAttach struct {
 	ReserveSkillLevel            int      `json:"reserve_skill_level"`
 	EndAxisTimelineCode          string   `json:"end_axis_timeline_code"`
 	SkipComboCooldown            bool     `json:"skip_combo_cooldown"`
-	ExitNodes                    []string `json:"exit_nodes"`
+	PauseExitNodes               []string `json:"pause_exit_nodes"`
 }
 
 var screenAnalyzer = NewScreenAnalyzer()
@@ -414,8 +414,8 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				result = true
 				break
 			}
-			// 退出判定：attach 配置的 exit_nodes 任一命中（如选剑演武战斗胜利界面）立即退出
-			if exitNode := hitExitNode(ctx, img, params.ExitNodes); exitNode != "" {
+			// 退出判定：暂停态下 attach 配置的 pause_exit_nodes 任一命中（如选剑演武战斗胜利界面）立即退出
+			if exitNode := hitExitNode(ctx, img, params.PauseExitNodes); exitNode != "" {
 				log.Info().Str("component", "AutoFight").Str("exitNode", exitNode).Msg("exit node recognized, exiting fight")
 				maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
 				result = true

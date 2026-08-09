@@ -139,7 +139,7 @@
                     "pipeline_override": {
                         "AutoFight": {
                             "attach": {
-                                "exit_nodes": [
+                                "pause_exit_nodes": [
                                     "TrialOfSwordmancyFightSuccess"
                                 ]
                             }
