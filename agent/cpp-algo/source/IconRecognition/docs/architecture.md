@@ -52,7 +52,7 @@ Maa 注册名为 `IconRecognition`。调用节点的原生 `roi` 写在 `recogni
 
 | 字段 | 类型 | 必选 | 默认值 | 说明 |
 | --- | --- | --- | --- | --- |
-| `grid_type` | string | 是 | 无 | `trade`、`transfer`、`port_storager`、`valuables`、`shipment`、`credit_trade` 或 `single_roi` |
+| `grid_type` | string | 是 | 无 | 当前界面：`trade` 据点交易、`transfer` 背包和仓库、`port_storager` 便捷存取站、`valuables` 贵重品库、`shipment` 送货、`credit_trade` 信用交易所、`single_roi` 临时单格 |
 | `item_ids` | string[] | 否 | `[]` | 只保留指定物品候选；多个 ID 取并集，不能重复 |
 | `item_filters` | string[] | 否 | 由 `grid_type` 决定 | `storageKind:categoryType`；多个条件取并集，`*` 匹配该 storage 下全部分类 |
 | `threshold` | number | 否 | `0.85` | 最终接受阈值 |
@@ -60,7 +60,9 @@ Maa 注册名为 `IconRecognition`。调用节点的原生 `roi` 写在 `recogni
 | `deduplicate` | boolean | 否 | `false` | 同一个 `item_id` 在多个 cell 命中时只保留分数最高的一项；不同物品分别保留 |
 | `debug` | boolean | 否 | `false` | Custom 入口保存原图、标注图和内部诊断 JSON |
 
-原生 `roi` 使用 Maa `[x,y,width,height]`，基准分辨率为 1280x720，宽高必须为正；`single_roi` 还要求 ROI 宽高相等且完全位于图片内。阈值必须满足 `0 <= subpixel_threshold < threshold <= 1`。`item_ids` 与 `item_filters` 同时提供时取交集；ID 不存在或被过滤器排除会返回明确错误。
+原生 `roi` 使用 Maa `[x,y,width,height]`，基准分辨率为 1280x720，宽高必须为正；`single_roi` 还要求 ROI 宽高相等且完全位于图片内。`item_ids` 与 `item_filters` 同时提供时取交集；ID 不存在或被过滤器排除会返回明确错误。
+
+基础模板分使用带 mask 的 `TM_CCOEFF_NORMED`，最终 `score` 为模板分的 85% 与 Lab 颜色分的 15% 之和。阈值必须满足 `0 <= subpixel_threshold < threshold <= 1`：基础分低于 `subpixel_threshold` 时直接拒识；位于两个阈值之间时执行亚像素精排；最终分达到 `threshold` 且未被界面门控拒绝时才进入 `matches`。降低 `threshold` 会增加误识别风险，应先检查 ROI、画面稳定性和候选分类。
 
 完整 Pipeline 参数示例：
 

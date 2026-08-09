@@ -13,8 +13,14 @@ namespace
 {
 
 constexpr double kObservationClusterRadius = 0.75;
-constexpr double kMaximumResidual = 2.25;
 constexpr double kPitchStep = 0.05;
+constexpr double kPitchLoopEpsilon = 1e-9;
+// 置信度权重来自现有回归样本，支持密度优先，其次为残差和接近先验 pitch 的程度。
+constexpr double kSupportConfidenceWeight = 0.45;
+constexpr double kResidualConfidenceWeight = 0.30;
+constexpr double kPitchConfidenceWeight = 0.25;
+constexpr double kDirectSingletonConfidence = 0.55;
+constexpr double kIndirectSingletonConfidence = 0.25;
 
 std::vector<LatticeObservation> NormalizeObservations(const std::vector<LatticeObservation>& source)
 {
@@ -106,7 +112,7 @@ std::optional<RegularAxisFit> FitCandidate(
         maximum_residual = std::max(maximum_residual, residual);
         trend_numerator += observations[index].weight * (indices[index] - mean_index) * signed_residual;
     }
-    if (maximum_residual > kMaximumResidual) {
+    if (maximum_residual > kMaximumRegularAxisResidual) {
         return std::nullopt;
     }
     const double mean_residual = weighted_residual / weight_sum;
@@ -123,8 +129,12 @@ std::optional<RegularAxisFit> FitCandidate(
     const double support_ratio = static_cast<double>(direct_indices.size()) / span;
     const double pitch_span = std::max(pitch_range.second - pitch_range.first, 1.0);
     const double pitch_confidence = std::clamp(1.0 - std::abs(pitch - preferred_pitch) / pitch_span, 0.0, 1.0);
-    const double confidence =
-        std::clamp(0.45 * support_ratio + 0.30 * (1.0 - mean_residual / kMaximumResidual) + 0.25 * pitch_confidence, 0.0, 1.0);
+    const double confidence = std::clamp(
+        kSupportConfidenceWeight * support_ratio
+            + kResidualConfidenceWeight * (1.0 - mean_residual / kMaximumRegularAxisResidual)
+            + kPitchConfidenceWeight * pitch_confidence,
+        0.0,
+        1.0);
     return RegularAxisFit {
         .origin = origin,
         .pitch = pitch,
@@ -159,7 +169,7 @@ std::optional<RegularAxisFit> FitRegularAxis(
             .minimum_index = 0,
             .maximum_index = 0,
             .support_ratio = observations.front().direct ? 1.0 : 0.0,
-            .confidence = observations.front().direct ? 0.55 : 0.25,
+            .confidence = observations.front().direct ? kDirectSingletonConfidence : kIndirectSingletonConfidence,
             .low_geometry_confidence = true,
             .direct_indices = observations.front().direct ? std::vector<int> { 0 } : std::vector<int> {},
         };
@@ -172,7 +182,7 @@ std::optional<RegularAxisFit> FitRegularAxis(
         -std::numeric_limits<double>::infinity(),
         -std::numeric_limits<double>::infinity(),
     };
-    for (double pitch = pitch_range.first; pitch <= pitch_range.second + 1e-9; pitch += kPitchStep) {
+    for (double pitch = pitch_range.first; pitch <= pitch_range.second + kPitchLoopEpsilon; pitch += kPitchStep) {
         for (const auto& seed : observations) {
             const auto candidate = FitCandidate(observations, seed.position, pitch, maximum_count, pitch_range, preferred_pitch);
             if (!candidate) {

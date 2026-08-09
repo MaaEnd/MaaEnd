@@ -26,8 +26,48 @@ constexpr double kEpsilon = 1e-8;
 constexpr int kCreditTradeColumns = 7;
 constexpr int kCreditTradeCellOffsetX = 10;
 constexpr int kCreditTradeCellOffsetY = 6;
+// 单网格和卡片网格的结构搜索参数按 720p 截图标定。
+constexpr double kDefaultMinimumTopVisibility = 0.90;
+constexpr double kDefaultMinimumBottomVisibility = 0.70;
+constexpr double kMinimumHorizontalVisibility = 0.70;
+constexpr int kSingleLatticePitchSearchRadius = 8;
+constexpr int kSingleLatticePitchTolerance = 1;
+constexpr int kCardMinimumInset = 6;
+constexpr double kCardInsetRatio = 0.08;
+constexpr int kCardMinimumBand = 4;
+constexpr double kCardBandRatio = 0.05;
+constexpr double kCardProfilePitchRadius = 8.0;
+constexpr double kCardCurrentPitchRadius = 1.5;
+constexpr double kPitchRefinementStep = 0.25;
+constexpr double kPitchLoopEpsilon = 0.001;
+constexpr double kCardMinimumAbsoluteGain = 30.0;
+constexpr double kCardMinimumRelativeGain = 1.20;
+// 双侧网格的相位选择和候选评分只使用这些集中门槛。
+constexpr int kDefaultStructuralPhaseMaximumShift = 20;
+constexpr double kDefaultStructuralPhaseMinimumGain = 0.08;
+constexpr int kIgnoredStructuralPhaseShift = 4;
+constexpr double kMinimumStructuralPhaseResponse = 0.15;
+constexpr double kTransferAxisResidualPenalty = 0.05;
+constexpr int kBorderProjectionMinimumMargin = 2;
+constexpr double kBorderProjectionMarginRatio = 0.06;
+constexpr int kWideTransferPhaseMaximumShift = 12;
+constexpr double kWideTransferPhaseMinimumGain = 0.25;
+constexpr double kTrustedStructureWeight = 0.40;
+constexpr double kTrustedConfidenceWeight = 0.35;
+constexpr double kTrustedConsistencyWeight = 0.25;
+constexpr int kMinimumTrustedCellsWithoutLegacySupport = 2;
+constexpr double kMinimumTrustedStructureWithoutLegacySupport = 0.10;
+constexpr double kLegacyStructureWeight = 0.65;
+constexpr double kLegacyRarityWeight = 0.35;
+constexpr double kRowCompletionSupportRatio = 0.04;
+constexpr std::size_t kSingleObservationCompletionLimit = 2;
+constexpr std::size_t kStableRarityMinimumRows = 3;
 
-bool IsFormal(const cv::Rect& cell, const cv::Rect& roi, double minimum_top_visibility = 0.90, double minimum_bottom_visibility = 0.70)
+bool IsFormal(
+    const cv::Rect& cell,
+    const cv::Rect& roi,
+    double minimum_top_visibility = kDefaultMinimumTopVisibility,
+    double minimum_bottom_visibility = kDefaultMinimumBottomVisibility)
 {
     const cv::Rect intersection = cell & roi;
     if (intersection.empty()) {
@@ -37,7 +77,7 @@ bool IsFormal(const cv::Rect& cell, const cv::Rect& roi, double minimum_top_visi
     const double visible_y = static_cast<double>(intersection.height) / cell.height;
     const bool top_ok = cell.y >= roi.y || visible_y >= minimum_top_visibility;
     const bool bottom_ok = cell.y + cell.height <= roi.y + roi.height || visible_y >= minimum_bottom_visibility;
-    return visible_x >= 0.70 && top_ok && bottom_ok;
+    return visible_x >= kMinimumHorizontalVisibility && top_ok && bottom_ok;
 }
 
 GridLayout DetectSingleLattice(const cv::Mat& image, GridType type, const cv::Rect& roi)
@@ -64,11 +104,19 @@ GridLayout DetectSingleLattice(const cv::Mat& image, GridType type, const cv::Re
     const auto support_x = MedianProjection(gray, true);
     const auto support_y = MedianProjection(gray, false);
     const int pitch_x =
-        EstimatePeriod(x_signal, static_cast<int>(std::floor(profile.pitch_x)) - 8, static_cast<int>(std::ceil(profile.pitch_x)) + 8);
+        EstimatePeriod(
+            x_signal,
+            static_cast<int>(std::floor(profile.pitch_x)) - kSingleLatticePitchSearchRadius,
+            static_cast<int>(std::ceil(profile.pitch_x)) + kSingleLatticePitchSearchRadius);
     const int pitch_y =
-        EstimatePeriod(y_signal, static_cast<int>(std::floor(profile.pitch_y)) - 8, static_cast<int>(std::ceil(profile.pitch_y)) + 8);
-    const auto pitch_range_x = std::pair { pitch_x - 1, pitch_x + 1 };
-    const auto pitch_range_y = std::pair { pitch_y - 1, pitch_y + 1 };
+        EstimatePeriod(
+            y_signal,
+            static_cast<int>(std::floor(profile.pitch_y)) - kSingleLatticePitchSearchRadius,
+            static_cast<int>(std::ceil(profile.pitch_y)) + kSingleLatticePitchSearchRadius);
+    const auto pitch_range_x =
+        std::pair { pitch_x - kSingleLatticePitchTolerance, pitch_x + kSingleLatticePitchTolerance };
+    const auto pitch_range_y =
+        std::pair { pitch_y - kSingleLatticePitchTolerance, pitch_y + kSingleLatticePitchTolerance };
     const int expected_columns = std::max(profile.min_columns, (roi.width - profile.cell_size) / std::max(pitch_x, 1) + 1);
     const int expected_rows = std::max(profile.min_rows, (roi.height - profile.cell_size) / std::max(pitch_y, 1) + 1);
     const AxisSequence x_axis =
@@ -115,8 +163,8 @@ GridLayout DetectSingleLattice(const cv::Mat& image, GridType type, const cv::Re
 
 double CardVerticalPhaseScore(const cv::Mat& gray, int phase_y, double pitch_y, int cell_size, const std::vector<int>& x_starts)
 {
-    const int inset = std::max(6, cvRound(cell_size * 0.08));
-    const int band = std::max(4, cvRound(cell_size * 0.05));
+    const int inset = std::max(kCardMinimumInset, cvRound(cell_size * kCardInsetRatio));
+    const int band = std::max(kCardMinimumBand, cvRound(cell_size * kCardBandRatio));
     std::vector<double> scores;
     for (int row = 0; row < 8; ++row) {
         const int y = cvRound(phase_y + row * pitch_y);
@@ -163,12 +211,14 @@ void RefineCardVerticalPhase(const cv::Mat& image, const cv::Rect& roi, GridType
     const double current_pitch = layout.pitch_y;
     const double current_score = CardVerticalPhaseScore(gray, current_y, current_pitch, layout.cell_size, x_starts);
     const GridProfile profile = ProfileFor(type);
-    const double pitch_min = std::max(profile.pitch_y - 8.0, current_pitch - 1.5);
-    const double pitch_max = std::min(profile.pitch_y + 8.0, current_pitch + 1.5);
+    const double pitch_min =
+        std::max(profile.pitch_y - kCardProfilePitchRadius, current_pitch - kCardCurrentPitchRadius);
+    const double pitch_max =
+        std::min(profile.pitch_y + kCardProfilePitchRadius, current_pitch + kCardCurrentPitchRadius);
     const int phase_stop = std::min(roi.y + roi.height, roi.y + cvRound(current_pitch));
     std::tuple<double, double, double, int, double> best { -1.0, 0.0, 0.0, current_y, current_pitch };
     for (int phase_y = roi.y; phase_y < phase_stop; ++phase_y) {
-        for (double pitch = pitch_min; pitch <= pitch_max + 0.001; pitch += 0.25) {
+        for (double pitch = pitch_min; pitch <= pitch_max + kPitchLoopEpsilon; pitch += kPitchRefinementStep) {
             const auto candidate = std::tuple {
                 CardVerticalPhaseScore(gray, phase_y, pitch, layout.cell_size, x_starts),
                 -std::abs(pitch - current_pitch),
@@ -182,7 +232,7 @@ void RefineCardVerticalPhase(const cv::Mat& image, const cv::Rect& roi, GridType
         }
     }
     const auto [best_score, ignored_pitch, ignored_phase, best_y, best_pitch] = best;
-    if (best_score < current_score + 30.0 || best_score < current_score * 1.20) {
+    if (best_score < current_score + kCardMinimumAbsoluteGain || best_score < current_score * kCardMinimumRelativeGain) {
         return;
     }
     std::vector<int> y_starts;
@@ -430,8 +480,8 @@ std::vector<int> RefineStructuralPhase(
     const std::vector<float>& boundary,
     int offset,
     int cell_size,
-    int maximum_shift = 20,
-    double minimum_gain = 0.08,
+    int maximum_shift = kDefaultStructuralPhaseMaximumShift,
+    double minimum_gain = kDefaultStructuralPhaseMinimumGain,
     bool allow_small_shift = false)
 {
     if (starts.empty()) {
@@ -463,7 +513,8 @@ std::vector<int> RefineStructuralPhase(
         best = std::max(best, std::tuple { score(shift), -std::abs(shift), shift });
     }
     const auto [best_score, ignored, best_shift] = best;
-    if ((!allow_small_shift && std::abs(best_shift) <= 4) || best_score < 0.15 || best_score < current + minimum_gain) {
+    if ((!allow_small_shift && std::abs(best_shift) <= kIgnoredStructuralPhaseShift)
+        || best_score < kMinimumStructuralPhaseResponse || best_score < current + minimum_gain) {
         return starts;
     }
     std::vector<int> result = starts;
@@ -559,7 +610,7 @@ TransferAxisFit FitTransferAxis(
         }
         const double residual = residuals.empty() ? 0.0 : std::accumulate(residuals.begin(), residuals.end(), 0.0) / residuals.size();
         const double evidence = pairs.empty() ? 0.0 : std::accumulate(pairs.begin(), pairs.end(), 0.0) / pairs.size();
-        const double score = evidence - 0.05 * residual;
+        const double score = evidence - kTransferAxisResidualPenalty * residual;
         const auto candidate = std::tuple { score, -residual, -std::abs(phase - phase_center) };
         if (candidate > best) {
             best = candidate, best_phase = phase, best_score = score, best_residual = residual;
@@ -580,7 +631,7 @@ std::vector<float> ProjectCellBorders(
     bool x_axis,
     bool preserve_sign = false)
 {
-    const int margin = std::max(2, cvRound(cell_size * 0.06));
+    const int margin = std::max(kBorderProjectionMinimumMargin, cvRound(cell_size * kBorderProjectionMarginRatio));
     std::vector<std::vector<float>> samples;
     for (int start : orthogonal_starts) {
         const int local = start - offset;
@@ -910,7 +961,14 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
             profile.observed_pitch_tolerance,
             column_count == 4 || column_count == 7);
         if (transfer && column_count >= 7) {
-            local_y = RefineStructuralPhase(local_y, boundary_y, hint.region.y, profile.cell_size, 12, 0.25, true);
+            local_y = RefineStructuralPhase(
+                local_y,
+                boundary_y,
+                hint.region.y,
+                profile.cell_size,
+                kWideTransferPhaseMaximumShift,
+                kWideTransferPhaseMinimumGain,
+                true);
         }
     }
     const cv::Mat cell_score = BuildTransferCellScore(image(roi), profile.cell_size);
@@ -923,8 +981,12 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
         legacy_rarity = static_cast<double>(AlignedTrustedStrips(*trusted_fit, local_x, local_y, profile)) / trusted_fit->supporting_cells;
         const double trusted_structure = NormalizedStructureSupport(cell_score, trusted_fit->x_starts, trusted_fit->y_starts);
         const double trusted_consistency = 0.5 * (trusted_fit->x_axis.confidence + trusted_fit->y_axis.confidence);
-        trusted_candidate_score = 0.40 * trusted_structure + 0.35 * trusted_fit->mean_confidence + 0.25 * trusted_consistency;
-        if (legacy_rarity == 0.0 && (trusted_fit->supporting_cells >= 2 || trusted_structure >= 0.10)) {
+        trusted_candidate_score = kTrustedStructureWeight * trusted_structure
+                                  + kTrustedConfidenceWeight * trusted_fit->mean_confidence
+                                  + kTrustedConsistencyWeight * trusted_consistency;
+        if (legacy_rarity == 0.0
+            && (trusted_fit->supporting_cells >= kMinimumTrustedCellsWithoutLegacySupport
+                || trusted_structure >= kMinimumTrustedStructureWithoutLegacySupport)) {
             local_x = trusted_fit->x_starts;
             local_y = trusted_fit->y_starts;
             trusted_selected = true;
@@ -939,7 +1001,7 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     else {
         rejected_reasons.emplace_back("no-trusted-chromatic-strip");
     }
-    const double legacy_candidate_score = 0.65 * legacy_structure + 0.35 * legacy_rarity;
+    const double legacy_candidate_score = kLegacyStructureWeight * legacy_structure + kLegacyRarityWeight * legacy_rarity;
     if (local_y.size() < static_cast<std::size_t>(profile.maximum_rows)) {
         const auto row_support = [&](int y) {
             double total = 0.0;
@@ -952,14 +1014,14 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
         for (int y : local_y) {
             existing_support = std::max(existing_support, row_support(y));
         }
-        const double minimum_support = existing_support * 0.04;
+        const double minimum_support = existing_support * kRowCompletionSupportRatio;
         std::vector<double> spacings;
         for (std::size_t index = 1; index < local_y.size(); ++index) {
             spacings.push_back(local_y[index] - local_y[index - 1]);
         }
         const int pitch_y = spacings.empty() ? profile.preferred_pitch : static_cast<int>(std::floor(Median(spacings) + 0.5));
         const std::size_t completion_limit = trusted_selected && trusted_fit->y_axis.direct_indices.size() == 1
-                                                 ? std::min<std::size_t>(2, profile.maximum_rows)
+                                                  ? std::min<std::size_t>(kSingleObservationCompletionLimit, profile.maximum_rows)
                                                  : static_cast<std::size_t>(profile.maximum_rows);
         while (local_y.size() < completion_limit) {
             const int following = local_y.back() + std::clamp(pitch_y, profile.pitch_min, profile.pitch_max);
@@ -967,7 +1029,8 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
                 break;
             }
             const bool stable_rarity_lattice =
-                (rarity_fit && rarity_fit->supporting_rows >= 3) || (trusted_selected && trusted_fit->y_axis.direct_indices.size() >= 3);
+                (rarity_fit && rarity_fit->supporting_rows >= static_cast<int>(kStableRarityMinimumRows))
+                || (trusted_selected && trusted_fit->y_axis.direct_indices.size() >= kStableRarityMinimumRows);
             if (!stable_rarity_lattice && (minimum_support <= 0.0 || row_support(following) < minimum_support)) {
                 break;
             }
@@ -1030,7 +1093,7 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
                                                   / trusted_fit->supporting_cells * trusted_fit->mean_confidence
                                             : 0.0;
     const double maximum_residual = std::max(final_x_axis->maximum_residual, final_y_axis->maximum_residual);
-    const double consistency = std::clamp(1.0 - maximum_residual / 2.25, 0.0, 1.0);
+    const double consistency = std::clamp(1.0 - maximum_residual / kMaximumRegularAxisResidual, 0.0, 1.0);
     const double selected_score = trusted_selected ? trusted_candidate_score : legacy_candidate_score;
     const double other_score = trusted_selected ? legacy_candidate_score : trusted_candidate_score;
     layout.selection_diagnostics = GridSelectionDiagnostics {

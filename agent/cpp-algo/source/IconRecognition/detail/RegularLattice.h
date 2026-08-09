@@ -7,6 +7,8 @@
 namespace iconrecognition::detail
 {
 
+inline constexpr double kMaximumRegularAxisResidual = 2.25;
+
 struct LatticeObservation
 {
     double position = 0.0;
@@ -17,7 +19,7 @@ struct LatticeObservation
 struct RegularAxisFit
 {
     double origin = 0.0;
-    double pitch = 69.0;
+    double pitch = 0.0;
     int minimum_index = 0;
     int maximum_index = 0;
     double mean_residual = 0.0;

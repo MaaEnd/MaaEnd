@@ -17,6 +17,10 @@ namespace iconrecognition::detail
 namespace
 {
 
+// 可信色带只在 profile 给出的正式 pitch 区间内细化，不引入独立的 69px 先验。
+constexpr double kTrustedAxisPitchStep = 0.25;
+constexpr double kPitchLoopEpsilon = 1e-9;
+
 struct RarityLine
 {
     int y = 0;
@@ -169,7 +173,7 @@ int RoundedMedian(const std::vector<int>& values)
 struct VerticalBandFit
 {
     int origin = 0;
-    int pitch = 69;
+    int pitch = 0;
     int supporting_rows = 0;
     int supporting_cells = 0;
     int supporting_strong_cells = 0;
@@ -277,7 +281,7 @@ std::optional<RegularAxisFit>
     std::optional<RegularAxisFit> best;
     std::tuple<std::size_t, double, double> best_rank { 0, -1.0, -1.0 };
     for (const auto& seed : observations) {
-        for (double pitch = profile.pitch_min; pitch <= profile.pitch_max + 1e-9; pitch += 0.25) {
+        for (double pitch = profile.pitch_min; pitch <= profile.pitch_max + kPitchLoopEpsilon; pitch += kTrustedAxisPitchStep) {
             std::vector<LatticeObservation> consistent;
             double total_weight = 0.0;
             for (const auto& observation : observations) {

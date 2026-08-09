@@ -38,16 +38,37 @@
 | 信用交易所 | `[70,95,1140,415]` |
 | single ROI 示例 | `[1177,450,54,54]` |
 
+以下示例保留完整 1280x720 截图，并在原图上标出对应 ROI：
+
+![settlement-trade](https://github.com/user-attachments/assets/7e8623ad-61be-4415-add8-c1c2abf95390)
+
+![inventory-transfer](https://github.com/user-attachments/assets/bc1bbea5-5aa4-4421-9ccb-b3de8314688e)
+
+![port-storager](https://github.com/user-attachments/assets/f0fab5de-186d-40df-b212-7b8ae6714103)
+
+![valuables](https://github.com/user-attachments/assets/4121c648-94b8-4032-8afd-3436cf31f99b)
+
+![shipment](https://github.com/user-attachments/assets/61eb016e-13f6-4e5d-80f1-c1d1eecb57d7)
+
+![credit-trade](https://github.com/user-attachments/assets/c4415a7c-56d0-4aa2-bf2e-230bae21211d)
+
+![specific-roi-example](https://github.com/user-attachments/assets/76e7f9d0-ed4e-4feb-b1b4-afbc40ac6003)
+
 除 `single_roi` 外，人工测试使用提交到仓库的 [`test/rois.json`](../test/rois.json) 作为参考 ROI 单一来源。`single_roi` 的坐标由测试目录名提供，例如 `1177-450-54` 表示 `[1177,450,54,54]`。
 
 ## 64px 双侧网格的参数职责
 
 以下参数只用于内部实现和回归测试，调用方不应据此推导 ROI：
 
-- 候选发现使用 `66..74px` 的宽 pitch 范围，负责在弱边缘和局部遮挡下召回左右网格。
-- 69.0px 是 720p 数据先验中心，正式 x/y pitch 都在 `68..70px` 内用浮点全局模型拟合。
+| 名称或来源 | 值 | 职责 |
+| --- | --- | --- |
+| `kTransferDiscoveryPitchRange` | `66..74px` | 只用于弱边缘和局部遮挡下的候选召回，不作为最终 pitch |
+| `TransferGridProfile::preferred_pitch` | `69px` | 720p 数据的 pitch 先验中心 |
+| `TransferGridProfile::pitch_min/max` | `68..70px` | 正式 x/y 浮点全局模型的合法区间；背包右侧五列按 profile 固定为 `69px` |
+| `TransferGridProfile::observed_pitch_tolerance` | `1px` | 容忍粗结构峰的观测量化误差，不扩大最终模型区间 |
+| `kMaximumRegularAxisResidual` | `2.25px` | 最终全局模型允许的最大观测残差 |
+
 - 整数 cell 坐标统一由 `round(origin + index * pitch)` 投影；相邻 68/69/70px 是统一模型的舍入结果，不是逐格可变 pitch。
-- 粗结构峰允许 `1px` 观测误差，但最终模型的最大观测残差不得超过 `2.25px`。
 - 六档 rarity 分别建证据；灰色只辅助已存在的结构候选，不能独立创建晶格。
 - 双侧 64px cell 的可信色带下边界锚定 `cell_top+64px`。条带必须同时满足局部背景对比、连续性、边缘和厚度约束。
 - 单行或单列只有一个直接可信 index 时使用 69.0px 先验，并标记低几何置信；纵向最多允许格框证据再补一行，不能远距离补整片网格。

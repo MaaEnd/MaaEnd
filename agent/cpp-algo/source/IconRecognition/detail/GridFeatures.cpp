@@ -5,6 +5,7 @@
 #include <cmath>
 #include <limits>
 #include <numeric>
+#include <utility>
 
 namespace iconrecognition::detail
 {
@@ -12,8 +13,18 @@ namespace
 {
 
 constexpr double kEpsilon = 1e-8;
+// 下列参数按 720p 网格样本标定，集中定义以保持结构响应口径一致。
+constexpr double kNormalizationPercentile = 99.0;
+constexpr double kProjectionTrimRatio = 0.10;
+constexpr std::array kGradientScales { std::pair { 0.0, 0.6 }, std::pair { 0.8, 0.4 } };
+constexpr double kDiagonalPenaltyWeight = 0.5;
+constexpr int kMinimumSupportLength = 5;
+constexpr double kSupportLengthRatio = 0.5;
+constexpr double kLongEdgeWeight = 0.8;
+constexpr double kLocalEdgeWeight = 0.2;
+constexpr double kOccupiedCellBrightness = 8.0;
 
-cv::Mat normalize_percentile(const cv::Mat& values, double selected_percentile = 99.0)
+cv::Mat normalize_percentile(const cv::Mat& values, double selected_percentile = kNormalizationPercentile)
 {
     std::vector<float> absolute;
     absolute.reserve(values.total());
@@ -37,7 +48,7 @@ std::vector<float> project_trimmed(const cv::Mat& values, bool x_axis)
 {
     const int output_size = x_axis ? values.cols : values.rows;
     const int sample_count = x_axis ? values.rows : values.cols;
-    const int trim = static_cast<int>(sample_count * 0.10);
+    const int trim = static_cast<int>(sample_count * kProjectionTrimRatio);
     std::vector<float> result(output_size);
     std::vector<float> samples(sample_count);
     for (int output = 0; output < output_size; ++output) {
@@ -83,7 +94,7 @@ StructureMaps BuildStructureMaps(const cv::Mat& image, int cell_size)
     cv::Mat signed_y = cv::Mat::zeros(gray.size(), CV_32F);
     cv::Mat absolute_x = cv::Mat::zeros(gray.size(), CV_32F);
     cv::Mat absolute_y = cv::Mat::zeros(gray.size(), CV_32F);
-    for (const auto& [sigma, weight] : std::array<std::pair<double, double>, 2> { std::pair { 0.0, 0.6 }, std::pair { 0.8, 0.4 } }) {
+    for (const auto& [sigma, weight] : kGradientScales) {
         cv::Mat source;
         if (sigma == 0.0) {
             source = gray;
@@ -109,17 +120,17 @@ StructureMaps BuildStructureMaps(const cv::Mat& image, int cell_size)
     cv::min(absolute_x, absolute_y, minimum);
     cv::Mat diagonal_penalty;
     cv::divide(2.0 * minimum, total, diagonal_penalty);
-    cv::Mat vertical_local = absolute_x.mul(vertical_orientation).mul(1.0 - 0.5 * diagonal_penalty);
-    cv::Mat horizontal_local = absolute_y.mul(horizontal_orientation).mul(1.0 - 0.5 * diagonal_penalty);
-    const int support_length = std::max(5, cvRound(cell_size * 0.5));
+    cv::Mat vertical_local = absolute_x.mul(vertical_orientation).mul(1.0 - kDiagonalPenaltyWeight * diagonal_penalty);
+    cv::Mat horizontal_local = absolute_y.mul(horizontal_orientation).mul(1.0 - kDiagonalPenaltyWeight * diagonal_penalty);
+    const int support_length = std::max(kMinimumSupportLength, cvRound(cell_size * kSupportLengthRatio));
     const cv::Mat vertical_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(1, support_length));
     const cv::Mat horizontal_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(support_length, 1));
     cv::Mat vertical_long;
     cv::Mat horizontal_long;
     cv::morphologyEx(vertical_local, vertical_long, cv::MORPH_OPEN, vertical_kernel);
     cv::morphologyEx(horizontal_local, horizontal_long, cv::MORPH_OPEN, horizontal_kernel);
-    cv::Mat vertical = normalize_percentile(0.8 * vertical_long + 0.2 * vertical_local);
-    cv::Mat horizontal = normalize_percentile(0.8 * horizontal_long + 0.2 * horizontal_local);
+    cv::Mat vertical = normalize_percentile(kLongEdgeWeight * vertical_long + kLocalEdgeWeight * vertical_local);
+    cv::Mat horizontal = normalize_percentile(kLongEdgeWeight * horizontal_long + kLocalEdgeWeight * horizontal_local);
     cv::max(vertical, 0.0, vertical);
     cv::max(horizontal, 0.0, horizontal);
     cv::min(diagonal_penalty, 1.0, diagonal_penalty);
@@ -137,7 +148,7 @@ std::vector<float> RobustProjection(const cv::Mat& values, bool x_axis)
     for (float& value : result) {
         value -= minimum;
     }
-    const double scale = Percentile(result, 99.0);
+    const double scale = Percentile(result, kNormalizationPercentile);
     if (scale <= kEpsilon) {
         return std::vector<float>(result.size(), 0.0F);
     }
@@ -201,7 +212,7 @@ double GridOccupancyScore(const cv::Mat& image, const GridLayout& layout)
         else {
             gray = image(clipped);
         }
-        if (cv::mean(gray)[0] > 8.0) {
+        if (cv::mean(gray)[0] > kOccupiedCellBrightness) {
             ++active;
         }
     }

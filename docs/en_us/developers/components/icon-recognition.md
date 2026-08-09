@@ -24,7 +24,7 @@ Use a top-level key from `assets/data/IconRecognition/recognition_items.json` as
                     "item_ids": ["item_copper_ore"],
                     "deduplicate": true
                 },
-                "roi": [155, 205, 970, 280]
+                "roi": [154, 202, 983, 291]
             }
         },
         "action": "DoNothing"
@@ -40,6 +40,8 @@ Omit `item_ids`. The component locates the selected screen's internal grid and r
 
 For `transfer` (inventory and storage) and `port_storager` (portable storage), the ROI may cover both sides or just one side. A full ROI recognizes both grids, while a one-sided ROI recognizes only that side; workflows commonly pass each side separately.
 
+**Performance note: recognition time grows with the number of candidate templates. Prefer `item_filters` to keep the item set as small as the workflow allows, and use `item_ids` when the exact targets are known; avoid unnecessary all-item candidate sets on a single screen.**
+
 ```json
 {
     "ScanTransferItems": {
@@ -51,7 +53,7 @@ For `transfer` (inventory and storage) and `port_storager` (portable storage), t
                     "grid_type": "transfer",
                     "item_filters": ["Normal:*"]
                 },
-                "roi": [155, 205, 970, 280]
+                "roi": [154, 202, 983, 291]
             }
         },
         "action": "DoNothing"
@@ -86,9 +88,21 @@ For `transfer` (inventory and storage) and `port_storager` (portable storage), t
 
 ## Parameters and results
 
-Put the native `roi` in `recognition.param` alongside `custom_recognition`. `custom_recognition_param` must contain `grid_type`; its optional fields are `item_ids`, `item_filters`, `threshold`, `subpixel_threshold`, `deduplicate`, and `debug`.
+Put the native `roi` in `recognition.param` alongside `custom_recognition`, using Maa `[x,y,width,height]` coordinates at the 1280x720 baseline. `custom_recognition_param` must contain `grid_type`.
 
-See the [interface contract](/agent/cpp-algo/source/IconRecognition/docs/architecture.md) for filter categories, per-grid defaults, threshold constraints, item ID lookup, and the complete result schema.
+| Parameter | Required | Default | Description |
+| --- | --- | --- | --- |
+| `grid_type` | Yes | None | Current screen: `trade`, `transfer`, `port_storager`, `valuables`, `shipment`, `credit_trade`, or the temporary `single_roi` mode |
+| `item_ids` | No | Empty | Restricts candidates to top-level catalog item IDs; duplicates are rejected; intersects with `item_filters` when both are present |
+| `item_filters` | No | Per `grid_type` | Uses `storage:category`; multiple filters form a union, and `*` selects every category in that storage |
+| `threshold` | No | `0.85` | Final acceptance threshold; lowering it increases false-positive risk |
+| `subpixel_threshold` | No | `0.60` | Runs subpixel refinement when the base score reaches this value but remains below `threshold`; lower scores are rejected |
+| `deduplicate` | No | `false` | Keeps only the highest-scoring cell for each `item_id` when enabled |
+| `debug` | No | `false` | Saves raw, annotated, and detail files under `exe_dir/../debug/vision/IconRecognition`, retaining the latest 20 groups |
+
+See the [filter category tables in the interface contract](/agent/cpp-algo/source/IconRecognition/docs/architecture.md#item_filters-分类) for every storage, category value, business meaning, and per-`grid_type` default.
+
+The base template score uses masked `TM_CCOEFF_NORMED`; the final `score` combines 85% template score with 15% Lab color score. Thresholds must satisfy `0 <= subpixel_threshold < threshold <= 1`. When recognition is unstable, verify the ROI, settled screen state, and candidate filters before tuning thresholds. See the [interface contract](/agent/cpp-algo/source/IconRecognition/docs/architecture.md) for error codes and the complete result schema.
 
 On a hit, `out_box` equals the primary match's `cell_box`. Component detail contains `detail_version`, `matched`, `grid_type`, `roi`, and `matches`. Each match contains the item ID, localization key, categories, rarity, cell and item boxes, and score. Real-grid matches also contain `row` and `column`. Failures include `error.code` and `error.message`.
 

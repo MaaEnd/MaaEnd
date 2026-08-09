@@ -15,8 +15,8 @@ struct RarityGridFit
 {
     std::vector<int> x_starts;
     int origin = 0;
-    int pitch_x = 69;
-    int pitch = 69;
+    int pitch_x = 0;
+    int pitch = 0;
     int supporting_rows = 0;
     int supporting_cells = 0;
     int supporting_strong_cells = 0;

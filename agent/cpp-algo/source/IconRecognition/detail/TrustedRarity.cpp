@@ -21,6 +21,17 @@ constexpr double kMinimumCoverage = 0.72;
 constexpr double kMinimumContinuity = 0.70;
 constexpr double kMinimumBackgroundDelta = 10.0;
 constexpr double kMinimumEdgeResponse = 7.0;
+// 可信度同时衡量颜色覆盖、连续性、背景对比、边缘和厚度，避免单一高覆盖率接管晶格。
+constexpr double kCoverageConfidenceWeight = 0.30;
+constexpr double kContinuityConfidenceWeight = 0.20;
+constexpr double kBackgroundConfidenceWeight = 0.20;
+constexpr double kEdgeConfidenceWeight = 0.20;
+constexpr double kThicknessConfidenceWeight = 0.10;
+constexpr double kBackgroundDeltaScale = 25.0;
+constexpr double kEdgeResponseScale = 20.0;
+constexpr int kExpectedThickness = 3;
+constexpr double kThicknessDeviationScale = 3.0;
+constexpr double kSingleBackgroundPenalty = 0.85;
 
 cv::Mat ToLab32(const cv::Mat& image)
 {
@@ -136,10 +147,13 @@ std::vector<TrustedRarityStrip> DetectTrustedRarityStrips(const cv::Mat& image, 
             if (!trusted) {
                 continue;
             }
-            double confidence = 0.30 * coverage + 0.20 * continuity + 0.20 * Clamp01(background_delta / 25.0)
-                                + 0.20 * Clamp01(edge_response / 20.0) + 0.10 * Clamp01(1.0 - std::abs(box.height - 3) / 3.0);
+            double confidence = kCoverageConfidenceWeight * coverage + kContinuityConfidenceWeight * continuity
+                                + kBackgroundConfidenceWeight * Clamp01(background_delta / kBackgroundDeltaScale)
+                                + kEdgeConfidenceWeight * Clamp01(edge_response / kEdgeResponseScale)
+                                + kThicknessConfidenceWeight
+                                      * Clamp01(1.0 - std::abs(box.height - kExpectedThickness) / kThicknessDeviationScale);
             if (backgrounds.size() == 1) {
-                confidence *= 0.85;
+                confidence *= kSingleBackgroundPenalty;
             }
             candidates.push_back(TrustedRarityStrip {
                 .box = box,

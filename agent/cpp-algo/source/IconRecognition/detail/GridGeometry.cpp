@@ -16,6 +16,15 @@ constexpr double kPairedBorderWeight = 0.45;
 constexpr double kDirectionalBorderWeight = 0.35;
 constexpr double kContrastWeight = 0.20;
 constexpr double kDiagonalPenaltyWeight = 0.20;
+constexpr double kGapBoundaryPenaltyWeight = 0.30;
+constexpr double kPitchDeviationPenaltyWeight = 0.05;
+constexpr double kInitialAmbiguityWidth = 2.0;
+constexpr double kMinimumAmbiguityWidth = 0.25;
+constexpr double kMaximumAmbiguityWidth = 4.0;
+constexpr double kCurvatureEpsilon = 1e-6;
+constexpr double kEvidenceConfidenceWeight = 0.85;
+constexpr double kMarginConfidenceWeight = 0.15;
+constexpr double kLowConfidenceThreshold = 0.12;
 
 double huber(double value)
 {
@@ -188,8 +197,9 @@ AxisSequence FitSubpixelAxis(
                 for (int index = prior + cell_size + 1; index < start; ++index) {
                     gap += std::abs(boundary_signal[index]), ++gap_count;
                 }
-                const double candidate = quality[offset(prior, count - 1)] + local[start] - (gap_count ? 0.30 * gap / gap_count : 0.0)
-                                         - 0.05 * huber(spacing - expected_pitch);
+                const double candidate = quality[offset(prior, count - 1)] + local[start]
+                                         - (gap_count ? kGapBoundaryPenaltyWeight * gap / gap_count : 0.0)
+                                         - kPitchDeviationPenaltyWeight * huber(spacing - expected_pitch);
                 if (candidate > best_quality) {
                     best_quality = candidate, best_prior = prior;
                 }
@@ -237,7 +247,7 @@ AxisSequence FitSubpixelAxis(
     std::vector<double> ambiguities;
     for (int start : integer_starts) {
         double position = start;
-        double ambiguity = 2.0;
+        double ambiguity = kInitialAmbiguityWidth;
         if (start > 0 && start + 1 < static_cast<int>(local.size())) {
             const double left = local[start - 1];
             const double center = local[start];
@@ -246,7 +256,10 @@ AxisSequence FitSubpixelAxis(
             if (denominator < -kEpsilon) {
                 position += std::clamp(0.5 * (left - right) / denominator, -0.5, 0.5);
                 const double curvature = std::max(-denominator, 0.0);
-                ambiguity = std::clamp(1.0 / std::sqrt(curvature + 1e-6), 0.25, 4.0);
+                ambiguity = std::clamp(
+                    1.0 / std::sqrt(curvature + kCurvatureEpsilon),
+                    kMinimumAmbiguityWidth,
+                    kMaximumAmbiguityWidth);
             }
         }
         position += 0.5;
@@ -261,8 +274,9 @@ AxisSequence FitSubpixelAxis(
     const double evidence = std::accumulate(sequence.local_scores.begin(), sequence.local_scores.end(), 0.0) / sequence.local_scores.size();
     sequence.ambiguity_width = std::accumulate(ambiguities.begin(), ambiguities.end(), 0.0) / ambiguities.size();
     sequence.best_vs_second_margin = margin;
-    sequence.confidence = std::clamp(0.85 * evidence + 0.15 * std::min(margin, 1.0), 0.0, 1.0);
-    sequence.low_confidence = sequence.confidence < 0.12;
+    sequence.confidence =
+        std::clamp(kEvidenceConfidenceWeight * evidence + kMarginConfidenceWeight * std::min(margin, 1.0), 0.0, 1.0);
+    sequence.low_confidence = sequence.confidence < kLowConfidenceThreshold;
     return sequence;
 }
 
