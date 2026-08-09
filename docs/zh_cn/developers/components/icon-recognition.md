@@ -4,9 +4,9 @@
 
 调用方提供 1280x720 基准下的 Maa ROI `[x,y,width,height]`。截图或识别前，建议先将鼠标移动到不会遮挡物品网格的位置（例如左上角），再等待目标区域画面稳定。
 
-## 三种用法
+## Pipeline 调用
 
-三种用法共享注册名 `IconRecognition` 和同一套参数。
+三种识别方式共享注册名 `IconRecognition` 和同一套参数。
 
 ### 按物品 ID 查找位置
 
@@ -86,31 +86,6 @@
 
 54x54 只是该界面的示例。组件会将内置的 128 或 256 原图缩放到请求 ROI 边长，调用方不需要提供图标资源。
 
-## 参数与返回值
-
-原生 `roi` 写在 `recognition.param` 中，与 `custom_recognition` 同级，使用 1280x720 基准下的 Maa `[x,y,width,height]`；`custom_recognition_param` 必须包含 `grid_type`。
-
-| 参数 | 必填 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `grid_type` | 是 | 无 | 当前界面：`trade` 据点交易、`transfer` 背包和仓库、`port_storager` 便捷存取站、`valuables` 贵重品库、`shipment` 送货、`credit_trade` 信用交易所、`single_roi` 临时单格 |
-| `item_ids` | 否 | 空 | 限定为 catalog 顶层物品 ID；不得重复；与 `item_filters` 同时提供时取交集 |
-| `item_filters` | 否 | 由 `grid_type` 决定 | 使用“库:分类”，多个条件取并集，`*` 表示该库的全部分类 |
-| `threshold` | 否 | `0.85` | 最终接受阈值；降低会增加误识别风险 |
-| `subpixel_threshold` | 否 | `0.60` | 基础分达到该值但低于 `threshold` 时执行亚像素精排；低于该值直接拒识 |
-| `deduplicate` | 否 | `false` | 是否只保留每个 `item_id` 分数最高的 cell |
-| `debug` | 否 | `false` | 是否保存原图、标注图和 detail 到 `exe_dir/../debug/vision/IconRecognition`，只保留最近 20 组 |
-
-`item_filters` 的完整库、分类取值、业务含义和各 `grid_type` 默认候选见[接口与数据契约中的分类表](/agent/cpp-algo/source/IconRecognition/docs/architecture.md#item_filters-分类)。
-
-基础模板分使用带 mask 的 `TM_CCOEFF_NORMED`，最终 `score` 为模板分的 85% 与 Lab 颜色分的 15% 之和。阈值必须满足 `0 <= subpixel_threshold < threshold <= 1`。识别不稳定时应先确认 ROI、画面稳定性和候选分类是否正确，再考虑调整阈值。完整错误码和结果契约见[接口与数据契约](/agent/cpp-algo/source/IconRecognition/docs/architecture.md)。
-
-命中时 `out_box` 等于最高优先级结果的 `cell_box`。组件 detail 包含：
-
-- `detail_version`、`matched`、`grid_type`、`roi`；
-- `matches[]` 中的 `item_id`、多语言 `name` key、分类、稀有度、`cell_box`、`item_box`、`score`；
-- 真实网格结果另含 `row`、`column`；
-- 失败时的 `error.code`、`error.message`。
-
 ## Go Service 调用
 
 Go Service 通过 `ctx.RunRecognitionDirect` 调用注册名 `IconRecognition`，原生 ROI 设置在 `CustomRecognitionParam.ROI`。MaaFramework 的 `DetailJson` 是外层包装，组件结果位于 `best.detail`：
@@ -175,6 +150,38 @@ func recognizeIcons(ctx *maa.Context, img image.Image) (iconDetail, error) {
     return result, nil
 }
 ```
+
+Go 的 `CustomRecognitionParam` 与 Pipeline 使用相同的 `grid_type`、`item_ids`、`item_filters`、阈值和去重语义；只有原生 ROI 改由 `CustomRecognitionParam.ROI` 提供。
+
+## C++ API 调用
+
+C++ 可直接构造 `IconRecognizer`，不经过 Maa Custom Recognition 注册。`data_root` 指向 `assets/data/IconRecognition`，请求参数集中在 `RecognitionRequest`：
+
+```cpp
+iconrecognition::IconRecognizer recognizer("assets/data/IconRecognition");
+if (!recognizer.initialize()) {
+    return;
+}
+
+iconrecognition::RecognitionRequest request;
+request.grid_type = iconrecognition::GridType::Transfer;
+request.roi = cv::Rect(154, 202, 983, 291);
+request.candidates.item_ids = { "item_copper_ore" };
+request.deduplicate = true;
+
+// 并发识别前可选预热；不调用时会在识别过程中按需准备模板。
+if (!recognizer.preload({ request })) {
+    return;
+}
+
+const iconrecognition::RecognitionResult result = recognizer.recognize(image, request);
+```
+
+C++ 的 `request.candidates.item_ids` / `item_filters` 对应 Pipeline 和 Go 的同名参数；`RecognitionResult` 与 Custom detail 使用同一结果字段语义，但以 C++ 结构体而不是 JSON 包装返回。
+
+## 通用参数与返回值
+
+三个调用入口共用同一识别语义。Pipeline 将原生 ROI 写在 `recognition.param.roi`，Go 使用 `CustomRecognitionParam.ROI`，C++ 使用 `RecognitionRequest.roi`；其余参数、默认值、`storageKind:categoryType` 分类、阈值约束、结果字段、错误码和 debug 输出统一见[参数与数据契约](/agent/cpp-algo/source/IconRecognition/docs/architecture.md)。
 
 ## 测试与实现
 

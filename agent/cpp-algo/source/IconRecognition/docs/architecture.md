@@ -1,91 +1,28 @@
-# 接口与数据契约
+# 参数与数据契约
 
-## 统一 C++ API
+本文档只定义 Pipeline、Go Service 和 C++ API 共用的识别参数、catalog 分类与返回数据语义。三种入口的调用示例见[开发者使用指南](/docs/zh_cn/developers/components/icon-recognition.md)；内部网格与匹配流程见[识别算法](algorithm.md)，界面网格参数和参考 ROI 见[网格类型与参考 ROI](grid-profiles.md)。
 
-`IconRecognition` 只公开一个识别方法。`grid_type` 决定如何取得待识别格子，`item_ids` 决定是否限制到指定物品。
+## 通用识别参数
 
-```cpp
-iconrecognition::IconRecognizer recognizer("assets/data/IconRecognition");
-if (!recognizer.initialize()) {
-    return;
-}
+三个入口使用相同的逻辑字段，但承载位置不同：
 
-iconrecognition::RecognitionRequest request;
-request.grid_type = iconrecognition::GridType::Transfer;
-request.roi = cv::Rect(154, 202, 983, 291); // Maa [x,y,width,height]
-request.candidates.item_ids = { "item_copper_ore" };
-
-const iconrecognition::RecognitionResult result = recognizer.recognize(image, request);
-```
-
-同一个 `recognize(image, request)` 支持三种用法：
-
-| 用法 | 请求差异 | 返回 |
-| --- | --- | --- |
-| 按物品 ID 找位置 | 使用真实界面的 `grid_type`，设置 `item_ids` | 指定物品在网格中的所有接受结果 |
-| 识别 ROI 内所有物品 | 使用真实界面的 `grid_type`，不设置 `item_ids` | 网格内所有接受结果 |
-| 识别单个正方形 ROI | `grid_type=SingleRoi` | 跳过网格检测，把 ROI 构造成一个临时 cell，最多返回一项 |
-
-`single_roi` 与其它类型共用候选选择、内置图标缩放、匹配、阈值和结果排序逻辑，仅省略真实网格检测及界面专用门控。
-
-`preload(requests)` 可在并发识别前按请求集合准备模板尺寸。模板 catalog 仍由 `IconRecognizer` 管理；预热不执行网格检测或图标匹配，也不改变后续 `recognize()` 的结果。
-
-真实网格在逐 cell 排名前调用 `RarityClassifier`，再由 `RarityCandidates` 把模板索引拆成同 rarity 首轮和其余 rarity 回退轮。两个索引集合互斥且并集等于原候选集合；首轮未达到接受阈值时只追加回退轮，并基于合并后的全量基础分统一完成排序和亚像素精排。`single_roi` 保持一次全量候选排名。
-
-## 64px 双侧网格内部职责
-
-`transfer` 与 `port_storager` 的内部定位拆成四个可独立验证的职责：
-
-- `RarityClassifier` 保存 rarity 1..6 六个颜色通道的逐行覆盖，不提前压成单一最大值；
-- `RarityCandidates` 根据可靠 rarity 生成互斥的首轮与回退模板索引，不执行图像判断；
-- `TrustedRarity` 只提取通过颜色覆盖、水平连续性、上下局部背景对比、双边缘和厚度硬约束的窄条；
-- `RegularLattice` 只拟合单轴 `origin + index * pitch`，不读取界面类型，也不从前一格递增坐标；
-- `GridDetector` 比较独立可信色带候选与现有结构候选，最终统一投影为一个 x/y 全局晶格。
-
-灰色 rarity 仍作为证据保留，但不能独立创建候选。可信 chromatic 色带与结构候选一致时保留结构范围；两者冲突时，色带候选还必须获得直接格框支持或多个可信格支持才可接管。没有任何最终全局模型能解释证据时，网格检测抛出异常并沿用 `RecognitionResult.error` 转换。
-
-网格选择分数、origin/pitch、残差、六色可信格数量和 fallback 原因只进入内部 diagnostics，供回归与人工审核使用，不是 Pipeline 或 Custom 调用方的稳定业务分支契约。
-
-## Custom Recognition 参数
-
-Maa 注册名为 `IconRecognition`。调用节点的原生 `roi` 写在 `recognition.param` 中，与 `custom_recognition` 同级；`custom_recognition_param` 必须是 JSON 对象并包含 `grid_type`。
+- Pipeline 将组件字段写入 `custom_recognition_param`，注册名为 `IconRecognition`；
+- Go Service 将组件字段写入 `CustomRecognitionParam.CustomRecognitionParam`，原生 ROI 使用 `CustomRecognitionParam.ROI`；
+- C++ 将字段写入 `RecognitionRequest`，其中 `item_ids` 和 `item_filters` 位于 `request.candidates`。
 
 | 字段 | 类型 | 必选 | 默认值 | 说明 |
 | --- | --- | --- | --- | --- |
-| `grid_type` | string | 是 | 无 | 当前界面：`trade` 据点交易、`transfer` 背包和仓库、`port_storager` 便捷存取站、`valuables` 贵重品库、`shipment` 送货、`credit_trade` 信用交易所、`single_roi` 临时单格 |
+| `grid_type` | string / `GridType` | Custom 是；C++ 建议显式设置 | Custom 无；C++ `Transfer` | 选择当前界面的网格定位策略；合法取值、界面含义和参考 ROI 见[网格类型与参考 ROI](grid-profiles.md) |
 | `item_ids` | string[] | 否 | `[]` | 只保留指定物品候选；多个 ID 取并集，不能重复 |
-| `item_filters` | string[] | 否 | 由 `grid_type` 决定 | `storageKind:categoryType`；多个条件取并集，`*` 匹配该 storage 下全部分类 |
+| `item_filters` | string[] | 否 | 由 `grid_type` 决定 | 使用 `storageKind:categoryType`，两部分直接对应 catalog 同名字段；多个条件取并集，`*` 匹配该 `storageKind` 下全部分类；完整取值见[分类表](#item_filters-分类) |
 | `threshold` | number | 否 | `0.85` | 最终接受阈值 |
 | `subpixel_threshold` | number | 否 | `0.60` | 基础分达到该值但低于 `threshold` 时进行亚像素精排 |
 | `deduplicate` | boolean | 否 | `false` | 同一个 `item_id` 在多个 cell 命中时只保留分数最高的一项；不同物品分别保留 |
-| `debug` | boolean | 否 | `false` | Custom 入口保存原图、标注图和内部诊断 JSON |
+| `debug` | boolean | 否 | `false` | 启用性能与内部诊断；Pipeline 和 Go 使用的 Custom 入口还会保存 debug 文件 |
 
-原生 `roi` 使用 Maa `[x,y,width,height]`，基准分辨率为 1280x720，宽高必须为正；`single_roi` 还要求 ROI 宽高相等且完全位于图片内。`item_ids` 与 `item_filters` 同时提供时取交集；ID 不存在或被过滤器排除会返回明确错误。
+原生 `roi` 在 Pipeline 中写入 `recognition.param.roi`，在 Go 中使用 `CustomRecognitionParam.ROI`，在 C++ 中使用 `RecognitionRequest.roi`。三者均采用 1280x720 基准下的 Maa `[x,y,width,height]` 语义，宽高必须为正；`single_roi` 还要求 ROI 宽高相等且完全位于图片内。`item_ids` 与 `item_filters` 同时提供时取交集；ID 不存在或被过滤器排除会返回明确错误。
 
 基础模板分使用带 mask 的 `TM_CCOEFF_NORMED`，最终 `score` 为模板分的 85% 与 Lab 颜色分的 15% 之和。阈值必须满足 `0 <= subpixel_threshold < threshold <= 1`：基础分低于 `subpixel_threshold` 时直接拒识；位于两个阈值之间时执行亚像素精排；最终分达到 `threshold` 且未被界面门控拒绝时才进入 `matches`。降低 `threshold` 会增加误识别风险，应先检查 ROI、画面稳定性和候选分类。
-
-完整 Pipeline 参数示例：
-
-```jsonc
-{
-    "recognition": {
-        "type": "Custom",
-        "param": {
-            "roi": [154, 202, 983, 291],
-            "custom_recognition": "IconRecognition",
-            "custom_recognition_param": {
-                "grid_type": "transfer",
-                "item_ids": ["item_copper_ore"],
-                "item_filters": ["Normal:Ore"],
-                "threshold": 0.85,
-                "subpixel_threshold": 0.6,
-                "deduplicate": false,
-                "debug": false
-            }
-        }
-    }
-}
-```
 
 ### item ID 从哪里获取
 
@@ -107,17 +44,19 @@ Maa 注册名为 `IconRecognition`。调用节点的原生 `roi` 写在 `recogni
 
 ### item_filters 分类
 
-过滤器用于缩小内置图标候选集合，能减少计算量和相似图标误判；它不会改变网格位置或匹配算法。格式为 `storageKind:categoryType`。
+过滤器用于缩小内置图标候选集合，能减少计算量和相似图标误判；它不会改变网格位置或匹配算法。格式为 `storageKind:categoryType`：冒号前后两部分分别对应 [`recognition_items.json`](/assets/data/IconRecognition/recognition_items.json) 中每条物品记录的 `storageKind` 和 `categoryType` 字段。
 
-#### 贵重品库（`ValuableDepot`）
+`storageKind` 表示物品所属的存储类别：
 
-| `categoryType` | 含义 |
+| `storageKind` | 含义 |
 | --- | --- |
-| `Weapon` | 武器 |
-| `CommercialItem` | 珍贵物品 |
-| `SpecialItem` | 培养素材 |
+| `Normal` | 普通物品 |
+| `ValuableDepot` | 贵重品库 |
+| `Isolate` | 货币 |
 
-#### 普通物品（`Normal`）
+每个 `storageKind` 可使用的 `categoryType` 如下。
+
+#### `Normal`（普通物品）
 
 | `categoryType` | 含义 |
 | --- | --- |
@@ -130,7 +69,15 @@ Maa 注册名为 `IconRecognition`。调用节点的原生 `roi` 写在 `recogni
 | `Producer` | 生产工具 |
 | `PortableDevice` | 随身装置 |
 
-#### 货币（`Isolate`）
+#### `ValuableDepot`（贵重品库）
+
+| `categoryType` | 含义 |
+| --- | --- |
+| `Weapon` | 武器 |
+| `CommercialItem` | 珍贵物品 |
+| `SpecialItem` | 培养素材 |
+
+#### `Isolate`（货币）
 
 | `categoryType` | 含义 |
 | --- | --- |

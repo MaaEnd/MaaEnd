@@ -4,9 +4,9 @@
 
 Provide a Maa ROI in 1280x720 coordinates as `[x,y,width,height]`. Before capturing or recognizing a frame, move the cursor somewhere that does not cover the item grid, such as the top-left corner, and wait for the target region to settle.
 
-## Usage
+## Pipeline
 
-All calls use the `IconRecognition` registration and the same parameter object.
+All three recognition modes use the `IconRecognition` registration and the same parameter object.
 
 ### Find an item by ID
 
@@ -86,29 +86,57 @@ For `transfer` (inventory and storage) and `port_storager` (portable storage), t
 
 54x54 is only an example for this screen. The component resizes its built-in 128px or 256px icons to the requested ROI size; callers do not provide icon assets.
 
-## Parameters and results
-
-Put the native `roi` in `recognition.param` alongside `custom_recognition`, using Maa `[x,y,width,height]` coordinates at the 1280x720 baseline. `custom_recognition_param` must contain `grid_type`.
-
-| Parameter | Required | Default | Description |
-| --- | --- | --- | --- |
-| `grid_type` | Yes | None | Current screen: `trade`, `transfer`, `port_storager`, `valuables`, `shipment`, `credit_trade`, or the temporary `single_roi` mode |
-| `item_ids` | No | Empty | Restricts candidates to top-level catalog item IDs; duplicates are rejected; intersects with `item_filters` when both are present |
-| `item_filters` | No | Per `grid_type` | Uses `storage:category`; multiple filters form a union, and `*` selects every category in that storage |
-| `threshold` | No | `0.85` | Final acceptance threshold; lowering it increases false-positive risk |
-| `subpixel_threshold` | No | `0.60` | Runs subpixel refinement when the base score reaches this value but remains below `threshold`; lower scores are rejected |
-| `deduplicate` | No | `false` | Keeps only the highest-scoring cell for each `item_id` when enabled |
-| `debug` | No | `false` | Saves raw, annotated, and detail files under `exe_dir/../debug/vision/IconRecognition`, retaining the latest 20 groups |
-
-See the [filter category tables in the interface contract](/agent/cpp-algo/source/IconRecognition/docs/architecture.md#item_filters-分类) for every storage, category value, business meaning, and per-`grid_type` default.
-
-The base template score uses masked `TM_CCOEFF_NORMED`; the final `score` combines 85% template score with 15% Lab color score. Thresholds must satisfy `0 <= subpixel_threshold < threshold <= 1`. When recognition is unstable, verify the ROI, settled screen state, and candidate filters before tuning thresholds. See the [interface contract](/agent/cpp-algo/source/IconRecognition/docs/architecture.md) for error codes and the complete result schema.
-
-On a hit, `out_box` equals the primary match's `cell_box`. Component detail contains `detail_version`, `matched`, `grid_type`, `roi`, and `matches`. Each match contains the item ID, localization key, categories, rarity, cell and item boxes, and score. Real-grid matches also contain `row` and `column`. Failures include `error.code` and `error.message`.
-
 ## Go Service
 
-Go services call the `IconRecognition` registration through `ctx.RunRecognitionDirect`, using `maa.RecognitionTypeCustom` and `maa.CustomRecognitionParam`. Set the native ROI through `CustomRecognitionParam.ROI`; keep component-specific fields in `CustomRecognitionParam`. MaaFramework wraps Custom detail, so parse the component payload from `best.detail`. The Chinese guide includes a complete Go example.
+Go services call the `IconRecognition` registration through `ctx.RunRecognitionDirect`. Set the native ROI through `CustomRecognitionParam.ROI` and keep component-specific fields in `CustomRecognitionParam`:
+
+```go
+detail, err := ctx.RunRecognitionDirect(
+    maa.RecognitionTypeCustom,
+    &maa.CustomRecognitionParam{
+        ROI:                maa.NewTargetRect(maa.Rect{154, 202, 983, 291}),
+        CustomRecognition: "IconRecognition",
+        CustomRecognitionParam: map[string]any{
+            "grid_type":  "transfer",
+            "item_ids":   []string{"item_copper_ore"},
+            "deduplicate": true,
+        },
+    },
+    img,
+)
+```
+
+MaaFramework wraps Custom detail, so parse the component payload from `best.detail`. Go uses the same `grid_type`, candidate filters, thresholds, and deduplication semantics as Pipeline.
+
+## C++ API
+
+C++ callers can construct `IconRecognizer` directly without going through the Maa Custom Recognition registration. Point `data_root` at `assets/data/IconRecognition` and place request fields in `RecognitionRequest`:
+
+```cpp
+iconrecognition::IconRecognizer recognizer("assets/data/IconRecognition");
+if (!recognizer.initialize()) {
+    return;
+}
+
+iconrecognition::RecognitionRequest request;
+request.grid_type = iconrecognition::GridType::Transfer;
+request.roi = cv::Rect(154, 202, 983, 291);
+request.candidates.item_ids = { "item_copper_ore" };
+request.deduplicate = true;
+
+// Optional warm-up before concurrent recognition.
+if (!recognizer.preload({ request })) {
+    return;
+}
+
+const iconrecognition::RecognitionResult result = recognizer.recognize(image, request);
+```
+
+`request.candidates.item_ids` and `item_filters` correspond to the same-named Pipeline and Go parameters. `RecognitionResult` uses the same field semantics as Custom detail but returns C++ structures instead of a JSON wrapper.
+
+## Shared parameters and results
+
+All three entry points share one recognition contract. Pipeline uses `recognition.param.roi`, Go uses `CustomRecognitionParam.ROI`, and C++ uses `RecognitionRequest.roi`. See the [parameter and data contract](/agent/cpp-algo/source/IconRecognition/docs/architecture.md) for all remaining parameters, defaults, `storageKind:categoryType` filters, threshold constraints, result fields, error codes, and debug output.
 
 ## References
 

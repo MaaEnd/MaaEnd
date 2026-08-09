@@ -943,7 +943,7 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
         }
         const int pitch_y = spacings.empty() ? profile.preferred_pitch : static_cast<int>(std::floor(Median(spacings) + 0.5));
         const std::size_t completion_limit = trusted_selected && trusted_fit->y_axis.direct_indices.size() == 1
-                                                  ? std::min<std::size_t>(kSingleObservationCompletionLimit, profile.maximum_rows)
+                                                 ? std::min<std::size_t>(kSingleObservationCompletionLimit, profile.maximum_rows)
                                                  : static_cast<std::size_t>(profile.maximum_rows);
         while (local_y.size() < completion_limit) {
             const int following = local_y.back() + std::clamp(pitch_y, profile.pitch_min, profile.pitch_max);

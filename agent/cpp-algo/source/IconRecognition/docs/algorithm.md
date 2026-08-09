@@ -8,6 +8,14 @@
 
 网格检测只负责组件内部定位。调用方不依赖内部 lattice、分区或边界拟合数据，只消费公开的 `cell_box`、`item_box`、行列和分数。
 
+双侧网格的内部职责由五个组件分担：
+
+- `RarityClassifier` 保存 rarity 1..6 六个颜色通道的逐行覆盖，不提前压成单一最大值；
+- `RarityCandidates` 根据可靠 rarity 生成互斥的首轮与回退模板索引，不执行图像判断；
+- `TrustedRarity` 只提取通过颜色覆盖、水平连续性、上下局部背景对比、双边缘和厚度硬约束的窄条；
+- `RegularLattice` 只拟合单轴 `origin + index * pitch`，不读取界面类型，也不从前一格递增坐标；
+- `GridDetector` 比较独立可信色带候选与现有结构候选，最终统一投影为一个 x/y 全局晶格。
+
 ### 双侧 64px 网格
 
 `transfer` 和 `port_storager` 的定位分为六层：
@@ -15,7 +23,7 @@
 1. 格框结构响应召回左右区域和 legacy 晶格；
 2. 在 Lab 空间分别计算 rarity 1..6 六个颜色通道，不要求同一行物品颜色一致；
 3. 对每个颜色 mask 提取窄条，依次检查宽度、厚度、覆盖率、最长水平连续段、上下局部背景色差和双边缘；
-4. chromatic 可信条独立产生 x 与 `band_bottom-64` 的加权观测，拟合 `origin + index * pitch` 全局晶格；
+4. chromatic 可信条独立产生 x 与 `band_bottom - rarity_anchor_offset` 的加权观测，拟合 `origin + index * pitch` 全局晶格；
 5. 比较可信候选与 legacy 候选的色带一致性和直接格框支持；
 6. 对最终 x/y starts 再做一次全局拟合并重新投影，同时写入网格级 diagnostics。
 
