@@ -373,7 +373,7 @@ func (sa *ScreenAnalyzer) GetEndSkillFull(unused bool) []int {
 
 func (sa *ScreenAnalyzer) GetCharacterSelect() int {
 	for idx := 1; idx <= 4; idx++ {
-		if sa.hasLabelInFrames(LabelCharacterSelect, 3, false, characterRegions[idx-1]) {
+		if sa.hasLabelInFrames(LabelCharacterSelect, 5, false, characterRegions[idx-1]) {
 			return idx
 		}
 	}
