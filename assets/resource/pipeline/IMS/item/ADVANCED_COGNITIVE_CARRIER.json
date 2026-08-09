@@ -99,7 +99,8 @@
                 ],
                 "expected": [
                     "^\\d+$"
-                ]
+                ],
+                "only_rec": true
             }
         },
         "pre_delay": 0,
