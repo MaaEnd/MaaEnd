@@ -71,7 +71,15 @@
         },
         "next": [
             "AutoCollectCommonRoute5GotoFind1"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute5GotoFind1": {
         "desc": "采集点1",
@@ -95,7 +103,15 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute5GotoFindCollect1": {
         "anchor": {
@@ -127,7 +143,15 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute5GotoFindCollect2": {
         "anchor": {
@@ -159,7 +183,15 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute5GotoFindCollect3": {
         "anchor": {
@@ -191,7 +223,15 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectCommonRoute5GotoFindCollect4": {
         "anchor": {

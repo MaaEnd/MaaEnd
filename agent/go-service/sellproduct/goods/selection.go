@@ -60,7 +60,11 @@ func selectGoodsTarget(
 	}
 	if pending != "" {
 		if observation, visible := observations[pending]; visible && stockCandidateAvailable(observation) {
-			if _, selectable := selector.Select([]sellstrategy.Candidate{observation}); selectable {
+			if _, selectable := selectGoodsCandidate(
+				selector,
+				[]sellstrategy.Candidate{observation},
+				policy.Preferred,
+			); selectable {
 				return pending, recognized
 			}
 		}
@@ -99,7 +103,7 @@ func stockCandidateAvailable(candidate sellstrategy.Candidate) bool {
 	return !candidate.StockKnown || candidate.Stock > 0
 }
 
-// selectGoodsCandidate 先按用户配置顺序尝试策略允许的优先货品，
+// selectGoodsCandidate 先按用户配置顺序选择可用优先货品，不应用选品策略；
 // 没有可用优先货品时再由策略从全部公共候选中选择。
 func selectGoodsCandidate(
 	selector sellstrategy.Selector,
@@ -115,9 +119,7 @@ func selectGoodsCandidate(
 		if !ok {
 			continue
 		}
-		if selected, ok := selector.Select([]sellstrategy.Candidate{candidate}); ok {
-			return selected, true
-		}
+		return candidate, true
 	}
 	return selector.Select(candidates)
 }

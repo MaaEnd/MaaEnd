@@ -1,0 +1,22 @@
+{
+    "InShop": {
+        "desc": "在采购中心界面内",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    240,
+                    100
+                ],
+                "expected": [
+                    "采购中心"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

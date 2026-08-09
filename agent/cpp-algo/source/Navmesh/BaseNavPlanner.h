@@ -40,6 +40,9 @@ struct BaseNavRouteRequest
     // floor and the goal onto the declared target frame's floor. Unset -> falls back to `floor_y`.
     float start_floor_y = kBaseNavFloorYNone;
     float goal_floor_y = kBaseNavFloorYNone;
+    // Height of the overlapping deck the goal sits on. floor_y steers the snap; this steers which span the
+    // search must stop on. Unset -> the search keeps its full span set.
+    float goal_deck_y = kBaseNavFloorYNone;
 };
 
 enum class BaseNavRouteStatus
@@ -75,8 +78,10 @@ public:
     bool pointOnMesh(uint16_t zone_id, const WorldPoint& point) const;
 
     // Height-continuity drivability of a straight route leg: the oracle the waypoint emitter uses to
-    // decide whether a collapsed straight leg stays on walkable mesh.
-    bool isRouteSegmentDrivable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b) const;
+    // decide whether a collapsed straight leg stays on walkable mesh. `half_width` gives the leg a body:
+    // both flanks must hold up too, so a line a dimensionless point could thread is rejected on behalf of
+    // a character that has width. Zero keeps the bare centre-line test.
+    bool isRouteSegmentDrivable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b, double half_width = 0.0) const;
 
     // RecastNav 复用
     const std::vector<uint32_t>& adjacencyOffsets() const { return adjacency_offsets_; }

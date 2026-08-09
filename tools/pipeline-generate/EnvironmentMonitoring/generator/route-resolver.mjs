@@ -9,6 +9,7 @@ export const ROUTE_CONFIG_FIELDS = [
     "MapPath",
     "MapTarget",
     "MapTargetTier",
+    "MapTargetDeckY",
     "MapGoal",
     "CameraSwipeDirection",
     "CameraMaxHit",
@@ -41,7 +42,7 @@ export function collectMissingRouteFields(route) {
         hasMapGoal,
     ].filter(Boolean).length;
     const isDirectPhoto = !hasMapAssert && navigationConfigCount === 0;
-    const canSkipMapAssert = quickTeleport && navigationConfigCount === 1 && (hasMapTarget || hasMapGoal);
+    const canSkipMapAssert = quickTeleport && navigationConfigCount === 1;
     const missingFields = [];
 
     if (!quickTeleport && isFieldMissing(route.EnterMap)) {
@@ -55,6 +56,7 @@ export function collectMissingRouteFields(route) {
         const unusedDirectPhotoFields = [
             "MapName",
             "MapTargetTier",
+            "MapTargetDeckY",
             "NoEnsureInitialMovementState",
         ].filter((field) => !isFieldMissing(route[field]));
         if (unusedDirectPhotoFields.length > 0) {
@@ -78,6 +80,10 @@ export function collectMissingRouteFields(route) {
         missingFields.push("MapTargetTier 仅可与 MapTarget 同时使用");
     }
 
+    if (!isFieldMissing(route.MapTargetDeckY) && !hasMapTarget) {
+        missingFields.push("MapTargetDeckY 仅可与 MapTarget 同时使用");
+    }
+
     return missingFields;
 }
 
@@ -99,6 +105,7 @@ const UNREACHABLE_ROUTE_PLACEHOLDER = {
     ],
     MapTarget: null,
     MapTargetTier: null,
+    MapTargetDeckY: null,
     MapGoal: null,
     CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
 };
@@ -161,6 +168,7 @@ function buildNavigationParams({
     MapPath,
     MapTarget,
     MapTargetTier,
+    MapTargetDeckY,
     MapGoal,
     NoEnsureInitialMovementState,
     hasMapTarget,
@@ -222,6 +230,7 @@ function buildNavigationParams({
                         action: "NAVMESH",
                         target: MapTarget,
                         ...(!isFieldMissing(MapTargetTier) ? {target_tier: MapTargetTier} : {}),
+                        ...(!isFieldMissing(MapTargetDeckY) ? {target_deck_y: MapTargetDeckY} : {}),
                     },
                     ...(heading.HasHeading
                         ? [
@@ -273,7 +282,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                 hasMapGoal,
             ].filter(Boolean).length;
             const isDirectPhoto = isFieldMissing(override?.MapAssert) && navigationConfigCount === 0;
-            const canSkipMapAssert = QuickTeleport && navigationConfigCount === 1 && (hasMapTarget || hasMapGoal);
+            const canSkipMapAssert = QuickTeleport && navigationConfigCount === 1;
 
             const resolved = {};
             const missingFields = collectMissingRouteFields(override);
@@ -309,6 +318,10 @@ export function createRouteResolver(routeConfig, options = {}) {
                 navigationConfigCount === 1 && hasMapTarget && !isFieldMissing(override?.MapTargetTier)
                     ? override.MapTargetTier
                     : UNREACHABLE_ROUTE_PLACEHOLDER.MapTargetTier;
+            const MapTargetDeckY =
+                navigationConfigCount === 1 && hasMapTarget && !isFieldMissing(override?.MapTargetDeckY)
+                    ? override.MapTargetDeckY
+                    : UNREACHABLE_ROUTE_PLACEHOLDER.MapTargetDeckY;
             const MapGoal =
                 navigationConfigCount === 1 && hasMapGoal ? override.MapGoal : UNREACHABLE_ROUTE_PLACEHOLDER.MapGoal;
             const CameraMaxHit = override?.CameraMaxHit ?? CAMERA_MAX_HIT_DEFAULT;
@@ -339,6 +352,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                 MapPath,
                 MapTarget,
                 MapTargetTier,
+                MapTargetDeckY,
                 MapGoal,
                 CameraSwipeDirection,
                 CameraMaxHit,
@@ -346,7 +360,8 @@ export function createRouteResolver(routeConfig, options = {}) {
                 NoEnsureInitialMovementState,
                 QuickTeleport,
                 IsDirectPhoto: isAdapted && isDirectPhoto,
-                ShouldAssertAfterTeleport: !isDirectPhoto && (navigationConfigCount !== 1 || hasMapPath),
+                ShouldAssertAfterTeleport:
+                    !isDirectPhoto && (navigationConfigCount !== 1 || (hasMapPath && !QuickTeleport)),
                 ...heading,
                 ...buildNavigationParams({
                     MapName,
@@ -354,6 +369,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                     MapPath,
                     MapTarget,
                     MapTargetTier,
+                    MapTargetDeckY,
                     MapGoal,
                     NoEnsureInitialMovementState,
                     hasMapTarget: navigationConfigCount === 1 && hasMapTarget,

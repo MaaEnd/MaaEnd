@@ -264,34 +264,33 @@ class MaaInterface:
         self.agent_client = client
 
     def dispose_agent(self):
-        if self.agent_client is not None:
+        # Drop refs first so concurrent callers stop using them.
+        client = self.agent_client
+        process = self.agent_process
+        self.agent_client = None
+        self.agent_process = None
+
+        # Kill the related agent process before disconnect
+        if process is not None and process.poll() is None:
             try:
-                if self.agent_client.connected:
-                    self.agent_client.disconnect()
+                process.kill()
             except Exception:
                 pass
-            finally:
-                self.agent_client = None
-
-        process = self.agent_process
-        self.agent_process = None
-        if process is None:
-            return
-
-        try:
-            if process.poll() is not None:
-                return
-            process.terminate()
             try:
-                process.wait(timeout=3)
-            except subprocess.TimeoutExpired:
-                process.kill()
-                try:
-                    process.wait(timeout=3)
-                except Exception:
-                    pass
-        except Exception:
-            pass
+                process.wait(timeout=1)
+            except Exception:
+                pass
+
+        if client is not None:
+            try:
+                client.set_timeout(100)
+            except Exception:
+                pass
+            try:
+                if client.connected:
+                    client.disconnect()
+            except Exception:
+                pass
 
     def capture_screen(self) -> np.ndarray:
         if self.controller is None:

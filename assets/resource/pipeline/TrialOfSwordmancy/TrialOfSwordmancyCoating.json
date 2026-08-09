@@ -42,7 +42,15 @@
             "TrialOfSwordmancyDrawCard"
         ],
         "pre_delay": 0,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "interval_ms": 1500,
+            "wait_nodes": [
+                "TrialOfSwordmancyCoating1Success"
+            ]
+        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyCoating1Success"
@@ -55,15 +63,6 @@
             "TrialOfSwordmancyEnemyCard1"
         ],
         "pre_delay": 0,
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                62,
-                146,
-                173,
-                289
-            ]
-        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck1",
@@ -93,7 +92,15 @@
             "TrialOfSwordmancyDrawCard"
         ],
         "pre_delay": 0,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "interval_ms": 1500,
+            "wait_nodes": [
+                "TrialOfSwordmancyCoating2Success"
+            ]
+        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyCoating2Success"
@@ -106,15 +113,6 @@
             "TrialOfSwordmancyEnemyCard2"
         ],
         "pre_delay": 0,
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                261,
-                146,
-                173,
-                289
-            ]
-        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck2",
@@ -144,7 +142,15 @@
             "TrialOfSwordmancyDrawCard"
         ],
         "pre_delay": 0,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "interval_ms": 1500,
+            "wait_nodes": [
+                "TrialOfSwordmancyCoating3Success"
+            ]
+        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyCoating3Success"
@@ -157,15 +163,6 @@
             "TrialOfSwordmancyEnemyCard3"
         ],
         "pre_delay": 0,
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                460,
-                146,
-                173,
-                289
-            ]
-        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck3",
@@ -195,7 +192,15 @@
             "TrialOfSwordmancyDrawCard"
         ],
         "pre_delay": 0,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "interval_ms": 1500,
+            "wait_nodes": [
+                "TrialOfSwordmancyCoating4Success"
+            ]
+        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyCoating4Success"
@@ -208,15 +213,6 @@
             "TrialOfSwordmancyEnemyCard4"
         ],
         "pre_delay": 0,
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                659,
-                146,
-                173,
-                289
-            ]
-        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck4",
@@ -246,7 +242,15 @@
             "TrialOfSwordmancyDrawCard"
         ],
         "pre_delay": 0,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "interval_ms": 1500,
+            "wait_nodes": [
+                "TrialOfSwordmancyCoating5Success"
+            ]
+        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyCoating5Success"
@@ -259,15 +263,6 @@
             "TrialOfSwordmancyEnemyCard5"
         ],
         "pre_delay": 0,
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                858,
-                146,
-                173,
-                289
-            ]
-        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck5",
@@ -296,7 +291,13 @@
             "TrialOfSwordmancyGiveUp"
         ],
         "pre_delay": 0,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "interval_ms": 1500,
+            "wait_node": "TrialOfSwordmancyCoatingGiveUp"
+        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyCoatingResetNavigator"
@@ -316,7 +317,6 @@
                 "TrialOfSwordmancyGotoTrialArenaCpp"
             ]
         },
-        "post_wait_freezes": 200,
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyCoatingMain"

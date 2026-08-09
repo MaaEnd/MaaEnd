@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 
 namespace mapnavigator
@@ -65,8 +66,22 @@ constexpr int32_t kLocatorRetryIntervalMs = 20;
 constexpr int32_t kHighLatencyCaptureMs = 180;
 constexpr int32_t kStopWaitMs = 150;
 constexpr int32_t kTargetTickMs = 33;
-constexpr int32_t kSteeringRateMaxGapMs = 400;
+// Steering ticks of held-forward-but-motionless before the hold is re-sent. Counted in ticks so slow frame
+// capture does not stretch the wait: three of them is already past any single dropped fix or brake settle.
+constexpr int32_t kForwardHoldReassertTicks = 3;
+// Re-sends that changed nothing before recovery is let in early. One says the keydown was dropped and is worth
+// repeating; a second with the agent still exactly put says it was not, so waiting out the stall clock only
+// buys more seconds of walking into whatever is there.
+constexpr int32_t kForwardHoldFutileReassertsBeforeRecovery = 2;
+// How many navigate ticks a heading reference stays usable for. Sized to match the wall-clock cap this
+// replaced at the loop period of a fast machine, so nothing changes there; on a slow one it stretches
+// with the loop instead of silently discarding the damping term.
+constexpr uint64_t kSteeringRateMaxGapTicks = 4;
 constexpr int32_t kSteeringRateReferenceMs = 100;
+// Turn batches one tick may spend. The backend's per-batch cap is a per-drag reliability limit, not a budget
+// for the whole tick: a slow loop gets fewer, longer ticks, so one batch each would shrink the turn achieved
+// per metre walked just as the lag makes more of it necessary. Bounded so a misread heading cannot spin far.
+constexpr int32_t kSteeringMaxBatchesPerTick = 3;
 constexpr double kSteeringHeadingChangeEpsilonDeg = 0.05;
 constexpr int32_t kPostHeadingForwardPulseMs = 270;
 constexpr double kHeadingAcceptToleranceDeg = 40.0;
@@ -144,10 +159,36 @@ constexpr int32_t kLocalizationThrashFailCount = 5;
 
 // --- NavRunController (RUN corridor follower) ---
 constexpr double kNavRunLookaheadLowSpeedM = 2.5;
-// The lookahead point is measured forward along the corridor and the agent drives straight at it, so
-// this distance is the whole turn anticipation budget: the steering target only starts rotating once
-// the corner is inside it. It must cover the time a turn takes at the observed 5-8 px/s travel speed.
-constexpr double kNavRunLookaheadWalkM = 6.0;
+// The lookahead point is measured forward along the corridor and supplies the direction the agent
+// steers along, so it is the whole turn anticipation budget: the steering target only starts
+// rotating once the corner is inside it. Held as a count of ticks worth of travel so it tracks both
+// speed and loop period: a fixed distance over-anticipates whenever the agent slows, and leaves too
+// little room to react when the link is slow enough that each tick covers more ground.
+// Calibrated on device by blind A/B: 7 beat 5 in both presentation orders, beat 9, and 11 was
+// clearly harmful (cut corners, wandered, took twice as long).
+constexpr double kNavRunLookaheadPreviewTicks = 7.0;
+constexpr double kNavRunLookaheadMinM = 2.0;
+constexpr double kNavRunLookaheadMaxM = 14.0;
+// How far the corridor may bend away from the leg the agent is on before the aim point stops advancing and
+// waits at that vertex. Measured as the total turn accumulated from the current leg, not per vertex: a
+// staircase of four 30 degree bends leaves the corridor just as badly as one sharp corner does.
+constexpr double kNavRunLookaheadTurnBudgetDeg = 50.0;
+// Ticks of travel before a bend at which the aim stops waiting for it and starts leading into it. Fewer than
+// the preview ticks above, so the aim still stops short of the bend rather than reaching around it.
+constexpr double kNavRunTurnCommitTicks = 4.0;
+// Corridor edges shorter than this carry no usable direction: the planner places vertices a grid cell apart,
+// so a sub-cell edge's heading is quantisation noise, and a spurious bend on one would park the aim point.
+constexpr double kNavRunCorridorEdgeMinM = 0.75;
+// The aim point is pushed at least this far along that direction. Heading error from a cross-track
+// offset is atan(offset / reach), so without a floor the position quantum's contribution grows as
+// the lookahead shrinks and starts clearing the steering deadband on its own. Never shortened below
+// the lookahead itself: a reach tighter than the anticipation budget over-steers into the loop lag.
+constexpr double kNavRunAimReachMinM = 6.0;
+constexpr int32_t kNavRunSpeedWindowMs = 700;
+constexpr int32_t kNavRunSpeedKeepMs = 2000;
+constexpr size_t kNavRunSpeedMaxSamples = 8;
+constexpr uint64_t kNavRunSpeedMaxSampleGapTicks = 8;
+constexpr double kNavRunSpeedJumpMaxPxPerSec = 40.0;
 constexpr double kNavRunUpcomingTurnLookaheadM = 8.0;
 constexpr double kNavRunCrossTrackWarnM = 2.2;
 constexpr double kNavRunCrossTrackFailM = 4.0;
@@ -155,6 +196,10 @@ constexpr double kNavRunProgressReplanMinCrossTrackM = 1.25;
 constexpr int32_t kNavRunSoftReplanCooldownMs = 1200;
 constexpr int32_t kNavRunSoftReplanMaxPerAnchor = 3;
 constexpr int32_t kNavRunProgressRegressionMs = 800;
+// A failed plan leaves nothing to invalidate, so without a cooldown the next tick rebuilds immediately.
+// A failing plan is also the slowest kind (it walks the whole window-expansion ladder before giving up),
+// so the retry storm costs the tick loop far more than it costs to fall back to waypoint steering.
+constexpr int32_t kNavRunPlanFailureCooldownMs = 3000;
 
 // --- Zone / Portal / Transfer Constants ---
 constexpr int32_t kZoneConfirmRetryIntervalMs = 120;

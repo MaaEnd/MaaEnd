@@ -65,7 +65,7 @@ bool NaviController::Navigate(const NaviParam& param)
     LogInfo << "Initial Pos fixed:" << VAR(position_x) << VAR(position_y);
 
     std::vector<Waypoint> expanded_path;
-    if (!ExpandNavmeshWaypoints(param, pos, expanded_path)) {
+    if (!ExpandNavmeshWaypoints(param, pos, is_stopping, expanded_path)) {
         return false;
     }
     if (expanded_path.empty()) {

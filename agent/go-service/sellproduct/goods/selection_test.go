@@ -151,30 +151,65 @@ func TestSelectGoodsTargetKeepsNameOnlyItemForStaticStrategies(t *testing.T) {
 	}
 }
 
-func TestSelectGoodsTargetUsesEligibleManualPriorityBeforeStrategy(t *testing.T) {
+// TestSelectGoodsTargetPriorityBypassesStockMinimumPrice 使用 Issue #4824 的配置验证：
+// 优先物品不受库存策略最低单价过滤，并严格按用户配置顺序选择。
+func TestSelectGoodsTargetPriorityBypassesStockMinimumPrice(t *testing.T) {
 	resetReserveSession()
 	groups := []itemPriorityGroup{
-		{ItemID: "other", Rarity: 3, UnitPrice: 70},
-		{ItemID: "cheap", Rarity: 2, UnitPrice: 2},
-		{ItemID: "preferred", Rarity: 2, UnitPrice: 20},
+		{ItemID: "item_bottled_rec_hp_1", Rarity: 3, UnitPrice: 10},
+		{ItemID: "item_bottled_food_1", Rarity: 3, UnitPrice: 10},
+		{ItemID: "item_bottled_rec_hp_3", Rarity: 4, UnitPrice: 70},
+		{ItemID: "item_proc_battery_3", Rarity: 4, UnitPrice: 70},
 	}
 	observations := map[string]sellstrategy.Candidate{
-		"other":     {ItemID: "other", Stock: 99999, StockKnown: true, Rarity: 3, UnitPrice: 70},
-		"cheap":     {ItemID: "cheap", Stock: 1000, StockKnown: true, Rarity: 2, UnitPrice: 2},
-		"preferred": {ItemID: "preferred", Stock: 10, StockKnown: true, Rarity: 2, UnitPrice: 20},
+		"item_bottled_rec_hp_1": {ItemID: "item_bottled_rec_hp_1", Stock: 9952, StockKnown: true, Rarity: 3, UnitPrice: 10},
+		"item_bottled_food_1":   {ItemID: "item_bottled_food_1", Stock: 9952, StockKnown: true, Rarity: 3, UnitPrice: 10},
+		"item_bottled_rec_hp_3": {ItemID: "item_bottled_rec_hp_3", Stock: 254, StockKnown: true, Rarity: 4, UnitPrice: 70},
+		"item_proc_battery_3":   {ItemID: "item_proc_battery_3", Stock: 62400, StockKnown: true, Rarity: 4, UnitPrice: 70},
 	}
 	itemID, _ := selectGoodsTarget(
 		"Outpost",
 		groups,
 		prioritySelectionPolicy{
-			Preferred:      []string{"cheap", "preferred"},
+			Preferred: []string{
+				"item_bottled_rec_hp_1",
+				"item_bottled_food_1",
+				"item_bottled_rec_hp_3",
+				"item_proc_battery_3",
+			},
+			OnlyPreferred:  true,
 			Strategy:       sellstrategy.KindStock,
-			StrategyConfig: sellstrategy.Config{MinimumUnitPrice: 10},
+			StrategyConfig: sellstrategy.Config{MinimumUnitPrice: 22},
+		},
+		observations,
+	)
+	if itemID != "item_bottled_rec_hp_1" {
+		t.Fatalf("manual priority target = %q, want item_bottled_rec_hp_1", itemID)
+	}
+}
+
+func TestSelectGoodsTargetKeepsPendingPriorityBelowMinimumPrice(t *testing.T) {
+	resetReserveSession()
+	prioritySelectionMu.Lock()
+	prioritySelection.Pending["Outpost"] = "preferred"
+	prioritySelectionMu.Unlock()
+	groups := []itemPriorityGroup{{ItemID: "preferred", UnitPrice: 10}}
+	observations := map[string]sellstrategy.Candidate{
+		"preferred": {ItemID: "preferred", Stock: 100, StockKnown: true, UnitPrice: 10},
+	}
+
+	itemID, _ := selectGoodsTarget(
+		"Outpost",
+		groups,
+		prioritySelectionPolicy{
+			Preferred:      []string{"preferred"},
+			Strategy:       sellstrategy.KindStock,
+			StrategyConfig: sellstrategy.Config{MinimumUnitPrice: 22},
 		},
 		observations,
 	)
 	if itemID != "preferred" {
-		t.Fatalf("manual priority target = %q, want preferred", itemID)
+		t.Fatalf("pending priority target = %q, want preferred", itemID)
 	}
 }
 

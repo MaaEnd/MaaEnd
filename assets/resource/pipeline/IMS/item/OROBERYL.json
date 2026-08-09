@@ -1,6 +1,6 @@
 {
     "OROBERYL": {
-        "desc": "IMS A3 物品:嵌晶玉(红色品质；品质色 → 模板 → 数量；仅 AddItemData 注册；box_index 指向数量 And)",
+        "desc": "嵌晶玉",
         "recognition": {
             "type": "And",
             "param": {
@@ -98,7 +98,8 @@
                 ],
                 "expected": [
                     "^\\d+$"
-                ]
+                ],
+                "only_rec": true
             }
         },
         "pre_delay": 0,
@@ -106,7 +107,7 @@
         "rate_limit": 0
     },
     "OROBERYL_NUMBER": {
-        "desc": "IMS A2 嵌晶玉数量（非物品卡；右上角白色文字 ColorMatch And OCR；box_index 指向 OCR）",
+        "desc": "嵌晶玉（纯数字）",
         "recognition": {
             "type": "And",
             "param": {
@@ -155,6 +156,71 @@
             "type": "OCR",
             "param": {
                 "roi": "__OROBERYL_NUMBER_TEXT_COLOR",
+                "roi_offset": [
+                    -6,
+                    -2,
+                    12,
+                    4
+                ],
+                "expected": [
+                    "^\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OROBERYL_NUMBER_SHOP": {
+        "desc": "嵌晶玉（纯数字）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__OROBERYL_NUMBER_SHOP_TEXT_COLOR",
+                    "OROBERYL_NUMBER_SHOP_OCR"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__OROBERYL_NUMBER_SHOP_TEXT_COLOR": {
+        "desc": "IMS A2:采购中心嵌晶玉白色文字 ColorMatch",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1083,
+                    0,
+                    91,
+                    68
+                ],
+                "lower": [
+                    200,
+                    200,
+                    200
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 10
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OROBERYL_NUMBER_SHOP_OCR": {
+        "desc": "IMS A2:采购中心嵌晶玉数量 OCR（纯数字）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__OROBERYL_NUMBER_SHOP_TEXT_COLOR",
                 "roi_offset": [
                     -6,
                     -2,

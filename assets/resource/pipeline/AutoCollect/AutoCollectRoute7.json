@@ -218,6 +218,14 @@
                     353.8
                 ]
             ]
+        },
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
         }
     },
     "AutoCollectRoute7AssertLocation2": {
@@ -262,7 +270,15 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7GotoFind2": {
         "desc": "前往收集地2",
@@ -282,7 +298,15 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7GotoFind3": {
         "desc": "前往收集地3",
@@ -306,7 +330,15 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7GotoFind4": {
         "desc": "前往收集地4",
@@ -326,7 +358,15 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7GotoFind5": {
         "desc": "前往收集地5",
@@ -346,7 +386,15 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7GotoFind6": {
         "desc": "前往收集地6",
@@ -366,7 +414,15 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7GotoFind7": {
         "desc": "前往收集地7",
@@ -386,7 +442,15 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7GotoFind8": {
         "desc": "前往收集地8",
@@ -406,7 +470,15 @@
         },
         "next": [
             "AutoCollectClickStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7AssertLocation4": {
         "recognition": "Custom",
@@ -494,6 +566,14 @@
                     303.7
                 ]
             ]
+        },
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
         }
     },
     "AutoCollectRoute7GotoFindLine5Sub": {
@@ -666,6 +746,14 @@
                     302.6
                 ]
             ]
+        },
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
         }
     },
     "AutoCollectRoute7GotoFindLine5": {
@@ -688,6 +776,14 @@
                     305.1
                 ]
             ]
+        },
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
         }
     },
     "AutoCollectRoute7GotoFindLine7": {
@@ -761,6 +857,14 @@
                     281.1
                 ]
             ]
+        },
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
         }
     },
     "AutoCollectRoute7AssertLocation7": {
@@ -809,7 +913,15 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7GotoFind12": {
         "desc": "前往收集地2",
@@ -833,7 +945,15 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7GotoFind13": {
         "desc": "前往收集地3",
@@ -857,7 +977,15 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7GotoFind14": {
         "desc": "前往收集地4",
@@ -881,7 +1009,15 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7GotoFind15": {
         "desc": "前往收集地5",
@@ -905,7 +1041,15 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute7GotoFind16": {
         "desc": "前往收集地6",
@@ -933,6 +1077,14 @@
         },
         "next": [
             "AutoCollectDigStart"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     }
 }

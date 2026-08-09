@@ -191,11 +191,12 @@
         ]
     },
     "SceneEnterMenuShop": {
-        "desc": "从任意界面进入商店界面",
+        "desc": "从任意界面进入采购中心；到达后顺手执行 IMS 采购中心静默缓存（SyncShopItemDataInShopNoNotify），同 Resource 仅首次真正扫库",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "__ScenePrivateAnyEnterMenuShopSuccess",
             "__ScenePrivateWorldEnterMenuShop",
             "[JumpBack]SceneAnyEnterWorld"
         ]

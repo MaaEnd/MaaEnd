@@ -23,10 +23,7 @@
         "next": [
             "SyncItemDataInProgressionTab",
             "[JumpBack]SceneEnterMenuValuablesProgressionTab"
-        ],
-        "focus": {
-            "Node.Action.Starting": "即将进入贵重品库培养素材页并同步物品数据"
-        }
+        ]
     },
     "SyncItemDataSkipped": {
         "desc": "本次 Resource 已同步过培养道具缓存，跳过 A2",
@@ -35,10 +32,7 @@
         "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [],
-        "focus": {
-            "Node.Recognition.Succeeded": "本次运行已同步过培养道具缓存，跳过 A2"
-        }
+        "next": []
     },
     "SyncItemDataInProgressionTab": {
         "desc": "确认已在培养素材页，开始多页同步（完整识别 → 按 max_hit 滑动增量）",
@@ -112,11 +106,7 @@
         "next": [
             "[JumpBack]SyncItemDataScrollPage",
             "SyncItemDataLock"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "培养素材初次同步完成",
-            "Node.Action.Failed": "培养素材初次同步失败"
-        }
+        ]
     },
     "SyncItemDataScrollPage": {
         "desc": "A2 滑动并进入增量识别。Win32-Front 默认关闭；ADB 资源开启。调 max_hit 控制额外翻页次数",
@@ -207,11 +197,7 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [],
-        "focus": {
-            "Node.Action.Succeeded": "培养素材增量页同步完成",
-            "Node.Action.Failed": "培养素材增量页同步失败"
-        }
+        "next": []
     },
     "SyncItemDataLock": {
         "desc": "A2 成功后 Resource 级关闭 SyncItemDataBegin，同 Resource 内不再扫库（不恢复）",
@@ -233,9 +219,6 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [],
-        "focus": {
-            "Node.Action.Succeeded": "已关闭本次运行的 A2 入口，后续 IMS 任务将跳过缓存同步"
-        }
+        "next": []
     }
 }

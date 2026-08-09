@@ -19,10 +19,12 @@ import (
 var _ maa.CustomActionRunner = &DecideAction{}
 
 // DecideAction 反序列化 recognition 产出的 GameState，调 solver.Decide 取最优单步决策，
-// 按决策用 OverrideNext 路由到执行节点。
+// 按决策用 OverrideNext 路由到执行节点。求解器来自 RecognizeDeck 的异步预热
+// （presolve.go awaitPreSolve），本动作只做「取结果 → 查表 → 路由」。
 //
-// 几乎无状态：每步的完整 State 都由 recognition 读出后传入；本动作只做「求解 → 路由」。
-// 唯一副作用：路由到 放弃（真实放弃）时把剩余放弃次数缓存减一；开始演算不影响放弃次数。
+// 本身不持有状态：每步的完整 State 都由 recognition 读出后传入，本动作只做「取结果 → 路由」；
+// 唯一的状态副作用是经 roundState.OnRoundEnd 落定轮次边界（放弃递减、牌库重置，见 roundstate.go），
+// 具体规则（跨日残局白送、0 不减）在那边，这里不重复。
 // 单步循环靠 pipeline 的 next 回到 TrialOfSwordmancyDecide（recognition 重新读图），
 // 直到奖励耗尽（pipeline 检测 → Finish）。solver 只返回单步最优决策。
 type DecideAction struct{}
@@ -51,11 +53,21 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	// 配置：牌库/手牌/剩余次数/翻倍态来自 recognition 截图识别；溢出模式是玩家策略选项，
-	// 由本节点 custom_action_param.overflowMode 提供（任务 select 决定），覆盖 recognition 的默认值。
+	// 唯一数据源是 Decide 节点的 custom_action_param，与 RecognizeDeck 预求解同源同值
+	// （decideOverflowMode）。读不到 = 配置错误，硬中止。
+	overflowMode, ok := decideOverflowMode(ctx)
+	if !ok {
+		log.Error().Str("component", component).Msg("decide overflowMode missing or invalid, aborting")
+		return false
+	}
 	cfg := gs.Config
-	cfg.OverflowMode = loadOverflowMode(arg.CustomActionParam)
+	cfg.OverflowMode = overflowMode
 
-	slv := solverFor(cfg)
+	// 取用本轮异步预求解的求解器（presolve.go awaitPreSolve）；失败 = 系统性 bug，中止。
+	slv, ok := awaitPreSolve(cfg)
+	if !ok {
+		return false
+	}
 	outcomes := slv.Decide(gs.State)
 
 	// 不直接用求解器 Policy（其并列时按 [DrawCard,Abandon,Calculate] 取首位=抽牌）；
@@ -72,13 +84,16 @@ func (a *DecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	// 放弃会结束当前回合并消耗 1 次放弃次数。pipeline 只在每轮任务开始时探测一次
-	// （AbandProbe max_hit=1），不重探测，故这里按真实放弃把缓存减一，而非重置为 -1 等重读。
-	// 跨日残局那局（RemainCalc==4）放弃按求解器模型扣演算次数、不扣放弃，不减；
-	// 剩余 0（已用完）时也不减——0 减成 -1 会把缓存毒化成「未知」。
-	if best == solver.Abandon {
-		if gs.State.RemainCalc != 4 && gs.State.RemainAband > 0 {
-			setAband(gs.State.RemainAband - 1)
+	// 轮次边界状态转移先于路由落定（沿用原时序）：路由失败任务即中止，状态不再被读取。
+	roundState.OnRoundEnd(best, gs.State)
+
+	// 抽牌路径：按本次局面覆盖两个等待锚点（落位槽、战力点），
+	// 避免后续抽牌沿用旧值（槽 1 早已在场、战力点已非 0）提前命中或失去重试保护。
+	// 先覆盖再路由：两节点每次必经本动作，执行时必为最新定义。
+	if best == solver.DrawCard {
+		if err := overrideDrawCardNodes(ctx, gs.State.Hand); err != nil {
+			log.Error().Err(err).Str("component", component).Msg("override draw card nodes failed")
+			return false
 		}
 	}
 
@@ -192,6 +207,51 @@ func routeDecision(ctx *maa.Context, currentNode string, action solver.Action) e
 	return ctx.OverrideNext(currentNode, []maa.NextItem{{Name: executeNode(action)}})
 }
 
+// overrideDrawCardNodes 按本次局面覆盖抽牌等待锚点——静态值在后续抽牌时失效：
+// 落位槽递增（槽 1 早已在场），战力点变化（BattlePts0 只在战力点 0 时命中）。
+//   - DoDrawCard.custom_action_param.wait_node → BattlePts<战力点 = 手牌点数总和 % 11>
+//   - DoDrawCardSuccess.all_of → EnemyCard<落位槽 = 当前手牌数 + 1>（clamp [1,5] 纯属防御）
+//
+// 注：override 为字段级浅合并，custom_action_param 必须全量给出，与 Daily.json 的 DoDrawCard 同步维护。
+func overrideDrawCardNodes(ctx *maa.Context, hand [5]int) error {
+	slot := 1
+	for _, c := range hand {
+		slot += c
+	}
+	if slot > 5 {
+		slot = 5
+	}
+	enemyCard := nodeEnemyCardPrefix + strconv.Itoa(slot)
+
+	power := solver.PowerOf(hand)
+	waitNode := nodeBattlePtsPrefix + strconv.Itoa(power)
+
+	if err := ctx.OverridePipeline(map[string]any{
+		nodeDoDrawCard: map[string]any{
+			"custom_action_param": map[string]any{
+				"action":       "Click",
+				"interval_ms":  600,
+				"repeat_count": 6,
+				"wait_node":    waitNode,
+			},
+		},
+		nodeDoDrawCardSuccess: map[string]any{
+			"all_of": []string{enemyCard},
+		},
+	}); err != nil {
+		return err
+	}
+
+	log.Debug().
+		Str("component", component).
+		Int("slot", slot).
+		Str("allOf", enemyCard).
+		Int("power", power).
+		Str("waitNode", waitNode).
+		Msg("draw card nodes overridden")
+	return nil
+}
+
 // executeNode 把最优决策映射到执行节点名。
 func executeNode(action solver.Action) string {
 	switch action {
@@ -223,21 +283,48 @@ func actionFocusLabel(action solver.Action) string {
 	}
 }
 
-// loadOverflowMode 从 Decide 节点的 custom_action_param 解析溢出模式；
-// 缺省或解析失败 → OverflowNone（不接受溢出，默认）。这是玩家策略选项（任务 select 决定），
-// 不属于截图识别范畴，故由 action 提供、覆盖 recognition 的默认。
-func loadOverflowMode(customActionParam string) solver.OverflowMode {
-	if customActionParam == "" {
-		return solver.OverflowNone
+// decideOverflowMode 读取 Decide 节点 custom_action_param.overflowMode，是溢出模式的唯一数据源：
+// RecognizeDeck 用它构造异步预求解的 cfg，Decide 用它覆盖 recognition 的默认值——同源同回退，
+// 预求解配置与决策配置必然一致。参数是强制项：缺省/非法 = pipeline 配置错误，调用方硬中止，
+// 不猜默认值（猜错会让预求解白算，且决策在无人察觉时换了模式）。
+func decideOverflowMode(ctx *maa.Context) (solver.OverflowMode, bool) {
+	raw, err := ctx.GetNodeJSON(nodeDecide)
+	if err != nil {
+		log.Error().Err(err).Str("component", component).Str("node", nodeDecide).Msg("GetNodeJSON failed")
+		return solver.OverflowNone, false
 	}
-	var p struct {
-		OverflowMode solver.OverflowMode `json:"overflowMode"`
+	return parseDecideOverflowMode(raw)
+}
+
+// parseDecideOverflowMode 从 GetNodeJSON 返回的节点 JSON 解析 custom_action_param.overflowMode。
+// 注意 GetNodeJSON 返回的是 MaaFramework PipelineDumper 的规范化形态：action.param 是
+// JCustomAction {target, target_offset, custom_action, custom_action_param}，玩家参数在
+// custom_action_param 里，不是直接挂在 action.param 下（与 recognition.param 同级，见 nodeROI）。
+func parseDecideOverflowMode(raw string) (solver.OverflowMode, bool) {
+	var node struct {
+		Action struct {
+			Param struct {
+				CustomActionParam struct {
+					OverflowMode json.RawMessage `json:"overflowMode"`
+				} `json:"custom_action_param"`
+			} `json:"param"`
+		} `json:"action"`
 	}
-	if err := json.Unmarshal([]byte(customActionParam), &p); err != nil {
-		log.Warn().Err(err).Str("component", component).Msg("parse overflowMode custom_action_param 失败，回退 OverflowNone")
-		return solver.OverflowNone
+	if err := json.Unmarshal([]byte(raw), &node); err != nil {
+		log.Error().Err(err).Str("component", component).Str("node", nodeDecide).Msg("parse node JSON failed")
+		return solver.OverflowNone, false
 	}
-	return p.OverflowMode
+	// RawMessage 判缺省：OverflowMode 的零值是合法模式（OverflowNone），按值无法区分「缺失」与「显式 OverflowNone」。
+	if len(node.Action.Param.CustomActionParam.OverflowMode) == 0 {
+		log.Error().Str("component", component).Str("node", nodeDecide).Msg("overflowMode param missing")
+		return solver.OverflowNone, false
+	}
+	var mode solver.OverflowMode
+	if err := json.Unmarshal(node.Action.Param.CustomActionParam.OverflowMode, &mode); err != nil {
+		log.Error().Err(err).Str("component", component).Str("node", nodeDecide).Msg("invalid overflowMode value")
+		return solver.OverflowNone, false
+	}
+	return mode, true
 }
 
 // —— 辅助：Custom 识别 detail 解包 ——
