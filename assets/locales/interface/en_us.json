@@ -1280,6 +1280,8 @@
     "task.ResourceRecycleStation.focus.Empty": "No collectible resources in this region",
     "task.AccountSwitch.label": "Auto Account Switch",
     "task.AccountSwitch.description": "Automatically log out and switch to an account by matching the last 4 digits\n**Set the frame rate to 60 FPS, disable frame generation, and set the image enhancement option to TAAU in Endfield settings**",
+    "task.DevTest.label": "🧪 Dev Test",
+    "task.DevTest.description": "Empty task for development debugging. Fill in the pipeline node as needed.",
     "option.AccountSwitchLastFourDigits.label": "Target account last 4 digits",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "Enter last 4 digits",
     "task.TrialOfSwordmancy.label": "🗡️Trial of Swordmancy",

@@ -1280,6 +1280,8 @@
     "task.ResourceRecycleStation.focus.Empty": "이 지역에 수집 가능한 자원이 없습니다",
     "task.AccountSwitch.label": "자동 계정 전환",
     "task.AccountSwitch.description": "현재 계정에서 로그아웃하고 지정한 마지막 4자리 계정으로 전환합니다\n**종말지 설정에서 프레임을 60FPS로 설정하고, 프레임 생성을 끈 다음, 화질 향상 옵션을 TAAU로 변경하세요**",
+    "task.DevTest.label": "🧪 개발 테스트",
+    "task.DevTest.description": "개발 디버깅용 빈 작업입니다. 필요에 따라 파이프라인 노드를 작성하세요.",
     "option.AccountSwitchLastFourDigits.label": "대상 계정 마지막 4자리",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "마지막 4자리 입력",
     "task.TrialOfSwordmancy.label": "🗡️검술 연무",

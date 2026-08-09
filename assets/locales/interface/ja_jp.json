@@ -1280,6 +1280,8 @@
     "task.ResourceRecycleStation.focus.Empty": "この地域に収集可能な資源はありません",
     "task.AccountSwitch.label": "自動アカウント切替",
     "task.AccountSwitch.description": "現在のアカウントからログアウトし、指定した下4桁のアカウントに切り替えます\n**終末地の設定でフレームレートを60FPSに設定し、フレーム生成を無効にして、画質向上オプションをTAAUに変更してください**",
+    "task.DevTest.label": "🧪 開発テスト",
+    "task.DevTest.description": "開発デバッグ用の空タスク。ノード内容は必要に応じて記入してください。",
     "option.AccountSwitchLastFourDigits.label": "対象アカウント下4桁",
     "option.AccountSwitchLastFourDigits.LastFourDigits.label": "下4桁を入力",
     "task.TrialOfSwordmancy.label": "🗡️剣術演武",
