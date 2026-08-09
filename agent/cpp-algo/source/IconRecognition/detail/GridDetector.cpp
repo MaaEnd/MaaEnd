@@ -48,8 +48,6 @@ constexpr double kDefaultStructuralPhaseMinimumGain = 0.08;
 constexpr int kIgnoredStructuralPhaseShift = 4;
 constexpr double kMinimumStructuralPhaseResponse = 0.15;
 constexpr double kTransferAxisResidualPenalty = 0.05;
-constexpr int kBorderProjectionMinimumMargin = 2;
-constexpr double kBorderProjectionMarginRatio = 0.06;
 constexpr int kWideTransferPhaseMaximumShift = 12;
 constexpr double kWideTransferPhaseMinimumGain = 0.25;
 constexpr double kTrustedStructureWeight = 0.40;
@@ -621,82 +619,6 @@ TransferAxisFit FitTransferAxis(
         fit.starts.push_back(static_cast<int>(std::floor(best_phase + index * fitted_pitch + 0.5)) + offset);
     }
     return fit;
-}
-
-std::vector<float> ProjectCellBorders(
-    const cv::Mat& values,
-    const std::vector<int>& orthogonal_starts,
-    int offset,
-    int cell_size,
-    bool x_axis,
-    bool preserve_sign = false)
-{
-    const int margin = std::max(kBorderProjectionMinimumMargin, cvRound(cell_size * kBorderProjectionMarginRatio));
-    std::vector<std::vector<float>> samples;
-    for (int start : orthogonal_starts) {
-        const int local = start - offset;
-        const int begin = std::max(0, local + margin);
-        const int end = std::min(x_axis ? values.rows : values.cols, local + cell_size - margin);
-        if (end <= begin) {
-            continue;
-        }
-        std::vector<float> projected(x_axis ? values.cols : values.rows, 0.0F);
-        if (x_axis) {
-            for (int x = 0; x < values.cols; ++x) {
-                for (int y = begin; y < end; ++y) {
-                    projected[x] += values.at<float>(y, x) / (end - begin);
-                }
-            }
-        }
-        else {
-            for (int y = 0; y < values.rows; ++y) {
-                for (int x = begin; x < end; ++x) {
-                    projected[y] += values.at<float>(y, x) / (end - begin);
-                }
-            }
-        }
-        samples.push_back(std::move(projected));
-    }
-    const int length = x_axis ? values.cols : values.rows;
-    if (samples.empty()) {
-        return std::vector<float>(length, 0.0F);
-    }
-    std::vector<float> result(length);
-    std::vector<float> values_at(samples.size());
-    for (int index = 0; index < length; ++index) {
-        for (std::size_t sample = 0; sample < samples.size(); ++sample) {
-            values_at[sample] = samples[sample][index];
-        }
-        std::ranges::sort(values_at);
-        result[index] = values_at.size() % 2 == 0 ? 0.5F * (values_at[values_at.size() / 2 - 1] + values_at[values_at.size() / 2])
-                                                  : values_at[values_at.size() / 2];
-    }
-    if (preserve_sign) {
-        float maximum = 0.0F;
-        for (float value : result) {
-            maximum = std::max(maximum, std::abs(value));
-        }
-        if (maximum <= kEpsilon) {
-            return std::vector<float>(length, 0.0F);
-        }
-        for (float& value : result) {
-            value /= maximum;
-        }
-        return result;
-    }
-
-    const float minimum = std::min(0.0F, *std::ranges::min_element(result));
-    for (float& value : result) {
-        value -= minimum;
-    }
-    const float maximum = std::max(0.0F, *std::ranges::max_element(result));
-    if (maximum <= kEpsilon) {
-        return std::vector<float>(length, 0.0F);
-    }
-    for (float& value : result) {
-        value = std::clamp(value / maximum, 0.0F, 1.0F);
-    }
-    return result;
 }
 
 std::vector<int> CompleteAxis(
