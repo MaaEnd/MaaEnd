@@ -398,14 +398,6 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			break
 		}
 
-		// 退出判定：attach 配置的 exit_nodes 任一命中（如选剑演武战斗胜利界面）立即退出
-		if exitNode := hitExitNode(ctx, img, params.ExitNodes); exitNode != "" {
-			log.Info().Str("component", "AutoFight").Str("exitNode", exitNode).Msg("exit node recognized, exiting fight")
-			maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
-			result = true
-			break
-		}
-
 		// 暂停判定：检查是否在战斗空间内
 		charSelect := screenAnalyzer.GetCharacterSelect()
 		inFightSpace := charSelect > 0
@@ -418,6 +410,13 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			}
 			if time.Since(pauseStart) >= 10*time.Second {
 				log.Info().Str("component", "AutoFight").Dur("elapsed", time.Since(pauseStart)).Msg("pause timeout, exiting fight")
+				maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
+				result = true
+				break
+			}
+			// 退出判定：attach 配置的 exit_nodes 任一命中（如选剑演武战斗胜利界面）立即退出
+			if exitNode := hitExitNode(ctx, img, params.ExitNodes); exitNode != "" {
+				log.Info().Str("component", "AutoFight").Str("exitNode", exitNode).Msg("exit node recognized, exiting fight")
 				maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
 				result = true
 				break
