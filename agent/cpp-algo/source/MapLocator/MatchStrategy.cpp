@@ -95,21 +95,31 @@ cv::Point2d RefinePeakSubpixel(const cv::Mat& result, const cv::Point& maxLoc)
 
 } // namespace
 
-std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::Mat& templRaw, const cv::Mat& weightMask, int blurSize)
+PreparedSearchFeature PrepareSearchFeature(const cv::Mat& searchImgRaw, int blurSize)
 {
-    if (searchImgRaw.rows < templRaw.rows || searchImgRaw.cols < templRaw.cols) {
-        return std::nullopt;
-    }
-
-    cv::Mat searchImg;
+    PreparedSearchFeature prepared;
     if (searchImgRaw.channels() == 4) {
-        cv::cvtColor(searchImgRaw, searchImg, cv::COLOR_BGRA2GRAY);
+        cv::cvtColor(searchImgRaw, prepared.image, cv::COLOR_BGRA2GRAY);
     }
     else if (searchImgRaw.channels() == 3) {
-        cv::cvtColor(searchImgRaw, searchImg, cv::COLOR_BGR2GRAY);
+        cv::cvtColor(searchImgRaw, prepared.image, cv::COLOR_BGR2GRAY);
     }
     else {
-        searchImg = searchImgRaw.clone();
+        prepared.image = searchImgRaw.clone();
+    }
+
+    if (blurSize > 0) {
+        cv::GaussianBlur(prepared.image, prepared.image, cv::Size(blurSize, blurSize), 0);
+    }
+
+    return prepared;
+}
+
+std::optional<MatchResultRaw>
+    CoreMatchPrepared(const PreparedSearchFeature& searchFeature, const cv::Mat& templRaw, const cv::Mat& weightMask)
+{
+    if (searchFeature.image.rows < templRaw.rows || searchFeature.image.cols < templRaw.cols) {
+        return std::nullopt;
     }
 
     cv::Mat templ;
@@ -123,17 +133,13 @@ std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::M
         templ = templRaw.clone();
     }
 
-    if (blurSize > 0) {
-        cv::GaussianBlur(searchImg, searchImg, cv::Size(blurSize, blurSize), 0);
-    }
-
     cv::Mat result;
     try {
         if (cv::countNonZero(weightMask) < 5) {
             return std::nullopt;
         }
 
-        cv::matchTemplate(searchImg, templ, result, cv::TM_CCOEFF_NORMED, weightMask);
+        cv::matchTemplate(searchFeature.image, templ, result, cv::TM_CCOEFF_NORMED, weightMask);
 
         cv::patchNaNs(result, -1.0);
         for (int y = 0; y < result.rows; ++y) {
@@ -192,6 +198,15 @@ std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::M
     out.psr = psr;
 
     return out;
+}
+
+std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::Mat& templRaw, const cv::Mat& weightMask, int blurSize)
+{
+    if (searchImgRaw.rows < templRaw.rows || searchImgRaw.cols < templRaw.cols) {
+        return std::nullopt;
+    }
+
+    return CoreMatchPrepared(PrepareSearchFeature(searchImgRaw, blurSize), templRaw, weightMask);
 }
 
 class StandardMatchStrategy : public IMatchStrategy
@@ -265,6 +280,11 @@ public:
             feat.image = mapRoi;
         }
         return feat;
+    }
+
+    TemplateFeatureKind templateFeatureKind() const override
+    {
+        return _isBase ? TemplateFeatureKind::StandardBase : TemplateFeatureKind::StandardTier;
     }
 
     TrackingValidation validateTracking(
@@ -371,6 +391,11 @@ public:
         MatchFeature feat;
         feat.image = ExtractPathHeatmapFeature(mapRoi);
         return feat;
+    }
+
+    TemplateFeatureKind templateFeatureKind() const override
+    {
+        return _isBase ? TemplateFeatureKind::PathHeatmapBase : TemplateFeatureKind::PathHeatmapTier;
     }
 
     TrackingValidation validateTracking(

@@ -1,10 +1,12 @@
 #pragma once
 
-#include "MapTypes.h"
 #include <chrono>
 #include <memory>
-#include <opencv2/opencv.hpp>
 #include <string>
+
+#include <MaaUtils/NoWarningCV.hpp>
+
+#include "MapTypes.h"
 
 namespace maplocator
 {
@@ -27,6 +29,19 @@ struct MatchResultRaw
     double psr = 0.0;
 };
 
+struct PreparedSearchFeature
+{
+    cv::Mat image;
+};
+
+enum class TemplateFeatureKind
+{
+    StandardBase,
+    StandardTier,
+    PathHeatmapBase,
+    PathHeatmapTier,
+};
+
 struct TrackingValidation
 {
     bool isValid;
@@ -46,6 +61,8 @@ public:
 
     // 预处理大地图的搜索区域（Search ROI）
     virtual MatchFeature extractSearchFeature(const cv::Mat& mapRoi) = 0;
+
+    virtual TemplateFeatureKind templateFeatureKind() const = 0;
 
     // 追踪态的结果验证逻辑
     virtual TrackingValidation validateTracking(
@@ -83,5 +100,8 @@ public:
 };
 
 std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::Mat& templRaw, const cv::Mat& weightMask, int blurSize = 5);
+PreparedSearchFeature PrepareSearchFeature(const cv::Mat& searchImgRaw, int blurSize = 5);
+std::optional<MatchResultRaw>
+    CoreMatchPrepared(const PreparedSearchFeature& searchFeature, const cv::Mat& templRaw, const cv::Mat& weightMask);
 
 } // namespace maplocator

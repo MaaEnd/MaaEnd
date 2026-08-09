@@ -1,10 +1,16 @@
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cmath>
+#include <condition_variable>
+#include <cstdint>
+#include <deque>
 #include <exception>
 #include <filesystem>
 #include <format>
+#include <functional>
 #include <future>
+#include <limits>
 #include <mutex>
 #include <string_view>
 #include <thread>
@@ -71,7 +77,7 @@ struct FineScaleSearchResult
     double scale = 1.0;
     bool hasRawResult = false;
     MatchResultRaw fineRes;
-    cv::Mat scaledTempl;
+    cv::Size scaledTemplSize;
 };
 
 struct GlobalSearchAttempt
@@ -80,16 +86,627 @@ struct GlobalSearchAttempt
     MapPosition rawPos {};
 };
 
+struct AsyncYoloHandle
+{
+    std::uint64_t frameId = 0;
+    std::shared_future<YoloCoarseResult> future;
+};
+
+struct AsyncYoloState
+{
+    std::uint64_t frameId = 0;
+    std::shared_future<YoloCoarseResult> future;
+    bool zoneGuardApplied = false;
+};
+
+class FrameTemplateFeatureCache
+{
+public:
+    const MatchFeature& get(const cv::Mat& minimap, IMatchStrategy* strategy)
+    {
+        const auto kind = strategy->templateFeatureKind();
+        Slot& slot = state->slots.at(static_cast<size_t>(kind));
+        std::call_once(slot.once, [&]() { slot.feature = strategy->extractTemplateFeature(minimap); });
+        return slot.feature;
+    }
+
+private:
+    struct Slot
+    {
+        std::once_flag once;
+        MatchFeature feature;
+    };
+
+    struct State
+    {
+        std::array<Slot, 4> slots;
+    };
+
+    std::shared_ptr<State> state = std::make_shared<State>();
+};
+
 using TimePoint = std::chrono::steady_clock::time_point;
 
-struct SearchExecutionContext
+constexpr std::array<double, 11> BuildGlobalSearchScales()
 {
-    const MatchFeature& tmplFeat;
-    IMatchStrategy* strategy = nullptr;
-    const cv::Mat& bigMap;
+    std::array<double, 11> scales {};
+    double scale = 0.90;
+    for (double& value : scales) {
+        value = scale;
+        scale += 0.02;
+    }
+    return scales;
+}
+
+constexpr auto kGlobalSearchScales = BuildGlobalSearchScales();
+
+enum class ScaleTaskPriority : int
+{
+    Discarded = 0,
+    GlobalFallback = 1,
+    GlobalPrimary = 2,
+    Tracking = 3,
+    Coordinator = 4,
+};
+
+enum class ScaleTaskClass
+{
+    Tracking,
+    Global,
+    Coordinator,
+};
+
+struct ScaleTaskControl
+{
+    std::atomic<ScaleTaskPriority> priority = ScaleTaskPriority::Discarded;
+    std::atomic<bool> canceled = false;
+    std::atomic<bool> reserveTrackingCapacity = false;
+};
+
+class MapLocatorScaleExecutor
+{
+public:
+    explicit MapLocatorScaleExecutor(size_t workerCount)
+        : globalConcurrencyLimit(workerCount > 4 ? std::max<size_t>(1, workerCount / 3) : workerCount)
+    {
+        workers.reserve(workerCount);
+        for (size_t index = 0; index < workerCount; ++index) {
+            workers.emplace_back([this]() { workerLoop(); });
+        }
+    }
+
+    ~MapLocatorScaleExecutor()
+    {
+        {
+            std::lock_guard<std::mutex> lock(mutex);
+            stopping = true;
+            queue.clear();
+        }
+        condition.notify_all();
+        for (auto& worker : workers) {
+            if (worker.joinable()) {
+                worker.join();
+            }
+        }
+    }
+
+    MapLocatorScaleExecutor(const MapLocatorScaleExecutor&) = delete;
+    MapLocatorScaleExecutor& operator=(const MapLocatorScaleExecutor&) = delete;
+
+    void submit(const std::shared_ptr<ScaleTaskControl>& control, ScaleTaskClass taskClass, std::function<void()> function)
+    {
+        {
+            std::lock_guard<std::mutex> lock(mutex);
+            queue.emplace_back(
+                QueuedTask {
+                    .control = control,
+                    .taskClass = taskClass,
+                    .sequence = nextSequence++,
+                    .function = std::move(function),
+                });
+        }
+        condition.notify_one();
+    }
+
+    void reprioritize(const std::shared_ptr<ScaleTaskControl>& control, ScaleTaskPriority priority)
+    {
+        control->priority.store(priority, std::memory_order_relaxed);
+        condition.notify_all();
+    }
+
+    void cancel(const std::shared_ptr<ScaleTaskControl>& control)
+    {
+        control->canceled.store(true, std::memory_order_relaxed);
+        reprioritize(control, ScaleTaskPriority::Discarded);
+    }
+
+    void releaseTrackingCapacity(const std::shared_ptr<ScaleTaskControl>& control)
+    {
+        control->reserveTrackingCapacity.store(false, std::memory_order_relaxed);
+        condition.notify_all();
+    }
+
+    size_t workerCount() const { return workers.size(); }
+
+private:
+    struct QueuedTask
+    {
+        std::shared_ptr<ScaleTaskControl> control;
+        ScaleTaskClass taskClass = ScaleTaskClass::Global;
+        std::uint64_t sequence = 0;
+        std::function<void()> function;
+    };
+
+    auto findNextTask()
+    {
+        auto selected = queue.end();
+        int selectedPriority = std::numeric_limits<int>::min();
+        std::uint64_t selectedSequence = std::numeric_limits<std::uint64_t>::max();
+        for (auto it = queue.begin(); it != queue.end(); ++it) {
+            if (it->taskClass == ScaleTaskClass::Global && it->control->reserveTrackingCapacity.load(std::memory_order_relaxed)
+                && activeGlobalTasks >= globalConcurrencyLimit) {
+                continue;
+            }
+            if (it->taskClass == ScaleTaskClass::Coordinator && activeCoordinatorTasks >= 1) {
+                continue;
+            }
+            const int priority = static_cast<int>(it->control->priority.load(std::memory_order_relaxed));
+            if (priority > selectedPriority || (priority == selectedPriority && it->sequence < selectedSequence)) {
+                selected = it;
+                selectedPriority = priority;
+                selectedSequence = it->sequence;
+            }
+        }
+        return selected;
+    }
+
+    void workerLoop()
+    {
+        while (true) {
+            QueuedTask task;
+            {
+                std::unique_lock<std::mutex> lock(mutex);
+                condition.wait(lock, [this]() { return stopping || !queue.empty(); });
+                if (stopping) {
+                    return;
+                }
+
+                auto selected = findNextTask();
+                if (selected == queue.end()) {
+                    condition.wait(lock);
+                    continue;
+                }
+                task = std::move(*selected);
+                queue.erase(selected);
+                if (task.taskClass == ScaleTaskClass::Global) {
+                    ++activeGlobalTasks;
+                }
+                else if (task.taskClass == ScaleTaskClass::Tracking) {
+                    ++activeTrackingTasks;
+                }
+                else if (task.taskClass == ScaleTaskClass::Coordinator) {
+                    ++activeCoordinatorTasks;
+                }
+            }
+
+            task.function();
+
+            {
+                std::lock_guard<std::mutex> lock(mutex);
+                if (task.taskClass == ScaleTaskClass::Global) {
+                    --activeGlobalTasks;
+                }
+                else if (task.taskClass == ScaleTaskClass::Tracking) {
+                    --activeTrackingTasks;
+                }
+                else if (task.taskClass == ScaleTaskClass::Coordinator) {
+                    --activeCoordinatorTasks;
+                }
+            }
+            condition.notify_all();
+        }
+    }
+
+    std::vector<std::thread> workers;
+    std::deque<QueuedTask> queue;
+    mutable std::mutex mutex;
+    std::condition_variable condition;
+    size_t activeTrackingTasks = 0;
+    size_t activeGlobalTasks = 0;
+    size_t activeCoordinatorTasks = 0;
+    size_t globalConcurrencyLimit = 1;
+    std::uint64_t nextSequence = 0;
+    bool stopping = false;
+};
+
+class GlobalSearchBatch : public std::enable_shared_from_this<GlobalSearchBatch>
+{
+public:
+    GlobalSearchBatch(
+        MatchFeature templateFeature,
+        PreparedSearchFeature searchFeature,
+        cv::Size searchSize,
+        ScaleTaskPriority priority,
+        bool reserveTrackingCapacity = false)
+        : templateFeature(std::move(templateFeature))
+        , searchFeature(std::move(searchFeature))
+        , searchSize(searchSize)
+        , control(std::make_shared<ScaleTaskControl>())
+    {
+        control->priority.store(priority, std::memory_order_relaxed);
+        control->reserveTrackingCapacity.store(reserveTrackingCapacity, std::memory_order_relaxed);
+        for (size_t index = 0; index < kGlobalSearchScales.size(); ++index) {
+            results[index].scale = kGlobalSearchScales[index];
+        }
+    }
+
+    void start(MapLocatorScaleExecutor& executor)
+    {
+        remaining.store(kGlobalSearchScales.size(), std::memory_order_relaxed);
+        const auto self = shared_from_this();
+        for (size_t index = 0; index < kGlobalSearchScales.size(); ++index) {
+            executor.submit(control, ScaleTaskClass::Global, [self, index]() { self->executeScale(index); });
+        }
+    }
+
+    void wait()
+    {
+        std::unique_lock<std::mutex> lock(completionMutex);
+        completionCondition.wait(lock, [this]() { return remaining.load(std::memory_order_acquire) == 0; });
+        if (exception) {
+            std::rethrow_exception(exception);
+        }
+    }
+
+    void promote(MapLocatorScaleExecutor& executor) { executor.reprioritize(control, ScaleTaskPriority::GlobalPrimary); }
+
+    void cancel(MapLocatorScaleExecutor& executor) { executor.cancel(control); }
+
+    void releaseTrackingCapacity(MapLocatorScaleExecutor& executor) { executor.releaseTrackingCapacity(control); }
+
+    const auto& getResults() const { return results; }
+
+private:
+    void executeScale(size_t index)
+    {
+        try {
+            if (!control->canceled.load(std::memory_order_relaxed)) {
+                computeScale(index);
+            }
+        }
+        catch (...) {
+            std::lock_guard<std::mutex> lock(completionMutex);
+            if (!exception) {
+                exception = std::current_exception();
+            }
+        }
+
+        if (remaining.fetch_sub(1, std::memory_order_acq_rel) == 1) {
+            completionCondition.notify_all();
+        }
+    }
+
+    void computeScale(size_t index)
+    {
+        const double scale = kGlobalSearchScales[index];
+        FineScaleSearchResult& result = results[index];
+
+        cv::Mat scaledTemplate;
+        cv::Mat scaledWeightMask;
+        if (std::abs(scale - 1.0) > 0.001) {
+            cv::resize(templateFeature.image, scaledTemplate, cv::Size(), scale, scale, cv::INTER_LINEAR);
+            cv::resize(templateFeature.mask, scaledWeightMask, cv::Size(), scale, scale, cv::INTER_NEAREST);
+        }
+        else {
+            scaledTemplate = templateFeature.image;
+            scaledWeightMask = templateFeature.mask;
+        }
+
+        if (scaledTemplate.cols > searchSize.width || scaledTemplate.rows > searchSize.height) {
+            return;
+        }
+
+        const auto match = CoreMatchPrepared(searchFeature, scaledTemplate, scaledWeightMask);
+        if (!match) {
+            return;
+        }
+
+        result.hasRawResult = true;
+        result.fineRes = *match;
+        result.scaledTemplSize = scaledTemplate.size();
+    }
+
+    MatchFeature templateFeature;
+    PreparedSearchFeature searchFeature;
+    cv::Size searchSize;
+    std::shared_ptr<ScaleTaskControl> control;
+    std::array<FineScaleSearchResult, kGlobalSearchScales.size()> results;
+    std::atomic<size_t> remaining = 0;
+    std::mutex completionMutex;
+    std::condition_variable completionCondition;
+    std::exception_ptr exception;
+};
+
+struct TrackingScaleCandidate
+{
+    double scale = 1.0;
+    std::optional<MatchResultRaw> match;
+    cv::Mat scaledTemplate;
+    cv::Mat scaledWeightMask;
+};
+
+class TrackingScaleBatch : public std::enable_shared_from_this<TrackingScaleBatch>
+{
+public:
+    static constexpr size_t kScaleCount = std::size(kTrackingScaleSteps);
+
+    TrackingScaleBatch(MatchFeature templateFeature, PreparedSearchFeature searchFeature, cv::Size searchSize, double baseScale)
+        : templateFeature(std::move(templateFeature))
+        , searchFeature(std::move(searchFeature))
+        , searchSize(searchSize)
+        , control(std::make_shared<ScaleTaskControl>())
+    {
+        control->priority.store(ScaleTaskPriority::Tracking, std::memory_order_relaxed);
+        for (size_t index = 0; index < kScaleCount; ++index) {
+            candidates[index].scale = baseScale + kTrackingScaleSteps[index];
+        }
+    }
+
+    void computeBase() { computeScale(0); }
+
+    void startNeighbors(MapLocatorScaleExecutor& executor)
+    {
+        remaining.store(kScaleCount - 1, std::memory_order_relaxed);
+        const auto self = shared_from_this();
+        for (size_t index = 1; index < kScaleCount; ++index) {
+            executor.submit(control, ScaleTaskClass::Tracking, [self, index]() { self->executeScale(index); });
+        }
+    }
+
+    void wait()
+    {
+        std::unique_lock<std::mutex> lock(completionMutex);
+        completionCondition.wait(lock, [this]() { return remaining.load(std::memory_order_acquire) == 0; });
+        if (exception) {
+            std::rethrow_exception(exception);
+        }
+    }
+
+    auto& getCandidates() { return candidates; }
+
+private:
+    void executeScale(size_t index)
+    {
+        try {
+            computeScale(index);
+        }
+        catch (...) {
+            std::lock_guard<std::mutex> lock(completionMutex);
+            if (!exception) {
+                exception = std::current_exception();
+            }
+        }
+
+        if (remaining.fetch_sub(1, std::memory_order_acq_rel) == 1) {
+            completionCondition.notify_all();
+        }
+    }
+
+    void computeScale(size_t index)
+    {
+        TrackingScaleCandidate& candidate = candidates[index];
+        if (candidate.scale <= 0.0) {
+            return;
+        }
+
+        if (std::abs(candidate.scale - 1.0) > 0.001) {
+            cv::resize(templateFeature.image, candidate.scaledTemplate, cv::Size(), candidate.scale, candidate.scale, cv::INTER_LINEAR);
+            cv::resize(templateFeature.mask, candidate.scaledWeightMask, cv::Size(), candidate.scale, candidate.scale, cv::INTER_NEAREST);
+        }
+        else {
+            candidate.scaledTemplate = templateFeature.image;
+            candidate.scaledWeightMask = templateFeature.mask;
+        }
+
+        if (candidate.scaledTemplate.cols > searchSize.width || candidate.scaledTemplate.rows > searchSize.height) {
+            return;
+        }
+
+        candidate.match = CoreMatchPrepared(searchFeature, candidate.scaledTemplate, candidate.scaledWeightMask);
+    }
+
+    MatchFeature templateFeature;
+    PreparedSearchFeature searchFeature;
+    cv::Size searchSize;
+    std::shared_ptr<ScaleTaskControl> control;
+    std::array<TrackingScaleCandidate, kScaleCount> candidates;
+    std::atomic<size_t> remaining = 0;
+    std::mutex completionMutex;
+    std::condition_variable completionCondition;
+    std::exception_ptr exception;
+};
+
+struct GlobalSearchComputation
+{
+    std::shared_ptr<IMatchStrategy> strategy;
     cv::Rect constrainedRect {};
-    const std::string& targetZoneId;
-    MapPosition* outRawPos = nullptr;
+    std::string targetZoneId;
+    std::shared_ptr<GlobalSearchBatch> batch;
+};
+
+struct GlobalSearchCandidates
+{
+    std::uint64_t frameId = 0;
+    std::string targetZoneId;
+    SearchConstraint constraint;
+    GlobalSearchComputation primary;
+    std::optional<GlobalSearchComputation> fallback;
+    std::function<GlobalSearchComputation()> deferredFallback;
+};
+
+bool SearchConstraintsEqual(const SearchConstraint& lhs, const SearchConstraint& rhs)
+{
+    return lhs.mode == rhs.mode && lhs.roi == rhs.roi && lhs.yolo_validated == rhs.yolo_validated;
+}
+
+class FrameSearchCoordinator : public std::enable_shared_from_this<FrameSearchCoordinator>
+{
+public:
+    using CoarseFunction = std::function<YoloCoarseResult()>;
+    using ComputeFunction = std::function<std::optional<GlobalSearchCandidates>(const YoloCoarseResult&)>;
+
+    FrameSearchCoordinator(CoarseFunction coarse, MapLocatorScaleExecutor& executor, ComputeFunction compute)
+        : coarse(std::move(coarse))
+        , executor(executor)
+        , compute(std::move(compute))
+        , control(std::make_shared<ScaleTaskControl>())
+    {
+        control->priority.store(ScaleTaskPriority::Coordinator, std::memory_order_relaxed);
+    }
+
+    void start()
+    {
+        if (started.exchange(true, std::memory_order_relaxed)) {
+            return;
+        }
+        const auto self = shared_from_this();
+        executor.submit(control, ScaleTaskClass::Coordinator, [self]() { self->run(); });
+    }
+
+    YoloCoarseResult getCoarse()
+    {
+        std::unique_lock<std::mutex> lock(mutex);
+        condition.wait(lock, [this]() { return coarseReady || completed; });
+        if (exception) {
+            std::rethrow_exception(exception);
+        }
+        return coarseResult.value_or(YoloCoarseResult {});
+    }
+
+    std::optional<GlobalSearchCandidates>
+        takeCandidates(std::uint64_t expectedFrameId, const std::string& targetZoneId, const SearchConstraint& constraint)
+    {
+        std::unique_lock<std::mutex> lock(mutex);
+        condition.wait(lock, [this]() { return completed; });
+        if (exception) {
+            std::rethrow_exception(exception);
+        }
+        if (!candidates.has_value() || candidates->frameId != expectedFrameId || candidates->targetZoneId != targetZoneId
+            || !SearchConstraintsEqual(candidates->constraint, constraint)) {
+            return std::nullopt;
+        }
+        GlobalSearchCandidates result = std::move(*candidates);
+        candidates.reset();
+        return result;
+    }
+
+    void cancel()
+    {
+        canceled.store(true, std::memory_order_relaxed);
+        executor.cancel(control);
+        {
+            std::lock_guard<std::mutex> lock(mutex);
+            if (candidates.has_value()) {
+                cancelCandidates(*candidates);
+            }
+        }
+    }
+
+private:
+    void cancelCandidates(GlobalSearchCandidates& value)
+    {
+        if (value.primary.batch) {
+            value.primary.batch->cancel(executor);
+        }
+        if (value.fallback.has_value() && value.fallback->batch) {
+            value.fallback->batch->cancel(executor);
+        }
+    }
+
+    void run()
+    {
+        std::optional<GlobalSearchCandidates> computed;
+        std::exception_ptr caught;
+        std::optional<YoloCoarseResult> predicted;
+        try {
+            if (!canceled.load(std::memory_order_relaxed)) {
+                predicted = coarse();
+                {
+                    std::lock_guard<std::mutex> lock(mutex);
+                    coarseResult = predicted;
+                    coarseReady = true;
+                }
+                condition.notify_all();
+                if (!canceled.load(std::memory_order_relaxed)) {
+                    computed = compute(*predicted);
+                }
+            }
+        }
+        catch (...) {
+            caught = std::current_exception();
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(mutex);
+            candidates = std::move(computed);
+            exception = caught;
+            if (canceled.load(std::memory_order_relaxed) && candidates.has_value()) {
+                cancelCandidates(*candidates);
+            }
+            completed = true;
+        }
+        condition.notify_all();
+    }
+
+    CoarseFunction coarse;
+    MapLocatorScaleExecutor& executor;
+    ComputeFunction compute;
+    std::shared_ptr<ScaleTaskControl> control;
+    std::atomic<bool> started = false;
+    std::atomic<bool> canceled = false;
+    std::mutex mutex;
+    std::condition_variable condition;
+    std::optional<YoloCoarseResult> coarseResult;
+    std::optional<GlobalSearchCandidates> candidates;
+    std::exception_ptr exception;
+    bool coarseReady = false;
+    bool completed = false;
+};
+
+class FrameSearchCancelGuard
+{
+public:
+    explicit FrameSearchCancelGuard(std::shared_ptr<FrameSearchCoordinator>* coordinator)
+        : coordinator(coordinator)
+    {
+    }
+
+    ~FrameSearchCancelGuard()
+    {
+        if (coordinator && *coordinator) {
+            (*coordinator)->cancel();
+        }
+    }
+
+private:
+    std::shared_ptr<FrameSearchCoordinator>* coordinator = nullptr;
+};
+
+struct GlobalSearchFeatureCacheKey
+{
+    std::string zoneId;
+    TemplateFeatureKind kind = TemplateFeatureKind::StandardBase;
+    cv::Rect roi {};
+    std::uint64_t generation = 0;
+
+    bool operator==(const GlobalSearchFeatureCacheKey&) const = default;
+};
+
+struct CachedGlobalSearchFeature
+{
+    std::mutex mutex;
+    std::optional<GlobalSearchFeatureCacheKey> key;
+    MatchFeature feature;
 };
 
 bool IsTightCluster(const std::vector<MapPosition>& buf, double radius)
@@ -124,10 +741,10 @@ public:
 
     ~Impl()
     {
-        if (asyncYoloTask.valid()) {
-            asyncYoloTask.wait();
+        if (asyncYoloState.has_value() && asyncYoloState->future.valid()) {
+            asyncYoloState->future.wait();
         }
-        drainBackgroundGlobalSearchTasks();
+        scaleExecutor.reset();
     }
 
     bool initialize(const MapLocatorConfig& cfg);
@@ -145,38 +762,64 @@ private:
         IMatchStrategy* strategy,
         TimePoint now,
         const LocateOptions& options,
+        const std::function<void()>& slowPathSignal,
         MapPosition* outRawPos = nullptr);
 
-    std::optional<MapPosition> tryGlobalSearch(
+    GlobalSearchComputation startGlobalSearch(
         const MatchFeature& tmplFeat,
-        IMatchStrategy* strategy,
+        std::shared_ptr<IMatchStrategy> strategy,
         const std::string& targetZoneId,
-        const SearchConstraint& constraint = {},
-        MapPosition* outRawPos = nullptr);
+        const SearchConstraint& constraint,
+        const MatchConfig& matchConfig,
+        ScaleTaskPriority priority,
+        bool reserveTrackingCapacity);
 
     std::optional<MapPosition> evaluateAndAcceptResult(
         const MatchResultRaw& fineRes,
         const cv::Rect& validFineRect,
-        const cv::Mat& templ,
+        const cv::Size& templSize,
         IMatchStrategy* strategy,
         const std::string& targetZoneId);
-    std::optional<MapPosition> tryConstrainedFineSearch(const SearchExecutionContext& ctx);
+    GlobalSearchAttempt finishGlobalSearch(const GlobalSearchComputation& computation);
 
-    void refreshAsyncYoloState(const cv::Mat& minimap, TimePoint now);
-    std::optional<LocateResult>
-        tryTrackingLocate(const cv::Mat& minimap, const LocateOptions& options, const std::string& expectedZoneId, TimePoint now);
+    std::optional<AsyncYoloHandle> refreshAsyncYoloState(const cv::Mat& minimap, TimePoint now);
+    std::optional<LocateResult> tryTrackingLocate(
+        const cv::Mat& minimap,
+        const LocateOptions& options,
+        const std::string& expectedZoneId,
+        TimePoint now,
+        FrameTemplateFeatureCache& featureCache,
+        std::optional<AsyncYoloHandle>* sameFrameYolo,
+        bool yoloRefreshAlreadyPerformed,
+        const std::function<void()>& slowPathSignal);
     SearchConstraint buildSearchConstraint(
         const std::string& expectedZoneSelector,
         const std::string& targetZoneId,
-        const YoloCoarseResult& coarse) const;
+        const YoloCoarseResult& coarse,
+        bool emitLog = true) const;
+    GlobalSearchCandidates startGlobalSearchCandidates(
+        const cv::Mat& minimap,
+        const std::string& targetZoneId,
+        const SearchConstraint& constraint,
+        FrameTemplateFeatureCache featureCache,
+        std::uint64_t searchFrameId,
+        const TrackingConfig& trackingConfig,
+        const MatchConfig& matchConfig,
+        const ImageProcessingConfig& baseImageConfig,
+        const ImageProcessingConfig& tierImageConfig,
+        bool reserveTrackingCapacity);
+    std::optional<MapPosition> finishGlobalSearchCandidates(GlobalSearchCandidates candidates, MapPosition* outBestRaw = nullptr);
     std::optional<MapPosition> tryGlobalSearchWithFallback(
         const cv::Mat& minimap,
         const std::string& targetZoneId,
         const SearchConstraint& constraint,
+        FrameTemplateFeatureCache& featureCache,
         MapPosition* outBestRaw = nullptr);
     MapPosition stabilizePosition(const MapPosition& raw);
     MapPosition acceptPosition(const MapPosition& raw, TimePoint now);
-    void drainBackgroundGlobalSearchTasks();
+    MatchFeature
+        getGlobalSearchFeature(const std::string& targetZoneId, const cv::Rect& roi, const cv::Mat& mapRoi, IMatchStrategy* strategy);
+    void clearGlobalSearchFeatureCache();
 
     void loadAvailableZones(const std::string& root);
 
@@ -185,13 +828,17 @@ private:
 
     std::map<std::string, cv::Mat> zones;
     std::string currentZoneId;
+    std::array<CachedGlobalSearchFeature, 2> globalSearchFeatureCache;
+    std::uint64_t zoneGeneration = 0;
 
     std::unique_ptr<MotionTracker> motionTracker;
     std::unique_ptr<YoloPredictor> zoneClassifier;
+    std::unique_ptr<MapLocatorScaleExecutor> scaleExecutor;
     std::mutex taskMutex;
-    std::future<YoloCoarseResult> asyncYoloTask;
-    std::vector<std::future<GlobalSearchAttempt>> backgroundGlobalSearchTasks;
+    std::optional<AsyncYoloState> asyncYoloState;
     std::chrono::steady_clock::time_point lastYoloCheckTime;
+    std::uint64_t frameId = 0;
+    std::uint64_t activeFrameId = 0;
 
     std::vector<MapPosition> coldStartBuffer;
     std::optional<MapPosition> stablePosition;
@@ -227,6 +874,9 @@ bool MapLocator::Impl::initialize(const MapLocatorConfig& cfg)
     config = cfg;
 
     motionTracker = std::make_unique<MotionTracker>(trackingCfg);
+    const size_t scaleWorkerCount =
+        std::min(kGlobalSearchScales.size(), static_cast<size_t>(std::max(1U, std::thread::hardware_concurrency())));
+    scaleExecutor = std::make_unique<MapLocatorScaleExecutor>(scaleWorkerCount);
     loadAvailableZones(config.mapResourceDir);
 
     if (!config.yoloModelPath.empty()) {
@@ -239,6 +889,8 @@ bool MapLocator::Impl::initialize(const MapLocatorConfig& cfg)
 
 void MapLocator::Impl::loadAvailableZones(const std::string& root)
 {
+    ++zoneGeneration;
+    clearGlobalSearchFeatureCache();
     if (!fs::exists(MAA_NS::path(root))) {
         return;
     }
@@ -285,21 +937,37 @@ void MapLocator::Impl::loadAvailableZones(const std::string& root)
     }
 }
 
-void MapLocator::Impl::drainBackgroundGlobalSearchTasks()
+MatchFeature MapLocator::Impl::getGlobalSearchFeature(
+    const std::string& targetZoneId,
+    const cv::Rect& roi,
+    const cv::Mat& mapRoi,
+    IMatchStrategy* strategy)
 {
-    for (auto& task : backgroundGlobalSearchTasks) {
-        if (!task.valid()) {
-            continue;
-        }
-        try {
-            task.wait();
-            task.get();
-        }
-        catch (const std::exception& e) {
-            LogError << "Background global search task failed: " << e.what();
-        }
+    const TemplateFeatureKind kind = strategy->templateFeatureKind();
+    const bool isPathHeatmap = kind == TemplateFeatureKind::PathHeatmapBase || kind == TemplateFeatureKind::PathHeatmapTier;
+    CachedGlobalSearchFeature& cache = globalSearchFeatureCache.at(isPathHeatmap ? 1 : 0);
+    const GlobalSearchFeatureCacheKey key {
+        .zoneId = targetZoneId,
+        .kind = kind,
+        .roi = roi,
+        .generation = zoneGeneration,
+    };
+
+    std::lock_guard<std::mutex> lock(cache.mutex);
+    if (!cache.key.has_value() || *cache.key != key) {
+        cache.feature = strategy->extractSearchFeature(mapRoi);
+        cache.key = key;
     }
-    backgroundGlobalSearchTasks.clear();
+    return cache.feature;
+}
+
+void MapLocator::Impl::clearGlobalSearchFeatureCache()
+{
+    for (auto& cache : globalSearchFeatureCache) {
+        std::lock_guard<std::mutex> lock(cache.mutex);
+        cache.key.reset();
+        cache.feature = {};
+    }
 }
 
 MapPosition MapLocator::Impl::stabilizePosition(const MapPosition& raw)
@@ -343,6 +1011,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
     IMatchStrategy* strategy,
     TimePoint now,
     const LocateOptions& options,
+    const std::function<void()>& slowPathSignal,
     MapPosition* outRawPos)
 {
     if (!strategy) {
@@ -386,36 +1055,44 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
     }
 
     auto searchFeature = strategy->extractSearchFeature(searchRoiWithPad);
+    const PreparedSearchFeature preparedSearch = PrepareSearchFeature(searchFeature.image, matchCfg.blurSize);
 
     // 窄带多尺度匹配：先以 baseScale 尝试，分数足够则直接接受；
     // 否则遍历邻近尺度取最优，并通过 kScaleHysteresisDelta 抑制尺度频繁切换
+    auto trackingBatch = std::make_shared<TrackingScaleBatch>(tmplFeat, preparedSearch, searchFeature.image.size(), baseScale);
+    trackingBatch->computeBase();
+    auto& trackingCandidates = trackingBatch->getCandidates();
+    const bool baseFastPass =
+        trackingCandidates.front().match.has_value() && trackingCandidates.front().match->score >= kFastTrackingPassScore;
+    bool slowPathSignaled = false;
+    auto signalSlowPath = [&]() {
+        if (!slowPathSignaled && slowPathSignal) {
+            slowPathSignaled = true;
+            slowPathSignal();
+        }
+    };
+    if (!baseFastPass) {
+        signalSlowPath();
+        trackingBatch->startNeighbors(*scaleExecutor);
+        trackingBatch->wait();
+    }
+
     std::optional<MatchResultRaw> trackResult;
     cv::Mat scaledTempl, scaledWeightMask;
     double trackScale = baseScale;
     double baseScore = -1.0;
-    for (double delta : kTrackingScaleSteps) {
+    for (size_t trackingScaleIndex = 0; trackingScaleIndex < TrackingScaleBatch::kScaleCount; ++trackingScaleIndex) {
+        const double delta = kTrackingScaleSteps[trackingScaleIndex];
         if (delta != 0.0 && trackResult && trackResult->score >= kFastTrackingPassScore) {
             break;
         }
-        const double s = baseScale + delta;
+        TrackingScaleCandidate& candidate = trackingCandidates[trackingScaleIndex];
+        const double s = candidate.scale;
         if (s <= 0.0) {
             continue;
         }
 
-        cv::Mat templ, mask;
-        if (std::abs(s - 1.0) > 0.001) {
-            cv::resize(tmplFeat.image, templ, cv::Size(), s, s, cv::INTER_LINEAR);
-            cv::resize(tmplFeat.mask, mask, cv::Size(), s, s, cv::INTER_NEAREST);
-        }
-        else {
-            templ = tmplFeat.image;
-            mask = tmplFeat.mask;
-        }
-        if (templ.cols > searchFeature.image.cols || templ.rows > searchFeature.image.rows || cv::countNonZero(mask) < 5) {
-            continue;
-        }
-
-        auto cand = CoreMatch(searchFeature.image, templ, mask, matchCfg.blurSize);
+        auto cand = candidate.match;
         if (!cand) {
             continue;
         }
@@ -428,8 +1105,8 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
             scaleChangeAllowed = cand->score >= baseScore + kScaleHysteresisDelta;
             if (scaleChangeAllowed) {
                 if (auto last = motionTracker->getLastPos()) {
-                    const double candAbsX = static_cast<double>(searchRect.x) + cand->loc.x + templ.cols / 2.0;
-                    const double candAbsY = static_cast<double>(searchRect.y) + cand->loc.y + templ.rows / 2.0;
+                    const double candAbsX = static_cast<double>(searchRect.x) + cand->loc.x + candidate.scaledTemplate.cols / 2.0;
+                    const double candAbsY = static_cast<double>(searchRect.y) + cand->loc.y + candidate.scaledTemplate.rows / 2.0;
                     scaleChangeAllowed = std::hypot(candAbsX - last->x, candAbsY - last->y) < kScaleChangeMaxPositionDelta;
                 }
             }
@@ -438,8 +1115,8 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         const bool isBetter = !trackResult || cand->score > trackResult->score;
         if (isBetter && scaleChangeAllowed) {
             trackResult = cand;
-            scaledTempl = std::move(templ);
-            scaledWeightMask = std::move(mask);
+            scaledTempl = std::move(candidate.scaledTemplate);
+            scaledWeightMask = std::move(candidate.scaledWeightMask);
             trackScale = s;
         }
     }
@@ -531,6 +1208,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
     }
 
     if (onlyAmbiguous && motionTracker->isTracking(maxAllowedLost) && !validation.isValid) {
+        signalSlowPath();
         auto hold = *motionTracker->getLastPos();
         hold.score = trackResult->score;
         hold.scale = trackScale;
@@ -541,6 +1219,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
     }
 
     if (!validation.isValid) {
+        signalSlowPath();
         return std::nullopt;
     }
 
@@ -549,6 +1228,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         if (auto last = motionTracker->getLastPos(); last && trackResult->score < kTrackingOutlierMinScore) {
             const double jumpDist = std::hypot(validation.absX - last->x, validation.absY - last->y);
             if (jumpDist > kTrackingOutlierDistance) {
+                signalSlowPath();
                 auto held = *last;
                 held.score = trackResult->score;
                 held.scale = trackScale;
@@ -576,7 +1256,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
 std::optional<MapPosition> MapLocator::Impl::evaluateAndAcceptResult(
     const MatchResultRaw& fineRes,
     const cv::Rect& validFineRect,
-    const cv::Mat& templ,
+    const cv::Size& templSize,
     IMatchStrategy* strategy,
     const std::string& targetZoneId)
 {
@@ -585,95 +1265,33 @@ std::optional<MapPosition> MapLocator::Impl::evaluateAndAcceptResult(
 
     double finalScore = 0.0;
     if (!strategy->validateGlobalSearch(fineRes, finalScore)) {
-        LogInfo << "Global Rejected. Score too low:" << VAR(fineRes.score) << VAR(fineRes.delta) << VAR(fineRes.psr);
+        LogDebug << "Global Rejected. Score too low:" << VAR(fineRes.score) << VAR(fineRes.delta) << VAR(fineRes.psr);
         return std::nullopt;
     }
 
     MapPosition pos;
     pos.zoneId = targetZoneId;
-    pos.x = absLeft + templ.cols / 2.0;
-    pos.y = absTop + templ.rows / 2.0;
+    pos.x = absLeft + templSize.width / 2.0;
+    pos.y = absTop + templSize.height / 2.0;
     pos.score = finalScore;
     return pos;
 }
 
-std::optional<MapPosition> MapLocator::Impl::tryConstrainedFineSearch(const SearchExecutionContext& ctx)
+GlobalSearchAttempt MapLocator::Impl::finishGlobalSearch(const GlobalSearchComputation& computation)
 {
-    cv::Mat fineMap = ctx.bigMap(ctx.constrainedRect);
-    auto fineSearchFeat = ctx.strategy->extractSearchFeature(fineMap);
-    std::vector<double> scales;
-    for (double s = 0.90; s <= 1.101; s += 0.02) {
-        scales.push_back(s);
+    GlobalSearchAttempt attempt;
+    if (!computation.batch || !computation.strategy) {
+        return attempt;
     }
 
-    std::vector<FineScaleSearchResult> scaleResults(scales.size());
-    for (size_t i = 0; i < scales.size(); ++i) {
-        scaleResults[i].scale = scales[i];
-    }
-
-    auto processScaleRange = [&](size_t beginIndex, size_t endIndex) {
-        for (size_t i = beginIndex; i < endIndex; ++i) {
-            const double s = scales[i];
-            auto& scaleResult = scaleResults[i];
-
-            cv::Mat scaledTempl, scaledWeightMask;
-            if (std::abs(s - 1.0) > 0.001) {
-                cv::resize(ctx.tmplFeat.image, scaledTempl, cv::Size(), s, s, cv::INTER_LINEAR);
-                cv::resize(ctx.tmplFeat.mask, scaledWeightMask, cv::Size(), s, s, cv::INTER_NEAREST);
-            }
-            else {
-                scaledTempl = ctx.tmplFeat.image;
-                scaledWeightMask = ctx.tmplFeat.mask;
-            }
-
-            if (scaledTempl.cols > fineSearchFeat.image.cols || scaledTempl.rows > fineSearchFeat.image.rows
-                || cv::countNonZero(scaledWeightMask) < 5) {
-                continue;
-            }
-
-            auto fineRes = CoreMatch(fineSearchFeat.image, scaledTempl, scaledWeightMask, matchCfg.blurSize);
-            if (!fineRes) {
-                continue;
-            }
-
-            scaleResult.hasRawResult = true;
-            scaleResult.fineRes = *fineRes;
-            scaleResult.scaledTempl = scaledTempl;
-        }
-    };
-
-    const unsigned hardwareThreads = std::max(1U, std::thread::hardware_concurrency());
-    const size_t workerCount = std::min(scales.size(), static_cast<size_t>(hardwareThreads));
-    if (workerCount <= 1) {
-        processScaleRange(0, scales.size());
-    }
-    else {
-        const size_t chunkSize = (scales.size() + workerCount - 1) / workerCount;
-        std::vector<std::future<void>> workers;
-        workers.reserve(workerCount - 1);
-
-        size_t beginIndex = 0;
-        for (size_t workerIndex = 0; workerIndex < workerCount && beginIndex < scales.size(); ++workerIndex) {
-            const size_t endIndex = std::min(scales.size(), beginIndex + chunkSize);
-            if (workerIndex + 1 == workerCount) {
-                processScaleRange(beginIndex, endIndex);
-            }
-            else {
-                workers.emplace_back(std::async(std::launch::async, processScaleRange, beginIndex, endIndex));
-            }
-            beginIndex = endIndex;
-        }
-
-        for (auto& worker : workers) {
-            worker.get();
-        }
-    }
-
+    computation.batch->wait();
+    const auto& scaleResults = computation.batch->getResults();
     double bestValidScore = -1.0;
     double bestRawScore = -1.0;
     double bestScale = 1.0;
     MatchResultRaw bestFineRes;
-    cv::Mat bestScaledTempl;
+    cv::Size bestScaledTemplSize;
+    std::optional<MapPosition> bestValidPosition;
 
     // Preserve the original scan order and tie-breaks while parallelizing the expensive CoreMatch calls.
     for (const auto& scaleResult : scaleResults) {
@@ -685,11 +1303,15 @@ std::optional<MapPosition> MapLocator::Impl::tryConstrainedFineSearch(const Sear
             bestRawScore = scaleResult.fineRes.score;
             bestScale = scaleResult.scale;
             bestFineRes = scaleResult.fineRes;
-            bestScaledTempl = scaleResult.scaledTempl;
+            bestScaledTemplSize = scaleResult.scaledTemplSize;
         }
 
-        auto directResult =
-            evaluateAndAcceptResult(scaleResult.fineRes, ctx.constrainedRect, scaleResult.scaledTempl, ctx.strategy, ctx.targetZoneId);
+        auto directResult = evaluateAndAcceptResult(
+            scaleResult.fineRes,
+            computation.constrainedRect,
+            scaleResult.scaledTemplSize,
+            computation.strategy.get(),
+            computation.targetZoneId);
         if (!directResult) {
             continue;
         }
@@ -698,69 +1320,86 @@ std::optional<MapPosition> MapLocator::Impl::tryConstrainedFineSearch(const Sear
             bestValidScore = directResult->score;
             bestScale = scaleResult.scale;
             bestFineRes = scaleResult.fineRes;
-            bestScaledTempl = scaleResult.scaledTempl;
+            bestScaledTemplSize = scaleResult.scaledTemplSize;
+            bestValidPosition = directResult;
         }
     }
 
-    if (ctx.outRawPos && bestRawScore >= 0.0) {
-        ctx.outRawPos->zoneId = ctx.targetZoneId;
-        ctx.outRawPos->x = ctx.constrainedRect.x + bestFineRes.loc.x + bestScaledTempl.cols / 2.0;
-        ctx.outRawPos->y = ctx.constrainedRect.y + bestFineRes.loc.y + bestScaledTempl.rows / 2.0;
-        ctx.outRawPos->score = bestRawScore;
-        ctx.outRawPos->scale = bestScale;
+    if (bestRawScore >= 0.0) {
+        attempt.rawPos.zoneId = computation.targetZoneId;
+        attempt.rawPos.x = computation.constrainedRect.x + bestFineRes.loc.x + bestScaledTemplSize.width / 2.0;
+        attempt.rawPos.y = computation.constrainedRect.y + bestFineRes.loc.y + bestScaledTemplSize.height / 2.0;
+        attempt.rawPos.score = bestRawScore;
+        attempt.rawPos.scale = bestScale;
     }
 
     if (bestValidScore < 0.0) {
         LogInfo << "Global Search: constrained ROI direct fine failed, no coarse fallback will be used." << VAR(bestRawScore);
-        return std::nullopt;
+        return attempt;
     }
 
-    auto directResult = evaluateAndAcceptResult(bestFineRes, ctx.constrainedRect, bestScaledTempl, ctx.strategy, ctx.targetZoneId);
-    if (!directResult) {
-        LogInfo << "Global Search: constrained ROI direct fine failed, no coarse fallback will be used." << VAR(bestRawScore);
-        return std::nullopt;
-    }
-
-    directResult->scale = bestScale;
+    bestValidPosition->scale = bestScale;
     LogInfo << "Global Search: direct fine search accepted inside constrained ROI." << VAR(bestScale) << VAR(bestValidScore);
-    return directResult;
+    attempt.result = bestValidPosition;
+    return attempt;
 }
 
-std::optional<MapPosition> MapLocator::Impl::tryGlobalSearch(
+GlobalSearchComputation MapLocator::Impl::startGlobalSearch(
     const MatchFeature& tmplFeat,
-    IMatchStrategy* strategy,
+    std::shared_ptr<IMatchStrategy> strategy,
     const std::string& targetZoneId,
     const SearchConstraint& constraint,
-    MapPosition* outRawPos)
+    const MatchConfig& matchConfig,
+    ScaleTaskPriority priority,
+    bool reserveTrackingCapacity)
 {
-    if (!strategy || targetZoneId.empty()) {
+    GlobalSearchComputation computation {
+        .strategy = std::move(strategy),
+        .targetZoneId = targetZoneId,
+    };
+    IMatchStrategy* strategyPtr = computation.strategy.get();
+    if (!strategyPtr || targetZoneId.empty()) {
         LogInfo << "Global Search Aborted: YOLO returned no result.";
-        return std::nullopt;
+        return computation;
     }
 
     if (zones.find(targetZoneId) == zones.end()) {
         std::string msg = "Global Search Aborted: YOLO predicted '" + targetZoneId + "', but this map is NOT loaded in 'zones'.";
         LogInfo << msg;
-        return std::nullopt;
+        return computation;
     }
 
     if (!constraint.yolo_validated) {
         LogInfo << "Global Search Aborted: no validated YOLO constraint." << VAR(targetZoneId);
-        return std::nullopt;
+        return computation;
     }
 
     const cv::Mat& bigMap = zones.at(targetZoneId);
     const cv::Rect mapBounds(0, 0, bigMap.cols, bigMap.rows);
+    MatchFeature searchFeature;
     if (constraint.mode == GlobalSearchMode::RoiFine) {
         const cv::Rect constrainedRect = constraint.roi & mapBounds;
         if (constrainedRect.empty()) {
             LogInfo << "Global Search Aborted: coarse ROI is outside of map bounds.";
-            return std::nullopt;
+            return computation;
         }
-        return tryConstrainedFineSearch({ tmplFeat, strategy, bigMap, constrainedRect, targetZoneId, outRawPos });
+        computation.constrainedRect = constrainedRect;
+        searchFeature = getGlobalSearchFeature(targetZoneId, constrainedRect, bigMap(constrainedRect), strategyPtr);
+    }
+    else {
+        computation.constrainedRect = mapBounds;
+        searchFeature = strategyPtr->extractSearchFeature(bigMap(mapBounds));
     }
 
-    return tryConstrainedFineSearch({ tmplFeat, strategy, bigMap, mapBounds, targetZoneId, outRawPos });
+    PreparedSearchFeature preparedSearch = PrepareSearchFeature(searchFeature.image, matchConfig.blurSize);
+    computation.batch = std::make_shared<GlobalSearchBatch>(
+        tmplFeat,
+        std::move(preparedSearch),
+        searchFeature.image.size(),
+        priority,
+        reserveTrackingCapacity);
+    computation.batch->start(*scaleExecutor);
+    return computation;
 }
 
 YoloCoarseResult MapLocator::Impl::predictCoarse(const cv::Mat& minimap) const
@@ -771,47 +1410,60 @@ YoloCoarseResult MapLocator::Impl::predictCoarse(const cv::Mat& minimap) const
     return zoneClassifier->predictCoarseByYOLO(minimap);
 }
 
-void MapLocator::Impl::refreshAsyncYoloState(const cv::Mat& minimap, TimePoint now)
+std::optional<AsyncYoloHandle> MapLocator::Impl::refreshAsyncYoloState(const cv::Mat& minimap, TimePoint now)
 {
     if (!zoneClassifier || !zoneClassifier->isLoaded()) {
-        return;
+        return std::nullopt;
     }
 
     std::unique_lock<std::mutex> lock(taskMutex, std::try_to_lock);
     if (!lock.owns_lock()) {
-        return;
+        return std::nullopt;
     }
 
-    if (asyncYoloTask.valid() && asyncYoloTask.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-        YoloCoarseResult predicted = asyncYoloTask.get();
-        if (predicted.valid && !predicted.is_none && !predicted.zone_id.empty() && !currentZoneId.empty()
-            && predicted.zone_id != currentZoneId) {
-            LogInfo << "Async YOLO detected zone change: " << currentZoneId << " -> " << predicted.zone_id;
-            motionTracker->forceLost();
-            stablePosition.reset();
+    if (asyncYoloState.has_value() && asyncYoloState->future.valid()) {
+        const bool isReady = asyncYoloState->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+        if (isReady && !asyncYoloState->zoneGuardApplied) {
+            const YoloCoarseResult predicted = asyncYoloState->future.get();
+            if (predicted.valid && !predicted.is_none && !predicted.zone_id.empty() && !currentZoneId.empty()
+                && predicted.zone_id != currentZoneId) {
+                LogInfo << "Async YOLO detected zone change: " << currentZoneId << " -> " << predicted.zone_id;
+                motionTracker->forceLost();
+                stablePosition.reset();
+            }
+            asyncYoloState->zoneGuardApplied = true;
         }
-    }
 
-    if (asyncYoloTask.valid()) {
-        return;
+        if (asyncYoloState->frameId == activeFrameId) {
+            return AsyncYoloHandle { .frameId = asyncYoloState->frameId, .future = asyncYoloState->future };
+        }
+        if (!isReady) {
+            return std::nullopt;
+        }
     }
 
     const auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - lastYoloCheckTime).count();
     if (elapsed < 3) {
-        return;
+        return std::nullopt;
     }
 
     // 限制频次：YOLO CPU 推理存在开销，区域大范围切换并非瞬发，降低频率足以应对漂移容错并显著降低资源负担
     lastYoloCheckTime = now;
     cv::Mat yoloInput = minimap.clone();
-    asyncYoloTask = std::async(std::launch::async, [this, yoloInput]() { return zoneClassifier->predictCoarseByYOLO(yoloInput); });
+    auto future = std::async(std::launch::async, [this, yoloInput]() { return zoneClassifier->predictCoarseByYOLO(yoloInput); }).share();
+    asyncYoloState = AsyncYoloState { .frameId = activeFrameId, .future = future };
+    return AsyncYoloHandle { .frameId = activeFrameId, .future = std::move(future) };
 }
 
 std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
     const cv::Mat& minimap,
     const LocateOptions& options,
     const std::string& expectedZoneId,
-    TimePoint now)
+    TimePoint now,
+    FrameTemplateFeatureCache& featureCache,
+    std::optional<AsyncYoloHandle>* sameFrameYolo,
+    bool yoloRefreshAlreadyPerformed,
+    const std::function<void()>& slowPathSignal)
 {
     if (options.force_global_search) {
         return std::nullopt;
@@ -820,7 +1472,12 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
         return std::nullopt;
     }
 
-    refreshAsyncYoloState(minimap, now);
+    if (!yoloRefreshAlreadyPerformed) {
+        const std::optional<AsyncYoloHandle> refreshedYolo = refreshAsyncYoloState(minimap, now);
+        if (sameFrameYolo && !sameFrameYolo->has_value() && refreshedYolo.has_value()) {
+            *sameFrameYolo = refreshedYolo;
+        }
+    }
 
     if (currentZoneId.empty()) {
         return std::nullopt;
@@ -836,8 +1493,8 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
 
     const bool isPathHeatmapZone = IsPathHeatmapZone(currentZoneId);
     MapPosition rawPrimaryPos {};
-    auto trackingTmpl = primaryStrategy->extractTemplateFeature(minimap);
-    auto trackingResult = tryTracking(trackingTmpl, primaryStrategy.get(), now, options, &rawPrimaryPos);
+    const MatchFeature& trackingTmpl = featureCache.get(minimap, primaryStrategy.get());
+    auto trackingResult = tryTracking(trackingTmpl, primaryStrategy.get(), now, options, slowPathSignal, &rawPrimaryPos);
     const bool trackingHeld = trackingResult.has_value() && trackingResult->isHeld;
 
     if (trackingResult && !trackingHeld) {
@@ -852,13 +1509,13 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
     if (shouldTryDualTracking) {
         auto fallbackStrategy =
             MatchStrategyFactory::create(currentZoneId, trackingCfg, matchCfg, baseImgCfg, tierImgCfg, MatchMode::ForcePathHeatmap);
-        auto fallbackTmpl = fallbackStrategy->extractTemplateFeature(minimap);
+        const MatchFeature& fallbackTmpl = featureCache.get(minimap, fallbackStrategy.get());
 
         MapPosition rawFallbackPos {};
         // fallback 只作为 dual 互证的第二路信号；试算后立即恢复状态，避免两策略不一致时单独推进或 hold tracker
         auto savedMotionTracker = *motionTracker;
         const auto savedStablePosition = stablePosition;
-        tryTracking(fallbackTmpl, fallbackStrategy.get(), now, options, &rawFallbackPos);
+        tryTracking(fallbackTmpl, fallbackStrategy.get(), now, options, {}, &rawFallbackPos);
         *motionTracker = savedMotionTracker;
         stablePosition = savedStablePosition;
         const double dist = std::hypot(rawPrimaryPos.x - rawFallbackPos.x, rawPrimaryPos.y - rawFallbackPos.y);
@@ -911,7 +1568,8 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
 SearchConstraint MapLocator::Impl::buildSearchConstraint(
     const std::string& expectedZoneSelector,
     const std::string& targetZoneId,
-    const YoloCoarseResult& coarse) const
+    const YoloCoarseResult& coarse,
+    bool emitLog) const
 {
     SearchConstraint constraint;
     if (!coarse.valid) {
@@ -926,15 +1584,19 @@ SearchConstraint MapLocator::Impl::buildSearchConstraint(
     const bool isPathHeatmapZone = IsPathHeatmapZone(targetZoneId);
     if (isPathHeatmapZone) {
         constraint.mode = GlobalSearchMode::FullMapFine;
-        LogInfo << "YOLO validated path-heatmap zone; using full-map direct fine search." << VAR(expectedZoneSelector)
-                << VAR(coarse.raw_class) << VAR(targetZoneId);
+        if (emitLog) {
+            LogInfo << "YOLO validated path-heatmap zone; using full-map direct fine search." << VAR(expectedZoneSelector)
+                    << VAR(coarse.raw_class) << VAR(targetZoneId);
+        }
         return constraint;
     }
 
     if (!coarse.has_roi) {
         constraint.mode = GlobalSearchMode::FullMapFine;
-        LogInfo << "YOLO validated zone without ROI mapping; using full-map direct fine search." << VAR(expectedZoneSelector)
-                << VAR(coarse.raw_class) << VAR(targetZoneId);
+        if (emitLog) {
+            LogInfo << "YOLO validated zone without ROI mapping; using full-map direct fine search." << VAR(expectedZoneSelector)
+                    << VAR(coarse.raw_class) << VAR(targetZoneId);
+        }
         return constraint;
     }
 
@@ -957,53 +1619,108 @@ SearchConstraint MapLocator::Impl::buildSearchConstraint(
 
     constraint.mode = GlobalSearchMode::RoiFine;
     constraint.roi = constrainedRoi;
-    LogInfo << "YOLO constrained global search to ROI" << VAR(expectedZoneSelector) << VAR(coarse.raw_class) << VAR(targetZoneId)
-            << VAR(constraint.roi.x) << VAR(constraint.roi.y) << VAR(constraint.roi.width) << VAR(constraint.roi.height);
+    if (emitLog) {
+        LogInfo << "YOLO constrained global search to ROI" << VAR(expectedZoneSelector) << VAR(coarse.raw_class) << VAR(targetZoneId)
+                << VAR(constraint.roi.x) << VAR(constraint.roi.y) << VAR(constraint.roi.width) << VAR(constraint.roi.height);
+    }
     return constraint;
 }
 
-std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
+GlobalSearchCandidates MapLocator::Impl::startGlobalSearchCandidates(
     const cv::Mat& minimap,
     const std::string& targetZoneId,
     const SearchConstraint& constraint,
-    MapPosition* outBestRaw)
+    FrameTemplateFeatureCache featureCache,
+    std::uint64_t searchFrameId,
+    const TrackingConfig& trackingConfig,
+    const MatchConfig& matchConfig,
+    const ImageProcessingConfig& baseImageConfig,
+    const ImageProcessingConfig& tierImageConfig,
+    bool reserveTrackingCapacity)
 {
+    GlobalSearchCandidates candidates {
+        .frameId = searchFrameId,
+        .targetZoneId = targetZoneId,
+        .constraint = constraint,
+    };
     const bool isPathHeatmapZone = IsPathHeatmapZone(targetZoneId);
     const unsigned hardwareThreads = std::max(1U, std::thread::hardware_concurrency());
     const bool canSpeculateDualMode = !isPathHeatmapZone && constraint.yolo_validated && hardwareThreads >= 8;
 
-    auto runSearch = [this, &constraint, &targetZoneId](const cv::Mat& searchMinimap, MatchMode mode) -> GlobalSearchAttempt {
-        GlobalSearchAttempt attempt;
-        auto strategy = MatchStrategyFactory::create(targetZoneId, trackingCfg, matchCfg, baseImgCfg, tierImgCfg, mode);
-        if (!strategy) {
-            return attempt;
+    auto startSearch = [this,
+                        &minimap,
+                        &constraint,
+                        &targetZoneId,
+                        &featureCache,
+                        &trackingConfig,
+                        &matchConfig,
+                        &baseImageConfig,
+                        &tierImageConfig,
+                        reserveTrackingCapacity](MatchMode mode, ScaleTaskPriority priority) -> GlobalSearchComputation {
+        auto uniqueStrategy =
+            MatchStrategyFactory::create(targetZoneId, trackingConfig, matchConfig, baseImageConfig, tierImageConfig, mode);
+        if (!uniqueStrategy) {
+            return {};
         }
 
-        auto globalTmpl = strategy->extractTemplateFeature(searchMinimap);
-        attempt.result = tryGlobalSearch(globalTmpl, strategy.get(), targetZoneId, constraint, &attempt.rawPos);
-        return attempt;
+        std::shared_ptr<IMatchStrategy> strategy = std::move(uniqueStrategy);
+        const MatchFeature& globalTmpl = featureCache.get(minimap, strategy.get());
+        return startGlobalSearch(globalTmpl, std::move(strategy), targetZoneId, constraint, matchConfig, priority, reserveTrackingCapacity);
     };
 
-    std::future<GlobalSearchAttempt> fallbackTask;
-    if (canSpeculateDualMode) {
-        cv::Mat fallbackMinimap = minimap.clone();
-        SearchConstraint fallbackConstraint = constraint;
-        std::string fallbackZoneId = targetZoneId;
-        fallbackTask = std::async(std::launch::async, [this, fallbackMinimap, fallbackConstraint, fallbackZoneId]() {
-            GlobalSearchAttempt attempt;
-            auto fallbackStrategy =
-                MatchStrategyFactory::create(fallbackZoneId, trackingCfg, matchCfg, baseImgCfg, tierImgCfg, MatchMode::ForcePathHeatmap);
-            if (!fallbackStrategy) {
-                return attempt;
+    candidates.primary = startSearch(MatchMode::Auto, ScaleTaskPriority::GlobalPrimary);
+    if (!isPathHeatmapZone) {
+        auto uniqueFallbackStrategy = MatchStrategyFactory::create(
+            targetZoneId,
+            trackingConfig,
+            matchConfig,
+            baseImageConfig,
+            tierImageConfig,
+            MatchMode::ForcePathHeatmap);
+        if (uniqueFallbackStrategy) {
+            std::shared_ptr<IMatchStrategy> fallbackStrategy = std::move(uniqueFallbackStrategy);
+            MatchFeature fallbackTemplate = featureCache.get(minimap, fallbackStrategy.get());
+            candidates.deferredFallback = [this,
+                                           fallbackTemplate = std::move(fallbackTemplate),
+                                           fallbackStrategy = std::move(fallbackStrategy),
+                                           targetZoneId,
+                                           constraint,
+                                           matchConfig,
+                                           reserveTrackingCapacity]() mutable {
+                return startGlobalSearch(
+                    fallbackTemplate,
+                    fallbackStrategy,
+                    targetZoneId,
+                    constraint,
+                    matchConfig,
+                    ScaleTaskPriority::GlobalFallback,
+                    reserveTrackingCapacity);
+            };
+            if (canSpeculateDualMode) {
+                candidates.fallback = candidates.deferredFallback();
+                candidates.deferredFallback = {};
             }
+        }
+    }
+    return candidates;
+}
 
-            auto fallbackTmpl = fallbackStrategy->extractTemplateFeature(fallbackMinimap);
-            attempt.result = tryGlobalSearch(fallbackTmpl, fallbackStrategy.get(), fallbackZoneId, fallbackConstraint, &attempt.rawPos);
-            return attempt;
-        });
+std::optional<MapPosition> MapLocator::Impl::finishGlobalSearchCandidates(GlobalSearchCandidates candidates, MapPosition* outBestRaw)
+{
+    const bool isPathHeatmapZone = IsPathHeatmapZone(candidates.targetZoneId);
+
+    // Speculative global work stays deliberately narrow while Tracking may still
+    // win the frame. Once the original control flow reaches Global, let the
+    // batch use the full executor because there is no foreground Tracking work
+    // left to protect.
+    if (candidates.primary.batch) {
+        candidates.primary.batch->releaseTrackingCapacity(*scaleExecutor);
+    }
+    if (candidates.fallback.has_value() && candidates.fallback->batch) {
+        candidates.fallback->batch->releaseTrackingCapacity(*scaleExecutor);
     }
 
-    auto primaryAttempt = runSearch(minimap, MatchMode::Auto);
+    GlobalSearchAttempt primaryAttempt = finishGlobalSearch(candidates.primary);
     auto globalResult = primaryAttempt.result;
     const MapPosition& rawGlobalPrimaryPos = primaryAttempt.rawPos;
 
@@ -1011,21 +1728,30 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
         *outBestRaw = rawGlobalPrimaryPos;
     }
 
-    const bool shouldTryDualMode = !globalResult && !isPathHeatmapZone && (constraint.yolo_validated || rawGlobalPrimaryPos.score > 0.1);
+    const bool shouldTryDualMode =
+        !globalResult && !isPathHeatmapZone && (candidates.constraint.yolo_validated || rawGlobalPrimaryPos.score > 0.1);
     if (!shouldTryDualMode) {
-        if (fallbackTask.valid()) {
-            // Keep the future alive so its destructor cannot block the successful path.
-            backgroundGlobalSearchTasks.emplace_back(std::move(fallbackTask));
+        if (candidates.fallback.has_value() && candidates.fallback->batch) {
+            candidates.fallback->batch->cancel(*scaleExecutor);
         }
         return globalResult;
     }
 
     GlobalSearchAttempt fallbackAttempt;
-    if (fallbackTask.valid()) {
-        fallbackAttempt = fallbackTask.get();
+    if (candidates.fallback.has_value() && candidates.fallback->batch) {
+        candidates.fallback->batch->promote(*scaleExecutor);
+        fallbackAttempt = finishGlobalSearch(*candidates.fallback);
     }
     else {
-        fallbackAttempt = runSearch(minimap, MatchMode::ForcePathHeatmap);
+        GlobalSearchComputation synchronousFallback;
+        if (candidates.deferredFallback) {
+            synchronousFallback = candidates.deferredFallback();
+            if (synchronousFallback.batch) {
+                synchronousFallback.batch->releaseTrackingCapacity(*scaleExecutor);
+                synchronousFallback.batch->promote(*scaleExecutor);
+            }
+        }
+        fallbackAttempt = finishGlobalSearch(synchronousFallback);
     }
 
     auto fallbackResult = fallbackAttempt.result;
@@ -1053,15 +1779,35 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
     return globalResult;
 }
 
+std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
+    const cv::Mat& minimap,
+    const std::string& targetZoneId,
+    const SearchConstraint& constraint,
+    FrameTemplateFeatureCache& featureCache,
+    MapPosition* outBestRaw)
+{
+    GlobalSearchCandidates candidates = startGlobalSearchCandidates(
+        minimap,
+        targetZoneId,
+        constraint,
+        featureCache,
+        activeFrameId,
+        trackingCfg,
+        matchCfg,
+        baseImgCfg,
+        tierImgCfg,
+        false);
+    return finishGlobalSearchCandidates(std::move(candidates), outBestRaw);
+}
+
 LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOptions& options)
 {
     const auto now = std::chrono::steady_clock::now();
+    activeFrameId = ++frameId;
 
     if (!isInitialized) {
         return LocateResult { .status = LocateStatus::NotInitialized, .debugMessage = "MapLocator not initialized." };
     }
-
-    drainBackgroundGlobalSearchTasks();
 
     matchCfg.passThreshold = options.loc_threshold;
     matchCfg.yoloConfThreshold = options.yolo_threshold;
@@ -1079,9 +1825,111 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     };
 
     std::optional<YoloCoarseResult> angleGuardCoarse;
+    FrameTemplateFeatureCache featureCache;
+    std::optional<AsyncYoloHandle> sameFrameYolo;
     const std::string expectedZoneSelector = options.expected_zone_id;
     const std::string expectedZoneId = NormalizeExpectedZoneId(expectedZoneSelector, zoneClassifier.get());
-    if (auto trackingResult = tryTrackingLocate(minimap, options, expectedZoneId, now)) {
+    std::shared_ptr<FrameSearchCoordinator> frameSearchCoordinator;
+    FrameSearchCancelGuard frameSearchCancelGuard(&frameSearchCoordinator);
+    bool periodicYoloRefreshPerformed = false;
+    auto ensureFrameSearch = [&](bool allowPeriodicRefresh, bool reserveTrackingCapacity) {
+        if (frameSearchCoordinator || !scaleExecutor || scaleExecutor->workerCount() < 6) {
+            return;
+        }
+
+        if ((!sameFrameYolo.has_value() || sameFrameYolo->frameId != activeFrameId) && allowPeriodicRefresh) {
+            sameFrameYolo = refreshAsyncYoloState(minimap, now);
+            periodicYoloRefreshPerformed = true;
+        }
+
+        const std::uint64_t searchFrameId = activeFrameId;
+        cv::Mat frameMinimap = minimap.clone();
+        FrameSearchCoordinator::CoarseFunction predictForFrame;
+        if (sameFrameYolo.has_value() && sameFrameYolo->frameId == searchFrameId && sameFrameYolo->future.valid()) {
+            const std::shared_future<YoloCoarseResult> future = sameFrameYolo->future;
+            predictForFrame = [future]() {
+                return future.get();
+            };
+        }
+        else {
+            cv::Mat yoloInput = frameMinimap;
+            predictForFrame = [this, yoloInput = std::move(yoloInput)]() {
+                return predictCoarse(yoloInput);
+            };
+        }
+        FrameTemplateFeatureCache frameFeatureCache = featureCache;
+        const TrackingConfig trackingConfig = trackingCfg;
+        const MatchConfig matchConfig = matchCfg;
+        const ImageProcessingConfig baseImageConfig = baseImgCfg;
+        const ImageProcessingConfig tierImageConfig = tierImgCfg;
+        auto compute = [this,
+                        frameMinimap = std::move(frameMinimap),
+                        frameFeatureCache = std::move(frameFeatureCache),
+                        expectedZoneSelector,
+                        expectedZoneId,
+                        searchFrameId,
+                        trackingConfig,
+                        matchConfig,
+                        baseImageConfig,
+                        tierImageConfig,
+                        reserveTrackingCapacity](const YoloCoarseResult& coarse) mutable -> std::optional<GlobalSearchCandidates> {
+            if (coarse.valid && coarse.is_none) {
+                return std::nullopt;
+            }
+
+            std::string targetZoneId = expectedZoneId;
+            if (targetZoneId.empty() && coarse.valid) {
+                targetZoneId = coarse.zone_id;
+            }
+            if (targetZoneId.empty() || targetZoneId == "None") {
+                return std::nullopt;
+            }
+
+            const SearchConstraint constraint = buildSearchConstraint(expectedZoneSelector, targetZoneId, coarse, false);
+            if (coarse.valid && !coarse.is_none && !constraint.yolo_validated) {
+                return std::nullopt;
+            }
+            const bool isPathHeatmapZone = IsPathHeatmapZone(targetZoneId);
+            if (coarse.valid && !coarse.is_none && coarse.has_roi && !isPathHeatmapZone && constraint.mode != GlobalSearchMode::RoiFine) {
+                return std::nullopt;
+            }
+
+            return startGlobalSearchCandidates(
+                frameMinimap,
+                targetZoneId,
+                constraint,
+                frameFeatureCache,
+                searchFrameId,
+                trackingConfig,
+                matchConfig,
+                baseImageConfig,
+                tierImageConfig,
+                reserveTrackingCapacity);
+        };
+
+        frameSearchCoordinator = std::make_shared<FrameSearchCoordinator>(std::move(predictForFrame), *scaleExecutor, std::move(compute));
+        frameSearchCoordinator->start();
+    };
+
+    const int trackingLostLimit = IsPathHeatmapZone(currentZoneId) ? 10 : options.max_lost_frames;
+    const bool trackerUnavailable = !motionTracker || currentZoneId.empty() || !motionTracker->isTracking(trackingLostLimit);
+    const bool expectedZoneMismatch = !expectedZoneId.empty() && currentZoneId != expectedZoneId;
+    if (options.force_global_search || trackerUnavailable || expectedZoneMismatch) {
+        ensureFrameSearch(!options.force_global_search && motionTracker != nullptr, false);
+    }
+
+    auto slowPathSignal = [&]() {
+        ensureFrameSearch(false, true);
+    };
+    if (auto trackingResult = tryTrackingLocate(
+            minimap,
+            options,
+            expectedZoneId,
+            now,
+            featureCache,
+            &sameFrameYolo,
+            periodicYoloRefreshPerformed,
+            slowPathSignal)) {
         if (trackingResult->position.has_value()) {
             trackingResult->position->angle = resolveAngle();
         }
@@ -1089,14 +1937,23 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     }
 
     const double inferredAngle = resolveAngle();
+    auto predictCurrentFrameCoarse = [&]() {
+        if (frameSearchCoordinator) {
+            return frameSearchCoordinator->getCoarse();
+        }
+        if (sameFrameYolo.has_value() && sameFrameYolo->frameId == activeFrameId && sameFrameYolo->future.valid()) {
+            return sameFrameYolo->future.get();
+        }
+        return predictCoarse(minimap);
+    };
     if (inferredAngle < 0.0) {
-        angleGuardCoarse = predictCoarse(minimap);
+        angleGuardCoarse = predictCurrentFrameCoarse();
         LogInfo << "Angle inference failed; forcing synchronous YOLO refresh." << VAR(angleGuardCoarse->valid)
                 << VAR(angleGuardCoarse->is_none) << VAR(angleGuardCoarse->zone_id);
     }
 
     std::string targetZoneId = expectedZoneId;
-    const YoloCoarseResult coarse = angleGuardCoarse.value_or(predictCoarse(minimap));
+    const YoloCoarseResult coarse = angleGuardCoarse.has_value() ? *angleGuardCoarse : predictCurrentFrameCoarse();
     if (coarse.valid && coarse.is_none) {
         return LocateResult {
             .status = LocateStatus::TrackingLost,
@@ -1142,7 +1999,18 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
 
     int maxAllowedLost = IsPathHeatmapZone(targetZoneId) ? 10 : options.max_lost_frames;
     MapPosition bestRawGlobal {};
-    auto globalResult = tryGlobalSearchWithFallback(minimap, targetZoneId, constraint, &bestRawGlobal);
+    std::optional<MapPosition> globalResult;
+    bool prefetchedCandidatesConsumed = false;
+    if (frameSearchCoordinator) {
+        auto prefetchedCandidates = frameSearchCoordinator->takeCandidates(activeFrameId, targetZoneId, constraint);
+        if (prefetchedCandidates.has_value()) {
+            prefetchedCandidatesConsumed = true;
+            globalResult = finishGlobalSearchCandidates(std::move(*prefetchedCandidates), &bestRawGlobal);
+        }
+    }
+    if (!prefetchedCandidatesConsumed) {
+        globalResult = tryGlobalSearchWithFallback(minimap, targetZoneId, constraint, featureCache, &bestRawGlobal);
+    }
     if (!globalResult) {
         if (bestRawGlobal.score > kSeamFallbackMinPeakScore) {
             bestRawGlobal.isHeld = true;
@@ -1251,8 +2119,9 @@ LocateResult MapLocator::locate(const cv::Mat& minimap, const LocateOptions& opt
     auto start = std::chrono::high_resolution_clock::now();
     LocateResult res = pimpl->locate(minimap, options);
     auto end = std::chrono::high_resolution_clock::now();
+    const long long latencyMs = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
     if (res.position.has_value()) {
-        res.position->latencyMs = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+        res.position->latencyMs = latencyMs;
     }
     return res;
 }
