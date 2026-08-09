@@ -126,6 +126,165 @@
         "next": [
             "EnvironmentMonitoringShutterButtonHighlighted",
             "EnvironmentMonitoringShutterButtonPhotographyTarget",
+            "EnvironmentMonitoringOpenPhotoSettings"
+        ]
+    },
+    "EnvironmentMonitoringPhotoSettingsTab": {
+        "desc": "拍照设置中的画面标签",
+        "recognition": "OCR",
+        "roi": [
+            20,
+            20,
+            110,
+            70
+        ],
+        "expected": [
+            "画面",
+            "畫面",
+            "(?i)Scene",
+            "화면"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "EnvironmentMonitoringPhotoSettingsPanelClosed": {
+        "desc": "拍照画面设置已关闭，inverse 必须由该节点独立执行",
+        "recognition": "OCR",
+        "roi": [
+            20,
+            60,
+            220,
+            90
+        ],
+        "expected": [
+            "显示干员",
+            "顯示幹員",
+            "(?i)Show\\s*Operator",
+            "オペレーターを表示",
+            "오퍼레이터 표시"
+        ],
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EnvironmentMonitoringWaitShutterButtonAfterHidingOperators"
+        ]
+    },
+    "EnvironmentMonitoringOpenPhotoSettings": {
+        "desc": "拍照目标未达成，打开画面设置",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringPhotoSettingsTab"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EnvironmentMonitoringPhotoSettingsShowAllOperators",
+            "EnvironmentMonitoringClosePhotoSettingsWithOperatorsHidden"
+        ]
+    },
+    "EnvironmentMonitoringPhotoSettingsShowAllOperators": {
+        "desc": "拍照画面设置当前显示全部干员",
+        "recognition": "OCR",
+        "roi": [
+            180,
+            60,
+            240,
+            75
+        ],
+        "expected": [
+            "显示全部",
+            "顯示全部",
+            "(?i)Show\\s*All",
+            "全て表示",
+            "전체 표시"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EnvironmentMonitoringPhotoSettingsHideAllOperators"
+        ]
+    },
+    "EnvironmentMonitoringPhotoSettingsHideAllOperators": {
+        "desc": "在显示干员下拉框中选择隐藏全部",
+        "recognition": "OCR",
+        "roi": [
+            180,
+            165,
+            240,
+            130
+        ],
+        "expected": [
+            "隐藏全部",
+            "隱藏全部",
+            "(?i)Hide\\s*All",
+            "全て非表示",
+            "전체 숨기기"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EnvironmentMonitoringClosePhotoSettingsWithOperatorsHidden"
+        ]
+    },
+    "EnvironmentMonitoringPhotoSettingsOperatorsHidden": {
+        "desc": "拍照画面设置当前隐藏全部干员",
+        "recognition": "OCR",
+        "roi": [
+            180,
+            60,
+            240,
+            75
+        ],
+        "expected": [
+            "隐藏全部",
+            "隱藏全部",
+            "(?i)Hide\\s*All",
+            "全て非表示",
+            "전체 숨기기"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "EnvironmentMonitoringClosePhotoSettingsWithOperatorsHidden": {
+        "desc": "确认干员已全部隐藏后关闭画面设置",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringPhotoSettingsOperatorsHidden",
+            "EnvironmentMonitoringPhotoSettingsTab"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EnvironmentMonitoringPhotoSettingsPanelClosed"
+        ]
+    },
+    "EnvironmentMonitoringWaitShutterButtonAfterHidingOperators": {
+        "desc": "隐藏全部干员后重新检查拍照目标",
+        "recognition": "And",
+        "all_of": [
+            "ShutterButton"
+        ],
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EnvironmentMonitoringShutterButtonHighlighted",
+            "EnvironmentMonitoringShutterButtonPhotographyTarget",
             "[JumpBack][Anchor]EnvironmentMonitoringAdjustCamera"
         ]
     },

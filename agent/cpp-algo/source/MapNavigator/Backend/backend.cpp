@@ -27,7 +27,7 @@ std::unique_ptr<IInputBackend> CreateInputBackend(MaaController* ctrl)
     // WlRoots 与 Win32 共享同一套 Win32 VK 键码语义（前者在 interface.json 中开启
     // use_win32_vk_code，由 MaaFramework 翻译为 Linux evdev 码），但 WlRoots 仍需
     // 自己的 SendViewDeltaSync 实现来处理 Xwayland 鼠标捕获下的视角旋转。
-    if (IsWlrootsControllerType(controller_type)) {
+    if (IsWlrootsLikeControllerType(controller_type)) {
         return backend::wlroots::CreateWlrootsInputBackend(ctrl, std::move(controller_type));
     }
 

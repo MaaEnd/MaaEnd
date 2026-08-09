@@ -1,37 +1,7 @@
 {
-    // 在商店中购买物品的节点
-    "CreditShoppingBuyItem": {
-        "desc": "购买商品文字识别",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "CreditShoppingBuyItemNameColor",
-                    "CreditShoppingBuyItemName"
-                ],
-                "box_index": 1
-            }
-        },
-        "next": [
-            "CreditShoppingBuyItemBelowReserve",
-            "CreditShoppingBuyItemOCR_ArsenalTicket",
-            "CreditShoppingBuyItemOCR_Oroberyl",
-            "CreditShoppingBuyItemOCR_TCreds",
-            "CreditShoppingBuyItemOCR_ElementaryCombatRecord",
-            "CreditShoppingBuyItemOCR_IntermediateCombatRecord",
-            "CreditShoppingBuyItemOCR_ElementaryCognitiveCarrier",
-            "CreditShoppingBuyItemOCR_ArmsInspector",
-            "CreditShoppingBuyItemOCR_ArmsINSPKit",
-            "CreditShoppingBuyItemOCR_CastDie",
-            "CreditShoppingBuyItemOCR_HeavyCastDie",
-            "CreditShoppingBuyItemOCR_Protodisk",
-            "CreditShoppingBuyItemOCR_Protoset",
-            "CreditShoppingBuyItemOCR_Protoprism",
-            "CreditShoppingBuyItemOCR_Protohedron"
-        ]
-    },
+    // 购买页确认 / 失败；强制购买另在弹窗内用价格做保留阈值检查
     "CreditShoppingBuyItemPriceOCR": {
-        "desc": "购买弹窗内物品价格",
+        "desc": "购买弹窗内物品价格（供强制购买的保留阈值表达式引用）",
         "recognition": "OCR",
         "roi": [
             921,
@@ -42,13 +12,12 @@
         "expected": [
             "^\\d+$"
         ],
-        "only_rec": true,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     },
     "CreditShoppingBuyItemBelowReserve": {
-        "desc": "持有信用点 − 弹窗价格 < 保留阈值：取消购买并停止任务（选项：保留信用点阈值）",
+        "desc": "强制购买：持有信用点 − 弹窗价格 < 保留阈值则取消购买并停止任务（选项：保留信用点阈值）",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -95,45 +64,6 @@
         "action": "StopTask",
         "post_delay": 0,
         "rate_limit": 0
-    },
-    "CreditShoppingBuyItemNameColor": {
-        "desc": "物品名称文字颜色",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    172,
-                    123,
-                    245,
-                    47
-                ],
-                "method": 40,
-                "lower": [
-                    0,
-                    0,
-                    110
-                ],
-                "upper": [
-                    0,
-                    3,
-                    200
-                ],
-                "count": 10,
-                "order_by": "Vertical"
-            }
-        }
-    },
-    "CreditShoppingBuyItemName": {
-        "desc": "识别购买商品的文字(使用 CreditShoppingBuyItemNameColor 的 roi 作为识别区域)",
-        "recognition": "OCR",
-        "roi": "CreditShoppingBuyItemNameColor",
-        "expected": [
-            "购买商品",
-            "購買商品",
-            "(?i)Purchase",
-            "購入"
-        ],
-        "only_rec": true
     },
     "CreditShoppingBuyFailed": {
         "desc": "购买失败（已售罄/信用点不足）",

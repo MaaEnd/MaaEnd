@@ -382,58 +382,6 @@
             "map_name": "map02_lv004",
             "path": [
                 [
-                    418.8,
-                    321.3
-                ],
-                [
-                    418.8,
-                    327
-                ],
-                [
-                    415.2,
-                    327
-                ],
-                [
-                    415,
-                    321.4
-                ],
-                [
-                    395,
-                    321.4
-                ],
-                [
-                    323.7,
-                    321.3
-                ],
-                [
-                    322.8,
-                    278
-                ],
-                [
-                    332.7,
-                    271.1
-                ],
-                [
-                    333.5,
-                    264.2
-                ],
-                [
-                    333.7,
-                    254.5
-                ],
-                [
-                    350,
-                    255.1
-                ],
-                [
-                    358.8,
-                    255.1
-                ],
-                [
-                    358.8,
-                    238.8
-                ],
-                [
                     343.8,
                     238.8
                 ]
@@ -451,7 +399,15 @@
         "rate_limit": 0,
         "next": [
             "WaterTemperatureControllerTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "WaterTemperatureControllerTakePhoto": {
         "desc": "在净水温控装置任务拍照点开始拍照",

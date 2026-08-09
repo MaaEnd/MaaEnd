@@ -1,0 +1,178 @@
+{
+    "SyncValuablesItemData": {
+        "desc": "IMS A2 珍贵物品页入口：业务侧只需调用本节点。首次成功后 Resource 级关闭 SyncValuablesItemDataBegin，同 Resource 后续调用走 Skipped",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncValuablesItemDataBegin",
+            "SyncValuablesItemDataSkipped"
+        ]
+    },
+    "SyncValuablesItemDataBegin": {
+        "desc": "A2 实际执行入口：进入贵重品库珍贵物品页并同步；成功后由 SyncValuablesItemDataLock 关闭本节点",
+        "enabled": true,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncValuablesItemDataInValuablesTab",
+            "[JumpBack]SceneEnterMenuValuablesValuableTab"
+        ]
+    },
+    "SyncValuablesItemDataSkipped": {
+        "desc": "本次 Resource 已同步过珍贵物品页缓存，跳过 A2",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "SyncValuablesItemDataInValuablesTab": {
+        "desc": "确认已在珍贵物品页，开始同步",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncValuablesItemDataRunFull"
+        ]
+    },
+    "SyncValuablesItemDataRunFull": {
+        "desc": "A2 珍贵物品页识别（page_dedup=false，地区重建）。列表静止后识别；结束后优先 JumpBack 滑动增量，用尽后走 Lock",
+        "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "target": [
+                30,
+                80,
+                950,
+                560
+            ],
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SyncItemData",
+                "custom_action_param": {
+                    "items": {
+                        "CHARTERED_HH_PERMIT": "CHARTERED_HH_PERMIT"
+                    },
+                    "page_dedup": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SyncValuablesItemDataScrollPage",
+            "SyncValuablesItemDataLock"
+        ]
+    },
+    "SyncValuablesItemDataScrollPage": {
+        "desc": "A2 滑动并进入增量识别。Win32-Front 默认关闭；调 max_hit 控制额外翻页次数",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    680,
+                    560
+                ],
+                "end": [
+                    680,
+                    300
+                ],
+                "end_hold": 300
+            }
+        },
+        "post_wait_freezes": {
+            "target": [
+                30,
+                80,
+                950,
+                560
+            ],
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncValuablesItemDataRunInc"
+        ]
+    },
+    "SyncValuablesItemDataRunInc": {
+        "desc": "A2 珍贵物品页增量识别（page_dedup=true）。列表静止后识别；完成后空 next，经 JumpBack 回到 RunFull.next",
+        "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "target": [
+                30,
+                80,
+                950,
+                560
+            ],
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SyncItemData",
+                "custom_action_param": {
+                    "items": {
+                        "CHARTERED_HH_PERMIT": "CHARTERED_HH_PERMIT"
+                    },
+                    "page_dedup": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "SyncValuablesItemDataLock": {
+        "desc": "A2 成功后 Resource 级关闭 SyncValuablesItemDataBegin，同 Resource 内不再扫珍贵物品页（不恢复）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "resource_override": true,
+                    "patch": {
+                        "SyncValuablesItemDataBegin": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    }
+}

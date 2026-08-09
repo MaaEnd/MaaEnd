@@ -983,5 +983,12 @@
     "resource/image/IMS/item/TACHYON_SCREENING_LATTICE_TEMPLATE": "36a7ec226ccadb3e7bf63a79d9ae8d583544a3b036bf76b702d2d91f4636d1fd",
     "resource/image/IMS/item/PROTOHEDRON_TEMPLATE": "23e61c6003a5576e1309c77941b5691df11bcbc8b2b029c4269145b6362f48f9",
     "resource/image/Common/Button/TrackedMissionMapButton": "476da5205d64343ce84275dbb8978269172bbb27ca93ad47461424850674705b",
-    "resource/image/IMS/item/OROBERYL_TEMPLATE": "3602a08527a0542a7c7e2b6451e9ba17937d0b2fd6a1d4aad584b1b80f7b4e57"
+    "resource/image/IMS/item/OROBERYL_TEMPLATE": "3602a08527a0542a7c7e2b6451e9ba17937d0b2fd6a1d4aad584b1b80f7b4e57",
+    "resource/image/ProtocolSpace/MechanicsIcon": "10199ea056374f794a7109520918ce0b9a559eec05b012337649beff9898dba1",
+    "resource/image/AccountSwitch/LoginClose": "eda659de62386318b0f14aca0b15ac806b7f2782ad9c42ff58decaaa3950e9ea",
+    "resource/image/AccountSwitch/LoginSwitchIcon": "f7dcce4dcc2fc879c4e9001b0949eb7b9ccc9f134aefa03fff030827a91e4a61",
+    "resource/image/IMS/item/WULING_STOCK_BILL_TEMPLATE": "40411a024411e022a36410bbe6dc9b2a81d8136b00477c912aecf392692d691e",
+    "resource/image/IMS/item/VALLEY_STOCK_BILL_TEMPLATE": "19f3170ca40d4e15ce7df13f0c75f025e4c674fd3ad34a9eb8551883852ba6a7",
+    "resource/image/SeizeDeliveryJobs/BlueTaskMap02Lv005No1TypeC": "c2f3b1548dbad46210696049a7eabe2bc2b6f05f39dbbbb0991a39b333c79d76",
+    "resource/image/IMS/item/CHARTERED_HH_PERMIT_TEMPLATE": "a5ec7e36ab955133c6cf8b36f38c6dc4bdb44942f72134ae5b306d825bf341e7"
 }

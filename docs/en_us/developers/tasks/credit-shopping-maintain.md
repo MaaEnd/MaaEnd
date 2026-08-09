@@ -12,33 +12,18 @@ CreditShopping/
 │   ├── Entry.json         # Entry detection + whitelist init
 │   ├── Scan.json          # Shelf scan gate + snapshot (triggers buy decision loop)
 │   ├── BuyAction.json     # 3-tier purchase / blacklist / stable refresh / nothing to buy
-│   ├── BuyItem.json       # Purchase popup confirm / failure / close
+│   ├── BuyItem.json       # Purchase confirm / failure / force-buy price reserve check
 │   └── Special.json       # ADB swipe / unable to buy on refresh / refresh item
 ├── Credit/                # Credit management
 │   ├── Reserve.json       # Reserve threshold detection + current credit OCR
 │   ├── AutoGetCredits.json# Auto credit replenishment (jump to base when unaffordable)
-│   └── ClaimCredit.json   # Claim pending credits
+│   └── ClaimCredit.json   # Claim pending credits (includes IMS A3 add)
 ├── Item/                  # Shelf item recognition (recognition chain)
 │   ├── ShelfBase.json     # Anchor CreditIcon + sold out + price check
 │   ├── Priority1.json     # Priority 1 whitelist + discount
 │   ├── Priority2.json     # Priority 2 whitelist + discount
 │   ├── Priority3.json     # Priority 3 whitelist + discount
 │   └── Blacklist.json     # Blacklist filter + discount
-├── BuyItem/               # Purchase popup (one file per item)
-│   ├── ArsenalTicket.json # Per-item popup OCR
-│   ├── Oroberyl.json
-│   ├── TCreds.json
-│   ├── ElementaryCombatRecord.json
-│   ├── IntermediateCombatRecord.json
-│   ├── ElementaryCognitiveCarrier.json
-│   ├── ArmsInspector.json
-│   ├── ArmsINSPKit.json
-│   ├── CastDie.json
-│   ├── HeavyCastDie.json
-│   ├── Protodisk.json
-│   ├── Protoset.json
-│   ├── Protoprism.json
-│   └── Protohedron.json
 ├── GoToShop.json           # Navigate to shop and switch to credit exchange tab
 ├── record.json             # Record item name and discount during shelf snapshot
 └── Reflash.json            # Refresh button / cost / used up / unable to refresh
@@ -60,11 +45,11 @@ Other related files:
 2. Before entering the scan loop, [initialize the item name whitelist for each tier once](#attach-and-whitelist-initialization) (`Flow/Entry.json` + `attachregex/action.go`).
 3. In each round, for the current shelf snapshot, evaluate in a fixed priority order (`Flow/Scan.json` → `Flow/BuyAction.json`):
     - A target item in some tier [is affordable but credit is insufficient](#automatic-credit-replenishment) → jump to base to replenish credit and return.
-    - Whether it matches [Priority Purchase 1 / 2 / 3](#three-tier-purchase-priority) → enter the purchase popup.
+    - Whether it matches [Priority Purchase 1 / 2 / 3](#three-tier-purchase-priority) → confirm purchase directly.
     - Whether the current credit is [below the reserve threshold](#credit-point-reserve-threshold) → end the task.
     - Whether refresh attempts are exhausted, whether to trigger [stable refresh to direct purchase](#force-strategy-and-refresh).
     - Follow the [force strategy](#force-strategy-and-refresh) to purchase any affordable item / refresh the shelf / end directly.
-4. In the purchase popup, confirm the item, record the focus (`Flow/BuyItem.json` + `BuyItem/*.json`), return to the list, and continue scanning.
+4. After confirm, enter the reward UI: IMS A3 adds cultivation items and announces them, then close and continue scanning. Force-buy checks reserve via "held − price" before confirm.
 
 > The `next` order of the scan loop defines the business priority; to change behavior, examine the entire chain, not just a single recognizer.
 
@@ -155,20 +140,20 @@ The fallback after all three tiers fail to match is determined by `CreditShoppin
 | Strategy | Behavior |
 | ---------------- | ------------------------------------------------------------ |
 | Exit | Do not purchase any item, do not refresh, end directly |
-| Ignore Blacklist | Purchase any affordable, not sold-out item |
-| Refresh | Attempt to refresh the shelf; can expand to "stable refresh" |
+| Ignore Blacklist | Purchase any affordable, not sold-out item; before confirm, `BuyItemBelowReserve` checks reserve via "held − price", and cancels/stops if insufficient |
+| Refresh | Attempt to refresh the shelf; can expand to "stable refresh" and "check price before direct buy" |
 
 **Stable Refresh**: If "Current credit − Refresh cost < Stable refresh threshold" and there are still purchasable items on the shelf, then do not refresh, but directly purchase instead.  
 This threshold and the "Reserve Credit Points" are two independent conditions; do not mix them.
 
+**Check price before direct buy** (Refresh sub-option, default on): When enabled, refresh-exhausted / prudent direct buys check reserve via "held − price" before confirm and cancel/stop if insufficient; when disabled, buy first, then the reserved-credits node decides whether to stop.
+
 ## Paths to Modify When Adding New Items
 
 1. `assets/tasks/CreditShopping.json` — Add a case in the corresponding tier's checkbox, and simultaneously write `attach` for both the "affordable" and "unaffordable" sides.
-2. `assets/resource/pipeline/CreditShopping/Flow/BuyItem.json` — Add this item's popup branch to the `next` list.
-3. `assets/resource/pipeline/CreditShopping/BuyItem/` — Create a new item file (popup OCR + focus text), following the existing file structure.
-4. `assets/locales/interface/*.json` — `option.CreditShoppingItems.cases.*.label`
+2. `assets/locales/interface/*.json` — `option.CreditShoppingItems.cases.*.label`
 
-If only the list whitelist is changed without modifying the popup confirmation, the issue of being able to open it but missing the focus will occur.  
+Updating the shelf whitelist is enough to buy; reward announcements and quantity adds are handled by IMS A3 (`ClaimCredit.json`). No per-item popup OCR is needed.  
 After adding a case, remember to check whether `default_case` also needs to include the new item.
 
 ## Maintenance Key Points

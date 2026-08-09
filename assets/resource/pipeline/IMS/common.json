@@ -1,28 +1,28 @@
 {
     "IMSItemColorYellow": {
-        "desc": "IMS 通用：培养素材页列表区黄色品质槽 ColorMatch（供物品节点作 roi 锚点）",
+        "desc": "IMS 通用：全屏黄色品质槽 ColorMatch（供物品节点作 roi 锚点）",
         "recognition": {
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    4,
-                    46,
-                    965,
-                    589
+                    0,
+                    0,
+                    1280,
+                    720
                 ],
                 "method": 40,
                 "lower": [
-                    22,
-                    230,
-                    230
+                    19,
+                    175,
+                    210
                 ],
                 "upper": [
-                    22,
+                    26,
                     255,
                     255
                 ],
                 "connected": true,
-                "count": 100
+                "count": 75
             }
         },
         "pre_delay": 0,
@@ -30,29 +30,29 @@
         "rate_limit": 0
     },
     "IMSItemColorPurple": {
-        "desc": "IMS 通用：培养素材页列表区紫色品质槽 ColorMatch（供物品节点作 roi 锚点）",
+        "desc": "IMS 通用：全屏紫色品质槽 ColorMatch（供物品节点作 roi 锚点）",
         "recognition": {
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    4,
-                    46,
-                    965,
-                    589
+                    0,
+                    0,
+                    1280,
+                    720
                 ],
                 "method": 40,
                 "lower": [
-                    132,
-                    149,
-                    183
+                    129,
+                    95,
+                    170
                 ],
                 "upper": [
-                    132,
-                    172,
-                    248
+                    136,
+                    190,
+                    255
                 ],
                 "connected": true,
-                "count": 100
+                "count": 75
             }
         },
         "pre_delay": 0,
@@ -60,29 +60,29 @@
         "rate_limit": 0
     },
     "IMSItemColorBlue": {
-        "desc": "IMS 通用：培养素材页列表区蓝色品质槽 ColorMatch（供物品节点作 roi 锚点）",
+        "desc": "IMS 通用：全屏蓝色品质槽 ColorMatch（供物品节点作 roi 锚点）",
         "recognition": {
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    4,
-                    46,
-                    965,
-                    589
+                    0,
+                    0,
+                    1280,
+                    720
                 ],
                 "method": 40,
                 "lower": [
-                    99,
-                    145,
-                    104
+                    96,
+                    90,
+                    90
                 ],
                 "upper": [
-                    99,
-                    216,
-                    251
+                    103,
+                    230,
+                    255
                 ],
                 "connected": true,
-                "count": 100
+                "count": 75
             }
         },
         "pre_delay": 0,
@@ -90,29 +90,29 @@
         "rate_limit": 0
     },
     "IMSItemColorGreen": {
-        "desc": "IMS 通用：培养素材页列表区绿色品质槽 ColorMatch（供物品节点作 roi 锚点）",
+        "desc": "IMS 通用：全屏绿色品质槽 ColorMatch（供物品节点作 roi 锚点）",
         "recognition": {
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    4,
-                    46,
-                    965,
-                    589
+                    0,
+                    0,
+                    1280,
+                    720
                 ],
                 "method": 40,
                 "lower": [
-                    37,
-                    145,
-                    150
+                    34,
+                    90,
+                    135
                 ],
                 "upper": [
-                    37,
-                    174,
-                    205
+                    41,
+                    190,
+                    220
                 ],
                 "connected": true,
-                "count": 100
+                "count": 75
             }
         },
         "pre_delay": 0,
@@ -120,29 +120,29 @@
         "rate_limit": 0
     },
     "IMSItemColorWhite": {
-        "desc": "IMS 通用：培养素材页列表区白色品质槽 ColorMatch（供物品节点作 roi 锚点）",
+        "desc": "IMS 通用：全屏白色品质槽 ColorMatch（供物品节点作 roi 锚点）",
         "recognition": {
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    4,
-                    46,
-                    965,
-                    589
+                    0,
+                    0,
+                    1280,
+                    720
                 ],
                 "method": 40,
                 "lower": [
                     0,
                     0,
-                    55
+                    45
                 ],
                 "upper": [
                     0,
-                    3,
-                    156
+                    8,
+                    170
                 ],
                 "connected": true,
-                "count": 100
+                "count": 75
             }
         },
         "pre_delay": 0,
@@ -150,26 +150,70 @@
         "rate_limit": 0
     },
     "IMSItemColorRed": {
-        "desc": "IMS 通用：奖励/列表区红色品质槽 ColorMatch（嵌晶玉等；供物品节点作 roi 锚点）",
+        "desc": "IMS 通用：全屏红色品质槽 ColorMatch（嵌晶玉等；供物品节点作 roi 锚点）",
         "recognition": {
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    4,
-                    46,
-                    965,
-                    589
+                    0,
+                    0,
+                    1280,
+                    720
                 ],
                 "method": 40,
                 "lower": [
-                    13,
-                    230,
-                    230
+                    10,
+                    175,
+                    210
                 ],
                 "upper": [
-                    13,
+                    17,
                     255,
                     255
+                ],
+                "connected": true,
+                "count": 75
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "IMSItemColorTimedCorner": {
+        "desc": "IMS 通用：限时物品左上角绿/红时限角标 ColorMatch（HSV 与 ColorRecognitionEmergencySanityBoosterDeadline 一致；供特许寻访凭证等作 roi 锚点）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        50,
+                        200,
+                        150
+                    ],
+                    [
+                        161,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        90,
+                        255,
+                        255
+                    ],
+                    [
+                        191,
+                        255,
+                        255
+                    ]
                 ],
                 "connected": true,
                 "count": 100

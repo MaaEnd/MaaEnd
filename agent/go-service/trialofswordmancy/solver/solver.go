@@ -1,7 +1,6 @@
 package solver
 
 import (
-	"errors"
 	"fmt"
 	"math"
 	"sort"
@@ -85,16 +84,13 @@ func (s *Solver) Solve() *Solution {
 
 	// 4. DP：距吸收态近的先算 → 处理某状态时其所有后继价值已就绪
 	value := make([]float64, N)
-	policy := make([]Action, N)
 	for _, idx := range order {
 		st := s.states[idx]
 		if st.isEnd {
 			value[idx] = 0
-			policy[idx] = ActionNone
 			continue
 		}
 		bestVal := math.Inf(-1)
-		bestAct := ActionNone
 		for _, action := range allowed[idx] {
 			imm := float64(s.immediateReward(st, action))
 			fut := 0.0
@@ -105,24 +101,13 @@ func (s *Solver) Solve() *Solution {
 			// 1e-10 阈值：只有严格更优（超出浮点噪声）才更新最优决策
 			if total > bestVal+1e-10 {
 				bestVal = total
-				bestAct = action
 			}
 		}
 		value[idx] = bestVal
-		policy[idx] = bestAct
-	}
-
-	// 组装对外 Solution（States：吸收态为零值 State，恒在 [0]）
-	statesOut := make([]State, N)
-	for i, ms := range s.states {
-		statesOut[i] = ms.State
 	}
 
 	s.solution = &Solution{
-		Value:  value,
-		Policy: policy,
-		States: statesOut,
-		Index:  s.index,
+		Value: value,
 	}
 	s.solved = true
 	return s.solution
@@ -144,7 +129,7 @@ func (s *Solver) queryIndex(st State) int {
 	return idx
 }
 
-// Decide 返回当前查询状态所有合法决策的评估结果，并标记与最优策略一致的那一项 IsBest。
+// Decide 返回当前查询状态所有合法决策的评估结果。
 //
 // 不可达状态（手牌张数超牌库、违反 §6.8 过滤、或 RemainCalc==0）返回空切片。
 func (s *Solver) Decide(st State) []Outcome {
@@ -157,7 +142,6 @@ func (s *Solver) Decide(st State) []Outcome {
 		return nil // 吸收态（RemainCalc==0）无决策
 	}
 	sol := s.solution
-	best := sol.Policy[idx]
 
 	allowed := s.allowedActions(from)
 	outcomes := make([]Outcome, 0, len(allowed))
@@ -172,34 +156,9 @@ func (s *Solver) Decide(st State) []Outcome {
 			Immediate: imm,
 			Expected:  fut,
 			Total:     float64(imm) + fut,
-			IsBest:    action == best,
 		})
 	}
 	return outcomes
-}
-
-// Best 返回当前查询状态的最优决策（与最优策略一致）。
-// 不可达状态返回 ActionNone 与非 nil error，调用方据此报错/重识别。
-func (s *Solver) Best(st State) (Action, error) {
-	idx := s.queryIndex(st)
-	if idx < 0 {
-		return ActionNone, fmt.Errorf("state is unreachable: %+v", st)
-	}
-	best := s.solution.Policy[idx]
-	if best == ActionNone {
-		return ActionNone, errors.New("no best action for absorbing state")
-	}
-	return best, nil
-}
-
-// Value 返回当前查询状态的期望总奖励（价值函数值）。
-// 不可达状态返回 0, false。
-func (s *Solver) Value(st State) (float64, bool) {
-	idx := s.queryIndex(st)
-	if idx < 0 {
-		return 0, false
-	}
-	return s.solution.Value[idx], true
 }
 
 // ConfigKey 返回 Config 的稳定哈希键，用于 L1 层按配置缓存求解器实例

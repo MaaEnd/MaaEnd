@@ -20,19 +20,27 @@ IMS（Item Management System）在 go-service 进程内维护培养道具的数�
 
 ## A2：`SyncItemData`（核心）
 
-A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不要自建扫库流程**，统一调用预留的 Pipeline 入口节点 `SyncItemData`（任意界面 → 贵重品库培养素材页 → 执行 Custom Action）。
+A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不要自建扫库流程**，按所需地区调用预留入口：
+
+| 入口 | 场景 |
+| --- | --- |
+| `SyncItemData` | 贵重品库 **培养素材页** |
+| `SyncShopItemData` | **采购中心**（衍质源石 / 嵌晶玉顶部数量） |
+| `SyncValuablesItemData` | 贵重品库 **珍贵物品页**（如特许寻访凭证） |
+
+需要声明「我要最新缓存」的任务应显式调用对应入口（已扫过会走 Skipped）。
 
 ### 调用规范（必读）
 
-凡是需要使用 IMS 缓存的任务，**在业务逻辑执行前都必须主动更新一次缓存**：执行一次预留节点 `SyncItemData` 即可。
+凡是需要使用某地区 IMS 缓存的任务，**在业务逻辑执行前都必须主动更新一次该地区缓存**：执行一次对应预留入口即可。
 
 这样设计的效果是：
 
 1. **每个 IMS 任务都会声明「我要最新缓存」**，不会默默沿用磁盘上可能过旧的数据。
-2. **同一次 Resource 生命周期里，只有第一个真正执行扫库**；A2 成功后会关闭后续扫库入口。
-3. **后续 IMS 任务同样调用该节点，但会直接跳过**，复用第一个任务刚写入的缓存。
+2. **同一次 Resource 生命周期里，每个地区入口只有第一个真正执行扫库**；A2 成功后会关闭后续扫库入口。
+3. **后续任务同样调用该节点，但会直接跳过**，复用第一个任务刚写入的缓存。
 
-不要因为「感觉缓存应该还在」而跳过入口调用；也不要在任务里另写一套扫库。统一走 `SyncItemData`，才能既防数据过旧，又避免每个任务都重复进培养素材页。
+不要因为「感觉缓存应该还在」而跳过入口调用；也不要在任务里另写一套扫库。统一走预留入口，才能既防数据过旧，又避免每个任务都重复进同一界面。
 
 ### 参数：`items` 字典
 
@@ -41,7 +49,9 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 | **键** | 物品 ID（写入缓存与 `IMS.json` 时用这个名字） |
 | **值** | 用来识别「这件物品 + 它的数量」的 Pipeline 节点名 |
 
-节点通常是 `And`（品质色 / 模板 / 数量 OCR 等拼在一起）。若界面上该物品只有数字、没有图标链路，也可以直接用 OCR 节点。
+节点通常是 `And`（品质色 / 模板 / 数量 OCR 等拼在一起）。若界面上该物品只有数字、没有图标链路，也可以直接用 OCR 节点（如培养素材页右上角的 `T_CREDS_NUMBER` / `OROBERYL_NUMBER`）。
+
+**A2 必须显式传入 `items`**，不使用 `items.json` 默认清单。培养素材页、珍品页、采购中心等入口各自维护自己的子集（定点 OCR 节点因界面不同也会不一样）。
 
 **关键约束**：节点的 `box_index` 必须最终指向「数量」那一层识别结果（纯数字）。A2 沿 `box_index` 链取到的文本必须是合法数字，才会记入缓存。
 
@@ -61,22 +71,22 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 1. 按 `items` 的键名排序，依次跑对应识别节点。
 2. **命中且数量合法**：记录 `物品 ID → 数量`。
-3. **未命中**：本轮不记录该 ID（见下方「重新生成 / 覆写」）。
+3. **未命中**：本轮不记录该 ID（见下方「地区重建 / 覆写」）。
 4. 全部节点跑完后，把结果写入内存，并落盘到 `./debug/record/IMS.json`，同时写入时间戳 `updated_at`，表示这份数据是何时生成的。
 
-命中时会通过 UI Focus 打出本地化物品名与数量。
+命中时默认会通过 UI Focus 打出本地化物品名与数量（`ims.sync_item_found`）。可用参数 `notify_ui: false` 关闭（省略默认 `true`）；商店万能跳转顺手缓存使用 `SyncShopItemDataRunNoNotify`。
 
-### 重新生成模式 vs 覆写模式（`page_dedup`）
+### 地区重建模式 vs 覆写模式（`page_dedup`）
 
 | `page_dedup` | 模式 | 行为 |
 | --- | --- | --- |
-| `false`（默认） | **重新生成** | 以本轮命中结果为准，**整表重建**缓存。本轮没扫到的 ID 不会出现在新表里。 |
+| `false`（默认） | **地区重建** | 只重建本轮 `items` 里的 ID：命中则写入，未命中则从缓存删除这些 ID；**其他地区**已缓存的 ID 保留。 |
 | `true` | **覆写** | 在已有缓存上，按本轮命中的 ID **覆盖数量**；没扫到的 ID **保留旧值**。 |
 
-覆写适合「列表要翻页」的场景。预留入口 `SyncItemData` 的默认链路为：
+覆写适合「列表要翻页」的场景：第 1 页地区重建；后续页只覆写当页可见 ID，避免抹掉前面页。预留入口 `SyncItemData` 的默认链路为：
 
 ```text
-初次：SyncItemDataRunFull（page_dedup = false，整表重建）
+初次：SyncItemDataRunFull（page_dedup = false，地区重建）
   next[0]：[JumpBack]SyncItemDataScrollPage → 滑动后 SyncItemDataRunInc（page_dedup = true）
   next[1]：SyncItemDataLock（扫描结束）
 ```
@@ -85,15 +95,15 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 ### 同 Resource 只真正扫库一次（实现细节）
 
-上述规范由入口节点内部自动完成，业务侧只需反复调用 `SyncItemData`：
+上述规范由各入口节点内部自动完成，业务侧只需反复调用对应入口：
 
-1. **首次调用**：真正进入培养素材页扫库，写好缓存后，用 Resource 级覆盖把「再扫一次」的通路关掉，且本次运行内不再打开。
+1. **首次调用**：真正进入目标界面扫库，写好缓存后，用 Resource 级覆盖把「再扫一次」的通路关掉，且本次运行内不再打开。
 2. **再次调用**：入口仍可进入，但会立刻判定「本轮已经同步过」，跳过扫库并继续后续业务。
 3. **下次冷启动**：重新加载 Resource / 重启客户端后，通路恢复；下一个 IMS 任务会重新扫库。
 
-> 预留入口与扫库参数见 `assets/resource/pipeline/IMS/SyncItemData.json`。
+> 预留入口与扫库参数见 `assets/resource/pipeline/IMS/SyncItemData.json`、`SyncShopItemData.json`、`SyncValuablesItemData.json`。
 >
-> `EnsureItemDataReadyMain` 仅用于「按 R2 过期策略决定要不要进 A2」的特殊场景；常规 IMS 任务应直接调 `SyncItemData`，而不是只靠过期门禁。
+> `EnsureItemDataReadyMain` 仅用于「按 R2 过期策略决定要不要进 A2」的特殊场景；常规 IMS 任务应直接调对应 `Sync*ItemData`，而不是只靠过期门禁。
 
 ---
 
@@ -112,7 +122,15 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 ## A3：`AddItemData`
 
-A3 的入参与 A2 相同：一个 `items` 字典（键 = 物品 ID，值 = 识别节点；`box_index` 同样要指向数量）。
+A3 的入参与 A2 相同：一个可选的 `items` 字典（键 = 物品 ID，值 = 识别节点；`box_index` 同样要指向数量）。
+
+**默认全量**：`items` **省略或为空**（甚至整个 `custom_action_param` 为 `{}`）时，使用 [`assets/data/IMS/items.json`](../../../assets/data/IMS/items.json) 的 **`a3`** 段。领奖弹窗可识别的物品在此维护；业务侧一般不必再抄一大段 `items`。
+
+另有 **仅 A3 生效** 的可选参数：
+
+| 参数 | 说明 |
+| --- | --- |
+| `mask_hit_region` | 命中一件后，把该物品区域在工作截图上涂成绿色 `(0,255,0)`，并**对同一物品 ID 继续识别**直到再也扫不到。用于同屏多堆奖励（如常规 100 + 额外 15）。省略时**默认 `true`**。 |
 
 它会在**当前画面**识别物品与数量，再和 IMS 缓存做计算：把识别到的数量当作**正增量**加进缓存（等价于多次 A1 的 `+n`）。**不会**更新同步时间戳 / 就绪状态。
 
@@ -247,6 +265,7 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 | 路径 | 说明 |
 | --- | --- |
 | `agent/go-service/ims/` | Custom 组件与缓存 |
+| `assets/data/IMS/items.json` | A3 领奖物品清单（省略 `items` 时的默认全量；A2 不使用） |
 | `assets/resource/pipeline/IMS/` | Pipeline（按接口分文件） |
 | `assets/resource/image/IMS/item/` | 物品模板图（`*_TEMPLATE.png`） |
 | `tools/SupplyPlan/mask_ims_item_corner.py` | 模板左上角涂绿工具 |
@@ -254,7 +273,9 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 
 | Pipeline 文件 | 内容 |
 | --- | --- |
-| `SyncItemData.json` | A2 入口与同 Resource 锁定 |
+| `SyncItemData.json` | A2 培养素材页入口与同 Resource 锁定 |
+| `SyncShopItemData.json` | A2 采购中心入口 |
+| `SyncValuablesItemData.json` | A2 珍贵物品页入口 |
 | `UpdateItemQuantity.json` | A1 |
 | `AddItemData.json` | A3 最佳实践（领奖后关闭） |
 | `ItemQuantitySatisfied.json` | R1（调用方覆盖 `expression`） |

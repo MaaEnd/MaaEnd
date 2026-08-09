@@ -43,34 +43,6 @@ func (a Action) String() string {
 	}
 }
 
-// MarshalJSON 把 Action 序列化为可读字符串（detail JSON 硬契约 §7.3 / 日志友好）。
-func (a Action) MarshalJSON() ([]byte, error) {
-	return json.Marshal(a.String())
-}
-
-// UnmarshalJSON 从字符串还原 Action。
-func (a *Action) UnmarshalJSON(data []byte) error {
-	var s string
-	if err := json.Unmarshal(data, &s); err != nil {
-		return err
-	}
-	switch s {
-	case "DrawCard":
-		*a = DrawCard
-	case "Abandon":
-		*a = Abandon
-	case "Calculate":
-		*a = Calculate
-	case "Double":
-		*a = Double
-	case "None":
-		*a = ActionNone
-	default:
-		return fmt.Errorf("invalid Action string: %q", s)
-	}
-	return nil
-}
-
 // OverflowMode 是「数据溢出」处理模式，决定总点数爆表时奖励是否归零。
 type OverflowMode int
 
@@ -132,7 +104,7 @@ type Config struct {
 // State 是对外查询的当前游戏状态（每步循环都变）。
 // 全部为扁平字段，Hand 用 [5]int 值类型避免底层数组串值。
 type State struct {
-	RemainCalc   int    `json:"remainCalc"`   // 剩余演算次数 1..3（0 = 已结束/吸收态）
+	RemainCalc   int    `json:"remainCalc"`   // 剩余演算次数 1..4（4 = 跨日残局，0 = 已结束/吸收态）
 	RemainAband  int    `json:"remainAband"`  // 剩余放弃次数 0..3
 	RemainDouble int    `json:"remainDouble"` // 剩余翻倍次数 0..MaxDouble
 	IsDoubled    bool   `json:"isDoubled"`    // 本局是否已选择翻倍
@@ -145,14 +117,10 @@ type Outcome struct {
 	Immediate int     `json:"immediate"` // 即时奖励
 	Expected  float64 `json:"expected"`  // 期望未来价值
 	Total     float64 `json:"total"`     // 总价值 = Immediate + Expected
-	IsBest    bool    `json:"isBest"`    // 是否最优（与最优策略一致）
 }
 
-// Solution 是全量求解产物：每个状态的期望总奖励（价值函数）与最优决策（策略），
-// 外加状态列表与状态键索引。对外查询走 Decide / Best，通常不必直接读 Solution。
+// Solution 是全量求解产物：每个状态的期望总奖励（价值函数）。
+// 对外查询走 Decide，通常不必直接读 Solution。
 type Solution struct {
-	Value  []float64      // 价值函数，下标对应 States
-	Policy []Action       // 最优策略，下标对应 States；吸收态为 ActionNone
-	States []State        // 状态列表，吸收态恒为 States[0]（零值 State）
-	Index  map[string]int // 状态键 → 下标；"END" → 0
+	Value []float64 // 价值函数
 }

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <optional>
 #include <string>
 
 #include <meojson/json.hpp>
@@ -66,6 +67,9 @@ struct Waypoint
     // of NormalizeLivePositionToBase on the start). Empty -> the target is already base-pixel (legacy
     // authoring), so projection is the identity and behavior is byte-for-byte unchanged.
     std::string target_tier;
+    // NAVMESH only: height of the overlapping deck this waypoint sits on. Pins the goal span for the leg
+    // ending here and the start span for the leg leaving it. Unset -> full span set, unchanged.
+    std::optional<double> target_deck_y;
 
     double GetLookahead() const
     {

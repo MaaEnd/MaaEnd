@@ -13,6 +13,23 @@
         },
         "post_delay": 3000
     },
+    "__ScenePrivateScreenshotStableAbnormal": {
+        "desc": "连续画面不变时判定环境识别异常强制失败,部分用户vulcan全屏游戏时，所有截图api截取到的画面都是不动的",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScreenshotStableRecognition"
+            }
+        },
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "focus": {
+            "Node.Recognition.Succeeded": {
+                "content": "$task.SceneManager.focus.screenshot_stable_abnormal",
+                "display": "modal"
+            }
+        }
+    },
     "__ScenePrivateLoggedOutConfirm": {
         "desc": "确认自动登出弹窗",
         "recognition": "And",

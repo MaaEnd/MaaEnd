@@ -1,0 +1,176 @@
+{
+    "SyncShopItemData": {
+        "desc": "IMS A2 采购中心入口：业务侧只需调用本节点。首次成功后 Resource 级关闭 SyncShopItemDataBegin，同 Resource 后续调用走 Skipped",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncShopItemDataBegin",
+            "SyncShopItemDataSkipped"
+        ]
+    },
+    "SyncShopItemDataBegin": {
+        "desc": "A2 实际执行入口：已在采购中心则直接扫库，否则 JumpBack 万能跳转（到达后顺手扫库）；成功后由 SyncShopItemDataLock 关闭本节点",
+        "enabled": true,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncShopItemDataCompleted",
+            "SyncShopItemDataInShop",
+            "[JumpBack]SceneEnterMenuShop"
+        ]
+    },
+    "SyncShopItemDataCompleted": {
+        "desc": "A2 本 Resource 已扫过采购中心（由 SyncShopItemDataLock 开启）。供 Begin / 万能跳转到达后短路，避免重复扫库",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "SyncShopItemDataSkipped": {
+        "desc": "本次 Resource 已同步过采购中心缓存，跳过 A2",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "SyncShopItemDataInShop": {
+        "desc": "确认已在采购中心，开始同步（默认播报物品名与数量）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InShop"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncShopItemDataRun"
+        ]
+    },
+    "SyncShopItemDataInShopNoNotify": {
+        "desc": "确认已在采购中心，开始静默同步（notify_ui=false，不播报物品名与数量；供万能跳转顺手缓存）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InShop"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncShopItemDataRunNoNotify"
+        ]
+    },
+    "SyncShopItemDataRun": {
+        "desc": "A2 采购中心识别（page_dedup=false，地区重建）。顶部货币静止后识别；结束后走 Lock",
+        "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "target": [
+                929,
+                0,
+                245,
+                68
+            ],
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SyncItemData",
+                "custom_action_param": {
+                    "items": {
+                        "ORIGEOMETRY": "ORIGEOMETRY_NUMBER",
+                        "OROBERYL": "OROBERYL_NUMBER_SHOP"
+                    },
+                    "page_dedup": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncShopItemDataLock"
+        ]
+    },
+    "SyncShopItemDataRunNoNotify": {
+        "desc": "A2 采购中心静默识别（notify_ui=false）。不播报物品名与数量；供万能跳转顺手缓存",
+        "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "target": [
+                929,
+                0,
+                245,
+                68
+            ],
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SyncItemData",
+                "custom_action_param": {
+                    "items": {
+                        "ORIGEOMETRY": "ORIGEOMETRY_NUMBER",
+                        "OROBERYL": "OROBERYL_NUMBER_SHOP"
+                    },
+                    "page_dedup": false,
+                    "notify_ui": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncShopItemDataLock"
+        ]
+    },
+    "SyncShopItemDataLock": {
+        "desc": "A2 成功后 Resource 级关闭 SyncShopItemDataBegin、开启 SyncShopItemDataCompleted，同 Resource 内不再扫采购中心（不恢复）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "resource_override": true,
+                    "patch": {
+                        "SyncShopItemDataBegin": {
+                            "enabled": false
+                        },
+                        "SyncShopItemDataCompleted": {
+                            "enabled": true
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    }
+}

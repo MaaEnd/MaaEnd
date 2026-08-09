@@ -20,6 +20,7 @@
 import math
 import re
 from dataclasses import dataclass
+from typing import Any
 
 MAGIC_HEADER = "MapTrackerNavMesh"
 VERSION = 1
@@ -88,7 +89,7 @@ class NavMeshData:
         self._next_vid = 1
         self._next_eid = 1
 
-    # ── Create ──────────────────────────────────────────────────────────
+    # ===== Create =====
 
     def new_vertex(
         self,
@@ -121,7 +122,7 @@ class NavMeshData:
         self.edges.append(e)
         return e
 
-    # ── Delete ──────────────────────────────────────────────────────────
+    # ===== Delete =====
 
     def delete_edge(self, edge_id: int) -> bool:
         for i, edge in enumerate(self.edges):
@@ -130,7 +131,7 @@ class NavMeshData:
                 return True
         return False
 
-    # ── Lookup by ID ────────────────────────────────────────────────────
+    # ===== Lookup by ID =====
 
     def get_vertex(self, vertex_id: int) -> NavVertex | None:
         for vertex in self.vertices:
@@ -144,15 +145,11 @@ class NavMeshData:
                 return edge
         return None
 
-    # ── Graph queries ───────────────────────────────────────────────────
+    # ===== Graph queries =====
 
     def edges_for(self, vertex_id: int) -> list[NavEdge]:
         """Return all edges incident to *vertex_id*."""
-        return [
-            e
-            for e in self.edges
-            if e.from_id == vertex_id or e.to_id == vertex_id
-        ]
+        return [e for e in self.edges if e.from_id == vertex_id or e.to_id == vertex_id]
 
     def neighbors(
         self, vertex_id: int, *, exclude_id: int | None = None
@@ -180,7 +177,7 @@ class NavMeshData:
                 return True
         return False
 
-    # ── Spatial queries ─────────────────────────────────────────────────
+    # ===== Spatial queries =====
 
     def get_nearest_vertex_for(
         self,
@@ -204,12 +201,13 @@ class NavMeshData:
                 nearest_dist = dist
         return nearest
 
-    # ── Snapshot / Restore ──────────────────────────────────────────────
+    # ===== Snapshot / Restore =====
 
     def snapshot(self) -> NavMeshDataSnapshot:
         return NavMeshDataSnapshot(
             vertices=tuple(
-                NavVertex(v.id, v.flags, v.x, v.y, v.entity_id, v.tier_id) for v in self.vertices
+                NavVertex(v.id, v.flags, v.x, v.y, v.entity_id, v.tier_id)
+                for v in self.vertices
             ),
             edges=tuple(
                 NavEdge(e.id, e.flags, e.from_id, e.to_id, e.cost) for e in self.edges
@@ -220,7 +218,8 @@ class NavMeshData:
 
     def restore(self, snapshot: NavMeshDataSnapshot) -> None:
         self.vertices = [
-            NavVertex(v.id, v.flags, v.x, v.y, v.entity_id, v.tier_id) for v in snapshot.vertices
+            NavVertex(v.id, v.flags, v.x, v.y, v.entity_id, v.tier_id)
+            for v in snapshot.vertices
         ]
         self.edges = [
             NavEdge(e.id, e.flags, e.from_id, e.to_id, e.cost) for e in snapshot.edges
@@ -232,7 +231,8 @@ class NavMeshData:
     def from_navmesh_file(cls, nmf: "NavMeshFile") -> "NavMeshData":
         data = cls()
         data.vertices = [
-            NavVertex(v.id, v.flags, v.x, v.y, v.entity_id, v.tier_id) for v in nmf.vertices
+            NavVertex(v.id, v.flags, v.x, v.y, v.entity_id, v.tier_id)
+            for v in nmf.vertices
         ]
         data.edges = [
             NavEdge(e.id, e.flags, e.from_id, e.to_id, 0.0) for e in nmf.edges
@@ -266,6 +266,8 @@ class NavMeshFile:
         self.encoding = encoding
         self.vertices: list[NavVertex] = vertices if vertices is not None else []
         self.edges: list[NavEdge] = edges if edges is not None else []
+
+    # ===== Values Serialization =====
 
     @staticmethod
     def _vertex_flags_to_text(flags: int) -> str:
@@ -313,6 +315,8 @@ class NavMeshFile:
         text = f"{value:.3f}".rstrip("0").rstrip(".")
         return text if text else "0"
 
+    # ===== Values Deserialization =====
+
     @staticmethod
     def _parse_key_value(line: str) -> tuple[str, str]:
         match = _KEY_VALUE_RE.match(line)
@@ -326,6 +330,8 @@ class NavMeshFile:
         if not match:
             return None
         return match.group("section")
+
+    # ===== File =====
 
     def save(self, file_path: str) -> None:
         """Serialize this NavMesh to *file_path* in text `.mtnm` format."""
@@ -376,8 +382,8 @@ class NavMeshFile:
         with open(file_path, "w", encoding=ENCODING, newline="\n") as f:
             f.write("\n".join(lines))
 
-    @staticmethod
-    def read(file_path: str) -> "NavMeshFile":
+    @classmethod
+    def read(cls, file_path: str) -> "NavMeshFile":
         """Deserialize a `.mtnm` text file and return a :class:`NavMeshFile`."""
         with open(file_path, "r", encoding=ENCODING) as f:
             raw_lines = f.read().splitlines()
@@ -396,7 +402,7 @@ class NavMeshFile:
             if line == "":
                 continue
 
-            section = NavMeshFile._parse_section(line)
+            section = cls._parse_section(line)
             if section is not None:
                 if (
                     section_index >= len(expected_sections)
@@ -411,7 +417,7 @@ class NavMeshFile:
                 raise ValueError(f"Data found before first section: {raw_line!r}")
 
             if current_section == SECTION_META:
-                key, value = NavMeshFile._parse_key_value(line)
+                key, value = cls._parse_key_value(line)
                 if key in meta:
                     raise ValueError(f"Duplicate Meta key: {key!r}")
                 if key not in {
@@ -439,7 +445,7 @@ class NavMeshFile:
                 vertices.append(
                     NavVertex(
                         id=vid,
-                        flags=NavMeshFile._vertex_flags_from_text(match.group("flags")),
+                        flags=cls._vertex_flags_from_text(match.group("flags")),
                         x=round(float(match.group("x")), 3),
                         y=round(float(match.group("y")), 3),
                         entity_id=int(match.group("e")),
@@ -530,7 +536,7 @@ class NavMeshFile:
                     f"Edge {edge.id} references missing target vertex {edge.to_id}"
                 )
 
-        return NavMeshFile(
+        return cls(
             name=name,
             description=description,
             map_region_name=map_region_name,
@@ -540,4 +546,35 @@ class NavMeshFile:
             vertices=vertices,
             edges=edges,
             encoding=encoding,
+        )
+
+    # ===== Dict =====
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "meta": {
+                "name": self.name,
+                "description": self.description,
+                "map_region_name": self.map_region_name,
+                "map_level_name": self.map_level_name,
+                "geo_width": self.geo_width,
+                "geo_height": self.geo_height,
+            },
+            "vertices": [vars(vertex) for vertex in self.vertices],
+            "edges": [vars(edge) for edge in self.edges],
+        }
+
+    @classmethod
+    def from_dict(cls, dict_data: dict[str, Any]) -> "NavMeshFile":
+        meta = dict_data["meta"]
+        assert isinstance(meta, dict)
+        return cls(
+            name=str(meta["name"]),
+            description=str(meta.get("description", "")),
+            map_region_name=str(meta["map_region_name"]),
+            map_level_name=str(meta["map_level_name"]),
+            geo_width=float(meta["geo_width"]),
+            geo_height=float(meta["geo_height"]),
+            vertices=[NavVertex(**value) for value in dict_data.get("vertices", [])],
+            edges=[NavEdge(**value) for value in dict_data.get("edges", [])],
         )

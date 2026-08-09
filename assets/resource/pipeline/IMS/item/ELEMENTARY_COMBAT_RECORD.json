@@ -1,6 +1,6 @@
 {
     "ELEMENTARY_COMBAT_RECORD": {
-        "desc": "IMS 物品:初级作战记录(And；白色品质；品质色 → 模板 → 数量；box_index 指向数量 And)",
+        "desc": "初级作战记录",
         "recognition": {
             "type": "And",
             "param": {
@@ -32,7 +32,6 @@
                     "IMS/item/ELEMENTARY_COMBAT_RECORD_TEMPLATE.png"
                 ],
                 "green_mask": true,
-                "threshold": 0.85,
                 "order_by": "Score"
             }
         },
@@ -68,7 +67,6 @@
                     0,
                     -64
                 ],
-                "method": 4,
                 "lower": [
                     74,
                     74,
@@ -76,8 +74,8 @@
                 ],
                 "upper": [
                     119,
-                    112,
-                    107
+                    145,
+                    157
                 ],
                 "count": 10
             }
@@ -93,14 +91,15 @@
             "param": {
                 "roi": "__ELEMENTARY_COMBAT_RECORD_COUNT_TEXT_COLOR",
                 "roi_offset": [
-                    -1,
-                    -1,
-                    2,
-                    2
+                    -6,
+                    -2,
+                    12,
+                    4
                 ],
                 "expected": [
                     "^\\d+$"
-                ]
+                ],
+                "only_rec": true
             }
         },
         "pre_delay": 0,

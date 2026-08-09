@@ -186,22 +186,22 @@ ColorMatcher.*BuyFirstOCRTextColor
 
 ### 4. 还原实际购买
 
-购买事实以框架点击结果为准，不能仅看 OCR 候选。
+购买事实以框架点击结果为准，不能仅看 OCR 候选。弹窗内商品名 OCR（`BuyItemOCR_*`）已移除，播报改由 IMS A3 负责。
 
 步骤：
 
-1. 在 `maafw*.log` 中搜索 `CreditShoppingBuyItemOCR_.*Succeeded`，找到命中的商品名节点（例如 `CreditShoppingBuyItemOCR_ArmsInspector`）
-2. 在该节点的 OCR `all_results_` 中确认商品名文本（例如 `"text":"武器检查单元"`）
-3. 确认后续 `CreditShoppingClaimConfirm` 识别成功（含 `"text":"购买成功"`）
+1. 在 `maafw*.log` 中搜索本轮点击货架后的 `CreditShoppingBuyConfirm`（Action.Succeeded）
+2. 确认后续 `CreditShoppingClaimConfirm` / `CreditShoppingBuySuccess`（含 `"购买成功"`）识别成功并关闭
+3. 商品名优先从同轮货架快照（`CreditIcon` 槽位 + 名字 OCR）或 `go-service` / Focus 中的 A3「获得 xxx ×n」还原；**不得编造**
 
-只有同时满足以下两个条件才算已购买：
+只有同时满足以下条件才算已购买：
 
-- `CreditShoppingBuyItemOCR_X` Recognition.Succeeded
-- `CreditShoppingClaimConfirm` 中 OCR 读到 `"购买成功"` 并点击成功
+- `CreditShoppingBuyConfirm` Action.Succeeded
+- `CreditShoppingClaimConfirm`（或购买成功文案）识别并成功关闭奖励界面
 
-常见商品节点与中文名对照：
+常见货架商品名对照（用于把槽位 OCR / A3 播报映射到中文名）：
 
-| 节点后缀                     | 商品名       |
+| 内部名 / 槽位 OCR 线索       | 商品名       |
 | ---------------------------- | ------------ |
 | `ArmsInspector`              | 武器检查单元 |
 | `ArmsINSPKit`                | 武器检查装置 |
@@ -371,11 +371,11 @@ ExpressionRecognition.*CreditShoppingReserveCreditOCRInternal
 - 判断“缺的是哪一格/是否漏识别”时，以 **`CreditIcon` 格数变化 + 列序** 为主，辅以 `NotSoldOut`、名字 OCR（若有）。
 - 折扣结论必须来自 `IsDiscountPriority2` OCR 的 `all_results_` 对比，而非猜测。
 - 信用点数值若出现非预期跳变（如购买后反升），标注 ⚠️ 并说明可能原因，不要强行解释为"获得了信用"。
-- 判断"没有购买"之前，必须确认目标 `task_id` 范围内不存在任何 `CreditShoppingBuyItemOCR_.*Succeeded` + `购买成功` 组合。
+- 判断"没有购买"之前，必须确认目标 `task_id` 范围内不存在任何 `CreditShoppingBuyConfirm` Action.Succeeded + 购买成功/ClaimConfirm 关闭组合。
 
 ### 防幻觉（禁止编造）
 
-- **商品名**只能来自日志里出现的 OCR `text`（或购买详情 `CreditShoppingBuyItemOCR_*` 等明确字段），不得用常识、上一轮货架或用户口述代替。
+- **商品名**只能来自日志里出现的货架 OCR `text`、A3 Focus「获得 xxx ×n」、或其它明确字段，不得用常识、上一轮货架或用户口述代替。
 - **槽位**只能来自日志里的 `CreditIcon`（及 ADB 合并规则）；不得仅凭“应该有 10 格”臆造格数。
 - 区分三件事并分开写：**槽位货架**（必有若跑了 `CreditIcon`）、**命名叠加**（可有可无）、**折扣数字**（须单独引用 `IsDiscountPriority2`，勿与名称混为一谈）。
 

@@ -14,9 +14,11 @@ import (
 )
 
 const (
-	seizeDeliveryJobsDepartureComponent          = "SeizeDeliveryJobsDepartureAction"
-	seizeDeliveryJobsBlueTaskLocationTemplate    = "image/SeizeDeliveryJobs/BlueTaskLocation.png"
-	seizeDeliveryJobsBlueTaskLocationTemplateAlt = "image/SeizeDeliveryJobs/BlueTaskLocation2.png"
+	seizeDeliveryJobsDepartureComponent                 = "SeizeDeliveryJobsDepartureAction"
+	seizeDeliveryJobsBlueTaskMap02Lv005No1TypeCTemplate = "image/SeizeDeliveryJobs/BlueTaskMap02Lv005No1TypeC.png"
+	seizeDeliveryJobsBlueTaskLocationTemplate           = "image/SeizeDeliveryJobs/BlueTaskLocation.png"
+	seizeDeliveryJobsBlueTaskLocationTemplateAlt        = "image/SeizeDeliveryJobs/BlueTaskLocation2.png"
+	seizeDeliveryJobsBigMapZoomValue                    = 0.265
 )
 
 // SeizeDeliveryJobsDepartureAction navigates from the tracked task marker back in the open world.
@@ -224,6 +226,32 @@ func (a *SeizeDeliveryJobsDepartureAction) findTarget(ctx *maa.Context, arg *maa
 }
 
 func (a *SeizeDeliveryJobsDepartureAction) findBlueTaskLocation(ctx *maa.Context, arg *maa.CustomActionArg, img image.Image, mapNameRegex string) ([]maptrackerbigmap.MapTrackerBigMapFindImageMatch, error) {
+	if err := a.zoomAndCaptureBigMap(ctx, arg); err != nil {
+		return nil, err
+	}
+	img, err := a.captureImage(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// The large, location-specific template is tried first. Its center is the
+	// intended click point, so do not compare its score with the small fallback
+	// templates.
+	specialMatches, err := a.findBlueTaskLocationWithTemplate(ctx, arg, img, mapNameRegex, seizeDeliveryJobsBlueTaskMap02Lv005No1TypeCTemplate)
+	if err != nil {
+		log.Warn().
+			Err(err).
+			Str("component", seizeDeliveryJobsDepartureComponent).
+			Str("template", seizeDeliveryJobsBlueTaskMap02Lv005No1TypeCTemplate).
+			Msg("failed to find location-specific delivery job marker, falling back to generic templates")
+	} else {
+		for _, match := range specialMatches {
+			if match.MapName == "map02_lv005" {
+				return []maptrackerbigmap.MapTrackerBigMapFindImageMatch{match}, nil
+			}
+		}
+	}
+
 	templates := []string{
 		seizeDeliveryJobsBlueTaskLocationTemplate,
 		seizeDeliveryJobsBlueTaskLocationTemplateAlt,
@@ -254,12 +282,42 @@ func (a *SeizeDeliveryJobsDepartureAction) findBlueTaskLocation(ctx *maa.Context
 	return []maptrackerbigmap.MapTrackerBigMapFindImageMatch{*bestMatch}, nil
 }
 
+func (a *SeizeDeliveryJobsDepartureAction) zoomAndCaptureBigMap(ctx *maa.Context, arg *maa.CustomActionArg) error {
+	paramBytes, err := json.Marshal(map[string]any{"zoom_value": seizeDeliveryJobsBigMapZoomValue})
+	if err != nil {
+		return fmt.Errorf("failed to marshal big-map zoom parameters: %w", err)
+	}
+	if !(&maptrackerbigmap.MapTrackerBigMapZoom{}).Run(ctx, &maa.CustomActionArg{
+		TaskID:            arg.TaskID,
+		CurrentTaskName:   arg.CurrentTaskName,
+		CustomActionName:  "MapTrackerBigMapZoom",
+		CustomActionParam: string(paramBytes),
+		Box:               arg.Box,
+	}) {
+		return fmt.Errorf("failed to adjust big-map zoom")
+	}
+	return nil
+}
+
+func (a *SeizeDeliveryJobsDepartureAction) captureImage(ctx *maa.Context) (image.Image, error) {
+	ctrl := ctx.GetTasker().GetController()
+	ctrl.PostScreencap().Wait()
+	img, err := ctrl.CacheImage()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get cached image: %w", err)
+	}
+	if img == nil {
+		return nil, fmt.Errorf("cached image is nil")
+	}
+	return img, nil
+}
+
 func (a *SeizeDeliveryJobsDepartureAction) findBlueTaskLocationWithTemplate(ctx *maa.Context, arg *maa.CustomActionArg, img image.Image, mapNameRegex string, tpl string) ([]maptrackerbigmap.MapTrackerBigMapFindImageMatch, error) {
 	paramBytes, err := json.Marshal(map[string]any{
 		"template":       tpl,
 		"expected":       true,
 		"green_mask":     true,
-		"zoom_value":     0.265,
+		"zoom_value":     0,
 		"max_matches":    1,
 		"map_name_regex": mapNameRegex,
 	})
