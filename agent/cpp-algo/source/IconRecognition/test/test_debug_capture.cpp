@@ -56,6 +56,10 @@ void TestDebugCaptureKeepsSynchronizedGroups()
                 .refinement_sort_ms = 0.25,
                 .baseline_candidates = 445,
                 .refined_candidates = 5,
+                .rarity_prefiltered_cells = 1,
+                .rarity_fallback_cells = 1,
+                .rarity_preferred_candidates = 48,
+                .rarity_remaining_candidates = 397,
             },
         .matcher =
             {
@@ -122,6 +126,12 @@ void TestDebugCaptureKeepsSynchronizedGroups()
     Require(
         performance.at("ranking").as_object().at("baseline_candidates").as_integer() == 445,
         "debug detail must preserve baseline candidate count");
+    Require(
+        performance.at("ranking").as_object().at("rarity_preferred_candidates").as_integer() == 48,
+        "debug detail must preserve preferred rarity candidate count");
+    Require(
+        performance.at("ranking").as_object().at("rarity_remaining_candidates").as_integer() == 397,
+        "debug detail must preserve non-duplicated fallback candidate count");
     Require(
         performance.at("matcher").as_object().at("template_match_ms").as_double() == 4.5,
         "debug detail must preserve matcher timing");

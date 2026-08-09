@@ -60,6 +60,7 @@ add_executable(
     ../detail/GridProfiles.cpp
     ../detail/IconMatcher.cpp
     ../detail/MaskPolicy.cpp
+    ../detail/RarityCandidates.cpp
     ../detail/RarityClassifier.cpp
     ../detail/TrustedRarity.cpp
     ../detail/RecognitionDiagnostics.cpp
@@ -101,6 +102,7 @@ add_executable(
     ../detail/GridProfiles.cpp
     ../detail/IconMatcher.cpp
     ../detail/MaskPolicy.cpp
+    ../detail/RarityCandidates.cpp
     ../detail/RarityClassifier.cpp
     ../detail/TrustedRarity.cpp
     ../detail/RecognitionDiagnostics.cpp
@@ -190,6 +192,7 @@ add_executable(
     ../detail/GridProfiles.cpp
     ../detail/IconMatcher.cpp
     ../detail/MaskPolicy.cpp
+    ../detail/RarityCandidates.cpp
     ../detail/RarityClassifier.cpp
     ../detail/TrustedRarity.cpp
     ../detail/RecognitionDiagnostics.cpp

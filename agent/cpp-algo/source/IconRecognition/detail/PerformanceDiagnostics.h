@@ -16,6 +16,10 @@ struct RankingPerformanceDiagnostics
     double refinement_sort_ms = 0.0;
     std::size_t baseline_candidates = 0;
     std::size_t refined_candidates = 0;
+    std::size_t rarity_prefiltered_cells = 0;
+    std::size_t rarity_fallback_cells = 0;
+    std::size_t rarity_preferred_candidates = 0;
+    std::size_t rarity_remaining_candidates = 0;
 
     json::value to_json() const;
 };

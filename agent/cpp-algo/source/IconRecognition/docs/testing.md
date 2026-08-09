@@ -84,6 +84,15 @@ input/
 
 生产自定义识别参数中的 `debug: true` 同样会采集 `diagnostics.performance`，并随现有 debug capture 写入 detail JSON。细粒度计时会引入少量观测开销，比较绝对耗时时应固定图片、ROI、构建配置和 worker 数，并至少重复三次。
 
+`diagnostics.performance.ranking` 中与 rarity 候选缩减相关的计数为：
+
+- `rarity_prefiltered_cells`：实际启用同 rarity 首轮的 cell 数；
+- `rarity_fallback_cells`：首轮未达到阈值并执行剩余候选的 cell 数；
+- `rarity_preferred_candidates`：首轮实际评分的同 rarity 模板总数；
+- `rarity_remaining_candidates`：回退轮实际评分的其余模板总数。
+
+`baseline_candidates` 是两轮实际基础评分总数。回退时首轮和剩余候选互斥，因此单个 cell 的两轮总数不会超过原候选数量；`matcher.score_calls` 还会额外包含必要的亚像素相位评分。
+
 ## 查看结果
 
 每次人工运行创建独立的 `output/<时间戳>-<选择范围>/`，不会覆盖之前的审核结果：

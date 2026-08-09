@@ -30,11 +30,14 @@ const iconrecognition::RecognitionResult result = recognizer.recognize(image, re
 
 `preload(requests)` 可在并发识别前按请求集合准备模板尺寸。模板 catalog 仍由 `IconRecognizer` 管理；预热不执行网格检测或图标匹配，也不改变后续 `recognize()` 的结果。
 
+真实网格在逐 cell 排名前调用 `RarityClassifier`，再由 `RarityCandidates` 把模板索引拆成同 rarity 首轮和其余 rarity 回退轮。两个索引集合互斥且并集等于原候选集合；首轮未达到接受阈值时只追加回退轮，并基于合并后的全量基础分统一完成排序和亚像素精排。`single_roi` 保持一次全量候选排名。
+
 ## 64px 双侧网格内部职责
 
 `transfer` 与 `port_storager` 的内部定位拆成四个可独立验证的职责：
 
 - `RarityClassifier` 保存 rarity 1..6 六个颜色通道的逐行覆盖，不提前压成单一最大值；
+- `RarityCandidates` 根据可靠 rarity 生成互斥的首轮与回退模板索引，不执行图像判断；
 - `TrustedRarity` 只提取通过颜色覆盖、水平连续性、上下局部背景对比、双边缘和厚度硬约束的窄条；
 - `RegularLattice` 只拟合单轴 `origin + index * pitch`，不读取界面类型，也不从前一格递增坐标；
 - `GridDetector` 比较独立可信色带候选与现有结构候选，最终统一投影为一个 x/y 全局晶格。

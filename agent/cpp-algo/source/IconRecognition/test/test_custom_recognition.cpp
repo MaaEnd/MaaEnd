@@ -352,6 +352,51 @@ void TestRecognizerPreservesInternalDiagnostics()
     Require(!json::value(result).as_object().contains("diagnostics"), "public detail must not serialize internal diagnostics");
 }
 
+void TestReliableRarityReducesBaselineCandidateScoring()
+{
+    const std::filesystem::path image_path = std::filesystem::path(ICON_RECOGNITION_TEST_INPUT_DIR) / "transfer" / "37.png";
+    const cv::Mat pixels = cv::imread(image_path.string(), cv::IMREAD_COLOR);
+    Require(!pixels.empty(), "rarity prefilter fixture must load");
+    iconrecognition::IconRecognizer recognizer(get_exe_dir() / ".." / "data" / "IconRecognition");
+    Require(recognizer.initialize(), "rarity prefilter recognizer must initialize");
+    iconrecognition::RecognitionRequest request;
+    request.grid_type = iconrecognition::GridType::Transfer;
+    request.roi = cv::Rect(154, 202, 983, 291);
+    request.debug = true;
+
+    const auto result = recognizer.recognize(pixels, request);
+    Require(result.matched && result.matches.size() == 52, "rarity prefilter must preserve all transfer 37 matches");
+    Require(result.diagnostics && result.diagnostics->performance, "rarity prefilter fixture must expose performance diagnostics");
+    const auto& performance = *result.diagnostics->performance;
+    constexpr std::size_t kOriginalBaselineCandidates = 52 * 445;
+    Require(performance.ranking.baseline_candidates == 9168, "reliable rarity must use the expected reduced baseline count");
+    Require(performance.ranking.rarity_prefiltered_cells == 39, "transfer 37 must prefilter every reliable rarity cell");
+    Require(performance.ranking.rarity_fallback_cells == 0, "correct transfer 37 rarity must not require full fallback");
+    Require(performance.ranking.rarity_preferred_candidates == 3383, "transfer 37 must count preferred rarity candidates");
+    Require(performance.ranking.rarity_remaining_candidates == 0, "transfer 37 must not score remaining candidates");
+    Require(performance.matcher.score_calls == performance.ranking.baseline_candidates, "accepted rarity passes must not refine or rescore");
+    Require(performance.ranking.baseline_candidates < kOriginalBaselineCandidates, "rarity prefilter must beat exhaustive scoring");
+
+    request.candidates.item_ids = {
+        "item_copper_ore",
+        "item_agmelee_1_moss_1_lbmob_1_1",
+        "item_activity_xiranite_bottle",
+        "item_activity_xiranite_enr_cmpt",
+        "item_activity_xiranite_enr_hulu",
+    };
+    request.threshold = 1.0;
+    request.subpixel_threshold = 0.999;
+    const auto fallback_result = recognizer.recognize(pixels, request);
+    Require(fallback_result.diagnostics && fallback_result.diagnostics->performance, "forced fallback must expose performance diagnostics");
+    const auto& fallback = *fallback_result.diagnostics->performance;
+    Require(fallback.ranking.rarity_prefiltered_cells == 39, "forced fallback must retain reliable rarity prefiltering");
+    Require(fallback.ranking.rarity_fallback_cells == 39, "every reliable rarity cell must enter the forced fallback pass");
+    Require(fallback.ranking.rarity_preferred_candidates == 39, "five-candidate fixture must score one preferred candidate per reliable cell");
+    Require(fallback.ranking.rarity_remaining_candidates == 156, "fallback must score only four remaining candidates per reliable cell");
+    Require(fallback.ranking.baseline_candidates == 52 * 5, "fallback passes must score every candidate exactly once");
+    Require(fallback.matcher.score_calls == fallback.ranking.baseline_candidates, "forced fallback must not duplicate baseline or phase scoring");
+}
+
 void TestGridDiagnosticsSerializeSelectionEvidence()
 {
     iconrecognition::detail::RecognitionDiagnostics diagnostics;
@@ -521,6 +566,7 @@ int main()
         TestMalformedScalarParametersAreRejected();
         TestSuccessfulSingleRoiUsesPrimaryCellBox();
         TestRecognizerPreservesInternalDiagnostics();
+        TestReliableRarityReducesBaselineCandidateScoring();
         TestGridDiagnosticsSerializeSelectionEvidence();
         TestRecognizerPreloadsEveryRequestedTemplateSize();
         TestMaaFrameworkWrapsCustomDetail();

@@ -10,6 +10,7 @@
 #include "../detail/IconMatcher.h"
 #include "../detail/MaskPolicy.h"
 #include "../detail/RarityClassifier.h"
+#include "../detail/RarityCandidates.h"
 #include "../detail/RegularLattice.h"
 #include "../detail/SubpixelMatcher.h"
 #include "../detail/TemplateCatalog.h"
@@ -508,6 +509,37 @@ void TestRarityUsesBottomEdgeRows()
     Check(absent.row_offset == -8, "rarity ties must keep the first row like numpy.argmax");
 }
 
+void TestRarityCandidatePassesAreDisjointAndComplete()
+{
+    std::vector<iconrecognition::detail::PreparedTemplate> templates(5);
+    const std::array<int, 5> rarities { 1, 2, 2, 3, 2 };
+    for (std::size_t index = 0; index < templates.size(); ++index) {
+        templates[index].record.rarity = rarities[index];
+    }
+
+    const auto filtered = iconrecognition::detail::BuildRarityCandidatePasses(templates, 2);
+    Check(filtered.prefiltered, "available rarity must enable candidate prefiltering");
+    Check(filtered.preferred_indices == std::vector<std::size_t> { 1, 2, 4 }, "preferred pass must contain only matching rarity");
+    Check(filtered.remaining_indices == std::vector<std::size_t> { 0, 3 }, "fallback pass must exclude preferred candidates");
+
+    std::vector<std::size_t> combined = filtered.preferred_indices;
+    combined.insert(combined.end(), filtered.remaining_indices.begin(), filtered.remaining_indices.end());
+    std::ranges::sort(combined);
+    Check(combined == std::vector<std::size_t> { 0, 1, 2, 3, 4 }, "candidate passes must form one complete partition");
+
+    const auto unavailable = iconrecognition::detail::BuildRarityCandidatePasses(templates, 5);
+    Check(!unavailable.prefiltered, "rarity without templates must not enable prefiltering");
+    Check(
+        unavailable.preferred_indices == std::vector<std::size_t> { 0, 1, 2, 3, 4 } && unavailable.remaining_indices.empty(),
+        "unavailable rarity must use one full candidate pass");
+
+    const auto unknown = iconrecognition::detail::BuildRarityCandidatePasses(templates, std::nullopt);
+    Check(!unknown.prefiltered, "unknown rarity must not enable prefiltering");
+    Check(
+        unknown.preferred_indices == std::vector<std::size_t> { 0, 1, 2, 3, 4 } && unknown.remaining_indices.empty(),
+        "unknown rarity must use one full candidate pass");
+}
+
 void TestRarityRowEvidenceKeepsAllSixChannels()
 {
     const std::array<cv::Vec3f, 6> prototypes {
@@ -900,6 +932,7 @@ int main()
         TestTransferRarityBarsAnchorGridOrigins();
         TestPortStoragerRarityBarsAnchorGridOrigins();
         TestRarityUsesBottomEdgeRows();
+        TestRarityCandidatePassesAreDisjointAndComplete();
         TestMatcherSearchRadiusIsExplicit();
         TestSubpixelPhasesAreStable();
         TestTemplatePreparationUsesExpectedMasks();

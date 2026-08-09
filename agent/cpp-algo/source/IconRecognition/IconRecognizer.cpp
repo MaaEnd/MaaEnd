@@ -17,6 +17,7 @@
 #include "detail/GridProfiles.h"
 #include "detail/IconMatcher.h"
 #include "detail/MaskPolicy.h"
+#include "detail/RarityCandidates.h"
 #include "detail/RarityClassifier.h"
 #include "detail/RecognitionDiagnostics.h"
 #include "detail/TemplateCatalog.h"
@@ -189,6 +190,8 @@ struct SlotRanking
     std::vector<RankedCandidate> ranked;
     double baseline_score = 0.0;
     bool fallback_used = false;
+    bool rarity_prefiltered = false;
+    bool rarity_fallback_used = false;
 };
 
 bool CandidateLess(const RankedCandidate& left, const RankedCandidate& right, const std::vector<detail::PreparedTemplate>& templates)
@@ -242,20 +245,17 @@ RankedCandidate RefineCandidate(
     return candidate;
 }
 
-SlotRanking RankSlot(
+void ScoreBaselineCandidates(
     const cv::Mat& image,
     const cv::Rect& slot,
     const std::vector<detail::PreparedTemplate>& templates,
-    double accept,
-    double subpixel,
+    const std::vector<std::size_t>& indices,
     int search_radius,
+    std::vector<RankedCandidate>& ranked,
     detail::RecognitionPerformanceDiagnostics* performance)
 {
-    const auto ranking_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
     const auto baseline_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-    std::vector<RankedCandidate> ranked;
-    ranked.reserve(templates.size());
-    for (std::size_t index = 0; index < templates.size(); ++index) {
+    for (const std::size_t index : indices) {
         auto diagnostics = detail::ScoreTemplateAt(
             image,
             slot,
@@ -266,10 +266,23 @@ SlotRanking RankSlot(
         ranked.push_back({ index, diagnostics, diagnostics, {} });
     }
     if (performance) {
-        performance->ranking.baseline_candidates += templates.size();
+        performance->ranking.baseline_candidates += indices.size();
         performance->ranking.baseline_scoring_ms += ElapsedMilliseconds(baseline_started);
     }
+}
 
+SlotRanking EvaluateRankedCandidates(
+    const cv::Mat& image,
+    const cv::Rect& slot,
+    const std::vector<detail::PreparedTemplate>& templates,
+    const std::vector<RankedCandidate>& baseline_candidates,
+    double accept,
+    double subpixel,
+    int search_radius,
+    std::vector<std::optional<RankedCandidate>>& refinement_cache,
+    detail::RecognitionPerformanceDiagnostics* performance)
+{
+    std::vector<RankedCandidate> ranked = baseline_candidates;
     const auto baseline_sort_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
     std::ranges::sort(ranked, [&](const auto& left, const auto& right) { return CandidateLess(left, right, templates); });
     if (performance) {
@@ -277,9 +290,6 @@ SlotRanking RankSlot(
     }
     const double baseline_score = ranked.front().diagnostics.score;
     if (!(subpixel <= baseline_score && baseline_score < accept)) {
-        if (performance) {
-            performance->ranking.total_ms += ElapsedMilliseconds(ranking_started);
-        }
         return { ranked.front(), std::move(ranked), baseline_score, false };
     }
 
@@ -287,11 +297,18 @@ SlotRanking RankSlot(
     std::vector<RankedCandidate> refined;
     for (std::size_t index = 0; index < ranked.size(); ++index) {
         if (index < kShortlistCount || ranked[index].diagnostics.score >= baseline_score - kShortlistScoreWindow) {
-            refined.push_back(RefineCandidate(image, slot, templates, ranked[index], search_radius, performance));
+            const std::size_t template_index = ranked[index].template_index;
+            if (!refinement_cache[template_index]) {
+                refinement_cache[template_index] =
+                    RefineCandidate(image, slot, templates, ranked[index], search_radius, performance);
+                if (performance) {
+                    ++performance->ranking.refined_candidates;
+                }
+            }
+            refined.push_back(*refinement_cache[template_index]);
         }
     }
     if (performance) {
-        performance->ranking.refined_candidates += refined.size();
         performance->ranking.refinement_scoring_ms += ElapsedMilliseconds(refinement_started);
     }
 
@@ -299,9 +316,80 @@ SlotRanking RankSlot(
     std::ranges::sort(refined, [&](const auto& left, const auto& right) { return CandidateLess(left, right, templates); });
     if (performance) {
         performance->ranking.refinement_sort_ms += ElapsedMilliseconds(refinement_sort_started);
-        performance->ranking.total_ms += ElapsedMilliseconds(ranking_started);
     }
     return { refined.front(), std::move(refined), baseline_score, true };
+}
+
+SlotRanking RankSlot(
+    const cv::Mat& image,
+    const cv::Rect& slot,
+    const std::vector<detail::PreparedTemplate>& templates,
+    std::optional<int> detected_rarity,
+    double accept,
+    double subpixel,
+    int search_radius,
+    detail::RecognitionPerformanceDiagnostics* performance)
+{
+    const auto ranking_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
+    const auto passes = detail::BuildRarityCandidatePasses(templates, detected_rarity);
+    std::vector<RankedCandidate> baseline_candidates;
+    baseline_candidates.reserve(templates.size());
+    std::vector<std::optional<RankedCandidate>> refinement_cache(templates.size());
+
+    ScoreBaselineCandidates(
+        image,
+        slot,
+        templates,
+        passes.preferred_indices,
+        search_radius,
+        baseline_candidates,
+        performance);
+    if (performance && passes.prefiltered) {
+        ++performance->ranking.rarity_prefiltered_cells;
+        performance->ranking.rarity_preferred_candidates += passes.preferred_indices.size();
+    }
+
+    SlotRanking ranking = EvaluateRankedCandidates(
+        image,
+        slot,
+        templates,
+        baseline_candidates,
+        accept,
+        subpixel,
+        search_radius,
+        refinement_cache,
+        performance);
+    ranking.rarity_prefiltered = passes.prefiltered;
+    if (ranking.best.diagnostics.score < accept && !passes.remaining_indices.empty()) {
+        ScoreBaselineCandidates(
+            image,
+            slot,
+            templates,
+            passes.remaining_indices,
+            search_radius,
+            baseline_candidates,
+            performance);
+        if (performance) {
+            ++performance->ranking.rarity_fallback_cells;
+            performance->ranking.rarity_remaining_candidates += passes.remaining_indices.size();
+        }
+        ranking = EvaluateRankedCandidates(
+            image,
+            slot,
+            templates,
+            baseline_candidates,
+            accept,
+            subpixel,
+            search_radius,
+            refinement_cache,
+            performance);
+        ranking.rarity_prefiltered = true;
+        ranking.rarity_fallback_used = true;
+    }
+    if (performance) {
+        performance->ranking.total_ms += ElapsedMilliseconds(ranking_started);
+    }
+    return ranking;
 }
 
 std::string ActiveMaskKind(
@@ -462,11 +550,17 @@ public:
                 if (performance) {
                     performance->active_templates_ms += ElapsedMilliseconds(active_started);
                 }
+                const auto rarity_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
+                const auto rarity = single_roi ? detail::RarityResult {} : detail::ClassifyRarity(image, slot);
+                if (performance) {
+                    performance->rarity_classification_ms += ElapsedMilliseconds(rarity_started);
+                }
                 const SlotRanking ranking =
                     RankSlot(
                         image,
                         slot,
                         active,
+                        rarity.rarity,
                         request.threshold,
                         request.subpixel_threshold,
                         single_roi ? 0 : kGridSearchRadius,
@@ -478,11 +572,6 @@ public:
                     single_roi ? std::optional<double> {} : detail::ForegroundTextureScore(image, cell.cell_box, request.grid_type);
                 if (performance) {
                     performance->foreground_texture_ms += ElapsedMilliseconds(texture_started);
-                }
-                const auto rarity_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-                const auto rarity = single_roi ? detail::RarityResult {} : detail::ClassifyRarity(image, slot);
-                if (performance) {
-                    performance->rarity_classification_ms += ElapsedMilliseconds(rarity_started);
                 }
                 const auto low_texture_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
                 const bool texture_rejected = !single_roi && best.diagnostics.score >= request.threshold

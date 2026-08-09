@@ -15,6 +15,10 @@ json::value RankingPerformanceDiagnostics::to_json() const
         { "refinement_sort_ms", refinement_sort_ms },
         { "baseline_candidates", static_cast<unsigned long long>(baseline_candidates) },
         { "refined_candidates", static_cast<unsigned long long>(refined_candidates) },
+        { "rarity_prefiltered_cells", static_cast<unsigned long long>(rarity_prefiltered_cells) },
+        { "rarity_fallback_cells", static_cast<unsigned long long>(rarity_fallback_cells) },
+        { "rarity_preferred_candidates", static_cast<unsigned long long>(rarity_preferred_candidates) },
+        { "rarity_remaining_candidates", static_cast<unsigned long long>(rarity_remaining_candidates) },
     };
 }
 
