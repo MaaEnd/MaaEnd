@@ -397,7 +397,15 @@
         "rate_limit": 0,
         "next": [
             "AutumnGoldTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutumnGoldTakePhoto": {
         "desc": "在金秋时任务拍照点开始拍照",

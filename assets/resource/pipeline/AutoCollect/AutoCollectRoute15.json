@@ -1,0 +1,116 @@
+{
+    "AutoCollectRoute15Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingNorthWulingExclusionZone0"
+            ]
+        },
+        "next": [
+            "AutoCollectRoute15AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute15.label"
+        }
+    },
+    "AutoCollectRoute15End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectRoute15AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                1117.57,
+                594.24,
+                9.33,
+                7.85
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectRoute15Goto"
+        ]
+    },
+    "AutoCollectRoute15Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1096.46,
+                                575.99
+                            ]
+                        },
+                        [
+                            1095.91,
+                            575.77,
+                            "COLLECT"
+                        ],
+                        [
+                            1093.83,
+                            573.28,
+                            "COLLECT"
+                        ],
+                        [
+                            1092.52,
+                            571.22,
+                            "COLLECT"
+                        ],
+                        [
+                            1090.17,
+                            570.31,
+                            "COLLECT"
+                        ],
+                        [
+                            1087.22,
+                            570.2
+                        ],
+                        [
+                            1084.87,
+                            572.68,
+                            "COLLECT"
+                        ],
+                        [
+                            1087.06,
+                            576.33,
+                            "COLLECT"
+                        ],
+                        [
+                            1089.42,
+                            577.81,
+                            "COLLECT"
+                        ],
+                        [
+                            1091.29,
+                            576.95,
+                            "COLLECT"
+                        ],
+                        [
+                            1095.91,
+                            575.77,
+                            "COLLECT"
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectRoute15End"
+        ]
+    }
+}

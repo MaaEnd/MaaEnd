@@ -1,6 +1,6 @@
 {
     "TRIPHASIC_NANOFLAKE": {
-        "desc": "IMS 物品:三相纳米片(And；黄色品质；品质色 → 模板 → 数量；box_index 指向数量 And)",
+        "desc": "三相纳米片",
         "recognition": {
             "type": "And",
             "param": {

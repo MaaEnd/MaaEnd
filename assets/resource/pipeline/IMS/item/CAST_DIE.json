@@ -1,6 +1,6 @@
 {
     "CAST_DIE": {
-        "desc": "IMS 物品:强固模具(And；蓝色品质；品质色 → 模板 → 数量；box_index 指向数量 And)",
+        "desc": "强固模具",
         "recognition": {
             "type": "And",
             "param": {

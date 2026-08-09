@@ -10,19 +10,20 @@
  * @module ui/connection
  */
 
-import { getPlatform, getSettings, putSettings, getAdbDevices, checkConnection } from '../rpc.js';
+import { getPlatform, getSettings, putSettings, getAdbDevices, getWlrootsSockets, checkConnection } from '../rpc.js';
 import { setStatus } from './toast.js';
 
 export class ConnectionPanel {
   /**
    * @param {Object} els bound DOM elements:
    *   {kindCombo, win32Group, win32Entry, playcoverGroup, playcoverAddrEntry, playcoverUuidEntry,
-   *    adbGroup, adbPathEntry, adbTargetInput, adbTargetList, btnRefreshAdb, summary}
+   *    adbGroup, adbPathEntry, adbTargetInput, adbTargetList, btnRefreshAdb,
+   *    wlrootsGroup, wlrootsSocketEntry, wlrootsSocketList, btnRefreshWlroots, summary}
    */
   constructor(els) {
     this.els = els;
     this.statusDot = document.getElementById('status-dot');
-    /** @type {{connection_kind:string, adb_path:string, adb_address:string, win32_window_title:string, playcover_address:string, playcover_uuid:string, recent_adb_targets:string[]}} */
+    /** @type {{connection_kind:string, adb_path:string, adb_address:string, win32_window_title:string, playcover_address:string, playcover_uuid:string, wlroots_socket_path:string, recent_adb_targets:string[]}} */
     this.settings = {
       connection_kind: '',
       adb_path: '',
@@ -30,15 +31,17 @@ export class ConnectionPanel {
       win32_window_title: 'Endfield',
       playcover_address: '127.0.0.1:1717',
       playcover_uuid: 'maa.playcover',
+      wlroots_socket_path: '',
       recent_adb_targets: [],
     };
     this._devicesLoadedOnce = false;
+    this._socketsLoadedOnce = false;
     this._persistTimer = 0;
     this._checkTimer = 0;
     /** @type {boolean} last observed connected state; drives auto-collapse on the rising edge. */
     this._wasConnected = false;
     /** @type {{platform:string, supported_kinds:string[], default_kind:string}} */
-    this.platform = { platform: '', supported_kinds: ['win32', 'adb', 'playcover'], default_kind: 'win32' };
+    this.platform = { platform: '', supported_kinds: ['win32', 'adb', 'playcover', 'wlroots'], default_kind: 'win32' };
   }
 
   /**
@@ -70,6 +73,7 @@ export class ConnectionPanel {
     this.els.playcoverUuidEntry.value = this.settings.playcover_uuid || 'maa.playcover';
     this.els.adbPathEntry.value = this.settings.adb_path || '';
     this.els.adbTargetInput.value = this.settings.adb_address || '';
+    this.els.wlrootsSocketEntry.value = this.settings.wlroots_socket_path || '';
 
     this._wire();
     this.syncControls();
@@ -77,6 +81,9 @@ export class ConnectionPanel {
 
     if (this.kind() === 'adb' && !this._devicesLoadedOnce) {
       await this.refreshDevices();
+    }
+    if (this.kind() === 'wlroots' && !this._socketsLoadedOnce) {
+      await this.refreshWlrootsSockets();
     }
   }
 
@@ -95,6 +102,7 @@ export class ConnectionPanel {
       this.refreshSummary();
       this.persist();
       if (this.kind() === 'adb' && !this._devicesLoadedOnce) this.refreshDevices();
+      if (this.kind() === 'wlroots' && !this._socketsLoadedOnce) this.refreshWlrootsSockets();
     });
     this.els.win32Entry.addEventListener('input', () => {
       this.refreshSummary();
@@ -121,6 +129,15 @@ export class ConnectionPanel {
       this.persist();
     });
     this.els.btnRefreshAdb.addEventListener('click', () => this.refreshDevices());
+    this.els.wlrootsSocketEntry.addEventListener('input', () => {
+      this.refreshSummary();
+      this._persistDebounced();
+    });
+    this.els.wlrootsSocketEntry.addEventListener('change', () => {
+      this.refreshSummary();
+      this.persist();
+    });
+    this.els.btnRefreshWlroots.addEventListener('click', () => this.refreshWlrootsSockets());
   }
 
   /**
@@ -143,7 +160,7 @@ export class ConnectionPanel {
     this.persist();
   }
 
-  /** @returns {'win32'|'adb'|'playcover'} the active connection kind */
+  /** @returns {'win32'|'adb'|'playcover'|'wlroots'} the active connection kind */
   kind() {
     return this.els.kindCombo.value || this.platform.default_kind;
   }
@@ -153,6 +170,7 @@ export class ConnectionPanel {
     const k = this.kind();
     if (k === 'adb') return 'ADB';
     if (k === 'playcover') return 'PlayCover';
+    if (k === 'wlroots') return 'WlRoots';
     return 'Win32';
   }
 
@@ -162,6 +180,7 @@ export class ConnectionPanel {
     this.els.win32Group.hidden = (k !== 'win32');
     this.els.playcoverGroup.hidden = (k !== 'playcover');
     this.els.adbGroup.hidden = (k !== 'adb');
+    this.els.wlrootsGroup.hidden = (k !== 'wlroots');
   }
 
   /** Update the summary line. @returns {void} */
@@ -173,6 +192,9 @@ export class ConnectionPanel {
     } else if (k === 'playcover') {
       const addr = this.els.playcoverAddrEntry.value.trim() || '127.0.0.1:1717';
       this.els.summary.textContent = `PlayCover: ${addr}`;
+    } else if (k === 'wlroots') {
+      const socketPath = this.els.wlrootsSocketEntry.value.trim();
+      this.els.summary.textContent = socketPath ? `WlRoots: ${socketPath}` : 'WlRoots: 未指定 socket';
     } else {
       const title = this.els.win32Entry.value.trim();
       this.els.summary.textContent = `Win32: ${title || 'Endfield'}`;
@@ -219,6 +241,7 @@ export class ConnectionPanel {
       playcover_address: this.els.playcoverAddrEntry.value.trim(),
       adb_path: this.els.adbPathEntry.value.trim(),
       adb_address: this.els.adbTargetInput.value.trim(),
+      wlroots_socket_path: this.els.wlrootsSocketEntry.value.trim(),
     };
 
     try {
@@ -335,6 +358,42 @@ export class ConnectionPanel {
     }
   }
 
+  /**
+   * Enumerate Wayland sockets from the backend, refill the datalist, auto-select
+   * the default when the target is empty, and persist. Never throws to the caller.
+   * @returns {Promise<void>}
+   */
+  async refreshWlrootsSockets() {
+    let result;
+    try {
+      result = await getWlrootsSockets();
+    } catch (err) {
+      setStatus(`刷新 Wayland socket 失败: ${err && err.message ? err.message : err}`, '#ef4444');
+      return;
+    }
+    this._socketsLoadedOnce = true;
+    const sockets = Array.isArray(result.sockets) ? result.sockets : [];
+
+    const list = this.els.wlrootsSocketList;
+    if (list) {
+      list.textContent = '';
+      for (const socketPath of sockets) {
+        const opt = document.createElement('option');
+        opt.value = socketPath;
+        list.appendChild(opt);
+      }
+    }
+
+    const current = this.els.wlrootsSocketEntry.value.trim();
+    if (!current) {
+      this.els.wlrootsSocketEntry.value = result.default || '';
+      this.refreshSummary();
+    }
+
+    await this.persist();
+    setStatus(`已刷新 Wayland socket，共 ${sockets.length} 个。`, '#10b981');
+  }
+
   /** Debounced settings persist for high-frequency text input. @returns {void} */
   _persistDebounced() {
     if (this._persistTimer) window.clearTimeout(this._persistTimer);
@@ -358,6 +417,7 @@ export class ConnectionPanel {
       win32_window_title: this.els.win32Entry.value.trim() || 'Endfield',
       playcover_address: this.els.playcoverAddrEntry.value.trim() || '127.0.0.1:1717',
       playcover_uuid: this.els.playcoverUuidEntry.value.trim() || 'maa.playcover',
+      wlroots_socket_path: this.els.wlrootsSocketEntry.value.trim(),
       recent_adb_targets: this._mergeRecent([target]),
     };
     try {
@@ -370,7 +430,7 @@ export class ConnectionPanel {
 
   /**
    * The recording session config for the current target (tk `_build_recording_session`).
-   * @returns {{kind:'win32'|'adb'|'playcover', win32:{window_title:string}, adb:{adb_path:string, address:string}, playcover:{uuid:string}}}
+   * @returns {{kind:'win32'|'adb'|'playcover'|'wlroots', win32:{window_title:string}, adb:{adb_path:string, address:string}, playcover:{uuid:string}, wlroots:{wlr_socket_path:string}}}
    */
   buildSession() {
     return {
@@ -383,6 +443,9 @@ export class ConnectionPanel {
       playcover: {
         address: this.els.playcoverAddrEntry.value.trim(),
         uuid: this.els.playcoverUuidEntry.value.trim() || 'maa.playcover',
+      },
+      wlroots: {
+        wlr_socket_path: this.els.wlrootsSocketEntry.value.trim(),
       },
     };
   }

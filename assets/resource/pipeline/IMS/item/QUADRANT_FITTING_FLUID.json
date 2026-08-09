@@ -1,6 +1,6 @@
 {
     "QUADRANT_FITTING_FLUID": {
-        "desc": "IMS 物品:象限拟合液(And；黄色品质；品质色 → 模板 → 数量；box_index 指向数量 And)",
+        "desc": "象限拟合液",
         "recognition": {
             "type": "And",
             "param": {

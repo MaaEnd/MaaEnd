@@ -32,6 +32,47 @@ func TestParseSyncItemDataParamMap(t *testing.T) {
 	if params.Items["ADVANCED_COGNITIVE_CARRIER"] != "ADVANCED_COGNITIVE_CARRIER" {
 		t.Fatalf("items=%v", params.Items)
 	}
+	if params.NotifyUI != nil {
+		t.Fatal("omitted notify_ui should leave pointer nil (default true at resolve)")
+	}
+	if !resolveSyncNotifyUI(params.NotifyUI) {
+		t.Fatal("notify_ui omitted should default true")
+	}
+
+	params, err = parseSyncItemDataParam(`{
+		"items": {"A": "A"},
+		"notify_ui": false
+	}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if params.NotifyUI == nil || *params.NotifyUI {
+		t.Fatal("expected notify_ui false")
+	}
+	if resolveSyncNotifyUI(params.NotifyUI) {
+		t.Fatal("notify_ui=false should disable")
+	}
+
+	params, err = parseSyncItemDataParam(`{
+		"items": {"  CAST_DIE  ": "  CAST_DIE  "}
+	}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(params.Items) != 1 || params.Items["CAST_DIE"] != "CAST_DIE" {
+		t.Fatalf("expected trimmed items, got %v", params.Items)
+	}
+
+	if _, err := parseSyncItemDataParam(`{
+		"items": {"A": "A", " A ": "B"}
+	}`); err == nil {
+		t.Fatal("expected duplicate after trim to fail")
+	}
+	if _, err := parseSyncItemDataParam(`{
+		"items": {"  ": "NODE"}
+	}`); err == nil {
+		t.Fatal("expected empty id after trim to fail")
+	}
 }
 
 func TestItemDisplayNameFallback(t *testing.T) {
@@ -62,16 +103,33 @@ func TestPersistSyncedAndPageDedupBase(t *testing.T) {
 		t.Fatalf("cache A=%d", ItemsSnapshot()["A"])
 	}
 
-	base, err := baseItemsForSync(true)
+	base, err := baseItemsForSync(true, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if base["A"] != 1 {
 		t.Fatalf("page_dedup base=%v", base)
 	}
-	createBase, err := baseItemsForSync(false)
-	if err != nil || len(createBase) != 0 {
-		t.Fatalf("create base=%v err=%v", createBase, err)
+	createBase, err := baseItemsForSync(false, []string{"A"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(createBase) != 0 {
+		t.Fatalf("create base for scanned keys should drop A, got=%v", createBase)
+	}
+
+	if err := persistSynced(at, map[string]int{"A": 1, "ORIGEOMETRY": 9}); err != nil {
+		t.Fatal(err)
+	}
+	regionBase, err := baseItemsForSync(false, []string{"A"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := regionBase["A"]; ok {
+		t.Fatalf("region rebuild should drop scanned miss keys, got=%v", regionBase)
+	}
+	if regionBase["ORIGEOMETRY"] != 9 {
+		t.Fatalf("region rebuild should keep other IDs, got=%v", regionBase)
 	}
 }
 
@@ -86,7 +144,8 @@ func TestLazyHydrateFromDisk(t *testing.T) {
 	})
 	ClearCache()
 
-	at := time.Date(2026, 7, 29, 12, 0, 0, 0, time.UTC)
+	// Keep within refresh_days so ItemDataReady is not stale-dependent on wall clock.
+	at := time.Now().UTC().Add(-24 * time.Hour)
 	if err := persistSynced(at, map[string]int{"PROTODISK": 7, "CAST_DIE": 3}); err != nil {
 		t.Fatal(err)
 	}

@@ -1,6 +1,6 @@
 {
     "METADIASTIMA_PHOTOEMISSION_TUBE": {
-        "desc": "IMS 物品:超距辉映管(And；黄色品质；品质色 → 模板 → 数量；box_index 指向数量 And)",
+        "desc": "超距辉映管",
         "recognition": {
             "type": "And",
             "param": {

@@ -599,41 +599,28 @@
         "MissionId": "m1m62",
         "Name": "垂藤",
         "Id": "HangingVines",
-        "EnterMap": "SceneEnterWorldWulingMarkerStone3",
+        "QuickTeleport": true,
         "MapName": "map02_lv004",
-        "MapAssert": [
-            602.8,
-            325,
-            9.7,
-            8.1
-        ],
         "MapGoal": [
-            520,
-            288
+            579.2,
+            253.7
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "CameraMaxHit": 3,
-        "Heading": 0
+        "Heading": 90
     },
     {
         "MissionId": "m1m63",
         "Name": "植物观察点",
         "Id": "FloraObservationPoint",
-        "EnterMap": "SceneEnterWorldWulingMarkerStone1",
-        "MapName": "Wuling_Base",
-        "MapAssert": [
-            477.62,
-            2108.95,
-            27.2,
-            27.33
+        "QuickTeleport": true,
+        "MapName": "map02_lv004",
+        "MapGoal": [
+            550.3,
+            252.6
         ],
-        "MapTarget": [
-            125.73,
-            112.6
-        ],
-        "MapTargetTier": "Wuling_L4_330",
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
-        "Heading": 180
+        "Heading": 0
     },
     {
         "MissionId": "m1m64",
@@ -673,14 +660,8 @@
         "MissionId": "m1m66",
         "Name": "念念家的桃树",
         "Id": "PeachTreeAtBabblesSHome",
-        "EnterMap": "SceneEnterWorldWulingMarkerStone4",
+        "QuickTeleport": true,
         "MapName": "map02_lv004_tier_328",
-        "MapAssert": [
-            514,
-            666,
-            15,
-            15
-        ],
         "MapPath": [
             [
                 520.3,

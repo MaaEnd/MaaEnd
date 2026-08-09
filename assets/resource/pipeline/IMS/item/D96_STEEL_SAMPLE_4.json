@@ -1,6 +1,6 @@
 {
     "D96_STEEL_SAMPLE_4": {
-        "desc": "IMS 物品:D96钢样品四(And；黄色品质；品质色 → 模板 → 数量；box_index 指向数量 And)",
+        "desc": "D96钢样品四",
         "recognition": {
             "type": "And",
             "param": {

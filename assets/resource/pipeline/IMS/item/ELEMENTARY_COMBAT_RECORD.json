@@ -1,6 +1,6 @@
 {
     "ELEMENTARY_COMBAT_RECORD": {
-        "desc": "IMS 物品:初级作战记录(And；白色品质；品质色 → 模板 → 数量；box_index 指向数量 And)",
+        "desc": "初级作战记录",
         "recognition": {
             "type": "And",
             "param": {

@@ -423,6 +423,41 @@ Pipeline 会**按顺序尝试**——先试第一个，不命中才试第二个�
 >
 > 第三章你已经 fork 并 clone 了自己的副本（`你的用户名/MaaEnd`）。这一章在副本上把贡献流程走完：开分支 → 改文件 → commit → push → 开 PR。开 PR 在网页上做；其余步骤都给了 GitHub Desktop 和终端两种做法，选顺手的一种。
 
+### 第 0 步：告诉 Git 你是谁（一次性设置）
+
+commit 会记下"是谁存的档"。**不设置的话，Git 会拿电脑名凑数，或者直接报错不让你提交。** 这套设置只需做一次，之后这台电脑上所有仓库都通用。
+
+打开终端，敲下面两条（引号里的内容换成你自己的名字和邮箱）：
+
+```bash
+git config --global user.name "你的名字"
+git config --global user.email "你的邮箱"
+```
+
+> [!IMPORTANT]
+> **邮箱要填能关联到你 GitHub 账号的那个**——GitHub 靠邮箱把提交归属到账号：匹配，提交就显示你的头像、计入你的贡献统计；不匹配，提交会挂在一个"无主"账号下，头像空白，贡献也不记在你头上。
+
+> [!NOTE]
+> **不想暴露真实邮箱？** 在 GitHub → Settings → Emails 勾选 "Keep my email addresses private"，会得到形如 `12345678+你的用户名@users.noreply.github.com` 的 noreply 邮箱。用它配置 `user.email`，同样能把提交关联到你的账号，只是别人看不到你的真实邮箱。
+
+验证一下有没有设对：
+
+```bash
+git config --global user.name
+git config --global user.email
+```
+
+能分别输出你刚填的名字和邮箱，就说明设置成功了。
+
+> [!TIP]
+> **万一你已经 commit 了才发现没设置，或者设错了名字？** 把上面两条命令再敲一遍改成正确的，再 `git commit --amend --reset-author` 就能把上一次提交的作者信息一起改掉。这条只改最近一次提交。
+
+> [!NOTE]
+> **我只用 GitHub Desktop / VS Code 提交，也要设置吗？**
+> GitHub Desktop 提交时会自动用你 GitHub 账号的信息，不用设置。VS Code 走的就是上面这份 git 配置，所以建议还是设一下更保险。
+
+---
+
 ### 第 1 步：创建分支
 
 > Fork 是复制了一整个仓库，Branch 是在仓库里面再开一条工作分支。v2 是本项目的主分支（PR 也往它开）。永远不要直接在 v2 分支上改东西——开条分支，改烂了删掉就行，v2 干干净净不受影响。
@@ -516,6 +551,8 @@ git push --set-upstream origin feat/add-sell-button
 Fork 仓库（第三章已做）
     ↓
 Clone 你自己的副本（第三章已做）
+    ↓
+告诉 Git 你是谁（第 0 步，一次性设置）
     ↓
 创建分支（开一条自己的线）
     ↓

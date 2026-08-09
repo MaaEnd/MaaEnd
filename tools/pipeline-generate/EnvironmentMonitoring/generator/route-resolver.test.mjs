@@ -130,3 +130,68 @@ test("existing navigation forms remain adapted", () => {
     assert.equal(result.IsDirectPhoto, false);
     assert.deepEqual(result.missingFields, []);
 });
+
+test("QuickTeleport MapPath routes can skip MapAssert", () => {
+    const result = resolve({
+        MissionId: mission.missionId,
+        Name: "测试观察点",
+        Id: "TestMission",
+        QuickTeleport: true,
+        MapName: "map02_lv001",
+        MapPath: [
+            [
+                5,
+                5,
+            ],
+        ],
+        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
+    });
+
+    assert.equal(result.isAdapted, true);
+    assert.equal(result.IsDirectPhoto, false);
+    assert.equal(result.ShouldAssertAfterTeleport, false);
+    assert.equal(result.RouteAction, "MapTrackerMove");
+    assert.deepEqual(result.missingFields, []);
+});
+
+test("non-QuickTeleport MapPath routes still require MapAssert", () => {
+    const missingFields = collectMissingRouteFields({
+        EnterMap: "SceneEnterWorldTest",
+        MapName: "map02_lv001",
+        MapPath: [
+            [
+                5,
+                5,
+            ],
+        ],
+        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
+    });
+
+    assert.deepEqual(missingFields, ["MapAssert"]);
+});
+
+test("non-QuickTeleport MapGoal routes still skip the post-teleport assertion", () => {
+    const result = resolve({
+        MissionId: mission.missionId,
+        Name: "测试观察点",
+        Id: "TestMission",
+        EnterMap: "SceneEnterWorldTest",
+        MapName: "map02_lv001",
+        MapAssert: [
+            0,
+            0,
+            10,
+            10,
+        ],
+        MapGoal: [
+            5,
+            5,
+        ],
+        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
+    });
+
+    assert.equal(result.isAdapted, true);
+    assert.equal(result.ShouldAssertAfterTeleport, false);
+    assert.equal(result.RouteAction, "MapTrackerGoal");
+    assert.deepEqual(result.missingFields, []);
+});

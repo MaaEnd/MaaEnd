@@ -445,23 +445,6 @@
             }
         }
     },
-    "_AutoEcoFarmPressTab": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 48
-            }
-        }
-    },
-    "_AutoEcoFarmPressW": {
-        "action": {
-            "type": "LongPressKey",
-            "param": {
-                "duration": 20000,
-                "key": 13
-            }
-        }
-    },
     "_AutoEcoFarmSwipeToGround2": {
         "action": {
             "type": "KeyDown",

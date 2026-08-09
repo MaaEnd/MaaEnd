@@ -34,6 +34,13 @@
         },
         "pre_delay": 0,
         "action": "Click",
+        // OCR 框易贴 ROI 左缘，点击整体右移以免点到列表左边装饰
+        "target_offset": [
+            15,
+            0,
+            -15,
+            0
+        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -53,6 +60,14 @@
         },
         "pre_delay": 0,
         "action": "Click",
+        // 与红点入口一致：点击区右移 15px
+        "target": true,
+        "target_offset": [
+            15,
+            0,
+            -15,
+            0
+        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

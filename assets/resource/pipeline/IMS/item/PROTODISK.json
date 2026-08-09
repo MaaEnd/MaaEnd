@@ -1,6 +1,6 @@
 {
     "PROTODISK": {
-        "desc": "IMS 物品:协议圆盘(And；蓝色品质；品质色 → 模板 → 数量；box_index 指向数量 And)",
+        "desc": "协议圆盘",
         "recognition": {
             "type": "And",
             "param": {

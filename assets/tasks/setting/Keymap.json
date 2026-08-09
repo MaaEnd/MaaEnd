@@ -31,6 +31,15 @@
                 },
                 "EnterCameraModeKeyUp": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
+                },
+                "_AutoEcoFarmEnterCameraModeKeyDownR": {
+                    "key": "{KeymapUseCurrentQuickTool.primary}"
+                },
+                "_AutoEcoFarmEnterCameraModeFailKeyUp": {
+                    "key": "{KeymapUseCurrentQuickTool.primary}"
+                },
+                "_AutoEcoFarmEnterCameraModeKeyUpR": {
+                    "key": "{KeymapUseCurrentQuickTool.primary}"
                 }
             }
         },

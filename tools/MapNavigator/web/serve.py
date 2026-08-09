@@ -23,7 +23,8 @@
   GET  /api/settings          -> 读取 ~/.maaend/mapnavigator.json
   PUT  /api/settings          -> 写入 ~/.maaend/mapnavigator.json
   GET  /api/adb/devices       -> adb devices -l 枚举 (容错)
-  POST /api/connection/check  -> 主动探测当前连接配置是否可达 (win32 窗口 / adb 设备 / playcover 端口)
+  GET  /api/wlroots/sockets   -> $XDG_RUNTIME_DIR 下 Wayland socket 枚举 (供 datalist)
+  POST /api/connection/check  -> 主动探测当前连接配置是否可达 (win32 窗口 / adb 设备 / playcover 端口 / wlroots socket)
   POST /api/locate-once       -> 单次游戏内定位 (临时连接, 取第 3 个有效帧的 x/y/zone)
   POST /api/import/analyze    -> 解析上传 JSON (路线/Assert); 缺 zone 时回片段供前端指定
   POST /api/import/finalize   -> 按片段 zone 指定定稿导入 (convert_maptracker+infer+normalize)
@@ -37,6 +38,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import math
 import os
 import socket
 import struct
@@ -62,15 +64,27 @@ if str(_PARENT_DIR) not in sys.path:
     sys.path.insert(0, str(_PARENT_DIR))
 
 import key_listener  # noqa: E402  (ensure_privileges, 录制开始时才调用)
-from basenav_preview import load_basenav_field  # noqa: E402
+from basenav_preview import (  # noqa: E402
+    _closest_point_on_triangle,
+    _point_in_triangle,
+    load_basenav_field,
+)
 from connection_models import (  # noqa: E402
     AdbConnectionConfig,
+    PlayCoverConnectionConfig,
     RecordingSessionConfig,
     Win32ConnectionConfig,
-    PlayCoverConnectionConfig,
+    WlRootsConnectionConfig,
 )
-from connectors import build_recording_connector, find_game_window, list_adb_devices, resolve_adb_path  # noqa: E402
+from connectors import (  # noqa: E402
+    build_recording_connector,
+    find_game_window,
+    list_adb_devices,
+    list_wlroots_sockets,
+    resolve_adb_path,
+)
 from model import normalize_zone_id, resolve_zone_image  # noqa: E402
+from recastnav import DECK_BAND  # noqa: E402
 from recastnav_route import RecastEngine  # noqa: E402
 from recording_service import RecordingService  # noqa: E402
 from runtime import (  # noqa: E402
@@ -89,6 +103,7 @@ from settings_store import (  # noqa: E402
     MapNavigatorSettings,
     MapNavigatorSettingsStore,
     default_connection_kind,
+    default_wlroots_socket_path,
     supported_connection_kinds,
 )
 
@@ -235,27 +250,22 @@ def _serialize_zone_mesh(field: Any, zone: Any) -> bytes:
     """
     start = zone.first_triangle
     end = start + zone.triangle_count
-    triangles = field.triangles
+    slice_triangles = field.triangles[start:end]
 
     # 展平该区所有三角形的全局顶点下标 (v0,v1,v2 顺序), 供 numpy 去重。
-    flat: list[int] = []
-    extend = flat.extend
-    for index in range(start, end):
-        extend(triangles[index].vertices)
-    flat_arr = np.asarray(flat, dtype=np.int64)
+    flat_arr = np.column_stack(
+        [slice_triangles["v0"], slice_triangles["v1"], slice_triangles["v2"]]
+    ).ravel()
 
     # 全局顶点下标 -> 局部下标 (顺序无关, 前端只按下标取顶点)。
     unique_global, inverse = np.unique(flat_arr, return_inverse=True)
     inverse = np.asarray(inverse).reshape(-1)  # 跨 numpy 版本保证 1-D
 
-    vertices = field.vertices
     vertex_count = int(unique_global.shape[0])
     vertex_buffer = np.empty((vertex_count, 3), dtype="<f4")
-    for local, global_index in enumerate(unique_global.tolist()):
-        vertex = vertices[global_index]
-        vertex_buffer[local, 0] = vertex.u
-        vertex_buffer[local, 1] = vertex.v
-        vertex_buffer[local, 2] = vertex.height  # world-Y, 供楼层带
+    vertex_buffer[:, 0] = field.vertices["u"][unique_global]
+    vertex_buffer[:, 1] = field.vertices["v"][unique_global]
+    vertex_buffer[:, 2] = field.vertices["h"][unique_global]  # world-Y, 供楼层带
 
     index_buffer = inverse.astype("<u4")
 
@@ -292,9 +302,10 @@ def _prewarm_recast(zone_id: int) -> None:
             return
         get_recast_engine(field).warm(zone.name)
     except Exception as exc:  # noqa: BLE001
+        _log(f"路线引擎预热失败(下次拉取该区网格时重试): {exc}")
+    finally:
         with _prewarm_lock:
             _prewarm_started.discard(zone_id)
-        _log(f"路线引擎预热失败(下次拉取该区网格时重试): {exc}")
 
 
 def prewarm_recast_in_background(zone_id: int) -> None:
@@ -380,6 +391,14 @@ def _build_session_config(payload: dict[str, Any]) -> RecordingSessionConfig:
                 uuid=str(playcover.get("uuid", "maa.playcover") or "maa.playcover"),
             ),
         )
+    elif kind == "wlroots":
+        wlroots = payload.get("wlroots") or {}
+        return RecordingSessionConfig(
+            kind="wlroots",
+            wlroots=WlRootsConnectionConfig(
+                wlr_socket_path=str(wlroots.get("wlr_socket_path", "") or ""),
+            ),
+        )
     win = payload.get("win32") or {}
     return RecordingSessionConfig(
         kind="win32",
@@ -435,6 +454,8 @@ class RouteRequest(BaseModel):
     goal: list[float]
     snap_radius: float = 5.0
     floor_y: float | None = None
+    # 终点所在重叠面的高度; floor_y 管吸附, 这个管选层
+    goal_deck_y: float | None = None
 
 
 @app.get("/api/load-status")
@@ -552,6 +573,61 @@ async def api_offmesh_probe(req: OffMeshProbeRequest) -> dict[str, Any]:
     return await run_in_threadpool(_compute)
 
 
+DECK_PROBE_RADIUS = 0.25  # 一个体素, 与寻路按整格取 span 同量级
+
+
+class DeckProbeRequest(BaseModel):
+    zone_id: int
+    point: list[float]
+
+
+@app.post("/api/deck-probe")
+async def api_deck_probe(req: DeckProbeRequest) -> dict[str, Any]:
+    """这个坐标底下压着几张可走面? 小地图是二维的,同一个点可能有走廊/天桥/屋顶好几层。
+
+    取该点一个体素(0.25px)内的可走面,按高度归并:两个高度差不超过 DECK_BAND 时寻路的
+    选面判据本来就分不开,所以归成同一张。返回的高度可直接填进 target_deck_y。
+    """
+
+    def _compute() -> dict[str, Any]:
+        try:
+            field = field_manager.get()
+        except RuntimeError as exc:
+            return {"ok": False, "error": f"navmesh 尚未就绪: {exc}"}
+        if len(req.point) < 2:
+            return {"ok": False, "error": "point 需为 [x, y]"}
+
+        geom_zone_id = int(field.geometry_zone_id(req.zone_id))
+        point = (float(req.point[0]), float(req.point[1]))
+        found: list[tuple[float, float, int]] = []  # (height, distance, triangle)
+        for triangle in field._candidate_triangles(geom_zone_id, point, DECK_PROBE_RADIUS):
+            vertices = field._triangle_points(triangle)
+            if _point_in_triangle(point, *vertices):
+                distance = 0.0
+            else:
+                near = _closest_point_on_triangle(point, vertices)
+                distance = math.hypot(near[0] - point[0], near[1] - point[1])
+                if distance > DECK_PROBE_RADIUS:
+                    continue
+            found.append((float(field.triangle_height[triangle]), distance, triangle))
+
+        decks: list[dict[str, Any]] = []
+        for height, distance, triangle in sorted(found, key=lambda f: (f[1], f[2])):
+            if any(abs(d["height"] - height) <= DECK_BAND for d in decks):
+                continue
+            decks.append({
+                "height": round(height, 2),
+                "band": [round(height - DECK_BAND, 2), round(height + DECK_BAND, 2)],
+                "on_surface": distance == 0.0,
+                # 烘焙出来的墙顶/檐口薄片, 不是真地面; 前端灰掉它免得被当成一层
+                "thin": bool(field._is_small_island(triangle)),
+            })
+        decks.sort(key=lambda d: -d["height"])
+        return {"ok": True, "decks": decks}
+
+    return await run_in_threadpool(_compute)
+
+
 @app.post("/api/route")
 async def api_route(req: RouteRequest) -> dict[str, Any]:
     """栅格路线; snap_radius 请求参数被忽略 (引擎定死 8.0), blind_* 恒 null, 诊断在 `recast` 键。"""
@@ -573,7 +649,10 @@ async def api_route(req: RouteRequest) -> dict[str, Any]:
         goal = (float(req.goal[0]), float(req.goal[1]))
 
         try:
-            plan = get_recast_engine(field).plan(zone.name, start, goal, req.floor_y)
+            plan = get_recast_engine(field).plan(
+                zone.name, start, goal, req.floor_y,
+                goal_deck_y=req.goal_deck_y,
+            )
         except (ValueError, FileNotFoundError) as exc:
             # 失败时带上起终点离网探针, 前端才能标出是哪个点掉在网格外。
             return {
@@ -701,6 +780,8 @@ async def api_put_settings(payload: dict[str, Any] = Body(default_factory=dict))
         win32_window_title=str(payload.get("win32_window_title", current.win32_window_title)),
         playcover_uuid=str(payload.get("playcover_uuid", current.playcover_uuid)),
         playcover_address=str(payload.get("playcover_address", current.playcover_address)),
+        wlroots_socket_path=str(payload.get("wlroots_socket_path", current.wlroots_socket_path)).strip()
+        or default_wlroots_socket_path(),
         recent_adb_targets=recent,
     )
     try:
@@ -715,7 +796,8 @@ async def api_connection_check(payload: dict[str, Any] = Body(default_factory=di
     """主动探测当前连接配置是否可达 (不建立录制会话)。
 
     win32 = 窗口句柄查找; adb = 设备枚举 (网络地址先 adb connect); playcover = PlayTools
-    端口 TCP 探活 + PlayCover.app 安装检查。探测均为阻塞调用 (adb 子进程 / socket 超时),
+    端口 TCP 探活 + PlayCover.app 安装检查; wlroots = socket 存在性 + 类型检查
+    (协议支持无法廉价验证, 由真实截图时兜底)。探测均为阻塞调用 (adb 子进程 / socket 超时),
     必须在 threadpool 中执行, 否则会卡住事件循环上的其他请求 (前端输入防抖会频繁触发本端点)。
     """
 
@@ -784,6 +866,25 @@ async def api_connection_check(payload: dict[str, Any] = Body(default_factory=di
                 return {"connected": False, "message": "未在默认位置找到 PlayCover.app 安装"}
             return {"connected": True, "message": f"PlayCover 在线, 端口: {address}"}
 
+        if kind == "wlroots":
+            if not sys.platform.startswith("linux"):
+                return {"connected": False, "message": "非 Linux 环境不支持 WlRoots 连接"}
+            socket_path = str(payload.get("wlroots_socket_path", current.wlroots_socket_path)).strip()
+            if not socket_path:
+                return {"connected": False, "message": "未指定 Wayland socket 路径"}
+            try:
+                socket_path_obj = Path(socket_path)
+                if not socket_path_obj.exists():
+                    return {"connected": False, "message": f"Wayland socket 不存在: {socket_path}"}
+                if not socket_path_obj.is_socket():
+                    return {"connected": False, "message": f"路径存在但不是 socket: {socket_path}"}
+            except OSError as exc:  # noqa: BLE001
+                return {"connected": False, "message": f"Wayland socket 检测异常: {exc}"}
+            runtime = get_runtime()
+            if runtime is None or getattr(runtime, "WlRootsController", None) is None:
+                return {"connected": False, "message": "当前运行环境未提供 WlRoots 库支持"}
+            return {"connected": True, "message": f"WlRoots 在线: {socket_path}"}
+
         return {"connected": False, "message": f"未知连接类型: {kind}"}
 
     return await run_in_threadpool(_check)
@@ -813,6 +914,17 @@ async def api_adb_devices(adb_path: str = "") -> dict[str, Any]:
         return await run_in_threadpool(_list)
     except Exception as exc:  # noqa: BLE001
         return {"devices": [], "error": str(exc)}
+
+
+@app.get("/api/wlroots/sockets")
+async def api_wlroots_sockets() -> dict[str, Any]:
+    """枚举 $XDG_RUNTIME_DIR 下名字含 wayland 的 socket, 供前端 datalist 候选。
+
+    只做目录枚举 + socket 判断, 不验证合成器是否支持 wlr-screencopy —— 那要真实
+    截图才知道, 由连接状态探测 / 录制时兜底。
+    """
+    sockets = await run_in_threadpool(list_wlroots_sockets)
+    return {"sockets": sockets, "default": default_wlroots_socket_path()}
 
 
 # --- 导入 / 导出 (Option 1: 复用未改动的 json_import.py + maptracker_compat.py) --------
@@ -1269,6 +1381,7 @@ async def api_locate_once(payload: dict[str, Any] = Body(default_factory=dict)) 
             "win32": {"window_title": current.win32_window_title},
             "adb": {"adb_path": current.adb_path, "address": current.adb_address},
             "playcover": {"address": current.playcover_address, "uuid": current.playcover_uuid},
+            "wlroots": {"wlr_socket_path": current.wlroots_socket_path},
         }
     session_config = _build_session_config(cfg_payload)
 

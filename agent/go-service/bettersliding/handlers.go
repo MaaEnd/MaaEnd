@@ -95,6 +95,18 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		a.GreenMask,
 	)
 
+	resetOverride, err := buildResetSwipeOverride(a.Direction, a.ResetBeforeFindStart)
+	if err != nil {
+		a.logger.Error().
+			Str("direction", a.Direction).
+			Err(err).
+			Msg("failed to build reset swipe override")
+		return false
+	}
+	for nodeName, nodeOverride := range resetOverride {
+		override[nodeName] = nodeOverride
+	}
+
 	if err := ctx.OverridePipeline(override); err != nil {
 		a.logger.Error().Err(err).Msg("failed to override pipeline for main initialization")
 		return false
@@ -119,6 +131,7 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		Bool("available_quantity_filter_enabled", a.AvailableQuantityFilter != nil).
 		Bool("slider_quantity_only_rec", a.SliderQuantityOnlyRec).
 		Bool("available_quantity_only_rec", a.AvailableQuantityOnlyRec).
+		Bool("reset_before_find_start", a.ResetBeforeFindStart).
 		Bool("swipe_only_mode", a.SwipeOnlyMode)
 
 	if a.SliderQuantityFilter != nil {

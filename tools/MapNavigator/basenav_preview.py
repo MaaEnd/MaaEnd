@@ -79,21 +79,6 @@ class _BaseNavZone:
     floor_y: float = FLOOR_Y_NONE
 
 
-@dataclass(frozen=True, slots=True)
-class _BaseNavVertex:
-    u: float
-    v: float
-    height: float
-
-
-@dataclass(frozen=True, slots=True)
-class _BaseNavTriangle:
-    vertices: tuple[int, int, int]
-    neighbors: tuple[int, int, int]
-    component_id: int
-    center: tuple[float, float]
-
-
 @dataclass(frozen=True)
 class _SnapResult:
     triangle: int
@@ -386,7 +371,7 @@ class BaseNavField:
             end = start + zone.triangle_count
             if end > start:
                 tz[start:end] = zone.zone_id
-        self.triangle_zone = tz.tolist()
+        self.triangle_zone = tz.astype(np.int32)
         _report_progress(progress_callback, 0.40)
 
         # --- 包围盒(triangle_bounds)与平均高(triangle_height)---------------
@@ -405,11 +390,11 @@ class BaseNavField:
         bounds[:, 1] = top
         bounds[:, 2] = right
         bounds[:, 3] = bottom
-        self.triangle_bounds = [tuple(b) for b in bounds.tolist()]
+        self.triangle_bounds = bounds
         # 高度按 (h0 + h1 + h2) / 3.0 在 float64 上左结合求和,与原 Python 表达式逐位一致。
         vh64 = vh.astype(np.float64)
         height = (vh64[t0] + vh64[t1] + vh64[t2]) / 3.0
-        self.triangle_height = height.tolist()
+        self.triangle_height = height
         _report_progress(progress_callback, 0.46)
 
         # --- 空间分箱(bins)-------------------------------------------------
@@ -460,19 +445,9 @@ class BaseNavField:
         # 主键 zone、次键 bx、再 by、末键 tri,使每个 bin 内三角形按下标升序——与原插入顺序一致。
         order = np.lexsort((ta, ya, xa, za))
         za, xa, ya, ta = za[order], xa[order], ya[order], ta[order]
-        bins: dict[tuple[int, int, int], list[int]] = {}
-        nn = za.shape[0]
-        if nn:
-            boundary = np.empty(nn, dtype=bool)
-            boundary[0] = True
-            boundary[1:] = (za[1:] != za[:-1]) | (xa[1:] != xa[:-1]) | (ya[1:] != ya[:-1])
-            starts = np.nonzero(boundary)[0].tolist()
-            zal, xal, yal, tal = za.tolist(), xa.tolist(), ya.tolist(), ta.tolist()
-            for gi in range(len(starts)):
-                gs = starts[gi]
-                ge = starts[gi + 1] if gi + 1 < len(starts) else nn
-                bins[(zal[gs], xal[gs], yal[gs])] = tal[gs:ge]
-        self.bins = bins
+        self._bin_key = (za << 48) | (xa << 24) | ya
+        self._bin_tri = ta
+        self.bins = {}
         _report_progress(progress_callback, 0.53)
 
         # --- 自然连通分量(natural components)------------------------------
@@ -603,8 +578,10 @@ class BaseNavField:
                 accept[np.array(extra, dtype=np.int64)] = True
 
     def _build_natural_components(self) -> None:
-        self.natural_component = [-1] * len(self.triangles)
+        self.natural_component = np.full(len(self.triangles), -1, dtype=np.int32)
         self.natural_component_size = []
+        n0, n1, n2 = (self.triangles["n0"], self.triangles["n1"],
+                      self.triangles["n2"])
         for triangle_index in range(len(self.triangles)):
             if self.natural_component[triangle_index] >= 0:
                 continue
@@ -615,7 +592,7 @@ class BaseNavField:
             while stack:
                 current = stack.pop()
                 size += 1
-                for neighbor in self.triangles[current].neighbors:
+                for neighbor in (n0[current], n1[current], n2[current]):
                     if (
                         neighbor < 0
                         or neighbor >= len(self.triangles)
@@ -626,6 +603,9 @@ class BaseNavField:
                     self.natural_component[neighbor] = component_id
                     stack.append(neighbor)
             self.natural_component_size.append(size)
+        self.natural_component_size = np.asarray(
+            self.natural_component_size, dtype=np.int64
+        )
 
 
     def _candidate_triangles(self, zone_id: int, point: tuple[float, float], radius: float) -> list[int]:
@@ -635,7 +615,8 @@ class BaseNavField:
         px, py = point
         result = []
         bin_size = self.bin_size
-        bins = self.bins
+        bin_key = self._bin_key
+        bin_tri = self._bin_tri
         triangle_bounds = self.triangle_bounds
         left = math.floor((px - radius) / bin_size)
         right = math.floor((px + radius) / bin_size)
@@ -643,9 +624,14 @@ class BaseNavField:
         bottom = math.floor((py + radius) / bin_size)
         for bin_x in range(left, right + 1):
             for bin_y in range(top, bottom + 1):
-                for triangle_index in bins.get((zone_id, bin_x, bin_y), ()):
+                key = (np.int64(zone_id) << 48) | (np.int64(bin_x) << 24) \
+                    | np.int64(bin_y)
+                lo = np.searchsorted(bin_key, key, "left")
+                hi = np.searchsorted(bin_key, key, "right")
+                for triangle_index in bin_tri[lo:hi].tolist():
                     bounds = triangle_bounds[triangle_index]
-                    if bounds[0] - radius <= px <= bounds[2] + radius and bounds[1] - radius <= py <= bounds[3] + radius:
+                    if bounds[0] - radius <= px <= bounds[2] + radius and \
+                            bounds[1] - radius <= py <= bounds[3] + radius:
                         result.append(triangle_index)
         return result
 
@@ -654,7 +640,15 @@ class BaseNavField:
         triangle_index: int,
     ) -> tuple[tuple[float, float], tuple[float, float], tuple[float, float]]:
         triangle = self.triangles[triangle_index]
-        return tuple((self.vertices[index].u, self.vertices[index].v) for index in triangle.vertices)  # type: ignore[return-value]
+        vertices = self.vertices
+        return (
+            (float(vertices[triangle["v0"]]["u"]),
+             float(vertices[triangle["v0"]]["v"])),
+            (float(vertices[triangle["v1"]]["u"]),
+             float(vertices[triangle["v1"]]["v"])),
+            (float(vertices[triangle["v2"]]["u"]),
+             float(vertices[triangle["v2"]]["v"])),
+        )
 
 
     def _closest_edge_bridge_points(self, lhs: int, rhs: int) -> tuple[tuple[float, float], tuple[float, float]] | None:
@@ -675,7 +669,7 @@ class BaseNavField:
 
 def _read_basenav(
     path: Path, progress_callback=None
-) -> tuple[list[_BaseNavZone], list[_BaseNavVertex], list[_BaseNavTriangle], _NavArrays, _DeferredVerifier]:
+) -> tuple[list[_BaseNavZone], np.ndarray, np.ndarray, _NavArrays, _DeferredVerifier]:
     data = _read_basenav_bytes_mv(path)
     _report_progress(progress_callback, 0.03)
     if len(data) < HEADER_STRUCT.size:
@@ -744,28 +738,21 @@ def _read_basenav(
         raise ValueError("invalid BaseNav zone table size")
     _report_progress(progress_callback, 0.10)
 
-    # 顶点:一次性 frombuffer 解析,再构建 dataclass 列表(供 routing 使用)。
-    varr = np.frombuffer(vertex_data, dtype=VERTEX_DTYPE, count=vertex_count)
-    vertices: list = [_BaseNavVertex(u, v, h) for (u, v, h) in varr.tolist()]
-    vu = np.array(varr["u"])  # 拷贝成连续数组,脱离对解压缓冲区的视图依赖
-    vv = np.array(varr["v"])
-    vh = np.array(varr["h"])
+    # 顶点/三角面直接保留为结构化 ndarray,避免上百万 Python dataclass 对象。
+    vertices = np.frombuffer(vertex_data, dtype=VERTEX_DTYPE, count=vertex_count)
+    vu = vertices["u"]
+    vv = vertices["v"]
+    vh = vertices["h"]
     _report_progress(progress_callback, 0.20)
 
-    # 三角形:frombuffer 解析,构建 dataclass 列表 + 索引建图所需的整型数组。
-    tarr = np.frombuffer(triangle_data, dtype=TRIANGLE_DTYPE, count=triangle_count)
-    triangles: list = [
-        _BaseNavTriangle(vertices=(a, b, c), neighbors=(d, e, f), component_id=g, center=(cx, cy))
-        for (a, b, c, d, e, f, g, cx, cy) in tarr.tolist()
-    ]
-    tri_v = np.empty((triangle_count, 3), dtype=np.int32)
-    tri_v[:, 0] = tarr["v0"]
-    tri_v[:, 1] = tarr["v1"]
-    tri_v[:, 2] = tarr["v2"]
-    tri_n = np.empty((triangle_count, 3), dtype=np.int32)
-    tri_n[:, 0] = tarr["n0"]
-    tri_n[:, 1] = tarr["n1"]
-    tri_n[:, 2] = tarr["n2"]
+    # 三角形:frombuffer 解析,构建结构化数组 + 索引建图所需的整型数组。
+    triangles = np.frombuffer(triangle_data, dtype=TRIANGLE_DTYPE, count=triangle_count)
+    tri_v = np.column_stack(
+        [triangles["v0"], triangles["v1"], triangles["v2"]]
+    ).astype(np.int32)
+    tri_n = np.column_stack(
+        [triangles["n0"], triangles["n1"], triangles["n2"]]
+    ).astype(np.int32)
     _report_progress(progress_callback, 0.33)
 
     # 链接:frombuffer 解析,过滤掉越界端点(保持原表顺序,A* tie-break 依赖之)。
