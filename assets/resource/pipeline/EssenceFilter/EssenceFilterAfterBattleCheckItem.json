@@ -279,6 +279,7 @@
                     255,
                     255
                 ],
+                "connected": true,
                 "count": 10,
                 "order_by": "Vertical",
                 "index": 0
@@ -320,6 +321,7 @@
                     255
                 ],
                 "count": 10,
+                "connected": true,
                 "order_by": "Vertical",
                 "index": 0
             }
